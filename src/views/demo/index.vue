@@ -33,7 +33,7 @@
       <a-date-picker v-model:value="value5" picker="year" />
     </a-space>
 
-    <h1 class="mt-5 mb-2">头像组件1</h1>
+    <h1 class="mt-5 mb-2">头像组件</h1>
     <a-space>
       <vco-avatar src="https://ichef.bbci.co.uk/ace/ws/240/cpsprodpb/vivo/live/images/2024/11/6/e8ab43f3-1f2f-47b1-823e-26113a9d1c2f.jpg"></vco-avatar>
       <vco-avatar src="https://images.pexels.com/photos/3565742/pexels-photo-3565742.jpeg" :size="100"></vco-avatar>

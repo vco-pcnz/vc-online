@@ -7,4 +7,9 @@ export default {
   "回到主页": "Return to home page",
   "复制成功": "Copy successful",
   "复制失败": "Copy failed",
+  "请输入": "Please enter",
+  "请选择": "Please select",
+  "邮箱": "Email",
+  "密码": "Password",
+  "忘记密码": "Forgot your password?"
 }

@@ -13,5 +13,7 @@ export default {
   "请选择": "Please select",
   "邮箱": "Email",
   "密码": "Password",
-  "忘记密码": "Forgot your password?"
+  "忘记密码": "Forgot your password?",
+  "密码重置": "Reset password",
+  "邮箱格式不正确": "Not a valid email"
 }

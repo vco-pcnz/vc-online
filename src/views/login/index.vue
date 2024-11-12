@@ -1,7 +1,6 @@
 <template>
   <auth-template>
     <template #header>
-      <img :src="logoImg" alt="VC Online" />
       <router-link to="/register">
         <a-button style="background-color: #b4f1db"> {{ t("注册") }} </a-button>
       </router-link>
@@ -19,7 +18,6 @@
           :model="form"
           :rules="rules"
           class="login_form_container"
-          @onFinish="submit"
         >
           <a-form-item name="email">
             <a-input
@@ -58,11 +56,10 @@
 <script setup>
 import { ref, reactive } from "vue";
 import { useI18n } from "vue-i18n";
-import logoImg from "@/assets/images/auth_logo.svg";
 import { login } from "@/api/auth";
 import { message } from "ant-design-vue/es";
 import { setToken } from "@/utils/token-util";
-import router from '@/router';
+import router from "@/router";
 
 const { t } = useI18n();
 const formRef = ref();
@@ -97,7 +94,7 @@ const rules = reactive({
 });
 
 function goHomeRoute(from) {
-  router.replace(from || '/home');
+  router.replace(from || "/home");
 }
 
 const submit = () => {

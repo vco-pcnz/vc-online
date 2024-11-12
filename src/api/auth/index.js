@@ -1,13 +1,23 @@
-import request from '@/utils/request';
+import request from "@/utils/request";
 
 /**
  * 登录
  */
 export const login = (data) =>
   request({
-    url: '/login',
-    method: 'post',
-    data
+    url: "/login",
+    method: "post",
+    data,
+  });
+
+/**
+ * 密码重置
+ */
+export const resetPwd = (data) =>
+  request({
+    url: "/resetPwd",
+    method: "post",
+    data,
   });
 
 /**

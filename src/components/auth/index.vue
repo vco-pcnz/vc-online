@@ -9,6 +9,7 @@
     </div>
     <div class="content_container">
       <div class="header">
+        <img :src="logoImg" alt="VC Online" />
         <slot name="header"></slot>
       </div>
       <div class="content">
@@ -30,9 +31,7 @@
 </template>
 
 <script setup>
-import { useI18n } from "vue-i18n";
-
-const { t } = useI18n();
+import logoImg from "@/assets/images/auth_logo.svg";
 
 const props = defineProps({
   backTo: String,

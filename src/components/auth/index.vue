@@ -67,7 +67,6 @@ const props = defineProps({
     background-color: transparent;
     z-index: 2;
     padding-top: 80px;
-    text-align: center;
 
     .header {
       width: 56%;

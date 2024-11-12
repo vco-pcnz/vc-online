@@ -1,6 +1,8 @@
 export default {
   "首页": "Home",
   "登录": "Login",
+  "登录成功": "Login successful",
+  "登录失败": "Login failed",
   "注册": "Sign up",
   "页面不存在": "Page does not exist",
   "您访问的页面不存在": "The page you visited does not exist",

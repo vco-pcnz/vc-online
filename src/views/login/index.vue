@@ -3,7 +3,7 @@
     <template #header>
       <img :src="logoImg" alt="VC Online" />
       <router-link to="/register">
-        <a-button variant="cyan"> {{ t("注册") }} </a-button>
+        <a-button style="background-color: #b4f1db"> {{ t("注册") }} </a-button>
       </router-link>
     </template>
     <template #content>
@@ -14,19 +14,28 @@
             <span class="online_text">Online</span>
           </h1>
         </div>
-        <a-form class="login_form_container" @onFinish="handleFinish" :rules="rules">
+        <a-form
+          ref="formRef"
+          :model="form"
+          :rules="rules"
+          class="login_form_container"
+          @onFinish="submit"
+        >
           <a-form-item name="email">
             <a-input
               class="login_input_content"
-              :placeholder="t('请输入') + t('邮箱')"
+              v-model:value="form.email"
+              :placeholder="t('邮箱')"
               autoComplete="on"
+              bordered
             />
           </a-form-item>
           <a-form-item name="password">
             <a-input
               type="password"
+              v-model:value="form.password"
               class="login_input_content"
-              :placeholder="t('请输入') + t('密码')"
+              :placeholder="t('密码')"
               autoComplete="on"
             />
           </a-form-item>
@@ -35,11 +44,11 @@
               {{ t("忘记密码") }}
             </router-link>
           </p>
-          <div class="login_btn">
-            <a-button variant="white" size="large" htmlType="submit">
+          <a-form-item class="login_submit">
+            <a-button size="large" :loading="loading" @click="submit">
               {{ t("登录") }}
             </a-button>
-          </div>
+          </a-form-item>
         </a-form>
       </div>
     </template>
@@ -51,8 +60,21 @@ import { ref, reactive } from "vue";
 import { useI18n } from "vue-i18n";
 import logoImg from "@/assets/images/auth_logo.svg";
 import { login } from "@/api/auth";
+import { message } from "ant-design-vue/es";
+import { setToken } from "@/utils/token-util";
+import router from '@/router';
 
 const { t } = useI18n();
+const formRef = ref();
+
+// 加载状态
+const loading = ref(false);
+
+// 表单数据
+const form = reactive({
+  email: "",
+  password: "",
+});
 
 // 表单验证规则
 const rules = reactive({
@@ -74,8 +96,29 @@ const rules = reactive({
   ],
 });
 
-const handleFinish = (values) => {
-  login(values);
+function goHomeRoute(from) {
+  router.replace(from || '/home');
+}
+
+const submit = () => {
+  if (!formRef.value) {
+    return;
+  }
+  formRef.value
+    .validate()
+    .then(() => {
+      loading.value = true;
+      login(form)
+        .then((res) => {
+          setToken(res.access_token, form.remember);
+          goHomeRoute();
+          message.success(t("登录成功"));
+        })
+        .catch(() => {
+          loading.value = false;
+        });
+    })
+    .catch(() => {});
 };
 </script>
 
@@ -84,6 +127,7 @@ const handleFinish = (values) => {
 
 .login_content {
   padding: 72px 84px;
+  color: @clr_white;
 
   @media (max-width: 560px) {
     padding: 48px 24px;
@@ -105,52 +149,75 @@ const handleFinish = (values) => {
         color: #b4f1db;
       }
     }
+  }
 
-    .login_form_container {
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
+  .login_form_container {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+
+    .login_input_content {
+      box-sizing: border-box;
       width: 100%;
-
-      .login_input_content {
-        box-sizing: border-box;
-        width: 100%;
-        padding: 24px;
-        border: 1px solid #fbfbfb;
-        border-radius: 10px;
-        background-color: transparent;
-        background: transparent;
-        color: #fbfbfb;
-        font-weight: 400;
-      }
-
-      .ant-input-status-error:not(.ant-input-disabled):not(
-          .ant-input-borderless
-        ).ant-input,
-      .ant-input-status-error:not(.ant-input-disabled):not(
-          .ant-input-borderless
-        ).ant-input:hover {
-        background: transparent;
-        border-color: #fbfbfb;
-      }
-
-      .login_btn {
-        display: flex;
-        justify-content: center;
-      }
+      padding: 24px;
+      border-radius: 10px;
+      background-color: transparent;
+      background: transparent;
+      color: @clr_white;
+      font-weight: 400;
     }
 
-    .forgot {
-      text-align: right;
-      margin-bottom: 1rem;
+    // placeholder color
+    .login_input_content::-webkit-input-placeholder {
+      color: @clr_white;
+    }
 
-      .forgot_link {
-        font-size: @fs_xs;
-        font-weight: 600;
-        padding-top: 6px;
-        padding-bottom: 6px;
-        color: @clr_white;
+    .ant-input-status-error:not(.ant-input-disabled):not(
+        .ant-input-borderless
+      ).ant-input,
+    .ant-input-status-error:not(.ant-input-disabled):not(
+        .ant-input-borderless
+      ).ant-input:hover {
+      background: transparent;
+      border-color: @clr_white;
+    }
+
+    :v-deep .ant-input:-webkit-input-placeholder {
+      color: @color_white_50;
+    }
+
+    //  hover到input框上的样式
+    .ant-input:hover {
+      border-color: @clr_white;
+      border-inline-end-width: 1px;
+    }
+
+    // hover到button上的样式
+    .ant-btn-default:not(:disabled):hover {
+      color: @clr_charcoal;
+      border-color: transparent;
+    }
+
+    .login_submit {
+      text-align: center;
+
+      button {
+        width: 30%;
       }
+    }
+  }
+
+  .forgot {
+    text-align: right;
+    margin-bottom: 1rem;
+
+    .forgot_link {
+      font-size: @fs_xs;
+      font-weight: 600;
+      padding-top: 6px;
+      padding-bottom: 6px;
+      color: @clr_white;
     }
   }
 }

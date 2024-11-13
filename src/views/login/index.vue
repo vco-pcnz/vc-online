@@ -82,6 +82,10 @@ const rules = reactive({
       type: "string",
       trigger: "blur",
     },
+    {
+      pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      message: t("邮箱格式不正确"),
+    },
   ],
   password: [
     {
@@ -190,12 +194,6 @@ const submit = () => {
       border-inline-end-width: 1px;
     }
 
-    // hover到button上的样式
-    .ant-btn-default:not(:disabled):hover {
-      color: @clr_charcoal;
-      border-color: transparent;
-    }
-
     .login_submit {
       text-align: center;
 
@@ -217,5 +215,11 @@ const submit = () => {
       color: @clr_white;
     }
   }
+}
+
+// hover到button上的样式
+.ant-btn-default:not(:disabled):hover {
+  color: @clr_charcoal;
+  border-color: transparent;
 }
 </style>

@@ -31,16 +31,25 @@ export const register = (data) =>
   });
 
 // 获取注册条款
-export const getRegisterTerm = () =>
+export const getRegisterTerm = (params) =>
   request({
     url: "/note",
     method: "get",
+    params
   });
 
 // 注册发送邮箱验证码
 export const sendAuthCode = (data) =>
   request({
     url: "/getCode",
+    method: "post",
+    data,
+  });
+
+// 注册角色申请
+export const roleApply = (data) =>
+  request({
+    url: "/roleApply",
     method: "post",
     data,
   });

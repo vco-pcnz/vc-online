@@ -6,10 +6,15 @@
     :closable="false"
     @ok="save"
   >
-    <div class="text-sm modal-content" v-html="termData"></div>
+    <div class="modal-content" v-html="termData"></div>
     <template #footer>
       <div class="modal-footer">
-        <a-button @click="handleOk" class="submit-btn" size="large" style="width: 40%">
+        <a-button
+          @click="handleOk"
+          class="submit-btn"
+          size="large"
+          style="width: 40%"
+        >
           OK
         </a-button>
       </div>
@@ -18,7 +23,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch, onMounted } from "vue";
+import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { getRegisterTerm } from "@/api/auth";
 
@@ -26,9 +31,7 @@ const { t } = useI18n();
 
 const termData = ref(null);
 
-const props = defineProps({
-  open: Boolean,
-});
+const props = defineProps(["open", "type"]);
 
 const emit = defineEmits(["update:open"]);
 
@@ -40,11 +43,16 @@ const handleOk = () => {
   emit("update:open", false);
 };
 
-onMounted(() => {
-  getRegisterTerm().then((res) => {
-    termData.value = res;
-  });
-});
+watch(
+  () => props.open,
+  (val) => {
+    if (val) {
+      getRegisterTerm({ type: props.type }).then((res) => {
+        termData.value = res;
+      });
+    }
+  }
+);
 </script>
 
 <style scoped lang="less">

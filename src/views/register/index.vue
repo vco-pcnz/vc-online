@@ -132,7 +132,7 @@
       </section>
     </template>
   </auth-template>
-  <term-modal v-model:open="termModalOpen" />
+  <term-modal v-model:open="termModalOpen" :type="termsType.register" />
 </template>
 
 <script setup>
@@ -143,6 +143,7 @@ import { register, sendAuthCode } from "@/api/auth";
 import { message } from "ant-design-vue/es";
 import TermModal from "./components/term-modal.vue";
 import { trim } from "lodash";
+import { termsType } from "@/constant";
 
 const { t } = useI18n();
 const { replace } = useRouter();
@@ -160,7 +161,7 @@ const form = reactive({
   middleName: "",
   lastName: "",
   email: "",
-  pre: "",
+  pre: "64",
   mobile: "",
   password: "",
   code: "",
@@ -257,7 +258,7 @@ const submit = () => {
         .then(() => {
           loading.value = false;
           message.success(t("注册成功"));
-          const go = isBroker.value ? "/broker" : "/login";
+          const go = isBroker.value ? `/register-broker?email=${form.email}` : "/login";
           replace(go);
         })
         .catch(() => {
@@ -305,11 +306,6 @@ const submit = () => {
     color: @clr_white;
     border: none;
     font-weight: 500;
-  }
-
-  .ant-btn-link:hover,
-  .ant-btn-link:focus {
-    border: none;
   }
 }
 </style>

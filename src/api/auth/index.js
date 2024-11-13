@@ -23,8 +23,17 @@ export const resetPwd = (data) =>
 /**
  * 注册
  */
-// export const getCaptcha = () =>
-//   request({
-//     url: '/captcha',
-//     method: 'get'
-//   });
+export const register = (data) =>
+  request({
+    url: "/register",
+    method: "post",
+    data,
+  });
+
+
+export const getRegisterTerm = () =>
+  request({
+    url: "/note",
+    method: "get",
+    
+  });

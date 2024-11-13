@@ -15,5 +15,16 @@ export default {
   "密码": "Password",
   "忘记密码": "Forgot your password?",
   "密码重置": "Reset password",
-  "邮箱格式不正确": "Not a valid email"
+  "邮箱格式不正确": "Not a valid email",
+  "名": "First name",
+  "中间名": "Middle name",
+  "姓": "Last name",
+  "手机号": "Phone number",
+  "手机号格式不正确": "Not a valid phone number",
+  "注册成功": "Register successful",
+  "最少8个字符,1个大写字母,字母和数字": "Minimum 8 characters, 1 capital letter, letters and numbers",
+  "我接受": "I accept",
+  "条款与条件": "Terms & Conditions",
+  "请先查阅并接受条款": "Please review and accept the terms",
+  "使用条款" : "TERMS OF USE"
 }

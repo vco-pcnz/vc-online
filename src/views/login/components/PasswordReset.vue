@@ -6,7 +6,6 @@
           <div class="back-link-icon">
             <i class="iconfont">&#xe794;</i>
           </div>
-          <!-- </a-button> -->
         </router-link>
         <h1 class="title">
           {{ t("忘记密码") }}

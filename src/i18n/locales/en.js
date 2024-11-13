@@ -26,5 +26,9 @@ export default {
   "我接受": "I accept",
   "条款与条件": "Terms & Conditions",
   "请先查阅并接受条款": "Please review and accept the terms",
-  "使用条款" : "TERMS OF USE"
+  "使用条款" : "TERMS OF USE",
+  "验证": "Verify",
+  "验证码": "auth code",
+  "成为中介": "Be a broker",
+  "请先做邮箱验证": "Please verify your email first"
 }

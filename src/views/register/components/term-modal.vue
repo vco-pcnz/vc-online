@@ -6,7 +6,7 @@
     :closable="false"
     @ok="save"
   >
-    <div class="text-sm" v-html="termData"></div>
+    <div class="text-sm modal-content" v-html="termData"></div>
     <template #footer>
       <div class="modal-footer">
         <a-button @click="handleOk" class="submit-btn" size="large" style="width: 40%">
@@ -61,5 +61,10 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   padding: 10px 0;
+}
+
+.modal-content {
+  height: 70vh;
+  overflow-y: auto;
 }
 </style>

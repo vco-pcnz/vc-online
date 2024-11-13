@@ -30,10 +30,17 @@ export const register = (data) =>
     data,
   });
 
-
+// 获取注册条款
 export const getRegisterTerm = () =>
   request({
     url: "/note",
     method: "get",
-    
+  });
+
+// 注册发送邮箱验证码
+export const sendAuthCode = (data) =>
+  request({
+    url: "/getCode",
+    method: "post",
+    data,
   });

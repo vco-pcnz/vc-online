@@ -46,6 +46,12 @@ export default ({ mode }) => {
           toProxy: true,
           // rewrite: path => path.replace(new RegExp(`^${proxyPrefix}`), ''),
         },
+        '/api': {
+          target: 'http://vco.com/api',
+          changeOrigin: true,
+          secure: false,
+          rewrite: (path) => path.replace(/^\/api/, '')
+        }
       },
     },
   })

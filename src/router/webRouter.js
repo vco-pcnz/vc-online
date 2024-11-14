@@ -34,6 +34,18 @@ const routes = [
     meta: { title: '注册' }
   },
   {
+    name: 'password-reset',
+    path: '/password-reset',
+    component: () => import('@/views/login/components/PasswordReset.vue'),
+    meta: { title: '密码重置' }
+  },
+  {
+    name: 'register-broker',
+    path: '/register-broker/:email',
+    component: () => import('@/views/register/components/register-broker.vue'),
+    meta: { title: '成为中介' }
+  },
+  {
     path: "/:pathMatch(.*)*",
     hidden: true,
     meta: { title: '页面不存在' },

@@ -85,13 +85,11 @@
               </a-col>
               <a-col :span="1" />
               <a-col :span="17">
-                <a-form-item-rest>
-                  <a-input
-                    v-model:value="form.mobile"
-                    class="input_content"
-                    :placeholder="t('手机号')"
-                  />
-                </a-form-item-rest>
+                <a-input
+                  v-model:value="form.mobile"
+                  class="input_content"
+                  :placeholder="t('手机号')"
+                />
               </a-col>
             </a-row>
           </a-form-item>
@@ -107,7 +105,7 @@
               :placeholder="t('密码')"
             />
           </a-form-item>
-          <a-form-item name="beBroker" no-style>
+          <a-form-item no-style>
             <a-checkbox v-model:checked="isBroker">
               {{ t("成为中介") }}
             </a-checkbox>

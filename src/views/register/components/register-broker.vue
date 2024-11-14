@@ -37,13 +37,11 @@
               </a-col>
               <a-col :span="1" />
               <a-col :span="17">
-                <a-form-item-rest>
-                  <a-input
-                    v-model:value="form.mobile"
-                    class="input_content"
-                    :placeholder="t('手机号')"
-                  />
-                </a-form-item-rest>
+                <a-input
+                  v-model:value="form.mobile"
+                  class="input_content"
+                  :placeholder="t('手机号')"
+                />
               </a-col>
             </a-row>
           </a-form-item>
@@ -97,7 +95,7 @@ const termModalOpen = ref(false);
 const form = reactive({
   name: "",
   pre: "64",
-  mobile: ""
+  mobile: "",
 });
 
 // 表单验证规则
@@ -130,7 +128,7 @@ const submit = () => {
     roleApply({
       ...form,
       email: JSON.parse(JSON.stringify(query.email)),
-      type: termsType.broker
+      type: termsType.broker,
     })
       .then(() => {
         loading.value = false;

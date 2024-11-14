@@ -86,7 +86,7 @@ import { message } from "ant-design-vue/es";
 
 const { t } = useI18n();
 const { replace } = useRouter();
-const { params } = useRoute();
+const { query } = useRoute();
 
 const loading = ref(false);
 const formRef = ref();
@@ -97,7 +97,7 @@ const termModalOpen = ref(false);
 const form = reactive({
   name: "",
   pre: "64",
-  mobile: "",
+  mobile: ""
 });
 
 // 表单验证规则
@@ -129,7 +129,8 @@ const submit = () => {
     loading.value = true;
     roleApply({
       ...form,
-      email: params.email,
+      email: JSON.parse(JSON.stringify(query.email)),
+      type: termsType.broker
     })
       .then(() => {
         loading.value = false;

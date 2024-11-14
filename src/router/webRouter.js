@@ -41,7 +41,7 @@ const routes = [
   },
   {
     name: 'register-broker',
-    path: '/register-broker/:email',
+    path: '/register-broker',
     component: () => import('@/views/register/components/register-broker.vue'),
     meta: { title: '成为中介' }
   },

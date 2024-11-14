@@ -75,7 +75,12 @@
             <a-row>
               <a-col :span="6">
                 <a-form-item-rest>
-                  <a-input v-model:value="form.pre" class="input_content" />
+                  <a-select
+                    v-model:value="form.pre"
+                    size="large"
+                    :options="preMobileOpts"
+                    class="pre_mobile"
+                  />
                 </a-form-item-rest>
               </a-col>
               <a-col :span="1" />
@@ -143,7 +148,7 @@ import { register, sendAuthCode } from "@/api/auth";
 import { message } from "ant-design-vue/es";
 import TermModal from "./components/term-modal.vue";
 import { trim } from "lodash";
-import { termsType } from "@/constant";
+import { termsType, preMobileOpts } from "@/constant";
 
 const { t } = useI18n();
 const { replace } = useRouter();
@@ -264,6 +269,8 @@ const submit = () => {
         .catch(() => {
           loading.value = false;
         });
+      const go = isBroker.value ? `/register-broker/${form.email}` : "/login";
+      replace(go);
     })
     .catch(() => {});
 };
@@ -299,6 +306,13 @@ const submit = () => {
   .validate_btn {
     padding: 12px;
     height: auto;
+  }
+
+  .pre_mobile {
+    :deep(.ant-select-selector) {
+      padding: 6px;
+      height: auto;
+    }
   }
 
   .register-btn {

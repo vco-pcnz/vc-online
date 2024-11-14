@@ -7,7 +7,7 @@
     </template>
     <template #content>
       <section class="guid-content">
-        <router-link to="/login" class="go-vco" tabindex="-1">
+        <router-link to="/login" class="go-vco">
           <div class="go-vco-icon">
             {{ t("跳过,登录VCO") }}<i class="iconfont">&#xe791;</i>
           </div>
@@ -27,7 +27,12 @@
             <a-row>
               <a-col :span="6">
                 <a-form-item-rest>
-                  <a-input v-model:value="form.pre" class="input_content" />
+                  <a-select
+                    v-model:value="form.pre"
+                    size="large"
+                    class="pre_mobile"
+                    :options="preMobileOpts"
+                  />
                 </a-form-item-rest>
               </a-col>
               <a-col :span="1" />
@@ -76,7 +81,7 @@ import { useI18n } from "vue-i18n";
 import { useRouter, useRoute } from "vue-router";
 import { roleApply } from "@/api/auth";
 import TermModal from "./term-modal.vue";
-import { termsType } from "@/constant";
+import { termsType, preMobileOpts } from "@/constant";
 import { message } from "ant-design-vue/es";
 
 const { t } = useI18n();
@@ -169,6 +174,13 @@ const submit = () => {
     color: @clr_white;
     border: none;
     font-weight: 500;
+  }
+
+  .pre_mobile {
+    :deep(.ant-select-selector) {
+      padding: 6px;
+      height: auto;
+    }
   }
 
   .go-vco {

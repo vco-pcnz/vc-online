@@ -58,11 +58,13 @@ import { ref, reactive } from "vue";
 import { useI18n } from "vue-i18n";
 import { login } from "@/api/auth";
 import { message } from "ant-design-vue/es";
-import { setToken } from "@/utils/token-util";
 import router from "@/router";
+import { useUserStore } from '@/store';
 
 const { t } = useI18n();
+
 const formRef = ref();
+const userStore = useUserStore()
 
 // 加载状态
 const loading = ref(false);
@@ -111,7 +113,7 @@ const submit = () => {
       loading.value = true;
       login(form)
         .then((res) => {
-          setToken(res.access_token, form.remember);
+          userStore.setToken(res.access_token);
           goHomeRoute();
           message.success(t("登录成功"));
         })

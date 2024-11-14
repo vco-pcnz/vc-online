@@ -37,13 +37,11 @@
               </a-col>
               <a-col :span="1" />
               <a-col :span="17">
-                <a-form-item-rest>
-                  <a-input
-                    v-model:value="form.mobile"
-                    class="input_content"
-                    :placeholder="t('手机号')"
-                  />
-                </a-form-item-rest>
+                <a-input
+                  v-model:value="form.mobile"
+                  class="input_content"
+                  :placeholder="t('手机号')"
+                />
               </a-col>
             </a-row>
           </a-form-item>
@@ -86,7 +84,7 @@ import { message } from "ant-design-vue/es";
 
 const { t } = useI18n();
 const { replace } = useRouter();
-const { params } = useRoute();
+const { query } = useRoute();
 
 const loading = ref(false);
 const formRef = ref();
@@ -129,7 +127,8 @@ const submit = () => {
     loading.value = true;
     roleApply({
       ...form,
-      email: params.email,
+      email: JSON.parse(JSON.stringify(query.email)),
+      type: termsType.broker,
     })
       .then(() => {
         loading.value = false;

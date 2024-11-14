@@ -2,7 +2,7 @@
   <auth-template>
     <template #header>
       <router-link to="/login">
-        <a-button style="background-color: #b4f1db"> {{ t("登录") }} </a-button>
+        <a-button class="go_login_btn"> {{ t("登录") }} </a-button>
       </router-link>
     </template>
     <template #content>
@@ -85,13 +85,11 @@
               </a-col>
               <a-col :span="1" />
               <a-col :span="17">
-                <a-form-item-rest>
-                  <a-input
-                    v-model:value="form.mobile"
-                    class="input_content"
-                    :placeholder="t('手机号')"
-                  />
-                </a-form-item-rest>
+                <a-input
+                  v-model:value="form.mobile"
+                  class="input_content"
+                  :placeholder="t('手机号')"
+                />
               </a-col>
             </a-row>
           </a-form-item>
@@ -107,7 +105,7 @@
               :placeholder="t('密码')"
             />
           </a-form-item>
-          <a-form-item name="beBroker" no-style>
+          <a-form-item no-style>
             <a-checkbox v-model:checked="isBroker">
               {{ t("成为中介") }}
             </a-checkbox>
@@ -263,14 +261,20 @@ const submit = () => {
         .then(() => {
           loading.value = false;
           message.success(t("注册成功"));
-          const go = isBroker.value ? `/register-broker?email=${form.email}` : "/login";
-          replace(go);
+          if (isBroker.value) {
+            replace({
+              name: "register-broker",
+              query: {
+                email: form.email,
+              },
+            });
+          } else {
+            replace("/login");
+          }
         })
         .catch(() => {
           loading.value = false;
         });
-      const go = isBroker.value ? `/register-broker/${form.email}` : "/login";
-      replace(go);
     })
     .catch(() => {});
 };
@@ -278,6 +282,14 @@ const submit = () => {
 
 <style scoped lang="less">
 @import "@/styles/variables.less";
+
+.go_login_btn {
+  background-color: @clr_cyan;
+}
+
+.go_login_btn:hover {
+  color: @clr_charcoal;
+}
 
 .register-content {
   border-radius: 24px;

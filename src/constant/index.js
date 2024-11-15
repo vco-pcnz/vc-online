@@ -27,3 +27,6 @@ export const preMobileOpts = [
   { label: "+48", value: "48" }, // Poland
   { label: "+31", value: "31" }, // Netherlands
 ];
+
+export const EMAIL_RULE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+export const PASSWORD_RULE = /(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.{8,})/;

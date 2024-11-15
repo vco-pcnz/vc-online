@@ -64,6 +64,10 @@ watch(
   font-weight: 500;
 }
 
+.submit-btn:hover {
+  color: @clr_white;
+}
+
 .modal-footer {
   display: flex;
   justify-content: center;

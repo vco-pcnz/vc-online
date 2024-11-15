@@ -1,41 +1,55 @@
-import { defineStore } from 'pinia'
-import tool from '@/utils/tool'
+import { defineStore } from "pinia";
+import { getUserInfo, getMenuList } from "@/api/user";
+import tool from "@/utils/tool";
 
-const useUserStore = defineStore('VcOnlineUserInfo', {
-
+const useUserStore = defineStore("VcOnlineUserInfo", {
   state: () => ({
-    userInfo: undefined
+    userInfo: undefined,
+    routerInfo: undefined
   }),
 
   getters: {
     getState() {
-      return { ...this.$state }
+      return { ...this.$state };
     },
   },
 
   actions: {
     setToken(token) {
-      tool.local.set(import.meta.env.VITE_APP_TOKEN_PREFIX, token)
+      tool.local.set(import.meta.env.VITE_APP_TOKEN_PREFIX, token);
     },
 
     getToken() {
-      return tool.local.get(import.meta.env.VITE_APP_TOKEN_PREFIX)
+      return tool.local.get(import.meta.env.VITE_APP_TOKEN_PREFIX);
     },
 
     clearToken() {
-      tool.local.remove(import.meta.env.VITE_APP_TOKEN_PREFIX)
+      tool.local.remove(import.meta.env.VITE_APP_TOKEN_PREFIX);
     },
 
     resetUserInfo() {
       this.$reset();
     },
 
-    requestUserInfo() {
-
+    async requestUserInfo() {
+      const result = await getUserInfo().catch(() => {});
+      if (!result) {
+        return {};
+      }
+      // 用户信息
+      this.userInfo = result;
     },
 
+    async requestRouterInfo() {
+      const result = await getMenuList().catch(() => {});
+      if (!result) {
+        console.error("get menus error: ", result);
+        return {};
+      }
+      this.routerInfo = result;
+    },
     login(form) {
-      console.log('login')
+      console.log("login");
       // return loginApi.login(form).then(r => {
       //   this.setToken(r.token)
       //   // 存用户admin_id
@@ -49,9 +63,10 @@ const useUserStore = defineStore('VcOnlineUserInfo', {
     },
 
     async logout() {
-      this.clearToken()
-      this.resetUserInfo()
-    }
-  }
-})
-export default useUserStore
+      this.clearToken();
+      this.resetUserInfo();
+      location.replace(`${window.location.origin}/#/login`);
+    },
+  },
+});
+export default useUserStore;

@@ -1,0 +1,428 @@
+@import './variables.less';
+
+// Badge
+
+.ant-badge-count {
+  box-shadow: none;
+}
+
+.ant-badge-count-sm {
+  border-radius: 4px;
+}
+
+// Button
+
+.ant-btn-round {
+  &.ant-btn-sm {
+    font-size: @fs_xs;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+}
+
+.ant-btn-text {
+  height: 36px;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.ant-btn-link:hover,
+.ant-btn-link:focus {
+  color: @color_brown-light;
+  border-color: @color_brown-light;
+}
+
+.ant-btn-round.ant-btn-lg {
+  height: auto;
+  padding: 15px 30px;
+  font-size: 14px;
+  border-radius: 40px;
+}
+// Image
+
+.ant-image-img {
+  object-fit: cover;
+}
+
+// Tabs
+
+.ant-tabs-top {
+  > .ant-tabs-nav::before {
+    border-color: @color_mist;
+  }
+}
+
+.ant-tabs-tab {
+  font-weight: bold;
+  color: @color_grey;
+  &.ant-tabs-tab-active {
+    .ant-tabs-tab-btn {
+      text-shadow: none;
+    }
+  }
+}
+
+.ant-tabs > .ant-tabs-nav .ant-tabs-nav-wrap {
+  overflow: visible;
+}
+
+// Space
+
+.ant-space-item {
+  display: flex;
+}
+
+// Inputs
+
+.ant-form-item-no-colon {
+  transition: color @duration_base @ease_in-out;
+  .ant-form-item-has-error & {
+    color: @color_red-error;
+  }
+}
+
+.ant-picker {
+  width: 100%;
+  background-color: @color_mist-light;
+  input {
+    border-radius: 0;
+  }
+}
+
+.ant-input-number {
+  border-color: transparent;
+  width: 100%;
+}
+
+.ant-select-arrow {
+  color: @color_coal;
+  margin-right: 3px;
+}
+
+.ant-input-prefix {
+  margin-right: 8px;
+}
+
+.ant-input-suffix {
+  margin-left: 8px;
+}
+
+.ant-input-affix-wrapper {
+  .ant-input {
+    border-radius: 0;
+  }
+}
+
+.ant-input-lg {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.ant-input-lg,
+.ant-input-number-lg input {
+  font-size: @fs_2xl;
+  font-weight: 500;
+}
+
+.ant-form-item-explain {
+  font-size: @fs_xs;
+  line-height: 2.5;
+}
+
+// Checkbox
+
+.ant-checkbox-checked:not(.ant-checkbox-disabled) .ant-checkbox-inner::after {
+  transform: rotate(45deg) scale(1) translate(-55%, -55%);
+}
+
+.ant-checkbox-group {
+  padding-left: 8px;
+  & > .ant-checkbox-wrapper {
+    display: flex;
+    margin-left: 0;
+    &:not(:last-child) {
+      margin-bottom: 8px;
+    }
+  }
+}
+
+.ant-checkbox-inner {
+  border-color: @color_coal;
+}
+
+.ant-switch-checked {
+  background-color: @clr_cyan;
+}
+
+
+// Modal
+
+.ant-modal-content {
+  border-radius: 24px;
+}
+
+.ant-modal-title {
+  text-align: center;
+  &::first-letter,
+  & span::first-letter {
+    text-transform: capitalize;
+  }
+}
+
+.ant-modal-mask,
+.ant-drawer-mask {
+  backdrop-filter: blur(4px);
+}
+
+.ant-modal-header {
+  border-radius: 24px 24px 0 0;
+}
+
+// Notification
+
+.ant-notification-notice-close {
+  top: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  line-height: 36px;
+}
+
+.ant-notification-notice-error {
+  .ant-notification-notice-icon {
+    color: @color_red-error;
+  }
+}
+
+.ant-notification-notice-success {
+  .ant-notification-notice-icon {
+    color: @color_green-light;
+  }
+}
+
+// Pagination
+
+.ant-pagination {
+  padding-top: 24px;
+  text-align: center;
+}
+
+.ant-pagination-item {
+  border: none;
+  a {
+    transition: color @duration_base @ease_out;
+  }
+}
+
+.ant-pagination-next,
+.ant-pagination-prev {
+  display: none;
+}
+
+// Tabs
+
+.ant-tabs {
+  overflow: visible;
+  > .ant-tabs-nav {
+    margin-bottom: 0;
+  }
+}
+
+// Menu
+
+.ant-dropdown-menu-item,
+.ant-dropdown-menu-item-group-title,
+.ant-dropdown-menu-submenu-title {
+  color: inherit;
+  padding: 8px 24px;
+  font-weight: 500;
+}
+
+.ant-dropdown-menu-submenu-title {
+  padding-right: 36px;
+}
+
+.ant-dropdown-menu-item-divider {
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+.ant-dropdown-menu-item-selected {
+  color: @color_coal;
+  font-weight: 600;
+}
+
+.ant-dropdown-menu-item-group-list {
+  margin: 0;
+}
+
+.ant-dropdown-menu-submenu-title .ant-dropdown-menu-submenu-expand-icon {
+  right: 16px;
+}
+
+// Table
+
+.ant-table-thead {
+  .ant-table-cell {
+    font-size: @fs_2xs;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+    white-space: nowrap;
+    &::before {
+      display: none;
+    }
+  }
+}
+
+// Upload
+
+.ant-upload {
+  &.ant-upload-select-picture-card {
+    overflow: hidden;
+    margin: 0;
+    background-color: @color_mist-light;
+    .ant-form-item-has-error & {
+      border-color: @color_red-half;
+    }
+  }
+}
+
+// DatePicker
+
+.ant-picker-header-view,
+.ant-picker-today-btn {
+  font-weight: 600;
+}
+
+.ant-picker-content {
+  td,
+  th {
+    font-weight: 600;
+  }
+  th {
+    color: @color_grey;
+  }
+}
+
+.ant-picker-cell {
+  font-size: @fs_xs;
+  &::before {
+    height: 34px;
+  }
+  .ant-picker-cell-inner {
+    min-width: 34px;
+    height: 34px;
+    line-height: 34px;
+  }
+}
+
+.ant-picker-range-separator {
+  padding-left: 12px;
+  padding-right: 12px;
+  color: @color_grey-second;
+}
+
+// Popover
+
+.ant-popover-message {
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+.ant-popover-message-icon {
+  display: flex;
+  align-items: center;
+  margin-right: 0;
+  color: @color_green-light;
+}
+
+.ant-popover-message-title {
+  padding-left: 12px;
+}
+
+.ant-popover-buttons {
+  margin-bottom: 0;
+  .ant-btn-default {
+    &:hover,
+    &:focus,
+    &.ant-dropdown-open {
+      color: @color_brown;
+    }
+  }
+  .ant-btn-primary {
+    &:hover,
+    &:focus,
+    &.ant-dropdown-open {
+      background-color: @color_brown-light;
+      color: @color_white;
+    }
+  }
+}
+
+.ant-popover-arrow {
+  display: none;
+}
+
+// Collapse
+
+.ant-collapse-arrow {
+  color: @color_grey;
+}
+
+.ant-collapse-item-active {
+  background-color: @color_mist-light;
+  .ant-collapse-arrow {
+    color: @color_coal;
+  }
+}
+
+// Slider
+
+.ant-slider-handle {
+  box-shadow: 2px 2px 6px 0 @color_brown_40, 1px 1px 2px 0 @color_grey_20;
+  .ant-slider-disabled & {
+    display: none;
+  }
+}
+
+.ant-slider-rail,
+.ant-slider-track {
+  height: 7px;
+}
+
+.ant-slider-rail {
+  border: 1px solid @color_brown-light_40;
+  .ant-slider-disabled & {
+    border-color: @color_atmo_70;
+    background-color: @color_atmo_30 !important;
+  }
+}
+
+// Avatar
+
+.ant-avatar-group-popover {
+  max-width: 504px;
+}
+
+.ant-popover-inner-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.ant-avatar-group-popover .ant-avatar + .ant-avatar {
+  margin-left: 0;
+}
+
+.ant-form-item {
+  .ant-select-multiple {
+    .ant-select-selection-item {
+      height: auto !important;
+    }
+  }
+}

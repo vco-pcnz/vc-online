@@ -1,4 +1,5 @@
 /* ./src/index.css */
+@import './antd.less';
 
 @tailwind base;
 @tailwind components;

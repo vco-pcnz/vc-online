@@ -100,7 +100,6 @@ const submit = () => {
     border-radius: 10px;
     background-color: transparent;
     background: transparent;
-    color: @clr_white;
   }
 
   .back-link {

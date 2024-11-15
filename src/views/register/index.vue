@@ -147,7 +147,7 @@ import { register, sendAuthCode } from "@/api/auth";
 import { message } from "ant-design-vue/es";
 import TermModal from "./components/term-modal.vue";
 import { trim } from "lodash";
-import { termsType, preMobileOpts } from "@/constant";
+import { termsType, preMobileOpts, EMAIL_RULE, PASSWORD_RULE } from "@/constant";
 
 const { t } = useI18n();
 const { replace } = useRouter();
@@ -205,7 +205,7 @@ const rules = reactive({
       trigger: "blur",
     },
     {
-      pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      pattern: EMAIL_RULE,
       message: t("邮箱格式不正确"),
     },
   ],
@@ -228,7 +228,7 @@ const rules = reactive({
   password: [
     {
       required: true,
-      pattern: /(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/,
+      pattern: PASSWORD_RULE,
       type: "string",
       trigger: "blur",
     },

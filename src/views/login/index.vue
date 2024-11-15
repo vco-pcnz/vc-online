@@ -143,6 +143,7 @@ const submit = () => {
       font-size: 64px;
       font-weight: 500;
       margin-bottom: 32px;
+      text-align: center;
 
       .vc_text {
         color: #fbfbfb;

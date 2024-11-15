@@ -97,6 +97,7 @@
             name="password"
             :label="t('密码')"
             :help="t('最少8个字符,1个大写字母,字母和数字')"
+            class="psw_input_content"
           >
             <a-input-password
               type="password"
@@ -332,6 +333,12 @@ const submit = () => {
     color: @clr_white;
     border: none;
     font-weight: 500;
+  }
+
+  .psw_input_content {
+    :deep(.ant-form-margin-offset) {
+      margin-bottom: 0 !important;
+    }
   }
 }
 </style>

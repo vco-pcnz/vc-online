@@ -19,8 +19,8 @@ export function getToken() {
  * @param token token
  * @param remember 是否永久存储
  */
-export function setToken(token, remember = true) {
-  // removeToken();
+export function setToken(token, remember) {
+  removeToken();
   if (token) {
     const tokenValue = `Bearer ${token}`;
     if (remember) {
@@ -35,6 +35,6 @@ export function setToken(token, remember = true) {
  * 移除 token
  */
 export function removeToken() {
-  // localStorage.removeItem(VITE_APP_TOKEN_PREFIX);
-  // sessionStorage.removeItem(VITE_APP_TOKEN_PREFIX);
+  localStorage.removeItem(VITE_APP_TOKEN_PREFIX);
+  sessionStorage.removeItem(VITE_APP_TOKEN_PREFIX);
 }

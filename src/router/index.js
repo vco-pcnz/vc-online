@@ -1,5 +1,4 @@
 import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router'
-import i18n from '@/i18n/index.js'
 import { useUserStore } from '@/store'
 import NProgress from 'nprogress'
 import { getToken } from "@/utils/token-util.js"
@@ -19,9 +18,8 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore()
   NProgress.start()
-  // let toTitle = to.meta.title ? i18n.global.t(to.meta.title) : to.name
-  let toTitle = to.name === '404' ? '' : to.meta.title || to.name
-  document.title = `${toTitle} - ${title}`
+  let toTitle = to.meta.title || to.name
+  document.title = toTitle ? `${toTitle} - ${title}` : title
   const token = getToken()
 
   // 登录状态下
@@ -37,14 +35,14 @@ router.beforeEach(async (to, from, next) => {
     }
 
     // 注册动态路由
-    // if (!userStore.routerInit) {
-    //   const { menus, homePath } = await userStore.requestRouterInfo();
-    //   if (menus) {
-    //     router.addRoute(getMenuRoutes(menus, homePath));
-    //     next({ ...to, replace: true });
-    //     return
-    //   }
-    // }
+    if (!userStore.routerInit) {
+      const { menus, homePath } = await userStore.requestRouterInfo();
+      if (menus) {
+        router.addRoute(getMenuRoutes(menus, homePath));
+        next({ ...to, replace: true });
+        return
+      }
+    }
     next()
   } else {
     // 未登录的情况下允许访问的路由

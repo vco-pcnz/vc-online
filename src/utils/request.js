@@ -87,7 +87,7 @@ function createService () {
           case 401:
             throttle(() => {
               err('登录状态已过期，需要重新登录')
-              // removeToken()
+              removeToken()
               router.push({name: 'login'})
             })()
             break

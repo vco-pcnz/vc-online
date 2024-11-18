@@ -27,7 +27,7 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
     },
 
     clearToken() {
-      // removeToken()
+      removeToken()
     },
 
     resetUserInfo() {
@@ -77,7 +77,6 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
     },
 
     async logout() {
-      alert('fdsafdsfdsa')
       await logout();
       this.clearToken();
       this.resetUserInfo();

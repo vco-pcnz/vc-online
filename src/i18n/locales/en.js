@@ -33,5 +33,9 @@ export default {
   "请先做邮箱验证": "Please verify your email first",
   "名字": "Name",
   "提交审核": "Come up for review",
-  "跳过,登录VCO": "Skip this step, login to VCO"
+  "跳过,登录VCO": "Skip this step, login to VCO",
+  "编辑详情" : "Edit details",
+  "修改密码" : "Change password",
+  "退出" : "Log out",
+  "成功": "successful",
 }

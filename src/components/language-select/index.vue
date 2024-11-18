@@ -2,7 +2,7 @@
   <div>
     <a-dropdown :trigger="['click']">
       <div class="lang-item" @click.prevent>
-        <img :src="langInfo.image" alt="">
+        <img v-if="showImg" :src="langInfo.image" alt="">
         <p>{{ langInfo.title }}</p>
         <DownOutlined :style="{fontSize: '12px'}" />
       </div>
@@ -10,7 +10,7 @@
         <a-menu>
           <a-menu-item v-for="item in langData" :key="item.key">
             <div class="lang-item" @click="changeLang(item.key)">
-              <img :src="item.image" alt="">
+              <img v-if="showImg" :src="item.image" alt="">
               <p>{{ item.title }}</p>
             </div>
           </a-menu-item>
@@ -25,6 +25,13 @@
   import { DownOutlined } from '@ant-design/icons-vue'
   import tool from '@/utils/tool'
   import { useI18n } from 'vue-i18n'
+
+  const props = defineProps({
+    showImg: {
+      type: Boolean,
+      default: false
+    }
+  })
 
   const { locale } = useI18n()
   const langData = [
@@ -78,10 +85,10 @@
     padding: 5px 0;
     > img {
       width: 22px;
+      margin-right: 10px;
     }
     > p {
       font-size: 14px;
-      margin-left: 10px;
       margin-right: 5px;
     }
   }

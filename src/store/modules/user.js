@@ -1,10 +1,13 @@
 import { defineStore } from "pinia";
+import { formatMenus, toTreeData } from '@/router/router-utils'
 import { getUserInfo, getMenuList } from "@/api/user";
-import tool from "@/utils/tool";
+import { getToken, setToken, removeToken } from "@/utils/token-util.js"
+import { login, logout } from "@/api/auth";
 
 const useUserStore = defineStore("VcOnlineUserInfo", {
   state: () => ({
     userInfo: undefined,
+    routerInit: false,
     routerInfo: undefined
   }),
 
@@ -16,15 +19,15 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
 
   actions: {
     setToken(token) {
-      tool.local.set(import.meta.env.VITE_APP_TOKEN_PREFIX, token);
+      setToken(token)
     },
 
     getToken() {
-      return tool.local.get(import.meta.env.VITE_APP_TOKEN_PREFIX);
+      getToken()
     },
 
     clearToken() {
-      tool.local.remove(import.meta.env.VITE_APP_TOKEN_PREFIX);
+      // removeToken()
     },
 
     resetUserInfo() {
@@ -37,6 +40,7 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
         return {};
       }
       // 用户信息
+      result.roles = result.roles && result.roles.length ? result.roles.join('/') : ''
       this.userInfo = result;
     },
 
@@ -46,23 +50,35 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
         console.error("get menus error: ", result);
         return {};
       }
-      this.routerInfo = result;
-    },
-    login(form) {
-      console.log("login");
-      // return loginApi.login(form).then(r => {
-      //   this.setToken(r.token)
-      //   // 存用户admin_id
-      //   localStorage.setItem('ExpressUserId', r.admin_id)
 
-      //   return true
-      // }).catch(e => {
-      //   console.error(e)
-      //   return false
-      // })
+      // 用户菜单, 过滤掉按钮、权限目录、接口类型并转为 children 形式
+      const { menus, homePath } = formatMenus(
+        toTreeData({
+          data: result.filter((d) => ![1, 2, 4].includes(d.menuType)),
+          idField: 'id',
+          parentIdField: 'children'
+        }).concat([])
+      );
+      this.routerInfo = menus;
+
+      this.routerInit = true
+      return { menus, homePath };
+    },
+
+    login(form) {
+      return new Promise((resolve, reject) => {
+        login(form).then(r => {
+          this.setToken(r.access_token)
+          resolve()
+        }).catch(e => {
+          reject(e)
+        })
+      })
     },
 
     async logout() {
+      alert('fdsafdsfdsa')
+      await logout();
       this.clearToken();
       this.resetUserInfo();
       location.replace(`${window.location.origin}/#/login`);

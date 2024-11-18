@@ -77,7 +77,7 @@ const routes = [
   {
     path: "/:pathMatch(.*)*",
     hidden: true,
-    meta: { title: "页面不存在" },
+    meta: { title: "页面不存在", name: "404" },
     component: () => import("@/views/error/404.vue"),
   },
 ];

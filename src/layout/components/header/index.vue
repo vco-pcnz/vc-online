@@ -15,42 +15,31 @@
       </div>
       <div class="profile_content">
         <div class="profile_info">
-          <a-row>
-            <!-- <language-select></language-select> -->
-            <a-col>
-              <router-link to="/profile" class="link">
-                <vco-avatar
-                  :src="profile.photo"
-                  :size="26"
-                  :alt="profile.firstName"
+          <language-select></language-select>
+          <router-link to="/profile">
+            <vco-avatar
+              :src="userInfo?.avatar || ''"
+              :size="26"
+            />
+          </router-link>
+          <router-link
+            to="/profile"
+            class="link"
+            active-class="link_active"
+          >
+            <div class="user_info">
+              <a-space>
+                <span class="user_name">{{ userInfo?.user_name || 'UserName' }}</span>
+                <a-badge
+                  class="badge"
+                  size="small"
+                  :count="notifications.length"
+                  v-if="!!notifications.length"
                 />
-              </router-link>
-            </a-col>
-            <a-col>
-              <router-link
-                to="/profile"
-                class="link"
-                active-class="link_active"
-              >
-                <div class="user_info">
-                  <a-space>
-                    <span class="user_name">
-                      {{ profile.firstName }}
-                      {{ profile.middleName }}
-                      {{ profile.lastName }}
-                    </span>
-                    <a-badge
-                      class="badge"
-                      size="small"
-                      :count="notifications.length"
-                      v-if="!!notifications.length"
-                    />
-                  </a-space>
-                  <p>{{ profile.role }}</p>
-                </div>
-              </router-link>
-            </a-col>
-          </a-row>
+              </a-space>
+              <p>{{ userInfo?.roles || 'Vip' }}</p>
+            </div>
+          </router-link>
         </div>
         <a-dropdown class="dropdown_menu">
           <a class="ant-dropdown-link" @click.prevent>
@@ -62,7 +51,7 @@
                 {{ item.label }}
               </a-menu-item>
               <a-menu-item>
-                <a-button @click="handleLogout">{{ t("退出") }}</a-button>
+                <div @click="handleLogout">{{ t("退出") }}</div>
               </a-menu-item>
             </a-menu>
           </template>
@@ -73,7 +62,7 @@
 </template>
 
 <script setup>
-import { reactive, ref } from "vue";
+import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import LanguageSelect from "@/components/language-select/index.vue";
 import { useUserStore } from "@/store";
@@ -83,17 +72,9 @@ const { t } = useI18n();
 const router = useRouter();
 
 const userStore = useUserStore();
-const current = ref(["Projects"]);
-const notifications = ref(Array(120).fill(1));
+const userInfo = computed(() => userStore.userInfo)
 
-// TODO
-const profile = reactive({
-  firstName: "John",
-  middleName: "Middle",
-  lastName: "Doe",
-  photo: "",
-  role: "Lending Manager",
-});
+const notifications = ref(Array(120).fill(1));
 
 const links = [
   { label: "Projects", key: "Projects", to: "/projects" },
@@ -153,10 +134,13 @@ const handleLogout = () => {
     }
 
     .profile_info {
+      display: flex;
+      align-items: center;
       height: 100%;
+      gap: 5px;
 
-      :deep(.ant-row) {
-        height: 100%;
+      :deep(.lang-item) {
+        margin-right: 15px;
       }
     }
 
@@ -165,11 +149,18 @@ const handleLogout = () => {
 
       .user_info {
         padding: 0 6px;
+        .user_name {
+          font-weight: 700;
+          font-size: 16px;
+          color: #181818;
+        }
+        > p {
+          color: #888;
+          font-size: 13px;
+        }
       }
 
-      .user_name {
-        font-weight: 700;
-      }
+      
 
       .dropdown_menu {
         align-self: center;

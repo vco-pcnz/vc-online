@@ -1,7 +1,7 @@
 <template>
   <div class="layout_header">
     <div class="header_title">VC Online</div>
-    <div class="container">
+    <div class="header_container">
       <div class="menu_content">
         <router-link
           v-for="link in menuData"
@@ -26,7 +26,7 @@
           <router-link
             to="/users/profile/about"
             class="link"
-            active-class="link_active"
+            :class="{ 'link_active': isUserActive() }"
           >
             <div class="user_info">
               <a-space>
@@ -49,10 +49,10 @@
           <template #overlay>
             <a-menu>
               <a-menu-item v-for="item in menuItem" :key="item.key" @click="goTo(`${item.to}`)">
-                {{ item.label }}
+                <div class="user-hanle-item">{{ item.label }}</div>
               </a-menu-item>
               <a-menu-item>
-                <div @click="handleLogout">{{ t("退出") }}</div>
+                <div class="user-hanle-item" @click="handleLogout">{{ t("退出") }}</div>
               </a-menu-item>
             </a-menu>
           </template>
@@ -89,9 +89,24 @@ const menuData = computed(() => {
   return resData
 })
 
+const otherRoute = ['/users/profile']
+const isInOther = (path) => {
+  let res = false
+  for (let i = 0; i < otherRoute.length; i++) {
+    res = path.indexOf(otherRoute[i]) > -1
+    if (res) {
+      return res
+    }
+  }
+  return res
+}
 const isActive = (path) => {
-  return route.path.startsWith(path); // 判断当前路径是否以父级路径开头
+  return isInOther(route.path) ? false : route.path.startsWith(path); // 判断当前路径是否以父级路径开头
 };
+
+const isUserActive = () => {
+  return route.path.startsWith('/users/profile')
+}
 
 const notifications = ref(Array(120).fill(1));
 
@@ -125,7 +140,7 @@ const handleLogout = () => {
     font-weight: 500;
   }
 
-  .container {
+  .header_container {
     flex: 1;
     margin-left: 48px;
     display: flex;
@@ -203,5 +218,11 @@ const handleLogout = () => {
       border-bottom: 3px solid @clr_yellow;
     }
   }
+}
+
+.user-hanle-item {
+  min-width: 100px;
+  text-align: center;
+  white-space: nowrap;
 }
 </style>

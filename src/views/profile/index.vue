@@ -19,15 +19,76 @@
       </a-button>
     </div>
   </div>
-  <router-view />
+  <div class="profile-container">
+    <div class="profile-info">
+      <div class="profile-info-header">
+        <div class="avatar">
+          <vco-avatar :size="124" style="margin: auto" />
+        </div>
+        <div class="info-detail">
+          <p v-for="info in userInfo">
+            <span class="label">
+              <i class="iconfont" v-html="info.icon" v-if="info.icon" />
+              {{ info.label }}:
+            </span>
+            <span class="value">{{ info.value }}</span>
+          </p>
+        </div>
+      </div>
+      <div class="profile-info-detail">
+        <p v-for="info in extraInfo">
+          <span class="label">
+            <i class="iconfont text-2xl" v-html="info.icon" v-if="info.icon" />
+          </span>
+          <span class="detail">{{ info.value }}</span>
+        </p>
+      </div>
+    </div>
+    <div class="profile-content">
+      <router-view />
+    </div>
+  </div>
 </template>
 
 <script setup>
 import { ref, reactive } from "vue";
 import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
 
 const { t } = useI18n();
 const activeKey = ref("about");
+const router = useRouter();
+
+// TODO
+const userInfo = reactive([
+  {
+    label: "ID",
+    value: "123456789",
+  },
+  {
+    icon: "&#xe73b;",
+    label: t("名字"),
+    value: "John",
+  },
+  {
+    icon: "&#xe66f;",
+    label: t("邮箱"),
+    value: "hanmeimei@vco.com",
+  },
+  {
+    icon: "&#xe61d;",
+    label: t("手机号"),
+    value: "+64 17002877777",
+  },
+]);
+
+// TODO
+const extraInfo = reactive([
+  {
+    icon: "&#xe8db;",
+    value: ["vip", "broker"],
+  },
+]);
 
 const panes = reactive([
   {
@@ -48,6 +109,7 @@ const panes = reactive([
 
 const onChange = (key) => {
   activeKey.value = key;
+  router.push(`/profile/${key}`);
 };
 </script>
 
@@ -123,6 +185,53 @@ const onChange = (key) => {
   .active-tab {
     color: @clr_yellow;
     border: 1px solid @clr_yellow;
+  }
+}
+
+.profile-container {
+  display: grid;
+  grid-template-columns: 315px 1fr;
+  gap: 24px;
+  align-items: flex-start;
+
+  .profile-info {
+    overflow: hidden;
+    border: 1px solid @color_mist;
+    background-color: @clr_card_bg;
+    border-radius: 12px;
+
+    &-header {
+      padding: 30px;
+      border-bottom: 1px solid @color_mist;
+
+      .avatar {
+        width: 100%;
+      }
+
+      .info-detail {
+        margin-top: 16px;
+      }
+    }
+
+    &-detail {
+      padding: 30px;
+    }
+
+    .label {
+      color: @color_grey;
+      font-weight: 500;
+    }
+
+    .value {
+      font-weight: 500;
+    }
+  }
+
+  .profile-content {
+    border: 1px solid @color_mist;
+    background-color: @clr_card_bg;
+    border-radius: 12px;
+    padding: 30px;
   }
 }
 </style>

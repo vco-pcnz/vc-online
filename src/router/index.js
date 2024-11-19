@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router'
 import { useUserStore } from '@/store'
+import i18n from "@/i18n";
 import NProgress from 'nprogress'
 import { getToken } from "@/utils/token-util.js"
 import 'nprogress/nprogress.css'
@@ -19,7 +20,7 @@ router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore()
   NProgress.start()
   let toTitle = to.meta.title || to.name
-  document.title = toTitle ? `${toTitle} - ${title}` : title
+  document.title = toTitle ? `${i18n.global.t(toTitle)} - ${title}` : title
   const token = getToken()
 
   // 登录状态下

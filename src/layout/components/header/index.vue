@@ -80,7 +80,7 @@ const userInfo = computed(() => userStore.userInfo)
 const menuData = computed(() => {
   const data = userStore.routerInfo || []
   const dataArr = cloneDeep(data)
-  const resData = dataArr.map(item => {
+  const resData = dataArr.filter(item => !item.meta.hide).map(item => {
     return {
       title: item.meta.title,
       path: item.path

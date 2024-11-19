@@ -28,7 +28,8 @@ export default {
   "请先查阅并接受条款": "Please review and accept the terms",
   "使用条款" : "TERMS OF USE",
   "验证": "Verify",
-  "验证码": "auth code",
+  "验证码": "Auth code",
+  "验证码V": "Verification Code",
   "成为中介": "Be a broker",
   "请先做邮箱验证": "Please verify your email first",
   "名字": "Name",
@@ -38,4 +39,11 @@ export default {
   "修改密码" : "Change password",
   "退出" : "Log out",
   "成功": "successful",
+  "用户中心":  "User Center",
+  "关于": "About",
+  "安全": "Safe",
+  "通知": "Notice",
+  "提交": "Submit",
+  "关于": "About",
+  "变更": "Change"
 }

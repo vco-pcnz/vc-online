@@ -48,6 +48,7 @@ export default ({ mode }) => {
           // rewrite: path => path.replace(new RegExp(`^${proxyPrefix}`), ''),
         },
         '/api': {
+          // target: 'https://dev-admin-api.new.vincentcapital.co.nz/api',
           target: 'http://vco.com/api',
           changeOrigin: true,
           secure: false,

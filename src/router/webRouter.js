@@ -27,12 +27,12 @@ const routes = [
         children: [
           {
             name: "edit-profile",
-            path: "edit-profile",
-            component: () => import("@/views/profile/components/edit-profile.vue"),
+            path: "about",
+            component: () => import("@/views/profile/components/edit-profile.vue")
           },
           {
             name: "change-pwd",
-            path: "change-pwd",
+            path: "safe",
             component: () => import("@/views/profile/components/change-pwd.vue"),
           },
           {

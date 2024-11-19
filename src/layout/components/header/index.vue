@@ -105,8 +105,8 @@ const links = [
 ];
 
 const menuItem = [
-  { label: t('编辑详情'), key: "edit-profile", to: "/profile/edit-profile" },
-  { label: t('修改密码'), key: "change-pwd", to: "/profile/change-pwd" },
+  { label: t('编辑详情'), key: "edit-profile", to: "/profile/about" },
+  { label: t('修改密码'), key: "change-pwd", to: "/profile/safe" },
 ]
 
 const goTo = (path) => {

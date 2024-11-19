@@ -35,6 +35,7 @@
               class="login_input_content"
               :placeholder="t('密码')"
               autoComplete="on"
+              @pressEnter="submit"
             />
           </a-form-item>
           <p class="forgot">
@@ -56,12 +57,13 @@
 <script setup>
 import { ref, reactive } from "vue";
 import { useI18n } from "vue-i18n";
-import { login } from "@/api/auth";
 import { message } from "ant-design-vue/es";
+import { useRoute } from "vue-router"
 import router from "@/router";
 import { useUserStore } from '@/store';
 
 const { t } = useI18n();
+const route = useRoute()
 
 const formRef = ref();
 const userStore = useUserStore()
@@ -99,8 +101,10 @@ const rules = reactive({
   ],
 });
 
-function goHomeRoute(from) {
-  router.replace(from || "/home");
+function goHomeRoute() {
+  const redirect = route.query.redirect || '/';
+  console.log('redirect', redirect)
+  router.replace(redirect);
 }
 
 const submit = () => {
@@ -111,9 +115,8 @@ const submit = () => {
     .validate()
     .then(() => {
       loading.value = true;
-      login(form)
-        .then((res) => {
-          userStore.setToken(res.access_token);
+      userStore.login(form)
+        .then(() => {
           goHomeRoute();
           message.success(t("登录成功"));
         })

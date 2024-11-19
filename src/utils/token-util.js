@@ -1,15 +1,15 @@
 /**
  * token 操作封装
  */
-import { TOKEN_STORE_NAME } from '@/config/setting';
+const VITE_APP_TOKEN_PREFIX = import.meta.env.VITE_APP_TOKEN_PREFIX;
 
 /**
  * 获取缓存的 token
  */
 export function getToken() {
-  const token = localStorage.getItem(TOKEN_STORE_NAME);
+  const token = localStorage.getItem(VITE_APP_TOKEN_PREFIX);
   if (!token) {
-    return sessionStorage.getItem(TOKEN_STORE_NAME);
+    return sessionStorage.getItem(VITE_APP_TOKEN_PREFIX);
   }
   return token;
 }
@@ -24,9 +24,9 @@ export function setToken(token, remember) {
   if (token) {
     const tokenValue = `Bearer ${token}`;
     if (remember) {
-      localStorage.setItem(TOKEN_STORE_NAME, tokenValue);
+      localStorage.setItem(VITE_APP_TOKEN_PREFIX, tokenValue);
     } else {
-      sessionStorage.setItem(TOKEN_STORE_NAME, tokenValue);
+      sessionStorage.setItem(VITE_APP_TOKEN_PREFIX, tokenValue);
     }
   }
 }
@@ -35,6 +35,6 @@ export function setToken(token, remember) {
  * 移除 token
  */
 export function removeToken() {
-  localStorage.removeItem(TOKEN_STORE_NAME);
-  sessionStorage.removeItem(TOKEN_STORE_NAME);
+  localStorage.removeItem(VITE_APP_TOKEN_PREFIX);
+  sessionStorage.removeItem(VITE_APP_TOKEN_PREFIX);
 }

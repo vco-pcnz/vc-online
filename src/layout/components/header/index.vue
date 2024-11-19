@@ -4,53 +4,43 @@
     <div class="container">
       <div class="menu_content">
         <router-link
-          v-for="link in links"
-          :key="link.key"
-          :to="link.to"
+          v-for="link in menuData"
+          :key="link.path"
+          :to="link.path"
           class="link"
-          active-class="link_active"
+          :class="{ 'link_active': isActive(link.path) }"
         >
-          {{ link.label }}
+          {{ t(link.title) }}
         </router-link>
       </div>
+      
       <div class="profile_content">
         <div class="profile_info">
-          <a-row>
-            <!-- <language-select></language-select> -->
-            <a-col>
-              <router-link to="/profile" class="link">
-                <vco-avatar
-                  :src="profile.photo"
-                  :size="26"
-                  :alt="profile.firstName"
+          <language-select></language-select>
+          <router-link to="/profile">
+            <vco-avatar
+              :src="userInfo?.avatar || ''"
+              :size="26"
+            />
+          </router-link>
+          <router-link
+            to="/profile"
+            class="link"
+            active-class="link_active"
+          >
+            <div class="user_info">
+              <a-space>
+                <span class="user_name">{{ userInfo?.user_name || 'UserName' }}</span>
+                <a-badge
+                  class="badge"
+                  size="small"
+                  :count="notifications.length"
+                  v-if="!!notifications.length"
                 />
-              </router-link>
-            </a-col>
-            <a-col>
-              <router-link
-                to="/profile"
-                class="link"
-                active-class="link_active"
-              >
-                <div class="user_info">
-                  <a-space>
-                    <span class="user_name">
-                      {{ profile.firstName }}
-                      {{ profile.middleName }}
-                      {{ profile.lastName }}
-                    </span>
-                    <a-badge
-                      class="badge"
-                      size="small"
-                      :count="notifications.length"
-                      v-if="!!notifications.length"
-                    />
-                  </a-space>
-                  <p>{{ profile.role }}</p>
-                </div>
-              </router-link>
-            </a-col>
-          </a-row>
+              </a-space>
+              <p>{{ userInfo?.roles || 'Vip' }}</p>
+            </div>
+          </router-link>
         </div>
         <a-dropdown class="dropdown_menu">
           <a class="ant-dropdown-link" @click.prevent>
@@ -62,7 +52,7 @@
                 {{ item.label }}
               </a-menu-item>
               <a-menu-item>
-                <a-button @click="handleLogout">{{ t("退出") }}</a-button>
+                <div @click="handleLogout">{{ t("退出") }}</div>
               </a-menu-item>
             </a-menu>
           </template>
@@ -73,36 +63,37 @@
 </template>
 
 <script setup>
-import { reactive, ref } from "vue";
+import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { cloneDeep } from "lodash"
 import LanguageSelect from "@/components/language-select/index.vue";
 import { useUserStore } from "@/store";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 
 const { t } = useI18n();
 const router = useRouter();
+const route = useRoute();
 
 const userStore = useUserStore();
-const current = ref(["Projects"]);
+const userInfo = computed(() => userStore.userInfo)
+
+const menuData = computed(() => {
+  const data = userStore.routerInfo || []
+  const dataArr = cloneDeep(data)
+  const resData = dataArr.map(item => {
+    return {
+      title: item.meta.title,
+      path: item.path
+    }
+  })
+  return resData
+})
+
+const isActive = (path) => {
+  return route.path.startsWith(path); // 判断当前路径是否以父级路径开头
+};
+
 const notifications = ref(Array(120).fill(1));
-
-// TODO
-const profile = reactive({
-  firstName: "John",
-  middleName: "Middle",
-  lastName: "Doe",
-  photo: "",
-  role: "Lending Manager",
-});
-
-const links = [
-  { label: "Projects", key: "Projects", to: "/projects" },
-  { label: "Requests", key: "Requests", to: "/requests" },
-  { label: "Dashboard", key: "Dashboard", to: "/cashflow" },
-  { label: "Users", key: "Users", to: "/users" },
-  { label: "Orgs", key: "Orgs", to: "/orgs" },
-  { label: "Reconciliation", key: "Reconciliation", to: "/reconciliations" },
-];
 
 const menuItem = [
   { label: t('编辑详情'), key: "edit-profile", to: "/profile/about" },
@@ -153,10 +144,13 @@ const handleLogout = () => {
     }
 
     .profile_info {
+      display: flex;
+      align-items: center;
       height: 100%;
+      gap: 5px;
 
-      :deep(.ant-row) {
-        height: 100%;
+      :deep(.lang-item) {
+        margin-right: 15px;
       }
     }
 
@@ -165,11 +159,18 @@ const handleLogout = () => {
 
       .user_info {
         padding: 0 6px;
+        .user_name {
+          font-weight: 700;
+          font-size: 16px;
+          color: #181818;
+        }
+        > p {
+          color: #888;
+          font-size: 13px;
+        }
       }
 
-      .user_name {
-        font-weight: 700;
-      }
+      
 
       .dropdown_menu {
         align-self: center;
@@ -199,7 +200,7 @@ const handleLogout = () => {
     }
 
     &_active {
-      border-bottom: 3px solid #f19915;
+      border-bottom: 3px solid @clr_yellow;
     }
   }
 }

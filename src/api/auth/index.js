@@ -1,4 +1,4 @@
-import request from "@/utils/request";
+import { request } from "@/utils/request";
 
 /**
  * 登录
@@ -8,6 +8,15 @@ export const login = (data) =>
     url: "/login",
     method: "post",
     data,
+  });
+
+/**
+ * 退出登录
+ */
+export const logout = () =>
+  request({
+    url: "/logout",
+    method: "get"
   });
 
 /**

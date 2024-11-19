@@ -1,14 +1,13 @@
 import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router'
-import i18n from '@/i18n/index.js'
 import { useUserStore } from '@/store'
 import NProgress from 'nprogress'
-import tool from '@/utils/tool'
+import { getToken } from "@/utils/token-util.js"
 import 'nprogress/nprogress.css'
+import { getMenuRoutes } from './router-utils'
 
 import routes from './webRouter.js'
 
 const title = import.meta.env.VITE_APP_TITLE
-const defaultRoutePath = '/'
 const whiteRoute = ['login', 'register', 'password-reset', 'register-broker']
 
 const router = createRouter({
@@ -17,32 +16,34 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-  NProgress.start()
   const userStore = useUserStore()
-  let toTitle = to.meta.title ? i18n.global.t(to.meta.title) : to.name
-  document.title = `${toTitle} - ${title}`
-  const token = tool.local.get(import.meta.env.VITE_APP_TOKEN_PREFIX)
+  NProgress.start()
+  let toTitle = to.meta.title || to.name
+  document.title = toTitle ? `${toTitle} - ${title}` : title
+  const token = getToken()
+
   // 登录状态下
   if (token) {
     if (to.name === 'login') {
-      next({ path: defaultRoutePath })
+      userStore.logout()
       return
     }
 
     if (!userStore.userInfo) {
       // 用户信息
       await userStore.requestUserInfo()
-
-      // 获取路由信息
-      if (!userStore.routerInit) {
-        await userStore.requestRouterInfo()
-      }
-
-      // next({ path: to.path, query: to.query })
-      next();
-    } else {
-      next()
     }
+
+    // 注册动态路由
+    if (!userStore.routerInit) {
+      const { menus, homePath } = await userStore.requestRouterInfo();
+      if (menus) {
+        router.addRoute(getMenuRoutes(menus, homePath));
+        next({ ...to, replace: true });
+        return
+      }
+    }
+    next()
   } else {
     // 未登录的情况下允许访问的路由
     if (!whiteRoute.includes(to.name)) {
@@ -58,7 +59,6 @@ router.afterEach((to, from) => {
 })
 
 router.onError(error => {
-  console.log(error)
   NProgress.done();
 });
 

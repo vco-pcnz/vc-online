@@ -1,5 +1,9 @@
 <template>
   <div class="unauth_container">
+    <div class="language">
+      <language-select :show-img="true"></language-select>
+    </div>
+    
     <div class="animation">
       <!-- <Lottie
         :options="defaultOptions"
@@ -31,6 +35,7 @@
 </template>
 
 <script setup>
+import LanguageSelect from "./../language-select/index.vue"
 import logoImg from "@/assets/images/auth_logo.svg";
 
 const props = defineProps({
@@ -101,5 +106,15 @@ const props = defineProps({
   content: "";
   display: block;
   height: 198px;
+}
+
+.language {
+  position: fixed;
+  top: 10px;
+  right: 20px;
+  z-index: 9;
+  :deep(.lang-item) {
+    color: #fff !important;
+  }
 }
 </style>

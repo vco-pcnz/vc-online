@@ -45,14 +45,7 @@ export default ({ mode }) => {
           changeOrigin: true,
           ws: true,
           toProxy: true,
-          // rewrite: path => path.replace(new RegExp(`^${proxyPrefix}`), ''),
-        },
-        '/api': {
-          // target: 'https://dev-admin-api.new.vincentcapital.co.nz/api',
-          target: 'http://vco.com/api',
-          changeOrigin: true,
-          secure: false,
-          rewrite: (path) => path.replace(/^\/api/, '')
+          rewrite: path => path.replace(new RegExp(`^${proxyPrefix}`), ''),
         }
       },
     },

@@ -64,4 +64,6 @@ export default {
   "放款": "Loans",
   "数据统计": "Dashboard",
   "用户管理": "Users",
+  "新密码": "New Password",
+  "确认密码": "Confirm new password",
 }

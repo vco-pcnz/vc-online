@@ -17,14 +17,14 @@
       <div class="profile_content">
         <div class="profile_info">
           <language-select></language-select>
-          <router-link to="/profile">
+          <router-link to="/users/list">
             <vco-avatar
               :src="userInfo?.avatar || ''"
               :size="26"
             />
           </router-link>
           <router-link
-            to="/profile"
+            to="/users/profile/about"
             class="link"
             active-class="link_active"
           >
@@ -96,8 +96,8 @@ const isActive = (path) => {
 const notifications = ref(Array(120).fill(1));
 
 const menuItem = [
-  { label: t('编辑详情'), key: "edit-profile", to: "/profile/about" },
-  { label: t('修改密码'), key: "change-pwd", to: "/profile/safe" },
+  { label: t('编辑详情'), key: "edit-profile", to: "/users/profile/about" },
+  { label: t('修改密码'), key: "change-pwd", to: "/users/profile/safe" },
 ]
 
 const goTo = (path) => {

@@ -168,7 +168,7 @@ function formatMenus(data, childField = "children") {
       } else {
         const childPath = children[0].path || children[0].fullPath;
         if (childPath) {
-          if (!menu.redirect) {
+          if (!menu.redirect && !menu.component) { // 父级没有组件才设置重定向路由
             menu.redirect = childPath;
           }
           if (!menu.path) {
@@ -261,7 +261,6 @@ function menuToRoute(menu, getComponent, added, redirectPath, redirectComponent,
  * @param homePath 主页地址
  */
 function getMenuRoutes(menus, homePath) {
-  console.log('menus', menus)
   const routes = [];
 
   // 路由铺平处理

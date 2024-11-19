@@ -2,7 +2,7 @@ import { createI18n } from 'vue-i18n'
 
 import enLocale from './locales/en'
 import zh_cnLocale from './locales/zh-cn'
-import zh_twLocale from './locales/zh-tw'
+// import zh_twLocale from './locales/zh-tw'
 
 const messages = {
   'en': {
@@ -11,9 +11,9 @@ const messages = {
   'zh-cn': {
     ...zh_cnLocale
   },
-  'zh-tw': {
-    ...zh_twLocale
-  }
+  // 'zh-tw': {
+  //   ...zh_twLocale
+  // }
 }
 
 const langStr = localStorage.getItem('vc-online-language')

@@ -4,15 +4,16 @@
     <div class="container">
       <div class="menu_content">
         <router-link
-          v-for="link in links"
-          :key="link.key"
-          :to="link.to"
+          v-for="link in menuData"
+          :key="link.path"
+          :to="link.path"
           class="link"
-          active-class="link_active"
+          :class="{ 'link_active': isActive(link.path) }"
         >
-          {{ link.label }}
+          {{ t(link.title) }}
         </router-link>
       </div>
+      
       <div class="profile_content">
         <div class="profile_info">
           <language-select></language-select>
@@ -64,26 +65,35 @@
 <script setup>
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { cloneDeep } from "lodash"
 import LanguageSelect from "@/components/language-select/index.vue";
 import { useUserStore } from "@/store";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 
 const { t } = useI18n();
 const router = useRouter();
+const route = useRoute();
 
 const userStore = useUserStore();
 const userInfo = computed(() => userStore.userInfo)
 
-const notifications = ref(Array(120).fill(1));
+const menuData = computed(() => {
+  const data = userStore.routerInfo || []
+  const dataArr = cloneDeep(data)
+  const resData = dataArr.map(item => {
+    return {
+      title: item.meta.title,
+      path: item.path
+    }
+  })
+  return resData
+})
 
-const links = [
-  { label: "Projects", key: "Projects", to: "/projects" },
-  { label: "Requests", key: "Requests", to: "/requests" },
-  { label: "Dashboard", key: "Dashboard", to: "/cashflow" },
-  { label: "Users", key: "Users", to: "/users" },
-  { label: "Orgs", key: "Orgs", to: "/orgs" },
-  { label: "Reconciliation", key: "Reconciliation", to: "/reconciliations" },
-];
+const isActive = (path) => {
+  return route.path.startsWith(path); // 判断当前路径是否以父级路径开头
+};
+
+const notifications = ref(Array(120).fill(1));
 
 const menuItem = [
   { label: t('编辑详情'), key: "edit-profile", to: "/profile/edit-profile" },
@@ -190,7 +200,7 @@ const handleLogout = () => {
     }
 
     &_active {
-      border-bottom: 3px solid #f19915;
+      border-bottom: 3px solid @clr_yellow;
     }
   }
 }

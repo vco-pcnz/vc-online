@@ -45,11 +45,11 @@
       key: 'zh-cn',
       image: new URL('@/assets/images/lang/cn.png', import.meta.url)
     },
-    {
-      title: '繁體中文',
-      key: 'zh-tw',
-      image: new URL('@/assets/images/lang/tw.png', import.meta.url)
-    }
+    // {
+    //   title: '繁體中文',
+    //   key: 'zh-tw',
+    //   image: new URL('@/assets/images/lang/tw.png', import.meta.url)
+    // }
   ]
 
   const langInfo = reactive({

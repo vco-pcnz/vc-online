@@ -60,7 +60,6 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
         }).concat([])
       );
       this.routerInfo = menus;
-
       this.routerInit = true
       return { menus, homePath };
     },

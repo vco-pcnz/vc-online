@@ -5,11 +5,11 @@ import NProgress from 'nprogress'
 import { getToken } from "@/utils/token-util.js"
 import 'nprogress/nprogress.css'
 import { getMenuRoutes } from './router-utils'
-
 import routes from './webRouter.js'
 
+const whiteRoute = routes.filter(item => item.name).map(item => item.name)
+
 const title = import.meta.env.VITE_APP_TITLE
-const whiteRoute = ['login', 'register', 'password-reset', 'register-broker']
 
 const router = createRouter({
   history: createWebHashHistory(),

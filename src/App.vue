@@ -13,7 +13,7 @@
 
   const themeConfig = {
     token: {
-      colorPrimary: '#d8b480'
+      colorPrimary: '#F19915'
     }
   }
 

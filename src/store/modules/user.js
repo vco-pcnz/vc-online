@@ -8,7 +8,9 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
   state: () => ({
     userInfo: undefined,
     routerInit: false,
-    routerInfo: undefined
+    routerInfo: undefined,
+    // 当前登录用户的权限
+    authorities: []
   }),
 
   getters: {
@@ -42,6 +44,9 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
       // 用户信息
       result.roles = result.roles && result.roles.length ? result.roles.join('/') : ''
       this.userInfo = result;
+
+      // 用户权限
+      this.authorities = result.permissionList;
     },
 
     async requestRouterInfo() {

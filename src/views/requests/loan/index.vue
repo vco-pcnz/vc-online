@@ -1,3 +1,4 @@
 <template>
-  <div>Loan Request</div>
+  <div>Loan Request
+  </div>
 </template>

@@ -2,7 +2,7 @@
   <div class="TabsPanel">
     <div class="Panel">
       <h2 class="Panel-Title">
-        <a-tag class="Tag"> {{ userInfo?.username }}` {{ t("用户中心") }} </a-tag>
+        <a-tag class="Tag"> {{ userInfo?.user_name }}` {{ t("用户中心") }} </a-tag>
       </h2>
     </div>
     <div class="TabsPanel-Tab">
@@ -97,12 +97,12 @@ const onChange = (key) => {
 
 onMounted(() => {
   getUserCenter().then((res) => {
-    const { uuid, email, email_ok, pre, mobile, mobile_ok, user_name, roles } =
+    const { username, email, email_ok, pre, mobile, mobile_ok, user_name, roles } =
       res;
     const _baseInfo = [
       {
         label: "ID",
-        value: uuid,
+        value: username,
       },
       {
         icon: "&#xe73b;",

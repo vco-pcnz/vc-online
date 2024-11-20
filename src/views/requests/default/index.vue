@@ -1,3 +1,5 @@
 <template>
-  <div>Loan Request</div>
+  <div>
+    <vco-page-nav sup-path="/requests"></vco-page-nav>
+  </div>
 </template>

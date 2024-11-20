@@ -131,7 +131,7 @@ const handleLogout = () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 48px;
+  padding: 0 30px;
   height: 72px;
 
   .header_title {

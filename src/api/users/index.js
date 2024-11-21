@@ -78,3 +78,12 @@ export const modifyUserInfo = (data) =>
     method: "post",
     data,
   });
+
+// 用户安全密码变更提交
+export const modifyUserPwd = (data) =>
+  request({
+    url: "user/center/upw",
+    method: "post",
+    data,
+  });
+

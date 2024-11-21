@@ -123,7 +123,7 @@ const { form, assignFields } = useFormData({
   pre: "",
   mobile: "",
   code: "",
-  newPre: "",
+  newPre: "64",
   newMobile: "",
   newCode: "",
 });
@@ -203,9 +203,9 @@ watch(
   (val) => {
     if (val) {
       assignFields({
+        ...form,
         mobile: userDetailStore.userDetail.mobile,
         pre: userDetailStore.userDetail.pre,
-        newPre: "64",
       });
     }
   }

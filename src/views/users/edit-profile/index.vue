@@ -37,7 +37,7 @@
               <a-form-item label=" ">
                 <a-button
                   v-if="!userDetailStore.userDetail?.email_ok"
-                  @click="handleVerify(VERIFY_KEY[0])"
+                  @click="handleVerify(VERIFY_KEY.EMAIL)"
                   block
                   class="verify-btn"
                 >
@@ -45,7 +45,7 @@
                 </a-button>
                 <a-button
                   v-else
-                  @click="handleChange(VERIFY_KEY[0])"
+                  @click="handleChange(VERIFY_KEY.EMAIL)"
                   block
                   class="verify-btn"
                 >
@@ -90,7 +90,7 @@
               <a-form-item-rest>
                 <a-button
                   v-if="!userDetailStore.userDetail?.mobile_ok"
-                  @click="handleVerify(VERIFY_KEY[1])"
+                  @click="handleVerify(VERIFY_KEY.MOBILE)"
                   block
                   class="verify-btn"
                 >
@@ -98,7 +98,7 @@
                 </a-button>
                 <a-button
                   v-else
-                  @click="handleChange(VERIFY_KEY[1])"
+                  @click="handleChange(VERIFY_KEY.MOBILE)"
                   block
                   class="verify-btn"
                 >
@@ -231,11 +231,11 @@ const rules = reactive({
 });
 
 const handleVerify = (key) => {
-  if (key === VERIFY_KEY[0]) {
+  if (key === VERIFY_KEY.EMAIL) {
     sendUnauthECode({ email: form.email });
     verifyEmail.showCode = true;
     verifyEmail.showCountdown = true;
-  } else if (key === VERIFY_KEY[1]) {
+  } else if (key === VERIFY_KEY.MOBILE) {
     sendUnauthCodeM({
       pre: form.pre,
       mobile: form.mobile,
@@ -246,9 +246,9 @@ const handleVerify = (key) => {
 };
 
 const handleChange = (key) => {
-  if (key === VERIFY_KEY[0]) {
+  if (key === VERIFY_KEY.EMAIL) {
     verifyEmail.open = true;
-  } else if (key === VERIFY_KEY[1]) {
+  } else if (key === VERIFY_KEY.MOBILE) {
     verifyMobile.open = true;
   }
 };

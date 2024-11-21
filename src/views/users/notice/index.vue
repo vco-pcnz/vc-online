@@ -9,7 +9,7 @@
         <a-tab-pane key="business" :tab="t('业务')">3</a-tab-pane>
 
         <template #rightExtra>
-          <a-button>Right Extra Action</a-button>
+          <notice-search />
         </template>
       </a-tabs>
     </template>
@@ -21,6 +21,7 @@ import { ref, reactive, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import profileLayout from "../components/profile-layout.vue";
 import NoticeList from "./components/NoticeList.vue";
+import NoticeSearch from "./components/NoticeSearch.vue";
 import { getNoticeList } from "@/api/notice";
 
 const { t } = useI18n();

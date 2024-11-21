@@ -5,7 +5,6 @@
         <li class="check">
           <a-checkbox
             v-model:checked="checkedAll"
-            :indeterminate="indeterminate"
             @change="checkedAllHandle"
           ></a-checkbox>
         </li>
@@ -33,6 +32,12 @@
             </li>
           </ul>
         </template>
+        <a-pagination
+          v-model:current="paginationData.current"
+          show-quick-jumper
+          :total="paginationData.total"
+          :show-total="total => `All ${total} Data`"
+        />
       </div>
       <a-empty v-else :image="simpleImage" />
     </div>
@@ -40,7 +45,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { reactive, ref } from "vue";
 import { Empty } from "ant-design-vue";
 import { useI18n } from "vue-i18n";
 
@@ -51,10 +56,6 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
-  indeterminate: {
-    type: Boolean,
-    default: false,
-  },
 });
 
 const { t } = useI18n();
@@ -62,19 +63,27 @@ const { t } = useI18n();
 const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE;
 
 const checkedAll = ref(false);
+// TODO
+const paginationData = reactive({
+  current: 1,
+  total: 3,
+});
 
 const itemcheck = () => {
   const length = props.tableData.filter((item) => item.checked).length;
   checkedAll.value = length === props.tableData.length;
 };
 
-const checkedAllHandle = () => {
-  emits("check", checkedAll.value);
+const checkedAllHandle = (e) => {
+  const flag = e.target.checked;
+  checkedAll.value = flag;
+  props.tableData.forEach((item) => (item.checked = flag));
 };
 
 const handleMarkRead = () => {};
 
 const handleAllRead = () => {};
+
 </script>
 
 <style lang="less" scoped>

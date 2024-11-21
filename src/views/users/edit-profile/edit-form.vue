@@ -115,8 +115,8 @@
     >
       <a-input v-model:value="form.mobileCode" :placeholder="t('验证码V')" />
     </a-form-item>
-    <a-form-item name="about" :label="t('关于')">
-      <a-textarea v-model:value="form.about" :placeholder="t('关于')" />
+    <a-form-item name="intro" :label="t('关于')">
+      <a-textarea v-model:value="form.intro" :placeholder="t('关于')" />
     </a-form-item>
     <a-row>
       <a-col :span="6" :offset="9">
@@ -132,31 +132,40 @@
       </a-col>
     </a-row>
   </a-form>
+  <change-email v-model:open="verifyEmail.open" :title="t('编辑邮箱')" :email="userInfo.email" />
+  <!-- <change-email v-model:open="verifyMobile.open" :title="t('编辑手机号')" :userInfo="userInfo" /> -->
 </template>
 
 <script setup>
-import { ref, reactive, watch, onBeforeUnmount } from "vue";
+import { ref, reactive, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { preMobileOpts, EMAIL_RULE } from "@/constant";
+import { preMobileOpts, EMAIL_RULE, VERIFY_KEY } from "@/constant";
 import useFormData from "@/utils/use-form-data";
 import countdown from "../components/countdown.vue";
+import { sendUnauthECode, sendUnauthCodeM, modifyUserInfo } from "@/api/users";
+import { useRouter } from "vue-router";
+import changeEmail from "./change-email.vue";
 
 const { t } = useI18n();
 const formRef = ref();
 const loading = ref(false);
 const props = defineProps(["userInfo"]);
-const VERIFY_KEY = ["email", "mobile"];
+
+const router = useRouter();
+
 const verifyEmail = reactive({
   showCode: false,
   showCountdown: false,
+  open: false,
 });
 const verifyMobile = reactive({
   showCode: false,
   showCountdown: false,
+  open: false,
 });
 
 // 表单数据
-const { form, resetFields, assignFields } = useFormData({
+const { form, assignFields } = useFormData({
   firstName: "",
   middleName: "",
   lastName: "",
@@ -164,7 +173,7 @@ const { form, resetFields, assignFields } = useFormData({
   emailCode: "",
   pre: "64",
   mobile: "",
-  about: "",
+  intro: "",
   mobileCode: "",
 });
 
@@ -204,9 +213,14 @@ const rules = reactive({
 
 const handleVerify = (key) => {
   if (key === VERIFY_KEY[0]) {
+    sendUnauthECode({ email: form.email });
     verifyEmail.showCode = true;
     verifyEmail.showCountdown = true;
   } else if (key === VERIFY_KEY[1]) {
+    sendUnauthCodeM({
+      pre: form.pre,
+      mobile: form.mobile,
+    });
     verifyMobile.showCode = true;
     verifyMobile.showCountdown = true;
   }
@@ -214,27 +228,31 @@ const handleVerify = (key) => {
 
 const handleChange = (key) => {
   if (key === VERIFY_KEY[0]) {
-    verifyEmail.showCode = true;
+    verifyEmail.open = true;
   } else if (key === VERIFY_KEY[1]) {
-    verifyMobile.showCode = true;
+    verifyMobile.open = true;
   }
 };
 
 const submit = () => {
   formRef.value.validate().then(() => {
     loading.value = true;
-    // roleApply({
-    //   ...form,
-    //   email: JSON.parse(JSON.stringify(query.email)),
-    //   type: termsType.broker,
-    // })
-    //   .then(() => {
-    //     loading.value = false;
-    //     replace("/login");
-    //   })
-    //   .catch(() => {
-    //     loading.value = false;
-    //   });
+    modifyUserInfo({
+      ...form,
+      now_email: form.email,
+      now_pre: form.pre,
+      now_mobile: form.mobile,
+      email: undefined,
+      pre: undefined,
+      mobile: undefined
+    })
+      .then(() => {
+        // router.go(0);
+        loading.value = false;
+      })
+      .catch(() => {
+        loading.value = false;
+      });
   });
 };
 
@@ -251,7 +269,7 @@ watch(
         email,
         pre,
         mobile,
-        about: intro,
+        intro,
       });
     }
   },
@@ -259,10 +277,9 @@ watch(
     immediate: true,
   }
 );
-
 </script>
 
-<style scoped lang="less">
+<style lang="less">
 @import "@/styles/variables.less";
 .verify-btn {
   background-color: @clr_charcoal;

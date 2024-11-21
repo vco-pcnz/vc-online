@@ -66,4 +66,8 @@ export default {
   "用户管理": "Users",
   "新密码": "New Password",
   "确认密码": "Confirm new password",
+  "编辑邮箱": "Edit email",
+  "编辑手机号": "Edit phone number",
+  "新邮箱": "New Email",
+  "验证邮箱": "Verify Email"
 }

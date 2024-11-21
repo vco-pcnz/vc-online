@@ -96,5 +96,14 @@ export default {
   "默认": "Default",
   "创建时间": "Creation time",
   "最大费率": "max LVR",
-  "修改成功": "modify successfully"
+  "修改成功": "modify successfully",
+  "全部": "ALL",
+  "系统": "System",
+  "业务": "Business",
+  "标记已读": "Mark Read",
+  "全部已读": "All Read",
+  "关键字": "Keyword",
+  "已读": "Already",
+  "未读": "Unread",
+  "搜索": "Search",
 }

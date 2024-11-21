@@ -235,8 +235,7 @@ watch(() => userDetailStore.userDetail, (val) => {
 
   .profile-info {
     overflow: hidden;
-    border: 1px solid @color_mist;
-    background-color: @clr_card_bg;
+    background-color: #FAF9F9;
     border-radius: 12px;
 
     &-header {
@@ -271,8 +270,7 @@ watch(() => userDetailStore.userDetail, (val) => {
   }
 
   .profile-content {
-    border: 1px solid @color_mist;
-    background-color: @clr_card_bg;
+    background-color: #FAF9F9;
     border-radius: 12px;
     padding: 30px;
   }

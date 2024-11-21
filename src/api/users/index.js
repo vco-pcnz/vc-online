@@ -50,7 +50,7 @@ export const sendCodeOldM = (params) =>
 // 获取新手机验证码
 export const sendCodeNewM = (data) =>
   request({
-    url: "user/center/getCodeNowM",
+    url: "user/center/getCodeNewM",
     method: "post",
     data,
   });

@@ -145,7 +145,10 @@
         :title="t('编辑邮箱')"
         :email="userDetailStore.userDetail?.email"
       />
-      <!-- <change-email v-model:open="verifyMobile.open" :title="t('编辑手机号')" :userDetailStore.userDetail="userDetailStore.userDetail" /> -->
+      <change-mobile
+        v-model:open="verifyMobile.open"
+        :title="t('编辑手机号')"
+      />
     </template>
   </profile-layout>
 </template>
@@ -158,6 +161,7 @@ import useFormData from "@/utils/use-form-data";
 import countdown from "../components/countdown.vue";
 import { sendUnauthECode, sendUnauthCodeM, modifyUserInfo } from "@/api/users";
 import changeEmail from "./change-email.vue";
+import changeMobile from "./change-mobile.vue";
 import { useUserDetailStore } from "@/store";
 import profileLayout from "../components/profile-layout.vue";
 import { message } from "ant-design-vue";

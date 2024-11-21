@@ -2,7 +2,7 @@
   <div class="TabsPanel">
     <div class="Panel">
       <h2 class="Panel-Title">
-        <a-tag class="Tag"> {{ userInfo?.user_name }}` {{ t("用户中心") }} </a-tag>
+        <a-tag class="Tag"> {{ userName }}` {{ t("用户中心") }} </a-tag>
       </h2>
     </div>
     <div class="TabsPanel-Tab">
@@ -55,7 +55,7 @@
       </div>
     </div>
     <div class="profile-content">
-      <slot name="content" :userInfo="userInfo"></slot>
+      <slot name="content"></slot>
     </div>
   </div>
 </template>
@@ -64,13 +64,14 @@
 import { ref, reactive, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
-import { getUserCenter } from "@/api/users";
+import { useUserDetailStore } from "@/store";
 
 const { t } = useI18n();
 const router = useRouter();
-const userInfo = ref();
+const userDetailStore = useUserDetailStore();
 const baseInfo = ref();
 const extraInfo = ref();
+const userName = ref('');
 
 const props = defineProps(["activeTab"]);
 
@@ -96,7 +97,7 @@ const onChange = (key) => {
 };
 
 onMounted(() => {
-  getUserCenter().then((res) => {
+  userDetailStore.getUserInfo().then((res) => {
     const { username, email, email_ok, pre, mobile, mobile_ok, user_name, roles } =
       res;
     const _baseInfo = [
@@ -129,8 +130,8 @@ onMounted(() => {
       },
     ];
     baseInfo.value = _baseInfo;
-    userInfo.value = res;
     extraInfo.value = _extraInfo;
+    userName.value = user_name;
   });
 });
 </script>

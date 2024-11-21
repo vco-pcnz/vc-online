@@ -151,7 +151,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { preMobileOpts, EMAIL_RULE, VERIFY_KEY } from "@/constant";
 import useFormData from "@/utils/use-form-data";
@@ -248,10 +248,19 @@ const handleChange = (key) => {
   }
 };
 
+const reset = () => {
+  Object.keys(verifyEmail).forEach((key) => {
+    verifyEmail[key] = false;
+  });
+  Object.keys(verifyMobile).forEach((key) => {
+    verifyMobile[key] = false;
+  });
+};
+
 const submit = () => {
   formRef.value.validate().then(() => {
     loading.value = true;
-    modifyUserInfo({
+    const newData = {
       ...form,
       now_email: form.email,
       now_pre: form.pre,
@@ -259,9 +268,12 @@ const submit = () => {
       email: undefined,
       pre: undefined,
       mobile: undefined,
-    })
+    };
+    modifyUserInfo(newData)
       .then(() => {
         loading.value = false;
+        userDetailStore.getUserInfo();
+        reset();
       })
       .catch(() => {
         loading.value = false;
@@ -269,21 +281,24 @@ const submit = () => {
   });
 };
 
-onMounted(() => {
-  if (Object.keys(userDetailStore.userDetail).length) {
-    const { firstName, middleName, lastName, email, pre, mobile, intro } =
-      userDetailStore.userDetail;
-    assignFields({
-      firstName,
-      middleName,
-      lastName,
-      email,
-      pre,
-      mobile,
-      intro,
-    });
+watch(
+  () => userDetailStore.userDetail,
+  (val) => {
+    if (Object.keys(val).length) {
+      const { firstName, middleName, lastName, email, pre, mobile, intro } =
+        val;
+      assignFields({
+        firstName,
+        middleName,
+        lastName,
+        email,
+        pre,
+        mobile,
+        intro,
+      });
+    }
   }
-});
+);
 </script>
 
 <style lang="less">

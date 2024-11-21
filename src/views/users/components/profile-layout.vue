@@ -61,7 +61,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { useUserDetailStore } from "@/store";
@@ -71,7 +71,7 @@ const router = useRouter();
 const userDetailStore = useUserDetailStore();
 const baseInfo = ref();
 const extraInfo = ref();
-const userName = ref('');
+const userName = ref("");
 
 const props = defineProps(["activeTab"]);
 
@@ -96,43 +96,59 @@ const onChange = (key) => {
   router.push(`/users/profile/${key}`);
 };
 
+const setUserInfo = (data) => {
+  const {
+    username,
+    email,
+    email_ok,
+    pre,
+    mobile,
+    mobile_ok,
+    user_name,
+    roles,
+  } = data;
+  const _baseInfo = [
+    {
+      label: "ID",
+      value: username,
+    },
+    {
+      icon: "&#xe73b;",
+      label: t("名字"),
+      value: user_name,
+    },
+    {
+      icon: "&#xe66f;",
+      label: t("邮箱"),
+      value: email,
+      isVerify: !!email_ok,
+    },
+    {
+      icon: "&#xe61d;",
+      label: t("手机号"),
+      value: `+${pre} ${mobile}`,
+      isVerify: !!mobile_ok,
+    },
+  ];
+  const _extraInfo = [
+    {
+      icon: "&#xe8db;",
+      value: roles.join(" "),
+    },
+  ];
+  baseInfo.value = _baseInfo;
+  extraInfo.value = _extraInfo;
+  userName.value = user_name;
+};
+
 onMounted(() => {
-  userDetailStore.getUserInfo().then((res) => {
-    const { username, email, email_ok, pre, mobile, mobile_ok, user_name, roles } =
-      res;
-    const _baseInfo = [
-      {
-        label: "ID",
-        value: username,
-      },
-      {
-        icon: "&#xe73b;",
-        label: t("名字"),
-        value: user_name,
-      },
-      {
-        icon: "&#xe66f;",
-        label: t("邮箱"),
-        value: email,
-        isVerify: !!email_ok,
-      },
-      {
-        icon: "&#xe61d;",
-        label: t("手机号"),
-        value: `+${pre} ${mobile}`,
-        isVerify: !!mobile_ok,
-      },
-    ];
-    const _extraInfo = [
-      {
-        icon: "&#xe8db;",
-        value: roles.join(" "),
-      },
-    ];
-    baseInfo.value = _baseInfo;
-    extraInfo.value = _extraInfo;
-    userName.value = user_name;
-  });
+  userDetailStore.getUserInfo();
+});
+
+watch(() => userDetailStore.userDetail, (val) => {
+  if(Object.keys(val)) {
+    setUserInfo(val);
+  }
 });
 </script>
 

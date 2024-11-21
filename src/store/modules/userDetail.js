@@ -13,11 +13,14 @@ const useUserDetailStore = defineStore("VcOnlineUserDetail", {
   },
 
   actions: {
+    setUserDetail(data) {
+      this.userDetail = data;
+    },
     getUserInfo(data) {
       return new Promise((resolve, reject) => {
         getUserCenter(data)
           .then((r) => {
-            this.userDetail = r;
+            this.setUserDetail(r);
             resolve(r);
           })
           .catch((e) => {

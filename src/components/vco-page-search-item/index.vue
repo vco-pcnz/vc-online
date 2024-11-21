@@ -1,7 +1,6 @@
 <template>
   <div class="search-item-content">
     <p v-if="title">{{ title }}</p>
-    <p v-else></p>
     <div class="info-content" :style="{'width': String(width).indexOf('%') > -1 ? width : width + 'px'}">
       <slot></slot>
     </div>

@@ -160,6 +160,7 @@ import { sendUnauthECode, sendUnauthCodeM, modifyUserInfo } from "@/api/users";
 import changeEmail from "./change-email.vue";
 import { useUserDetailStore } from "@/store";
 import profileLayout from "../components/profile-layout.vue";
+import { message } from "ant-design-vue";
 
 const { t } = useI18n();
 const formRef = ref();
@@ -272,6 +273,7 @@ const submit = () => {
     modifyUserInfo(newData)
       .then(() => {
         loading.value = false;
+        message.success(t("修改成功"));
         userDetailStore.getUserInfo();
         reset();
       })

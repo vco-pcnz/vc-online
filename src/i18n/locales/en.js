@@ -89,4 +89,5 @@ export default {
   "默认": "Default",
   "创建时间": "Creation time",
   "最大费率": "max LVR",
+  "修改成功": "modify successfully"
 }

@@ -26,7 +26,7 @@
                 @change="itemcheck"
               ></a-checkbox>
             </li>
-            <li class="notice-info">
+            <li class="notice-info" @click="handleDetail(item)">
               <h3 class="title">{{ item.title }}</h3>
               <p class="content">{{ item.content }}</p>
             </li>
@@ -36,7 +36,7 @@
           v-model:current="paginationData.current"
           show-quick-jumper
           :total="paginationData.total"
-          :show-total="total => `All ${total} Data`"
+          :show-total="(total) => `All ${total} Data`"
         />
       </div>
       <a-empty v-else :image="simpleImage" />
@@ -49,7 +49,7 @@ import { reactive, ref } from "vue";
 import { Empty } from "ant-design-vue";
 import { useI18n } from "vue-i18n";
 
-const emits = defineEmits(["check"]);
+const emit = defineEmits(["update:showDetail", "selectNotice"]);
 
 const props = defineProps({
   tableData: {
@@ -84,6 +84,10 @@ const handleMarkRead = () => {};
 
 const handleAllRead = () => {};
 
+const handleDetail = (item) => {
+  emit("selectNotice", item);
+  emit('update:showDetail', true);
+};
 </script>
 
 <style lang="less" scoped>
@@ -111,11 +115,7 @@ const handleAllRead = () => {};
   &.tr {
     border-radius: 10px;
     margin-top: 10px;
-    cursor: pointer;
     transition: all 0.3s ease;
-    &:hover {
-      border: 1px solid @colorPrimary;
-    }
   }
 
   .notice-info {
@@ -127,6 +127,11 @@ const handleAllRead = () => {};
 
     .title {
       font-weight: 600;
+    }
+
+    &:hover {
+      cursor: pointer;
+      border-color: @colorPrimary;
     }
   }
 }

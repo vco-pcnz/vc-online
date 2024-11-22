@@ -1,39 +1,35 @@
 <template>
-  <span class="arrow arrow-left" @click="goBack">
+  <span class="arrow arrow-left" @click="handlePrevious">
     <i class="iconfont">&#xe794;</i>
   </span>
-  <!-- <span class="arrow arrow-right" @click="handleNext">
+  <span class="arrow arrow-right" @click="handleNext">
     <i class="iconfont">&#xe794;</i>
-  </span> -->
+  </span>
   <div class="header">
-    <h1>{{ noticeStore.noticeDetail.title }}</h1>
-    <p>{{ noticeStore.noticeDetail.create_time }}</p>
+    <h1>{{ noticeDetail.title }}</h1>
+    <p>{{ noticeDetail.create_time }}</p>
   </div>
-  <p class="content">{{ noticeStore.noticeDetail.content }}</p>
+  <p class="content">{{ noticeDetail.content }}</p>
 </template>
 
 <script setup>
-import { onMounted } from "vue";
-import { setNoticeRead } from "@/api/notice";
+import { onMounted, computed } from "vue";
 import { useNoticeStore } from "@/store";
 
 const noticeStore = useNoticeStore();
+const noticeDetail = computed(() => noticeStore.noticeDetail);
 
-const goBack = () => {
-  noticeStore.setShowDetail(false);
-};
+const handlePrevious = () => {};
 
 const handleNext = () => {};
 
-onMounted(() => {
-  const id = noticeStore.noticeDetail.id;
-  if (id) {
-    // TODO
-    // setNoticeRead({ids: [id]}).then(() => {
-    //   noticeStore.getNoticeList();
-    // });
-  }
-});
+// TODO:在获取详情后直接调用已读接口
+// onMounted(() => {
+//   const { id, look } = noticeStore.noticeDetail;
+//   if (!look && id) {
+//     noticeStore.updateNoticeStatus({ ids: [id] });
+//   }
+// });
 </script>
 
 <style scoped lang="less">

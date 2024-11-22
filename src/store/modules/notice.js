@@ -14,6 +14,11 @@ const useNoticeStore = defineStore("VcOnlineNoticeDetail", {
       sort__asc: undefined,
       sort__desc: undefined,
     },
+    pagination: {
+      page: 1,
+      limit: 10,
+    },
+    total: 0,
   }),
   getters: {
     selectedNoticeIds: (state) => {
@@ -51,6 +56,12 @@ const useNoticeStore = defineStore("VcOnlineNoticeDetail", {
         this.getNoticeList();
       });
     },
+    setPaginate(page, limit) {
+      this.pagination = {
+        page,
+        limit,
+      };
+    },
     updateNoticeStatus(data) {
       return new Promise((resolve, reject) => {
         setNoticeRead(data)
@@ -65,11 +76,16 @@ const useNoticeStore = defineStore("VcOnlineNoticeDetail", {
     },
     getNoticeList() {
       const param = this.searchParams;
+      const page = this.pagination;
       return new Promise((resolve, reject) => {
-        getNotices(param)
-          .then((r) => {
-            this.setNoticeList(r);
-            resolve(r);
+        getNotices({
+          ...param,
+          ...page,
+        })
+          .then((res) => {
+            this.setNoticeList(res.data);
+            this.total = res.count;
+            resolve(res.data);
           })
           .catch((e) => {
             reject(e);

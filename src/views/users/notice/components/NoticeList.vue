@@ -35,17 +35,21 @@
                 @change="itemcheck"
               ></a-checkbox>
             </li>
-            <li :class="`notice-info ${item.look > 0 ? 'mark-read' : ''}`" @click="handleDetail(item)">
+            <li
+              :class="`notice-info ${item.look > 0 ? 'mark-read' : ''}`"
+              @click="handleDetail(item)"
+            >
               <h3 class="title">{{ item.title }}</h3>
               <p class="content">{{ item.describe }}</p>
             </li>
           </ul>
         </template>
         <a-pagination
-          v-model:current="paginationData.current"
           show-quick-jumper
-          :total="paginationData.total"
+          show-size-changer
+          :total="total"
           :show-total="(total) => `All ${total} Data`"
+          @change="handlePageChange"
         />
       </div>
       <a-empty v-else :image="simpleImage" />
@@ -61,16 +65,11 @@ import { useNoticeStore } from "@/store";
 
 const noticeStore = useNoticeStore();
 const noticeList = computed(() => noticeStore.noticeList);
+const total = computed(() => noticeStore.total);
 
 const { t } = useI18n();
 
 const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE;
-
-// TODO
-const paginationData = reactive({
-  current: 1,
-  total: 3,
-});
 
 const itemcheck = () => {
   noticeStore.setNoticeCheck();
@@ -92,6 +91,11 @@ const handleAllRead = () => {
 const handleDetail = (item) => {
   noticeStore.setNoticeDetail(item);
   noticeStore.setShowDetail(true);
+};
+
+const handlePageChange = (current, size) => {
+  noticeStore.setPaginate(current, size);
+  noticeStore.getNoticeList();
 };
 </script>
 
@@ -140,7 +144,7 @@ const handleDetail = (item) => {
     }
   }
 
-  .mark-read{
+  .mark-read {
     color: @clr_stone1;
   }
 }

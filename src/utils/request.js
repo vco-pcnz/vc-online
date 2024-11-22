@@ -52,8 +52,9 @@ function createService () {
         response.data.success = false
       }
 
-      const { code, data, msg } = response.data
+      const { code, data, msg, count } = response.data
       if (code === 0) {
+        if(count) return { count, data }
         return data
       } else {
         if (!response.config.diyError) {

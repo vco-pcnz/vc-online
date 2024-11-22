@@ -64,12 +64,11 @@
 import { ref, reactive, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
-import { useUserDetailStore, useUserStore, useNoticeStore } from "@/store";
+import { useUserDetailStore, useNoticeStore } from "@/store";
 
 const { t } = useI18n();
 const router = useRouter();
 const userDetailStore = useUserDetailStore();
-const userStore = useUserStore();
 const noticeStore = useNoticeStore();
 const baseInfo = ref();
 const extraInfo = ref();
@@ -160,7 +159,7 @@ watch(
 );
 
 watch(
-  () => userStore.noticeCount,
+  () => noticeStore.noticeCount,
   (val) => {
     if (val) {
       panes.forEach((item) => {

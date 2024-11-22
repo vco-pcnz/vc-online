@@ -34,8 +34,8 @@
                 <a-badge
                   class="badge"
                   size="small"
-                  :count="userStore.noticeCount"
-                  v-if="!!userStore.noticeCount"
+                  :count="noticeStore.noticeCount"
+                  v-if="!!noticeStore.noticeCount"
                 />
               </a-space>
               <p>{{ userInfo?.roles || 'Vip' }}</p>
@@ -67,7 +67,7 @@ import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { cloneDeep } from "lodash"
 import LanguageSelect from "@/components/language-select/index.vue";
-import { useUserStore } from "@/store";
+import { useUserStore, useNoticeStore } from "@/store";
 import { useRouter, useRoute } from "vue-router";
 
 const { t } = useI18n();
@@ -75,7 +75,8 @@ const router = useRouter();
 const route = useRoute();
 
 const userStore = useUserStore();
-const userInfo = computed(() => userStore.userInfo)
+const userInfo = computed(() => userStore.userInfo);
+const noticeStore = useNoticeStore();
 
 const menuData = computed(() => {
   const data = userStore.routerInfo || []

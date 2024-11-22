@@ -4,10 +4,12 @@ import {
   setNoticeRead,
   setAllRead,
   getNoticeDetail,
+  getUnreadCount
 } from "@/api/notice";
 
 const useNoticeStore = defineStore("VcOnlineNoticeDetail", {
   state: () => ({
+    noticeCount: 0,
     noticeList: [],
     noticeDetail: {},
     checkedAll: false,
@@ -56,6 +58,7 @@ const useNoticeStore = defineStore("VcOnlineNoticeDetail", {
     setAllRead() {
       setAllRead({ sta: this.searchParams.sta }).then(() => {
         this.getNoticeList();
+        this.setNoticeCount();
       });
     },
     setPaginate(page, limit) {
@@ -64,11 +67,15 @@ const useNoticeStore = defineStore("VcOnlineNoticeDetail", {
         limit,
       };
     },
+    setNoticeCount() {
+      getUnreadCount().then((res) => (this.noticeCount = res));
+    },
     updateNoticeStatus(data) {
       return new Promise((resolve, reject) => {
         setNoticeRead(data)
           .then(() => {
             this.getNoticeList();
+            this.setNoticeCount();
             resolve();
           })
           .catch((e) => {

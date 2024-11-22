@@ -3,7 +3,6 @@ import { formatMenus, toTreeData } from "@/router/router-utils";
 import { getUserInfo, getMenuList } from "@/api/user";
 import { getToken, setToken, removeToken } from "@/utils/token-util.js";
 import { login, logout } from "@/api/auth";
-import { getUnreadCount } from "@/api/notice";
 
 const useUserStore = defineStore("VcOnlineUserInfo", {
   state: () => ({
@@ -11,8 +10,7 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
     routerInit: false,
     routerInfo: undefined,
     // 当前登录用户的权限
-    authorities: [],
-    noticeCount: 0,
+    authorities: []
   }),
 
   getters: {
@@ -50,7 +48,6 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
 
       // 用户权限
       this.authorities = result.permissionList;
-      getUnreadCount().then((res) => (this.noticeCount = res));
     },
 
     async requestRouterInfo() {

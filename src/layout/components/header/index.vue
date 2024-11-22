@@ -182,9 +182,6 @@ const handleLogout = () => {
           font-size: 13px;
         }
       }
-
-      
-
       .dropdown_menu {
         align-self: center;
         width: 32px;

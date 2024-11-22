@@ -64,11 +64,12 @@
 import { ref, reactive, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
-import { useUserDetailStore } from "@/store";
+import { useUserDetailStore, useUserStore } from "@/store";
 
 const { t } = useI18n();
 const router = useRouter();
 const userDetailStore = useUserDetailStore();
+const userStore = useUserStore();
 const baseInfo = ref();
 const extraInfo = ref();
 const userName = ref("");
@@ -87,8 +88,7 @@ const panes = reactive([
   {
     key: "notice",
     label: t("通知"),
-    // TODO
-    extraInfo: "15",
+    extraInfo: 0,
   },
 ]);
 
@@ -145,11 +145,30 @@ onMounted(() => {
   userDetailStore.getUserInfo();
 });
 
-watch(() => userDetailStore.userDetail, (val) => {
-  if(Object.keys(val)) {
-    setUserInfo(val);
+watch(
+  () => userDetailStore.userDetail,
+  (val) => {
+    if (Object.keys(val)) {
+      setUserInfo(val);
+    }
   }
-});
+);
+
+watch(
+  () => userStore.noticeCount,
+  (val) => {
+    if (val) {
+      panes.forEach((item) => {
+        if (item.key === "notice") {
+          item.extraInfo = val;
+        }
+      });
+    }
+  },
+  {
+    immediate: true,
+  }
+);
 </script>
 
 <style scoped lang="less">
@@ -236,7 +255,7 @@ watch(() => userDetailStore.userDetail, (val) => {
 
   .profile-info {
     overflow: hidden;
-    background-color: #FAF9F9;
+    background-color: #faf9f9;
     border-radius: 12px;
 
     &-header {
@@ -271,7 +290,7 @@ watch(() => userDetailStore.userDetail, (val) => {
   }
 
   .profile-content {
-    background-color: #FAF9F9;
+    background-color: #faf9f9;
     border-radius: 12px;
     padding: 30px;
   }

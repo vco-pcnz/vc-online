@@ -39,6 +39,9 @@
                 @check="checkHandle"
               ></table-block>
             </div>
+            <div class="mt-5">
+              <a-pagination size="small" :total="50" show-size-changer show-quick-jumper :show-total="total => t('共{0}条', [total])" />
+            </div>
           </a-spin>
         </div>
       </div>
@@ -127,7 +130,13 @@
       maturityDate: '',
       maxLvr: '70%',
       createDate: '2023-01-16',
-      checked: false
+      lm: {
+        avatar: '',
+        name: 'Miss Zhang'
+      },
+      checked: false,
+      status: "审核中",
+      op: true
     },
     {
       id: 'VCO202411240002',
@@ -141,11 +150,17 @@
       borrower_email_ver: true,
       borrower_phone: "+86 18888888881",
       borrower_phone_ver: false,
-      openDate: '2024-06-20',
+      openDate: '2023-06-20',
       maturityDate: '2024-02-12',
       maxLvr: '20%',
       createDate: '2025-01-16',
-      checked: false
+      checked: false,
+      lm: {
+        avatar: '',
+        name: 'Miss ZhangZhangZhangZhang'
+      },
+      status: "带提交",
+      op: false
     },
     {
       id: 'VCO202411240003',
@@ -155,15 +170,17 @@
       loan_money: 99999999,
       borrower: "张小美",
       borrower_ver: true,
-      borrower_email: "misszhang@gmail.com",
+      borrower_email: "misszmisszhangmisszhanghang@gmail.com",
       borrower_email_ver: true,
       borrower_phone: "+86 18888888881",
       borrower_phone_ver: true,
-      openDate: '2024-02-20',
+      openDate: '2023-02-20',
       maturityDate: '2024-02-12',
       maxLvr: '60%',
       createDate: '2024-11-16',
-      checked: false
+      checked: false,
+      status: "审核中",
+      op: true
     }
   ])
 </script>

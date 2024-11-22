@@ -1,6 +1,6 @@
 <template>
   <vco-page-search>
-    <vco-page-search-item :title="t('申请状态')">
+    <vco-page-search-item :title="t('申请状态')" width="100">
       <a-select
         :placeholder="t('请选择')"
         v-model:value="searchForm.type"
@@ -14,7 +14,7 @@
     </vco-page-search-item>
 
     
-    <vco-page-search-item :title="t('贷款人信息')" width="240">
+    <vco-page-search-item :title="t('贷款人信息')" width="220">
       <vco-type-input
         v-model="searchForm.borrower"
         v-model:type="searchForm.borrowerType"
@@ -23,7 +23,7 @@
       ></vco-type-input>
     </vco-page-search-item>
 
-    <vco-page-search-item :title="t('项目信息')" width="240">
+    <vco-page-search-item :title="t('项目信息')" width="220">
       <vco-type-input
         v-model="searchForm.projects"
         v-model:type="searchForm.projectsType"
@@ -36,7 +36,11 @@
       <a-range-picker v-model:value="searchForm.time" />
     </vco-page-search-item>
 
-    <vco-page-search-item :title="t('贷款金额')">
+    <vco-page-search-item :title="t('客户经理')" width="140">
+      <a-input v-model:value="searchForm.lm" :placeholder="t('请输入')" />
+    </vco-page-search-item>
+
+    <vco-page-search-item :title="t('贷款金额')" width="133">
       <a-input v-model:value="searchForm.amount" :placeholder="t('请输入')" />
     </vco-page-search-item>
 
@@ -120,6 +124,7 @@
     time: null,
     projectsType: '',
     projects: '',
+    lm: '',
     amount: ''
   })
 

@@ -13,7 +13,8 @@
         <li>{{ t('项目信息') }}</li>
         <li>{{ t('贷款金额') }}</li>
         <li>{{ t('贷款人信息') }}</li>
-        <li>{{ t('项目日期') }}</li>
+        <li>{{ t('客户经理') }}</li>
+        <li>{{ t('期数') }}</li>
         <li>{{ t('最大费率') }}</li>
         <li>{{ t('创建时间') }}</li>
         <li>{{ t('状态') }}</li>
@@ -55,16 +56,28 @@
               </p>
             </li>
             <li>
-              <div v-if="item.openDate && item.maturityDate" class="time-content">
-                fdsa
+              <div v-if="item.lm" class="peason-info">
+                <vco-avatar :src="item.lm.avatar || ''" :size="22"></vco-avatar>
+                <p>{{ item.lm.name || 'LM Name' }}</p>
               </div>
+              <span v-else>--</span>
+            </li>
+            <li>
+              <vco-time-line
+                v-if="item.openDate && item.maturityDate"
+                :open-date="item.openDate"
+                :maturity-date="item.maturityDate"
+              ></vco-time-line>
               <span v-else>--</span>
             </li>
             <li>{{ item.maxLvr }}</li>
             <li>
               {{ tool.showDate(item.createDate) }}
             </li>
-            <li>fdsa</li>
+            <li>
+              <span v-if="!item.op" class="status-txt">{{ item.status }}</span>
+              <a-button v-else type="primary" shape="round">{{ item.status }}</a-button>
+            </li>
             <li>
               <a-dropdown :trigger="['click']">
                 <a class="ant-dropdown-link" @click.prevent>
@@ -78,7 +91,6 @@
                   </a-menu>
                 </template>
               </a-dropdown>
-              
             </li>
           </ul>
         </template>
@@ -149,7 +161,6 @@
       border: 1px solid #e2e5e2;
       border-radius: 10px;
       margin-top: 10px;
-      cursor: pointer;
       transition: all 0.3s ease;
       &:hover {
         border-color: @colorPrimary;
@@ -167,7 +178,7 @@
       align-items: center;
       justify-content: center;
       :deep(.ant-statistic-content) {
-        font-size: 16px;
+        font-size: 15px;
       }
       &.check {
         flex: 0 auto;
@@ -183,27 +194,27 @@
       }
       &:nth-child(4) {
         flex: 0 auto;
-        width: 150px;
+        width: 130px;
       }
       &:nth-child(5) {
         flex: 0 auto;
         width: 180px;
       }
-      // &:nth-child(6) {
-      //   flex: 0 auto;
-      //   width: 210px;
-      // }
-      &:nth-child(7) {
-        flex: 0 auto;
-        width: 90px;
-      }
-      &:nth-child(8) {
+      &:nth-child(6) {
         flex: 0 auto;
         width: 120px;
       }
+      &:nth-child(8) {
+        flex: 0 auto;
+        width: 80px;
+      }
       &:nth-child(9) {
         flex: 0 auto;
-        width: 140px;
+        width: 100px;
+      }
+      &:nth-child(10) {
+        flex: 0 auto;
+        width: 120px;
       }
       &:last-child {
         flex: 0 auto;
@@ -237,5 +248,24 @@
         }
       }
     }
+  }
+
+  .peason-info {
+    position: relative;
+    .vco-avatar {
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+    > p {
+      line-height: 22px;
+      text-indent: 28px;
+      word-break: break-all;
+    }
+  }
+
+  .status-txt {
+    font-size: 14px;
+    font-weight: bold;
   }
 </style>

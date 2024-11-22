@@ -31,10 +31,11 @@
             <li class="check">
               <a-checkbox
                 v-model:checked="item.checked"
+                :disabled="item.look === 1"
                 @change="itemcheck"
               ></a-checkbox>
             </li>
-            <li class="notice-info" @click="handleDetail(item)">
+            <li :class="`notice-info ${item.look > 0 ? 'mark-read' : ''}`" @click="handleDetail(item)">
               <h3 class="title">{{ item.title }}</h3>
               <p class="content">{{ item.content }}</p>
             </li>
@@ -57,7 +58,6 @@ import { reactive, computed } from "vue";
 import { Empty } from "ant-design-vue";
 import { useI18n } from "vue-i18n";
 import { useNoticeStore } from "@/store";
-import { setNoticeRead } from "@/api/notice";
 
 const noticeStore = useNoticeStore();
 const noticeList = computed(() => noticeStore.noticeList);
@@ -81,10 +81,12 @@ const checkedAllHandle = (e) => {
   noticeStore.setAllNoticeCheck(flag);
 };
 
-const handleMarkRead = () => {};
+const handleMarkRead = () => {
+  noticeStore.updateNoticeStatus({ ids: noticeStore.selectedNoticeIds });
+};
 
 const handleAllRead = () => {
-  setNoticeRead({ ids: noticeStore.selectedNoticeIds });
+  // setNoticeRead();
 };
 
 const handleDetail = (item) => {
@@ -136,6 +138,10 @@ const handleDetail = (item) => {
       cursor: pointer;
       border-color: @colorPrimary;
     }
+  }
+
+  .mark-read{
+    color: @clr_stone1;
   }
 }
 </style>

@@ -26,17 +26,46 @@
           <a-row :gutter="8">
             <a-col :span="20">
               <a-form-item name="email" :label="t('邮箱')">
-                <a-input v-model:value="form.email" :placeholder="t('邮箱')" />
+                <a-input
+                  v-model:value="form.email"
+                  :placeholder="t('邮箱')"
+                  :disabled="!!userDetailStore.userDetail?.email_ok"
+                />
               </a-form-item>
             </a-col>
-            <a-col :span="4">
+            <a-col :span="4" v-if="!verifyEmail.showCountdown">
               <a-form-item label=" ">
-                <a-button @click="sendVerify" block class="validate_btn">
+                <a-button
+                  v-if="!userDetailStore.userDetail?.email_ok"
+                  @click="handleVerify(VERIFY_KEY.EMAIL)"
+                  block
+                  class="verify-btn"
+                >
+                  {{ t("验证") }}
+                </a-button>
+                <a-button
+                  v-else
+                  @click="handleChange(VERIFY_KEY.EMAIL)"
+                  block
+                  class="verify-btn"
+                >
                   {{ t("变更") }}
                 </a-button>
               </a-form-item>
             </a-col>
+            <a-col :span="4" v-else>
+              <a-form-item label=" ">
+                <countdown v-model:show="verifyEmail.showCountdown" />
+              </a-form-item>
+            </a-col>
           </a-row>
+        </a-form-item>
+        <a-form-item
+          name="emailCode"
+          :label="t('验证码V')"
+          v-if="verifyEmail.showCode"
+        >
+          <a-input v-model:value="form.emailCode" :placeholder="t('验证码V')" />
         </a-form-item>
         <a-form-item :label="t('手机号')" name="mobile">
           <a-row :gutter="8">
@@ -46,67 +75,125 @@
                   v-model:value="form.pre"
                   :options="preMobileOpts"
                   class="pre_mobile"
+                  :disabled="!!userDetailStore.userDetail?.mobile_ok"
                 />
               </a-form-item-rest>
             </a-col>
             <a-col :span="16">
-              <a-input v-model:value="form.mobile" :placeholder="t('手机号')" />
+              <a-input
+                v-model:value="form.mobile"
+                :placeholder="t('手机号')"
+                :disabled="!!userDetailStore.userDetail?.mobile_ok"
+              />
             </a-col>
-            <a-col :span="4">
+            <a-col :span="4" v-if="!verifyMobile.showCountdown">
               <a-form-item-rest>
-                <a-button @click="sendVerify" block>
+                <a-button
+                  v-if="!userDetailStore.userDetail?.mobile_ok"
+                  @click="handleVerify(VERIFY_KEY.MOBILE)"
+                  block
+                  class="verify-btn"
+                >
                   {{ t("验证") }}
                 </a-button>
+                <a-button
+                  v-else
+                  @click="handleChange(VERIFY_KEY.MOBILE)"
+                  block
+                  class="verify-btn"
+                >
+                  {{ t("变更") }}
+                </a-button>
+              </a-form-item-rest>
+            </a-col>
+            <a-col :span="4" v-else>
+              <a-form-item-rest>
+                <countdown v-model:show="verifyMobile.showCountdown" />
               </a-form-item-rest>
             </a-col>
           </a-row>
         </a-form-item>
-        <a-form-item name="code" :label="t('验证码V')">
-          <a-input v-model:value="form.code" :placeholder="t('验证码V')" />
+        <a-form-item
+          name="mobileCode"
+          :label="t('验证码V')"
+          v-if="verifyMobile.showCode"
+        >
+          <a-input
+            v-model:value="form.mobileCode"
+            :placeholder="t('验证码V')"
+          />
         </a-form-item>
-        <a-form-item name="about" :label="t('关于')">
-          <a-textarea v-model:value="form.about" :placeholder="t('关于')" />
+        <a-form-item name="intro" :label="t('关于')">
+          <a-textarea v-model:value="form.intro" :placeholder="t('关于')" />
         </a-form-item>
         <a-row>
           <a-col :span="6" :offset="9">
             <a-button
+              type="primary"
               size="large"
               :loading="loading"
               @click="submit"
               block
-              class="submit-btn"
             >
               {{ t("提交") }}
             </a-button>
           </a-col>
         </a-row>
       </a-form>
+      <change-email
+        v-model:open="verifyEmail.open"
+        :title="t('编辑邮箱')"
+        :email="userDetailStore.userDetail?.email"
+      />
+      <change-mobile
+        v-model:open="verifyMobile.open"
+        :title="t('编辑手机号')"
+      />
     </template>
   </profile-layout>
 </template>
 
 <script setup>
-import { ref, reactive } from "vue";
+import { ref, reactive, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { useUserStore } from "@/store";
-import { preMobileOpts, EMAIL_RULE } from "@/constant";
+import { preMobileOpts, EMAIL_RULE, VERIFY_KEY } from "@/constant";
+import useFormData from "@/utils/use-form-data";
+import countdown from "../components/countdown.vue";
+import { sendUnauthECode, sendUnauthCodeM, modifyUserInfo } from "@/api/users";
+import changeEmail from "./change-email.vue";
+import changeMobile from "./change-mobile.vue";
+import { useUserDetailStore } from "@/store";
 import profileLayout from "../components/profile-layout.vue";
+import { message } from "ant-design-vue";
 
 const { t } = useI18n();
-const userStore = useUserStore();
 const formRef = ref();
 const loading = ref(false);
 
+const userDetailStore = useUserDetailStore();
+
+const verifyEmail = reactive({
+  showCode: false,
+  showCountdown: false,
+  open: false,
+});
+const verifyMobile = reactive({
+  showCode: false,
+  showCountdown: false,
+  open: false,
+});
+
 // 表单数据
-const form = reactive({
+const { form, assignFields } = useFormData({
   firstName: "",
   middleName: "",
   lastName: "",
   email: "",
+  emailCode: "",
   pre: "64",
   mobile: "",
-  about: "",
-  code: "",
+  intro: "",
+  mobileCode: "",
 });
 
 // 表单验证规则
@@ -137,65 +224,93 @@ const rules = reactive({
   ],
   email: [
     {
-      required: true,
-      message: t("请输入") + t("邮箱"),
-      type: "string",
-      trigger: "blur",
-    },
-    {
       pattern: EMAIL_RULE,
       message: t("邮箱格式不正确"),
     },
   ],
-  code: [
-    {
-      required: true,
-      message: t("请输入") + t("验证码V"),
-      type: "string",
-      trigger: "blur",
-    },
-  ],
-  mobile: [
-    {
-      required: true,
-      message: t("请输入") + t("手机号"),
-      type: "string",
-      trigger: "blur",
-    },
-  ],
 });
 
-const handleChange = () => {};
+const handleVerify = (key) => {
+  if (key === VERIFY_KEY.EMAIL) {
+    sendUnauthECode({ email: form.email });
+    verifyEmail.showCode = true;
+    verifyEmail.showCountdown = true;
+  } else if (key === VERIFY_KEY.MOBILE) {
+    sendUnauthCodeM({
+      pre: form.pre,
+      mobile: form.mobile,
+    });
+    verifyMobile.showCode = true;
+    verifyMobile.showCountdown = true;
+  }
+};
 
-const sendVerify = () => {};
+const handleChange = (key) => {
+  if (key === VERIFY_KEY.EMAIL) {
+    verifyEmail.open = true;
+  } else if (key === VERIFY_KEY.MOBILE) {
+    verifyMobile.open = true;
+  }
+};
+
+const reset = () => {
+  Object.keys(verifyEmail).forEach((key) => {
+    verifyEmail[key] = false;
+  });
+  Object.keys(verifyMobile).forEach((key) => {
+    verifyMobile[key] = false;
+  });
+};
+
 const submit = () => {
   formRef.value.validate().then(() => {
     loading.value = true;
-    // roleApply({
-    //   ...form,
-    //   email: JSON.parse(JSON.stringify(query.email)),
-    //   type: termsType.broker,
-    // })
-    //   .then(() => {
-    //     loading.value = false;
-    //     replace("/login");
-    //   })
-    //   .catch(() => {
-    //     loading.value = false;
-    //   });
+    const newData = {
+      ...form,
+      now_email: form.email,
+      now_pre: form.pre,
+      now_mobile: form.mobile,
+      email: undefined,
+      pre: undefined,
+      mobile: undefined,
+    };
+    modifyUserInfo(newData)
+      .then(() => {
+        loading.value = false;
+        message.success(t("修改成功"));
+        userDetailStore.getUserInfo();
+        reset();
+      })
+      .catch(() => {
+        loading.value = false;
+      });
   });
 };
+
+watch(
+  () => userDetailStore.userDetail,
+  (val) => {
+    if (Object.keys(val).length) {
+      const { firstName, middleName, lastName, email, pre, mobile, intro } =
+        val;
+      assignFields({
+        firstName,
+        middleName,
+        lastName,
+        email,
+        pre,
+        mobile,
+        intro,
+      });
+    }
+  }
+);
 </script>
 
-<style scoped lang="less">
+<style lang="less">
 @import "@/styles/variables.less";
-.ant-btn {
+.verify-btn {
   background-color: @clr_charcoal;
   color: @clr_white;
-}
-
-.submit-btn {
-  background-color: @clr_cyan;
-  color: @clr_charcoal;
 }
 </style>

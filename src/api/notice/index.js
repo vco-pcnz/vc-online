@@ -1,10 +1,11 @@
 import { request } from "@/utils/request";
 
 // 站内信列表
-export const getNotices = () =>
+export const getNotices = (params) =>
   request({
     url: "system/message/index",
     method: "get",
+    params
   });
 
 // 信息已读

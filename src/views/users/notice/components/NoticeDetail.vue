@@ -28,9 +28,10 @@ const handleNext = () => {};
 onMounted(() => {
   const id = noticeStore.noticeDetail.id;
   if (id) {
-    setNoticeRead([id]).then(() => {
-      noticeStore.getNoticeList();
-    });
+    // TODO
+    // setNoticeRead({ids: [id]}).then(() => {
+    //   noticeStore.getNoticeList();
+    // });
   }
 });
 </script>

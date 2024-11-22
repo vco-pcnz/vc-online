@@ -6,10 +6,27 @@ const useNoticeStore = defineStore("VcOnlineNoticeDetail", {
     noticeList: [],
     noticeDetail: {},
     checkedAll: false,
-    showDetail: false
+    showDetail: false,
+    searchParams: {
+      sta: 0, // 0All 1System 2Business
+      key: 'all', // all，unread，already
+      keywords: undefined,
+      sort__asc: undefined,
+      sort__desc: undefined
+    },
   }),
-
+  getters: {
+    selectedNoticeIds: (state) => {
+      return state.noticeList.filter(item => item.checked).map(item => item.id);
+    }
+  },
   actions: {
+    setNoticeSearchParams(data) {
+      this.searchParams = {
+        ...this.searchParams,
+        ...data
+      };
+    },
     setNoticeList(data) {
       this.noticeList = data;
     },
@@ -27,9 +44,10 @@ const useNoticeStore = defineStore("VcOnlineNoticeDetail", {
     setShowDetail(flag) {
       this.showDetail = flag;
     },
-    getNoticeList(params) {
+    getNoticeList() {
+      const param = this.searchParams;
       return new Promise((resolve, reject) => {
-        getNotices(params)
+        getNotices(param)
           .then((r) => {
             this.setNoticeList(r);
             resolve(r);

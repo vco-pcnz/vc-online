@@ -9,12 +9,20 @@
           ></a-checkbox>
         </li>
         <li>
-          <a-button @click="handleMarkRead">{{ t("标记已读") }}</a-button>
+          <a-button
+            type="primary"
+            @click="handleMarkRead"
+            :disabled="!noticeStore.selectedNoticeIds.length"
+            >{{ t("标记已读") }}</a-button
+          >
         </li>
         <li>
-          <a-button @click="handleAllRead" :disabled="!noticeList.length">{{
-            t("全部已读")
-          }}</a-button>
+          <a-button
+            type="primary"
+            @click="handleAllRead"
+            :disabled="!noticeList.length"
+            >{{ t("全部已读") }}</a-button
+          >
         </li>
       </ul>
       <div v-if="noticeList.length" class="table-body">
@@ -49,6 +57,7 @@ import { reactive, computed } from "vue";
 import { Empty } from "ant-design-vue";
 import { useI18n } from "vue-i18n";
 import { useNoticeStore } from "@/store";
+import { setNoticeRead } from "@/api/notice";
 
 const noticeStore = useNoticeStore();
 const noticeList = computed(() => noticeStore.noticeList);
@@ -74,7 +83,9 @@ const checkedAllHandle = (e) => {
 
 const handleMarkRead = () => {};
 
-const handleAllRead = () => {};
+const handleAllRead = () => {
+  setNoticeRead({ ids: noticeStore.selectedNoticeIds });
+};
 
 const handleDetail = (item) => {
   noticeStore.setNoticeDetail(item);

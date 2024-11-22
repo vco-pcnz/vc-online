@@ -34,8 +34,8 @@
                 <a-badge
                   class="badge"
                   size="small"
-                  :count="notifications.length"
-                  v-if="!!notifications.length"
+                  :count="userStore.noticeCount"
+                  v-if="!!userStore.noticeCount"
                 />
               </a-space>
               <p>{{ userInfo?.roles || 'Vip' }}</p>
@@ -107,8 +107,6 @@ const isActive = (path) => {
 const isUserActive = () => {
   return route.path.startsWith('/users/profile')
 }
-
-const notifications = ref(Array(120).fill(1));
 
 const menuItem = [
   { label: t('编辑详情'), key: "edit-profile", to: "/users/profile/about" },

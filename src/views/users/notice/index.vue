@@ -3,11 +3,13 @@
     <template #content>
       <template v-if="!noticeStore.showDetail">
         <a-tabs v-model:activeKey="activeKey">
-          <a-tab-pane key="all" :tab="t('全部')">
+          <a-tab-pane
+            v-for="item in noticeTabPane"
+            :key="item.key"
+            :tab="item.name"
+          >
             <notice-list />
           </a-tab-pane>
-          <a-tab-pane key="system" :tab="t('系统')">2</a-tab-pane>
-          <a-tab-pane key="business" :tab="t('业务')">3</a-tab-pane>
           <template #rightExtra>
             <notice-search />
           </template>
@@ -21,7 +23,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import profileLayout from "../components/profile-layout.vue";
 import NoticeList from "./components/NoticeList.vue";
@@ -30,12 +32,34 @@ import NoticeDetail from "./components/NoticeDetail.vue";
 import { useNoticeStore } from "@/store";
 
 const { t } = useI18n();
-const activeKey = ref("all");
+const activeKey = ref(0);
 const noticeStore = useNoticeStore();
 
-onMounted(() => {
-  noticeStore.getNoticeList();
-});
+const noticeTabPane = [
+  {
+    name: t("全部"),
+    key: 0
+  },
+  {
+    name: t("系统"),
+    key: 1
+  },
+  {
+    name: t("业务"),
+    key: 2
+  },
+];
+
+watch(
+  () => activeKey.value,
+  (val) => {
+    noticeStore.setNoticeSearchParams({ sta: val });
+    noticeStore.getNoticeList();
+  },
+  {
+    immediate: true,
+  }
+);
 </script>
 
 <style scoped lang="less"></style>

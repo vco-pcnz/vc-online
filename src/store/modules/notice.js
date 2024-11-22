@@ -1,5 +1,10 @@
 import { defineStore } from "pinia";
-import { getNotices, setNoticeRead, setAllRead } from "@/api/notice";
+import {
+  getNotices,
+  setNoticeRead,
+  setAllRead,
+  getNoticeDetail,
+} from "@/api/notice";
 
 const useNoticeStore = defineStore("VcOnlineNoticeDetail", {
   state: () => ({
@@ -36,9 +41,6 @@ const useNoticeStore = defineStore("VcOnlineNoticeDetail", {
     },
     setNoticeList(data) {
       this.noticeList = data;
-    },
-    setNoticeDetail(data) {
-      this.noticeDetail = data;
     },
     setNoticeCheck() {
       const length = this.noticeList.filter((item) => item.checked).length;
@@ -90,6 +92,15 @@ const useNoticeStore = defineStore("VcOnlineNoticeDetail", {
           .catch((e) => {
             reject(e);
           });
+      });
+    },
+    getNoticeDetail(id) {
+      const { sta } = this.searchParams;
+      getNoticeDetail({ id, sta }).then((res) => {
+        this.noticeDetail = res;
+        if(!res.look) {
+          this.updateNoticeStatus({ ids: [id] });
+        }
       });
     },
   },

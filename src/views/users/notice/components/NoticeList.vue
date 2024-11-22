@@ -89,8 +89,8 @@ const handleAllRead = () => {
 };
 
 const handleDetail = (item) => {
-  noticeStore.setNoticeDetail(item);
   noticeStore.setShowDetail(true);
+  noticeStore.getNoticeDetail(item.id);
 };
 
 const handlePageChange = (current, size) => {

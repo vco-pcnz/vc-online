@@ -1,35 +1,39 @@
 <template>
-  <span class="arrow arrow-left" @click="handlePrevious">
+  <span
+    class="arrow arrow-left"
+    @click="handlePrevious"
+    v-if="noticeDetail.previous_id"
+  >
     <i class="iconfont">&#xe794;</i>
   </span>
-  <span class="arrow arrow-right" @click="handleNext">
+  <span
+    class="arrow arrow-right"
+    @click="handleNext"
+    v-if="noticeDetail.next_id"
+  >
     <i class="iconfont">&#xe794;</i>
   </span>
   <div class="header">
     <h1>{{ noticeDetail.title }}</h1>
-    <p>{{ noticeDetail.create_time }}</p>
+    <div>{{ noticeDetail.create_time }}</div>
   </div>
-  <p class="content">{{ noticeDetail.content }}</p>
+  <div class="content">{{ noticeDetail.content }}</div>
 </template>
 
 <script setup>
-import { onMounted, computed } from "vue";
+import { computed } from "vue";
 import { useNoticeStore } from "@/store";
 
 const noticeStore = useNoticeStore();
 const noticeDetail = computed(() => noticeStore.noticeDetail);
 
-const handlePrevious = () => {};
+const handlePrevious = () => {
+  noticeStore.getNoticeDetail(noticeDetail.value.previous_id);
+};
 
-const handleNext = () => {};
-
-// TODO:在获取详情后直接调用已读接口
-// onMounted(() => {
-//   const { id, look } = noticeStore.noticeDetail;
-//   if (!look && id) {
-//     noticeStore.updateNoticeStatus({ ids: [id] });
-//   }
-// });
+const handleNext = () => {
+  noticeStore.getNoticeDetail(noticeDetail.value.next_id);
+};
 </script>
 
 <style scoped lang="less">
@@ -61,6 +65,7 @@ const handleNext = () => {};
 
   h1 {
     font-weight: 600;
+    margin-bottom: 6px;
   }
 }
 

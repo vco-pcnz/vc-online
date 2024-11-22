@@ -30,3 +30,11 @@ export const setAllRead = (params) =>
     method: "get",
     params,
   });
+
+// 站内信详情
+export const getNoticeDetail = (params) =>
+  request({
+    url: "system/message/info",
+    method: "get",
+    params,
+  });

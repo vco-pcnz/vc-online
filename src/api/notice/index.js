@@ -5,7 +5,7 @@ export const getNotices = (params) =>
   request({
     url: "system/message/index",
     method: "get",
-    params
+    params,
   });
 
 // 信息已读
@@ -16,8 +16,15 @@ export const setNoticeRead = (data) =>
     data,
   });
 
-// 信息已读
+// 信息未读
 export const getUnreadCount = () =>
+  request({
+    url: "system/message/count",
+    method: "get",
+  });
+
+// 全部已读
+export const setAllRead = () =>
   request({
     url: "system/message/count",
     method: "get",

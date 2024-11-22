@@ -64,12 +64,13 @@
 import { ref, reactive, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
-import { useUserDetailStore, useUserStore } from "@/store";
+import { useUserDetailStore, useUserStore, useNoticeStore } from "@/store";
 
 const { t } = useI18n();
 const router = useRouter();
 const userDetailStore = useUserDetailStore();
 const userStore = useUserStore();
+const noticeStore = useNoticeStore();
 const baseInfo = ref();
 const extraInfo = ref();
 const userName = ref("");
@@ -93,7 +94,11 @@ const panes = reactive([
 ]);
 
 const onChange = (key) => {
-  router.push(`/users/profile/${key}`);
+  if(noticeStore.showDetail) {
+    noticeStore.setShowDetail(false);
+  } else {
+    router.push(`/users/profile/${key}`);
+  }
 };
 
 const setUserInfo = (data) => {

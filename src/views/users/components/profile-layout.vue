@@ -228,6 +228,7 @@ watch(() => userDetailStore.userDetail, (val) => {
 }
 
 .profile-container {
+  position: relative;
   display: grid;
   grid-template-columns: 315px 1fr;
   gap: 24px;

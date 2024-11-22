@@ -4,7 +4,7 @@
       <ul class="table-col header">
         <li class="check">
           <a-checkbox
-            v-model:checked="checkedAll"
+            v-model:checked="noticeStore.checkedAll"
             @change="checkedAllHandle"
           ></a-checkbox>
         </li>
@@ -12,13 +12,13 @@
           <a-button @click="handleMarkRead">{{ t("标记已读") }}</a-button>
         </li>
         <li>
-          <a-button @click="handleAllRead" :disabled="!tableData.length">{{
+          <a-button @click="handleAllRead" :disabled="!noticeList.length">{{
             t("全部已读")
           }}</a-button>
         </li>
       </ul>
-      <div v-if="tableData.length" class="table-body">
-        <template v-for="item in tableData" :key="item.id">
+      <div v-if="noticeList.length" class="table-body">
+        <template v-for="item in noticeList" :key="item.id">
           <ul class="table-col tr">
             <li class="check">
               <a-checkbox
@@ -45,24 +45,18 @@
 </template>
 
 <script setup>
-import { reactive, ref } from "vue";
+import { reactive, computed } from "vue";
 import { Empty } from "ant-design-vue";
 import { useI18n } from "vue-i18n";
+import { useNoticeStore } from "@/store";
 
-const emit = defineEmits(["update:showDetail", "selectNotice"]);
-
-const props = defineProps({
-  tableData: {
-    type: Array,
-    default: () => [],
-  },
-});
+const noticeStore = useNoticeStore();
+const noticeList = computed(() => noticeStore.noticeList);
 
 const { t } = useI18n();
 
 const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE;
 
-const checkedAll = ref(false);
 // TODO
 const paginationData = reactive({
   current: 1,
@@ -70,14 +64,12 @@ const paginationData = reactive({
 });
 
 const itemcheck = () => {
-  const length = props.tableData.filter((item) => item.checked).length;
-  checkedAll.value = length === props.tableData.length;
+  noticeStore.setNoticeCheck();
 };
 
 const checkedAllHandle = (e) => {
   const flag = e.target.checked;
-  checkedAll.value = flag;
-  props.tableData.forEach((item) => (item.checked = flag));
+  noticeStore.setAllNoticeCheck(flag);
 };
 
 const handleMarkRead = () => {};
@@ -85,8 +77,8 @@ const handleMarkRead = () => {};
 const handleAllRead = () => {};
 
 const handleDetail = (item) => {
-  emit("selectNotice", item);
-  emit('update:showDetail', true);
+  noticeStore.setNoticeDetail(item);
+  noticeStore.setShowDetail(true);
 };
 </script>
 

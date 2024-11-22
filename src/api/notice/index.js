@@ -1,7 +1,7 @@
 import { request } from "@/utils/request";
 
 // 站内信列表
-export const getNoticeList = () =>
+export const getNotices = () =>
   request({
     url: "system/message/index",
     method: "get",

@@ -1,40 +1,64 @@
 <template>
-  <div class="nav">
-    <span class="arrow arrow-left" @click="goBack">
-      <i class="iconfont">&#xe794;</i>
-    </span>
-    <!-- <span class="arrow arrow-right" @click="handleNext">
-      <i class="iconfont">&#xe794;</i>
-    </span> -->
-  </div>
+  <span class="arrow arrow-left" @click="goBack">
+    <i class="iconfont">&#xe794;</i>
+  </span>
+  <!-- <span class="arrow arrow-right" @click="handleNext">
+    <i class="iconfont">&#xe794;</i>
+  </span> -->
   <div class="header">
-    <h1>{{ noticeInfo.title }}</h1>
-    <p>{{ noticeInfo.create_time }}</p>
+    <h1>{{ noticeStore.noticeDetail.title }}</h1>
+    <p>{{ noticeStore.noticeDetail.create_time }}</p>
   </div>
-  <p class="content">{{ noticeInfo.content }}</p>
+  <p class="content">{{ noticeStore.noticeDetail.content }}</p>
 </template>
 
 <script setup>
-import { defineProps } from "vue";
+import { onMounted } from "vue";
+import { setNoticeRead } from "@/api/notice";
+import { useNoticeStore } from "@/store";
 
-const props = defineProps({
-  noticeInfo: {
-    type: Object,
-    default: {},
-  },
-});
-
-const emits = defineEmits(["update:showDetail"]);
+const noticeStore = useNoticeStore();
 
 const goBack = () => {
-  emits("update:showDetail", false);
+  noticeStore.setShowDetail(false);
 };
 
 const handleNext = () => {};
+
+onMounted(() => {
+  const id = noticeStore.noticeDetail.id;
+  if (id) {
+    setNoticeRead([id]).then(() => {
+      noticeStore.getNoticeList();
+    });
+  }
+});
 </script>
 
 <style scoped lang="less">
 @import "@/styles/variables.less";
+
+.arrow:hover {
+  cursor: pointer;
+}
+
+.iconfont {
+  color: @clr_stone1;
+}
+
+.arrow-left {
+  position: absolute;
+  top: 15px;
+  transform: rotate(-180deg);
+}
+
+.arrow-right {
+  position: absolute;
+  top: 15px;
+  right: 30px;
+  text-align: right;
+}
+
 .header {
   text-align: center;
 
@@ -47,26 +71,5 @@ const handleNext = () => {};
   margin-top: 20px;
   padding-top: 20px;
   border-top: 1px solid @clr_stone1;
-}
-
-.nav {
-  display: flex;
-  justify-content: space-between;
-
-  .arrow:hover {
-    cursor: pointer;
-  }
-
-  .iconfont {
-    color: @clr_stone1;
-  }
-
-  .arrow-left {
-    transform: rotate(-180deg);
-  }
-
-  .arrow-right {
-    text-align: right;
-  }
 }
 </style>

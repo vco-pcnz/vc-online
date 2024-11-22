@@ -37,7 +37,7 @@
             </li>
             <li :class="`notice-info ${item.look > 0 ? 'mark-read' : ''}`" @click="handleDetail(item)">
               <h3 class="title">{{ item.title }}</h3>
-              <p class="content">{{ item.content }}</p>
+              <p class="content">{{ item.describe }}</p>
             </li>
           </ul>
         </template>
@@ -86,7 +86,7 @@ const handleMarkRead = () => {
 };
 
 const handleAllRead = () => {
-  // setNoticeRead();
+  noticeStore.setAllRead();
 };
 
 const handleDetail = (item) => {

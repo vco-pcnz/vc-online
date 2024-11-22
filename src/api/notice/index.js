@@ -24,8 +24,9 @@ export const getUnreadCount = () =>
   });
 
 // 全部已读
-export const setAllRead = () =>
+export const setAllRead = (params) =>
   request({
-    url: "system/message/count",
+    url: "system/message/readAll",
     method: "get",
+    params,
   });

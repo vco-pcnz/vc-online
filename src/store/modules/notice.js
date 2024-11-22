@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { getNotices, setNoticeRead } from "@/api/notice";
+import { getNotices, setNoticeRead, setAllRead } from "@/api/notice";
 
 const useNoticeStore = defineStore("VcOnlineNoticeDetail", {
   state: () => ({
@@ -45,6 +45,11 @@ const useNoticeStore = defineStore("VcOnlineNoticeDetail", {
     },
     setShowDetail(flag) {
       this.showDetail = flag;
+    },
+    setAllRead() {
+      setAllRead({ sta: this.searchParams.sta }).then(() => {
+        this.getNoticeList();
+      });
     },
     updateNoticeStatus(data) {
       return new Promise((resolve, reject) => {

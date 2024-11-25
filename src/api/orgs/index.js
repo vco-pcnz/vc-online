@@ -8,11 +8,11 @@ export const getCategory = () =>
   });
 
 // 列表
-export const getList = (data) =>
+export const getList = (params) =>
   request({
     url: "stake/index",
     method: "get",
-    data,
+    params,
   });
 
 

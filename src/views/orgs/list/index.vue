@@ -46,15 +46,10 @@
                 @check="checkHandle"
               ></table-block>
             </div>
-            <div class="mt-5">
-              <a-pagination
-                size="small"
-                :total="50"
-                show-size-changer
-                show-quick-jumper
-                :show-total="(total) => t('共{0}条', [total])"
-              />
-            </div>
+            <vco-table-pagination
+              v-model="pagination"
+              @change="loadData"
+            ></vco-table-pagination>
           </a-spin>
         </div>
       </div>
@@ -67,6 +62,7 @@ import { ref, computed, reactive, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import TableSearch from "./components/TableSearch.vue";
 import TableBlock from "./components/TableBlock.vue";
+import VcoTablePagination from "@/components/vco-table-pagination/index.vue";
 import { navigationTo } from "@/utils/tool";
 import { getCategory, getList } from "@/api/orgs";
 
@@ -98,11 +94,21 @@ const sortTypeData = [
 ];
 
 const tabChange = () => {
-  console.log(currentTab.value);
+  pagination.value.page = 1;
+  loadData();
 };
 
+const pagination = ref({
+  count: 0,
+  page: 1,
+  limit: 2,
+});
+
+let params = {};
 const searchHandle = (data) => {
-  console.log("search", data);
+  pagination.value.page = 1
+  params = data;
+  loadData();
 };
 
 const rowSelection = computed(() => {
@@ -116,82 +122,20 @@ const checkHandle = (flag) => {
 };
 
 const tableLoading = ref(false);
-const tableData = ref([
-  {
-    id: "VCO202411240001",
-    project_name: "张小美普通贷款项目",
-    project_images:
-      "https://pcnz-staging-api.s3.ap-southeast-2.amazonaws.com/project/d169c5e8-7abe-4466-9b69-c98f535f5e8f/30621/AzMYrljhQtVU7ALbHdERn63nMT0oOV6QVEwSB9kr.jpg",
-    address:
-      "Corporate headquarters and logistics centre in Mansfield, Texas USA.",
-    loan_money: 99999999,
-    borrower: "张小美",
-    borrower_ver: true,
-    borrower_email: "misszhang@gmail.com",
-    borrower_email_ver: false,
-    borrower_phone: "+86 18888888881",
-    borrower_phone_ver: false,
-    openDate: "",
-    maturityDate: "",
-    maxLvr: "70%",
-    createDate: "2023-01-16",
-    lm: {
-      avatar: "",
-      name: "Miss Zhang",
-    },
-    checked: false,
-    status: "审核中",
-    op: true,
-  },
-  {
-    id: "VCO202411240002",
-    project_name: "张小美普通贷款项目2张小美普通贷款项目2张小美普通贷款项目2",
-    project_images: "",
-    address:
-      "Corporate headquarters and logistics centre in Mansfield, Texas USA.",
-    loan_money: 99999999,
-    borrower: "张小美",
-    borrower_ver: true,
-    borrower_email: "misszhang@gmail.com",
-    borrower_email_ver: true,
-    borrower_phone: "+86 18888888881",
-    borrower_phone_ver: false,
-    openDate: "2023-06-20",
-    maturityDate: "2024-02-12",
-    maxLvr: "20%",
-    createDate: "2025-01-16",
-    checked: false,
-    lm: {
-      avatar: "",
-      name: "Miss ZhangZhangZhangZhang",
-    },
-    status: "带提交",
-    op: false,
-  },
-  {
-    id: "VCO202411240003",
-    project_name: "张小美普通贷款项目3",
-    project_images: "",
-    address:
-      "Corporate headquarters and logistics centre in Mansfield, Texas USA.",
-    loan_money: 99999999,
-    borrower: "张小美",
-    borrower_ver: true,
-    borrower_email: "misszmisszhangmisszhanghang@gmail.com",
-    borrower_email_ver: true,
-    borrower_phone: "+86 18888888881",
-    borrower_phone_ver: true,
-    openDate: "2023-02-20",
-    maturityDate: "2024-02-12",
-    maxLvr: "60%",
-    createDate: "2024-11-16",
-    checked: false,
-    status: "审核中",
-    op: true,
-  },
-]);
+const tableData = ref([]);
+const count = ref(0);
+
+const loadData = () => {
+  getList(
+    Object.assign({}, pagination.value, params, { cid: currentTab.value }) || {}
+  ).then((res) => {
+    tableData.value = res.list;
+    pagination.value.count = res.count;
+  });
+};
 
 onMounted(() => {
+  // 加载分类
   getCategory().then((res) => {
     if (res && res.length) {
       tabData.value = [{ label: "全部", value: "" }];
@@ -203,6 +147,9 @@ onMounted(() => {
       });
     }
   });
+
+  // 加载列表数据
+  loadData();
 });
 </script>
 

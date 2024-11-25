@@ -21,7 +21,7 @@
     </vco-page-search-item>
 
     <vco-page-search-item :title="t('关键词')" width="140">
-      <a-input v-model:value="searchForm.lm" :placeholder="t('请输入')" />
+      <a-input v-model:value="searchForm.keywords" :placeholder="t('请输入')" />
     </vco-page-search-item>
 
     <vco-page-search-item width="100%">

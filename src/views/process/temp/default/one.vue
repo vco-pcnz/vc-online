@@ -6,6 +6,7 @@
           <a-button type="primary-line" shape="round" size="small">{{ t('从利益相关者导入') }}</a-button>
           <a-button type="primary-line" shape="round" size="small">{{ t('添加临时数据') }}</a-button>
         </div>
+
         <div class="sys-form-content mt-5">
           <a-form ref="formRef" layout="vertical" :model="formState">
             <a-row :gutter="24">
@@ -61,8 +62,11 @@
               </a-col>
               <a-col :span="8">
                 <a-form-item label="手机号" name="borrower_phone">
-                  <!-- <a-input v-model:value="formState.borrower_phone" /> -->
-                  <vco-mobile-input v-model="formState.borrower_phone" v-model:areaCode="formState.borrower_phone_prefix"></vco-mobile-input>
+                  <vco-mobile-input
+                    v-model:value="formState.borrower_phone"
+                    v-model:areaCode="formState.borrower_phone_prefix"
+                  >
+                  </vco-mobile-input>
                 </a-form-item>
               </a-col>
               <a-col :span="8">
@@ -80,7 +84,7 @@
         </div>
         <div class="flex mt-5 items-end gap-20 justify-between">
           <a-button type="grey" shape="round" class="weight">保存草稿</a-button>
-          <a-button type="dark" shape="round" class="big shadow weight uppercase">下一步</a-button>
+          <a-button type="dark" shape="round" class="big shadow bold uppercase">下一步</a-button>
         </div>
       </div>
     </div>

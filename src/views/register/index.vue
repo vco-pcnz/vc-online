@@ -2,7 +2,7 @@
   <auth-template>
     <template #header>
       <router-link to="/login">
-        <a-button class="go_login_btn"> {{ t("登录") }} </a-button>
+        <a-button type="cyan" shape="round">{{ t("登录") }}</a-button>
       </router-link>
     </template>
     <template #content>
@@ -72,26 +72,13 @@
             </a-row>
           </a-form-item>
           <a-form-item :label="t('手机号')" name="mobile">
-            <a-row>
-              <a-col :span="6">
-                <a-form-item-rest>
-                  <a-select
-                    v-model:value="form.pre"
-                    size="large"
-                    :options="preMobileOpts"
-                    class="pre_mobile"
-                  />
-                </a-form-item-rest>
-              </a-col>
-              <a-col :span="1" />
-              <a-col :span="17">
-                <a-input
-                  v-model:value="form.mobile"
-                  class="input_content"
-                  :placeholder="t('手机号')"
-                />
-              </a-col>
-            </a-row>
+            <div class="mobile-content">
+              <vco-mobile-input
+                v-model:value="form.mobile"
+                v-model:areaCode="form.pre"
+              >
+              </vco-mobile-input>
+            </div>
           </a-form-item>
           <a-form-item
             name="password"
@@ -123,14 +110,12 @@
           </a-form-item>
           <a-form-item>
             <a-button
-              size="large"
+              type="dark"
+              shape="round"
               :loading="loading"
+              class="register-btn big shadow bold"
               @click="submit"
-              block
-              class="register-btn"
-            >
-              {{ t("注册") }}
-            </a-button>
+            >{{ t("注册") }}</a-button>
           </a-form-item>
         </a-form>
       </section>
@@ -308,6 +293,17 @@ const submit = () => {
     background: transparent;
   }
 
+  .mobile-content {
+    :deep(.area-code-btn) {
+      height: 52px;
+      border-radius: 10px;
+    }
+    :deep(.ant-input) {
+      padding: 14px 12px;
+      border-radius: 10px;
+    }
+  }
+
   .title {
     font-size: @fs_2xl;
     font-weight: 500;
@@ -329,10 +325,7 @@ const submit = () => {
   }
 
   .register-btn {
-    background-color: @clr_charcoal;
-    color: @clr_white;
-    border: none;
-    font-weight: 500;
+    width: 100%;
   }
 
   .psw_input_content {

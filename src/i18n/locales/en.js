@@ -139,6 +139,7 @@ export default {
   "步骤八": "Step 8",
   "步骤九": "Step 9",
   "步骤十": "Step 10",
+  "请输入国家名称或区号": "Please enter a country or area code",
   "利益相关者": "Orgs",
   "指派角色":"Assign Roles"
 }

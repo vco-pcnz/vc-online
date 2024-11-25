@@ -101,7 +101,7 @@ const tabChange = () => {
 const pagination = ref({
   count: 0,
   page: 1,
-  limit: 2,
+  limit: 10,
 });
 
 let params = {};

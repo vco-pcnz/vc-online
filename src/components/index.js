@@ -9,6 +9,7 @@ import VcoTableTool from './vco-table-tool/index.vue'
 import VcoTableLayoutType from './vco-table-layout-type/index.vue'
 import VcoTableSort from './vco-table-sort/index.vue'
 import VcoTimeLine from './vco-time-line/index.vue'
+import VcoMobileInput from './vco-mobile-input/index.vue'
 import AuthTemplate from './auth/index.vue'
 
 export default {
@@ -24,6 +25,7 @@ export default {
     Vue.component('VcoTableLayoutType', VcoTableLayoutType)
     Vue.component('VcoTableSort', VcoTableSort)
     Vue.component('VcoTimeLine', VcoTimeLine)
+    Vue.component('VcoMobileInput', VcoMobileInput)
     Vue.component('AuthTemplate', AuthTemplate)
   }
 }

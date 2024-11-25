@@ -2,7 +2,7 @@
   <auth-template>
     <template #header>
       <router-link to="/register">
-        <a-button style="background-color: #b4f1db"> {{ t("注册") }} </a-button>
+        <a-button type="cyan" shape="round">{{ t("注册") }}</a-button>
       </router-link>
     </template>
     <template #content>
@@ -43,8 +43,8 @@
               {{ t("忘记密码") }}
             </router-link>
           </p>
-          <a-form-item class="login_submit">
-            <a-button size="large" :loading="loading" @click="submit">
+          <a-form-item class="login_submit mt-4">
+            <a-button size="large" class="big bold" shape="round" :loading="loading" @click="submit">
               {{ t("登录") }}
             </a-button>
           </a-form-item>

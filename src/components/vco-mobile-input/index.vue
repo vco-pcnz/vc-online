@@ -1,26 +1,30 @@
 <template>
   <div class="voc-mobile-input">
-    <a-dropdown :trigger="['click']">
-      <template #overlay>
-        <a-menu>
-          <div class="area-code-content">
-            <a-input v-model:value="keywords" class="input-content" placeholder="请输入国家名称或区号" />
-            <div class="code-scroll">
-              <div v-for="item in areaCodeDataRef" :key="item.name" class="code-item">
-                <p>{{ item.name }}</p>
-                <p>{{ item.code }}</p>
+    <a-form-item-rest>
+      <a-dropdown v-model:open="openSelect" :trigger="['click']">
+        <template #overlay>
+          <a-menu>
+            <div class="area-code-content">
+              <div class="search-content">
+                <a-input v-model:value="keywords" class="input-content" :placeholder="t('请输入国家名称或区号')" />
+              </div>
+              <div class="code-scroll">
+                <div v-for="item in areaCodeDataRef" :key="item.name" class="code-item" @click="itemHandle(item)">
+                  <p>{{ item.name }}</p>
+                  <p>{{ item.showCode }}</p>
+                </div>
               </div>
             </div>
-          </div>
-        </a-menu>
-      </template>
-      <a-button>
-        Button
-        <DownOutlined />
-      </a-button>
-    </a-dropdown>
+          </a-menu>
+        </template>
+        <a-button class="area-code-btn">
+          {{ areaCodeValue }}
+          <DownOutlined />
+        </a-button>
+      </a-dropdown>
 
-    <a-input v-model:value="mobileValue" :placeholder="placeholderTxt" />
+      <a-input v-model:value="mobileValue" :placeholder="placeholderTxt" @input="inputHandle" />
+    </a-form-item-rest>
   </div>
 </template>
 
@@ -29,9 +33,14 @@
   import { DownOutlined } from '@ant-design/icons-vue';
   import { cloneDeep } from "lodash"
   import { countries } from "./config"
+  import { useI18n } from "vue-i18n"
+
+  const { t } = useI18n()
+
+  const emits = defineEmits(['update:value', 'update:areaCode']);
 
   const props = defineProps({
-    modelValue: {
+    value: {
       type: String,
       default: ''
     },
@@ -41,6 +50,7 @@
     }
   })
 
+  const openSelect = ref(false)
   const keywords = ref('')
   const areaCodeValue = ref('')
   const mobileValue = ref('')
@@ -49,12 +59,12 @@
   const areaCodeData = countriesData.map(item => {
     return {
       ...item,
-      code: `+${item.dialCode}`
+      showCode: `+${item.dialCode}`
     }
   })
 
   const areaCodeDataRef = computed(() => {
-    const data = countries.filter(item => {
+    const data = areaCodeData.filter(item => {
       const key = keywords.value.toLowerCase()
       const name = item.name.toLowerCase()
       const dialCode = String(item.dialCode)
@@ -65,30 +75,34 @@
       }
     })
 
-    console.log('data', data)
-
     return keywords.value ? data : areaCodeData
   })
+
+  const itemHandle = (data) => {
+    areaCodeValue.value = data.showCode
+    emits('update:areaCode', String(data.dialCode))
+    openSelect.value = false
+  }
+
+  const inputHandle = () => {
+    emits('update:value', mobileValue.value)
+  }
 
   const placeholderTxt = computed(() => {
     let res = ''
     if (areaCodeValue.value) {
-      console.timeLog('areaCodeValue.value', areaCodeValue.value)
-      const obj = areaCodeData.find(item => item.code === areaCodeValue.value)
+      const obj = areaCodeData.find(item => item.showCode === areaCodeValue.value)
       if (obj) {
         res = obj.phoneFormat
       }
     }
     return res
   })
-
-  const areaCodeChange = () => {
-
-  }
+  
 
   onMounted(() => {
     areaCodeValue.value = props.areaCode ? `+${props.areaCode}` : '+64'
-    mobileValue.value = props.modelValue || ''
+    mobileValue.value = props.value || ''
   })
 </script>
 
@@ -99,15 +113,19 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    :deep(.ant-select) {
-      width: 100px;
-      .ant-select-selection-item {
-        text-align: center;
-      }
+    .area-code-btn {
+      width: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     :deep(.ant-input) {
       flex: 1;
     }
+  }
+  .search-content {
+    padding: 0 15px;
+    padding-top: 15px;
   }
   .area-code-content {
     width: 290px;
@@ -120,7 +138,7 @@
       }
     }
     .code-scroll {
-      height: 180px;
+      height: 170px;
       overflow-x: hidden;
       overflow-y: scroll;
     }

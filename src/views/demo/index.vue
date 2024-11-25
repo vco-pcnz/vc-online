@@ -71,9 +71,44 @@
     <h1 class="mt-5 mb-2">按钮</h1>
     <a-space>
       <a-button type="primary" v-copy="'风刀霜剑啊开发了电视剧啊放假快乐的撒积分'">点击复制</a-button>
-      <a-button type="primary" @click="open = true">打开弹窗</a-button>
-      <a-button type="primary" size="small" loading>Loading</a-button>
+      <a-button type="primary" disabled>打开弹窗</a-button>
+      <a-button type="primary" loading>Loading</a-button>
+      <a-button type="primary-line">primary 类型</a-button>
+      <a-button type="primary-line" disabled>primary 类型</a-button>
+      <a-button type="primary-line" loading>primary 类型</a-button>
     </a-space>
+
+    <a-space class="flex mt-5">
+      <a-button type="cyan">cyan 类型</a-button>
+      <a-button type="cyan" disabled>cyan 类型</a-button>
+      <a-button type="cyan" loading>cyan 类型</a-button>
+      <a-button type="cyan-line">cyan 类型</a-button>
+      <a-button type="cyan-line" disabled>cyan 类型</a-button>
+      <a-button type="cyan-line" loading>cyan 类型</a-button>
+    </a-space>
+
+    <a-space class="flex mt-5">
+      <a-button type="grey">grey 类型</a-button>
+      <a-button type="grey" disabled>grey 类型</a-button>
+      <a-button type="grey" loading>grey 类型</a-button>
+      <a-button type="grey-line">grey 类型</a-button>
+      <a-button type="grey-line" disabled>grey 类型</a-button>
+      <a-button type="grey-line" loading>grey 类型</a-button>
+    </a-space>
+
+    <a-space class="flex mt-5">
+      <a-button type="dark" class="big">dark 类型 big</a-button>
+      <a-button type="dark" class="big shadow">dark 类型 shadow big</a-button>
+    </a-space>
+    <a-space class="flex mt-5">
+      <a-button type="dark">dark 类型</a-button>
+      <a-button type="dark" disabled>dark 类型</a-button>
+      <a-button type="dark" loading>dark 类型</a-button>
+      <a-button type="dark-line">dark 类型</a-button>
+      <a-button type="dark-line" disabled>dark 类型</a-button>
+      <a-button type="dark-line" loading>dark 类型</a-button>
+    </a-space>
+
     <p>-------------------------------------------------------------------------------------</p>
 
     <h1 class="mt-5 mb-2">字体库</h1>

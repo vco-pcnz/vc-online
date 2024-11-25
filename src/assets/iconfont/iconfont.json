@@ -6,6 +6,20 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "1272713",
+      "name": "勾选线",
+      "font_class": "hook-w",
+      "unicode": "e647",
+      "unicode_decimal": 58951
+    },
+    {
+      "icon_id": "16350231",
+      "name": "减",
+      "font_class": "jian",
+      "unicode": "e715",
+      "unicode_decimal": 59157
+    },
+    {
       "icon_id": "15838549",
       "name": "work",
       "font_class": "work",

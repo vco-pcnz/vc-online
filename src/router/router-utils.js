@@ -154,12 +154,22 @@ function formatMenus(data, childField = "children") {
           ...meta
         }
       };
+      // const children = (_b = item[childField]) == null ? void 0 : _b.filter(
+      //   (d) => {
+      //     var _a2;
+      //     return !(((_a2 = d.meta) == null ? void 0 : _a2.hide) ?? d.hide);
+      //   }
+      // );
+
+      // 不过滤 hide
       const children = (_b = item[childField]) == null ? void 0 : _b.filter(
         (d) => {
           var _a2;
-          return !(((_a2 = d.meta) == null ? void 0 : _a2.hide) ?? d.hide);
+          // 只过滤掉 hide 为 true 的情况，其余保留
+          return ((_a2 = d.meta) == null ? void 0 : _a2.hide) !== true && d.hide !== true;
         }
       );
+
       if (!(children == null ? void 0 : children.length)) {
         if (!homePath && path && !isExternalLink(path)) {
           homePath = path;

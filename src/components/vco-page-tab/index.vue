@@ -45,7 +45,7 @@ const tabChange = (data) => {
     :deep(.ant-btn) {
       padding: 4px 20px;
       height: auto;
-      font-weight: bold;
+      // font-weight: bold;
       color: #666;
       &:hover {
         color: #282828;

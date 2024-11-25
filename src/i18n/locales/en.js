@@ -127,4 +127,16 @@ export default {
   "操作1": "OPS",
   "查看详情": "Details",
   "共{0}条": "Total {0} items",
+  "发起贷款请求": "Loan request",
+  "流程步骤": "Process steps",
+  "步骤一": "Step 1",
+  "步骤二": "Step 2",
+  "步骤三": "Step 3",
+  "步骤四": "Step 4",
+  "步骤五": "Step 5",
+  "步骤六": "Step 6",
+  "步骤七": "Step 7",
+  "步骤八": "Step 8",
+  "步骤九": "Step 9",
+  "步骤十": "Step 10"
 }

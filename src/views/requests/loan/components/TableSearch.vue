@@ -45,7 +45,7 @@
     </vco-page-search-item>
 
     <vco-page-search-item width="100%">
-      <a-button @click="searchHandle"><i class="iconfont">&#xe756;</i>{{ t('搜索') }}</a-button>
+      <a-button type="dark-line" @click="searchHandle"><i class="iconfont">&#xe756;</i>{{ t('搜索') }}</a-button>
     </vco-page-search-item>
   </vco-page-search>
 </template>

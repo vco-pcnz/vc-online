@@ -27,7 +27,7 @@
               <a-checkbox v-model:checked="item.checked" @change="itemcheck"></a-checkbox>
             </li>
             <li>
-              <vco-avatar v-if="item.project_images" :src="item.project_images" :round="false"></vco-avatar>
+              <vco-avatar v-if="item.project_images" :src="item.project_images" :radius="true" :round="false"></vco-avatar>
               <span v-else>--</span>
             </li>
             <li>
@@ -140,7 +140,7 @@
   @import "@/styles/variables.less";
 
   .table-content {
-    border-top: 1px solid #000;
+    border-top: 1px solid #808080;
     padding-top: 5px;
   }
 

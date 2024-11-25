@@ -2,7 +2,7 @@
   <div>
     <vco-page-nav sup-path="/requests">
       <template #action>
-        <a-button type="primary" shape="round">{{ t('发起贷款申请') }}</a-button>
+        <a-button type="cyan" shape="round" @click="navigationTo('/process/one')">{{ t('发起贷款申请') }}</a-button>
       </template>
     </vco-page-nav>
 
@@ -12,11 +12,7 @@
       <div class="mt-10">
         <vco-table-tool>
           <template #left>
-            <!-- <a-checkbox
-              v-model:checked="tabelAll"
-              :indeterminate="indeterminate"
-            ></a-checkbox> -->
-            <a-button type="primary" :disabled="!rowSelection.length">{{ t('取消项目') }}</a-button>
+            <a-button type="cyan" :disabled="!rowSelection.length">{{ t('取消项目') }}</a-button>
           </template>
           <template #right>
             <vco-table-layout-type v-model="tabLayout"></vco-table-layout-type>
@@ -55,6 +51,7 @@
   import TableSearch from "./components/TableSearch.vue";
   import GridBlock from "./components/GridBlock.vue";
   import TableBlock from "./components/TableBlock.vue";
+  import { navigationTo } from "@/utils/tool";
 
   const { t } = useI18n();
 

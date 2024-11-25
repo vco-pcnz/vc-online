@@ -42,7 +42,7 @@ const props = defineProps({
 
       :deep(.ant-input),
       :deep(.ant-picker),
-      :deep(.ant-btn),
+      // :deep(.ant-btn),
       :deep(.ant-select-selector) {
         border-color: #000 !important;
       }

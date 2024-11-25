@@ -4,8 +4,13 @@
       <a-form ref="formRef" :model="form" :rules="rules" layout="vertical">
         <a-form-item name="type">
           <a-radio-group v-model:value="form.type">
-            <a-radio :value="1">{{ t("邮箱") }}</a-radio>
-            <a-radio :value="2">{{ t("手机号") }}</a-radio>
+            <a-radio
+              v-for="item in radioOptions"
+              :key="item.value"
+              :disabled="item.disabled"
+              :value="item.value"
+              >{{ item.label }}</a-radio
+            >
           </a-radio-group>
         </a-form-item>
         <template v-if="form.type === 1">
@@ -102,7 +107,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch } from "vue";
+import { ref, reactive, watch, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { useUserDetailStore } from "@/store";
 import {
@@ -124,6 +129,7 @@ const formRef = ref();
 const loading = ref(false);
 const showCode = ref(false);
 const showCountdown = ref(false);
+const radioOptions = ref([]);
 
 // 表单数据
 const { form, assignFields } = useFormData({
@@ -229,14 +235,45 @@ const submit = () => {
   });
 };
 
+const getRadioOptions = (email_ok, mobile_ok) => {
+  const emailOpt = {
+    label: t("邮箱"),
+    value: 1,
+  };
+  const mobileOpt = {
+    label: t("手机号"),
+    value: 2,
+  };
+  if (email_ok && mobile_ok) {
+    radioOptions.value = [emailOpt, mobileOpt];
+  } else if (mobile_ok) {
+    radioOptions.value = [
+      {
+        ...mobileOpt,
+        disabled: true,
+      },
+    ];
+  } else {
+    radioOptions.value = [
+      {
+        ...emailOpt,
+        disabled: true,
+      },
+    ];
+  }
+};
+
 watch(
   () => userDetailStore.userDetail,
   (val) => {
     if (val) {
+      const { email, mobile, email_ok, mobile_ok } = val;
+      getRadioOptions(email_ok, mobile_ok);
       assignFields({
         ...form,
-        email: val.email,
-        mobile: val.mobile,
+        email,
+        mobile,
+        type: email_ok || (!email_ok && !mobile_ok) ? 1 : 2,
       });
     }
   }

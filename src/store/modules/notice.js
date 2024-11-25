@@ -4,7 +4,7 @@ import {
   setNoticeRead,
   setAllRead,
   getNoticeDetail,
-  getUnreadCount
+  getUnreadCount,
 } from "@/api/notice";
 
 const useNoticeStore = defineStore("VcOnlineNoticeDetail", {
@@ -67,6 +67,7 @@ const useNoticeStore = defineStore("VcOnlineNoticeDetail", {
         limit,
       };
     },
+    // TODO 需要本人和其他人的
     setNoticeCount() {
       getUnreadCount().then((res) => (this.noticeCount = res));
     },
@@ -105,7 +106,7 @@ const useNoticeStore = defineStore("VcOnlineNoticeDetail", {
       const { sta } = this.searchParams;
       getNoticeDetail({ id, sta }).then((res) => {
         this.noticeDetail = res;
-        if(!res.look) {
+        if (!res.look) {
           this.updateNoticeStatus({ ids: [id] });
         }
       });

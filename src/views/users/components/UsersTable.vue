@@ -61,7 +61,9 @@
                 {{ item.org_stake_type || '--' }}
               </p>
               <p v-if="item.org_stake">
-                <i class="iconfont" :class="{ cer: item.org_stake_ok }"> &#xe74b;</i>
+                <i class="iconfont" :class="{ cer: item.org_stake_ok }">
+                  &#xe74b;
+                </i>
                 <span>
                   {{ item.org_stake }}
                 </span>
@@ -113,12 +115,12 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { Empty } from 'ant-design-vue'
-import { useI18n } from 'vue-i18n'
-import tool from '@/utils/tool'
+import { ref } from 'vue';
+import { Empty } from 'ant-design-vue';
+import { useI18n } from 'vue-i18n';
+import tool from '@/utils/tool';
 
-const emits = defineEmits(['check'])
+const emits = defineEmits(['check']);
 
 const props = defineProps({
   tableData: {
@@ -129,22 +131,22 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-})
+});
 
-const { t } = useI18n()
+const { t } = useI18n();
 
-const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE
+const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE;
 
-const checkedAll = ref(false)
+const checkedAll = ref(false);
 
 const itemcheck = () => {
-  const length = props.tableData.filter((item) => item.checked).length
-  checkedAll.value = length === props.tableData.length
-}
+  const length = props.tableData.filter((item) => item.checked).length;
+  checkedAll.value = length === props.tableData.length;
+};
 
 const checkedAllHandle = () => {
-  emits('check', checkedAll.value)
-}
+  emits('check', checkedAll.value);
+};
 </script>
 
 <style lang="less" scoped>

@@ -13,16 +13,18 @@
             type="primary"
             @click="handleMarkRead"
             :disabled="!noticeStore.selectedNoticeIds.length"
-            >{{ t("标记已读") }}</a-button
           >
+            {{ t('标记已读') }}
+          </a-button>
         </li>
         <li>
           <a-button
             type="primary"
             @click="handleAllRead"
             :disabled="!noticeList.length"
-            >{{ t("全部已读") }}</a-button
           >
+            {{ t('全部已读') }}
+          </a-button>
         </li>
       </ul>
       <div v-if="noticeList.length" class="table-body">
@@ -48,7 +50,7 @@
           show-quick-jumper
           show-size-changer
           :total="total"
-          :show-total="(total) => `All ${total} Data`"
+          :show-total="(total) => t('共{0}条', [total])"
           @change="handlePageChange"
         />
       </div>
@@ -58,10 +60,10 @@
 </template>
 
 <script setup>
-import { reactive, computed } from "vue";
-import { Empty } from "ant-design-vue";
-import { useI18n } from "vue-i18n";
-import { useNoticeStore } from "@/store";
+import { computed } from 'vue';
+import { Empty } from 'ant-design-vue';
+import { useI18n } from 'vue-i18n';
+import { useNoticeStore } from '@/store';
 
 const noticeStore = useNoticeStore();
 const noticeList = computed(() => noticeStore.noticeList);
@@ -100,7 +102,7 @@ const handlePageChange = (current, size) => {
 </script>
 
 <style lang="less" scoped>
-@import "@/styles/variables.less";
+@import '@/styles/variables.less';
 
 .table-content {
   border-top: 1px solid @clr_stone1;

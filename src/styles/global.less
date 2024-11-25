@@ -49,7 +49,7 @@ a:hover {
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 0 8px rgba(0, 0, 0, .1);
-  padding: 20px;
+  padding: 30px 40px;
 }
 
 /* 自定义进度条颜色 */
@@ -83,6 +83,41 @@ a:hover {
 
 .main-info-container {
   min-height: calc(100vh - 245px);
+}
+
+// 表单样式
+.sys-form-content {
+  .ant-form-item-label > label {
+    font-size: 12px;
+    color: #888;
+  }
+  .ant-picker,
+  .ant-select-selector,
+  .ant-input {
+    height: 50px !important;
+    border-color: rgba(39, 39, 39, 1) !important;
+    border-radius: 10px !important;
+    background-color: #f7f9f8;
+    &:focus {
+      border-color: @colorPrimary !important;
+    }
+  }
+  .ant-picker-focused,
+  .ant-select-open .ant-select-selector {
+    border-color: @colorPrimary !important;
+  }
+
+  .ant-select-selector {
+    background-color: #f7f9f8 !important;
+    .ant-select-selection-item {
+      line-height: 50px !important;
+    }
+  }
+
+  .ant-picker-suffix,
+  .ant-select-arrow {
+    color: rgba(39, 39, 39, 1) !important;
+  }
 }
 
 // 按钮样式修改
@@ -218,8 +253,12 @@ a:hover {
 
 .ant-btn.big {
   height: 48px;
+  min-width: 160px;
   padding: 4px 25px;
   &.shadow {
     box-shadow: 0 20px 20px -19px #181818;
+  }
+  &.weight {
+    font-weight: 700;
   }
 }

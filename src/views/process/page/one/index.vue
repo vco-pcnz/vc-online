@@ -4,7 +4,7 @@
       <div class="main-info-container">
         <process-header :step-data="processStepData" :current="1">
           <template #left>
-            <a-button type="grey-line" @click="goBack">{{ t('取消请求') }}</a-button>
+            <a-button type="grey" @click="goBack">{{ t('取消请求') }}</a-button>
           </template>
           <template #right>
             <a-button type="primary-line" shape="round" size="small">{{ t('帮助') }}?</a-button>

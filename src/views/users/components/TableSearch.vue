@@ -65,7 +65,7 @@
 
   const baseInfoData = [
     {
-      label: t("全部"),
+      label: t("所有"),
       value: ""
     },
     {
@@ -92,7 +92,7 @@
 
   const orgNameData = [
     {
-      label: t("组织名称"),
+      label: t("组织名"),
       value: ""
     },
   ]

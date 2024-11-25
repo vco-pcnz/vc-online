@@ -138,5 +138,21 @@ export default {
   "步骤七": "Step 7",
   "步骤八": "Step 8",
   "步骤九": "Step 9",
-  "步骤十": "Step 10"
+  "步骤十": "Step 10",
+  "所有": "All",
+  "个人": "Personal",
+  "组织": "Company",
+  "新增用户": "Add User",
+  "类型": "TYPE",
+  "用户": "user",
+  "经纪人": "broker",
+  "用户Id": "UserId",
+  "Id编码": "Id Code",
+  "组织名": "Organization Name",
+  "注册日期": "Date of Registration",
+  "分配角色": "Assign Roles",
+  "注册于": "Registered",
+  "进行中项目": "opened projects",
+  "已关闭项目": "Closed projects",
+  "请求": "requests"
 }

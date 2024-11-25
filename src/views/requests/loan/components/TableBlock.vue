@@ -9,16 +9,16 @@
             @change="checkedAllHandle"
           ></a-checkbox>
         </li>
-        <li>{{ t('项目图片') }}</li>
-        <li>{{ t('项目信息') }}</li>
-        <li>{{ t('贷款金额') }}</li>
-        <li>{{ t('贷款人信息') }}</li>
+        <li>{{ t('项目图片1') }}</li>
+        <li>{{ t('项目信息1') }}</li>
+        <li>{{ t('贷款金额1') }}</li>
+        <li>{{ t('贷款人信息1') }}</li>
         <li>{{ t('客户经理') }}</li>
-        <li>{{ t('期数') }}</li>
-        <li>{{ t('最大费率') }}</li>
-        <li>{{ t('创建时间') }}</li>
-        <li>{{ t('状态') }}</li>
-        <li>{{ t('操作') }}</li>
+        <li>{{ t('期数1') }}</li>
+        <li>{{ t('最大费率1') }}</li>
+        <li>{{ t('创建时间1') }}</li>
+        <li>{{ t('状态1') }}</li>
+        <li>{{ t('操作1') }}</li>
       </ul>
       <div v-if="tableData.length" class="table-body">
         <template v-for="item in tableData" :key="item.id">
@@ -27,7 +27,7 @@
               <a-checkbox v-model:checked="item.checked" @change="itemcheck"></a-checkbox>
             </li>
             <li>
-              <vco-avatar v-if="item.project_images" :src="item.project_images" :round="false"></vco-avatar>
+              <vco-avatar v-if="item.project_images" :src="item.project_images" :radius="true" :round="false"></vco-avatar>
               <span v-else>--</span>
             </li>
             <li>
@@ -140,7 +140,7 @@
   @import "@/styles/variables.less";
 
   .table-content {
-    border-top: 1px solid #000;
+    border-top: 1px solid #808080;
     padding-top: 5px;
   }
 
@@ -155,6 +155,7 @@
       border-radius: 10px;
       border: 1px solid #fff;
       font-weight: bold;
+      font-size: 12px;
     }
     &.tr {
       background-color: #F0F0F0;

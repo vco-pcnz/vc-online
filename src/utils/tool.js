@@ -1,5 +1,6 @@
 import Big from 'big.js';
 import dayjs from 'dayjs';
+import router from '@/router';
 import i18n from './../i18n';
 
 const tool = {}
@@ -315,6 +316,14 @@ tool.diffDate = (a, b) => {
   const date2 = dayjs(b)
 
   return date2.diff(date1, 'day')
+}
+
+export const navigationTo = (path) => {
+  router.push(path)
+}
+
+export const goBack = () => {
+  router.back()
 }
 
 export default tool

@@ -1,6 +1,6 @@
 <template>
   <div class="search-item-content">
-    <p v-if="title">{{ title }}</p>
+    <p>{{ title }}</p>
     <div class="info-content" :style="{'width': String(width).indexOf('%') > -1 ? width : width + 'px'}">
       <slot></slot>
     </div>
@@ -42,7 +42,7 @@ const props = defineProps({
 
       :deep(.ant-input),
       :deep(.ant-picker),
-      :deep(.ant-btn),
+      // :deep(.ant-btn),
       :deep(.ant-select-selector) {
         border-color: #000 !important;
       }

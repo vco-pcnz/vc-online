@@ -91,18 +91,29 @@ const menuData = computed(() => {
 })
 
 const otherRoute = ['/users/profile']
-const isInOther = (path) => {
+const processShowRoute = ['requests']
+
+const routeInArr = (path, arr) => {
   let res = false
-  for (let i = 0; i < otherRoute.length; i++) {
-    res = path.indexOf(otherRoute[i]) > -1
+  for (let i = 0; i < arr.length; i++) {
+    res = path.indexOf(arr[i]) > -1
     if (res) {
       return res
     }
   }
   return res
 }
+
+const routeActive = (path) => {
+  let res = route.path.startsWith(path)
+  if (route.path.indexOf('process') > -1) {
+    res = routeInArr(path, processShowRoute)
+  }
+  return res
+}
+
 const isActive = (path) => {
-  return isInOther(route.path) ? false : route.path.startsWith(path); // 判断当前路径是否以父级路径开头
+  return routeInArr(route.path, otherRoute) ? false : routeActive(path); // 判断当前路径是否以父级路径开头
 };
 
 const isUserActive = () => {

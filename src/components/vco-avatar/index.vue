@@ -1,5 +1,5 @@
 <template>
-  <div class="vco-avatar" :class="{'round': round}" :style="{width: size + 'px', height: size + 'px'}">
+  <div class="vco-avatar" :class="{'radius': radius, 'round': round}" :style="{width: size + 'px', height: size + 'px'}">
     <div class="content" :class="{'loaded': loaded}">
       <img v-if="isSuc" :src="src" :class="{'height-fixed': heightFixed}">
       <img v-else src="./../../assets/images/user.svg" alt="">
@@ -18,6 +18,10 @@
     round: {
       type: Boolean,
       default: true
+    },
+    radius: {
+      type: Boolean,
+      default: false
     },
     size: {
       type: Number,
@@ -59,8 +63,11 @@
   .vco-avatar {
     overflow: hidden;
     background-color: #ccc;
+    &.radius {
+      border-radius: 6px;
+    }
     &.round {
-      border-radius: 50%;
+      border-radius: 50% !important;
     }
     > .content {
       width: 100%;

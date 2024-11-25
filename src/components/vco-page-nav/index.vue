@@ -64,7 +64,7 @@
 
 <style lang="less" scoped>
   .page-nav-content {
-    border-bottom: 1px solid #000;
+    border-bottom: 1px solid #808080;
     padding-bottom: 20px;
     display: flex;
     align-items: flex-end;

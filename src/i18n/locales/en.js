@@ -138,5 +138,7 @@ export default {
   "步骤七": "Step 7",
   "步骤八": "Step 8",
   "步骤九": "Step 9",
-  "步骤十": "Step 10"
+  "步骤十": "Step 10",
+  "利益相关者": "Orgs",
+  "指派角色":"Assign Roles"
 }

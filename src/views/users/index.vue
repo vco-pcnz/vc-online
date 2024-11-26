@@ -13,7 +13,11 @@
       <div class="mt-10">
         <vco-table-tool>
           <template #left>
-            <a-button type="cyan" :disabled="!rowSelection.length">
+            <a-button
+              type="cyan"
+              :disabled="!rowSelection.length"
+              @click="setOpen(true)"
+            >
               {{ t('分配角色') }}
             </a-button>
           </template>
@@ -55,6 +59,11 @@
       </div>
     </div>
   </div>
+  <assign-roles
+    v-model:open="open"
+    :title="t('分配角色')"
+    :uuids="rowSelection"
+  />
 </template>
 
 <script setup>
@@ -63,11 +72,13 @@ import { useI18n } from 'vue-i18n';
 import TableSearch from './components/UsersSearch.vue';
 import TableBlock from './components/UsersTable.vue';
 import { useUsersStore } from '@/store';
+import AssignRoles from './components/AssignRoles.vue';
 
 const { t } = useI18n();
 const usersStore = useUsersStore();
 const tableLoading = ref(false);
 const tableData = computed(() => usersStore.userList);
+const open = ref(false);
 
 const sortType = ref('desc');
 const sortValue = ref('');
@@ -95,6 +106,10 @@ const addUser = () => {};
 const rowSelection = computed(() => {
   return tableData.value.filter((item) => item.checked);
 });
+
+const setOpen = (flag) => {
+  open.value = flag;
+};
 
 const currentCheckAll = ref(false);
 const checkHandle = (flag) => {

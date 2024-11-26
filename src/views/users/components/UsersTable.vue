@@ -79,16 +79,16 @@
               <p>
                 <i class="iconfont">&#xe771;</i>
                 <span class="black_blod">
-                  {{ item.xm }} {{ t('进行中项目') }}
+                  {{ item.xm ?? 0 }} {{ t('进行中项目') }}
                 </span>
               </p>
-              <p>{{ item.cxm }} {{ t('已关闭项目') }}</p>
+              <p>{{ item.cxm ?? 0 }} {{ t('已关闭项目') }}</p>
             </li>
             <li>
               <p>
                 <i class="iconfont">&#xe751;</i>
                 <span class="black_blod">
-                  {{ item.apply_count }} {{ t('请求') }}
+                  {{ item.apply_count ?? 0 }} {{ t('请求') }}
                 </span>
               </p>
             </li>

@@ -21,6 +21,7 @@
                   <a-input
                     v-model:value="form.email"
                     :placeholder="t('邮箱')"
+                    :disabled="true"
                   />
                 </a-form-item>
               </a-col>
@@ -47,6 +48,7 @@
                     v-model:value="form.pre"
                     :options="preMobileOpts"
                     class="pre_mobile"
+                    :disabled="true"
                   />
                 </a-form-item-rest>
               </a-col>
@@ -54,6 +56,7 @@
                 <a-input
                   v-model:value="form.mobile"
                   :placeholder="t('手机号')"
+                  :disabled="true"
                 />
               </a-col>
               <a-col :span="4" v-if="!showCountdown">

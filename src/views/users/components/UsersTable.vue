@@ -82,7 +82,7 @@
                   {{ item.xm ?? 0 }} {{ t('进行中项目') }}
                 </span>
               </p>
-              <p>{{ item.cxm ?? 0 }} {{ t('已关闭项目') }}</p>
+              <p style="margin-left: 44px">{{ item.cxm ?? 0 }} {{ t('已关闭项目') }}</p>
             </li>
             <li>
               <p>
@@ -252,7 +252,7 @@ const editUser = (data) => {
       }
     }
     .black_blod {
-      font-weight: bold;
+      font-weight: 500;
       color: @clr_charcoal;
     }
   }

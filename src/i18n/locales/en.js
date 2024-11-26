@@ -155,7 +155,7 @@ export default {
   "选择角色": "Choose role",
   "注册于": "Registered",
   "进行中项目": "opened projects",
-  "已关闭项目": "Closed projects",
+  "已关闭项目": "closed projects",
   "请求": "requests",
   "请输入国家名称或区号": "Please enter a country or area code",
   "用户角色": "User Roles",

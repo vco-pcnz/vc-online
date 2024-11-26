@@ -154,7 +154,7 @@
       background-color: #fff;
       border-radius: 10px;
       border: 1px solid #fff;
-      font-weight: bold;
+      font-weight: 500;
       font-size: 12px;
     }
     &.tr {
@@ -229,7 +229,7 @@
           margin-top: 0;
         }
         &.name {
-          font-weight: bold;
+          font-weight: 500;
         }
         > .iconfont {
           margin-right: 4px;
@@ -244,7 +244,7 @@
             color: #000;
           }
           &.name {
-            font-weight: bold;
+            font-weight: 500;
           }
         }
       }
@@ -267,6 +267,6 @@
 
   .status-txt {
     font-size: 14px;
-    font-weight: bold;
+    font-weight: 500;
   }
 </style>

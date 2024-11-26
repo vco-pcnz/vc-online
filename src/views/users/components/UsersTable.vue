@@ -120,7 +120,7 @@ import { Empty } from 'ant-design-vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 
-const emits = defineEmits(['check']);
+const emits = defineEmits(['check', 'editUser']);
 
 const props = defineProps({
   tableData: {
@@ -149,6 +149,7 @@ const checkedAllHandle = () => {
 };
 
 const editUser = (data) => {
+  emits('editUser', data);
 };
 </script>
 

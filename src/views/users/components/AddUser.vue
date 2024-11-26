@@ -1,5 +1,10 @@
 <template>
-  <a-modal :width="480" :open="open" :title="title" @cancel="closeModal">
+  <a-modal
+    :width="480"
+    :open="open"
+    :title="isEdit ? t('编辑用户') : t('新增用户')"
+    @cancel="closeModal"
+  >
     <div class="sys-form-content mt-5">
       <a-form ref="formRef" :model="form" :rules="rules" layout="vertical">
         <a-form-item :label="t('头像')" name="avatar">
@@ -20,15 +25,20 @@
           <a-input v-model:value="form.lastName" :placeholder="t('姓')" />
         </a-form-item>
         <a-form-item name="email" :label="t('邮箱')">
-          <a-input v-model:value="form.email" :placeholder="t('邮箱')" />
+          <a-input
+            v-model:value="form.email"
+            :placeholder="t('邮箱')"
+            :disabled="isEdit && form.email_ok"
+          />
         </a-form-item>
         <a-form-item :label="t('手机号')" name="mobile">
           <vco-mobile-input
             v-model:value="form.mobile"
             v-model:areaCode="form.pre"
+            :disabled="isEdit && form.mobile_ok"
           ></vco-mobile-input>
         </a-form-item>
-        <a-form-item name="verifyMode">
+        <a-form-item name="verifyMode" v-if="!isEdit">
           <a-row>
             <a-col :span="12">
               <a-form-item-rest>
@@ -65,24 +75,24 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive } from 'vue';
+import { ref, watch, reactive } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { addUser, editUser } from '@/api/users';
 import useFormData from '@/utils/use-form-data';
 import { message } from 'ant-design-vue';
 import { useUsersStore } from '@/store';
 import { EMAIL_RULE } from '@/constant';
-import { invitePwd } from '@/api/auth';
 
 const { t } = useI18n();
 const loading = ref(false);
 const formRef = ref(null);
 const usersStore = useUsersStore();
+const isEdit = ref(false);
 
-const props = defineProps(['open', 'title', 'isEdit']);
+const props = defineProps(['open', 'title', 'data']);
 const emit = defineEmits(['update:open']);
 
-const { form, resetFields } = useFormData({
+const { form, resetFields, assignFields } = useFormData({
   avatar:
     'https://dev-admin-api.new.vincentcapital.co.nz/uploads/temp/20241126/67456f492d0903120.jpeg',
   firstName: '',
@@ -171,6 +181,19 @@ const closeModal = () => {
 const save = () => {
   formRef.value.validate().then(() => {
     loading.value = true;
+    if (isEdit.value) {
+      editUser(form)
+        .then(() => {
+          loading.value = false;
+          usersStore.getUserList();
+          message.success(t('修改成功'));
+          closeModal();
+        })
+        .catch(() => {
+          loading.value = false;
+        });
+      return;
+    }
     addUser({
       ...form,
       sendEmail: form.sendEmail ? 1 : 0,
@@ -187,6 +210,22 @@ const save = () => {
       });
   });
 };
+
+watch(
+  () => props.data,
+  (val) => {
+    if (Object.keys(val).length) {
+      isEdit.value = true;
+      assignFields({
+        ...form,
+        ...val,
+      });
+      form.uuid = val.uuid;
+      form.email_ok = val.email_ok === 1;
+      form.mobile_ok = val.mobile_ok === 1;
+    }
+  }
+);
 </script>
 
 <style scoped lang="less">

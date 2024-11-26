@@ -166,5 +166,6 @@ export default {
   "发送邀请邮件": "SEND INVITE EMAIL",
   "发送邀请短信": "SEND INVITE SMS",
   "头像": "Avatar",
-  "必须选其中一项做验证": "You have to choose one of them for verification"
+  "必须选其中一项做验证": "You have to choose one of them for verification",
+  "编辑用户": "Edit User"
 }

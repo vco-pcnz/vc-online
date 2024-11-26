@@ -6,6 +6,20 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "517496",
+      "name": "user",
+      "font_class": "custom-user",
+      "unicode": "e632",
+      "unicode_decimal": 58930
+    },
+    {
+      "icon_id": "9592764",
+      "name": "公司",
+      "font_class": "gongsi",
+      "unicode": "e679",
+      "unicode_decimal": 59001
+    },
+    {
       "icon_id": "1272713",
       "name": "勾选线",
       "font_class": "hook-w",

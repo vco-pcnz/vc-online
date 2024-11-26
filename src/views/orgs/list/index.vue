@@ -129,7 +129,7 @@ const loadData = () => {
   getList(
     Object.assign({}, pagination.value, params, { cid: currentTab.value }) || {}
   ).then((res) => {
-    tableData.value = res.list;
+    tableData.value = res.data;
     pagination.value.count = res.count;
   });
 };

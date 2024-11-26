@@ -4,39 +4,54 @@
       <ul class="table-col header">
         <li class="check">
           <a-checkbox
-            v-model:checked="checkedAll"
+            v-model:checked="noticeStore.checkedAll"
             @change="checkedAllHandle"
           ></a-checkbox>
         </li>
         <li>
-          <a-button @click="handleMarkRead">{{ t("标记已读") }}</a-button>
+          <a-button
+            type="primary"
+            @click="handleMarkRead"
+            :disabled="!noticeStore.selectedNoticeIds.length"
+          >
+            {{ t('标记已读') }}
+          </a-button>
         </li>
         <li>
-          <a-button @click="handleAllRead" :disabled="!tableData.length">{{
-            t("全部已读")
-          }}</a-button>
+          <a-button
+            type="primary"
+            @click="handleAllRead"
+            :disabled="!noticeList.length"
+          >
+            {{ t('全部已读') }}
+          </a-button>
         </li>
       </ul>
-      <div v-if="tableData.length" class="table-body">
-        <template v-for="item in tableData" :key="item.id">
+      <div v-if="noticeList.length" class="table-body">
+        <template v-for="item in noticeList" :key="item.id">
           <ul class="table-col tr">
             <li class="check">
               <a-checkbox
                 v-model:checked="item.checked"
+                :disabled="item.look === 1"
                 @change="itemcheck"
               ></a-checkbox>
             </li>
-            <li class="notice-info" @click="handleDetail(item)">
+            <li
+              :class="`notice-info ${item.look > 0 ? 'mark-read' : ''}`"
+              @click="handleDetail(item)"
+            >
               <h3 class="title">{{ item.title }}</h3>
-              <p class="content">{{ item.content }}</p>
+              <p class="content">{{ item.describe }}</p>
             </li>
           </ul>
         </template>
         <a-pagination
-          v-model:current="paginationData.current"
           show-quick-jumper
-          :total="paginationData.total"
-          :show-total="(total) => `All ${total} Data`"
+          show-size-changer
+          :total="total"
+          :show-total="(total) => t('共{0}条', [total])"
+          @change="handlePageChange"
         />
       </div>
       <a-empty v-else :image="simpleImage" />
@@ -45,53 +60,49 @@
 </template>
 
 <script setup>
-import { reactive, ref } from "vue";
-import { Empty } from "ant-design-vue";
-import { useI18n } from "vue-i18n";
+import { computed } from 'vue';
+import { Empty } from 'ant-design-vue';
+import { useI18n } from 'vue-i18n';
+import { useNoticeStore } from '@/store';
 
-const emit = defineEmits(["update:showDetail", "selectNotice"]);
-
-const props = defineProps({
-  tableData: {
-    type: Array,
-    default: () => [],
-  },
-});
+const noticeStore = useNoticeStore();
+const noticeList = computed(() => noticeStore.noticeList);
+const total = computed(() => noticeStore.total);
 
 const { t } = useI18n();
 
 const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE;
 
-const checkedAll = ref(false);
-// TODO
-const paginationData = reactive({
-  current: 1,
-  total: 3,
-});
-
 const itemcheck = () => {
-  const length = props.tableData.filter((item) => item.checked).length;
-  checkedAll.value = length === props.tableData.length;
+  noticeStore.setNoticeCheck();
 };
 
 const checkedAllHandle = (e) => {
   const flag = e.target.checked;
-  checkedAll.value = flag;
-  props.tableData.forEach((item) => (item.checked = flag));
+  noticeStore.setAllNoticeCheck(flag);
 };
 
-const handleMarkRead = () => {};
+const handleMarkRead = () => {
+  noticeStore.updateNoticeStatus({ ids: noticeStore.selectedNoticeIds });
+};
 
-const handleAllRead = () => {};
+const handleAllRead = () => {
+  noticeStore.setAllRead();
+};
 
 const handleDetail = (item) => {
-  emit("selectNotice", item);
-  emit('update:showDetail', true);
+  noticeStore.setShowDetail(true);
+  noticeStore.getNoticeDetail(item.id);
+};
+
+const handlePageChange = (current, size) => {
+  noticeStore.setPaginate(current, size);
+  noticeStore.getNoticeList();
 };
 </script>
 
 <style lang="less" scoped>
-@import "@/styles/variables.less";
+@import '@/styles/variables.less';
 
 .table-content {
   border-top: 1px solid @clr_stone1;
@@ -133,6 +144,10 @@ const handleDetail = (item) => {
       cursor: pointer;
       border-color: @colorPrimary;
     }
+  }
+
+  .mark-read {
+    color: @clr_stone1;
   }
 }
 </style>

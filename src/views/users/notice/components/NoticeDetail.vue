@@ -1,45 +1,71 @@
 <template>
-  <div class="nav">
-    <span class="arrow arrow-left" @click="goBack">
-      <i class="iconfont">&#xe794;</i>
-    </span>
-    <!-- <span class="arrow arrow-right" @click="handleNext">
-      <i class="iconfont">&#xe794;</i>
-    </span> -->
-  </div>
+  <span
+    class="arrow arrow-left"
+    @click="handlePrevious"
+    v-if="noticeDetail.previous_id"
+  >
+    <i class="iconfont">&#xe794;</i>
+  </span>
+  <span
+    class="arrow arrow-right"
+    @click="handleNext"
+    v-if="noticeDetail.next_id"
+  >
+    <i class="iconfont">&#xe794;</i>
+  </span>
   <div class="header">
-    <h1>{{ noticeInfo.title }}</h1>
-    <p>{{ noticeInfo.create_time }}</p>
+    <h1>{{ noticeDetail.title }}</h1>
+    <div>{{ noticeDetail.create_time }}</div>
   </div>
-  <p class="content">{{ noticeInfo.content }}</p>
+  <div class="content">{{ noticeDetail.content }}</div>
 </template>
 
 <script setup>
-import { defineProps } from "vue";
+import { computed } from "vue";
+import { useNoticeStore } from "@/store";
 
-const props = defineProps({
-  noticeInfo: {
-    type: Object,
-    default: {},
-  },
-});
+const noticeStore = useNoticeStore();
+const noticeDetail = computed(() => noticeStore.noticeDetail);
 
-const emits = defineEmits(["update:showDetail"]);
-
-const goBack = () => {
-  emits("update:showDetail", false);
+const handlePrevious = () => {
+  noticeStore.getNoticeDetail(noticeDetail.value.previous_id);
 };
 
-const handleNext = () => {};
+const handleNext = () => {
+  noticeStore.getNoticeDetail(noticeDetail.value.next_id);
+};
 </script>
 
 <style scoped lang="less">
 @import "@/styles/variables.less";
+
+.arrow:hover {
+  cursor: pointer;
+}
+
+.iconfont {
+  color: @clr_stone1;
+}
+
+.arrow-left {
+  position: absolute;
+  top: 15px;
+  transform: rotate(-180deg);
+}
+
+.arrow-right {
+  position: absolute;
+  top: 15px;
+  right: 30px;
+  text-align: right;
+}
+
 .header {
   text-align: center;
 
   h1 {
     font-weight: 600;
+    margin-bottom: 6px;
   }
 }
 
@@ -47,26 +73,5 @@ const handleNext = () => {};
   margin-top: 20px;
   padding-top: 20px;
   border-top: 1px solid @clr_stone1;
-}
-
-.nav {
-  display: flex;
-  justify-content: space-between;
-
-  .arrow:hover {
-    cursor: pointer;
-  }
-
-  .iconfont {
-    color: @clr_stone1;
-  }
-
-  .arrow-left {
-    transform: rotate(-180deg);
-  }
-
-  .arrow-right {
-    text-align: right;
-  }
 }
 </style>

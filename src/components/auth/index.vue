@@ -6,11 +6,6 @@
       </div>
       
       <div class="animation">
-        <!-- <Lottie
-          :options="defaultOptions"
-          :isStopped="false"
-          :isPaused="false"
-        /> -->
       </div>
       <div class="content_container">
         <div class="header">
@@ -23,14 +18,6 @@
         <footer class="footer">
           <slot name="footer"></slot>
         </footer>
-        <!-- <template v-if="!!footerTo">
-        <footer class="footer">
-          {{ isLogin ? "Do not" : "Already" }} have an account?
-          <router-link class="link" to="to">
-            {{ isLogin ? "Sign up" : "Log in" }}
-          </router-link>
-        </footer>
-      </template> -->
       </div>
     </div>
     <div class="login-bg">

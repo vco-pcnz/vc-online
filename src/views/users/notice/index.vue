@@ -1,48 +1,65 @@
 <template>
   <profile-layout active-tab="notice">
     <template #content>
-      <template v-if="!showDetail">
+      <template v-if="!noticeStore.showDetail">
         <a-tabs v-model:activeKey="activeKey">
-          <a-tab-pane key="all" :tab="t('全部')">
-            <notice-list :tableData="noticeList" v-model:showDetail="showDetail" @selectNotice="handleSelectNotice" />
+          <a-tab-pane
+            v-for="item in noticeTabPane"
+            :key="item.key"
+            :tab="item.name"
+          >
+            <notice-list />
           </a-tab-pane>
-          <a-tab-pane key="system" :tab="t('系统')">2</a-tab-pane>
-          <a-tab-pane key="business" :tab="t('业务')">3</a-tab-pane>
           <template #rightExtra>
             <notice-search />
           </template>
         </a-tabs>
       </template>
       <template v-else>
-        <notice-detail :noticeInfo="selectedNotice" v-model:showDetail="showDetail" />
+        <notice-detail />
       </template>
     </template>
   </profile-layout>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from "vue";
+import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import profileLayout from "../components/profile-layout.vue";
 import NoticeList from "./components/NoticeList.vue";
 import NoticeSearch from "./components/NoticeSearch.vue";
-import { getNoticeList } from "@/api/notice";
 import NoticeDetail from "./components/NoticeDetail.vue";
+import { useNoticeStore } from "@/store";
 
 const { t } = useI18n();
-const activeKey = ref("all");
-const noticeList = reactive([]);
-const showDetail = ref(false);
-const selectedNotice = ref(null);
-const handleSelectNotice = (notice) => {
-  selectedNotice.value = notice;
-};
+const activeKey = ref(0);
+const noticeStore = useNoticeStore();
 
-onMounted(() => {
-  getNoticeList().then((res) => {
-    Object.assign(noticeList, res);
-  });
-});
+const noticeTabPane = [
+  {
+    name: t("全部"),
+    key: 0
+  },
+  {
+    name: t("系统"),
+    key: 1
+  },
+  {
+    name: t("业务"),
+    key: 2
+  },
+];
+
+watch(
+  () => activeKey.value,
+  (val) => {
+    noticeStore.setNoticeSearchParams({ sta: val });
+    noticeStore.getNoticeList();
+  },
+  {
+    immediate: true,
+  }
+);
 </script>
 
 <style scoped lang="less"></style>

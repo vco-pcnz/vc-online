@@ -1,10 +1,10 @@
 <template>
   <vco-page-search class="search-container">
     <vco-page-search-item>
-      <a-select :placeholder="t('请选择')" v-model:value="searchForm.type">
+      <a-select :placeholder="t('请选择')" v-model:value="searchForm.key">
         <a-select-option
-          v-for="(item, index) in statusData"
-          :key="item.value || index"
+          v-for="item in statusData"
+          :key="item.value"
           :value="item.value"
         >
           {{ item.label }}
@@ -32,23 +32,24 @@
 <script setup>
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
+import { useNoticeStore } from "@/store";
 
-const emits = defineEmits(["search"]);
+const noticeStore = useNoticeStore();
 
 const { t } = useI18n();
 
 const statusData = [
   {
     label: t("全部"),
-    value: "",
+    value: "all",
   },
   {
     label: t("未读"),
-    value: "1",
+    value: "unread",
   },
   {
     label: t("已读"),
-    value: "2",
+    value: "already",
   },
 ];
 
@@ -60,12 +61,13 @@ const KeywordsData = [
 ];
 
 const searchForm = ref({
-  type: "",
-  keywords: "",
+  key: "all",
+  keywords: undefined,
 });
 
 const searchHandle = () => {
-  emits("search", data);
+  noticeStore.setNoticeSearchParams(searchForm.value);
+  noticeStore.getNoticeList();
 };
 </script>
 

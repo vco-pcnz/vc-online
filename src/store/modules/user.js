@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
-import { formatMenus, toTreeData } from '@/router/router-utils'
+import { formatMenus, toTreeData } from "@/router/router-utils";
 import { getUserInfo, getMenuList } from "@/api/user";
-import { getToken, setToken, removeToken } from "@/utils/token-util.js"
+import { getToken, setToken, removeToken } from "@/utils/token-util.js";
 import { login, logout } from "@/api/auth";
 
 const useUserStore = defineStore("VcOnlineUserInfo", {
@@ -21,15 +21,15 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
 
   actions: {
     setToken(token) {
-      setToken(token)
+      setToken(token);
     },
 
     getToken() {
-      getToken()
+      getToken();
     },
 
     clearToken() {
-      removeToken()
+      removeToken();
     },
 
     resetUserInfo() {
@@ -42,7 +42,8 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
         return {};
       }
       // 用户信息
-      result.roles = result.roles && result.roles.length ? result.roles.join('/') : ''
+      result.roles =
+        result.roles && result.roles.length ? result.roles.join("/") : "";
       this.userInfo = result;
 
       // 用户权限
@@ -60,24 +61,26 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
       const { menus, homePath } = formatMenus(
         toTreeData({
           data: result.filter((d) => ![1, 2, 4].includes(d.menuType)),
-          idField: 'id',
-          parentIdField: 'children'
+          idField: "id",
+          parentIdField: "children",
         }).concat([])
       );
       this.routerInfo = menus;
-      this.routerInit = true
+      this.routerInit = true;
       return { menus, homePath };
     },
 
     login(form) {
       return new Promise((resolve, reject) => {
-        login(form).then(r => {
-          this.setToken(r.access_token)
-          resolve()
-        }).catch(e => {
-          reject(e)
-        })
-      })
+        login(form)
+          .then((r) => {
+            this.setToken(r.access_token);
+            resolve();
+          })
+          .catch((e) => {
+            reject(e);
+          });
+      });
     },
 
     async logout() {

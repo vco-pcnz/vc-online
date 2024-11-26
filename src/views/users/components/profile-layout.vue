@@ -64,11 +64,12 @@
 import { ref, reactive, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
-import { useUserDetailStore } from "@/store";
+import { useUserDetailStore, useNoticeStore } from "@/store";
 
 const { t } = useI18n();
 const router = useRouter();
 const userDetailStore = useUserDetailStore();
+const noticeStore = useNoticeStore();
 const baseInfo = ref();
 const extraInfo = ref();
 const userName = ref("");
@@ -87,13 +88,16 @@ const panes = reactive([
   {
     key: "notice",
     label: t("通知"),
-    // TODO
-    extraInfo: "15",
+    extraInfo: 0,
   },
 ]);
 
 const onChange = (key) => {
-  router.push(`/users/profile/${key}`);
+  if(noticeStore.showDetail) {
+    noticeStore.setShowDetail(false);
+  } else {
+    router.push(`/users/profile/${key}`);
+  }
 };
 
 const setUserInfo = (data) => {
@@ -145,11 +149,30 @@ onMounted(() => {
   userDetailStore.getUserInfo();
 });
 
-watch(() => userDetailStore.userDetail, (val) => {
-  if(Object.keys(val)) {
-    setUserInfo(val);
+watch(
+  () => userDetailStore.userDetail,
+  (val) => {
+    if (Object.keys(val)) {
+      setUserInfo(val);
+    }
   }
-});
+);
+
+watch(
+  () => noticeStore.noticeCount,
+  (val) => {
+    if (val) {
+      panes.forEach((item) => {
+        if (item.key === "notice") {
+          item.extraInfo = val;
+        }
+      });
+    }
+  },
+  {
+    immediate: true,
+  }
+);
 </script>
 
 <style scoped lang="less">
@@ -228,6 +251,7 @@ watch(() => userDetailStore.userDetail, (val) => {
 }
 
 .profile-container {
+  position: relative;
   display: grid;
   grid-template-columns: 315px 1fr;
   gap: 24px;
@@ -235,7 +259,7 @@ watch(() => userDetailStore.userDetail, (val) => {
 
   .profile-info {
     overflow: hidden;
-    background-color: #FAF9F9;
+    background-color: #faf9f9;
     border-radius: 12px;
 
     &-header {
@@ -270,7 +294,7 @@ watch(() => userDetailStore.userDetail, (val) => {
   }
 
   .profile-content {
-    background-color: #FAF9F9;
+    background-color: #faf9f9;
     border-radius: 12px;
     padding: 30px;
   }

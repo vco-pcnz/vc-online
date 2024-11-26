@@ -1,17 +1,18 @@
 <template>
   <vco-page-search>
-    <vco-page-search-item :title="t('类型')" width="100">
-      <a-select :placeholder="t('请选择')" v-model:value="searchForm.cid">
+    <vco-page-search-item :title="t('')" width="100">
+      <a-select :placeholder="t('请选择')" v-model:value="searchForm.type">
         <a-select-option
-          v-for="(item, index) in types"
-          :key="item.code || index"
-          :value="item.code"
-          >{{ item.name }}</a-select-option
+          v-for="item in typeData"
+          :key="item.value"
+          :value="item.value"
         >
+          {{ item.label }}
+        </a-select-option>
       </a-select>
     </vco-page-search-item>
 
-    <vco-page-search-item :title="t('人员信息')" width="220">
+    <vco-page-search-item :title="t('')" width="220">
       <vco-type-input
         v-model="searchForm.org__name"
         v-model:type="searchForm.key"
@@ -20,7 +21,7 @@
       ></vco-type-input>
     </vco-page-search-item>
 
-    <vco-page-search-item :title="t('关键词')" width="140">
+    <vco-page-search-item :title="t('')" width="140">
       <a-input v-model:value="searchForm.keywords" :placeholder="t('请输入')" />
     </vco-page-search-item>
 
@@ -33,17 +34,28 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, computed, onMounted } from "vue";
 import dayjs from "dayjs";
 import { cloneDeep } from "lodash";
 import { useI18n } from "vue-i18n";
-import { getStakeholderTypet } from "@/api/orgs";
-
-const emits = defineEmits(["search"]);
+import { useOrgsStore } from "@/store";
 
 const { t } = useI18n();
+const orgsStore = useOrgsStore();
 
-const types = ref([{ name: t("全部"), code: "" }]);
+const typeData = computed(() => {
+  const data = orgsStore.stakeholderTypet.map((item) => ({
+    label: item.name,
+    value: item.code,
+  }));
+  return [
+    {
+      label: t("类型"),
+      value: "",
+    },
+    ...data,
+  ];
+});
 
 const keys = ref([
   {
@@ -59,11 +71,11 @@ const keys = ref([
     value: "email",
   },
   {
-    label: t("地址"),
+    label: t("电话"),
     value: "mobile",
   },
   {
-    label: t("身份证"),
+    label: t("Id编码"),
     value: "code",
   },
   {
@@ -73,20 +85,18 @@ const keys = ref([
 ]);
 
 const searchForm = ref({
-  cid: "",
+  type: "",
   key: "all",
   org__name: "",
-  keywords: null,
+  keywords: "",
 });
 
+// 搜索
 const searchHandle = () => {
-  const data = cloneDeep(searchForm.value);
-  emits("search", data);
+  orgsStore.setSearchParams(searchForm.value);
 };
 
 onMounted(() => {
-  getStakeholderTypet().then((res) => {
-    types.value = types.value.concat(res);
-  });
+  orgsStore.getStakeholderTypet();
 });
 </script>

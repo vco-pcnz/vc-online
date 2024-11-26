@@ -1,5 +1,5 @@
 import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router'
-import { useUserStore } from '@/store'
+import { useUserStore, useNoticeStore } from '@/store'
 import i18n from "@/i18n";
 import NProgress from 'nprogress'
 import { getToken } from "@/utils/token-util.js"
@@ -17,7 +17,8 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-  const userStore = useUserStore()
+  const userStore = useUserStore();
+  const noticeStore = useNoticeStore()
   NProgress.start()
   let toTitle = to.meta.title || to.name
   document.title = toTitle ? `${i18n.global.t(toTitle)} - ${title}` : title
@@ -32,7 +33,8 @@ router.beforeEach(async (to, from, next) => {
 
     if (!userStore.userInfo) {
       // 用户信息
-      await userStore.requestUserInfo()
+      await userStore.requestUserInfo();
+      noticeStore.setNoticeCount();
     }
 
     // 注册动态路由

@@ -34,8 +34,8 @@
                 <a-badge
                   class="badge"
                   size="small"
-                  :count="notifications.length"
-                  v-if="!!notifications.length"
+                  :count="noticeStore.noticeCount"
+                  v-if="!!noticeStore.noticeCount"
                 />
               </a-space>
               <p>{{ userInfo?.roles || 'Vip' }}</p>
@@ -67,7 +67,7 @@ import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { cloneDeep } from "lodash"
 import LanguageSelect from "@/components/language-select/index.vue";
-import { useUserStore } from "@/store";
+import { useUserStore, useNoticeStore } from "@/store";
 import { useRouter, useRoute } from "vue-router";
 
 const { t } = useI18n();
@@ -75,7 +75,8 @@ const router = useRouter();
 const route = useRoute();
 
 const userStore = useUserStore();
-const userInfo = computed(() => userStore.userInfo)
+const userInfo = computed(() => userStore.userInfo);
+const noticeStore = useNoticeStore();
 
 const menuData = computed(() => {
   const data = userStore.routerInfo || []
@@ -118,8 +119,6 @@ const isActive = (path) => {
 const isUserActive = () => {
   return route.path.startsWith('/users/profile')
 }
-
-const notifications = ref(Array(120).fill(1));
 
 const menuItem = [
   { label: t('编辑详情'), key: "edit-profile", to: "/users/profile/about" },
@@ -195,9 +194,6 @@ const handleLogout = () => {
           font-size: 13px;
         }
       }
-
-      
-
       .dropdown_menu {
         align-self: center;
         width: 32px;

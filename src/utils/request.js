@@ -63,8 +63,8 @@ function createService() {
       if (code === 0) {
         if (count || count === 0) {
           return Promise.resolve({
-            count: count,
-            list: data,
+            count,
+            data,
           });
         } else {
           return Promise.resolve(data);

@@ -72,8 +72,8 @@ const save = () => {
   if(!props.uuids) {
     return;
   }
-  loading.value = true;
   formRef.value.validate().then(() => {
+    loading.value = true;
     assignRole({
       uuids: props.uuids.map(item => item.uuid),
       ...form,

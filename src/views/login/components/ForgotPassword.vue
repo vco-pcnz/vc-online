@@ -27,15 +27,6 @@
               @click="submit"
             >{{ t("密码重置") }}</a-button>
 
-            <!-- <a-button
-              size="large"
-              :loading="loading"
-              @click="submit"
-              block
-              class="reset_btn"
-            >
-              {{ t("密码重置") }}
-            </a-button> -->
           </a-form-item>
         </a-form>
       </section>

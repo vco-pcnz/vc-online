@@ -101,7 +101,7 @@ export default {
   "排序方式": "sort by",
   "默认": "Default",
   "最大费率": "max LVR",
-  "修改成功": "modify successfully",
+  "修改成功": "modify successful",
   "全部": "ALL",
   "系统": "System",
   "业务": "Business",
@@ -159,5 +159,7 @@ export default {
   "请输入国家名称或区号": "Please enter a country or area code",
   "用户角色": "User Roles",
   "利益相关者": "Orgs",
-  "指派角色":"Assign Roles"
+  "指派角色":"Assign Roles",
+  "发送验证码": "Send the verification code",
+  "重新发送验证码": "Resend the verification code"
 }

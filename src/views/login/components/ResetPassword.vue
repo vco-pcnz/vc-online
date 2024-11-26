@@ -31,7 +31,6 @@
                 v-model:value="form.password"
                 :placeholder="t('密码')"
                 autoComplete="on"
-                @pressEnter="submit"
               />
             </a-form-item>
             <a-form-item>

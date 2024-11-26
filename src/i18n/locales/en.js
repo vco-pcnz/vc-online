@@ -156,5 +156,7 @@ export default {
   "已关闭项目": "Closed projects",
   "请求": "requests",
   "请输入国家名称或区号": "Please enter a country or area code",
-  "用户角色": "User Roles"
+  "用户角色": "User Roles",
+  "利益相关者": "Orgs",
+  "指派角色":"Assign Roles"
 }

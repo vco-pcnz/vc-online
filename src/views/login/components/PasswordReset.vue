@@ -20,6 +20,14 @@
           </a-form-item>
           <a-form-item>
             <a-button
+              type="dark"
+              shape="round"
+              :loading="loading"
+              class="reset_btn big shadow bold"
+              @click="submit"
+            >{{ t("密码重置") }}</a-button>
+
+            <!-- <a-button
               size="large"
               :loading="loading"
               @click="submit"
@@ -27,7 +35,7 @@
               class="reset_btn"
             >
               {{ t("密码重置") }}
-            </a-button>
+            </a-button> -->
           </a-form-item>
         </a-form>
       </section>
@@ -126,10 +134,8 @@ const submit = () => {
   }
 
   .reset_btn {
-    background-color: @clr_charcoal;
-    color: @clr_white;
-    border: none;
-    font-weight: 500;
+    width: 100%;
+    margin-top: 20px;
   }
 }
 </style>

@@ -65,6 +65,7 @@ onMounted(() => {
         border-right: 1px solid #000 !important;
         border-top-right-radius: 0 !important;
         border-bottom-right-radius: 0 !important;
+        background-color: transparent !important;
       }
     }
     :deep(.input-select.ant-select-open) .ant-select-selector {

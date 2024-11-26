@@ -2,7 +2,10 @@
 @import 'animation.less';
 @import './variables.less';
 
-html, body, #app{
+html, body, #app,
+[class^="ant"],
+[class*=" ant-spin"],
+[class*=" ant-btn"] {
   font-family: Aeonik, Arial, Helvetica, sans-serif;
   font-feature-settings: "tnum", "tnum";
   -webkit-font-smoothing: antialiased;

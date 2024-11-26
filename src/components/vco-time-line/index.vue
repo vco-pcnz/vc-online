@@ -65,7 +65,7 @@
         &.txt {
           width: 75px;
           color: #282828;
-          font-weight: bold;
+          font-weight: 500;
           font-size: 13px;
         }
         &:last-child {
@@ -74,7 +74,7 @@
       }
       .num {
         color: @colorPrimary;
-        font-weight: bold;
+        font-weight: 500;
         position: relative;
         top: 8px;
       }

@@ -1,0 +1,203 @@
+<template>
+  <a-modal :width="480" :open="open" :title="title" @cancel="closeModal">
+    <div class="sys-form-content mt-5">
+      <a-form ref="formRef" :model="form" :rules="rules" layout="vertical">
+        <a-form-item :label="t('头像')" name="avatar">
+          <!-- <uploadImage :limit="1" v-model:value="form.avatar" /> -->
+          <vco-avatar
+            :src="form.avatar"
+            :radius="true"
+            :round="false"
+          ></vco-avatar>
+        </a-form-item>
+        <a-form-item name="firstName" :label="t('名')">
+          <a-input v-model:value="form.firstName" :placeholder="t('名')" />
+        </a-form-item>
+        <a-form-item name="middleName" :label="t('中间名')">
+          <a-input v-model:value="form.middleName" :placeholder="t('中间名')" />
+        </a-form-item>
+        <a-form-item name="lastName" :label="t('姓')">
+          <a-input v-model:value="form.lastName" :placeholder="t('姓')" />
+        </a-form-item>
+        <a-form-item name="email" :label="t('邮箱')">
+          <a-input v-model:value="form.email" :placeholder="t('邮箱')" />
+        </a-form-item>
+        <a-form-item :label="t('手机号')" name="mobile">
+          <vco-mobile-input
+            v-model:value="form.mobile"
+            v-model:areaCode="form.pre"
+          ></vco-mobile-input>
+        </a-form-item>
+        <a-form-item name="verifyMode">
+          <a-row>
+            <a-col :span="12">
+              <a-form-item-rest>
+                <a-checkbox v-model:checked="form.sendEmail">
+                  {{ t('发送邀请邮件') }}
+                </a-checkbox>
+              </a-form-item-rest>
+            </a-col>
+            <a-col :span="12">
+              <a-form-item-rest>
+                <a-checkbox v-model:checked="form.sendSms">
+                  {{ t('发送邀请短信') }}
+                </a-checkbox>
+              </a-form-item-rest>
+            </a-col>
+          </a-row>
+        </a-form-item>
+      </a-form>
+    </div>
+    <template #footer>
+      <div class="modal-footer">
+        <a-button
+          size="large"
+          type="cyan"
+          :loading="loading"
+          class="register-btn big shadow bold"
+          @click="save"
+        >
+          {{ t('提交') }}
+        </a-button>
+      </div>
+    </template>
+  </a-modal>
+</template>
+
+<script setup>
+import { ref, computed, reactive } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { addUser, editUser } from '@/api/users';
+import useFormData from '@/utils/use-form-data';
+import { message } from 'ant-design-vue';
+import { useUsersStore } from '@/store';
+import { EMAIL_RULE } from '@/constant';
+import { invitePwd } from '@/api/auth';
+
+const { t } = useI18n();
+const loading = ref(false);
+const formRef = ref(null);
+const usersStore = useUsersStore();
+
+const props = defineProps(['open', 'title', 'isEdit']);
+const emit = defineEmits(['update:open']);
+
+const { form, resetFields } = useFormData({
+  avatar:
+    'https://dev-admin-api.new.vincentcapital.co.nz/uploads/temp/20241126/67456f492d0903120.jpeg',
+  firstName: '',
+  middleName: '',
+  lastName: '',
+  email: '',
+  pre: '64',
+  mobile: '',
+  sendEmail: false,
+  sendSms: false,
+});
+
+// 表单验证规则
+const rules = reactive({
+  avatar: [
+    {
+      required: true,
+      message: t('请上传') + t('头像'),
+      type: 'string',
+      trigger: 'blur',
+    },
+  ],
+  firstName: [
+    {
+      required: true,
+      message: t('请输入') + t('名'),
+      type: 'string',
+      trigger: 'blur',
+    },
+  ],
+  middleName: [
+    {
+      required: true,
+      message: t('请输入') + t('中间名'),
+      type: 'string',
+      trigger: 'blur',
+    },
+  ],
+  lastName: [
+    {
+      required: true,
+      message: t('请输入') + t('姓'),
+      type: 'string',
+      trigger: 'blur',
+    },
+  ],
+  email: [
+    {
+      required: true,
+      message: t('请输入') + t('邮箱'),
+      type: 'string',
+      trigger: 'blur',
+    },
+    {
+      pattern: EMAIL_RULE,
+      message: t('邮箱格式不正确'),
+    },
+  ],
+  verifyMode: [
+    {
+      validator: () => {
+        if (!form.sendEmail && !form.sendSms) {
+          return Promise.reject(t('必须选其中一项做验证'));
+        }
+        return Promise.resolve();
+      },
+      trigger: 'blur',
+    },
+  ],
+  mobile: [
+    {
+      required: true,
+      message: t('请输入') + t('手机号'),
+      type: 'string',
+      trigger: 'blur',
+    },
+  ],
+});
+
+const closeModal = () => {
+  emit('update:open', false);
+  resetFields();
+  formRef.value.clearValidate();
+};
+
+const save = () => {
+  formRef.value.validate().then(() => {
+    loading.value = true;
+    addUser({
+      ...form,
+      sendEmail: form.sendEmail ? 1 : 0,
+      sendSms: form.sendSms ? 1 : 0,
+    })
+      .then(() => {
+        loading.value = false;
+        usersStore.getUserList();
+        message.success(t('新增成功'));
+        closeModal();
+      })
+      .catch(() => {
+        loading.value = false;
+      });
+  });
+};
+</script>
+
+<style scoped lang="less">
+.modal-footer {
+  display: flex;
+  justify-content: center;
+}
+
+.checkbox-group {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+</style>

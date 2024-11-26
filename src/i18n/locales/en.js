@@ -11,6 +11,7 @@ export default {
   "复制失败": "Copy failed",
   "请输入": "Please enter ",
   "请选择": "Please select ",
+  "请上传": "Please upload",
   "邮箱": "Email",
   "密码": "Password",
   "忘记密码": "Forgot your password?",
@@ -161,5 +162,9 @@ export default {
   "利益相关者": "Orgs",
   "指派角色":"Assign Roles",
   "发送验证码": "Send the verification code",
-  "重新发送验证码": "Resend the verification code"
+  "重新发送验证码": "Resend the verification code",
+  "发送邀请邮件": "SEND INVITE EMAIL",
+  "发送邀请短信": "SEND INVITE SMS",
+  "头像": "Avatar",
+  "必须选其中一项做验证": "You have to choose one of them for verification"
 }

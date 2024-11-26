@@ -100,7 +100,7 @@
                 <template #overlay>
                   <a-menu>
                     <a-menu-item key="0">
-                      <a>{{ t('查看详情') }}</a>
+                      <a @click="editUser(item)">{{ t('查看详情') }}</a>
                     </a-menu-item>
                   </a-menu>
                 </template>
@@ -146,6 +146,9 @@ const itemcheck = () => {
 
 const checkedAllHandle = () => {
   emits('check', checkedAll.value);
+};
+
+const editUser = (data) => {
 };
 </script>
 

@@ -2,7 +2,7 @@
   <div>
     <vco-page-nav sup-path="/users">
       <template #action>
-        <a-button type="cyan" shape="round" @click="addUser">
+        <a-button type="cyan" shape="round" @click="handleAddUser">
           {{ t('新增用户') }}
         </a-button>
       </template>
@@ -59,6 +59,7 @@
       </div>
     </div>
   </div>
+  <add-user v-model:open="showAdd" :title="t('新增用户')" />
   <assign-roles
     v-model:open="open"
     :title="t('分配角色')"
@@ -73,12 +74,14 @@ import TableSearch from './components/UsersSearch.vue';
 import TableBlock from './components/UsersTable.vue';
 import { useUsersStore } from '@/store';
 import AssignRoles from './components/AssignRoles.vue';
+import AddUser from './components/AddUser.vue';
 
 const { t } = useI18n();
 const usersStore = useUsersStore();
 const tableLoading = ref(false);
 const tableData = computed(() => usersStore.userList);
 const open = ref(false);
+const showAdd = ref(false);
 
 const sortType = ref('desc');
 const sortValue = ref('');
@@ -101,7 +104,9 @@ const sortTypeData = ref([
   },
 ]);
 
-const addUser = () => {};
+const handleAddUser = () => {
+  showAdd.value = true;
+};
 
 const rowSelection = computed(() => {
   return tableData.value.filter((item) => item.checked);

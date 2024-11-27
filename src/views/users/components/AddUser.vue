@@ -232,12 +232,10 @@ watch(
         email_ok.value = userInfo.email_ok;
         mobile_ok.value = userInfo.mobile_ok;
       }
-      console.log(form, '===111');
     } else {
       isEdit.value = false;
       resetFields();
       formRef.value.clearValidate();
-      console.log(form, '===');
     }
   }
 );

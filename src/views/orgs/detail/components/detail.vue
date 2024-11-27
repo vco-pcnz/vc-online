@@ -6,7 +6,7 @@
         <vco-avatar :src="orgsDetailStore.detail?.avatar" :size="124"></vco-avatar>
       </div>
       <p>
-        <span class="label"><i class="iconfont" :class="{ cer: orgsDetailStore.detail.name }">&#xe679;</i></span>
+        <span class="label"><i class="iconfont" :class="{ cer: orgsDetailStore.detail?.name }">&#xe679;</i></span>
         <span class="value">{{ orgsDetailStore.detail?.name }}</span>
       </p>
     </li>
@@ -21,15 +21,15 @@
         <span class="value">{{ orgsDetailStore.detail?.nzbz }}</span>
       </p>
       <p>
-        <span class="label"><i class="iconfont" :class="{ cer: orgsDetailStore.detail.idcard }">&#xe679;</i>{{ t('组织机构代码f') }}: </span>
+        <span class="label"><i class="iconfont" :class="{ cer: orgsDetailStore.detail?.idcard }">&#xe679;</i>{{ t('组织机构代码f') }}: </span>
         <span class="value">{{ orgsDetailStore.detail?.idcard }}</span>
       </p>
       <p>
-        <span class="label"><i class="iconfont" :class="{ cer: orgsDetailStore.detail.email_ok }">&#xe66f;</i>{{ t('邮箱') }}: </span>
+        <span class="label"><i class="iconfont" :class="{ cer: orgsDetailStore.detail?.email_ok }">&#xe66f;</i>{{ t('邮箱') }}: </span>
         <span class="value">{{ orgsDetailStore.detail?.email }}</span>
       </p>
       <p>
-        <span class="label"><i class="iconfont" :class="{ cer: orgsDetailStore.detail.mobile_ok }">&#xe678;</i>{{ t('手机号') }}: </span>
+        <span class="label"><i class="iconfont" :class="{ cer: orgsDetailStore.detail?.mobile_ok }">&#xe678;</i>{{ t('手机号') }}: </span>
         <span class="value">+{{ orgsDetailStore.detail?.pre }} {{ orgsDetailStore.detail?.mobile }}</span>
       </p>
       <p>
@@ -48,14 +48,14 @@
     <li>
       <p>
         <span class="label"><i class="iconfont">&#xe690;</i></span>
-        <span class="cer"> {{ orgsDetailStore.detail.open_count }}{{ t('进行中项目') }} </span>
+        <span class="cer"> {{ orgsDetailStore.detail?.open_count }}{{ t('进行中项目') }} </span>
       </p>
       <p style="padding-left: 20px">
-        <span class="label"> {{ orgsDetailStore.detail.close_count }}{{ t('已关闭项目') }} </span>
+        <span class="label"> {{ orgsDetailStore.detail?.close_count }}{{ t('已关闭项目') }} </span>
       </p>
       <p>
         <span class="label"><i class="iconfont">&#xe751;</i></span>
-        <span class="cer">{{ orgsDetailStore.detail.apply_count }}{{ t('请求') }}</span>
+        <span class="cer">{{ orgsDetailStore.detail?.apply_count }}{{ t('请求') }}</span>
       </p>
     </li>
   </ul>

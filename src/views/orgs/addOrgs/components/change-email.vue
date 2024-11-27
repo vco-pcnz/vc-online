@@ -1,16 +1,31 @@
 <template>
-  <a-modal class="sys-form-content" :width="480" :open="open" :title="title" @cancel="closeModal">
+  <a-modal
+    class="sys-form-content"
+    :width="480"
+    :open="open"
+    :title="title"
+    @cancel="closeModal"
+  >
     <a-form ref="formRef" :model="form" :rules="rules" layout="vertical">
       <a-form-item no-style>
         <a-row :gutter="8">
           <a-col :span="20">
             <a-form-item name="email" :label="t('验证邮箱')">
-              <a-input v-model:value="form.email" :placeholder="t('验证邮箱')" disabled />
+              <a-input
+                v-model:value="form.email"
+                :placeholder="t('验证邮箱')"
+                disabled
+              />
             </a-form-item>
           </a-col>
           <a-col :span="4" v-if="!verifyEmail.showCountdown">
             <a-form-item label=" ">
-              <a-button @click="handleVerify(false)" block type="dark" class="verify-btn big">
+              <a-button
+                @click="handleVerify(false)"
+                block
+                type="dark"
+                class="verify-btn big"
+              >
                 {{ t('验证') }}
               </a-button>
             </a-form-item>
@@ -22,19 +37,31 @@
           </a-col>
         </a-row>
       </a-form-item>
-      <a-form-item name="code" :label="t('验证码V')" v-show="verifyEmail.showCode">
+      <a-form-item
+        name="code"
+        :label="t('验证码V')"
+        v-show="verifyEmail.showCode"
+      >
         <a-input v-model:value="form.code" :placeholder="t('验证码V')" />
       </a-form-item>
       <a-form-item no-style>
         <a-row :gutter="8">
           <a-col :span="20">
             <a-form-item name="newEmail" :label="t('新邮箱')">
-              <a-input v-model:value="form.newEmail" :placeholder="t('新邮箱')" />
+              <a-input
+                v-model:value="form.newEmail"
+                :placeholder="t('新邮箱')"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="4" v-if="!verifyEmail.showCountdownNew">
             <a-form-item label=" ">
-              <a-button @click="handleVerify(true)" block type="dark" class="verify-btn big">
+              <a-button
+                @click="handleVerify(true)"
+                block
+                type="dark"
+                class="verify-btn big"
+              >
                 {{ t('验证') }}
               </a-button>
             </a-form-item>
@@ -46,13 +73,24 @@
           </a-col>
         </a-row>
       </a-form-item>
-      <a-form-item name="newCode" :label="t('验证码V')" v-show="verifyEmail.showCodeNew">
+      <a-form-item
+        name="newCode"
+        :label="t('验证码V')"
+        v-show="verifyEmail.showCodeNew"
+      >
         <a-input v-model:value="form.newCode" :placeholder="t('验证码V')" />
       </a-form-item>
     </a-form>
     <template #footer>
       <div class="modal-footer">
-        <a-button @click="save" size="large" type="primary" style="width: 40%" class="big" :loading="loading">
+        <a-button
+          @click="save"
+          size="large"
+          type="primary"
+          style="width: 40%"
+          class="big"
+          :loading="loading"
+        >
           {{ t('提交') }}
         </a-button>
       </div>
@@ -63,7 +101,7 @@
 <script setup>
 import { ref, watch, reactive } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { sendCodeOldE, sendCodeNewE, changeEmail } from '@/api/users';
+import { sendCodeOldE, sendCodeNewE, changeEmail } from '@/api/orgs/form/index';
 import { EMAIL_RULE } from '@/constant';
 import countdown from '../components/countdown.vue';
 import useFormData from '@/utils/use-form-data';
@@ -124,12 +162,12 @@ const rules = reactive({
 });
 const closeModal = () => {
   emit('update:open', false);
-  Object.keys(verifyEmail).forEach(key => {
+  Object.keys(verifyEmail).forEach((key) => {
     verifyEmail[key] = false;
   });
 };
 
-const handleVerify = isNew => {
+const handleVerify = (isNew) => {
   if (isNew) {
     formRef.value.validate(['newEmail']).then(() => {
       sendCodeNewE({ email: form.newEmail }).then(() => {
@@ -171,7 +209,7 @@ const save = () => {
 
 watch(
   () => props.open,
-  val => {
+  (val) => {
     if (val) {
       assignFields({
         email: props.email,

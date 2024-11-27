@@ -94,7 +94,7 @@
 <script setup>
 import { ref, watch, reactive } from "vue";
 import { useI18n } from "vue-i18n";
-import { sendCodeOldM, sendCodeNewM, changeMobile } from "@/api/users";
+import { sendCodeOldM, sendCodeNewM, changeMobile } from "@/api/profile";
 import countdown from "../components/countdown.vue";
 import useFormData from "@/utils/use-form-data";
 import { message } from "ant-design-vue";

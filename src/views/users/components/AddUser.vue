@@ -7,13 +7,8 @@
   >
     <div class="sys-form-content mt-5">
       <a-form ref="formRef" :model="form" :rules="rules" layout="vertical">
-        <a-form-item :label="t('头像')" name="avatar">
-          <!-- <uploadImage :limit="1" v-model:value="form.avatar" /> -->
-          <vco-avatar
-            :src="form.avatar"
-            :radius="true"
-            :round="false"
-          ></vco-avatar>
+        <a-form-item name="avatar" class="avatar">
+          <vco-upload-image v-model:value="form.avatar" :text="t('头像')" :isAvatar="true"></vco-upload-image>
         </a-form-item>
         <a-form-item name="firstName" :label="t('名')">
           <a-input v-model:value="form.firstName" :placeholder="t('名')" />
@@ -28,14 +23,14 @@
           <a-input
             v-model:value="form.email"
             :placeholder="t('邮箱')"
-            :disabled="isEdit && email_ok"
+            :disabled="isEdit && !!email_ok"
           />
         </a-form-item>
         <a-form-item :label="t('手机号')" name="mobile">
           <vco-mobile-input
             v-model:value="form.mobile"
             v-model:areaCode="form.pre"
-            :disabled="isEdit && mobile_ok"
+            :disabled="isEdit && !!mobile_ok"
           ></vco-mobile-input>
         </a-form-item>
         <a-form-item name="verifyMode" v-if="!isEdit">
@@ -89,12 +84,11 @@ const formRef = ref(null);
 const usersStore = useUsersStore();
 const isEdit = ref(false);
 
-const props = defineProps(['open', 'title', 'data']);
+const props = defineProps(['open', 'userData']);
 const emit = defineEmits(['update:open']);
 
 const { form, resetFields, assignFields } = useFormData({
-  avatar:
-    'https://dev-admin-api.new.vincentcapital.co.nz/uploads/temp/20241126/67456f492d0903120.jpeg',
+  avatar: '',
   firstName: '',
   middleName: '',
   lastName: '',
@@ -177,24 +171,33 @@ const rules = reactive({
 
 const closeModal = () => {
   emit('update:open', false);
-  resetFields();
-  formRef.value.clearValidate();
+};
+
+const edit = () => {
+  editUser({
+    ...form,
+    sendEmail: undefined,
+    sendSms: undefined,
+    email: !!email_ok ? undefined : form.email,
+    pre: !!mobile_ok ? undefined : form.pre,
+    mobile: !!mobile_ok ? undefined : form.mobile,
+  })
+    .then(() => {
+      loading.value = false;
+      usersStore.getUserList();
+      message.success(t('修改成功'));
+      closeModal();
+    })
+    .catch(() => {
+      loading.value = false;
+    });
 };
 
 const save = () => {
   formRef.value.validate().then(() => {
     loading.value = true;
     if (isEdit.value) {
-      editUser(form)
-        .then(() => {
-          loading.value = false;
-          usersStore.getUserList();
-          message.success(t('修改成功'));
-          closeModal();
-        })
-        .catch(() => {
-          loading.value = false;
-        });
+      edit();
       return;
     }
     addUser({
@@ -215,23 +218,35 @@ const save = () => {
 };
 
 watch(
-  () => props.data,
+  () => props.open,
   (val) => {
-    if (Object.keys(val).length) {
-      isEdit.value = true;
-      assignFields({
-        ...form,
-        ...val,
-      });
-      form.uuid = val.uuid;
-      email_ok.value = val.email_ok;
-      mobile_ok.value = val.mobile_ok;
+    if (val) {
+      const userInfo = props.userData;
+      if (Object.keys(userInfo).length) {
+        isEdit.value = true;
+        assignFields({
+          ...form,
+          ...userInfo,
+        });
+        form.uuid = userInfo.uuid;
+        email_ok.value = userInfo.email_ok;
+        mobile_ok.value = userInfo.mobile_ok;
+      }
+    } else {
+      isEdit.value = false;
+      resetFields();
+      formRef.value.clearValidate();
     }
   }
 );
 </script>
 
 <style scoped lang="less">
+.avatar {
+  display: flex;
+  justify-content: center;
+}
+
 .modal-footer {
   display: flex;
   justify-content: center;

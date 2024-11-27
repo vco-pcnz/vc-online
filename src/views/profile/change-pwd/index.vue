@@ -119,9 +119,9 @@ import {
   PASSWORD_RULE,
   VERIFY_KEY,
 } from "@/constant";
-import profileLayout from "../components/profile-layout.vue";
-import countdown from "../components/countdown.vue";
-import { modifyUserPwd, sendCodeOldE, sendCodeOldM } from "@/api/users";
+import profileLayout from "../components/ProfileLayout.vue";
+import countdown from "../components/Countdown.vue";
+import { modifyUserPwd, sendCodeOldE, sendCodeOldM } from "@/api/profile";
 import { message } from "ant-design-vue";
 import { trim } from "lodash";
 import useFormData from "@/utils/use-form-data";

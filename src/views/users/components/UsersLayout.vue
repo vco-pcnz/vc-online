@@ -2,7 +2,7 @@
   <div>
     <vco-page-nav sup-path="/users">
       <template #action>
-        <a-button type="cyan" shape="round" @click="showUserModal">
+        <a-button type="cyan" shape="round" @click="showUserModal()">
           {{ t('新增用户') }}
         </a-button>
       </template>
@@ -60,7 +60,7 @@
       </div>
     </div>
   </div>
-  <add-user v-model:open="showAdd" :data="userData" />
+  <add-user v-model:open="showAdd" :userData="userData" />
   <assign-roles
     v-model:open="open"
     :title="t('分配角色')"
@@ -82,7 +82,7 @@ const usersStore = useUsersStore();
 const tableLoading = ref(false);
 const open = ref(false);
 const showAdd = ref(false);
-const userData = ref();
+const userData = ref({});
 
 const sortType = ref('desc');
 const sortValue = ref('');
@@ -108,11 +108,9 @@ const sortTypeData = ref([
   },
 ]);
 
-const showUserModal = (data) => {
+const showUserModal = (data = {}) => {
   showAdd.value = true;
-  if(data) {
-    userData.value = data;
-  }
+  userData.value = data;
 };
 
 const rowSelection = computed(() => {

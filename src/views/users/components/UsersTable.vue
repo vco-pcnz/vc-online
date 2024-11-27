@@ -82,7 +82,9 @@
                   {{ item.xm ?? 0 }} {{ t('进行中项目') }}
                 </span>
               </p>
-              <p style="margin-left: 45px">{{ item.cxm ?? 0 }} {{ t('已关闭项目') }}</p>
+              <p style="margin-left: 45px">
+                {{ item.cxm ?? 0 }} {{ t('已关闭项目') }}
+              </p>
             </li>
             <li>
               <p>
@@ -148,8 +150,8 @@ const checkedAllHandle = () => {
   emits('check', checkedAll.value);
 };
 
-const editUser = (data) => {
-  emits('editUser', data);
+const editUser = (userData) => {
+  emits('editUser', userData);
 };
 </script>
 

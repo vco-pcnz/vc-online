@@ -11,7 +11,7 @@ export default {
   "复制失败": "Copy failed",
   "请输入": "Please enter ",
   "请选择": "Please select ",
-  "请上传": "Please upload",
+  "请上传": "Please upload ",
   "邮箱": "Email",
   "密码": "Password",
   "忘记密码": "Forgot your password?",
@@ -180,5 +180,4 @@ export default {
   "有效":"Valid",
   "无效":"Invalid",
   "添加组织":"Add Orgs",
-
 }

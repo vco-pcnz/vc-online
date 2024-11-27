@@ -121,7 +121,7 @@ import {
 } from "@/constant";
 import profileLayout from "../components/ProfileLayout.vue";
 import countdown from "../components/Countdown.vue";
-import { modifyUserPwd, sendCodeOldE, sendCodeOldM } from "@/api/users";
+import { modifyUserPwd, sendCodeOldE, sendCodeOldM } from "@/api/profile";
 import { message } from "ant-design-vue";
 import { trim } from "lodash";
 import useFormData from "@/utils/use-form-data";

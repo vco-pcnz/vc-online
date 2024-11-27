@@ -94,7 +94,7 @@ const onChange = (key) => {
   if (noticeStore.showDetail) {
     noticeStore.setShowDetail(false);
   } else {
-    router.push(`/users/profile/${key}`);
+    router.push(`/profile/${key}`);
   }
 };
 

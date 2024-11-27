@@ -25,7 +25,7 @@
 <script setup>
 import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import profileLayout from "../components/profile-layout.vue";
+import profileLayout from "../components/ProfileLayout.vue";
 import NoticeList from "./components/NoticeList.vue";
 import NoticeSearch from "./components/NoticeSearch.vue";
 import NoticeDetail from "./components/NoticeDetail.vue";

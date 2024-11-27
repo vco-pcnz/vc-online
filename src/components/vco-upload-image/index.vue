@@ -1,9 +1,8 @@
 <template>
-  <div>
+  <div class="images-uploader">
     <a-upload
       :action="uploadAction"
       list-type="picture-card"
-      class="images-uploader"
       :disabled="disabled"
       :headers="headers"
       :file-list="fileList"
@@ -18,7 +17,6 @@
       <img
         v-if="!isMultiple && picUrl"
         :src="getAvatarView()"
-        style="height: 85px; width: 85px"
       />
       <div
         v-else-if="
@@ -31,10 +29,10 @@
         <div class="ant-upload-text">{{ t(text) }}</div>
       </div>
     </a-upload>
-    <span class="delete-img" @click="deleteImg" v-if="picUrl && limit == 1">
-      <!-- <img :src="deleteImgSrc" /> -->
-      <div>删除</div>
-    </span>
+    <div class="delete-img" @click="deleteImg" v-if="picUrl && limit == 1 && !isMultiple">
+      <DeleteOutlined />
+      <p>删除</p>
+    </div>
     <a-modal
       :visible="previewVisible"
       :footer="null"
@@ -47,14 +45,13 @@
 
 <script setup name="UploadImage">
   import { ref, onMounted } from 'vue';
-  import { PlusOutlined, LoadingOutlined } from '@ant-design/icons-vue';
+  import { DeleteOutlined, PlusOutlined, LoadingOutlined } from '@ant-design/icons-vue';
   import { message } from 'ant-design-vue/es';
   import { useI18n } from 'vue-i18n';
   import { getToken } from '@/utils/token-util';
-  // import { API_BASE_URL } from '@/config/setting';
   import { cloneDeep } from 'lodash';
 
-  const API_BASE_URL = '/api'
+  const VITE_APP_BASE_URL = import.meta.env.VITE_APP_BASE_URL
 
   const { t } = useI18n();
 
@@ -101,7 +98,7 @@
     }
   });
 
-  const uploadAction = API_BASE_URL + '/upload/uploadImage';
+  const uploadAction = VITE_APP_BASE_URL + '/upload/uploadImage';
   const headers = ref({ 'Content-Type': 'multipart/form-data' });
   const fileList = ref([]);
   const previewImage = ref('');
@@ -116,7 +113,7 @@
       return avatar;
     } else {
       if (avatar && avatar.length > 0 && avatar.indexOf('[') == -1) {
-        return API_BASE_URL + '/uploads/' + avatar;
+        return VITE_APP_BASE_URL + '/uploads/' + avatar;
       }
     }
   };
@@ -214,7 +211,6 @@
         item.push(uploadFiles[i].response.data);
       }
     }
-
     emits('update:value', item);
     emits('change', item);
   };
@@ -282,7 +278,7 @@
     const data = cloneDeep(props.value);
     if (data) {
       if (data instanceof Array) {
-        initFileList(data.join(','));
+        data.length && initFileList(data.join(','));
       } else {
         initFileList(data);
       }
@@ -295,59 +291,69 @@
 <style lang="less" scoped>
   @import "@/styles/variables.less";
 
-  :deep(.images-uploader) {
-    .ant-upload {
-      width: 128px !important;
-      height: 128px !important;
+  .images-uploader {
+    :deep(.ant-upload) {
+      width: 110px !important;
+      height: 110px !important;
       background-color: #f7f9f8 !important;
       border-color: #282828 !important;
       &:hover {
         border-color: @colorPrimary !important;
       }
+      .anticon-loading,
+      .anticon-plus {
+        font-size: 18px;
+      }
+    }
+    :deep(.ant-upload-list-item-container) {
+      width: 110px !important;
+      height: 110px !important;
+      border-radius: 8px;
+      overflow: hidden !important;
+      .ant-upload-list-item {
+        background-color: #f7f9f8 !important;
+        border-color: #282828 !important;
+        padding: 0;
+        &::before {
+          width: 100% !important;
+          height: 100% !important;
+          border-radius: 8px;
+          overflow: hidden !important;
+        }
+        .ant-upload-list-item-action {
+          position: relative;
+          top: -3px;
+        }
+      }
+    }
+    .delete-img {
+      background-color: rgba(0, 0, 0, .45);
+      position: absolute;
+      top: 1px;
+      left: 1px;
+      width: 108px;
+      height: 108px;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: rgba(255, 255, 255, .7);
+      &:hover {
+        color: rgba(255, 255, 255, 1);
+        .anticon-delete {
+          color: rgba(255, 255, 255, 1);
+        }
+      }
+      .anticon-delete {
+        font-size: 17px;
+        color: rgba(255, 255, 255, .8);
+      }
+      p {
+        font-size: 13px;
+        margin-top: 5px;
+      }
     }
   }
-  // .images-uploader {
-  //   .ant-upload {
-  //     width: 128px;
-  //     height: 128px;
-  //     background-color: #f7f9f8;
-  //   }
-  // }
-  // .avatar-uploader > .ant-upload {
-  //   width: 128px;
-  //   height: 128px;
-  // }
-  // .ant-upload-select-picture-card i {
-  //   font-size: 32px;
-  //   color: #999;
-  // }
-
-  // .ant-upload-select-picture-card .ant-upload-text {
-  //   margin-top: 8px;
-  //   color: #666;
-  // }
-  // .delete-img {
-  //   display: inline-block;
-  //   position: absolute;
-  //   left: 105px;
-  //   top: 10px;
-  //   font-size: 20px;
-  //   z-index: 999;
-  // }
-  // .delete-img img {
-  //   position: absolute;
-
-  //   right: -10px;
-  //   top: -10px;
-  //   width: 25px;
-  //   height: 25px;
-  //   display: inline-block;
-  // }
-  // .delete-img:hover {
-  //   color: #fff;
-  // }
-
-  // .ant-upload.ant-upload-select {
-  //   background-color: #f7f9f8;
-  // }
 </style>

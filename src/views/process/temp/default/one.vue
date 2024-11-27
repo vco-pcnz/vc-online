@@ -20,11 +20,7 @@
               </a-col>
               <a-col :span="24">
                 <a-form-item label="证件照片" name="borrower_images">
-                  <!-- <a-radio-group v-model:value="formState.borrower_images" name="borrower_images">
-                    <a-radio :value="1">个人</a-radio>
-                    <a-radio :value="2">机构</a-radio>
-                  </a-radio-group> -->
-                  <vco-upload-image v-model="formState.borrower_images"></vco-upload-image>
+                  <vco-upload-image v-model:value="formState.borrower_images" :isMultiple="true" :limit="9"></vco-upload-image>
                 </a-form-item>
               </a-col>
               <template v-if="formState.borrower_type === 1">
@@ -103,7 +99,7 @@
 
   const formState = reactive({
     borrower_type: 1,
-    borrower_images: '',
+    borrower_images: [],
     first_name: '',
     middle_name: '',
     last_name: '',

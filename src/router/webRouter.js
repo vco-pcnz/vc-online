@@ -19,9 +19,15 @@ const routes = [
     meta: { title: "注册" },
   },
   {
+    name: "forgot-password",
+    path: "/forgot-reset",
+    component: () => import("@/views/login/components/ForgotPassword.vue"),
+    meta: { title: "忘记密码" },
+  },
+  {
     name: "password-reset",
-    path: "/password-reset",
-    component: () => import("@/views/login/components/PasswordReset.vue"),
+    path: "/invite",
+    component: () => import("@/views/login/components/ResetPassword.vue"),
     meta: { title: "密码重置" },
   },
   {

@@ -34,7 +34,7 @@
       <p>删除</p>
     </div>
     <a-modal
-      :visible="previewVisible"
+      :open="previewVisible"
       :footer="null"
       @cancel="previewHandleCancel"
     >

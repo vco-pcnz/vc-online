@@ -41,7 +41,7 @@
                   block
                   class="verify-btn"
                 >
-                  {{ t("验证") }}
+                  {{ t('验证') }}
                 </a-button>
                 <a-button
                   v-else
@@ -49,7 +49,7 @@
                   block
                   class="verify-btn"
                 >
-                  {{ t("变更") }}
+                  {{ t('变更') }}
                 </a-button>
               </a-form-item>
             </a-col>
@@ -94,7 +94,7 @@
                   block
                   class="verify-btn"
                 >
-                  {{ t("验证") }}
+                  {{ t('验证') }}
                 </a-button>
                 <a-button
                   v-else
@@ -102,7 +102,7 @@
                   block
                   class="verify-btn"
                 >
-                  {{ t("变更") }}
+                  {{ t('变更') }}
                 </a-button>
               </a-form-item-rest>
             </a-col>
@@ -135,7 +135,7 @@
               @click="submit"
               block
             >
-              {{ t("提交") }}
+              {{ t('提交') }}
             </a-button>
           </a-col>
         </a-row>
@@ -154,17 +154,17 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch } from "vue";
-import { useI18n } from "vue-i18n";
-import { preMobileOpts, EMAIL_RULE, VERIFY_KEY } from "@/constant";
-import useFormData from "@/utils/use-form-data";
-import countdown from "../components/countdown.vue";
-import { sendUnauthECode, sendUnauthCodeM, modifyUserInfo } from "@/api/users";
-import changeEmail from "./change-email.vue";
-import changeMobile from "./change-mobile.vue";
-import { useUserDetailStore } from "@/store";
-import profileLayout from "../components/profile-layout.vue";
-import { message } from "ant-design-vue";
+import { ref, reactive, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { preMobileOpts, EMAIL_RULE, VERIFY_KEY } from '@/constant';
+import useFormData from '@/utils/use-form-data';
+import countdown from '../components/Countdown.vue';
+import { sendUnauthECode, sendUnauthCodeM, modifyUserInfo } from '@/api/profile';
+import changeEmail from './change-email.vue';
+import changeMobile from './change-mobile.vue';
+import { useUserDetailStore } from '@/store';
+import profileLayout from '../components/ProfileLayout.vue';
+import { message } from 'ant-design-vue';
 
 const { t } = useI18n();
 const formRef = ref();
@@ -185,15 +185,15 @@ const verifyMobile = reactive({
 
 // 表单数据
 const { form, assignFields } = useFormData({
-  firstName: "",
-  middleName: "",
-  lastName: "",
-  email: "",
-  emailCode: "",
-  pre: "64",
-  mobile: "",
-  intro: "",
-  mobileCode: "",
+  firstName: '',
+  middleName: '',
+  lastName: '',
+  email: '',
+  emailCode: '',
+  pre: '64',
+  mobile: '',
+  intro: '',
+  mobileCode: '',
 });
 
 // 表单验证规则
@@ -201,31 +201,31 @@ const rules = reactive({
   firstName: [
     {
       required: true,
-      message: t("请输入") + t("名"),
-      type: "string",
-      trigger: "blur",
+      message: t('请输入') + t('名'),
+      type: 'string',
+      trigger: 'blur',
     },
   ],
   middleName: [
     {
       required: true,
-      message: t("请输入") + t("中间名"),
-      type: "string",
-      trigger: "blur",
+      message: t('请输入') + t('中间名'),
+      type: 'string',
+      trigger: 'blur',
     },
   ],
   lastName: [
     {
       required: true,
-      message: t("请输入") + t("姓"),
-      type: "string",
-      trigger: "blur",
+      message: t('请输入') + t('姓'),
+      type: 'string',
+      trigger: 'blur',
     },
   ],
   email: [
     {
       pattern: EMAIL_RULE,
-      message: t("邮箱格式不正确"),
+      message: t('邮箱格式不正确'),
     },
   ],
 });
@@ -277,7 +277,7 @@ const submit = () => {
     modifyUserInfo(newData)
       .then(() => {
         loading.value = false;
-        message.success(t("修改成功"));
+        message.success(t('修改成功'));
         userDetailStore.getUserInfo();
         reset();
       })
@@ -308,7 +308,7 @@ watch(
 </script>
 
 <style lang="less">
-@import "@/styles/variables.less";
+@import '@/styles/variables.less';
 .verify-btn {
   background-color: @clr_charcoal;
   color: @clr_white;

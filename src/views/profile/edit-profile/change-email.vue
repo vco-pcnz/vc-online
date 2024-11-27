@@ -1,76 +1,66 @@
 <template>
   <a-modal :width="480" :open="open" :title="title" @cancel="closeModal">
     <a-form ref="formRef" :model="form" :rules="rules" layout="vertical">
-      <a-form-item name="mobile" :label="t('验证手机号')">
+      <a-form-item no-style>
         <a-row :gutter="8">
-          <a-col :span="6">
-            <a-form-item-rest>
-              <a-select
-                v-model:value="form.pre"
-                :options="preMobileOpts"
+          <a-col :span="20">
+            <a-form-item name="email" :label="t('验证邮箱')">
+              <a-input
+                v-model:value="form.email"
+                :placeholder="t('验证邮箱')"
                 disabled
               />
-            </a-form-item-rest>
+            </a-form-item>
           </a-col>
-          <a-col :span="14">
-            <a-input
-              v-model:value="form.mobile"
-              :placeholder="t('验证手机号')"
-              disabled
-            />
-          </a-col>
-          <a-col :span="4" v-if="!verifyMobile.showCountdown">
-            <a-form-item-rest>
+          <a-col :span="4" v-if="!verifyEmail.showCountdown">
+            <a-form-item label=" ">
               <a-button @click="handleVerify(false)" block class="verify-btn">
                 {{ t("验证") }}
               </a-button>
-            </a-form-item-rest>
+            </a-form-item>
           </a-col>
           <a-col :span="4" v-else>
-            <a-form-item-rest>
-              <countdown v-model:show="verifyMobile.showCountdown" />
-            </a-form-item-rest>
+            <a-form-item label=" ">
+              <countdown v-model:show="verifyEmail.showCountdown" />
+            </a-form-item>
           </a-col>
         </a-row>
       </a-form-item>
       <a-form-item
         name="code"
         :label="t('验证码V')"
-        v-show="verifyMobile.showCode"
+        v-show="verifyEmail.showCode"
       >
         <a-input v-model:value="form.code" :placeholder="t('验证码V')" />
       </a-form-item>
-      <a-form-item name="newMobile" :label="t('新手机号')">
+      <a-form-item no-style>
         <a-row :gutter="8">
-          <a-col :span="6">
-            <a-form-item-rest>
-              <a-select v-model:value="form.newPre" :options="preMobileOpts" />
-            </a-form-item-rest>
+          <a-col :span="20">
+            <a-form-item name="newEmail" :label="t('新邮箱')">
+              <a-input
+                v-model:value="form.newEmail"
+                :placeholder="t('新邮箱')"
+              />
+            </a-form-item>
           </a-col>
-          <a-col :span="14">
-            <a-input
-              v-model:value="form.newMobile"
-              :placeholder="t('新手机号')"
-            />
-          </a-col>
-          <a-col :span="4" v-if="!verifyMobile.showCountdownNew">
-            <a-form-item-rest>
+          <a-col :span="4" v-if="!verifyEmail.showCountdownNew">
+            <a-form-item label=" ">
               <a-button @click="handleVerify(true)" block class="verify-btn">
                 {{ t("验证") }}
               </a-button>
-            </a-form-item-rest>
+            </a-form-item>
           </a-col>
           <a-col :span="4" v-else>
-            <a-form-item-rest>
-              <countdown v-model:show="verifyMobile.showCountdownNew" />
-            </a-form-item-rest>
+            <a-form-item label=" ">
+              <countdown v-model:show="verifyEmail.showCountdownNew" />
+            </a-form-item>
           </a-col>
         </a-row>
       </a-form-item>
       <a-form-item
         name="newCode"
         :label="t('验证码V')"
-        v-show="verifyMobile.showCodeNew"
+        v-show="verifyEmail.showCodeNew"
       >
         <a-input v-model:value="form.newCode" :placeholder="t('验证码V')" />
       </a-form-item>
@@ -94,23 +84,23 @@
 <script setup>
 import { ref, watch, reactive } from "vue";
 import { useI18n } from "vue-i18n";
-import { sendCodeOldM, sendCodeNewM, changeMobile } from "@/api/users";
-import countdown from "../components/countdown.vue";
+import { sendCodeOldE, sendCodeNewE, changeEmail } from "@/api/profile";
+import { EMAIL_RULE } from "@/constant";
+import countdown from "../components/Countdown.vue";
 import useFormData from "@/utils/use-form-data";
 import { message } from "ant-design-vue";
 import { trim } from "lodash";
 import { useUserDetailStore } from "@/store";
-import { preMobileOpts } from "@/constant";
 
 const { t } = useI18n();
 const loading = ref(false);
 const formRef = ref(null);
 const userDetailStore = useUserDetailStore();
 
-const props = defineProps(["open", "title"]);
+const props = defineProps(["open", "title", "email"]);
 const emit = defineEmits(["update:open"]);
 
-const verifyMobile = reactive({
+const verifyEmail = reactive({
   showCode: false,
   showCountdown: false,
   showCodeNew: false,
@@ -120,22 +110,24 @@ const verifyMobile = reactive({
 
 // 表单数据
 const { form, assignFields } = useFormData({
-  pre: "",
-  mobile: "",
+  email: "",
   code: "",
-  newPre: "64",
-  newMobile: "",
+  newEmail: "",
   newCode: "",
 });
 
 // 表单验证规则
 const rules = reactive({
-  newMobile: [
+  newEmail: [
     {
       required: true,
-      message: t("请输入") + t("手机号"),
+      message: t("请输入") + t("邮箱"),
       type: "string",
       trigger: "blur",
+    },
+    {
+      pattern: EMAIL_RULE,
+      message: t("邮箱格式不正确"),
     },
   ],
   code: [
@@ -153,38 +145,38 @@ const rules = reactive({
 });
 const closeModal = () => {
   emit("update:open", false);
-  Object.keys(verifyMobile).forEach((key) => {
-    verifyMobile[key] = false;
+  Object.keys(verifyEmail).forEach((key) => {
+    verifyEmail[key] = false;
   });
 };
 
 const handleVerify = (isNew) => {
   if (isNew) {
-    formRef.value.validate(["newMobile"]).then(() => {
-      sendCodeNewM({ pre: form.newPre, mobile: form.newMobile }).then(() => {
-        verifyMobile.showCountdownNew = true;
-        verifyMobile.showCodeNew = true;
+    formRef.value.validate(["newEmail"]).then(() => {
+      sendCodeNewE({ email: form.newEmail }).then(() => {
+        verifyEmail.showCountdownNew = true;
+        verifyEmail.showCodeNew = true;
       });
     });
   } else {
-    sendCodeOldM({ pre: form.pre, mobile: form.mobile }).then(() => {
-      verifyMobile.showCountdown = true;
-      verifyMobile.showCode = true;
+    sendCodeOldE({ email: form.email }).then(() => {
+      verifyEmail.showCountdown = true;
+      verifyEmail.showCode = true;
     });
   }
 };
 
 const save = () => {
-  formRef.value.validate(["newMobile"]).then(() => {
+  formRef.value.validate(["newEmail"]).then(() => {
     if (!trim(form.code) || !trim(form.newCode)) {
-      message.warning(t("请先做手机号验证"));
+      message.warning(t("请先做邮箱验证"));
       return;
     }
-    changeMobile({
+    changeEmail({
       ...form,
-      type: 2, // 手机号
-      mobile: form.newMobile,
-      newMobile: undefined,
+      type: 1, // 邮箱
+      email: form.newEmail,
+      newEmail: undefined,
     })
       .then(() => {
         loading.value = false;
@@ -203,9 +195,7 @@ watch(
   (val) => {
     if (val) {
       assignFields({
-        ...form,
-        mobile: userDetailStore.userDetail.mobile,
-        pre: userDetailStore.userDetail.pre,
+        email: props.email,
       });
     }
   }

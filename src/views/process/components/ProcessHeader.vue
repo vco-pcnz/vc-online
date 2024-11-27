@@ -8,14 +8,14 @@
         <slot name="right"></slot>
       </div>
     </div>
-    <div class="process-bar-content">
+    <div v-if="processData.length" class="process-bar-content">
       <div v-for="(item, index) in processData" :key="index" class="item" :class="getItemClass(index + 1, current)">
         <div class="check" :class="{'pointer': checkPointer(index + 1)}" @click="stepHandle(index + 1)">
           <i v-if="current === index + 1" class="iconfont">{{ current === processData.length ? '&#xe647;' : '&#xe779;'}}</i>
           <i v-if="index + 1 < current" class="iconfont">&#xe647;</i>
           <p v-if="index + 1 > current">{{ index + 1 }}</p>
         </div>
-        <h2 class="name">{{ item.name }}</h2>
+        <h2 v-if="item.name" class="name">{{ t(item.name) }}</h2>
       </div>
     </div>
   </div>
@@ -25,7 +25,9 @@
   import { computed } from "vue"
   import { cloneDeep } from "lodash"
   import { navigationTo } from "@/utils/tool"
+  import { useI18n } from 'vue-i18n';
 
+  const { t } = useI18n();
 
   const props = defineProps({
     stepData: {
@@ -164,10 +166,10 @@
           }
         }
         > .name {
+          width: calc(100% - 30px);
+          text-align: center;
           position: absolute;
-          left: 50%;
-          transform: translateX(-50%);
-          padding-left: 15px;
+          left: 30px;
           top: -12px;
           color: #666;
         }

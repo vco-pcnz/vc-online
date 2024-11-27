@@ -21,6 +21,7 @@
                   <a-input
                     v-model:value="form.email"
                     :placeholder="t('邮箱')"
+                    :disabled="true"
                   />
                 </a-form-item>
               </a-col>
@@ -47,6 +48,7 @@
                     v-model:value="form.pre"
                     :options="preMobileOpts"
                     class="pre_mobile"
+                    :disabled="true"
                   />
                 </a-form-item-rest>
               </a-col>
@@ -54,6 +56,7 @@
                 <a-input
                   v-model:value="form.mobile"
                   :placeholder="t('手机号')"
+                  :disabled="true"
                 />
               </a-col>
               <a-col :span="4" v-if="!showCountdown">
@@ -116,9 +119,9 @@ import {
   PASSWORD_RULE,
   VERIFY_KEY,
 } from "@/constant";
-import profileLayout from "../components/profile-layout.vue";
-import countdown from "../components/countdown.vue";
-import { modifyUserPwd, sendCodeOldE, sendCodeOldM } from "@/api/users";
+import profileLayout from "../components/ProfileLayout.vue";
+import countdown from "../components/Countdown.vue";
+import { modifyUserPwd, sendCodeOldE, sendCodeOldM } from "@/api/profile";
 import { message } from "ant-design-vue";
 import { trim } from "lodash";
 import useFormData from "@/utils/use-form-data";

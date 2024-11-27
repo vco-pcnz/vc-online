@@ -24,7 +24,7 @@
             />
           </router-link>
           <router-link
-            to="/users/profile/about"
+            to="/profile/about"
             class="link"
             :class="{ 'link_active': isUserActive() }"
           >
@@ -90,7 +90,7 @@ const menuData = computed(() => {
   return resData
 })
 
-const otherRoute = ['/users/profile']
+const otherRoute = ['/profile']
 const processShowRoute = ['requests']
 
 const routeInArr = (path, arr) => {
@@ -117,12 +117,12 @@ const isActive = (path) => {
 };
 
 const isUserActive = () => {
-  return route.path.startsWith('/users/profile')
+  return route.path.startsWith('/profile')
 }
 
 const menuItem = [
-  { label: t('编辑详情'), key: "edit-profile", to: "/users/profile/about" },
-  { label: t('修改密码'), key: "change-pwd", to: "/users/profile/safe" },
+  { label: t('编辑详情'), key: "edit-profile", to: "/profile/about" },
+  { label: t('修改密码'), key: "change-pwd", to: "/profile/safe" },
 ]
 
 const goTo = (path) => {

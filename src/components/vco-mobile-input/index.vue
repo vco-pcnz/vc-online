@@ -1,7 +1,7 @@
 <template>
   <div class="voc-mobile-input">
     <a-form-item-rest>
-      <a-dropdown v-model:open="openSelect" :trigger="['click']">
+      <a-dropdown v-model:open="openSelect" :trigger="['click']" :disabled="disabled" >
         <template #overlay>
           <a-menu>
             <div class="area-code-content">
@@ -23,7 +23,7 @@
         </a-button>
       </a-dropdown>
 
-      <a-input v-model:value="mobileValue" :placeholder="placeholderTxt" @input="inputHandle" />
+      <a-input v-model:value="mobileValue" :placeholder="placeholderTxt" @input="inputHandle" :disabled="disabled" @blur="blurHandle" />
     </a-form-item-rest>
   </div>
 </template>
@@ -47,6 +47,18 @@
     areaCode: {
       type: [Number, String],
       default: 64
+    },
+    disabled: {
+      type: Boolean,
+      default: false
+    },
+    formRef: {
+      type: Object,
+      default: undefined
+    },
+    validateField: {
+      type: String,
+      default: ''
     }
   })
 
@@ -88,6 +100,12 @@
     emits('update:value', mobileValue.value)
   }
 
+  const blurHandle = () => {
+    if (props.formRef && props.validateField) {
+      props.formRef.validateFields(props.validateField);
+    }
+  }
+
   const placeholderTxt = computed(() => {
     let res = ''
     if (areaCodeValue.value) {
@@ -103,6 +121,9 @@
   onMounted(() => {
     areaCodeValue.value = props.areaCode ? `+${props.areaCode}` : '+64'
     mobileValue.value = props.value || ''
+
+    const areaCode = props.areaCode || '64'
+    emits('update:areaCode', areaCode)
   })
 </script>
 

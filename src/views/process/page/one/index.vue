@@ -7,7 +7,7 @@
             <a-button type="grey" @click="goBack">{{ t('取消请求') }}</a-button>
           </template>
           <template #right>
-            <a-button type="primary-line" shape="round" size="small">{{ t('帮助') }}?</a-button>
+            <a-button type="primary-line" shape="round" size="small" class="uppercase">{{ t('帮助') }}?</a-button>
           </template>
         </process-header>
         <component v-if="tempModule" :is="tempModule"></component>

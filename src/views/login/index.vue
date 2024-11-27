@@ -39,7 +39,7 @@
             />
           </a-form-item>
           <p class="forgot">
-            <router-link class="forgot_link" to="/password-reset">
+            <router-link class="forgot_link" to="/forgot-reset">
               {{ t("忘记密码") }}
             </router-link>
           </p>

@@ -2,7 +2,7 @@
   <div class="TabsPanel">
     <div class="Panel">
       <h2 class="Panel-Title">
-        <a-tag class="Tag"> {{ userName }}` {{ t("用户中心") }} </a-tag>
+        <a-tag class="Tag">{{ userName }}` {{ t('用户中心') }}</a-tag>
       </h2>
     </div>
     <div class="TabsPanel-Tab">
@@ -15,7 +15,7 @@
         }`"
       >
         {{ item.label }}
-        {{ item.extraInfo ? `(${item.extraInfo})` : "" }}
+        {{ item.extraInfo ? `(${item.extraInfo})` : '' }}
       </a-button>
     </div>
   </div>
@@ -23,7 +23,7 @@
     <div class="profile-info">
       <div class="profile-info-header">
         <div class="avatar">
-          <vco-avatar :size="124" style="margin: auto" />
+          <vco-avatar :size="124" style="margin: auto" :src="avatarSrc" />
         </div>
         <div class="info-detail">
           <p v-for="info in baseInfo">
@@ -42,11 +42,8 @@
       <div class="profile-info-detail">
         <p v-for="info in extraInfo">
           <span class="label">
-            <i
-              class="iconfont text-2xl"
-              v-html="info.icon"
-              v-if="info.icon"
-            />&nbsp;
+            <i class="iconfont text-2xl" v-html="info.icon" v-if="info.icon" />
+            &nbsp;
           </span>
           <span class="detail">
             {{ info.value }}
@@ -61,10 +58,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, watch } from "vue";
-import { useI18n } from "vue-i18n";
-import { useRouter } from "vue-router";
-import { useUserDetailStore, useNoticeStore } from "@/store";
+import { ref, reactive, onMounted, watch, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router';
+import { useUserDetailStore, useNoticeStore } from '@/store';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -72,31 +69,32 @@ const userDetailStore = useUserDetailStore();
 const noticeStore = useNoticeStore();
 const baseInfo = ref();
 const extraInfo = ref();
-const userName = ref("");
+const userName = ref('');
+const avatarSrc = computed(() => userDetailStore.userDetail.avatar);
 
-const props = defineProps(["activeTab"]);
+const props = defineProps(['activeTab']);
 
 const panes = reactive([
   {
-    key: "about",
-    label: t("关于"),
+    key: 'about',
+    label: t('关于'),
   },
   {
-    key: "safe",
-    label: t("安全"),
+    key: 'safe',
+    label: t('安全'),
   },
   {
-    key: "notice",
-    label: t("通知"),
+    key: 'notice',
+    label: t('通知'),
     extraInfo: 0,
   },
 ]);
 
 const onChange = (key) => {
-  if(noticeStore.showDetail) {
+  if (noticeStore.showDetail) {
     noticeStore.setShowDetail(false);
   } else {
-    router.push(`/users/profile/${key}`);
+    router.push(`/profile/${key}`);
   }
 };
 
@@ -113,31 +111,31 @@ const setUserInfo = (data) => {
   } = data;
   const _baseInfo = [
     {
-      label: "ID",
+      label: 'ID',
       value: username,
     },
     {
-      icon: "&#xe73b;",
-      label: t("名字"),
+      icon: '&#xe73b;',
+      label: t('名字'),
       value: user_name,
     },
     {
-      icon: "&#xe66f;",
-      label: t("邮箱"),
+      icon: '&#xe66f;',
+      label: t('邮箱'),
       value: email,
       isVerify: !!email_ok,
     },
     {
-      icon: "&#xe61d;",
-      label: t("手机号"),
+      icon: '&#xe61d;',
+      label: t('手机号'),
       value: `+${pre} ${mobile}`,
       isVerify: !!mobile_ok,
     },
   ];
   const _extraInfo = [
     {
-      icon: "&#xe8db;",
-      value: roles.join(" "),
+      icon: '&#xe8db;',
+      value: roles.join(' '),
     },
   ];
   baseInfo.value = _baseInfo;
@@ -163,7 +161,7 @@ watch(
   (val) => {
     if (val) {
       panes.forEach((item) => {
-        if (item.key === "notice") {
+        if (item.key === 'notice') {
           item.extraInfo = val;
         }
       });
@@ -176,7 +174,7 @@ watch(
 </script>
 
 <style scoped lang="less">
-@import "@/styles/variables.less";
+@import '@/styles/variables.less';
 
 .TabsPanel {
   display: grid;

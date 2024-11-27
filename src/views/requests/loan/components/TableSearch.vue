@@ -14,7 +14,7 @@
     </vco-page-search-item>
 
     
-    <vco-page-search-item :title="t('贷款人信息')" width="220">
+    <vco-page-search-item :title="t('借款人信息')" width="220">
       <vco-type-input
         v-model="searchForm.borrower"
         v-model:type="searchForm.borrowerType"
@@ -40,7 +40,7 @@
       <a-input v-model:value="searchForm.lm" :placeholder="t('请输入')" />
     </vco-page-search-item>
 
-    <vco-page-search-item :title="t('贷款金额')" width="133">
+    <vco-page-search-item :title="t('借款金额')" width="133">
       <a-input v-model:value="searchForm.amount" :placeholder="t('请输入')" />
     </vco-page-search-item>
 

@@ -2,6 +2,11 @@
 @import 'animation.less';
 @import './variables.less';
 
+html, body, #app {
+  color: #181818;
+  font-size: 14px;
+}
+
 html, body, #app,
 [class^="ant"],
 [class*=" ant-spin"],
@@ -10,8 +15,6 @@ html, body, #app,
   font-feature-settings: "tnum", "tnum";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: auto;
-  color: #181818;
-  font-size: 14px;
 }
 
 * {
@@ -113,7 +116,10 @@ a:hover {
 
   .ant-select-selector {
     background-color: #f7f9f8 !important;
+    .ant-select-selection-placeholder,
+    .ant-select-selection-search-input,
     .ant-select-selection-item {
+      height: 50px !important;
       line-height: 50px !important;
     }
   }
@@ -121,6 +127,12 @@ a:hover {
   .ant-picker-suffix,
   .ant-select-arrow {
     color: rgba(39, 39, 39, 1) !important;
+  }
+
+  .ant-form-item-has-error .ant-upload.ant-upload-select-picture-card,
+  .ant-select-status-error .ant-select-selector,
+  .ant-input-status-error {
+    border-color: #ff4d4f !important;
   }
 }
 
@@ -265,6 +277,7 @@ a:hover {
 }
 
 .ant-btn {
+  // letter-spacing: 1px;
   &.bold {
     font-weight: bold;
   }

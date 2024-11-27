@@ -41,10 +41,9 @@ jobs:
           yarn --silent
           yarn build
         env:
-          VITE_APP_ENV: development
-          VITE_API_URL: https://dev-admin-api.new.vincentcapital.co.nz/api
+          VITE_APP_ENV: dev
+          VITE_APP_OPEN_PROXY: false
           VITE_APP_BASE_URL: https://dev-admin-api.new.vincentcapital.co.nz/api
-          # VITE_APP_BASE_URL: http://bapi.ygmb2b.store
           VITE_APP_TOKEN_PREFIX: vc-online-user-token
 
       # Deploy to AWS S3

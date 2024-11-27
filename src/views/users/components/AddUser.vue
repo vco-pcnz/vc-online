@@ -8,7 +8,7 @@
     <div class="sys-form-content mt-5">
       <a-form ref="formRef" :model="form" :rules="rules" layout="vertical">
         <a-form-item name="avatar" class="avatar">
-          <vco-upload-image v-model:value="form.avatar"></vco-upload-image>
+          <vco-upload-image v-model:value="form.avatar" :text="t('头像')" :isAvatar="true"></vco-upload-image>
         </a-form-item>
         <a-form-item name="firstName" :label="t('名')">
           <a-input v-model:value="form.firstName" :placeholder="t('名')" />
@@ -232,10 +232,12 @@ watch(
         email_ok.value = userInfo.email_ok;
         mobile_ok.value = userInfo.mobile_ok;
       }
+      console.log(form, '===111');
     } else {
       isEdit.value = false;
       resetFields();
       formRef.value.clearValidate();
+      console.log(form, '===');
     }
   }
 );

@@ -12,10 +12,6 @@
       <vco-type-input v-model="searchForm.org__name" v-model:type="searchForm.key" :type-data="keys" :placeholder="t('请输入')"></vco-type-input>
     </vco-page-search-item>
 
-    <vco-page-search-item width="140">
-      <a-input v-model:value="searchForm.keywords" :placeholder="t('请输入')" />
-    </vco-page-search-item>
-
     <vco-page-search-item width="100%">
       <a-button type="dark-line" @click="searchHandle"><i class="iconfont">&#xe756;</i>{{ t('搜索') }}</a-button>
     </vco-page-search-item>
@@ -27,13 +23,13 @@ import { ref, reactive, computed, onMounted } from 'vue';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash';
 import { useI18n } from 'vue-i18n';
-import { useOrgsStore } from '@/store';
+import { useorgsDetailStore } from '@/store';
 
 const { t } = useI18n();
-const orgsStore = useOrgsStore();
+const orgsDetailStore = useorgsDetailStore();
 
 const typeData = computed(() => {
-  const data = orgsStore.stakeholderTypet.map(item => ({
+  const data = orgsDetailStore.stakeholderTypet.map(item => ({
     label: item.name,
     value: item.code,
   }));
@@ -77,15 +73,14 @@ const searchForm = ref({
   type: '',
   key: 'all',
   org__name: '',
-  keywords: '',
 });
 
 // 搜索
 const searchHandle = () => {
-  orgsStore.setSearchParams(searchForm.value);
+  orgsDetailStore.setSearchParams(searchForm.value);
 };
 
 onMounted(() => {
-  orgsStore.getStakeholderTypet();
+  orgsDetailStore.getStakeholderTypet();
 });
 </script>

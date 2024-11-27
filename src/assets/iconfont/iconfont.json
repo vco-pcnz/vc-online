@@ -6,11 +6,53 @@
   "description": "",
   "glyphs": [
     {
-      "icon_id": "6486521",
+      "icon_id": "4427379",
+      "name": "文件夹",
+      "font_class": "tubiaozhizuomobanyihuifu-",
+      "unicode": "e690",
+      "unicode_decimal": 59024
+    },
+    {
+      "icon_id": "11937086",
       "name": "文件",
       "font_class": "wenjian",
-      "unicode": "e605",
-      "unicode_decimal": 58885
+      "unicode": "e615",
+      "unicode_decimal": 58901
+    },
+    {
+      "icon_id": "21163417",
+      "name": "文件",
+      "font_class": "wenjian2",
+      "unicode": "e660",
+      "unicode_decimal": 58976
+    },
+    {
+      "icon_id": "1263284",
+      "name": "文件",
+      "font_class": "wenjian1",
+      "unicode": "e61e",
+      "unicode_decimal": 58910
+    },
+    {
+      "icon_id": "11121471",
+      "name": "文件夹",
+      "font_class": "wenjianjia",
+      "unicode": "e63b",
+      "unicode_decimal": 58939
+    },
+    {
+      "icon_id": "34180717",
+      "name": "时间",
+      "font_class": "shijian",
+      "unicode": "e629",
+      "unicode_decimal": 58921
+    },
+    {
+      "icon_id": "5809083",
+      "name": "人员报名",
+      "font_class": "renyuanbaoming",
+      "unicode": "e65b",
+      "unicode_decimal": 58971
     },
     {
       "icon_id": "517496",

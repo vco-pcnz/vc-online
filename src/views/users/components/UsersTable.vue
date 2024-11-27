@@ -79,16 +79,16 @@
               <p>
                 <i class="iconfont">&#xe771;</i>
                 <span class="black_blod">
-                  {{ item.xm }} {{ t('进行中项目') }}
+                  {{ item.xm ?? 0 }} {{ t('进行中项目') }}
                 </span>
               </p>
-              <p>{{ item.cxm }} {{ t('已关闭项目') }}</p>
+              <p style="margin-left: 45px">{{ item.cxm ?? 0 }} {{ t('已关闭项目') }}</p>
             </li>
             <li>
               <p>
                 <i class="iconfont">&#xe751;</i>
                 <span class="black_blod">
-                  {{ item.apply_count }} {{ t('请求') }}
+                  {{ item.apply_count ?? 0 }} {{ t('请求') }}
                 </span>
               </p>
             </li>
@@ -100,7 +100,7 @@
                 <template #overlay>
                   <a-menu>
                     <a-menu-item key="0">
-                      <a>{{ t('查看详情') }}</a>
+                      <a @click="editUser(item)">{{ t('查看详情') }}</a>
                     </a-menu-item>
                   </a-menu>
                 </template>
@@ -120,7 +120,7 @@ import { Empty } from 'ant-design-vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 
-const emits = defineEmits(['check']);
+const emits = defineEmits(['check', 'editUser']);
 
 const props = defineProps({
   tableData: {
@@ -146,6 +146,10 @@ const itemcheck = () => {
 
 const checkedAllHandle = () => {
   emits('check', checkedAll.value);
+};
+
+const editUser = (data) => {
+  emits('editUser', data);
 };
 </script>
 
@@ -248,7 +252,7 @@ const checkedAllHandle = () => {
       }
     }
     .black_blod {
-      font-weight: bold;
+      font-weight: 500;
       color: @clr_charcoal;
     }
   }

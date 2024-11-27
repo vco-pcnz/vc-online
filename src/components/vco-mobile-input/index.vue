@@ -1,7 +1,7 @@
 <template>
   <div class="voc-mobile-input">
     <a-form-item-rest>
-      <a-dropdown v-model:open="openSelect" :trigger="['click']">
+      <a-dropdown v-model:open="openSelect" :trigger="['click']" :disabled="disabled" >
         <template #overlay>
           <a-menu>
             <div class="area-code-content">
@@ -23,7 +23,7 @@
         </a-button>
       </a-dropdown>
 
-      <a-input v-model:value="mobileValue" :placeholder="placeholderTxt" @input="inputHandle" />
+      <a-input v-model:value="mobileValue" :placeholder="placeholderTxt" @input="inputHandle" :disabled="disabled" />
     </a-form-item-rest>
   </div>
 </template>
@@ -47,6 +47,10 @@
     areaCode: {
       type: [Number, String],
       default: 64
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   })
 

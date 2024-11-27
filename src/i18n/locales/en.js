@@ -167,5 +167,18 @@ export default {
   "发送邀请短信": "SEND INVITE SMS",
   "头像": "Avatar",
   "必须选其中一项做验证": "You have to choose one of them for verification",
-  "编辑用户": "Edit User"
+  "编辑用户": "Edit User",
+  "上传图片": "Upload pictures",
+  "缩略图t":"THUMBNAIL",
+  "利益相关者信息t":"STAKEHOLDER",
+  "关联用户t":"ASSOCIATE USER",
+  "用户角色t":"ROLE",
+  "注册时间/创建时间t":"REGISTRATION TIME/CREATE TIME",
+  "项目数据t":"DATA",
+  "状态t":"STATUS",
+  "操作t":"OPERATION",
+  "有效":"Valid",
+  "无效":"Invalid",
+  "添加组织":"Add Orgs",
+
 }

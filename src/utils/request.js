@@ -179,10 +179,8 @@ function createRequest(service, externalService) {
     }
 
     if (!/^(http|https)/g.test(option.url)) {
-      option.baseURL =
-        env.VITE_APP_OPEN_PROXY === "true"
-          ? env.VITE_APP_PROXY_PREFIX
-          : env.VITE_APP_BASE_URL;
+      option.baseURL = env.VITE_APP_OPEN_PROXY === "true" ? env.VITE_APP_PROXY_PREFIX : env.VITE_APP_BASE_URL;
+      
       return service(option);
     } else {
       return externalService(option);

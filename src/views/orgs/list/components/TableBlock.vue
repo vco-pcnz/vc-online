@@ -2,30 +2,30 @@
   <div class="table-content">
     <div class="table-block">
       <ul class="table-col header">
-        <li class="check">
-          <a-checkbox
+        <li class="check" style="width: 0; padding: 0">
+          <!-- <a-checkbox
             v-model:checked="checkedAll"
             :indeterminate="indeterminate"
             @change="checkedAllHandle"
-          ></a-checkbox>
+          ></a-checkbox> -->
         </li>
-        <li>{{ t("缩略图") }}</li>
-        <li>{{ t("利益相关者信息") }}</li>
-        <li>{{ t("关联用户") }}</li>
-        <li>{{ t("用户角色") }}</li>
-        <li>{{ t("注册时间/创建时间") }}</li>
-        <li>{{ t("项目数据") }}</li>
-        <li>{{ t("状态") }}</li>
-        <li>{{ t("操作") }}</li>
+        <li>{{ t("缩略图t") }}</li>
+        <li>{{ t("利益相关者信息t") }}</li>
+        <li>{{ t("关联用户t") }}</li>
+        <li>{{ t("用户角色t") }}</li>
+        <li>{{ t("注册时间/创建时间t") }}</li>
+        <li>{{ t("项目数据t") }}</li>
+        <li>{{ t("状态t") }}</li>
+        <li>{{ t("操作t") }}</li>
       </ul>
       <div v-if="tableData.length" class="table-body">
         <template v-for="item in tableData" :key="item.id">
           <ul class="table-col tr">
-            <li class="check">
-              <a-checkbox
+            <li class="check" style="width: 0; padding: 0">
+              <!-- <a-checkbox
                 v-model:checked="item.checked"
                 @change="itemcheck"
-              ></a-checkbox>
+              ></a-checkbox> -->
             </li>
             <li>
               <vco-avatar
@@ -40,17 +40,17 @@
               <p class="name">{{ item.name }}</p>
               <p v-if="item.org_name">
                 <i class="iconfont" :class="{ cer: item.org_name }">&#xe679;</i>
-                <span>{{ item.org_name }}</span>
+                <span :class="{ cer: item.org_name }">{{ item.org_name }}</span>
               </p>
               <p v-if="item.email">
                 <i class="iconfont" :class="{ cer: item.email_ok }">&#xe66f;</i>
-                <span>{{ item.email }}</span>
+                <span :class="{ cer: item.email_ok }">{{ item.email }}</span>
               </p>
               <p v-if="item.mobile">
                 <i class="iconfont" :class="{ cer: item.mobile_ok }"
                   >&#xe678;</i
                 >
-                <span>{{ item.pre }} {{ item.mobile }}</span>
+                <span :class="{ cer: item.mobile_ok }">{{ item.pre }} {{ item.mobile }}</span>
               </p>
             </li>
             <li>
@@ -69,39 +69,51 @@
                 <i class="iconfont" :class="{ cer: item.user_mobile_ok }"
                   >&#xe678;</i
                 >
-                <span>{{ item.user_mobile }}</span>
+                <span :class="{ cer: item.user_mobile_ok }">{{ item.user_mobile }}</span>
               </p>
             </li>
             <li>
-              <p v-if="item.user_roles.length">{{ item.user_roles.join('/') }}</p>
-              <p v-if="item.cate_name.length">{{ item.cate_name.join('/') }}</p>
-              <p>{{ item.job }}</p>
+              <p v-if="item.user_roles.length">
+                <span>{{ item.user_roles.join("/") }}</span>
+              </p>
+              <p v-if="item.cate_name.length">
+                <span>{{ item.cate_name.join("/") }}</span>
+              </p>
+              <p>
+                <span>{{ item.job }}</span>
+              </p>
             </li>
             <li>
               <p v-if="item.user_create_time">
-                {{ tool.showDate(item.user_create_time) }}
+                <span>{{ tool.showDate(item.user_create_time) }}</span>
               </p>
               <p v-if="item.create_time">
-                {{ tool.showDate(item.create_time) }}
+                <span>{{ tool.showDate(item.create_time) }}</span>
               </p>
             </li>
             <li>
               <p>
-                <i class="iconfont">&#xe605;</i>
-                <span>{{ item.open_count }}{{ t("打开项目") }}</span>
+                <i class="iconfont black">&#xe605;</i>
+                <span class="cer"
+                  >{{ item.open_count }}{{ t("进行中项目") }}</span
+                >
               </p>
               <p>
                 <i class="iconfont">&#xe777;</i>
-                <span>{{ item.close_count }}{{ t("关闭项目") }}</span>
+                <span>{{ item.close_count }}{{ t("已关闭项目") }}</span>
               </p>
               <p>
-                <i class="iconfont">&#xe751;</i>
-                <span>{{ item.apply_count }}{{ t("请求") }}</span>
+                <i class="iconfont black">&#xe751;</i>
+                <span class="cer">{{ item.apply_count }}{{ t("请求") }}</span>
               </p>
             </li>
 
             <li>
-              <p>{{item.is_expire?'有效':'无效'}}</p>
+              <p>
+                <span class="cer">{{
+                  item.is_expire ? t("有效") : t("无效")
+                }}</span>
+              </p>
               <p v-if="item.expire_time" :class="{ err: !item.is_expire }">
                 {{ tool.showDate(item.expire_time) }}
               </p>
@@ -181,7 +193,7 @@ const checkedAllHandle = () => {
     background-color: #fff;
     border-radius: 10px;
     border: 1px solid #fff;
-    font-weight: bold;
+    font-weight: 500;
     font-size: 12px;
   }
   &.tr {
@@ -203,7 +215,7 @@ const checkedAllHandle = () => {
     line-height: 21px;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    // align-items: center;
     justify-content: center;
     :deep(.ant-statistic-content) {
       font-size: 15px;
@@ -215,6 +227,7 @@ const checkedAllHandle = () => {
     &:nth-child(2) {
       flex: 0 auto;
       width: 100px;
+      text-align: center;
     }
     &:nth-child(3) {
       flex: 0 auto;
@@ -255,11 +268,14 @@ const checkedAllHandle = () => {
         margin-top: 0;
       }
       &.name {
-        font-weight: bold;
+        font-weight: 500;
       }
       > .iconfont {
         margin-right: 4px;
         color: #999;
+        &.black {
+          color: #000;
+        }
         &.cer {
           color: @colorPrimary;
         }
@@ -270,7 +286,7 @@ const checkedAllHandle = () => {
           color: #000;
         }
         &.name {
-          font-weight: bold;
+          font-weight: 500;
         }
       }
       &.err {
@@ -296,6 +312,6 @@ const checkedAllHandle = () => {
 
 .status-txt {
   font-size: 14px;
-  font-weight: bold;
+  font-weight: 500;
 }
 </style>

@@ -231,7 +231,6 @@
         });
       }
     } else if (info.file.status === 'error') {
-      console.log(info)
       message.error(`${info.file.name} ${t('上传失败')}.`);
     }
 
@@ -290,74 +289,87 @@
 </script>
 
 <style lang="less" scoped>
-  @import "@/styles/variables.less";
+@import '@/styles/variables.less';
 
-  .images-uploader {
-    :deep(.ant-upload) {
-      width: 110px !important;
-      height: 110px !important;
+.images-uploader {
+  :deep(.ant-upload) {
+    width: 110px !important;
+    height: 110px !important;
+    background-color: #f7f9f8 !important;
+    border-color: #282828 !important;
+    &:hover {
+      border-color: @colorPrimary !important;
+    }
+    .anticon-loading,
+    .anticon-plus {
+      font-size: 18px;
+    }
+  }
+  :deep(.ant-upload-list-item-container) {
+    width: 110px !important;
+    height: 110px !important;
+    border-radius: 8px;
+    overflow: hidden !important;
+    .ant-upload-list-item {
       background-color: #f7f9f8 !important;
       border-color: #282828 !important;
-      &:hover {
-        border-color: @colorPrimary !important;
+      padding: 0;
+      &.ant-upload-list-item-error {
+        border-color: #ff4d4f !important;
+      }
+      &::before {
+        width: 100% !important;
+        height: 100% !important;
+        border-radius: 8px;
+        overflow: hidden !important;
       }
       .anticon-loading,
       .anticon-plus {
         font-size: 18px;
       }
-    }
-    :deep(.ant-upload-list-item-container) {
-      width: 110px !important;
-      height: 110px !important;
-      border-radius: 8px;
-      overflow: hidden !important;
-      .ant-upload-list-item {
-        background-color: #f7f9f8 !important;
-        border-color: #282828 !important;
-        padding: 0;
-        &.ant-upload-list-item-error {
-          border-color: #ff4d4f !important;
-        }
-        &::before {
-          width: 100% !important;
-          height: 100% !important;
-          border-radius: 8px;
-          overflow: hidden !important;
-        }
-        .ant-upload-list-item-action {
-          position: relative;
-          top: -3px;
-        }
-      }
-    }
-    .delete-img {
-      background-color: rgba(0, 0, 0, .45);
-      position: absolute;
-      top: 1px;
-      left: 1px;
-      width: 108px;
-      height: 108px;
-      border-radius: 8px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      color: rgba(255, 255, 255, .7);
-      &:hover {
-        color: rgba(255, 255, 255, 1);
-        .anticon-delete {
-          color: rgba(255, 255, 255, 1);
-        }
-      }
-      .anticon-delete {
-        font-size: 17px;
-        color: rgba(255, 255, 255, .8);
-      }
-      p {
-        font-size: 13px;
-        margin-top: 5px;
+      .ant-upload-list-item-action .anticon-delete {
+        position: relative;
+        top: -3px;
       }
     }
   }
+  .delete-img {
+    background-color: rgba(0, 0, 0, 0.45);
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    width: 108px;
+    height: 108px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.7);
+    &:hover {
+      color: rgba(255, 255, 255, 1);
+      .anticon-delete {
+        color: rgba(255, 255, 255, 1);
+      }
+    }
+    .anticon-delete {
+      font-size: 17px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+    p {
+      font-size: 13px;
+      margin-top: 5px;
+    }
+  }
+}
+
+.avatar-images-uploader {
+  :deep(.ant-upload) {
+    border-radius: 50% !important;
+  }
+  .delete-img {
+    border-radius: 50%;
+  }
+}
 </style>

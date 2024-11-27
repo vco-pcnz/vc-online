@@ -84,7 +84,7 @@
 <script setup>
 import { ref, watch, reactive } from "vue";
 import { useI18n } from "vue-i18n";
-import { sendCodeOldE, sendCodeNewE, changeEmail } from "@/api/users";
+import { sendCodeOldE, sendCodeNewE, changeEmail } from "@/api/profile";
 import { EMAIL_RULE } from "@/constant";
 import countdown from "../components/countdown.vue";
 import useFormData from "@/utils/use-form-data";

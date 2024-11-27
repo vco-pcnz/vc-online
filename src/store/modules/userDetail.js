@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { getUserCenter } from "@/api/users";
+import { getUserCenter } from "@/api/profile";
 
 const useUserDetailStore = defineStore("VcOnlineUserDetail", {
   state: () => ({

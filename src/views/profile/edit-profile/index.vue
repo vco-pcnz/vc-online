@@ -158,12 +158,12 @@ import { ref, reactive, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { preMobileOpts, EMAIL_RULE, VERIFY_KEY } from '@/constant';
 import useFormData from '@/utils/use-form-data';
-import countdown from '../components/countdown.vue';
-import { sendUnauthECode, sendUnauthCodeM, modifyUserInfo } from '@/api/users';
+import countdown from '../components/Countdown.vue';
+import { sendUnauthECode, sendUnauthCodeM, modifyUserInfo } from '@/api/profile';
 import changeEmail from './change-email.vue';
 import changeMobile from './change-mobile.vue';
 import { useUserDetailStore } from '@/store';
-import profileLayout from '../components/profile-layout.vue';
+import profileLayout from '../components/ProfileLayout.vue';
 import { message } from 'ant-design-vue';
 
 const { t } = useI18n();

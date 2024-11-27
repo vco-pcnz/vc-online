@@ -86,7 +86,7 @@ import { ref, watch, reactive } from "vue";
 import { useI18n } from "vue-i18n";
 import { sendCodeOldE, sendCodeNewE, changeEmail } from "@/api/profile";
 import { EMAIL_RULE } from "@/constant";
-import countdown from "../components/countdown.vue";
+import countdown from "../components/Countdown.vue";
 import useFormData from "@/utils/use-form-data";
 import { message } from "ant-design-vue";
 import { trim } from "lodash";

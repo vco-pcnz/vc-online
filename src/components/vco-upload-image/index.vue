@@ -31,10 +31,10 @@
     </a-upload>
     <div class="delete-img" @click="deleteImg" v-if="picUrl && limit == 1 && !isMultiple">
       <DeleteOutlined />
-      <p>删除</p>
+      <p>{{ t('删除') }}</p>
     </div>
     <a-modal
-      :visible="previewVisible"
+      v-model:open="previewVisible"
       :footer="null"
       @cancel="previewHandleCancel"
     >
@@ -51,7 +51,7 @@
   import { getToken } from '@/utils/token-util';
   import { cloneDeep } from 'lodash';
 
-  const VITE_APP_BASE_URL = import.meta.env.VITE_APP_BASE_URL
+  const uploadUrl = import.meta.env.VITE_APP_OPEN_PROXY === 'true' ? import.meta.env.VITE_APP_PROXY_PREFIX : import.meta.env.VITE_APP_BASE_URL
 
   const { t } = useI18n();
 
@@ -98,7 +98,7 @@
     }
   });
 
-  const uploadAction = VITE_APP_BASE_URL + '/upload/uploadImage';
+  const uploadAction = uploadUrl + '/upload/uploadImage';
   const headers = ref({ 'Content-Type': 'multipart/form-data' });
   const fileList = ref([]);
   const previewImage = ref('');
@@ -113,7 +113,7 @@
       return avatar;
     } else {
       if (avatar && avatar.length > 0 && avatar.indexOf('[') == -1) {
-        return VITE_APP_BASE_URL + '/uploads/' + avatar;
+        return uploadUrl + '/uploads/' + avatar;
       }
     }
   };
@@ -231,6 +231,7 @@
         });
       }
     } else if (info.file.status === 'error') {
+      console.log(info)
       message.error(`${info.file.name} ${t('上传失败')}.`);
     }
 
@@ -314,6 +315,9 @@
         background-color: #f7f9f8 !important;
         border-color: #282828 !important;
         padding: 0;
+        &.ant-upload-list-item-error {
+          border-color: #ff4d4f !important;
+        }
         &::before {
           width: 100% !important;
           height: 100% !important;

@@ -2,7 +2,7 @@
   <div>
     <vco-page-nav sup-path="/requests">
       <template #action>
-        <a-button type="cyan" shape="round" @click="navigationTo('/process/one')">{{ t('发起贷款申请') }}</a-button>
+        <a-button type="cyan" shape="round" @click="navigationTo('/process/one')">{{ t('发起借款申请') }}</a-button>
       </template>
     </vco-page-nav>
 
@@ -86,7 +86,7 @@
       value: 'id',
     },
     {
-      label: t("贷款金额"),
+      label: t("借款金额"),
       value: 'amount',
     }
   ]
@@ -113,7 +113,7 @@
   const tableData = ref([
     {
       id: 'VCO202411240001',
-      project_name: "张小美普通贷款项目",
+      project_name: "张小美普通借款项目",
       project_images: "https://pcnz-staging-api.s3.ap-southeast-2.amazonaws.com/project/d169c5e8-7abe-4466-9b69-c98f535f5e8f/30621/AzMYrljhQtVU7ALbHdERn63nMT0oOV6QVEwSB9kr.jpg",
       address: "Corporate headquarters and logistics centre in Mansfield, Texas USA.",
       loan_money: 99999999,
@@ -137,7 +137,7 @@
     },
     {
       id: 'VCO202411240002',
-      project_name: "张小美普通贷款项目2张小美普通贷款项目2张小美普通贷款项目2",
+      project_name: "张小美普通借款项目2张小美普通借款项目2张小美普通借款项目2",
       project_images: "",
       address: "Corporate headquarters and logistics centre in Mansfield, Texas USA.",
       loan_money: 99999999,
@@ -161,7 +161,7 @@
     },
     {
       id: 'VCO202411240003',
-      project_name: "张小美普通贷款项目3",
+      project_name: "张小美普通借款项目3",
       project_images: "",
       address: "Corporate headquarters and logistics centre in Mansfield, Texas USA.",
       loan_money: 99999999,

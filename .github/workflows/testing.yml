@@ -42,6 +42,7 @@ jobs:
           yarn build
         env:
           VITE_APP_ENV: test
+          VITE_APP_OPEN_PROXY: false
           VITE_APP_BASE_URL: https://test-admin-api.new.vincentcapital.co.nz/api
           VITE_APP_TOKEN_PREFIX: vc-online-user-token
 

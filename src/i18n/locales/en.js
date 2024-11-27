@@ -141,7 +141,7 @@ export default {
   "步骤九": "Step 9",
   "步骤十": "Step 10",
   "所有": "All",
-  "个人": "Personal",
+  "个人": "Individual",
   "组织": "Company",
   "新增用户": "Add User",
   "类型": "TYPE",

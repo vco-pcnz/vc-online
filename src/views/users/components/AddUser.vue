@@ -28,14 +28,14 @@
           <a-input
             v-model:value="form.email"
             :placeholder="t('邮箱')"
-            :disabled="isEdit && form.email_ok"
+            :disabled="isEdit && email_ok"
           />
         </a-form-item>
         <a-form-item :label="t('手机号')" name="mobile">
           <vco-mobile-input
             v-model:value="form.mobile"
             v-model:areaCode="form.pre"
-            :disabled="isEdit && form.mobile_ok"
+            :disabled="isEdit && mobile_ok"
           ></vco-mobile-input>
         </a-form-item>
         <a-form-item name="verifyMode" v-if="!isEdit">
@@ -104,6 +104,9 @@ const { form, resetFields, assignFields } = useFormData({
   sendEmail: false,
   sendSms: false,
 });
+
+const email_ok = ref(0);
+const mobile_ok = ref(0);
 
 // 表单验证规则
 const rules = reactive({
@@ -221,8 +224,8 @@ watch(
         ...val,
       });
       form.uuid = val.uuid;
-      form.email_ok = val.email_ok === 1;
-      form.mobile_ok = val.mobile_ok === 1;
+      email_ok.value = val.email_ok;
+      mobile_ok.value = val.mobile_ok;
     }
   }
 );

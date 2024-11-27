@@ -1,17 +1,17 @@
 <template>
-  <div>
-    Individual 
-  </div>
+  <users-layout />
 </template>
 
 <script setup>
+import { onMounted } from 'vue';
+import { useUsersStore } from '@/store';
+import UsersLayout from '../components/UsersLayout.vue';
 
-import { ref, reactive } from "vue";
-import { useI18n } from "vue-i18n";
+const usersStore = useUsersStore();
 
-const { t } = useI18n();
+onMounted(() => {
+  usersStore.setSearchParams({ sta: 1 });
+});
 </script>
 
-<style scoped lang="less">
-
-</style>
+<style scoped lang="less"></style>

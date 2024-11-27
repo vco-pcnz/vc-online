@@ -195,11 +195,17 @@ export default {
   "借款人类型": "Borrower type",
   "机构名称": "Company name",
   "证件照片": "Certificate photo",
-  "身份证号码": "Id Number",
+  "身份证号码": "ID number",
   "公司编码": "Company number",
   "借款人地址": "Borrower address",
   "邮编": "Post code",
   "借款人背景信息": "Borrower background",
   "保存草稿": "Save draft",
-  "下一步": "NEXT"
+  "下一步": "NEXT",
+  "省/州/邦": "Province/State/State",
+  "市": "City",
+  "区/县": "Region/County",
+  "详细地址": "Detailed address",
+  "请上传": "Please upload ",
+  "格式不正确": " format is incorrect"
 }

@@ -3,8 +3,8 @@ import i18n from "@/i18n";
 import { message } from "ant-design-vue/es";
 import { getToken, removeToken } from "@/utils/token-util.js";
 import { isEmpty } from "lodash";
+import { useUserStore } from "@/store";
 import qs from "qs";
-import router from "@/router";
 
 function createExternalService() {
   // 创建一个外部网络 axios 实例
@@ -69,6 +69,9 @@ function createService() {
         } else {
           return Promise.resolve(data);
         }
+      } else if (code === 401) {
+        const userStore = useUserStore();
+        userStore.logout()
       } else {
         if (!response.config.diyError) {
           message.error({
@@ -100,11 +103,8 @@ function createService() {
             err("服务器内部错误");
             break;
           case 401:
-            throttle(() => {
-              err("登录状态已过期，需要重新登录");
-              removeToken();
-              router.push({ name: "login" });
-            })();
+            const userStore = useUserStore();
+            userStore.logout()
             break;
           case 403:
             err("没有权限访问该资源");

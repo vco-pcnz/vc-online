@@ -11,6 +11,7 @@ import VcoTableSort from './vco-table-sort/index.vue'
 import VcoTimeLine from './vco-time-line/index.vue'
 import VcoMobileInput from './vco-mobile-input/index.vue'
 import VcoUploadImage from './vco-upload-image/index.vue'
+import VcoAddressSelect from './vco-address-select/index.vue'
 import AuthTemplate from './auth/index.vue'
 
 export default {
@@ -28,6 +29,7 @@ export default {
     Vue.component('VcoTimeLine', VcoTimeLine)
     Vue.component('VcoMobileInput', VcoMobileInput)
     Vue.component('VcoUploadImage', VcoUploadImage)
+    Vue.component('VcoAddressSelect', VcoAddressSelect)
     Vue.component('AuthTemplate', AuthTemplate)
   }
 }

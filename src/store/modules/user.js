@@ -3,6 +3,7 @@ import { formatMenus, toTreeData } from "@/router/router-utils";
 import { getUserInfo, getMenuList } from "@/api/user";
 import { getToken, setToken, removeToken } from "@/utils/token-util.js";
 import { login, logout } from "@/api/auth";
+import router from "@/router";
 
 const useUserStore = defineStore("VcOnlineUserInfo", {
   state: () => ({
@@ -84,11 +85,13 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
     },
 
     async logout() {
-      await logout();
-      this.clearToken();
-      this.resetUserInfo();
-      location.replace(`${window.location.origin}/#/login`);
-    },
-  },
+      if (router.currentRoute.value.name !== 'login') {
+        await logout();
+        this.clearToken();
+        this.resetUserInfo();
+        location.replace(`${window.location.origin}/#/login`);
+      }
+    }
+  }
 });
 export default useUserStore;

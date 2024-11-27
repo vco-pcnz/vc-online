@@ -8,7 +8,7 @@
 </template>
 
 <script setup>
-  import { onMounted, ref } from 'vue'
+  import { ref, watch } from 'vue'
   
   const props = defineProps({
     src: {
@@ -54,9 +54,12 @@
     }
   }
 
-  onMounted(() => {
+  // 监听 isSuc 的变化
+  watch(() => props.src, (newVal, oldVal) => {
     setImageSize()
-  })
+  }, {
+    immediate: true
+  });
 </script>
 
 <style lang="less" scoped>

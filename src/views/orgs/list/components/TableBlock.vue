@@ -16,7 +16,7 @@
         <li>{{ t('注册时间/创建时间t') }}</li>
         <li>{{ t('项目数据t') }}</li>
         <li>{{ t('状态t') }}</li>
-        <li>{{ t('操作t') }}</li>
+        <li>{{ t('操作1') }}</li>
       </ul>
       <div v-if="tableData.length" class="table-body">
         <template v-for="item in tableData" :key="item.id">
@@ -28,7 +28,7 @@
               ></a-checkbox> -->
             </li>
             <li>
-              <vco-avatar v-if="item.avatar" :src="item.avatar" :radius="true" :round="false"></vco-avatar>
+              <vco-avatar v-if="item.avatar" :src="item.avatar" :radius="true"></vco-avatar>
               <span v-else>--</span>
             </li>
             <li>
@@ -43,7 +43,12 @@
               </p>
               <p v-if="item.mobile">
                 <i class="iconfont" :class="{ cer: item.mobile_ok }">&#xe678;</i>
-                <span :class="{ cer: item.mobile_ok }">+{{ item.pre }} {{ item.mobile }}</span>
+                <span :class="{ cer: item.mobile_ok }">
+                  <template v-if="item.mobile && item.pre">
+                    +{{ item.pre }}
+                  </template>
+                  {{ item.mobile }}
+                </span>
               </p>
             </li>
             <li>
@@ -83,14 +88,14 @@
             <li>
               <p>
                 <i class="iconfont black">&#xe690;</i>
-                <span class="cer">{{ item.open_count }}{{ t('进行中项目') }}</span>
+                <span class="cer bold">{{ item.open_count }} {{ t('进行中项目') }}</span>
               </p>
               <p style="padding-left: 20px">
-                <span>{{ item.close_count }}{{ t('已关闭项目') }}</span>
+                <span class="bold">{{ item.close_count }} {{ t('已关闭项目') }}</span>
               </p>
               <p>
                 <i class="iconfont black">&#xe751;</i>
-                <span class="cer">{{ item.apply_count }}{{ t('请求') }}</span>
+                <span class="cer bold">{{ item.apply_count }} {{ t('请求') }}</span>
               </p>
             </li>
 
@@ -130,8 +135,8 @@ import { Empty } from 'ant-design-vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import router from '@/router';
-import { useorgsDetailStore } from '@/store';
-const orgsDetailStore = useorgsDetailStore();
+import { useOrgsDetailStore } from '@/store';
+const orgsDetailStore = useOrgsDetailStore();
 
 const emits = defineEmits(['check']);
 
@@ -219,7 +224,7 @@ const toDetail = item => {
     &:nth-child(2) {
       flex: 0 auto;
       width: 100px;
-      text-align: center;
+      align-items: center;
     }
     &:nth-child(3) {
       flex: 0 auto;
@@ -251,6 +256,7 @@ const toDetail = item => {
     &:last-child {
       flex: 0 auto;
       width: 50px;
+      text-align: center;
     }
     > p {
       width: 100%;
@@ -278,6 +284,9 @@ const toDetail = item => {
           color: #000;
         }
         &.name {
+          font-weight: 500;
+        }
+        &.bold {
           font-weight: 500;
         }
       }

@@ -23,10 +23,10 @@ import { ref, reactive, computed, onMounted } from 'vue';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash';
 import { useI18n } from 'vue-i18n';
-import { useorgsDetailStore } from '@/store';
+import { useOrgsDetailStore } from '@/store';
 
 const { t } = useI18n();
-const orgsDetailStore = useorgsDetailStore();
+const orgsDetailStore = useOrgsDetailStore();
 
 const typeData = computed(() => {
   const data = orgsDetailStore.stakeholderTypet.map(item => ({

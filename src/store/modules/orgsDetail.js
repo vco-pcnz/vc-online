@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { getChildList, getCategory, getStakeholderTypet,getDetail } from "@/api/orgs";
+import { useRoute } from 'vue-router';
 
 const useOrgsDetailStore = defineStore("VcOnlineOrgsDetail", {
   state: () => ({
@@ -26,7 +27,7 @@ const useOrgsDetailStore = defineStore("VcOnlineOrgsDetail", {
   }),
   actions: {
     setDetail(id) {
-      return getDetail({id}).then((res) => {
+      return getDetail({id:useRoute().query.id}).then((res) => {
         this.detail = res;
       });
     },
@@ -70,11 +71,13 @@ const useOrgsDetailStore = defineStore("VcOnlineOrgsDetail", {
       });
     },
     getCategory() {
+      if (this.category.length) return;
       return getCategory().then((res) => {
         this.category = res;
       });
     },
     getStakeholderTypet() {
+      if (this.stakeholderTypet.length) return;
       return getStakeholderTypet().then((res) => {
         this.stakeholderTypet = res;
       });

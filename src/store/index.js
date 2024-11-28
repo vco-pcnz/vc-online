@@ -5,9 +5,9 @@ import useUserDetailStore from "./modules/userDetail";
 import useNoticeStore from "./modules/notice";
 import useUsersStore from "./modules/users";
 import useOrgsStore from "./modules/orgs";
-import useorgsDetailStore from "./modules/orgsDetail";
+import useOrgsDetailStore from "./modules/orgsDetail";
 
 const pinia = createPinia();
 
-export { useUserStore, useAppStore, useUserDetailStore, useNoticeStore, useUsersStore, useOrgsStore, useorgsDetailStore };
+export { useUserStore, useAppStore, useUserDetailStore, useNoticeStore, useUsersStore, useOrgsStore, useOrgsDetailStore };
 export default pinia;

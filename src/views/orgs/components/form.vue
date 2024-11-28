@@ -1,0 +1,632 @@
+<template>
+  <div>
+    <div class="sys-form-content mt-5">
+      <a-form
+        ref="formRef"
+        :model="form"
+        :rules="dynamicRules"
+        layout="vertical"
+      >
+        <a-row :gutter="24">
+          <a-col :span="24" class="avatar-box">
+            <div>
+              <vco-upload-image
+                v-model:value="form.avatar"
+                text="上传头像"
+              ></vco-upload-image>
+            </div>
+          </a-col>
+          <a-col :span="24">
+            <a-form-item :label="t('分类f')" name="cid">
+              <a-checkbox-group v-model:value="form.cid">
+                <a-checkbox
+                  v-for="item in orgsStore.category"
+                  :key="item.id"
+                  :value="item.id"
+                >
+                  {{ item.name }}
+                </a-checkbox>
+              </a-checkbox-group>
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <a-form-item :label="t('类型f')" name="type">
+              <a-radio-group v-model:value="form.type">
+                <a-radio
+                  :value="item.code"
+                  :key="item.code"
+                  v-for="item in orgsStore.stakeholderTypet"
+                >
+                  {{ item.name }}
+                </a-radio>
+              </a-radio-group>
+            </a-form-item>
+          </a-col>
+
+          <!-- 个人相关信息 -->
+          <template v-if="form.type == 4">
+            <a-col :span="8">
+              <a-form-item name="firstName" :label="t('名')">
+                <a-input
+                  v-model:value="form.firstName"
+                  :placeholder="t('名')"
+                />
+              </a-form-item>
+            </a-col>
+            <a-col :span="8">
+              <a-form-item name="middleName" :label="t('中间名')">
+                <a-input
+                  v-model:value="form.middleName"
+                  :placeholder="t('中间名')"
+                />
+              </a-form-item>
+            </a-col>
+            <a-col :span="8">
+              <a-form-item name="lastName" :label="t('姓')">
+                <a-input v-model:value="form.lastName" :placeholder="t('姓')" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="24">
+              <a-form-item :label="t('身份证号码')" name="idcard">
+                <a-input
+                  v-model:value="form.idcard"
+                  :placeholder="t('请输入')"
+                />
+              </a-form-item>
+            </a-col>
+          </template>
+          <!-- 公司相关信息 -->
+          <template v-else>
+            <a-col :span="24">
+              <a-form-item :label="t('公司名称f')" name="name">
+                <a-input v-model:value="form.name" :placeholder="t('请输入')" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="24">
+              <a-form-item label="NZBZ" name="nzbz">
+                <a-input v-model:value="form.nzbz" :placeholder="t('请输入')" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="24">
+              <a-form-item :label="t('联系人f')" name="contactName">
+                <a-input
+                  v-model:value="form.contactName"
+                  :placeholder="t('请输入')"
+                />
+              </a-form-item>
+            </a-col>
+            <a-col :span="24">
+              <a-form-item :label="t('组织机构代码f')" name="idcard">
+                <a-input
+                  v-model:value="form.idcard"
+                  :placeholder="t('请输入')"
+                />
+              </a-form-item>
+            </a-col>
+          </template>
+          <a-col :span="24" v-if="false">
+            <a-form-item :label="t('工作')" name="job">
+              <a-radio-group v-model:value="form.job">
+                <a-radio
+                  :value="item.code"
+                  :key="item.code"
+                  v-for="item in jobs"
+                >
+                  {{ item.name }}
+                </a-radio>
+              </a-radio-group>
+            </a-form-item>
+          </a-col>
+          <!-- 公共 -->
+
+          <a-col :span="20">
+            <a-form-item name="email" :label="t('联系邮箱f')">
+              <a-input
+                v-model:value="form.email"
+                :placeholder="t('请输入')"
+                :disabled="!!email_ok"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="4" v-if="!verifyEmail.showCountdown">
+            <a-form-item label=" ">
+              <a-button
+                v-if="!email_ok"
+                @click="handleVerify(VERIFY_KEY.EMAIL)"
+                type="dark"
+                class="big verify-btn"
+              >
+                {{ t('验证') }}
+              </a-button>
+              <a-button
+                v-else
+                @click="handleChange(VERIFY_KEY.EMAIL)"
+                type="dark"
+                class="big verify-btn"
+              >
+                {{ t('变更') }}
+              </a-button>
+            </a-form-item>
+          </a-col>
+          <a-col :span="4" v-else>
+            <a-form-item label=" ">
+              <countdown v-model:show="verifyEmail.showCountdown" />
+            </a-form-item>
+          </a-col>
+
+          <a-col :span="24" v-if="verifyEmail.showCode">
+            <a-form-item label="邮箱验证码" name="emailCode">
+              <a-input v-model:value="form.emailCode" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="20">
+            <a-form-item :label="t('联系电话f')" name="mobile">
+              <vco-mobile-input
+                v-model:value="form.mobile"
+                v-model:areaCode="form.pre"
+                :disabled="!!mobile_ok"
+              ></vco-mobile-input>
+            </a-form-item>
+          </a-col>
+          <a-col :span="4" v-if="!verifyMobile.showCountdown">
+            <a-form-item label=" ">
+              <a-button
+                v-if="!mobile_ok"
+                @click="handleVerify(VERIFY_KEY.MOBILE)"
+                type="dark"
+                class="big verify-btn"
+              >
+                {{ t('验证') }}
+              </a-button>
+              <a-button
+                v-else
+                @click="handleChange(VERIFY_KEY.MOBILE)"
+                type="dark"
+                class="big verify-btn"
+              >
+                {{ t('变更') }}
+              </a-button>
+            </a-form-item>
+          </a-col>
+          <a-col :span="4" v-else>
+            <a-form-item-rest>
+              <countdown v-model:show="verifyMobile.showCountdown" />
+            </a-form-item-rest>
+          </a-col>
+          <a-col :span="24" v-if="verifyMobile.showCode">
+            <a-form-item label="手机验证码" name="mobileCode">
+              <a-input v-model:value="form.mobileCode" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item :label="t('地址')" name="province_code">
+              <vco-address-select v-model:value="region"></vco-address-select>
+            </a-form-item>
+          </a-col>
+
+          <a-col :span="12">
+            <a-form-item label=" " name="address">
+              <a-input
+                v-model:value="form.address"
+                :placeholder="t('请输入')"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <a-form-item :label="t('证件f')" name="document">
+              <vco-upload-image
+                isMultiple
+                v-model:value="form.document"
+              ></vco-upload-image>
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <a-form-item :label="t('证件有效期f')" name="expire_time">
+              <a-date-picker
+                v-model:value="form.expire_time"
+                format="YYYY/MM/DD"
+                valueFormat="YYYY-MM-DD"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <a-form-item :label="t('背景f')" name="note">
+              <a-textarea
+                v-model:value="form.note"
+                :auto-size="{ minRows: 4, maxRows: 5 }"
+                :placeholder="t('请输入')"
+              />
+            </a-form-item>
+          </a-col>
+        </a-row>
+      </a-form>
+    </div>
+    <div class="flex mt-5 items-end gap-20 justify-center">
+      <a-button
+        type="cyan"
+        shape="round"
+        class="big shadow bold uppercase"
+        :loading="loading"
+        @click="submit"
+      >
+        {{ t('提交') }}
+      </a-button>
+
+      <change-email
+        v-model:open="verifyEmail.open"
+        :title="t('编辑邮箱')"
+        :email="form.email"
+        :uuid="form.uuid"
+      />
+      <change-mobile
+        v-model:open="verifyMobile.open"
+        :title="t('编辑手机号')"
+      />
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { reactive, onMounted, ref, computed, watch } from 'vue';
+import useFormData from '@/utils/use-form-data';
+import { preMobileOpts, EMAIL_RULE, VERIFY_KEY } from '@/constant';
+import { useI18n } from 'vue-i18n';
+import {
+  sendUnauthECode,
+  sendUnauthCodeM,
+  getStakeholderJob,
+  stakeAdd,
+  stakeEdit,
+} from '@/api/orgs/form';
+import countdown from './countdown.vue';
+import changeEmail from './change-email.vue';
+import changeMobile from './change-mobile.vue';
+import dayjs from 'dayjs';
+import { useOrgsStore, useOrgsDetailStore } from '@/store';
+import { pick, trim } from 'lodash';
+import { useRoute, useRouter } from 'vue-router';
+import { message } from 'ant-design-vue';
+const route = useRoute();
+const router = useRouter();
+
+const { t } = useI18n();
+const orgsStore = useOrgsStore();
+const orgsDetailStore = useOrgsDetailStore();
+const formRef = ref();
+const jobs = ref([]);
+const region = ref();
+const loading = ref(false);
+
+// 表单数据
+const { form, assignFields } = useFormData({
+  //公司
+  name: '',
+  nzbz: '',
+  contactName: '',
+  // 个人
+  user_uuid: '',
+  firstName: '',
+  middleName: '',
+  lastName: '',
+  sendEmail: 0, //发送邮箱邀请
+  sendSms: 0, //发送手机邀请
+  job: '', //详情添加才会有
+  //公共
+  uuid: '', //编辑独有
+  p_uuid: '', //上级uuid  详情添加必传
+  cid: [], //分类ID
+  type: '', //类型
+  avatar: '',
+  idcard: '', // 公司组织机构代码  人员 身份证
+  email: '',
+  emailCode: '',
+  pre: '',
+  mobile: '',
+  mobileCode: '',
+  province_code: '',
+  city_code: '',
+  district_code: '',
+  address: '',
+  document: [], //证件
+  expire_time: '', //证件有效期
+  note: '',
+});
+
+const mobile_ok = ref(0)
+const email_ok = ref(0)
+
+// 表单验证规则
+const rules = reactive({
+  // 公共验证
+  idcard: [
+    {
+      required: true,
+      message: t('请输入') + t('组织机构代码f'),
+    },
+  ],
+  cid: [
+    {
+      required: true,
+      message: t('请选择') + t('分类f'),
+    },
+  ],
+  type: [
+    {
+      required: true,
+      message: t('请选择') + t('类型f'),
+    },
+  ],
+  document: [
+    {
+      required: true,
+      message: t('请上传') + t('证件f'),
+    },
+  ],
+  expire_time: [
+    {
+      required: true,
+      message: t('请选择') + t('证件有效期f'),
+    },
+  ],
+});
+
+// 根据条件动态生成的规则
+const dynamicRules = computed(() => {
+  // 个人相关验证
+  if (form.type == 4) {
+    return {
+      ...rules,
+      idcard: [
+        {
+          required: true,
+          message: t('请输入') + t('身份证号码'),
+        },
+      ],
+      firstName: [
+        {
+          required: true,
+          message: t('请输入') + t('名'),
+          type: 'string',
+          trigger: 'blur',
+        },
+      ],
+      middleName: [
+        {
+          required: true,
+          message: t('请输入') + t('中间名'),
+          type: 'string',
+          trigger: 'blur',
+        },
+      ],
+      lastName: [
+        {
+          required: true,
+          message: t('请输入') + t('姓'),
+          type: 'string',
+          trigger: 'blur',
+        },
+      ],
+    };
+  } else {
+    return {
+      ...rules,
+      // 公司相关验证
+      name: [
+        {
+          required: true,
+          message: t('请输入') + t('公司名称f'),
+        },
+      ],
+      nzbz: [
+        {
+          required: true,
+          message: t('请输入') + 'NZBZ',
+        },
+      ],
+      contactName: [
+        {
+          required: true,
+          message: t('请输入') + t('联系人f'),
+        },
+      ],
+    };
+  }
+});
+
+const verifyEmail = reactive({
+  showCode: false,
+  showCountdown: false,
+  open: false,
+});
+
+const verifyMobile = reactive({
+  showCode: false,
+  showCountdown: false,
+  open: false,
+});
+
+// 获取验证码
+const handleVerify = (key) => {
+  if (key === VERIFY_KEY.EMAIL) {
+    sendUnauthECode({ email: form.email });
+    verifyEmail.showCode = true;
+    verifyEmail.showCountdown = true;
+  } else if (key === VERIFY_KEY.MOBILE) {
+    sendUnauthCodeM({
+      pre: form.pre,
+      mobile: form.mobile,
+    });
+    verifyMobile.showCode = true;
+    verifyMobile.showCountdown = true;
+  }
+};
+
+// 显示变更弹窗
+const handleChange = (key) => {
+  if (key === VERIFY_KEY.EMAIL) {
+    verifyEmail.open = true;
+  } else if (key === VERIFY_KEY.MOBILE) {
+    verifyMobile.open = true;
+  }
+};
+// 提交
+const submit = () => {
+  if (!trim(form.avatar)) {
+    message.warning(t('请上传头像'));
+    return;
+  }
+  formRef.value.validate().then(() => {
+    let keys = [
+      'cid',
+      'type',
+      'avatar',
+      'idcard',
+      'email',
+      'emailCode',
+      'pre',
+      'mobile',
+      'mobileCode',
+      'province_code',
+      'city_code',
+      'district_code',
+      'address',
+      'document',
+      'expire_time',
+      'note',
+    ];
+    // job????
+    if (form.type == 4) {
+      keys = keys.concat([
+        'user_uuid',
+        'firstName',
+        'middleName',
+        'lastName',
+        'sendEmail',
+        'sendSms',
+      ]);
+    } else {
+      keys = keys.concat(['name', 'nzbz', 'contactName']);
+    }
+    const newData = pick(form, keys);
+    if (!form.uuid) {
+      newData['p_uuid'] = form.p_uuid;
+      stakeAdd(newData)
+        .then(() => {
+          loading.value = false;
+          message.success(t('添加成功'));
+          router.back();
+        })
+        .catch(() => {
+          loading.value = false;
+        });
+    } else {
+      newData['uuid'] = form.uuid;
+      stakeEdit(newData)
+        .then(() => {
+          loading.value = false;
+          message.success(t('修改成功'));
+          orgsDetailStore.setDetail();
+          router.back();
+        })
+        .catch(() => {
+          loading.value = false;
+        });
+    }
+  });
+};
+onMounted(() => {
+  form.p_uuid = route.query.id || '';
+  // 加载分类
+  orgsStore.getCategory();
+  // 加载分类
+  orgsStore.getStakeholderTypet();
+  // 加载工作
+  getStakeholderJob().then((res) => {
+    jobs.value = res;
+  });
+});
+
+// 监听重置idcard 公用字段
+watch(
+  () => form.type,
+  (val, old) => {
+    if (old) {
+      if ((old == 4 && val < 4) || (old !== 4 && val == 4)) {
+        form.idcard = '';
+      }
+    }
+  }
+);
+
+// 监听地址选择组件赋值
+watch(
+  () => region.value,
+  (val) => {
+    let arr = region.value.split(',');
+    form.province_code = arr[0] || '';
+    form.city_code = arr[1] || '';
+    form.district_code = arr[2] || '';
+  }
+);
+
+watch(
+  () => orgsDetailStore.detail,
+  (val) => {
+    if (route.query.isEdit && val) {
+      form.uuid = route.query.id;
+      assignFields({
+        ...val,
+      });
+      if (val.document.length) {
+        form.document = val.document.map((e) => {
+          return e.uuid;
+        });
+      }
+      mobile_ok.value = val.mobile_ok
+      email_ok.value = val.email_ok
+    }
+  },
+  { immediate: true }
+);
+</script>
+
+<style scoped lang="less">
+@import '@/styles/variables.less';
+
+.verify-btn {
+  min-width: 100%;
+}
+
+.ant-checkbox-group > .ant-checkbox-wrapper:not(:last-child) {
+  margin-bottom: 0;
+}
+
+// 头像上传样式重置
+.avatar-box {
+  display: flex;
+  justify-content: center;
+  padding: 20px 0 50px;
+
+  :deep(.images-uploader) {
+    .ant-upload {
+      width: 128px !important;
+      height: 128px !important;
+      border-color: #282828 !important;
+      border-radius: 50%;
+
+      &:hover {
+        border-color: @colorPrimary !important;
+      }
+
+      img {
+        width: 100% !important;
+        height: 100% !important;
+      }
+    }
+
+    .delete-img {
+      display: none !important;
+    }
+  }
+}
+</style>

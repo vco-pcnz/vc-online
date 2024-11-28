@@ -12,7 +12,7 @@ export const sendUnauthECode = data =>
 export const sendCodeOldE = params =>
   request({
     url: 'stake/getCodeE',
-    method: 'get',
+    method: 'post',
     params,
   });
 
@@ -36,7 +36,7 @@ export const changeEmail = data =>
 export const sendCodeOldM = params =>
   request({
     url: 'stake/getCodeM',
-    method: 'get',
+    method: 'post',
     params,
   });
 
@@ -63,3 +63,31 @@ export const changeMobile = data =>
     method: 'post',
     data,
   });
+
+
+  
+// 查询字典 工作
+export const getStakeholderJob = () =>
+  request({
+    url: 'system/dictData/getDictByCode?code=stakeholder_job',
+    method: 'get',
+  });
+
+// 提交
+export const stakeAdd = data =>
+  request({
+    url: 'stake/add',
+    method: 'post',
+    data,
+  });
+
+
+// 提交
+export const stakeEdit = data =>
+  request({
+    url: 'stake/edit',
+    method: 'post',
+    data,
+  });
+
+

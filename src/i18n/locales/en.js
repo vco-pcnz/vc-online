@@ -226,5 +226,6 @@ export default {
   "账号": "Account",
   "手机": "Cellphone",
   "验证码": "Verification code",
-  "选择登录账号": "Select login account"
+  "选择登录账号": "Select login account",
+  "请上传头像": "Please upload avatar",
 }

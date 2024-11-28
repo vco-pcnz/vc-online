@@ -1,17 +1,38 @@
 <template>
   <div class="table-content">
     <div class="table-block">
+      <ul class="table-col header">
+        <li class="check" style="width: 0; padding: 0">
+          <!-- <a-checkbox
+            v-model:checked="checkedAll"
+            :indeterminate="indeterminate"
+            @change="checkedAllHandle"
+          ></a-checkbox> -->
+        </li>
+        <li>{{ t('缩略图t') }}</li>
+        <li>{{ t('利益相关者信息t') }}</li>
+        <li>{{ t('关联用户t') }}</li>
+        <li>{{ t('用户角色t') }}</li>
+        <li>{{ t('注册时间/创建时间t') }}</li>
+        <li>{{ t('项目数据t') }}</li>
+        <li>{{ t('状态t') }}</li>
+        <li>{{ t('操作1') }}</li>
+      </ul>
       <div v-if="tableData.length" class="table-body">
         <template v-for="item in tableData" :key="item.id">
           <ul class="table-col tr">
             <li class="check" style="width: 0; padding: 0">
               <!-- <a-checkbox
-                              v-model:checked="item.checked"
-                              @change="itemcheck"
-                            ></a-checkbox> -->
+            v-model:checked="item.checked"
+            @change="itemcheck"
+            ></a-checkbox> -->
             </li>
             <li>
-              <vco-avatar v-if="item.avatar" :src="item.avatar" :radius="true" :round="false"></vco-avatar>
+              <vco-avatar
+                v-if="item.avatar"
+                :src="item.avatar"
+                :radius="true"
+              ></vco-avatar>
               <span v-else>--</span>
             </li>
             <li>
@@ -25,11 +46,39 @@
                 <span :class="{ cer: item.email_ok }">{{ item.email }}</span>
               </p>
               <p v-if="item.mobile">
-                <i class="iconfont" :class="{ cer: item.mobile_ok }">&#xe678;</i>
-                <span :class="{ cer: item.mobile_ok }">{{ item.pre }} {{ item.mobile }}</span>
+                <i class="iconfont" :class="{ cer: item.mobile_ok }">
+                  &#xe678;
+                </i>
+                <span :class="{ cer: item.mobile_ok }">
+                  <template v-if="item.mobile && item.pre">
+                    +{{ item.pre }}
+                  </template>
+                  {{ item.mobile }}
+                </span>
               </p>
             </li>
 
+            <li>
+              <p class="name">{{ item.user_name }}</p>
+              <p v-if="item.user_username">
+                <i class="iconfont">&#xe632;</i>
+                <span>{{ item.user_username }}</span>
+              </p>
+              <p v-if="item.user_username">
+                <i class="iconfont" :class="{ cer: item.user_email_ok }">
+                  &#xe66f;
+                </i>
+                <span>{{ item.user_email }}</span>
+              </p>
+              <p v-if="item.user_mobile">
+                <i class="iconfont" :class="{ cer: item.user_mobile_ok }">
+                  &#xe678;
+                </i>
+                <span :class="{ cer: item.user_mobile_ok }">
+                  {{ item.user_mobile }}
+                </span>
+              </p>
+            </li>
             <li>
               <p v-if="item.user_roles.length">
                 <span>{{ item.user_roles.join('/') }}</span>
@@ -52,20 +101,24 @@
             <li>
               <p>
                 <i class="iconfont black">&#xe690;</i>
-                <span class="cer">{{ item.open_count }}{{ t('进行中项目') }}</span>
+                <span class="cer bold">
+                  {{ item.open_count }} {{ t('进行中项目') }}
+                </span>
               </p>
               <p style="padding-left: 20px">
-                <span>{{ item.close_count }}{{ t('已关闭项目') }}</span>
+                <span class="bold">{{ item.close_count }} {{ t('已关闭项目') }}</span>
               </p>
               <p>
                 <i class="iconfont black">&#xe751;</i>
-                <span class="cer">{{ item.apply_count }}{{ t('请求') }}</span>
+                <span class="cer bold">{{ item.apply_count }} {{ t('请求') }}</span>
               </p>
             </li>
 
             <li>
               <p>
-                <span class="cer">{{ item.is_expire ? t('有效') : t('无效') }}</span>
+                <span class="cer">
+                  {{ item.is_expire ? t('有效') : t('无效') }}
+                </span>
               </p>
               <p v-if="item.expire_time" :class="{ err: !item.is_expire }">
                 {{ tool.showDate(item.expire_time) }}
@@ -119,7 +172,7 @@ const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE;
 const checkedAll = ref(false);
 
 const itemcheck = () => {
-  const length = props.tableData.filter(item => item.checked).length;
+  const length = props.tableData.filter((item) => item.checked).length;
   checkedAll.value = length === props.tableData.length;
 };
 
@@ -143,9 +196,9 @@ const checkedAllHandle = () => {
   padding: 0 15px;
   font-size: 13px;
   &.header {
-    background-color: #fff;
-    border-radius: 10px;
-    border: 1px solid #fff;
+    // background-color: #fff;
+    // border-radius: 10px;
+    // border: 1px solid #fff;
     font-weight: 500;
     font-size: 12px;
   }
@@ -175,39 +228,44 @@ const checkedAllHandle = () => {
     }
     &.check {
       flex: 0 auto;
-      width: 30px;
+      width: 50px;
     }
     &:nth-child(2) {
       flex: 0 auto;
-      width: 100px;
-      text-align: center;
+      width: 80px;
+      align-items: center;
     }
     &:nth-child(3) {
       flex: 0 auto;
-      width: 170px;
+      width: 150px;
     }
     &:nth-child(4) {
       flex: 0 auto;
-      width: 130px;
-      text-align: center;
+      width: 120px;
     }
     &:nth-child(5) {
       flex: 0 auto;
-      width: 130px;
+      width: 120px;
       text-align: center;
     }
     &:nth-child(6) {
       flex: 0 auto;
-      width: 150px;
+      width: 130px;
+      text-align: center;
     }
     &:nth-child(7) {
+      flex: 0 auto;
+      width: 150px;
+    }
+    &:nth-child(8) {
       flex: 0 auto;
       width: 100px;
       text-align: center;
     }
     &:last-child {
       flex: 0 auto;
-      width: 30px;
+      width: 50px;
+      text-align: center;
     }
     > p {
       width: 100%;
@@ -235,6 +293,9 @@ const checkedAllHandle = () => {
           color: #000;
         }
         &.name {
+          font-weight: 500;
+        }
+        &.bold {
           font-weight: 500;
         }
       }

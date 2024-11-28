@@ -1,82 +1,92 @@
 <template>
   <a-modal
-    class="sys-form-content"
     :width="480"
     :open="open"
     :title="title"
     @cancel="closeModal"
+    class="sys-form-content"
   >
     <a-form ref="formRef" :model="form" :rules="rules" layout="vertical">
-      <a-form-item no-style>
+      <a-form-item name="mobile" :label="t('验证手机号')">
         <a-row :gutter="8">
-          <a-col :span="20">
-            <a-form-item name="email" :label="t('验证邮箱')">
-              <a-input
-                v-model:value="form.email"
-                :placeholder="t('验证邮箱')"
+          <a-col :span="6">
+            <a-form-item-rest>
+              <a-select
+                v-model:value="form.pre"
+                :options="preMobileOpts"
                 disabled
               />
-            </a-form-item>
+            </a-form-item-rest>
           </a-col>
-          <a-col :span="4" v-if="!verifyEmail.showCountdown">
-            <a-form-item label=" ">
+          <a-col :span="14">
+            <a-input
+              v-model:value="form.mobile"
+              :placeholder="t('验证手机号')"
+              disabled
+            />
+          </a-col>
+          <a-col :span="4" v-if="!verifyMobile.showCountdown">
+            <a-form-item-rest>
               <a-button
                 @click="handleVerify(false)"
-                block
                 type="dark"
+                block
                 class="verify-btn big"
               >
                 {{ t('验证') }}
               </a-button>
-            </a-form-item>
+            </a-form-item-rest>
           </a-col>
           <a-col :span="4" v-else>
-            <a-form-item label=" ">
-              <countdown v-model:show="verifyEmail.showCountdown" />
-            </a-form-item>
+            <a-form-item-rest>
+              <countdown v-model:show="verifyMobile.showCountdown" />
+            </a-form-item-rest>
           </a-col>
         </a-row>
       </a-form-item>
       <a-form-item
         name="code"
         :label="t('验证码V')"
-        v-show="verifyEmail.showCode"
+        v-show="verifyMobile.showCode"
       >
         <a-input v-model:value="form.code" :placeholder="t('验证码V')" />
       </a-form-item>
-      <a-form-item no-style>
+      <a-form-item name="newMobile" :label="t('新手机号')">
         <a-row :gutter="8">
-          <a-col :span="20">
-            <a-form-item name="newEmail" :label="t('新邮箱')">
-              <a-input
-                v-model:value="form.newEmail"
-                :placeholder="t('新邮箱')"
-              />
-            </a-form-item>
+          <a-col :span="6">
+            <a-form-item-rest>
+              <a-select v-model:value="form.newPre" :options="preMobileOpts" />
+            </a-form-item-rest>
           </a-col>
-          <a-col :span="4" v-if="!verifyEmail.showCountdownNew">
-            <a-form-item label=" ">
+          <a-col :span="14">
+            <a-input
+              v-model:value="form.newMobile"
+              :placeholder="t('新手机号')"
+            />
+          </a-col>
+          <a-col :span="4" v-if="!verifyMobile.showCountdownNew">
+            <a-form-item-rest>
               <a-button
                 @click="handleVerify(true)"
-                block
                 type="dark"
+                block
                 class="verify-btn big"
               >
                 {{ t('验证') }}
               </a-button>
-            </a-form-item>
+            </a-form-item-rest>
           </a-col>
           <a-col :span="4" v-else>
-            <a-form-item label=" ">
-              <countdown v-model:show="verifyEmail.showCountdownNew" />
-            </a-form-item>
+            <a-form-item-rest>
+              <countdown v-model:show="verifyMobile.showCountdownNew" />
+            </a-form-item-rest>
           </a-col>
         </a-row>
       </a-form-item>
       <a-form-item
         name="newCode"
         :label="t('验证码V')"
-        v-show="verifyEmail.showCodeNew"
+        v-show="verifyMobile.showCodeNew"
       >
         <a-input v-model:value="form.newCode" :placeholder="t('验证码V')" />
       </a-form-item>
@@ -88,7 +98,6 @@
           size="large"
           type="primary"
           style="width: 40%"
-          class="big"
           :loading="loading"
         >
           {{ t('提交') }}
@@ -101,23 +110,27 @@
 <script setup>
 import { ref, watch, reactive } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { sendCodeOldE, sendCodeNewE, changeEmail } from '@/api/orgs/form/index';
-import { EMAIL_RULE } from '@/constant';
+import {
+  sendCodeOldM,
+  sendCodeNewM,
+  changeMobile,
+} from '@/api/orgs/form/index';
 import countdown from '../components/countdown.vue';
 import useFormData from '@/utils/use-form-data';
 import { message } from 'ant-design-vue';
 import { trim } from 'lodash';
-import { useUserDetailStore } from '@/store';
+import { useOrgsDetailStore } from '@/store';
+import { preMobileOpts } from '@/constant';
 
 const { t } = useI18n();
 const loading = ref(false);
 const formRef = ref(null);
-const userDetailStore = useUserDetailStore();
+const orgsDetailStore = useOrgsDetailStore();
 
-const props = defineProps(['open', 'title', 'email']);
+const props = defineProps(['open', 'title']);
 const emit = defineEmits(['update:open']);
 
-const verifyEmail = reactive({
+const verifyMobile = reactive({
   showCode: false,
   showCountdown: false,
   showCodeNew: false,
@@ -127,24 +140,23 @@ const verifyEmail = reactive({
 
 // 表单数据
 const { form, assignFields } = useFormData({
-  email: '',
+  pre: '',
+  mobile: '',
   code: '',
-  newEmail: '',
+  newPre: '64',
+  newMobile: '',
   newCode: '',
+  uuid: '',
 });
 
 // 表单验证规则
 const rules = reactive({
-  newEmail: [
+  newMobile: [
     {
       required: true,
-      message: t('请输入') + t('邮箱'),
+      message: t('请输入') + t('手机号'),
       type: 'string',
       trigger: 'blur',
-    },
-    {
-      pattern: EMAIL_RULE,
-      message: t('邮箱格式不正确'),
     },
   ],
   code: [
@@ -162,43 +174,45 @@ const rules = reactive({
 });
 const closeModal = () => {
   emit('update:open', false);
-  Object.keys(verifyEmail).forEach((key) => {
-    verifyEmail[key] = false;
+  Object.keys(verifyMobile).forEach((key) => {
+    verifyMobile[key] = false;
   });
 };
 
 const handleVerify = (isNew) => {
   if (isNew) {
-    formRef.value.validate(['newEmail']).then(() => {
-      sendCodeNewE({ email: form.newEmail }).then(() => {
-        verifyEmail.showCountdownNew = true;
-        verifyEmail.showCodeNew = true;
+    formRef.value.validate(['newMobile']).then(() => {
+      sendCodeNewM({ pre: form.newPre, mobile: form.newMobile }).then(() => {
+        verifyMobile.showCountdownNew = true;
+        verifyMobile.showCodeNew = true;
       });
     });
   } else {
-    sendCodeOldE({ email: form.email }).then(() => {
-      verifyEmail.showCountdown = true;
-      verifyEmail.showCode = true;
-    });
+    sendCodeOldM({ pre: form.pre, mobile: form.mobile, uuid: form.uuid }).then(
+      () => {
+        verifyMobile.showCountdown = true;
+        verifyMobile.showCode = true;
+      }
+    );
   }
 };
 
 const save = () => {
-  formRef.value.validate(['newEmail']).then(() => {
+  formRef.value.validate(['newMobile']).then(() => {
     if (!trim(form.code) || !trim(form.newCode)) {
-      message.warning(t('请先做邮箱验证'));
+      message.warning(t('请先做手机号验证'));
       return;
     }
-    changeEmail({
+    changeMobile({
       ...form,
-      type: 1, // 邮箱
-      email: form.newEmail,
-      newEmail: undefined,
+      type: 2, // 手机号
+      mobile: form.newMobile,
+      newMobile: undefined,
     })
       .then(() => {
         loading.value = false;
         message.success(t('修改成功'));
-        userDetailStore.getUserInfo();
+        orgsDetailStore.setDetail();
         closeModal();
       })
       .catch(() => {
@@ -212,7 +226,10 @@ watch(
   (val) => {
     if (val) {
       assignFields({
-        email: props.email,
+        ...form,
+        mobile: orgsDetailStore.detail.mobile,
+        pre: orgsDetailStore.detail.pre,
+        uuid: orgsDetailStore.detail.uuid,
       });
     }
   }
@@ -224,6 +241,7 @@ watch(
 .submit-btn:hover {
   color: @clr_white;
 }
+
 .verify-btn {
   min-width: auto;
   padding: 0;

@@ -155,7 +155,6 @@ export default {
   "注册日期": "Date of Registration",
   "分配角色": "Assign Roles",
   "选择角色": "Choose roles",
-  "角色": 'roles',
   "注册于": "Registered",
   "进行中项目": "opened projects",
   "已关闭项目": "closed projects",

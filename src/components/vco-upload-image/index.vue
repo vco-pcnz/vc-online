@@ -44,7 +44,7 @@
 </template>
 
 <script setup name="UploadImage">
-  import { ref, onMounted } from 'vue';
+  import { ref, onMounted, watch } from 'vue';
   import { DeleteOutlined, PlusOutlined, LoadingOutlined } from '@ant-design/icons-vue';
   import { message } from 'ant-design-vue/es';
   import { useI18n } from 'vue-i18n';
@@ -150,6 +150,26 @@
     fileList.value = list;
   };
 
+  const initObjectFileList = (data) => {
+    const idArr = data.map(item => item.id || item.uuid)
+
+    const list = data.map(item => {
+      return {
+        uid: item.uuid || item.id || uidGenerator(),
+        name: item.real_name || item.name || getFileName(item.url),
+        status: 'done',
+        url: item.url,
+        response: {
+          status: 'history',
+          data: item.url
+        }
+      }
+    })
+
+    fileList.value = list;
+    emits('update:value', idArr);
+  }
+
   const beforeUpload = (file, tips) => {
     var fileType = file.type;
     if (fileType.indexOf('image') < 0) {
@@ -208,7 +228,8 @@
       item = uploadFiles[uploadFiles.length - 1].response.data;
     } else {
       for (var i = 0; i < uploadFiles.length; i++) {
-        item.push(uploadFiles[i].response.data);
+        const itemData = uploadFiles[i].response.status === 'history' ? uploadFiles[i].uid : uploadFiles[i].response.data
+        item.push(itemData);
       }
     }
     emits('update:value', item);
@@ -271,21 +292,56 @@
     }
   };
 
+  const hasData = (data) => {
+    if (data) {
+      if (typeof data === 'string') {
+        return !!data
+      } else if (data instanceof Array) {
+        return data.length
+      } else {
+        return Object.keys(data).length
+      }
+    } else {
+      return false
+    }
+  }
+
+  const notInit = ref(true)
+
   onMounted(() => {
     const token = getToken();
     headers.value = { Authorization: token };
-
-    const data = cloneDeep(props.value);
-    if (data) {
-      if (data instanceof Array) {
-        data.length && initFileList(data.join(','));
-      } else {
-        initFileList(data);
-      }
-    } else {
-      fileList.value = [];
-    }
   });
+
+  watch(
+    () => props.value,
+    (val) => {
+      if (hasData(val) && notInit.value) {
+        notInit.value = false
+        const data = cloneDeep(val);
+        if (data) {
+          if (data instanceof Array) {
+            if (data.length) {
+              if (typeof data[0] === 'string') {
+                initFileList(data.join(','));
+              } else if ((data[0].uuid || data[0].id ) && data[0].url) {
+                initObjectFileList(data)
+              }
+            }
+          } else if(typeof data === 'string') {
+            initFileList(data);
+          } else {
+            initObjectFileList([data])
+          }
+        } else {
+          fileList.value = [];
+        }
+      }
+    },
+    {
+      immediate: true
+    }
+  )
 </script>
 
 <style lang="less" scoped>

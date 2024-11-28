@@ -1,31 +1,14 @@
 <template>
   <div class="table-content">
     <div class="table-block">
-      <ul class="table-col header">
-        <li class="check" style="width: 0; padding: 0">
-          <!-- <a-checkbox
-            v-model:checked="checkedAll"
-            :indeterminate="indeterminate"
-            @change="checkedAllHandle"
-          ></a-checkbox> -->
-        </li>
-        <li>{{ t('缩略图t') }}</li>
-        <li>{{ t('利益相关者信息t') }}</li>
-        <li>{{ t('关联用户t') }}</li>
-        <li>{{ t('用户角色t') }}</li>
-        <li>{{ t('注册时间/创建时间t') }}</li>
-        <li>{{ t('项目数据t') }}</li>
-        <li>{{ t('状态t') }}</li>
-        <li>{{ t('操作t') }}</li>
-      </ul>
       <div v-if="tableData.length" class="table-body">
         <template v-for="item in tableData" :key="item.id">
           <ul class="table-col tr">
             <li class="check" style="width: 0; padding: 0">
               <!-- <a-checkbox
-                v-model:checked="item.checked"
-                @change="itemcheck"
-              ></a-checkbox> -->
+                              v-model:checked="item.checked"
+                              @change="itemcheck"
+                            ></a-checkbox> -->
             </li>
             <li>
               <vco-avatar v-if="item.avatar" :src="item.avatar" :radius="true" :round="false"></vco-avatar>
@@ -43,24 +26,10 @@
               </p>
               <p v-if="item.mobile">
                 <i class="iconfont" :class="{ cer: item.mobile_ok }">&#xe678;</i>
-                <span :class="{ cer: item.mobile_ok }">+{{ item.pre }} {{ item.mobile }}</span>
+                <span :class="{ cer: item.mobile_ok }">{{ item.pre }} {{ item.mobile }}</span>
               </p>
             </li>
-            <li>
-              <p class="name">{{ item.user_name }}</p>
-              <p v-if="item.user_username">
-                <i class="iconfont">&#xe632;</i>
-                <span>{{ item.user_username }}</span>
-              </p>
-              <p v-if="item.user_username">
-                <i class="iconfont" :class="{ cer: item.user_email_ok }">&#xe66f;</i>
-                <span>{{ item.user_email }}</span>
-              </p>
-              <p v-if="item.user_mobile">
-                <i class="iconfont" :class="{ cer: item.user_mobile_ok }">&#xe678;</i>
-                <span :class="{ cer: item.user_mobile_ok }">{{ item.user_mobile }}</span>
-              </p>
-            </li>
+
             <li>
               <p v-if="item.user_roles.length">
                 <span>{{ item.user_roles.join('/') }}</span>
@@ -110,7 +79,7 @@
                 <template #overlay>
                   <a-menu>
                     <a-menu-item key="0">
-                      <span @click="toDetail(item)">{{ t('查看详情') }}</span>
+                      <a>{{ t('查看详情') }}</a>
                     </a-menu-item>
                   </a-menu>
                 </template>
@@ -129,9 +98,6 @@ import { ref } from 'vue';
 import { Empty } from 'ant-design-vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
-import router from '@/router';
-import { useorgsDetailStore } from '@/store';
-const orgsDetailStore = useorgsDetailStore();
 
 const emits = defineEmits(['check']);
 
@@ -159,11 +125,6 @@ const itemcheck = () => {
 
 const checkedAllHandle = () => {
   emits('check', checkedAll.value);
-};
-
-// 跳转详情
-const toDetail = item => {
-  router.push({ path: '/orgs/detail', query: { id: item.uuid } });
 };
 </script>
 
@@ -214,7 +175,7 @@ const toDetail = item => {
     }
     &.check {
       flex: 0 auto;
-      width: 50px;
+      width: 30px;
     }
     &:nth-child(2) {
       flex: 0 auto;
@@ -227,30 +188,26 @@ const toDetail = item => {
     }
     &:nth-child(4) {
       flex: 0 auto;
-      width: 170px;
+      width: 130px;
+      text-align: center;
     }
     &:nth-child(5) {
       flex: 0 auto;
-      width: 170px;
+      width: 130px;
       text-align: center;
     }
     &:nth-child(6) {
       flex: 0 auto;
-      width: 170px;
-      text-align: center;
+      width: 150px;
     }
     &:nth-child(7) {
-      flex: 0 auto;
-      width: 170px;
-    }
-    &:nth-child(8) {
       flex: 0 auto;
       width: 100px;
       text-align: center;
     }
     &:last-child {
       flex: 0 auto;
-      width: 50px;
+      width: 30px;
     }
     > p {
       width: 100%;

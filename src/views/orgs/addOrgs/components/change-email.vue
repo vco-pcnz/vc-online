@@ -1,5 +1,11 @@
 <template>
-  <a-modal :width="480" :open="open" :title="title" @cancel="closeModal">
+  <a-modal
+    class="sys-form-content"
+    :width="480"
+    :open="open"
+    :title="title"
+    @cancel="closeModal"
+  >
     <a-form ref="formRef" :model="form" :rules="rules" layout="vertical">
       <a-form-item no-style>
         <a-row :gutter="8">
@@ -14,8 +20,13 @@
           </a-col>
           <a-col :span="4" v-if="!verifyEmail.showCountdown">
             <a-form-item label=" ">
-              <a-button @click="handleVerify(false)" block class="verify-btn">
-                {{ t("验证") }}
+              <a-button
+                @click="handleVerify(false)"
+                block
+                type="dark"
+                class="verify-btn big"
+              >
+                {{ t('验证') }}
               </a-button>
             </a-form-item>
           </a-col>
@@ -45,8 +56,13 @@
           </a-col>
           <a-col :span="4" v-if="!verifyEmail.showCountdownNew">
             <a-form-item label=" ">
-              <a-button @click="handleVerify(true)" block class="verify-btn">
-                {{ t("验证") }}
+              <a-button
+                @click="handleVerify(true)"
+                block
+                type="dark"
+                class="verify-btn big"
+              >
+                {{ t('验证') }}
               </a-button>
             </a-form-item>
           </a-col>
@@ -72,9 +88,10 @@
           size="large"
           type="primary"
           style="width: 40%"
+          class="big"
           :loading="loading"
         >
-          {{ t("提交") }}
+          {{ t('提交') }}
         </a-button>
       </div>
     </template>
@@ -82,23 +99,23 @@
 </template>
 
 <script setup>
-import { ref, watch, reactive } from "vue";
-import { useI18n } from "vue-i18n";
-import { sendCodeOldE, sendCodeNewE, changeEmail } from "@/api/profile";
-import { EMAIL_RULE } from "@/constant";
-import countdown from "../components/countdown.vue";
-import useFormData from "@/utils/use-form-data";
-import { message } from "ant-design-vue";
-import { trim } from "lodash";
-import { useUserDetailStore } from "@/store";
+import { ref, watch, reactive } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { sendCodeOldE, sendCodeNewE, changeEmail } from '@/api/orgs/form/index';
+import { EMAIL_RULE } from '@/constant';
+import countdown from '../components/countdown.vue';
+import useFormData from '@/utils/use-form-data';
+import { message } from 'ant-design-vue';
+import { trim } from 'lodash';
+import { useUserDetailStore } from '@/store';
 
 const { t } = useI18n();
 const loading = ref(false);
 const formRef = ref(null);
 const userDetailStore = useUserDetailStore();
 
-const props = defineProps(["open", "title", "email"]);
-const emit = defineEmits(["update:open"]);
+const props = defineProps(['open', 'title', 'email']);
+const emit = defineEmits(['update:open']);
 
 const verifyEmail = reactive({
   showCode: false,
@@ -110,10 +127,10 @@ const verifyEmail = reactive({
 
 // 表单数据
 const { form, assignFields } = useFormData({
-  email: "",
-  code: "",
-  newEmail: "",
-  newCode: "",
+  email: '',
+  code: '',
+  newEmail: '',
+  newCode: '',
 });
 
 // 表单验证规则
@@ -121,30 +138,30 @@ const rules = reactive({
   newEmail: [
     {
       required: true,
-      message: t("请输入") + t("邮箱"),
-      type: "string",
-      trigger: "blur",
+      message: t('请输入') + t('邮箱'),
+      type: 'string',
+      trigger: 'blur',
     },
     {
       pattern: EMAIL_RULE,
-      message: t("邮箱格式不正确"),
+      message: t('邮箱格式不正确'),
     },
   ],
   code: [
     {
       required: true,
-      message: t("请输入") + t("验证码V"),
+      message: t('请输入') + t('验证码V'),
     },
   ],
   newCode: [
     {
       required: true,
-      message: t("请输入") + t("验证码V"),
+      message: t('请输入') + t('验证码V'),
     },
   ],
 });
 const closeModal = () => {
-  emit("update:open", false);
+  emit('update:open', false);
   Object.keys(verifyEmail).forEach((key) => {
     verifyEmail[key] = false;
   });
@@ -152,7 +169,7 @@ const closeModal = () => {
 
 const handleVerify = (isNew) => {
   if (isNew) {
-    formRef.value.validate(["newEmail"]).then(() => {
+    formRef.value.validate(['newEmail']).then(() => {
       sendCodeNewE({ email: form.newEmail }).then(() => {
         verifyEmail.showCountdownNew = true;
         verifyEmail.showCodeNew = true;
@@ -167,9 +184,9 @@ const handleVerify = (isNew) => {
 };
 
 const save = () => {
-  formRef.value.validate(["newEmail"]).then(() => {
+  formRef.value.validate(['newEmail']).then(() => {
     if (!trim(form.code) || !trim(form.newCode)) {
-      message.warning(t("请先做邮箱验证"));
+      message.warning(t('请先做邮箱验证'));
       return;
     }
     changeEmail({
@@ -180,7 +197,7 @@ const save = () => {
     })
       .then(() => {
         loading.value = false;
-        message.success(t("修改成功"));
+        message.success(t('修改成功'));
         userDetailStore.getUserInfo();
         closeModal();
       })
@@ -203,9 +220,13 @@ watch(
 </script>
 
 <style scoped lang="less">
-@import "@/styles/variables.less";
+@import '@/styles/variables.less';
 .submit-btn:hover {
   color: @clr_white;
+}
+.verify-btn {
+  min-width: auto;
+  padding: 0;
 }
 
 .modal-footer {

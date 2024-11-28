@@ -1,13 +1,15 @@
 import { defineStore } from "pinia";
-import { getList, getCategory, getStakeholderTypet } from "@/api/orgs";
+import { getChildList, getCategory, getStakeholderTypet,getDetail } from "@/api/orgs";
 
-const useOrgsStore = defineStore("VcOnlineOrgs", {
+const useOrgsDetailStore = defineStore("VcOnlineOrgsDetail", {
   state: () => ({
+    detail:null,
     list: [],
     loading: false,
     category: [], //分类
     stakeholderTypet: [], // 字典获取code = stakeholder_type
     searchParams: {
+      uuid: "", //利益相关者的
       cid: "", //分类id 分类接口查询
       type: "", //字典获取code = stakeholder_type
       key: "all", // all，id，name，email，mobile，code
@@ -23,6 +25,11 @@ const useOrgsStore = defineStore("VcOnlineOrgs", {
     },
   }),
   actions: {
+    setDetail(id) {
+      return getDetail({id}).then((res) => {
+        this.detail = res;
+      });
+    },
     setSearchParams(data) {
       this.pagination.page = 1;
       this.searchParams = {
@@ -38,12 +45,15 @@ const useOrgsStore = defineStore("VcOnlineOrgs", {
       };
       this.getList();
     },
-    getList() {
+    getList(id) {
+      if (id) {
+        this.searchParams.uuid = id
+      }
       const param = this.searchParams;
       const page = this.pagination;
       this.loading = true;
       return new Promise((resolve, reject) => {
-        getList({
+        getChildList({
           ...param,
           ...page,
         })
@@ -71,4 +81,4 @@ const useOrgsStore = defineStore("VcOnlineOrgs", {
     },
   },
 });
-export default useOrgsStore;
+export default useOrgsDetailStore;

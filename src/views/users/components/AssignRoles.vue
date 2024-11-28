@@ -60,7 +60,7 @@ const rules = reactive({
   roles: [
     {
       required: true,
-      message: t('请选择') + t('选择角色'),
+      message: t('请选择') + t('角色'),
       type: 'array',
       trigger: 'blur',
     },

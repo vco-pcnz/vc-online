@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { formatMenus, toTreeData } from "@/router/router-utils";
 import { getUserInfo, getMenuList } from "@/api/user";
 import { getToken, setToken, removeToken } from "@/utils/token-util.js";
-import { login, logout } from "@/api/auth";
+import { login, logout, getSelectUsers } from "@/api/auth";
 import router from "@/router";
 
 const useUserStore = defineStore("VcOnlineUserInfo", {
@@ -71,9 +71,21 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
       return { menus, homePath };
     },
 
-    login(form) {
+    login(data) {
       return new Promise((resolve, reject) => {
-        login(form)
+        login(data)
+          .then((r) => {
+            r.access_token && this.setToken(r.access_token);
+            resolve(r);
+          })
+          .catch((e) => {
+            reject(e);
+          });
+      });
+    },
+    loginBySelectUser(data) {
+      return new Promise((resolve, reject) => {
+        getSelectUsers(data)
           .then((r) => {
             this.setToken(r.access_token);
             resolve();
@@ -83,7 +95,6 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
           });
       });
     },
-
     async logout() {
       if (router.currentRoute.value.name !== 'login') {
         await logout();

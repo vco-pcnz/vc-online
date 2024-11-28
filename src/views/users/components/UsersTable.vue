@@ -68,7 +68,7 @@
                   {{ item.org_stake }}
                 </span>
               </p>
-              <p v-if="item.stake_ok">
+              <p v-if="item.stake">
                 <i class="iconfont" :class="{ cer: item.stake_ok }">&#xe742;</i>
                 <span>
                   {{ item.stake }}

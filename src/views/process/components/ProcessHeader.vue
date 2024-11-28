@@ -8,7 +8,7 @@
         <slot name="right"></slot>
       </div>
     </div>
-    <div v-if="processData.length" class="process-bar-content">
+    <div v-if="stepData.length" class="process-bar-content">
       <div v-for="(item, index) in processData" :key="index" class="item" :class="getItemClass(index + 1, current)">
         <div class="check" :class="{'pointer': checkPointer(index + 1)}" @click="stepHandle(index + 1)">
           <i v-if="current === index + 1" class="iconfont">{{ current === processData.length ? '&#xe647;' : '&#xe779;'}}</i>

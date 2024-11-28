@@ -124,11 +124,18 @@
 </template>
 
 <script setup>
-  import { reactive, ref } from "vue";
+  import { reactive, ref, watch } from "vue";
   import { useI18n } from "vue-i18n";
   import { cloneDeep } from "lodash";
   import { QuestionCircleOutlined } from '@ant-design/icons-vue';
   import { projectApplySaveBorrowerInfo } from "@/api/process"
+
+  const props = defineProps({
+    infoData: {
+      type: Object,
+      default: () => {}
+    }
+  })
 
   const { t } = useI18n();
   const formRef = ref()
@@ -238,6 +245,10 @@
       delete params.company_number
       delete params.borrower_region
 
+      if (props.infoData && props.infoData.project_apply_sn) {
+        params.project_apply_sn = props.infoData.project_apply_sn
+      }
+
       subLoading.value = true
       projectApplySaveBorrowerInfo(params).then(() => {
         subLoading.value = false
@@ -249,6 +260,32 @@
       console.log('error', error);
     });
   }
+
+  const dataInit = () => {
+    const data = cloneDeep(props.infoData)
+    
+    for (const key in formState) {
+      if (key === 'company_number') {
+        formState[key] = data.borrower_type === 2 ? data.borrower_id_num : ''
+      } else {
+        formState[key] = data[key]
+      }
+    }
+    const areaArr = [data.borrower_region_one_id, data.borrower_region_two_id, data.borrower_region_three_id]
+    const areaStr = areaArr.filter(item => item).join(',')
+    formState.borrower_region = areaStr
+  }
+
+  watch(
+    () => props.infoData,
+    (val) => {
+      if (val) {
+        dataInit()
+      }
+    }, {
+      immediate: true
+    }
+  )
 </script>
 
 <style lang="less" scoped>

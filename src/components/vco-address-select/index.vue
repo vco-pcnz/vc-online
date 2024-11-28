@@ -39,7 +39,7 @@
 </template>
 
 <script setup>
-  import { ref, onMounted } from "vue"
+  import { ref, onMounted, watch } from "vue"
   import { useI18n } from "vue-i18n";
   import { systemCity } from "@/api/system"
 
@@ -118,8 +118,38 @@
     })
   }
 
+  const notInit = ref(true)
+
+  const pageInit = () => {
+    const arr = props.value.split(',')
+    province.value = Number(arr[0])
+    getData(1, Number(arr[0]))
+    if (arr[1]) {
+      getData(2, arr[1])
+    }
+
+    city.value = arr[1] ? Number(arr[1]) : undefined
+    region.value = arr[2] ? Number(arr[2]) : undefined
+  }
+
+  watch(
+    () => props.value,
+    (val) => {
+      if (val && notInit.value) {
+        notInit.value = false
+        pageInit()
+      }
+    },
+    {
+      immediate: true
+    }
+  )
+
   onMounted(() => {
     getData()
+    if (props.value) {
+      pageInit()
+    }
   })
 </script>
 

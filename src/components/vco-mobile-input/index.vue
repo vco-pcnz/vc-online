@@ -29,7 +29,7 @@
 </template>
 
 <script setup>
-  import { ref, computed, onMounted } from "vue"
+  import { ref, computed, onMounted, watch } from "vue"
   import { DownOutlined } from '@ant-design/icons-vue';
   import { cloneDeep } from "lodash"
   import { countries } from "./config"
@@ -116,14 +116,32 @@
     }
     return res
   })
-  
 
-  onMounted(() => {
+  const notInit = ref(true)
+  const dataInit = () => {
     areaCodeValue.value = props.areaCode ? `+${props.areaCode}` : '+64'
     mobileValue.value = props.value || ''
 
     const areaCode = props.areaCode || '64'
     emits('update:areaCode', areaCode)
+  }
+
+  watch(
+    () => props.value,
+    (val) => {
+      if (val && notInit.value) {
+        notInit.value = false
+
+        dataInit()
+      }
+    },
+    {
+      immediate: true
+    }
+  )
+  
+  onMounted(() => {
+    dataInit()
   })
 </script>
 

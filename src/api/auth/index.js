@@ -82,3 +82,19 @@ export const roleApply = (data) =>
     method: 'post',
     data,
   });
+
+// 登录多用户时选择一个账号
+export const getMobileCode = (data) =>
+  request({
+    url: '/getMobileCode',
+    method: 'post',
+    data,
+  });
+
+// 登录多用户时选择一个账号
+export const getSelectUsers = (data) =>
+  request({
+    url: '/selUser',
+    method: 'post',
+    data,
+  });

@@ -13,6 +13,7 @@ import VcoMobileInput from './vco-mobile-input/index.vue'
 import VcoUploadImage from './vco-upload-image/index.vue'
 import VcoAddressSelect from './vco-address-select/index.vue'
 import AuthTemplate from './auth/index.vue'
+import Countdown from './vco-countdown/Countdown.vue'
 
 export default {
   install(Vue) {
@@ -31,5 +32,6 @@ export default {
     Vue.component('VcoUploadImage', VcoUploadImage)
     Vue.component('VcoAddressSelect', VcoAddressSelect)
     Vue.component('AuthTemplate', AuthTemplate)
+    Vue.component('VcoCountdown', Countdown)
   }
 }

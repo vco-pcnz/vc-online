@@ -14,7 +14,7 @@ export default {
   "请上传": "Please upload ",
   "邮箱": "Email",
   "密码": "Password",
-  "忘记密码": "Forgot your password?Upload",
+  "忘记密码": "Forgot your password?",
   "密码重置": "Reset password",
   "邮箱格式不正确": "Not a valid email",
   "名": "First name",
@@ -154,7 +154,7 @@ export default {
   "组织名": "Organization Name",
   "注册日期": "Date of Registration",
   "分配角色": "Assign Roles",
-  "选择角色": "Choose role",
+  "选择角色": "Choose roles",
   "注册于": "Registered",
   "进行中项目": "opened projects",
   "已关闭项目": "closed projects",
@@ -222,5 +222,9 @@ export default {
   "上传头像":"Avatar",
   "编辑":"Edit",
   "详情":"Details",
-  "添加人员":"Add Member"
+  "添加人员":"Add Member",
+  "账号": "Account",
+  "手机": "Cellphone",
+  "验证码": "Verification code",
+  "选择登录账号": "Select login account"
 }

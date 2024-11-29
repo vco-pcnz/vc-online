@@ -5,10 +5,18 @@
         <a-form-item name="roles" :label="t('用户角色')">
           <a-select
             v-model:value="form.roles"
-            :options="roleOptions"
             mode="multiple"
             :placeholder="t('选择角色')"
-          />
+          >
+            <a-select-option
+              v-for="(item, index) in roleOptions"
+              :key="item.value || index"
+              :value="item.value"
+              :disabled="item.disabled"
+            >
+              {{ item.label }}
+            </a-select-option>
+          </a-select>
         </a-form-item>
       </a-form>
     </div>
@@ -43,8 +51,10 @@ const usersStore = useUsersStore();
 
 const roleOptions = computed(() => {
   return usersStore.roleList.map((item) => ({
+    ...item,
     label: item.name,
     value: item.id,
+    disabled: item.status !== 1
   }));
 });
 

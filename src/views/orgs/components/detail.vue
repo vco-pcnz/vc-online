@@ -1,9 +1,9 @@
 <template>
   <ul class="orgs-info">
     <li>
-      <a-button type="cyan" shape="round" class="edit" @click="navigationTo('/orgs/addOrgs')">{{ t('编辑') }}</a-button>
+      <a-button v-if="showEdit" type="cyan" shape="round" class="edit" @click="navigationTo('/orgs/addOrgs?id='+orgsDetailStore.detail?.uuid+'&isEdit='+true)">{{ t('编辑') }}</a-button>
       <div class="avatar-box">
-        <vco-avatar :src="orgsDetailStore.detail?.avatar" :size="124"></vco-avatar>
+        <vco-avatar :src="orgsDetailStore.detail?.avatar" :size="100"></vco-avatar>
       </div>
       <p>
         <span class="label"><i class="iconfont" :class="{ cer: orgsDetailStore.detail?.name }">&#xe679;</i></span>
@@ -30,7 +30,7 @@
       </p>
       <p>
         <span class="label"><i class="iconfont" :class="{ cer: orgsDetailStore.detail?.mobile_ok }">&#xe678;</i>{{ t('手机号') }}: </span>
-        <span class="value">+{{ orgsDetailStore.detail?.pre }} {{ orgsDetailStore.detail?.mobile }}</span>
+        <span class="value" v-if="orgsDetailStore.detail?.mobile">+{{ orgsDetailStore.detail?.pre }} {{ orgsDetailStore.detail?.mobile }}</span>
       </p>
       <p>
         <span class="label"><i class="iconfont">&#xe814;</i>{{ t('地址') }}: </span>
@@ -48,33 +48,43 @@
     <li>
       <p>
         <span class="label"><i class="iconfont">&#xe690;</i></span>
-        <span class="cer"> {{ orgsDetailStore.detail?.open_count }}{{ t('进行中项目') }} </span>
+        <span class="cer"> {{ orgsDetailStore.detail?.open_count }} {{ t('进行中项目') }} </span>
       </p>
       <p style="padding-left: 20px">
-        <span class="label"> {{ orgsDetailStore.detail?.close_count }}{{ t('已关闭项目') }} </span>
+        <span class="label"> {{ orgsDetailStore.detail?.close_count }} {{ t('已关闭项目') }} </span>
       </p>
       <p>
         <span class="label"><i class="iconfont">&#xe751;</i></span>
-        <span class="cer">{{ orgsDetailStore.detail?.apply_count }}{{ t('请求') }}</span>
+        <span class="cer">{{ orgsDetailStore.detail?.apply_count }} {{ t('请求') }}</span>
       </p>
     </li>
   </ul>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, onMounted,watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useorgsDetailStore } from '@/store';
+import { useOrgsDetailStore } from '@/store';
 import { useRoute } from 'vue-router';
+import { navigationTo } from '@/utils/tool';
 const route = useRoute();
 
 const { t } = useI18n();
-const orgsDetailStore = useorgsDetailStore();
+const orgsDetailStore = useOrgsDetailStore();
+const props = defineProps({
+  showEdit: {
+    type: Boolean,
+    default: true
+  },
+});
 
 onMounted(() => {
   // 加载数据
-  orgsDetailStore.setDetail(route.query.id);
+  if (!orgsDetailStore.detail || orgsDetailStore.detail.uuid !== route.query.id) {
+    orgsDetailStore.setDetail();
+  }
 });
+
 </script>
 
 <style lang="less" scoped>

@@ -2,14 +2,14 @@
   <auth-template>
     <template #header>
       <router-link to="/register">
-        <a-button type="cyan" shape="round">{{ t("注册") }}</a-button>
+        <a-button type="cyan" shape="round">{{ t('注册') }}</a-button>
       </router-link>
     </template>
     <template #content>
       <div class="login_content">
         <div class="login_form_title">
           <h1>
-            <span class="vc_text">VC </span>
+            <span class="vc_text">VC&nbsp;</span>
             <span class="online_text">Online</span>
           </h1>
         </div>
@@ -19,62 +19,146 @@
           :rules="rules"
           class="login_form_container"
         >
-          <a-form-item name="email">
+          <a-form-item name="mode">
+            <a-radio-group v-model:value="form.mode" class="login_mode_radio">
+              <a-radio
+                v-for="item in loginModeOptions"
+                :key="item.value"
+                :disabled="item.disabled"
+                :value="item.value"
+              >
+                {{ item.label }}
+              </a-radio>
+            </a-radio-group>
+          </a-form-item>
+          <a-form-item name="email" v-if="form.mode === 1">
             <a-input
-              class="login_input_content"
               v-model:value="form.email"
               :placeholder="t('邮箱')"
               autoComplete="on"
               bordered
             />
           </a-form-item>
-          <a-form-item name="password">
+          <a-form-item name="mobile" v-if="form.mode === 2 || form.mode === 3">
+            <vco-mobile-input
+              v-model:value="form.mobile"
+              v-model:areaCode="form.pre"
+              :disabled="false"
+              class="login_form_button"
+            ></vco-mobile-input>
+          </a-form-item>
+          <a-form-item
+            name="password"
+            v-if="form.mode === 1 || form.mode === 2"
+          >
             <a-input
               type="password"
               v-model:value="form.password"
-              class="login_input_content"
               :placeholder="t('密码')"
               autoComplete="on"
               @pressEnter="submit"
             />
           </a-form-item>
+          <a-form-item no-style v-if="form.mode === 3">
+            <a-row :gutter="8">
+              <a-col :span="18">
+                <a-form-item name="code">
+                  <a-input
+                    v-model:value="form.code"
+                    :placeholder="t('验证码V')"
+                  />
+                </a-form-item>
+              </a-col>
+              <a-col :span="6" v-if="!showCountdown">
+                <a-form-item class="login_form_button">
+                  <a-button block @click="handleVerify()">
+                    {{ t('验证') }}
+                  </a-button>
+                </a-form-item>
+              </a-col>
+              <a-col :span="6" v-else>
+                <a-form-item class="login_form_button">
+                  <vco-countdown
+                    v-model:show="showCountdown"
+                    class="login_countdown_button"
+                  />
+                </a-form-item>
+              </a-col>
+            </a-row>
+          </a-form-item>
           <p class="forgot">
             <router-link class="forgot_link" to="/forgot-reset">
-              {{ t("忘记密码") }}
+              {{ t('忘记密码') }}
             </router-link>
           </p>
           <a-form-item class="login_submit mt-4">
-            <a-button size="large" class="big bold" shape="round" :loading="loading" @click="submit">
-              {{ t("登录") }}
+            <a-button
+              size="large"
+              class="big bold"
+              shape="round"
+              :loading="loading"
+              @click="submit"
+            >
+              {{ t('登录') }}
             </a-button>
           </a-form-item>
         </a-form>
       </div>
     </template>
   </auth-template>
+  <select-account
+    v-if="open"
+    v-model:open="open"
+    :accountList="accountList"
+    @loginSuccessCb="loginSuccessCb"
+  />
 </template>
 
 <script setup>
-import { ref, reactive } from "vue";
-import { useI18n } from "vue-i18n";
-import { message } from "ant-design-vue/es";
-import { useRoute } from "vue-router"
-import router from "@/router";
+import { ref, reactive, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { message } from 'ant-design-vue/es';
+import { useRoute } from 'vue-router';
+import router from '@/router';
 import { useUserStore } from '@/store';
+import SelectAccount from './components/SelectAccount.vue';
+import { getMobileCode } from '@/api/auth';
+import { EMAIL_RULE } from '@/constant';
 
 const { t } = useI18n();
-const route = useRoute()
+const route = useRoute();
 
 const formRef = ref();
-const userStore = useUserStore()
+const userStore = useUserStore();
+const open = ref(false);
+const accountList = ref(false);
+const showCountdown = ref(false);
+
+const loginModeOptions = [
+  {
+    value: 1,
+    label: t('邮箱'),
+  },
+  {
+    value: 2,
+    label: t('手机'),
+  },
+  {
+    value: 3,
+    label: t('验证码'),
+  },
+];
 
 // 加载状态
 const loading = ref(false);
 
 // 表单数据
 const form = reactive({
-  email: "",
-  password: "",
+  mode: 1,
+  email: '',
+  password: '',
+  pre: '64',
+  mobile: '',
 });
 
 // 表单验证规则
@@ -82,30 +166,79 @@ const rules = reactive({
   email: [
     {
       required: true,
-      message: t("请输入") + t("邮箱"),
-      type: "string",
-      trigger: "blur",
+      message: t('请输入') + t('邮箱'),
+      type: 'string',
+      trigger: 'blur',
     },
     {
-      pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-      message: t("邮箱格式不正确"),
+      pattern: EMAIL_RULE,
+      message: t('邮箱格式不正确'),
     },
   ],
   password: [
     {
       required: true,
-      message: t("请输入") + t("密码"),
-      type: "string",
-      trigger: "blur",
+      message: t('请输入') + t('密码'),
+      type: 'string',
+      trigger: 'blur',
+    },
+  ],
+  mobile: [
+    {
+      required: true,
+      message: t('请输入') + t('手机号'),
+      type: 'string',
+      trigger: 'blur',
+    },
+  ],
+  code: [
+    {
+      required: true,
+      message: t('请输入') + t('验证码V'),
+      type: 'string',
+      trigger: 'blur',
     },
   ],
 });
 
 function goHomeRoute() {
   const redirect = route.query.redirect || '/';
-  console.log('redirect', redirect)
   router.replace(redirect);
 }
+
+const handleVerify = () => {
+  getMobileCode({ pre: form.pre, mobile: form.mobile }).then(() => {
+    showCountdown.value = true;
+  });
+};
+
+const loginSuccessCb = () => {
+  loading.value = false;
+  goHomeRoute();
+  message.success(t('登录成功'));
+};
+
+const loginParams = () => {
+  const { email, password, mobile, pre, code } = form;
+  if (form.mode === 1) {
+    return {
+      email,
+      password,
+    };
+  } else if (form.mode === 2) {
+    return {
+      pre,
+      mobile,
+      password,
+    };
+  } else if (form.mode === 3) {
+    return {
+      pre,
+      mobile,
+      code,
+    };
+  }
+};
 
 const submit = () => {
   if (!formRef.value) {
@@ -115,10 +248,15 @@ const submit = () => {
     .validate()
     .then(() => {
       loading.value = true;
-      userStore.login(form)
-        .then(() => {
-          goHomeRoute();
-          message.success(t("登录成功"));
+      userStore
+        .login(loginParams())
+        .then((res) => {
+          if (res.user) {
+            open.value = true;
+            accountList.value = res.user;
+          } else {
+            loginSuccessCb();
+          }
         })
         .catch(() => {
           loading.value = false;
@@ -126,17 +264,24 @@ const submit = () => {
     })
     .catch(() => {});
 };
+
+watch(open, (newVal, oldVal) => {
+  if (!newVal && oldVal) {
+    showCountdown.value = false;
+    loading.value = false;
+  }
+});
 </script>
 
 <style scoped lang="less">
-@import "@/styles/variables.less";
+@import '@/styles/variables.less';
 
 .login_content {
   padding: 72px 84px;
   color: @clr_white;
 
   @media (max-width: 560px) {
-    padding: 48px 24px;
+    padding: 48px 18px;
   }
 
   .login_form_title {
@@ -164,10 +309,10 @@ const submit = () => {
     align-items: stretch;
     width: 100%;
 
-    .login_input_content {
-      box-sizing: border-box;
+    // ----------------------input-----------------
+    :deep(.ant-input) {
       width: 100%;
-      padding: 24px;
+      padding: 18px;
       border-radius: 10px;
       background-color: transparent;
       background: transparent;
@@ -176,28 +321,74 @@ const submit = () => {
     }
 
     // placeholder color
-    .login_input_content::-webkit-input-placeholder {
-      color: @clr_white;
+    :deep(.ant-input::-webkit-input-placeholder) {
+      color: @color_grayer;
     }
 
-    .ant-input-status-error:not(.ant-input-disabled):not(
-        .ant-input-borderless
-      ).ant-input,
-    .ant-input-status-error:not(.ant-input-disabled):not(
-        .ant-input-borderless
-      ).ant-input:hover {
+    :deep(.ant-input:hover) {
+      border-color: @clr_white;
+      border-inline-end-width: 1px;
+    }
+
+    :deep(
+        .ant-input-status-error:not(.ant-input-disabled):not(
+            .ant-input-borderless
+          ).ant-input
+      ),
+    :deep(
+        .ant-input-status-error:not(.ant-input-disabled):not(
+            .ant-input-borderless
+          ).ant-input:hover
+      ) {
       background: transparent;
       border-color: @clr_white;
     }
 
-    :v-deep .ant-input:-webkit-input-placeholder {
-      color: @color_white_50;
+    // -----------------button----------------------
+    .login_form_button {
+      :deep(.ant-btn) {
+        padding: 18px;
+        height: auto;
+        border-radius: 10px;
+      }
+      :deep(.ant-btn:hover) {
+        border-color: @clr_white;
+        border-inline-end-width: 1px;
+      }
     }
 
-    //  hover到input框上的样式
-    .ant-input:hover {
-      border-color: @clr_white;
-      border-inline-end-width: 1px;
+    .login_countdown_button {
+      background-color: @clr_white;
+      color: @clr_charcoal;
+    }
+
+    // -----------------dropdown select-------------
+    :deep(.ant-dropdown-trigger) {
+      background: transparent;
+      color: @clr_white;
+    }
+
+    // --------------radio-----------------
+    :deep(.ant-radio) {
+      color: @clr_white;
+    }
+
+    :deep(.ant-radio-wrapper .ant-radio-checked .ant-radio-inner) {
+      border: @clr_cyan;
+      background-color: @clr_cyan;
+    }
+
+    :deep(.ant-radio-wrapper:hover .ant-radio-inner) {
+      border-color: @clr_cyan;
+    }
+
+    :deep(.ant-radio-wrapper) {
+      color: @clr_white;
+    }
+
+    .login_mode_radio {
+      display: flex;
+      justify-content: space-between;
     }
 
     .login_submit {

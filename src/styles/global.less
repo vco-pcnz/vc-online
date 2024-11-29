@@ -2,12 +2,16 @@
 @import 'animation.less';
 @import './variables.less';
 
-html, body, #app {
+html,
+body,
+#app {
   color: #181818;
   font-size: 14px;
 }
 
-html, body, #app,
+html,
+body,
+#app,
 [class^="ant"],
 [class*=" ant-spin"],
 [class*=" ant-btn"] {
@@ -24,8 +28,10 @@ html, body, #app,
 }
 
 ::selection {
-  background-color: #d5b585; /* 选中背景颜色 */
-  color: #ffffff; /* 选中文字颜色 */
+  background-color: #d5b585;
+  /* 选中背景颜色 */
+  color: #ffffff;
+  /* 选中文字颜色 */
 }
 
 .ant-modal-mask {
@@ -60,7 +66,8 @@ a:hover {
 
 /* 自定义进度条颜色 */
 #nprogress .bar {
-  background: @colorPrimary; /* 修改为你需要的颜色 */
+  background: @colorPrimary;
+  /* 修改为你需要的颜色 */
   box-shadow: none;
 }
 
@@ -93,22 +100,30 @@ a:hover {
 
 // 表单样式
 .sys-form-content {
-  .ant-form-item-label > label {
+  .ant-form-item-label>label {
     font-size: 12px;
     color: #888;
   }
+
   .area-code-btn,
   .ant-picker,
   .ant-select-selector,
-  .ant-input {
+  .ant-input,
+  .ant-input-password  {
     height: 50px !important;
     border-color: rgba(39, 39, 39, 1) !important;
     border-radius: 10px !important;
     background-color: #f7f9f8;
+
     &:focus {
       border-color: @colorPrimary !important;
     }
   }
+
+  .ant-input-password {
+    height: auto !important;
+  }
+
   .ant-picker-focused,
   .ant-select-open .ant-select-selector {
     border-color: @colorPrimary !important;
@@ -116,6 +131,7 @@ a:hover {
 
   .ant-select-selector {
     background-color: #f7f9f8 !important;
+
     .ant-select-selection-placeholder,
     .ant-select-selection-search-input,
     .ant-select-selection-item {
@@ -152,9 +168,11 @@ a:hover {
 
 .ant-btn-primary-line {
   border-color: @colorPrimary;
+
   &:disabled {
     opacity: 0.65;
   }
+
   &:hover {
     opacity: 0.8;
   }
@@ -162,19 +180,24 @@ a:hover {
 
 .ant-btn-cyan {
   background-color: #B4F1DB;
+
   &.ant-btn-loading {
     background-color: #B4F1DB !important;
   }
+
   &:hover {
     background-color: #c7f6e5;
   }
+
   &:disabled {
     background-color: rgba(199, 246, 229, 0.4);
     border-color: rgba(199, 246, 229, 0.4);
     color: rgba(0, 0, 0, 0.4) !important;
   }
+
   .ant-wave {
     box-shadow: 0 0 0 0 rgba(36, 226, 158, 0.4);
+
     &.wave-motion-appear-active {
       box-shadow: 0 0 0 6px rgba(36, 226, 158, 0.4);
     }
@@ -183,9 +206,11 @@ a:hover {
 
 .ant-btn-cyan-line {
   border-color: #3fdea4;
+
   &:disabled {
     opacity: 0.65;
   }
+
   &:hover {
     opacity: 0.8;
   }
@@ -193,42 +218,52 @@ a:hover {
 
 .ant-btn-grey {
   background-color: #F3EDE5;
+
   &.ant-btn-loading {
     background-color: #F3EDE5 !important;
+
     &:hover {
       color: #272727 !important;
     }
   }
+
   &:hover {
     color: #fff !important;
     background-color: #272727;
   }
+
   &:disabled {
     background-color: rgba(243, 237, 229, 0.4);
     border-color: rgba(243, 237, 229, 0.4);
     color: rgba(0, 0, 0, 0.4) !important;
   }
+
   .ant-wave {
-    box-shadow: 0 0 0 0 rgba(0, 0,0, 0.65);
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.65);
+
     &.wave-motion-appear-active {
-      box-shadow: 0 0 0 6px rgba(0, 0,0, 0.65);
+      box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.65);
     }
   }
 }
 
 .ant-btn-grey-line {
   border-color: #e2dbd1;
+
   &:disabled {
     opacity: 0.65;
     border-color: #e2dbd1 !important;
   }
+
   &:hover {
     border-color: #272727;
   }
+
   .ant-wave {
-    box-shadow: 0 0 0 0 rgba(0, 0,0, 0.65);
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.65);
+
     &.wave-motion-appear-active {
-      box-shadow: 0 0 0 6px rgba(0, 0,0, 0.65);
+      box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.65);
     }
   }
 }
@@ -236,38 +271,47 @@ a:hover {
 .ant-btn-dark {
   background-color: #272727;
   color: #fff !important;
+
   &.ant-btn-loading {
     background-color: #272727 !important;
   }
+
   &:hover {
     color: #fff !important;
     background-color: #404040;
   }
+
   &:disabled {
     background-color: rgba(0, 0, 0, 0.4);
     border-color: rgba(0, 0, 0, 0.4);
     color: rgba(255, 255, 255, 0.8) !important;
   }
+
   .ant-wave {
-    box-shadow: 0 0 0 0 rgba(0, 0,0, 0.65);
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.65);
+
     &.wave-motion-appear-active {
-      box-shadow: 0 0 0 6px rgba(0, 0,0, 0.65);
+      box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.65);
     }
   }
 }
 
 .ant-btn-dark-line {
   border-color: #272727;
+
   &:disabled {
     opacity: 0.65;
   }
+
   &:hover {
     opacity: 0.8;
   }
+
   .ant-wave {
-    box-shadow: 0 0 0 0 rgba(0, 0,0, 0.65);
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.65);
+
     &.wave-motion-appear-active {
-      box-shadow: 0 0 0 6px rgba(0, 0,0, 0.65);
+      box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.65);
     }
   }
 }
@@ -276,12 +320,14 @@ a:hover {
   height: 48px;
   min-width: 160px;
   padding: 4px 25px;
+
   &.shadow {
     box-shadow: 0 20px 20px -19px #181818;
   }
 }
 
 .ant-btn {
+
   // letter-spacing: 1px;
   &.bold {
     font-weight: bold;

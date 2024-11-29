@@ -22,17 +22,18 @@
     </vco-page-search-item>
 
     <vco-page-search-item width="100%">
-      <a-button @click="searchHandle"
-        ><i class="iconfont">&#xe756;</i>{{ t("搜索") }}</a-button
-      >
+      <a-button type="dark-line" @click="searchHandle">
+        <i class="iconfont">&#xe756;</i>
+        {{ t('搜索') }}
+      </a-button>
     </vco-page-search-item>
   </vco-page-search>
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { useI18n } from "vue-i18n";
-import { useNoticeStore } from "@/store";
+import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useNoticeStore } from '@/store';
 
 const noticeStore = useNoticeStore();
 
@@ -40,28 +41,28 @@ const { t } = useI18n();
 
 const statusData = [
   {
-    label: t("全部"),
-    value: "all",
+    label: t('全部'),
+    value: 'all',
   },
   {
-    label: t("未读"),
-    value: "unread",
+    label: t('未读'),
+    value: 'unread',
   },
   {
-    label: t("已读"),
-    value: "already",
+    label: t('已读'),
+    value: 'already',
   },
 ];
 
 const KeywordsData = [
   {
-    label: t("关键字"),
-    value: "",
+    label: t('关键字'),
+    value: '',
   },
 ];
 
 const searchForm = ref({
-  key: "all",
+  key: 'all',
   keywords: undefined,
 });
 
@@ -73,7 +74,7 @@ const searchHandle = () => {
 
 <style scoped lang="less">
 .search-container {
-  margin-top: 0;
+  margin-top: -21px;
   gap: 5px;
 }
 </style>

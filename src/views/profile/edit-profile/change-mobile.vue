@@ -21,7 +21,7 @@
           </a-col>
           <a-col :span="4" v-if="!verifyMobile.showCountdown">
             <a-form-item-rest>
-              <a-button @click="handleVerify(false)" block class="verify-btn">
+              <a-button @click="handleVerify(false)" block class="verify-btn" type="dark">
                 {{ t("验证") }}
               </a-button>
             </a-form-item-rest>
@@ -55,7 +55,7 @@
           </a-col>
           <a-col :span="4" v-if="!verifyMobile.showCountdownNew">
             <a-form-item-rest>
-              <a-button @click="handleVerify(true)" block class="verify-btn">
+              <a-button @click="handleVerify(true)" block class="verify-btn" type="dark">
                 {{ t("验证") }}
               </a-button>
             </a-form-item-rest>

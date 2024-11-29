@@ -1,16 +1,16 @@
 <template>
-  <a-button block class="countdown-btn" disabled>
+  <a-button block class="big countdown-btn" type="dark">
     {{ countdown }}
   </a-button>
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch } from "vue";
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 
 const countdown = ref(59);
 let intervalId = null;
 
-const emit = defineEmits(["update:show"]);
+const emit = defineEmits(['update:show']);
 const startCountdown = () => {
   intervalId = setInterval(() => {
     if (countdown.value > 0) {
@@ -24,7 +24,7 @@ const startCountdown = () => {
 const stopCountdown = () => {
   clearInterval(intervalId);
   intervalId = null;
-  emit("update:show", false);
+  emit('update:show', false);
 };
 
 onMounted(() => {
@@ -43,9 +43,14 @@ watch(countdown, (val) => {
 </script>
 
 <style scoped lang="less">
-@import "@/styles/variables.less";
 .countdown-btn {
-  background-color: @clr_charcoal;
-  color: @clr_white;
+  cursor: not-allowed;
+  border-color: #d9d9d9;
+  box-shadow: none;
+
+  &:hover {
+    background-color: #272727;
+    color: #fff;
+  }
 }
 </style>

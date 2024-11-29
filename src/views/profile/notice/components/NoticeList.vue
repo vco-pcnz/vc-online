@@ -10,7 +10,7 @@
         </li>
         <li>
           <a-button
-            type="primary"
+            type="cyan"
             @click="handleMarkRead"
             :disabled="!noticeStore.selectedNoticeIds.length"
           >
@@ -19,7 +19,7 @@
         </li>
         <li>
           <a-button
-            type="primary"
+            type="cyan"
             @click="handleAllRead"
             :disabled="!noticeList.length"
           >

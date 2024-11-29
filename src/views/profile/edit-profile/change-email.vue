@@ -21,7 +21,7 @@
           </a-col>
           <a-col :span="4" v-else>
             <a-form-item label=" ">
-              <countdown v-model:show="verifyEmail.showCountdown" />
+              <countdown v-model:show="verifyEmail.showCountdown" :notInModal="false" />
             </a-form-item>
           </a-col>
         </a-row>
@@ -52,7 +52,7 @@
           </a-col>
           <a-col :span="4" v-else>
             <a-form-item label=" ">
-              <countdown v-model:show="verifyEmail.showCountdownNew" />
+              <countdown v-model:show="verifyEmail.showCountdownNew" :notInModal="false"/>
             </a-form-item>
           </a-col>
         </a-row>
@@ -70,7 +70,7 @@
         <a-button
           @click="save"
           size="large"
-          type="primary"
+          type="cyan"
           style="width: 40%"
           :loading="loading"
         >

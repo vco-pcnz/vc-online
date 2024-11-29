@@ -1,5 +1,5 @@
 <template>
-  <a-button block class="big countdown-btn" type="dark">
+  <a-button block :class="['countdown-btn', { 'big': notInModal }]" type="dark">
     {{ countdown }}
   </a-button>
 </template>
@@ -9,7 +9,10 @@ import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 
 const countdown = ref(59);
 let intervalId = null;
-
+const props = defineProps({
+  notInModal: Boolean,
+  default: true,
+});
 const emit = defineEmits(['update:show']);
 const startCountdown = () => {
   intervalId = setInterval(() => {

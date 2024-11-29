@@ -28,7 +28,7 @@
           </a-col>
           <a-col :span="4" v-else>
             <a-form-item-rest>
-              <countdown v-model:show="verifyMobile.showCountdown" />
+              <countdown v-model:show="verifyMobile.showCountdown"  :notInModal="false" />
             </a-form-item-rest>
           </a-col>
         </a-row>
@@ -62,7 +62,7 @@
           </a-col>
           <a-col :span="4" v-else>
             <a-form-item-rest>
-              <countdown v-model:show="verifyMobile.showCountdownNew" />
+              <countdown v-model:show="verifyMobile.showCountdownNew" :notInModal="false" />
             </a-form-item-rest>
           </a-col>
         </a-row>
@@ -80,7 +80,7 @@
         <a-button
           @click="save"
           size="large"
-          type="primary"
+          type="cyan"
           style="width: 40%"
           :loading="loading"
         >

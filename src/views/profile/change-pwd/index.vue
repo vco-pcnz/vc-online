@@ -30,10 +30,10 @@
                 <a-col :span="4">
                   <a-form-item label=" ">
                     <a-button
-                    type="dark"
-                    block
-                    class="big"
-                    @click="handleVerify(VERIFY_KEY.EMAIL)"
+                      type="dark"
+                      block
+                      class="big"
+                      @click="handleVerify(VERIFY_KEY.EMAIL)"
                     >
                       {{ t('验证') }}
                     </a-button>
@@ -45,18 +45,9 @@
           <template v-if="form.type === 2">
             <a-form-item :label="t('手机号')" name="mobile">
               <a-row :gutter="8">
-                <a-col :span="4">
-                  <a-form-item-rest>
-                    <a-select
-                      v-model:value="form.pre"
-                      :options="preMobileOpts"
-                      class="pre_mobile"
-                      :disabled="true"
-                    />
-                  </a-form-item-rest>
-                </a-col>
-                <a-col :span="16">
-                  <a-input
+                <a-col :span="20">
+                  <vco-mobile-input
+                    v-model:areaCode="form.pre"
                     v-model:value="form.mobile"
                     :placeholder="t('手机号')"
                     :disabled="true"
@@ -64,7 +55,12 @@
                 </a-col>
                 <a-col :span="4" v-if="!showCountdown">
                   <a-form-item-rest>
-                    <a-button @click="handleVerify(VERIFY_KEY.MOBILE)" block  type="dark" class="big">
+                    <a-button
+                      @click="handleVerify(VERIFY_KEY.MOBILE)"
+                      block
+                      type="dark"
+                      class="big"
+                    >
                       {{ t('验证') }}
                     </a-button>
                   </a-form-item-rest>
@@ -114,11 +110,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch, onMounted } from 'vue';
+import { ref, reactive, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useUserDetailStore } from '@/store';
 import {
-  preMobileOpts,
   EMAIL_RULE,
   PASSWORD_RULE,
   VERIFY_KEY,
@@ -287,5 +282,4 @@ watch(
 );
 </script>
 
-<style scoped lang="less">
-</style>
+<style scoped lang="less"></style>

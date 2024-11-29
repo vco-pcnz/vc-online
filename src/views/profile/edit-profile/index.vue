@@ -78,18 +78,9 @@
           </a-form-item>
           <a-form-item :label="t('手机号')" name="mobile">
             <a-row :gutter="8">
-              <a-col :span="4">
-                <a-form-item-rest>
-                  <a-select
-                    v-model:value="form.pre"
-                    :options="preMobileOpts"
-                    class="pre_mobile"
-                    :disabled="!!userDetailStore.userDetail?.mobile_ok"
-                  />
-                </a-form-item-rest>
-              </a-col>
-              <a-col :span="16">
-                <a-input
+              <a-col :span="20">
+                <vco-mobile-input
+                  v-model:areaCode="form.pre"
                   v-model:value="form.mobile"
                   :placeholder="t('手机号')"
                   :disabled="!!userDetailStore.userDetail?.mobile_ok"
@@ -168,7 +159,7 @@
 <script setup>
 import { ref, reactive, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { preMobileOpts, EMAIL_RULE, VERIFY_KEY } from '@/constant';
+import { EMAIL_RULE, VERIFY_KEY } from '@/constant';
 import useFormData from '@/utils/use-form-data';
 import countdown from '../components/Countdown.vue';
 import {
@@ -315,5 +306,4 @@ watch(
 );
 </script>
 
-<style lang="less">
-</style>
+<style lang="less"></style>

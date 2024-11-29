@@ -228,4 +228,12 @@ export default {
   "验证码": "Verification code",
   "选择登录账号": "Select login account",
   "请上传头像": "Please upload avatar",
+  "项目名称": "Project name",
+  "项目类型": "Project type",
+  "项目照片": "Project images",
+  "项目地址": "Project address",
+  "楼栋数": "Number of units",
+  "项目介绍": "Project background",
+  "暂无数据，无需保存": "No data, no need to save",
+  "* 存在草稿数据，请点击{0}保存": "* Draft data exists, please click {0} to save",
 }

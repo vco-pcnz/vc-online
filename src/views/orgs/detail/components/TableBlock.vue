@@ -46,14 +46,9 @@
                 <span :class="{ cer: item.email_ok }">{{ item.email }}</span>
               </p>
               <p v-if="item.mobile">
-                <i class="iconfont" :class="{ cer: item.mobile_ok }">
-                  &#xe678;
-                </i>
+                <i class="iconfont" :class="{ cer: item.mobile_ok }">&#xe678;</i>
                 <span :class="{ cer: item.mobile_ok }">
-                  <template v-if="item.mobile && item.pre">
-                    +{{ item.pre }}
-                  </template>
-                  {{ item.mobile }}
+                  <template v-if="item.mobile && item.pre">+{{ item.pre }}</template>{{ item.mobile }}
                 </span>
               </p>
             </li>
@@ -65,15 +60,11 @@
                 <span>{{ item.user_username }}</span>
               </p>
               <p v-if="item.user_username">
-                <i class="iconfont" :class="{ cer: item.user_email_ok }">
-                  &#xe66f;
-                </i>
+                <i class="iconfont" :class="{ cer: item.user_email_ok }">&#xe66f;</i>
                 <span>{{ item.user_email }}</span>
               </p>
               <p v-if="item.user_mobile">
-                <i class="iconfont" :class="{ cer: item.user_mobile_ok }">
-                  &#xe678;
-                </i>
+                <i class="iconfont" :class="{ cer: item.user_mobile_ok }">&#xe678;</i>
                 <span :class="{ cer: item.user_mobile_ok }">
                   {{ item.user_mobile }}
                 </span>
@@ -134,6 +125,9 @@
                     <a-menu-item key="0">
                       <a>{{ t('查看详情') }}</a>
                     </a-menu-item>
+                    <a-menu-item key="1" v-if="item.has_user">
+                      <span @click="orgsDetailStore.stakeUnbind(item.uuid)">{{ t('解绑用户') }}</span>
+                    </a-menu-item>
                   </a-menu>
                 </template>
               </a-dropdown>
@@ -151,6 +145,8 @@ import { ref } from 'vue';
 import { Empty } from 'ant-design-vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
+import { useOrgsDetailStore } from '@/store';
+const orgsDetailStore = useOrgsDetailStore();
 
 const emits = defineEmits(['check']);
 

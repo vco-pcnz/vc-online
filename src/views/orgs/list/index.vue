@@ -105,6 +105,7 @@ const categoryData = computed(() => {
 });
 
 onMounted(() => {
+  cid.value = orgsStore.searchParams.cid
   // 加载数据
   orgsStore.getList();
   // 加载分类

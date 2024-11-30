@@ -199,34 +199,29 @@
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item :label="t('地址')" name="province_code">
-              <vco-address-select v-model:value="region"></vco-address-select>
-            </a-form-item>
-          </a-col>
-
-          <a-col :span="12">
-            <a-form-item label=" " name="address">
+            <a-form-item :label="t('地址')" name="address">
               <a-input
                 v-model:value="form.address"
                 :placeholder="t('请输入')"
               />
             </a-form-item>
           </a-col>
-          <a-col :span="24">
-            <a-form-item :label="t('证件f')" name="document">
-              <vco-upload-image
-                isMultiple
-                v-model:value="form.document"
-              ></vco-upload-image>
+          <a-col :span="12">
+            <a-form-item label=" " name="province_code">
+              <vco-address-select v-model:value="region"></vco-address-select>
             </a-form-item>
           </a-col>
           <a-col :span="24">
-            <a-form-item :label="t('证件有效期f')" name="expire_time">
-              <a-date-picker
-                v-model:value="form.expire_time"
-                format="YYYY/MM/DD"
-                valueFormat="YYYY-MM-DD"
-              />
+            <a-form-item :label="t('证件f')" name="document">
+              <vco-upload-modal v-model:value="documentList"></vco-upload-modal>
+              <div class="documents" v-for="(item,index) in documentList" :key="item.uuid">
+                <div class="document-name">{{ item.name }} {{ item.size }}kb {{ item.type }}</div>
+                <a-date-picker
+                  v-model:value="form.expire_time[index]"
+                  format="YYYY/MM/DD"
+                  valueFormat="YYYY-MM-DD"
+                />
+              </div>
             </a-form-item>
           </a-col>
           <a-col :span="24">
@@ -296,6 +291,7 @@ const formRef = ref();
 const jobs = ref([]);
 const region = ref();
 const loading = ref(false);
+const documentList = ref([]);
 
 // 表单数据
 const { form, assignFields } = useFormData({
@@ -328,12 +324,12 @@ const { form, assignFields } = useFormData({
   district_code: '',
   address: '',
   document: [], //证件
-  expire_time: '', //证件有效期
+  expire_time: [], //证件有效期
   note: '',
 });
 
-const mobile_ok = ref(0)
-const email_ok = ref(0)
+const mobile_ok = ref(0);
+const email_ok = ref(0);
 
 // 表单验证规则
 const rules = reactive({
@@ -344,28 +340,10 @@ const rules = reactive({
       message: t('请输入') + t('组织机构代码f'),
     },
   ],
-  cid: [
-    {
-      required: true,
-      message: t('请选择') + t('分类f'),
-    },
-  ],
   type: [
     {
       required: true,
       message: t('请选择') + t('类型f'),
-    },
-  ],
-  document: [
-    {
-      required: true,
-      message: t('请上传') + t('证件f'),
-    },
-  ],
-  expire_time: [
-    {
-      required: true,
-      message: t('请选择') + t('证件有效期f'),
     },
   ],
 });
@@ -386,14 +364,6 @@ const dynamicRules = computed(() => {
         {
           required: true,
           message: t('请输入') + t('名'),
-          type: 'string',
-          trigger: 'blur',
-        },
-      ],
-      middleName: [
-        {
-          required: true,
-          message: t('请输入') + t('中间名'),
           type: 'string',
           trigger: 'blur',
         },
@@ -476,6 +446,7 @@ const submit = () => {
     return;
   }
   formRef.value.validate().then(() => {
+    form.document = documentList.value.map(item=>{return item.uuid})
     let keys = [
       'cid',
       'type',
@@ -574,16 +545,22 @@ watch(
   (val) => {
     if (route.query.isEdit && val) {
       form.uuid = route.query.id;
+      documentList.value = val.document
+      if (!val.expire_time) {
+        val.expire_time = [];
+      } else {
+        val.expire_time = val.expire_time.split(',')
+      } 
       assignFields({
         ...val,
       });
-      if (val.document.length) {
-        form.document = val.document.map((e) => {
-          return e.uuid;
-        });
-      }
-      mobile_ok.value = val.mobile_ok
-      email_ok.value = val.email_ok
+      // if (val.document.length) {
+      //   form.document = val.document.map((e) => {
+      //     return e.uuid;
+      //   });
+      // }
+      mobile_ok.value = val.mobile_ok;
+      email_ok.value = val.email_ok;
     }
   },
   { immediate: true }
@@ -627,6 +604,13 @@ watch(
     .delete-img {
       display: none !important;
     }
+  }
+}
+
+.documents {
+  margin-top: 20px;
+  .document-name {
+    margin: 15px 0 10px;
   }
 }
 </style>

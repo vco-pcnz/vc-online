@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { getChildList, getCategory, getStakeholderTypet,getDetail } from "@/api/orgs";
+import { getChildList, getCategory, getStakeholderTypet,getDetail,stakeUnbind } from "@/api/orgs";
 import { useRoute } from 'vue-router';
 
 const useOrgsDetailStore = defineStore("VcOnlineOrgsDetail", {
@@ -80,6 +80,12 @@ const useOrgsDetailStore = defineStore("VcOnlineOrgsDetail", {
       if (this.stakeholderTypet.length) return;
       return getStakeholderTypet().then((res) => {
         this.stakeholderTypet = res;
+      });
+    },
+    // 解绑用户
+    stakeUnbind(uuid) {
+      return stakeUnbind({ uuid }).then((res) => {
+        this.getList()
       });
     },
   },

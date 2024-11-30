@@ -228,4 +228,7 @@ export default {
   "验证码": "Verification code",
   "选择登录账号": "Select login account",
   "请上传头像": "Please upload avatar",
+  "解绑用户": "Unbind users",
+  "上传文件": "Upload files",
+  "上传视频": "upload video",
 }

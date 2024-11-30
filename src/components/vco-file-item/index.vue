@@ -3,7 +3,7 @@
     <i class="iconfont">&#xe774;</i>
     <div class="fileBox-content">
       <p>{{ file.name }}</p>
-      <p class="size">{{ t('大小') }}: {{ file.size }} kb</p>
+      <p class="size">{{ t('大小') }}: {{ tool.formatSize(file.size) }}</p>
     </div>
     <div class="ops">
       <!-- <EyeOutlined /> -->
@@ -14,7 +14,7 @@
         @confirm="confirm"
         @cancel="cancel"
       > -->
-        <i class="iconfont remove" @click="remove">&#xe77d;</i>
+      <i class="iconfont remove" @click="remove">&#xe77d;</i>
       <!-- </a-popconfirm> -->
     </div>
   </div>
@@ -24,6 +24,7 @@
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue';
+import tool from '@/utils/tool';
 import { DeleteOutlined, EyeOutlined } from '@ant-design/icons-vue';
 
 const { t } = useI18n();
@@ -38,7 +39,7 @@ const emits = defineEmits(['remove']);
 
 const remove = () => {
   emits('remove');
-}
+};
 </script>
 
 <style scoped lang="less">

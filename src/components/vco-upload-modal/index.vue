@@ -44,7 +44,7 @@
 </template>
 
 <script setup>
-import { ref, watch, reactive } from 'vue';
+import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue';
 
@@ -77,12 +77,21 @@ const show = () => {
 
 const confirm = () => {
   const list = [...props.list, ...images.value, ...files.value, ...videos.value];
-  const formData = list.map(item=>{return item.uuid})
-  emits('update:value', formData);
   emits('update:list', list);
   emits('change', list);
   open.value = false;
 };
+
+watch(
+    () => props.list,
+    (val) => {
+      const formData = val.map(item=>{return item.uuid})
+      emits('update:value', formData);
+    },
+    {
+      immediate: true
+    }
+  )
 </script>
 
 <style scoped lang="less">

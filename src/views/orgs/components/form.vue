@@ -10,10 +10,10 @@
         <a-row :gutter="24">
           <a-col :span="24" class="avatar-box">
             <div>
-              <vco-upload-image
+              <vco-upload
                 v-model:value="form.avatar"
                 text="上传头像"
-              ></vco-upload-image>
+              ></vco-upload>
             </div>
           </a-col>
           <a-col :span="24">
@@ -213,7 +213,7 @@
           </a-col>
           <a-col :span="24">
             <a-form-item :label="t('证件f')" name="document">
-              <vco-upload-modal v-model:value="documentList"></vco-upload-modal>
+              <vco-upload-modal v-model:list="documentList" v-model:value="form.document"></vco-upload-modal>
               <div class="documents" v-for="(item,index) in documentList" :key="item.uuid">
                 <div class="document-name">{{ item.name }} {{ item.size }}kb {{ item.type }}</div>
                 <a-date-picker
@@ -446,7 +446,6 @@ const submit = () => {
     return;
   }
   formRef.value.validate().then(() => {
-    form.document = documentList.value.map(item=>{return item.uuid})
     let keys = [
       'cid',
       'type',

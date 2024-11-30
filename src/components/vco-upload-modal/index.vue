@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div style="display: inline-block;" @click="show">
+    <div style="display: inline-block" @click="show">
       <slot>
         <a-button size="large" type="dark">
           {{ t('上传') }}
@@ -52,28 +52,34 @@ const { t } = useI18n();
 
 const props = defineProps({
   value: {
-    type: [String, Array],
+    type: [Array],
+    required: false,
+  },
+  list: {
+    type: [Array],
     required: false,
   },
 });
-const emits = defineEmits(['update:value', 'change']);
+const emits = defineEmits(['update:value', 'update:list', 'change']);
 const open = ref(false);
 const activeKey = ref('1');
-const images = ref([])
-const files = ref([])
-const videos = ref([])
+const images = ref([]);
+const files = ref([]);
+const videos = ref([]);
 
 const show = () => {
-  activeKey.value = '1'
-  images.value = []
-  files.value = []
-  videos.value = []
+  activeKey.value = '1';
+  images.value = [];
+  files.value = [];
+  videos.value = [];
   open.value = true;
 };
 
 const confirm = () => {
-  let list = [...props.value, ...images.value, ...files.value, ...videos.value]
-  emits('update:value', list);
+  const list = [...props.list, ...images.value, ...files.value, ...videos.value];
+  const formData = list.map(item=>{return item.uuid})
+  emits('update:value', formData);
+  emits('update:list', list);
   emits('change', list);
   open.value = false;
 };

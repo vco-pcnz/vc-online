@@ -119,7 +119,18 @@
       <i class="iconfont text-5xl">&#xe744;</i>
       <i class="iconfont text-9xl">&#xe74b;</i>
     </a-space>
+    <h1 class="mt-5 mb-2">上传组件</h1>
     
+      <p>type：image / file / video</p>
+      <p>{{ vcoUploadStr }}</p>
+      <vco-upload type="image"></vco-upload>
+      <vco-upload type="file"></vco-upload>
+      <vco-upload type="video"></vco-upload>
+      <p>-------------------------------------------------------------------------------------</p>
+      <p>document:提交的数据</p>
+      <p>documentList:展示的数据</p>
+      <p>{{ vcoUploadModalStr }}</p>
+      <vco-upload-modal></vco-upload-modal>
   </div>
 </template>
 
@@ -136,6 +147,8 @@
   const value3 = ref();
   const value4 = ref();
   const value5 = ref();
+  const vcoUploadStr = ref(`<vco-upload v-model:value="form.images"></vco-upload>`)
+  const vcoUploadModalStr = ref('<vco-upload-modal v-model:list="documentList" v-model:value="document"></vco-upload-modal>')
 
   const username = ref('')
   const open = ref(false)

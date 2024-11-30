@@ -8,7 +8,7 @@
     <div class="sys-form-content mt-5">
       <a-form ref="formRef" :model="form" :rules="rules" layout="vertical">
         <a-form-item name="avatar" class="avatar">
-          <vco-upload-image v-model:value="form.avatar" :text="t('头像')" :isAvatar="true"></vco-upload-image>
+          <vco-upload-image v-model:value="form.avatar" text="头像" :isAvatar="true"></vco-upload-image>
         </a-form-item>
         <a-form-item name="firstName" :label="t('名')">
           <a-input v-model:value="form.firstName" :placeholder="t('名')" />
@@ -116,14 +116,6 @@ const rules = reactive({
     {
       required: true,
       message: t('请输入') + t('名'),
-      type: 'string',
-      trigger: 'blur',
-    },
-  ],
-  middleName: [
-    {
-      required: true,
-      message: t('请输入') + t('中间名'),
       type: 'string',
       trigger: 'blur',
     },

@@ -86,17 +86,17 @@
                 </a-form-item>
               </a-col>
               <a-col :span="24">
+                <a-form-item :label="t('详细地址')" name="borrower_address">
+                  <a-input v-model:value="formState.borrower_address" />
+                </a-form-item>
+              </a-col>
+              <a-col :span="24">
                 <a-form-item :label="t('借款人地址')" name="borrower_region">
                   <vco-address-select
                     v-model:value="formState.borrower_region"
                     :formRef="formRef"
                     validateField="borrower_region"
                   ></vco-address-select>
-                </a-form-item>
-              </a-col>
-              <a-col :span="24">
-                <a-form-item :label="t('详细地址')" name="borrower_address">
-                  <a-input v-model:value="formState.borrower_address" />
                 </a-form-item>
               </a-col>
               <a-col :span="24">
@@ -108,7 +108,17 @@
           </a-form>
         </div>
         <div class="flex mt-5 items-end gap-20 justify-between">
-          <a-button type="grey" shape="round" class="weight">{{ t('保存草稿') }}</a-button>
+          <div>
+            <a-button
+              type="grey"
+              shape="round"
+              class="weight"
+              :loading="draftLoading"
+              @click="draftHandle"
+            >{{ t('保存草稿') }}</a-button>
+            <p v-if="hasDrafData" class="mt-2 text-sm pl-1 form-tips-color">{{ t('* 存在草稿数据，请点击{0}保存', [`"${t('下一步')}"`]) }}</p>
+          </div>
+          
           <a-button
             type="dark" shape="round" class="big shadow bold uppercase"
             @click="submitHandle"
@@ -128,10 +138,16 @@
   import { useI18n } from "vue-i18n";
   import { cloneDeep } from "lodash";
   import { QuestionCircleOutlined } from '@ant-design/icons-vue';
-  import { projectApplySaveBorrowerInfo } from "@/api/process"
+  import { projectApplySaveBorrowerInfo, projectSaveSaveDraft } from "@/api/process"
+  import tool, { navigationTo } from "@/utils/tool";
+  import { message } from "ant-design-vue/es";
 
   const props = defineProps({
     infoData: {
+      type: Object,
+      default: () => {}
+    },
+    draftData: {
       type: Object,
       default: () => {}
     }
@@ -222,36 +238,45 @@
     ]
   }
 
+  const getParams = () => {
+    const params = cloneDeep(formState)
+
+    if (params.borrower_images && params.borrower_images.length) {
+      params.borrower_images = params.borrower_images.join(',')
+    }
+
+    const regionArr = params.borrower_region.split(',')
+    params.borrower_region_one_id = regionArr[0] ? Number(regionArr[0]) : 0
+    params.borrower_region_two_id = regionArr[1] ? Number(regionArr[1]) : 0
+    params.borrower_region_three_id = regionArr[2] ? Number(regionArr[2]) : 0
+
+    if (params.borrower_type === 2) {
+      params.borrower_id_num = params.company_number
+    }
+
+    delete params.company_number
+    delete params.borrower_region
+
+    return params
+  }
+
   const subLoading = ref(false)
 
   const submitHandle = () => {
     formRef.value
     .validate()
     .then(() => {
-      const params = cloneDeep(formState)
-      if (params.borrower_images && params.borrower_images.length) {
-        params.borrower_images = params.borrower_images.join(',')
-      }
+      const params = getParams()
+      params.draft_step = 'one'
 
-      const regionArr = params.borrower_region.split(',')
-      params.borrower_region_one_id = Number(regionArr[0])
-      params.borrower_region_two_id = regionArr[1] ? Number(regionArr[1]) : 0
-      params.borrower_region_three_id = regionArr[2] ? Number(regionArr[2]) : 0
-
-      if (params.borrower_type === 2) {
-        params.borrower_id_num = params.company_number
-      }
-
-      delete params.company_number
-      delete params.borrower_region
-
-      if (props.infoData && props.infoData.project_apply_sn) {
-        params.project_apply_sn = props.infoData.project_apply_sn
+      if (props.infoData && props.infoData.uuid) {
+        params.uuid = props.infoData.uuid
       }
 
       subLoading.value = true
-      projectApplySaveBorrowerInfo(params).then(() => {
+      projectApplySaveBorrowerInfo(params).then(res => {
         subLoading.value = false
+        navigationTo(`/process/two?uuid_info=${res.uuid}`)
       }).catch(() => {
         subLoading.value = false
       })
@@ -261,17 +286,57 @@
     });
   }
 
+  const draftLoading = ref(false)
+  const hasDrafData = ref(false)
+  const draftHandle = () => {
+    const data = getParams()
+    const dataObj = cloneDeep(data)
+    delete dataObj.borrower_type
+    delete dataObj.borrower_phone_prefix
+    delete dataObj.borrower_region_one_id
+    delete dataObj.borrower_region_two_id
+    delete dataObj.borrower_region_three_id
+
+    if (tool.isAllValuesEmpty(dataObj)) {
+      message.error(t('暂无数据，无需保存'))
+    } else {
+      const params = {
+        draft_step: 'one',
+        draft: JSON.stringify(tool.filterEmptyValues(data))
+      }
+
+      if (props.infoData && props.infoData.uuid) {
+        params.uuid = props.infoData.uuid
+      }
+
+      draftLoading.value = true
+      projectSaveSaveDraft(params).then(res => {
+        message.success(t('保存成功'))
+        draftLoading.value = false
+      }).catch(() => {
+        draftLoading.value = false
+      })
+    }
+  }
+
   const dataInit = () => {
     const data = cloneDeep(props.infoData)
-    
+    const draftData = cloneDeep(props.draftData)
+
+    let useData = data
+    if (draftData && Object.keys(draftData).length) {
+      useData = draftData
+      hasDrafData.value = props.infoData.uuid
+    }
+
     for (const key in formState) {
       if (key === 'company_number') {
-        formState[key] = data.borrower_type === 2 ? data.borrower_id_num : ''
+        formState[key] = useData.borrower_type === 2 ? useData.borrower_id_num : ''
       } else {
-        formState[key] = data[key]
+        formState[key] = useData[key] || formState[key]
       }
     }
-    const areaArr = [data.borrower_region_one_id, data.borrower_region_two_id, data.borrower_region_three_id]
+    const areaArr = [useData.borrower_region_one_id, useData.borrower_region_two_id, useData.borrower_region_three_id]
     const areaStr = areaArr.filter(item => item).join(',')
     formState.borrower_region = areaStr
   }

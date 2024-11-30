@@ -166,14 +166,6 @@ const rules = reactive({
       trigger: "blur",
     },
   ],
-  middleName: [
-    {
-      required: true,
-      message: t("请输入") + t("中间名"),
-      type: "string",
-      trigger: "blur",
-    },
-  ],
   lastName: [
     {
       required: true,

@@ -1,5 +1,5 @@
 <template>
-  <div class="images-uploader">
+  <div :class="['images-uploader', { 'avatar-images-uploader': isAvatar }]">
     <a-upload
       :action="uploadAction"
       list-type="picture-card"
@@ -29,7 +29,7 @@
         <div class="ant-upload-text">{{ t(text) }}</div>
       </div>
     </a-upload>
-    <div class="delete-img" @click="deleteImg" v-if="picUrl && limit == 1 && !isMultiple">
+    <div class="delete-img" @click="deleteImg" v-if="picUrl && limit == 1 && !isMultiple && !isAvatar">
       <DeleteOutlined />
       <p>{{ t('删除') }}</p>
     </div>
@@ -58,6 +58,10 @@
   const emits = defineEmits(['update:value', 'change']);
 
   const props = defineProps({
+    isAvatar: {
+      type: Boolean,
+      default: false
+    },
     text: {
       type: String,
       default: '上传图片'
@@ -316,7 +320,7 @@
   watch(
     () => props.value,
     (val) => {
-      if (hasData(val) && notInit.value) {
+      if ((hasData(val) && notInit.value) || props.isAvatar) {
         notInit.value = false
         const data = cloneDeep(val);
         if (data) {
@@ -335,6 +339,7 @@
           }
         } else {
           fileList.value = [];
+          picUrl.value = false;
         }
       }
     },

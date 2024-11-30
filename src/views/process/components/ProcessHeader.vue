@@ -24,10 +24,12 @@
 <script setup>
   import { computed } from "vue"
   import { cloneDeep } from "lodash"
+  import { useRoute } from "vue-router"
   import { navigationTo } from "@/utils/tool"
   import { useI18n } from 'vue-i18n';
 
   const { t } = useI18n();
+  const route = useRoute()
 
   const props = defineProps({
     stepData: {
@@ -68,9 +70,11 @@
   const checkPointer = (index) => (index < props.current && props.current < 5)
 
   const stepHandle = (index) => {
-    if (index < props.current && props.current < 5) {
-      const page = routeArr[index - 1]
-      navigationTo(`/process/${page}`)
+    if (route.query.uuid_info) {
+      if (index < props.current && props.current < 5) {
+        const page = routeArr[index - 1]
+        navigationTo(`/process/${page}?uuid_info=${route.query.uuid_info}`)
+      }
     }
   }
 </script>

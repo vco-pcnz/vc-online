@@ -53,14 +53,14 @@ export function useDynamicModule(defaultName = "one", defaultFile = "default") {
   // 挂载时的逻辑
   onMounted(() => {
     let pass = true
-    const { type, id } = route.query;
+    const { type, uuid_info } = route.query;
 
     if (type) {
       tempFile.value = type;
     }
 
-    if (id) {
-      currentId.value = id;
+    if (uuid_info) {
+      currentId.value = uuid_info;
     } else {
       if (defaultName !== 'one') {
         pass = false

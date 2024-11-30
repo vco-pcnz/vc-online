@@ -16,6 +16,7 @@ import AuthTemplate from './auth/index.vue'
 import Countdown from './vco-countdown/Countdown.vue'
 import VcoUpload from './vco-upload/index.vue'
 import VcoUploadModal from './vco-upload-modal/index.vue'
+import VcoFileItem from './vco-file-item/index.vue'
 
 export default {
   install(Vue) {
@@ -37,5 +38,6 @@ export default {
     Vue.component('VcoCountdown', Countdown)
     Vue.component('VcoUpload', VcoUpload)
     Vue.component('VcoUploadModal', VcoUploadModal)
+    Vue.component('VcoFileItem', VcoFileItem)
   }
 }

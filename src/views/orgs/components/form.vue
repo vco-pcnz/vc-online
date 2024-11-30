@@ -213,14 +213,19 @@
           </a-col>
           <a-col :span="24">
             <a-form-item :label="t('证件f')" name="document">
-              <vco-upload-modal v-model:list="documentList" v-model:value="form.document"></vco-upload-modal>
-              <div class="documents" v-for="(item,index) in documentList" :key="item.uuid">
-                <div class="document-name">{{ item.name }} {{ item.size }}kb {{ item.type }}</div>
-                <a-date-picker
-                  v-model:value="form.expire_time[index]"
-                  format="YYYY/MM/DD"
-                  valueFormat="YYYY-MM-DD"
-                />
+              <vco-upload-modal
+                v-model:list="documentList"
+                v-model:value="form.document"
+              ></vco-upload-modal>
+              <div
+                class="documents"
+                v-for="(item, index) in documentList"
+                :key="index"
+              >
+              <vco-file-item :file="item" @remove="remove(index)"></vco-file-item>
+                <div>
+                  <a-date-picker v-model:value="form.expire_time[index]" format="YYYY/MM/DD" valueFormat="YYYY-MM-DD" />
+                </div>
               </div>
             </a-form-item>
           </a-col>
@@ -265,6 +270,11 @@
 import { reactive, onMounted, ref, computed, watch } from 'vue';
 import useFormData from '@/utils/use-form-data';
 import { preMobileOpts, EMAIL_RULE, VERIFY_KEY } from '@/constant';
+import {
+  DeleteOutlined,
+  EyeOutlined,
+  LoadingOutlined,
+} from '@ant-design/icons-vue';
 import { useI18n } from 'vue-i18n';
 import {
   sendUnauthECode,
@@ -278,7 +288,7 @@ import changeEmail from './change-email.vue';
 import changeMobile from './change-mobile.vue';
 import dayjs from 'dayjs';
 import { useOrgsStore, useOrgsDetailStore } from '@/store';
-import { pick, trim } from 'lodash';
+import { pick, trim,cloneDeep } from 'lodash';
 import { useRoute, useRouter } from 'vue-router';
 import { message } from 'ant-design-vue';
 const route = useRoute();
@@ -439,6 +449,14 @@ const handleChange = (key) => {
     verifyMobile.open = true;
   }
 };
+
+// 删除文件
+const remove = (index) => {
+  documentList.value.splice(index, 1)
+  form.expire_time.splice(index, 1)
+  console.log(form)
+
+}
 // 提交
 const submit = () => {
   if (!trim(form.avatar)) {
@@ -493,10 +511,9 @@ const submit = () => {
       newData['uuid'] = form.uuid;
       stakeEdit(newData)
         .then(() => {
+          orgsDetailStore.setDetail(route.query.id);
           loading.value = false;
           message.success(t('修改成功'));
-          orgsDetailStore.setDetail();
-          router.back();
         })
         .catch(() => {
           loading.value = false;
@@ -538,31 +555,39 @@ watch(
     form.district_code = arr[2] || '';
   }
 );
-
+const hasData = (data) => {
+  if (data) {
+    if (typeof data === 'string') {
+      return !!data;
+    } else if (data instanceof Array) {
+      return data.length;
+    } else {
+      return Object.keys(data).length;
+    }
+  } else {
+    return false;
+  }
+};
 watch(
   () => orgsDetailStore.detail,
   (val) => {
-    if (route.query.isEdit && val) {
+    const data = cloneDeep(val)
+    if (route.query.isEdit && data) {
       form.uuid = route.query.id;
-      documentList.value = val.document
-      if (!val.expire_time) {
-        val.expire_time = [];
-      } else {
-        val.expire_time = val.expire_time.split(',')
-      } 
+      documentList.value =  data.document;
+      if (!hasData(data.expire_time)) {
+        data.expire_time = [];
+      } else if (typeof data.expire_time === 'string') {
+        data.expire_time = data.expire_time.split(',');
+      }
       assignFields({
-        ...val,
+        ...data,
       });
-      // if (val.document.length) {
-      //   form.document = val.document.map((e) => {
-      //     return e.uuid;
-      //   });
-      // }
       mobile_ok.value = val.mobile_ok;
       email_ok.value = val.email_ok;
     }
   },
-  { immediate: true }
+  { immediate: true, deep: true }
 );
 </script>
 
@@ -612,4 +637,5 @@ watch(
     margin: 15px 0 10px;
   }
 }
+
 </style>

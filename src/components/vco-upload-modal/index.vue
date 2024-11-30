@@ -33,7 +33,6 @@
             size="large"
             type="primary"
             style="width: 40%"
-            :loading="loading"
           >
             {{ t('确认') }}
           </a-button>
@@ -52,11 +51,11 @@ const { t } = useI18n();
 
 const props = defineProps({
   value: {
-    type: [Array],
+    type: Array,
     required: false,
   },
   list: {
-    type: [Array],
+    type: Array,
     required: false,
   },
 });
@@ -83,13 +82,13 @@ const confirm = () => {
 };
 
 watch(
-    () => props.list,
-    (val) => {
+  () => props.list,
+  (val) => {
       const formData = val.map(item=>{return item.uuid})
       emits('update:value', formData);
     },
     {
-      immediate: true
+      immediate: true,deep:true
     }
   )
 </script>

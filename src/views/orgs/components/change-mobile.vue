@@ -121,6 +121,8 @@ import { message } from 'ant-design-vue';
 import { trim } from 'lodash';
 import { useOrgsDetailStore } from '@/store';
 import { preMobileOpts } from '@/constant';
+import { useRoute } from 'vue-router';
+const route = useRoute();
 
 const { t } = useI18n();
 const loading = ref(false);
@@ -212,7 +214,7 @@ const save = () => {
       .then(() => {
         loading.value = false;
         message.success(t('修改成功'));
-        orgsDetailStore.setDetail();
+        orgsDetailStore.setDetail(route.query.id);
         closeModal();
       })
       .catch(() => {

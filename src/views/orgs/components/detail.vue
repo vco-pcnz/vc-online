@@ -81,7 +81,7 @@ const props = defineProps({
 onMounted(() => {
   // 加载数据
   if (!orgsDetailStore.detail || orgsDetailStore.detail.uuid !== route.query.id) {
-    orgsDetailStore.setDetail();
+    orgsDetailStore.setDetail(route.query.id);
   }
 });
 

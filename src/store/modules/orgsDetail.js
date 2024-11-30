@@ -1,6 +1,5 @@
 import { defineStore } from "pinia";
 import { getChildList, getCategory, getStakeholderTypet,getDetail,stakeUnbind } from "@/api/orgs";
-import { useRoute } from 'vue-router';
 
 const useOrgsDetailStore = defineStore("VcOnlineOrgsDetail", {
   state: () => ({
@@ -27,7 +26,7 @@ const useOrgsDetailStore = defineStore("VcOnlineOrgsDetail", {
   }),
   actions: {
     setDetail(id) {
-      return getDetail({id:useRoute().query.id}).then((res) => {
+      return getDetail({id:id}).then((res) => {
         this.detail = res;
       });
     },

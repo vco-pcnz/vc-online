@@ -3,7 +3,9 @@
     <i class="iconfont">&#xe774;</i>
     <div class="fileBox-content">
       <p>{{ file.name }}</p>
-      <p class="size">{{ t('大小') }}: {{ tool.formatSize(file.size) }}</p>
+      <p class="size">
+        <span v-if="time">{{time}} · </span>
+        {{ tool.formatSize(file.size) }}</p>
     </div>
     <div class="ops">
       <!-- <EyeOutlined /> -->
@@ -14,7 +16,7 @@
         @confirm="confirm"
         @cancel="cancel"
       > -->
-      <i class="iconfont remove" @click="remove">&#xe77d;</i>
+      <i class="iconfont remove" @click="remove" v-if="showClose">&#xe77d;</i>
       <!-- </a-popconfirm> -->
     </div>
   </div>
@@ -34,6 +36,14 @@ const props = defineProps({
     type: Object,
     required: false,
   },
+  time: {
+    type: String,
+    default:''
+  },
+  showClose: {
+    type: Boolean,
+    default:false
+  }
 });
 const emits = defineEmits(['remove']);
 

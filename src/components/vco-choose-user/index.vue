@@ -1,0 +1,243 @@
+<template>
+  <div class="vco-choose-user">
+    <div class="vco-choose-user-search">
+      <slot>
+        <vco-type-input
+          v-model="searchForm.keywords"
+          v-model:type="searchForm.key"
+          :type-data="keys"
+          style="flex: 1"
+          :placeholder="t('请输入')"
+        ></vco-type-input>
+        <i class="iconfont" style="cursor: pointer" @click="searchHandle(false)">
+          &#xe756;
+        </i>
+      </slot>
+    </div>
+    <div id="vco-choose-user-model"></div>
+    <a-modal
+      :width="900"
+      v-if="open"
+      :open="open"
+      :title="t('搜索用户')"
+      :getContainer="getContainer"
+      @cancel="open = false"
+    >
+      <a-spin :spinning="loading" size="large">
+        <TableBlock
+          :isMultiple="isMultiple"
+          :table-data="tableData"
+          v-model:list="checkedList"
+          v-model:ids="checkedIds"
+          v-model:data="checkedData"
+          wrapClassName="vco-choose-user-modal"
+          @change="change"
+        ></TableBlock>
+      </a-spin>
+      <template #footer>
+        <div class="modal-footer">
+          <div>
+            <a-button
+              v-if="isMultiple"
+              @click="handlePathChange"
+              type="primary-line"
+            >
+              {{ t('选择') }}
+            </a-button>
+          </div>
+          <a-pagination
+            v-if="count"
+            size="small"
+            :total="count"
+            :pageSize="pagination.limit"
+            :current="pagination.page"
+            show-size-changer
+            show-quick-jumper
+            :show-total="(total) => t('共{0}条', [total])"
+            @change="setPaginate"
+          />
+        </div>
+      </template>
+    </a-modal>
+  </div>
+</template>
+
+<script setup>
+import { ref, watch, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { message } from 'ant-design-vue';
+import TableBlock from './components/TableBlock.vue';
+import { stakeSelStake } from '@/api/system/index';
+import { cloneDeep } from 'lodash';
+
+const { t } = useI18n();
+
+const props = defineProps({
+  list: {
+    type: Array,
+  },
+  ids: {
+    type: Array,
+  },
+  data: {
+    type: Object,
+  },
+  isMultiple: {
+    type: Boolean,
+    default: false,
+  },
+});
+const open = ref(false);
+const loading = ref(false);
+const tableData = ref([]);
+const count = ref(0);
+
+const checkedList = ref([]);
+const checkedIds = ref([]);
+const checkedData = ref([]);
+
+const keys = ref([
+  {
+    label: t('全部'),
+    value: 'all',
+  },
+  {
+    label: t('名称'),
+    value: 'name',
+  },
+  {
+    label: t('邮箱'),
+    value: 'email',
+  },
+  {
+    label: t('电话'),
+    value: 'mobile',
+  },
+  {
+    label: t('Id编码'),
+    value: 'code',
+  },
+  {
+    label: t('用户Id'),
+    value: 'userId',
+  },
+]);
+const searchForm = ref({
+  key: 'all',
+  keywords: '',
+});
+const pagination = ref({
+  page: 1,
+  limit: 5,
+});
+const emits = defineEmits([
+  'update:list',
+  'update:ids',
+  'update:data',
+  'change',
+]);
+const getContainer = () => {
+  // 返回自定义容器的 DOM 元素
+  return document.getElementById('vco-choose-user-model');
+};
+
+// 搜索
+const searchHandle = (parameters) => {
+  console.log(parameters)
+  if (parameters) searchForm.value = cloneDeep(parameters);
+  pagination.value.page = 1;
+  lodaData();
+  open.value = true;
+};
+
+// 加载数据
+const lodaData = () => {
+  loading.value = true;
+  stakeSelStake({ ...searchForm.value, ...pagination.value })
+    .then((res) => {
+      tableData.value = res.data;
+      count.value = res.count;
+      loading.value = false;
+    })
+    .catch((e) => {
+      loading.value = false;
+    });
+};
+
+// 分页加载
+const setPaginate = (page, limit) => {
+  pagination.value = {
+    page,
+    limit,
+  };
+  lodaData();
+};
+
+const handlePathChange = () => {
+  emits('update:list', checkedList.value);
+  emits('update:ids', checkedIds.value);
+  emits('change', checkedIds.value);
+  open.value = false;
+};
+const change = () => {
+  if (!props.isMultiple) {
+    emits('update:data', checkedData.value);
+    emits('change', checkedData.value);
+    open.value = false;
+  }
+};
+// 暴露方法给父组件
+defineExpose({
+  searchHandle,
+});
+</script>
+
+<style lang="less">
+@import '@/styles/variables.less';
+.vco-choose-user {
+  .vco-choose-user-search {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  #vco-choose-user-model {
+    .area-code-btn, .ant-picker, .ant-select-selector, .ant-input
+     .ant-select-selector .ant-select-selection-placeholder,
+     .ant-select-selector .ant-select-selection-search-input,
+     .ant-select-selector .ant-select-selection-item {
+      height: 24px !important;
+      line-height: 22px !important;
+      border-radius: 4px !important;
+      background: transparent!important;
+      border-color: #d9d9d9 !important;
+    &:hover {
+      
+    border-color: #ffb940!important;
+    }
+    }
+    .modal-content {
+      height: 70vh;
+      overflow-y: auto;
+    }
+    .ant-select.ant-select-in-form-item {
+      width: auto !important;
+    }
+    .ant-modal-title {
+      text-align: left !important;
+    }
+    .modal-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      .ant-pagination {
+        padding: 0;
+      }
+    }
+    .submit-btn:hover {
+      color: @clr_white;
+    }
+  }
+}
+</style>

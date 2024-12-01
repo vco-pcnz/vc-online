@@ -7,3 +7,19 @@ export const systemCity = (params = {}) =>
     method: "get",
     params
   });
+
+// 利益相关者搜索接口
+export const stakeSelStake = (params = {}) =>
+  request({
+    url: "/stake/selStake",
+    method: "get",
+    params
+  });
+
+// 字典
+export const systemDictData = (code) =>
+  request({
+    url: "/system/dictData/getDictByCode?code=",
+    method: "get",
+    params:{code}
+  });

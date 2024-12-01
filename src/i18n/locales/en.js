@@ -244,4 +244,8 @@ export default {
   "视频": "Video",
   "文件": "Files",
   "上传": "Upload",
+  "选择": "Choose",
+  "搜索用户": "User Search",
+  "选择用户": "Select User",
+  "工作": "Job"
 }

@@ -116,16 +116,16 @@
               </p>
             </li>
             <li>
-              <a-dropdown :trigger="['click']">
+              <a-dropdown :trigger="['click']" v-if="item.has_user">
                 <a class="ant-dropdown-link" @click.prevent>
                   <i class="iconfont">&#xe77a;</i>
                 </a>
                 <template #overlay>
                   <a-menu>
-                    <a-menu-item key="0">
+                    <!-- <a-menu-item key="0">
                       <a>{{ t('查看详情') }}</a>
-                    </a-menu-item>
-                    <a-menu-item key="1" v-if="item.has_user">
+                    </a-menu-item> -->
+                    <a-menu-item key="0" v-if="item.has_user">
                       <span @click="orgsDetailStore.stakeUnbind(item.uuid)">{{ t('解绑用户') }}</span>
                     </a-menu-item>
                   </a-menu>

@@ -51,6 +51,7 @@
                 :total="usersStore.total"
                 show-size-changer
                 show-quick-jumper
+                :hideOnSinglePage="true"
                 :show-total="(total) => t('共{0}条', [total])"
                 @change="handlePageChange"
               />

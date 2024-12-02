@@ -104,14 +104,6 @@ const mobile_ok = ref(0);
 
 // 表单验证规则
 const rules = reactive({
-  avatar: [
-    {
-      required: true,
-      message: t('请上传') + t('头像'),
-      type: 'string',
-      trigger: 'blur',
-    },
-  ],
   firstName: [
     {
       required: true,

@@ -49,6 +49,7 @@
         <a-pagination
           show-quick-jumper
           show-size-changer
+          :hideOnSinglePage="true"
           :total="total"
           :show-total="(total) => t('共{0}条', [total])"
           @change="handlePageChange"

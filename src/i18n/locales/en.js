@@ -250,5 +250,12 @@ export default {
   "工作": "Job",
   "对账": "Reconciliation",
   "Xero报告": "Xero Statement",
-  "账户交易": "Account Transactions"
+  "账户交易": "Account Transactions",
+  "日期": "date",
+  "委托人": "client",
+  "参考": "reference",
+  "描述": "description",
+  "支出": "spent",
+  "收入": "received",
+  "状态": "status"
 }

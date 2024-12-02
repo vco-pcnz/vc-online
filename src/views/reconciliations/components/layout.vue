@@ -10,7 +10,9 @@
         </a-button>
       </template>
     </vco-page-nav>
-    <slot name="content"></slot>
+    <div class="page-content">
+      <slot name="content"></slot>
+    </div>
   </div>
 </template>
 
@@ -30,5 +32,14 @@ const onClick = (e) => {
 .sync-btn {
     border: none;
     background-color: transparent;
+}
+
+.page-content {
+  margin-top: 36px;
+  min-height: 100%;
+  padding: 24px 28px;
+  background-color: #f0f0f0;
+  border: 1px solid #e2e5e2;
+  border-radius: 12px;
 }
 </style>

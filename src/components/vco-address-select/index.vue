@@ -147,9 +147,6 @@
 
   onMounted(() => {
     getData()
-    if (props.value) {
-      pageInit()
-    }
   })
 </script>
 

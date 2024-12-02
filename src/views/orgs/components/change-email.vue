@@ -108,6 +108,7 @@ import useFormData from '@/utils/use-form-data';
 import { message } from 'ant-design-vue';
 import { trim } from 'lodash';
 import { useOrgsDetailStore } from '@/store';
+import { useRoute } from 'vue-router';
 
 const { t } = useI18n();
 const loading = ref(false);
@@ -199,7 +200,7 @@ const save = () => {
       .then(() => {
         loading.value = false;
         message.success(t('修改成功'));
-        orgsDetailStore.setDetail();
+        orgsDetailStore.setDetail(useRoute().query.id);
         closeModal();
       })
       .catch(() => {

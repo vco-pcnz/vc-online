@@ -131,7 +131,6 @@
     (val) => {
       if (val && notInit.value) {
         notInit.value = false
-
         dataInit()
       }
     },

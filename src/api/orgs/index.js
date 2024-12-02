@@ -37,3 +37,12 @@ export const getChildList = params =>
     method: 'get',
     params,
   });
+
+  // 解绑用户
+  export const stakeUnbind = params =>
+    request({
+      url: 'stake/unbind',
+      method: 'post',
+      params,
+    });
+  

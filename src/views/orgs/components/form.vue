@@ -10,36 +10,46 @@
         <a-row :gutter="24">
           <a-col :span="24" class="avatar-box">
             <div>
-              <vco-upload-image
+              <vco-upload
                 v-model:value="form.avatar"
                 text="上传头像"
-              ></vco-upload-image>
+              ></vco-upload>
             </div>
           </a-col>
+          <template v-if="!isAddMember">
+            <a-col :span="24">
+              <a-form-item :label="t('分类f')" name="cid">
+                <a-checkbox-group v-model:value="form.cid">
+                  <a-checkbox
+                    v-for="item in orgsStore.category"
+                    :key="item.id"
+                    :value="item.id"
+                  >
+                    {{ item.name }}
+                  </a-checkbox>
+                </a-checkbox-group>
+              </a-form-item>
+            </a-col>
+            <a-col :span="24">
+              <a-form-item :label="t('类型f')" name="type">
+                <a-radio-group v-model:value="form.type">
+                  <a-radio
+                    :value="item.code"
+                    :key="item.code"
+                    v-for="item in orgsStore.stakeholderTypet"
+                  >
+                    {{ item.name }}
+                  </a-radio>
+                </a-radio-group>
+              </a-form-item>
+            </a-col>
+          </template>
           <a-col :span="24">
-            <a-form-item :label="t('分类f')" name="cid">
-              <a-checkbox-group v-model:value="form.cid">
-                <a-checkbox
-                  v-for="item in orgsStore.category"
-                  :key="item.id"
-                  :value="item.id"
-                >
-                  {{ item.name }}
-                </a-checkbox>
-              </a-checkbox-group>
-            </a-form-item>
-          </a-col>
-          <a-col :span="24">
-            <a-form-item :label="t('类型f')" name="type">
-              <a-radio-group v-model:value="form.type">
-                <a-radio
-                  :value="item.code"
-                  :key="item.code"
-                  v-for="item in orgsStore.stakeholderTypet"
-                >
-                  {{ item.name }}
-                </a-radio>
-              </a-radio-group>
+            <a-form-item :label="t('选择用户')" v-if="form.type == 4">
+              <vco-choose-user
+                ref="vcoChooseUserRef"
+                @change="checkUser"
+              ></vco-choose-user>
             </a-form-item>
           </a-col>
 
@@ -67,6 +77,19 @@
               </a-form-item>
             </a-col>
             <a-col :span="24">
+              <a-form-item :label="t('工作')" name="job">
+                <a-radio-group v-model:value="form.job">
+                  <a-radio
+                    :value="item.code"
+                    :key="item.code"
+                    v-for="item in jobs"
+                  >
+                    {{ item.name }}
+                  </a-radio>
+                </a-radio-group>
+              </a-form-item>
+            </a-col>
+            <a-col :span="24">
               <a-form-item :label="t('身份证号码')" name="idcard">
                 <a-input
                   v-model:value="form.idcard"
@@ -77,6 +100,19 @@
           </template>
           <!-- 公司相关信息 -->
           <template v-else>
+            <a-col :span="24">
+              <a-form-item :label="t('工作')" name="job">
+                <a-radio-group v-model:value="form.job">
+                  <a-radio
+                    :value="item.code"
+                    :key="item.code"
+                    v-for="item in jobs"
+                  >
+                    {{ item.name }}
+                  </a-radio>
+                </a-radio-group>
+              </a-form-item>
+            </a-col>
             <a-col :span="24">
               <a-form-item :label="t('公司名称f')" name="name">
                 <a-input v-model:value="form.name" :placeholder="t('请输入')" />
@@ -104,19 +140,7 @@
               </a-form-item>
             </a-col>
           </template>
-          <a-col :span="24" v-if="false">
-            <a-form-item :label="t('工作')" name="job">
-              <a-radio-group v-model:value="form.job">
-                <a-radio
-                  :value="item.code"
-                  :key="item.code"
-                  v-for="item in jobs"
-                >
-                  {{ item.name }}
-                </a-radio>
-              </a-radio-group>
-            </a-form-item>
-          </a-col>
+
           <!-- 公共 -->
 
           <a-col :span="20">
@@ -199,34 +223,42 @@
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item :label="t('地址')" name="province_code">
-              <vco-address-select v-model:value="region"></vco-address-select>
-            </a-form-item>
-          </a-col>
-
-          <a-col :span="12">
-            <a-form-item label=" " name="address">
+            <a-form-item :label="t('地址')" name="address">
               <a-input
                 v-model:value="form.address"
                 :placeholder="t('请输入')"
               />
             </a-form-item>
           </a-col>
-          <a-col :span="24">
-            <a-form-item :label="t('证件f')" name="document">
-              <vco-upload-image
-                isMultiple
-                v-model:value="form.document"
-              ></vco-upload-image>
+          <a-col :span="12">
+            <a-form-item label=" " name="province_code">
+              <vco-address-select v-model:value="region"></vco-address-select>
             </a-form-item>
           </a-col>
           <a-col :span="24">
-            <a-form-item :label="t('证件有效期f')" name="expire_time">
-              <a-date-picker
-                v-model:value="form.expire_time"
-                format="YYYY/MM/DD"
-                valueFormat="YYYY-MM-DD"
-              />
+            <a-form-item :label="t('证件f')" name="document">
+              <vco-upload-modal
+                v-model:list="documentList"
+                v-model:value="form.document"
+              ></vco-upload-modal>
+              <div
+                class="documents"
+                v-for="(item, index) in documentList"
+                :key="index"
+              >
+                <vco-file-item
+                  :file="item"
+                  :showClose="true"
+                  @remove="remove(index)"
+                ></vco-file-item>
+                <div>
+                  <a-date-picker
+                    v-model:value="form.expire_time[index]"
+                    format="YYYY/MM/DD"
+                    valueFormat="YYYY-MM-DD"
+                  />
+                </div>
+              </div>
             </a-form-item>
           </a-col>
           <a-col :span="24">
@@ -270,6 +302,11 @@
 import { reactive, onMounted, ref, computed, watch } from 'vue';
 import useFormData from '@/utils/use-form-data';
 import { preMobileOpts, EMAIL_RULE, VERIFY_KEY } from '@/constant';
+import {
+  DeleteOutlined,
+  EyeOutlined,
+  LoadingOutlined,
+} from '@ant-design/icons-vue';
 import { useI18n } from 'vue-i18n';
 import {
   sendUnauthECode,
@@ -278,12 +315,14 @@ import {
   stakeAdd,
   stakeEdit,
 } from '@/api/orgs/form';
+import { systemDictData } from '@/api/system/index';
+
 import countdown from './countdown.vue';
 import changeEmail from './change-email.vue';
 import changeMobile from './change-mobile.vue';
 import dayjs from 'dayjs';
 import { useOrgsStore, useOrgsDetailStore } from '@/store';
-import { pick, trim } from 'lodash';
+import { pick, trim, cloneDeep } from 'lodash';
 import { useRoute, useRouter } from 'vue-router';
 import { message } from 'ant-design-vue';
 const route = useRoute();
@@ -296,7 +335,8 @@ const formRef = ref();
 const jobs = ref([]);
 const region = ref();
 const loading = ref(false);
-
+const documentList = ref([]);
+const isAddMember = ref(false);
 // 表单数据
 const { form, assignFields } = useFormData({
   //公司
@@ -328,12 +368,12 @@ const { form, assignFields } = useFormData({
   district_code: '',
   address: '',
   document: [], //证件
-  expire_time: '', //证件有效期
+  expire_time: [], //证件有效期
   note: '',
 });
 
-const mobile_ok = ref(0)
-const email_ok = ref(0)
+const mobile_ok = ref(0);
+const email_ok = ref(0);
 
 // 表单验证规则
 const rules = reactive({
@@ -344,28 +384,10 @@ const rules = reactive({
       message: t('请输入') + t('组织机构代码f'),
     },
   ],
-  cid: [
-    {
-      required: true,
-      message: t('请选择') + t('分类f'),
-    },
-  ],
   type: [
     {
       required: true,
       message: t('请选择') + t('类型f'),
-    },
-  ],
-  document: [
-    {
-      required: true,
-      message: t('请上传') + t('证件f'),
-    },
-  ],
-  expire_time: [
-    {
-      required: true,
-      message: t('请选择') + t('证件有效期f'),
     },
   ],
 });
@@ -386,14 +408,6 @@ const dynamicRules = computed(() => {
         {
           required: true,
           message: t('请输入') + t('名'),
-          type: 'string',
-          trigger: 'blur',
-        },
-      ],
-      middleName: [
-        {
-          required: true,
-          message: t('请输入') + t('中间名'),
           type: 'string',
           trigger: 'blur',
         },
@@ -469,6 +483,40 @@ const handleChange = (key) => {
     verifyMobile.open = true;
   }
 };
+
+// 删除文件
+const remove = (index) => {
+  documentList.value.splice(index, 1);
+  form.expire_time.splice(index, 1);
+  console.log(form);
+};
+const checkUser = (val) => {
+  let keys = [
+    'avatar',
+    'idcard',
+    'email',
+    'emailCode',
+    'pre',
+    'mobile',
+    'mobileCode',
+    'province_code',
+    'city_code',
+    'district_code',
+    'address',
+    'document',
+    'expire_time',
+    'note',
+    'firstName',
+    'middleName',
+    'lastName',
+  ];
+  const newData = pick(val, keys);
+  form.user_uuid = val.uuid
+  Object.assign(form, newData);
+  mobile_ok.value = val.mobile_ok;
+  email_ok.value = val.email_ok;
+};
+
 // 提交
 const submit = () => {
   if (!trim(form.avatar)) {
@@ -484,6 +532,7 @@ const submit = () => {
       'email',
       'emailCode',
       'pre',
+      'job',
       'mobile',
       'mobileCode',
       'province_code',
@@ -523,10 +572,9 @@ const submit = () => {
       newData['uuid'] = form.uuid;
       stakeEdit(newData)
         .then(() => {
+          orgsDetailStore.setDetail(route.query.id);
           loading.value = false;
           message.success(t('修改成功'));
-          orgsDetailStore.setDetail();
-          router.back();
         })
         .catch(() => {
           loading.value = false;
@@ -544,6 +592,10 @@ onMounted(() => {
   getStakeholderJob().then((res) => {
     jobs.value = res;
   });
+  isAddMember.value = route.query.isAddMember === 'true';
+  if (isAddMember.value) {
+    form.type = 4;
+  }
 });
 
 // 监听重置idcard 公用字段
@@ -568,31 +620,44 @@ watch(
     form.district_code = arr[2] || '';
   }
 );
-
+const hasData = (data) => {
+  if (data) {
+    if (typeof data === 'string') {
+      return !!data;
+    } else if (data instanceof Array) {
+      return data.length;
+    } else {
+      return Object.keys(data).length;
+    }
+  } else {
+    return false;
+  }
+};
 watch(
   () => orgsDetailStore.detail,
   (val) => {
-    if (route.query.isEdit && val) {
+    const data = cloneDeep(val);
+    if (route.query.isEdit && data) {
       form.uuid = route.query.id;
-      assignFields({
-        ...val,
-      });
-      if (val.document.length) {
-        form.document = val.document.map((e) => {
-          return e.uuid;
-        });
+      documentList.value = data.document;
+      if (!hasData(data.expire_time)) {
+        data.expire_time = [];
+      } else if (typeof data.expire_time === 'string') {
+        data.expire_time = data.expire_time.split(',');
       }
-      mobile_ok.value = val.mobile_ok
-      email_ok.value = val.email_ok
+      assignFields({
+        ...data,
+      });
+      mobile_ok.value = val.mobile_ok;
+      email_ok.value = val.email_ok;
     }
   },
-  { immediate: true }
+  { immediate: true, deep: true }
 );
 </script>
 
 <style scoped lang="less">
 @import '@/styles/variables.less';
-
 .verify-btn {
   min-width: 100%;
 }
@@ -627,6 +692,13 @@ watch(
     .delete-img {
       display: none !important;
     }
+  }
+}
+
+.documents {
+  margin-top: 20px;
+  .document-name {
+    margin: 15px 0 10px;
   }
 }
 </style>

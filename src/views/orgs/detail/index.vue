@@ -2,10 +2,11 @@
   <div class="orgsDetail">
     <Panel :title="orgsDetailStore.detail?.name">
       <a-button
+      v-if="!orgsDetailStore.detail.pid"
         type="cyan"
         shape="round"
         @click="
-          navigationTo('/orgs/addOrgs?id=' + orgsDetailStore.detail?.uuid)
+          navigationTo('/orgs/addOrgs?id=' + orgsDetailStore.detail?.uuid+'&isAddMember=true')
         "
       >
         {{ t('添加人员') }}

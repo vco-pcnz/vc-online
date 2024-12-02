@@ -318,6 +318,50 @@ tool.diffDate = (a, b) => {
   return date2.diff(date1, 'day')
 }
 
+/**
+ * 判断一个对象里面的所有值都不存在
+ */
+tool.isAllValuesEmpty = (obj) => {
+  if (typeof obj !== 'object' || obj === null) {
+    return false; // 不是对象或是 null，直接返回 false
+  }
+
+  return Object.values(obj).every(value => {
+    if (value === null || value === undefined || value === '') {
+      return true; // 空值
+    } else if (Array.isArray(value)) {
+      return value.length === 0; // 空数组
+    } else if (typeof value === 'object') {
+      return Object.keys(value).length === 0; // 空对象
+    }
+    return false; // 非空值
+  });
+}
+
+/**
+ * 过滤对象里面的空数据
+ */
+tool.filterEmptyValues = (obj) => {
+  // 判断是否为对象或数组
+  if (typeof obj === 'object' && obj !== null) {
+    if (Array.isArray(obj)) {
+      // 处理数组：过滤掉空数据并递归处理数组元素
+      return obj.map(tool.filterEmptyValues).filter(item => item !== null && item !== undefined && item !== '');
+    } else {
+      // 处理对象：过滤掉空数据并递归处理值
+      return Object.entries(obj).reduce((acc, [key, value]) => {
+        const filteredValue = tool.filterEmptyValues(value); // 递归处理值
+        if (filteredValue !== null && filteredValue !== undefined && filteredValue !== '') {
+          acc[key] = filteredValue;
+        }
+        return acc;
+      }, {});
+    }
+  }
+  // 如果是基础类型，直接返回
+  return obj;
+}
+
 export const navigationTo = (path) => {
   router.push(path)
 }

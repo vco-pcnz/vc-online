@@ -8,6 +8,22 @@ export const templateStep = (params) =>
     params
   });
 
+  // 草稿信息
+export const projectDraftInfo = (params) =>
+  request({
+    url: "/project/project/draftInfo",
+    method: "get",
+    params
+  });
+
+// 保存草稿
+export const projectSaveSaveDraft = (data) =>
+  request({
+    url: "/project/project/saveDraft",
+    method: "post",
+    data
+  });
+
 // 保存借款人信息
 export const projectApplySaveBorrowerInfo = (data) =>
   request({
@@ -24,11 +40,26 @@ export const projectApplyBorrowerInfo = (params) =>
     params
   });
   
+  // 保存项目信息
+export const projectApplySaveProjectInfo = (data) =>
+  request({
+    url: "/project/apply/saveProjectInfo",
+    method: "post",
+    data
+  });
 
 // 项目信息
 export const projectApplyProjectInfo = (params) =>
   request({
     url: "/project/apply/projectInfo",
+    method: "get",
+    params
+  });
+
+// 枚举列表
+export const projectSelectList = (params = {}) =>
+  request({
+    url: "/project/project/selectList",
     method: "get",
     params
   });

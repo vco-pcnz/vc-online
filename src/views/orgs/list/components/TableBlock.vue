@@ -28,7 +28,11 @@
               ></a-checkbox> -->
             </li>
             <li>
-              <vco-avatar v-if="item.avatar" :src="item.avatar" :radius="true"></vco-avatar>
+              <vco-avatar
+                v-if="item.avatar"
+                :src="item.avatar"
+                :radius="true"
+              ></vco-avatar>
               <span v-else>--</span>
             </li>
             <li>
@@ -44,26 +48,20 @@
               <p v-if="item.mobile">
                 <i class="iconfont" :class="{ cer: item.mobile_ok }">&#xe678;</i>
                 <span :class="{ cer: item.mobile_ok }">
-                  <template v-if="item.mobile && item.pre">
-                    +{{ item.pre }}
-                  </template>
-                  {{ item.mobile }}
+                  <template v-if="item.mobile && item.pre">+{{ item.pre }} </template>{{ item.mobile }}
                 </span>
               </p>
             </li>
             <li>
               <p class="name">{{ item.user_name }}</p>
               <p v-if="item.user_username">
-                <i class="iconfont">&#xe632;</i>
-                <span>{{ item.user_username }}</span>
+                <i class="iconfont">&#xe632;</i> <span>{{ item.user_username }}</span>
               </p>
               <p v-if="item.user_username">
-                <i class="iconfont" :class="{ cer: item.user_email_ok }">&#xe66f;</i>
-                <span>{{ item.user_email }}</span>
+                <i class="iconfont" :class="{ cer: item.user_email_ok }">&#xe66f;</i> <span>{{ item.user_email }}</span>
               </p>
               <p v-if="item.user_mobile">
-                <i class="iconfont" :class="{ cer: item.user_mobile_ok }">&#xe678;</i>
-                <span :class="{ cer: item.user_mobile_ok }">{{ item.user_mobile }}</span>
+                <i class="iconfont" :class="{ cer: item.user_mobile_ok }">&#xe678;</i><span :class="{ cer: item.user_mobile_ok }"> {{ item.user_mobile }}</span>
               </p>
             </li>
             <li>
@@ -87,21 +85,23 @@
             </li>
             <li>
               <p>
-                <i class="iconfont black">&#xe690;</i>
-                <span class="cer bold">{{ item.open_count }} {{ t('进行中项目') }}</span>
+                <i class="iconfont black">&#xe690;</i><span class="cer bold"> {{ item.open_count }} {{ t('进行中项目') }}</span>
               </p>
               <p style="padding-left: 20px">
-                <span class="bold">{{ item.close_count }} {{ t('已关闭项目') }}</span>
+                <span class="bold">
+                  {{ item.close_count }} {{ t('已关闭项目') }}
+                </span>
               </p>
               <p>
-                <i class="iconfont black">&#xe751;</i>
-                <span class="cer bold">{{ item.apply_count }} {{ t('请求') }}</span>
+                <i class="iconfont black">&#xe751;</i><span class="cer bold">{{ item.apply_count }} {{ t('请求') }}</span>
               </p>
             </li>
 
             <li>
               <p>
-                <span class="cer">{{ item.is_expire ? t('有效') : t('无效') }}</span>
+                <span class="cer">
+                  {{ item.is_expire ? t('有效') : t('无效') }}
+                </span>
               </p>
               <p v-if="item.expire_time" :class="{ err: !item.is_expire }">
                 {{ tool.showDate(item.expire_time) }}
@@ -116,6 +116,9 @@
                   <a-menu>
                     <a-menu-item key="0">
                       <span @click="toDetail(item)">{{ t('查看详情') }}</span>
+                    </a-menu-item>
+                    <a-menu-item key="1" v-if="item.has_user">
+                      <span @click="orgsStore.stakeUnbind(item.uuid)">{{ t('解绑用户') }}</span>
                     </a-menu-item>
                   </a-menu>
                 </template>
@@ -135,8 +138,8 @@ import { Empty } from 'ant-design-vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import router from '@/router';
-import { useOrgsDetailStore } from '@/store';
-const orgsDetailStore = useOrgsDetailStore();
+import { useOrgsStore } from '@/store';
+const orgsStore = useOrgsStore();
 
 const emits = defineEmits(['check']);
 
@@ -158,7 +161,7 @@ const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE;
 const checkedAll = ref(false);
 
 const itemcheck = () => {
-  const length = props.tableData.filter(item => item.checked).length;
+  const length = props.tableData.filter((item) => item.checked).length;
   checkedAll.value = length === props.tableData.length;
 };
 
@@ -167,7 +170,7 @@ const checkedAllHandle = () => {
 };
 
 // 跳转详情
-const toDetail = item => {
+const toDetail = (item) => {
   router.push({ path: '/orgs/detail', query: { id: item.uuid } });
 };
 </script>

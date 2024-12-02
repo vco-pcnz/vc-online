@@ -15,13 +15,17 @@
                   <a-select
                     v-model:value="formState.project_type"
                     :options="projectTypeData"
-                    mode="multiple"
                   ></a-select>
                 </a-form-item>
               </a-col>
               <a-col :span="24">
                 <a-form-item :label="t('项目照片')" name="project_images">
                   <vco-upload-image v-model:value="formState.project_images" :isMultiple="true" :limit="9"></vco-upload-image>
+                </a-form-item>
+              </a-col>
+              <a-col :span="24">
+                <a-form-item :label="t('详细地址')" name="project_address">
+                  <a-input v-model:value="formState.project_address" />
                 </a-form-item>
               </a-col>
               <a-col :span="24">
@@ -33,12 +37,12 @@
                   ></vco-address-select>
                 </a-form-item>
               </a-col>
-              <a-col :span="24">
-                <a-form-item :label="t('详细地址')" name="borrower_address">
-                  <a-input v-model:value="formState.borrower_address" />
+              <a-col :span="12">
+                <a-form-item :label="t('邮编')" name="project_postcode">
+                  <a-input v-model:value="formState.project_postcode" />
                 </a-form-item>
               </a-col>
-              <a-col :span="24">
+              <a-col :span="12">
                 <a-form-item :label="t('楼栋数')" name="building_num">
                   <a-input v-model:value="formState.building_num" />
                 </a-form-item>
@@ -52,12 +56,20 @@
           </a-form>
         </div>
         <div class="flex mt-5 items-end gap-20 justify-between">
-          <a-button type="grey" shape="round" class="weight">{{ t('保存草稿') }}</a-button>
+          <div>
+            <a-button
+              type="grey"
+              shape="round"
+              class="weight"
+              :loading="draftLoading"
+              @click="draftHandle"
+            >{{ t('保存草稿') }}</a-button>
+            <p v-if="hasDrafData" class="mt-2 text-sm pl-1 form-tips-color">{{ t('* 存在草稿数据，请点击{0}保存', [`"${t('下一步')}"`]) }}</p>
+          </div>
           <div class="flex gap-5">
             <a-button
               type="primary" shape="round" class="big shadow bold uppercase"
-              @click="submitHandle"
-              :loading="subLoading"
+              @click="previousHandle"
             >{{ t('上一步') }}</a-button>
             <a-button
               type="dark" shape="round" class="big shadow bold uppercase"
@@ -79,42 +91,20 @@
   import { reactive, ref, watch } from "vue";
   import { useI18n } from "vue-i18n";
   import { cloneDeep } from "lodash";
-  import { QuestionCircleOutlined } from '@ant-design/icons-vue';
-  import { projectApplySaveBorrowerInfo } from "@/api/process"
+  import { projectSelectList, projectApplySaveProjectInfo, projectSaveSaveDraft } from "@/api/process";
+  import tool, { navigationTo } from "@/utils/tool";
+  import { message } from "ant-design-vue/es";
 
   const props = defineProps({
     infoData: {
       type: Object,
       default: () => {}
+    },
+    draftData: {
+      type: Object,
+      default: () => {}
     }
   })
-
-  const projectTypeData = ref([
-    {
-      label: "Construction",
-      value: 1
-    },
-    {
-      label: "Buying land",
-      value: 2
-    },
-    {
-      label: "Refinancing",
-      value: 3
-    },
-    {
-      label: "Bridging",
-      value: 4
-    },
-    {
-      label: "Land subdivision",
-      value: 5
-    },
-    {
-      label: "Land banking",
-      value: 6
-    }
-  ])
 
   const { t } = useI18n();
   const formRef = ref()
@@ -124,7 +114,8 @@
     project_type: undefined,
     project_images: [],
     project_region: '',
-    borrower_address: '',
+    project_address: '',
+    project_postcode: '',
     building_num: '',
     project_about: ''
   })
@@ -142,8 +133,16 @@
     project_region: [
       { required: true, message: t('请选择') + t('项目地址'), trigger: 'change' }
     ],
-    borrower_address: [
+    project_address: [
       { required: true, message: t('请输入') + t('详细地址'), trigger: 'blur' }
+    ],
+    project_postcode: [
+      { required: true, message: t('请输入') + t('邮编'), trigger: 'blur' },
+      {
+        pattern: /^[A-Za-z0-9\s\-]+$/,
+        message: t('邮编') + t("格式不正确"),
+        trigger: 'blur'
+      }
     ],
     building_num: [
       { required: true, message: t('请输入') + t('楼栋数'), trigger: 'blur' }
@@ -153,35 +152,34 @@
     ]
   }
 
-  const subLoading = ref(false)
+  const getParams = () => {
+    const params = cloneDeep(formState)
+    if (params.project_images && params.project_images.length) {
+      params.project_images = params.project_images.join(',')
+    }
 
+    const regionArr = params.project_region.split(',')
+    params.region_one_id = regionArr[0] ? Number(regionArr[0]) : 0
+    params.region_two_id = regionArr[1] ? Number(regionArr[1]) : 0
+    params.region_three_id = regionArr[2] ? Number(regionArr[2]) : 0
+
+    delete params.project_region
+    params.uuid = props.infoData.uuid
+
+    return params
+  }
+
+  const subLoading = ref(false)
   const submitHandle = () => {
     formRef.value
     .validate()
     .then(() => {
-      const params = cloneDeep(formState)
-      if (params.project_images && params.project_images.length) {
-        params.project_images = params.project_images.join(',')
-      }
-
-      const regionArr = params.project_region.split(',')
-      params.project_region_one_id = Number(regionArr[0])
-      params.project_region_two_id = regionArr[1] ? Number(regionArr[1]) : 0
-      params.project_region_three_id = regionArr[2] ? Number(regionArr[2]) : 0
-
-      if (params.borrower_type === 2) {
-        params.borrower_id_num = params.company_number
-      }
-
-      delete params.company_number
-      delete params.project_region
-
-      if (props.infoData && props.infoData.project_apply_sn) {
-        params.project_apply_sn = props.infoData.project_apply_sn
-      }
-
+      const params = getParams()
+      params.draft_step = 'two'
+      
       subLoading.value = true
-      projectApplySaveBorrowerInfo(params).then(() => {
+
+      projectApplySaveProjectInfo(params).then(() => {
         subLoading.value = false
       }).catch(() => {
         subLoading.value = false
@@ -192,27 +190,79 @@
     });
   }
 
+  const draftLoading = ref(false)
+  const hasDrafData = ref(false)
+  const draftHandle = () => {
+    const data = getParams()
+    const dataObj = cloneDeep(data)
+    delete dataObj.uuid
+    delete dataObj.region_one_id
+    delete dataObj.region_two_id
+    delete dataObj.region_three_id
+    console.log('dataObj', dataObj)
+
+    if (tool.isAllValuesEmpty(dataObj)) {
+      message.error(t('暂无数据，无需保存'))
+    } else {
+      const params = {
+        uuid: props.infoData.uuid,
+        draft_step: 'two',
+        draft: JSON.stringify(tool.filterEmptyValues(data))
+      }
+
+      draftLoading.value = true
+      projectSaveSaveDraft(params).then(res => {
+        message.success(t('保存成功'))
+        draftLoading.value = false
+      }).catch(() => {
+        draftLoading.value = false
+      })
+    }
+  }
+
+  const previousHandle = () => {
+    navigationTo(`/process/one?uuid_info=${props.infoData.uuid}`)
+  }
+
+  const projectTypeData = ref([])
+  const getTypeData = () => {
+    projectSelectList().then(res => {
+      const data = res.project_type || []
+      projectTypeData.value = data.map(item => {
+        return {
+          label: item.title,
+          value: item.id
+        }
+      })
+    })
+  }
+
   const dataInit = () => {
     const data = cloneDeep(props.infoData)
+    const draftData = cloneDeep(props.draftData)
+
+    let useData = data
+    if (draftData && Object.keys(draftData).length) {
+      useData = draftData
+      hasDrafData.value = true
+    }
 
     for (const key in formState) {
-      if (key === 'project_images') {
-        if (data.project_images && data.project_images.length) {
-          formState[key] = data.project_images.map(item => item.url)
-        }
-      } else if (key === 'company_number') {
-        formState[key] = data.borrower_type === 2 ? data.borrower_id_num : ''
-      } else {
-        formState[key] = data[key]
+      formState[key] = useData[key] || formState[key] || ''
+      if (key === 'project_type') {
+        formState[key] = useData[key] || undefined
       }
     }
-    console.log('formState', formState)
+    const areaArr = [useData.region_one_id, useData.region_two_id, useData.region_three_id]
+    const areaStr = areaArr.filter(item => item).join(',')
+    formState.project_region = areaStr || ''
   }
 
   watch(
     () => props.infoData,
     (val) => {
       if (val) {
+        getTypeData()
         dataInit()
       }
     }, {

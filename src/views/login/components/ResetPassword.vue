@@ -15,6 +15,7 @@
             <a-form-item
               name="code"
               :label="t('验证码')"
+              v-show="false"
             >
               <a-input
                 v-model:value="form.code"

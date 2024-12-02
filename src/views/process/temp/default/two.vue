@@ -179,8 +179,9 @@
       
       subLoading.value = true
 
-      projectApplySaveProjectInfo(params).then(() => {
+      projectApplySaveProjectInfo(params).then(res => {
         subLoading.value = false
+        navigationTo(`/process/three?uuid_info=${res.uuid}`)
       }).catch(() => {
         subLoading.value = false
       })
@@ -199,7 +200,6 @@
     delete dataObj.region_one_id
     delete dataObj.region_two_id
     delete dataObj.region_three_id
-    console.log('dataObj', dataObj)
 
     if (tool.isAllValuesEmpty(dataObj)) {
       message.error(t('暂无数据，无需保存'))

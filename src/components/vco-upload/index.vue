@@ -184,9 +184,10 @@ watch(
           'ppt',
           'pptx',
           'pdf',
+          'xmind'
         ];
         errTip.value = t(
-          '上传图片的格式不正确，不是XLS、XLSX、CSV、JSON、TXT、DOC、DOCX、PPT、PPTX、PDF'
+          '上传文件的格式不正确，不是XLS、XLSX、CSV、JSON、TXT、DOC、DOCX、PPT、PPTX、PDF、Xmind'
         );
         upText.value = '上传文件';
         break;

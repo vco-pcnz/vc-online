@@ -63,3 +63,19 @@ export const projectSelectList = (params = {}) =>
     method: "get",
     params
   });
+
+// 保存项目资质
+export const projectApplySaveProjectCert = (data) =>
+  request({
+    url: "/project/apply/saveProjectCert",
+    method: "post",
+    data
+  });
+
+// 项目资质
+export const projectApplyProjectCert = (params) =>
+  request({
+    url: "/project/apply/projectCert",
+    method: "get",
+    params
+  });

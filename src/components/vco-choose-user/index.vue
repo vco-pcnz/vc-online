@@ -9,7 +9,11 @@
           style="flex: 1"
           :placeholder="t('请输入')"
         ></vco-type-input>
-        <i class="iconfont" style="cursor: pointer" @click="searchHandle(false)">
+        <i
+          class="iconfont"
+          style="cursor: pointer"
+          @click="searchHandle(false)"
+        >
           &#xe756;
         </i>
       </slot>
@@ -27,6 +31,7 @@
         <TableBlock
           :isMultiple="isMultiple"
           :table-data="tableData"
+          :url="url"
           v-model:list="checkedList"
           v-model:ids="checkedIds"
           v-model:data="checkedData"
@@ -67,12 +72,16 @@ import { ref, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue';
 import TableBlock from './components/TableBlock.vue';
-import { stakeSelStake } from '@/api/system/index';
 import { cloneDeep } from 'lodash';
+import { request } from '@/utils/request';
 
 const { t } = useI18n();
 
 const props = defineProps({
+  url: {
+    type: String,
+    default: 'user/selUser',
+  },
   list: {
     type: Array,
   },
@@ -143,7 +152,6 @@ const getContainer = () => {
 
 // 搜索
 const searchHandle = (parameters) => {
-  console.log(parameters)
   if (parameters) searchForm.value = cloneDeep(parameters);
   pagination.value.page = 1;
   lodaData();
@@ -153,15 +161,18 @@ const searchHandle = (parameters) => {
 // 加载数据
 const lodaData = () => {
   loading.value = true;
-  stakeSelStake({ ...searchForm.value, ...pagination.value })
-    .then((res) => {
-      tableData.value = res.data;
-      count.value = res.count;
-      loading.value = false;
-    })
-    .catch((e) => {
-      loading.value = false;
-    });
+  request({
+    url: props.url,
+    method: 'get',
+    params: { ...searchForm.value, ...pagination.value },
+  }).then((res) => {
+    tableData.value = res.data;
+    count.value = res.count;
+    loading.value = false;
+  })
+  .catch((e) => {
+    loading.value = false;
+  });
 };
 
 // 分页加载
@@ -202,19 +213,20 @@ defineExpose({
   }
 
   #vco-choose-user-model {
-    .area-code-btn, .ant-picker, .ant-select-selector, .ant-input
-     .ant-select-selector .ant-select-selection-placeholder,
-     .ant-select-selector .ant-select-selection-search-input,
-     .ant-select-selector .ant-select-selection-item {
+    .area-code-btn,
+    .ant-picker,
+    .ant-select-selector,
+    .ant-input .ant-select-selector .ant-select-selection-placeholder,
+    .ant-select-selector .ant-select-selection-search-input,
+    .ant-select-selector .ant-select-selection-item {
       height: 24px !important;
       line-height: 22px !important;
       border-radius: 4px !important;
-      background: transparent!important;
+      background: transparent !important;
       border-color: #d9d9d9 !important;
-    &:hover {
-      
-    border-color: #ffb940!important;
-    }
+      &:hover {
+        border-color: #ffb940 !important;
+      }
     }
     .modal-content {
       height: 70vh;

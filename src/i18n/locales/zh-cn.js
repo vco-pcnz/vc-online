@@ -189,6 +189,8 @@ export default {
   "删除": "删除",
   "请上传图片": "请上传图片",
   "上传图片的格式不正确，不是JPG、JPEG、GIF、PNG、BMP": "上传图片的格式不正确，不是JPG、JPEG、GIF、PNG、BMP",
+  "上传文件的格式不正确，不是XLS、XLSX、CSV、JSON、TXT、DOC、DOCX、PPT、PPTX、PDF、Xmind": "上传文件的格式不正确，不是XLS、XLSX、CSV、JSON、TXT、DOC、DOCX、PPT、PPTX、PDF、Xmind",
+  "上传视频的格式不正确，不是MP4、RMVB、WMV、AVI、MPEG、MPG、MOV、3GP、FLV、MKV、M4V": "上传视频的格式不正确，不是MP4、RMVB、WMV、AVI、MPEG、MPG、MOV、3GP、FLV、MKV、M4V",
   "大小不能超过{0}": "大小不能超过{0}",
   "上传失败": "上传失败",
   "借款人类型": "借款人类型",
@@ -255,5 +257,12 @@ export default {
   "描述": "描述",
   "支出": "支出",
   "收入": "收入",
-  "状态": "状态"
+  "状态": "状态",
+  "资源许可": "资源许可",
+  "工程计划批准": "工程计划批准",
+  "建筑许可": "建筑许可",
+  "可行性研究": "可行性研究",
+  "其他": "其他",
+  "暂无数据，请上传": "暂无数据，请上传",
+  "上传文件": "上传文件"
 }

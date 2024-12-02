@@ -116,17 +116,31 @@
               </p>
             </li>
             <li>
-              <a-dropdown :trigger="['click']" v-if="item.has_user">
+              <a-dropdown :trigger="['click']">
                 <a class="ant-dropdown-link" @click.prevent>
                   <i class="iconfont">&#xe77a;</i>
                 </a>
                 <template #overlay>
                   <a-menu>
-                    <!-- <a-menu-item key="0">
-                      <a>{{ t('查看详情') }}</a>
-                    </a-menu-item> -->
-                    <a-menu-item key="0" v-if="item.has_user">
-                      <span @click="orgsDetailStore.stakeUnbind(item.uuid)">{{ t('解绑用户') }}</span>
+                    <a-menu-item key="0">
+                      <DetailModal :detail="item"><span>{{ t('查看详情') }}</span></DetailModal>
+                    </a-menu-item>  
+                    <a-menu-item key="1">
+                      <span  @click="navigationTo('/orgs/addOrgs?id='+item?.uuid+'&isEdit='+true+'&isAddMember=true')">{{ t('编辑') }}</span>
+                    </a-menu-item>
+                    <a-menu-item key="2" v-if="item.has_user">
+                      <a-popconfirm
+                        :title="'Are you sure ' + t('解绑用户')"
+                        ok-text="Yes"
+                        cancel-text="No"
+                        @confirm="orgsDetailStore.stakeUnbind(item.uuid)"
+                        @cancel="cancel"
+                      >
+                        <span>{{ t('解绑用户') }}</span>
+                      </a-popconfirm>
+                    </a-menu-item>
+                    <a-menu-item key="2" v-if="!item.has_user">
+                      <span @click="showBindUser(item.uuid)">{{ t('绑定用户') }}</span>
                     </a-menu-item>
                   </a-menu>
                 </template>
@@ -136,6 +150,7 @@
         </template>
       </div>
       <a-empty v-else :image="simpleImage" />
+      <vco-choose-user ref="vcoChooseUserRef" @change="bindUser"><div></div></vco-choose-user>
     </div>
   </div>
 </template>
@@ -145,6 +160,8 @@ import { ref } from 'vue';
 import { Empty } from 'ant-design-vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
+import {navigationTo} from '@/utils/tool';
+import DetailModal from '../../components/detail-modal.vue';
 import { useOrgsDetailStore } from '@/store';
 const orgsDetailStore = useOrgsDetailStore();
 
@@ -175,6 +192,20 @@ const itemcheck = () => {
 const checkedAllHandle = () => {
   emits('check', checkedAll.value);
 };
+
+const bindForm = ref({
+  user_uuid: '',
+  uuid:''
+})
+const vcoChooseUserRef = ref()
+const showBindUser = (uuid) => {
+  bindForm.value.uuid = uuid
+  vcoChooseUserRef.value.searchHandle()
+}
+const bindUser = (e) => {
+  bindForm.value.user_uuid = e.uuid
+  orgsDetailStore.stakeBind(bindForm.value)
+}
 </script>
 
 <style lang="less" scoped>

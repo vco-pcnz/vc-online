@@ -44,17 +44,18 @@
               </a-form-item>
             </a-col>
           </template>
-          <a-col :span="24">
-            <a-form-item :label="t('选择用户')" v-if="form.type == 4">
-              <vco-choose-user
-                ref="vcoChooseUserRef"
-                @change="checkUser"
-              ></vco-choose-user>
-            </a-form-item>
-          </a-col>
 
           <!-- 个人相关信息 -->
           <template v-if="form.type == 4">
+            <a-col :span="24">
+              <a-form-item :label="t('选择用户')">
+                <vco-choose-user
+                  ref="vcoChooseUserRef"
+                  :showRest="!!form.user_uuid"
+                  @change="checkUser"
+                ></vco-choose-user>
+              </a-form-item>
+            </a-col>
             <a-col :span="8">
               <a-form-item name="firstName" :label="t('名')">
                 <a-input
@@ -101,19 +102,6 @@
           <!-- 公司相关信息 -->
           <template v-else>
             <a-col :span="24">
-              <a-form-item :label="t('工作')" name="job">
-                <a-radio-group v-model:value="form.job">
-                  <a-radio
-                    :value="item.code"
-                    :key="item.code"
-                    v-for="item in jobs"
-                  >
-                    {{ item.name }}
-                  </a-radio>
-                </a-radio-group>
-              </a-form-item>
-            </a-col>
-            <a-col :span="24">
               <a-form-item :label="t('公司名称f')" name="name">
                 <a-input v-model:value="form.name" :placeholder="t('请输入')" />
               </a-form-item>
@@ -143,6 +131,7 @@
 
           <!-- 公共 -->
 
+          <!-- 邮箱 -->
           <a-col :span="20">
             <a-form-item name="email" :label="t('联系邮箱f')">
               <a-input
@@ -177,12 +166,13 @@
               <countdown v-model:show="verifyEmail.showCountdown" />
             </a-form-item>
           </a-col>
-
           <a-col :span="24" v-if="verifyEmail.showCode">
             <a-form-item label="邮箱验证码" name="emailCode">
               <a-input v-model:value="form.emailCode" />
             </a-form-item>
           </a-col>
+          <!-- ####################################### -->
+          <!-- 电话 -->
           <a-col :span="20">
             <a-form-item :label="t('联系电话f')" name="mobile">
               <vco-mobile-input
@@ -222,19 +212,23 @@
               <a-input v-model:value="form.mobileCode" />
             </a-form-item>
           </a-col>
-          <a-col :span="12">
-            <a-form-item :label="t('地址')" name="address">
-              <a-input
-                v-model:value="form.address"
-                :placeholder="t('请输入')"
-              />
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-item label=" " name="province_code">
-              <vco-address-select v-model:value="region"></vco-address-select>
-            </a-form-item>
-          </a-col>
+          <!-- ####################################### -->
+          <template v-if="form.type != 4">
+            <a-col :span="12">
+              <a-form-item :label="t('地址')" name="address">
+                <a-input
+                  v-model:value="form.address"
+                  :placeholder="t('请输入')"
+                />
+              </a-form-item>
+            </a-col>
+            <a-col :span="12">
+              <a-form-item label=" " name="province_code">
+                <vco-address-select v-model:value="region"></vco-address-select>
+              </a-form-item>
+            </a-col>
+          </template>
+
           <a-col :span="24">
             <a-form-item :label="t('证件f')" name="document">
               <vco-upload-modal
@@ -270,6 +264,31 @@
               />
             </a-form-item>
           </a-col>
+          <!-- 邀请 -->
+          <a-col :span="24">
+            <a-form-item
+              :label="t('邀请')"
+              name="verifyMode"
+              v-if="!isEdit && form.type == 4 && !form.user_uuid"
+            >
+              <a-row>
+                <a-col :span="12">
+                  <a-form-item-rest>
+                    <a-checkbox v-model:checked="form.sendEmail">
+                      {{ t('发送邀请邮件') }}
+                    </a-checkbox>
+                  </a-form-item-rest>
+                </a-col>
+                <a-col :span="12">
+                  <a-form-item-rest>
+                    <a-checkbox v-model:checked="form.sendSms">
+                      {{ t('发送邀请短信') }}
+                    </a-checkbox>
+                  </a-form-item-rest>
+                </a-col>
+              </a-row>
+            </a-form-item>
+          </a-col>
         </a-row>
       </a-form>
     </div>
@@ -292,6 +311,9 @@
       />
       <change-mobile
         v-model:open="verifyMobile.open"
+        :mobile="form.mobile"
+        :pre="form.pre"
+        :uuid="form.uuid"
         :title="t('编辑手机号')"
       />
     </div>
@@ -337,6 +359,7 @@ const region = ref();
 const loading = ref(false);
 const documentList = ref([]);
 const isAddMember = ref(false);
+const isEdit = ref(false)
 // 表单数据
 const { form, assignFields } = useFormData({
   //公司
@@ -383,6 +406,26 @@ const rules = reactive({
       required: true,
       message: t('请输入') + t('组织机构代码f'),
     },
+    // {
+    //   pattern: /^[A-Z0-9]+$/,
+    //   message: t('组织机构代码f') + t('格式不正确'),
+    //   trigger: 'blur',
+    // },
+  ],
+  mobile: [
+    {
+      pattern: /^\+?[1-9]\d{1,14}$|^\(?\d+\)?[-.\s]?\d+([-.\s]?\d+)*$/,
+      message: t('手机号') + t('格式不正确'),
+      trigger: 'blur',
+    },
+  ],
+  email: [
+    {
+      pattern:
+        /^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$/,
+      message: t('邮箱') + t('格式不正确'),
+      trigger: 'blur',
+    },
   ],
   type: [
     {
@@ -402,6 +445,11 @@ const dynamicRules = computed(() => {
         {
           required: true,
           message: t('请输入') + t('身份证号码'),
+        },
+        {
+          pattern: /^[A-Z0-9]+$/,
+          message: t('身份证号码') + t('格式不正确'),
+          trigger: 'blur',
         },
       ],
       firstName: [
@@ -511,7 +559,9 @@ const checkUser = (val) => {
     'lastName',
   ];
   const newData = pick(val, keys);
-  form.user_uuid = val.uuid
+  console.log(newData)
+  console.log(val)
+  form.user_uuid = val.uuid;
   Object.assign(form, newData);
   mobile_ok.value = val.mobile_ok;
   email_ok.value = val.email_ok;
@@ -519,10 +569,10 @@ const checkUser = (val) => {
 
 // 提交
 const submit = () => {
-  if (!trim(form.avatar)) {
-    message.warning(t('请上传头像'));
-    return;
-  }
+  // if (!trim(form.avatar)) {
+  //   message.warning(t('请上传头像'));
+  //   return;
+  // }
   formRef.value.validate().then(() => {
     let keys = [
       'cid',
@@ -532,31 +582,35 @@ const submit = () => {
       'email',
       'emailCode',
       'pre',
-      'job',
       'mobile',
       'mobileCode',
-      'province_code',
-      'city_code',
-      'district_code',
-      'address',
       'document',
       'expire_time',
       'note',
     ];
-    // job????
     if (form.type == 4) {
       keys = keys.concat([
-        'user_uuid',
         'firstName',
         'middleName',
         'lastName',
+        'job',
         'sendEmail',
         'sendSms',
+        'user_uuid',
       ]);
     } else {
-      keys = keys.concat(['name', 'nzbz', 'contactName']);
+      keys = keys.concat([
+        'name',
+        'nzbz',
+        'contactName',
+        'province_code',
+        'city_code',
+        'district_code',
+        'address',
+      ]);
     }
     const newData = pick(form, keys);
+    loading.value = true;
     if (!form.uuid) {
       newData['p_uuid'] = form.p_uuid;
       stakeAdd(newData)
@@ -637,7 +691,8 @@ watch(
   () => orgsDetailStore.detail,
   (val) => {
     const data = cloneDeep(val);
-    if (route.query.isEdit && data) {
+    if (route.query.isEdit == 'true' && data) {
+      isEdit.value = true
       form.uuid = route.query.id;
       documentList.value = data.document;
       if (!hasData(data.expire_time)) {
@@ -648,6 +703,9 @@ watch(
       assignFields({
         ...data,
       });
+      region.value = [data.province_code, data.city_code, data.district_code]
+        .filter((item) => item)
+        .join(',');
       mobile_ok.value = val.mobile_ok;
       email_ok.value = val.email_ok;
     }

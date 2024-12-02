@@ -1,7 +1,7 @@
 <template>
   <ul class="orgs-info">
     <li>
-      <a-button v-if="showEdit" type="cyan" shape="round" class="edit" @click="navigationTo('/orgs/addOrgs?id='+orgsDetailStore.detail?.uuid+'&isEdit='+true+'&isAddMember='+!!orgsDetailStore.detail.pid)">{{ t('编辑') }}</a-button>
+      <a-button v-if="showEdit" type="cyan" shape="round" class="edit" @click="navigationTo('/orgs/addOrgs?id='+orgsDetailStore.detail?.uuid+'&isEdit='+true+'&isAddMember='+!!orgsDetailStore.detail.is_pid)">{{ t('编辑') }}</a-button>
       <div class="avatar-box">
         <vco-avatar :src="orgsDetailStore.detail?.avatar" :size="100"></vco-avatar>
       </div>
@@ -12,10 +12,6 @@
     </li>
     <li>
       <p>{{ t('详情') }}</p>
-      <!-- <p>
-                <span class="label"><i class="iconfont">&#xe605;</i>Org ID: </span>
-                <span class="value">{{ orgsDetailStore.detail?.org_name }}</span>
-            </p> -->
       <p>
         <span class="label"><i class="iconfont">&#xe65b;</i>NZBZ: </span>
         <span class="value">{{ orgsDetailStore.detail?.nzbz }}</span>
@@ -37,7 +33,7 @@
         <span class="value">{{ orgsDetailStore.detail?.city }}</span>
       </p>
     </li>
-    <li v-if="orgsDetailStore.detail.document && orgsDetailStore.detail.document.length">
+    <li>
       <p>{{ t('证件f') }}</p>
       <vco-file-item :file="item" :time="orgsDetailStore.detail.expire_time[index]" v-for="(item,index) in orgsDetailStore.detail.document" :key="index"></vco-file-item>
     </li>

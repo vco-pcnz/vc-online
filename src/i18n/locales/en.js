@@ -231,6 +231,7 @@ export default {
   "选择登录账号": "Select login account",
   "请上传头像": "Please upload avatar",
   "解绑用户": "Unbind users",
+  "绑定用户": 'Bind users',
   "上传文件": "Upload files",
   "上传视频": "Upload video",
   "项目名称": "Project name",
@@ -256,5 +257,7 @@ export default {
   "可行性研究": "Feasibility",
   "其他": "Others",
   "暂无数据，请上传": "No data yet, please upload",
-  "上传文件": "Upload file"
+  "上传文件": "Upload file",
+  "邀请": "Invite Member",
+  
 }

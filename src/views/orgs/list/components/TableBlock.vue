@@ -115,10 +115,25 @@
                 <template #overlay>
                   <a-menu>
                     <a-menu-item key="0">
-                      <span @click="toDetail(item)">{{ t('查看详情') }}</span>
+                      <DetailModal :detail="item" v-if="item.type == 4"><span>{{ t('查看详情') }}</span></DetailModal>
+                      <span @click="toDetail(item)" v-else>{{ t('查看详情') }}</span>
                     </a-menu-item>
-                    <a-menu-item key="1" v-if="item.has_user">
-                      <span @click="orgsStore.stakeUnbind(item.uuid)">{{ t('解绑用户') }}</span>
+                    <a-menu-item key="1">
+                      <span  @click="navigationTo('/orgs/addOrgs?id='+item?.uuid+'&isEdit='+true+'&isAddMember='+!!item.is_pid)">{{ t('编辑') }}</span>
+                    </a-menu-item>
+                    <a-menu-item key="2" v-if="item.has_user">
+                      <a-popconfirm
+                        :title="'Are you sure ' + t('解绑用户')"
+                        ok-text="Yes"
+                        cancel-text="No"
+                        @confirm="orgsStore.stakeUnbind(item.uuid)"
+                        @cancel="cancel"
+                      >
+                        <span>{{ t('解绑用户') }}</span>
+                      </a-popconfirm>
+                    </a-menu-item>
+                    <a-menu-item key="2" v-if="!item.has_user">
+                      <span @click="showBindUser(item.uuid)">{{ t('绑定用户') }}</span>
                     </a-menu-item>
                   </a-menu>
                 </template>
@@ -128,6 +143,7 @@
         </template>
       </div>
       <a-empty v-else :image="simpleImage" />
+      <vco-choose-user ref="vcoChooseUserRef" @change="bindUser"><div></div></vco-choose-user>
     </div>
   </div>
 </template>
@@ -137,8 +153,10 @@ import { ref } from 'vue';
 import { Empty } from 'ant-design-vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
+import {navigationTo} from '@/utils/tool';
 import router from '@/router';
 import { useOrgsStore } from '@/store';
+import DetailModal from '../../components/detail-modal.vue';
 const orgsStore = useOrgsStore();
 
 const emits = defineEmits(['check']);
@@ -168,6 +186,20 @@ const itemcheck = () => {
 const checkedAllHandle = () => {
   emits('check', checkedAll.value);
 };
+
+const bindForm = ref({
+  user_uuid: '',
+  uuid:''
+})
+const vcoChooseUserRef = ref()
+const showBindUser = (uuid) => {
+  bindForm.value.uuid = uuid
+  vcoChooseUserRef.value.searchHandle()
+}
+const bindUser = (e) => {
+  bindForm.value.user_uuid = e.uuid
+  orgsStore.stakeBind(bindForm.value)
+}
 
 // 跳转详情
 const toDetail = (item) => {

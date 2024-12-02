@@ -45,4 +45,13 @@ export const getChildList = params =>
       method: 'post',
       params,
     });
+
+    // 解绑用户
+    export const stakeBind = params =>
+      request({
+        url: 'stake/bind',
+        method: 'post',
+        params,
+      });
+    
   

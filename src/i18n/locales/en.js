@@ -190,6 +190,8 @@ export default {
   "删除": "DELETE",
   "请上传图片": "Please upload a picture",
   "上传图片的格式不正确，不是JPG、JPEG、GIF、PNG、BMP": "The format of the uploaded image is incorrect, it is not JPG, JPEG, GIF, PNG, BMP",
+  "上传文件的格式不正确，不是XLS、XLSX、CSV、JSON、TXT、DOC、DOCX、PPT、PPTX、PDF、Xmind": "The format of the uploaded file is incorrect. It is not XLS, XLSX, CSV, JSON, TXT, DOC, DOCX, PPT, PPTX, PDF, Xmind",
+  "上传视频的格式不正确，不是MP4、RMVB、WMV、AVI、MPEG、MPG、MOV、3GP、FLV、MKV、M4V": "The format of the uploaded video is incorrect. It is not MP4, RMVB, WMV, AVI, MPEG, MPG, MOV, 3GP, FLV, MKV, M4V",
   "大小不能超过{0}": "The size cannot exceed {0}",
   "上传失败": "Upload failed",
   "借款人类型": "Borrower type",
@@ -247,5 +249,12 @@ export default {
   "选择": "Choose",
   "搜索用户": "User Search",
   "选择用户": "Select User",
-  "工作": "Job"
+  "工作": "Job",
+  "资源许可": "Resource consent",
+  "工程计划批准": "Engineering plan approval",
+  "建筑许可": "Building consent",
+  "可行性研究": "Feasibility",
+  "其他": "Others",
+  "暂无数据，请上传": "No data yet, please upload",
+  "上传文件": "Upload file"
 }

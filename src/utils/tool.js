@@ -135,16 +135,19 @@ tool.groupSeparator = (num) => {
 }
 
 tool.formatSize = (size) => {
-  if (typeof size == 'undefined') {
-    return '0';
+  if (typeof size === 'undefined' || size === null || isNaN(size)) {
+    return '0 B';
   }
-  let units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
-  let index = 0
-  for (let i = 0; size >= 1024 && i < 5; i++) {
-    size /= 1024
-    index = i
+  let units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+  let index = 0;
+
+  while (size >= 1024 && index < units.length - 1) {
+    size /= 1024;
+    index++;
   }
-  return Math.round(size, 2) + units[index]
+
+  // 保留两位小数
+  return `${Number(size.toFixed(2))} ${units[index]}`;
 }
 
 tool.download = (res, downName = '') => {

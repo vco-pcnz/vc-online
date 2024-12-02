@@ -1,6 +1,8 @@
 <template>
   <div class="fileBox">
-    <i class="iconfont">&#xe774;</i>
+    <i v-if="Number(file.type === 1)" class="iconfont">&#xe797;</i>
+    <i v-if="Number(file.type === 2)" class="iconfont">&#xe774;</i>
+    <i v-if="Number(file.type === 3)" class="iconfont">&#xe798;</i>
     <div class="fileBox-content">
       <p>{{ file.name }}</p>
       <p class="size">
@@ -63,6 +65,7 @@ const remove = () => {
   line-height: 1.2;
   padding: 10px;
   margin: 5px 0;
+  transition: all 0.2s ease;
   .iconfont {
     font-size: 24px;
   }
@@ -76,7 +79,7 @@ const remove = () => {
     display: flex;
     align-items: center;
     cursor: pointer;
-    color: #d8b480;
+    color: @colorPrimary;
     span {
       margin-left: 10px;
     }
@@ -84,10 +87,13 @@ const remove = () => {
   .remove {
     font-size: 12px;
     display: none;
-    color: #d8b480;
+    color: @colorPrimary;
+    &:hover {
+      opacity: 0.8;
+    }
   }
   &:hover {
-    background-color: hsla(35, 53%, 67%, 0.2);
+    background-color: #f7f0e6;
     border-radius: 8px;
     .remove {
       display: block;

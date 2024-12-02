@@ -10,7 +10,7 @@
         </li>
         <li>
           <a-button
-            type="primary"
+            type="cyan"
             @click="handleMarkRead"
             :disabled="!noticeStore.selectedNoticeIds.length"
           >
@@ -19,7 +19,7 @@
         </li>
         <li>
           <a-button
-            type="primary"
+            type="cyan"
             @click="handleAllRead"
             :disabled="!noticeList.length"
           >
@@ -49,6 +49,7 @@
         <a-pagination
           show-quick-jumper
           show-size-changer
+          :hideOnSinglePage="true"
           :total="total"
           :show-total="(total) => t('共{0}条', [total])"
           @change="handlePageChange"

@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-import { onMounted, watch } from 'vue';
+import { onMounted } from 'vue';
 import { useUsersStore } from '@/store';
 import UsersLayout from './components/UsersLayout.vue';
 

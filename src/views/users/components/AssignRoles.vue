@@ -5,10 +5,22 @@
         <a-form-item name="roles" :label="t('用户角色')">
           <a-select
             v-model:value="form.roles"
-            :options="roleOptions"
             mode="multiple"
             :placeholder="t('选择角色')"
-          />
+            @change="handleChange"
+            @deselect="handleDeselect"
+          >
+            <a-select-option
+              v-for="(item, index) in roleOptions"
+              :key="item.value || index"
+              :value="item.value"
+              :not="item.not"
+              :status="item.status"
+              :disabled="item.disabled"
+            >
+              {{ item.label }}
+            </a-select-option>
+          </a-select>
         </a-form-item>
       </a-form>
     </div>
@@ -29,7 +41,7 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive } from 'vue';
+import { ref, computed, reactive, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { assignRole } from '@/api/users';
 import useFormData from '@/utils/use-form-data';
@@ -40,13 +52,8 @@ const { t } = useI18n();
 const loading = ref(false);
 const formRef = ref(null);
 const usersStore = useUsersStore();
-
-const roleOptions = computed(() => {
-  return usersStore.roleList.map((item) => ({
-    label: item.name,
-    value: item.id,
-  }));
-});
+const roleOptions = ref([]);
+const disabledIds = ref([]);
 
 const props = defineProps(['open', 'title', 'uuids']);
 const emit = defineEmits(['update:open']);
@@ -66,6 +73,45 @@ const rules = reactive({
     },
   ],
 });
+
+const getNewOptions = (notIds) => {
+  roleOptions.value = roleOptions.value.map((item) => {
+    if (notIds.includes(item.value)) {
+      return {
+        ...item,
+        disabled: true,
+      };
+    }
+    return {
+      ...item,
+      disabled: item.status !== 1,
+    };
+  });
+};
+
+const handleChange = (value, option) => {
+  if (option.length) {
+    let notIds = disabledIds.value;
+    option.forEach((item) => {
+      if (item.not) {
+        notIds = notIds.concat(item.not.split(',').map(Number));
+      }
+    });
+    disabledIds.value = notIds;
+    getNewOptions(notIds);
+  }
+};
+
+const handleDeselect = (value, option) => {
+  if (option.not) {
+    const notIds = option.not.split(',').map(Number);
+    disabledIds.value = disabledIds.value.filter(
+      (item) => !notIds.includes(item)
+    );
+    getNewOptions(disabledIds.value);
+  }
+};
+
 const closeModal = () => {
   emit('update:open', false);
   resetFields();
@@ -93,6 +139,20 @@ const save = () => {
       });
   });
 };
+
+watch(
+  () => usersStore.roleList,
+  (val) => {
+    if (val.length) {
+      roleOptions.value = val.map((item) => ({
+        ...item,
+        label: item.name,
+        value: item.id,
+        disabled: item.status !== 1,
+      }));
+    }
+  }
+);
 </script>
 
 <style scoped lang="less">

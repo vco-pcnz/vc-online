@@ -2,7 +2,7 @@
   <div class="TabsPanel">
     <div class="Panel">
       <h2 class="Panel-Title">
-        <i class="iconfont back" @click="goBack">&#xe794;</i>
+        <i class="iconfont back" @click="back">&#xe794;</i>
         <a-tag class="Tag">{{ title }}</a-tag>
       </h2>
     </div>
@@ -18,7 +18,24 @@ const props = defineProps({
   title: {
     type: String,
   },
+  isBack: {
+    type: Boolean,
+    default: false
+  },
 });
+
+const emits = defineEmits([
+  'back',
+]);
+
+const back = () => {
+  if (props.isBack) {
+    goBack()
+  } else {
+    emits('back');
+  }
+}
+
 </script>
 
 <style scoped lang="less">

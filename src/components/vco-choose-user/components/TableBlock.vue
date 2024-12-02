@@ -10,7 +10,7 @@
         </li>
         <li>{{ t('头像') }}</li>
         <li>{{ t('姓名') }}</li>
-        <li>{{ t('类型') }}</li>
+        <li v-show="url === 'stake/selStake'">{{ t('类型') }}</li>
         <li>{{ t('邮箱') }}</li>
         <li>{{ t('电话') }}</li>
         <li v-show="!isMultiple">{{ t('操作1') }}</li>
@@ -33,9 +33,10 @@
               <span v-else>--</span>
             </li>
             <li>
-              <p class="name">{{ item.name }}</p>
+              <p class="name" v-if="url === 'stake/selStake'">{{ item.name }}</p>
+              <p class="name" v-else>{{ item.user_name }}</p>
             </li>
-            <li>
+            <li v-show="url === 'stake/selStake'">
               <p class="bold">{{ item.type_name }}</p>
             </li>
             <li>
@@ -76,6 +77,9 @@ import router from '@/router';
 
 const emits = defineEmits(['update:list', 'update:ids', 'update:data', 'change']);
 const props = defineProps({
+  url: {
+    type: String,
+  },
   tableData: {
     type: Array,
     default: () => [],

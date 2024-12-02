@@ -227,8 +227,9 @@
       const params = getParams()
       subLoading.value = true
 
-      projectApplySaveProjectCert(params).then(() => {
+      projectApplySaveProjectCert(params).then(res => {
         subLoading.value = false
+        navigationTo(`/process/four?uuid_info=${res.uuid}`)
       }).catch(() => {
         subLoading.value = false
       })
@@ -264,6 +265,7 @@
       projectSaveSaveDraft(params).then(res => {
         message.success(t('保存成功'))
         draftLoading.value = false
+        hasDrafData.value = true
       }).catch(() => {
         draftLoading.value = false
       })

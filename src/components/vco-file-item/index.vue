@@ -4,7 +4,7 @@
     <i v-if="Number(file.type === 2)" class="iconfont">&#xe774;</i>
     <i v-if="Number(file.type === 3)" class="iconfont">&#xe798;</i>
     <div class="fileBox-content">
-      <p>{{ file.name }}</p>
+      <p>{{ file.name || file.real_name }}</p>
       <p class="size">
         <span v-if="time">{{time}} · </span>
         {{ tool.formatSize(file.size) }}</p>

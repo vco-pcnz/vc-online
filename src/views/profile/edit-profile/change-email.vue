@@ -14,14 +14,14 @@
           </a-col>
           <a-col :span="4" v-if="!verifyEmail.showCountdown">
             <a-form-item label=" ">
-              <a-button @click="handleVerify(false)" block class="verify-btn">
+              <a-button @click="handleVerify(false)" block class="verify-btn" type="dark">
                 {{ t("验证") }}
               </a-button>
             </a-form-item>
           </a-col>
           <a-col :span="4" v-else>
             <a-form-item label=" ">
-              <countdown v-model:show="verifyEmail.showCountdown" />
+              <countdown v-model:show="verifyEmail.showCountdown" :notInModal="false" />
             </a-form-item>
           </a-col>
         </a-row>
@@ -45,14 +45,14 @@
           </a-col>
           <a-col :span="4" v-if="!verifyEmail.showCountdownNew">
             <a-form-item label=" ">
-              <a-button @click="handleVerify(true)" block class="verify-btn">
+              <a-button @click="handleVerify(true)" block class="verify-btn" type="dark">
                 {{ t("验证") }}
               </a-button>
             </a-form-item>
           </a-col>
           <a-col :span="4" v-else>
             <a-form-item label=" ">
-              <countdown v-model:show="verifyEmail.showCountdownNew" />
+              <countdown v-model:show="verifyEmail.showCountdownNew" :notInModal="false"/>
             </a-form-item>
           </a-col>
         </a-row>
@@ -70,7 +70,7 @@
         <a-button
           @click="save"
           size="large"
-          type="primary"
+          type="cyan"
           style="width: 40%"
           :loading="loading"
         >

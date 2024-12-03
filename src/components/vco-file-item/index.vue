@@ -21,7 +21,7 @@
       @cancel="previewHandleCancel"
     ><div style="padding-top: 30px;"></div>
       <img alt="example" style="width: 100%" :src="file.value" v-if="Number(file.type === 1)" />
-      <video alt="example" style="width: 100%" :src="file.value" v-if="Number(file.type === 3)" ></video>
+      <video alt="example" style="width: 100%" :src="file.value" controls v-if="Number(file.type === 3)" ></video>
     </a-modal>
 </template>
 

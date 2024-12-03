@@ -7,14 +7,7 @@
         </a-button>
       </slot>
     </div>
-    <a-modal
-      :width="600"
-      v-if="open"
-      :open="open"
-      :title="t('上传')"
-      @cancel="open = false"
-      class="sys-form-content"
-    >
+    <a-modal :width="600" v-if="open" :open="open" :title="t('上传')" @cancel="open = false" class="sys-form-content">
       <a-tabs v-model:activeKey="activeKey">
         <a-tab-pane key="1" :tab="t('图片')">
           <vco-upload type="image" :limit="20" isMultiple v-model:list="images"></vco-upload>
@@ -28,12 +21,7 @@
       </a-tabs>
       <template #footer>
         <div class="modal-footer">
-          <a-button
-            @click="confirm"
-            size="large"
-            type="primary"
-            style="width: 40%"
-          >
+          <a-button @click="confirm" size="large" type="primary" style="width: 40%">
             {{ t('确认') }}
           </a-button>
         </div>
@@ -52,12 +40,12 @@ const { t } = useI18n();
 const props = defineProps({
   value: {
     type: Array,
-    required: false,
+    required: false
   },
   list: {
     type: Array,
-    required: false,
-  },
+    required: false
+  }
 });
 const emits = defineEmits(['update:value', 'update:list', 'change']);
 const open = ref(false);
@@ -84,13 +72,20 @@ const confirm = () => {
 watch(
   () => props.list,
   (val) => {
-      const formData = val.map(item=>{return item.uuid})
+    if (val) {
+      const formData = val.map((item) => {
+        return item.uuid;
+      });
       emits('update:value', formData);
-    },
-    {
-      immediate: true,deep:true
+    } else {
+      emits('update:value', []);
     }
-  )
+  },
+  {
+    immediate: true,
+    deep: true
+  }
+);
 </script>
 
 <style scoped lang="less">

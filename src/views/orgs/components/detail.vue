@@ -33,9 +33,9 @@
         <span class="value">{{ orgsDetailStore.detail?.city }}</span>
       </p>
     </li>
-    <li v-if="trim(orgsDetailStore.detail.document)">
+    <li v-if="trim(orgsDetailStore.detail?.document)">
       <p>{{ t('证件f') }}</p>
-      <vco-file-item :file="item" :time="orgsDetailStore.detail.expire_time[index]" v-for="(item,index) in orgsDetailStore.detail.document" :key="index"></vco-file-item>
+      <vco-file-item :file="item" :time="orgsDetailStore.detail?.expire_time[index]" v-for="(item,index) in orgsDetailStore.detail?.document" :key="index"></vco-file-item>
     </li>
     <li>
       <p>
@@ -89,7 +89,7 @@ const toEdit = (item) => {
   orgsFormStore.update({
     uuid: orgsDetailStore.detail?.uuid,
     isEdit: true,
-    isAddMember:!!orgsDetailStore.detail.is_pid
+    isAddMember:!!orgsDetailStore.detail?.is_pid
   })
   navigationTo('/orgs/addOrgs')
 }

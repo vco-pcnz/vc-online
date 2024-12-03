@@ -382,11 +382,11 @@ watch(
       } else {
         initObjectFileList([data]);
       }
+      handlePathChange();
     } else {
       fileList.value = [];
       picUrl.value = false
     }
-    handlePathChange();
   },
   {
     immediate: true,

@@ -33,7 +33,7 @@
           <template v-if="form.type == 4">
             <a-col :span="24">
               <a-form-item :label="t('选择用户')">
-                <vco-choose-user ref="vcoChooseUserRef" :showRest="!!form.user_uuid" @change="checkUser"></vco-choose-user>
+                <vco-choose-user ref="vcoChooseUserRef" :showRest="!!check_user_uuid" @change="checkUser"></vco-choose-user>
               </a-form-item>
             </a-col>
             <a-col :span="8">
@@ -103,10 +103,10 @@
               <a-button v-if="!email_ok" @click="handleVerify(VERIFY_KEY.EMAIL)" type="dark" class="big verify-btn">
                 {{ t('验证') }}
               </a-button>
-              <a-button v-else-if="isEdit" @click="handleChange(VERIFY_KEY.EMAIL)" type="dark" class="big verify-btn">
+              <a-button v-else-if="form.user_uuid !== check_user_uuid" @click="email_ok = false" type="dark" class="big verify-btn">
                 {{ t('变更') }}
               </a-button>
-              <a-button v-else @click="email_ok = false" type="dark" class="big verify-btn">
+              <a-button v-else @click="handleChange(VERIFY_KEY.EMAIL)" type="dark" class="big verify-btn">
                 {{ t('变更') }}
               </a-button>
             </a-form-item>
@@ -133,10 +133,10 @@
               <a-button v-if="!mobile_ok" @click="handleVerify(VERIFY_KEY.MOBILE)" type="dark" class="big verify-btn">
                 {{ t('验证') }}
               </a-button>
-              <a-button  v-else-if="isEdit" @click="handleChange(VERIFY_KEY.MOBILE)" type="dark" class="big verify-btn">
+              <a-button v-else-if="form.user_uuid !== check_user_uuid" @click="mobile_ok = false" type="dark" class="big verify-btn">
                 {{ t('变更') }}
               </a-button>
-              <a-button v-else @click="mobile_ok = false" type="dark" class="big verify-btn">
+              <a-button v-else @click="handleChange(VERIFY_KEY.MOBILE)" type="dark" class="big verify-btn">
                 {{ t('变更') }}
               </a-button>
             </a-form-item>
@@ -183,7 +183,7 @@
           </a-col>
           <!-- 邀请 -->
           <a-col :span="24">
-            <a-form-item :label="t('邀请')" name="verifyMode" v-if="!isEdit && form.type == 4 && !form.user_uuid">
+            <a-form-item :label="t('邀请')" name="verifyMode" v-if="!isEdit && form.type == 4 && !check_user_uuid">
               <a-row>
                 <a-col :span="12">
                   <a-form-item-rest>
@@ -246,6 +246,7 @@ const loading = ref(false);
 const documentList = ref([]);
 const isAddMember = ref(false);
 const isEdit = ref(false);
+const check_user_uuid = ref('');
 // 表单数据
 const { form, assignFields } = useFormData({
   //公司
@@ -257,8 +258,8 @@ const { form, assignFields } = useFormData({
   firstName: '',
   middleName: '',
   lastName: '',
-  sendEmail: 0, //发送邮箱邀请
-  sendSms: 0, //发送手机邀请
+  sendEmail: false, //发送邮箱邀请
+  sendSms: false, //发送手机邀请
   job: '', //详情添加才会有
   //公共
   uuid: '', //编辑独有
@@ -330,7 +331,7 @@ const dynamicRules = computed(() => {
         {
           required: true,
           message: t('请输入') + t('身份证号码')
-        },
+        }
         // {
         //   pattern: /^[A-Z0-9]+$/,
         //   message: t('身份证号码') + t('格式不正确'),
@@ -426,7 +427,8 @@ const remove = (index) => {
 const checkUser = (val) => {
   let keys = ['avatar', 'idcard', 'email', 'emailCode', 'pre', 'mobile', 'mobileCode', 'province_code', 'city_code', 'district_code', 'address', 'document', 'expire_time', 'note', 'firstName', 'middleName', 'lastName'];
   const newData = pick(val, keys);
-  form.user_uuid = val.uuid;
+
+  check_user_uuid.value = val.uuid;
   Object.assign(form, newData);
   mobile_ok.value = val.mobile_ok;
   email_ok.value = val.email_ok;
@@ -446,6 +448,12 @@ const submit = () => {
       keys = keys.concat(['name', 'nzbz', 'contactName', 'province_code', 'city_code', 'district_code', 'address']);
     }
     const newData = pick(form, keys);
+    if (form.type == 4) {
+      newData.user_uuid = check_user_uuid.value || form.user_uuid;
+
+      newData.sendEmail = newData.sendEmail ? 1 : 0;
+      newData.sendSms = newData.sendSms ? 1 : 0;
+    }
     loading.value = true;
     if (!form.uuid) {
       newData['p_uuid'] = orgsFormStore.p_uuid;
@@ -525,22 +533,30 @@ const hasData = (data) => {
 watch(
   () => orgsDetailStore.detail,
   (val) => {
-    const data = cloneDeep(val);
-    if (orgsFormStore.isEdit && data) {
-      isEdit.value = true;
-      form.uuid = orgsFormStore.uuid;
-      documentList.value = data.document;
-      if (!hasData(data.expire_time)) {
-        data.expire_time = [];
-      } else if (typeof data.expire_time === 'string') {
-        data.expire_time = data.expire_time.split(',');
+    if (val) {
+      const data = cloneDeep(val);
+      if (orgsFormStore.isEdit && data) {
+        isEdit.value = true;
+        form.uuid = orgsFormStore.uuid;
+        documentList.value = data.document ? data.documen : [];
+        if (!hasData(data.expire_time)) {
+          data.expire_time = [];
+        } else if (typeof data.expire_time === 'string') {
+          data.expire_time = data.expire_time.split(',');
+        }
+
+        data.province_code += '';
+        data.city_code += '';
+        data.district_code += '';
+        data.sendEmail = data.sendEmail ? true : false;
+        data.sendSms = data.sendSms ? true : false;
+        assignFields({
+          ...data
+        });
+        region.value = [data.province_code, data.city_code, data.district_code].filter((item) => item).join(',');
+        mobile_ok.value = val.mobile_ok;
+        email_ok.value = val.email_ok;
       }
-      assignFields({
-        ...data
-      });
-      region.value = [data.province_code, data.city_code, data.district_code].filter((item) => item).join(',');
-      mobile_ok.value = val.mobile_ok;
-      email_ok.value = val.email_ok;
     }
   },
   { immediate: true, deep: true }

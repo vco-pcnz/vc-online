@@ -16,46 +16,21 @@
       @preview="handlePreview"
       @change="handleChange"
     >
-      <img
-        v-if="type == 'image' && !isMultiple && picUrl"
-        :src="getAvatarView()"
-      />
-      <div
-        v-else-if="
-          (isMultiple && fileList.length < limit && !disabled) ||
-          (!isMultiple && !picUrl)
-        "
-      >
+      <img v-if="type == 'image' && !isMultiple && picUrl" :src="getAvatarView()" />
+      <div v-else-if="(isMultiple && fileList.length < limit && !disabled) || (!isMultiple && !picUrl)">
         <loading-outlined v-if="loading" />
         <plus-outlined v-else />
         <div class="ant-upload-text">{{ t(text || upText) }}</div>
       </div>
     </a-upload>
-    <div
-      class="delete-img"
-      @click="deleteImg"
-      v-if="type == 'image' && picUrl && limit == 1 && !isMultiple"
-    >
+    <div class="delete-img" @click="deleteImg" v-if="type == 'image' && picUrl && limit == 1 && !isMultiple">
       <DeleteOutlined />
       <p>{{ t('删除') }}</p>
     </div>
-    <a-modal
-      v-model:open="previewVisible"
-      :footer="null"
-      @cancel="previewHandleCancel"
-    >
+    <a-modal v-model:open="previewVisible" :footer="null" @cancel="previewHandleCancel">
       <div style="padding-top: 30px">
-        <img
-          alt="example"
-          v-if="props.type == 'image'"
-          style="width: 100%"
-          :src="previewSrc"
-        />
-        <video
-          v-if="props.type == 'video'"
-          style="width: 100%"
-          :src="previewSrc"
-        ></video>
+        <img alt="example" v-if="props.type == 'image'" style="width: 100%" :src="previewSrc" />
+        <video v-if="props.type == 'video'" style="width: 100%" :src="previewSrc"></video>
       </div>
     </a-modal>
   </div>
@@ -63,69 +38,62 @@
 
 <script setup name="UploadImage">
 import { ref, onMounted, watch } from 'vue';
-import {
-  DeleteOutlined,
-  PlusOutlined,
-  LoadingOutlined,
-} from '@ant-design/icons-vue';
+import { DeleteOutlined, PlusOutlined, LoadingOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue/es';
 import { useI18n } from 'vue-i18n';
 import { getToken } from '@/utils/token-util';
 import { cloneDeep } from 'lodash';
 
-const uploadUrl =
-  import.meta.env.VITE_APP_OPEN_PROXY === 'true'
-    ? import.meta.env.VITE_APP_PROXY_PREFIX
-    : import.meta.env.VITE_APP_BASE_URL;
+const uploadUrl = import.meta.env.VITE_APP_OPEN_PROXY === 'true' ? import.meta.env.VITE_APP_PROXY_PREFIX : import.meta.env.VITE_APP_BASE_URL;
 
 const { t } = useI18n();
 
-const emits = defineEmits(['update:value', 'change','update:list']);
+const emits = defineEmits(['update:value', 'change', 'update:list']);
 
 const props = defineProps({
   text: {
     type: String,
-    default: '',
+    default: ''
   },
   // 父组件传进来的已有的图片数据
   value: {
     type: [String, Array],
-    required: false,
+    required: false
   },
   type: {
     type: String,
     required: false,
-    default: 'image',
+    default: 'image'
   },
   // 后端要求携带的其他参数
   bizPath: {
     type: String,
     required: false,
-    default: 'temp',
+    default: 'temp'
   },
   // 只能查看不可上传和删除时开启该属性
   disabled: {
     type: Boolean,
     required: false,
-    default: false,
+    default: false
   },
   // 是否多图
   isMultiple: {
     type: Boolean,
     required: false,
-    default: false,
+    default: false
   },
   // 多图情况下限制图片张数
   limit: {
     type: Number,
     required: false,
-    default: 1,
+    default: 1
   },
   maxSize: {
     type: Number,
     required: false,
-    default: 50, // 100 MB
-  },
+    default: 50 // 100 MB
+  }
 });
 
 const uploadAction = ref('');
@@ -151,50 +119,22 @@ watch(
       case 'video':
         accept.value = 'video/*';
         uploadAction.value = uploadUrl + '/upload/uploadVideo';
-        fileType.value = [
-          'mp4',
-          'rmvb',
-          'wmv',
-          'avi',
-          'mpeg',
-          'mpg',
-          'mov',
-          '3gp',
-          'flv',
-          'mkv',
-          'm4v',
-        ];
-        errTip.value = t(
-          '上传视频的格式不正确，不是MP4、RMVB、WMV、AVI、MPEG、MPG、MOV、3GP、FLV、MKV、M4V'
-        );
+        fileType.value = ['mp4', 'rmvb', 'wmv', 'avi', 'mpeg', 'mpg', 'mov', '3gp', 'flv', 'mkv', 'm4v'];
+        errTip.value = t('上传视频的格式不正确，不是MP4、RMVB、WMV、AVI、MPEG、MPG、MOV、3GP、FLV、MKV、M4V');
         fileName.value = 'video';
         upText.value = '上传视频';
         break;
       case 'file':
         accept.value = '';
         uploadAction.value = uploadUrl + '/upload/uploadFile';
-        fileType.value = [
-          'xls',
-          'xlsx',
-          'csv',
-          'json',
-          'txt',
-          'doc',
-          'docx',
-          'ppt',
-          'pptx',
-          'pdf',
-          'xmind'
-        ];
-        errTip.value = t(
-          '上传文件的格式不正确，不是XLS、XLSX、CSV、JSON、TXT、DOC、DOCX、PPT、PPTX、PDF、Xmind'
-        );
+        fileType.value = ['xls', 'xlsx', 'csv', 'json', 'txt', 'doc', 'docx', 'ppt', 'pptx', 'pdf', 'xmind'];
+        errTip.value = t('上传文件的格式不正确，不是XLS、XLSX、CSV、JSON、TXT、DOC、DOCX、PPT、PPTX、PDF、Xmind');
         upText.value = '上传文件';
         break;
     }
   },
   {
-    immediate: true,
+    immediate: true
   }
 );
 
@@ -242,8 +182,8 @@ const initFileList = (paths) => {
       url: url,
       response: {
         status: 'history',
-        data: item[i],
-      },
+        data: item[i]
+      }
     });
   }
   fileList.value = list;
@@ -260,8 +200,8 @@ const initObjectFileList = (data) => {
       size: item.size || 0,
       response: {
         status: 'history',
-        data: item.url || item.value,
-      },
+        data: item.url || item.value
+      }
     };
   });
 
@@ -312,10 +252,10 @@ const handlePreview = (file) => {
 };
 
 const types = {
-  'image':1,
-  'file':2,
-  'video':3,
-}
+  image: 1,
+  file: 2,
+  video: 3
+};
 // 回传父组件
 const handlePathChange = () => {
   const uploadFiles = cloneDeep(fileList.value);
@@ -325,26 +265,25 @@ const handlePathChange = () => {
     item = uploadFiles[uploadFiles.length - 1].response.data;
   } else {
     for (var i = 0; i < uploadFiles.length; i++) {
-      const itemData =
-        uploadFiles[i].response.status === 'history' ? uploadFiles[i].uid : uploadFiles[i].response.data;
+      const itemData = uploadFiles[i].response.status === 'history' ? uploadFiles[i].uid : uploadFiles[i].response.data;
       const listItem =
         uploadFiles[i].response.status === 'history'
           ? {
-            name:  uploadFiles[i].name,
-            type:types[props.type],
-            uuid: uploadFiles[i].uid,
-            size: uploadFiles[i].size,
-            value:uploadFiles[i].url,
-          }
+              name: uploadFiles[i].name,
+              type: types[props.type],
+              uuid: uploadFiles[i].uid,
+              size: uploadFiles[i].size,
+              value: uploadFiles[i].url
+            }
           : {
-            name:  uploadFiles[i].name,
-            type:types[props.type],
-            uuid:uploadFiles[i].url,
-            size: uploadFiles[i].size,
-            value:uploadFiles[i].url,
-          }
-          item.push(itemData);
-          list.push(listItem);
+              name: uploadFiles[i].name,
+              type: types[props.type],
+              uuid: uploadFiles[i].url,
+              size: uploadFiles[i].size,
+              value: uploadFiles[i].url
+            };
+      item.push(itemData);
+      list.push(listItem);
     }
   }
   emits('update:value', item);
@@ -430,29 +369,28 @@ watch(
   (val) => {
     if (hasData(val) && !fileList.value.length) {
       const data = cloneDeep(val);
-      if (data) {
-        if (data instanceof Array) {
-          if (data.length) {
-            if (typeof data[0] === 'string') {
-              initFileList(data.join(','));
-            } else if ((data[0].uuid || data[0].id) && (data[0].url||data[0].value)) {
-              initObjectFileList(data);
-            }
+      if (data instanceof Array) {
+        if (data.length) {
+          if (typeof data[0] === 'string') {
+            initFileList(data.join(','));
+          } else if ((data[0].uuid || data[0].id) && (data[0].url || data[0].value)) {
+            initObjectFileList(data);
           }
-        } else if (typeof data === 'string') {
-          initFileList(data);
-        } else {
-          initObjectFileList([data]);
         }
+      } else if (typeof data === 'string') {
+        initFileList(data);
       } else {
-        fileList.value = [];
+        initObjectFileList([data]);
       }
-      handlePathChange()
+    } else {
+      fileList.value = [];
+      picUrl.value = false
     }
+    handlePathChange();
   },
   {
     immediate: true,
-    deep: true,
+    deep: true
   }
 );
 </script>

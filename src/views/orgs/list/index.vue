@@ -6,7 +6,7 @@
           {{ item.name }}
         </div>
       </div>
-      <a-button type="cyan" shape="round" @click="navigationTo('/orgs/addOrgs')">{{ t('添加组织') }}</a-button>
+      <a-button type="cyan" shape="round" @click="toAdd">{{ t('添加组织') }}</a-button>
     </div>
 
     <div class="mt-5">
@@ -53,9 +53,11 @@ import TableSearch from './components/TableSearch.vue';
 import TableBlock from './components/TableBlock.vue';
 import { navigationTo } from '@/utils/tool';
 import { useOrgsStore } from '@/store';
+import { useOrgsFormStore } from '@/store';
 
 const { t } = useI18n();
 const orgsStore = useOrgsStore();
+const orgsFormStore = useOrgsFormStore();
 
 const cid = ref('');
 const sortType = ref('desc');
@@ -103,6 +105,17 @@ const categoryData = computed(() => {
     ...orgsStore.category,
   ];
 });
+
+// 跳转编辑
+const toAdd = () => {
+  orgsFormStore.update({
+    p_uuid:'',
+    uuid: '',
+    isEdit: false,
+    isAddMember:false
+  })
+  navigationTo('/orgs/addOrgs')
+}
 
 onMounted(() => {
   cid.value = orgsStore.searchParams.cid

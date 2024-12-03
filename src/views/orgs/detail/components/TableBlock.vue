@@ -28,11 +28,7 @@
             ></a-checkbox> -->
             </li>
             <li>
-              <vco-avatar
-                v-if="item.avatar"
-                :src="item.avatar"
-                :radius="true"
-              ></vco-avatar>
+              <vco-avatar v-if="item.avatar" :src="item.avatar" :radius="true"></vco-avatar>
               <span v-else>--</span>
             </li>
             <li>
@@ -46,9 +42,10 @@
                 <span :class="{ cer: item.email_ok }">{{ item.email }}</span>
               </p>
               <p v-if="item.mobile">
-                <i class="iconfont" :class="{ cer: item.mobile_ok }">&#xe678;</i>
+                <i class="iconfont" :class="{ cer: item.mobile_ok }"> &#xe678; </i>
                 <span :class="{ cer: item.mobile_ok }">
-                  <template v-if="item.mobile && item.pre">+{{ item.pre }}</template>{{ item.mobile }}
+                  <template v-if="item.mobile && item.pre"> +{{ item.pre }} </template>
+                  {{ item.mobile }}
                 </span>
               </p>
             </li>
@@ -60,11 +57,11 @@
                 <span>{{ item.user_username }}</span>
               </p>
               <p v-if="item.user_username">
-                <i class="iconfont" :class="{ cer: item.user_email_ok }">&#xe66f;</i>
+                <i class="iconfont" :class="{ cer: item.user_email_ok }"> &#xe66f; </i>
                 <span>{{ item.user_email }}</span>
               </p>
               <p v-if="item.user_mobile">
-                <i class="iconfont" :class="{ cer: item.user_mobile_ok }">&#xe678;</i>
+                <i class="iconfont" :class="{ cer: item.user_mobile_ok }"> &#xe678; </i>
                 <span :class="{ cer: item.user_mobile_ok }">
                   {{ item.user_mobile }}
                 </span>
@@ -92,16 +89,14 @@
             <li>
               <p>
                 <i class="iconfont black">&#xe690;</i>
-                <span class="cer bold">
-                  {{ item.open_count }} {{ t('进行中项目') }}
-                </span>
+                <span class="cer bold"> {{ item.open_count }} {{ t('进行中项目') }} </span>
               </p>
               <p style="padding-left: 20px">
-                <span class="bold">{{ item.close_count }} {{ t('已关闭项目') }}</span>
+                <span class="bold"> {{ item.close_count }} {{ t('已关闭项目') }} </span>
               </p>
               <p>
                 <i class="iconfont black">&#xe751;</i>
-                <span class="cer bold">{{ item.apply_count }} {{ t('请求') }}</span>
+                <span class="cer bold"> {{ item.apply_count }} {{ t('请求') }} </span>
               </p>
             </li>
 
@@ -122,25 +117,21 @@
                 </a>
                 <template #overlay>
                   <a-menu>
-                    <a-menu-item key="0">
-                      <DetailModal :detail="item"><span>{{ t('查看详情') }}</span></DetailModal>
-                    </a-menu-item>  
-                    <a-menu-item key="1">
-                      <span  @click="navigationTo('/orgs/addOrgs?id='+item?.uuid+'&isEdit='+true+'&isAddMember=true')">{{ t('编辑') }}</span>
+                    <DetailModal :detail="item">
+                      <a-menu-item key="0">
+                        <span>{{ t('查看详情') }}</span>
+                      </a-menu-item>
+                    </DetailModal>
+                    <a-menu-item key="1" @click="toEdit(item)">
+                      <span>{{ t('编辑') }}</span>
                     </a-menu-item>
-                    <a-menu-item key="2" v-if="item.has_user">
-                      <a-popconfirm
-                        :title="'Are you sure ' + t('解绑用户')"
-                        ok-text="Yes"
-                        cancel-text="No"
-                        @confirm="orgsDetailStore.stakeUnbind(item.uuid)"
-                        @cancel="cancel"
-                      >
+                    <a-popconfirm v-if="item.has_user" :title="'Are you sure ' + t('解绑用户')" ok-text="Yes" cancel-text="No" @confirm="orgsDetailStore.stakeUnbind(item.uuid)" @cancel="cancel">
+                      <a-menu-item key="2">
                         <span>{{ t('解绑用户') }}</span>
-                      </a-popconfirm>
-                    </a-menu-item>
-                    <a-menu-item key="2" v-if="!item.has_user">
-                      <span @click="showBindUser(item.uuid)">{{ t('绑定用户') }}</span>
+                      </a-menu-item>
+                    </a-popconfirm>
+                    <a-menu-item key="2" v-if="!item.has_user" @click="showBindUser(item.uuid)">
+                      <span>{{ t('绑定用户') }}</span>
                     </a-menu-item>
                   </a-menu>
                 </template>
@@ -150,7 +141,9 @@
         </template>
       </div>
       <a-empty v-else :image="simpleImage" />
-      <vco-choose-user ref="vcoChooseUserRef" @change="bindUser"><div></div></vco-choose-user>
+      <vco-choose-user ref="vcoChooseUserRef" @change="bindUser">
+        <div></div>
+      </vco-choose-user>
     </div>
   </div>
 </template>
@@ -160,22 +153,25 @@ import { ref } from 'vue';
 import { Empty } from 'ant-design-vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
-import {navigationTo} from '@/utils/tool';
+import { navigationTo } from '@/utils/tool';
 import DetailModal from '../../components/detail-modal.vue';
 import { useOrgsDetailStore } from '@/store';
+import { useOrgsFormStore } from '@/store';
+
 const orgsDetailStore = useOrgsDetailStore();
+const orgsFormStore = useOrgsFormStore();
 
 const emits = defineEmits(['check']);
 
 const props = defineProps({
   tableData: {
     type: Array,
-    default: () => [],
+    default: () => []
   },
   indeterminate: {
     type: Boolean,
-    default: false,
-  },
+    default: false
+  }
 });
 
 const { t } = useI18n();
@@ -195,17 +191,28 @@ const checkedAllHandle = () => {
 
 const bindForm = ref({
   user_uuid: '',
-  uuid:''
-})
-const vcoChooseUserRef = ref()
+  uuid: ''
+});
+const vcoChooseUserRef = ref();
 const showBindUser = (uuid) => {
-  bindForm.value.uuid = uuid
-  vcoChooseUserRef.value.searchHandle()
-}
+  bindForm.value.uuid = uuid;
+  vcoChooseUserRef.value.searchHandle();
+};
 const bindUser = (e) => {
-  bindForm.value.user_uuid = e.uuid
-  orgsDetailStore.stakeBind(bindForm.value)
-}
+  bindForm.value.user_uuid = e.uuid;
+  orgsDetailStore.stakeBind(bindForm.value);
+};
+// 跳转编辑
+const toEdit = (item) => {
+  console.log(orgsFormStore.p_uuid)
+  orgsFormStore.update({
+    p_uuid: orgsFormStore.p_uuid,
+    uuid: item.uuid,
+    isEdit: true,
+    isAddMember: true
+  });
+  navigationTo('/orgs/addOrgs');
+};
 </script>
 
 <style lang="less" scoped>

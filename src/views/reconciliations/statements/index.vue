@@ -7,7 +7,9 @@
             <div v-if="record.status === 'Reconciled'" class="status_tag">
               {{ record.status }}
             </div>
-            <div v-else class="status_tag unreconciled_tag">{{ record.status }}</div>
+            <div v-else class="status_tag unreconciled_tag">
+              {{ record.status }}
+            </div>
           </template>
         </template>
       </a-table>
@@ -27,7 +29,7 @@ const columns = reactive([
     title: t('日期'),
     dataIndex: 'date',
     key: 'name',
-    customRender: (text) => {
+    customRender: ({ text }) => {
       return tool.showDate(Date(text));
     },
   },
@@ -53,11 +55,15 @@ const columns = reactive([
     title: t('支出'),
     dataIndex: 'spent',
     key: 'spent',
+    customRender: ({ text }) =>
+      !text ? '' : tool.formatMoney(parseInt(text), { cents: true }),
   },
   {
     title: t('收入'),
     dataIndex: 'received',
     key: 'received',
+    customRender: ({ text }) =>
+      !text ? '' : tool.formatMoney(parseInt(text), { cents: true }),
   },
   {
     title: t('状态'),
@@ -109,7 +115,7 @@ const dataSource = reactive([
 }
 
 .unreconciled_tag {
-  background-color: rgba(234,197,57,.3);
+  background-color: rgba(234, 197, 57, 0.3);
   color: #bf9425;
 }
 </style>

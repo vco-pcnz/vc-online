@@ -67,7 +67,6 @@ const useNoticeStore = defineStore("VcOnlineNoticeDetail", {
         limit,
       };
     },
-    // TODO 需要本人和其他人的
     setNoticeCount() {
       getUnreadCount().then((res) => (this.noticeCount = res));
     },

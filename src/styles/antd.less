@@ -282,7 +282,6 @@
 
 .ant-table-thead {
   .ant-table-cell {
-    font-size: @fs_2xs;
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: 600;
@@ -292,6 +291,12 @@
       display: none;
     }
   }
+}
+
+.ant-table-thead>tr>th {
+  background: transparent !important;
+  border-bottom: 1px solid #e2e5e2 !important;
+  color: #888 !important;
 }
 
 // Upload

@@ -1,4 +1,5 @@
 <template>
+  <!-- 优化点：整体设计为路由参数切换component实现，而不是路由切换 -->
   <profile-layout active-tab="about">
     <template #content>
       <div class="sys-form-content mt-5">

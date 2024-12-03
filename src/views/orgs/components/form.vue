@@ -538,18 +538,18 @@ watch(
       if (orgsFormStore.isEdit && data) {
         isEdit.value = true;
         form.uuid = orgsFormStore.uuid;
-        documentList.value = data.document ? data.document : [];
         if (!hasData(data.expire_time)) {
           data.expire_time = [];
         } else if (typeof data.expire_time === 'string') {
           data.expire_time = data.expire_time.split(',');
         }
-
         data.province_code += '';
         data.city_code += '';
         data.district_code += '';
         data.sendEmail = data.sendEmail ? true : false;
         data.sendSms = data.sendSms ? true : false;
+        data.document = data.document ? data.document : [];
+        documentList.value = data.document;
         assignFields({
           ...data
         });

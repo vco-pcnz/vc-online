@@ -129,7 +129,7 @@
                         {{ t('编辑') }}
                       </span>
                     </a-menu-item>
-                    <a-popconfirm :title="'Are you sure ' + t('解绑用户')" ok-text="Yes" cancel-text="No" @confirm="orgsStore.stakeUnbind(item.uuid)" @cancel="cancel">
+                    <a-popconfirm :title="'Are you sure ' + t('解绑用户')" ok-text="Yes" cancel-text="No" @confirm="orgsStore.stakeUnbind(item.uuid)">
                       <a-menu-item key="3" v-if="item.has_user">
                         <span>{{ t('解绑用户') }}</span>
                       </a-menu-item>

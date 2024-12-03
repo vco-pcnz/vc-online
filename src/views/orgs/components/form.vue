@@ -538,7 +538,7 @@ watch(
       if (orgsFormStore.isEdit && data) {
         isEdit.value = true;
         form.uuid = orgsFormStore.uuid;
-        documentList.value = data.document ? data.documen : [];
+        documentList.value = data.document ? data.document : [];
         if (!hasData(data.expire_time)) {
           data.expire_time = [];
         } else if (typeof data.expire_time === 'string') {

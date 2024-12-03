@@ -79,3 +79,27 @@ export const projectApplyProjectCert = (params) =>
     method: "get",
     params
   });
+
+// 保存借款参数
+export const projectApplySaveLoanInfo = (data) =>
+  request({
+    url: "/project/apply/saveLoanInfo",
+    method: "post",
+    data
+  });
+
+// 借款参数
+export const projectApplyLoanInfo = (params) =>
+  request({
+    url: "/project/apply/loanInfo",
+    method: "get",
+    params
+  });
+  
+// 申请信息
+export const projectApplyApplyInfo = (params) =>
+  request({
+    url: "/project/apply/applyInfo",
+    method: "get",
+    params
+  });

@@ -91,7 +91,7 @@
   import { reactive, ref, watch } from "vue";
   import { useI18n } from "vue-i18n";
   import { cloneDeep } from "lodash";
-  import { projectSelectList, projectApplySaveProjectInfo, projectSaveSaveDraft } from "@/api/process";
+  import { projectSelectList, projectApplySaveProjectInfo, projectSaveSaveDraft, projectDraftInfo } from "@/api/process";
   import tool, { navigationTo } from "@/utils/tool";
   import { message } from "ant-design-vue/es";
 
@@ -152,6 +152,8 @@
     ]
   }
 
+  const projectTypeStatic = ref('')
+
   const getParams = () => {
     const params = cloneDeep(formState)
     if (params.project_images && params.project_images.length) {
@@ -169,15 +171,38 @@
     return params
   }
 
+  const handleDarfFour = async () => {
+    const data = await projectDraftInfo({
+      draft_step: 'four',
+      uuid: props.infoData.uuid
+    })
+
+    if (data) {
+      const dataObj = JSON.parse(data.draft)
+
+      dataObj.loan_type = []
+      const params = {
+        uuid: props.infoData.uuid,
+        draft_step: 'four',
+        draft: JSON.stringify(tool.filterEmptyValues(dataObj))
+      }
+      await projectSaveSaveDraft(params)
+    }
+  }
+
   const subLoading = ref(false)
   const submitHandle = () => {
     formRef.value
     .validate()
-    .then(() => {
+    .then(async () => {
       const params = getParams()
       params.draft_step = 'two'
       
       subLoading.value = true
+
+      if (Number(projectTypeStatic.value) !== params.project_type) {
+        await handleDarfFour()
+      }
 
       projectApplySaveProjectInfo(params).then(res => {
         subLoading.value = false
@@ -213,6 +238,7 @@
       draftLoading.value = true
       projectSaveSaveDraft(params).then(res => {
         message.success(t('保存成功'))
+        hasDrafData.value = true
         draftLoading.value = false
       }).catch(() => {
         draftLoading.value = false
@@ -256,6 +282,10 @@
     const areaArr = [useData.region_one_id, useData.region_two_id, useData.region_three_id]
     const areaStr = areaArr.filter(item => item).join(',')
     formState.project_region = areaStr || ''
+
+    if (useData.project_type) {
+      projectTypeStatic.value = useData.project_type
+    }
   }
 
   watch(

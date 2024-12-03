@@ -151,7 +151,7 @@ function createRequest(service, externalService) {
     const token = getToken();
 
     const headerConfig = {
-      Lang: i18n.global.locale.value || "zh_CN",
+      Lang: i18n.global.locale.value === 'zh-cn' ? "zh_CN" : i18n.global.locale.value,
     };
 
     if (token) {

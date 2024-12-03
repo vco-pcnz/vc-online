@@ -28,8 +28,7 @@
             ></a-checkbox> -->
             </li>
             <li>
-              <vco-avatar v-if="item.avatar" :src="item.avatar" :radius="true"></vco-avatar>
-              <span v-else>--</span>
+              <vco-avatar :src="item.avatar" :radius="true"></vco-avatar>
             </li>
             <li>
               <p class="name">{{ item.name }}</p>

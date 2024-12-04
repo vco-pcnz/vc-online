@@ -153,14 +153,24 @@
           </a-col>
           <!-- ####################################### -->
           <template v-if="form.type != 4">
-            <a-col :span="12">
-              <a-form-item :label="t('地址')" name="address">
+            <a-col :span="24">
+              <a-form-item :label="t('地址1')">
+                <a-input v-model:value="form.addr" :placeholder="t('请输入')" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="24">
+              <a-form-item :label="t('地址2')">
                 <a-input v-model:value="form.address" :placeholder="t('请输入')" />
               </a-form-item>
             </a-col>
-            <a-col :span="12">
-              <a-form-item label=" " name="province_code">
+            <a-col :span="16">
+              <a-form-item :label="t('区域')">
                 <vco-address-select v-model:value="region"></vco-address-select>
+              </a-form-item>
+            </a-col>
+            <a-col :span="8">
+              <a-form-item :label="t('邮编')">
+                <a-input v-model:value="form.postal" :placeholder="t('请输入')" />
               </a-form-item>
             </a-col>
           </template>
@@ -276,7 +286,9 @@ const { form, assignFields } = useFormData({
   province_code: '',
   city_code: '',
   district_code: '',
+  addr:'',
   address: '',
+  postal:'',
   document: [], //证件
   expire_time: [], //证件有效期
   note: ''
@@ -436,16 +448,12 @@ const checkUser = (val) => {
 
 // 提交
 const submit = () => {
-  // if (!trim(form.avatar)) {
-  //   message.warning(t('请上传头像'));
-  //   return;
-  // }
   formRef.value.validate().then(() => {
     let keys = ['cid', 'type', 'avatar', 'idcard', 'email', 'emailCode', 'pre', 'mobile', 'mobileCode', 'document', 'expire_time', 'note'];
     if (form.type == 4) {
       keys = keys.concat(['firstName', 'middleName', 'lastName', 'job', 'sendEmail', 'sendSms', 'user_uuid']);
     } else {
-      keys = keys.concat(['name', 'nzbz', 'contactName', 'province_code', 'city_code', 'district_code', 'address']);
+      keys = keys.concat(['name', 'nzbz', 'contactName', 'province_code', 'city_code', 'district_code', 'address', 'addr', 'postal']);
     }
     const newData = pick(form, keys);
     if (form.type == 4) {

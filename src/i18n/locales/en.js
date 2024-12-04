@@ -294,6 +294,10 @@ export default {
   "新增": "Add",
   "编辑所有权": "Edit Ownership",
   "添加所有权": "Add Ownership",
-  "股权": "Shareholding"
+  "股权": "Shareholding",
+  "地址1": "Address line 1",
+  "地址2": "Address line 2",
+  "区域": "Region",
+  "属性": "Props"
   
 }

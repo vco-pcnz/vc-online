@@ -154,6 +154,7 @@ watch([sortType, sortValue], ([newSortType, newSortValue]) => {
   justify-content: space-between;
   border-bottom: 1px solid #808080;
   padding-bottom: 20px;
+  align-items: flex-end;
 }
 .cidBox {
   display: flex;

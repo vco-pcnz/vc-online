@@ -1,7 +1,7 @@
 <template>
   <layout>
     <template #content>
-      <a-table :data-source="dataSource" :columns="columns">
+      <a-table :data-source="dataSource" :columns="columns" :pagination="pagination">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'status'">
             <div v-if="record.status === 'Reconciled'" class="status_tag">
@@ -18,12 +18,19 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import layout from '../components/layout.vue';
 import tool from '@/utils/tool.js';
+import { getStatements } from '@/api/reconciliations';
 
 const { t } = useI18n();
+const pagination = reactive({
+  position: ['bottomCenter'],
+  showSizeChanger: false,
+  total: 0,
+});
+
 const columns = reactive([
   {
     title: t('日期'),
@@ -72,30 +79,17 @@ const columns = reactive([
   },
 ]);
 
-const dataSource = reactive([
-  {
-    uuid: '120ed075-c15d-4e31-8ff7-04b7b1dc94f9',
-    type: 'loanRequestStatusUpdated',
-    client: 'North Ridge No. 7 Limited',
-    description: 'sdfdescriptiondescriptiondescriptiondescriptiong',
-    spent: 53009,
-    received: 46000,
-    status: 'Reconciled',
-    read: false,
-    date: '2024-11-22T14:20:10+13:00',
-  },
-  {
-    uuid: '125e6bcd-2474-49f9-a1db-b3ca6f9d0196',
-    type: 'loanRequestStatusUpdated',
-    client: 'test082003',
-    description: '描述message',
-    spent: 895620,
-    received: undefined,
-    status: 'UnReconciled',
-    read: false,
-    date: '2024-11-22T14:20:10+13:00',
-  },
-]);
+const dataSource = reactive([]);
+
+onMounted(() => {
+  getStatements().then(res => {
+    const { data, count } = res;
+    if(count) {
+      Object.assign(dataSource, data);
+      pagination.total = count;
+    }
+  });
+})
 </script>
 
 <style scoped lang="less">

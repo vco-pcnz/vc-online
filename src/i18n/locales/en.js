@@ -266,5 +266,9 @@ export default {
   "可行性研究": "Feasibility",
   "其他": "Others",
   "暂无数据，请上传": "No data yet, please upload",
-  "上传文件": "Upload file"
+  "上传文件": "Upload file",
+  "删除重做": "Remove & Redo",
+  "选中{ 0 }条": "{ 0 } selected",
+  "账户名称": "account name",
+  "说明": "notes"
 }

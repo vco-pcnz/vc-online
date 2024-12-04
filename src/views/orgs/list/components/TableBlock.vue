@@ -28,12 +28,7 @@
               ></a-checkbox> -->
             </li>
             <li>
-              <vco-avatar
-                v-if="item.avatar"
-                :src="item.avatar"
-                :radius="true"
-              ></vco-avatar>
-              <span v-else>--</span>
+              <vco-avatar :src="item.avatar" :radius="true"></vco-avatar>
             </li>
             <li>
               <p class="name">{{ item.name }}</p>
@@ -46,22 +41,28 @@
                 <span :class="{ cer: item.email_ok }">{{ item.email }}</span>
               </p>
               <p v-if="item.mobile">
-                <i class="iconfont" :class="{ cer: item.mobile_ok }">&#xe678;</i>
+                <i class="iconfont" :class="{ cer: item.mobile_ok }"> &#xe678; </i>
                 <span :class="{ cer: item.mobile_ok }">
-                  <template v-if="item.mobile && item.pre">+{{ item.pre }} </template>{{ item.mobile }}
+                  <template v-if="item.mobile && item.pre"> +{{ item.pre }} </template>
+                  {{ item.mobile }}
                 </span>
               </p>
             </li>
             <li>
               <p class="name">{{ item.user_name }}</p>
               <p v-if="item.user_username">
-                <i class="iconfont">&#xe632;</i> <span>{{ item.user_username }}</span>
+                <i class="iconfont">&#xe632;</i>
+                <span>{{ item.user_username }}</span>
               </p>
               <p v-if="item.user_username">
-                <i class="iconfont" :class="{ cer: item.user_email_ok }">&#xe66f;</i> <span>{{ item.user_email }}</span>
+                <i class="iconfont" :class="{ cer: item.user_email_ok }"> &#xe66f; </i>
+                <span>{{ item.user_email }}</span>
               </p>
               <p v-if="item.user_mobile">
-                <i class="iconfont" :class="{ cer: item.user_mobile_ok }">&#xe678;</i><span :class="{ cer: item.user_mobile_ok }"> {{ item.user_mobile }}</span>
+                <i class="iconfont" :class="{ cer: item.user_mobile_ok }"> &#xe678; </i>
+                <span :class="{ cer: item.user_mobile_ok }">
+                  {{ item.user_mobile }}
+                </span>
               </p>
             </li>
             <li>
@@ -85,15 +86,15 @@
             </li>
             <li>
               <p>
-                <i class="iconfont black">&#xe690;</i><span class="cer bold"> {{ item.open_count }} {{ t('进行中项目') }}</span>
+                <i class="iconfont black">&#xe690;</i>
+                <span class="cer bold"> {{ item.open_count }} {{ t('进行中项目') }} </span>
               </p>
               <p style="padding-left: 20px">
-                <span class="bold">
-                  {{ item.close_count }} {{ t('已关闭项目') }}
-                </span>
+                <span class="bold"> {{ item.close_count }} {{ t('已关闭项目') }} </span>
               </p>
               <p>
-                <i class="iconfont black">&#xe751;</i><span class="cer bold">{{ item.apply_count }} {{ t('请求') }}</span>
+                <i class="iconfont black">&#xe751;</i>
+                <span class="cer bold"> {{ item.apply_count }} {{ t('请求') }} </span>
               </p>
             </li>
 
@@ -114,26 +115,33 @@
                 </a>
                 <template #overlay>
                   <a-menu>
-                    <a-menu-item key="0">
-                      <DetailModal :detail="item" v-if="item.type == 4"><span>{{ t('查看详情') }}</span></DetailModal>
-                      <span @click="toDetail(item)" v-else>{{ t('查看详情') }}</span>
+                    <DetailModal :detail="item" v-if="item.type == 4">
+                      <a-menu-item key="0">
+                        <span>{{ t('查看详情') }}</span>
+                      </a-menu-item>
+                    </DetailModal>
+                    <template v-else>
+                      <a-menu-item key="1" @click="toDetail(item)">
+                        <span>{{ t('查看详情') }}</span>
+                      </a-menu-item>
+                      <a-menu-item key="1" @click="toTree(item)">
+                        <span>{{ t('股权') }}</span>
+                      </a-menu-item>
+                    </template>
+                    <a-menu-item key="2" @click="toEdit(item)">
+                      <span>
+                        {{ t('编辑') }}
+                      </span>
                     </a-menu-item>
-                    <a-menu-item key="1">
-                      <span  @click="navigationTo('/orgs/addOrgs?id='+item?.uuid+'&isEdit='+true+'&isAddMember='+!!item.is_pid)">{{ t('编辑') }}</span>
-                    </a-menu-item>
-                    <a-menu-item key="2" v-if="item.has_user">
-                      <a-popconfirm
-                        :title="'Are you sure ' + t('解绑用户')"
-                        ok-text="Yes"
-                        cancel-text="No"
-                        @confirm="orgsStore.stakeUnbind(item.uuid)"
-                        @cancel="cancel"
-                      >
+                    <a-popconfirm :title="'Are you sure ' + t('解绑用户')" ok-text="Yes" cancel-text="No" @confirm="orgsStore.stakeUnbind(item.uuid)">
+                      <a-menu-item key="3" v-if="item.has_user">
                         <span>{{ t('解绑用户') }}</span>
-                      </a-popconfirm>
-                    </a-menu-item>
-                    <a-menu-item key="2" v-if="!item.has_user">
-                      <span @click="showBindUser(item.uuid)">{{ t('绑定用户') }}</span>
+                      </a-menu-item>
+                    </a-popconfirm>
+                    <a-menu-item key="4" v-if="!item.has_user" @click="showBindUser(item.uuid)">
+                      <span>
+                        {{ t('绑定用户') }}
+                      </span>
                     </a-menu-item>
                   </a-menu>
                 </template>
@@ -143,7 +151,9 @@
         </template>
       </div>
       <a-empty v-else :image="simpleImage" />
-      <vco-choose-user ref="vcoChooseUserRef" @change="bindUser"><div></div></vco-choose-user>
+      <vco-choose-user ref="vcoChooseUserRef" @change="bindUser">
+        <div></div>
+      </vco-choose-user>
     </div>
   </div>
 </template>
@@ -153,10 +163,12 @@ import { ref } from 'vue';
 import { Empty } from 'ant-design-vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
-import {navigationTo} from '@/utils/tool';
+import { navigationTo } from '@/utils/tool';
 import router from '@/router';
-import { useOrgsStore } from '@/store';
 import DetailModal from '../../components/detail-modal.vue';
+import { useOrgsStore } from '@/store';
+import { useOrgsFormStore } from '@/store';
+const orgsFormStore = useOrgsFormStore();
 const orgsStore = useOrgsStore();
 
 const emits = defineEmits(['check']);
@@ -164,12 +176,12 @@ const emits = defineEmits(['check']);
 const props = defineProps({
   tableData: {
     type: Array,
-    default: () => [],
+    default: () => []
   },
   indeterminate: {
     type: Boolean,
-    default: false,
-  },
+    default: false
+  }
 });
 
 const { t } = useI18n();
@@ -189,21 +201,49 @@ const checkedAllHandle = () => {
 
 const bindForm = ref({
   user_uuid: '',
-  uuid:''
-})
-const vcoChooseUserRef = ref()
+  uuid: ''
+});
+const vcoChooseUserRef = ref();
 const showBindUser = (uuid) => {
-  bindForm.value.uuid = uuid
-  vcoChooseUserRef.value.searchHandle()
-}
+  bindForm.value.uuid = uuid;
+  vcoChooseUserRef.value.searchHandle();
+};
 const bindUser = (e) => {
-  bindForm.value.user_uuid = e.uuid
-  orgsStore.stakeBind(bindForm.value)
-}
+  bindForm.value.user_uuid = e.uuid;
+  orgsStore.stakeBind(bindForm.value);
+};
 
 // 跳转详情
 const toDetail = (item) => {
-  router.push({ path: '/orgs/detail', query: { id: item.uuid } });
+  orgsFormStore.update({
+    p_uuid: item.uuid,
+    uuid: '',
+    isEdit: false,
+    isAddMember: false
+  });
+  router.push({ path: '/orgs/detail' });
+};
+
+// 跳转组织
+const toTree = (item) => {
+  orgsFormStore.update({
+    p_uuid: '',
+    uuid: item.uuid,
+    isEdit: false,
+    isAddMember: false
+  });
+  router.push({ path: '/orgs/tree' });
+};
+
+// 跳转编辑
+const toEdit = (item) => {
+  orgsFormStore.update({
+    p_uuid: '',
+    uuid: item.uuid,
+    isEdit: true,
+    isAddMember: !!item.is_pid
+  });
+  navigationTo('/orgs/addOrgs');
 };
 </script>
 
@@ -221,6 +261,7 @@ const toDetail = (item) => {
   justify-content: space-between;
   padding: 0 15px;
   font-size: 13px;
+
   &.header {
     background-color: #fff;
     border-radius: 10px;
@@ -228,19 +269,23 @@ const toDetail = (item) => {
     font-weight: 500;
     font-size: 12px;
   }
+
   &.tr {
     background-color: #f0f0f0;
     border: 1px solid #e2e5e2;
     border-radius: 10px;
     margin-top: 10px;
     transition: all 0.3s ease;
+
     &:hover {
       border-color: @colorPrimary;
     }
+
     &:first-child {
       margin-top: 5px;
     }
   }
+
   > li {
     padding: 10px;
     flex: 1;
@@ -249,82 +294,103 @@ const toDetail = (item) => {
     flex-direction: column;
     // align-items: center;
     justify-content: center;
+
     :deep(.ant-statistic-content) {
       font-size: 15px;
     }
+
     &.check {
       flex: 0 auto;
       width: 50px;
     }
+
     &:nth-child(2) {
       flex: 0 auto;
       width: 100px;
       align-items: center;
     }
+
     &:nth-child(3) {
       flex: 0 auto;
       width: 170px;
     }
+
     &:nth-child(4) {
       flex: 0 auto;
       width: 170px;
     }
+
     &:nth-child(5) {
       flex: 0 auto;
       width: 170px;
       text-align: center;
     }
+
     &:nth-child(6) {
       flex: 0 auto;
       width: 170px;
       text-align: center;
     }
+
     &:nth-child(7) {
       flex: 0 auto;
       width: 170px;
     }
+
     &:nth-child(8) {
       flex: 0 auto;
       width: 100px;
       text-align: center;
     }
+
     &:last-child {
       flex: 0 auto;
       width: 50px;
       text-align: center;
     }
+
     > p {
       width: 100%;
       word-break: break-all;
       margin-top: 4px;
+
       &:first-child {
         margin-top: 0;
       }
+
       &.name {
         font-weight: 500;
       }
+
       > .iconfont {
         margin-right: 4px;
         color: #999;
+
         &.black {
           color: #000;
         }
+
         &.cer {
           color: @colorPrimary;
         }
       }
+
       > span {
         color: #666;
+
         &.cer {
           color: #000;
         }
+
         &.name {
           font-weight: 500;
         }
+
         &.bold {
           font-weight: 500;
         }
       }
+
       &.err {
         color: #ff4d4f;
       }
@@ -334,11 +400,13 @@ const toDetail = (item) => {
 
 .peason-info {
   position: relative;
+
   .vco-avatar {
     position: absolute;
     left: 0;
     top: 0;
   }
+
   > p {
     line-height: 22px;
     text-indent: 28px;

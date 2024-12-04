@@ -1,12 +1,12 @@
 import { defineStore } from 'pinia';
-import { getList, getCategory, getStakeholderTypet, stakeUnbind,stakeBind } from '@/api/orgs';
+import { getList, getCategory, getStakeholderType, stakeUnbind,stakeBind } from '@/api/orgs';
 
 const useOrgsStore = defineStore('VcOnlineOrgs', {
   state: () => ({
     list: [],
     loading: false,
     category: [], //分类
-    stakeholderTypet: [], // 字典获取code = stakeholder_type
+    stakeholderType: [], // 字典获取code = stakeholder_type
     searchParams: {
       cid: '', //分类id 分类接口查询
       type: '', //字典获取code = stakeholder_type
@@ -65,10 +65,10 @@ const useOrgsStore = defineStore('VcOnlineOrgs', {
         this.category = res;
       });
     },
-    getStakeholderTypet() {
-      if (this.stakeholderTypet.length) return;
-      return getStakeholderTypet().then((res) => {
-        this.stakeholderTypet = res.map((item) => {
+    getStakeholderType() {
+      if (this.stakeholderType.length) return;
+      return getStakeholderType().then((res) => {
+        this.stakeholderType = res.map((item) => {
           return {
             name: item.name,
             code: item.code - 0,

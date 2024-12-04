@@ -296,4 +296,21 @@ export default {
   "撤回": "Recall",
   "审核": "Check",
   "保存": "Save",
+  "等待审核": "Waiting for review",
+  "取消审核": "CLOSE",
+  "前往操作": "OPERATION",
+  "更新组织": "Update Org",
+  "下载组织": "Down Org",
+  "股东姓名": "Shareholder Name",
+  "所有权": "Ownership Interest",
+  "所有权l": "Ownership",
+  "新增": "Add",
+  "编辑所有权": "Edit Ownership",
+  "添加所有权": "Add Ownership",
+  "股权": "Shareholding",
+  "地址1": "Address line 1",
+  "地址2": "Address line 2",
+  "区域": "Region",
+  "属性": "Props"
+  
 }

@@ -4,54 +4,84 @@ import { request } from '@/utils/request';
 export const getCategory = () =>
   request({
     url: '/stake/category',
-    method: 'get',
+    method: 'get'
   });
 
 // 列表
-export const getList = params =>
+export const getList = (params) =>
   request({
     url: 'stake/index',
     method: 'get',
-    params,
+    params
   });
 
 // 查询字典
-export const getStakeholderTypet = () =>
+export const getStakeholderType = () =>
   request({
     url: 'system/dictData/getDictByCode?code=stakeholder_type',
-    method: 'get',
+    method: 'get'
   });
 
 // 详情
-export const getDetail = params =>
+export const getDetail = (params) =>
   request({
     url: 'stake/info',
     method: 'get',
-    params,
+    params
   });
 
 // 子列表
-export const getChildList = params =>
+export const getChildList = (params) =>
   request({
     url: 'stake/child/list',
     method: 'get',
-    params,
+    params
   });
 
-  // 解绑用户
-  export const stakeUnbind = params =>
-    request({
-      url: 'stake/unbind',
-      method: 'post',
-      params,
-    });
+// 解绑用户
+export const stakeUnbind = (params) =>
+  request({
+    url: 'stake/unbind',
+    method: 'post',
+    params
+  });
 
-    // 解绑用户
-    export const stakeBind = params =>
-      request({
-        url: 'stake/bind',
-        method: 'post',
-        params,
-      });
-    
-  
+// 解绑用户
+export const stakeBind = (params) =>
+  request({
+    url: 'stake/bind',
+    method: 'post',
+    params
+  });
+
+// 组织列表
+export const stakeOrgList = (params) =>
+  request({
+    url: 'stake/orgList',
+    method: 'get',
+    params
+  });
+
+// 添加组织
+export const stakeOrgAdd = (data) =>
+  request({
+    url: 'stake/orgAdd',
+    method: 'post',
+    data
+  });
+
+// 编辑组织
+export const stakeOrgEdit = (data) =>
+  request({
+    url: 'stake/orgEdit',
+    method: 'post',
+    data
+  });
+
+// 组织删除
+export const stakeOrgDel = (data) =>
+  request({
+    url: 'stake/orgDel',
+    method: 'post',
+    data
+  });

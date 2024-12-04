@@ -2,11 +2,11 @@
   <vco-page-panel :title="showDetail ? orgsDetailStore.detail?.name : t('添加组织')" :isBack="true"></vco-page-panel>
   <div class="addOrgsWrapper">
     <div class="addOrgsWrapper-left">
-      <div style="background-color: #faf9f9" v-if="showDetail">
+      <div style="background-color: #faf9f9" v-if="orgsFormStore.p_uuid || orgsFormStore.uuid">
         <Detail :showEdit="false"></Detail>
       </div>
       <div v-else>
-        <img :src="advertisement?.adv" style="width: 100%" alt="adv" />
+        <img :src="advertisement?.adv" style="width: 100%" v-if="advertisement?.adv" alt="adv" />
         <p>{{ advertisement?.advMsg }}</p>
       </div>
     </div>
@@ -21,19 +21,21 @@ import { reactive, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import FormDom from '../components/form.vue';
 import Detail from '../components/detail.vue';
-import { useOrgsDetailStore } from '@/store';
 import { systemConfigData } from '@/api/system';
 import { useRoute } from 'vue-router';
+import { useOrgsDetailStore } from '@/store';
+import { useOrgsFormStore } from '@/store';
 const route = useRoute();
 
 const orgsDetailStore = useOrgsDetailStore();
+const orgsFormStore = useOrgsFormStore();
 
 const { t } = useI18n();
 
 const showDetail = ref(false);
 const advertisement = ref();
 onMounted(() => {
-  showDetail.value = !!route.query.id;
+  showDetail.value = orgsFormStore.p_uuid || orgsFormStore.uuid;
   if (!showDetail.value) {
     // 加载广告
     systemConfigData({ pcode: 'web_config', code: 'adv,advMsg' }).then(

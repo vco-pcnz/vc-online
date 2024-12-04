@@ -1,6 +1,6 @@
 <template>
   <vco-page-search>
-    <vco-page-search-item width="100">
+    <vco-page-search-item width="100" :title="t('类型')">
       <a-select :placeholder="t('请选择')" v-model:value="searchForm.type">
         <a-select-option v-for="item in typeData" :key="item.value" :value="item.value">
           {{ item.label }}
@@ -8,7 +8,7 @@
       </a-select>
     </vco-page-search-item>
 
-    <vco-page-search-item width="220">
+    <vco-page-search-item width="220" :title="t('属性')">
       <vco-type-input v-model="searchForm.org__name" v-model:type="searchForm.key" :type-data="keys" :placeholder="t('请输入')"></vco-type-input>
     </vco-page-search-item>
 
@@ -29,13 +29,13 @@ const { t } = useI18n();
 const orgsDetailStore = useOrgsDetailStore();
 
 const typeData = computed(() => {
-  const data = orgsDetailStore.stakeholderTypet.map(item => ({
+  const data = orgsDetailStore.stakeholderType.map(item => ({
     label: item.name,
     value: item.code,
   }));
   return [
     {
-      label: t('类型'),
+      label: t('全部'),
       value: '',
     },
     ...data,
@@ -44,7 +44,7 @@ const typeData = computed(() => {
 
 const keys = ref([
   {
-    label: t('全部'),
+    label: t('全部属性'),
     value: 'all',
   },
   {
@@ -81,6 +81,6 @@ const searchHandle = () => {
 };
 
 onMounted(() => {
-  orgsDetailStore.getStakeholderTypet();
+  orgsDetailStore.getStakeholderType();
 });
 </script>

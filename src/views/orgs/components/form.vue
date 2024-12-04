@@ -21,7 +21,7 @@
             <a-col :span="24">
               <a-form-item :label="t('类型f')" name="type">
                 <a-radio-group v-model:value="form.type">
-                  <a-radio :value="item.code" :key="item.code" v-for="item in orgsStore.stakeholderTypet">
+                  <a-radio :value="item.code" :key="item.code" v-for="item in orgsStore.stakeholderType">
                     {{ item.name }}
                   </a-radio>
                 </a-radio-group>
@@ -484,7 +484,7 @@ onMounted(() => {
   // 加载分类
   orgsStore.getCategory();
   // 加载分类
-  orgsStore.getStakeholderTypet();
+  orgsStore.getStakeholderType();
   // 加载工作
   getStakeholderJob().then((res) => {
     jobs.value = res;

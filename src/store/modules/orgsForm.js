@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { getChildList, getCategory, getStakeholderTypet, getDetail, stakeUnbind, stakeBind } from '@/api/orgs';
+import { getChildList, getCategory, getStakeholderType, getDetail, stakeUnbind, stakeBind } from '@/api/orgs';
 
 const useOrgsForm = defineStore('VcOnlineOrgsForm', {
   state: () => ({

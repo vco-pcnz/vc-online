@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { getChildList, getCategory, getStakeholderTypet,getDetail,stakeUnbind,stakeBind } from "@/api/orgs";
+import { getChildList, getCategory, getStakeholderType,getDetail,stakeUnbind,stakeBind } from "@/api/orgs";
 
 const useOrgsDetailStore = defineStore("VcOnlineOrgsDetail", {
   state: () => ({
@@ -7,7 +7,7 @@ const useOrgsDetailStore = defineStore("VcOnlineOrgsDetail", {
     list: [],
     loading: false,
     category: [], //分类
-    stakeholderTypet: [], // 字典获取code = stakeholder_type
+    stakeholderType: [], // 字典获取code = stakeholder_type
     searchParams: {
       uuid: "", //利益相关者的
       cid: "", //分类id 分类接口查询
@@ -75,10 +75,10 @@ const useOrgsDetailStore = defineStore("VcOnlineOrgsDetail", {
         this.category = res;
       });
     },
-    getStakeholderTypet() {
-      if (this.stakeholderTypet.length) return;
-      return getStakeholderTypet().then((res) => {
-        this.stakeholderTypet = res;
+    getStakeholderType() {
+      if (this.stakeholderType.length) return;
+      return getStakeholderType().then((res) => {
+        this.stakeholderType = res;
       });
     },
     // 解绑用户

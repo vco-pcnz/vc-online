@@ -120,9 +120,14 @@
                         <span>{{ t('查看详情') }}</span>
                       </a-menu-item>
                     </DetailModal>
-                    <a-menu-item key="1" v-else @click="toDetail(item)">
-                      <span>{{ t('查看详情') }}</span>
-                    </a-menu-item>
+                    <template v-else>
+                      <a-menu-item key="1" @click="toDetail(item)">
+                        <span>{{ t('查看详情') }}</span>
+                      </a-menu-item>
+                      <a-menu-item key="1" @click="toTree(item)">
+                        <span>{{ t('股权') }}</span>
+                      </a-menu-item>
+                    </template>
                     <a-menu-item key="2" @click="toEdit(item)">
                       <span>
                         {{ t('编辑') }}
@@ -214,20 +219,32 @@ const toDetail = (item) => {
     p_uuid: item.uuid,
     uuid: '',
     isEdit: false,
-    isAddMember:false
-  })
+    isAddMember: false
+  });
   router.push({ path: '/orgs/detail' });
 };
+
+// 跳转组织
+const toTree = (item) => {
+  orgsFormStore.update({
+    p_uuid: '',
+    uuid: item.uuid,
+    isEdit: false,
+    isAddMember: false
+  });
+  router.push({ path: '/orgs/tree' });
+};
+
 // 跳转编辑
 const toEdit = (item) => {
   orgsFormStore.update({
-    p_uuid:'',
+    p_uuid: '',
     uuid: item.uuid,
     isEdit: true,
-    isAddMember:!!item.is_pid
-  })
-  navigationTo('/orgs/addOrgs')
-}
+    isAddMember: !!item.is_pid
+  });
+  navigationTo('/orgs/addOrgs');
+};
 </script>
 
 <style lang="less" scoped>

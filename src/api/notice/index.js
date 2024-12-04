@@ -19,7 +19,7 @@ export const setNoticeRead = (data) =>
 // 信息未读
 export const getUnreadCount = () =>
   request({
-    url: "system/message/count",
+    url: "index/count",
     method: "get",
   });
 

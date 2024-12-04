@@ -120,6 +120,7 @@ a:hover {
   .ant-select-selector,
   .ant-input,
   .ant-input-affix-wrapper,
+  .ant-input-number,
   .ant-input-password  {
     height: 50px !important;
     border: 1px solid rgba(39, 39, 39, 1) !important;
@@ -130,6 +131,29 @@ a:hover {
       border-color: @colorPrimary !important;
     }
   }
+  
+  
+  .ant-input-number {
+    .ant-input-number-input {
+      height: 50px !important;
+      line-height: 50px !important;
+    }
+    .ant-input-number-handler-wrap {
+      background-color: transparent;
+    }
+  }
+
+  .ant-input-number-group >.ant-input-number:first-child, 
+  .ant-input-number-group .ant-input-number-group-addon:first-child {
+    border-start-end-radius: 0!important;
+    border-end-end-radius: 0!important;
+  }
+
+  .ant-input-number-group-addon {
+    border-color: rgba(39, 39, 39, 1) !important;
+    background-color: #f7f9f8!important;
+  }
+
 
   .ant-input-affix-wrapper > input.ant-input {
     height: auto !important;

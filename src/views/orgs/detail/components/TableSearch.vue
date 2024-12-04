@@ -29,7 +29,7 @@ const { t } = useI18n();
 const orgsDetailStore = useOrgsDetailStore();
 
 const typeData = computed(() => {
-  const data = orgsDetailStore.stakeholderTypet.map(item => ({
+  const data = orgsDetailStore.stakeholderType.map(item => ({
     label: item.name,
     value: item.code,
   }));
@@ -81,6 +81,6 @@ const searchHandle = () => {
 };
 
 onMounted(() => {
-  orgsDetailStore.getStakeholderTypet();
+  orgsDetailStore.getStakeholderType();
 });
 </script>

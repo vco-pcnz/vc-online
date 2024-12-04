@@ -21,7 +21,7 @@
               <a-col :span="24">
                 <a-form-item :label="t('借款人类型')" name="borrower_type">
                   <a-radio-group v-model:value="formState.borrower_type" name="borrower_type">
-                    <a-radio :value="1">{{ t('个人1') }}</a-radio>
+                    <a-radio :value="1">{{ t('个人') }}</a-radio>
                     <a-radio :value="2">{{ t('机构') }}</a-radio>
                   </a-radio-group>
                 </a-form-item>

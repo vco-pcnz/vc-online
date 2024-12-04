@@ -64,19 +64,5 @@
 </script>
 
 <style lang="less" scoped>
-  .info-content {
-    margin-top: 15px;
-    .name {
-      font-size: 12px;
-      color: #666;
-    }
-    .txt {
-      font-size: 13px;
-      font-weight: 500;
-      margin-top: 2px;
-      :deep(.ant-statistic-content) {
-        font-size: 16px;
-      }
-    }
-  }
+  @import './style.less';
 </style>

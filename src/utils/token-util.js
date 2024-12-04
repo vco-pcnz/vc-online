@@ -19,7 +19,7 @@ export function getToken() {
  * @param token token
  * @param remember 是否永久存储
  */
-export function setToken(token, remember) {
+export function setToken(token, remember = true) {
   removeToken();
   if (token) {
     const tokenValue = `Bearer ${token}`;

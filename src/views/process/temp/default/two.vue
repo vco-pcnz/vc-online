@@ -1,7 +1,7 @@
 <template>
   <div class="block-container">
     <div class="left-content">
-      <div class="block-item">
+      <div class="block-item" :class="{'check': check}">
         <div class="sys-form-content mt-5">
           <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
             <a-row :gutter="24">
@@ -56,18 +56,20 @@
           </a-form>
         </div>
         <div class="flex mt-5 items-end gap-20 justify-between">
-          <div>
+          <div v-if="!check">
             <a-button
               type="grey"
               shape="round"
-              class="weight"
+              class="weight uppercase"
               :loading="draftLoading"
               @click="draftHandle"
             >{{ t('保存草稿') }}</a-button>
             <p v-if="hasDrafData" class="mt-2 text-sm pl-1 form-tips-color">{{ t('* 存在草稿数据，请点击{0}保存', [`"${t('下一步')}"`]) }}</p>
           </div>
+          <p v-else></p>
           <div class="flex gap-5">
             <a-button
+              v-if="!check"
               type="primary" shape="round" class="big shadow bold uppercase"
               @click="previousHandle"
             >{{ t('上一步') }}</a-button>
@@ -75,13 +77,13 @@
               type="dark" shape="round" class="big shadow bold uppercase"
               @click="submitHandle"
               :loading="subLoading"
-            >{{ t('下一步') }}</a-button>
+            >{{ check ? t('保存') : t('下一步') }}</a-button>
           </div>
           
         </div>
       </div>
     </div>
-    <div class="right-content">
+    <div v-if="!check" class="right-content">
       2
     </div>
   </div>
@@ -95,6 +97,8 @@
   import tool, { navigationTo } from "@/utils/tool";
   import { message } from "ant-design-vue/es";
 
+  const emits = defineEmits(['checkDone'])
+
   const props = defineProps({
     infoData: {
       type: Object,
@@ -103,6 +107,10 @@
     draftData: {
       type: Object,
       default: () => {}
+    },
+    check: {
+      type: Boolean,
+      default: false
     }
   })
 
@@ -177,7 +185,7 @@
       uuid: props.infoData.uuid
     })
 
-    if (data) {
+    if (data && data.draft) {
       const dataObj = JSON.parse(data.draft)
 
       dataObj.loan_type = []
@@ -200,13 +208,17 @@
       
       subLoading.value = true
 
-      if (Number(projectTypeStatic.value) !== params.project_type) {
+      if (Number(projectTypeStatic.value) !== params.project_type && !props.check) {
         await handleDarfFour()
       }
 
       projectApplySaveProjectInfo(params).then(res => {
         subLoading.value = false
-        navigationTo(`/process/three?uuid_info=${res.uuid}`)
+        if (props.check) {
+          emits('checkDone')
+        } else {
+          navigationTo(`/process/three?uuid_info=${res.uuid}`)
+        }
       }).catch(() => {
         subLoading.value = false
       })

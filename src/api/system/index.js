@@ -19,7 +19,14 @@ export const stakeSelStake = (params = {}) =>
 // 字典
 export const systemDictData = (code) =>
   request({
-    url: "/system/dictData/getDictByCode?code=",
+    url: "/system/dictData/getDictByCode?code="+code,
+    method: "get"
+  });
+
+// 字典
+export const systemConfigData = (params) =>
+  request({
+    url: "system/configData/getConfigByCode",
     method: "get",
-    params:{code}
+    params
   });

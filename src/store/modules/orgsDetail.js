@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { getChildList, getCategory, getStakeholderTypet,getDetail,stakeUnbind } from "@/api/orgs";
+import { getChildList, getCategory, getStakeholderTypet,getDetail,stakeUnbind,stakeBind } from "@/api/orgs";
 
 const useOrgsDetailStore = defineStore("VcOnlineOrgsDetail", {
   state: () => ({
@@ -84,6 +84,12 @@ const useOrgsDetailStore = defineStore("VcOnlineOrgsDetail", {
     // 解绑用户
     stakeUnbind(uuid) {
       return stakeUnbind({ uuid }).then((res) => {
+        this.getList()
+      });
+    },
+    // 绑定用户
+    stakeBind(param) {
+      return stakeBind(param).then((res) => {
         this.getList()
       });
     },

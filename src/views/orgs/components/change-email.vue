@@ -115,7 +115,7 @@ const loading = ref(false);
 const formRef = ref(null);
 const orgsDetailStore = useOrgsDetailStore();
 
-const props = defineProps(['open', 'title']);
+const props = defineProps(['open', 'title','email']);
 const emit = defineEmits(['update:open']);
 
 const verifyEmail = reactive({
@@ -214,8 +214,8 @@ watch(
   (val) => {
     if (val) {
       assignFields({
-        email: orgsDetailStore.detail.email,
-        uuid: orgsDetailStore.detail.uuid,
+        email: props.email,
+        uuid: props.uuid,
       });
     }
   }

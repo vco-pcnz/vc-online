@@ -312,6 +312,7 @@
       draftLoading.value = true
       projectSaveSaveDraft(params).then(res => {
         message.success(t('保存成功'))
+        hasDrafData.value = true
         draftLoading.value = false
       }).catch(() => {
         draftLoading.value = false

@@ -18,6 +18,9 @@ import VcoUpload from './vco-upload/index.vue'
 import VcoUploadModal from './vco-upload-modal/index.vue'
 import VcoFileItem from './vco-file-item/index.vue'
 import VcoChooseUser from './vco-choose-user/index.vue'
+import VcoStatus from './vco-status/index.vue'
+import VcoProcessTitle from './vco-process-title/index.vue'
+import VcoPagePanel from './vco-page-panel/index.vue'
 
 export default {
   install(Vue) {
@@ -41,5 +44,8 @@ export default {
     Vue.component('VcoUploadModal', VcoUploadModal)
     Vue.component('VcoFileItem', VcoFileItem)
     Vue.component('VcoChooseUser', VcoChooseUser)
+    Vue.component('VcoStatus', VcoStatus)
+    Vue.component('VcoProcessTitle', VcoProcessTitle)
+    Vue.component('VcoPagePanel', VcoPagePanel)
   }
 }

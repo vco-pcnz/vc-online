@@ -1,17 +1,15 @@
 <template>
   <div class="orgsDetail">
-    <Panel :title="orgsDetailStore.detail?.name">
+    <vco-page-panel :title="orgsDetailStore.detail?.name" :isBack="true">
       <a-button
-      v-if="!orgsDetailStore.detail.pid"
+      v-if="!orgsDetailStore.detail?.pid"
         type="cyan"
         shape="round"
-        @click="
-          navigationTo('/orgs/addOrgs?id=' + orgsDetailStore.detail?.uuid+'&isAddMember=true')
-        "
+       @click="toEdit"
       >
         {{ t('添加人员') }}
       </a-button>
-    </Panel>
+    </vco-page-panel>
     <div class="orgsDetail-content">
       <div class="orgsDetail-left">
         <Detail></Detail>
@@ -66,14 +64,15 @@ import { useI18n } from 'vue-i18n';
 import Detail from '../components/detail.vue';
 import TableSearch from './components/TableSearch.vue';
 import TableBlock from './components/TableBlock.vue';
-import Panel from '../components/panel.vue';
 import { navigationTo } from '@/utils/tool';
 import { useOrgsDetailStore } from '@/store';
 import { useRoute } from 'vue-router';
+import { useOrgsFormStore } from '@/store';
 const route = useRoute();
 
 const { t } = useI18n();
 const orgsDetailStore = useOrgsDetailStore();
+const orgsFormStore = useOrgsFormStore();
 
 const cid = ref('');
 const sortType = ref('desc');
@@ -122,9 +121,20 @@ const categoryData = computed(() => {
   ];
 });
 
+
+// 跳转编辑
+const toEdit = (item) => {
+  orgsFormStore.update({
+    p_uuid:orgsDetailStore.detail.uuid,
+    uuid: '',
+    isEdit: false,
+    isAddMember: true
+  })
+  navigationTo('/orgs/addOrgs')
+}
 onMounted(() => {
   // 加载数据
-  orgsDetailStore.getList(route.query.id);
+  orgsDetailStore.getList(orgsFormStore.p_uuid  || orgsFormStore.uuid);
   // 加载分类
   orgsDetailStore.getCategory();
 });

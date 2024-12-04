@@ -9,13 +9,25 @@
           style="flex: 1"
           :placeholder="t('请输入')"
         ></vco-type-input>
+        <i class="iconfont" style="cursor: pointer" @click="rest()" v-if="showRest">&#xe77b;</i>
+        <!-- <a-button
+         
+          style="height: 50px; width: 137.6px"
+          @click="rest()"
+          type="dark"
+        >
+          {{ t('清除') }}
+        </a-button> -->
         <i
+          v-else
           class="iconfont"
           style="cursor: pointer"
           @click="searchHandle(false)"
         >
           &#xe756;
         </i>
+        
+
       </slot>
     </div>
     <div id="vco-choose-user-model"></div>
@@ -95,6 +107,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  showRest: {
+    type: Boolean,
+    default: false,
+  },
 });
 const open = ref(false);
 const loading = ref(false);
@@ -165,14 +181,15 @@ const lodaData = () => {
     url: props.url,
     method: 'get',
     params: { ...searchForm.value, ...pagination.value },
-  }).then((res) => {
-    tableData.value = res.data;
-    count.value = res.count;
-    loading.value = false;
   })
-  .catch((e) => {
-    loading.value = false;
-  });
+    .then((res) => {
+      tableData.value = res.data;
+      count.value = res.count;
+      loading.value = false;
+    })
+    .catch((e) => {
+      loading.value = false;
+    });
 };
 
 // 分页加载
@@ -196,6 +213,13 @@ const change = () => {
     emits('change', checkedData.value);
     open.value = false;
   }
+};
+
+const rest = () => {
+  Object.keys(checkedData.value).forEach((key) => {
+    checkedData.value[key] = '';
+  });
+  change();
 };
 // 暴露方法给父组件
 defineExpose({

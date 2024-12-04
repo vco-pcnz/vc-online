@@ -322,6 +322,34 @@ tool.diffDate = (a, b) => {
 }
 
 /**
+ * 日期天数-月份数
+ */
+tool.calculateDurationPrecise = (startDate, endDate) => {
+  const start = dayjs(startDate);
+  const end = dayjs(endDate);
+
+  const months = end.diff(start, 'month');
+  const remainingDays = end.diff(start.add(months, 'month'), 'day');
+
+  let res = {
+    months,
+    days: remainingDays
+  }
+
+  return res
+}
+
+/**
+ * 日期天数-倒推得到结束时间
+ */
+tool.calculateEndDate = (startDate, months = 0, days = 0) => {
+  const start = dayjs(startDate);
+  // 增加月数和天数
+  const end = start.add(months, 'month').add(days, 'day');
+  return end.format('YYYY-MM-DD'); // 返回格式化的日期
+}
+
+/**
  * 判断一个对象里面的所有值都不存在
  */
 tool.isAllValuesEmpty = (obj) => {

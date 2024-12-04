@@ -1,7 +1,7 @@
 <template>
   <ul class="orgs-info">
     <li>
-      <a-button v-if="showEdit" type="cyan" shape="round" class="edit" @click="navigationTo('/orgs/addOrgs?id='+orgsDetailStore.detail?.uuid+'&isEdit='+true+'&isAddMember='+!!orgsDetailStore.detail.pid)">{{ t('编辑') }}</a-button>
+      <a-button v-if="showEdit" type="cyan" shape="round" class="edit" @click="toEdit">{{ t('编辑') }}</a-button>
       <div class="avatar-box">
         <vco-avatar :src="orgsDetailStore.detail?.avatar" :size="100"></vco-avatar>
       </div>
@@ -12,10 +12,6 @@
     </li>
     <li>
       <p>{{ t('详情') }}</p>
-      <!-- <p>
-                <span class="label"><i class="iconfont">&#xe605;</i>Org ID: </span>
-                <span class="value">{{ orgsDetailStore.detail?.org_name }}</span>
-            </p> -->
       <p>
         <span class="label"><i class="iconfont">&#xe65b;</i>NZBZ: </span>
         <span class="value">{{ orgsDetailStore.detail?.nzbz }}</span>
@@ -37,9 +33,9 @@
         <span class="value">{{ orgsDetailStore.detail?.city }}</span>
       </p>
     </li>
-    <li v-if="orgsDetailStore.detail.document && orgsDetailStore.detail.document.length">
+    <li v-if="trim(orgsDetailStore.detail?.document)">
       <p>{{ t('证件f') }}</p>
-      <vco-file-item :file="item" :time="orgsDetailStore.detail.expire_time[index]" v-for="(item,index) in orgsDetailStore.detail.document" :key="index"></vco-file-item>
+      <vco-file-item :file="item" :time="orgsDetailStore.detail?.expire_time[index]" v-for="(item,index) in orgsDetailStore.detail?.document" :key="index"></vco-file-item>
     </li>
     <li>
       <p>
@@ -60,13 +56,17 @@
 <script setup>
 import { ref, onMounted,watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useOrgsDetailStore } from '@/store';
+import { pick, trim, cloneDeep } from 'lodash';
 import { useRoute } from 'vue-router';
 import { navigationTo } from '@/utils/tool';
+import { useOrgsDetailStore } from '@/store';
+import { useOrgsFormStore } from '@/store';
 const route = useRoute();
 
 const { t } = useI18n();
 const orgsDetailStore = useOrgsDetailStore();
+const orgsFormStore = useOrgsFormStore();
+
 const props = defineProps({
   showEdit: {
     type: Boolean,
@@ -76,10 +76,23 @@ const props = defineProps({
 
 onMounted(() => {
   // 加载数据
-  if (!orgsDetailStore.detail || orgsDetailStore.detail.uuid !== route.query.id) {
-    orgsDetailStore.setDetail(route.query.id);
+  if (orgsFormStore.p_uuid || orgsFormStore.uuid) {
+    if (props.showEdit) {
+      orgsDetailStore.setDetail(orgsFormStore.p_uuid || orgsFormStore.uuid);
+    } else {
+      orgsDetailStore.setDetail(orgsFormStore.uuid || orgsFormStore.p_uuid);
+    }
   }
 });
+// 跳转编辑
+const toEdit = (item) => {
+  orgsFormStore.update({
+    uuid: orgsDetailStore.detail?.uuid,
+    isEdit: true,
+    isAddMember:!!orgsDetailStore.detail?.is_pid
+  })
+  navigationTo('/orgs/addOrgs')
+}
 
 </script>
 

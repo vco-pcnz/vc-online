@@ -129,7 +129,7 @@ const loading = ref(false);
 const formRef = ref(null);
 const orgsDetailStore = useOrgsDetailStore();
 
-const props = defineProps(['open', 'title']);
+const props = defineProps(['open', 'title','pre','mobile','uuid']);
 const emit = defineEmits(['update:open']);
 
 const verifyMobile = reactive({
@@ -229,9 +229,9 @@ watch(
     if (val) {
       assignFields({
         ...form,
-        mobile: orgsDetailStore.detail.mobile,
-        pre: orgsDetailStore.detail.pre,
-        uuid: orgsDetailStore.detail.uuid,
+        mobile: props.mobile,
+        pre: props.pre,
+        uuid: props.uuid,
       });
     }
   }

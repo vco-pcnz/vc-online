@@ -50,6 +50,7 @@
       };
 
     } else {
+      isSuc.value = false
       loaded.value = true
     }
   }

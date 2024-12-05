@@ -284,7 +284,9 @@ const save = () => {
 
     &-icon {
       transform: rotate(-135deg);
-      font-size: 10px;
+    }
+    :deep(.iconfont) {
+        font-size: 12px;
     }
   }
   .Panel {

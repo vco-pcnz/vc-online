@@ -176,7 +176,7 @@ export default {
   "利益相关者信息t":"STAKEHOLDER",
   "关联用户t":"ASSOCIATE USER",
   "用户角色t":"ROLE",
-  "注册时间/创建时间t":"REGISTRATION TIME/CREATE TIME",
+  "注册时间/创建时间t":"REGISTER TIME/CREATE TIME",
   "项目数据t":"DATA",
   "状态t":"STATUS",
   "操作t":"OPERATION",

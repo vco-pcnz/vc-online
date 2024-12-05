@@ -158,6 +158,7 @@ watch([sortType, sortValue], ([newSortType, newSortValue]) => {
     flex: 1;
     background-color: #faf9f9;
     border-radius: 12px;
+    min-width: 0;
   }
 }
 </style>

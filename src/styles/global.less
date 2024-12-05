@@ -12,11 +12,11 @@ body,
 html,
 body,
 #app,
-[class^="ant"],
-[class*=" ant-spin"],
-[class*=" ant-btn"] {
+[class^='ant'],
+[class*=' ant-spin'],
+[class*=' ant-btn'] {
   font-family: Aeonik, Arial, Helvetica, sans-serif;
-  font-feature-settings: "tnum", "tnum";
+  font-feature-settings: 'tnum', 'tnum';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: auto;
 }
@@ -60,7 +60,7 @@ a:hover {
 .block-item {
   background-color: #fff;
   border-radius: 10px;
-  box-shadow: 0 0 8px rgba(0, 0, 0, .1);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
   padding: 30px 40px;
   &.details {
     padding: 20px;
@@ -121,7 +121,7 @@ a:hover {
 
 // 表单样式
 .sys-form-content {
-  .ant-form-item-label>label {
+  .ant-form-item-label > label {
     font-size: 12px;
     color: #888;
   }
@@ -132,7 +132,7 @@ a:hover {
   .ant-input,
   .ant-input-affix-wrapper,
   .ant-input-number,
-  .ant-input-password  {
+  .ant-input-password {
     height: 50px !important;
     border: 1px solid rgba(39, 39, 39, 1) !important;
     border-radius: 10px !important;
@@ -142,8 +142,7 @@ a:hover {
       border-color: @colorPrimary !important;
     }
   }
-  
-  
+
   .ant-input-number {
     .ant-input-number-input {
       height: 50px !important;
@@ -154,17 +153,16 @@ a:hover {
     }
   }
 
-  .ant-input-number-group >.ant-input-number:first-child, 
+  .ant-input-number-group > .ant-input-number:first-child,
   .ant-input-number-group .ant-input-number-group-addon:first-child {
-    border-start-end-radius: 0!important;
-    border-end-end-radius: 0!important;
+    border-start-end-radius: 0 !important;
+    border-end-end-radius: 0 !important;
   }
 
   .ant-input-number-group-addon {
     border-color: rgba(39, 39, 39, 1) !important;
-    background-color: #f7f9f8!important;
+    background-color: #f7f9f8 !important;
   }
-
 
   .ant-input-number .ant-input-number-input {
     border: none !important;
@@ -242,10 +240,10 @@ a:hover {
 }
 
 .ant-btn-cyan {
-  background-color: #B4F1DB;
+  background-color: #b4f1db;
 
   &.ant-btn-loading {
-    background-color: #B4F1DB !important;
+    background-color: #b4f1db !important;
   }
 
   &:hover {
@@ -280,10 +278,10 @@ a:hover {
 }
 
 .ant-btn-grey {
-  background-color: #F3EDE5;
+  background-color: #f3ede5;
 
   &.ant-btn-loading {
-    background-color: #F3EDE5 !important;
+    background-color: #f3ede5 !important;
 
     &:hover {
       color: #272727 !important;
@@ -385,14 +383,13 @@ a:hover {
     min-width: 160px;
     padding: 4px 25px;
   }
-  
+
   &.shadow {
     box-shadow: 0 20px 20px -19px #181818;
   }
 }
 
 .ant-btn {
-
   // letter-spacing: 1px;
   &.bold {
     font-weight: bold;
@@ -401,4 +398,128 @@ a:hover {
 
 .form-tips-color {
   color: #ff4d4f;
+}
+
+/* 针对 WebKit 浏览器（如 Chrome、Safari） */
+::-webkit-scrollbar {
+  width: 8px; /* 滚动条的宽度 */
+  height: 8px; /* 滚动条的高度（垂直滚动条） */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #bfbfbf; /* 滚动条滑块的颜色 */
+  border-radius: 4px; /* 滚动条滑块的圆角 */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #bfbfbf; /* 滚动条滑块悬停时的颜色 */
+}
+
+::-webkit-scrollbar-track {
+  background-color: #f1f1f1; /* 滚动条轨道的颜色 */
+  border-radius: 4px; /* 滚动条轨道的圆角 */
+}
+
+.ant-table-wrapper {
+  .ant-table {
+    background-color: transparent;
+    border-spacing: 10px;
+  }
+  .ant-table-thead,
+  .ant-table-thead {
+    font-weight: 500px;
+    font-size: 12px;
+    border: none;
+    & > tr > th,
+    & > tr > td {
+      font-weight: 500px;
+      font-size: 12px;
+      border: none;
+    }
+
+    .ant-table-cell-fix-left,
+    .ant-table-cell-fix-right {
+      &::before {
+        background: transparent;
+      }
+    }
+  }
+  .ant-table-cell-fix-left,
+  .ant-table-cell-fix-right {
+    background-color: transparent;
+    * {
+      position: relative;
+    }
+    &::before {
+      display: inline-block;
+      content: '';
+      position: absolute;
+      top: 5px;
+      bottom: 5px;
+      left: 0;
+      right: 0px;
+      z-index: 0;
+      background-color: #f0f0f0;
+      // border: 1px solid #e2e5e2;
+      border-left: none;
+      border-top-right-radius: 10px;
+      border-bottom-right-radius: 10px;
+    }
+  }
+
+  .ant-table-tbody {
+    & > tr.ant-table-row:hover > td,
+    & > tr > td.ant-table-cell-row-hover {
+      background-color: transparent;
+    }
+    
+   &>tr.ant-table-placeholder:hover>td {
+    background-color: #f0f0f0;;
+  }
+  }
+  .ant-table:not(.ant-table-bordered) .ant-table-tbody > tr {
+    border-radius: 10px;
+    position: relative;
+    & > td {
+      border: none;
+    }
+    &:first-child {
+      &::after {
+        display: none;
+      }
+    }
+    margin: 10px 0;
+    &::after {
+      display: inline-block;
+      content: '';
+      position: absolute;
+      inset: 0;
+      top: 4px;
+      bottom: 4px;
+      left: 0;
+      right: 0;
+      z-index: 0;
+      background-color: #f0f0f0;
+      border-radius: 10px;
+      border: 1px solid #e2e5e2;
+      transition: all 0.3s ease;
+    }
+
+    &:hover {
+      &::after {
+        border-color: #f19915;
+      }
+      .ant-table-cell-fix-left,
+      .ant-table-cell-fix-right {
+        &::before {
+          border-color: #f19915;
+        }
+      }
+    }
+    td {
+      position: relative;
+      z-index: 2;
+    }
+
+  }
 }

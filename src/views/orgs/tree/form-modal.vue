@@ -24,9 +24,16 @@
               </a-radio>
             </a-radio-group>
           </a-form-item>
-          <a-form-item label="NZBZ" name="nzbz">
-            <a-input v-model:value="form.nzbz" :placeholder="t('请输入')" :disabled="disabled" />
-          </a-form-item>
+          <template v-if="form.type == 4">
+            <a-form-item :label="t('身份证号码')" name="idcard">
+              <a-input v-model:value="form.idcard" :placeholder="t('请输入')" :disabled="disabled" />
+            </a-form-item>
+          </template>
+          <template v-else>
+            <a-form-item label="NZBZ" name="nzbz">
+              <a-input v-model:value="form.nzbz" :placeholder="t('请输入')" :disabled="disabled" />
+            </a-form-item>
+          </template>
           <a-form-item :label="t('所有权')" name="weight">
             <a-input-number v-model:value="form.weight" addon-after="%" :min="0" :max="100"></a-input-number>
           </a-form-item>
@@ -72,6 +79,7 @@ const { form, resetFields, assignFields } = useFormData({
   uuid: '',
   type: '',
   name: '',
+  idcard: '',
   nzbz: '',
   weight: 0
 });
@@ -99,16 +107,29 @@ const dynamicRules = computed(() => {
       }
     ]
   };
+
   if (!disabled.value) {
-    rules = {
-      ...rules,
-      nzbz: [
-        {
-          required: true,
-          message: t('请输入') + 'NZBZ'
-        }
-      ]
-    };
+    if (form.type == 4) {
+      rules = {
+        ...rules,
+        idcard: [
+          {
+            required: true,
+            message: t('请输入') + t('身份证号码')
+          }
+        ]
+      };
+    } else {
+      rules = {
+        ...rules,
+        nzbz: [
+          {
+            required: true,
+            message: t('请输入') + 'NZBZ'
+          }
+        ]
+      };
+    }
   }
   return rules;
 });

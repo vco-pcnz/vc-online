@@ -19,7 +19,7 @@
           <template v-slot="{ node }">
             <div class="tree-org-node-info">
               <div class="ops">
-                <div @click="showForm(node?.$$data, 'add')">
+                <div @click="showForm(node?.$$data, 'add')" v-if="node?.$$data.type !== 4">
                   <PlusCircleOutlined />
                 </div>
                 <FormOutlined v-if="node.$$data.p_uuid" @click="showForm(node?.$$data, 'edit')" />
@@ -32,7 +32,10 @@
                 <i class="iconfont cer" v-else>&#xe679;</i> 
                 <span class="value bold"> {{ node.$$data.name }}</span>
               </p>
-              <p>
+              <p v-if="node.$$data.type == 4">
+                <span class="label">{{ t('身份证号码') }}</span>: <span class="value">{{ node.$$data.idcard }}</span>
+              </p>
+              <p v-else>
                 <span class="label">nzbz</span>: <span class="value">{{ node.$$data.nzbz }}</span>
               </p>
               <p v-if="node.$$data.p_uuid">

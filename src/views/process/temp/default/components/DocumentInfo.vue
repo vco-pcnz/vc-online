@@ -1,7 +1,7 @@
 <template>
   <div>
     <a-row :gutter="24">
-      <a-col :span="12">
+      <a-col :span="6">
         <div class="info-content">
           <p class="name">{{ t('资源许可') }}</p>
           <div class="file-content">
@@ -14,7 +14,7 @@
           </div>
         </div>
       </a-col>
-      <a-col :span="12">
+      <a-col :span="6">
         <div class="info-content">
           <p class="name">{{ t('工程计划批准') }}</p>
           <div class="file-content">
@@ -27,7 +27,7 @@
           </div>
         </div>
       </a-col>
-      <a-col :span="12">
+      <a-col :span="6">
         <div class="info-content">
           <p class="name">{{ t('建筑许可') }}</p>
           <div class="file-content">
@@ -40,7 +40,7 @@
           </div>
         </div>
       </a-col>
-      <a-col :span="12">
+      <a-col :span="6">
         <div class="info-content">
           <p class="name">{{ t('可行性研究') }}</p>
           <div class="file-content">
@@ -53,7 +53,7 @@
           </div>
         </div>
       </a-col>
-      <a-col :span="12">
+      <a-col :span="6">
         <div class="info-content">
           <p class="name">{{ t('其他') }}</p>
           <div class="file-content">
@@ -84,24 +84,5 @@
 </script>
 
 <style lang="less" scoped>
-  .info-content {
-    margin-top: 15px;
-    .name {
-      font-size: 12px;
-      color: #666;
-    }
-    .txt {
-      font-size: 13px;
-      font-weight: 500;
-      margin-top: 2px;
-    }
-    .file-content {
-      .file-item {
-        .fileBox {
-          background-color: #f7f0e6;
-          border-radius: 8px;
-        }
-      }
-    }
-  }
+  @import './style.less';
 </style>

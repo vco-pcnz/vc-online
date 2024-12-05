@@ -103,3 +103,28 @@ export const projectApplyApplyInfo = (params) =>
     method: "get",
     params
   });
+
+// 项目详情
+export const projectDetailApi = (params) =>
+  request({
+    url: "/project/project/projectDetail",
+    method: "get",
+    params
+  });
+
+// 取消审核
+export const projectApplyCancelCheck = (data) =>
+  request({
+    url: "/project/apply/cancelCheck",
+    method: "post",
+    data
+  });
+
+// LM 审核详情
+export const projectLmAuditDetail = (params) =>
+  request({
+    url: "/project/audit/lmAuditDetail",
+    method: "get",
+    params
+  });
+  

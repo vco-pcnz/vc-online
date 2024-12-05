@@ -3,7 +3,7 @@
     <a-spin :spinning="tempLoading" size="large">
       <div class="main-info-container">
         <div v-if="!formLoading && !pageError">
-          <process-header v-if="!queryError" :step-data="processStepData" :current="2">
+          <process-header v-if="!queryError" :step-data="processStepData" :current="2" :status="infoData.status">
             <template #left>
               <div class="page-title">ID: {{ infoData?.project_apply_sn || '' }}</div>
             </template>
@@ -33,6 +33,7 @@
   import ProcessHeader from "../../components/ProcessHeader.vue";
   import { useI18n } from "vue-i18n";
   import { projectApplyProjectInfo, projectDraftInfo } from "@/api/process"
+  import { navigationTo } from "@/utils/tool";
 
   const { t } = useI18n();
   const { tempLoading, tempModule, currentId, queryError, simpleImage, processStepData } = useDynamicModule('two');
@@ -47,9 +48,13 @@
     projectApplyProjectInfo({
       uuid: currentId.value
     }).then(res => {
-      infoData.value = res
-      formLoading.value = false
-      pageError.value = false
+      if (Number(res.status) >= 400) {
+        navigationTo(`/requests/details?uuid_info=${res.uuid}`)
+      } else {
+        infoData.value = res
+        formLoading.value = false
+        pageError.value = false
+      }
     }).catch(() => {
       formLoading.value = false
       pageError.value = true

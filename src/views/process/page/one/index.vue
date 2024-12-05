@@ -3,7 +3,7 @@
     <a-spin :spinning="tempLoading" size="large">
       <div class="main-info-container">
         <div v-if="!formLoading && !pageError">
-          <process-header :step-data="processStepData" :current="1">
+          <process-header :step-data="processStepData" :current="1" :status="infoData.status">
             <template #left>
               <a-button type="grey" @click="goBack">{{ t('取消请求') }}</a-button>
             </template>
@@ -34,6 +34,7 @@
   import { useI18n } from "vue-i18n";
   import { goBack } from "@/utils/tool";
   import { projectApplyBorrowerInfo, projectDraftInfo } from "@/api/process"
+  import { navigationTo } from "@/utils/tool";
 
   const { t } = useI18n();
   const { tempLoading, tempModule, currentId, queryError, simpleImage, processStepData } = useDynamicModule();
@@ -48,9 +49,13 @@
     await projectApplyBorrowerInfo({
       uuid: currentId.value
     }).then(res => {
-      infoData.value = res
-      formLoading.value = false
-      pageError.value = false
+      if (Number(res.status) >= 400) {
+        navigationTo(`/requests/details?uuid_info=${res.uuid}`)
+      } else {
+        infoData.value = res
+        formLoading.value = false
+        pageError.value = false
+      }
     }).catch(() => {
       formLoading.value = false
       pageError.value = true

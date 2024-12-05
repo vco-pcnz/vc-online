@@ -1,31 +1,37 @@
 <template>
   <div>
     <a-row :gutter="24">
-      <a-col :span="12">
+      <a-col :span="6">
         <div class="info-content">
           <p class="name">{{ t('项目名称') }}</p>
           <p class="txt">{{ data.project_name }}</p>
         </div>
       </a-col>
-      <a-col :span="12">
+      <a-col :span="6">
         <div class="info-content">
           <p class="name">{{ t('项目类型') }}</p>
           <p class="txt">{{ data.project_type_name }}</p>
         </div>
       </a-col>
-      <a-col :span="12">
+      <a-col :span="6">
         <div class="info-content">
           <p class="name">{{ t('邮箱') }}</p>
           <p class="txt">{{ data.project_postcode }}</p>
         </div>
       </a-col>
-      <a-col :span="12">
+      <a-col :span="6">
         <div class="info-content">
           <p class="name">{{ t('楼栋数') }}</p>
           <p class="txt">{{ data.building_num }}</p>
         </div>
       </a-col>
-      <a-col :span="24">
+      <a-col :span="12">
+        <div class="info-content">
+          <p class="name">{{ t('项目地址') }}</p>
+          <p class="txt">{{ addressInfo }}</p>
+        </div>
+      </a-col>
+      <a-col :span="12">
         <div class="info-content">
           <p class="name">{{ t('项目照片') }}</p>
           <div v-if="data.project_images && data.project_images.length">
@@ -45,12 +51,6 @@
             </a-image-preview-group>
           </div>
           <p v-else class="txt">--</p>
-        </div>
-      </a-col>
-      <a-col :span="24">
-        <div class="info-content">
-          <p class="name">{{ t('项目地址') }}</p>
-          <p class="txt">{{ addressInfo }}</p>
         </div>
       </a-col>
       <a-col :span="24">
@@ -86,31 +86,5 @@
 </script>
 
 <style lang="less" scoped>
-  .info-content {
-    margin-top: 15px;
-    .name {
-      font-size: 12px;
-      color: #666;
-    }
-    .txt {
-      font-size: 13px;
-      font-weight: 500;
-      margin-top: 2px;
-    }
-  }
-
-  .images-box-content {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    .item {
-      width: 50px;
-      height: 50px;
-      background-color: #ddd;
-      margin-top: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-  }
+  @import './style.less';
 </style>

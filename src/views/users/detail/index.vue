@@ -129,6 +129,7 @@ import { useRoute } from 'vue-router';
 import useFormData from '@/utils/use-form-data';
 import { EMAIL_RULE } from '@/constant';
 import { goBack } from '@/utils/tool';
+import { message } from 'ant-design-vue';
 
 const { t } = useI18n();
 const route = useRoute();

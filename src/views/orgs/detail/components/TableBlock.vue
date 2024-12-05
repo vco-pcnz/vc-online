@@ -111,7 +111,7 @@
               </p>
             </li>
             <li>
-              <a-dropdown :trigger="['click']">
+              <a-dropdown :trigger="['click']" v-if="Boolean(item.is_child)">
                 <a class="ant-dropdown-link" @click.prevent>
                   <i class="iconfont">&#xe77a;</i>
                 </a>

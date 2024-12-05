@@ -88,7 +88,7 @@
         <template v-if="column.key === 'operation'">
           <a-dropdown :trigger="['click']" v-if="Boolean(record.is_child)">
             <a class="ant-dropdown-link" @click.prevent>
-              <i class="iconfont">&#xe77a;</i>
+              <i class="iconfont cert">&#xe77a;</i>
             </a>
             <template #overlay>
               <a-menu>
@@ -216,6 +216,9 @@ const toEdit = (item) => {
   }
   &.cer {
     color: @colorPrimary;
+  }
+  &.cert {
+    color: #ccab47;
   }
 }
 

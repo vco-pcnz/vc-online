@@ -120,9 +120,9 @@
 import { ref } from 'vue';
 import { Empty } from 'ant-design-vue';
 import { useI18n } from 'vue-i18n';
-import tool from '@/utils/tool';
+import tool, { navigationTo } from '@/utils/tool';
 
-const emits = defineEmits(['check', 'editUser']);
+const emits = defineEmits(['check']);
 
 const props = defineProps({
   tableData: {
@@ -151,7 +151,7 @@ const checkedAllHandle = () => {
 };
 
 const editUser = (userData) => {
-  emits('editUser', userData);
+  navigationTo(`/users/detail?uuid=${userData.uuid}`);
 };
 </script>
 

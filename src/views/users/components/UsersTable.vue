@@ -9,6 +9,14 @@
             @change="checkedAllHandle"
           ></a-checkbox>
         </li>
+        <li>{{ t('头像') }}</li>
+        <li>{{ t('基础信息') }}</li>
+        <li>{{ t('ID & 注册时间') }}</li>
+        <li>{{ t('用户角色t') }}</li>
+        <li>{{ t('组织信息') }}</li>
+        <li>{{ t('项目数据') }}</li>
+        <li>{{ t('请求数据') }}</li>
+        <li>{{ t('操作') }}</li>
       </ul>
       <div v-if="tableData.length" class="table-body">
         <template v-for="item in tableData" :key="item.id">
@@ -39,9 +47,7 @@
                 </span>
               </p>
               <p>
-                <i class="iconfont" :class="{ cer: item.mobile_ok }">
-                  &#xe678;
-                </i>
+                <i class="iconfont" :class="{ cer: item.mobile_ok }">&#xe678;</i>
                 <span>+{{ item.pre }} {{ item.mobile }}</span>
               </p>
             </li>
@@ -61,9 +67,7 @@
                 {{ item.org_stake_type || '--' }}
               </p>
               <p v-if="item.org_stake">
-                <i class="iconfont" :class="{ cer: item.org_stake_ok }">
-                  &#xe74b;
-                </i>
+                <i class="iconfont" :class="{ cer: item.org_stake_ok }">&#xe74b;</i>
                 <span>
                   {{ item.org_stake }}
                 </span>

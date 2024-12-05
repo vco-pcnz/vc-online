@@ -288,5 +288,10 @@ export default {
   "借款人姓名": "Borrower's name",
   "等待审核": "Waiting for review",
   "取消审核": "CLOSE",
-  "前往操作": "OPERATION"
+  "前往操作": "OPERATION",
+  "基础信息": "BASIC",
+  "ID & 注册时间": "ID & REGISTRATION TIME",
+  "组织信息": "ORGANIZATIONAL",
+  "项目数据": "PROJECT",
+  "请求数据": "REQUEST",
 }

@@ -1,98 +1,12 @@
 <template>
   <div class="block-container">
-    <!-- 借款人信息编辑弹窗 -->
-    <check-edit-dialog
-      v-model:visible="showCheckDialog"
-      :info-data="currentInfoData"
-      :type="currentType"
-      @done="dataRefresh"
-    ></check-edit-dialog>
-
     <div class="left-content">
-      <div class="block-item mb">
-        <vco-process-title :title="t('借款人信息')">
-          <div class="flex gap-5">
-            <a-popconfirm
-              v-if="!borrowerInfoData.isCheck"
-              :title="t('确定通过审核吗？')"
-              :ok-text="t('确定')"
-              :cancel-text="t('取消')"
-            >
-              <a-button
-                type="dark" shape="round"
-              >{{ t('审核') }}</a-button>
-            </a-popconfirm>
-            <a-button
-              type="primary" shape="round"
-              @click="showEdit(1)"
-            >{{ t('编辑') }}</a-button>
-          </div>
-        </vco-process-title>
-        <borrower-info :data="borrowerInfoData"></borrower-info>
-      </div>
-      <div class="block-item mb">
-        <vco-process-title :title="t('项目信息')">
-          <div class="flex gap-5">
-            <a-popconfirm
-              v-if="!projectInfoData.isCheck"
-              :title="t('确定通过审核吗？')"
-              :ok-text="t('确定')"
-              :cancel-text="t('取消')"
-            >
-              <a-button
-                type="dark" shape="round"
-              >{{ t('审核') }}</a-button>
-            </a-popconfirm>
-            <a-button
-              type="primary" shape="round"
-              @click="showEdit(2)"
-            >{{ t('编辑') }}</a-button>
-          </div>
-        </vco-process-title>
-        <project-info :data="projectInfoData"></project-info>
-      </div>
-      <div class="block-item mb">
-        <vco-process-title :title="t('证件资料')">
-          <div class="flex gap-5">
-            <a-popconfirm
-              v-if="!documentInfoData.isCheck"
-              :title="t('确定通过审核吗？')"
-              :ok-text="t('确定')"
-              :cancel-text="t('取消')"
-            >
-              <a-button
-                type="dark" shape="round"
-              >{{ t('审核') }}</a-button>
-            </a-popconfirm>
-            <a-button
-              type="primary" shape="round"
-              @click="showEdit(3)"
-            >{{ t('编辑') }}</a-button>
-          </div>
-        </vco-process-title>
-        <document-info :data="documentInfoData"></document-info>
-      </div>
-      <div class="block-item mb">
-        <vco-process-title :title="t('借款信息')">
-          <div class="flex gap-5">
-            <a-popconfirm
-              v-if="!loanInfoData.isCheck"
-              :title="t('确定通过审核吗？')"
-              :ok-text="t('确定')"
-              :cancel-text="t('取消')"
-            >
-              <a-button
-                type="dark" shape="round"
-              >{{ t('审核') }}</a-button>
-            </a-popconfirm>
-            <a-button
-              type="primary" shape="round"
-              @click="showEdit(4)"
-            >{{ t('编辑') }}</a-button>
-          </div>
-        </vco-process-title>
-        <loan-info :data="loanInfoData"></loan-info>
-      </div>
+      <!-- 基础信息 -->
+      <base-info-content
+        v-if="dataInfo"
+        :data-info="dataInfo"
+        @refresh="dataRefresh"
+      ></base-info-content>
 
       <div class="sys-form-content">
         <div class="flex mt-10 items-end gap-20 justify-between">
@@ -134,11 +48,7 @@
   import { projectApplySaveLoanInfo, projectSaveSaveDraft, projectLmAuditDetail } from "@/api/process";
   import tool, { navigationTo } from "@/utils/tool";
   import { message } from "ant-design-vue/es";
-  import BorrowerInfo from "./components/BorrowerInfo.vue";
-  import ProjectInfo from "./components/ProjectInfo.vue";
-  import DocumentInfo from "./components/DocumentInfo.vue";
-  import LoanInfo from "./components/LoanInfo.vue";
-  import CheckEditDialog from "./components/CheckEditDialog.vue";
+  import BaseInfoContent from "./components/BaseInfoContent.vue";
 
   const props = defineProps({
     infoData: {
@@ -278,51 +188,10 @@
     }
   }
 
-  const borrowerInfoData = ref()
-  const projectInfoData = ref()
-  const documentInfoData = ref()
-  const loanInfoData = ref()
-
-  const showCheckDialog = ref(false)
-  const currentInfoData = ref(null)
-  const currentType = ref('')
-
-  const showEdit = (type) => {
-    let data = null
-    if (type === 1) {
-      data = borrowerInfoData.value
-      currentType.value = 'one'
-    } else if (type === 2) {
-      data = projectInfoData.value
-      currentType.value = 'two'
-    } else if (type === 3) {
-      data = documentInfoData.value
-      currentType.value = 'three'
-    } else if (type === 4) {
-      data = loanInfoData.value
-      currentType.value = 'four'
-    }
-
-    if (data) {
-      currentInfoData.value = cloneDeep(data)
-      showCheckDialog.value = true
-    }
-  }
-
-  const fullBaseInfo = (data) => {
-    console.log('fdsafdsa', data)
-    // 基础信息
-    borrowerInfoData.value = data.borrower_info
-    projectInfoData.value = data.project_info
-    documentInfoData.value = data.project_cert
-    loanInfoData.value = data.loan_info
-  }
-
+  const dataInfo = ref(null)
   const dataInit = () => {
     const data = cloneDeep(props.infoData)
-    
-    fullBaseInfo(data)
-    console.log('data', data)
+    dataInfo.value = data
 
     // if (data && data.start_date && data.end_date) {
     //   data.time_date = [data.start_date, data.end_date]
@@ -349,7 +218,7 @@
     projectLmAuditDetail({
       uuid: props.infoData.uuid
     }).then(res => {
-      fullBaseInfo(res)
+      dataInfo.value = res
     })
   }
 

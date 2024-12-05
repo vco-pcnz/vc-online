@@ -11,7 +11,7 @@
       </div>
     </div>
     <div class="addOrgsWrapper-right">
-      <FormDom :isMember="uuid" :p_uuid="uuid"></FormDom>
+      <FormDom :isMember="Boolean(uuid)" :p_uuid="uuid"></FormDom>
     </div>
   </div>
 </template>

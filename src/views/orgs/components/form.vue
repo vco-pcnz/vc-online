@@ -509,9 +509,6 @@ onMounted(() => {
   getStakeholderJob().then((res) => {
     jobs.value = res;
   });
-  if (props.isMember) {
-    form.type = 4;
-  }
 });
 
 // 监听重置idcard 公用字段
@@ -524,6 +521,15 @@ watch(
       }
     }
   }
+);
+// 监听重置idcard 公用字段
+watch(
+  () => props.isMember,
+  (val, old) => {
+    if (val) {
+      form.type = 4;
+   }
+  },{immediate:true}
 );
 
 // 监听地址选择组件赋值

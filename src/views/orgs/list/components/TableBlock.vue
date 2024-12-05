@@ -61,6 +61,7 @@
               <p v-if="item.user_mobile">
                 <i class="iconfont" :class="{ cer: item.user_mobile_ok }">&#xe678;</i>
                 <span :class="{ cer: item.user_mobile_ok }">
+                  <template v-if="item.user_mobile && item.user_pre">+{{ item.user_pre }} </template>
                   {{ item.user_mobile }}
                 </span>
               </p>

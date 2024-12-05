@@ -1,18 +1,16 @@
 <template>
   <div class="orgsDetail">
-    <vco-page-panel :title="orgsDetailStore.detail?.name" :isBack="true">
-      <a-button
-      v-if="!orgsDetailStore.detail?.pid"
-        type="cyan"
-        shape="round"
-       @click="toEdit"
-      >
+    <vco-page-panel :title="detail?.name" :isBack="true">
+      <a-button type="cyan" shape="round" @click="update">
+        {{ t('更新') }}
+      </a-button>
+      <a-button v-if="!detail?.pid" type="cyan" shape="round" @click="navigationTo({ path: '/orgs/form/add', query: { uuid: detail.uuid } })">
         {{ t('添加人员') }}
       </a-button>
     </vco-page-panel>
     <div class="orgsDetail-content">
       <div class="orgsDetail-left">
-        <Detail></Detail>
+        <Detail @getDetail="getDetail"></Detail>
       </div>
 
       <div class="orgsDetail-right">
@@ -33,10 +31,7 @@
             <a-spin :spinning="orgsDetailStore.loading" size="large">
               <div style="padding: 24px">
                 <div class="table-content">
-                  <table-block
-                    :table-data="orgsDetailStore.list"
-                    :indeterminate="Boolean(rowSelection.length && rowSelection.length !== orgsDetailStore.list.length)"
-                    @check="checkHandle"></table-block>
+                  <table-block :table-data="orgsDetailStore.list" :indeterminate="Boolean(rowSelection.length && rowSelection.length !== orgsDetailStore.list.length)" @check="checkHandle"></table-block>
                 </div>
                 <div class="mt-5" v-if="orgsDetailStore.total">
                   <a-pagination
@@ -46,8 +41,9 @@
                     :current="orgsDetailStore.pagination.page"
                     show-size-changer
                     show-quick-jumper
-                    :show-total="total => t('共{0}条', [total])"
-                    @change="orgsDetailStore.setPaginate" />
+                    :show-total="(total) => t('共{0}条', [total])"
+                    @change="orgsDetailStore.setPaginate"
+                  />
                 </div>
               </div>
             </a-spin>
@@ -67,12 +63,12 @@ import TableBlock from './components/TableBlock.vue';
 import { navigationTo } from '@/utils/tool';
 import { useOrgsDetailStore } from '@/store';
 import { useRoute } from 'vue-router';
-import { useOrgsFormStore } from '@/store';
+import { stakeChildMebSync } from '@/api/orgs';
 const route = useRoute();
 
 const { t } = useI18n();
 const orgsDetailStore = useOrgsDetailStore();
-const orgsFormStore = useOrgsFormStore();
+const detail = ref(null);
 
 const cid = ref('');
 const sortType = ref('desc');
@@ -80,61 +76,45 @@ const sortValue = ref('');
 const sortTypeData = [
   {
     label: t('默认'),
-    value: '',
+    value: ''
   },
   {
     label: t('名字'),
-    value: 'firstName',
+    value: 'firstName'
   },
   {
     label: t('ID'),
-    value: 'id',
+    value: 'id'
   },
   {
     label: t('注册日期'),
-    value: 'create_time',
-  },
+    value: 'create_time'
+  }
 ];
 
-const tabChange = val => {
-  cid.value = val;
-  orgsDetailStore.setSearchParams({ cid: cid.value });
-};
-
 const rowSelection = computed(() => {
-  return orgsDetailStore.list.filter(item => item.checked);
+  return orgsDetailStore.list.filter((item) => item.checked);
 });
 
 const currentCheckAll = ref(false);
-const checkHandle = flag => {
+const checkHandle = (flag) => {
   currentCheckAll.value = flag;
-  orgsDetailStore.list.forEach(item => (item.checked = flag));
+  orgsDetailStore.list.forEach((item) => (item.checked = flag));
 };
 
-const categoryData = computed(() => {
-  return [
-    {
-      name: t('全部'),
-      id: '',
-    },
-    ...orgsDetailStore.category,
-  ];
-});
-
-
-// 跳转编辑
-const toEdit = (item) => {
-  orgsFormStore.update({
-    p_uuid:orgsDetailStore.detail.uuid,
-    uuid: '',
-    isEdit: false,
-    isAddMember: true
-  })
-  navigationTo('/orgs/addOrgs')
-}
-onMounted(() => {
+const getDetail = (val) => {
+  detail.value = val;
   // 加载数据
-  orgsDetailStore.getList(orgsFormStore.p_uuid  || orgsFormStore.uuid);
+  orgsDetailStore.setSearchParams({ uuid: route.query.uuid });
+};
+
+const update = () => {
+  stakeChildMebSync({ uuid: route.query.uuid }).then((res) => {
+    orgsDetailStore.setSearchParams({ uuid: route.query.uuid });
+  });
+};
+
+onMounted(() => {
   // 加载分类
   orgsDetailStore.getCategory();
 });
@@ -146,12 +126,12 @@ watch([sortType, sortValue], ([newSortType, newSortValue]) => {
   if (newSortType === 'desc') {
     params = {
       [desc]: newSortValue,
-      [asc]: undefined,
+      [asc]: undefined
     };
   } else {
     params = {
       [desc]: undefined,
-      [asc]: newSortValue,
+      [asc]: newSortValue
     };
   }
   orgsDetailStore.setSearchParams(params);

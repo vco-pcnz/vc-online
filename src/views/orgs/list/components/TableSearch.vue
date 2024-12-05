@@ -8,12 +8,12 @@
       </a-select>
     </vco-page-search-item>
 
-    <vco-page-search-item width="220" :title="t('属性')">
-      <vco-type-input v-model="searchForm.org__name" v-model:type="searchForm.key" :type-data="keys" :placeholder="t('请输入')"></vco-type-input>
+    <vco-page-search-item width="220" :title="t('关键字')">
+      <vco-type-input v-model="searchForm.keywords" v-model:type="searchForm.key" :type-data="keys" :placeholder="t('请输入')"></vco-type-input>
     </vco-page-search-item>
 
     <vco-page-search-item width="140" :title="t('组织名')">
-      <a-input v-model:value="searchForm.keywords" :placeholder="t('请输入')" />
+      <a-input v-model:value="searchForm.org__name" :placeholder="t('请输入')" />
     </vco-page-search-item>
 
     <vco-page-search-item width="100%">
@@ -23,9 +23,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue';
-import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash';
+import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useOrgsStore } from '@/store';
 
@@ -48,7 +46,7 @@ const typeData = computed(() => {
 
 const keys = ref([
   {
-    label: t('全部属性'),
+    label: t('全部'),
     value: 'all',
   },
   {

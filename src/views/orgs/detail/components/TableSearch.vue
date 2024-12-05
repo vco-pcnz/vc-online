@@ -8,8 +8,8 @@
       </a-select>
     </vco-page-search-item>
 
-    <vco-page-search-item width="220" :title="t('属性')">
-      <vco-type-input v-model="searchForm.org__name" v-model:type="searchForm.key" :type-data="keys" :placeholder="t('请输入')"></vco-type-input>
+    <vco-page-search-item width="220" :title="t('关键字')">
+      <vco-type-input v-model="searchForm.keywords" v-model:type="searchForm.key" :type-data="keys" :placeholder="t('请输入')"></vco-type-input>
     </vco-page-search-item>
 
     <vco-page-search-item width="100%">
@@ -44,7 +44,7 @@ const typeData = computed(() => {
 
 const keys = ref([
   {
-    label: t('全部属性'),
+    label: t('全部'),
     value: 'all',
   },
   {

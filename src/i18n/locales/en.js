@@ -311,6 +311,7 @@ export default {
   "地址1": "Address line 1",
   "地址2": "Address line 2",
   "区域": "Region",
-  "属性": "Props"
+  "属性": "Props",
+  "更新": "Update",
   
 }

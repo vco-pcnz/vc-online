@@ -139,7 +139,6 @@ const init = (val, type, has_s_uuids) => {
       ...val
     });
   }
-  console.log(form);
   open.value = true;
 };
 
@@ -147,7 +146,6 @@ const init = (val, type, has_s_uuids) => {
 const submit = () => {
   formRef.value.validate().then(() => {
     loading.value = true;
-    console.log(form);
     if (form.uuid) {
       // 编辑
       stakeOrgEdit(form)

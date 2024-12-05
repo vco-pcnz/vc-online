@@ -41,9 +41,9 @@
                 <span :class="{ cer: item.email_ok }">{{ item.email }}</span>
               </p>
               <p v-if="item.mobile">
-                <i class="iconfont" :class="{ cer: item.mobile_ok }"> &#xe678; </i>
+                <i class="iconfont" :class="{ cer: item.mobile_ok }">&#xe678;</i>
                 <span :class="{ cer: item.mobile_ok }">
-                  <template v-if="item.mobile && item.pre"> +{{ item.pre }} </template>
+                  <template v-if="item.mobile && item.pre">+{{ item.pre }} </template>
                   {{ item.mobile }}
                 </span>
               </p>
@@ -56,12 +56,13 @@
                 <span>{{ item.user_username }}</span>
               </p>
               <p v-if="item.user_username">
-                <i class="iconfont" :class="{ cer: item.user_email_ok }"> &#xe66f; </i>
+                <i class="iconfont" :class="{ cer: item.user_email_ok }">&#xe66f;</i>
                 <span>{{ item.user_email }}</span>
               </p>
               <p v-if="item.user_mobile">
-                <i class="iconfont" :class="{ cer: item.user_mobile_ok }"> &#xe678; </i>
+                <i class="iconfont" :class="{ cer: item.user_mobile_ok }">&#xe678;</i>
                 <span :class="{ cer: item.user_mobile_ok }">
+                  <template v-if="item.user_mobile && item.user_pre">+{{ item.user_pre }} </template>
                   {{ item.user_mobile }}
                 </span>
               </p>
@@ -110,17 +111,15 @@
               </p>
             </li>
             <li>
-              <a-dropdown :trigger="['click']">
+              <a-dropdown :trigger="['click']" v-if="Boolean(item.is_child)">
                 <a class="ant-dropdown-link" @click.prevent>
                   <i class="iconfont">&#xe77a;</i>
                 </a>
                 <template #overlay>
                   <a-menu>
-                    <DetailModal :detail="item">
-                      <a-menu-item key="0">
-                        <span>{{ t('查看详情') }}</span>
-                      </a-menu-item>
-                    </DetailModal>
+                    <a-menu-item key="0" @click="toDetail(item)">
+                      <span>{{ t('查看详情') }}</span>
+                    </a-menu-item>
                     <a-menu-item key="1" @click="toEdit(item)">
                       <span>{{ t('编辑') }}</span>
                     </a-menu-item>
@@ -153,12 +152,9 @@ import { Empty } from 'ant-design-vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { navigationTo } from '@/utils/tool';
-import DetailModal from '../../components/detail-modal.vue';
 import { useOrgsDetailStore } from '@/store';
-import { useOrgsFormStore } from '@/store';
 
 const orgsDetailStore = useOrgsDetailStore();
-const orgsFormStore = useOrgsFormStore();
 
 const emits = defineEmits(['check']);
 
@@ -201,16 +197,14 @@ const bindUser = (e) => {
   bindForm.value.user_uuid = e.uuid;
   orgsDetailStore.stakeBind(bindForm.value);
 };
+
+// 跳转详情
+const toDetail = (item) => {
+  navigationTo({ path: '/orgs/detail', query: { uuid: item.uuid } });
+};
 // 跳转编辑
 const toEdit = (item) => {
-  console.log(orgsFormStore.p_uuid)
-  orgsFormStore.update({
-    p_uuid: orgsFormStore.p_uuid,
-    uuid: item.uuid,
-    isEdit: true,
-    isAddMember: true
-  });
-  navigationTo('/orgs/addOrgs');
+  navigationTo({ path: '/orgs/form/edit', query: { uuid: item.uuid } });
 };
 </script>
 

@@ -4,29 +4,29 @@
     <i v-if="Number(file.type === 2)" class="iconfont">&#xe774;</i>
     <i v-if="Number(file.type === 3)" class="iconfont">&#xe798;</i>
     <div class="fileBox-content">
-      <p>{{ file.name || file.real_name }}</p>
-      <p class="size">
-        <span v-if="time">{{time}} · </span>
-        {{ tool.formatSize(file.size) }}</p>
+      <p class="name">{{ file.name || file.real_name }}</p>
+      <p class="info">
+        <template v-if="time">
+          <span :class="{ err: !validity }">{{ time }}</span> ·
+        </template>
+        {{ tool.formatSize(file.size) }}
+      </p>
     </div>
     <div class="ops">
-      <EyeOutlined @click="handlePreview(item)" class="remove" v-if="Number(file.type === 1 || file.type === 3)"/>
+      <EyeOutlined @click="handlePreview(item)" class="remove" v-if="Number(file.type === 1 || file.type === 3)" />
       <!-- <i class="iconfont" style="font-size: 14px;">&#xe780;</i> -->
       <i class="iconfont remove" @click="remove" v-if="showClose">&#xe77d;</i>
     </div>
   </div>
-    <a-modal
-      v-model:open="previewVisible"
-      :footer="null"
-      @cancel="previewHandleCancel"
-    ><div style="padding-top: 30px;"></div>
-      <img alt="example" style="width: 100%" :src="file.value" v-if="Number(file.type === 1)" />
-      <video alt="example" style="width: 100%" :src="file.value" controls v-if="Number(file.type === 3)" ></video>
-    </a-modal>
+  <a-modal v-model:open="previewVisible" :footer="null" @cancel="previewHandleCancel"
+    ><div style="padding-top: 30px"></div>
+    <img alt="example" style="width: 100%" :src="file.value" v-if="Number(file.type === 1)" />
+    <video alt="example" style="width: 100%" :src="file.value" controls v-if="Number(file.type === 3)"></video>
+  </a-modal>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue';
 import tool from '@/utils/tool';
@@ -34,33 +34,36 @@ import { DeleteOutlined, EyeOutlined } from '@ant-design/icons-vue';
 
 const { t } = useI18n();
 
-const previewVisible = ref(false)
+const previewVisible = ref(false);
 const props = defineProps({
   file: {
     type: Object,
-    required: false,
+    required: false
   },
   time: {
     type: String,
-    default:''
+    default: ''
   },
   showClose: {
     type: Boolean,
-    default:false
+    default: false
   }
 });
 const emits = defineEmits(['remove']);
 
-  // 预览
+// 预览
 const handlePreview = (file) => {
   previewVisible.value = true;
 };
+const validity = computed(() => {
+  return tool.toUnixTime(props.time) >= Math.floor(new Date().getTime() / 1000);
+});
 
 // 关闭弹框
 const previewHandleCancel = () => {
   previewVisible.value = false;
 };
-  
+
 const remove = () => {
   emits('remove');
 };
@@ -81,16 +84,16 @@ const remove = () => {
   .iconfont {
     font-size: 24px;
   }
-  .size {
-    color: #888;
+  .info {
+    color: @color_grey;
   }
   .fileBox-content {
     flex: 1;
     width: calc(100% - 80px);
   }
   .name {
-    white-space: nowrap;   /* 禁止换行 */
-    overflow: hidden;      /* 隐藏溢出内容 */
+    white-space: nowrap; /* 禁止换行 */
+    overflow: hidden; /* 隐藏溢出内容 */
     text-overflow: ellipsis; /* 使用省略号表示溢出内容 */
   }
   .ops {
@@ -117,6 +120,9 @@ const remove = () => {
     .remove {
       display: block;
     }
+  }
+  .err {
+    color: @color_red-error;
   }
 }
 </style>

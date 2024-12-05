@@ -1,9 +1,9 @@
 <template>
-  <vco-page-panel :title="orgsDetailStore.detail?.name" :isBack="true"></vco-page-panel>
+  <vco-page-panel :title="data?.name" :isBack="true"></vco-page-panel>
   <div class="orges-tree">
     <div class="orges-tree-left">
-      <div style="background-color: #faf9f9" v-if="orgsFormStore.p_uuid || orgsFormStore.uuid">
-        <Detail :showEdit="true"></Detail>
+      <div style="background-color: #faf9f9">
+        <Detail :showEdit="true" @getDetail="getDetail"></Detail>
       </div>
     </div>
     <div class="orges-tree-right">
@@ -28,7 +28,9 @@
                 </a-popconfirm>
               </div>
               <p>
-                <i class="iconfont cer">&#xe679;</i> <span class="value bold">{{ node.$$data.name }}</span>
+                <i class="iconfont cer" v-if="node.$$data.type == 4">&#xe632;</i>  
+                <i class="iconfont cer" v-else>&#xe679;</i> 
+                <span class="value bold"> {{ node.$$data.name }}</span>
               </p>
               <p>
                 <span class="label">nzbz</span>: <span class="value">{{ node.$$data.nzbz }}</span>
@@ -57,15 +59,11 @@ import { useI18n } from 'vue-i18n';
 import Detail from '../components/detail.vue';
 import FormModal from './form-modal.vue';
 import { useRoute } from 'vue-router';
-import { useOrgsDetailStore } from '@/store';
-import { useOrgsFormStore } from '@/store';
 import 'vue3-tree-org/lib/vue3-tree-org.css';
 import { stakeOrgList, stakeOrgDel } from '@/api/orgs';
 import { PlusCircleOutlined, FormOutlined, DeleteOutlined } from '@ant-design/icons-vue';
 
 const route = useRoute();
-const orgsDetailStore = useOrgsDetailStore();
-const orgsFormStore = useOrgsFormStore();
 
 const { t } = useI18n();
 
@@ -118,7 +116,7 @@ const remove = (val) => {
 };
 
 const loadData = () => {
-  stakeOrgList({ uuid: orgsFormStore.uuid }).then((res) => {
+  stakeOrgList({ uuid: route.query.uuid }).then((res) => {
     data.value['children'] = res;
   });
 };
@@ -131,18 +129,12 @@ onMounted(() => {
   loadData();
 });
 
-watch(
-  () => orgsDetailStore.detail,
-  (val) => {
-    if (val) {
-      data.value.type = val?.type;
-      data.value.name = val?.name;
-      data.value.nzbz = val?.nzbz;
-      data.value.uuid = val?.uuid;
-    }
-  },
-  { deep: true, immediate: true }
-);
+const getDetail = (val) => {
+  data.value.type = val?.type;
+  data.value.name = val?.name;
+  data.value.nzbz = val?.nzbz;
+  data.value.uuid = val?.uuid;
+};
 </script>
 
 <style lang="less" scoped>
@@ -189,6 +181,9 @@ watch(
       }
       .cer {
         color: @colorPrimary;
+      }
+      .iconfont {
+        margin-right: 4px;
       }
       .ops {
         margin-bottom: 5px;

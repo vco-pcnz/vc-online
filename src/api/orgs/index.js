@@ -85,3 +85,11 @@ export const stakeOrgDel = (data) =>
     method: 'post',
     data
   });
+
+// 人员关系同步
+export const stakeChildMebSync = (params) =>
+  request({
+    url: 'stake/child/mebSync',
+    method: 'get',
+    params
+  });

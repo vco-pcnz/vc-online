@@ -63,6 +63,7 @@ import TableBlock from './components/TableBlock.vue';
 import { navigationTo } from '@/utils/tool';
 import { useOrgsDetailStore } from '@/store';
 import { useRoute } from 'vue-router';
+import { stakeChildMebSync } from '@/api/orgs';
 const route = useRoute();
 
 const { t } = useI18n();
@@ -104,12 +105,14 @@ const checkHandle = (flag) => {
 const getDetail = (val) => {
   detail.value = val;
   // 加载数据
-  update();
+  orgsDetailStore.setSearchParams({ uuid: route.query.uuid });
 };
 
 const update = () => {
-  orgsDetailStore.setSearchParams({uuid:route.query.uuid});
-}
+  stakeChildMebSync({ uuid: route.query.uuid }).then((res) => {
+    orgsDetailStore.setSearchParams({ uuid: route.query.uuid });
+  });
+};
 
 onMounted(() => {
   // 加载分类

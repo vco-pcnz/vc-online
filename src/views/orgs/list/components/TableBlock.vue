@@ -115,24 +115,19 @@
                 </a>
                 <template #overlay>
                   <a-menu>
-                    <DetailModal :detail="item" v-if="item.type == 4">
-                      <a-menu-item key="0">
-                        <span>{{ t('查看详情') }}</span>
-                      </a-menu-item>
-                    </DetailModal>
-                    <template v-else>
-                      <a-menu-item key="1" @click="toDetail(item)">
-                        <span>{{ t('查看详情') }}</span>
-                      </a-menu-item>
-                      <a-menu-item key="1" @click="toTree(item)">
-                        <span>{{ t('股权') }}</span>
-                      </a-menu-item>
-                    </template>
-                    <a-menu-item key="2" @click="toEdit(item)">
+                    <a-menu-item key="0" @click="toDetail(item)">
+                      <span>{{ t('查看详情') }}</span>
+                    </a-menu-item>
+                    <a-menu-item key="1" @click="toEdit(item)">
                       <span>
                         {{ t('编辑') }}
                       </span>
                     </a-menu-item>
+                    <template v-if="item.type !== 4">
+                      <a-menu-item key="2" @click="toTree(item)">
+                        <span>{{ t('股权') }}</span>
+                      </a-menu-item>
+                    </template>
                     <a-popconfirm :title="'Are you sure ' + t('解绑用户')" ok-text="Yes" cancel-text="No" @confirm="orgsStore.stakeUnbind(item.uuid)">
                       <a-menu-item key="3" v-if="item.has_user">
                         <span>{{ t('解绑用户') }}</span>
@@ -164,11 +159,7 @@ import { Empty } from 'ant-design-vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { navigationTo } from '@/utils/tool';
-import router from '@/router';
-import DetailModal from '../../components/detail-modal.vue';
 import { useOrgsStore } from '@/store';
-import { useOrgsFormStore } from '@/store';
-const orgsFormStore = useOrgsFormStore();
 const orgsStore = useOrgsStore();
 
 const emits = defineEmits(['check']);
@@ -215,35 +206,17 @@ const bindUser = (e) => {
 
 // 跳转详情
 const toDetail = (item) => {
-  orgsFormStore.update({
-    p_uuid: item.uuid,
-    uuid: '',
-    isEdit: false,
-    isAddMember: false
-  });
-  router.push({ path: '/orgs/detail' });
+  navigationTo({ path: '/orgs/detail', query: { uuid:item.uuid }});
 };
 
 // 跳转组织
 const toTree = (item) => {
-  orgsFormStore.update({
-    p_uuid: '',
-    uuid: item.uuid,
-    isEdit: false,
-    isAddMember: false
-  });
-  router.push({ path: '/orgs/tree' });
+  navigationTo({ path: '/orgs/tree', query: { uuid:item.uuid } });
 };
 
 // 跳转编辑
 const toEdit = (item) => {
-  orgsFormStore.update({
-    p_uuid: '',
-    uuid: item.uuid,
-    isEdit: true,
-    isAddMember: !!item.is_pid
-  });
-  navigationTo('/orgs/addOrgs');
+  navigationTo({ path: '/orgs/form/edit', query: { uuid:item.uuid } });
 };
 </script>
 

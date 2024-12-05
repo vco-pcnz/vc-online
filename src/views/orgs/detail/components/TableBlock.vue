@@ -116,11 +116,9 @@
                 </a>
                 <template #overlay>
                   <a-menu>
-                    <DetailModal :detail="item">
-                      <a-menu-item key="0">
-                        <span>{{ t('查看详情') }}</span>
-                      </a-menu-item>
-                    </DetailModal>
+                    <a-menu-item key="0" @click="toDetail(item)">
+                      <span>{{ t('查看详情') }}</span>
+                    </a-menu-item>
                     <a-menu-item key="1" @click="toEdit(item)">
                       <span>{{ t('编辑') }}</span>
                     </a-menu-item>
@@ -153,12 +151,9 @@ import { Empty } from 'ant-design-vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { navigationTo } from '@/utils/tool';
-import DetailModal from '../../components/detail-modal.vue';
 import { useOrgsDetailStore } from '@/store';
-import { useOrgsFormStore } from '@/store';
 
 const orgsDetailStore = useOrgsDetailStore();
-const orgsFormStore = useOrgsFormStore();
 
 const emits = defineEmits(['check']);
 
@@ -201,16 +196,14 @@ const bindUser = (e) => {
   bindForm.value.user_uuid = e.uuid;
   orgsDetailStore.stakeBind(bindForm.value);
 };
+
+// 跳转详情
+const toDetail = (item) => {
+  navigationTo({ path: '/orgs/detail', query: { uuid: item.uuid } });
+};
 // 跳转编辑
 const toEdit = (item) => {
-  console.log(orgsFormStore.p_uuid)
-  orgsFormStore.update({
-    p_uuid: orgsFormStore.p_uuid,
-    uuid: item.uuid,
-    isEdit: true,
-    isAddMember: true
-  });
-  navigationTo('/orgs/addOrgs');
+  navigationTo({ path: '/orgs/form/edit', query: { uuid: item.uuid } });
 };
 </script>
 

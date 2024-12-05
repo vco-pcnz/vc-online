@@ -3,97 +3,143 @@
     <li>
       <a-button v-if="showEdit" type="cyan" shape="round" class="edit" @click="toEdit">{{ t('编辑') }}</a-button>
       <div class="avatar-box">
-        <vco-avatar :src="orgsDetailStore.detail?.avatar" :size="100"></vco-avatar>
+        <vco-avatar :src="detail?.avatar" :size="100"></vco-avatar>
       </div>
       <p>
-        <span class="label"><i class="iconfont" :class="{ cer: orgsDetailStore.detail?.name }">&#xe679;</i></span>
-        <span class="value">{{ orgsDetailStore.detail?.name }}</span>
+        <span class="label">
+          <i class="iconfont" :class="{ cer: detail?.name }" v-if="detail?.type == 4">&#xe632;</i>
+          <i class="iconfont" :class="{ cer: detail?.name }" v-else>&#xe679;</i>
+        </span>
+        <span class="value">{{ detail?.name }}</span>
       </p>
     </li>
     <li>
       <p>{{ t('详情') }}</p>
-      <p>
-        <span class="label"><i class="iconfont">&#xe65b;</i>NZBZ: </span>
-        <span class="value">{{ orgsDetailStore.detail?.nzbz }}</span>
-      </p>
-      <p>
-        <span class="label"><i class="iconfont" :class="{ cer: orgsDetailStore.detail?.idcard }">&#xe679;</i>{{ t('组织机构代码f') }}: </span>
-        <span class="value">{{ orgsDetailStore.detail?.idcard }}</span>
-      </p>
-      <p>
-        <span class="label"><i class="iconfont" :class="{ cer: orgsDetailStore.detail?.email_ok }">&#xe66f;</i>{{ t('邮箱') }}: </span>
-        <span class="value">{{ orgsDetailStore.detail?.email }}</span>
-      </p>
-      <p>
-        <span class="label"><i class="iconfont" :class="{ cer: orgsDetailStore.detail?.mobile_ok }">&#xe678;</i>{{ t('手机号') }}: </span>
-        <span class="value" v-if="orgsDetailStore.detail?.mobile">+{{ orgsDetailStore.detail?.pre }} {{ orgsDetailStore.detail?.mobile }}</span>
-      </p>
-      <p>
-        <span class="label"><i class="iconfont">&#xe814;</i>{{ t('地址') }}: </span>
-        <span class="value">{{ orgsDetailStore.detail?.city }}</span>
-      </p>
+      <!-- 人员 -->
+      <template v-if="detail?.type == 4">
+        <p>
+          <span class="label">
+            <i class="iconfont">&#xe656;</i>
+            {{ t('工作') }}:
+          </span>
+          <span class="value">{{ detail?.job }}</span>
+        </p>
+        <p>
+          <span class="label">
+            <i class="iconfont" :class="{ cer: detail?.idcard }">&#xe679;</i>
+            {{ t('身份证号码') }}:
+          </span>
+          <span class="value">{{ detail?.idcard }}</span>
+        </p>
+        <p>
+          <span class="label"><i class="iconfont" :class="{ cer: detail?.email_ok }">&#xe66f;</i>{{ t('邮箱') }}: </span>
+          <span class="value">{{ detail?.email }}</span>
+        </p>
+        <p>
+          <span class="label"><i class="iconfont" :class="{ cer: detail?.mobile_ok }">&#xe678;</i>{{ t('手机号') }}: </span>
+          <span class="value" v-if="detail?.mobile">+{{ detail?.pre }} {{ detail?.mobile }}</span>
+        </p>
+      </template>
+      <!-- 其他 -->
+      <template v-else>
+        <p>
+          <span class="label"><i class="iconfont">&#xe65b;</i>NZBZ: </span>
+          <span class="value">{{ detail?.nzbz }}</span>
+        </p>
+        <p>
+          <span class="label"><i class="iconfont">&#xe6e3;</i>{{ t('组织机构代码f') }}: </span>
+          <span class="value">{{ detail?.idcard }}</span>
+        </p>
+        <p>
+          <span class="label"><i class="iconfont">&#xe610;</i>{{ t('联系人f') }}: </span>
+          <span class="value">{{ detail?.contactName }}</span>
+        </p>
+        
+        <p>
+          <span class="label"><i class="iconfont" :class="{ cer: detail?.email_ok }">&#xe66f;</i>{{ t('邮箱') }}: </span>
+          <span class="value">{{ detail?.email }}</span>
+        </p>
+        <p>
+          <span class="label"><i class="iconfont" :class="{ cer: detail?.mobile_ok }">&#xe678;</i>{{ t('手机号') }}: </span>
+          <span class="value" v-if="detail?.mobile">+{{ detail?.pre }} {{ detail?.mobile }}</span>
+        </p>
+        <p>
+          <span class="label"><i class="iconfont">&#xe814;</i>{{ t('地址1') }}: </span>
+          <span class="value">{{ detail?.addr }}</span>
+        </p>
+        <p v-if="Boolean(detail?.address)">
+          <span class="label"><i class="iconfont">&#xe814;</i>{{ t('地址2') }}: </span>
+          <span class="value">{{ detail?.address }}</span>
+        </p>
+      </template>
     </li>
-    <li v-if="trim(orgsDetailStore.detail?.document)">
+    <li v-if="trim(detail?.document)">
       <p>{{ t('证件f') }}</p>
-      <vco-file-item :file="item" :time="orgsDetailStore.detail?.expire_time[index]" v-for="(item,index) in orgsDetailStore.detail?.document" :key="index"></vco-file-item>
+      <vco-file-item :file="item" :time="detail?.expire_time[index]" v-for="(item, index) in detail?.document" :key="index"></vco-file-item>
     </li>
     <li>
       <p>
         <span class="label"><i class="iconfont">&#xe690;</i></span>
-        <span class="cer"> {{ orgsDetailStore.detail?.open_count }} {{ t('进行中项目') }} </span>
+        <span class="cer"> {{ detail?.open_count }} {{ t('进行中项目') }} </span>
       </p>
       <p style="padding-left: 20px">
-        <span class="label"> {{ orgsDetailStore.detail?.close_count }} {{ t('已关闭项目') }} </span>
+        <span class="label"> {{ detail?.close_count }} {{ t('已关闭项目') }} </span>
       </p>
       <p>
         <span class="label"><i class="iconfont">&#xe751;</i></span>
-        <span class="cer">{{ orgsDetailStore.detail?.apply_count }} {{ t('请求') }}</span>
+        <span class="cer">{{ detail?.apply_count }} {{ t('请求') }}</span>
       </p>
     </li>
   </ul>
 </template>
 
 <script setup>
-import { ref, onMounted,watch } from 'vue';
+import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { pick, trim, cloneDeep } from 'lodash';
+import { trim } from 'lodash';
 import { useRoute } from 'vue-router';
 import { navigationTo } from '@/utils/tool';
-import { useOrgsDetailStore } from '@/store';
-import { useOrgsFormStore } from '@/store';
+import { getDetail } from '@/api/orgs';
 const route = useRoute();
 
 const { t } = useI18n();
-const orgsDetailStore = useOrgsDetailStore();
-const orgsFormStore = useOrgsFormStore();
+const emit = defineEmits(['getDetail']);
+const detail = ref(null);
 
 const props = defineProps({
   showEdit: {
     type: Boolean,
     default: true
-  },
-});
-
-onMounted(() => {
-  // 加载数据
-  if (orgsFormStore.p_uuid || orgsFormStore.uuid) {
-    if (props.showEdit) {
-      orgsDetailStore.setDetail(orgsFormStore.p_uuid || orgsFormStore.uuid);
-    } else {
-      orgsDetailStore.setDetail(orgsFormStore.uuid || orgsFormStore.p_uuid);
-    }
   }
 });
+
 // 跳转编辑
 const toEdit = (item) => {
-  orgsFormStore.update({
-    uuid: orgsDetailStore.detail?.uuid,
-    isEdit: true,
-    isAddMember:!!orgsDetailStore.detail?.is_pid
-  })
-  navigationTo('/orgs/addOrgs')
-}
+  navigationTo({ path: '/orgs/form/edit', query: { uuid: route.query.uuid } });
+};
 
+const updateDetail = () => {
+  getDetail({ id: route.query.uuid }).then((res) => {
+    detail.value = res;
+    emit('getDetail', res);
+  });
+};
+
+// 监听重置idcard 公用字段
+watch(
+  () => route.query.uuid,
+  (val, old) => {
+    if (val) {
+      updateDetail();
+    }
+  },
+  { deep: true, immediate: true }
+);
+
+// 暴露方法给父组件
+defineExpose({
+  updateDetail
+});
 </script>
 
 <style lang="less" scoped>

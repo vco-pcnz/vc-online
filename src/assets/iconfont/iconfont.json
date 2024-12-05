@@ -6,6 +6,20 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "4608987",
+      "name": "联系人",
+      "font_class": "lianxiren",
+      "unicode": "e610",
+      "unicode_decimal": 58896
+    },
+    {
+      "icon_id": "36963897",
+      "name": "公司编号-line",
+      "font_class": "gongsibianhao-line",
+      "unicode": "e6e3",
+      "unicode_decimal": 59107
+    },
+    {
       "icon_id": "13638695",
       "name": "工作",
       "font_class": "gongzuo",

@@ -28,9 +28,9 @@
                 </a-popconfirm>
               </div>
               <p>
-                <i class="iconfont cer" v-if="node.$$data.type == 4">&#xe65b;</i> 
+                <i class="iconfont cer" v-if="node.$$data.type == 4">&#xe632;</i>  
                 <i class="iconfont cer" v-else>&#xe679;</i> 
-                <span class="value bold">{{ node.$$data.name }}</span>
+                <span class="value bold"> {{ node.$$data.name }}</span>
               </p>
               <p>
                 <span class="label">nzbz</span>: <span class="value">{{ node.$$data.nzbz }}</span>
@@ -181,6 +181,9 @@ const getDetail = (val) => {
       }
       .cer {
         color: @colorPrimary;
+      }
+      .iconfont {
+        margin-right: 4px;
       }
       .ops {
         margin-bottom: 5px;

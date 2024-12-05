@@ -1,5 +1,5 @@
 <template>
-  <vco-page-panel :title="uuid ?detail?.name : t('添加组织')" :isBack="true"></vco-page-panel>
+  <vco-page-panel :title="uuid ?t('添加人员') : t('添加组织')" :isBack="true"></vco-page-panel>
   <div class="addOrgsWrapper">
     <div class="addOrgsWrapper-left">
       <div style="background-color: #faf9f9" v-if="uuid">

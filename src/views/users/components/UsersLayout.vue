@@ -41,7 +41,6 @@
                       rowSelection.length !== tableData.length
                   )
                 "
-                @editUser="showUserModal"
                 @check="checkHandle"
               ></table-block>
             </div>

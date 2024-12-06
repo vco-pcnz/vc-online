@@ -29,7 +29,7 @@
         <div class="ant-upload-text">{{ t(text) }}</div>
       </div>
     </a-upload>
-    <div class="delete-img" @click="deleteImg" v-if="picUrl && limit == 1 && !isMultiple && !isAvatar">
+    <div class="delete-img" @click="deleteImg" v-if="picUrl && limit == 1 && !isMultiple">
       <DeleteOutlined />
       <p>{{ t('删除') }}</p>
     </div>

@@ -393,6 +393,30 @@ tool.filterEmptyValues = (obj) => {
   return obj;
 }
 
+// 保留小数点后n位 ，默认2
+tool.fixNumber = (value, fractionDigits = 2) => +value.toFixed(fractionDigits);
+
+const initialMoneyFormatOptions = {
+  prefix: true,
+  parentheses: false,
+  cents: true,
+}
+
+// 格式化金额 - 美元
+tool.formatMoney = (value, formatOptions) => {
+  const options = formatOptions
+    ? { ...initialMoneyFormatOptions, ...formatOptions }
+    : initialMoneyFormatOptions;
+  const centsCount = options.cents ? 2 : 0;
+  const money = new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: centsCount,
+  }).format(tool.fixNumber(Math.abs(value), centsCount));
+  const isNegative = value < 0;
+  return `${isNegative ? '-' : ''}${options.prefix ? '$' : ''}${
+    options.parentheses ? `(${money})` : money
+  }`;
+};
+
 export const navigationTo = (path) => {
   router.push(path)
 }

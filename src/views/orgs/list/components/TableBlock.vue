@@ -1,153 +1,150 @@
 <template>
-  <div class="table-content">
-    <div class="table-block">
-      <ul class="table-col header">
-        <li class="check" style="width: 0; padding: 0">
-          <!-- <a-checkbox
-            v-model:checked="checkedAll"
-            :indeterminate="indeterminate"
-            @change="checkedAllHandle"
-          ></a-checkbox> -->
-        </li>
-        <li>{{ t('缩略图t') }}</li>
-        <li>{{ t('利益相关者信息t') }}</li>
-        <li>{{ t('关联用户t') }}</li>
-        <li>{{ t('用户角色t') }}</li>
-        <li>{{ t('注册时间/创建时间t') }}</li>
-        <li>{{ t('项目数据t') }}</li>
-        <li>{{ t('状态t') }}</li>
-        <li>{{ t('操作1') }}</li>
-      </ul>
-      <div v-if="tableData.length" class="table-body">
-        <template v-for="item in tableData" :key="item.id">
-          <ul class="table-col tr">
-            <li class="check" style="width: 0; padding: 0">
-              <!-- <a-checkbox
-                v-model:checked="item.checked"
-                @change="itemcheck"
-              ></a-checkbox> -->
-            </li>
-            <li>
-              <vco-avatar :src="item.avatar" :radius="true"></vco-avatar>
-            </li>
-            <li>
-              <p class="name">{{ item.name }}</p>
-              <p v-if="item.org_name">
-                <i class="iconfont" :class="{ cer: item.org_name }">&#xe679;</i>
-                <span :class="{ cer: item.org_name }">{{ item.org_name }}</span>
-              </p>
-              <p v-if="item.email">
-                <i class="iconfont" :class="{ cer: item.email_ok }">&#xe66f;</i>
-                <span :class="{ cer: item.email_ok }">{{ item.email }}</span>
-              </p>
-              <p v-if="item.mobile">
-                <i class="iconfont" :class="{ cer: item.mobile_ok }">&#xe678;</i>
-                <span :class="{ cer: item.mobile_ok }">
-                  <template v-if="item.mobile && item.pre">+{{ item.pre }} </template>
-                  {{ item.mobile }}
-                </span>
-              </p>
-            </li>
-            <li>
-              <p class="name">{{ item.user_name }}</p>
-              <p v-if="item.user_username">
-                <i class="iconfont">&#xe632;</i>
-                <span>{{ item.user_username }}</span>
-              </p>
-              <p v-if="item.user_username">
-                <i class="iconfont" :class="{ cer: item.user_email_ok }">&#xe66f;</i>
-                <span>{{ item.user_email }}</span>
-              </p>
-              <p v-if="item.user_mobile">
-                <i class="iconfont" :class="{ cer: item.user_mobile_ok }">&#xe678;</i>
-                <span :class="{ cer: item.user_mobile_ok }">
-                  <template v-if="item.user_mobile && item.user_pre">+{{ item.user_pre }} </template>
-                  {{ item.user_mobile }}
-                </span>
-              </p>
-            </li>
-            <li>
-              <p v-if="item.user_roles.length">
-                <span>{{ item.user_roles.join('/') }}</span>
-              </p>
-              <p v-if="item.cate_name.length">
-                <span>{{ item.cate_name.join('/') }}</span>
-              </p>
-              <p>
-                <span>{{ item.job }}</span>
-              </p>
-            </li>
-            <li>
-              <p v-if="item.user_create_time">
-                <span>{{ tool.showDate(item.user_create_time) }}</span>
-              </p>
-              <p v-if="item.create_time">
-                <span>{{ tool.showDate(item.create_time) }}</span>
-              </p>
-            </li>
-            <li>
-              <p>
-                <i class="iconfont black">&#xe690;</i>
-                <span class="cer bold"> {{ item.open_count }} {{ t('进行中项目') }} </span>
-              </p>
-              <p style="padding-left: 20px">
-                <span class="bold"> {{ item.close_count }} {{ t('已关闭项目') }} </span>
-              </p>
-              <p>
-                <i class="iconfont black">&#xe751;</i>
-                <span class="cer bold"> {{ item.apply_count }} {{ t('请求') }} </span>
-              </p>
-            </li>
-
-            <li>
-              <p>
-                <span class="cer">
-                  {{ item.is_expire ? t('有效') : t('无效') }}
-                </span>
-              </p>
-              <p v-if="item.expire_time" :class="{ err: !item.is_expire }">
-                {{ tool.showDate(item.expire_time) }}
-              </p>
-            </li>
-            <li>
-              <a-dropdown :trigger="['click']">
-                <a class="ant-dropdown-link" @click.prevent>
-                  <i class="iconfont">&#xe77a;</i>
-                </a>
-                <template #overlay>
-                  <a-menu>
-                    <a-menu-item key="0" @click="toDetail(item)">
-                      <span>{{ t('查看详情') }}</span>
-                    </a-menu-item>
-                    <a-menu-item key="1" @click="toEdit(item)">
-                      <span>
-                        {{ t('编辑') }}
-                      </span>
-                    </a-menu-item>
-                    <template v-if="item.type !== 4">
-                      <a-menu-item key="2" @click="toTree(item)">
-                        <span>{{ t('股权') }}</span>
-                      </a-menu-item>
-                    </template>
-                    <a-popconfirm :title="'Are you sure ' + t('解绑用户')" ok-text="Yes" cancel-text="No" @confirm="orgsStore.stakeUnbind(item.uuid)">
-                      <a-menu-item key="3" v-if="item.has_user">
-                        <span>{{ t('解绑用户') }}</span>
-                      </a-menu-item>
-                    </a-popconfirm>
-                    <a-menu-item key="4" v-if="!item.has_user" @click="showBindUser(item.uuid)">
-                      <span>
-                        {{ t('绑定用户') }}
-                      </span>
-                    </a-menu-item>
-                  </a-menu>
-                </template>
-              </a-dropdown>
-            </li>
-          </ul>
+  <div>
+    <a-table :columns="columns" :data-source="tableData" :pagination="false" :scroll="{ x: '100%' }">
+      <template #bodyCell="{ column, record }">
+        <template v-if="column.key === '1'">
+          <div class="avatarBox">
+            <vco-avatar :src="record.avatar" :radius="true"></vco-avatar>
+          </div>
         </template>
-      </div>
-      <a-empty v-else :image="simpleImage" />
-    </div>
+        <template v-if="column.key === '2'">
+          <p class="bold black">{{ record.name }}</p>
+          <p v-if="record.org_name">
+            <i class="iconfont" :class="{ cer: record.org_name }">&#xe679;</i>
+            <span :class="{ cer: record.org_name }">{{ record.org_name }}</span>
+          </p>
+          <p v-if="record.email">
+            <i class="iconfont" :class="{ cer: record.email_ok }">&#xe66f;</i>
+            <span :class="{ cer: record.email_ok }">{{ record.email }}</span>
+          </p>
+          <p v-if="record.mobile">
+            <i class="iconfont" :class="{ cer: record.mobile_ok }">&#xe678;</i>
+            <span :class="{ cer: record.mobile_ok }">
+              <template v-if="record.mobile && record.pre">+{{ record.pre }} </template>
+              {{ record.mobile }}
+            </span>
+          </p>
+        </template>
+        <template v-if="column.key === '3'">
+          <p class="bold black">{{ record.user_name }}</p>
+          <p v-if="record.user_username">
+            <i class="iconfont">&#xe632;</i>
+            <span>{{ record.user_username }}</span>
+          </p>
+          <p v-if="record.user_username">
+            <i class="iconfont" :class="{ cer: record.user_email_ok }">&#xe66f;</i>
+            <span :class="{ cer: record.user_email_ok }">{{ record.user_email }}</span>
+          </p>
+          <p v-if="record.user_mobile">
+            <i class="iconfont" :class="{ cer: record.user_mobile_ok }">&#xe678;</i>
+            <span :class="{ cer: record.user_mobile_ok }">
+              <template v-if="record.user_mobile && record.user_pre">+{{ record.user_pre }} </template>
+              {{ record.user_mobile }}
+            </span>
+          </p>
+        </template>
+        <template v-if="column.key === '4'">
+          <p v-if="record.user_roles.length">
+            <span>{{ record.user_roles.join('/') }}</span>
+          </p>
+          <p v-if="record.cate_name.length">
+            <span>{{ record.cate_name.join('/') }}</span>
+          </p>
+          <p>
+            <span>{{ record.job }}</span>
+          </p>
+        </template>
+        <template v-if="column.key === '5'">
+          <p v-if="record.user_create_time">
+            <span>{{ tool.showDate(record.user_create_time) }}</span>
+          </p>
+          <p v-if="record.create_time">
+            <span>{{ tool.showDate(record.create_time) }}</span>
+          </p>
+        </template>
+        <template v-if="column.key === '6'">
+          <p>
+            <i class="iconfont black">&#xe690;</i>
+            <span class="cer bold"> {{ record.open_count }} {{ t('进行中项目') }} </span>
+          </p>
+          <p style="padding-left: 20px">
+            <span class="bold"> {{ record.close_count }} {{ t('已关闭项目') }} </span>
+          </p>
+          <p>
+            <i class="iconfont black">&#xe751;</i>
+            <span class="cer bold"> {{ record.apply_count }} {{ t('请求') }} </span>
+          </p>
+        </template>
+        <template v-if="column.key === '7'">
+          <p>
+            <span class="cer">
+              {{ record.is_expire ? t('有效') : t('无效') }}
+            </span>
+          </p>
+          <p v-if="record.expire_time" :class="{ err: !record.is_expire }">
+            {{ tool.showDate(record.expire_time) }}
+          </p>
+        </template>
+        <template v-if="column.key === 'operation'">
+          <!-- <a-dropdown :trigger="['click']" v-if="Boolean(record.is_child)">
+            <a class="ant-dropdown-link" @click.prevent>
+              <i class="iconfont cert">&#xe77a;</i>
+            </a>
+            <template #overlay>
+              <a-menu>
+                <a-menu-item key="0" @click="toDetail(record)">
+                  <span>{{ t('查看详情') }}</span>
+                </a-menu-item>
+                <a-menu-item key="1" @click="toEdit(record)">
+                  <span>{{ t('编辑') }}</span>
+                </a-menu-item>
+                <a-popconfirm v-if="record.has_user" :title="'Are you sure ' + t('解绑用户')" ok-text="Yes" cancel-text="No" @confirm="orgsDetailStore.stakeUnbind(record.uuid)">
+                  <a-menu-item key="2">
+                    <span>{{ t('解绑用户') }}</span>
+                  </a-menu-item>
+                </a-popconfirm>
+                <a-menu-item key="2" v-if="!record.has_user" @click="showBindUser(record.uuid)">
+                  <span>{{ t('绑定用户') }}</span>
+                </a-menu-item>
+              </a-menu>
+            </template>
+          </a-dropdown> -->
+
+          <a-dropdown :trigger="['click']">
+            <a class="ant-dropdown-link" @click.prevent>
+              <i class="iconfont cert">&#xe77a;</i>
+            </a>
+            <template #overlay>
+              <a-menu>
+                <a-menu-item key="0" @click="toDetail(record)">
+                  <span>{{ t('查看详情') }}</span>
+                </a-menu-item>
+                <a-menu-item key="1" @click="toEdit(record)">
+                  <span>
+                    {{ t('编辑') }}
+                  </span>
+                </a-menu-item>
+                <template v-if="record.type !== 4">
+                  <a-menu-item key="2" @click="toTree(record)">
+                    <span>{{ t('股权') }}</span>
+                  </a-menu-item>
+                </template>
+                <a-popconfirm :title="'Are you sure ' + t('解绑用户')" ok-text="Yes" cancel-text="No" @confirm="orgsStore.stakeUnbind(record.uuid)">
+                  <a-menu-item key="3" v-if="record.has_user">
+                    <span>{{ t('解绑用户') }}</span>
+                  </a-menu-item>
+                </a-popconfirm>
+                <a-menu-item key="4" v-if="!record.has_user" @click="showBindUser(record.uuid)">
+                  <span>
+                    {{ t('绑定用户') }}
+                  </span>
+                </a-menu-item>
+              </a-menu>
+            </template>
+          </a-dropdown>
+        </template>
+      </template>
+    </a-table>
   </div>
   <!-- 绑定用户弹窗 -->
   <vco-choose-user ref="vcoChooseUserRef" @change="bindUser">
@@ -156,7 +153,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, reactive } from 'vue';
 import { Empty } from 'ant-design-vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
@@ -176,8 +173,24 @@ const props = defineProps({
     default: false
   }
 });
-
 const { t } = useI18n();
+
+const columns = reactive([
+  { title: t('缩略图t'), key: '1', width: 110, align: 'center' },
+  { title: t('利益相关者信息t'), key: '2', width: 250, align: 'left' },
+  { title: t('关联用户t'), key: '3', width: 250, align: 'left' },
+  { title: t('用户角色t'), key: '4', width: 200, align: 'center' },
+  { title: t('注册时间/创建时间t'), key: '5', width: 200, align: 'center' },
+  { title: t('项目数据t'), key: '6', width: 200, align: 'left' },
+  { title: t('状态t'), key: '7', width: 150, align: 'center' },
+  {
+    title: t('操作1'),
+    key: 'operation',
+    // fixed: 'right',
+    align: 'center',
+    width: 50
+  }
+]);
 
 const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE;
 
@@ -221,176 +234,3 @@ const toEdit = (item) => {
   navigationTo({ path: '/orgs/form/edit', query: { uuid: item.uuid } });
 };
 </script>
-
-<style lang="less" scoped>
-@import '@/styles/variables.less';
-
-.table-content {
-  border-top: 1px solid #808080;
-  padding-top: 5px;
-}
-
-.table-col {
-  display: flex;
-  align-items: stretch;
-  justify-content: space-between;
-  padding: 0 15px;
-  font-size: 13px;
-
-  &.header {
-    background-color: #fff;
-    border-radius: 10px;
-    border: 1px solid #fff;
-    font-weight: 500;
-    font-size: 12px;
-  }
-
-  &.tr {
-    background-color: #f0f0f0;
-    border: 1px solid #e2e5e2;
-    border-radius: 10px;
-    margin-top: 10px;
-    transition: all 0.3s ease;
-
-    &:hover {
-      border-color: @colorPrimary;
-    }
-
-    &:first-child {
-      margin-top: 5px;
-    }
-  }
-
-  > li {
-    padding: 10px;
-    flex: 1;
-    line-height: 21px;
-    display: flex;
-    flex-direction: column;
-    // align-items: center;
-    justify-content: center;
-
-    :deep(.ant-statistic-content) {
-      font-size: 15px;
-    }
-
-    &.check {
-      flex: 0 auto;
-      width: 50px;
-    }
-
-    &:nth-child(2) {
-      flex: 0 auto;
-      width: 100px;
-      align-items: center;
-    }
-
-    &:nth-child(3) {
-      flex: 0 auto;
-      width: 170px;
-    }
-
-    &:nth-child(4) {
-      flex: 0 auto;
-      width: 170px;
-    }
-
-    &:nth-child(5) {
-      flex: 0 auto;
-      width: 170px;
-      text-align: center;
-    }
-
-    &:nth-child(6) {
-      flex: 0 auto;
-      width: 170px;
-      text-align: center;
-    }
-
-    &:nth-child(7) {
-      flex: 0 auto;
-      width: 170px;
-    }
-
-    &:nth-child(8) {
-      flex: 0 auto;
-      width: 100px;
-      text-align: center;
-    }
-
-    &:last-child {
-      flex: 0 auto;
-      width: 50px;
-      text-align: center;
-    }
-
-    > p {
-      width: 100%;
-      word-break: break-all;
-      margin-top: 4px;
-
-      &:first-child {
-        margin-top: 0;
-      }
-
-      &.name {
-        font-weight: 500;
-      }
-
-      > .iconfont {
-        margin-right: 4px;
-        color: #999;
-
-        &.black {
-          color: #000;
-        }
-
-        &.cer {
-          color: @colorPrimary;
-        }
-      }
-
-      > span {
-        color: #666;
-
-        &.cer {
-          color: #000;
-        }
-
-        &.name {
-          font-weight: 500;
-        }
-
-        &.bold {
-          font-weight: 500;
-        }
-      }
-
-      &.err {
-        color: #ff4d4f;
-      }
-    }
-  }
-}
-
-.peason-info {
-  position: relative;
-
-  .vco-avatar {
-    position: absolute;
-    left: 0;
-    top: 0;
-  }
-
-  > p {
-    line-height: 22px;
-    text-indent: 28px;
-    word-break: break-all;
-  }
-}
-
-.status-txt {
-  font-size: 14px;
-  font-weight: 500;
-}
-</style>

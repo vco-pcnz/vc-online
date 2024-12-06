@@ -63,13 +63,17 @@
           <span class="label"><i class="iconfont" :class="{ cer: detail?.mobile_ok }">&#xe678;</i>{{ t('手机号') }}: </span>
           <span class="value" v-if="detail?.mobile">+{{ detail?.pre }} {{ detail?.mobile }}</span>
         </p>
-        <p>
+        <p v-if="Boolean(detail?.addr)">
           <span class="label"><i class="iconfont">&#xe814;</i>{{ t('地址1') }}: </span>
           <span class="value">{{ detail?.addr }}</span>
         </p>
         <p v-if="Boolean(detail?.address)">
           <span class="label"><i class="iconfont">&#xe814;</i>{{ t('地址2') }}: </span>
           <span class="value">{{ detail?.address }}</span>
+        </p>
+        <p v-if="Boolean(detail?.city)">
+          <span class="label"><i class="iconfont">&#xe814;</i>{{ t('地址') }}: </span>
+          <span class="value">{{ detail?.city }}</span>
         </p>
       </template>
     </li>

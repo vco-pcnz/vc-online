@@ -472,10 +472,10 @@ a:hover {
     & > tr > td.ant-table-cell-row-hover {
       background-color: transparent;
     }
-    
-   &>tr.ant-table-placeholder:hover>td {
-    background-color: #f0f0f0;;
-  }
+
+    & > tr.ant-table-placeholder:hover > td {
+      background-color: #f0f0f0;
+    }
   }
   .ant-table:not(.ant-table-bordered) .ant-table-tbody > tr {
     border-radius: 10px;
@@ -519,7 +519,41 @@ a:hover {
     td {
       position: relative;
       z-index: 2;
-    }
+      font-size: 13px;
+      .iconfont {
+        margin-right: 4px;
+        color: #999;
 
+        &.cer {
+          color: @colorPrimary;
+        }
+        &.cert {
+          color: #ccab47;
+        }
+      }
+      p {
+        text-wrap: nowrap;
+        color: #666;
+        span {
+          &.cer {
+            color: #000;
+          }
+        }
+      }
+
+      .bold {
+        font-weight: 500;
+      }
+      .err {
+        color: #ff4d4f;
+      }
+      .black {
+        color: #000;
+      }
+      .avatarBox {
+        display: flex;
+        justify-content: center;
+      }
+    }
   }
 }

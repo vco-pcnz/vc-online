@@ -8,7 +8,7 @@
           </div>
         </template>
         <template v-if="column.key === '2'">
-          <p class="name">{{ record.name }}</p>
+          <p class="bold black">{{ record.name }}</p>
           <p v-if="record.org_name">
             <i class="iconfont" :class="{ cer: record.org_name }">&#xe679;</i>
             <span :class="{ cer: record.org_name }">{{ record.org_name }}</span>
@@ -26,14 +26,14 @@
           </p>
         </template>
         <template v-if="column.key === '3'">
-          <p class="name">{{ record.user_name }}</p>
+          <p class="bold black">{{ record.user_name }}</p>
           <p v-if="record.user_username">
             <i class="iconfont">&#xe632;</i>
             <span>{{ record.user_username }}</span>
           </p>
           <p v-if="record.user_username">
             <i class="iconfont" :class="{ cer: record.user_email_ok }">&#xe66f;</i>
-            <span>{{ record.user_email }}</span>
+            <span :class="{ cer: record.user_email_ok }">{{ record.user_email }}</span>
           </p>
           <p v-if="record.user_mobile">
             <i class="iconfont" :class="{ cer: record.user_mobile_ok }">&#xe678;</i>
@@ -144,13 +144,13 @@ const props = defineProps({
 const { t } = useI18n();
 
 const columns = reactive([
-  { title: t('缩略图t'), dataIndex: 'avatar', key: '1', width: 110, align: 'center' },
-  { title: t('利益相关者信息t'), dataIndex: 'address', key: '2', width: 250 },
-  { title: t('关联用户t'), dataIndex: 'address', key: '3', width: 250 },
-  { title: t('用户角色t'), dataIndex: 'address', key: '4', width: 200, align: 'center' },
-  { title: t('注册时间/创建时间t'), dataIndex: 'address', key: '5', width: 300, align: 'center' },
-  { title: t('项目数据t'), dataIndex: 'address', key: '6', width: 200 },
-  { title: t('状态t'), dataIndex: 'address', key: '7', width: 150, align: 'center' },
+  { title: t('缩略图t'), key: '1', width: 110, align: 'center' },
+  { title: t('利益相关者信息t'), key: '2', width: 200, align: 'left' },
+  { title: t('关联用户t'), key: '3', width: 200, align: 'left' },
+  { title: t('用户角色t'), key: '4', width: 150, align: 'center' },
+  { title: t('注册时间/创建时间t'), key: '5', width: 230, align: 'center' },
+  { title: t('项目数据t'), key: '6', width: 180, align: 'left' },
+  { title: t('状态t'), key: '7', width: 150, align: 'center' },
   {
     title: t('操作1'),
     key: 'operation',
@@ -197,49 +197,4 @@ const toEdit = (item) => {
 };
 </script>
 
-<style lang="less" scoped>
-@import '@/styles/variables.less';
-
-.table-content {
-  border-top: 1px solid #808080;
-  padding-top: 5px;
-}
-
-.name {
-  font-weight: 500;
-}
-.iconfont {
-  margin-right: 4px;
-  color: #999;
-  &.black {
-    color: #000;
-  }
-  &.cer {
-    color: @colorPrimary;
-  }
-  &.cert {
-    color: #ccab47;
-  }
-}
-
-span {
-  color: #666;
-  &.cer {
-    color: #000;
-  }
-  &.name {
-    font-weight: 500;
-  }
-  &.bold {
-    font-weight: 500;
-  }
-}
-.err {
-  color: #ff4d4f;
-}
-
-.avatarBox {
-  display: flex;
-  justify-content: center;
-}
-</style>
+<style lang="less" scoped></style>

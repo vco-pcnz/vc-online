@@ -78,7 +78,7 @@ const typeData = computed(() => {
 
 const baseInfoData = [
   {
-    label: t('所有'),
+    label: t('全部'),
     value: 'all',
   },
   {

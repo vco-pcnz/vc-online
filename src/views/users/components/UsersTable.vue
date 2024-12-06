@@ -223,6 +223,10 @@ const editUser = (userData) => {
     &:nth-child(5) {
       flex: 0 auto;
       width: 180px;
+
+      > p {
+        text-align: center;
+      }
     }
     &:nth-child(6) {
       flex: 0 auto;

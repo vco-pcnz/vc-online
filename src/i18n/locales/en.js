@@ -141,7 +141,6 @@ export default {
   "步骤八": "Step 8",
   "步骤九": "Step 9",
   "步骤十": "Step 10",
-  "所有": "All",
   "个人": "Individual",
   "机构": "Organizations",
   "组织": "Company",

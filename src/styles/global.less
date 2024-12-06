@@ -430,11 +430,13 @@ a:hover {
     font-weight: 500px;
     font-size: 12px;
     border: none;
-    & > tr > th,
-    & > tr > td {
+    & > tr > th{
       font-weight: 500px;
       font-size: 12px;
-      border: none;
+      border: none!important;
+      border-top: 1px solid #808080!important;
+      border-radius: 0!important;
+      color: #000!important;
     }
 
     .ant-table-cell-fix-left,

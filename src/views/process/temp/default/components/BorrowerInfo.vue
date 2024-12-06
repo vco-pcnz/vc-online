@@ -1,43 +1,43 @@
 <template>
   <div>
     <a-row :gutter="24">
-      <a-col :span="12">
+      <a-col :span="8">
         <div class="info-content">
           <p class="name">{{ t('借款人类型') }}</p>
           <p class="txt">{{ Number(data.borrower_type) === 1 ? t('个人') : t('机构') }}</p>
         </div>
       </a-col>
-      <a-col :span="12" v-if="Number(data.borrower_type) === 1">
+      <a-col :span="8" v-if="Number(data.borrower_type) === 1">
         <div class="info-content">
           <p class="name">{{ t('借款人姓名') }}</p>
           <p class="txt">{{ data.first_name + ' ' + data.middle_name + ' ' + data.last_name }}</p>
         </div>
       </a-col>
-      <a-col :span="12" v-if="Number(data.borrower_type) === 2">
+      <a-col :span="8" v-if="Number(data.borrower_type) === 2">
         <div class="info-content">
           <p class="name">{{ t('机构名称') }}</p>
           <p class="txt">{{ data.organization_name }}</p>
         </div>
       </a-col>
-      <a-col :span="12">
+      <a-col :span="8">
         <div class="info-content">
           <p class="name">{{ Number(data.borrower_type) === 1 ? t('身份证号码') : t('公司编码') }}</p>
           <p class="txt">{{ data.borrower_id_num }}</p>
         </div>
       </a-col>
-      <a-col :span="12">
+      <a-col :span="8">
         <div class="info-content">
           <p class="name">{{ t('邮箱') }}</p>
           <p class="txt">{{ data.borrower_email }}</p>
         </div>
       </a-col>
-      <a-col :span="12">
+      <a-col :span="8">
         <div class="info-content">
           <p class="name">{{ t('手机号') }}</p>
           <p class="txt">{{ '+' + data.borrower_phone_prefix + ' ' + data.borrower_phone }}</p>
         </div>
       </a-col>
-      <a-col :span="12">
+      <a-col :span="8">
         <div class="info-content">
           <p class="name">{{ t('邮编') }}</p>
           <p class="txt">{{ data.borrower_postcode }}</p>
@@ -82,16 +82,5 @@
 </script>
 
 <style lang="less" scoped>
-  .info-content {
-    margin-top: 15px;
-    .name {
-      font-size: 12px;
-      color: #666;
-    }
-    .txt {
-      font-size: 13px;
-      font-weight: 500;
-      margin-top: 2px;
-    }
-  }
+  @import './style.less';
 </style>

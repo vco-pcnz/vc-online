@@ -1,8 +1,8 @@
 <template>
   <div class="block-container">
     <div class="left-content">
-      <div class="block-item">
-        <div class="flex justify-end gap-5">
+      <div class="block-item" :class="{'check': check}">
+        <div v-if="!check" class="flex justify-end gap-5">
           <a-button type="primary-line" shape="round" size="small">{{ t('从利益相关者导入') }}</a-button>
           <a-button type="primary-line" shape="round" size="small" class="flex items-center justify-center">
             {{ t('生成临时借款人ID') }}
@@ -33,8 +33,8 @@
               </a-col>
               <template v-if="formState.borrower_type === 1">
                 <a-col :span="8">
-                  <a-form-item :label="t('名')" name="last_name">
-                    <a-input v-model:value="formState.last_name" />
+                  <a-form-item :label="t('名')" name="first_name">
+                    <a-input v-model:value="formState.first_name" />
                   </a-form-item>
                 </a-col>
                 <a-col :span="8">
@@ -43,8 +43,8 @@
                   </a-form-item>
                 </a-col>
                 <a-col :span="8">
-                  <a-form-item :label="t('姓')" name="first_name">
-                    <a-input v-model:value="formState.first_name" />
+                  <a-form-item :label="t('姓')" name="last_name">
+                    <a-input v-model:value="formState.last_name" />
                   </a-form-item>
                 </a-col>
               </template>
@@ -108,26 +108,27 @@
           </a-form>
         </div>
         <div class="flex mt-5 items-end gap-20 justify-between">
-          <div>
+          <div v-if="!check">
             <a-button
               type="grey"
               shape="round"
-              class="weight"
+              class="weight uppercase"
               :loading="draftLoading"
               @click="draftHandle"
             >{{ t('保存草稿') }}</a-button>
             <p v-if="hasDrafData" class="mt-2 text-sm pl-1 form-tips-color">{{ t('* 存在草稿数据，请点击{0}保存', [`"${t('下一步')}"`]) }}</p>
           </div>
+          <p v-else></p>
           
           <a-button
             type="dark" shape="round" class="big shadow bold uppercase"
             @click="submitHandle"
             :loading="subLoading"
-          >{{ t('下一步') }}</a-button>
+          >{{ check ? t('保存') : t('下一步') }}</a-button>
         </div>
       </div>
     </div>
-    <div class="right-content">
+    <div v-if="!check" class="right-content">
       2
     </div>
   </div>
@@ -142,6 +143,8 @@
   import tool, { navigationTo } from "@/utils/tool";
   import { message } from "ant-design-vue/es";
 
+  const emits = defineEmits(['checkDone'])
+
   const props = defineProps({
     infoData: {
       type: Object,
@@ -150,6 +153,10 @@
     draftData: {
       type: Object,
       default: () => {}
+    },
+    check: {
+      type: Boolean,
+      default: false
     }
   })
 
@@ -157,7 +164,7 @@
   const formRef = ref()
 
   const formState = reactive({
-    borrower_type: 1,
+    borrower_type: 2,
     borrower_images: [],
     first_name: '',
     middle_name: '',
@@ -176,7 +183,7 @@
 
   const formRules = {
     borrower_images: [
-      { required: true, message: t('请上传') + t('证件照片'), trigger: 'change' }
+      // { required: true, message: t('请上传') + t('证件照片'), trigger: 'change' }
     ],
     first_name: [
       { required: true, message: t('请输入') + t('名'), trigger: 'blur' }
@@ -276,7 +283,11 @@
       subLoading.value = true
       projectApplySaveBorrowerInfo(params).then(res => {
         subLoading.value = false
-        navigationTo(`/process/two?uuid_info=${res.uuid}`)
+        if (props.check) {
+          emits('checkDone')
+        } else {
+          navigationTo(`/process/two?uuid_info=${res.uuid}`)
+        }
       }).catch(() => {
         subLoading.value = false
       })

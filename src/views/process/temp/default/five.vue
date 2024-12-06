@@ -1,61 +1,16 @@
 <template>
   <div class="block-container">
     <div class="left-content">
-      <div class="block-item" :class="{'check': check}">
-        <div class="sys-form-content mt-5">
-          <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
-            <a-row :gutter="24">
-              <a-col :span="24">
-                <a-form-item :label="t('借款金额')" name="loan_money">
-                  <a-input-number
-                    v-model:value="formState.loan_money"
-                    :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                    :parser="value => value.replace(/\$\s?|(,*)/g, '')"
-                  />
-                </a-form-item>
-              </a-col>
-              <a-col :span="24">
-                <a-form-item :label="t('借款目的')" name="loan_type">
-                  <a-select
-                    v-model:value="formState.loan_type"
-                    :options="projectTypeData"
-                    mode="multiple"
-                  ></a-select>
-                </a-form-item>
-              </a-col>
-              <a-col :span="16">
-                <a-form-item :label="t('借款起止日期')" name="time_date">
-                  <a-range-picker
-                    v-model:value="formState.time_date"
-                    :disabled-date="disabledStartDate"
-                    :placeholder="[t('开放日期'), t('到期日期')]"
-                    @change="timeChange"
-                  />
-                </a-form-item>
-              </a-col>
-              <a-col :span="4">
-                <a-form-item :label="t('借款周期')" name="term">
-                  <a-input
-                    v-model:value="formState.term"
-                    :suffix="t('月')"
-                    @input="termInput"
-                  />
-                </a-form-item>
-              </a-col>
-              <a-col :span="4">
-                <a-form-item label=" " name="days">
-                  <a-input
-                    v-model:value="formState.days"
-                    :suffix="t('天')"
-                    @input="termInput"
-                  />
-                </a-form-item>
-              </a-col>
-            </a-row>
-          </a-form>
-        </div>
-        <div class="flex mt-5 items-end gap-20 justify-between">
-          <div v-if="!check">
+      <!-- 基础信息 -->
+      <base-info-content
+        v-if="dataInfo"
+        :data-info="dataInfo"
+        @refresh="dataRefresh"
+      ></base-info-content>
+
+      <div class="sys-form-content">
+        <div class="flex mt-10 items-end gap-20 justify-between">
+          <div>
             <a-button
               type="grey"
               shape="round"
@@ -65,24 +20,21 @@
             >{{ t('保存草稿') }}</a-button>
             <p v-if="hasDrafData" class="mt-2 text-sm pl-1 form-tips-color">{{ t('* 存在草稿数据，请点击{0}保存', [`"${t('提交审核1')}"`]) }}</p>
           </div>
-          <p v-else></p>
           <div class="flex gap-5">
             <a-button
-              v-if="!check"
               type="primary" shape="round" class="big shadow bold uppercase"
-              @click="previousHandle"
-            >{{ t('上一步') }}</a-button>
+            >{{ t('撤回') }}</a-button>
             <a-button
               type="dark" shape="round" class="big shadow bold uppercase"
               @click="submitHandle"
               :loading="subLoading"
-            >{{ check ? t('保存') : t('提交审核1') }}</a-button>
+            >{{ t('提交审核1') }}</a-button>
           </div>
-          
         </div>
       </div>
     </div>
-    <div v-if="!check" class="right-content">
+
+    <div class="right-content">
       2
     </div>
   </div>
@@ -93,11 +45,10 @@
   import dayjs from "dayjs";
   import { useI18n } from "vue-i18n";
   import { cloneDeep } from "lodash";
-  import { projectSelectList, projectApplySaveLoanInfo, projectSaveSaveDraft } from "@/api/process";
+  import { projectApplySaveLoanInfo, projectSaveSaveDraft, projectLmAuditDetail } from "@/api/process";
   import tool, { navigationTo } from "@/utils/tool";
   import { message } from "ant-design-vue/es";
-
-  const emits = defineEmits(['checkDone'])
+  import BaseInfoContent from "./components/BaseInfoContent.vue";
 
   const props = defineProps({
     infoData: {
@@ -107,10 +58,6 @@
     draftData: {
       type: Object,
       default: () => {}
-    },
-    check: {
-      type: Boolean,
-      default: false
     }
   })
 
@@ -174,11 +121,8 @@
 
       projectApplySaveLoanInfo(params).then(res => {
         subLoading.value = false
-        if (props.check) {
-          emits('checkDone')
-        } else {
-          navigationTo(`/requests/details?uuid_info=${res.uuid}`)
-        }
+        navigationTo(`/requests/details?uuid_info=${res.uuid}`)
+        console.log('res', res)
       }).catch(() => {
         subLoading.value = false
       })
@@ -216,10 +160,6 @@
     }
   }
 
-  const disabledStartDate = (current) => {
-    return current && current < new Date().setHours(0, 0, 0, 0); // 禁用今天之前的日期
-  }
-
   const timeChange = (date) => {
     if (date) {
       const calcDay = tool.calculateDurationPrecise(date[0], date[1])
@@ -248,47 +188,44 @@
     }
   }
 
-  const previousHandle = () => {
-    navigationTo(`/process/three?uuid_info=${props.infoData.uuid}`)
-  }
-
-  const projectTypeData = ref([])
-  const getTypeData = () => {
-    projectSelectList().then(res => {
-      const data = res.project_loan_cascade || []
-      const dataArr = data.find(item => Number(item.value) === Number(props.infoData.project_type))
-      projectTypeData.value = dataArr ? dataArr.children : []
-    })
-  }
-
+  const dataInfo = ref(null)
   const dataInit = () => {
     const data = cloneDeep(props.infoData)
-    if (data && data.start_date && data.end_date) {
-      data.time_date = [data.start_date, data.end_date]
-      timeChange(data.time_date)
-    }
-    const draftData = cloneDeep(props.draftData)
+    dataInfo.value = data
 
-    let useData = data
-    if (draftData && Object.keys(draftData).length) {
-      useData = draftData
-      hasDrafData.value = true
-    }
+    // if (data && data.start_date && data.end_date) {
+    //   data.time_date = [data.start_date, data.end_date]
+    //   timeChange(data.time_date)
+    // }
+    // const draftData = cloneDeep(props.draftData)
 
-    for (const key in formState) {
-      if (key === 'time_date' && useData[key]) {
-        formState.time_date = [dayjs(useData[key][0]), dayjs(useData[key][1])]
-      } else {
-        formState[key] = useData[key] || formState[key] || ''
-      }
-    }
+    // let useData = data
+    // if (draftData && Object.keys(draftData).length) {
+    //   useData = draftData
+    //   hasDrafData.value = true
+    // }
+
+    // for (const key in formState) {
+    //   if (key === 'time_date' && useData[key]) {
+    //     formState.time_date = [dayjs(useData[key][0]), dayjs(useData[key][1])]
+    //   } else {
+    //     formState[key] = useData[key] || formState[key] || ''
+    //   }
+    // }
+  }
+
+  const dataRefresh = () => {
+    projectLmAuditDetail({
+      uuid: props.infoData.uuid
+    }).then(res => {
+      dataInfo.value = res
+    })
   }
 
   watch(
     () => props.infoData,
     (val) => {
       if (val) {
-        getTypeData()
         dataInit()
       }
     }, {

@@ -8,7 +8,7 @@
               <vco-upload v-model:value="form.avatar" text="上传头像"></vco-upload>
             </div>
           </a-col>
-          <template v-if="!isAddMember">
+          <template v-if="!isMember">
             <a-col :span="24">
               <a-form-item :label="t('分类f')" name="cid">
                 <a-checkbox-group v-model:value="form.cid">
@@ -21,7 +21,7 @@
             <a-col :span="24">
               <a-form-item :label="t('类型f')" name="type">
                 <a-radio-group v-model:value="form.type">
-                  <a-radio :value="item.code" :key="item.code" v-for="item in orgsStore.stakeholderTypet">
+                  <a-radio :value="item.code" :key="item.code" v-for="item in orgsStore.stakeholderType">
                     {{ item.name }}
                   </a-radio>
                 </a-radio-group>
@@ -153,14 +153,24 @@
           </a-col>
           <!-- ####################################### -->
           <template v-if="form.type != 4">
-            <a-col :span="12">
-              <a-form-item :label="t('地址')" name="address">
+            <a-col :span="24">
+              <a-form-item :label="t('地址1')">
+                <a-input v-model:value="form.addr" :placeholder="t('请输入')" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="24">
+              <a-form-item :label="t('地址2')">
                 <a-input v-model:value="form.address" :placeholder="t('请输入')" />
               </a-form-item>
             </a-col>
-            <a-col :span="12">
-              <a-form-item label=" " name="province_code">
+            <a-col :span="16">
+              <a-form-item :label="t('区域')">
                 <vco-address-select v-model:value="region"></vco-address-select>
+              </a-form-item>
+            </a-col>
+            <a-col :span="8">
+              <a-form-item :label="t('邮编')">
+                <a-input v-model:value="form.postal" :placeholder="t('请输入')" />
               </a-form-item>
             </a-col>
           </template>
@@ -227,26 +237,37 @@ import countdown from './countdown.vue';
 import changeEmail from './change-email.vue';
 import changeMobile from './change-mobile.vue';
 import dayjs from 'dayjs';
-import { useOrgsStore, useOrgsDetailStore } from '@/store';
 import { pick, trim, cloneDeep } from 'lodash';
-import { useRoute, useRouter } from 'vue-router';
 import { message } from 'ant-design-vue';
-import { useOrgsFormStore } from '@/store';
-const orgsFormStore = useOrgsFormStore();
-const route = useRoute();
+import { useRouter } from 'vue-router';
+import { useOrgsStore } from '@/store';
 const router = useRouter();
+const orgsStore = useOrgsStore();
 
 const { t } = useI18n();
-const orgsStore = useOrgsStore();
-const orgsDetailStore = useOrgsDetailStore();
+
 const formRef = ref();
 const jobs = ref([]);
 const region = ref();
 const loading = ref(false);
 const documentList = ref([]);
-const isAddMember = ref(false);
 const isEdit = ref(false);
 const check_user_uuid = ref('');
+const emit = defineEmits(['update']);
+
+const props = defineProps({
+  detail: {
+    type: Object
+  },
+  isMember: {
+    type: Boolean,
+    default: false
+  },
+  p_uuid: {
+    type: String,
+    default: ''
+  }
+});
 // 表单数据
 const { form, assignFields } = useFormData({
   //公司
@@ -276,7 +297,9 @@ const { form, assignFields } = useFormData({
   province_code: '',
   city_code: '',
   district_code: '',
+  addr: '',
   address: '',
+  postal: '',
   document: [], //证件
   expire_time: [], //证件有效期
   note: ''
@@ -436,16 +459,12 @@ const checkUser = (val) => {
 
 // 提交
 const submit = () => {
-  // if (!trim(form.avatar)) {
-  //   message.warning(t('请上传头像'));
-  //   return;
-  // }
   formRef.value.validate().then(() => {
     let keys = ['cid', 'type', 'avatar', 'idcard', 'email', 'emailCode', 'pre', 'mobile', 'mobileCode', 'document', 'expire_time', 'note'];
     if (form.type == 4) {
       keys = keys.concat(['firstName', 'middleName', 'lastName', 'job', 'sendEmail', 'sendSms', 'user_uuid']);
     } else {
-      keys = keys.concat(['name', 'nzbz', 'contactName', 'province_code', 'city_code', 'district_code', 'address']);
+      keys = keys.concat(['name', 'nzbz', 'contactName', 'province_code', 'city_code', 'district_code', 'address', 'addr', 'postal']);
     }
     const newData = pick(form, keys);
     if (form.type == 4) {
@@ -455,8 +474,8 @@ const submit = () => {
       newData.sendSms = newData.sendSms ? 1 : 0;
     }
     loading.value = true;
-    if (!form.uuid) {
-      newData['p_uuid'] = orgsFormStore.p_uuid;
+    if (!isEdit.value) {
+      newData['p_uuid'] = props.p_uuid;
       stakeAdd(newData)
         .then(() => {
           loading.value = false;
@@ -470,7 +489,8 @@ const submit = () => {
       newData['uuid'] = form.uuid;
       stakeEdit(newData)
         .then(() => {
-          orgsDetailStore.setDetail(orgsFormStore.uuid);
+          // 刷新数据
+          emit('update');
           loading.value = false;
           message.success(t('修改成功'));
         })
@@ -484,15 +504,11 @@ onMounted(() => {
   // 加载分类
   orgsStore.getCategory();
   // 加载分类
-  orgsStore.getStakeholderTypet();
+  orgsStore.getStakeholderType();
   // 加载工作
   getStakeholderJob().then((res) => {
     jobs.value = res;
   });
-  isAddMember.value = orgsFormStore.isAddMember;
-  if (isAddMember.value) {
-    form.type = 4;
-  }
 });
 
 // 监听重置idcard 公用字段
@@ -505,6 +521,15 @@ watch(
       }
     }
   }
+);
+// 监听重置idcard 公用字段
+watch(
+  () => props.isMember,
+  (val, old) => {
+    if (val) {
+      form.type = 4;
+   }
+  },{immediate:true}
 );
 
 // 监听地址选择组件赋值
@@ -531,32 +556,29 @@ const hasData = (data) => {
   }
 };
 watch(
-  () => orgsDetailStore.detail,
+  () => props.detail,
   (val) => {
-    if (val) {
+    if (trim(val)) {
       const data = cloneDeep(val);
-      if (orgsFormStore.isEdit && data) {
-        isEdit.value = true;
-        form.uuid = orgsFormStore.uuid;
-        if (!hasData(data.expire_time)) {
-          data.expire_time = [];
-        } else if (typeof data.expire_time === 'string') {
-          data.expire_time = data.expire_time.split(',');
-        }
-        data.province_code += '';
-        data.city_code += '';
-        data.district_code += '';
-        data.sendEmail = data.sendEmail ? true : false;
-        data.sendSms = data.sendSms ? true : false;
-        data.document = data.document ? data.document : [];
-        documentList.value = data.document;
-        assignFields({
-          ...data
-        });
-        region.value = [data.province_code, data.city_code, data.district_code].filter((item) => item).join(',');
-        mobile_ok.value = val.mobile_ok;
-        email_ok.value = val.email_ok;
+      isEdit.value = true;
+      if (!hasData(data.expire_time)) {
+        data.expire_time = [];
+      } else if (typeof data.expire_time === 'string') {
+        data.expire_time = data.expire_time.split(',');
       }
+      data.province_code += '';
+      data.city_code += '';
+      data.district_code += '';
+      data.sendEmail = data.sendEmail ? true : false;
+      data.sendSms = data.sendSms ? true : false;
+      data.document = data.document ? data.document : [];
+      documentList.value = data.document;
+      assignFields({
+        ...data
+      });
+      region.value = [data.province_code, data.city_code, data.district_code].filter((item) => item).join(',');
+      mobile_ok.value = val.mobile_ok;
+      email_ok.value = val.email_ok;
     }
   },
   { immediate: true, deep: true }

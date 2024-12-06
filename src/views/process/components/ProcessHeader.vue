@@ -9,11 +9,16 @@
       </div>
     </div>
     <div v-if="stepData.length" class="process-bar-content">
-      <div v-for="(item, index) in processData" :key="index" class="item" :class="getItemClass(index + 1, current)">
-        <div class="check" :class="{'pointer': checkPointer(index + 1)}" @click="stepHandle(index + 1)">
-          <i v-if="current === index + 1" class="iconfont">{{ current === processData.length ? '&#xe647;' : '&#xe779;'}}</i>
-          <i v-if="index + 1 < current" class="iconfont">&#xe647;</i>
-          <p v-if="index + 1 > current">{{ index + 1 }}</p>
+      <div v-for="(item, index) in processData" :key="index" class="item" :class="getItemClass(index + 1, currentStatus)">
+        <div class="check" :class="{'pointer': checkPointer(index + 1), 'current': index + 1 === current}" @click="stepHandle(index + 1)">
+          <template v-if="current === index + 1">
+            <i v-if="current === index + 1" class="iconfont">{{ currentStatus === processData.length ? '&#xe647;' : '&#xe779;'}}</i>
+          </template>
+          <template v-else>
+            <p v-if="index + 1 > currentStatus">{{ index + 1 }}</p>
+            <i v-if="index + 1 < currentStatus" class="iconfont">&#xe647;</i>
+            <i v-if="index + 1 === currentStatus" class="iconfont">&#xe790;</i>
+          </template>
         </div>
         <h2 v-if="item.name" class="name">{{ t(item.name) }}</h2>
       </div>
@@ -22,7 +27,7 @@
 </template>
 
 <script setup>
-  import { computed } from "vue"
+  import { computed, ref, onMounted } from "vue"
   import { cloneDeep } from "lodash"
   import { useRoute } from "vue-router"
   import { navigationTo } from "@/utils/tool"
@@ -39,8 +44,14 @@
     current: {
       type: Number,
       default: 0
+    },
+    status: {
+      type: Number,
+      default: 0
     }
   })
+
+  const currentStatus = ref(1)
 
   const routeArr = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eigth', 'nine', 'then']
 
@@ -67,16 +78,31 @@
     }
   }
 
-  const checkPointer = (index) => (index < props.current && props.current < 5)
+  const checkPointer = (index) => (index <= currentStatus.value && currentStatus.value < 5)
 
   const stepHandle = (index) => {
     if (route.query.uuid_info) {
-      if (index < props.current && props.current < 5) {
+      if (index <= currentStatus.value && currentStatus.value < 5) {
         const page = routeArr[index - 1]
         navigationTo(`/process/${page}?uuid_info=${route.query.uuid_info}`)
       }
     }
   }
+
+  onMounted(() => {
+    const num = Number(props.status)
+    if (num === 0) {
+      currentStatus.value = 1
+    } else if (num === 100) {
+      currentStatus.value = 2
+    } else if (num === 200) {
+      currentStatus.value = 3
+    } else if (num === 300) {
+      currentStatus.value = 4
+    } else if (num === 400) {
+      currentStatus.value = 5
+    }
+  })
 </script>
 
 <style lang="less" scoped>
@@ -122,15 +148,15 @@
         }
         &.current {
           > .check {
-            background-color: @colorPrimary;
-            color: #fff;
-            border-color: @colorPrimary;
+            background-color: #0bda8e;
+            border-color: #0bda8e;
           }
           &::after {
-            background-color: @colorPrimary;
+            background-color: #0bda8e;
           }
           > .name {
-            color: @colorPrimary;
+            color: #0bda8e;
+            font-weight: bold;
           }
         }
         &:last-child {
@@ -164,6 +190,10 @@
           z-index: 2;
           &.pointer {
             cursor: pointer;
+          }
+          &.current {
+            background-color: @colorPrimary !important;
+            border-color: @colorPrimary !important;
           }
           > i {
             font-size: 14px;

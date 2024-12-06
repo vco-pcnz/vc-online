@@ -6,6 +6,7 @@ import store from "./store";
 import router from "./router";
 import i18n from "./i18n";
 import directives from "./directives";
+import vue3TreeOrg from 'vue3-tree-org';
 
 import globalComponents from "@/components";
 
@@ -23,6 +24,7 @@ app.use(router);
 app.use(i18n);
 app.use(directives);
 app.use(globalComponents);
+app.use(vue3TreeOrg)
 
 app.config.errorHandler = (err, vm, info) => {
   console.error("Error in component:", vm.$options.name);

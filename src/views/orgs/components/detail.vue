@@ -167,6 +167,7 @@ defineExpose({
     }
     p {
       margin-top: 4px;
+      word-wrap: break-word;
     }
     .label {
       color: #999;

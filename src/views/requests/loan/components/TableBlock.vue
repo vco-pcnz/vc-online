@@ -1,5 +1,5 @@
 <template>
-  <div class="table-content">
+  <!-- <div class="table-content">
     <div class="table-block">
       <ul class="table-col header">
         <li class="check">
@@ -9,16 +9,16 @@
             @change="checkedAllHandle"
           ></a-checkbox>
         </li>
-        <li>{{ t('项目图片1') }}</li>
-        <li>{{ t('项目信息1') }}</li>
-        <li>{{ t('借款金额1') }}</li>
-        <li>{{ t('借款人信息1') }}</li>
+        <li class="uppercase">{{ t('项目图片') }}</li>
+        <li class="uppercase">{{ t('项目信息') }}</li>
+        <li class="uppercase">{{ t('借款金额') }}</li>
+        <li class="uppercase">{{ t('借款人信息') }}</li>
         <li>{{ t('客户经理') }}</li>
-        <li>{{ t('期数1') }}</li>
-        <li>{{ t('最大费率1') }}</li>
-        <li>{{ t('创建时间1') }}</li>
-        <li>{{ t('状态1') }}</li>
-        <li>{{ t('操作1') }}</li>
+        <li class="uppercase">{{ t('期数') }}</li>
+        <li class="uppercase">{{ t('最大费率') }}</li>
+        <li class="uppercase">{{ t('创建时间') }}</li>
+        <li class="uppercase">{{ t('状态') }}</li>
+        <li class="uppercase">{{ t('操作1') }}</li>
       </ul>
       <div v-if="tableData.length" class="table-body">
         <template v-for="item in tableData" :key="item.id">
@@ -97,12 +97,20 @@
       </div>
       <a-empty v-else :image="simpleImage" />
     </div>
+  </div> -->
+  <div>
+    <a-table
+      :columns="columns"
+      :data-source="tableData"
+      :pagination="false"
+      :scroll="{ x: '100%' }"
+    >
+    </a-table>
   </div>
-  
 </template>
 
 <script setup>
-  import { ref } from "vue"
+  import { ref, reactive } from "vue"
   import { Empty } from 'ant-design-vue';
   import { useI18n } from "vue-i18n";
   import tool from '@/utils/tool';
@@ -121,6 +129,23 @@
   })
 
   const { t } = useI18n();
+
+  const columns = reactive([
+    { title: t('项目图片'), dataIndex: '1', width: 110, align: 'center' },
+    { title: t('利益相关者信息t'), key: '2', width: 250, align: 'left' },
+    { title: t('关联用户t'), key: '3', width: 250, align: 'left' },
+    { title: t('用户角色t'), key: '4', width: 150, align: 'center' },
+    { title: t('注册时间/创建时间t'), key: '5', width: 230, align: 'center' },
+    { title: t('项目数据t'), key: '6', width: 180, align: 'left' },
+    { title: t('状态t'), key: '7', width: 150, align: 'center' },
+    {
+      title: t('操作1'),
+      key: 'operation',
+      fixed: 'right',
+      align: 'center',
+      width: 50
+    }
+  ]);
 
   const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE;
 

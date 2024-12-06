@@ -12,10 +12,11 @@
       <vco-process-title :title="t('借款人信息')">
         <div class="flex gap-5">
           <a-popconfirm
-            v-if="!dataInfo.borrower_info.isCheck"
+            v-if="!dataInfo.borrower_info.is_check"
             :title="t('确定通过审核吗？')"
             :ok-text="t('确定')"
             :cancel-text="t('取消')"
+            @confirm="checkHandle(dataInfo.borrower_info.check_status)"
           >
             <a-button
               type="dark" shape="round"
@@ -33,10 +34,11 @@
       <vco-process-title :title="t('项目信息')">
         <div class="flex gap-5">
           <a-popconfirm
-            v-if="!dataInfo.project_info.isCheck"
+            v-if="!dataInfo.project_info.is_check"
             :title="t('确定通过审核吗？')"
             :ok-text="t('确定')"
             :cancel-text="t('取消')"
+            @confirm="checkHandle(dataInfo.project_info.check_status)"
           >
             <a-button
               type="dark" shape="round"
@@ -54,10 +56,11 @@
       <vco-process-title :title="t('证件资料')">
         <div class="flex gap-5">
           <a-popconfirm
-            v-if="!dataInfo.project_cert.isCheck"
+            v-if="!dataInfo.project_cert.is_check"
             :title="t('确定通过审核吗？')"
             :ok-text="t('确定')"
             :cancel-text="t('取消')"
+            @confirm="checkHandle(dataInfo.project_cert.check_status)"
           >
             <a-button
               type="dark" shape="round"
@@ -75,10 +78,11 @@
       <vco-process-title :title="t('借款信息')">
         <div class="flex gap-5">
           <a-popconfirm
-            v-if="!dataInfo.loan_info.isCheck"
+            v-if="!dataInfo.loan_info.is_check"
             :title="t('确定通过审核吗？')"
             :ok-text="t('确定')"
             :cancel-text="t('取消')"
+            @confirm="checkHandle(dataInfo.loan_info.check_status)"
           >
             <a-button
               type="dark" shape="round"
@@ -105,6 +109,8 @@
   import DocumentInfo from "./DocumentInfo.vue";
   import LoanInfo from "./LoanInfo.vue";
   import CheckEditDialog from "./CheckEditDialog.vue";
+
+  import { lmAuditStatus } from "@/api/process"
 
   const emits = defineEmits(['refresh'])
 
@@ -138,12 +144,29 @@
     }
 
     if (data) {
-      currentInfoData.value = cloneDeep(data)
+      const dataObj = cloneDeep(data)
+      dataObj.uuid = props.dataInfo.uuid || ''
+      currentInfoData.value = dataObj
+
       showCheckDialog.value = true
     }
   }
 
   const dataRefresh = () => {
     emits('refresh')
+  }
+
+  const checkHandle = async (lm_audit_status) => {
+    const params = {
+      lm_audit_status,
+      uuid: props.dataInfo.uuid
+    }
+
+    await lmAuditStatus(params).then(() => {
+      dataRefresh()
+      return true
+    }).catch(() => {
+      return false
+    })
   }
 </script>

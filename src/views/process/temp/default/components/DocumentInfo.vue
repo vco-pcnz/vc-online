@@ -7,7 +7,7 @@
           <div class="file-content">
             <template v-if="data.resource_consent_files.length">
               <div v-for="(item, index) in data.resource_consent_files" :key="index" class="file-item">
-                <vco-file-item :file="item"></vco-file-item>
+                <vco-file-item :file="item" :bg="true"></vco-file-item>
               </div>
             </template>
             <p v-else class="txt">--</p>
@@ -20,7 +20,7 @@
           <div class="file-content">
             <template v-if="data.engineering_plan_approval_files.length">
               <div v-for="(item, index) in data.engineering_plan_approval_files" :key="index" class="file-item">
-                <vco-file-item :file="item"></vco-file-item>
+                <vco-file-item :file="item" :bg="true"></vco-file-item>
               </div>
             </template>
             <p v-else class="txt">--</p>
@@ -33,7 +33,7 @@
           <div class="file-content">
             <template v-if="data.building_consent_files.length">
               <div v-for="(item, index) in data.building_consent_files" :key="index" class="file-item">
-                <vco-file-item :file="item"></vco-file-item>
+                <vco-file-item :file="item" :bg="true"></vco-file-item>
               </div>
             </template>
             <p v-else class="txt">--</p>
@@ -46,7 +46,7 @@
           <div class="file-content">
             <template v-if="data.feasibility_files.length">
               <div v-for="(item, index) in data.feasibility_files" :key="index" class="file-item">
-                <vco-file-item :file="item"></vco-file-item>
+                <vco-file-item :file="item" :bg="true"></vco-file-item>
               </div>
             </template>
             <p v-else class="txt">--</p>
@@ -59,7 +59,7 @@
           <div class="file-content">
             <template v-if="data.others_files.length">
               <div v-for="(item, index) in data.others_files" :key="index" class="file-item">
-                <vco-file-item :file="item"></vco-file-item>
+                <vco-file-item :file="item" :bg="true"></vco-file-item>
               </div>
             </template>
             <p v-else class="txt">--</p>

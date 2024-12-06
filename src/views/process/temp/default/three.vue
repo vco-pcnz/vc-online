@@ -136,7 +136,7 @@
   import { reactive, ref, watch } from "vue";
   import { useI18n } from "vue-i18n";
   import { cloneDeep } from "lodash";
-  import { projectApplySaveProjectCert, projectSaveSaveDraft } from "@/api/process";
+  import { projectApplySaveProjectCert, projectAuditSaveProjectCert, projectSaveSaveDraft } from "@/api/process";
   import tool, { navigationTo } from "@/utils/tool";
   import { message } from "ant-design-vue/es";
 
@@ -201,7 +201,6 @@
   const getParams = () => {
     const params = cloneDeep(formState)
     params.uuid = props.infoData.uuid
-    params.draft_step = 'three'
 
     // 资源许可
     if (resourceConsentList.value.length) {
@@ -233,9 +232,18 @@
     .validate()
     .then(() => {
       const params = getParams()
+      let ajaxFn = projectApplySaveProjectCert
+
+      if (props.check) {
+        params.project_cert_status = props.infoData.check_status
+        ajaxFn = projectAuditSaveProjectCert
+      } else {
+        params.draft_step = 'three'
+      }
+
       subLoading.value = true
 
-      projectApplySaveProjectCert(params).then(res => {
+      ajaxFn(params).then(res => {
         subLoading.value = false
         if (props.check) {
           emits('checkDone')

@@ -93,7 +93,7 @@
   import { reactive, ref, watch } from "vue";
   import { useI18n } from "vue-i18n";
   import { cloneDeep } from "lodash";
-  import { projectSelectList, projectApplySaveProjectInfo, projectSaveSaveDraft, projectDraftInfo } from "@/api/process";
+  import { projectSelectList, projectApplySaveProjectInfo, projectAuditSaveProjectInfo, projectSaveSaveDraft, projectDraftInfo } from "@/api/process";
   import tool, { navigationTo } from "@/utils/tool";
   import { message } from "ant-design-vue/es";
 
@@ -204,15 +204,26 @@
     .validate()
     .then(async () => {
       const params = getParams()
-      params.draft_step = 'two'
-      
+      let ajaxFn = projectApplySaveProjectInfo
+
+      if (props.check) {
+        params.project_info_status = props.infoData.check_status
+        ajaxFn = projectAuditSaveProjectInfo
+      } else {
+        params.draft_step = 'two'
+      }
+
+      if (props.infoData && props.infoData.uuid) {
+        params.uuid = props.infoData.uuid
+      }
+
       subLoading.value = true
 
       if (Number(projectTypeStatic.value) !== params.project_type && !props.check) {
         await handleDarfFour()
       }
-
-      projectApplySaveProjectInfo(params).then(res => {
+      
+      ajaxFn(params).then(res => {
         subLoading.value = false
         if (props.check) {
           emits('checkDone')

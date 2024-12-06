@@ -93,7 +93,7 @@
   import dayjs from "dayjs";
   import { useI18n } from "vue-i18n";
   import { cloneDeep } from "lodash";
-  import { projectSelectList, projectApplySaveLoanInfo, projectSaveSaveDraft } from "@/api/process";
+  import { projectSelectList, projectApplySaveLoanInfo, projectAuditSaveLoanInfo, projectSaveSaveDraft } from "@/api/process";
   import tool, { navigationTo } from "@/utils/tool";
   import { message } from "ant-design-vue/es";
 
@@ -164,15 +164,24 @@
       const data = cloneDeep(formState)
       const params = {
         uuid: props.infoData.uuid,
-        draft_step: 'four',
         loan_money: data.loan_money,
         loan_type: data.loan_type.join(','),
         start_date: dayjs(data.time_date[0]).format('YYYY-MM-DD'),
         end_date: dayjs(data.time_date[1]).format('YYYY-MM-DD')
       }
+
+      let ajaxFn = projectApplySaveLoanInfo
+
+      if (props.check) {
+        params.loan_info_status = props.infoData.check_status
+        ajaxFn = projectAuditSaveLoanInfo
+      } else {
+        params.draft_step = 'four'
+      }
+
       subLoading.value = true
 
-      projectApplySaveLoanInfo(params).then(res => {
+      ajaxFn(params).then(res => {
         subLoading.value = false
         if (props.check) {
           emits('checkDone')

@@ -1,20 +1,6 @@
 <template>
   <vco-page-search>
-    <vco-page-search-item :title="t('申请状态')" width="100">
-      <a-select
-        :placeholder="t('请选择')"
-        v-model:value="searchForm.type"
-      >
-        <a-select-option
-          v-for="(item, index) in statusData"
-          :key="item.value || index"
-          :value="item.value"
-        >{{ item.label }}</a-select-option>
-      </a-select>
-    </vco-page-search-item>
-
-    
-    <vco-page-search-item :title="t('借款人信息')" width="220">
+    <vco-page-search-item :title="t('借款人信息')" width="250">
       <vco-type-input
         v-model="searchForm.borrower"
         v-model:type="searchForm.borrowerType"
@@ -23,7 +9,7 @@
       ></vco-type-input>
     </vco-page-search-item>
 
-    <vco-page-search-item :title="t('项目信息')" width="220">
+    <vco-page-search-item :title="t('项目信息')" width="250">
       <vco-type-input
         v-model="searchForm.projects"
         v-model:type="searchForm.projectsType"
@@ -32,15 +18,15 @@
       ></vco-type-input>
     </vco-page-search-item>
 
-    <vco-page-search-item :title="t('项目日期')" width="240">
-      <a-range-picker v-model:value="searchForm.time" />
+    <vco-page-search-item :title="t('项目周期')" width="266">
+      <a-range-picker v-model:value="searchForm.time" :placeholder="[t('开放日期'), t('到期日期')]" />
     </vco-page-search-item>
 
-    <vco-page-search-item :title="t('客户经理')" width="140">
+    <vco-page-search-item :title="t('客户经理')" width="160">
       <a-input v-model:value="searchForm.lm" :placeholder="t('请输入')" />
     </vco-page-search-item>
 
-    <vco-page-search-item :title="t('借款金额')" width="133">
+    <vco-page-search-item :title="t('借款金额')" width="160">
       <a-input v-model:value="searchForm.amount" :placeholder="t('请输入')" />
     </vco-page-search-item>
 
@@ -59,25 +45,6 @@
   const emits = defineEmits(['search'])
 
   const { t } = useI18n();
-
-  const statusData = [
-    {
-      label: t("全部"),
-      value: ""
-    },
-    {
-      label: t("申请中"),
-      value: "1"
-    },
-    {
-      label: t("已批准"),
-      value: "2"
-    },
-    {
-      label: t("已拒绝"),
-      value: "3"
-    }
-  ]
 
   const borrowerTypeData = [
     {

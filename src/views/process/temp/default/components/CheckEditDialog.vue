@@ -4,6 +4,7 @@
     :title="title"
     :width="840"
     :footer="null"
+    :keyboard="false"
     @update:open="updateVisible"
   >
     <component

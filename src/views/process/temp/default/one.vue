@@ -139,7 +139,7 @@
   import { useI18n } from "vue-i18n";
   import { cloneDeep } from "lodash";
   import { QuestionCircleOutlined } from '@ant-design/icons-vue';
-  import { projectApplySaveBorrowerInfo, projectSaveSaveDraft } from "@/api/process"
+  import { projectApplySaveBorrowerInfo, projectAuditSaveBorrowerInfo, projectSaveSaveDraft } from "@/api/process"
   import tool, { navigationTo } from "@/utils/tool";
   import { message } from "ant-design-vue/es";
 
@@ -274,14 +274,21 @@
     .validate()
     .then(() => {
       const params = getParams()
-      params.draft_step = 'one'
+      let ajaxFn = projectApplySaveBorrowerInfo
+
+      if (props.check) {
+        params.borrower_info_status = props.infoData.check_status
+        ajaxFn = projectAuditSaveBorrowerInfo
+      } else {
+        params.draft_step = 'one'
+      }
 
       if (props.infoData && props.infoData.uuid) {
         params.uuid = props.infoData.uuid
       }
 
       subLoading.value = true
-      projectApplySaveBorrowerInfo(params).then(res => {
+      ajaxFn(params).then(res => {
         subLoading.value = false
         if (props.check) {
           emits('checkDone')

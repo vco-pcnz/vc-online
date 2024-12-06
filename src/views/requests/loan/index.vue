@@ -12,7 +12,7 @@
       <div class="mt-10">
         <vco-table-tool>
           <template #left>
-            <a-button type="cyan" :disabled="!rowSelection.length">{{ t('取消项目') }}</a-button>
+            <a-button type="grey" :disabled="!selectedRowKeys.length" class="uppercase">{{ t('取消项目') }}</a-button>
           </template>
           <template #right>
             <vco-table-layout-type v-model="tabLayout"></vco-table-layout-type>
@@ -28,15 +28,52 @@
           <a-spin :spinning="tableLoading" size="large">
             <div class="table-content">
               <grid-block v-if="tabLayout"></grid-block>
-              <table-block
+              <a-table
                 v-else
-                :table-data="tableData"
-                :indeterminate="Boolean(rowSelection.length && rowSelection.length !== tableData.length)"
-                @check="checkHandle"
-              ></table-block>
+                ref="tableRef"
+                rowKey="uuid"
+                :columns="columns"
+                :row-selection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange }"
+                :data-source="tableDataRef"
+                :pagination="false"
+                :scroll="{ x: '100%' }"
+              >
+                <template #bodyCell="{ column, record }">
+                  <template v-if="column.dataIndex === 'project_image'">
+                    <template v-if="record.imgsArr.length">
+                      <div class="flex justify-center cursor-pointer">
+                        <vco-avatar
+                          :src="record.imgsArr[0]"
+                          :radius="true"
+                          :round="false"
+                          @click="showPreviewHandle(record)"
+                        ></vco-avatar>
+                      </div>
+                      
+                      <div style="display: none">
+                        <a-image-preview-group :preview="{ visible: record.showPreview, onVisibleChange: vis => (record.showPreview = vis) }">
+                          <a-image
+                            v-for="item in record.imgsArr"
+                            :key="item"
+                            :src="item"
+                          />
+                        </a-image-preview-group>
+                      </div>
+                    </template>
+                    <span v-else>--</span>
+                  </template>
+                </template>
+              </a-table>
             </div>
             <div class="mt-5">
-              <a-pagination size="small" :total="50" show-size-changer show-quick-jumper :show-total="total => t('共{0}条', [total])" />
+              <a-pagination
+                size="small"
+                :total="pageObj.total"
+                show-size-changer
+                show-quick-jumper
+                :show-total="total => t('共{0}条', [total])"
+                @change="pageChange"
+              />
             </div>
           </a-spin>
         </div>
@@ -46,14 +83,26 @@
 </template>
 
 <script setup>
-  import { ref, computed } from "vue"
+  import { ref, computed, reactive } from "vue"
   import { useI18n } from "vue-i18n";
+  import { cloneDeep } from "lodash"
+  import { useTableList } from "@/hooks/useTableList"
   import TableSearch from "./components/TableSearch.vue";
   import GridBlock from "./components/GridBlock.vue";
-  import TableBlock from "./components/TableBlock.vue";
   import { navigationTo } from "@/utils/tool";
+  import { projectListApi } from "@/api/process";
 
   const { t } = useI18n();
+
+  const {
+    tableRef,
+    tableLoading,
+    pageObj,
+    tableData,
+    pageChange,
+    getTableData,
+    searchReset
+  } = useTableList(projectListApi)
 
   const tabLayout = ref(0)
   const currentTab = ref('1')
@@ -64,8 +113,13 @@
       num: 0
     },
     {
-      label: t("全部"),
+      label: t("已批准"),
       value: '2',
+      num: 0
+    },
+    {
+      label: t("已拒绝"),
+      value: '3',
       num: 0
     }
   ])
@@ -91,6 +145,49 @@
     }
   ]
 
+  const columns = reactive([
+    { title: t('项目图片'), dataIndex: 'project_image', width: 100, align: 'center' },
+    { title: t('项目信息'), dataIndex: 'project_info', width: 250, align: 'left' },
+    { title: t('借款金额'), dataIndex: 'loan_money', width: 250, align: 'left' },
+    { title: t('借款人信息'), dataIndex: 'borrower_info', width: 150, align: 'center' },
+    { title: t('客户经理'), dataIndex: 'lm', width: 230, align: 'center' },
+    { title: t('期数'), dataIndex: 'term', width: 180, align: 'left' },
+    { title: t('最大费率'), dataIndex: 'LVR', width: 150, align: 'center' },
+    { title: t('创建时间'), dataIndex: 'create_time', width: 150, align: 'center' },
+    { title: t('状态'), dataIndex: 'status', width: 150, align: 'center' },
+    {
+      title: t('操作1'),
+      key: 'operation',
+      fixed: 'right',
+      align: 'center',
+      width: 50
+    }
+  ]);
+
+  const tableDataRef = computed(() => {
+    const data = tableData.value
+    data.forEach(item => {
+      const images = item.project_image || ''
+      let imgsArr = []
+      if (images) {
+        imgsArr = images.split(',')
+      }
+
+      item.imgsArr = imgsArr
+      item.showPreview = false
+    })
+    return data
+  })
+
+  const showPreviewHandle = (data) => {
+    data.showPreview = true
+  }
+
+  const selectedRowKeys = ref([])
+  const onSelectChange = (keys) => {
+    selectedRowKeys.value = keys
+  }
+
   const tabChange = () => {
     console.log(currentTab.value)
   }
@@ -99,87 +196,11 @@
     console.log('search', data)
   }
 
-  const rowSelection = computed(() => {
-    return tableData.value.filter(item => item.checked)
-  })
-
   const currentCheckAll = ref(false)
   const checkHandle = (flag) => {
     currentCheckAll.value = flag
     tableData.value.forEach(item => item.checked = flag)
   }
-
-  const tableLoading = ref(false)
-  const tableData = ref([
-    {
-      id: 'VCO202411240001',
-      project_name: "张小美普通借款项目",
-      project_images: "https://pcnz-staging-api.s3.ap-southeast-2.amazonaws.com/project/d169c5e8-7abe-4466-9b69-c98f535f5e8f/30621/AzMYrljhQtVU7ALbHdERn63nMT0oOV6QVEwSB9kr.jpg",
-      address: "Corporate headquarters and logistics centre in Mansfield, Texas USA.",
-      loan_money: 99999999,
-      borrower: "张小美",
-      borrower_ver: true,
-      borrower_email: "misszhang@gmail.com",
-      borrower_email_ver: false,
-      borrower_phone: "+86 18888888881",
-      borrower_phone_ver: false,
-      openDate: '',
-      maturityDate: '',
-      maxLvr: '70%',
-      createDate: '2023-01-16',
-      lm: {
-        avatar: '',
-        name: 'Miss Zhang'
-      },
-      checked: false,
-      status: "审核中",
-      op: true
-    },
-    {
-      id: 'VCO202411240002',
-      project_name: "张小美普通借款项目2张小美普通借款项目2张小美普通借款项目2",
-      project_images: "",
-      address: "Corporate headquarters and logistics centre in Mansfield, Texas USA.",
-      loan_money: 99999999,
-      borrower: "张小美",
-      borrower_ver: true,
-      borrower_email: "misszhang@gmail.com",
-      borrower_email_ver: true,
-      borrower_phone: "+86 18888888881",
-      borrower_phone_ver: false,
-      openDate: '2023-06-20',
-      maturityDate: '2024-02-12',
-      maxLvr: '20%',
-      createDate: '2025-01-16',
-      checked: false,
-      lm: {
-        avatar: '',
-        name: 'Miss ZhangZhangZhangZhang'
-      },
-      status: "带提交",
-      op: false
-    },
-    {
-      id: 'VCO202411240003',
-      project_name: "张小美普通借款项目3",
-      project_images: "",
-      address: "Corporate headquarters and logistics centre in Mansfield, Texas USA.",
-      loan_money: 99999999,
-      borrower: "张小美",
-      borrower_ver: true,
-      borrower_email: "misszmisszhangmisszhanghang@gmail.com",
-      borrower_email_ver: true,
-      borrower_phone: "+86 18888888881",
-      borrower_phone_ver: true,
-      openDate: '2023-02-20',
-      maturityDate: '2024-02-12',
-      maxLvr: '60%',
-      createDate: '2024-11-16',
-      checked: false,
-      status: "审核中",
-      op: true
-    }
-  ])
 </script>
 
 <style lang="less" scoped>

@@ -1,10 +1,10 @@
 <template>
-  <div class="fileBox">
+  <div class="fileBox" :class="{'bg': bg}">
     <i v-if="Number(file.type === 1)" class="iconfont">&#xe797;</i>
     <i v-if="Number(file.type === 2)" class="iconfont">&#xe774;</i>
     <i v-if="Number(file.type === 3)" class="iconfont">&#xe798;</i>
     <div class="fileBox-content">
-      <p class="name">{{ file.name || file.real_name }}</p>
+      <p class="name" :title="showTitle">{{ showTitle }}</p>
       <p class="info">
         <template v-if="time">
           <span :class="{ err: !validity }">{{ time }}</span> ·
@@ -48,6 +48,10 @@ const props = defineProps({
   showClose: {
     type: Boolean,
     default: false
+  },
+  bg: {
+    type: Boolean,
+    default: false
   }
 });
 const emits = defineEmits(['remove']);
@@ -59,6 +63,10 @@ const handlePreview = (file) => {
 const validity = computed(() => {
   return tool.toUnixTime(props.time) >= Math.floor(new Date().getTime() / 1000);
 });
+
+const showTitle = computed(() => {
+  return props.file.name || props.file.real_name
+})
 
 // 关闭弹框
 const previewHandleCancel = () => {
@@ -89,6 +97,7 @@ const remove = () => {
   line-height: 1.2;
   padding: 10px;
   margin: 5px 0;
+  border-radius: 8px;
   transition: all 0.2s ease;
   .iconfont {
     font-size: 24px;
@@ -125,10 +134,12 @@ const remove = () => {
   }
   &:hover {
     background-color: #f7f0e6;
-    border-radius: 8px;
     .icon {
       display: block;
     }
+  }
+  &.bg {
+    background-color: #f7f0e6 !important;
   }
   .err {
     color: @color_red-error;

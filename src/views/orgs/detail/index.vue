@@ -115,6 +115,7 @@ const update = () => {
 };
 
 onMounted(() => {
+  orgsDetailStore.list = []
   // 加载分类
   orgsDetailStore.getCategory();
 });

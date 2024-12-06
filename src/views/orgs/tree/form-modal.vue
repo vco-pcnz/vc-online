@@ -24,7 +24,7 @@
               </a-radio>
             </a-radio-group>
           </a-form-item>
-          <template v-if="form.type == 4">
+          <template v-if="form.type == 20">
             <a-form-item :label="t('身份证号码')" name="idcard">
               <a-input v-model:value="form.idcard" :placeholder="t('请输入')" :disabled="disabled" />
             </a-form-item>
@@ -109,7 +109,7 @@ const dynamicRules = computed(() => {
   };
 
   if (!disabled.value) {
-    if (form.type == 4) {
+    if (form.type == 20) {
       rules = {
         ...rules,
         idcard: [

@@ -13,9 +13,9 @@
       </p>
     </div>
     <div class="ops">
-      <EyeOutlined @click="handlePreview(item)" class="remove" v-if="Number(file.type === 1 || file.type === 3)" />
-      <!-- <i class="iconfont" style="font-size: 14px;">&#xe780;</i> -->
-      <i class="iconfont remove" @click="remove" v-if="showClose">&#xe77d;</i>
+      <EyeOutlined @click="handlePreview(item)" class="icon" v-if="Number(file.type === 1 || file.type === 3)" />
+      <!-- <i class="iconfont icon" style="font-size: 14px;" @click="down">&#xe780;</i> -->
+      <i class="iconfont icon" @click="remove" v-if="showClose">&#xe77d;</i>
     </div>
   </div>
   <a-modal v-model:open="previewVisible" :footer="null" @cancel="previewHandleCancel"
@@ -31,6 +31,7 @@ import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue';
 import tool from '@/utils/tool';
 import { DeleteOutlined, EyeOutlined } from '@ant-design/icons-vue';
+import { fill } from 'lodash';
 
 const { t } = useI18n();
 
@@ -63,6 +64,14 @@ const validity = computed(() => {
 const previewHandleCancel = () => {
   previewVisible.value = false;
 };
+
+// 下载 
+const down = () => {
+  if (props.file.value) {
+    // tool.download(props.file.value)
+    
+  }
+}
 
 const remove = () => {
   emits('remove');
@@ -106,7 +115,7 @@ const remove = () => {
       margin-left: 10px;
     }
   }
-  .remove {
+  .icon {
     font-size: 12px;
     display: none;
     color: @colorPrimary;
@@ -117,7 +126,7 @@ const remove = () => {
   &:hover {
     background-color: #f7f0e6;
     border-radius: 8px;
-    .remove {
+    .icon {
       display: block;
     }
   }

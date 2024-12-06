@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="table-gary">
     <a-table :columns="columns" :data-source="tableData" :pagination="false" :scroll="{ x: '100%' }">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === '1'">

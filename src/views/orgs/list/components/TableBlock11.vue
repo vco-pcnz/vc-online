@@ -124,7 +124,7 @@
                         {{ t('编辑') }}
                       </span>
                     </a-menu-item>
-                    <template v-if="item.type !== 4">
+                    <template v-if="item.type !== 20">
                       <a-menu-item key="2" @click="toTree(item)">
                         <span>{{ t('股权') }}</span>
                       </a-menu-item>

@@ -86,30 +86,6 @@
           </p>
         </template>
         <template v-if="column.key === 'operation'">
-          <!-- <a-dropdown :trigger="['click']" v-if="Boolean(record.is_child)">
-            <a class="ant-dropdown-link" @click.prevent>
-              <i class="iconfont cert">&#xe77a;</i>
-            </a>
-            <template #overlay>
-              <a-menu>
-                <a-menu-item key="0" @click="toDetail(record)">
-                  <span>{{ t('查看详情') }}</span>
-                </a-menu-item>
-                <a-menu-item key="1" @click="toEdit(record)">
-                  <span>{{ t('编辑') }}</span>
-                </a-menu-item>
-                <a-popconfirm v-if="record.has_user" :title="'Are you sure ' + t('解绑用户')" ok-text="Yes" cancel-text="No" @confirm="orgsDetailStore.stakeUnbind(record.uuid)">
-                  <a-menu-item key="2">
-                    <span>{{ t('解绑用户') }}</span>
-                  </a-menu-item>
-                </a-popconfirm>
-                <a-menu-item key="2" v-if="!record.has_user" @click="showBindUser(record.uuid)">
-                  <span>{{ t('绑定用户') }}</span>
-                </a-menu-item>
-              </a-menu>
-            </template>
-          </a-dropdown> -->
-
           <a-dropdown :trigger="['click']">
             <a class="ant-dropdown-link" @click.prevent>
               <i class="iconfont cert">&#xe77a;</i>
@@ -124,7 +100,7 @@
                     {{ t('编辑') }}
                   </span>
                 </a-menu-item>
-                <template v-if="record.type !== 4">
+                <template v-if="record.type !== 20">
                   <a-menu-item key="2" @click="toTree(record)">
                     <span>{{ t('股权') }}</span>
                   </a-menu-item>

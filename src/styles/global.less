@@ -420,12 +420,12 @@ a:hover {
   border-radius: 4px; /* 滚动条轨道的圆角 */
 }
 
+// 重置a-table样式
 .ant-table-wrapper {
   .ant-table {
     background-color: transparent;
     border-spacing: 10px;
   }
-  .ant-table-thead,
   .ant-table-thead {
     font-weight: 500px;
     font-size: 12px;
@@ -440,7 +440,7 @@ a:hover {
     .ant-table-cell-fix-left,
     .ant-table-cell-fix-right {
       &::before {
-        background: transparent;
+        background: #fff;
       }
     }
   }
@@ -554,6 +554,27 @@ a:hover {
         display: flex;
         justify-content: center;
       }
+    }
+  }
+
+  .ant-table-empty .ant-table-tbody > tr {
+    &::after {
+      background-color: transparent !important;
+      border: none !important;
+    }
+  }
+  .ant-table-tbody > tr.ant-table-placeholder:hover > td {
+    background-color: transparent !important;
+  }
+}
+
+// 设置a-table 头部 又固定项背景色
+.table-gary .ant-table-thead {
+  .ant-table-cell-fix-left,
+  .ant-table-cell-fix-right {
+    &::before {
+      background: #faf9f9!important;
+      right: 0;
     }
   }
 }

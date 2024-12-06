@@ -30,7 +30,7 @@
           </template>
 
           <!-- 个人相关信息 -->
-          <template v-if="form.type == 4">
+          <template v-if="form.type == 20">
             <a-col :span="24">
               <a-form-item :label="t('选择用户')">
                 <vco-choose-user ref="vcoChooseUserRef" :showRest="!!check_user_uuid" @change="checkUser"></vco-choose-user>
@@ -152,7 +152,7 @@
             </a-form-item>
           </a-col>
           <!-- ####################################### -->
-          <template v-if="form.type != 4">
+          <template v-if="form.type != 20">
             <a-col :span="24">
               <a-form-item :label="t('地址1')">
                 <a-input v-model:value="form.addr" :placeholder="t('请输入')" />
@@ -193,7 +193,7 @@
           </a-col>
           <!-- 邀请 -->
           <a-col :span="24">
-            <a-form-item :label="t('邀请')" name="verifyMode" v-if="!isEdit && form.type == 4 && !check_user_uuid">
+            <a-form-item :label="t('邀请')" name="verifyMode" v-if="!isEdit && form.type == 20 && !check_user_uuid">
               <a-row>
                 <a-col :span="12">
                   <a-form-item-rest>
@@ -347,7 +347,7 @@ const rules = reactive({
 // 根据条件动态生成的规则
 const dynamicRules = computed(() => {
   // 个人相关验证
-  if (form.type == 4) {
+  if (form.type == 20) {
     return {
       ...rules,
       idcard: [
@@ -461,13 +461,13 @@ const checkUser = (val) => {
 const submit = () => {
   formRef.value.validate().then(() => {
     let keys = ['cid', 'type', 'avatar', 'idcard', 'email', 'emailCode', 'pre', 'mobile', 'mobileCode', 'document', 'expire_time', 'note'];
-    if (form.type == 4) {
+    if (form.type == 20) {
       keys = keys.concat(['firstName', 'middleName', 'lastName', 'job', 'sendEmail', 'sendSms', 'user_uuid']);
     } else {
       keys = keys.concat(['name', 'nzbz', 'contactName', 'province_code', 'city_code', 'district_code', 'address', 'addr', 'postal']);
     }
     const newData = pick(form, keys);
-    if (form.type == 4) {
+    if (form.type == 20) {
       newData.user_uuid = check_user_uuid.value || form.user_uuid;
 
       newData.sendEmail = newData.sendEmail ? 1 : 0;
@@ -516,7 +516,7 @@ watch(
   () => form.type,
   (val, old) => {
     if (old) {
-      if ((old == 4 && val < 4) || (old !== 4 && val == 4)) {
+      if ((old == 20 && val < 20) || (old !== 20 && val == 20)) {
         form.idcard = '';
       }
     }
@@ -527,7 +527,7 @@ watch(
   () => props.isMember,
   (val, old) => {
     if (val) {
-      form.type = 4;
+      form.type = 20;
    }
   },{immediate:true}
 );

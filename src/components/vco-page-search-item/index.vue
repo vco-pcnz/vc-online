@@ -43,7 +43,7 @@ const props = defineProps({
 
       :deep(.ant-input),
       :deep(.ant-picker),
-      // :deep(.ant-btn),
+      :deep(.ant-input-number),
       :deep(.ant-select-selector) {
         border-color: #000 !important;
       }
@@ -51,6 +51,7 @@ const props = defineProps({
         color: #000 !important;
       }
       :deep(.ant-input:focus),
+      :deep(.ant-input-number-focused),
       :deep(.ant-picker-focused),
       :deep(.ant-select-open) .ant-select-selector {
         box-shadow: 0 0 0 2px rgba(0, 0, 0, .1) !important;

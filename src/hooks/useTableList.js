@@ -37,8 +37,8 @@ export function useTableList(ajaxFn, params = {}, immediate = true) {
 
     await ajaxFn(argObj)
       .then((res) => {
-        tableData.value = res.list || []
-        pageTotal.value = res.page.total
+        tableData.value = res.data || []
+        pageTotal.value = res.count || 0
 
         currentParams.value = argObj
         tableLoading.value = false

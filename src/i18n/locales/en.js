@@ -312,5 +312,7 @@ export default {
   "区域": "Region",
   "属性": "Props",
   "更新": "Update",
-  
+  "最小值": "Min",
+  "最大值": "Max",
+  "重置": "Reset",
 }

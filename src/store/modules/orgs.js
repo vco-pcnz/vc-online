@@ -1,9 +1,14 @@
 import { defineStore } from 'pinia';
-import { getList, getCategory, getStakeholderType, stakeUnbind,stakeBind } from '@/api/orgs';
+import { getList, getCategory, getStakeholderType, stakeUnbind, stakeBind } from '@/api/orgs';
+import { systemDictData } from '@/api/system';
 
 const useOrgsStore = defineStore('VcOnlineOrgs', {
   state: () => ({
     list: [],
+    jobs: [],
+    stakeholder_job: [],
+    stakeholder_job1: [],
+    stakeholder_job2: [],
     loading: false,
     category: [], //分类
     stakeholderType: [], // 字典获取code = stakeholder_type
@@ -14,27 +19,27 @@ const useOrgsStore = defineStore('VcOnlineOrgs', {
       org__name: '',
       keywords: undefined,
       sort__asc: undefined,
-      sort__desc: undefined,
+      sort__desc: undefined
     },
     total: 0,
     pagination: {
       page: 1,
-      limit: 10,
-    },
+      limit: 10
+    }
   }),
   actions: {
     setSearchParams(data) {
       this.pagination.page = 1;
       this.searchParams = {
         ...this.searchParams,
-        ...data,
+        ...data
       };
       this.getList();
     },
     setPaginate(page, limit) {
       this.pagination = {
         page,
-        limit,
+        limit
       };
       this.getList();
     },
@@ -45,7 +50,7 @@ const useOrgsStore = defineStore('VcOnlineOrgs', {
       return new Promise((resolve, reject) => {
         getList({
           ...param,
-          ...page,
+          ...page
         })
           .then((r) => {
             this.list = r.data;
@@ -71,7 +76,7 @@ const useOrgsStore = defineStore('VcOnlineOrgs', {
         this.stakeholderType = res.map((item) => {
           return {
             name: item.name,
-            code: item.code - 0,
+            code: item.code - 0
           };
         });
       });
@@ -79,15 +84,24 @@ const useOrgsStore = defineStore('VcOnlineOrgs', {
     // 解绑用户
     stakeUnbind(uuid) {
       return stakeUnbind({ uuid }).then((res) => {
-        this.getList()
+        this.getList();
       });
     },
     // 绑定用户
     stakeBind(param) {
       return stakeBind(param).then((res) => {
-        this.getList()
+        this.getList();
       });
     },
-  },
+    // 绑定用户
+    getJob(code) {
+      this.jobs = this[code];
+      if (this[code].length) return;
+      return systemDictData(code).then((res) => {
+        this[code] = res;
+        this.jobs = res;
+      });
+    }
+  }
 });
 export default useOrgsStore;

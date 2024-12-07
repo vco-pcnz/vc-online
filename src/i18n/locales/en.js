@@ -249,7 +249,7 @@ export default {
   "选择": "Choose",
   "搜索用户": "User Search",
   "选择用户": "Select User",
-  "工作": "Job",
+  "工作": "Job Title ",
   "对账": "Reconciliation",
   "Xero报告": "Xero Statement",
   "账户交易": "Account Transactions",

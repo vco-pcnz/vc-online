@@ -23,7 +23,7 @@ export const systemDictData = (code) =>
     method: "get"
   });
 
-// 字典
+// 
 export const systemConfigData = (params) =>
   request({
     url: "system/configData/getConfigByCode",

@@ -13,8 +13,9 @@
       </p>
     </div>
     <div class="ops">
-      <EyeOutlined @click="handlePreview(item)" class="icon" v-if="Number(file.type === 1 || file.type === 3)" />
-      <!-- <i class="iconfont icon" style="font-size: 14px;" @click="down">&#xe780;</i> -->
+      <EyeOutlined @click="handlePreview(file)" class="icon" />
+      <a :href="file.value" target="_blank" v-if="!showClose"><i class="iconfont icon" style="font-size: 14px">&#xe780;</i></a>
+      <!-- <i class="iconfont icon" style="font-size: 14px" @click="down">&#xe780;</i> -->
       <i class="iconfont icon" @click="remove" v-if="showClose">&#xe77d;</i>
     </div>
   </div>
@@ -32,6 +33,8 @@ import { message } from 'ant-design-vue';
 import tool from '@/utils/tool';
 import { DeleteOutlined, EyeOutlined } from '@ant-design/icons-vue';
 import { fill } from 'lodash';
+import axios from "axios";
+import { getToken, removeToken } from "@/utils/token-util.js";
 
 const { t } = useI18n();
 
@@ -53,8 +56,12 @@ const props = defineProps({
 const emits = defineEmits(['remove']);
 
 // 预览
-const handlePreview = (file) => {
-  previewVisible.value = true;
+const handlePreview = (val) => {
+  if (val.type === 1 || val.type === 3) {
+    previewVisible.value = true;
+  } else {
+    window.open(val.value);
+  }
 };
 const validity = computed(() => {
   return tool.toUnixTime(props.time) >= Math.floor(new Date().getTime() / 1000);
@@ -65,13 +72,25 @@ const previewHandleCancel = () => {
   previewVisible.value = false;
 };
 
-// 下载 
+// 下载
 const down = () => {
   if (props.file.value) {
-    // tool.download(props.file.value)
-    
+    let token = getToken();
+    const env = import.meta.env;
+    axios.post(props.file.value,{} , {
+      headers: {
+        Authorization: token,
+        token: token
+      },
+      responseType: 'blob',
+      baseURL: env.VITE_APP_OPEN_PROXY === "true" ? env.VITE_APP_PROXY_PREFIX : env.VITE_APP_BASE_URL
+    })
+    .then((res) => {
+      tool.download(res)
+    });
   }
-}
+  //
+};
 
 const remove = () => {
   emits('remove');
@@ -98,7 +117,7 @@ const remove = () => {
   }
   .fileBox-content {
     flex: 1;
-    width: calc(100% - 80px);
+    width: calc(100% - 100px);
   }
   .name {
     white-space: nowrap; /* 禁止换行 */

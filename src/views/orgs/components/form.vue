@@ -52,22 +52,27 @@
               </a-form-item>
             </a-col>
             <a-col :span="24">
-              <a-form-item :label="t('工作')" name="job">
-                <a-radio-group v-model:value="form.job">
-                  <a-radio :value="item.code" :key="item.code" v-for="item in jobs">
-                    {{ item.name }}
-                  </a-radio>
-                </a-radio-group>
-              </a-form-item>
-            </a-col>
-            <a-col :span="24">
               <a-form-item :label="t('身份证号码')" name="idcard">
                 <a-input v-model:value="form.idcard" :placeholder="t('请输入')" />
               </a-form-item>
             </a-col>
           </template>
+
+          <!-- 工作 -->
+          <template v-if="isShowJob">
+            <a-col :span="24">
+              <a-form-item :label="t('工作')" name="job">
+                <a-checkbox-group v-model:value="form.job">
+                  <a-checkbox :value="item.code" :key="item.code" v-for="item in orgsStore.jobs">
+                    {{ item.name }}
+                  </a-checkbox>
+                </a-checkbox-group>
+              </a-form-item>
+            </a-col>
+          </template>
+
           <!-- 公司相关信息 -->
-          <template v-else>
+          <template v-if="form.type !== 20">
             <a-col :span="24">
               <a-form-item :label="t('公司名称f')" name="name">
                 <a-input v-model:value="form.name" :placeholder="t('请输入')" />
@@ -83,7 +88,7 @@
                 <a-input v-model:value="form.contactName" :placeholder="t('请输入')" />
               </a-form-item>
             </a-col>
-            <a-col :span="24">
+            <a-col :span="24" v-if="form.type !== 2 && form.type !== 3">
               <a-form-item :label="t('组织机构代码f')" name="idcard">
                 <a-input v-model:value="form.idcard" :placeholder="t('请输入')" />
               </a-form-item>
@@ -231,7 +236,7 @@ import { reactive, onMounted, ref, computed, watch } from 'vue';
 import useFormData from '@/utils/use-form-data';
 import { preMobileOpts, EMAIL_RULE, VERIFY_KEY } from '@/constant';
 import { useI18n } from 'vue-i18n';
-import { sendUnauthECode, sendUnauthCodeM, getStakeholderJob, stakeAdd, stakeEdit } from '@/api/orgs/form';
+import { sendUnauthECode, sendUnauthCodeM, stakeAdd, stakeEdit } from '@/api/orgs/form';
 
 import countdown from './countdown.vue';
 import changeEmail from './change-email.vue';
@@ -247,7 +252,6 @@ const orgsStore = useOrgsStore();
 const { t } = useI18n();
 
 const formRef = ref();
-const jobs = ref([]);
 const region = ref();
 const loading = ref(false);
 const documentList = ref([]);
@@ -281,7 +285,7 @@ const { form, assignFields } = useFormData({
   lastName: '',
   sendEmail: false, //发送邮箱邀请
   sendSms: false, //发送手机邀请
-  job: '', //详情添加才会有
+  job: [], //详情添加才会有
   //公共
   uuid: '', //编辑独有
   p_uuid: '', //上级uuid  详情添加必传
@@ -441,6 +445,9 @@ const handleChange = (key) => {
   }
 };
 
+const isShowJob = computed(() => {
+  return [2, 3, 20].includes(form.type);
+});
 // 删除文件
 const remove = (index) => {
   documentList.value.splice(index, 1);
@@ -460,11 +467,18 @@ const checkUser = (val) => {
 // 提交
 const submit = () => {
   formRef.value.validate().then(() => {
-    let keys = ['cid', 'type', 'avatar', 'idcard', 'email', 'emailCode', 'pre', 'mobile', 'mobileCode', 'document', 'expire_time', 'note'];
+    let keys = ['cid', 'type', 'avatar', 'email', 'emailCode', 'pre', 'mobile', 'mobileCode', 'document', 'expire_time', 'note'];
     if (form.type == 20) {
-      keys = keys.concat(['firstName', 'middleName', 'lastName', 'job', 'sendEmail', 'sendSms', 'user_uuid']);
+      keys = keys.concat(['firstName', 'middleName', 'lastName', 'sendEmail', 'sendSms', 'user_uuid', 'idcard']);
     } else {
-      keys = keys.concat(['name', 'nzbz', 'contactName', 'province_code', 'city_code', 'district_code', 'address', 'addr', 'postal']);
+      keys = keys.concat(['name', 'nzbz', 'contactName', 'province_code', 'city_code', 'district_code', 'address', 'addr', 'postal','idcard']);
+      // if (form.type != 2 && form.type != 3 && form.type != 20) {
+      //   // 组织机构代码 Company No
+      //   keys.push('idcard');
+      // }
+    }
+    if (isShowJob.value) {
+      keys.push('job');
     }
     const newData = pick(form, keys);
     if (form.type == 20) {
@@ -473,6 +487,7 @@ const submit = () => {
       newData.sendEmail = newData.sendEmail ? 1 : 0;
       newData.sendSms = newData.sendSms ? 1 : 0;
     }
+    if(form.type == 2 || form.type == 3) newData.idcard = ''
     loading.value = true;
     if (!isEdit.value) {
       newData['p_uuid'] = props.p_uuid;
@@ -500,48 +515,6 @@ const submit = () => {
     }
   });
 };
-onMounted(() => {
-  // 加载分类
-  orgsStore.getCategory();
-  // 加载分类
-  orgsStore.getStakeholderType();
-  // 加载工作
-  getStakeholderJob().then((res) => {
-    jobs.value = res;
-  });
-});
-
-// 监听重置idcard 公用字段
-watch(
-  () => form.type,
-  (val, old) => {
-    if (old) {
-      if ((old == 20 && val < 20) || (old !== 20 && val == 20)) {
-        form.idcard = '';
-      }
-    }
-  }
-);
-// 监听重置idcard 公用字段
-watch(
-  () => props.isMember,
-  (val, old) => {
-    if (val) {
-      form.type = 20;
-   }
-  },{immediate:true}
-);
-
-// 监听地址选择组件赋值
-watch(
-  () => region.value,
-  (val) => {
-    let arr = region.value.split(',');
-    form.province_code = arr[0] || '';
-    form.city_code = arr[1] || '';
-    form.district_code = arr[2] || '';
-  }
-);
 const hasData = (data) => {
   if (data) {
     if (typeof data === 'string') {
@@ -555,6 +528,58 @@ const hasData = (data) => {
     return false;
   }
 };
+onMounted(() => {
+  // 加载分类
+  orgsStore.getCategory();
+  // 加载分类
+  orgsStore.getStakeholderType();
+});
+
+// 监听重置idcard 公用字段  获取job 选项
+watch(
+  () => form.type,
+  (val, old) => {
+    if (old) {
+      if ((old == 20 && val < 20) || (old !== 20 && val == 20)) {
+        form.idcard = '';
+      }
+      form.job = []
+    }
+    switch (val) {
+      case 20:
+        orgsStore.getJob('stakeholder_job2');
+        break;
+      case 2:
+        orgsStore.getJob('stakeholder_job');
+        break;
+      case 3:
+        orgsStore.getJob('stakeholder_job1');
+        break;
+    }
+  },
+  { immediate: true }
+);
+// 如果是详情添加 默认type
+watch(
+  () => props.isMember,
+  (val, old) => {
+    if (val) {
+      form.type = 20;
+    }
+  },
+  { immediate: true }
+);
+
+// 监听地址选择组件赋值
+watch(
+  () => region.value,
+  (val) => {
+    let arr = region.value.split(',');
+    form.province_code = arr[0] || '';
+    form.city_code = arr[1] || '';
+    form.district_code = arr[2] || '';
+  }
+);
 watch(
   () => props.detail,
   (val) => {

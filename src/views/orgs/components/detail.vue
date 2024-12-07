@@ -17,14 +17,15 @@
       <li>
         <p>{{ t('详情') }}</p>
         <!-- 人员 -->
+
+        <p v-if="isShowJob">
+          <span class="label">
+            <i class="iconfont">&#xe656;</i>
+            {{ t('工作') }}:
+          </span>
+          <span class="value" v-if="!!detail?.job">{{ detail?.job.join(' , ') }}</span>
+        </p>
         <template v-if="detail?.type == 20">
-          <p>
-            <span class="label">
-              <i class="iconfont">&#xe656;</i>
-              {{ t('工作') }}:
-            </span>
-            <span class="value">{{ detail?.job }}</span>
-          </p>
           <p>
             <span class="label">
               <i class="iconfont" :class="{ cer: detail?.idcard }">&#xe679;</i>
@@ -47,7 +48,7 @@
             <span class="label"><i class="iconfont">&#xe65b;</i>NZBZ: </span>
             <span class="value">{{ detail?.nzbz }}</span>
           </p>
-          <p>
+          <p v-if="detail.type !== 2 && detail.type !== 3">
             <span class="label"><i class="iconfont">&#xe6e3;</i>{{ t('组织机构代码f') }}: </span>
             <span class="value">{{ detail?.idcard }}</span>
           </p>
@@ -104,7 +105,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch,computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { trim } from 'lodash';
 import { useRoute } from 'vue-router';
@@ -122,6 +123,10 @@ const props = defineProps({
     type: Boolean,
     default: true
   }
+});
+
+const isShowJob = computed(() => {
+  return [2, 3, 20].includes(detail.value.type);
 });
 
 // 跳转编辑

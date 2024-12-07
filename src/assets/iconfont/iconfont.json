@@ -6,6 +6,13 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "3691356",
+      "name": "postcode",
+      "font_class": "youbianicon",
+      "unicode": "e608",
+      "unicode_decimal": 58888
+    },
+    {
       "icon_id": "4608987",
       "name": "联系人",
       "font_class": "lianxiren",

@@ -66,13 +66,6 @@ export const changeMobile = data =>
 
 
   
-// 查询字典 工作
-export const getStakeholderJob = () =>
-  request({
-    url: 'system/dictData/getDictByCode?code=stakeholder_job',
-    method: 'get',
-  });
-
 // 提交
 export const stakeAdd = data =>
   request({

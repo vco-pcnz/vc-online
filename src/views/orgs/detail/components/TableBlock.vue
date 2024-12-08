@@ -26,22 +26,24 @@
           </p>
         </template>
         <template v-if="column.key === '3'">
-          <p class="bold black">{{ record.user_name }}</p>
-          <p v-if="record.user_username">
-            <i class="iconfont">&#xe632;</i>
-            <span>{{ record.user_username }}</span>
-          </p>
-          <p v-if="record.user_username">
-            <i class="iconfont" :class="{ cer: record.user_email_ok }">&#xe66f;</i>
-            <span :class="{ cer: record.user_email_ok }">{{ record.user_email }}</span>
-          </p>
-          <p v-if="record.user_mobile">
-            <i class="iconfont" :class="{ cer: record.user_mobile_ok }">&#xe678;</i>
-            <span :class="{ cer: record.user_mobile_ok }">
-              <template v-if="record.user_mobile && record.user_pre">+{{ record.user_pre }} </template>
-              {{ record.user_mobile }}
-            </span>
-          </p>
+          <div @click="toUserDetail(record)" class="cursor">
+            <p class="bold black">{{ record.user_name }}</p>
+            <p v-if="record.user_username">
+              <i class="iconfont">&#xe632;</i>
+              <span>{{ record.user_username }}</span>
+            </p>
+            <p v-if="record.user_username">
+              <i class="iconfont" :class="{ cer: record.user_email_ok }">&#xe66f;</i>
+              <span :class="{ cer: record.user_email_ok }">{{ record.user_email }}</span>
+            </p>
+            <p v-if="record.user_mobile">
+              <i class="iconfont" :class="{ cer: record.user_mobile_ok }">&#xe678;</i>
+              <span :class="{ cer: record.user_mobile_ok }">
+                <template v-if="record.user_mobile && record.user_pre">+{{ record.user_pre }} </template>
+                {{ record.user_mobile }}
+              </span>
+            </p>
+          </div>
         </template>
         <template v-if="column.key === '4'">
           <p v-if="record.user_roles.length">
@@ -51,7 +53,7 @@
             <span>{{ record.cate_name.join('/') }}</span>
           </p>
           <p>
-            <span>{{ record.job }}</span>
+            <span v-if="!!record.job">{{ record.job.join('/') }}</span>
           </p>
         </template>
         <template v-if="column.key === '5'">
@@ -195,6 +197,14 @@ const toDetail = (item) => {
 const toEdit = (item) => {
   navigationTo({ path: '/orgs/form/edit', query: { uuid: item.uuid } });
 };
+
+// 跳转绑定用户详情
+const toUserDetail = (item) => {
+  if(!item.user_uuid) return
+  navigationTo({ path: '/users/detail', query: { uuid: item.user_uuid } });
+};
+
+
 </script>
 
 <style lang="less" scoped></style>

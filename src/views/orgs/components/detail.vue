@@ -23,7 +23,7 @@
             <i class="iconfont">&#xe656;</i>
             {{ t('工作') }}:
           </span>
-          <span class="value" v-if="!!detail?.job">{{ detail?.job.join(' , ') }}</span>
+          <span class="value" v-if="!!detail?.job">{{ detail?.job.join('/') }}</span>
         </p>
         <template v-if="detail?.type == 20">
           <p>

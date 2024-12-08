@@ -18,7 +18,7 @@
         <p>{{ t('详情') }}</p>
         <!-- 人员 -->
 
-        <p v-if="isShowJob">
+        <p>
           <span class="label">
             <i class="iconfont">&#xe656;</i>
             {{ t('工作') }}:
@@ -123,10 +123,6 @@ const props = defineProps({
     type: Boolean,
     default: true
   }
-});
-
-const isShowJob = computed(() => {
-  return [2, 3, 20].includes(detail.value.type);
 });
 
 // 跳转编辑

@@ -59,17 +59,15 @@
           </template>
 
           <!-- 工作 -->
-          <template v-if="isShowJob">
-            <a-col :span="24">
-              <a-form-item :label="t('工作')" name="job">
-                <a-checkbox-group v-model:value="form.job">
-                  <a-checkbox :value="item.code" :key="item.code" v-for="item in orgsStore.jobs">
-                    {{ item.name }}
-                  </a-checkbox>
-                </a-checkbox-group>
-              </a-form-item>
-            </a-col>
-          </template>
+          <a-col :span="24" v-if="form.type">
+            <a-form-item :label="t('工作')" name="job">
+              <a-checkbox-group v-model:value="form.job">
+                <a-checkbox :value="item.code" :key="item.code" v-for="item in orgsStore.jobs">
+                  {{ item.name }}
+                </a-checkbox>
+              </a-checkbox-group>
+            </a-form-item>
+          </a-col>
 
           <!-- 公司相关信息 -->
           <template v-if="form.type !== 20">
@@ -445,9 +443,6 @@ const handleChange = (key) => {
   }
 };
 
-const isShowJob = computed(() => {
-  return [2, 3, 20].includes(form.type);
-});
 // 删除文件
 const remove = (index) => {
   documentList.value.splice(index, 1);
@@ -467,18 +462,15 @@ const checkUser = (val) => {
 // 提交
 const submit = () => {
   formRef.value.validate().then(() => {
-    let keys = ['cid', 'type', 'avatar', 'email', 'emailCode', 'pre', 'mobile', 'mobileCode', 'document', 'expire_time', 'note'];
+    let keys = ['cid', 'type', 'avatar', 'email', 'emailCode', 'pre', 'mobile', 'mobileCode', 'document', 'expire_time', 'note', 'job'];
     if (form.type == 20) {
       keys = keys.concat(['firstName', 'middleName', 'lastName', 'sendEmail', 'sendSms', 'user_uuid', 'idcard']);
     } else {
-      keys = keys.concat(['name', 'nzbz', 'contactName', 'province_code', 'city_code', 'district_code', 'address', 'addr', 'postal','idcard']);
+      keys = keys.concat(['name', 'nzbz', 'contactName', 'province_code', 'city_code', 'district_code', 'address', 'addr', 'postal', 'idcard']);
       // if (form.type != 2 && form.type != 3 && form.type != 20) {
       //   // 组织机构代码 Company No
       //   keys.push('idcard');
       // }
-    }
-    if (isShowJob.value) {
-      keys.push('job');
     }
     const newData = pick(form, keys);
     if (form.type == 20) {
@@ -487,7 +479,7 @@ const submit = () => {
       newData.sendEmail = newData.sendEmail ? 1 : 0;
       newData.sendSms = newData.sendSms ? 1 : 0;
     }
-    if(form.type == 2 || form.type == 3) newData.idcard = ''
+    if (form.type == 2 || form.type == 3) newData.idcard = '';
     loading.value = true;
     if (!isEdit.value) {
       newData['p_uuid'] = props.p_uuid;
@@ -543,13 +535,15 @@ watch(
       if ((old == 20 && val < 20) || (old !== 20 && val == 20)) {
         form.idcard = '';
       }
-      form.job = []
+      form.job = [];
     }
     switch (val) {
       case 20:
         orgsStore.getJob('stakeholder_job2');
         break;
+      case 1:
       case 2:
+      case 4:
         orgsStore.getJob('stakeholder_job');
         break;
       case 3:

@@ -52,23 +52,20 @@
                 <p>{{ transaction.received }}</p>
               </a-col>
             </a-row>
-            <!-- TODO -->
-            <div class="footer" v-show="true">
-              <div class="arrow" @click="onFooterClick">
-                <span class="xs_text">Change Record Date</span>
-                <i class="iconfont">&#xe778;</i>
-              </div>
-              <!-- TODO -->
-              <div :style="{ marginTop: '8px' }">
-                <a-date-picker :disabled="false" placeholder=""/>
-              </div>
-            </div>
+            <a-collapse ghost class="footer">
+              <a-collapse-panel>
+                <template #header>
+                  <span class="xs_text">Change Record Date</span>
+                </template>
+                <a-date-picker :disabled="false" placeholder="" />
+              </a-collapse-panel>
+            </a-collapse>
           </a-col>
           <a-col :span="11" v-else class="content empty_content">
             <a-row :gutter="24">
               <a-col :span="12" class="empty_slip">
                 <p class="xs_text">When</p>
-                <a-date-picker  placeholder="" />
+                <a-date-picker placeholder="" />
               </a-col>
               <a-col :span="12" class="empty_slip">
                 <p class="xs_text">When</p>
@@ -197,7 +194,6 @@ const onFooterClick = () => {};
 }
 
 .footer {
-  padding: 8px 16px;
   background-color: white;
   border: 1px solid #e6e7e9;
   border-top: none;
@@ -209,16 +205,9 @@ const onFooterClick = () => {};
     font-weight: 400;
   }
 
-  & div {
-    display: flex;
-    justify-content: start;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .iconfont {
-    font-size: 8px;
-    transform: rotate(180deg);
+  :deep(.ant-collapse-header),
+  :deep(.ant-collapse-content) {
+    background-color: white;
   }
 }
 
@@ -243,7 +232,7 @@ const onFooterClick = () => {};
 }
 
 .content_btn {
-  align-self: center;
+  margin-top: 60px;
   display: flex;
   justify-content: center;
 }

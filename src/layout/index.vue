@@ -2,15 +2,40 @@
   <div class="app-layout">
     <layout-header class="animate__fadeIn animate__animated"></layout-header>
     <div class="main-container animate__fadeIn animate__animated faster animate__delay__faster">
-      <router-view />
+      <router-view v-slot="{ Component }">
+        <keep-alive :include="cachedComponentsArray">
+          <component :is="Component" />
+        </keep-alive>
+      </router-view>
     </div>
     <layout-footer></layout-footer>
   </div>
 </template>
 
 <script setup>
+  import { watch, ref, computed } from "vue";
+  import { useRoute, useRouter } from "vue-router";
+
   import LayoutHeader from './components/header/index.vue'
   import LayoutFooter from './components/footer/index.vue'
+
+  const route = useRoute();
+  const router = useRouter();
+  const cachedComponents = ref(new Set());
+
+  // 将 Set 转换为数组供 keep-alive 使用
+  const cachedComponentsArray = computed(() => Array.from(cachedComponents.value)); 
+
+  watch(
+    () => route.path,
+    () => {
+      const matchedRoute = router.getRoutes().find((r) => r.path === route.path);
+      if (matchedRoute?.components?.default?.name) {
+        cachedComponents.value.add(matchedRoute.components.default.name);
+      }
+    },
+    { immediate: true }
+  );
 </script>
 
 <style lang="less" scoped>

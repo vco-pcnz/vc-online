@@ -149,7 +149,8 @@ function formatMenus(data, childField = "children") {
           hideSidebar: item.hideSidebar,
           tabUnique: item.tabUnique,
           closable: item.closable,
-          keepAlive: item.keepAlive,
+          // keepAlive: item.keepAlive,
+          keepAlive: true,
           routePath: item.path,
           ...meta
         }

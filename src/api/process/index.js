@@ -128,3 +128,51 @@ export const projectLmAuditDetail = (params) =>
     params
   });
   
+// LM 审核Check
+export const lmAuditStatus = (data) =>
+  request({
+    url: "/project/audit/lmAuditStatus",
+    method: "post",
+    data
+  });
+
+// 审核-保存借款人信息
+export const projectAuditSaveBorrowerInfo = (data) =>
+  request({
+    url: "/project/audit/saveBorrowerInfo",
+    method: "post",
+    data
+  });
+
+// 审核-保存项目信息
+export const projectAuditSaveProjectInfo = (data) =>
+  request({
+    url: "/project/audit/saveProjectInfo",
+    method: "post",
+    data
+  });
+
+// 审核-保存项目资质
+export const projectAuditSaveProjectCert = (data) =>
+  request({
+    url: "/project/audit/saveProjectCert",
+    method: "post",
+    data
+  });
+
+// 审核-保存借款参数
+export const projectAuditSaveLoanInfo = (data) =>
+  request({
+    url: "/project/audit/saveLoanInfo",
+    method: "post",
+    data
+  });
+
+// 项目列表
+export const projectListApi = (params) =>
+  request({
+    url: "/project/project/projectList",
+    method: "get",
+    params
+  });
+  

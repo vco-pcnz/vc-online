@@ -1,10 +1,10 @@
 <template>
-  <div class="fileBox">
+  <div class="fileBox" :class="{'bg': bg}">
     <i v-if="Number(file.type === 1)" class="iconfont">&#xe797;</i>
     <i v-if="Number(file.type === 2)" class="iconfont">&#xe774;</i>
     <i v-if="Number(file.type === 3)" class="iconfont">&#xe798;</i>
     <div class="fileBox-content">
-      <p class="name">{{ file.name || file.real_name }}</p>
+      <p class="name" :title="showTitle">{{ showTitle }}</p>
       <p class="info">
         <template v-if="time">
           <span :class="{ err: !validity }">{{ time }}</span> ·
@@ -13,9 +13,10 @@
       </p>
     </div>
     <div class="ops">
-      <EyeOutlined @click="handlePreview(item)" class="remove" v-if="Number(file.type === 1 || file.type === 3)" />
-      <!-- <i class="iconfont" style="font-size: 14px;">&#xe780;</i> -->
-      <i class="iconfont remove" @click="remove" v-if="showClose">&#xe77d;</i>
+      <EyeOutlined @click="handlePreview(file)" class="icon" />
+      <a :href="file.value" target="_blank" v-if="!showClose"><i class="iconfont icon" style="font-size: 14px">&#xe780;</i></a>
+      <!-- <i class="iconfont icon" style="font-size: 14px" @click="down">&#xe780;</i> -->
+      <i class="iconfont icon" @click="remove" v-if="showClose">&#xe77d;</i>
     </div>
   </div>
   <a-modal v-model:open="previewVisible" :footer="null" @cancel="previewHandleCancel"
@@ -31,6 +32,9 @@ import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue';
 import tool from '@/utils/tool';
 import { DeleteOutlined, EyeOutlined } from '@ant-design/icons-vue';
+import { fill } from 'lodash';
+import axios from "axios";
+import { getToken, removeToken } from "@/utils/token-util.js";
 
 const { t } = useI18n();
 
@@ -47,21 +51,53 @@ const props = defineProps({
   showClose: {
     type: Boolean,
     default: false
+  },
+  bg: {
+    type: Boolean,
+    default: false
   }
 });
 const emits = defineEmits(['remove']);
 
 // 预览
-const handlePreview = (file) => {
-  previewVisible.value = true;
+const handlePreview = (val) => {
+  if (val.type === 1 || val.type === 3) {
+    previewVisible.value = true;
+  } else {
+    window.open(val.value);
+  }
 };
 const validity = computed(() => {
   return tool.toUnixTime(props.time) >= Math.floor(new Date().getTime() / 1000);
 });
 
+const showTitle = computed(() => {
+  return props.file.name || props.file.real_name
+})
+
 // 关闭弹框
 const previewHandleCancel = () => {
   previewVisible.value = false;
+};
+
+// 下载
+const down = () => {
+  if (props.file.value) {
+    let token = getToken();
+    const env = import.meta.env;
+    axios.post(props.file.value,{} , {
+      headers: {
+        Authorization: token,
+        token: token
+      },
+      responseType: 'blob',
+      baseURL: env.VITE_APP_OPEN_PROXY === "true" ? env.VITE_APP_PROXY_PREFIX : env.VITE_APP_BASE_URL
+    })
+    .then((res) => {
+      tool.download(res)
+    });
+  }
+  //
 };
 
 const remove = () => {
@@ -80,6 +116,7 @@ const remove = () => {
   line-height: 1.2;
   padding: 10px;
   margin: 5px 0;
+  border-radius: 8px;
   transition: all 0.2s ease;
   .iconfont {
     font-size: 24px;
@@ -89,7 +126,7 @@ const remove = () => {
   }
   .fileBox-content {
     flex: 1;
-    width: calc(100% - 80px);
+    width: calc(100% - 100px);
   }
   .name {
     white-space: nowrap; /* 禁止换行 */
@@ -106,7 +143,7 @@ const remove = () => {
       margin-left: 10px;
     }
   }
-  .remove {
+  .icon {
     font-size: 12px;
     display: none;
     color: @colorPrimary;
@@ -116,10 +153,12 @@ const remove = () => {
   }
   &:hover {
     background-color: #f7f0e6;
-    border-radius: 8px;
-    .remove {
+    .icon {
       display: block;
     }
+  }
+  &.bg {
+    background-color: #f7f0e6 !important;
   }
   .err {
     color: @color_red-error;

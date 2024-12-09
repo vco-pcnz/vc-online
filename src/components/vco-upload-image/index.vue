@@ -43,7 +43,7 @@
   </div>
 </template>
 
-<script setup name="UploadImage">
+<script setup>
   import { ref, onMounted, watch } from 'vue';
   import { DeleteOutlined, PlusOutlined, LoadingOutlined } from '@ant-design/icons-vue';
   import { message } from 'ant-design-vue/es';

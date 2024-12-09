@@ -115,6 +115,7 @@ const update = () => {
 };
 
 onMounted(() => {
+  orgsDetailStore.list = []
   // 加载分类
   orgsDetailStore.getCategory();
 });
@@ -143,7 +144,6 @@ watch([sortType, sortValue], ([newSortType, newSortValue]) => {
 .table-content {
   width: 100%;
   min-height: 200px;
-  border-top: 1px solid #808080;
   padding-top: 5px;
 }
 

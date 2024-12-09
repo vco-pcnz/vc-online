@@ -20,7 +20,7 @@
             <i v-if="index + 1 === currentStatus" class="iconfont">&#xe790;</i>
           </template>
         </div>
-        <h2 v-if="item.name" class="name">{{ t(item.name) }}</h2>
+        <h2 v-if="item.name" class="name uppercase">{{ t(item.name) }}</h2>
       </div>
     </div>
   </div>

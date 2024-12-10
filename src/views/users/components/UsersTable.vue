@@ -16,7 +16,7 @@
         <li>{{ t('组织信息') }}</li>
         <li>{{ t('项目数据') }}</li>
         <li>{{ t('请求数据') }}</li>
-        <li>{{ t('操作') }}</li>
+        <li>{{ t('操作1') }}</li>
       </ul>
       <div v-if="tableData.length" class="table-body">
         <template v-for="item in tableData" :key="item.id">
@@ -179,6 +179,7 @@ const editUser = (userData) => {
     border: 1px solid #fff;
     font-weight: bold;
     font-size: 12px;
+    text-transform: uppercase;
   }
   &.tr {
     background-color: #f0f0f0;

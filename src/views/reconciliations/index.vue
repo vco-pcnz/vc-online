@@ -113,42 +113,41 @@ const WHY_OPTIONS = [
   { value: 'Full Repayment' },
   { value: 'Repayment from GST Refund' },
 ];
-const rowData = reactive([
-  {
-    statement: {
-      id: 'uuid1111',
-      date: '9 Jul 2024',
-      spent: '60,000,000.00',
-      received: '60,000,000.00',
-      description: 'description',
-      client: 'stag-ex-0722',
-      item: 'drawdown',
-    },
-    transaction: {
-      id: 'uuid11112222',
-      date: '9 Jul 2024',
-      reference: 'reference',
-      notes: 'notes',
-      spent: '60,000,000.00',
-      received: '60,000,000.00',
-      account: 'wwwwwww',
-    },
-  },
-  {
-    statement: {
-      id: 'uuid1111',
-      date: '9 Jul 2024',
-      spent: '60,000,000.00',
-      received: '60,000,000.00',
-      description: 'description',
-      client: 'stag-ex-0722',
-      item: 'drawdown',
-    },
-    transaction: null,
-  },
-]);
-
-const onFooterClick = () => {};
+// const rowData = reactive([
+//   {
+//     statement: {
+//       id: 'uuid1111',
+//       date: '9 Jul 2024',
+//       spent: '60,000,000.00',
+//       received: '60,000,000.00',
+//       description: 'description',
+//       client: 'stag-ex-0722',
+//       item: 'drawdown',
+//     },
+//     transaction: {
+//       id: 'uuid11112222',
+//       date: '9 Jul 2024',
+//       reference: 'reference',
+//       notes: 'notes',
+//       spent: '60,000,000.00',
+//       received: '60,000,000.00',
+//       account: 'wwwwwww',
+//     },
+//   },
+//   {
+//     statement: {
+//       id: 'uuid1111',
+//       date: '9 Jul 2024',
+//       spent: '60,000,000.00',
+//       received: '60,000,000.00',
+//       description: 'description',
+//       client: 'stag-ex-0722',
+//       item: 'drawdown',
+//     },
+//     transaction: null,
+//   },
+// ]);
+const rowData = reactive([])
 </script>
 
 <style scoped lang="less">

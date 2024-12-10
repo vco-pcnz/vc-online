@@ -29,6 +29,16 @@
             </a-col>
           </template>
 
+          <!-- 工作 -->
+          <a-col :span="24" v-if="form.type">
+            <a-form-item :label="t('工作')" name="job">
+              <a-checkbox-group v-model:value="form.job">
+                <a-checkbox :value="item.code" :key="item.code" v-for="item in orgsStore.jobs">
+                  {{ item.name }}
+                </a-checkbox>
+              </a-checkbox-group>
+            </a-form-item>
+          </a-col>
           <!-- 个人相关信息 -->
           <template v-if="form.type == 20">
             <a-col :span="24">
@@ -58,16 +68,6 @@
             </a-col>
           </template>
 
-          <!-- 工作 -->
-          <a-col :span="24" v-if="form.type">
-            <a-form-item :label="t('工作')" name="job">
-              <a-checkbox-group v-model:value="form.job">
-                <a-checkbox :value="item.code" :key="item.code" v-for="item in orgsStore.jobs">
-                  {{ item.name }}
-                </a-checkbox>
-              </a-checkbox-group>
-            </a-form-item>
-          </a-col>
 
           <!-- 公司相关信息 -->
           <template v-if="form.type !== 20">

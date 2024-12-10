@@ -1,29 +1,31 @@
 <template>
-  <div class="table-gary">
+  <div class="table-gary sys-table-content">
     <a-table :columns="columns" :data-source="tableData" :pagination="false" :scroll="{ x: '100%' }">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === '1'">
-          <div class="avatarBox">
+          <div class="avatarBox cursor" @click="toDetail(record)">
             <vco-avatar :src="record.avatar" :radius="true"></vco-avatar>
           </div>
         </template>
         <template v-if="column.key === '2'">
-          <p class="bold black">{{ record.name }}</p>
-          <p v-if="record.org_name">
-            <i class="iconfont" :class="{ cer: record.org_name }">&#xe679;</i>
-            <span :class="{ cer: record.org_name }">{{ record.org_name }}</span>
-          </p>
-          <p v-if="record.email">
-            <i class="iconfont" :class="{ cer: record.email_ok }">&#xe66f;</i>
-            <span :class="{ cer: record.email_ok }">{{ record.email }}</span>
-          </p>
-          <p v-if="record.mobile">
-            <i class="iconfont" :class="{ cer: record.mobile_ok }">&#xe678;</i>
-            <span :class="{ cer: record.mobile_ok }">
-              <template v-if="record.mobile && record.pre">+{{ record.pre }} </template>
-              {{ record.mobile }}
-            </span>
-          </p>
+          <div @click="toDetail(record)" class="cursor">
+            <p class="bold black">{{ record.name }}</p>
+            <p v-if="record.org_name">
+              <i class="iconfont" :class="{ cer: record.org_name }">&#xe679;</i>
+              <span :class="{ cer: record.org_name }">{{ record.org_name }}</span>
+            </p>
+            <p v-if="record.email">
+              <i class="iconfont" :class="{ cer: record.email_ok }">&#xe66f;</i>
+              <span :class="{ cer: record.email_ok }">{{ record.email }}</span>
+            </p>
+            <p v-if="record.mobile">
+              <i class="iconfont" :class="{ cer: record.mobile_ok }">&#xe678;</i>
+              <span :class="{ cer: record.mobile_ok }">
+                <template v-if="record.mobile && record.pre">+{{ record.pre }} </template>
+                {{ record.mobile }}
+              </span>
+            </p>
+          </div>
         </template>
         <template v-if="column.key === '3'">
           <div @click="toUserDetail(record)" class="cursor">
@@ -200,11 +202,9 @@ const toEdit = (item) => {
 
 // 跳转绑定用户详情
 const toUserDetail = (item) => {
-  if(!item.user_uuid) return
+  if (!item.user_uuid) return;
   navigationTo({ path: '/users/detail', query: { uuid: item.user_uuid } });
 };
-
-
 </script>
 
 <style lang="less" scoped></style>

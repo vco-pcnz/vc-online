@@ -100,7 +100,6 @@ export default {
   "排序方式": "sort by",
   "默认": "Default",
   "修改成功": "modify successful",
-  "全部": "ALL",
   "系统": "System",
   "业务": "Business",
   "标记已读": "Mark Read",

@@ -17,21 +17,15 @@
 </template>
 
 <script setup>
-import { ref, reactive, h } from 'vue';
-import { useI18n } from 'vue-i18n';
 import xeroImg from '@/assets/images/services-xero.png';
 
-const { t } = useI18n();
-
-const onClick = (e) => {
- 
-};
+const onClick = (e) => {};
 </script>
 
 <style scoped lang="less">
 .sync-btn {
-    border: none;
-    background-color: transparent;
+  border: none;
+  background-color: transparent;
 }
 
 .page-content {

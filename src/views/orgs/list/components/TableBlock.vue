@@ -28,12 +28,19 @@
           </div>
         </template>
         <template v-if="column.key === '3'">
-          <div @click="toUserDetail(record)" class="cursor">
+          <div @click="toUserDetail(record)" class="cursor" v-if="record.has_user">
             <p class="bold black">{{ record.user_name }}</p>
-            <p v-if="record.user_username">
-              <i class="iconfont">&#xe632;</i>
-              <span>{{ record.user_username }}</span>
-            </p>
+            <div v-if="record.user_username" class="flex justify-between items-center">
+              <p>
+                <i class="iconfont">&#xe632;</i>
+                <span>{{ record.user_username }}</span>
+              </p>
+              <div @click.stop>
+                <a-popconfirm :title="'Are you sure ' + t('解绑用户')" ok-text="Yes" cancel-text="No" @confirm="orgsStore.stakeUnbind(record.uuid)">
+                  <span class="cer"><DisconnectOutlined/></span>
+                </a-popconfirm>
+              </div>
+            </div>
             <p v-if="record.user_username">
               <i class="iconfont" :class="{ cer: record.user_email_ok }">&#xe66f;</i>
               <span :class="{ cer: record.user_email_ok }">{{ record.user_email }}</span>
@@ -46,6 +53,9 @@
               </span>
             </p>
           </div>
+          <a-button type="primary" v-else @click="showBindUser(record.uuid)" size="Small">
+            {{ t('绑定用户') }}
+          </a-button>
         </template>
         <template v-if="column.key === '4'">
           <p v-if="record.user_roles.length">
@@ -139,6 +149,7 @@ import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { navigationTo } from '@/utils/tool';
 import { useOrgsStore } from '@/store';
+import { DisconnectOutlined } from '@ant-design/icons-vue';
 const orgsStore = useOrgsStore();
 
 const emits = defineEmits(['check']);

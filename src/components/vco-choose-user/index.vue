@@ -2,77 +2,32 @@
   <div class="vco-choose-user">
     <div class="vco-choose-user-search">
       <slot>
-        <vco-type-input
-          v-model="searchForm.keywords"
-          v-model:type="searchForm.key"
-          :type-data="keys"
-          style="flex: 1"
-          :placeholder="t('请输入')"
-        ></vco-type-input>
+        <vco-type-input v-model="searchForm.keywords" v-model:type="searchForm.key" :type-data="keys" style="flex: 1" :placeholder="t('请输入')"></vco-type-input>
         <i class="iconfont" style="cursor: pointer" @click="rest()" v-if="showRest">&#xe77b;</i>
-        <!-- <a-button
-         
-          style="height: 50px; width: 137.6px"
-          @click="rest()"
-          type="dark"
-        >
-          {{ t('清除') }}
-        </a-button> -->
-        <i
-          v-else
-          class="iconfont"
-          style="cursor: pointer"
-          @click="searchHandle(false)"
-        >
-          &#xe756;
-        </i>
-        
-
+        <i v-else class="iconfont" style="cursor: pointer" @click="searchHandle(false)"> &#xe756; </i>
       </slot>
     </div>
     <div id="vco-choose-user-model"></div>
-    <a-modal
-      :width="900"
-      v-if="open"
-      :open="open"
-      :title="t('搜索用户')"
-      :getContainer="getContainer"
-      @cancel="open = false"
-    >
+    <a-modal :width="900" v-if="open" :open="open" :title="t('搜索用户')" :getContainer="getContainer" @cancel="open = false">
+      <!-- 搜索 -->
+      <div class="sys-form-content" style="margin: 10px 0 15px">
+        <div class="vco-choose-user-search" style="padding-left: 60%">
+          <vco-type-input v-model="searchForm.keywords" v-model:type="searchForm.key" :type-data="keys" style="flex: 1" :placeholder="t('请输入')"></vco-type-input>
+          <i class="iconfont" style="cursor: pointer" @click="rest()" v-if="showRest">&#xe77b;</i>
+          <i v-else class="iconfont" style="cursor: pointer" @click="searchHandle(false)"> &#xe756; </i>
+        </div>
+      </div>
       <a-spin :spinning="loading" size="large">
-        <TableBlock
-          :isMultiple="isMultiple"
-          :table-data="tableData"
-          :url="url"
-          v-model:list="checkedList"
-          v-model:ids="checkedIds"
-          v-model:data="checkedData"
-          wrapClassName="vco-choose-user-modal"
-          @change="change"
-        ></TableBlock>
+        <TableBlock :isMultiple="isMultiple" :table-data="tableData" :url="url" v-model:list="checkedList" v-model:ids="checkedIds" v-model:data="checkedData" wrapClassName="vco-choose-user-modal" @change="change"></TableBlock>
       </a-spin>
       <template #footer>
         <div class="modal-footer">
           <div>
-            <a-button
-              v-if="isMultiple"
-              @click="handlePathChange"
-              type="primary-line"
-            >
+            <a-button v-if="isMultiple" @click="handlePathChange" type="primary-line">
               {{ t('选择') }}
             </a-button>
           </div>
-          <a-pagination
-            v-if="count"
-            size="small"
-            :total="count"
-            :pageSize="pagination.limit"
-            :current="pagination.page"
-            show-size-changer
-            show-quick-jumper
-            :show-total="(total) => t('共{0}条', [total])"
-            @change="setPaginate"
-          />
+          <a-pagination v-if="count" size="small" :total="count" :pageSize="pagination.limit" :current="pagination.page" show-size-changer show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
         </div>
       </template>
     </a-modal>
@@ -92,25 +47,25 @@ const { t } = useI18n();
 const props = defineProps({
   url: {
     type: String,
-    default: 'user/selUser',
+    default: 'user/selUser'
   },
   list: {
-    type: Array,
+    type: Array
   },
   ids: {
-    type: Array,
+    type: Array
   },
   data: {
-    type: Object,
+    type: Object
   },
   isMultiple: {
     type: Boolean,
-    default: false,
+    default: false
   },
   showRest: {
     type: Boolean,
-    default: false,
-  },
+    default: false
+  }
 });
 const open = ref(false);
 const loading = ref(false);
@@ -124,43 +79,38 @@ const checkedData = ref([]);
 const keys = ref([
   {
     label: t('全部'),
-    value: 'all',
+    value: 'all'
   },
   {
     label: t('名称'),
-    value: 'name',
+    value: 'name'
   },
   {
     label: t('邮箱'),
-    value: 'email',
+    value: 'email'
   },
   {
     label: t('电话'),
-    value: 'mobile',
+    value: 'mobile'
   },
   {
     label: t('Id编码'),
-    value: 'code',
+    value: 'code'
   },
   {
     label: t('用户Id'),
-    value: 'userId',
-  },
+    value: 'userId'
+  }
 ]);
 const searchForm = ref({
   key: 'all',
-  keywords: '',
+  keywords: ''
 });
 const pagination = ref({
   page: 1,
-  limit: 5,
+  limit: 5
 });
-const emits = defineEmits([
-  'update:list',
-  'update:ids',
-  'update:data',
-  'change',
-]);
+const emits = defineEmits(['update:list', 'update:ids', 'update:data', 'change']);
 const getContainer = () => {
   // 返回自定义容器的 DOM 元素
   return document.getElementById('vco-choose-user-model');
@@ -169,6 +119,12 @@ const getContainer = () => {
 // 搜索
 const searchHandle = (parameters) => {
   if (parameters) searchForm.value = cloneDeep(parameters);
+  if (parameters === undefined) {
+    searchForm.value = {
+      key: 'all',
+      keywords: ''
+    };
+  }
   pagination.value.page = 1;
   lodaData();
   open.value = true;
@@ -180,7 +136,7 @@ const lodaData = () => {
   request({
     url: props.url,
     method: 'get',
-    params: { ...searchForm.value, ...pagination.value },
+    params: { ...searchForm.value, ...pagination.value }
   })
     .then((res) => {
       tableData.value = res.data;
@@ -196,7 +152,7 @@ const lodaData = () => {
 const setPaginate = (page, limit) => {
   pagination.value = {
     page,
-    limit,
+    limit
   };
   lodaData();
 };
@@ -223,7 +179,7 @@ const rest = () => {
 };
 // 暴露方法给父组件
 defineExpose({
-  searchHandle,
+  searchHandle
 });
 </script>
 
@@ -237,30 +193,12 @@ defineExpose({
   }
 
   #vco-choose-user-model {
-    .area-code-btn,
-    .ant-picker,
-    .ant-select-selector,
-    .ant-input .ant-select-selector .ant-select-selection-placeholder,
-    .ant-select-selector .ant-select-selection-search-input,
-    .ant-select-selector .ant-select-selection-item {
-      height: 24px !important;
-      line-height: 22px !important;
-      border-radius: 4px !important;
-      background: transparent !important;
-      border-color: #d9d9d9 !important;
-      &:hover {
-        border-color: #ffb940 !important;
-      }
+    .ant-modal-title {
+      text-align: left !important;
     }
     .modal-content {
       height: 70vh;
       overflow-y: auto;
-    }
-    .ant-select.ant-select-in-form-item {
-      width: auto !important;
-    }
-    .ant-modal-title {
-      text-align: left !important;
     }
     .modal-footer {
       display: flex;
@@ -270,9 +208,28 @@ defineExpose({
       .ant-pagination {
         padding: 0;
       }
-    }
-    .submit-btn:hover {
-      color: @clr_white;
+      .area-code-btn,
+      .ant-picker,
+      .ant-select-selector,
+      .ant-input .ant-select-selector .ant-select-selection-placeholder,
+      .ant-select-selector .ant-select-selection-search-input,
+      .ant-select-selector .ant-select-selection-item {
+        height: 24px !important;
+        line-height: 22px !important;
+        border-radius: 4px !important;
+        background: transparent !important;
+        border-color: #d9d9d9 !important;
+        &:hover {
+          border-color: #ffb940 !important;
+        }
+      }
+
+      .ant-select.ant-select-in-form-item {
+        width: auto !important;
+      }
+      .submit-btn:hover {
+        color: @clr_white;
+      }
     }
   }
 }

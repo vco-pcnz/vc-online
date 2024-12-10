@@ -193,6 +193,8 @@ defineExpose({
   }
 
   #vco-choose-user-model {
+    position: relative;
+    z-index: 9999;
     .ant-modal-title {
       text-align: left !important;
     }

@@ -203,7 +203,7 @@ const bindForm = ref({
 const vcoChooseUserRef = ref();
 const showBindUser = (uuid) => {
   bindForm.value.uuid = uuid;
-  vcoChooseUserRef.value.searchHandle();
+  vcoChooseUserRef.value.init();
 };
 const bindUser = (e) => {
   bindForm.value.user_uuid = e.uuid;

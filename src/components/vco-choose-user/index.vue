@@ -4,7 +4,7 @@
       <slot>
         <template v-if="showRest">
           <div class="flex justify-between align-center checkedData">
-            <div><span>{{t('选择')}}: </span>{{ checkedData.user_name || checkedData.name }}</div>
+            <div><span>{{t('已选择')}}: </span>{{ checkedData.user_name || checkedData.name }}</div>
             <i class="iconfont" style="cursor: pointer" @click="rest()">&#xe77b;</i>
           </div>
         </template>

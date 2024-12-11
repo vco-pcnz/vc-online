@@ -2,9 +2,16 @@
   <div class="vco-choose-user">
     <div class="vco-choose-user-search">
       <slot>
-        <vco-type-input v-model="searchForm.keywords" v-model:type="searchForm.key" :type-data="keys" style="flex: 1" :placeholder="t('请输入')"></vco-type-input>
-        <i class="iconfont" style="cursor: pointer" @click="rest()" v-if="showRest">&#xe77b;</i>
-        <i v-else class="iconfont" style="cursor: pointer" @click="searchHandle()"> &#xe756; </i>
+        <template v-if="showRest">
+          <div class="flex justify-between align-center checkedData">
+            <div><span>{{t('选择')}}: </span>{{ checkedData.user_name || checkedData.name }}</div>
+            <i class="iconfont" style="cursor: pointer" @click="rest()">&#xe77b;</i>
+          </div>
+        </template>
+        <template v-else>
+          <vco-type-input v-model="searchForm.keywords" v-model:type="searchForm.key" :type-data="keys" style="flex: 1" :placeholder="t('请输入')"></vco-type-input>
+          <i class="iconfont" style="cursor: pointer" @click="searchHandle()"> &#xe756; </i>
+        </template>
       </slot>
     </div>
     <div id="vco-choose-user-model"></div>
@@ -119,8 +126,8 @@ const getContainer = () => {
 // 搜索
 const searchHandle = () => {
   // if ((searchForm.value.keywords && !open.value) || open.value) {
-    pagination.value.page = 1;
-    lodaData();
+  pagination.value.page = 1;
+  lodaData();
   // }
   open.value = true;
 };
@@ -134,8 +141,6 @@ const close = () => {
   tableData.value = [];
   open.value = false;
 };
-
-
 
 // 加载数据
 const lodaData = () => {
@@ -168,13 +173,13 @@ const handlePathChange = () => {
   emits('update:list', checkedList.value);
   emits('update:ids', checkedIds.value);
   emits('change', checkedIds.value);
-  close()
+  close();
 };
 const change = () => {
   if (!props.isMultiple) {
     emits('update:data', checkedData.value);
     emits('change', checkedData.value);
-    close()
+    close();
   }
 };
 
@@ -189,7 +194,7 @@ const init = (parameters) => {
   if (parameters) {
     searchForm.value = cloneDeep(parameters);
   }
-  open.value = true
+  open.value = true;
 };
 // 暴露方法给父组件
 defineExpose({
@@ -246,6 +251,21 @@ defineExpose({
       .submit-btn:hover {
         color: @clr_white;
       }
+    }
+  }
+}
+
+.checkedData {
+  width: 100%;
+  line-height: 50px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background-color: #f7f0e6;
+  .iconfont {
+    font-size: 12px;
+    color: @colorPrimary;
+    &:hover {
+      opacity: 0.8;
     }
   }
 }

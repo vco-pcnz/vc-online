@@ -314,4 +314,5 @@ export default {
   "最小值": "Min",
   "最大值": "Max",
   "重置": "Reset",
+  "选择利益相关者": "Select stakeholders"
 }

@@ -168,13 +168,13 @@ const handlePathChange = () => {
   emits('update:list', checkedList.value);
   emits('update:ids', checkedIds.value);
   emits('change', checkedIds.value);
-  open.value = false;
+  close()
 };
 const change = () => {
   if (!props.isMultiple) {
     emits('update:data', checkedData.value);
     emits('change', checkedData.value);
-    open.value = false;
+    close()
   }
 };
 

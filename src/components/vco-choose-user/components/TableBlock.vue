@@ -3,7 +3,7 @@
     <div class="table-block">
       <ul class="table-col header">
         <li class="check" v-show="isMultiple" @click="checkedAllHandle">
-          <a-checkbox :checked="checkedAll" :indeterminate="indeterminate"></a-checkbox>
+          <a-checkbox :checked="Boolean(checkedAll)" :indeterminate="Boolean(indeterminate)"></a-checkbox>
         </li>
         <li>{{ t('头像') }}</li>
         <li>{{ t('姓名') }}</li>
@@ -211,19 +211,19 @@ const handlePathChange = () => {
     }
     &:nth-child(3) {
       flex: 0 auto;
-      width: 170px;
+      width: 180px;
     }
     &:nth-child(4) {
       flex: 0 auto;
-      width: 170px;
+      width: 130px;
     }
     &:nth-child(5) {
       flex: 0 auto;
-      width: 200px;
+      width: 300px;
     }
     &:nth-child(6) {
       flex: 0 auto;
-      width: 180px;
+      width: 200px;
     }
     &:last-child {
       flex: 0 auto;

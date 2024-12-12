@@ -20,10 +20,10 @@
 <script setup>
   import { watch, shallowRef, computed } from "vue";
   import { useI18n } from "vue-i18n";
-  import OneForm from "./../one.vue";
-  import TwoForm from "./../two.vue";
-  import ThreeForm from "./../three.vue";
-  import FourForm from "./../four-view.vue";
+  import OneForm from "../tpl-one.vue";
+  import TwoForm from "../tpl-two.vue";
+  import ThreeForm from "../tpl-three.vue";
+  import FourForm from "../tpl-four.vue";
 
   const emits = defineEmits(['done', 'update:visible']);
 

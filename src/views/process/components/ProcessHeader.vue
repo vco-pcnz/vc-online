@@ -8,9 +8,9 @@
         <slot name="right"></slot>
       </div>
     </div>
-    <div v-if="stepData.length" class="process-bar-content">
+    <div v-if="mainStepData.length" class="process-bar-content">
       <div v-for="(item, index) in processData" :key="index" class="item" :class="getItemClass(index + 1, currentStatus)">
-        <div class="check" :class="{'pointer': checkPointer(index + 1), 'current': index + 1 === current}" @click="stepHandle(index + 1)">
+        <div class="check" :class="{'pointer': checkPointer(item), 'current': index + 1 === current}" @click="stepHandle(item)">
           <template v-if="current === index + 1">
             <i v-if="current === index + 1" class="iconfont">{{ currentStatus === processData.length ? '&#xe647;' : '&#xe779;'}}</i>
           </template>
@@ -32,31 +32,40 @@
   import { useRoute } from "vue-router"
   import { navigationTo } from "@/utils/tool"
   import { useI18n } from 'vue-i18n';
+  import { processRoutes } from "@/constant"
 
   const { t } = useI18n();
   const route = useRoute()
 
   const props = defineProps({
+    mainStepData: {
+      type: Array,
+      default: () => []
+    },
     stepData: {
       type: Array,
       default: () => []
     },
+    currentStep: {
+      type: Object
+    },
     current: {
       type: Number,
-      default: 0
+      default: 1
     },
     status: {
       type: Number,
       default: 0
+    },
+    statusInfo: {
+      type: Object
     }
   })
 
-  const currentStatus = ref(1)
-
-  const routeArr = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eigth', 'nine', 'then']
+  const currentStatus = ref(0)
 
   const processData = computed(() => {
-    const data = cloneDeep(props.stepData)
+    const data = cloneDeep(props.mainStepData)
     data.push({
       name: '',
       code: 'end'
@@ -78,29 +87,42 @@
     }
   }
 
-  const checkPointer = (index) => (index <= currentStatus.value && currentStatus.value < 5)
+  const getStepInfo = (stateCode) => {
+    const data = []
+    for (let i = 0; i < stateCode.length; i++) {
+      const item = props.stepData.find(item => Number(item.stateCode) === Number(stateCode[i]))
+      if (item) {
+        data.push(item)
+      }
+    }
+    return data
+  }
 
-  const stepHandle = (index) => {
-    if (route.query.uuid_info) {
-      if (index <= currentStatus.value && currentStatus.value < 5) {
-        const page = routeArr[index - 1]
-        navigationTo(`/process/${page}?uuid_info=${route.query.uuid_info}`)
+  const checkPointer = (data) => {
+    const codeArr = data.stateCode || []
+    const isForm = codeArr.length ? getStepInfo(codeArr).every(item => !item.examine) : false
+    const isBefore = codeArr.length ? codeArr.every(item => (Number(item) < Number(props.statusInfo.stateCode) || Number(item) === Number(props.statusInfo.stateCode))) : false
+
+    return isForm && isBefore && !props.currentStep.examine
+  }
+
+  const stepHandle = (data) => {
+    if (route.query.uuid_info && checkPointer(data) && data.stateCode && data.stateCode.length === 1) {
+      const index = props.stepData.findIndex(item => Number(item.stateCode) === Number(data.stateCode[0]))
+      if (index > -1 && processRoutes[index] !== route.path) {
+        navigationTo(`${processRoutes[index]}?uuid_info=${route.query.uuid_info}`)
       }
     }
   }
 
   onMounted(() => {
     const num = Number(props.status)
-    if (num === 0) {
-      currentStatus.value = 1
-    } else if (num === 100) {
-      currentStatus.value = 2
-    } else if (num === 200) {
-      currentStatus.value = 3
-    } else if (num === 300) {
-      currentStatus.value = 4
-    } else if (num === 400) {
-      currentStatus.value = 5
+    if (props.mainStepData.length) {
+      for (let i = 0; i < props.mainStepData.length; i ++) {
+        if (props.mainStepData[i].stateCode.includes(num)) {
+          currentStatus.value = i + 1
+        }
+      }
     }
   })
 </script>

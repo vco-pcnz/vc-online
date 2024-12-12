@@ -8,6 +8,14 @@ export const templateStep = (params) =>
     params
   });
 
+// 获取具体流程步骤
+export const projectApproveStep = (params) =>
+  request({
+    url: "/project/project/approveStep",
+    method: "get",
+    params
+  });
+
   // 草稿信息
 export const projectDraftInfo = (params) =>
   request({

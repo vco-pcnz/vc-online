@@ -1,9 +1,12 @@
 import { ref, shallowRef, onMounted } from "vue";
+import i18n from "@/i18n";
 import { useRoute, useRouter } from "vue-router";
 import { Empty } from 'ant-design-vue';
-import { templateStep } from "@/api/process"
+import { projectApproveStep } from "@/api/process"
+import { processRoutes } from "@/constant"
+import { navigationTo } from "@/utils/tool"
 
-export function useDynamicModule(defaultName = "one", defaultFile = "default") {
+export function useDynamicModule() {
   const route = useRoute();
   const router = useRouter();
 
@@ -11,41 +14,88 @@ export function useDynamicModule(defaultName = "one", defaultFile = "default") {
 
   // 定义响应式数据
   const tempLoading = ref(false);
-  const tempFile = ref(defaultFile);
-  const tempName = ref(defaultName);
+  const tempFile = ref('default');
+
   const tempModule = shallowRef(null);
+  const currentPageIndex = ref(1);
   const currentId = ref(null);
+  const currentStatus = ref(0)
+  const currentStatusInfo = ref({})
+  const mainStepData = ref([])
+  const stepData = ref([])
+  const currentStep = ref(null)
+  const nextStep = ref(null)
   const queryError = ref(false)
-  const processStepData = ref([])
+  const previousPage = ref('')
+  const nextPage = ref('')
+  const canNext = ref(false)
 
   // 初始化方法
   const pageInit = async () => {
     tempLoading.value = true;
 
-    await templateStep({
-      type: tempFile.value
-    }).then(res => {
-      processStepData.value = res
+    const params = currentId.value ? { uuid: currentId.value } : {}
+    await projectApproveStep(params).then(res => {
+      if (!res.step || !res.step.lenght) {
+        currentStatus.value = res.status
+        currentStatusInfo.value = res.step.find(item => Number(item.stateCode) === Number(res.status))
+        mainStepData.value = res.main_step
+        stepData.value = res.step
+        currentStep.value = res.step[currentPageIndex.value]
+        nextStep.value = res.step[currentPageIndex.value + 1] || null
+        canNext.value = nextStep.value && !nextStep.value.examine
+
+        if (currentStep.value.name) {
+          const name = i18n.global.t(currentStep.value.name)
+          document.title = `${name} - VC Online`
+        }
+      } else {
+        queryError.value = true
+      }
     }).catch(() => {
-      tempLoading.value = false;
+      queryError.value = true
     })
 
-    if (processStepData.value.length) {
-      import(`@/views/process/temp/${tempFile.value}/${tempName.value}.vue`)
-        .then((res) => {
-          if (res) {
-            tempModule.value = res.default;
+    if (!queryError.value) {
+      const currentStepStatus = currentStep.value.stateCode
+
+      if (currentStatusInfo.value.examine) {
+        if (currentStatus.value !== currentStepStatus) {
+          if (currentId.value) {
+            navigationTo(`/requests/details?uuid_info=${currentId.value}`)
           } else {
-            router.push("/404");
+            navigationTo('/')
           }
-          tempLoading.value = false;
-        })
-        .catch(() => {
-          router.push("/404");
-          tempLoading.value = false;
-        });
+        }
+      } else {
+        if (currentStepStatus > currentStatus.value) {
+          if (currentId.value) {
+            navigationTo(`/requests/details?uuid_info=${currentId.value}`)
+          } else {
+            navigationTo('/')
+          }
+        }
+      }
+
+      if (currentStep.value) {
+        import(`@/views/process/temp/${tempFile.value}/${currentStep.value.code}.vue`)
+          .then((res) => {
+            if (res) {
+              tempModule.value = res.default;
+            } else {
+              router.push("/404");
+            }
+            tempLoading.value = false;
+          })
+          .catch(() => {
+            router.push("/404");
+            tempLoading.value = false;
+          });
+      } else {
+        router.push("/404");
+        tempLoading.value = false;
+      }
     } else {
-      router.push("/404");
       tempLoading.value = false;
     }
   };
@@ -54,6 +104,7 @@ export function useDynamicModule(defaultName = "one", defaultFile = "default") {
   onMounted(() => {
     let pass = true
     const { type, uuid_info } = route.query;
+    const path = route.path
 
     if (type) {
       tempFile.value = type;
@@ -62,10 +113,17 @@ export function useDynamicModule(defaultName = "one", defaultFile = "default") {
     if (uuid_info) {
       currentId.value = uuid_info;
     } else {
-      if (defaultName !== 'one') {
+      if (path !== processRoutes[0]) {
         pass = false
       }
     }
+
+    currentPageIndex.value = processRoutes.findIndex(item => item === path)
+
+    if (currentPageIndex.value) {
+      previousPage.value = processRoutes[currentPageIndex.value - 1]
+    }
+    nextPage.value = processRoutes[currentPageIndex.value + 1]
 
     if (pass) {
       pageInit();
@@ -80,6 +138,14 @@ export function useDynamicModule(defaultName = "one", defaultFile = "default") {
     currentId,
     queryError,
     simpleImage,
-    processStepData
+    currentStatus,
+    currentStatusInfo,
+    mainStepData,
+    stepData,
+    previousPage,
+    nextPage,
+    currentStep,
+    nextStep,
+    canNext
   };
 }

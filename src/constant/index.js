@@ -35,3 +35,16 @@ export const VERIFY_KEY = {
   EMAIL: "email",
   MOBILE: "mobile",
 }
+
+export const processRoutes = [
+  '/process/one',
+  '/process/two',
+  '/process/three',
+  '/process/four',
+  '/process/five',
+  '/process/six',
+  '/process/seven',
+  '/process/eight',
+  '/process/nine',
+  '/process/ten'
+]

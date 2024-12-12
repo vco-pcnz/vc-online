@@ -314,4 +314,13 @@ export default {
   "最小值": "Min",
   "最大值": "Max",
   "重置": "Reset",
+  "项目•类型": "PROJECT•TYPE",
+  "借款人•贷款经理": "BORROWER•LM",
+  "到期": "MATURITY",
+  "IRR预测": "IRR FORECAST",
+  "收入": "INCOME",
+  "待提取": "UNDRAWN",
+  "贷款余额": "LOAN BALANCE",
+  "FC2": "FACILITY LIMIT 2",
+  "UPD": "UPD",
 }

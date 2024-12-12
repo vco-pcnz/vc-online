@@ -8,8 +8,8 @@
         <a-form ref="formRef" :model="form" :rules="dynamicRules" layout="vertical">
           <a-form-item label=" ">
             <div style="display: flex; align-items: center">
-              从利益相关者选择：
-              <div style="flex: 1">
+              {{ t('选择利益相关者') }}
+              <div style="flex: 1" class="ml-2">
                 <vco-choose-user ref="vcoChooseUserRef" url="stake/selStake" :showRest="Boolean(check_user_uuid)" @change="checkUser"></vco-choose-user>
               </div>
             </div>

@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="js">
-import { ref, onMounted } from "vue"
+import { ref,watch } from "vue"
 
 const emits = defineEmits(['update:modelValue', 'update:type', 'change'])
 const props = defineProps({
@@ -42,37 +42,44 @@ const inputChange = () => {
   emits('update:modelValue', value.value)
 }
 
-onMounted(() => {
-  value.value = props.modelValue
-  typeValue.value = props.type
-})
+watch(
+  () => [props.modelValue,props.type],
+  () => {
+    value.value = props.modelValue
+    typeValue.value = props.type
+  },
+  {
+    immediate: true,
+    deep: true
+  }
+);
 </script>
 
 <style lang="less" scoped>
-  .type-input-content {
-    position: relative;
-    
-    :deep(.ant-select) {
-      position: absolute !important;
-      width: 100px !important;
-      z-index: 9;
-      top: 1px;
-      left: 1px;
-      .ant-select-selector {
-        height: 30px;
-        border: none !important;
-        box-shadow: none !important;
-        border-right: 1px solid #000 !important;
-        border-top-right-radius: 0 !important;
-        border-bottom-right-radius: 0 !important;
-        background-color: transparent !important;
-      }
-    }
-    :deep(.input-select.ant-select-open) .ant-select-selector {
+.type-input-content {
+  position: relative;
+
+  :deep(.ant-select) {
+    position: absolute !important;
+    width: 100px !important;
+    z-index: 9;
+    top: 1px;
+    left: 1px;
+    .ant-select-selector {
+      height: 30px;
+      border: none !important;
       box-shadow: none !important;
-    }
-    :deep(.ant-input) {
-      padding-left: 110px;
+      border-right: 1px solid #000 !important;
+      border-top-right-radius: 0 !important;
+      border-bottom-right-radius: 0 !important;
+      background-color: transparent !important;
     }
   }
+  :deep(.input-select.ant-select-open) .ant-select-selector {
+    box-shadow: none !important;
+  }
+  :deep(.ant-input) {
+    padding-left: 110px;
+  }
+}
 </style>

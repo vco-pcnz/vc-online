@@ -2,19 +2,26 @@
   <div class="vco-choose-user">
     <div class="vco-choose-user-search">
       <slot>
-        <vco-type-input v-model="searchForm.keywords" v-model:type="searchForm.key" :type-data="keys" style="flex: 1" :placeholder="t('请输入')"></vco-type-input>
-        <i class="iconfont" style="cursor: pointer" @click="rest()" v-if="showRest">&#xe77b;</i>
-        <i v-else class="iconfont" style="cursor: pointer" @click="searchHandle(false)"> &#xe756; </i>
+        <template v-if="showRest">
+          <div class="flex justify-between align-center checkedData">
+            <div><span>{{t('已选择')}}: </span>{{ checkedData.user_name || checkedData.name }}</div>
+            <i class="iconfont" style="cursor: pointer" @click="rest()">&#xe77b;</i>
+          </div>
+        </template>
+        <template v-else>
+          <vco-type-input v-model="searchForm.keywords" v-model:type="searchForm.key" :type-data="keys" style="flex: 1" :placeholder="t('请输入')"></vco-type-input>
+          <i class="iconfont" style="cursor: pointer" @click="searchHandle()"> &#xe756; </i>
+        </template>
       </slot>
     </div>
     <div id="vco-choose-user-model"></div>
-    <a-modal :width="900" v-if="open" :open="open" :title="t('搜索用户')" :getContainer="getContainer" @cancel="open = false">
+    <a-modal :width="900" v-if="open" :open="open" :title="t('搜索用户')" :getContainer="getContainer" @cancel="close">
       <!-- 搜索 -->
       <div class="sys-form-content" style="margin: 10px 0 15px">
         <div class="vco-choose-user-search" style="padding-left: 60%">
           <vco-type-input v-model="searchForm.keywords" v-model:type="searchForm.key" :type-data="keys" style="flex: 1" :placeholder="t('请输入')"></vco-type-input>
           <i class="iconfont" style="cursor: pointer" @click="rest()" v-if="showRest">&#xe77b;</i>
-          <i v-else class="iconfont" style="cursor: pointer" @click="searchHandle(false)"> &#xe756; </i>
+          <i v-else class="iconfont" style="cursor: pointer" @click="searchHandle()"> &#xe756; </i>
         </div>
       </div>
       <a-spin :spinning="loading" size="large">
@@ -27,7 +34,7 @@
               {{ t('选择') }}
             </a-button>
           </div>
-          <a-pagination v-if="count" size="small" :total="count" :pageSize="pagination.limit" :current="pagination.page" show-size-changer show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
+          <a-pagination v-if="count" size="small" :total="count" :pageSize="pagination.limit" :current="pagination.page" show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
         </div>
       </template>
     </a-modal>
@@ -117,17 +124,22 @@ const getContainer = () => {
 };
 
 // 搜索
-const searchHandle = (parameters) => {
-  if (parameters) searchForm.value = cloneDeep(parameters);
-  if (parameters === undefined) {
-    searchForm.value = {
-      key: 'all',
-      keywords: ''
-    };
-  }
+const searchHandle = () => {
+  // if ((searchForm.value.keywords && !open.value) || open.value) {
   pagination.value.page = 1;
   lodaData();
+  // }
   open.value = true;
+};
+
+const close = () => {
+  searchForm.value = {
+    key: 'all',
+    keywords: ''
+  };
+  pagination.value.page = 1;
+  tableData.value = [];
+  open.value = false;
 };
 
 // 加载数据
@@ -161,13 +173,13 @@ const handlePathChange = () => {
   emits('update:list', checkedList.value);
   emits('update:ids', checkedIds.value);
   emits('change', checkedIds.value);
-  open.value = false;
+  close();
 };
 const change = () => {
   if (!props.isMultiple) {
     emits('update:data', checkedData.value);
     emits('change', checkedData.value);
-    open.value = false;
+    close();
   }
 };
 
@@ -177,9 +189,16 @@ const rest = () => {
   });
   change();
 };
+
+const init = (parameters) => {
+  if (parameters) {
+    searchForm.value = cloneDeep(parameters);
+  }
+  open.value = true;
+};
 // 暴露方法给父组件
 defineExpose({
-  searchHandle
+  init
 });
 </script>
 
@@ -232,6 +251,21 @@ defineExpose({
       .submit-btn:hover {
         color: @clr_white;
       }
+    }
+  }
+}
+
+.checkedData {
+  width: 100%;
+  line-height: 50px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background-color: #f7f0e6;
+  .iconfont {
+    font-size: 12px;
+    color: @colorPrimary;
+    &:hover {
+      opacity: 0.8;
     }
   }
 }

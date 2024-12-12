@@ -237,7 +237,8 @@ export default {
   "视频": "Video",
   "文件": "Files",
   "上传": "Upload",
-  "选择": "Choose",
+  "选择": "Select",
+  "已选择": "Selected",
   "搜索用户": "User Search",
   "选择用户": "Select User",
   "工作": "Job Title ",
@@ -314,4 +315,5 @@ export default {
   "最小值": "Min",
   "最大值": "Max",
   "重置": "Reset",
+  "选择利益相关者": "Select stakeholders"
 }

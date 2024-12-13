@@ -4,7 +4,7 @@
       <a-form ref="formRef" :model="form" :rules="dynamicRules" layout="vertical">
         <a-row :gutter="24">
           <a-col :span="24" class="avatar-box">
-            <div>
+            <div style="position: relative">
               <vco-upload-image v-model:value="form.avatar" text="上传头像"></vco-upload-image>
             </div>
           </a-col>
@@ -67,7 +67,6 @@
               </a-form-item>
             </a-col>
           </template>
-
 
           <!-- 公司相关信息 -->
           <template v-if="form.type !== 20">
@@ -636,9 +635,10 @@ watch(
         height: 100% !important;
       }
     }
-
     .delete-img {
-      display: none !important;
+      width: 128px !important;
+      height: 128px !important;
+      border-radius: 50% !important;
     }
   }
 }

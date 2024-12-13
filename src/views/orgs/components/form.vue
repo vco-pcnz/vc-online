@@ -4,7 +4,7 @@
       <a-form ref="formRef" :model="form" :rules="dynamicRules" layout="vertical">
         <a-row :gutter="24">
           <a-col :span="24" class="avatar-box">
-            <div>
+            <div style="position: relative">
               <vco-upload-image v-model:value="form.avatar" text="上传头像"></vco-upload-image>
             </div>
           </a-col>
@@ -67,7 +67,6 @@
               </a-form-item>
             </a-col>
           </template>
-
 
           <!-- 公司相关信息 -->
           <template v-if="form.type !== 20">
@@ -421,16 +420,26 @@ const verifyMobile = reactive({
 // 获取验证码
 const handleVerify = (key) => {
   if (key === VERIFY_KEY.EMAIL) {
-    sendUnauthECode({ email: form.email });
-    verifyEmail.showCode = true;
-    verifyEmail.showCountdown = true;
+    if (!Boolean(form.email)) {
+      message.warning(t('请输入') + t('邮箱'));
+      return;
+    }
+    sendUnauthECode({ email: form.email }).then((res) => {
+      verifyEmail.showCode = true;
+      verifyEmail.showCountdown = true;
+    });
   } else if (key === VERIFY_KEY.MOBILE) {
+    if (!Boolean(form.mobile)) {
+      message.warning(t('请输入') + t('手机号'));
+      return;
+    }
     sendUnauthCodeM({
       pre: form.pre,
       mobile: form.mobile
+    }).then((res) => {
+      verifyMobile.showCode = true;
+      verifyMobile.showCountdown = true;
     });
-    verifyMobile.showCode = true;
-    verifyMobile.showCountdown = true;
   }
 };
 
@@ -636,9 +645,10 @@ watch(
         height: 100% !important;
       }
     }
-
     .delete-img {
-      display: none !important;
+      width: 128px !important;
+      height: 128px !important;
+      border-radius: 50% !important;
     }
   }
 }

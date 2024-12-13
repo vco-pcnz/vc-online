@@ -294,8 +294,7 @@ const handlePathChange = () => {
 // 上传
 const handleChange = (info) => {
   picUrl.value = false;
-  let list = info.fileList;
-
+  let list = info.fileList.filter((item) => !!item.status);
   if (info.file.status === 'done') {
     if (info.file.response.success) {
       picUrl.value = true;
@@ -305,8 +304,12 @@ const handleChange = (info) => {
         }
         return file;
       });
+    } else {
+      list = list.filter((item) => item.uid !== info.file.uid);
+      message.error(`${info.file.response.msg}` || ` ${t('上传失败')}.`);
     }
   } else if (info.file.status === 'error') {
+    list = list.filter((item) => item.uid !== info.file.uid);
     message.error(`${info.file.name} ${t('上传失败')}.`);
   }
 
@@ -385,7 +388,7 @@ watch(
       handlePathChange();
     } else {
       fileList.value = [];
-      picUrl.value = false
+      picUrl.value = false;
     }
   },
   {

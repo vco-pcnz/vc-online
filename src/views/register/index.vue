@@ -2,13 +2,13 @@
   <auth-template>
     <template #header>
       <router-link to="/login">
-        <a-button type="cyan" shape="round">{{ t("登录") }}</a-button>
+        <a-button type="cyan" shape="round">{{ t('登录') }}</a-button>
       </router-link>
     </template>
     <template #content>
       <section class="register-content">
         <h1 class="title">
-          {{ t("注册") }}
+          {{ t('注册') }}
         </h1>
         <a-form ref="formRef" :model="form" :rules="rules" layout="vertical">
           <a-form-item name="firstName" :label="t('名')">
@@ -46,38 +46,35 @@
               <a-col :span="1" />
               <a-col :span="6">
                 <a-form-item label=" " v-if="!sentAuthCode">
-                  <a-button
-                    @click="sendVerify"
-                    size="large"
-                    block
-                    class="validate_btn"
-                  >
-                    {{ t("验证") }}
+                  <a-button @click="sendVerify" block class="inline_btn">
+                    {{ t('验证') }}
                   </a-button>
                 </a-form-item>
-                <a-form-item
-                  name="code"
-                  :label="t('验证码')"
-                  class="verifyCode_input_container"
-                  v-else
-                >
-                  <a-input
-                    v-model:value="form.code"
-                    class="input_content"
-                    v-focus="true"
-                    :placeholder="t('验证码')"
-                  />
+                <a-form-item label=" " v-else>
+                  <vco-countdown class="inline_btn" v-model:show="sentAuthCode" />
                 </a-form-item>
               </a-col>
             </a-row>
+          </a-form-item>
+          <a-form-item
+            name="code"
+            :label="t('验证码')"
+            class="verifyCode_input_container"
+            v-if="sentAuthCode || showCode"
+          >
+            <a-input
+              v-model:value="form.code"
+              class="input_content"
+              v-focus="true"
+              :placeholder="t('验证码')"
+            />
           </a-form-item>
           <a-form-item :label="t('手机号')" name="mobile">
             <div class="mobile-content">
               <vco-mobile-input
                 v-model:value="form.mobile"
                 v-model:areaCode="form.pre"
-              >
-              </vco-mobile-input>
+              ></vco-mobile-input>
             </div>
           </a-form-item>
           <a-form-item
@@ -95,16 +92,16 @@
           </a-form-item>
           <a-form-item no-style>
             <a-checkbox v-model:checked="isBroker">
-              {{ t("成为中介") }}
+              {{ t('成为中介') }}
             </a-checkbox>
           </a-form-item>
           <a-form-item>
             <a-form-item name="acceptTerm" no-style>
               <a-checkbox v-model:checked="acceptTerm">
-                {{ t("我接受") }}
+                {{ t('我接受') }}
               </a-checkbox>
               <a @click="termModalOpen = true" class="link">
-                {{ t("条款与条件") }}
+                {{ t('条款与条件') }}
               </a>
             </a-form-item>
           </a-form-item>
@@ -115,7 +112,9 @@
               :loading="loading"
               class="register-btn big shadow bold"
               @click="submit"
-            >{{ t("注册") }}</a-button>
+            >
+              {{ t('注册') }}
+            </a-button>
           </a-form-item>
         </a-form>
       </section>
@@ -125,14 +124,14 @@
 </template>
 
 <script setup>
-import { ref, reactive } from "vue";
-import { useI18n } from "vue-i18n";
-import { useRouter } from "vue-router";
-import { register, sendAuthCode } from "@/api/auth";
-import { message } from "ant-design-vue/es";
-import TermModal from "./components/term-modal.vue";
-import { trim } from "lodash";
-import { termsType, preMobileOpts, EMAIL_RULE, PASSWORD_RULE } from "@/constant";
+import { ref, reactive } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router';
+import { register, sendAuthCode } from '@/api/auth';
+import { message } from 'ant-design-vue/es';
+import TermModal from './components/term-modal.vue';
+import { trim } from 'lodash';
+import { termsType, EMAIL_RULE, PASSWORD_RULE } from '@/constant';
 
 const { t } = useI18n();
 const { replace } = useRouter();
@@ -143,17 +142,18 @@ const acceptTerm = ref(false);
 const termModalOpen = ref(false);
 const isBroker = ref(false);
 const sentAuthCode = ref(false);
+const showCode = ref(false);
 
 // 表单数据
 const form = reactive({
-  firstName: "",
-  middleName: "",
-  lastName: "",
-  email: "",
-  pre: "64",
-  mobile: "",
-  password: "",
-  code: "",
+  firstName: '',
+  middleName: '',
+  lastName: '',
+  email: '',
+  pre: '64',
+  mobile: '',
+  password: '',
+  code: '',
 });
 
 // 表单验证规则
@@ -161,63 +161,64 @@ const rules = reactive({
   firstName: [
     {
       required: true,
-      message: t("请输入") + t("名"),
-      type: "string",
-      trigger: "blur",
+      message: t('请输入') + t('名'),
+      type: 'string',
+      trigger: 'blur',
     },
   ],
   lastName: [
     {
       required: true,
-      message: t("请输入") + t("姓"),
-      type: "string",
-      trigger: "blur",
+      message: t('请输入') + t('姓'),
+      type: 'string',
+      trigger: 'blur',
     },
   ],
   email: [
     {
       required: true,
-      message: t("请输入") + t("邮箱"),
-      type: "string",
-      trigger: "blur",
+      message: t('请输入') + t('邮箱'),
+      type: 'string',
+      trigger: 'blur',
     },
     {
       pattern: EMAIL_RULE,
-      message: t("邮箱格式不正确"),
+      message: t('邮箱格式不正确'),
     },
   ],
   code: [
     {
       required: true,
-      message: t("请输入") + t("验证码"),
-      type: "string",
-      trigger: "blur",
+      message: t('请输入') + t('验证码'),
+      type: 'string',
+      trigger: 'blur',
     },
   ],
   mobile: [
     {
       required: true,
-      message: t("请输入") + t("手机号"),
-      type: "string",
-      trigger: "blur",
+      message: t('请输入') + t('手机号'),
+      type: 'string',
+      trigger: 'blur',
     },
   ],
   password: [
     {
       required: true,
       pattern: PASSWORD_RULE,
-      type: "string",
-      trigger: "blur",
+      type: 'string',
+      trigger: 'blur',
     },
   ],
 });
 
 const sendVerify = () => {
-  formRef.value.validateFields("email").then(() => {
+  formRef.value.validateFields('email').then(() => {
     sendAuthCode({
       email: form.email,
     }).then(() => {
       sentAuthCode.value = true;
+      showCode.value = true;
     });
   });
 };
@@ -227,27 +228,27 @@ const submit = () => {
     .validate()
     .then(() => {
       if (!trim(form.code)) {
-        message.warning(t("请先做邮箱验证"));
+        message.warning(t('请先做邮箱验证'));
         return;
       }
       if (!acceptTerm.value) {
-        message.warning(t("请先查阅并接受条款"));
+        message.warning(t('请先查阅并接受条款'));
         return;
       }
       loading.value = true;
       register(form)
         .then(() => {
           loading.value = false;
-          message.success(t("注册成功"));
+          message.success(t('注册成功'));
           if (isBroker.value) {
             replace({
-              name: "register-broker",
+              name: 'register-broker',
               query: {
                 email: form.email,
               },
             });
           } else {
-            replace("/login");
+            replace('/login');
           }
         })
         .catch(() => {
@@ -259,7 +260,7 @@ const submit = () => {
 </script>
 
 <style scoped lang="less">
-@import "@/styles/variables.less";
+@import '@/styles/variables.less';
 
 .go_login_btn {
   background-color: @clr_cyan;
@@ -304,8 +305,8 @@ const submit = () => {
     text-align: center;
   }
 
-  .validate_btn {
-    padding: 12px;
+  .inline_btn {
+    padding: 14px;
     height: auto;
   }
 

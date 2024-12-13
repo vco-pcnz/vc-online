@@ -424,9 +424,10 @@ const handleVerify = (key) => {
       message.warning(t('请输入') + t('邮箱'));
       return;
     }
-    sendUnauthECode({ email: form.email });
-    verifyEmail.showCode = true;
-    verifyEmail.showCountdown = true;
+    sendUnauthECode({ email: form.email }).then((res) => {
+      verifyEmail.showCode = true;
+      verifyEmail.showCountdown = true;
+    });
   } else if (key === VERIFY_KEY.MOBILE) {
     if (!Boolean(form.mobile)) {
       message.warning(t('请输入') + t('手机号'));
@@ -435,9 +436,10 @@ const handleVerify = (key) => {
     sendUnauthCodeM({
       pre: form.pre,
       mobile: form.mobile
+    }).then((res) => {
+      verifyMobile.showCode = true;
+      verifyMobile.showCountdown = true;
     });
-    verifyMobile.showCode = true;
-    verifyMobile.showCountdown = true;
   }
 };
 

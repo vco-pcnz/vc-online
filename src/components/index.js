@@ -20,6 +20,7 @@ import VcoFileItem from './vco-file-item/index.vue'
 import VcoChooseUser from './vco-choose-user/index.vue'
 import VcoStatus from './vco-status/index.vue'
 import VcoProcessTitle from './vco-process-title/index.vue'
+import VcoUserItem from './vco-user-item/index.vue'
 import VcoPagePanel from './vco-page-panel/index.vue'
 
 export default {
@@ -46,6 +47,7 @@ export default {
     Vue.component('VcoChooseUser', VcoChooseUser)
     Vue.component('VcoStatus', VcoStatus)
     Vue.component('VcoProcessTitle', VcoProcessTitle)
+    Vue.component('VcoUserItem', VcoUserItem)
     Vue.component('VcoPagePanel', VcoPagePanel)
   }
 }

@@ -17,22 +17,44 @@
     <div id="vco-choose-user-model"></div>
     <a-modal :width="900" v-if="open" :open="open" :title="t('搜索用户')" :getContainer="getContainer" @cancel="close">
       <!-- 搜索 -->
-      <div class="sys-form-content" style="margin: 10px 0 15px">
+      <div class="flex justify-end mb-5">
+        <vco-page-search>
+          <vco-page-search-item title="" width="300">
+            <vco-type-input
+              v-model="searchForm.keywords"
+              v-model:type="searchForm.key"
+              :type-data="keys"
+              :placeholder="t('请输入')"
+            ></vco-type-input>
+          </vco-page-search-item>
+          <vco-page-search-item width="100%">
+            <div class="flex items-center gap-2">
+              <a-button type="dark" @click="searchHandle(false)"><i class="iconfont">&#xe756;</i>{{ t('搜索') }}</a-button>
+              <a-button type="dark-line" @click="searchHandle(true)"><i class="iconfont">&#xe757;</i>{{ t('重置') }}</a-button>
+            </div>
+          </vco-page-search-item>
+        </vco-page-search>
+      </div>
+      
+      <!-- <div class="sys-form-content" style="margin: 10px 0 15px">
         <div class="vco-choose-user-search" style="padding-left: 60%">
           <vco-type-input v-model="searchForm.keywords" v-model:type="searchForm.key" :type-data="keys" style="flex: 1" :placeholder="t('请输入')"></vco-type-input>
           <i class="iconfont" style="cursor: pointer" @click="rest()" v-if="showRest">&#xe77b;</i>
           <i v-else class="iconfont" style="cursor: pointer" @click="searchHandle()"> &#xe756; </i>
         </div>
-      </div>
+      </div> -->
       <a-spin :spinning="loading" size="large">
         <TableBlock :isMultiple="isMultiple" :table-data="tableData" :url="url" v-model:list="checkedList" v-model:ids="checkedIds" v-model:data="checkedData" wrapClassName="vco-choose-user-modal" @change="change"></TableBlock>
       </a-spin>
       <template #footer>
         <div class="modal-footer">
           <div>
-            <a-button v-if="isMultiple" @click="handlePathChange" type="primary-line">
-              {{ t('选择') }}
-            </a-button>
+            <a-button
+              v-if="isMultiple"
+              type="primary"
+              :disabled="!checkedIds.length"
+              @click="handlePathChange"
+            >{{ t('选择') }}</a-button>
           </div>
           <a-pagination v-if="count" size="small" :total="count" :pageSize="pagination.limit" :current="pagination.page" show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
         </div>
@@ -124,11 +146,16 @@ const getContainer = () => {
 };
 
 // 搜索
-const searchHandle = () => {
-  // if ((searchForm.value.keywords && !open.value) || open.value) {
+const searchHandle = (flag) => {
+  if (flag) {
+    searchForm.value = {
+      key: 'all',
+      keywords: ''
+    }
+  }
+
   pagination.value.page = 1;
   lodaData();
-  // }
   open.value = true;
 };
 
@@ -195,6 +222,7 @@ const init = (parameters) => {
     searchForm.value = cloneDeep(parameters);
   }
   open.value = true;
+  searchHandle()
 };
 // 暴露方法给父组件
 defineExpose({

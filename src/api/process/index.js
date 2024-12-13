@@ -183,4 +183,12 @@ export const projectListApi = (params) =>
     method: "get",
     params
   });
+
+// 获取补充信息
+export const getApproveTemp = (params) =>
+  request({
+    url: "/approve/template/supplement",
+    method: "get",
+    params
+  });
   

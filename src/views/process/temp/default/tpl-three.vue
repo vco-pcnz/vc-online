@@ -424,5 +424,5 @@
 </script>
 
 <style lang="less" scoped>
-  @import '././styles/common.less';
+  @import './styles/common.less';
 </style>

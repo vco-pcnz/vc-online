@@ -271,7 +271,7 @@
 </script>
 
 <style lang="less" scoped>
-  @import '././styles/common.less';
+  @import './styles/common.less';
   .sys-form-content {
     :deep(.ant-input-number-input) {
       font-size: 18px !important;

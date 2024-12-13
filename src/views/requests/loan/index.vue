@@ -26,7 +26,7 @@
 
         <div class="mt-5">
           <a-spin :spinning="tableLoading" size="large">
-            <div class="table-content">
+            <div class="table-content sys-table-content">
               <grid-block v-if="tabLayout"></grid-block>
               <a-table
                 v-else

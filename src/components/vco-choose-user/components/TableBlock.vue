@@ -7,7 +7,7 @@
         </li>
         <li>{{ t('头像') }}</li>
         <li>{{ t('姓名') }}</li>
-        <li v-show="url === 'stake/selStake'">{{ t('类型') }}</li>
+        <li v-show="['stake/selStake'].includes(url)">{{ t('类型') }}</li>
         <li>{{ t('邮箱') }}</li>
         <li>{{ t('电话') }}</li>
         <li v-show="!isMultiple">{{ t('操作1') }}</li>
@@ -19,14 +19,13 @@
               <a-checkbox :checked="checkedIds.includes(item.uuid)" @change="itemcheck(item)"></a-checkbox>
             </li>
             <li>
-              <vco-avatar v-if="item.avatar" :src="item.avatar" :radius="true"></vco-avatar>
-              <span v-else>--</span>
+              <vco-avatar :src="item.avatar" :radius="true"></vco-avatar>
             </li>
             <li>
-              <p class="name" v-if="url === 'stake/selStake'">{{ item.name }}</p>
+              <p class="name" v-if="['stake/selStake'].includes(url)">{{ item.name }}</p>
               <p class="name" v-else>{{ item.user_name }}</p>
             </li>
-            <li v-show="url === 'stake/selStake'">
+            <li v-show="['stake/selStake'].includes(url)">
               <p class="bold">{{ item.type_name }}</p>
             </li>
             <li>
@@ -48,9 +47,7 @@
             </li>
 
             <li v-show="!isMultiple">
-              <span class="primary" style="cursor: pointer" @click="checked(item)">
-                {{ t('选择') }}
-              </span>
+              <a-button type="primary" shape="round" @click="checked(item)">{{ t('选择') }}</a-button>
             </li>
           </ul>
         </template>
@@ -227,7 +224,7 @@ const handlePathChange = () => {
     }
     &:last-child {
       flex: 0 auto;
-      width: 80px;
+      width: 120px;
       text-align: center;
     }
     .bold {

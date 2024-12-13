@@ -1,12 +1,32 @@
 <template>
   <div>
+    <!-- 人员选择 -->
+    <vco-choose-user
+      ref="vcoChooseUserRef"
+      url="stake/selStake"
+      @change="choiceUserDone"
+    >
+      <div></div>
+    </vco-choose-user>
+
     <a-spin :spinning="pageLoading" size="large">
       <div class="block-container">
         <div class="left-content">
         <div class="block-item" :class="{'check': check}">
           <div v-if="!check" class="flex justify-end gap-5">
-            <a-button type="primary-line" shape="round" size="small">{{ t('从利益相关者导入') }}</a-button>
-            <a-button type="primary-line" shape="round" size="small" class="flex items-center justify-center">
+            <a-button
+              type="primary-line"
+              shape="round"
+              size="small"
+              @click="importStaHandle"
+            >{{ t('从利益相关者导入') }}</a-button>
+            <a-button
+              v-if="!currentId"
+              v-permission="'process:one:tempData'"
+              type="primary-line" shape="round" size="small"
+              class="flex items-center justify-center"
+              :loading="tempLoading"
+              @click="tempDataHandle">
               {{ t('生成临时借款人ID') }}
               <a-tooltip>
                 <template #title>
@@ -126,7 +146,7 @@
         </div>
         </div>
         <div v-if="!check" class="right-content">
-          2
+          <bind-users></bind-users>
         </div>
       </div>
     </a-spin>
@@ -135,15 +155,17 @@
 </template>
 
 <script setup>
-  import { reactive, ref, watch, onMounted, computed } from "vue";
+  import { reactive, ref, watch, onMounted, computed, createVNode } from "vue";
   import { useI18n } from "vue-i18n";
+  import { Modal } from 'ant-design-vue';
   import { cloneDeep } from "lodash";
-  import { QuestionCircleOutlined } from '@ant-design/icons-vue';
+  import { QuestionCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons-vue';
   import { projectApplySaveBorrowerInfo, projectAuditSaveBorrowerInfo, projectSaveSaveDraft } from "@/api/process"
   import tool from "@/utils/tool";
   import { message } from "ant-design-vue/es";
-  import { projectApplyBorrowerInfo, projectDraftInfo } from "@/api/process"
+  import { projectApplyBorrowerInfo, projectDraftInfo, getApproveTemp } from "@/api/process"
   import TempFooter from "./components/TempFooter.vue";
+  import BindUsers from "./../../components/BindUsers.vue";
 
   const emits = defineEmits(['checkDone'])
 
@@ -184,6 +206,7 @@
   const { t } = useI18n();
   const formRef = ref()
   const footerRef = ref()
+  const vcoChooseUserRef = ref()
 
   const markInfo = computed(() => (props.currentStep ? props.currentStep.mark : ''))
 
@@ -267,6 +290,82 @@
     borrower_about: [
       { required: true, message: t('请输入') + t('借款人背景信息'), trigger: 'blur' }
     ]
+  }
+
+  const tempLoading = ref(false)
+  const getTempData = async () => {
+    tempLoading.value = true
+    getApproveTemp({
+      type: Number(formState.borrower_type) - 1
+    }).then(res => {
+      for (const key in res) {
+        if (key === 'code') {
+          if (Number(formState.borrower_type) === 1) {
+            formState.borrower_id_num = res.code
+          } else {
+            formState.company_number = res.code
+          }
+        } else {
+          formState[key] = res[key]
+        }
+      }
+      formState.borrower_phone_prefix = '64'
+      tempLoading.value = false
+    }).catch(() => {
+      tempLoading.value = false
+    })
+  }
+
+  const tempDataHandle = () => {
+    const dataObj = cloneDeep(formState)
+    delete dataObj.borrower_type
+    delete dataObj.borrower_phone_prefix
+    delete dataObj.borrower_region_one_id
+    delete dataObj.borrower_region_two_id
+    delete dataObj.borrower_region_three_id
+    if (tool.isAllValuesEmpty(dataObj)) {
+      getTempData()
+    } else {
+      Modal.confirm({
+        title: '提示',
+        icon: createVNode(ExclamationCircleOutlined),
+        content: '已存在数据，确定生成吗?',
+        onOk() {
+          getTempData()
+        }
+      });
+    }
+  }
+
+  const importStaHandle = () => {
+    vcoChooseUserRef.value.init()
+  }
+
+  const choiceUserDone = (data) => {
+    // 个人
+    if (data.type === 20) {
+      formState.borrower_type = 1
+      formState.first_name = data.firstName
+      formState.middle_name = data.middleName
+      formState.last_name = data.lastName
+      formState.borrower_id_num = data.idcard
+    } else {
+      formState.borrower_type = 2
+      formState.organization_name = data.name
+      formState.company_number = data.idcard
+    }
+    formState.borrower_images = data.avatar ? [data.avatar] : []
+    formState.borrower_email = data.email
+    formState.borrower_phone_prefix = data.pre
+    formState.borrower_phone = data.mobile
+    formState.borrower_postcode = data.postal
+    formState.borrower_region = data.postal
+    formState.borrower_address = data.address
+    formState.borrower_about = data.note
+
+    const areaArr = [data.province_code, data.city_code, data.district_code]
+    const areaStr = areaArr.filter(item => item).join(',')
+    formState.borrower_region = areaStr
   }
 
   const getParams = () => {
@@ -440,5 +539,5 @@
 </script>
 
 <style lang="less" scoped>
-  @import '././styles/common.less';
+  @import './styles/common.less';
 </style>

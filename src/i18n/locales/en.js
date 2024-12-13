@@ -315,5 +315,17 @@ export default {
   "最小值": "Min",
   "最大值": "Max",
   "重置": "Reset",
-  "选择利益相关者": "Select stakeholders"
+  "选择利益相关者": "Select stakeholders",
+  "管理者信息": "VC Team",
+  "借款账号信息": "Borrower",
+  "中介信息": "Broker",
+  "暂无数据": "No data",
+  "绑定贷款经理": "Associate with lending manager",
+  "贷款经理": "Assign lending manager",
+  "贷款经理助理": "Assign assistant lending manager",
+  "绑定借款账号": "Associate with a borrower",
+  "绑定中介": "Associate with a broker",
+  "编辑者": "Assign editors",
+  "浏览者": "Assign viewers",
+  "添加": "Add"
 }

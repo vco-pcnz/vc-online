@@ -3,10 +3,7 @@
     <div class="table-block">
       <ul class="table-col header">
         <li class="check" v-show="isMultiple" @click="checkedAllHandle">
-          <a-checkbox
-            :checked="checkedAll"
-            :indeterminate="indeterminate"
-          ></a-checkbox>
+          <a-checkbox :checked="Boolean(checkedAll)" :indeterminate="Boolean(indeterminate)"></a-checkbox>
         </li>
         <li>{{ t('头像') }}</li>
         <li>{{ t('姓名') }}</li>
@@ -19,17 +16,10 @@
         <template v-for="item in tableData" :key="item.id">
           <ul class="table-col tr">
             <li class="check" v-show="isMultiple">
-              <a-checkbox
-                :checked="checkedIds.includes(item.uuid)"
-                @change="itemcheck(item)"
-              ></a-checkbox>
+              <a-checkbox :checked="checkedIds.includes(item.uuid)" @change="itemcheck(item)"></a-checkbox>
             </li>
             <li>
-              <vco-avatar
-                v-if="item.avatar"
-                :src="item.avatar"
-                :radius="true"
-              ></vco-avatar>
+              <vco-avatar v-if="item.avatar" :src="item.avatar" :radius="true"></vco-avatar>
               <span v-else>--</span>
             </li>
             <li>
@@ -48,15 +38,17 @@
 
             <li>
               <p v-if="item.mobile">
-                <i class="iconfont" :class="{ cer: item.mobile_ok }">
-                  &#xe678;
-                </i>
-                <span :class="{ cer: item.mobile_ok }">{{ item.mobile }}</span>
+                <i class="iconfont" :class="{ cer: item.mobile_ok }">&#xe678;</i>
+
+                <span :class="{ cer: item.mobile_ok }">
+                  <template v-if="item.mobile && item.pre">+{{ item.pre }} </template>
+                  {{ item.mobile }}
+                </span>
               </p>
             </li>
 
             <li v-show="!isMultiple">
-              <span class="primary" style="cursor: pointer;" @click="checked(item)">
+              <span class="primary" style="cursor: pointer" @click="checked(item)">
                 {{ t('选择') }}
               </span>
             </li>
@@ -78,27 +70,27 @@ import router from '@/router';
 const emits = defineEmits(['update:list', 'update:ids', 'update:data', 'change']);
 const props = defineProps({
   url: {
-    type: String,
+    type: String
   },
   tableData: {
     type: Array,
-    default: () => [],
+    default: () => []
   },
   isMultiple: {
     type: Boolean,
-    default: false,
+    default: false
   },
   list: {
     type: Array,
-    default: () => [],
+    default: () => []
   },
   ids: {
     type: Array,
-    default: () => [],
+    default: () => []
   },
   data: {
-    type: Object,
-  },
+    type: Object
+  }
 });
 
 const { t } = useI18n();
@@ -110,18 +102,14 @@ const checkedIds = ref([]); // uuid
 // 全选状态
 const checkedAll = computed(() => {
   const currentIds = props.tableData.map((item) => item.uuid);
-  const currentCheckIds = checkedIds.value.filter((item) =>
-    currentIds.includes(item)
-  );
+  const currentCheckIds = checkedIds.value.filter((item) => currentIds.includes(item));
   return currentCheckIds.length && currentCheckIds.length == currentIds.length;
 });
 
 // 半选状态
 const indeterminate = computed(() => {
   const currentIds = props.tableData.map((item) => item.uuid);
-  const currentCheckIds = checkedIds.value.filter((item) =>
-    currentIds.includes(item)
-  );
+  const currentCheckIds = checkedIds.value.filter((item) => currentIds.includes(item));
   return currentCheckIds.length && currentCheckIds.length !== currentIds.length;
 });
 // 单个复选
@@ -223,21 +211,19 @@ const handlePathChange = () => {
     }
     &:nth-child(3) {
       flex: 0 auto;
-      width: 170px;
+      width: 180px;
     }
     &:nth-child(4) {
       flex: 0 auto;
-      width: 170px;
+      width: 130px;
     }
     &:nth-child(5) {
       flex: 0 auto;
-      width: 200px;
-      text-align: center;
+      width: 300px;
     }
     &:nth-child(6) {
       flex: 0 auto;
-      width: 140px;
-      text-align: center;
+      width: 200px;
     }
     &:last-child {
       flex: 0 auto;

@@ -562,6 +562,9 @@ a:hover {
         .cursor {
           cursor: pointer;
         }
+        .cer {
+          color: @colorPrimary;
+        }
       }
     }
 
@@ -584,6 +587,11 @@ a:hover {
     padding-left: 20px !important;
   }
 
+  // 设置没有数据的时候没有滚动
+  &.noData .ant-table-content {
+    overflow: hidden!important;
+  }
+
   // 设置a-table 头部 又固定项背景色
   &.table-gary .ant-table-thead {
     .ant-table-cell-fix-left,
@@ -602,4 +610,9 @@ a:hover {
       }
     }
   }
+}
+
+
+.ant-popconfirm {
+  z-index: 9999;
 }

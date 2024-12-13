@@ -237,7 +237,8 @@ export default {
   "视频": "Video",
   "文件": "Files",
   "上传": "Upload",
-  "选择": "Choose",
+  "选择": "Select",
+  "已选择": "Selected",
   "搜索用户": "User Search",
   "选择用户": "Select User",
   "工作": "Job Title ",
@@ -323,4 +324,5 @@ export default {
   "贷款余额": "LOAN BALANCE",
   "FC2": "FACILITY LIMIT 2",
   "UPD": "UPD",
+  "选择利益相关者": "Select stakeholders"
 }

@@ -48,7 +48,7 @@
             <span class="label"><i class="iconfont">&#xe65b;</i>NZBZ: </span>
             <span class="value">{{ detail?.nzbz }}</span>
           </p>
-          <p v-if="detail.type !== 2 && detail.type !== 3">
+          <p v-if="detail?.type !== 2 && detail?.type !== 3">
             <span class="label"><i class="iconfont">&#xe6e3;</i>{{ t('组织机构代码f') }}: </span>
             <span class="value">{{ detail?.idcard }}</span>
           </p>

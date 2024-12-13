@@ -28,12 +28,19 @@
           </div>
         </template>
         <template v-if="column.key === '3'">
-          <div @click="toUserDetail(record)" class="cursor">
+          <div @click="toUserDetail(record)" class="cursor" v-if="record.has_user">
             <p class="bold black">{{ record.user_name }}</p>
-            <p v-if="record.user_username">
-              <i class="iconfont">&#xe632;</i>
-              <span>{{ record.user_username }}</span>
-            </p>
+            <div v-if="record.user_username" class="flex items-center">
+              <p>
+                <i class="iconfont">&#xe632;</i>
+                <span>{{ record.user_username }}</span>
+              </p>
+              <div @click.stop>
+                <a-popconfirm :title="'Are you sure ' + t('解绑用户')" ok-text="Yes" cancel-text="No" @confirm="orgsStore.stakeUnbind(record.uuid)">
+                  <span class="cer ml-2"><DisconnectOutlined /></span>
+                </a-popconfirm>
+              </div>
+            </div>
             <p v-if="record.user_username">
               <i class="iconfont" :class="{ cer: record.user_email_ok }">&#xe66f;</i>
               <span :class="{ cer: record.user_email_ok }">{{ record.user_email }}</span>
@@ -46,6 +53,9 @@
               </span>
             </p>
           </div>
+          <a-button type="primary" v-else @click="showBindUser(record.uuid)" size="Small">
+            {{ t('绑定用户') }}
+          </a-button>
         </template>
         <template v-if="column.key === '4'">
           <p v-if="record.user_roles.length">
@@ -95,31 +105,33 @@
               <i class="iconfont cert">&#xe77a;</i>
             </a>
             <template #overlay>
-              <a-menu>
-                <a-menu-item key="0" @click="toDetail(record)">
-                  <span>{{ t('查看详情') }}</span>
-                </a-menu-item>
-                <a-menu-item key="1" @click="toEdit(record)">
-                  <span>
-                    {{ t('编辑') }}
-                  </span>
-                </a-menu-item>
-                <template v-if="record.type !== 20">
-                  <a-menu-item key="2" @click="toTree(record)">
-                    <span>{{ t('股权') }}</span>
+              <div>
+                <a-menu :selectable="false">
+                  <a-menu-item key="0" @click="toDetail(record)">
+                    <span>{{ t('查看详情') }}</span>
                   </a-menu-item>
-                </template>
-                <a-popconfirm :title="'Are you sure ' + t('解绑用户')" ok-text="Yes" cancel-text="No" @confirm="orgsStore.stakeUnbind(record.uuid)">
-                  <a-menu-item key="3" v-if="record.has_user">
-                    <span>{{ t('解绑用户') }}</span>
+                  <a-menu-item key="1" @click="toEdit(record)">
+                    <span>
+                      {{ t('编辑') }}
+                    </span>
                   </a-menu-item>
-                </a-popconfirm>
-                <a-menu-item key="4" v-if="!record.has_user" @click="showBindUser(record.uuid)">
-                  <span>
-                    {{ t('绑定用户') }}
-                  </span>
-                </a-menu-item>
-              </a-menu>
+                  <template v-if="record.type !== 20">
+                    <a-menu-item key="2" @click="toTree(record)">
+                      <span>{{ t('股权') }}</span>
+                    </a-menu-item>
+                  </template>
+                  <a-popconfirm :title="'Are you sure ' + t('解绑用户')" ok-text="Yes" cancel-text="No" @confirm="orgsStore.stakeUnbind(record.uuid)">
+                    <a-menu-item key="3" v-if="record.has_user" @click.stop>
+                      <span>{{ t('解绑用户') }}</span>
+                    </a-menu-item>
+                  </a-popconfirm>
+                  <a-menu-item key="4" v-if="!record.has_user" @click="showBindUser(record.uuid)">
+                    <span>
+                      {{ t('绑定用户') }}
+                    </span>
+                  </a-menu-item>
+                </a-menu>
+              </div>
             </template>
           </a-dropdown>
         </template>
@@ -139,6 +151,7 @@ import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { navigationTo } from '@/utils/tool';
 import { useOrgsStore } from '@/store';
+import { DisconnectOutlined } from '@ant-design/icons-vue';
 const orgsStore = useOrgsStore();
 
 const emits = defineEmits(['check']);
@@ -192,7 +205,7 @@ const bindForm = ref({
 const vcoChooseUserRef = ref();
 const showBindUser = (uuid) => {
   bindForm.value.uuid = uuid;
-  vcoChooseUserRef.value.searchHandle();
+  vcoChooseUserRef.value.init();
 };
 const bindUser = (e) => {
   bindForm.value.user_uuid = e.uuid;

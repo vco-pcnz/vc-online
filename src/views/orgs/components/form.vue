@@ -5,7 +5,7 @@
         <a-row :gutter="24">
           <a-col :span="24" class="avatar-box">
             <div>
-              <vco-upload v-model:value="form.avatar" text="上传头像"></vco-upload>
+              <vco-upload-image v-model:value="form.avatar" text="上传头像"></vco-upload-image>
             </div>
           </a-col>
           <template v-if="!isMember">
@@ -120,7 +120,7 @@
             </a-form-item>
           </a-col>
           <a-col :span="24" v-if="verifyEmail.showCode">
-            <a-form-item label="邮箱验证码" name="emailCode">
+            <a-form-item :label="t('验证码V')" name="emailCode">
               <a-input v-model:value="form.emailCode" />
             </a-form-item>
           </a-col>
@@ -150,7 +150,7 @@
             </a-form-item>
           </a-col>
           <a-col :span="24" v-if="verifyMobile.showCode">
-            <a-form-item label="手机验证码" name="mobileCode">
+            <a-form-item :label="t('验证码V')" name="mobileCode">
               <a-input v-model:value="form.mobileCode" />
             </a-form-item>
           </a-col>

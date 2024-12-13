@@ -420,10 +420,18 @@ const verifyMobile = reactive({
 // 获取验证码
 const handleVerify = (key) => {
   if (key === VERIFY_KEY.EMAIL) {
+    if (!Boolean(form.email)) {
+      message.warning(t('请输入') + t('邮箱'));
+      return;
+    }
     sendUnauthECode({ email: form.email });
     verifyEmail.showCode = true;
     verifyEmail.showCountdown = true;
   } else if (key === VERIFY_KEY.MOBILE) {
+    if (!Boolean(form.mobile)) {
+      message.warning(t('请输入') + t('手机号'));
+      return;
+    }
     sendUnauthCodeM({
       pre: form.pre,
       mobile: form.mobile

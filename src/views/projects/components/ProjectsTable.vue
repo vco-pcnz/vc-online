@@ -69,10 +69,16 @@
               <p>{{ tool.formatMoney(item.undrawn) }}</p>
             </li>
             <li>
-              <p>
-                <i class="iconfont" style="color: #a9ad57">&#xe75b;</i>
-                {{ tool.formatMoney(item.balance) }}
-              </p>
+              <div class="loan_balance">
+                <p class="black_blod_text">
+                  <i class="iconfont" style="color: #a9ad57">&#xe75b;</i>
+                  {{ tool.formatMoney(item.balance) }}
+                </p>
+                <p class="meter">
+                  <p :style="{fontSize: '10px'}" >51.5%</p>
+                  <vco-meter size="small" :width="48" :value="51.5" />
+                </p>
+              </div>
             </li>
             <li>
               <p>{{ tool.formatMoney(item.facility2) }}</p>
@@ -175,9 +181,9 @@ const tableData = reactive([
     :deep(.ant-statistic-content) {
       font-size: 15px;
     }
-    // &:nth-child(1) {
-    //   flex: 0 auto;
-    // }
+    &:nth-child(2n) {
+      padding: 0 8px;
+    }
     &:nth-child(2) {
       flex: 0 auto;
       width: 180px;
@@ -204,7 +210,7 @@ const tableData = reactive([
     }
     &:nth-child(8) {
       flex: 0 auto;
-      width: 100px;
+      width: 120px;
     }
     &:nth-child(9) {
       flex: 0 auto;
@@ -239,6 +245,18 @@ const tableData = reactive([
 
     .relevance_icon {
       font-size: 7px;
+    }
+
+    .loan_balance {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+
+      .meter {
+        text-align: center;
+        position: relative;
+        top: -4px;
+      }
     }
   }
 }

@@ -192,3 +192,25 @@ export const getApproveTemp = (params) =>
     params
   });
   
+// 获取基础财务字段
+export const ruleCredit = () =>
+  request({
+    url: "/rule/credit",
+    method: "get"
+  });
+
+// 获取申请项目财务字段数值
+export const creditInfo = (params) =>
+  request({
+    url: "/project/credit/info",
+    method: "get",
+    params
+  });
+
+  // 提交申请项目财务字段
+export const creditInitial = (data) =>
+  request({
+    url: "/project/credit/initial",
+    method: "post",
+    data
+  });

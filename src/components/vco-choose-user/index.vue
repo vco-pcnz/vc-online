@@ -17,7 +17,8 @@
       </slot>
     </div>
     <div id="vco-choose-user-model"></div>
-    <a-modal :width="900" v-if="open" :open="open" :title="t('搜索用户')" :getContainer="getContainer" @cancel="close">
+    <!-- <a-modal :width="900" v-if="open" :open="open" :title="t('搜索用户')" :getContainer="getContainer" @cancel="close"> -->
+    <a-modal :width="900" v-if="open" :open="open" :title="t('搜索用户')" @cancel="close">
       <!-- 搜索 -->
       <div class="flex justify-end mb-5">
         <vco-page-search>

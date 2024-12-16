@@ -4,6 +4,7 @@ import { message } from "ant-design-vue/es";
 import { getToken, removeToken } from "@/utils/token-util.js";
 import { isEmpty } from "lodash";
 import { useUserStore } from "@/store";
+import router from "@/router";
 import qs from "qs";
 
 function createExternalService() {
@@ -72,7 +73,13 @@ function createService() {
       } else if (code === 401) {
         const userStore = useUserStore();
         userStore.logout()
-      } else {
+      } else if (code === 403) {
+        router.push('/403')
+        return Promise.reject({
+          code,
+          msg,
+        });
+      }  else {
         if (!response.config.diyError) {
           message.error({
             content: msg,

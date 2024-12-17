@@ -17,7 +17,8 @@
       </slot>
     </div>
     <div id="vco-choose-user-model"></div>
-    <a-modal :width="900" v-if="open" :open="open" :title="t('搜索用户')" :getContainer="getContainer" @cancel="close">
+    <!-- <a-modal :width="900" v-if="open" :open="open" :title="t('搜索用户')" :getContainer="getContainer" @cancel="close"> -->
+    <a-modal :width="900" v-if="open" :open="open" :title="t('搜索用户')" @cancel="close">
       <!-- 搜索 -->
       <div class="flex justify-end mb-5">
         <vco-page-search>
@@ -240,49 +241,6 @@ defineExpose({
     display: flex;
     align-items: center;
     gap: 15px;
-  }
-
-  #vco-choose-user-model {
-    position: relative;
-    z-index: 9999;
-    .ant-modal-title {
-      text-align: left !important;
-    }
-    .modal-content {
-      height: 70vh;
-      overflow-y: auto;
-    }
-    .modal-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 0;
-      .ant-pagination {
-        padding: 0;
-      }
-      .area-code-btn,
-      .ant-picker,
-      .ant-select-selector,
-      .ant-input .ant-select-selector .ant-select-selection-placeholder,
-      .ant-select-selector .ant-select-selection-search-input,
-      .ant-select-selector .ant-select-selection-item {
-        height: 24px !important;
-        line-height: 22px !important;
-        border-radius: 4px !important;
-        background: transparent !important;
-        border-color: #d9d9d9 !important;
-        &:hover {
-          border-color: #ffb940 !important;
-        }
-      }
-
-      .ant-select.ant-select-in-form-item {
-        width: auto !important;
-      }
-      .submit-btn:hover {
-        color: @clr_white;
-      }
-    }
   }
 }
 

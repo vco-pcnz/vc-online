@@ -37,6 +37,12 @@ const routes = [
     meta: { title: "成为中介" },
   },
   {
+    path: "/403",
+    hidden: true,
+    meta: { title: "" },
+    component: () => import("@/views/error/403.vue"),
+  },
+  {
     path: "/:pathMatch(.*)*",
     hidden: true,
     meta: { title: "" },

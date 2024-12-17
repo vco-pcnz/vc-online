@@ -1,173 +1,175 @@
 <template>
-  <a-modal
-    :width="500"
-    :open="visible"
-    :title="t(title)"
-    :closable="false"
-    :maskClosable="false"
-    @cancel="updateVisible(false)"
-    @ok="save"
-  >
+  <div>
     <!-- 人员选择 -->
     <vco-choose-user ref="vcoChooseUserRef" :isMultiple="true">
       <div></div>
     </vco-choose-user>
-    <div class="form-content">
-      <!-- 绑定贷款经理 -->
-      <template v-if="type === 1">
-        <div class="form-item">
-          <div class="title">
-            <p>{{ t('贷款经理') }}</p>
-            <a-button
-              type="dark"
-              size="small"
-              shape="round"
-              class="uppercase"
-              @click="openUserSelect"
-            >{{ t('添加') }}</a-button>
+    <a-modal
+      :width="500"
+      :open="visible"
+      :title="t(title)"
+      :closable="false"
+      :maskClosable="false"
+      @cancel="updateVisible(false)"
+      @ok="save"
+    >
+      <div class="form-content">
+        <!-- 绑定贷款经理 -->
+        <template v-if="type === 1">
+          <div class="form-item">
+            <div class="title">
+              <p>{{ t('贷款经理') }}</p>
+              <a-button
+                type="dark"
+                size="small"
+                shape="round"
+                class="uppercase"
+                @click="openUserSelect"
+              >{{ t('添加') }}</a-button>
+            </div>
+            <div class="content">
+              <template v-if="lmSelData.length">
+                <div
+                  v-for="(item, index) in lmSelData"
+                  :key="index"
+                  class="user-item"
+                >
+                  <vco-user-item :data="item" :main="true"></vco-user-item>
+                  <i class="iconfont" @click="removeItem(index, 1)">&#xe77d;</i>
+                </div>
+              </template>
+            </div>
           </div>
-          <div class="content">
-            <template v-if="lmSelData.length">
-              <div
-                v-for="(item, index) in lmSelData"
-                :key="index"
-                class="user-item"
-              >
-                <vco-user-item :data="item" :main="true"></vco-user-item>
-                <i class="iconfont" @click="removeItem(index, 1)">&#xe77d;</i>
-              </div>
-            </template>
+          <div class="form-item">
+            <div class="title">
+              <p>{{ t('贷款经理助理') }}</p>
+              <a-button
+                type="dark"
+                size="small"
+                shape="round"
+                class="uppercase"
+                @click="openUserSelect"
+              >{{ t('添加') }}</a-button>
+            </div>
+            <div class="content">
+              <template v-if="almSelData.length">
+                <div
+                  v-for="(item, index) in almSelData"
+                  :key="index"
+                  class="user-item"
+                >
+                  <vco-user-item :data="item" :main="true"></vco-user-item>
+                  <i class="iconfont" @click="removeItem(index, 2)">&#xe77d;</i>
+                </div>
+              </template>
+            </div>
           </div>
-        </div>
-        <div class="form-item">
-          <div class="title">
-            <p>{{ t('贷款经理助理') }}</p>
-            <a-button
-              type="dark"
-              size="small"
-              shape="round"
-              class="uppercase"
-              @click="openUserSelect"
-            >{{ t('添加') }}</a-button>
+        </template>
+        <!-- 绑定借款账号 -->
+        <template v-if="type === 2">
+          <div class="form-item">
+            <div class="title">
+              <p>{{ t('编辑者') }}</p>
+              <a-button
+                type="dark"
+                size="small"
+                shape="round"
+                class="uppercase"
+                @click="openUserSelect"
+              >{{ t('添加') }}</a-button>
+            </div>
+            <div class="content">
+              <template v-if="borrowerEditors.length">
+                <div
+                  v-for="(item, index) in borrowerEditors"
+                  :key="index"
+                  class="user-item"
+                >
+                  <vco-user-item :data="item" :main="true"></vco-user-item>
+                  <i class="iconfont" @click="removeItem(index, 3)">&#xe77d;</i>
+                </div>
+              </template>
+            </div>
           </div>
-          <div class="content">
-            <template v-if="almSelData.length">
-              <div
-                v-for="(item, index) in almSelData"
-                :key="index"
-                class="user-item"
-              >
-                <vco-user-item :data="item" :main="true"></vco-user-item>
-                <i class="iconfont" @click="removeItem(index, 2)">&#xe77d;</i>
-              </div>
-            </template>
+          <div class="form-item">
+            <div class="title">
+              <p>{{ t('浏览者') }}</p>
+              <a-button
+                type="dark"
+                size="small"
+                shape="round"
+                class="uppercase"
+                @click="openUserSelect"
+              >{{ t('添加') }}</a-button>
+            </div>
+            <div class="content">
+              <template v-if="borrowerViewers.length">
+                <div
+                  v-for="(item, index) in borrowerViewers"
+                  :key="index"
+                  class="user-item"
+                >
+                  <vco-user-item :data="item" :main="true"></vco-user-item>
+                  <i class="iconfont" @click="removeItem(index, 4)">&#xe77d;</i>
+                </div>
+              </template>
+            </div>
           </div>
-        </div>
-      </template>
-      <!-- 绑定借款账号 -->
-      <template v-if="type === 2">
-        <div class="form-item">
-          <div class="title">
-            <p>{{ t('编辑者') }}</p>
-            <a-button
-              type="dark"
-              size="small"
-              shape="round"
-              class="uppercase"
-              @click="openUserSelect"
-            >{{ t('添加') }}</a-button>
+        </template>
+        <!-- 绑定中介 -->
+        <template v-if="type === 3">
+          <div class="form-item">
+            <div class="title">
+              <p>{{ t('编辑者') }}</p>
+              <a-button
+                type="dark"
+                size="small"
+                shape="round"
+                class="uppercase"
+                @click="openUserSelect"
+              >{{ t('添加') }}</a-button>
+            </div>
+            <div class="content">
+              <template v-if="brokerEditors.length">
+                <div
+                  v-for="(item, index) in brokerEditors"
+                  :key="index"
+                  class="user-item"
+                >
+                  <vco-user-item :data="item" :main="true"></vco-user-item>
+                  <i class="iconfont" @click="removeItem(index, 5)">&#xe77d;</i>
+                </div>
+              </template>
+            </div>
           </div>
-          <div class="content">
-            <template v-if="borrowerEditors.length">
-              <div
-                v-for="(item, index) in borrowerEditors"
-                :key="index"
-                class="user-item"
-              >
-                <vco-user-item :data="item" :main="true"></vco-user-item>
-                <i class="iconfont" @click="removeItem(index, 3)">&#xe77d;</i>
-              </div>
-            </template>
+          <div class="form-item">
+            <div class="title">
+              <p>{{ t('浏览者') }}</p>
+              <a-button
+                type="dark"
+                size="small"
+                shape="round"
+                class="uppercase"
+                @click="openUserSelect"
+              >{{ t('添加') }}</a-button>
+            </div>
+            <div class="content">
+              <template v-if="brokerViewers.length">
+                <div
+                  v-for="(item, index) in brokerViewers"
+                  :key="index"
+                  class="user-item"
+                >
+                  <vco-user-item :data="item" :main="true"></vco-user-item>
+                  <i class="iconfont" @click="removeItem(index, 6)">&#xe77d;</i>
+                </div>
+              </template>
+            </div>
           </div>
-        </div>
-        <div class="form-item">
-          <div class="title">
-            <p>{{ t('浏览者') }}</p>
-            <a-button
-              type="dark"
-              size="small"
-              shape="round"
-              class="uppercase"
-              @click="openUserSelect"
-            >{{ t('添加') }}</a-button>
-          </div>
-          <div class="content">
-            <template v-if="borrowerViewers.length">
-              <div
-                v-for="(item, index) in borrowerViewers"
-                :key="index"
-                class="user-item"
-              >
-                <vco-user-item :data="item" :main="true"></vco-user-item>
-                <i class="iconfont" @click="removeItem(index, 4)">&#xe77d;</i>
-              </div>
-            </template>
-          </div>
-        </div>
-      </template>
-      <!-- 绑定中介 -->
-      <template v-if="type === 3">
-        <div class="form-item">
-          <div class="title">
-            <p>{{ t('编辑者') }}</p>
-            <a-button
-              type="dark"
-              size="small"
-              shape="round"
-              class="uppercase"
-              @click="openUserSelect"
-            >{{ t('添加') }}</a-button>
-          </div>
-          <div class="content">
-            <template v-if="brokerEditors.length">
-              <div
-                v-for="(item, index) in brokerEditors"
-                :key="index"
-                class="user-item"
-              >
-                <vco-user-item :data="item" :main="true"></vco-user-item>
-                <i class="iconfont" @click="removeItem(index, 5)">&#xe77d;</i>
-              </div>
-            </template>
-          </div>
-        </div>
-        <div class="form-item">
-          <div class="title">
-            <p>{{ t('浏览者') }}</p>
-            <a-button
-              type="dark"
-              size="small"
-              shape="round"
-              class="uppercase"
-              @click="openUserSelect"
-            >{{ t('添加') }}</a-button>
-          </div>
-          <div class="content">
-            <template v-if="brokerViewers.length">
-              <div
-                v-for="(item, index) in brokerViewers"
-                :key="index"
-                class="user-item"
-              >
-                <vco-user-item :data="item" :main="true"></vco-user-item>
-                <i class="iconfont" @click="removeItem(index, 6)">&#xe77d;</i>
-              </div>
-            </template>
-          </div>
-        </div>
-      </template>
-    </div>
-  </a-modal>
+        </template>
+      </div>
+    </a-modal>
+  </div>
 </template>
 
 <script setup>

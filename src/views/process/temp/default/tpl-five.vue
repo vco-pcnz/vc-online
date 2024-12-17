@@ -9,6 +9,9 @@
             @refresh="getDataInit"
           ></base-info-content>
 
+          <!-- 放款信息 -->
+          <credit-form :current-id="currentId"></credit-form>
+
           <temp-footer
             ref="footerRef"
             :check="check"
@@ -49,6 +52,7 @@
   import { message } from "ant-design-vue/es";
   import BaseInfoContent from "./components/BaseInfoContent.vue";
   import TempFooter from "./components/TempFooter.vue";
+  import CreditForm from "./components/CreditForm.vue";
 
   const emits = defineEmits(['checkDone', 'dataDone'])
 

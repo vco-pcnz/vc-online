@@ -14,7 +14,7 @@
       </ul>
       <div v-if="tableData.length" class="table-body">
         <template v-for="item in tableData" :key="item.id">
-          <ul class="table-col tr">
+          <ul class="table-col tr" @click="viewDetail(item.id)">
             <li>
               <a-space>
                 <vco-avatar
@@ -99,6 +99,7 @@ import { reactive } from 'vue';
 import { Empty } from 'ant-design-vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
+import { navigationTo } from '@/utils/tool';
 
 const props = defineProps({
   tableData: {
@@ -111,6 +112,7 @@ const { t } = useI18n();
 const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE;
 const tableData = reactive([
   {
+    id: 1,
     project: '项目1',
     borrower: {
       avatar: '',
@@ -125,6 +127,7 @@ const tableData = reactive([
     upd: '11',
   },
   {
+    id: 2,
     project: 'TEST 0315',
     borrower: {
       avatar: '',
@@ -138,6 +141,10 @@ const tableData = reactive([
     facility2: '325500',
   },
 ]);
+
+const viewDetail = (uuid) => {
+  navigationTo(`/projects/detail?uuid_info=${uuid}`)
+}
 </script>
 
 <style lang="less" scoped>

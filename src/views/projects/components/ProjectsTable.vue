@@ -14,7 +14,7 @@
       </ul>
       <div v-if="tableData.length" class="table-body">
         <template v-for="item in tableData" :key="item.id">
-          <ul class="table-col tr">
+          <ul class="table-col tr" @click="viewDetail(item.id)">
             <li>
               <a-space>
                 <vco-avatar
@@ -69,10 +69,16 @@
               <p>{{ tool.formatMoney(item.undrawn) }}</p>
             </li>
             <li>
-              <p>
-                <i class="iconfont" style="color: #a9ad57">&#xe75b;</i>
-                {{ tool.formatMoney(item.balance) }}
-              </p>
+              <div class="loan_balance">
+                <p class="black_blod_text">
+                  <i class="iconfont" style="color: #a9ad57">&#xe75b;</i>
+                  {{ tool.formatMoney(item.balance) }}
+                </p>
+                <p class="meter">
+                  <p :style="{fontSize: '10px'}" >51.5%</p>
+                  <vco-meter size="small" :width="48" :value="51.5" />
+                </p>
+              </div>
             </li>
             <li>
               <p>{{ tool.formatMoney(item.facility2) }}</p>
@@ -93,6 +99,7 @@ import { reactive } from 'vue';
 import { Empty } from 'ant-design-vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
+import { navigationTo } from '@/utils/tool';
 
 const props = defineProps({
   tableData: {
@@ -105,6 +112,7 @@ const { t } = useI18n();
 const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE;
 const tableData = reactive([
   {
+    id: 1,
     project: '项目1',
     borrower: {
       avatar: '',
@@ -119,6 +127,7 @@ const tableData = reactive([
     upd: '11',
   },
   {
+    id: 2,
     project: 'TEST 0315',
     borrower: {
       avatar: '',
@@ -132,6 +141,10 @@ const tableData = reactive([
     facility2: '325500',
   },
 ]);
+
+const viewDetail = (uuid) => {
+  navigationTo(`/projects/detail?uuid_info=${uuid}`)
+}
 </script>
 
 <style lang="less" scoped>
@@ -175,9 +188,9 @@ const tableData = reactive([
     :deep(.ant-statistic-content) {
       font-size: 15px;
     }
-    // &:nth-child(1) {
-    //   flex: 0 auto;
-    // }
+    &:nth-child(2n) {
+      padding: 0 8px;
+    }
     &:nth-child(2) {
       flex: 0 auto;
       width: 180px;
@@ -204,7 +217,7 @@ const tableData = reactive([
     }
     &:nth-child(8) {
       flex: 0 auto;
-      width: 100px;
+      width: 120px;
     }
     &:nth-child(9) {
       flex: 0 auto;
@@ -239,6 +252,18 @@ const tableData = reactive([
 
     .relevance_icon {
       font-size: 7px;
+    }
+
+    .loan_balance {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+
+      .meter {
+        text-align: center;
+        position: relative;
+        top: -4px;
+      }
     }
   }
 }

@@ -52,7 +52,7 @@
           </p>
         </div>
       </div>
-      <div class="profile-content sys-form-content mt-5">
+      <div class="profile-content sys-form-content">
         <a-form ref="formRef" :model="form" :rules="rules" layout="vertical">
           <a-row>
             <a-col :span="6" :offset="9">

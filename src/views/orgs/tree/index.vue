@@ -109,9 +109,9 @@ const showForm = (val, type) => {
   }
   // 当前下级
   if (val.children && val.children.length) {
-    uuids.concat(val.children.map((item) => item.uuid));
+    uuids = uuids.concat(val.children.map((item) => item.uuid));
   }
-  FormModalRef.value.init(val, type, findUuids([data.value], uuids));
+  FormModalRef.value.init(val, type, uuids);
 };
 
 const remove = (val) => {
@@ -228,7 +228,7 @@ const download = async () => {
         bottom: 0;
         flex-direction: column;
         justify-content: center;
-        background: linear-gradient(to right, rgba(255, 255, 255, .8), rgba(247, 240, 230, 1));
+        background: linear-gradient(to right, rgba(255, 255, 255, 0.8), rgba(247, 240, 230, 1));
         padding: 0 10px 0 40px;
         margin: 0;
         color: #f19915;

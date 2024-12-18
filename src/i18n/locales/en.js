@@ -337,5 +337,11 @@ export default {
   "贷款余额": "LOAN BALANCE",
   "FC2": "FACILITY LIMIT 2",
   "UPD": "UPD",
-  "选择利益相关者": "Select stakeholders"
+  "选择利益相关者": "Select stakeholders",
+  "项目": "projects",
+  "项目文件": "Documents",
+  "预测": "Forecast",
+  "明细表": "Schedule",
+  "提款": "Drawdowns",
+  "非法选择": "Illegal selection"
 }

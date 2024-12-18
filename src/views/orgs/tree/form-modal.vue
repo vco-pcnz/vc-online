@@ -57,6 +57,7 @@ import { useI18n } from 'vue-i18n';
 import { pick, trim, cloneDeep } from 'lodash';
 import { useOrgsStore } from '@/store';
 import { stakeOrgAdd, stakeOrgEdit } from '@/api/orgs';
+import { message } from 'ant-design-vue';
 
 const emits = defineEmits(['change']);
 const { t } = useI18n();
@@ -136,8 +137,8 @@ const dynamicRules = computed(() => {
 
 // 选择用户
 const checkUser = (val) => {
-  if (s_uuids.value.includes(val.uuid)) {
-    return message.warning(t('请上传头像'));
+  if (s_uuids.value.includes(val.uuid) || val.uuid == form.p_uuid) {
+    return message.warning(t('非法选择'));
   }
   disabled.value = !!val.uuid;
   let keys = ['name', 'type', 'nzbz'];

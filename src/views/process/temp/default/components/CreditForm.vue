@@ -84,6 +84,7 @@
   import { cloneDeep } from "lodash";
   import { message } from "ant-design-vue/es";
   import { ruleCredit, creditInitial, creditInfo } from "@/api/process"
+  import emitter from "@/event"
 
   const emits = defineEmits(['done'])
   const props = defineProps({
@@ -169,6 +170,10 @@
       subLoading.value = true
       creditInitial(params).then(async () => {
         subLoading.value = false
+
+        // 触发预测数据刷新
+        emitter.emit('refreshForecastList')
+
         await updateFormData()
       }).catch(() => {
         subLoading.value = false

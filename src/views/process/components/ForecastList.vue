@@ -111,8 +111,9 @@
   import { useI18n } from "vue-i18n";
   import dayjs from "dayjs";
   import { cloneDeep } from "lodash";
-  import { projectForecastDarwnDownList, projectForecastAdd } from "@/api/process"
+  import { projectForecastDarwDownList, projectForecastAdd } from "@/api/process"
   import tool, { numberStrFormat } from "@/utils/tool"
+  import emitter from "@/event"
 
   const props = defineProps({
     infoData: {
@@ -196,7 +197,7 @@
 
   const getTableData = () => {
     tabLoading.value = true
-    projectForecastDarwnDownList({
+    projectForecastDarwDownList({
       page: 1,
       limit: 5000,
       uuid: props.currentId
@@ -276,6 +277,10 @@
 
   onMounted(() => {
     getTableData()
+
+    emitter.on('refreshForecastList', () => {
+      getTableData()
+    })
   })
 </script>
 

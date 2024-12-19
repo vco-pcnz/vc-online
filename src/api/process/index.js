@@ -216,9 +216,9 @@ export const creditInitial = (data) =>
   });
 
 // 预测放款数据darwdown
-export const projectForecastDarwnDownList = (params) =>
+export const projectForecastDarwDownList = (params) =>
   request({
-    url: "/project/forecast/darwnDownList",
+    url: "/project/forecast/darwDownList",
     method: "get",
     params
   });

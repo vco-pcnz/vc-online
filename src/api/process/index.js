@@ -207,10 +207,57 @@ export const creditInfo = (params) =>
     params
   });
 
-  // 提交申请项目财务字段
+// 提交申请项目财务字段
 export const creditInitial = (data) =>
   request({
     url: "/project/credit/initial",
+    method: "post",
+    data
+  });
+
+// 预测放款数据darwdown
+export const projectForecastDarwnDownList = (params) =>
+  request({
+    url: "/project/forecast/darwnDownList",
+    method: "get",
+    params
+  });
+
+// 获取预测放款数据Forecast
+export const projectForecast = (params) =>
+  request({
+    url: "/project/forecast/index",
+    method: "get",
+    params
+  });
+
+// darwdown添加追加数据
+export const projectForecastAdd = (data) =>
+  request({
+    url: "/project/forecast/add",
+    method: "post",
+    data
+  });
+
+// 关联用户-系统配置
+export const associateSystemConfig = () =>
+  request({
+    url: "/project/associate/systemConfig",
+    method: "get"
+  });
+
+// 关联用户-关联列表
+export const associateUserList = (params) =>
+  request({
+    url: "/project/associate/userList",
+    method: "get",
+    params
+  });
+
+// 关联用户-数据提交
+export const associateAssignUser = (data) =>
+  request({
+    url: "/project/associate/assignUser",
     method: "post",
     data
   });

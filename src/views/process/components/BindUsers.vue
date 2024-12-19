@@ -2,69 +2,119 @@
   <div>
     <bind-users-dialog
       v-model:visible="showDialog"
+      :current-id="currentId"
       :type="currentType"
       :data="currentData"
+      :vc-team="vcTeamData"
+      @done="getConfigInfo"
     ></bind-users-dialog>
 
-    <div class="block-item sec">
-      <div class="user-show-item">
-        <div class="title-content">
-          <p class="uppercase">{{ t('管理者信息') }}</p>
-          <a-button
-            type="primary"
-            size="small"
-            shape="round"
-            class="uppercase"
-            @click="editHandle(1)"
-          >{{ t('编辑') }}</a-button>
+    <a-spin :spinning="configLoading" size="large">
+      <div class="block-item sec mb-5">
+        <div v-if="hasPermission('process:bind:vcTeam') || isDetails" class="user-show-item">
+          <div class="title-content">
+            <p class="uppercase">{{ t('管理者信息') }}</p>
+            <a-button
+              v-if="vcTeamData.length && currentId && !isDetails"
+              type="primary"
+              size="small"
+              shape="round"
+              class="uppercase"
+              @click="editHandle(1)"
+            >{{ t('编辑') }}</a-button>
+          </div>
+          <div class="info-content">
+            <template v-if="currentId">
+              <div v-if="vcDataCom.length" class="user-item-content">
+                <vco-user-item
+                  v-for="(item, index) in vcDataCom"
+                  :key="index"
+                  :data="item"
+                  :main="true"
+                  :post="item.post"
+                ></vco-user-item>
+              </div>
+              <div v-else class="no-data">{{ t('暂无数据') }}</div>
+            </template>
+            <div v-else class="no-data">{{ t('请提交信息后操作') }}</div>
+          </div>
         </div>
-        <div class="info-content">
-          <div class="no-data">{{ t('暂无数据') }}</div>
+        <div v-if="hasPermission('process:bind:broker') || isDetails" class="user-show-item">
+          <div class="title-content">
+            <p class="uppercase">{{ t('中介信息') }}</p>
+            <a-button
+              v-if="currentId && !isDetails"
+              type="primary"
+              size="small"
+              shape="round"
+              class="uppercase"
+              @click="editHandle(3)"
+            >{{ t('编辑') }}</a-button>
+          </div>
+          <div class="info-content">
+            <template v-if="currentId">
+              <div v-if="brokerDataCom.length" class="user-item-content">
+                <vco-user-item
+                  v-for="(item, index) in brokerDataCom"
+                  :key="index"
+                  :data="item"
+                  :main="true"
+                  :tips="item.tips"
+                ></vco-user-item>
+              </div>
+              <div v-else class="no-data">{{ t('暂无数据') }}</div>
+            </template>
+            <div v-else class="no-data">{{ t('请提交信息后操作') }}</div>
+          </div>
+        </div>
+        <div v-if="hasPermission('process:bind:user') || isDetails" class="user-show-item">
+          <div class="title-content">
+            <p class="uppercase">{{ t('借款账号信息') }}</p>
+            <a-button
+              v-if="currentId && !isDetails"
+              type="primary"
+              size="small"
+              shape="round"
+              class="uppercase"
+              @click="editHandle(2)"
+            >{{ t('编辑') }}</a-button>
+          </div>
+          <div class="info-content">
+            <template v-if="currentId">
+              <div v-if="borrowerDataCom.length" class="user-item-content">
+                <vco-user-item
+                  v-for="(item, index) in borrowerDataCom"
+                  :key="index"
+                  :data="item"
+                  :main="true"
+                  :tips="item.tips"
+                ></vco-user-item>
+              </div>
+              <div v-else class="no-data">{{ t('暂无数据') }}</div>
+            </template>
+            <div v-else class="no-data">{{ t('请提交信息后操作') }}</div>
+          </div>
         </div>
       </div>
-      <div class="user-show-item">
-        <div class="title-content">
-          <p class="uppercase">{{ t('借款账号信息') }}</p>
-          <a-button
-            type="primary"
-            size="small"
-            shape="round"
-            class="uppercase"
-            @click="editHandle(2)"
-          >{{ t('编辑') }}</a-button>
-        </div>
-        <div class="info-content">
-          <div class="no-data">{{ t('暂无数据') }}</div>
-        </div>
-      </div>
-      <div class="user-show-item">
-        <div class="title-content">
-          <p class="uppercase">{{ t('中介信息') }}</p>
-          <a-button
-            type="primary"
-            size="small"
-            shape="round"
-            class="uppercase"
-            @click="editHandle(3)"
-          >{{ t('编辑') }}</a-button>
-        </div>
-        <div class="info-content">
-          <div class="no-data">{{ t('暂无数据') }}</div>
-        </div>
-      </div>
-    </div>
+    </a-spin>
   </div>
 </template>
 
 <script setup>
-  import { ref } from "vue"
+  import { ref, onMounted, computed } from "vue"
   import BindUsersDialog from "./BindUsersDialog.vue";
   import { useI18n } from "vue-i18n";
+  import { associateSystemConfig, associateUserList } from "@/api/process"
+  import { hasPermission } from "@/directives/permission"
 
   const props = defineProps({
     currentId: {
       type: [Number, String],
       default: ''
+    },
+    isDetails: {
+      type: Boolean,
+      default: false
     }
   })
 
@@ -74,83 +124,22 @@
   const currentData = ref([])
   const currentType = ref(1)
 
-  const vcData = {
-    lmData: [
-      {
-        name: 'clyde lm',
-        avatar: 'https://pcnz-testing-api.s3.ap-southeast-2.amazonaws.com/avatar/3.png'
-      },
-      {
-        name: 'clyde lm1',
-        avatar: 'https://pcnz-testing-api.s3.ap-southeast-2.amazonaws.com/avatar/3.png'
-      }
-    ],
-    almData: [
-      {
-        name: 'Johnny Liu',
-        avatar: 'https://vco-api.s3.ap-southeast-2.amazonaws.com/user/w3ddhE3dLsC4lLYqF4oLTCcfHRWscoSH61YuEvOh.jpg'
-      },
-      {
-        name: 'renee alm',
-        avatar: ''
-      }
-    ]
-  }
+  const vcData = ref(null)
+  const borrowerData = ref(null)
+  const brokerData = ref(null)
 
-  const borrowerData = {
-    editors: [
-      {
-        name: '张小美',
-        avatar: ''
-      },
-      {
-        name: '李大壮',
-        avatar: ''
-      }
-    ],
-    viewers: [
-      {
-        name: 'Jack Joden',
-        avatar: 'https://vco-api.s3.ap-southeast-2.amazonaws.com/user/w3ddhE3dLsC4lLYqF4oLTCcfHRWscoSH61YuEvOh.jpg'
-      },
-      {
-        name: 'Sicaly Daiyl',
-        avatar: ''
-      }
-    ]
-  }
-
-  const brokerData = {
-    editors: [
-      {
-        name: '张小美',
-        avatar: ''
-      },
-      {
-        name: '李大壮',
-        avatar: ''
-      }
-    ],
-    viewers: [
-      {
-        name: 'Jack Joden',
-        avatar: 'https://vco-api.s3.ap-southeast-2.amazonaws.com/user/w3ddhE3dLsC4lLYqF4oLTCcfHRWscoSH61YuEvOh.jpg'
-      },
-      {
-        name: 'Sicaly Daiyl',
-        avatar: ''
-      }
-    ]
-  }
+  const vcDataCom = ref([])
+  const borrowerDataCom = ref([])
+  const brokerDataCom = ref([])
 
   const editHandle = (type) => {
     let data = null
     if (type === 1) {
-      data = vcData
+      data = vcData.value
     } else if (type === 2) {
-      data = borrowerData
+      data = borrowerData.value
     } else if (type === 3) {
-      data = brokerData
+      data = brokerData.value
     }
 
     currentType.value = type
@@ -158,6 +147,71 @@
 
     showDialog.value = true
   }
+
+  const userFlatFn = (arrData) => {
+    const arr = []
+    if (arrData && Object.keys(arrData).length) {
+      for (const key in arrData) {
+        const item = arrData[key]
+        item.forEach(item => {
+          item.post = key
+          item.tips = key
+        })
+        arr.push(item)
+      }
+    }
+    const arrFlat = arr.flat()
+    return arrFlat
+  }
+
+  const configLoading = ref(false)
+  const vcTeamData = ref([])
+
+  const getConfigInfo = async () => {
+    configLoading.value = true
+    let vcTeamArr = []
+
+    await associateSystemConfig().then(res => {
+      vcTeamData.value = res || []
+      vcTeamArr = vcTeamData.value.map(item => item.code)
+    })
+
+    if (props.currentId) {
+      await associateUserList({
+        uuid: props.currentId
+      }).then(res => {
+        const vcObj = {}
+
+        for (let i = 0; i < vcTeamArr.length; i++) {
+          vcObj[vcTeamArr[i]] = []
+          if (res[vcTeamArr[i]] && Object.keys(res[vcTeamArr[i]]).length) {
+            const editArr = res[vcTeamArr[i]].edit || []
+            const viewArr = res[vcTeamArr[i]].view || []
+            vcObj[vcTeamArr[i]] = [...editArr, ...viewArr]
+          }
+        }
+
+        vcData.value = vcObj && Object.keys(vcObj).length ? vcObj : null
+        vcDataCom.value = userFlatFn(vcData.value)
+
+        borrowerData.value = res.user && Object.keys(res.user).length ? res.user : null
+        borrowerDataCom.value = userFlatFn(borrowerData.value)
+
+        brokerData.value = res.broker && Object.keys(res.broker).length ? res.broker : null
+        brokerDataCom.value = userFlatFn(brokerData.value)
+
+        configLoading.value = false
+      }).catch(() => {
+        configLoading.value = false
+      })
+    } else {
+      configLoading.value = false
+    }
+  }
+
+  onMounted(() => {
+    getConfigInfo()
+  })
 </script>
 
 <style lang="less" scoped>
@@ -179,6 +233,15 @@
       .no-data {
         text-align: center;
         color: #999;
+      }
+    }
+  }
+
+  .user-item-content {
+    .vco-user-item {
+      margin-bottom: 10px;
+      &:last-child {
+        margin-bottom: 0;
       }
     }
   }

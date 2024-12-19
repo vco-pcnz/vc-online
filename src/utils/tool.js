@@ -425,4 +425,38 @@ export const goBack = () => {
   router.back()
 }
 
+// 数字格式化
+export const numberStrFormat = (number, decimal = 2, flag = false) => {
+  let resStr = decimal === 0 ? 0 : '0.00'
+  const amount = Number(number)
+  if (!isNaN(amount)) {
+    const options = {
+      minimumFractionDigits: decimal
+    }
+    resStr = flag ? String(Math.abs(amount)) : Math.abs(amount).toLocaleString('en-US', options)
+    if (resStr.indexOf('.') > -1) {
+      const arr = resStr.split('.')
+      if (arr[1].length === 1) {
+        resStr = resStr + '0'
+      }
+      if (arr[1].length > 2 && decimal === 2) {
+        resStr = arr[0] + '.' + arr[1].slice(0, 2)
+      }
+    } else {
+      resStr = decimal === 0 ? resStr : resStr + '.00'
+    }
+  }
+  return !isNaN(amount) && amount < 0 ? '-' + resStr : resStr
+}
+
+// 对象数组去重
+export const removeDuplicates = (arr, key) => {
+  return arr.reduce((acc, item) => {
+    if (!acc.some(i => i[key] === item[key])) {
+      acc.push(item);
+    }
+    return acc;
+  }, []);
+}
+
 export default tool

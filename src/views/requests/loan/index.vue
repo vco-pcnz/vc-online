@@ -12,7 +12,7 @@
       <div class="mt-10">
         <vco-table-tool>
           <template #left>
-            <a-button type="grey" :disabled="!selectedRowKeys.length" class="uppercase">{{ t('取消项目') }}</a-button>
+            <a-button type="grey" :disabled="!selectedRowKeys.length" class="uppercase" @click="cancelHandle">{{ t('取消项目') }}</a-button>
           </template>
           <template #right>
             <!-- <vco-table-layout-type v-model="tabLayout"></vco-table-layout-type> -->
@@ -108,6 +108,15 @@
                     <span v-if="record.create_time">{{ tool.showDate(record.create_time) }}</span>
                     <p v-else>--</p>
                   </template>
+                  <template v-if="column.dataIndex === 'status'">
+                    <a-button
+                      v-if="record.has_permission"
+                      type="primary"
+                      shape="round"
+                      @click="itemHandle(record)"
+                    >{{ t(record.status_name) }}</a-button>
+                    <p v-else>{{ t(record.status_name) }}</p>
+                  </template>
                   <template v-if="column.dataIndex === 'operation'">
                     <a-dropdown :trigger="['click']">
                       <a class="ant-dropdown-link" @click.prevent>
@@ -143,35 +152,29 @@
 </template>
 
 <script setup name="RequestsLoanList">
-  import { ref, computed, reactive } from "vue"
+  import { ref, computed, reactive, onMounted, watch } from "vue"
   import { useI18n } from "vue-i18n";
-  import { cloneDeep } from "lodash"
+  import { cloneDeep } from "lodash";
   import { useTableList } from "@/hooks/useTableList"
   import TableSearch from "./components/TableSearch.vue";
   import GridBlock from "./components/GridBlock.vue";
   import { navigationTo } from "@/utils/tool";
   import { projectListApi } from "@/api/process";
   import tool from "@/utils/tool";
-  import {
-    notSubStatus,
-    notCheckStatus,
-    canCancelCheck,
-    enterPage,
-    cancelProjectHandle,
-    cancelCheckHandle
-  } from "@/hooks/useRequestsTool"
+  import { processRoutes } from "@/constant"
+  import emitter from "@/event"
 
   const { t, locale } = useI18n();
 
   const {
+    currentParams,
     tableRef,
     tableLoading,
     pageObj,
     tableData,
     pageChange,
-    getTableData,
-    searchReset
-  } = useTableList(projectListApi)
+    getTableData
+  } = useTableList(projectListApi, {}, false)
 
   const tabLayout = ref(0)
   const currentTab = ref('1')
@@ -202,15 +205,11 @@
     },
     {
       label: t("创建时间"),
-      value: 'time',
-    },
-    {
-      label: t("ID"),
-      value: 'id',
+      value: 'create_time',
     },
     {
       label: t("借款金额"),
-      value: 'amount',
+      value: 'loan_money',
     }
   ]
 
@@ -223,7 +222,7 @@
     { title: t('期数'), dataIndex: 'term', width: 220, align: 'center' },
     { title: t('最大费率'), dataIndex: 'lvr', width: 100, align: 'center' },
     { title: t('创建时间'), dataIndex: 'create_time', width: 120, align: 'center' },
-    { title: t('状态'), dataIndex: 'status', width: 100, align: 'center' },
+    { title: t('状态'), dataIndex: 'status', width: 200, align: 'center' },
     {
       title: t('操作1'),
       dataIndex: 'operation',
@@ -273,15 +272,40 @@
     console.log(currentTab.value)
   }
 
-  const searchHandle = (data) => {
-    getTableData(data)
+  const searchHandle = (data = {}) => {
+    const params = cloneDeep(currentParams.value)
+    getTableData({
+      ...params,
+      ...data
+    })
   }
 
-  const currentCheckAll = ref(false)
-  const checkHandle = (flag) => {
-    currentCheckAll.value = flag
-    tableData.value.forEach(item => item.checked = flag)
+  const cancelHandle = () => {
+    console.log('selectedRowKeys', selectedRowKeys.value)
   }
+
+  const itemHandle = (data) => {
+    const href = processRoutes[data.next_index - 1]
+    if (href) {
+      navigationTo(`${href}?uuid_info=${data.uuid}`)
+    }
+  }
+
+  watch([sortType, sortValue], ([newSortType, newSortValue]) => {
+    const params = cloneDeep(currentParams.value)
+    params.sort_order = newSortType
+    params.sort_prop = newSortValue
+    params.page = 1
+    getTableData(params)
+  });
+
+  onMounted(() => {
+    searchHandle()
+
+    emitter.on('refreshRequestsList', () => {
+      searchHandle()
+    })
+  })
 </script>
 
 <style lang="less" scoped>

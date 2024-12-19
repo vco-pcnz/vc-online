@@ -9,11 +9,13 @@
         >
           <a-button
             type="dark" shape="round"
+            class="uppercase"
           >{{ t('审核') }}</a-button>
         </a-popconfirm>
         <a-button
           type="primary" shape="round"
           :loading="subLoading"
+          class="uppercase"
           @click="saveHandle"
         >{{ t('保存') }}</a-button>
       </div>
@@ -83,6 +85,7 @@
   import { message } from "ant-design-vue/es";
   import { ruleCredit, creditInitial, creditInfo } from "@/api/process"
 
+  const emits = defineEmits(['done'])
   const props = defineProps({
     currentId: {
       type: [Number, String],
@@ -139,6 +142,10 @@
           showNumItems.value[i].value = res[showNumItems.value[i].credit_table]
         }
         creditId.value = res.id || null
+
+        if (creditId.value) {
+          emits('done')
+        }
       }
     })
   }

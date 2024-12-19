@@ -23,7 +23,7 @@
         </a-button>
       </a-dropdown>
 
-      <a-input v-model:value="mobileValue" :placeholder="placeholderTxt" @input="inputHandle" :disabled="disabled" @blur="blurHandle" />
+      <a-input v-model:value="mobileValue" :placeholder="t('请输入')" @input="inputHandle" :disabled="disabled" @blur="blurHandle" />
     </a-form-item-rest>
   </div>
 </template>

@@ -102,11 +102,11 @@ export default {
   "修改成功": "modify successful",
   "系统": "System",
   "业务": "Business",
-  "标记已读": "Mark Read",
+  "标记已读": "Mark as Read",
   "最大费率": "Max LVR",
-  "全部已读": "All Read",
+  "全部已读": "Mark All as Read",
   "关键字": "Keyword",
-  "已读": "Already",
+  "已读": "Read",
   "未读": "Unread",
   "搜索": "Search",
   "创建时间": "Create date",
@@ -343,5 +343,11 @@ export default {
   "预测": "Forecast",
   "明细表": "Schedule",
   "提款": "Drawdowns",
-  "非法选择": "Illegal selection"
+  "非法选择": "Illegal selection",
+  "经纪人信息": "Broker info",
+  "借款人信息2": "Borrower info",
+  "VC团队": "VC Team",
+  "历史": "History",
+  "条件": "Conditions",
+  "请求详细信息": "Request details"
 }

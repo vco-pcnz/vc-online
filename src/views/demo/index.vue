@@ -109,6 +109,14 @@
       <a-button type="dark-line" loading>dark 类型</a-button>
     </a-space>
 
+    
+    <a-space class="flex mt-5">
+      <a-button type="brown">brown 类型</a-button>
+      <a-button type="brown" shape="round" size="small">brown 类型</a-button>
+      <a-button type="brown" disabled>brown 类型</a-button>
+      <a-button type="brown" loading>brown 类型</a-button>
+    </a-space>
+
     <p>-------------------------------------------------------------------------------------</p>
 
     <h1 class="mt-5 mb-2">字体库</h1>

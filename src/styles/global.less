@@ -377,6 +377,36 @@ a:hover {
   }
 }
 
+.ant-btn-brown {
+  background: rgba(215, 178, 126, 0.2);
+  border-color: rgba(215, 178, 126, 0.2);
+  color: rgb(191, 148, 37);
+
+  &:hover {
+    color: #fff;
+    background-color: rgb(216, 180, 128);
+  }
+
+  &.ant-btn-loading {
+    color: rgb(191, 148, 37);
+    background-color: rgba(215, 178, 126, 0.2) !important;
+  }
+
+  &:disabled {
+    background-color: rgba(215, 178, 126, 0.1);
+    border-color: rgba(215, 178, 126, 0.1);
+    color: rgba(191, 148, 37, 0.4) !important;
+  }
+
+  .ant-wave {
+    box-shadow: 0 0 0 0 rgba(191, 148, 37, 0.65);
+
+    &.wave-motion-appear-active {
+      box-shadow: 0 0 0 6px rgba(191, 148, 37, 0.65);
+    }
+  }
+}
+
 .ant-btn {
   &.big {
     height: 48px;
@@ -489,6 +519,7 @@ a:hover {
     .ant-table:not(.ant-table-bordered) .ant-table-tbody > tr {
       border-radius: 10px;
       position: relative;
+      color: #666;
       & > td {
         border: none;
       }
@@ -542,7 +573,6 @@ a:hover {
         }
         p {
           text-wrap: nowrap;
-          color: #666;
           span {
             &.cer {
               color: #000;
@@ -593,7 +623,7 @@ a:hover {
 
   // 设置没有数据的时候没有滚动
   &.noData .ant-table-content {
-    overflow: hidden!important;
+    overflow: hidden !important;
   }
 
   // 设置a-table 头部 又固定项背景色
@@ -614,8 +644,12 @@ a:hover {
       }
     }
   }
-}
 
+   // 取消表格头部border
+   &.border-top-none .ant-table-thead > tr > th {
+      border: none!important;
+  }
+}
 
 .ant-popconfirm {
   z-index: 9999;

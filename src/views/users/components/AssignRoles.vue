@@ -3,21 +3,8 @@
     <div class="sys-form-content mt-5">
       <a-form ref="formRef" :model="form" :rules="rules" layout="vertical">
         <a-form-item name="roles" :label="t('用户角色')">
-          <a-select
-            v-model:value="form.roles"
-            mode="multiple"
-            :placeholder="t('选择角色')"
-            @change="handleChange"
-            @deselect="handleDeselect"
-          >
-            <a-select-option
-              v-for="(item, index) in roleOptions"
-              :key="item.value || index"
-              :value="item.value"
-              :not="item.not"
-              :status="item.status"
-              :disabled="item.disabled"
-            >
+          <a-select v-model:value="form.roles" mode="multiple" :placeholder="t('选择角色')" @change="handleChange" @deselect="handleDeselect">
+            <a-select-option v-for="(item, index) in roleOptions" :key="item.value || index" :value="item.value" :not="item.not" :status="item.status" :disabled="item.disabled">
               {{ item.label }}
             </a-select-option>
           </a-select>
@@ -26,13 +13,7 @@
     </div>
     <template #footer>
       <div class="modal-footer">
-        <a-button
-          size="large"
-          type="cyan"
-          :loading="loading"
-          class="register-btn big shadow bold"
-          @click="save"
-        >
+        <a-button size="large" type="cyan" :loading="loading" class="register-btn big shadow bold" @click="save">
           {{ t('提交') }}
         </a-button>
       </div>
@@ -55,11 +36,11 @@ const usersStore = useUsersStore();
 const roleOptions = ref([]);
 const disabledIds = ref([]);
 
-const props = defineProps(['open', 'title', 'uuids']);
+const props = defineProps(['open', 'title', 'uuids', 'selectedData']);
 const emit = defineEmits(['update:open']);
 // 表单数据
-const { form, resetFields } = useFormData({
-  roles: [],
+const { form, resetFields, assignFields } = useFormData({
+  roles: []
 });
 
 // 表单验证规则
@@ -69,9 +50,9 @@ const rules = reactive({
       required: true,
       message: t('请选择') + t('用户角色'),
       type: 'array',
-      trigger: 'blur',
-    },
-  ],
+      trigger: 'blur'
+    }
+  ]
 });
 
 const getNewOptions = (notIds) => {
@@ -79,12 +60,12 @@ const getNewOptions = (notIds) => {
     if (notIds.includes(item.value)) {
       return {
         ...item,
-        disabled: true,
+        disabled: true
       };
     }
     return {
       ...item,
-      disabled: item.status !== 1,
+      disabled: item.status !== 1
     };
   });
 };
@@ -105,9 +86,7 @@ const handleChange = (value, option) => {
 const handleDeselect = (value, option) => {
   if (option.not) {
     const notIds = option.not.split(',').map(Number);
-    disabledIds.value = disabledIds.value.filter(
-      (item) => !notIds.includes(item)
-    );
+    disabledIds.value = disabledIds.value.filter((item) => !notIds.includes(item));
     getNewOptions(disabledIds.value);
   }
 };
@@ -115,6 +94,7 @@ const handleDeselect = (value, option) => {
 const closeModal = () => {
   emit('update:open', false);
   resetFields();
+  getNewOptions([]);
   formRef.value.clearValidate();
 };
 
@@ -125,8 +105,8 @@ const save = () => {
   formRef.value.validate().then(() => {
     loading.value = true;
     assignRole({
-      uuids: props.uuids.map((item) => item.uuid),
-      ...form,
+      uuids: props.uuids,
+      ...form
     })
       .then(() => {
         loading.value = false;
@@ -148,10 +128,29 @@ watch(
         ...item,
         label: item.name,
         value: item.id,
-        disabled: item.status !== 1,
+        disabled: item.status !== 1
       }));
     }
   }
+);
+
+watch(
+  () => props.open,
+  (val) => {
+    if (val && props.selectedData.length === 1) {
+      let roles = props.selectedData[0].roles;
+      let roleIds = [];
+      usersStore.roleList.map((item) => {
+        if (roles.includes(item.name)) {
+          roleIds.push(item.id);
+        }
+      });
+      assignFields({
+        roles: roleIds
+      });
+    }
+  },
+  { deep: true }
 );
 </script>
 

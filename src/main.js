@@ -7,6 +7,8 @@ import router from "./router";
 import i18n from "./i18n";
 import directives from "./directives";
 import vue3TreeOrg from 'vue3-tree-org';
+import Echarts from 'vue-echarts';
+import * as echarts from 'echarts';
 
 import globalComponents from "@/components";
 
@@ -26,6 +28,11 @@ app.use(directives);
 app.use(globalComponents);
 app.use(vue3TreeOrg)
 
+// 使用vue-echarts组件
+app.component('v-chart', Echarts);
+
+// 全局挂载echarts
+app.config.globalProperties.$echarts = echarts;
 app.config.errorHandler = (err, vm, info) => {
   console.error("Error in component:", vm.$options.name);
   console.error("Error details:", err);

@@ -1,35 +1,16 @@
 <template>
   <div class="TabsPanel">
-    <div class="Panel">
-      <a class="back-link" @click="goBack()">
-        <div class="back-link-icon">
-          <i class="iconfont">&#xe794;</i>
-        </div>
-      </a>
-      <h2 class="Panel-Title">
-        <a-tag class="Tag">
-          {{ userInfo?.user_name }}` {{ t('用户中心') }}
-        </a-tag>
-      </h2>
-    </div>
+    <vco-page-panel :title="userInfo?.user_name + '` ' + t('用户中心')" :isBack="true"></vco-page-panel>
     <div class="profile-container">
       <div class="profile-info">
         <div class="profile-info-header">
           <div class="avatar">
-            <vco-avatar
-              :size="110"
-              style="margin: auto"
-              :src="userInfo?.avatar"
-            />
+            <vco-avatar :size="110" style="margin: auto" :src="userInfo?.avatar" />
           </div>
           <div class="info-detail">
-            <p v-for="info in baseInfo">
+            <p v-for="(info,index) in baseInfo" :key="index">
               <span class="label">
-                <i
-                  :class="`iconfont ${info.isVerify ? 'iconfont_yellow' : ''}`"
-                  v-html="info.icon"
-                  v-if="info.icon"
-                />
+                <i :class="`iconfont ${info.isVerify ? 'iconfont_yellow' : ''}`" v-html="info.icon" v-if="info.icon" />
                 {{ info.label }}:
               </span>
               <span class="value">{{ info.value }}</span>
@@ -37,13 +18,9 @@
           </div>
         </div>
         <div class="profile-info-detail">
-          <p v-for="info in extraInfo">
+          <p v-for="(info,index) in extraInfo" :key="index">
             <span class="label">
-              <i
-                class="iconfont text-2xl"
-                v-html="info.icon"
-                v-if="info.icon"
-              />
+              <i class="iconfont text-2xl" v-html="info.icon" v-if="info.icon" />
               &nbsp;
             </span>
             <span class="detail">
@@ -57,29 +34,19 @@
           <a-row>
             <a-col :span="6" :offset="9">
               <a-form-item name="avatar" class="avatar-form-item">
-                <vco-upload-image
-                  v-model:value="form.avatar"
-                  text="头像"
-                  :isAvatar="true"
-                ></vco-upload-image>
+                <vco-upload-image v-model:value="form.avatar" text="头像" :isAvatar="true"></vco-upload-image>
               </a-form-item>
             </a-col>
           </a-row>
           <a-row :gutter="8">
             <a-col :span="8">
               <a-form-item name="firstName" :label="t('名')">
-                <a-input
-                  v-model:value="form.firstName"
-                  :placeholder="t('名')"
-                />
+                <a-input v-model:value="form.firstName" :placeholder="t('名')" />
               </a-form-item>
             </a-col>
             <a-col :span="8">
               <a-form-item name="middleName" :label="t('中间名')">
-                <a-input
-                  v-model:value="form.middleName"
-                  :placeholder="t('中间名')"
-                />
+                <a-input v-model:value="form.middleName" :placeholder="t('中间名')" />
               </a-form-item>
             </a-col>
             <a-col :span="8">
@@ -89,28 +56,14 @@
             </a-col>
           </a-row>
           <a-form-item name="email" :label="t('邮箱')">
-            <a-input
-              v-model:value="form.email"
-              :placeholder="t('邮箱')"
-              :disabled="true"
-            />
+            <a-input v-model:value="form.email" :placeholder="t('邮箱')" :disabled="true" />
           </a-form-item>
           <a-form-item :label="t('手机号')" name="mobile">
-            <vco-mobile-input
-              v-model:value="form.mobile"
-              v-model:areaCode="form.pre"
-              :disabled="true"
-            ></vco-mobile-input>
+            <vco-mobile-input v-model:value="form.mobile" v-model:areaCode="form.pre" :disabled="true"></vco-mobile-input>
           </a-form-item>
           <a-row>
             <a-col :span="6" :offset="9">
-              <a-button
-                size="large"
-                type="cyan"
-                :loading="loading"
-                class="register-btn big shadow bold"
-                @click="save"
-              >
+              <a-button size="large" type="cyan" :loading="loading" class="register-btn big shadow bold" @click="save">
                 {{ t('提交') }}
               </a-button>
             </a-col>
@@ -148,7 +101,7 @@ const { form, assignFields } = useFormData({
   lastName: '',
   email: '',
   pre: '64',
-  mobile: '',
+  mobile: ''
 });
 
 // 表单验证规则
@@ -158,78 +111,69 @@ const rules = reactive({
       required: true,
       message: t('请输入') + t('名'),
       type: 'string',
-      trigger: 'blur',
-    },
+      trigger: 'blur'
+    }
   ],
   lastName: [
     {
       required: true,
       message: t('请输入') + t('姓'),
       type: 'string',
-      trigger: 'blur',
-    },
+      trigger: 'blur'
+    }
   ],
   email: [
     {
       required: true,
       message: t('请输入') + t('邮箱'),
       type: 'string',
-      trigger: 'blur',
+      trigger: 'blur'
     },
     {
       pattern: EMAIL_RULE,
-      message: t('邮箱格式不正确'),
-    },
+      message: t('邮箱格式不正确')
+    }
   ],
   mobile: [
     {
       required: true,
       message: t('请输入') + t('手机号'),
       type: 'string',
-      trigger: 'blur',
-    },
-  ],
+      trigger: 'blur'
+    }
+  ]
 });
 
 const setInfoCard = (data) => {
-  const {
-    username,
-    email,
-    email_ok,
-    pre,
-    mobile,
-    mobile_ok,
-    user_name,
-    roles,
-  } = data;
+  const { username, email, email_ok, pre, mobile, mobile_ok, user_name, roles } = data;
   const _baseInfo = [
     {
       label: 'ID',
-      value: username,
+      value: username
     },
     {
       icon: '&#xe73b;',
       label: t('名字'),
-      value: user_name,
+      value: user_name
     },
     {
       icon: '&#xe66f;',
       label: t('邮箱'),
       value: email,
-      isVerify: !!email_ok,
+      isVerify: !!email_ok
     },
     {
       icon: '&#xe61d;',
       label: t('手机号'),
       value: `+${pre} ${mobile}`,
-      isVerify: !!mobile_ok,
-    },
+      isVerify: !!mobile_ok
+    }
   ];
   const _extraInfo = [
     {
       icon: '&#xe8db;',
-      value: roles.join(' '),
-    },
+      value: roles.join(' ')
+    }
   ];
   baseInfo.value = _baseInfo;
   extraInfo.value = _extraInfo;
@@ -257,7 +201,7 @@ const save = () => {
       ...form,
       email: undefined,
       pre: undefined,
-      mobile: undefined,
+      mobile: undefined
     })
       .then(() => {
         loading.value = false;
@@ -286,7 +230,7 @@ const save = () => {
       transform: rotate(-135deg);
     }
     :deep(.iconfont) {
-        font-size: 12px;
+      font-size: 12px;
     }
   }
   .Panel {

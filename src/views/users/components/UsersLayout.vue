@@ -13,47 +13,22 @@
       <div class="mt-10">
         <vco-table-tool>
           <template #left>
-            <a-button
-              type="cyan"
-              :disabled="!rowSelection.length"
-              @click="setOpen(true)"
-            >
+            <a-button type="cyan" :disabled="!rowSelection.length" @click="setOpen(true)">
               {{ t('分配角色') }}
             </a-button>
           </template>
           <template #right>
-            <vco-table-sort
-              v-model="sortType"
-              v-model:value="sortValue"
-              :type-data="sortTypeData"
-            ></vco-table-sort>
+            <vco-table-sort v-model="sortType" v-model:value="sortValue" :type-data="sortTypeData"></vco-table-sort>
           </template>
         </vco-table-tool>
 
         <div class="mt-5">
           <a-spin :spinning="tableLoading" size="large">
             <div class="table-content">
-              <table-block
-                :table-data="tableData"
-                :indeterminate="
-                  Boolean(
-                    rowSelection.length &&
-                      rowSelection.length !== tableData.length
-                  )
-                "
-                @check="checkHandle"
-              ></table-block>
+              <table-block :table-data="tableData" v-model:keys="rowSelection" v-model:data="rowSelectionData"></table-block>
             </div>
             <div class="mt-5">
-              <a-pagination
-                size="small"
-                :total="usersStore.total"
-                show-size-changer
-                show-quick-jumper
-                :hideOnSinglePage="true"
-                :show-total="(total) => t('共{0}条', [total])"
-                @change="handlePageChange"
-              />
+              <a-pagination size="small" :total="usersStore.total" show-size-changer show-quick-jumper :hideOnSinglePage="true" :show-total="(total) => t('共{0}条', [total])" @change="handlePageChange" />
             </div>
           </a-spin>
         </div>
@@ -61,11 +36,7 @@
     </div>
   </div>
   <add-user v-model:open="showAdd" :userData="userData" />
-  <assign-roles
-    v-model:open="open"
-    :title="t('分配角色')"
-    :uuids="rowSelection"
-  />
+  <assign-roles v-model:open="open" :title="t('分配角色')" :uuids="rowSelection" :selectedData="rowSelectionData"/>
 </template>
 
 <script setup>
@@ -87,25 +58,28 @@ const userData = ref({});
 const sortType = ref('desc');
 const sortValue = ref('');
 
+const rowSelection = ref([])
+const rowSelectionData = ref([])
+
 const tableData = computed(() => usersStore.userList);
 
 const sortTypeData = ref([
   {
     label: t('默认'),
-    value: '',
+    value: ''
   },
   {
     label: t('名字'),
-    value: 'firstName',
+    value: 'firstName'
   },
   {
     label: t('ID'),
-    value: 'id',
+    value: 'id'
   },
   {
     label: t('注册日期'),
-    value: 'create_time',
-  },
+    value: 'create_time'
+  }
 ]);
 
 const showUserModal = (data = {}) => {
@@ -113,18 +87,8 @@ const showUserModal = (data = {}) => {
   userData.value = data;
 };
 
-const rowSelection = computed(() => {
-  return tableData.value.filter((item) => item.checked);
-});
-
 const setOpen = (flag) => {
   open.value = flag;
-};
-
-const currentCheckAll = ref(false);
-const checkHandle = (flag) => {
-  currentCheckAll.value = flag;
-  tableData.value.forEach((item) => (item.checked = flag));
 };
 
 const handlePageChange = (current, size) => {
@@ -138,12 +102,12 @@ watch([sortType, sortValue], ([newSortType, newSortValue]) => {
   if (newSortType === 'desc') {
     params = {
       [desc]: newSortValue,
-      [asc]: undefined,
+      [asc]: undefined
     };
   } else {
     params = {
       [desc]: undefined,
-      [asc]: newSortValue,
+      [asc]: newSortValue
     };
   }
   usersStore.setSearchParams(params);

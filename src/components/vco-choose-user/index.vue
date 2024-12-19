@@ -97,7 +97,11 @@ const props = defineProps({
   showRest: {
     type: Boolean,
     default: false
-  }
+  },
+  roleCode: {
+    type: String,
+    default: ''
+  },
 });
 const open = ref(false);
 const loading = ref(false);
@@ -142,7 +146,7 @@ const pagination = ref({
   page: 1,
   limit: 5
 });
-const emits = defineEmits(['update:list', 'update:ids', 'update:data', 'change']);
+const emits = defineEmits(['update:list', 'update:ids', 'update:data', 'change', 'done']);
 const getContainer = () => {
   // 返回自定义容器的 DOM 元素
   return document.getElementById('vco-choose-user-model');
@@ -176,10 +180,11 @@ const close = () => {
 // 加载数据
 const lodaData = () => {
   loading.value = true;
+
   request({
     url: props.url,
     method: 'get',
-    params: { ...searchForm.value, ...pagination.value }
+    params: { ...searchForm.value, ...pagination.value, ...{role_code: props.roleCode} }
   })
     .then((res) => {
       tableData.value = res.data;
@@ -204,12 +209,16 @@ const handlePathChange = () => {
   emits('update:list', checkedList.value);
   emits('update:ids', checkedIds.value);
   emits('change', checkedIds.value);
+
+  emits('done', checkedList.value)
   close();
 };
 const change = () => {
   if (!props.isMultiple) {
     emits('update:data', checkedData.value);
     emits('change', checkedData.value);
+
+    emits('done', [checkedData.value])
     close();
   }
 };

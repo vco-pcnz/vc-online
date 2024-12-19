@@ -10,7 +10,7 @@
           ></base-info-content>
 
           <!-- 放款信息 -->
-          <credit-form :current-id="currentId"></credit-form>
+          <credit-form :current-id="currentId" @done="showForecast = true"></credit-form>
 
           <temp-footer
             ref="footerRef"
@@ -28,8 +28,14 @@
           ></temp-footer>
         </div>
 
-        <div class="right-content">
-          2
+        <div v-if="dataInfo" class="right-content">
+          <bind-users :current-id="currentId"></bind-users>
+          <operation-log></operation-log>
+          <forecast-list
+            v-if="showForecast"
+            :current-id="currentId"
+            :info-data="currentDataInfo"
+          ></forecast-list>
         </div>
       </div>
     </a-spin>
@@ -53,6 +59,9 @@
   import BaseInfoContent from "./components/BaseInfoContent.vue";
   import TempFooter from "./components/TempFooter.vue";
   import CreditForm from "./components/CreditForm.vue";
+  import BindUsers from "./../../components/BindUsers.vue";
+  import OperationLog from "./../../components/OperationLog.vue";
+  import ForecastList from "./../../components/ForecastList.vue";
 
   const emits = defineEmits(['checkDone', 'dataDone'])
 
@@ -93,6 +102,9 @@
   const { t } = useI18n();
   const formRef = ref()
   const footerRef = ref()
+
+  const currentDataInfo = ref()
+  const showForecast = ref(false)
 
   const markInfo = computed(() => (props.currentStep ? props.currentStep.mark : ''))
 
@@ -219,6 +231,7 @@
     //     formState[key] = useData[key] || formState[key] || ''
     //   }
     // }
+    currentDataInfo.value = data
     emits('dataDone', data.project_apply_sn)
   }
 

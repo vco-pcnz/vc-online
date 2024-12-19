@@ -9,11 +9,13 @@
         >
           <a-button
             type="dark" shape="round"
+            class="uppercase"
           >{{ t('审核') }}</a-button>
         </a-popconfirm>
         <a-button
           type="primary" shape="round"
           :loading="subLoading"
+          class="uppercase"
           @click="saveHandle"
         >{{ t('保存') }}</a-button>
       </div>
@@ -82,7 +84,9 @@
   import { cloneDeep } from "lodash";
   import { message } from "ant-design-vue/es";
   import { ruleCredit, creditInitial, creditInfo } from "@/api/process"
+  import emitter from "@/event"
 
+  const emits = defineEmits(['done'])
   const props = defineProps({
     currentId: {
       type: [Number, String],
@@ -139,6 +143,10 @@
           showNumItems.value[i].value = res[showNumItems.value[i].credit_table]
         }
         creditId.value = res.id || null
+
+        if (creditId.value) {
+          emits('done')
+        }
       }
     })
   }
@@ -162,6 +170,10 @@
       subLoading.value = true
       creditInitial(params).then(async () => {
         subLoading.value = false
+
+        // 触发预测数据刷新
+        emitter.emit('refreshForecastList')
+
         await updateFormData()
       }).catch(() => {
         subLoading.value = false

@@ -1,13 +1,14 @@
 <template>
   <div class="vco-user-item" :class="{'main': main}">
     <div class="avatar">
-      <div v-if="edit || view" class="icon">
-        <i v-if="edit" class="iconfont">&#xe739;</i>
-        <i v-else class="iconfont view">&#xe776;</i>
+      <div v-if="tips" class="icon">
+        <i v-if="tips === 'edit'" class="iconfont">&#xe739;</i>
+        <i v-else-if="tips === 'view'" class="iconfont view">&#xe776;</i>
+        <p v-else>{{ tips }}</p>
       </div>
       <vco-avatar :src="data.avatar" :size="size"></vco-avatar>
     </div>
-    <p>{{ data.name }}</p>
+    <p><span v-if="post">[{{ post }}]</span>{{ data.name }}</p>
   </div>
 </template>
 
@@ -30,6 +31,14 @@
     view: {
       type: Boolean,
       default: false
+    },
+    tips: {
+      type: String,
+      default: ''
+    },
+    post: {
+      type: String,
+      default: ''
     }
   })
 
@@ -68,12 +77,19 @@
             font-size: 12px;
           }
         }
+        > p {
+          font-size: 10px;
+        }
       }
     }
     > p {
       flex: 1;
       line-height: 1.2;
       font-size: 13px;
+      > span {
+        color: #999;
+        padding-right: 3px;
+      }
     }
     &.main {
       > .avatar {

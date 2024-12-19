@@ -20,10 +20,12 @@
           >
             <a-button
               type="dark" shape="round"
+              class="uppercase"
             >{{ t('审核') }}</a-button>
           </a-popconfirm>
           <a-button
             type="primary" shape="round"
+            class="uppercase"
             @click="showEdit(1)"
           >{{ t('编辑') }}</a-button>
         </div>
@@ -42,10 +44,12 @@
           >
             <a-button
               type="dark" shape="round"
+              class="uppercase"
             >{{ t('审核') }}</a-button>
           </a-popconfirm>
           <a-button
             type="primary" shape="round"
+            class="uppercase"
             @click="showEdit(2)"
           >{{ t('编辑') }}</a-button>
         </div>
@@ -64,10 +68,12 @@
           >
             <a-button
               type="dark" shape="round"
+              class="uppercase"
             >{{ t('审核') }}</a-button>
           </a-popconfirm>
           <a-button
             type="primary" shape="round"
+            class="uppercase"
             @click="showEdit(3)"
           >{{ t('编辑') }}</a-button>
         </div>
@@ -86,10 +92,12 @@
           >
             <a-button
               type="dark" shape="round"
+              class="uppercase"
             >{{ t('审核') }}</a-button>
           </a-popconfirm>
           <a-button
             type="primary" shape="round"
+            class="uppercase"
             @click="showEdit(4)"
           >{{ t('编辑') }}</a-button>
         </div>

@@ -4,78 +4,72 @@
       <div class="main-info-container">
         <template v-if="dataInfo && !pageLoading">
           <vco-page-panel :title="dataInfo.project_apply_sn" @back="navigationTo('/requests/loan')">
-            <div v-if="showOprea(dataInfo.status)" class="flex gap-5">
-              <vco-status v-if="notSubStatus(dataInfo.status)" :title="t('待提交')" type="primary"></vco-status>
-              <vco-status v-if="notCheckStatus(dataInfo.status)" :title="t('待审核')" type="primary"></vco-status>
+            <div v-if="dataInfo" class="flex gap-5">
+              <vco-status v-if="!dataInfo.has_permission" :title="t(dataInfo.status_name)" type="primary"></vco-status>
 
               <a-popconfirm
-                v-if="notSubStatus(dataInfo.status)"
+                v-if="dataInfo.has_permission && !dataInfo.is_audit"
                 :title="t('确定取消项目吗？')"
                 :ok-text="t('确定')"
                 :cancel-text="t('取消')"
                 @confirm="() => cancelHandle(false)"
               >
                 <a-button
-                  v-permission="'requests:details:cancel:pro'"
                   type="grey" shape="round" class="bold uppercase"
                 >{{ t('取消项目') }}</a-button>
               </a-popconfirm>
 
               <a-popconfirm
-                v-if="canCancelCheck(dataInfo.status)"
+                v-if="dataInfo.has_permission && dataInfo.is_audit"
                 :title="t('确定取消审核吗？')"
                 :ok-text="t('确定')"
                 :cancel-text="t('取消')"
                 @confirm="() => cancelHandle(true)"
               >
                 <a-button
-                  v-permission="'requests:details:cancel:rev'"
                   type="grey" shape="round" class="bold uppercase"
                 >{{ t('取消审核') }}</a-button>
               </a-popconfirm>
 
-              <!-- 继续填写资料 -->
               <a-button
-                v-if="notSubStatus(dataInfo.status)"
-                v-permission="'requests:details:continue'"
-                type="dark"
+                v-if="dataInfo.has_permission"
+                type="primary"
                 shape="round"
                 class="bold uppercase"
-                @click="enterPage(dataInfo.status, dataInfo.uuid)"
-              >{{ t('继续填写') }}</a-button>
-
-              <!-- 审核 -->
-              <a-button
-                v-if="notCheckStatus(dataInfo.status)"
-                v-permission="'requests:details:check'"
-                type="dark"
-                shape="round"
-                class="bold uppercase"
-                @click="enterPage(dataInfo.status, dataInfo.uuid)"
-              >{{ t('前往操作') }}</a-button>
+                @click="nextHandle"
+              >{{ t(dataInfo.status_name) }}</a-button>
             </div>
           </vco-page-panel>
 
           <div class="block-container">
             <div class="left-content">
-              <div v-if="dataInfo.status >= 100" class="block-item details">
+              <div v-if="dataInfo.next_index > 1" class="block-item details">
                 <vco-process-title :title="t('借款人信息')"></vco-process-title>
                 <borrower-info :data="borrowerInfoData"></borrower-info>
               </div>
-              <div v-if="dataInfo.status >= 200" class="block-item details">
+              <div v-if="dataInfo.next_index > 2" class="block-item details">
                 <vco-process-title :title="t('项目信息')"></vco-process-title>
                 <project-info :data="projectInfoData"></project-info>
               </div>
-              <div v-if="dataInfo.status >= 300" class="block-item details">
+              <div v-if="dataInfo.next_index > 3" class="block-item details">
                 <vco-process-title :title="t('证件资料')"></vco-process-title>
                 <document-info :data="documentInfoData"></document-info>
               </div>
-              <div v-if="dataInfo.status >= 400" class="block-item details">
+              <div v-if="dataInfo.next_index > 4" class="block-item details">
                 <vco-process-title :title="t('借款信息')"></vco-process-title>
                 <loan-info :data="loanInfoData"></loan-info>
               </div>
             </div>
-            <div class="right-content">2</div>
+            <div class="right-content">
+              <bind-users
+                :current-id="currentId"
+                :is-details="true"
+              ></bind-users>
+
+              <div v-if="isNormalUser" class="block-item ads-content">
+                <img src="./../../../assets/images/img1.png" alt="">
+              </div>
+            </div>
           </div>
         </template>
         <a-empty v-if="!dataInfo && !pageLoading" :image="simpleImage" />
@@ -85,7 +79,7 @@
 </template>
 
 <script setup>
-  import { ref, onMounted } from "vue";
+  import { ref, onMounted, computed } from "vue";
   import { useRoute } from "vue-router";
   import { useI18n } from "vue-i18n";
   import { Empty } from 'ant-design-vue';
@@ -95,15 +89,9 @@
   import ProjectInfo from "@/views/process/temp/default/components/ProjectInfo.vue";
   import DocumentInfo from "@/views/process/temp/default/components/DocumentInfo.vue";
   import LoanInfo from "@/views/process/temp/default/components/LoanInfo.vue";
-  import {
-    showOprea,
-    notSubStatus,
-    notCheckStatus,
-    canCancelCheck,
-    enterPage,
-    cancelProjectHandle,
-    cancelCheckHandle
-  } from "@/hooks/useRequestsTool"
+  import BindUsers from "@/views/process/components/BindUsers.vue";
+  import { useUserStore } from "@/store";
+  import { processRoutes } from "@/constant"
 
   const { t } = useI18n();
   const route = useRoute();
@@ -118,6 +106,10 @@
   const projectInfoData = ref()
   const documentInfoData = ref()
   const loanInfoData = ref()
+
+  const userStore = useUserStore();
+
+  const isNormalUser = computed(() => userStore.isNormalUser);
 
   const getDataInfo = () => {
     projectDetailApi({
@@ -145,6 +137,13 @@
     })
   }
 
+  const nextHandle = () => {
+    const href = processRoutes[dataInfo.value.next_index - 1]
+    if (href) {
+      navigationTo(`${href}?uuid_info=${dataInfo.value.uuid}`)
+    }
+  }
+
   onMounted(() => {
     const { uuid_info } = route.query;
     if (uuid_info) {
@@ -167,5 +166,10 @@
     > .right-content {
       width: 420px;
     }
+  }
+
+  .ads-content {
+    overflow: hidden;
+    padding: 10px;
   }
 </style>

@@ -15,6 +15,7 @@
         <div class="block-item" :class="{'check': check}">
           <div v-if="!check" class="flex justify-end gap-5">
             <a-button
+              v-permission="'process:one:tempImport'"
               type="primary-line"
               shape="round"
               size="small"
@@ -146,7 +147,15 @@
         </div>
         </div>
         <div v-if="!check" class="right-content">
-          <bind-users></bind-users>
+          <bind-users
+            v-if="!isNormalUser"
+            v-permission="'process:bind:pre'"
+            :current-id="currentId"
+          ></bind-users>
+
+          <div v-if="isNormalUser" class="block-item ads-content">
+            <img src="./../../../../assets/images/img1.png" alt="">
+          </div>
         </div>
       </div>
     </a-spin>
@@ -166,6 +175,8 @@
   import { projectApplyBorrowerInfo, projectDraftInfo, getApproveTemp } from "@/api/process"
   import TempFooter from "./components/TempFooter.vue";
   import BindUsers from "./../../components/BindUsers.vue";
+  import { useUserStore } from "@/store";
+  import emitter from "@/event"
 
   const emits = defineEmits(['checkDone'])
 
@@ -202,6 +213,10 @@
       default: false
     }
   })
+
+  const userStore = useUserStore();
+
+  const isNormalUser = computed(() => userStore.isNormalUser);
 
   const { t } = useI18n();
   const formRef = ref()
@@ -418,6 +433,9 @@
         } else {
           footerRef.value.nextHandle(res.uuid)
         }
+
+        // 触发列表数据刷新
+        emitter.emit('refreshRequestsList')
       }).catch(() => {
         subLoading.value = false
       })

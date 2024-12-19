@@ -74,7 +74,15 @@
           </div>
         </div>
         <div v-if="!check" class="right-content">
-          2
+          <bind-users
+            v-if="!isNormalUser"
+            v-permission="'process:bind:pre'"
+            :current-id="currentId"
+          ></bind-users>
+
+          <div v-if="isNormalUser" class="block-item ads-content">
+            <img src="./../../../../assets/images/img1.png" alt="">
+          </div>
         </div>
       </div>
     </a-spin>
@@ -98,6 +106,9 @@
   import tool from "@/utils/tool";
   import { message } from "ant-design-vue/es";
   import TempFooter from "./components/TempFooter.vue";
+  import BindUsers from "./../../components/BindUsers.vue";
+  import { useUserStore } from "@/store";
+  import emitter from "@/event"
 
   const emits = defineEmits(['checkDone', 'dataDone'])
 
@@ -134,6 +145,10 @@
       default: false
     }
   })
+
+  const userStore = useUserStore();
+
+  const isNormalUser = computed(() => userStore.isNormalUser);
 
   const { t } = useI18n();
   const formRef = ref()
@@ -228,6 +243,9 @@
         } else {
           footerRef.value.nextHandle(res.uuid)
         }
+
+        // 触发列表数据刷新
+        emitter.emit('refreshRequestsList')
       }).catch(() => {
         subLoading.value = false
       })

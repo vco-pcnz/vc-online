@@ -25,7 +25,7 @@
         <div class="mt-5">
           <a-spin :spinning="tableLoading" size="large">
             <div class="table-content">
-              <table-block :table-data="tableData" v-model:keys="rowSelection" v-model:data="rowSelectionData" @check="checkHandle"></table-block>
+              <table-block :table-data="tableData" v-model:keys="rowSelection" v-model:data="rowSelectionData"></table-block>
             </div>
             <div class="mt-5">
               <a-pagination size="small" :total="usersStore.total" show-size-changer show-quick-jumper :hideOnSinglePage="true" :show-total="(total) => t('共{0}条', [total])" @change="handlePageChange" />

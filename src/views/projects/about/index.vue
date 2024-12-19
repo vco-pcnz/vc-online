@@ -37,7 +37,7 @@
               </div>
             </div>
           </div>
-          <a-collapse v-model:activeKey="activeKey" expand-icon-position="end" ghost>
+          <a-collapse expand-icon-position="end" ghost>
             <a-collapse-panel key="History" class="collapse-card history-card">
               <template #header>
                 <i class="iconfont">&#xe76c;</i>
@@ -60,7 +60,7 @@
               </template>
               <ul class="Conditions">
                 <li class="Conditions-item flex items-center" v-for="item in 3" :key="item">
-                  <a-checkbox v-model:checked="checked"></a-checkbox>
+                  <a-checkbox :checked="item.checked"></a-checkbox>
                   <div class="CalendarDate">
                     <p class="CalendarDate-Label">Dec</p>
                     <p class="CalendarDate-Value">16</p>

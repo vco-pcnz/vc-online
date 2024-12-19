@@ -35,24 +35,22 @@
           <p v-else>--</p>
         </template>
         <template v-if="column.key === '5'">
-          <div @click.stop>
-            <p class="black bold" v-if="record.org_stake_type">
-              {{ record.org_stake_type }}
-            </p>
-            <p v-else>--</p>
-            <p v-if="record.org_stake">
-              <i class="iconfont" :class="{ cer: record.org_stake_ok }">&#xe679;</i>
-              <span>
-                {{ record.org_stake }}
-              </span>
-            </p>
-            <p v-if="record.stake">
-              <i class="iconfont" :class="{ cer: record.stake_ok }">&#xe742;</i>
-              <span>
-                {{ record.stake }}
-              </span>
-            </p>
-          </div>
+          <p class="black bold" v-if="record.org_stake_type">
+            {{ record.org_stake_type }}
+          </p>
+          <p v-else>--</p>
+          <p v-if="record.org_stake">
+            <i class="iconfont" :class="{ cer: record.org_stake_ok }">&#xe679;</i>
+            <span>
+              {{ record.org_stake }}
+            </span>
+          </p>
+          <p v-if="record.stake">
+            <i class="iconfont" :class="{ cer: record.stake_ok }">&#xe742;</i>
+            <span>
+              {{ record.stake }}
+            </span>
+          </p>
         </template>
         <template v-if="column.key === '6'">
           <p>

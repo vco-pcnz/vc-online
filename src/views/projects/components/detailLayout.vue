@@ -50,9 +50,6 @@ const onChange = (key) => {
   router.push(`/projects/${key}`);
 };
 
-onMounted(() => {
-  getProjectDetail();
-});
 </script>
 
 <style scoped lang="less">

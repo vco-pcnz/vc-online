@@ -65,10 +65,6 @@
       </template>
     </a-table>
   </div>
-  <!-- 绑定用户弹窗 -->
-  <vco-choose-user ref="vcoChooseUserRef" @change="bindUser">
-    <div></div>
-  </vco-choose-user>
 </template>
 
 <script setup>

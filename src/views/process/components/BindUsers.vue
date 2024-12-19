@@ -11,11 +11,11 @@
 
     <a-spin :spinning="configLoading" size="large">
       <div class="block-item sec mb-5">
-        <div v-if="hasPermission('process:bind:vcTeam') || isDetails" class="user-show-item">
+        <div class="user-show-item">
           <div class="title-content">
             <p class="uppercase">{{ t('管理者信息') }}</p>
             <a-button
-              v-if="vcTeamData.length && currentId && !isDetails"
+              v-if="vcTeamData.length && currentId && !isDetails && hasPermission('process:bind:vcTeam')"
               type="primary"
               size="small"
               shape="round"
@@ -39,11 +39,11 @@
             <div v-else class="no-data">{{ t('请提交信息后操作') }}</div>
           </div>
         </div>
-        <div v-if="hasPermission('process:bind:broker') || isDetails" class="user-show-item">
+        <div class="user-show-item">
           <div class="title-content">
             <p class="uppercase">{{ t('中介信息') }}</p>
             <a-button
-              v-if="currentId && !isDetails"
+              v-if="currentId && !isDetails && hasPermission('process:bind:broker')"
               type="primary"
               size="small"
               shape="round"
@@ -67,11 +67,11 @@
             <div v-else class="no-data">{{ t('请提交信息后操作') }}</div>
           </div>
         </div>
-        <div v-if="hasPermission('process:bind:user') || isDetails" class="user-show-item">
+        <div class="user-show-item">
           <div class="title-content">
             <p class="uppercase">{{ t('借款账号信息') }}</p>
             <a-button
-              v-if="currentId && !isDetails"
+              v-if="currentId && !isDetails && hasPermission('process:bind:user')"
               type="primary"
               size="small"
               shape="round"

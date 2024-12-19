@@ -21,14 +21,14 @@
 
               <a-popconfirm
                 v-if="dataInfo.has_permission && dataInfo.is_audit"
-                :title="t('确定取消审核吗？')"
+                :title="t('确定拒绝申请吗？')"
                 :ok-text="t('确定')"
                 :cancel-text="t('取消')"
                 @confirm="() => cancelHandle(true)"
               >
                 <a-button
                   type="grey" shape="round" class="bold uppercase"
-                >{{ t('取消审核') }}</a-button>
+                >{{ t('拒绝申请') }}</a-button>
               </a-popconfirm>
 
               <a-button
@@ -43,19 +43,19 @@
 
           <div class="block-container">
             <div class="left-content">
-              <div v-if="dataInfo.next_index > 1" class="block-item details">
+              <div v-if="borrowerInfoData" class="block-item details">
                 <vco-process-title :title="t('借款人信息')"></vco-process-title>
                 <borrower-info :data="borrowerInfoData"></borrower-info>
               </div>
-              <div v-if="dataInfo.next_index > 2" class="block-item details">
+              <div v-if="projectInfoData" class="block-item details">
                 <vco-process-title :title="t('项目信息')"></vco-process-title>
                 <project-info :data="projectInfoData"></project-info>
               </div>
-              <div v-if="dataInfo.next_index > 3" class="block-item details">
+              <div v-if="documentInfoData" class="block-item details">
                 <vco-process-title :title="t('证件资料')"></vco-process-title>
                 <document-info :data="documentInfoData"></document-info>
               </div>
-              <div v-if="dataInfo.next_index > 4" class="block-item details">
+              <div v-if="loanInfoData" class="block-item details">
                 <vco-process-title :title="t('借款信息')"></vco-process-title>
                 <loan-info :data="loanInfoData"></loan-info>
               </div>
@@ -84,7 +84,7 @@
   import { useI18n } from "vue-i18n";
   import { Empty } from 'ant-design-vue';
   import { navigationTo } from "@/utils/tool";
-  import { projectDetailApi } from "@/api/process";
+  import { projectDetailApi, applyCancelProject, projectAuditDeclineProject } from "@/api/process";
   import BorrowerInfo from "@/views/process/temp/default/components/BorrowerInfo.vue";
   import ProjectInfo from "@/views/process/temp/default/components/ProjectInfo.vue";
   import DocumentInfo from "@/views/process/temp/default/components/DocumentInfo.vue";
@@ -131,8 +131,10 @@
   }
 
   const cancelHandle = async (flag) => {
-    const ajaxFn = flag ? cancelCheckHandle : cancelProjectHandle
-    await ajaxFn(dataInfo.value.uuid).then(() => {
+    const ajaxFn = flag ? projectAuditDeclineProject : applyCancelProject
+    await ajaxFn({
+      uuid: dataInfo.value.uuid
+    }).then(() => {
       navigationTo('/requests/loan')
     })
   }

@@ -119,6 +119,7 @@
   import CheckEditDialog from "./CheckEditDialog.vue";
 
   import { lmAuditStatus } from "@/api/process"
+  import emitter from "@/event"
 
   const emits = defineEmits(['refresh'])
 
@@ -176,5 +177,7 @@
     }).catch(() => {
       return false
     })
+
+    emitter.emit('refreshAuditHisList')
   }
 </script>

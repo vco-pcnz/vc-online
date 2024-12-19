@@ -436,6 +436,7 @@
 
         // 触发列表数据刷新
         emitter.emit('refreshRequestsList')
+        emitter.emit('refreshAuditHisList')
       }).catch(() => {
         subLoading.value = false
       })

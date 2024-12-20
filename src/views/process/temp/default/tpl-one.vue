@@ -181,7 +181,7 @@
   import { useUserStore } from "@/store";
   import emitter from "@/event"
 
-  const emits = defineEmits(['checkDone'])
+  const emits = defineEmits(['checkDone', 'dataDone'])
 
   const props = defineProps({
     infoData: {
@@ -386,7 +386,7 @@
       formState.organization_name = data.name
       formState.company_number = data.idcard
     }
-    formState.borrower_images = data.avatar ? [data.avatar] : []
+    formState.borrower_images = []
     formState.borrower_email = data.email
     formState.borrower_phone_prefix = data.pre
     formState.borrower_phone = data.mobile
@@ -533,9 +533,7 @@
     const areaStr = areaArr.filter(item => item).join(',')
     formState.borrower_region = areaStr
 
-    if (data.project_apply_sn) {
-      emits('dataDone', data.project_apply_sn)
-    } 
+    emits('dataDone', data.project_apply_sn || '')
   }
 
   const pageLoading = ref(false)

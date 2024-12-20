@@ -279,11 +279,7 @@
   }
 
   const searchHandle = (data = {}) => {
-    const params = cloneDeep(currentParams.value)
-    getTableData({
-      ...params,
-      ...data
-    })
+    getTableData(data)
   }
 
   const cancelHandle = () => {
@@ -306,10 +302,10 @@
   });
 
   onMounted(() => {
-    searchHandle()
+    getTableData(true)
 
     emitter.on('refreshRequestsList', () => {
-      searchHandle()
+      getTableData()
     })
   })
 </script>

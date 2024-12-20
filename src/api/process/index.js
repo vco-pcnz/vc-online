@@ -294,3 +294,10 @@ export const auditHistoryList = (params) =>
     params
   });
   
+// 保存借款金额
+export const projectAuditSaveLoanAmount = (data) =>
+  request({
+    url: "/project/audit/saveLoanAmount",
+    method: "post",
+    data
+  });

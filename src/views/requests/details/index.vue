@@ -1,35 +1,39 @@
 <template>
   <div>
+    <reject-dialog
+      v-model:visible="rejectVisible"
+      :uuid="currentId"
+    ></reject-dialog>
+
     <a-spin :spinning="pageLoading" size="large">
       <div class="main-info-container">
         <template v-if="dataInfo && !pageLoading">
           <vco-page-panel :title="dataInfo.project_apply_sn" @back="navigationTo('/requests/loan')">
             <div v-if="dataInfo" class="flex gap-5">
-              <vco-status v-if="!dataInfo.has_permission" :title="t(dataInfo.status_name)" type="primary"></vco-status>
+              <vco-status
+                v-if="!dataInfo.has_permission"
+                :title="t(dataInfo.status_name)"
+                :type="statusType"
+                type="primary"
+              ></vco-status>
 
               <a-popconfirm
                 v-if="dataInfo.has_permission && !dataInfo.is_audit"
                 :title="t('确定取消项目吗？')"
                 :ok-text="t('确定')"
                 :cancel-text="t('取消')"
-                @confirm="() => cancelHandle(false)"
+                @confirm="() => cancelHandle()"
               >
                 <a-button
                   type="grey" shape="round" class="bold uppercase"
                 >{{ t('取消项目') }}</a-button>
               </a-popconfirm>
 
-              <a-popconfirm
+              <a-button
                 v-if="dataInfo.has_permission && dataInfo.is_audit"
-                :title="t('确定拒绝申请吗？')"
-                :ok-text="t('确定')"
-                :cancel-text="t('取消')"
-                @confirm="() => cancelHandle(true)"
-              >
-                <a-button
-                  type="grey" shape="round" class="bold uppercase"
-                >{{ t('拒绝申请') }}</a-button>
-              </a-popconfirm>
+                type="grey" shape="round" class="bold uppercase"
+                @click="rejectVisible = true"
+              >{{ t('拒绝申请') }}</a-button>
 
               <a-button
                 v-if="dataInfo.has_permission"
@@ -41,29 +45,37 @@
             </div>
           </vco-page-panel>
 
+          <div v-if="dataInfo.status === -900" class="block-item details process-fail">
+            <p class="title">{{ t('拒绝原因') }}</p>
+            <p class="info">{{ dataInfo.decline_reason || t('拒绝原因') }}</p>
+          </div>
+
           <div class="block-container">
             <div class="left-content">
-              <div v-if="borrowerInfoData" class="block-item details">
-                <vco-process-title :title="t('借款人信息')"></vco-process-title>
-                <borrower-info :data="borrowerInfoData"></borrower-info>
-              </div>
-              <div v-if="projectInfoData" class="block-item details">
-                <vco-process-title :title="t('项目信息')"></vco-process-title>
-                <project-info :data="projectInfoData"></project-info>
-              </div>
-              <div v-if="documentInfoData" class="block-item details">
-                <vco-process-title :title="t('证件资料')"></vco-process-title>
-                <document-info :data="documentInfoData"></document-info>
-              </div>
-              <div v-if="loanInfoData" class="block-item details">
-                <vco-process-title :title="t('借款信息')"></vco-process-title>
-                <loan-info :data="loanInfoData"></loan-info>
-              </div>
+              <template v-if="dataInfo">
+                <div v-if="showBlock(1)" class="block-item details">
+                  <vco-process-title :title="t('借款人信息')"></vco-process-title>
+                  <borrower-info :data="borrowerInfoData"></borrower-info>
+                </div>
+                <div v-if="showBlock(2)" class="block-item details">
+                  <vco-process-title :title="t('项目信息')"></vco-process-title>
+                  <project-info :data="projectInfoData"></project-info>
+                </div>
+                <div v-if="showBlock(3)" class="block-item details">
+                  <vco-process-title :title="t('证件资料')"></vco-process-title>
+                  <document-info :data="documentInfoData"></document-info>
+                </div>
+                <div v-if="showBlock(4)" class="block-item details">
+                  <vco-process-title :title="t('借款信息')"></vco-process-title>
+                  <loan-info :data="loanInfoData"></loan-info>
+                </div>
+              </template>
             </div>
             <div class="right-content">
               <bind-users
                 :current-id="currentId"
                 :is-details="true"
+                :created-user="createdUser"
               ></bind-users>
 
               <ads-content></ads-content>
@@ -82,15 +94,18 @@
   import { useI18n } from "vue-i18n";
   import { Empty } from 'ant-design-vue';
   import { navigationTo } from "@/utils/tool";
-  import { projectDetailApi, applyCancelProject, projectAuditDeclineProject } from "@/api/process";
+  import { projectDetailApi, applyCancelProject } from "@/api/process";
   import BorrowerInfo from "@/views/process/temp/default/components/BorrowerInfo.vue";
   import ProjectInfo from "@/views/process/temp/default/components/ProjectInfo.vue";
   import DocumentInfo from "@/views/process/temp/default/components/DocumentInfo.vue";
   import LoanInfo from "@/views/process/temp/default/components/LoanInfo.vue";
   import BindUsers from "@/views/process/components/BindUsers.vue";
   import AdsContent from "@/views/process/components/AdsContent.vue";
+  import RejectDialog from "@/views/process/components/RejectDialog.vue";
+
   import { useUserStore } from "@/store";
   import { processRoutes } from "@/constant"
+  import emitter from "@/event"
 
   const { t } = useI18n();
   const route = useRoute();
@@ -109,6 +124,39 @@
   const userStore = useUserStore();
 
   const isNormalUser = computed(() => userStore.isNormalUser);
+  const createdUser = ref({
+    avatar: "",
+    name: ""
+  })
+
+  const statusType = computed(() => {
+    const status = dataInfo.value.status
+    if (status === -900) {
+      return 'error'
+    } else if (status === -100) {
+      return 'grey'
+    } else if (status === 1000) {
+      return 'success'
+    } else {
+      return 'primary'
+    }
+  })
+
+  const showBlock = (index = 0) => {
+    const isOpen = dataInfo.value.status > 900 || dataInfo.value.status === 900
+    const isCancel = dataInfo.value.status === -100
+    const isDeclined = dataInfo.value.status === -900
+
+    if (isCancel || isDeclined || isOpen) {
+      return true
+    } else {
+      if (dataInfo.value.next_index) {
+        return dataInfo.value.next_index > index
+      } 
+    }
+
+    return false
+  }
 
   const getDataInfo = () => {
     projectDetailApi({
@@ -116,6 +164,11 @@
     }).then(res => {
       if (res) {
         dataInfo.value = res
+
+        createdUser.value = {
+          avatar: res.create_user_avatar,
+          name: res.create_user_name
+        }
 
         borrowerInfoData.value = res.borrower_info
         projectInfoData.value = res.project_info
@@ -129,14 +182,17 @@
     })
   }
 
-  const cancelHandle = async (flag) => {
-    const ajaxFn = flag ? projectAuditDeclineProject : applyCancelProject
-    await ajaxFn({
+  const cancelHandle = async () => {
+    await applyCancelProject({
       uuid: dataInfo.value.uuid
     }).then(() => {
+      // 触发列表数据刷新
+      emitter.emit('refreshRequestsList')
       navigationTo('/requests/loan')
     })
   }
+
+  const rejectVisible = ref(false)
 
   const nextHandle = () => {
     const href = processRoutes[dataInfo.value.next_index - 1]

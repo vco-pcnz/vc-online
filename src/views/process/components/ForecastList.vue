@@ -78,6 +78,7 @@
       <vco-process-title :title="t('预测列表')">
         <div class="flex gap-3">
           <a-button
+            v-if="tabData.length"
             type="dark" shape="round"
             size="small"
             class="uppercase"

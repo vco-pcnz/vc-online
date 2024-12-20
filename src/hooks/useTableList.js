@@ -62,6 +62,8 @@ export function useTableList(ajaxFn, params = {}, immediate = true) {
 
   // 分页改变
   const pageChange = (page, size) => {
+    console.log('page', page)
+    console.log('size', size)
     pageNum.value = page
     pageSize.value = size
     getTableData()

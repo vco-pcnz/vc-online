@@ -10,20 +10,23 @@
           ></base-info-content>
 
           <!-- 放款信息 -->
-          <credit-form :current-id="currentId" @done="showForecast = true"></credit-form>
+          <credit-form
+            :current-id="currentId"
+            :loan-info="loanInfo"
+            @done="showForecast = true"
+            @refresh="getDataInit"
+          ></credit-form>
 
           <temp-footer
             ref="footerRef"
             :check="check"
-            :draft-loading="draftLoading"
             :sub-loading="subLoading"
-            :has-draft="hasDraftData"
+            :show-draft="false"
             :previous-page="previousPage"
             :next-page="nextPage"
             :can-next="canNext"
             :current-id="currentId"
             :current-step="currentStep"
-            @draft="draftHandle"
             @submit="submitHandle"
           ></temp-footer>
         </div>
@@ -50,12 +53,9 @@
   import { cloneDeep } from "lodash";
   import {
     projectApplySaveLoanInfo,
-    projectSaveSaveDraft,
-    projectLmAuditDetail,
-    projectDraftInfo
+    projectLmAuditDetail
   } from "@/api/process";
-  import tool, { navigationTo } from "@/utils/tool";
-  import { message } from "ant-design-vue/es";
+  import { navigationTo } from "@/utils/tool";
   import BaseInfoContent from "./components/BaseInfoContent.vue";
   import TempFooter from "./components/TempFooter.vue";
   import CreditForm from "./components/CreditForm.vue";
@@ -120,9 +120,9 @@
     loan_money: [
       { required: true, message: t('请输入') + t('借款金额'), trigger: 'blur' },
       {
-        pattern: /^[+]?(0|[1-9]\d*)(\.\d+)?$/,
+        pattern: /^(?!0(\.0+)?$)(\d+(\.\d+)?|\.\d+)$/,
         message: t("请输入大于0的数字"),
-        trigger: 'change'
+        trigger: 'blur'
       }
     ],
     loan_type: [
@@ -135,14 +135,14 @@
       {
         pattern: /^[0-9]\d*$/,
         message: t("请输入正整数"),
-        trigger: 'change'
+        trigger: 'blur'
       }
     ],
     days: [
       {
         pattern: /^[0-9]\d*$/,
         message: t("请输入正整数"),
-        trigger: 'change'
+        trigger: 'blur'
       }
     ]
   }
@@ -176,61 +176,13 @@
     });
   }
 
-  const draftLoading = ref(false)
-  const hasDraftData = ref(false)
-  const draftHandle = () => {
-    console.log('dsafdsafdsa')
-    // const dataObj = cloneDeep(formState)
-    // if (dataObj.time_date) {
-    //   dataObj.time_date = [dayjs(dataObj.time_date[0]).format('YYYY-MM-DD'), dayjs(dataObj.time_date[1]).format('YYYY-MM-DD')]
-    // }
-
-    // if (tool.isAllValuesEmpty(dataObj)) {
-    //   message.error(t('暂无数据，无需保存'))
-    // } else {
-    //   const params = {
-    //     uuid: props.infoData.uuid,
-    //     draft_step: 'four',
-    //     draft: JSON.stringify(tool.filterEmptyValues(dataObj))
-    //   }
-
-    //   draftLoading.value = true
-    //   projectSaveSaveDraft(params).then(res => {
-    //     message.success(t('保存成功'))
-    //     draftLoading.value = false
-    //     hasDraftData.value = true
-    //   }).catch(() => {
-    //     draftLoading.value = false
-    //   })
-    // }
-  }
-
   const dataInfo = ref(null)
-  const dataInit = (infoMsg = {}, draftMsg = {}) => {
+  const loanInfo = ref(null)
+  const dataInit = (infoMsg = {}) => {
     const data = cloneDeep({...infoMsg, ...props.infoData})
-    const draftData = cloneDeep({...draftMsg, ...props.draftData})
 
+    loanInfo.value = data.loan_info
     dataInfo.value = data
-
-    // if (data && data.start_date && data.end_date) {
-    //   data.time_date = [data.start_date, data.end_date]
-    //   timeChange(data.time_date)
-    // }
-    // const draftData = cloneDeep(props.draftData)
-
-    // let useData = data
-    // if (draftData && Object.keys(draftData).length) {
-    //   useData = draftData
-    //   hasDraftData.value = true
-    // }
-
-    // for (const key in formState) {
-    //   if (key === 'time_date' && useData[key]) {
-    //     formState.time_date = [dayjs(useData[key][0]), dayjs(useData[key][1])]
-    //   } else {
-    //     formState[key] = useData[key] || formState[key] || ''
-    //   }
-    // }
     currentDataInfo.value = data
     emits('dataDone', data.project_apply_sn)
   }
@@ -238,8 +190,6 @@
   const pageLoading = ref(false)
   const getDataInit = async () => {
     pageLoading.value = true
-
-    let draftData = {}
     let infoData = {}
     
     // 草稿数据
@@ -249,12 +199,6 @@
     if (props.currentId) {
       params.uuid = props.currentId
     }
-    await projectDraftInfo(params).then(res => {
-      if (res.draft) {
-        const data = JSON.parse(res.draft)
-        draftData = data
-      }
-    })
 
     if (props.currentId) {
       await projectLmAuditDetail({
@@ -266,7 +210,7 @@
 
     pageLoading.value = false
 
-    dataInit(infoData, draftData)
+    dataInit(infoData)
   }
 
   watch(

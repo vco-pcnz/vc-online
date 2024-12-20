@@ -377,5 +377,8 @@ export default {
   "{0}以后已手动修改的放款是否保留已设置的值": "{0} Whether the loan that has been manually modified in the future will retain the set value",
   "已存在数据，确定生成吗?": "Data already exists, are you sure you want to generate it?",
   "LM 审核": "LM Review",
-  "暂无操作记录": "No operation record"
+  "暂无操作记录": "No operation record",
+  "创建者": "Created by",
+  "拒绝原因": "Reason for rejection",
+  "请先设置下列费用并生成预测单": "Please set the following fees and generate a forecast list"
 }

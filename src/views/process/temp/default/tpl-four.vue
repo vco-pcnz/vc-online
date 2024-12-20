@@ -166,7 +166,7 @@
     loan_money: [
       { required: true, message: t('请输入') + t('借款金额'), trigger: 'blur' },
       {
-        pattern: /^[+]?(0|[1-9]\d*)(\.\d+)?$/,
+        pattern: /^[+]?([1-9]\d*)(\.\d+)?$/,
         message: t("请输入大于0的数字"),
         trigger: 'change'
       }

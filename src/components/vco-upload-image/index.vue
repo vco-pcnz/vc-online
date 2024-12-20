@@ -123,7 +123,7 @@
   };
 
   const uidGenerator = () => {
-    return '-' + parseInt(String(Math.random() * 10000 + 1), 10);
+    return 'static-' + parseInt(String(Math.random() * 10000 + 1), 10);
   };
 
   const getFileName = (path) => {
@@ -232,7 +232,10 @@
       item = uploadFiles[uploadFiles.length - 1].response.data;
     } else {
       for (var i = 0; i < uploadFiles.length; i++) {
-        const itemData = uploadFiles[i].response.status === 'history' ? uploadFiles[i].uid : uploadFiles[i].response.data
+        const itemData =
+          uploadFiles[i].response.status === 'history'
+          ? uploadFiles[i].uid.indexOf('static') > -1 ? uploadFiles[i].url : uploadFiles[i].uid
+          : uploadFiles[i].response.data
         item.push(itemData);
       }
     }

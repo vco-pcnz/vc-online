@@ -6,6 +6,7 @@
           :title="t('确定通过审核吗？')"
           :ok-text="t('确定')"
           :cancel-text="t('取消')"
+          @confirm="checkHandle()"
         >
           <a-button
             type="dark" shape="round"
@@ -16,7 +17,7 @@
           type="primary" shape="round"
           :loading="subLoading"
           class="uppercase"
-          @click="saveHandle"
+          @click="saveHandle()"
         >{{ t('保存') }}</a-button>
       </div>
     </vco-process-title>
@@ -24,18 +25,18 @@
       <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
         <a-row :gutter="24">
           <a-col :span="12">
-            <a-form-item :label="t('建筑贷款总额')" name="buildAmount">
+            <a-form-item :label="t('建筑贷款总额')" name="build_amount">
               <a-input-number
-                v-model:value="formState.buildAmount"
+                v-model:value="formState.build_amount"
                 :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                 :parser="value => value.replace(/\$\s?|(,*)/g, '')"
               />
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item :label="t('土地贷款总额')" name="landAmount">
+            <a-form-item :label="t('土地贷款总额')" name="land_amount">
               <a-input-number
-                v-model:value="formState.landAmount"
+                v-model:value="formState.land_amount"
                 :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                 :parser="value => value.replace(/\$\s?|(,*)/g, '')"
               />
@@ -83,14 +84,23 @@
   import { useI18n } from "vue-i18n";
   import { cloneDeep } from "lodash";
   import { message } from "ant-design-vue/es";
-  import { ruleCredit, creditInitial, creditInfo } from "@/api/process"
+  import { ruleCredit, creditInitial, creditInfo, lmAuditStatus, projectAuditSaveLoanAmount } from "@/api/process"
   import emitter from "@/event"
 
-  const emits = defineEmits(['done'])
+  const emits = defineEmits(['done', 'refresh'])
   const props = defineProps({
     currentId: {
       type: [Number, String],
       required: true
+    },
+    loanInfo: {
+      type: Object,
+      default: () => {
+        return {
+          build_amount: '',
+          land_amount: ''
+        }
+      }
     }
   })
 
@@ -98,8 +108,8 @@
 
   const formRef = ref()
   const formState = ref({
-    buildAmount: '',
-    landAmount: ''
+    build_amount: '',
+    land_amount: ''
   })
   const formRules = ref({})
   const percentItems = ref([])
@@ -119,10 +129,18 @@
         formState.value[writeData[i].credit_table] = writeData[i].value
         if (writeData[i].is_req) {
           rulesData[writeData[i].credit_table] = [
-            { required: true, message: t('请输入') + writeData[i].credit_name, trigger: 'blur' }
+            { required: true, message: t('请输入') + writeData[i].credit_name, trigger: 'blur' },
+            {
+              pattern: /^(?!0(\.0+)?$)(\d+(\.\d+)?|\.\d+)$/,
+              message: t("请输入大于0的数字"),
+              trigger: 'blur'
+            }
           ]
         }
       }
+
+      formState.value.build_amount = props.loanInfo.build_amount
+      formState.value.land_amount = props.loanInfo.land_amount
       
       formRules.value = rulesData
       percentItems.value = perData
@@ -155,12 +173,22 @@
   const saveHandle = async () => {
     formRef.value
     .validate()
-    .then(() => {
-      const totalAmount = Number(formState.value.buildAmount) + Number(formState.value.landAmount)
+    .then(async () => {
+      const totalAmount = Number(formState.value.build_amount) + Number(formState.value.land_amount)
       if (totalAmount <= 0) {
         message.error(t('借款总额不正确'))
         return false
       }
+
+      await projectAuditSaveLoanAmount({
+        uuid: props.currentId,
+        build_amount: formState.value.build_amount,
+        land_amount: formState.value.land_amount,
+        offer_amount_status: 405,
+      }).then(() => {
+        emits('refresh')
+      })
+
       const params = cloneDeep(formState.value)
       params.apply_uuid = props.currentId
       if (creditId.value) {
@@ -182,6 +210,18 @@
     .catch(error => {
       console.log('error', error);
     });
+  }
+
+  const checkHandle = () => {
+    if (creditId.value) {
+      const totalAmount = Number(formState.value.build_amount) + Number(formState.value.land_amount)
+      if (totalAmount <= 0) {
+        message.error(t('借款总额不正确'))
+        return false
+      }
+    } else {
+      message.error(t('请先设置下列费用并生成预测单'))
+    }
   }
 
   onMounted(() => {

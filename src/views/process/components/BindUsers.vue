@@ -89,6 +89,17 @@
             <div v-else class="no-data">{{ t('暂无数据') }}</div>
           </div>
         </div>
+        <div v-if="isDetails" class="user-show-item">
+          <div class="title-content">
+            <p class="uppercase">{{ t('创建者') }}</p>
+          </div>
+          <div class="info-content">
+            <vco-user-item
+              :data="createdUser"
+              :main="true"
+            ></vco-user-item>
+          </div>
+        </div>
       </div>
     </a-spin>
   </div>
@@ -110,6 +121,15 @@
     isDetails: {
       type: Boolean,
       default: false
+    },
+    createdUser: {
+      type: Object,
+      default: () => {
+        return {
+          avatar: "",
+          name: ""
+        }
+      }
     }
   })
 

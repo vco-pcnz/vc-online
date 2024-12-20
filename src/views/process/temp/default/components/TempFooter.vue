@@ -1,5 +1,10 @@
 <template>
   <div class="flex mt-5 items-end gap-20 justify-between">
+    <reject-dialog
+      v-model:visible="rejectVisible"
+      :uuid="currentId"
+    ></reject-dialog>
+
     <div v-if="!check && showDraft">
       <a-button
         type="grey"
@@ -21,6 +26,12 @@
       >{{ t('上一步') }}</a-button>
 
       <a-button
+        v-if="previousPage && currentStep.examine"
+        type="grey" shape="round" class="big shadow bold uppercase"
+        @click="rejectVisible = true"
+      >{{ t('拒绝申请') }}</a-button>
+
+      <a-button
         type="dark" shape="round" class="big shadow bold uppercase"
         @click="submitHandle"
         :loading="subLoading"
@@ -30,8 +41,9 @@
 </template>
 
 <script setup>
-  import { computed } from "vue"
+  import { computed, ref } from "vue"
   import { useI18n } from "vue-i18n";
+  import RejectDialog from "@/views/process/components/RejectDialog.vue";
   import { navigationTo } from "@/utils/tool"
 
   const emits = defineEmits(['draft', 'submit'])
@@ -78,6 +90,8 @@
   })
 
   const { t } = useI18n();
+
+  const rejectVisible = ref(false)
 
   const submitText = computed(() => {
     let txt = ''

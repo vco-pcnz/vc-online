@@ -117,7 +117,6 @@
     return res
   })
 
-  const notInit = ref(true)
   const dataInit = () => {
     areaCodeValue.value = props.areaCode ? `+${props.areaCode}` : '+64'
     mobileValue.value = props.value || ''
@@ -129,8 +128,7 @@
   watch(
     () => props.value,
     (val) => {
-      if (val && notInit.value) {
-        notInit.value = false
+      if (val) {
         dataInit()
       }
     },

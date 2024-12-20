@@ -67,7 +67,7 @@
 <style lang="less" scoped>
   .log-content {
     width: 100%;
-    height: 250px;
+    height: 300px;
     overflow-y: scroll;
     overflow-x: hidden;
     &.no-data {

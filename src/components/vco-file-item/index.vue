@@ -1,5 +1,5 @@
 <template>
-  <div class="fileBox" :class="{'bg': bg}">
+  <div class="fileBox" :class="{ bg: bg }">
     <i v-if="Number(file.type === 1)" class="iconfont">&#xe797;</i>
     <i v-if="Number(file.type === 2)" class="iconfont">&#xe774;</i>
     <i v-if="Number(file.type === 3)" class="iconfont">&#xe798;</i>
@@ -15,7 +15,6 @@
     <div class="ops">
       <EyeOutlined @click="handlePreview(file)" class="icon" />
       <a :href="file.value" target="_blank" v-if="!showClose"><i class="iconfont icon" style="font-size: 14px">&#xe780;</i></a>
-      <!-- <i class="iconfont icon" style="font-size: 14px" @click="down">&#xe780;</i> -->
       <i class="iconfont icon" @click="remove" v-if="showClose">&#xe77d;</i>
     </div>
   </div>
@@ -33,8 +32,8 @@ import { message } from 'ant-design-vue';
 import tool from '@/utils/tool';
 import { DeleteOutlined, EyeOutlined } from '@ant-design/icons-vue';
 import { fill } from 'lodash';
-import axios from "axios";
-import { getToken, removeToken } from "@/utils/token-util.js";
+import axios from 'axios';
+import { getToken, removeToken } from '@/utils/token-util.js';
 
 const { t } = useI18n();
 
@@ -72,8 +71,8 @@ const validity = computed(() => {
 });
 
 const showTitle = computed(() => {
-  return props.file.name || props.file.real_name
-})
+  return props.file.name || props.file.real_name;
+});
 
 // 关闭弹框
 const previewHandleCancel = () => {
@@ -85,17 +84,22 @@ const down = () => {
   if (props.file.value) {
     let token = getToken();
     const env = import.meta.env;
-    axios.post(props.file.value,{} , {
-      headers: {
-        Authorization: token,
-        token: token
-      },
-      responseType: 'blob',
-      baseURL: env.VITE_APP_OPEN_PROXY === "true" ? env.VITE_APP_PROXY_PREFIX : env.VITE_APP_BASE_URL
-    })
-    .then((res) => {
-      tool.download(res)
-    });
+    axios
+      .post(
+        props.file.value,
+        {},
+        {
+          headers: {
+            Authorization: token,
+            token: token
+          },
+          responseType: 'blob',
+          baseURL: env.VITE_APP_OPEN_PROXY === 'true' ? env.VITE_APP_PROXY_PREFIX : env.VITE_APP_BASE_URL
+        }
+      )
+      .then((res) => {
+        tool.download(res);
+      });
   }
   //
 };
@@ -103,6 +107,19 @@ const down = () => {
 const remove = () => {
   emits('remove');
 };
+
+watch(
+  () => props.file,
+  (newVal, oldVal) => {
+    if (props.file) {
+      props.file.value = props.file.value || props.file.url;
+    }
+  },
+  {
+    immediate: true,
+    deep: true
+  }
+);
 </script>
 
 <style scoped lang="less">

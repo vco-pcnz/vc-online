@@ -53,9 +53,7 @@
               </span>
             </p>
           </div>
-          <a-button type="primary" v-else @click="showBindUser(record.uuid)" size="Small">
-            {{ t('绑定用户') }}
-          </a-button>
+          <a-button v-else  type="brown" shape="round" size="small" @click="showBindUser(record.uuid)">{{ t('绑定用户') }}</a-button>
         </template>
         <template v-if="column.key === '4'">
           <p v-if="record.user_roles.length">

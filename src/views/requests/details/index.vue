@@ -66,9 +66,7 @@
                 :is-details="true"
               ></bind-users>
 
-              <div v-if="isNormalUser" class="block-item ads-content">
-                <img src="./../../../assets/images/img1.png" alt="">
-              </div>
+              <ads-content></ads-content>
             </div>
           </div>
         </template>
@@ -90,6 +88,7 @@
   import DocumentInfo from "@/views/process/temp/default/components/DocumentInfo.vue";
   import LoanInfo from "@/views/process/temp/default/components/LoanInfo.vue";
   import BindUsers from "@/views/process/components/BindUsers.vue";
+  import AdsContent from "@/views/process/components/AdsContent.vue";
   import { useUserStore } from "@/store";
   import { processRoutes } from "@/constant"
 

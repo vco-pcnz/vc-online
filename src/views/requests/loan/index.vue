@@ -12,7 +12,7 @@
       <div class="mt-10">
         <vco-table-tool>
           <template #left>
-            <a-button type="grey" :disabled="!selectedRowKeys.length" class="uppercase" @click="cancelHandle">{{ t('取消项目') }}</a-button>
+            <!-- <a-button type="grey" :disabled="!selectedRowKeys.length" class="uppercase" @click="cancelHandle">{{ t('取消项目') }}</a-button> -->
           </template>
           <template #right>
             <!-- <vco-table-layout-type v-model="tabLayout"></vco-table-layout-type> -->
@@ -27,13 +27,13 @@
         <div class="mt-5">
           <a-spin :spinning="tableLoading" size="large">
             <div class="table-content sys-table-content">
+              <!-- :row-selection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange }" -->
               <grid-block v-if="tabLayout"></grid-block>
               <a-table
                 v-else
                 ref="tableRef"
                 rowKey="uuid"
                 :columns="columns"
-                :row-selection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange }"
                 :data-source="tableDataRef"
                 :pagination="false"
                 :scroll="{ x: '100%' }"
@@ -89,7 +89,13 @@
                     </div>
                   </template>
                   <template v-if="column.dataIndex === 'lm'">
-                    <span v-if="record.lm">{{ record.lm }}</span>
+                    <div class="user-content" v-if="record.lm_list && record.lm_list.length">
+                      <vco-user-item
+                        v-for="(item, index) in record.lm_list"
+                        :key="index"
+                        :data="item"
+                      ></vco-user-item>
+                    </div>
                     <p v-else>--</p>
                   </template>
                   <template v-if="column.dataIndex === 'term'">
@@ -100,10 +106,10 @@
                     ></vco-time-line>
                     <p v-else>--</p>
                   </template>
-                  <template v-if="column.dataIndex === 'lvr'">
+                  <!-- <template v-if="column.dataIndex === 'lvr'">
                     <span v-if="record.lvr">{{ record.lvr }}</span>
                     <p v-else>--</p>
-                  </template>
+                  </template> -->
                   <template v-if="column.dataIndex === 'create_time'">
                     <span v-if="record.create_time">{{ tool.showDate(record.create_time) }}</span>
                     <p v-else>--</p>
@@ -218,9 +224,9 @@
     { title: t('项目信息'), dataIndex: 'project_info', width: 180, align: 'left' },
     { title: t('借款金额'), dataIndex: 'loan_money', width: 160, align: 'left' },
     { title: t('借款人信息'), dataIndex: 'borrower_info', width: 180, align: 'left' },
-    { title: t('客户经理'), dataIndex: 'lm', width: 100, align: 'center' },
+    { title: t('客户经理'), dataIndex: 'lm', width: 180, align: 'left' },
     { title: t('期数'), dataIndex: 'term', width: 220, align: 'center' },
-    { title: t('最大费率'), dataIndex: 'lvr', width: 100, align: 'center' },
+    // { title: t('最大费率'), dataIndex: 'lvr', width: 100, align: 'center' },
     { title: t('创建时间'), dataIndex: 'create_time', width: 120, align: 'center' },
     { title: t('状态'), dataIndex: 'status', width: 200, align: 'center' },
     {
@@ -336,6 +342,15 @@
       color: #666;
       &.cer {
         color: #282828;
+      }
+    }
+  }
+
+  .user-content {
+    .vco-user-item {
+      margin-bottom: 8px;
+      &:last-child {
+        margin-bottom: 0;
       }
     }
   }

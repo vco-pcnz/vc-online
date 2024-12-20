@@ -86,6 +86,7 @@
       flex: 1;
       line-height: 1.2;
       font-size: 13px;
+      text-align: left;
       > span {
         color: #999;
         padding-right: 3px;

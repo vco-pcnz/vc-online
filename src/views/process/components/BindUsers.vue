@@ -15,7 +15,7 @@
           <div class="title-content">
             <p class="uppercase">{{ t('管理者信息') }}</p>
             <a-button
-              v-if="vcTeamData.length && currentId && !isDetails && hasPermission('process:bind:vcTeam')"
+              v-if="vcTeamData.length && !isDetails && hasPermission('process:bind:vcTeam')"
               type="primary"
               size="small"
               shape="round"
@@ -24,7 +24,7 @@
             >{{ t('编辑') }}</a-button>
           </div>
           <div class="info-content">
-            <template v-if="currentId">
+            <!-- <template v-if="currentId"> -->
               <div v-if="vcDataCom.length" class="user-item-content">
                 <vco-user-item
                   v-for="(item, index) in vcDataCom"
@@ -35,15 +35,15 @@
                 ></vco-user-item>
               </div>
               <div v-else class="no-data">{{ t('暂无数据') }}</div>
-            </template>
-            <div v-else class="no-data">{{ t('请提交信息后操作') }}</div>
+            <!-- </template> -->
+            <!-- <div v-else class="no-data">{{ t('请提交信息后操作') }}</div> -->
           </div>
         </div>
         <div class="user-show-item">
           <div class="title-content">
             <p class="uppercase">{{ t('中介信息') }}</p>
             <a-button
-              v-if="currentId && !isDetails && hasPermission('process:bind:broker')"
+              v-if="!isDetails && hasPermission('process:bind:broker')"
               type="primary"
               size="small"
               shape="round"
@@ -52,26 +52,23 @@
             >{{ t('编辑') }}</a-button>
           </div>
           <div class="info-content">
-            <template v-if="currentId">
-              <div v-if="brokerDataCom.length" class="user-item-content">
-                <vco-user-item
-                  v-for="(item, index) in brokerDataCom"
-                  :key="index"
-                  :data="item"
-                  :main="true"
-                  :tips="item.tips"
-                ></vco-user-item>
-              </div>
-              <div v-else class="no-data">{{ t('暂无数据') }}</div>
-            </template>
-            <div v-else class="no-data">{{ t('请提交信息后操作') }}</div>
+            <div v-if="brokerDataCom.length" class="user-item-content">
+              <vco-user-item
+                v-for="(item, index) in brokerDataCom"
+                :key="index"
+                :data="item"
+                :main="true"
+                :tips="item.tips"
+              ></vco-user-item>
+            </div>
+            <div v-else class="no-data">{{ t('暂无数据') }}</div>
           </div>
         </div>
         <div class="user-show-item">
           <div class="title-content">
             <p class="uppercase">{{ t('借款账号信息') }}</p>
             <a-button
-              v-if="currentId && !isDetails && hasPermission('process:bind:user')"
+              v-if="!isDetails && hasPermission('process:bind:user')"
               type="primary"
               size="small"
               shape="round"
@@ -80,19 +77,16 @@
             >{{ t('编辑') }}</a-button>
           </div>
           <div class="info-content">
-            <template v-if="currentId">
-              <div v-if="borrowerDataCom.length" class="user-item-content">
-                <vco-user-item
-                  v-for="(item, index) in borrowerDataCom"
-                  :key="index"
-                  :data="item"
-                  :main="true"
-                  :tips="item.tips"
-                ></vco-user-item>
-              </div>
-              <div v-else class="no-data">{{ t('暂无数据') }}</div>
-            </template>
-            <div v-else class="no-data">{{ t('请提交信息后操作') }}</div>
+            <div v-if="borrowerDataCom.length" class="user-item-content">
+              <vco-user-item
+                v-for="(item, index) in borrowerDataCom"
+                :key="index"
+                :data="item"
+                :main="true"
+                :tips="item.tips"
+              ></vco-user-item>
+            </div>
+            <div v-else class="no-data">{{ t('暂无数据') }}</div>
           </div>
         </div>
       </div>
@@ -104,8 +98,9 @@
   import { ref, onMounted, computed } from "vue"
   import BindUsersDialog from "./BindUsersDialog.vue";
   import { useI18n } from "vue-i18n";
-  import { associateSystemConfig, associateUserList } from "@/api/process"
+  import { associateSystemConfig, associateUserList, associateAssignUser } from "@/api/process"
   import { hasPermission } from "@/directives/permission"
+  import emitter from "@/event"
 
   const props = defineProps({
     currentId: {
@@ -205,12 +200,93 @@
         configLoading.value = false
       })
     } else {
+      const vcObj = {}
+      for (let i = 0; i < vcTeamArr.length; i++) {
+        vcObj[vcTeamArr[i]] = []
+      }
+      vcData.value = vcObj && Object.keys(vcObj).length ? vcObj : null
+      vcDataCom.value = userFlatFn(vcData.value)
+
+      borrowerData.value = {
+        view: [],
+        edit: []
+      }
+      borrowerDataCom.value = userFlatFn(borrowerData.value)
+
+      brokerData.value = {
+        view: [],
+        edit: []
+      }
+      brokerDataCom.value = userFlatFn(brokerData.value)
+
       configLoading.value = false
+    }
+  }
+
+  const bindUsersHandle = (data) => {
+    if (data.type === 1) {
+      vcData.value = data.data
+      vcDataCom.value = userFlatFn(vcData.value)
+    } else if (data.type === 2) {
+      borrowerData.value = data.data
+      borrowerDataCom.value = userFlatFn(borrowerData.value)
+    } else if (data.type === 3) {
+      brokerData.value = data.data
+      brokerDataCom.value = userFlatFn(brokerData.value)
+    }
+  }
+
+  const bindUsersRequest = async (uuid) => {
+    for (const key in vcData.value) {
+      if (vcData.value[key] && vcData.value[key].length) {
+        const params = {
+          uuid,
+          user_uuid: vcData.value[key].map(item => item.uuid).join(','),
+          role_code: key,
+          rule: 2
+        }
+
+        await associateAssignUser(params)
+      }
+    }
+
+    for (const key in brokerData.value) {
+      if (brokerData.value[key] && brokerData.value[key].length) {
+        const params = {
+          uuid,
+          user_uuid: brokerData.value[key].map(item => item.uuid).join(','),
+          role_code: 'broker',
+          rule: key === 'view' ? 1 : 2
+        }
+
+        await associateAssignUser(params)
+      }
+    }
+
+    for (const key in borrowerData.value) {
+      if (borrowerData.value[key] && borrowerData.value[key].length) {
+        const params = {
+          uuid,
+          user_uuid: borrowerData.value[key].map(item => item.uuid).join(','),
+          role_code: 'user',
+          rule: key === 'view' ? 1 : 2
+        }
+
+        await associateAssignUser(params)
+      }
     }
   }
 
   onMounted(() => {
     getConfigInfo()
+
+    emitter.on('stepOneBindUser', (data) => {
+      bindUsersHandle(data)
+    })
+  })
+
+  defineExpose({
+    bindUsersRequest
   })
 </script>
 

@@ -118,8 +118,6 @@
     })
   }
 
-  const notInit = ref(true)
-
   const pageInit = () => {
     const arr = props.value.split(',')
     province.value = Number(arr[0])
@@ -135,8 +133,7 @@
   watch(
     () => props.value,
     (val) => {
-      if (val && notInit.value) {
-        notInit.value = false
+      if (val) {
         pageInit()
       }
     },

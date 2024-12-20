@@ -62,6 +62,44 @@ a:hover {
   border-radius: 10px;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
   padding: 30px 40px;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid #fff;
+  &.checked {
+    border-color: #3fdea4;
+    .check-content {
+      opacity: 1;
+    }
+  }
+  .check-content {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    padding-top: 8px;
+    padding-left: 8px;
+    color: #fff;
+    opacity: 0;
+    transition: all 0.3s ease;
+    &::after {
+      content: '';
+      display: block;
+      width: 80px;
+      height: 80px;
+      position: absolute;
+      background-color: #3fdea4;
+      z-index: -1;
+      transform: rotate(45deg);
+      right: -40px;
+      bottom: -40px;
+    }
+  }
   &.details {
     padding: 20px;
     margin-bottom: 20px;

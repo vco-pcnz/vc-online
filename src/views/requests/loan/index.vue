@@ -317,7 +317,7 @@
     width: 100%;
     min-height: 300px;
     :deep(.ant-statistic-content) {
-      font-size: 15px;
+      font-size: 15px !important;
       white-space: nowrap;
     }
   }

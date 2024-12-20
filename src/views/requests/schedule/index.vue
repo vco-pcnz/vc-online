@@ -225,8 +225,8 @@
         > .item {
           &:last-child {
             :deep(.ant-statistic-content) {
-              font-weight: 500;
-              font-size: 16px;
+              font-weight: 500 !important;
+              font-size: 16px !important;
             }
           }
         }

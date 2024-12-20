@@ -238,7 +238,7 @@
 
   .sys-form-content {
     :deep(.ant-statistic-content) {
-      font-size: 21px;
+      font-size: 21px !important;
     }
   }
 </style>

@@ -419,8 +419,8 @@
       .col-item {
         padding: 7px 5px;
         :deep(.ant-statistic-content) {
-          font-weight: 500;
-          font-size: 14px;
+          font-weight: 500 !important;
+          font-size: 14px !important;
         }
         > .item {
           &:nth-child(1) {

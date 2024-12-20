@@ -13,7 +13,7 @@
           <li><div class="circle"></div></li>
           <li>{{ item.drawdown }}</li>
           <li>
-            <vco-number :value="item.request.amount" :precision="2" size="fs_xs"></vco-number>
+            <vco-number :value="item.request.amount" :precision="2" size="fs_xs" :end="true"></vco-number>
             <p class="fs_xs color_grey">{{ item.request.date }}</p>
           </li>
           <li>{{ item.status }}</li>

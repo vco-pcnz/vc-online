@@ -247,6 +247,14 @@ export const projectForecastIndex = (params) =>
     params
   });
 
+// 数据Forecast表格生成
+export const projectForecastExportExcel = (params) =>
+  request({
+    url: "/project/forecast/exportExcel",
+    method: "get",
+    params
+  });
+
 // darwdown添加追加数据
 export const projectForecastAdd = (data) =>
   request({

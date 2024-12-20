@@ -370,7 +370,7 @@ export default {
   "通过审核": "Passed review",
   "备注": "Remark",
   "请提交信息后操作": "Please submit the information before proceeding",
-  "还款计划": "Schedule",
+  "放款计划": "Schedule",
   "提示": "Tips",
   "不，谢谢": "No, Thanks",
   "是的，保留": "Yes, Keep",
@@ -380,5 +380,9 @@ export default {
   "暂无操作记录": "No operation record",
   "创建者": "Created by",
   "拒绝原因": "Reason for rejection",
-  "请先设置下列费用并生成预测单": "Please set the following fees and generate a forecast list"
+  "请先设置下列费用并生成预测单": "Please set the following fees and generate a forecast list",
+  "创建报告": "Create report",
+  "预测放款时间表": "Forcast Loan Schedule",
+  "放款时间表": "Loan Schedule",
+  "额度费用计算时间表": "Line Fee Calculation Schedule",
 }

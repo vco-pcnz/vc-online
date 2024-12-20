@@ -83,7 +83,7 @@
             size="small"
             class="uppercase"
             @click="navigationTo(`/requests/schedule?uuid_info=${currentId}`)"
-          >{{ t('还款计划') }}</a-button>
+          >{{ t('放款计划') }}</a-button>
           <a-button
             type="primary" shape="round"
             size="small"
@@ -172,7 +172,7 @@
 
   const showTips = computed(() => {
     let txt = ''
-    const diff = tool.minus(sMoney.value, loanMoney.value)
+    const diff = tool.minus(cMoney.value, loanMoney.value)
     const diffNum = Number(diff)
     if (diffNum > 0) {
       txt = t('估价高于借款金额{0}', [numberStrFormat(diffNum)])
@@ -216,7 +216,8 @@
     type: undefined,
     date: "",
     amount: "",
-    note: ""
+    note: "",
+    first: ""
   })
 
   const formRules = {
@@ -273,6 +274,7 @@
       formState.date = dayjs(data.date)
       formState.amount = data.amount
       formState.note = data.note
+      formState.first = data.first
     } else {
       formState.id = 0
       formState.type = 2
@@ -304,7 +306,7 @@
     formRef.value
     .validate()
     .then(() => {
-      const {id, type, date, amount, note} = formState
+      const {id, type, date, amount, note, first} = formState
       const params = {
         id,
         type,
@@ -312,6 +314,10 @@
         amount,
         note,
         apply_uuid: props.currentId
+      }
+
+      if (id) {
+        params.first = first
       }
       currentParams.value = params
       tipsVisible.value = true

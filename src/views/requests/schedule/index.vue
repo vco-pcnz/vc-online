@@ -1,8 +1,29 @@
 <template>
   <a-spin :spinning="pageLoading" size="large">
     <div class="main-info-container">
-      <vco-page-panel :title="t('还款计划')" @back="goBack">
-        <div>fdsa</div>
+      <vco-page-panel :title="t('放款计划')" @back="goBack">
+        <a-dropdown :trigger="['click']">
+          <a-button
+            :loading="downloading"
+            type="dark" class="big shadow bold uppercase flex-button"
+          >
+            {{ t('创建报告') }}
+            <DownOutlined />
+          </a-button>
+          <template #overlay>
+            <a-menu>
+              <a-menu-item>
+                <div class="pt-2 pb-2" @click="downLoadExcel(1)">{{ t('预测放款时间表') }}</div>
+              </a-menu-item>
+              <a-menu-item>
+                <div class="pt-2 pb-2" @click="downLoadExcel(2)">{{ t('放款时间表') }}</div>
+              </a-menu-item>
+              <a-menu-item>
+                <div class="pt-2 pb-2" @click="downLoadExcel(0)">{{ t('额度费用计算时间表') }}</div>
+              </a-menu-item>
+            </a-menu>
+          </template>
+        </a-dropdown>
       </vco-page-panel>
 
       <div class="table-content">
@@ -48,11 +69,12 @@
 
 <script setup>
   import { ref, onMounted, computed } from "vue";
+  import { DownOutlined } from '@ant-design/icons-vue';
   import { useRoute } from "vue-router";
   import { useI18n } from "vue-i18n";
   import dayjs from "dayjs";
   import tool, { goBack } from "@/utils/tool"
-  import { projectForecastIndex } from "@/api/process"
+  import { projectForecastIndex, projectForecastExportExcel } from "@/api/process"
   
   const { t } = useI18n();
   const route = useRoute();
@@ -77,8 +99,6 @@
         for (const key in data) {
           const targetDate = dayjs(key)
 
-          console.log('targetDate', targetDate)
-
           const itemData = data[key]
           itemData.forEach(item => {
             if (item.type === 2) {
@@ -95,7 +115,6 @@
             passed: targetDate.isBefore(currentMonth, 'month') || targetDate.isSame(currentMonth, 'month')
           }
           
-          console.log('key', obj)
           dataArr.push(obj)
         }
       }
@@ -104,6 +123,21 @@
       pageLoading.value = false
     }).catch(() => {
       pageLoading.value = false
+    })
+  }
+
+  const downloading = ref(false)
+  const downLoadExcel = (type) => {
+    const params = {
+      type,
+      uuid: currentId.value
+    }
+    downloading.value = true
+    projectForecastExportExcel(params).then(res => {
+      downloading.value = false
+      window.open(res)
+    }).catch(() => {
+      downloading.value = false
     })
   }
 

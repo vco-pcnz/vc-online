@@ -140,11 +140,14 @@ watch(
     if (val && props.selectedData.length === 1) {
       let roles = props.selectedData[0].roles;
       let roleIds = [];
+      let options = [];
       usersStore.roleList.map((item) => {
         if (roles.includes(item.name)) {
           roleIds.push(item.id);
+          options.push(item)
         }
       });
+      handleChange('',options)
       assignFields({
         roles: roleIds
       });

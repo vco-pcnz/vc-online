@@ -393,4 +393,6 @@ export default {
   "预测放款时间表": "Forcast Loan Schedule",
   "放款时间表": "Loan Schedule",
   "额度费用计算时间表": "Line Fee Calculation Schedule",
+  "利息、费用": "Interest, fees",
+  "余额": "Balance"
 }

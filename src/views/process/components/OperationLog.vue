@@ -1,67 +1,59 @@
 <template>
   <div class="mt-6">
     <div class="block-item sec">
-      <div class="log-content">
-        <div v-for="(item, index) in demoData" :key="index" class="log-item">
-          <div class="icon">
-            <i v-if="item.type === 1" class="iconfont">&#xe889;</i>
-            <i v-if="item.type === 2" class="iconfont">&#xe8c5;</i>
-            <i v-if="item.type === 3" class="iconfont">&#xe8cf;</i>
-            <i v-if="item.type === 4" class="iconfont">&#xe8c1;</i>
-          </div>
-          <div class="info">
-            <p>{{ item.time }}</p>
-            <div>{{ item.info }}</div>
+      <a-spin :spinning="pageLoading" size="large">
+        <div class="log-content">
+          <div v-for="(item, index) in listData" :key="index" class="log-item">
+            <div class="icon">
+              <i v-if="item.type === 'add'" class="iconfont">&#xe889;</i>
+              <i v-if="item.type === 'check'" class="iconfont">&#xe8c5;</i>
+              <i v-if="item.type === 'save'" class="iconfont">&#xe8cf;</i>
+              <i v-if="item.type === 'delete'" class="iconfont">&#xe8c1;</i>
+            </div>
+            <div class="info">
+              <p>{{ item.create_time }}</p>
+              <div>{{ item.message }}</div>
+            </div>
           </div>
         </div>
-      </div>
+      </a-spin>
     </div>
   </div>
 </template>
 
 <script setup>
-  const demoData = [
-    {
-      type: 1,
-      time: '2024-11-21 12:20:23',
-      info: '张小美LM新增了xxxx'
-    },
-    {
-      type: 2,
-      time: '2024-11-18 12:20:23',
-      info: '张小美LM确认了借款人信息'
-    },
-    {
-      type: 3,
-      time: '2024-11-18 12:20:23',
-      info: '张小美LM修改了xxx'
-    },
-    {
-      type: 4,
-      time: '2024-11-18 12:20:23',
-      info: '张小美LM删除了xxx删除了删除了删除了删除了删除了删除了删除了删除了删除了删除了'
-    },
-    {
-      type: 1,
-      time: '2024-11-21 12:20:23',
-      info: '张小美LM新增了xxxx'
-    },
-    {
-      type: 2,
-      time: '2024-11-18 12:20:23',
-      info: '张小美LM确认了借款人信息'
-    },
-    {
-      type: 3,
-      time: '2024-11-18 12:20:23',
-      info: '张小美LM修改了xxx'
-    },
-    {
-      type: 4,
-      time: '2024-11-18 12:20:23',
-      info: '张小美LM删除了xxx'
+  import { ref, onMounted } from "vue";
+  import { auditHistoryList } from "@/api/process";
+  import emitter from "@/event"
+
+  const props = defineProps({
+    currentId: {
+      type: [Number, String],
+      default: ''
     }
-  ]
+  })
+
+  const listData = ref([])
+
+  const pageLoading = ref(false)
+  const getListData = () => {
+    pageLoading.value = true
+    auditHistoryList({
+      uuid: props.currentId
+    }).then(res => {
+      listData.value = res
+      pageLoading.value = false
+    }).catch(() => {
+      pageLoading.value = false
+    })
+  }
+
+  onMounted(() => {
+    getListData()
+    emitter.on('refreshAuditHisList', () => {
+      getListData()
+    })
+  })
 </script>
 
 <style lang="less" scoped>

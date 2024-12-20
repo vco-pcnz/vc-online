@@ -120,10 +120,26 @@ export const projectDetailApi = (params) =>
     params
   });
 
+// 取消项目
+export const applyCancelProject = (data) =>
+  request({
+    url: "/project/apply/cancelProject",
+    method: "post",
+    data
+  });
+
 // 取消审核
 export const projectApplyCancelCheck = (data) =>
   request({
     url: "/project/apply/cancelCheck",
+    method: "post",
+    data
+  });
+
+// 拒绝项目
+export const projectAuditDeclineProject = (data) =>
+  request({
+    url: "/project/audit/declineProject",
     method: "post",
     data
   });
@@ -224,7 +240,7 @@ export const projectForecastDarwDownList = (params) =>
   });
 
 // 获取预测放款数据Forecast
-export const projectForecast = (params) =>
+export const projectForecastIndex = (params) =>
   request({
     url: "/project/forecast/index",
     method: "get",
@@ -235,6 +251,14 @@ export const projectForecast = (params) =>
 export const projectForecastAdd = (data) =>
   request({
     url: "/project/forecast/add",
+    method: "post",
+    data
+  });
+
+// 删除预测放款数据Forecast
+export const projectForecastDelete = (data) =>
+  request({
+    url: "/project/forecast/delete",
     method: "post",
     data
   });
@@ -261,3 +285,12 @@ export const associateAssignUser = (data) =>
     method: "post",
     data
   });
+
+// 审核记录
+export const auditHistoryList = (params) =>
+  request({
+    url: "/project/audit/historyList",
+    method: "get",
+    params
+  });
+  

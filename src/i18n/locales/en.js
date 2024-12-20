@@ -282,12 +282,14 @@ export default {
   "待审核": "Awaiting review",
   "继续填写": "Continue",
   "取消审核": "Close",
+  "拒绝申请": "Decline request",
   "前往操作": "Operation",
   "确定": "Sure",
   "取消": "Cancel",
   "确定取消项目吗？": "Are you sure you want to cancel the project?",
   "确定取消审核吗？": "Are you sure you want to cancel the review?",
   "确定通过审核吗？": "Are you sure it passed the review?",
+  "确定拒绝申请吗？": "Are you sure you want to reject the application?",
   "撤回": "Recall",
   "审核": "Check",
   "保存": "Save",
@@ -373,6 +375,10 @@ export default {
   "借款背景": "Borrower background",
   "默认开始": "Start default",
   "添加变更": "Add variations",
-  "日志": "Journal"
-  
+  "日志": "Journal",
+  "还款计划": "Schedule",
+  "提示": "Tips",
+  "不，谢谢": "No, Thanks",
+  "是的，保留": "Yes, Keep",
+  "{0}以后已手动修改的放款是否保留已设置的值": "{0} Whether the loan that has been manually modified in the future will retain the set value"
 }

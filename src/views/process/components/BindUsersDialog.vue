@@ -324,7 +324,7 @@
           uuid: props.currentId,
           user_uuid: vcTeamData.value[code].map(item => item.uuid).join(','),
           role_code: code,
-          rule: 1
+          rule: 2
         }
 
         if (code === 'lm' && params.user_uuid === '') {

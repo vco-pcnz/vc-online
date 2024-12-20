@@ -1,5 +1,33 @@
 <template>
   <div class="mt-6">
+    <!-- 提示弹窗 -->
+    <a-modal
+      :open="tipsVisible"
+      :title="t('提示')"
+      :width="460"
+      :footer="null"
+      :keyboard="false"
+      :maskClosable="false"
+      @cancel="tipsVisible = false"
+    >
+      <div class="tips-content">
+        <p>{{ t('{0}以后已手动修改的放款是否保留已设置的值', [tool.showDate(currentParams.date)]) }}</p>
+        <div class="mt-5 flex justify-between gap-5">
+          <a-button
+            type="dark" class="big shadow bold uppercase w-full mb-5 mt-5"
+            :loading="sub1Loading"
+            @click="sureHandle(0)"
+          >{{ t('不，谢谢') }}</a-button>
+
+          <a-button
+            type="dark" class="big shadow bold uppercase w-full mb-5 mt-5"
+            :loading="sub2Loading"
+            @click="sureHandle(1)"
+          >{{ t('是的，保留') }}</a-button>
+        </div>
+      </div>
+    </a-modal>
+
     <!-- 编辑弹窗 -->
     <a-modal
       :open="visible"
@@ -41,7 +69,6 @@
         <a-button
           type="dark" class="big shadow bold uppercase w-full mb-5 mt-5"
           @click="submitHandle"
-          :loading="subLoading"
         >{{ t('保存') }}</a-button>
       </div>
     </a-modal>
@@ -54,7 +81,8 @@
             type="dark" shape="round"
             size="small"
             class="uppercase"
-          >{{ t('详情') }}</a-button>
+            @click="navigationTo(`/requests/schedule?uuid_info=${currentId}`)"
+          >{{ t('还款计划') }}</a-button>
           <a-button
             type="primary" shape="round"
             size="small"
@@ -84,7 +112,7 @@
                 </div>
                 <div class="item ops">
                   <i class="iconfont" @click="addEditHandle(_item, index, _index)">&#xe8cf;</i>
-                  <i class="iconfont">&#xe8c1;</i>
+                  <i class="iconfont" @click="removeHandle(_item)">&#xe8c1;</i>
                 </div>
               </div>
             </div>
@@ -111,8 +139,8 @@
   import { useI18n } from "vue-i18n";
   import dayjs from "dayjs";
   import { cloneDeep } from "lodash";
-  import { projectForecastDarwDownList, projectForecastAdd } from "@/api/process"
-  import tool, { numberStrFormat } from "@/utils/tool"
+  import { projectForecastDarwDownList, projectForecastAdd, projectForecastDelete } from "@/api/process"
+  import tool, { numberStrFormat, navigationTo } from "@/utils/tool"
   import emitter from "@/event"
 
   const props = defineProps({
@@ -133,6 +161,7 @@
   const cMoney = ref(0)
   const pTimes = ref(0)
   const pMoney = ref(0)
+  const sMoney = ref(0)
   const loanMoney = ref(0)
   const errorColor = ref(false)
 
@@ -142,7 +171,7 @@
 
   const showTips = computed(() => {
     let txt = ''
-    const diff = tool.minus(cMoney.value, loanMoney.value)
+    const diff = tool.minus(sMoney.value, loanMoney.value)
     const diffNum = Number(diff)
     if (diffNum > 0) {
       txt = t('估价高于借款金额{0}', [numberStrFormat(diffNum)])
@@ -162,7 +191,13 @@
 
   const disabledDateFormat = (current) => {
     const startDate = props.infoData.loan_info.start_date
+    const endDate = props.infoData.loan_info.end_date
+
     if (current && current.isBefore(startDate, 'day')) {
+      return true;
+    }
+
+    if (current && current.isAfter(endDate, 'day')) {
       return true;
     }
 
@@ -212,9 +247,10 @@
       }
 
       cTimes.value = res.data.drawDownCount
-      cMoney.value = res.data.drawDownMoney
+      cMoney.value = Number(res.data.drawDownMoney)
       pTimes.value = res.data.repaymentsCount
-      pMoney.value = res.data.repaymentsMoney
+      pMoney.value = Math.abs(res.data.repaymentsMoney)
+      sMoney.value = Number(res.data.settlementMoney)
 
       loanMoney.value = Number(res.data.loanMoney)
 
@@ -246,7 +282,23 @@
     visible.value = true
   }
 
-  const subLoading = ref(false)
+  const tipsVisible = ref(false)
+  const handleType = ref(0)
+  const currentParams = ref()
+
+  const removeHandle = (data) => {
+    const {id, date} = data
+    const params = {
+      apply_uuid: props.currentId,
+      id: [id],
+      date
+    }
+
+    currentParams.value = params
+    tipsVisible.value = true
+    handleType.value = 1
+  }
+
   const submitHandle = () => {
     formRef.value
     .validate()
@@ -260,19 +312,34 @@
         note,
         apply_uuid: props.currentId
       }
-
-      subLoading.value = true
-      projectForecastAdd(params).then(() => {
-        getTableData()
-        visible.value = false
-        subLoading.value = false
-      }).catch(() => {
-        subLoading.value = false
-      })
+      currentParams.value = params
+      tipsVisible.value = true
+      handleType.value = 0
     })
     .catch(error => {
       console.log('error', error);
     });
+  }
+
+  const sub1Loading = ref(false)
+  const sub2Loading = ref(false)
+  const sureHandle = (type) => {
+    const loading = type ? sub2Loading : sub1Loading
+    loading.value = true
+
+    const ajaxFn = handleType.value ? projectForecastDelete : projectForecastAdd
+
+    ajaxFn({
+      ...currentParams.value,
+      change: type
+    }).then(() => {
+      getTableData()
+      tipsVisible.value = false
+      visible.value = false
+      loading.value = false
+    }).catch(() => {
+      loading.value = false
+    })
   }
 
   onMounted(() => {
@@ -392,6 +459,15 @@
     }
     :deep(.ant-input-number-input) {
       font-size: 18px !important;
+    }
+  }
+
+  .tips-content {
+    padding: 30px;
+    padding-bottom: 0;
+    p {
+      font-size: 14px;
+      text-align: center;
     }
   }
 </style>

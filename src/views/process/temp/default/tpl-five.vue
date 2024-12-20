@@ -10,7 +10,7 @@
           ></base-info-content>
 
           <!-- 放款信息 -->
-          <credit-form :current-id="currentId" @done="showForecast = true"></credit-form>
+          <!-- <credit-form :current-id="currentId" @done="showForecast = true"></credit-form> -->
 
           <temp-footer
             ref="footerRef"
@@ -30,7 +30,7 @@
 
         <div v-if="dataInfo" class="right-content">
           <bind-users :current-id="currentId"></bind-users>
-          <operation-log></operation-log>
+          <operation-log :current-id="currentId"></operation-log>
           <forecast-list
             v-if="showForecast"
             :current-id="currentId"

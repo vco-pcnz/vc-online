@@ -4,6 +4,7 @@
       <div class="ProjectDrawdowns">
         <div>
           <MeterStat></MeterStat>
+          <TableBlock></TableBlock>
         </div>
         <div>
           <div class="HelpBorrower">
@@ -11,6 +12,7 @@
             <p class="color_grey mt-1 mb-3">You can help to create drawdown on their behalf.</p>
             <a-button type="brown" shape="round" size="small">{{ t('默认开始') }}</a-button>
           </div>
+          <Detail></Detail>
         </div>
       </div>
     </template>
@@ -23,6 +25,8 @@ import { useI18n } from 'vue-i18n';
 import { size, template } from 'lodash';
 import detailLayout from '../components/detailLayout.vue';
 import MeterStat from './components/MeterStat.vue';
+import TableBlock from './components/TableBlock.vue';
+import Detail from './components/Detail.vue';
 
 const { t } = useI18n();
 

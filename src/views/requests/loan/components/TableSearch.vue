@@ -24,7 +24,7 @@
       </vco-page-search-item>
 
       <vco-page-search-item :title="t('客户经理')" width="180">
-        <a-input v-model:value="searchForm.lm" :placeholder="t('请输入')" />
+        <a-input v-model:value="searchForm.lm_name" :placeholder="t('请输入')" />
       </vco-page-search-item>
 
       <vco-page-search-item :title="t('借款金额')" width="264">
@@ -110,7 +110,7 @@
     time: null,
     project_search_type: '',
     project_keyword: '',
-    lm: '',
+    lm_name: '',
     min_loan_money: '',
     max_loan_money: ''
   })

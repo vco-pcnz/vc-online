@@ -10,7 +10,7 @@
           ></base-info-content>
 
           <!-- 放款信息 -->
-          <!-- <credit-form :current-id="currentId" @done="showForecast = true"></credit-form> -->
+          <credit-form :current-id="currentId" @done="showForecast = true"></credit-form>
 
           <temp-footer
             ref="footerRef"

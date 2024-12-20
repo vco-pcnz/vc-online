@@ -13,7 +13,7 @@
       <div class="block-container">
         <div class="left-content">
         <div class="block-item" :class="{'check': check}">
-          <div v-if="!check" class="flex justify-end gap-5">
+          <div v-if="!check && !currentId" class="flex justify-end gap-5">
             <a-button
               v-permission="'process:one:tempImport'"
               type="primary-line"
@@ -22,7 +22,6 @@
               @click="importStaHandle"
             >{{ t('从利益相关者导入') }}</a-button>
             <a-button
-              v-if="!currentId"
               v-permission="'process:one:tempData'"
               type="primary-line" shape="round" size="small"
               class="flex items-center justify-center"
@@ -109,6 +108,11 @@
                   </a-form-item>
                 </a-col>
                 <a-col :span="24">
+                  <a-form-item :label="t('地址1')" name="borrower_address_short">
+                    <a-input v-model:value="formState.borrower_address_short" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="24">
                   <a-form-item :label="t('详细地址')" name="borrower_address">
                     <a-input v-model:value="formState.borrower_address" />
                   </a-form-item>
@@ -148,14 +152,12 @@
         </div>
         <div v-if="!check" class="right-content">
           <bind-users
-            v-if="!isNormalUser"
+            ref="bindUsersRef"
             v-permission="'process:bind:pre'"
             :current-id="currentId"
           ></bind-users>
 
-          <div v-if="isNormalUser" class="block-item ads-content">
-            <img src="./../../../../assets/images/img1.png" alt="">
-          </div>
+          <ads-content></ads-content>
         </div>
       </div>
     </a-spin>
@@ -175,6 +177,7 @@
   import { projectApplyBorrowerInfo, projectDraftInfo, getApproveTemp } from "@/api/process"
   import TempFooter from "./components/TempFooter.vue";
   import BindUsers from "./../../components/BindUsers.vue";
+  import AdsContent from "./../../components/AdsContent.vue";
   import { useUserStore } from "@/store";
   import emitter from "@/event"
 
@@ -222,6 +225,7 @@
   const formRef = ref()
   const footerRef = ref()
   const vcoChooseUserRef = ref()
+  const bindUsersRef = ref()
 
   const markInfo = computed(() => (props.currentStep ? props.currentStep.mark : ''))
 
@@ -240,6 +244,7 @@
     borrower_postcode: '',
     borrower_region: '',
     borrower_address: '',
+    borrower_address_short: '',
     borrower_about: ''
   })
 
@@ -259,7 +264,7 @@
     borrower_id_num: [
       { required: true, message: t('请输入') + t('身份证号码'), trigger: 'blur' },
       {
-        pattern: /^[A-Z0-9]+$/,
+        pattern: /^[a-zA-Z0-9]+$/,
         message: t('身份证号码') + t("格式不正确"),
         trigger: 'blur'
       }
@@ -267,7 +272,7 @@
     company_number: [
       { required: true, message: t('请输入') + t('公司编码'), trigger: 'blur' },
       {
-        pattern: /^[A-Z0-9]+$/,
+        pattern: /^[a-zA-Z0-9]+$/,
         message: t('公司编码') + t("格式不正确"),
         trigger: 'blur'
       }
@@ -302,6 +307,9 @@
     borrower_address: [
       { required: true, message: t('请输入') + t('详细地址'), trigger: 'blur' }
     ],
+    // borrower_address_short: [
+    //   { required: true, message: t('请输入') + t('地址1'), trigger: 'blur' }
+    // ],
     borrower_about: [
       { required: true, message: t('请输入') + t('借款人背景信息'), trigger: 'blur' }
     ]
@@ -324,7 +332,16 @@
           formState[key] = res[key]
         }
       }
+      formState.borrower_region_one_id = res.borrower_region_one_id
+      formState.borrower_region_two_id = res.borrower_region_two_id
+      formState.borrower_region_three_id = res.borrower_region_three_id
       formState.borrower_phone_prefix = '64'
+
+      const areaArr = [res.borrower_region_one_id, res.borrower_region_two_id, res.borrower_region_three_id]
+      const areaStr = areaArr.filter(item => item).join(',')
+      
+      formState.borrower_region = areaStr
+
       tempLoading.value = false
     }).catch(() => {
       tempLoading.value = false
@@ -342,9 +359,9 @@
       getTempData()
     } else {
       Modal.confirm({
-        title: '提示',
+        title: t('提示'),
         icon: createVNode(ExclamationCircleOutlined),
-        content: '已存在数据，确定生成吗?',
+        content: t('已存在数据，确定生成吗?'),
         onOk() {
           getTempData()
         }
@@ -375,8 +392,14 @@
     formState.borrower_phone = data.mobile
     formState.borrower_postcode = data.postal
     formState.borrower_region = data.postal
+    formState.borrower_address_short = data.addr
     formState.borrower_address = data.address
     formState.borrower_about = data.note
+
+    formState.borrower_region_one_id = data.province_code
+    formState.borrower_region_two_id = data.city_code
+    formState.borrower_region_three_id = data.district_code
+
 
     const areaArr = [data.province_code, data.city_code, data.district_code]
     const areaStr = areaArr.filter(item => item).join(',')
@@ -391,9 +414,13 @@
     }
 
     const regionArr = params.borrower_region.split(',')
-    params.borrower_region_one_id = regionArr[0] ? Number(regionArr[0]) : 0
-    params.borrower_region_two_id = regionArr[1] ? Number(regionArr[1]) : 0
-    params.borrower_region_three_id = regionArr[2] ? Number(regionArr[2]) : 0
+    params.borrower_region_one_id = regionArr[0] ? Number(regionArr[0]) : ''
+    params.borrower_region_two_id = regionArr[1] ? Number(regionArr[1]) : ''
+    params.borrower_region_three_id = regionArr[2] ? Number(regionArr[2]) : ''
+
+    if (!params.borrower_region_three_id) {
+      delete params.borrower_region_three_id
+    }
 
     if (params.borrower_type === 2) {
       params.borrower_id_num = params.company_number
@@ -426,14 +453,19 @@
       }
 
       subLoading.value = true
-      ajaxFn(params).then(res => {
-        subLoading.value = false
+      ajaxFn(params).then(async (res) => {
         if (props.check) {
+          subLoading.value = false
           emits('checkDone')
         } else {
-          footerRef.value.nextHandle(res.uuid)
-        }
+          if (needBindUser.value) {
+            await bindUsersRef.value.bindUsersRequest(res.uuid)
+            needBindUser.value = false
+          }
 
+          footerRef.value.nextHandle(res.uuid)
+          subLoading.value = false
+        }
         // 触发列表数据刷新
         emitter.emit('refreshRequestsList')
         emitter.emit('refreshAuditHisList')
@@ -500,6 +532,10 @@
     const areaArr = [useData.borrower_region_one_id, useData.borrower_region_two_id, useData.borrower_region_three_id]
     const areaStr = areaArr.filter(item => item).join(',')
     formState.borrower_region = areaStr
+
+    if (data.project_apply_sn) {
+      emits('dataDone', data.project_apply_sn)
+    } 
   }
 
   const pageLoading = ref(false)
@@ -539,6 +575,8 @@
     dataInit(infoData, draftData)
   }
 
+  const needBindUser = ref(false)
+
   watch(
     () => props.infoData,
     (val) => {
@@ -554,6 +592,10 @@
     if (!props.check) {
       getDataInit()
     }
+
+    emitter.on('stepOneBindUser', () => {
+      needBindUser.value = true
+    })
   })
 </script>
 

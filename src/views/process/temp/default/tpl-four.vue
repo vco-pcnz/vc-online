@@ -79,9 +79,7 @@
             :current-id="currentId"
           ></bind-users>
 
-          <div v-if="isNormalUser" class="block-item ads-content">
-            <img src="./../../../../assets/images/img1.png" alt="">
-          </div>
+          <ads-content></ads-content>
         </div>
       </div>
     </a-spin>
@@ -106,6 +104,7 @@
   import { message } from "ant-design-vue/es";
   import TempFooter from "./components/TempFooter.vue";
   import BindUsers from "./../../components/BindUsers.vue";
+  import AdsContent from "./../../components/AdsContent.vue";
   import { useUserStore } from "@/store";
   import emitter from "@/event"
 

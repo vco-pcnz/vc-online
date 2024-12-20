@@ -3,7 +3,7 @@
     <!-- 人员选择 -->
     <vco-choose-user
       ref="vcoChooseUserRef"
-      :isMultiple="true"
+      :isMultiple="type !== 1"
       :role-code="roleCode"
       @done="userChoiced"
     >
@@ -165,6 +165,7 @@
   import { message } from "ant-design-vue/es";
   import { removeDuplicates } from "@/utils/tool"
   import { associateAssignUser } from "@/api/process"
+  import emitter from "@/event"
 
   const { t } = useI18n();
   const vcoChooseUserRef = ref()
@@ -317,23 +318,34 @@
   const subLoading = ref(false)
   const submitHandle = async () => {
     if (props.type === 1) { // vcTeam 数据
-      subLoading.value = true
-      for (let i = 0; i < props.vcTeam.length; i++) {
-        const code = props.vcTeam[i].code
-        const params = {
-          uuid: props.currentId,
-          user_uuid: vcTeamData.value[code].map(item => item.uuid).join(','),
-          role_code: code,
-          rule: 2
-        }
+      if (props.currentId) {
+        subLoading.value = true
+        for (let i = 0; i < props.vcTeam.length; i++) {
+          const code = props.vcTeam[i].code
+          const params = {
+            uuid: props.currentId,
+            user_uuid: vcTeamData.value[code].map(item => item.uuid).join(','),
+            role_code: code,
+            rule: 2
+          }
 
-        if (code === 'lm' && params.user_uuid === '') {
-          message.error(t(code) + t('为必填项'))
-          subLoading.value = false
+          if (code === 'lm' && params.user_uuid === '') {
+            message.error(t(code) + t('为必填项'))
+            subLoading.value = false
+            return false
+          }
+          await associateAssignUser(params).catch(() => {
+            subLoading.value = false
+          })
+        }
+      } else {
+        if (!vcTeamData.value['lm'].length) {
+          message.error(t('lm') + t('为必填项'))
           return false
         }
-        await associateAssignUser(params).catch(() => {
-          subLoading.value = false
+        emitter.emit('stepOneBindUser', {
+          type: 1,
+          data: vcTeamData.value
         })
       }
     } else {
@@ -359,18 +371,32 @@
         return false
       }
 
-      subLoading.value = true
-      for (let i = 0; i < 2; i++) {
-        const params = i ? viewParams : editParams
-        await associateAssignUser(params).catch(() => {
-          subLoading.value = false
+      if (props.currentId) {
+        subLoading.value = true
+        for (let i = 0; i < 2; i++) {
+          const params = i ? viewParams : editParams
+          await associateAssignUser(params).catch(() => {
+            subLoading.value = false
+          })
+        }
+      } else {
+        emitter.emit('stepOneBindUser', {
+          type: props.type,
+          data: {
+            view: viewData,
+            edit: editData
+          }
         })
       }
     }
 
-    subLoading.value = false
+    if (props.currentId) {
+      subLoading.value = false
+      emits('done')
+    }
+
     updateVisible(false)
-    emits('done')
+    
   }
 
   watch(

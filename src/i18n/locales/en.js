@@ -327,6 +327,7 @@ export default {
   "绑定贷款经理": "Associate with lending manager",
   "贷款经理": "Assign lending manager",
   "贷款经理助理": "Assign assistant lending manager",
+  "客户经理助理": "Assign assistant lending manager",
   "绑定借款账号": "Associate with a borrower",
   "绑定中介": "Associate with a broker",
   "编辑者": "Assign editors",
@@ -373,5 +374,8 @@ export default {
   "提示": "Tips",
   "不，谢谢": "No, Thanks",
   "是的，保留": "Yes, Keep",
-  "{0}以后已手动修改的放款是否保留已设置的值": "{0} Whether the loan that has been manually modified in the future will retain the set value"
+  "{0}以后已手动修改的放款是否保留已设置的值": "{0} Whether the loan that has been manually modified in the future will retain the set value",
+  "已存在数据，确定生成吗?": "Data already exists, are you sure you want to generate it?",
+  "LM 审核": "LM Review",
+  "暂无操作记录": "No operation record"
 }

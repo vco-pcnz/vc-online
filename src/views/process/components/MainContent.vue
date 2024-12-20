@@ -12,13 +12,11 @@
             :status-info="currentStatusInfo"
           >
             <template #left>
-              <a-button v-if="current === 1" type="grey">{{ t('取消请求') }}</a-button>
-              <template v-else>
-                <div v-if="orderSn" class="page-title">ID: {{ orderSn }}</div>
-              </template>
+              <a-button v-if="current === 1 && !orderSn && pageDone" type="grey" @click="goBack">{{ t('取消请求') }}</a-button>
+              <div v-if="orderSn && pageDone" class="page-title">ID: {{ orderSn }}</div>
             </template>
             <template #right>
-              <a-button type="primary" shape="round" ghost size="small">{{ t('帮助') }}?</a-button>
+              <!-- <a-button type="primary" shape="round" ghost size="small">{{ t('帮助') }}?</a-button> -->
             </template>
           </process-header>
 
@@ -45,6 +43,7 @@
   import { useDynamicModule } from "@/hooks/useDynamicModule";
   import ProcessHeader from "./ProcessHeader.vue";
   import { useI18n } from "vue-i18n";
+  import { goBack } from "@/utils/tool"
 
   defineProps({
     current: {
@@ -70,8 +69,10 @@
     canNext
   } = useDynamicModule();
 
+  const pageDone = ref(false)
   const orderSn = ref('')
   const dataDone = (res) => {
+    pageDone.value = true
     orderSn.value = res
   }
 </script>

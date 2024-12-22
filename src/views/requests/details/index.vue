@@ -3,6 +3,7 @@
     <reject-dialog
       v-model:visible="rejectVisible"
       :uuid="currentId"
+      :type="currnetType"
     ></reject-dialog>
 
     <a-spin :spinning="pageLoading" size="large">
@@ -30,10 +31,16 @@
               </a-popconfirm>
 
               <a-button
-                v-if="dataInfo.has_permission && dataInfo.is_audit"
+                v-if="dataInfo.has_permission && dataInfo.is_audit && dataInfo.next_index === 5"
                 type="grey" shape="round" class="bold uppercase"
-                @click="rejectVisible = true"
+                @click="rejectHandle(1)"
               >{{ t('拒绝申请') }}</a-button>
+
+              <a-button
+                v-if="dataInfo.has_permission && dataInfo.is_audit && dataInfo.next_index !== 5"
+                type="grey" shape="round" class="bold uppercase"
+                @click="rejectHandle(2)"
+              >{{ t('退回重新修改') }}</a-button>
 
               <a-button
                 v-if="dataInfo.has_permission"
@@ -193,6 +200,11 @@
   }
 
   const rejectVisible = ref(false)
+  const currnetType = ref(1)
+  const rejectHandle = (type) => {
+    currnetType.value = type
+    rejectVisible.value = true
+  }
 
   const nextHandle = () => {
     const href = processRoutes[dataInfo.value.next_index - 1]

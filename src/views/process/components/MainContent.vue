@@ -27,7 +27,9 @@
             :current-step="currentStep"
             :step-data="stepData"
             :previous-page="previousPage"
+            :previous-step="previousStep"
             :next-page="nextPage"
+            :next-step="nextStep"
             :can-next="canNext"
             @dataDone="dataDone"
           ></component>
@@ -63,8 +65,10 @@
     currentStatus,
     currentStatusInfo,
     currentStep,
+    previousStep,
     previousPage,
     nextPage,
+    nextStep,
     stepData,
     canNext
   } = useDynamicModule();

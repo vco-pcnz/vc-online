@@ -23,6 +23,7 @@ export function useDynamicModule() {
   const currentStatusInfo = ref({})
   const mainStepData = ref([])
   const stepData = ref([])
+  const previousStep = ref(null)
   const currentStep = ref(null)
   const nextStep = ref(null)
   const queryError = ref(false)
@@ -41,6 +42,7 @@ export function useDynamicModule() {
         currentStatusInfo.value = res.step.find(item => Number(item.stateCode) === Number(res.status))
         mainStepData.value = res.main_step
         stepData.value = res.step
+        previousStep.value = res.step[currentPageIndex.value - 1] || null
         currentStep.value = res.step[currentPageIndex.value]
         nextStep.value = res.step[currentPageIndex.value + 1] || null
         canNext.value = nextStep.value && !nextStep.value.examine
@@ -144,6 +146,7 @@ export function useDynamicModule() {
     stepData,
     previousPage,
     nextPage,
+    previousStep,
     currentStep,
     nextStep,
     canNext

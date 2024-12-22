@@ -1,7 +1,7 @@
 <template>
   <a-modal
     :open="visible"
-    :title="t(titleTxt)"
+    :title="t('审核批示')"
     :width="460"
     :footer="null"
     :keyboard="false"
@@ -10,9 +10,9 @@
   >
     <div class="sys-form-content mt-5">
       <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
-        <a-form-item label="" name="decline_reason">
+        <a-form-item label="" name="fc_review">
           <a-textarea
-            v-model:value="formState.decline_reason"
+            v-model:value="formState.fc_review"
             :placeholder="t('请输入')"
             :auto-size="{ minRows: 2, maxRows: 5 }"
           />
@@ -36,9 +36,9 @@
 </template>
 
 <script setup>
-  import { ref, reactive, watch, computed } from "vue";
+  import { ref, reactive, watch } from "vue";
   import { useI18n } from "vue-i18n";
-  import { projectAuditDeclineProject, projectAuditGoback } from "@/api/process"
+  import { projectAuditDeclineProject } from "@/api/process"
   import { navigationTo } from "@/utils/tool"
   import emitter from "@/event"
 
@@ -52,33 +52,19 @@
     uuid: {
       type: String,
       default: ''
-    },
-    type: {
-      type: Number,
-      default: 1
     }
   });
 
   const { t } = useI18n();
 
-  const titleTxt = computed(() => {
-    let txt = ''
-    if (props.type === 1) {
-      txt = '拒绝原因'
-    } else if (props.type === 2) {
-      txt = '退回原因'
-    }
-    return txt
-  })
-
   const formRef = ref()
   const formState = reactive({
-    decline_reason: ''
+    fc_review: ''
   })
 
   const formRules = {
-    decline_reason: [
-      { required: true, message: t('请输入') + t(titleTxt.value), trigger: 'blur' }
+    fc_review: [
+      { required: true, message: t('请输入') + t('审核批示'), trigger: 'blur' }
     ]
   }
 
@@ -92,31 +78,22 @@
     formRef.value
     .validate()
     .then(() => {
-      let ajaxFn = null
+      subLoading.value = true
+
       const params = {
-        uuid: props.uuid
-      }
-      if (props.type === 1) {
-        ajaxFn = projectAuditDeclineProject
-        params.decline_reason = formState.decline_reason
-      } else if (props.type === 2) {
-        ajaxFn = projectAuditGoback
-        params.cancel_reason = formState.decline_reason
+        uuid: props.uuid,
+        fc_review: formState.fc_review
       }
 
-      if (ajaxFn) {
-        subLoading.value = true
+      projectAuditDeclineProject(params).then(() => {
+        subLoading.value = false
 
-        ajaxFn(params).then(() => {
-          subLoading.value = false
-
-          // 触发列表数据刷新
-          emitter.emit('refreshRequestsList')
-          navigationTo('/requests/loan')
-        }).catch(() => {
-          subLoading.value = false
-        })
-      }
+        // 触发列表数据刷新
+        emitter.emit('refreshRequestsList')
+        navigationTo('/requests/loan')
+      }).catch(() => {
+        subLoading.value = false
+      })
     })
     .catch(error => {
       console.log('error', error);
@@ -127,7 +104,7 @@
     () => props.visible,
     (val) => {
       if (!val) {
-        formState.decline_reason = '';
+        formState.fc_review = '';
         subLoading.value = false;
         formRef.value?.clearValidate();
       }

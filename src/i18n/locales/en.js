@@ -385,6 +385,7 @@ export default {
   "{0}以后已手动修改的放款是否保留已设置的值": "{0} Whether the loan that has been manually modified in the future will retain the set value",
   "已存在数据，确定生成吗?": "Data already exists, are you sure you want to generate it?",
   "LM 审核": "LM Review",
+  "FC 审核": "FC Review",
   "暂无操作记录": "No operation record",
   "创建者": "Created by",
   "拒绝原因": "Reason for rejection",
@@ -394,5 +395,16 @@ export default {
   "放款时间表": "Loan Schedule",
   "额度费用计算时间表": "Line Fee Calculation Schedule",
   "利息、费用": "Interest, fees",
-  "余额": "Balance"
+  "余额": "Balance",
+  "抵押物信息": "Security items",
+  "产权编号": "Warrant number",
+  "土地价值": "Land value",
+  "改善值": "Improvement value",
+  "抵押物价值": "Security value",
+  "抵押物数量": "Items",
+  "创建人": "Creat by",
+  "确定删除吗？": "Are you sure you want to delete?",
+  "请审核": "Please review ",
+  "退回重新修改": "Return and revise",
+  "退回原因": "Reason for return"
 }

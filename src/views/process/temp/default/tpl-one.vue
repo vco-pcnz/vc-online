@@ -141,10 +141,12 @@
             :sub-loading="subLoading"
             :has-draft="hasDraftData"
             :previous-page="previousPage"
+            :previous-step="previousStep"
             :next-page="nextPage"
             :can-next="canNext"
             :current-id="currentId"
             :current-step="currentStep"
+            :next-step="nextStep"
             @draft="draftHandle"
             @submit="submitHandle"
           ></temp-footer>
@@ -193,6 +195,12 @@
       default: () => {}
     },
     currentStep: {
+      type: Object
+    },
+    nextStep: {
+      type: Object
+    },
+    previousStep: {
       type: Object
     },
     currentId: {

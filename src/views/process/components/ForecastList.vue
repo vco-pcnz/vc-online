@@ -136,7 +136,7 @@
 </template>
 
 <script setup>
-  import { ref, onMounted, computed, reactive } from "vue";
+  import { ref, onMounted, computed, reactive, watch } from "vue";
   import { useI18n } from "vue-i18n";
   import dayjs from "dayjs";
   import { cloneDeep } from "lodash";
@@ -348,6 +348,16 @@
       loading.value = false
     })
   }
+
+  watch(
+    () => visible.value,
+    (val) => {
+      if (!val) {
+        formRef.value.clearValidate()
+        formRef.value.resetFields()
+      }
+    }
+  );
 
   onMounted(() => {
     getTableData()

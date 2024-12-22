@@ -1,5 +1,5 @@
 <template>
-  <div class="block-item mb">
+  <div class="block-item mb" :class="{'checked': offerAmount.is_check}">
     <vco-process-title :title="t('放款信息')">
       <div class="flex gap-5">
         <a-popconfirm
@@ -11,6 +11,7 @@
           <a-button
             type="dark" shape="round"
             class="uppercase"
+            v-if="!offerAmount.is_check"
           >{{ t('审核') }}</a-button>
         </a-popconfirm>
         <a-button
@@ -76,6 +77,7 @@
         </a-row>
       </a-form>
     </div>
+    <div class="check-content"><i class="iconfont">&#xe647;</i></div>
   </div>
 </template>
 
@@ -84,7 +86,7 @@
   import { useI18n } from "vue-i18n";
   import { cloneDeep } from "lodash";
   import { message } from "ant-design-vue/es";
-  import { ruleCredit, creditInitial, creditInfo, lmAuditStatus, projectAuditSaveLoanAmount } from "@/api/process"
+  import { ruleCredit, creditInitial, creditInfo, lmAuditStatus, fcAuditStatus, projectAuditSaveLoanAmount } from "@/api/process"
   import emitter from "@/event"
 
   const emits = defineEmits(['done', 'refresh'])
@@ -93,12 +95,18 @@
       type: [Number, String],
       required: true
     },
-    loanInfo: {
+    stepType: {
+      type: Number,
+      default: 1
+    },
+    offerAmount: {
       type: Object,
       default: () => {
         return {
           build_amount: '',
-          land_amount: ''
+          land_amount: '',
+          is_check: true,
+          check_status: 405
         }
       }
     }
@@ -139,9 +147,6 @@
         }
       }
 
-      formState.value.build_amount = props.loanInfo.build_amount
-      formState.value.land_amount = props.loanInfo.land_amount
-      
       formRules.value = rulesData
       percentItems.value = perData
       dollarItems.value = dolData
@@ -162,6 +167,9 @@
         }
         creditId.value = res.id || null
 
+        formState.value.build_amount = props.offerAmount.build_amount
+        formState.value.land_amount = props.offerAmount.land_amount
+
         if (creditId.value) {
           emits('done')
         }
@@ -180,11 +188,13 @@
         return false
       }
 
+      subLoading.value = true
+
       await projectAuditSaveLoanAmount({
         uuid: props.currentId,
         build_amount: formState.value.build_amount,
         land_amount: formState.value.land_amount,
-        offer_amount_status: 405,
+        offer_amount_status: props.offerAmount.check_status,
       }).then(() => {
         emits('refresh')
       })
@@ -195,7 +205,6 @@
         params.id = creditId.value
       }
 
-      subLoading.value = true
       creditInitial(params).then(async () => {
         subLoading.value = false
 
@@ -212,12 +221,37 @@
     });
   }
 
-  const checkHandle = () => {
+  const checkHandle = async () => {
     if (creditId.value) {
       const totalAmount = Number(formState.value.build_amount) + Number(formState.value.land_amount)
       if (totalAmount <= 0) {
         message.error(t('借款总额不正确'))
         return false
+      }
+
+      let ajaxFn = null
+      let params = {}
+      if (props.stepType === 1) {
+        ajaxFn = lmAuditStatus
+        params = {
+          lm_audit_status: props.offerAmount.check_status,
+          uuid: props.currentId
+        }
+      } else if (props.stepType === 2) {
+        ajaxFn = fcAuditStatus
+        params = {
+          fc_audit_status: props.offerAmount.check_status,
+          uuid: props.currentId
+        }
+      }
+
+      if (ajaxFn) {
+        await ajaxFn(params).then(() => {
+          emits('refresh')
+          return true
+        }).catch(() => {
+          return false
+        })
       }
     } else {
       message.error(t('请先设置下列费用并生成预测单'))

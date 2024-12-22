@@ -136,6 +136,14 @@ export const projectApplyCancelCheck = (data) =>
     data
   });
 
+// 退回上一步
+export const projectAuditGoback = (data) =>
+  request({
+    url: "/project/audit/goBack",
+    method: "post",
+    data
+  });
+
 // 拒绝项目
 export const projectAuditDeclineProject = (data) =>
   request({
@@ -156,6 +164,22 @@ export const projectLmAuditDetail = (params) =>
 export const lmAuditStatus = (data) =>
   request({
     url: "/project/audit/lmAuditStatus",
+    method: "post",
+    data
+  });
+
+// FC 审核详情
+export const projectFcAuditDetail = (params) =>
+  request({
+    url: "/project/audit/fcAuditDetail",
+    method: "get",
+    params
+  });
+  
+// FC 审核Check
+export const fcAuditStatus = (data) =>
+  request({
+    url: "/project/audit/fcAuditStatus",
     method: "post",
     data
   });
@@ -294,6 +318,14 @@ export const associateAssignUser = (data) =>
     data
   });
 
+// 分配用户团队
+export const associateAssignTeam = (data) =>
+  request({
+    url: "/project/associate/assignTeam",
+    method: "post",
+    data
+  });
+
 // 审核记录
 export const auditHistoryList = (params) =>
   request({
@@ -306,6 +338,47 @@ export const auditHistoryList = (params) =>
 export const projectAuditSaveLoanAmount = (data) =>
   request({
     url: "/project/audit/saveLoanAmount",
+    method: "post",
+    data
+  });
+
+// 抵押物列表
+export const projectAuditSecurityList = (params) =>
+  request({
+    url: "/project/audit/securityList",
+    method: "get",
+    params
+  });
+  
+
+// 添加抵押物
+export const projectAuditAddSecurity = (data) =>
+  request({
+    url: "/project/audit/addSecurity",
+    method: "post",
+    data
+  });
+
+// 修改抵押物
+export const projectAuditEditSecurity = (data) =>
+  request({
+    url: "/project/audit/editSecurity",
+    method: "post",
+    data
+  });
+
+// 删除抵押物
+export const projectAuditDeleteSecurity = (data) =>
+  request({
+    url: "/project/audit/deleteSecurity",
+    method: "post",
+    data
+  });
+
+// lm提交审核
+export const projectApplyLmCheck = (data) =>
+  request({
+    url: "/project/apply/lmCheck",
     method: "post",
     data
   });

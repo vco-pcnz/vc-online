@@ -3,6 +3,7 @@
     <reject-dialog
       v-model:visible="rejectVisible"
       :uuid="currentId"
+      :type="currnetType"
     ></reject-dialog>
 
     <div v-if="!check && showDraft">
@@ -26,10 +27,16 @@
       >{{ t('上一步') }}</a-button>
 
       <a-button
-        v-if="previousPage && currentStep.examine"
+        v-if="!previousStep.examine && currentStep.examine"
         type="grey" shape="round" class="big shadow bold uppercase"
-        @click="rejectVisible = true"
+        @click="rejectHandle(1)"
       >{{ t('拒绝申请') }}</a-button>
+
+      <a-button
+        v-if="previousStep.examine && currentStep.examine"
+        type="grey" shape="round" class="big shadow bold uppercase"
+        @click="rejectHandle(2)"
+      >{{ t('退回重新修改') }}</a-button>
 
       <a-button
         type="dark" shape="round" class="big shadow bold uppercase"
@@ -68,6 +75,9 @@
       type: Boolean,
       default: false
     },
+    previousStep: {
+      type: Object
+    },
     previousPage: {
       type: String,
       default: ''
@@ -75,6 +85,9 @@
     nextPage: {
       type: String,
       default: ''
+    },
+    nextStep: {
+      type: Object
     },
     canNext: {
       type: Boolean,
@@ -92,6 +105,11 @@
   const { t } = useI18n();
 
   const rejectVisible = ref(false)
+  const currnetType = ref(1)
+  const rejectHandle = (type) => {
+    currnetType.value = type
+    rejectVisible.value = true
+  }
 
   const submitText = computed(() => {
     let txt = ''

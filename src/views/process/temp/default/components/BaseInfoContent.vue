@@ -122,12 +122,16 @@
   import LoanInfo from "./LoanInfo.vue";
   import CheckEditDialog from "./CheckEditDialog.vue";
 
-  import { lmAuditStatus } from "@/api/process"
+  import { lmAuditStatus, fcAuditStatus } from "@/api/process"
   import emitter from "@/event"
 
   const emits = defineEmits(['refresh'])
 
   const props = defineProps({
+    stepType: {
+      type: Number,
+      default: 1
+    },
     dataInfo: {
       type: Object,
       default: () => {}
@@ -169,19 +173,32 @@
     emits('refresh')
   }
 
-  const checkHandle = async (lm_audit_status) => {
-    const params = {
-      lm_audit_status,
-      uuid: props.dataInfo.uuid
+  const checkHandle = async (check_status) => {
+    let ajaxFn = null
+    let params = {}
+    if (props.stepType === 1) {
+      ajaxFn = lmAuditStatus
+      params = {
+        lm_audit_status: check_status,
+        uuid: props.dataInfo.uuid
+      }
+    } else if (props.stepType === 2) {
+      ajaxFn = fcAuditStatus
+      params = {
+        fc_audit_status: check_status,
+        uuid: props.dataInfo.uuid
+      }
     }
 
-    await lmAuditStatus(params).then(() => {
-      dataRefresh()
-      return true
-    }).catch(() => {
-      return false
-    })
+    if (ajaxFn) {
+      await ajaxFn(params).then(() => {
+        dataRefresh()
+        return true
+      }).catch(() => {
+        return false
+      })
 
-    emitter.emit('refreshAuditHisList')
+      emitter.emit('refreshAuditHisList')
+    }
   }
 </script>

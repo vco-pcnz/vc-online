@@ -5,14 +5,14 @@
         <div v-if="dataInfo" class="left-content">
           <!-- 基础信息 -->
           <base-info-content
-            :step-type="1"
+            :step-type="2"
             :data-info="dataInfo"
             @refresh="getDataInit"
           ></base-info-content>
 
           <!-- 放款信息 -->
           <credit-form
-            :step-type="1"
+            :step-type="2"
             :current-id="currentId"
             :offer-amount="offerAmount"
             @done="showForecast = true"
@@ -21,7 +21,7 @@
 
           <!-- 抵押物 -->
           <security-items
-            :step-type="1"
+            :step-type="2"
             :current-id="currentId"
             :security-info="securityInfo"
             @refresh="getDataInit"
@@ -68,7 +68,7 @@
   import { useI18n } from "vue-i18n";
   import { cloneDeep } from "lodash";
   import {
-    projectLmAuditDetail,
+    projectFcAuditDetail,
     projectApplyLmCheck
   } from "@/api/process";
   import BaseInfoContent from "./components/BaseInfoContent.vue";
@@ -192,7 +192,7 @@
     let infoData = {}
 
     if (props.currentId) {
-      await projectLmAuditDetail({
+      await projectFcAuditDetail({
         uuid: props.currentId
       }).then(res => {
         infoData = res

@@ -49,8 +49,7 @@ const rules = reactive({
     {
       required: true,
       message: t('请选择') + t('用户角色'),
-      type: 'array',
-      trigger: 'blur'
+      type: 'array'
     }
   ]
 });
@@ -94,6 +93,7 @@ const handleDeselect = (value, option) => {
 const closeModal = () => {
   emit('update:open', false);
   resetFields();
+  disabledIds.value = []
   getNewOptions([]);
   formRef.value.clearValidate();
 };

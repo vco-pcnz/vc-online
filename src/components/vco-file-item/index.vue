@@ -18,10 +18,12 @@
       <i class="iconfont icon" @click="remove" v-if="showClose">&#xe77d;</i>
     </div>
   </div>
-  <a-modal v-model:open="previewVisible" :footer="null" @cancel="previewHandleCancel"
-    ><div style="padding-top: 30px"></div>
-    <img alt="example" style="width: 100%" :src="file.value" v-if="Number(file.type === 1)" />
-    <video alt="example" style="width: 100%" :src="file.value" controls v-if="Number(file.type === 3)"></video>
+  <a-modal v-model:open="previewVisible" :footer="null" @cancel="previewHandleCancel">
+    <template v-if="previewVisible">
+      <div style="padding-top: 30px"></div>
+      <img alt="example" style="width: 100%" :src="file.value" v-if="Number(file.type === 1)" />
+      <video alt="example" style="width: 100%" :src="file.value" controls v-if="Number(file.type === 3)"></video>
+    </template>
   </a-modal>
 </template>
 

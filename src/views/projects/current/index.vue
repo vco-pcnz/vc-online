@@ -2,42 +2,7 @@
   <vco-page-nav sup-path="/projects"></vco-page-nav>
 
   <div class="dDggoj">
-    <div class="hRgViQ chart">
-      <div class="title">
-        <p>Loans Book Composition</p>
-        <div>
-          <div class="select">
-            <select>
-              <option value="balance">Loan Balance</option>
-              <option value="currentFC2">Current FC2</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      <div class="row-bars" style="padding: 42px 0px 16px">
-        <div class="ehsbrV">
-          <div class="cHGikM"><label>25%</label></div>
-        </div>
-        <div class="ehsbrV">
-          <div class="cHGikM"><label>25%</label></div>
-        </div>
-        <div class="ehsbrV">
-          <div class="cHGikM"><label>25%</label></div>
-        </div>
-        <div class="ehsbrV">
-          <div class="cHGikM"><label>25%</label></div>
-        </div>
-      </div>
-      <div class="sc-jlOLRj dDGtFy">
-        <div class="sc-bXxmBy jQJCwP"></div>
-        <div class="value">$2m</div>
-        <div class="sc-bXxmBy jQJCwP"></div>
-        <div class="value">$5m</div>
-        <div class="sc-bXxmBy jQJCwP"></div>
-        <div class="value">$10m</div>
-        <div class="sc-bXxmBy jQJCwP"></div>
-      </div>
-    </div>
+    <ChartOne></ChartOne>
     <div class="hRgViQ number">
       <p class="title">Total IRR Forecast</p>
       <div>
@@ -58,7 +23,8 @@
         <p class="more">Total Current FC2&nbsp;</p>
       </div>
     </div>
-    <div class="hRgViQ chart"></div>
+    <ChartTwo></ChartTwo>
+    
   </div>
   <div class="flex justify-between items-center mt-10">
     <p class="num">{{ pageStore.total }} {{ t('项目') }}</p>
@@ -84,18 +50,80 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import TableSearch from '../components/TableSearch.vue';
 import TableBlock from '../components/TableBlock.vue';
 import { useCloseProjectsStore } from '@/store';
+import ChartOne from './components/ChartOne.vue';
+import ChartTwo from './components/ChartTwo.vue';
+
 
 const { t } = useI18n();
 const pageStore = useCloseProjectsStore();
 
+const balance_key = ref('balance');
+const maxBalance = ref(0);
+const maxCurrentFC2 = ref(0);
+const totalBalance = ref(0);
+const totalCurrentFC2 = ref(0);
+
+const projectBalance = ref([
+  {
+    uuid: '13b1f7eb-0983-4719-96a0-bf26ee12906a',
+    title: '112201',
+    balance: 318569.75,
+    currentFC2: 2412114.7
+  },
+  {
+    uuid: '1726193c-b5c6-4efd-87a3-f51aeb19f7cd',
+    title: 'lynn0722+ex',
+    balance: 6039.8,
+    currentFC2: 102256.91
+  },
+  {
+    uuid: '1893b17a-84ea-4fa3-9eb0-2fd08d80491e',
+    title: 'test1122',
+    balance: 44177093.16,
+    currentFC2: 145491711.93
+  },
+  {
+    uuid: '257b5d84-3208-4f28-8e57-37753e272f71',
+    title: 'test082003',
+    balance: 21882060.44,
+    currentFC2: 200000
+  }
+]);
+const getHeight = (item) => {
+  let val = '';
+  if (balance_key.value === 'balance') {
+    val = ((item.balance / maxBalance.value) * 100).toFixed(1);
+  }
+  if (balance_key.value === 'currentFC2') {
+    val = ((item.currentFC2 / maxCurrentFC2.value) * 100).toFixed(1);
+  }
+  return val + '%';
+};
+
+const getPercentage = (item) => {
+  let val = '';
+  if (balance_key.value === 'balance') {
+    val = ((item.balance / totalBalance.value) * 100).toFixed(1);
+  }
+  if (balance_key.value === 'currentFC2') {
+    val = ((item.currentFC2 / totalCurrentFC2.value) * 100).toFixed(1);
+  }
+  return val + '%';
+};
+const show = ref(false);
 onMounted(() => {
   // 加载数据
   pageStore.getList();
+  maxBalance.value = projectBalance.value.reduce((max, item) => Math.max(max, item.balance), -Infinity);
+  maxCurrentFC2.value = projectBalance.value.reduce((max, item) => Math.max(max, item.currentFC2), -Infinity);
+  totalBalance.value = projectBalance.value.reduce((sum, item) => sum + item.balance, 0);
+  totalCurrentFC2.value = projectBalance.value.reduce((sum, item) => sum + item.currentFC2, 0);
+  show.value = true;
 });
 </script>
 
@@ -173,7 +201,6 @@ onMounted(() => {
         }
 
         .cHGikM {
-          height: 100%;
           width: 100%;
           background-color: rgb(229, 224, 215);
           position: absolute;
@@ -224,6 +251,8 @@ onMounted(() => {
         color: rgba(39, 39, 39, 0.467);
       }
     }
+
+  
   }
 }
 </style>

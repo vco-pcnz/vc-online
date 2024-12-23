@@ -164,7 +164,7 @@
   import { cloneDeep } from "lodash"
   import { message } from "ant-design-vue/es";
   import { removeDuplicates } from "@/utils/tool"
-  import { associateAssignUser } from "@/api/process"
+  import { associateAssignUser, associateAssignTeam } from "@/api/process"
   import emitter from "@/event"
 
   const { t } = useI18n();
@@ -325,8 +325,7 @@
           const params = {
             uuid: props.currentId,
             user_uuid: vcTeamData.value[code].map(item => item.uuid).join(','),
-            role_code: code,
-            rule: 2
+            role_code: code
           }
 
           if (code === 'lm' && params.user_uuid === '') {
@@ -334,7 +333,7 @@
             subLoading.value = false
             return false
           }
-          await associateAssignUser(params).catch(() => {
+          await associateAssignTeam(params).catch(() => {
             subLoading.value = false
           })
         }

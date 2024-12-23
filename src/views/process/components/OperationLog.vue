@@ -9,11 +9,12 @@
                 <i v-if="item.type === 'add'" class="iconfont">&#xe889;</i>
                 <i v-if="item.type === 'check'" class="iconfont">&#xe8c5;</i>
                 <i v-if="item.type === 'save'" class="iconfont">&#xe8cf;</i>
+                <i v-if="item.type === 'edit'" class="iconfont">&#xe8cf;</i>
                 <i v-if="item.type === 'delete'" class="iconfont">&#xe8c1;</i>
               </div>
               <div class="info">
                 <p>{{ item.create_time }}</p>
-                <div>{{ item.message }}</div>
+                <div>{{ item.create_user_name }} {{ item.message }}</div>
               </div>
             </div>
           </template>

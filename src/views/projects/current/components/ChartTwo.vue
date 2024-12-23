@@ -16,21 +16,9 @@
       </div>
     </div>
     <div class="row-bars" style="padding-top: 28px">
-      <div class="ehsbrV">
-        <div class="bar_l"></div>
-        <div class="bar_r"></div>
-      </div>
-      <div class="ehsbrV">
-        <div class="bar_l"></div>
-        <div class="bar_r"></div>
-      </div>
-      <div class="ehsbrV">
-        <div class="bar_l"></div>
-        <div class="bar_r"></div>
-      </div>
-      <div class="ehsbrV">
-        <div class="bar_l"></div>
-        <div class="bar_r"></div>
+      <div class="ehsbrV" v-for="item in data" :key="item.uuid">
+        <div class="bar_l" :style="{ height: getHeight(item, 'drawdown') }"></div>
+        <div class="bar_r" :style="{ height: getHeight(item, 'repayment') }"></div>
       </div>
     </div>
     <div>
@@ -52,6 +40,9 @@ import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 
+const max = ref(0);
+const maxDrawdown = ref(0);
+const maxRepayment = ref(0);
 const data = ref({
   '2024-12': {
     drawdown: 0,
@@ -71,7 +62,18 @@ const data = ref({
   }
 });
 
-onMounted(() => {});
+const getHeight = (item, type) => {
+  return ((item[type] / max.value) * 100).toFixed(1) + '%';
+};
+
+onMounted(() => {
+  // 找出 drawdown 的最大值
+  maxDrawdown.value = Object.values(data.value).reduce((max, item) => Math.max(max, item.drawdown), -Infinity);
+
+  // 找出 repayment 的最大值
+  maxRepayment.value = Object.values(data.value).reduce((max, item) => Math.max(max, item.repayment), -Infinity);
+  max.value = Math.max(maxDrawdown.value, maxRepayment.value);
+});
 </script>
 
 <style lang="less" scoped>
@@ -128,7 +130,7 @@ onMounted(() => {});
       position: relative;
       .hErflg,
       .fPYWvF {
-        top: 55%;
+        top: 53%;
       }
     }
   }

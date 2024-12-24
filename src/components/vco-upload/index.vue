@@ -93,6 +93,10 @@ const props = defineProps({
     type: Number,
     required: false,
     default: 50 // 100 MB
+  },
+  controller: {
+    type: String,
+    default: '/upload'
   }
 });
 
@@ -111,14 +115,14 @@ watch(
     switch (val) {
       case 'image':
         accept.value = 'image/*';
-        uploadAction.value = uploadUrl + '/upload/uploadImage';
+        uploadAction.value = uploadUrl + props.controller + '/uploadImage';
         fileType.value = ['jpg', 'jpeg', 'png', 'gif', 'bmp'];
         errTip.value = t('上传图片的格式不正确，不是JPG、JPEG、GIF、PNG、BMP');
         upText.value = '上传图片';
         break;
       case 'video':
         accept.value = 'video/*';
-        uploadAction.value = uploadUrl + '/upload/uploadVideo';
+        uploadAction.value = uploadUrl + props.controller + '/uploadVideo';
         fileType.value = ['mp4', 'rmvb', 'wmv', 'avi', 'mpeg', 'mpg', 'mov', '3gp', 'flv', 'mkv', 'm4v'];
         errTip.value = t('上传视频的格式不正确，不是MP4、RMVB、WMV、AVI、MPEG、MPG、MOV、3GP、FLV、MKV、M4V');
         fileName.value = 'video';
@@ -126,7 +130,7 @@ watch(
         break;
       case 'file':
         accept.value = '';
-        uploadAction.value = uploadUrl + '/upload/uploadFile';
+        uploadAction.value = uploadUrl + props.controller + '/uploadFile';
         fileType.value = ['xls', 'xlsx', 'csv', 'json', 'txt', 'doc', 'docx', 'ppt', 'pptx', 'pdf', 'xmind'];
         errTip.value = t('上传文件的格式不正确，不是XLS、XLSX、CSV、JSON、TXT、DOC、DOCX、PPT、PPTX、PDF、Xmind');
         upText.value = '上传文件';

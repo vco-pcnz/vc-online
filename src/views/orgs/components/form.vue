@@ -156,7 +156,7 @@
           <!-- ####################################### -->
           <template v-if="form.type != 20">
             <a-col :span="24">
-              <a-form-item :label="t('地址1')">
+              <a-form-item :label="t('地址1')" name="addr">
                 <a-input v-model:value="form.addr" :placeholder="t('请输入')" />
               </a-form-item>
             </a-col>
@@ -341,6 +341,12 @@ const rules = reactive({
     {
       required: true,
       message: t('请选择') + t('类型f')
+    }
+  ],
+  addr: [
+    {
+      required: true,
+      message: t('请输入')
     }
   ]
 });

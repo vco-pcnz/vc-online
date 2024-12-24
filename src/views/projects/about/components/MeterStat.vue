@@ -9,15 +9,15 @@
         <div class="MeterStat-Meter"></div>
         <div>
           <p>Facility limit 2</p>
-          <div class="fs_3xl bold">$0.00</div>
+          <vco-number :value="data.facilityLimit2" :precision="2"></vco-number>
         </div>
       </div>
       <div class="MeterStat MeterStat_type_charcoal">
         <div class="MeterStat-Meter"></div>
         <div>
           <p>Current balance</p>
-          <div class="fs_3xl bold" style="margin-bottom: 2px">$1,826,948.34</div>
-          <p class="color_grey">$0.00 available</p>
+          <div class="fs_3xl bold" style="margin-bottom: 2px"><vco-number :value="data.current_balance" :precision="2"></vco-number></div>
+          <p class="color_grey flex"><vco-number :value="data.availableBalance" :precision="2" color="#888" size="fs_md" class="mr-2"></vco-number> available</p>
         </div>
       </div>
       <div class="MeterStat MeterStat_type_dotsYellow">
@@ -29,7 +29,7 @@
         </div>
         <div>
           <p class="color_grey" style="margin-bottom: 2px">Accrued interest</p>
-          <div class="fs_3xl bold">$8,509.07</div>
+          <vco-number :value="data.accrued_interest" :precision="2"></vco-number>
         </div>
       </div>
     </div>
@@ -38,15 +38,15 @@
         <div class="MeterStat-Meter"></div>
         <div>
           <p>Facility limit 1</p>
-          <div class="fs_3xl bold">$0.00</div>
+          <vco-number :value="data.facilityLimit1" :precision="2"></vco-number>
         </div>
       </div>
       <div class="MeterStat MeterStat_type_cyan">
         <div class="MeterStat-Meter"></div>
         <div>
           <p>Drawn amount</p>
-          <div class="fs_3xl bold" style="margin-bottom: 2px">$1,257,347.95</div>
-          <p class="color_grey">$0.00 available</p>
+          <vco-number :value="data.drawn_amount" :precision="2"></vco-number>
+          <p class="color_grey flex"><vco-number :value="data.availableWithdrawal" :precision="2" color="#888" size="fs_md" class="mr-2"></vco-number> available</p>
         </div>
       </div>
       <div class="MeterStat MeterStat_type_dotsBlack">
@@ -58,7 +58,7 @@
         </div>
         <div>
           <p class="color_grey" style="margin-bottom: 2px">Pending drawdown</p>
-          <div class="fs_3xl bold">$0.00</div>
+          <vco-number :value="data.pending_drawdown" :precision="2"></vco-number>
         </div>
       </div>
     </div>
@@ -73,18 +73,30 @@ const { t } = useI18n();
 
 const props = defineProps([]);
 
+const data = ref({
+  facilityLimit2: 2873824.21,
+  current_balance: 979262.58,
+  availableBalance: 1884561.63,
+  accrued_interest: 5610.41,
+
+  facilityLimit1: 2504000.0,
+  drawn_amount: 804000.0,
+  availableWithdrawal: 1611366.0,
+  pending_drawdown: 88634.0
+});
+
 const option = ref({
   series: [
     {
       type: 'pie',
       center: ['50%', '50%'],
       radius: '100%',
-      color: ['#272727', '#f3ede5'],
+      color: ['#272727', '#f19915', '#f3ede5'],
       label: {
         show: false
       },
       silent: true,
-      data: [{ value: 20 }, { value: 80 }]
+      data: [{ value: data.value.current_balance }, { value: data.value.accrued_interest }, { value: data.value.availableBalance }]
     }
   ]
 });
@@ -99,17 +111,12 @@ const option2 = ref({
       type: 'pie',
       center: ['50%', '50%'],
       radius: '100%',
-      color: ['#b4f1db', '#fff'],
+      color: ['#b4f1db', 'rgba(169, 173, 87, 1)', '#fff'],
       label: {
         show: false
       },
       silent: true,
-      data: [
-        { value: 30 },
-        {
-          value: 80
-        }
-      ]
+      data: [{ value: data.value.drawn_amount }, { value: data.value.pending_drawdown }, { value: data.value.availableWithdrawal }]
     }
   ]
 });
@@ -194,7 +201,6 @@ const option2 = ref({
 //           }
 //         ]
 //       })
-
 </script>
 
 <style scoped lang="less">

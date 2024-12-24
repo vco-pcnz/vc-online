@@ -10,13 +10,13 @@
     <a-modal :width="600" v-if="open" :open="open" :title="t('上传')" @cancel="open = false" class="sys-form-content">
       <a-tabs v-model:activeKey="activeKey">
         <a-tab-pane key="1" :tab="t('图片')">
-          <vco-upload type="image" :limit="20" isMultiple v-model:list="images"></vco-upload>
+          <vco-upload :controller="controller" type="image" :limit="20" isMultiple v-model:list="images"></vco-upload>
         </a-tab-pane>
         <a-tab-pane key="2" :tab="t('文件')">
-          <vco-upload type="file" :limit="20" isMultiple v-model:list="files"></vco-upload>
+          <vco-upload :controller="controller" type="file" :limit="20" isMultiple v-model:list="files"></vco-upload>
         </a-tab-pane>
         <a-tab-pane key="3" :tab="t('视频')">
-          <vco-upload type="video" :limit="20" isMultiple v-model:list="videos"></vco-upload>
+          <vco-upload :controller="controller" type="video" :limit="20" isMultiple v-model:list="videos"></vco-upload>
         </a-tab-pane>
       </a-tabs>
       <template #footer>
@@ -45,6 +45,10 @@ const props = defineProps({
   list: {
     type: Array,
     required: false
+  },
+  controller: {
+    type: String,
+    default: '/upload'
   }
 });
 const emits = defineEmits(['update:value', 'update:list', 'change']);

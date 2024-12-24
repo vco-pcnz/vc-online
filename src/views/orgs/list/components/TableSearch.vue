@@ -12,7 +12,7 @@
       <vco-type-input v-model="searchForm.keywords" v-model:type="searchForm.key" :type-data="keys" :placeholder="t('请输入')"></vco-type-input>
     </vco-page-search-item>
 
-    <vco-page-search-item width="140" :title="t('组织名')">
+    <vco-page-search-item width="220" :title="t('组织名')">
       <a-input v-model:value="searchForm.org__name" :placeholder="t('请输入')" />
     </vco-page-search-item>
 

@@ -1,6 +1,6 @@
 <template>
   <vco-page-search>
-    <vco-page-search-item width="100">
+    <vco-page-search-item width="100" :title="t('类型')">
       <a-select :placeholder="t('请选择')" v-model:value="searchForm.role_id">
         <a-select-option
           v-for="item in typeData"
@@ -12,7 +12,7 @@
       </a-select>
     </vco-page-search-item>
 
-    <vco-page-search-item width="220">
+    <vco-page-search-item width="220" :title="t('关键字')">
       <vco-type-input
         v-model="searchForm.keywords"
         v-model:type="searchForm.key"
@@ -21,12 +21,8 @@
       ></vco-type-input>
     </vco-page-search-item>
 
-    <vco-page-search-item width="220">
-      <vco-type-input
-        v-model="searchForm.org__name"
-        :type-data="orgNameData"
-        :placeholder="t('请输入')"
-      ></vco-type-input>
+    <vco-page-search-item width="220" :title="t('组织名')">
+      <a-input v-model:value="searchForm.org__name" :placeholder="t('请输入')" />
     </vco-page-search-item>
 
     <vco-page-search-item width="100%">
@@ -54,7 +50,7 @@ const typeData = computed(() => {
   }));
   return [
     {
-      label: t('类型'),
+      label: t('全部'),
       value: '',
     },
     ...data,

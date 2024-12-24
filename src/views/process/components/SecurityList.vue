@@ -30,6 +30,14 @@
               </div>
               <a-row :gutter="24">
                 <a-col :span="12" class="item-txt">
+                  <p>{{ t('名称') }}</p>
+                  <p>{{ item.security_name }}</p>
+                </a-col>
+                <a-col :span="12" class="item-txt">
+                  <p>{{ t('担保公司') }}</p>
+                  <p>{{ item.insurance_company }}</p>
+                </a-col>
+                <a-col :span="12" class="item-txt">
                   <p>{{ t('创建人') }}</p>
                   <p>{{ item.create_user_name }}</p>
                 </a-col>
@@ -38,20 +46,20 @@
                   <p>{{ tool.showDate(item.create_time) }}</p>
                 </a-col>
                 <a-col :span="12" class="item-txt">
-                  <p>{{ t('土地价值') }}</p>
-                  <p>{{ tool.formatMoney(item.land_value) }}</p>
+                  <p>{{ t('抵押登记日期') }}</p>
+                  <p>{{ item.mortgage_registration_date ? tool.showDate(item.mortgage_registration_date) : '--' }}</p>
                 </a-col>
                 <a-col :span="12" class="item-txt">
-                  <p>{{ t('改善值') }}</p>
-                  <p>{{ tool.formatMoney(item.improvement_value) }}</p>
+                  <p>{{ t('保险到期日') }}</p>
+                  <p>{{ tool.showDate(item.insurance_expire_date) }}</p>
                 </a-col>
                 <a-col :span="24" class="item-txt">
                   <p>{{ t('地址') }}</p>
-                  <p>{{ item.address }}</p>
+                  <p>{{ `${item.address_short} ${item.region_three_name} ${item.region_two_name} ${item.region_one_name}` }}</p>
                 </a-col>
                 <div class="item-txt total">
-                  <p>{{ t('抵押物价值') }}</p>
-                  <vco-number :value="item.security_value" :precision="2" :end="true"></vco-number>
+                  <p>{{ t('保险价值') }}</p>
+                  <vco-number :value="item.insurance_value" :precision="2" :end="true"></vco-number>
                 </div>
               </a-row>
             </div>
@@ -142,7 +150,9 @@
 
   .table-content {
     min-height: 100px;
-
+    max-height: 650px;
+    overflow-x: hidden;
+    overflow-y: scroll;
     .table-item {
       padding: 10px;
       border: 1px solid #e2e5e2;

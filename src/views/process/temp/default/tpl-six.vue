@@ -15,6 +15,7 @@
             :step-type="1"
             :current-id="currentId"
             :offer-amount="offerAmount"
+            :loan-money="dataInfo.loan_info.loan_money"
             :initial-amount="initialAmount"
             @done="showForecast = true"
             @refresh="getDataInit"
@@ -82,6 +83,11 @@
   import SecurityList from "./../../components/SecurityList.vue";
   import emitter from "@/event"
   import { message } from "ant-design-vue/es";
+  import useProcessStore from "@/store/modules/process"
+
+  // 初始化当前项目的forcastList 状态
+  const processStore = useProcessStore()
+  processStore.setForcastState(false)
 
   const emits = defineEmits(['checkDone', 'dataDone'])
 

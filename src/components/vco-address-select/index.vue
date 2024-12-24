@@ -120,11 +120,16 @@
 
   const pageInit = () => {
     const arr = props.value.split(',')
-    province.value = Number(arr[0])
-    getData(1, Number(arr[0]))
-    if (arr[1]) {
-      getData(2, arr[1])
+    if (props.value) {
+      province.value = Number(arr[0])
+      getData(1, Number(arr[0]))
+      if (arr[1]) {
+        getData(2, arr[1])
+      }
+    } else {
+      province.value = undefined
     }
+    
 
     city.value = arr[1] ? Number(arr[1]) : undefined
     region.value = arr[2] ? Number(arr[2]) : undefined
@@ -133,9 +138,7 @@
   watch(
     () => props.value,
     (val) => {
-      if (val) {
-        pageInit()
-      }
+      pageInit()
     },
     {
       immediate: true

@@ -104,6 +104,7 @@
 
 <script setup>
   import { watch, computed, ref } from "vue";
+  import dayjs from "dayjs";
   import { useI18n } from "vue-i18n";
   import { cloneDeep } from "lodash";
   import { projectAuditAddSecurity, projectAuditEditSecurity } from "@/api/process"
@@ -186,6 +187,9 @@
     security_region: [
       { required: true, message: t('请选择') + t('区域'), trigger: 'change' }
     ],
+    postcode: [
+      { required: true, message: t('请输入') + t('邮编'), trigger: 'blur' }
+    ],
     address_short: [
       { required: true, message: t('请输入') + t('地址1'), trigger: 'blur' }
     ],
@@ -199,6 +203,16 @@
       const params = cloneDeep(formState.value)
       params.uuid = props.currentId
       params.security_status = props.securityStatus
+
+      params.insurance_expire_date = params.insurance_expire_date ? dayjs(params.insurance_expire_date).format('YYYY-MM-DD') : ''
+      params.mortgage_registration_date = params.mortgage_registration_date ? dayjs(params.mortgage_registration_date).format('YYYY-MM-DD') : ''
+
+      const regionArr = params.security_region.split(',')
+      params.region_one_id = regionArr[0] ? Number(regionArr[0]) : ''
+      params.region_two_id = regionArr[1] ? Number(regionArr[1]) : ''
+      params.region_three_id = regionArr[2] ? Number(regionArr[2]) : ''
+
+      delete params.security_region
 
       let ajaxFn = projectAuditAddSecurity
       if (props.infoData && props.infoData.uuid) {
@@ -232,7 +246,14 @@
         if (props.infoData && props.infoData.uuid) {
           for (const key in formState.value) {
             formState.value[key] = props.infoData[key]
+            if (['insurance_expire_date', 'mortgage_registration_date'].includes(key)) {
+              formState.value[key] = props.infoData[key] ? dayjs(props.infoData[key]) : ''
+            }
           }
+          const areaArr = [props.infoData.region_one_id, props.infoData.region_two_id, props.infoData.region_three_id]
+          const areaStr = areaArr.filter(item => item).join(',')
+          
+          formState.value.security_region = areaStr
         }
       }
     }

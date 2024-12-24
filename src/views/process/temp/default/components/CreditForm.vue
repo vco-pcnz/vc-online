@@ -43,6 +43,33 @@
               />
             </a-form-item>
           </a-col>
+          <a-col :span="24" class="total-amount-info">
+            <p>{{ t('借款总金额') }}</p>
+            <vco-number :value="totalAmountRef" :precision="2" :end="true"></vco-number>
+          </a-col>
+          <a-col :span="24"><div class="form-line"></div></a-col>
+          <a-col :span="12">
+            <a-form-item :label="t('首次建筑贷款放款额')" name="initial_build_amount">
+              <a-input-number
+                v-model:value="formState.initial_build_amount"
+                :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                :parser="value => value.replace(/\$\s?|(,*)/g, '')"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item :label="t('首次土地贷款放款额')" name="initial_land_amount">
+              <a-input-number
+                v-model:value="formState.initial_land_amount"
+                :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                :parser="value => value.replace(/\$\s?|(,*)/g, '')"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="24" class="total-amount-info">
+            <p>{{ t('首次放款总金额') }}</p>
+            <vco-number :value="totalInitialAmountRef" :precision="2" :end="true"></vco-number>
+          </a-col>
           <a-col v-if="percentItems.length" :span="24"><div class="form-line"></div></a-col>
           <template v-if="percentItems.length">
             <a-col v-for="item in percentItems" :key="item.credit_table" :span="8">
@@ -82,12 +109,13 @@
 </template>
 
 <script setup>
-  import { ref, onMounted } from "vue"
+  import { ref, onMounted, computed } from "vue"
   import { useI18n } from "vue-i18n";
   import { cloneDeep } from "lodash";
   import { message } from "ant-design-vue/es";
   import { ruleCredit, creditInitial, creditInfo, lmAuditStatus, fcAuditStatus, projectAuditSaveLoanAmount } from "@/api/process"
   import emitter from "@/event"
+  import tool from "@/utils/tool"
 
   const emits = defineEmits(['done', 'refresh'])
   const props = defineProps({
@@ -109,6 +137,15 @@
           check_status: 405
         }
       }
+    },
+    initialAmount: {
+      type: Object,
+      default: () => {
+        return {
+          initial_build_amount: '',
+          initial_land_amount: '',
+        }
+      }
     }
   })
 
@@ -117,13 +154,27 @@
   const formRef = ref()
   const formState = ref({
     build_amount: '',
-    land_amount: ''
+    land_amount: '',
+    initial_build_amount: '',
+    initial_land_amount: ''
   })
   const formRules = ref({})
   const percentItems = ref([])
   const dollarItems = ref([])
   const showNumItems = ref([])
   const creditId = ref(null)
+
+  const totalAmountRef = computed(() => {
+    const build_amount = formState.value.build_amount || 0
+    const land_amount = formState.value.land_amount || 0
+    return tool.plus(build_amount, land_amount)
+  })
+
+  const totalInitialAmountRef = computed(() => {
+    const initial_build_amount = formState.value.initial_build_amount || 0
+    const initial_land_amount = formState.value.initial_land_amount || 0
+    return tool.plus(initial_build_amount, initial_land_amount)
+  })
 
   const getFormItems = async () => {
     await ruleCredit().then(async (res) => {
@@ -170,6 +221,9 @@
         formState.value.build_amount = props.offerAmount.build_amount
         formState.value.land_amount = props.offerAmount.land_amount
 
+        formState.value.initial_build_amount = props.initialAmount.initial_build_amount
+        formState.value.initial_land_amount = props.initialAmount.initial_land_amount
+
         if (creditId.value) {
           emits('done')
         }
@@ -188,15 +242,25 @@
         return false
       }
 
+      const initialTotalAmount = Number(formState.value.initial_build_amount) + Number(formState.value.initial_land_amount)
+      if (initialTotalAmount <= 0) {
+        message.error(t('首次放款总金额不正确'))
+        return false
+      }
+
       subLoading.value = true
 
       await projectAuditSaveLoanAmount({
         uuid: props.currentId,
-        build_amount: formState.value.build_amount,
-        land_amount: formState.value.land_amount,
+        build_amount: formState.value.build_amount || 0,
+        land_amount: formState.value.land_amount || 0,
         offer_amount_status: props.offerAmount.check_status,
+        initial_build_amount: formState.value.initial_build_amount || 0,
+        initial_land_amount: formState.value.initial_land_amount || 0
       }).then(() => {
         emits('refresh')
+      }).catch(() => {
+        subLoading.value = false
       })
 
       const params = cloneDeep(formState.value)
@@ -273,6 +337,17 @@
   .sys-form-content {
     :deep(.ant-statistic-content) {
       font-size: 21px !important;
+    }
+  }
+
+  .total-amount-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    padding-bottom: 10px;
+    p {
+      font-size: 12px;
+      color: #888;
     }
   }
 </style>

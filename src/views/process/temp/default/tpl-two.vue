@@ -26,6 +26,11 @@
                     </a-form-item>
                   </a-col>
                   <a-col :span="24">
+                  <a-form-item :label="t('地址1')" name="project_address_short">
+                    <a-input v-model:value="formState.project_address_short" />
+                  </a-form-item>
+                </a-col>
+                  <a-col :span="24">
                     <a-form-item :label="t('详细地址')" name="project_address">
                       <a-input v-model:value="formState.project_address" />
                     </a-form-item>
@@ -168,6 +173,7 @@
     project_type: undefined,
     project_images: [],
     project_region: '',
+    project_address_short: '',
     project_address: '',
     project_postcode: '',
     building_num: '',

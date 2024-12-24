@@ -3,7 +3,7 @@
     <!-- 提示弹窗 -->
     <a-modal
       :open="tipsVisible"
-      :title="t('提示')"
+      :title="t('修改方式')"
       :width="460"
       :footer="null"
       :keyboard="false"
@@ -11,19 +11,23 @@
       @cancel="tipsVisible = false"
     >
       <div class="tips-content">
-        <p>{{ t('{0}以后已手动修改的放款是否保留已设置的值', [tool.showDate(currentParams.date)]) }}</p>
+        <a-radio-group v-model:value="changeType">
+          <a-radio :value="2" class="mt-4"><p class="tips-txt">{{ t('仅修改当前项，其他日期的放款信息不变')}}</p></a-radio>
+          <a-radio :value="1" class="mt-4"><p class="tips-txt">{{ t('{0}以后已手动修改的放款信息，保留已设置的值', [tool.showDate(currentParams.date)])}}</p></a-radio>
+          <a-radio :value="0" class="mt-4"><p class="tips-txt">{{ t('{0}以后已手动修改的放款信息，按照比例均分', [tool.showDate(currentParams.date)])}}</p></a-radio>
+        </a-radio-group>
+
         <div class="mt-5 flex justify-between gap-5">
           <a-button
-            type="dark" class="big shadow bold uppercase w-full mb-5 mt-5"
-            :loading="sub1Loading"
-            @click="sureHandle(0)"
-          >{{ t('不，谢谢') }}</a-button>
+            type="grey" class="big shadow bold uppercase w-full mb-5 mt-5"
+            @click="tipsVisible = false"
+          >{{ t('取消') }}</a-button>
 
           <a-button
             type="dark" class="big shadow bold uppercase w-full mb-5 mt-5"
-            :loading="sub2Loading"
-            @click="sureHandle(1)"
-          >{{ t('是的，保留') }}</a-button>
+            :loading="subLoading"
+            @click="sureHandle"
+          >{{ t('提交') }}</a-button>
         </div>
       </div>
     </a-modal>
@@ -113,7 +117,7 @@
                 </div>
                 <div class="item ops">
                   <i class="iconfont" @click="addEditHandle(_item, index, _index)">&#xe8cf;</i>
-                  <i class="iconfont" @click="removeHandle(_item)">&#xe8c1;</i>
+                  <i class="iconfont" :class="{'disabled': _item.first}" @click="removeHandle(_item)">&#xe8c1;</i>
                 </div>
               </div>
             </div>
@@ -143,6 +147,7 @@
   import { projectForecastDarwDownList, projectForecastAdd, projectForecastDelete } from "@/api/process"
   import tool, { numberStrFormat, navigationTo } from "@/utils/tool"
   import emitter from "@/event"
+  import { message } from "ant-design-vue/es";
 
   const props = defineProps({
     infoData: {
@@ -219,6 +224,7 @@
     note: "",
     first: ""
   })
+  const changeType = ref(undefined)
 
   const formRules = {
     type: [
@@ -283,6 +289,7 @@
       formState.note = ""
     }
     visible.value = true
+    handleType.value = 0
   }
 
   const tipsVisible = ref(false)
@@ -321,31 +328,33 @@
       }
       currentParams.value = params
       tipsVisible.value = true
-      handleType.value = 0
+      changeType.value = undefined
     })
     .catch(error => {
       console.log('error', error);
     });
   }
 
-  const sub1Loading = ref(false)
-  const sub2Loading = ref(false)
-  const sureHandle = (type) => {
-    const loading = type ? sub2Loading : sub1Loading
-    loading.value = true
+  const subLoading = ref(false)
+  const sureHandle = () => {
+    if (changeType.value === undefined) {
+      message.error(t('请选择') + t('修改方式'))
+      return false
+    }
+    subLoading.value = true
 
     const ajaxFn = handleType.value ? projectForecastDelete : projectForecastAdd
 
     ajaxFn({
       ...currentParams.value,
-      change: type
+      change: changeType.value
     }).then(() => {
       getTableData()
       tipsVisible.value = false
       visible.value = false
-      loading.value = false
+      subLoading.value = false
     }).catch(() => {
-      loading.value = false
+      subLoading.value = false
     })
   }
 
@@ -408,6 +417,10 @@
           > i {
             cursor: pointer;
             color: @colorPrimary;
+            &.disabled {
+              pointer-events: none;
+              color: #999 !important;
+            }
             &:hover {
               opacity: 0.8;
             }
@@ -481,10 +494,10 @@
 
   .tips-content {
     padding: 30px;
+    padding-top: 10px;
     padding-bottom: 0;
-    p {
+    .tips-txt {
       font-size: 14px;
-      text-align: center;
     }
   }
 </style>

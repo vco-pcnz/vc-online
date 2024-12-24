@@ -15,6 +15,7 @@
             :step-type="1"
             :current-id="currentId"
             :offer-amount="offerAmount"
+            :initial-amount="initialAmount"
             @done="showForecast = true"
             @refresh="getDataInit"
           ></credit-form>
@@ -175,11 +176,13 @@
 
   const dataInfo = ref(null)
   const offerAmount = ref(null)
+  const initialAmount = ref(null)
   const securityInfo = ref(null)
   const dataInit = (infoMsg = {}) => {
     const data = cloneDeep({...infoMsg, ...props.infoData})
 
     offerAmount.value = data.offer_amount
+    initialAmount.value = data.initial_amount
     securityInfo.value = data.security
     dataInfo.value = data
     currentDataInfo.value = data

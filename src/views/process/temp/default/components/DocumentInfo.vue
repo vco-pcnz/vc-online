@@ -1,7 +1,7 @@
 <template>
   <div>
     <a-row :gutter="24">
-      <a-col :span="6">
+      <a-col :span="8">
         <div class="info-content">
           <p class="name">{{ t('资源许可') }}</p>
           <div class="file-content">
@@ -14,7 +14,7 @@
           </div>
         </div>
       </a-col>
-      <a-col :span="6">
+      <a-col :span="8">
         <div class="info-content">
           <p class="name">{{ t('工程计划批准') }}</p>
           <div class="file-content">
@@ -27,7 +27,7 @@
           </div>
         </div>
       </a-col>
-      <a-col :span="6">
+      <a-col :span="8">
         <div class="info-content">
           <p class="name">{{ t('建筑许可') }}</p>
           <div class="file-content">
@@ -40,7 +40,7 @@
           </div>
         </div>
       </a-col>
-      <a-col :span="6">
+      <a-col :span="8">
         <div class="info-content">
           <p class="name">{{ t('可行性研究') }}</p>
           <div class="file-content">
@@ -53,7 +53,7 @@
           </div>
         </div>
       </a-col>
-      <a-col :span="6">
+      <a-col :span="8">
         <div class="info-content">
           <p class="name">{{ t('其他') }}</p>
           <div class="file-content">

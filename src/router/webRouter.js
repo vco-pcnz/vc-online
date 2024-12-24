@@ -37,6 +37,12 @@ const routes = [
     meta: { title: "成为中介" },
   },
   {
+    name: "wash",
+    path: "/wash",
+    component: () => import("@/views/wash/index.vue"),
+    meta: { title: "成为中介" },
+  },
+  {
     path: "/403",
     hidden: true,
     meta: { title: "" },

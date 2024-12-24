@@ -44,7 +44,7 @@ export default {
   "成功": "successful",
   "用户中心":  "User Center",
   "关于": "About",
-  "安全": "Safe",
+  "安全": "Security",
   "通知": "Notice",
   "提交": "SUBMIT",
   "关于": "About",

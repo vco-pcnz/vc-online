@@ -25,7 +25,7 @@
     <div class="sys-form-content mt-5">
       <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
         <a-row :gutter="24">
-          <a-col :span="12">
+          <a-col :span="8">
             <a-form-item :label="t('建筑贷款总额')" name="build_amount">
               <a-input-number
                 v-model:value="formState.build_amount"
@@ -34,7 +34,8 @@
               />
             </a-form-item>
           </a-col>
-          <a-col :span="12">
+          <a-col :span="1" class="plus-txt"><i class="iconfont">&#xe889;</i></a-col>
+          <a-col :span="8">
             <a-form-item :label="t('土地贷款总额')" name="land_amount">
               <a-input-number
                 v-model:value="formState.land_amount"
@@ -43,12 +44,14 @@
               />
             </a-form-item>
           </a-col>
-          <a-col :span="24" class="total-amount-info">
-            <p>{{ t('借款总金额') }}</p>
-            <vco-number :value="totalAmountRef" :precision="2" :end="true"></vco-number>
+          <a-col :span="1" class="plus-txt"><i class="iconfont">=</i></a-col>
+          <a-col :span="6" class="total-amount-info">
+            <a-form-item :label="t('借款总金额')">
+              <vco-number :value="totalAmountRef" :precision="2" :end="true"></vco-number>
+            </a-form-item>
           </a-col>
           <a-col :span="24"><div class="form-line"></div></a-col>
-          <a-col :span="12">
+          <a-col :span="8">
             <a-form-item :label="t('首次建筑贷款放款额')" name="initial_build_amount">
               <a-input-number
                 v-model:value="formState.initial_build_amount"
@@ -57,7 +60,8 @@
               />
             </a-form-item>
           </a-col>
-          <a-col :span="12">
+          <a-col :span="1" class="plus-txt"><i class="iconfont">&#xe889;</i></a-col>
+          <a-col :span="8">
             <a-form-item :label="t('首次土地贷款放款额')" name="initial_land_amount">
               <a-input-number
                 v-model:value="formState.initial_land_amount"
@@ -66,13 +70,15 @@
               />
             </a-form-item>
           </a-col>
-          <a-col :span="24" class="total-amount-info">
-            <p>{{ t('首次放款总金额') }}</p>
-            <vco-number :value="totalInitialAmountRef" :precision="2" :end="true"></vco-number>
+          <a-col :span="1" class="plus-txt"><i class="iconfont">=</i></a-col>
+          <a-col :span="6" class="total-amount-info">
+            <a-form-item :label="t('首次放款总金额')">
+              <vco-number :value="totalInitialAmountRef" :precision="2" :end="true"></vco-number>
+            </a-form-item>
           </a-col>
           <a-col v-if="percentItems.length" :span="24"><div class="form-line"></div></a-col>
           <template v-if="percentItems.length">
-            <a-col v-for="item in percentItems" :key="item.credit_table" :span="8">
+            <a-col v-for="item in percentItems" :key="item.credit_table" class="data-col-item" :class="colClassName(percentItems.length)">
               <a-form-item :label="item.credit_name" :name="item.credit_table">
                 <a-input
                   v-model:value="formState[item.credit_table]"
@@ -83,7 +89,7 @@
           </template>
           <a-col v-if="dollarItems.length" :span="24"><div class="form-line"></div></a-col>
           <template v-if="dollarItems.length">
-            <a-col v-for="item in dollarItems" :key="item.credit_table" :span="8">
+            <a-col v-for="item in dollarItems" :key="item.credit_table" class="data-col-item" :class="colClassName(dollarItems.length)">
               <a-form-item :label="item.credit_name" :name="item.credit_table">
                 <a-input-number
                   v-model:value="formState[item.credit_table]"
@@ -95,7 +101,7 @@
           </template>
           <a-col v-if="showNumItems.length" :span="24"><div class="form-line"></div></a-col>
           <template v-if="showNumItems.length">
-            <a-col v-for="item in showNumItems" :key="item.credit_table" :span="8">
+            <a-col v-for="item in showNumItems" :key="item.credit_table" class="data-col-item" :class="colClassName(showNumItems.length)">
               <a-form-item :label="item.credit_name">
                 <vco-number :value="item.value" :precision="2" :end="true"></vco-number>
               </a-form-item>
@@ -126,6 +132,10 @@
     stepType: {
       type: Number,
       default: 1
+    },
+    loanMoney: {
+      type: [Number, String],
+      default: 0
     },
     offerAmount: {
       type: Object,
@@ -158,7 +168,36 @@
     initial_build_amount: '',
     initial_land_amount: ''
   })
-  const formRules = ref({})
+  const formRules = ref({
+    build_amount: [
+      {
+        pattern: /^(?!0(\.0+)?$)(\d+(\.\d+)?|\.\d+)$/,
+        message: t("请输入大于0的数字"),
+        trigger: 'blur'
+      }
+    ],
+    land_amount: [
+      {
+        pattern: /^(?!0(\.0+)?$)(\d+(\.\d+)?|\.\d+)$/,
+        message: t("请输入大于0的数字"),
+        trigger: 'blur'
+      }
+    ],
+    initial_build_amount: [
+      {
+        pattern: /^(?!0(\.0+)?$)(\d+(\.\d+)?|\.\d+)$/,
+        message: t("请输入大于0的数字"),
+        trigger: 'blur'
+      }
+    ],
+    initial_land_amount: [
+      {
+        pattern: /^(?!0(\.0+)?$)(\d+(\.\d+)?|\.\d+)$/,
+        message: t("请输入大于0的数字"),
+        trigger: 'blur'
+      }
+    ]
+  })
   const percentItems = ref([])
   const dollarItems = ref([])
   const showNumItems = ref([])
@@ -186,19 +225,21 @@
       const rulesData = {}
       for (let i = 0; i < writeData.length; i++) {
         formState.value[writeData[i].credit_table] = writeData[i].value
+        rulesData[writeData[i].credit_table] = [
+          {
+            pattern: /^(?!0(\.0+)?$)(\d+(\.\d+)?|\.\d+)$/,
+            message: t("请输入大于0的数字"),
+            trigger: 'blur'
+          }
+        ]
         if (writeData[i].is_req) {
-          rulesData[writeData[i].credit_table] = [
-            { required: true, message: t('请输入') + writeData[i].credit_name, trigger: 'blur' },
-            {
-              pattern: /^(?!0(\.0+)?$)(\d+(\.\d+)?|\.\d+)$/,
-              message: t("请输入大于0的数字"),
-              trigger: 'blur'
-            }
-          ]
+          rulesData[writeData[i].credit_table].push({
+            required: true, message: t('请输入') + writeData[i].credit_name, trigger: 'blur'
+          })
         }
       }
 
-      formRules.value = rulesData
+      formRules.value = {...formRules.value, ...rulesData}
       percentItems.value = perData
       dollarItems.value = dolData
       showNumItems.value = data.filter(item => !item.is_write)
@@ -208,6 +249,12 @@
   }
 
   const updateFormData = async () => {
+    formState.value.build_amount = Number(props.offerAmount.build_amount) ? props.offerAmount.build_amount : props.loanMoney || 0
+    formState.value.land_amount = props.offerAmount.land_amount
+
+    formState.value.initial_build_amount = props.initialAmount.initial_build_amount
+    formState.value.initial_land_amount = props.initialAmount.initial_land_amount
+
     await creditInfo({apply_uuid: props.currentId}).then(res => {
       if (res.length || Object.keys(res).length) {
         for (const key in formState.value) {
@@ -217,12 +264,6 @@
           showNumItems.value[i].value = res[showNumItems.value[i].credit_table]
         }
         creditId.value = res.id || null
-
-        formState.value.build_amount = props.offerAmount.build_amount
-        formState.value.land_amount = props.offerAmount.land_amount
-
-        formState.value.initial_build_amount = props.initialAmount.initial_build_amount
-        formState.value.initial_land_amount = props.initialAmount.initial_land_amount
 
         if (creditId.value) {
           emits('done')
@@ -285,6 +326,20 @@
     });
   }
 
+  const colClassName = (num) => {
+    if (num === 1) {
+      return 'one'
+    } else if (num === 2) {
+      return 'two'
+    } else if (num === 3) {
+      return 'three'
+    } else if (num === 4) {
+      return 'four'
+    } else {
+      return 'five'
+    }
+  }
+
   const checkHandle = async () => {
     if (creditId.value) {
       const totalAmount = Number(formState.value.build_amount) + Number(formState.value.land_amount)
@@ -341,13 +396,48 @@
   }
 
   .total-amount-info {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    padding-bottom: 10px;
-    p {
-      font-size: 12px;
-      color: #888;
+    :deep(.ant-statistic-content) {
+      font-size: 24px !important;
+      line-height: 48px !important;
+    }
+  }
+
+  .plus-txt {
+    position: relative;
+    .iconfont {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #282828;
+      font-weight: bold;
+      font-size: 18px;
+    }
+  }
+
+  .data-col-item {
+    :deep(.ant-statistic-content) {
+      font-size: 24px !important;
+    }
+    &.one {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+    &.two {
+      flex: 0 0 50%;
+      max-width: 50%;
+    }
+    &.three {
+      flex: 0 0 33.333333%;
+      max-width: 33.333333%;
+    }
+    &.four {
+      flex: 0 0 25%;
+      max-width: 25%;
+    }
+    &.five {
+      flex: 0 0 20%;
+      max-width: 20%;
     }
   }
 </style>

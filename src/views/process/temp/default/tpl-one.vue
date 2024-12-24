@@ -86,12 +86,12 @@
                     <a-input v-model:value="formState.company_number" />
                   </a-form-item>
                 </a-col>
-                <a-col :span="8">
+                <a-col :span="12">
                   <a-form-item :label="t('邮箱')" name="borrower_email">
                     <a-input v-model:value="formState.borrower_email" />
                   </a-form-item>
                 </a-col>
-                <a-col :span="8">
+                <a-col :span="12">
                   <a-form-item :label="t('手机号')" name="borrower_phone">
                     <vco-mobile-input
                       v-model:value="formState.borrower_phone"
@@ -102,28 +102,28 @@
                     </vco-mobile-input>
                   </a-form-item>
                 </a-col>
-                <a-col :span="8">
-                  <a-form-item :label="t('邮编')" name="borrower_postcode">
-                    <a-input v-model:value="formState.borrower_postcode" />
-                  </a-form-item>
-                </a-col>
                 <a-col :span="24">
                   <a-form-item :label="t('地址1')" name="borrower_address_short">
                     <a-input v-model:value="formState.borrower_address_short" />
                   </a-form-item>
                 </a-col>
                 <a-col :span="24">
-                  <a-form-item :label="t('详细地址')" name="borrower_address">
+                  <a-form-item :label="t('地址2')" name="borrower_address">
                     <a-input v-model:value="formState.borrower_address" />
                   </a-form-item>
                 </a-col>
-                <a-col :span="24">
-                  <a-form-item :label="t('借款人地址')" name="borrower_region">
+                <a-col :span="16">
+                  <a-form-item :label="t('区域')" name="borrower_region">
                     <vco-address-select
                       v-model:value="formState.borrower_region"
                       :formRef="formRef"
                       validateField="borrower_region"
                     ></vco-address-select>
+                  </a-form-item>
+                </a-col>
+                <a-col :span="8">
+                  <a-form-item :label="t('邮编')" name="borrower_postcode">
+                    <a-input v-model:value="formState.borrower_postcode" />
                   </a-form-item>
                 </a-col>
                 <a-col :span="24">
@@ -312,12 +312,12 @@
     borrower_region: [
       { required: true, message: t('请选择') + t('借款人地址'), trigger: 'change' }
     ],
-    borrower_address: [
-      { required: true, message: t('请输入') + t('详细地址'), trigger: 'blur' }
-    ],
-    // borrower_address_short: [
-    //   { required: true, message: t('请输入') + t('地址1'), trigger: 'blur' }
+    // borrower_address: [
+    //   { required: true, message: t('请输入') + t('详细地址'), trigger: 'blur' }
     // ],
+    borrower_address_short: [
+      { required: true, message: t('请输入') + t('地址1'), trigger: 'blur' }
+    ],
     borrower_about: [
       { required: true, message: t('请输入') + t('借款人背景信息'), trigger: 'blur' }
     ]

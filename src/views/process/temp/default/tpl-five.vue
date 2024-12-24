@@ -15,6 +15,7 @@
             :step-type="1"
             :current-id="currentId"
             :offer-amount="offerAmount"
+            :loan-money="dataInfo.loan_info.loan_money"
             :initial-amount="initialAmount"
             @done="showForecast = true"
             @refresh="getDataInit"
@@ -70,7 +71,7 @@
   import { cloneDeep } from "lodash";
   import {
     projectLmAuditDetail,
-    projectApplyLmCheck
+    projectAuditLmCheck
   } from "@/api/process";
   import BaseInfoContent from "./components/BaseInfoContent.vue";
   import TempFooter from "./components/TempFooter.vue";
@@ -163,7 +164,7 @@
       uuid: props.currentId
     }
     subLoading.value = true
-    projectApplyLmCheck(params).then(() => {
+    projectAuditLmCheck(params).then(() => {
       subLoading.value = false
       footerRef.value.nextHandle(props.currentId)
 

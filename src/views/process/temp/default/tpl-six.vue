@@ -5,23 +5,24 @@
         <div v-if="dataInfo" class="left-content">
           <!-- 基础信息 -->
           <base-info-content
-            :step-type="2"
+            :step-type="1"
             :data-info="dataInfo"
             @refresh="getDataInit"
           ></base-info-content>
 
           <!-- 放款信息 -->
           <credit-form
-            :step-type="2"
+            :step-type="1"
             :current-id="currentId"
             :offer-amount="offerAmount"
+            :initial-amount="initialAmount"
             @done="showForecast = true"
             @refresh="getDataInit"
           ></credit-form>
 
           <!-- 抵押物 -->
           <security-items
-            :step-type="2"
+            :step-type="1"
             :current-id="currentId"
             :security-info="securityInfo"
             @refresh="getDataInit"
@@ -69,7 +70,7 @@
   import { cloneDeep } from "lodash";
   import {
     projectFcAuditDetail,
-    projectApplyLmCheck
+    projectAuditLmCheck
   } from "@/api/process";
   import BaseInfoContent from "./components/BaseInfoContent.vue";
   import TempFooter from "./components/TempFooter.vue";
@@ -162,7 +163,7 @@
       uuid: props.currentId
     }
     subLoading.value = true
-    projectApplyLmCheck(params).then(() => {
+    projectAuditLmCheck(params).then(() => {
       subLoading.value = false
       footerRef.value.nextHandle(props.currentId)
 
@@ -175,11 +176,13 @@
 
   const dataInfo = ref(null)
   const offerAmount = ref(null)
+  const initialAmount = ref(null)
   const securityInfo = ref(null)
   const dataInit = (infoMsg = {}) => {
     const data = cloneDeep({...infoMsg, ...props.infoData})
 
     offerAmount.value = data.offer_amount
+    initialAmount.value = data.initial_amount
     securityInfo.value = data.security
     dataInfo.value = data
     currentDataInfo.value = data

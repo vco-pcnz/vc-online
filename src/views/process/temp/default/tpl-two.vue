@@ -12,12 +12,17 @@
                       <a-input v-model:value="formState.project_name" />
                     </a-form-item>
                   </a-col>
-                  <a-col :span="24">
+                  <a-col :span="12">
                     <a-form-item :label="t('项目类型')" name="project_type">
                       <a-select
                         v-model:value="formState.project_type"
                         :options="projectTypeData"
                       ></a-select>
+                    </a-form-item>
+                  </a-col>
+                  <a-col :span="12">
+                    <a-form-item :label="t('楼栋数')" name="building_num">
+                      <a-input v-model:value="formState.building_num" />
                     </a-form-item>
                   </a-col>
                   <a-col :span="24">
@@ -31,12 +36,12 @@
                   </a-form-item>
                 </a-col>
                   <a-col :span="24">
-                    <a-form-item :label="t('详细地址')" name="project_address">
+                    <a-form-item :label="t('地址2')" name="project_address">
                       <a-input v-model:value="formState.project_address" />
                     </a-form-item>
                   </a-col>
-                  <a-col :span="24">
-                    <a-form-item :label="t('项目地址')" name="project_region">
+                  <a-col :span="16">
+                    <a-form-item :label="t('区域')" name="project_region">
                       <vco-address-select
                         v-model:value="formState.project_region"
                         :formRef="formRef"
@@ -44,14 +49,9 @@
                       ></vco-address-select>
                     </a-form-item>
                   </a-col>
-                  <a-col :span="12">
+                  <a-col :span="8">
                     <a-form-item :label="t('邮编')" name="project_postcode">
                       <a-input v-model:value="formState.project_postcode" />
-                    </a-form-item>
-                  </a-col>
-                  <a-col :span="12">
-                    <a-form-item :label="t('楼栋数')" name="building_num">
-                      <a-input v-model:value="formState.building_num" />
                     </a-form-item>
                   </a-col>
                   <a-col :span="24">
@@ -193,8 +193,11 @@
     project_region: [
       { required: true, message: t('请选择') + t('项目地址'), trigger: 'change' }
     ],
-    project_address: [
-      { required: true, message: t('请输入') + t('详细地址'), trigger: 'blur' }
+    // project_address: [
+    //   { required: true, message: t('请输入') + t('详细地址'), trigger: 'blur' }
+    // ],
+    project_address_short: [
+      { required: true, message: t('请输入') + t('地址1'), trigger: 'blur' }
     ],
     project_postcode: [
       { required: true, message: t('请输入') + t('邮编'), trigger: 'blur' },

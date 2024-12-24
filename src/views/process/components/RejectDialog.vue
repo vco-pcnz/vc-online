@@ -109,6 +109,7 @@
 
         ajaxFn(params).then(() => {
           subLoading.value = false
+          updateVisible(false)
 
           // 触发列表数据刷新
           emitter.emit('refreshRequestsList')

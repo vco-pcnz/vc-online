@@ -376,9 +376,9 @@ export const projectAuditDeleteSecurity = (data) =>
   });
 
 // lm提交审核
-export const projectApplyLmCheck = (data) =>
+export const projectAuditLmCheck = (data) =>
   request({
-    url: "/project/apply/lmCheck",
+    url: "/project/audit/lmCheck",
     method: "post",
     data
   });

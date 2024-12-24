@@ -2,7 +2,7 @@
   <a-modal
     :open="visible"
     :title="t('抵押物信息')"
-    :width="500"
+    :width="700"
     :footer="null"
     :keyboard="false"
     :maskClosable="false"
@@ -10,41 +10,88 @@
   >
     <div class="sys-form-content mt-5">
       <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
-        <a-form-item :label="t('类型')" name="type">
-          <a-select v-model:value="formState.type">
-            <a-select-option v-for="item in typeData" :key="item.id" :value="item.id">{{ item.title }}</a-select-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item :label="t('产权编号')" name="card_no">
-          <a-input v-model:value="formState.card_no"></a-input>
-        </a-form-item>
-        <a-form-item :label="t('地址')" name="address">
-          <a-input v-model:value="formState.address"></a-input>
-        </a-form-item>
-        <a-form-item :label="t('土地价值')" name="land_value">
-          <a-input-number
-            v-model:value="formState.land_value"
-            :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-            :parser="value => value.replace(/\$\s?|(,*)/g, '')"
-          />
-        </a-form-item>
-        <a-form-item :label="t('改善值')" name="improvement_value">
-          <a-input-number
-            v-model:value="formState.improvement_value"
-            :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-            :parser="value => value.replace(/\$\s?|(,*)/g, '')"
-          />
-        </a-form-item>
-        <a-form-item :label="t('备注')" name="remark">
-          <a-textarea v-model:value="formState.remark" />
-        </a-form-item>
+        <a-row :gutter="24">
+          <a-col :span="8">
+            <a-form-item :label="t('名称')" name="security_name">
+              <a-input v-model:value="formState.security_name"></a-input>
+            </a-form-item>
+          </a-col>
+          <a-col :span="8">
+            <a-form-item :label="t('类型')" name="type">
+              <a-select v-model:value="formState.type">
+                <a-select-option v-for="item in typeData" :key="item.id" :value="item.id">{{ item.title }}</a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="8">
+            <a-form-item :label="t('产权编号')" name="card_no">
+              <a-input v-model:value="formState.card_no"></a-input>
+            </a-form-item>
+          </a-col>
+          <a-col :span="8">
+            <a-form-item :label="t('保险价值')" name="insurance_value">
+              <a-input-number
+                v-model:value="formState.insurance_value"
+                :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                :parser="value => value.replace(/\$\s?|(,*)/g, '')"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="8">
+            <a-form-item :label="t('抵押登记日期')" name="mortgage_registration_date">
+              <a-date-picker
+                v-model:value="formState.mortgage_registration_date"
+                placeholder=""
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="8">
+            <a-form-item :label="t('保险到期日')" name="insurance_expire_date">
+              <a-date-picker
+                v-model:value="formState.insurance_expire_date"
+                placeholder=""
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <a-form-item :label="t('担保公司')" name="insurance_company">
+              <a-input v-model:value="formState.insurance_company" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item :label="t('地址1')" name="address_short">
+              <a-input v-model:value="formState.address_short" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item :label="t('地址2')" name="address">
+              <a-input v-model:value="formState.address" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="16">
+            <a-form-item :label="t('区域')" name="security_region">
+              <vco-address-select
+                v-model:value="formState.security_region"
+                :formRef="formRef"
+                validateField="security_region"
+              ></vco-address-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="8">
+            <a-form-item :label="t('邮编')" name="postcode">
+              <a-input v-model:value="formState.postcode" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <a-form-item :label="t('备注')" name="remark">
+              <a-input v-model:value="formState.remark" />
+            </a-form-item>
+          </a-col>
+        </a-row>
       </a-form>
 
       <div class="flex gap-4 mb-5 mt-5 justify-between">
-        <div class="flex-1">
-          <p>{{ t('抵押物价值') }}</p>
-          <h3 style="font-size: 24px;">{{ totalValue }}</h3>
-        </div>
+        <p></p>
         <a-button
           type="dark" class="big shadow bold uppercase"
           :loading="subLoading"
@@ -96,37 +143,52 @@
   };
 
   const totalValue = computed(() => {
-    const land = formState.value.land_value || 0
+    const land = formState.value.insurance_value || 0
     const improvement = formState.value.improvement_value || 0
     return tool.formatMoney(tool.plus(land, improvement))
   })
 
   const formRef = ref()
   const formState = ref({
+    security_name: '',
     type: undefined,
     card_no: '',
+    insurance_value: '',
+    insurance_company: "",
+    mortgage_registration_date: "",
+    insurance_expire_date: "",
+    address_short: '',
     address: '',
-    land_value: '',
-    improvement_value: '',
+    security_region: '',
+    postcode: '',
     remark: ''
   })
   
   const formRules = {
+    security_name: [
+      { required: true, message: t('请输入') + t('名称'), trigger: 'blur' }
+    ],
     type: [
       { required: true, message: t('请选择') + t('类型'), trigger: 'change' }
     ],
     card_no: [
       { required: true, message: t('请输入') + t('产权编号'), trigger: 'blur' }
     ],
-    address: [
-      { required: true, message: t('请输入') + t('地址'), trigger: 'blur' }
+    insurance_company: [
+      { required: true, message: t('请输入') + t('担保公司'), trigger: 'blur' }
     ],
-    land_value: [
-      { required: true, message: t('请输入') + t('土地价值'), trigger: 'blur' }
+    insurance_value: [
+      { required: true, message: t('请输入') + t('保险价值'), trigger: 'blur' }
     ],
-    improvement_value: [
-      { required: true, message: t('请输入') + t('改善值'), trigger: 'blur' }
-    ]
+    insurance_expire_date: [
+      { required: true, message: t('请选择') + t('保险到期日'), trigger: 'change' }
+    ],
+    security_region: [
+      { required: true, message: t('请选择') + t('区域'), trigger: 'change' }
+    ],
+    address_short: [
+      { required: true, message: t('请输入') + t('地址1'), trigger: 'blur' }
+    ],
   }
 
   const subLoading = ref(false)

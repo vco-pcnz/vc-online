@@ -150,3 +150,9 @@ const rowClick = (record, index) => {
   };
 };
 </script>
+
+<style scoped lang="less">
+:deep(.ant-table-tbody) .ant-table-row {
+  cursor: pointer;
+}
+</style>

@@ -1,5 +1,33 @@
 <template>
   <div>
+    <!-- 提示弹窗 -->
+    <a-modal
+      :open="tipsVisible"
+      :title="t('提示')"
+      :width="460"
+      :footer="null"
+      :keyboard="false"
+      :maskClosable="false"
+      @cancel="tipsVisible = false"
+    >
+      <div class="tips-content">
+        <p class="tips-txt">{{ t('已存在预测列表，修改借款金额或者贷款周期，将会强制重新生成预测列表，是否提交？') }}</p>
+
+        <div class="mt-5 flex justify-between gap-5">
+          <a-button
+            type="grey" class="big shadow bold uppercase w-full mb-5 mt-5"
+            @click="tipsVisible = false"
+          >{{ t('取消') }}</a-button>
+
+          <a-button
+            type="dark" class="big shadow bold uppercase w-full mb-5 mt-5"
+            :loading="sureLoading"
+            @click="sureHandle"
+          >{{ t('提交') }}</a-button>
+        </div>
+      </div>
+    </a-modal>
+
     <a-spin :spinning="pageLoading" size="large">
       <div class="block-container">
         <div class="left-content">
@@ -109,7 +137,9 @@
   import AdsContent from "./../../components/AdsContent.vue";
   import { useUserStore } from "@/store";
   import emitter from "@/event"
+  import useProcessStore from "@/store/modules/process"
 
+  const processStore = useProcessStore()
   const emits = defineEmits(['checkDone', 'dataDone'])
 
   const props = defineProps({
@@ -201,11 +231,45 @@
     ]
   }
 
+  const currentForParams = ref(null)
+  const tipsVisible = ref(false)
+  const sureLoading = ref(false)
+  const sureHandle = async () => {
+    sureLoading.value = true
+    await normalRequest(currentForParams.value, true)
+    emitter.emit('resetForecast', {
+      amount: currentForParams.value.loan_money,
+      months: formState.term
+    })
+
+    sureLoading.value = false
+  }
+
   const subLoading = ref(false)
+  const normalRequest = async (params, flag) => {
+    const ajaxFn = flag ? projectAuditSaveLoanInfo : projectApplySaveLoanInfo
+    subLoading.value = true
+
+    await ajaxFn(params).then(res => {
+      subLoading.value = false
+      if (props.check) {
+        emits('checkDone')
+      } else {
+        footerRef.value.nextHandle(res.uuid)
+      }
+
+      // 触发列表数据刷新
+      emitter.emit('refreshRequestsList')
+      emitter.emit('refreshAuditHisList')
+    }).catch(() => {
+      subLoading.value = false
+    })
+  }
+
   const submitHandle = () => {
     formRef.value
     .validate()
-    .then(() => {
+    .then(async () => {
       const data = cloneDeep(formState)
       const params = {
         loan_money: data.loan_money,
@@ -218,31 +282,22 @@
         params.uuid = props.infoData?.uuid || props.currentId
       }
 
-      let ajaxFn = projectApplySaveLoanInfo
-
       if (props.check) {
         params.loan_info_status = props.infoData.check_status
-        ajaxFn = projectAuditSaveLoanInfo
+        if (props.infoData.start_date === params.start_date && props.infoData.end_date === params.end_date && Number(props.infoData.loan_money) === Number(params.loan_money)) {
+          await normalRequest(params, true)
+        } else {
+          if (processStore.hasForcast) {
+            currentForParams.value = params
+            tipsVisible.value = true
+          } else {
+            await normalRequest(params, true)
+          }
+        }
       } else {
         params.draft_step = markInfo.value
+        await normalRequest(params, false)
       }
-
-      subLoading.value = true
-
-      ajaxFn(params).then(res => {
-        subLoading.value = false
-        if (props.check) {
-          emits('checkDone')
-        } else {
-          footerRef.value.nextHandle(res.uuid)
-        }
-
-        // 触发列表数据刷新
-        emitter.emit('refreshRequestsList')
-        emitter.emit('refreshAuditHisList')
-      }).catch(() => {
-        subLoading.value = false
-      })
     })
     .catch(error => {
       console.log('error', error);
@@ -407,6 +462,16 @@
   .sys-form-content {
     :deep(.ant-input-number-input) {
       font-size: 18px !important;
+    }
+  }
+
+  .tips-content {
+    padding: 30px;
+    padding-top: 10px;
+    padding-bottom: 0;
+    .tips-txt {
+      font-size: 14px;
+      text-align: center
     }
   }
 </style>

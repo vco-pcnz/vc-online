@@ -193,12 +193,11 @@
     if (ajaxFn) {
       await ajaxFn(params).then(() => {
         dataRefresh()
+        emitter.emit('refreshAuditHisList')
         return true
       }).catch(() => {
         return false
       })
-
-      emitter.emit('refreshAuditHisList')
     }
   }
 </script>

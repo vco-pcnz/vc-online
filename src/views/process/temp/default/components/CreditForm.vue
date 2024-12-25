@@ -25,35 +25,38 @@
     <div class="sys-form-content mt-5">
       <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
         <a-row :gutter="24">
-          <a-col :span="8">
+          <a-col :span="7">
             <a-form-item :label="t('建筑贷款总额')" name="build_amount">
               <a-input-number
                 v-model:value="formState.build_amount"
+                :max="99999999999"
                 :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                 :parser="value => value.replace(/\$\s?|(,*)/g, '')"
               />
             </a-form-item>
           </a-col>
           <a-col :span="1" class="plus-txt"><i class="iconfont">&#xe889;</i></a-col>
-          <a-col :span="8">
+          <a-col :span="7">
             <a-form-item :label="t('土地贷款总额')" name="land_amount">
               <a-input-number
                 v-model:value="formState.land_amount"
+                :max="99999999999"
                 :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                 :parser="value => value.replace(/\$\s?|(,*)/g, '')"
               />
             </a-form-item>
           </a-col>
           <a-col :span="1" class="plus-txt"><i class="iconfont">=</i></a-col>
-          <a-col :span="6" class="total-amount-info">
+          <a-col :span="8" class="total-amount-info">
             <a-form-item :label="t('借款总金额')">
               <vco-number :value="totalAmountRef" :precision="2" :end="true"></vco-number>
             </a-form-item>
           </a-col>
           <a-col :span="24"><div class="form-line"></div></a-col>
-          <a-col :span="8">
+          <a-col :span="7">
             <a-form-item :label="t('首次建筑贷款放款额')" name="initial_build_amount">
               <a-input-number
+                :max="99999999999"
                 v-model:value="formState.initial_build_amount"
                 :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                 :parser="value => value.replace(/\$\s?|(,*)/g, '')"
@@ -61,9 +64,10 @@
             </a-form-item>
           </a-col>
           <a-col :span="1" class="plus-txt"><i class="iconfont">&#xe889;</i></a-col>
-          <a-col :span="8">
+          <a-col :span="7">
             <a-form-item :label="t('首次土地贷款放款额')" name="initial_land_amount">
               <a-input-number
+                :max="99999999999"
                 v-model:value="formState.initial_land_amount"
                 :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                 :parser="value => value.replace(/\$\s?|(,*)/g, '')"
@@ -71,7 +75,7 @@
             </a-form-item>
           </a-col>
           <a-col :span="1" class="plus-txt"><i class="iconfont">=</i></a-col>
-          <a-col :span="6" class="total-amount-info">
+          <a-col :span="8" class="total-amount-info">
             <a-form-item :label="t('首次放款总金额')">
               <vco-number :value="totalInitialAmountRef" :precision="2" :end="true"></vco-number>
             </a-form-item>
@@ -121,7 +125,10 @@
   import { message } from "ant-design-vue/es";
   import { ruleCredit, creditInitial, creditInfo, lmAuditStatus, fcAuditStatus, projectAuditSaveLoanAmount } from "@/api/process"
   import emitter from "@/event"
+  import useProcessStore from "@/store/modules/process"
   import tool from "@/utils/tool"
+
+  const processStore = useProcessStore()
 
   const emits = defineEmits(['done', 'refresh'])
   const props = defineProps({
@@ -159,6 +166,17 @@
     }
   })
 
+  const validateNum = (rule, value) => {
+    if (value && Number(value)) {
+      const numRegex = /^(?!0(\.0+)?$)(\d+(\.\d+)?|\.\d+)$/;
+      if (!numRegex.test(value)) {
+        return Promise.reject(t("请输入大于0的数字"))
+      }
+    }
+    
+    return Promise.resolve();
+  }
+
   const { t } = useI18n();
 
   const formRef = ref()
@@ -169,34 +187,10 @@
     initial_land_amount: ''
   })
   const formRules = ref({
-    build_amount: [
-      {
-        pattern: /^(?!0(\.0+)?$)(\d+(\.\d+)?|\.\d+)$/,
-        message: t("请输入大于0的数字"),
-        trigger: 'blur'
-      }
-    ],
-    land_amount: [
-      {
-        pattern: /^(?!0(\.0+)?$)(\d+(\.\d+)?|\.\d+)$/,
-        message: t("请输入大于0的数字"),
-        trigger: 'blur'
-      }
-    ],
-    initial_build_amount: [
-      {
-        pattern: /^(?!0(\.0+)?$)(\d+(\.\d+)?|\.\d+)$/,
-        message: t("请输入大于0的数字"),
-        trigger: 'blur'
-      }
-    ],
-    initial_land_amount: [
-      {
-        pattern: /^(?!0(\.0+)?$)(\d+(\.\d+)?|\.\d+)$/,
-        message: t("请输入大于0的数字"),
-        trigger: 'blur'
-      }
-    ]
+    build_amount: {validator: validateNum, trigger: 'blur'},
+    land_amount: {validator: validateNum, trigger: 'blur'},
+    initial_build_amount: {validator: validateNum, trigger: 'blur'},
+    initial_land_amount: {validator: validateNum, trigger: 'blur'}
   })
   const percentItems = ref([])
   const dollarItems = ref([])
@@ -225,13 +219,7 @@
       const rulesData = {}
       for (let i = 0; i < writeData.length; i++) {
         formState.value[writeData[i].credit_table] = writeData[i].value
-        rulesData[writeData[i].credit_table] = [
-          {
-            pattern: /^(?!0(\.0+)?$)(\d+(\.\d+)?|\.\d+)$/,
-            message: t("请输入大于0的数字"),
-            trigger: 'blur'
-          }
-        ]
+        rulesData[writeData[i].credit_table] = [{ validator: validateNum, trigger: 'blur' }]
         if (writeData[i].is_req) {
           rulesData[writeData[i].credit_table].push({
             required: true, message: t('请输入') + writeData[i].credit_name, trigger: 'blur'
@@ -249,12 +237,6 @@
   }
 
   const updateFormData = async () => {
-    formState.value.build_amount = Number(props.offerAmount.build_amount) ? props.offerAmount.build_amount : props.loanMoney || 0
-    formState.value.land_amount = props.offerAmount.land_amount
-
-    formState.value.initial_build_amount = props.initialAmount.initial_build_amount
-    formState.value.initial_land_amount = props.initialAmount.initial_land_amount
-
     await creditInfo({apply_uuid: props.currentId}).then(res => {
       if (res.length || Object.keys(res).length) {
         for (const key in formState.value) {
@@ -267,9 +249,17 @@
 
         if (creditId.value) {
           emits('done')
+          
+          processStore.setForcastState(true)
         }
       }
     })
+
+    formState.value.build_amount = Number(props.offerAmount.build_amount) ? props.offerAmount.build_amount : props.loanMoney || 0
+    formState.value.land_amount = props.offerAmount.land_amount
+
+    formState.value.initial_build_amount = props.initialAmount.initial_build_amount
+    formState.value.initial_land_amount = props.initialAmount.initial_land_amount
   }
 
   const subLoading = ref(false)
@@ -277,14 +267,27 @@
     formRef.value
     .validate()
     .then(async () => {
-      const totalAmount = Number(formState.value.build_amount) + Number(formState.value.land_amount)
-      if (totalAmount <= 0) {
+      const build_amount = Number(formState.value.build_amount)
+      const initial_build_amount = Number(formState.value.initial_build_amount)
+      const land_amount = Number(formState.value.land_amount)
+      const initial_land_amount = Number(formState.value.initial_land_amount)
+
+      if (initial_build_amount > build_amount) {
+        message.error(t('{0}不能大于{1}', [t('首次建筑贷款放款额', t('建筑贷款总额'))]))
+        return false
+      }
+
+      if (initial_land_amount > land_amount) {
+        message.error(t('{0}不能大于{1}', [t('首次土地贷款放款额', t('土地贷款总额'))]))
+        return false
+      }
+
+      if (build_amount + land_amount < 0 || build_amount + land_amount === 0) {
         message.error(t('借款总额不正确'))
         return false
       }
 
-      const initialTotalAmount = Number(formState.value.initial_build_amount) + Number(formState.value.initial_land_amount)
-      if (initialTotalAmount <= 0) {
+      if (initial_build_amount + initial_land_amount < 0 || initial_build_amount + initial_land_amount === 0) {
         message.error(t('首次放款总金额不正确'))
         return false
       }
@@ -379,6 +382,32 @@
 
   onMounted(() => {
     getFormItems()
+
+    // 重新生成forecast
+    emitter.on('resetForecast', async (data) => {
+      const build_amount = Number(formState.value.build_amount)
+      const land_amount = Number(formState.value.land_amount)
+      const initial_build_amount = Number(formState.value.initial_build_amount)
+      const initial_land_amount = Number(formState.value.initial_land_amount)
+
+      const totalA = build_amount + land_amount
+      const new_build_amount = Math.floor(data.amount * (build_amount / totalA))
+      const new_land_amount = data.amount - new_build_amount
+
+      const totalB = initial_build_amount + initial_land_amount
+      const newTotalB = Math.floor((totalB / totalA) * data.amount)
+
+      const new_initial_build_amount = Math.floor(newTotalB * (initial_build_amount / totalB))
+      const new_initial_land_amount = newTotalB - new_initial_build_amount
+
+      formState.value.build_amount = new_build_amount
+      formState.value.land_amount = new_land_amount
+
+      formState.value.initial_build_amount = new_initial_build_amount
+      formState.value.initial_land_amount = new_initial_land_amount
+
+      await saveHandle()
+    })
   })
 </script>
 

@@ -1,6 +1,11 @@
 <template>
   <div>
     <a-spin :spinning="pageLoading" size="large">
+      <div v-if="dataInfo.cancel_reason" class="block-item details process-fail mt-5">
+        <p class="title">{{ t('拒绝原因') }}</p>
+        <p class="info">{{ dataInfo.cancel_reason || t('拒绝原因') }}</p>
+      </div>
+
       <div class="block-container">
         <div v-if="dataInfo" class="left-content">
           <!-- 基础信息 -->
@@ -83,6 +88,11 @@
   import SecurityList from "./../../components/SecurityList.vue";
   import emitter from "@/event"
   import { message } from "ant-design-vue/es";
+  import useProcessStore from "@/store/modules/process"
+
+  // 初始化当前项目的forcastList 状态
+  const processStore = useProcessStore()
+  processStore.setForcastState(false)
 
   const emits = defineEmits(['checkDone', 'dataDone'])
 

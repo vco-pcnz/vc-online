@@ -19,7 +19,7 @@
 
       <a-dropdown class="Filter" trigger="click" v-model:open="managers_visible">
         <a-button type="brown" size="small" :class="['picker-btn', { open: managers_visible }]" shape="round" @click="managers_visible = true">
-          all managers <DownOutlined class="DropdownIcon" />
+          {{ manager }} <DownOutlined class="DropdownIcon" />
         </a-button>
         <template #overlay>
           <div class="Overlay">
@@ -37,7 +37,7 @@
 
       <a-dropdown class="Filter" trigger="click" v-model:open="requests_visible">
         <a-button type="brown" size="small" :class="['picker-btn', { open: requests_visible }]" shape="round" @click="requests_visible = true">
-          all requests excluded <DownOutlined class="DropdownIcon" />
+          {{ request }} <DownOutlined class="DropdownIcon" />
         </a-button>
         <template #overlay>
           <div class="Overlay">
@@ -56,17 +56,19 @@
       </a-dropdown>
     </div>
   </div>
+  <div style="height: 300px;"></div>
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { DownOutlined } from '@ant-design/icons-vue';
 import dayjs, { Dayjs } from 'dayjs';
 
 const { t } = useI18n();
-const dateFormat = 'YYYY/MM/DD';
+
+const props = defineProps([]);
 
 const isOpen = ref(false);
 const managers_visible = ref(false);
@@ -137,7 +139,24 @@ const disabledDateFormat = (current) => {
   return false;
 };
 
-const props = defineProps([]);
+const getName = (arr, uuid) => {
+  let index = arr.findIndex((item) => {
+    return item.uuid == uuid;
+  });
+  return arr[index].name;
+};
+
+const manager = computed(() => {
+  if (managers_all.value) return 'all managers';
+  if (managers_select.value.length == 1) return getName(managers.value, managers_select.value[0]);
+  if (managers_select.value.length > 1) return managers_select.value.length + ' managers';
+});
+
+const request = computed(() => {
+  if (requests_all.value) return 'all requests excluded';
+  if (requests_select.value.length == 1) return getName(request.value, requests_select.value[0]);
+  if (requests_select.value.length > 1) return requests_select.value.length + ' requests';
+});
 
 onMounted(() => {});
 
@@ -158,47 +177,20 @@ watch(
 
 <style scoped lang="less">
 @import '@/styles/variables.less';
-.title {
-  border-bottom: 1px solid #e2e5e2;
-  padding-bottom: 12px;
-  padding-top: 12px;
-  line-height: 1.2;
-  align-items: center;
-  gap: 10px;
 
-  .fs_2xl {
-    font-weight: 700;
-  }
-  .picker-btn {
-    font-size: 12px;
-    .DropdownIcon {
-      font-size: 10px;
-      position: relative;
-      top: -2px;
-      transition: -webkit-transform 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
-      transition: transform 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
-      transition: transform 0.2s cubic-bezier(0.645, 0.045, 0.355, 1), -webkit-transform 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
-    }
-    &.open {
-      .DropdownIcon {
-        transform: rotate(180deg);
-      }
-    }
-  }
-  .datePicker {
-    visibility: hidden;
-    height: 0;
-    padding: 0;
-    width: 0;
-    position: absolute;
-    left: 0;
-    bottom: 0;
-  }
+.datePicker {
+  visibility: hidden;
+  height: 0;
+  padding: 0;
+  width: 0;
+  position: absolute;
+  left: 0;
+  bottom: 0;
 }
-
 .Overlay {
   border-radius: 8px;
   box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+  background: #fff;
   .ant-checkbox-group {
     padding-left: 0;
   }

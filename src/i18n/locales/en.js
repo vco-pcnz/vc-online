@@ -416,5 +416,6 @@ export default {
   "修改方式": "Modification method",
   "仅修改当前项，其他日期的放款信息不变": "Only the current item is modified, and the loan information for other dates remains unchanged",
   "{0}以后已手动修改的放款信息，保留已设置的值": "{0} Loan information that has been manually modified since then will retain the set value",
-  "{0}以后已手动修改的放款信息，按照比例均分": "{0} Loan information that has been manually modified after that will be divided equally according to the proportion"
+  "{0}以后已手动修改的放款信息，按照比例均分": "{0} Loan information that has been manually modified after that will be divided equally according to the proportion",
+  "感谢您的上传":"Thanks for uploading"
 }

@@ -8,7 +8,7 @@
       :headers="headers"
       :file-list="fileList"
       :beforeUpload="beforeUpload"
-      :data="{ biz: bizPath }"
+      :data="{ biz: bizPath,...params }"
       :name="fileName"
       :multiple="isMultiple"
       :showUploadList="type !== 'image' || isMultiple"
@@ -70,6 +70,14 @@ const props = defineProps({
     type: String,
     required: false,
     default: 'temp'
+  },
+  // 后端要求携带的其他参数
+  params: {
+    type: Object,
+    required: false,
+    default: () => {
+      return {}
+    }
   },
   // 只能查看不可上传和删除时开启该属性
   disabled: {

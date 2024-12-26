@@ -230,11 +230,13 @@
       const rulesData = {}
       for (let i = 0; i < writeData.length; i++) {
         formState.value[writeData[i].credit_table] = writeData[i].value
-        rulesData[writeData[i].credit_table] = [{ validator: validateNum1, trigger: 'blur' }]
+        rulesData[writeData[i].credit_table] = [{ validator: validateNum, trigger: 'blur' }]
         if (writeData[i].is_req) {
           rulesData[writeData[i].credit_table].push({
             required: true, message: t('请输入') + writeData[i].credit_name, trigger: 'blur'
-          })
+          },
+          { validator: validateNum1, trigger: 'blur' }
+          )
         }
       }
 

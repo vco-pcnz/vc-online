@@ -11,7 +11,7 @@
     <div class="sys-form-content mt-5">
       <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
         <a-row :gutter="24">
-          <a-col :span="8">
+          <a-col :span="16">
             <a-form-item :label="t('名称')" name="security_name">
               <a-input v-model:value="formState.security_name"></a-input>
             </a-form-item>
@@ -23,18 +23,9 @@
               </a-select>
             </a-form-item>
           </a-col>
-          <a-col :span="8">
+          <a-col :span="16">
             <a-form-item :label="t('产权编号')" name="card_no">
               <a-input v-model:value="formState.card_no"></a-input>
-            </a-form-item>
-          </a-col>
-          <a-col :span="8">
-            <a-form-item :label="t('保险价值')" name="insurance_value">
-              <a-input-number
-                v-model:value="formState.insurance_value"
-                :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                :parser="value => value.replace(/\$\s?|(,*)/g, '')"
-              />
             </a-form-item>
           </a-col>
           <a-col :span="8">
@@ -45,17 +36,26 @@
               />
             </a-form-item>
           </a-col>
-          <a-col :span="8">
+          <a-col :span="24">
+            <a-form-item :label="t('担保公司')" name="insurance_company">
+              <a-input v-model:value="formState.insurance_company" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item :label="t('保险价值')" name="insurance_value">
+              <a-input-number
+                v-model:value="formState.insurance_value"
+                :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                :parser="value => value.replace(/\$\s?|(,*)/g, '')"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
             <a-form-item :label="t('保险到期日')" name="insurance_expire_date">
               <a-date-picker
                 v-model:value="formState.insurance_expire_date"
                 placeholder=""
               />
-            </a-form-item>
-          </a-col>
-          <a-col :span="24">
-            <a-form-item :label="t('担保公司')" name="insurance_company">
-              <a-input v-model:value="formState.insurance_company" />
             </a-form-item>
           </a-col>
           <a-col :span="12">

@@ -72,7 +72,7 @@
         return {
           count: 0,
           total_value: '0.00',
-          is_check: true,
+          is_check: false,
           check_status: 407,
           type: []
         }

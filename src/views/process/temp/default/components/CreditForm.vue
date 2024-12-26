@@ -144,13 +144,17 @@
       type: [Number, String],
       default: 0
     },
+    creditCate: {
+      type: [Number, String],
+      default: 0
+    },
     offerAmount: {
       type: Object,
       default: () => {
         return {
           build_amount: '',
           land_amount: '',
-          is_check: true,
+          is_check: false,
           check_status: 405
         }
       }
@@ -221,7 +225,7 @@
   })
 
   const getFormItems = async () => {
-    await ruleCredit().then(async (res) => {
+    await ruleCredit({type: props.creditCate}).then(async (res) => {
       const data = res || []
       const writeData = data.filter(item => item.is_write)
       const perData = writeData.filter(item => item.is_ratio)

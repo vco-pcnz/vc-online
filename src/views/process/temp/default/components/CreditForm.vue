@@ -177,6 +177,17 @@
     return Promise.resolve();
   }
 
+  const validateNum1 = (rule, value) => {
+    if (value) {
+      const numRegex = /^(?!0(\.0+)?$)(\d+(\.\d+)?|\.\d+)$/;
+      if (!numRegex.test(value)) {
+        return Promise.reject(t("请输入大于0的数字"))
+      }
+    }
+    
+    return Promise.resolve();
+  }
+
   const { t } = useI18n();
 
   const formRef = ref()
@@ -219,7 +230,7 @@
       const rulesData = {}
       for (let i = 0; i < writeData.length; i++) {
         formState.value[writeData[i].credit_table] = writeData[i].value
-        rulesData[writeData[i].credit_table] = [{ validator: validateNum, trigger: 'blur' }]
+        rulesData[writeData[i].credit_table] = [{ validator: validateNum1, trigger: 'blur' }]
         if (writeData[i].is_req) {
           rulesData[writeData[i].credit_table].push({
             required: true, message: t('请输入') + writeData[i].credit_name, trigger: 'blur'

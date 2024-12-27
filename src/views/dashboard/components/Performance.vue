@@ -1,5 +1,10 @@
 <template>
-  <div>4</div>
+  <div class="flex items-end justify-between mb-10">
+    <div class="flex title flex-1 mr-4">
+      <span class="fs_2xl">Forecast performance</span>
+    </div>
+    <a-button type="cyan" size="small" shape="round" @click="change">Create report</a-button>
+  </div>
 </template>
 
 <script setup>
@@ -13,5 +18,4 @@ const props = defineProps([]);
 
 <style scoped lang="less">
 @import '@/styles/variables.less';
-
 </style>

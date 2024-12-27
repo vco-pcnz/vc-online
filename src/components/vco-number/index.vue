@@ -90,6 +90,11 @@ onMounted(() => {
       opacity: 0.5;
     }
   }
+  &.fs_2xl {
+    :deep(.ant-statistic-content) {
+      font-size: 20px;
+    }
+  }
   &.fs_3xl {
     :deep(.ant-statistic-content) {
       font-size: 24px;

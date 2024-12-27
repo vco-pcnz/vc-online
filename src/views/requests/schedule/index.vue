@@ -63,7 +63,7 @@
         </div>
       </div>
 
-      <div v-if="statisticsData" class="static-block flex">
+      <div v-if="statisticsData && tabData.length" class="static-block flex">
         <div class="item flex-1">
           <p>{{ t('目前总计') }}<span>{{ nowDate }}</span></p>
           <h3>{{ t('还有{0}天开放', [statisticsData.sdaysDiff]) }}</h3>
@@ -89,7 +89,7 @@
         </div>
       </div>
 
-      <div v-if="statisticsData" class="static-block flex">
+      <div v-if="statisticsData && tabData.length" class="static-block flex">
         <div class="item">
           <p>{{ t('估计总数') }}</p>
           <h3>{{ t('{0}天', [statisticsData.edaysDiff]) }}</h3>

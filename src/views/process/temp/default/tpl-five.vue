@@ -179,6 +179,10 @@
       message.error(t('请审核') + t('抵押物信息'))
       return false
     }
+    if (!data.guarantor.is_check) {
+      message.error(t('请审核') + t('担保信息'))
+      return false
+    }
 
     const params = {
       uuid: props.currentId

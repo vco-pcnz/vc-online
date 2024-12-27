@@ -56,6 +56,7 @@
               <div class="title-content">
                 <p>{{ t('担保人') }}</p>
                 <a-button
+                  v-if="userData.length"
                   type="primary"
                   size="small"
                   shape="round"
@@ -74,11 +75,13 @@
                     <i class="iconfont" @click="removeItem(index)">&#xe77d;</i>
                   </div>
                 </template>
+                <p v-else class="no-data" @click="openDialg">{{ t('请选择') }}</p>
               </div>
             </a-form-item>
           </a-col>
         </a-row>
       </a-form>
+      <div class="check-content"><i class="iconfont">&#xe647;</i></div>
     </div>
   </div>
 </template>
@@ -195,7 +198,6 @@
   }
 
   const dataInit = () => {
-    console.log('props.guarantorInfo', props.guarantorInfo)
     formState.main_contractor = props.guarantorInfo.main_contractor
     formState.security_package = props.guarantorInfo.security_package
     userData.value = props.guarantorInfo.guarantor_list
@@ -290,5 +292,13 @@
         }
       }
     }
+  }
+
+  .no-data {
+    font-size: 12px;
+    color: #999;
+    display: block;
+    width: 100%;
+    cursor: pointer;
   }
 </style>

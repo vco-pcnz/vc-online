@@ -144,13 +144,17 @@
       type: [Number, String],
       default: 0
     },
+    creditCate: {
+      type: [Number, String],
+      default: 0
+    },
     offerAmount: {
       type: Object,
       default: () => {
         return {
           build_amount: '',
           land_amount: '',
-          is_check: true,
+          is_check: false,
           check_status: 405
         }
       }
@@ -168,6 +172,17 @@
 
   const validateNum = (rule, value) => {
     if (value && Number(value)) {
+      const numRegex = /^(?!0(\.0+)?$)(\d+(\.\d+)?|\.\d+)$/;
+      if (!numRegex.test(value)) {
+        return Promise.reject(t("请输入大于0的数字"))
+      }
+    }
+    
+    return Promise.resolve();
+  }
+
+  const validateNum1 = (rule, value) => {
+    if (value) {
       const numRegex = /^(?!0(\.0+)?$)(\d+(\.\d+)?|\.\d+)$/;
       if (!numRegex.test(value)) {
         return Promise.reject(t("请输入大于0的数字"))
@@ -210,7 +225,7 @@
   })
 
   const getFormItems = async () => {
-    await ruleCredit().then(async (res) => {
+    await ruleCredit({type: props.creditCate}).then(async (res) => {
       const data = res || []
       const writeData = data.filter(item => item.is_write)
       const perData = writeData.filter(item => item.is_ratio)
@@ -223,7 +238,9 @@
         if (writeData[i].is_req) {
           rulesData[writeData[i].credit_table].push({
             required: true, message: t('请输入') + writeData[i].credit_name, trigger: 'blur'
-          })
+          },
+          { validator: validateNum1, trigger: 'blur' }
+          )
         }
       }
 

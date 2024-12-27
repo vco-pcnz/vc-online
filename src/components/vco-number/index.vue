@@ -100,6 +100,11 @@ onMounted(() => {
       font-size: 24px;
     }
   }
+  &.fs_xl {
+    :deep(.ant-statistic-content) {
+      font-size: 18px;
+    }
+  }
   &.fs_md {
     :deep(.ant-statistic-content) {
       font-size: 14px;

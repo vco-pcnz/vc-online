@@ -233,10 +233,11 @@ export const getApproveTemp = (params) =>
   });
   
 // 获取基础财务字段
-export const ruleCredit = () =>
+export const ruleCredit = (params) =>
   request({
     url: "/rule/credit",
-    method: "get"
+    method: "get",
+    params
   });
 
 // 获取申请项目财务字段数值
@@ -293,6 +294,14 @@ export const projectForecastDelete = (data) =>
     url: "/project/forecast/delete",
     method: "post",
     data
+  });
+
+// 预测放款数据Forecast统计
+export const projectForecastStatistics = (params) =>
+  request({
+    url: "/project/forecast/statistics",
+    method: "get",
+    params
   });
 
 // 关联用户-系统配置
@@ -379,6 +388,14 @@ export const projectAuditDeleteSecurity = (data) =>
 export const projectAuditLmCheck = (data) =>
   request({
     url: "/project/audit/lmCheck",
+    method: "post",
+    data
+  });
+
+// 保存担保信息
+export const projectAuditSaveGuarantor = (data) =>
+  request({
+    url: "/project/audit/saveGuarantor",
     method: "post",
     data
   });

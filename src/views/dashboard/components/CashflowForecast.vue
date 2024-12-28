@@ -56,7 +56,35 @@
       </a-dropdown>
     </div>
   </div>
-  <div style="height: 300px;"></div>
+
+  <div class="CashflowForecastChart">
+    <div class="flex flex-col justify-between">
+      <p class="bold">Available fund for upcoming 11 months</p>
+      <div>
+        <i class="iconfont">&#xe75f;</i>
+        <vco-number :value="0" :precision="2"></vco-number>
+        <p class="fs_xs color_grey">Open available fund</p>
+      </div>
+    </div>
+    <div class="flex-1 relative">
+      <div class="zeroWrapper">
+        <div class="zeroLine" :style="{ top: 'calc(' + value + '% + 61px)' }"></div>
+      </div>
+      <div class="chart-list" style="height: 300px">
+        <div class="chart-list-item" v-for="item in 12" :key="item">
+          <div class="relative" style="height: 100%">
+            <div class="inner" :style="{ height: 'calc(' + value + '% + 61px)' }"></div>
+          </div>
+          <div class="month">Sep ‘25</div>
+        </div>
+      </div>
+    </div>
+    <div class="flex flex-col justify-end">
+      <i class="iconfont">&#xe75f;</i>
+      <vco-number :value="0" :precision="2"></vco-number>
+      <p class="fs_xs color_grey">Open available fund</p>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -77,6 +105,7 @@ const managers_all = ref(true);
 const requests_all = ref(true);
 const managers_select = ref([]);
 const requests_select = ref([]);
+const value = ref(50);
 
 const managers = ref(
   ref([
@@ -247,6 +276,75 @@ watch(
       .Filter-Item {
         line-height: 1.5;
         transition: background-color 0.1s cubic-bezier(0.215, 0.61, 0.355, 1);
+      }
+    }
+  }
+}
+
+.CashflowForecastChart {
+  border-bottom: 1px solid #e2e5e2;
+  display: grid;
+  gap: 32px;
+  grid-template-columns: 1fr 6fr 1fr;
+  margin-bottom: 48px;
+  margin-top: 72px;
+  padding-bottom: 48px;
+  .iconfont {
+    font-size: 36px;
+    color: #b8cdcc;
+  }
+  .zeroWrapper {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 60px;
+    height: calc(100% - 120px);
+    .zeroLine {
+      border-bottom: 1px dashed #bfbfbf;
+      position: absolute;
+      width: 100%;
+      bottom: 0;
+      z-index: 1;
+    }
+  }
+  .chart-list {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(12, 1fr);
+    height: 100%;
+    left: 0;
+    // padding-left: 8px;
+    // padding-right: 8px;
+    .chart-list-item {
+      background-color: #f7f9f8;
+      border: 1px solid #e2e5e2;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding-bottom: 60px;
+      padding-top: 60px;
+      position: relative;
+      .month {
+        bottom: 6px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        position: absolute;
+        width: 100%;
+        color: #b8cdcc;
+      }
+      .inner {
+        top: -61px;
+        background-color: #eeefdd;
+        border: 1px solid rgba(169, 173, 87, 0.3);
+        border-bottom: none;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        left: -1px;
+        position: absolute;
+        width: calc(100% + 2px);
       }
     }
   }

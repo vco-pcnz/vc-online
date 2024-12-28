@@ -30,3 +30,27 @@ export const systemConfigData = (params) =>
     method: "get",
     params
   });
+
+// 新西兰地址搜索接口
+export const systemCitySearch = (params) =>
+  request({
+    url: "system/city/search",
+    method: "get",
+    params
+  });
+
+// 新西兰地址搜索接口二段
+export const systemCitySearchInfo = (params) =>
+  request({
+    url: "system/city/searchInfo",
+    method: "get",
+    params
+  });
+
+// 获取系统公共信息
+export const indexPub = (params) =>
+  request({
+    url: "index/pub",
+    method: "get",
+    params
+  });

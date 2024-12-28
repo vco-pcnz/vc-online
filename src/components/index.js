@@ -23,6 +23,7 @@ import VcoProcessTitle from './vco-process-title/index.vue'
 import VcoUserItem from './vco-user-item/index.vue'
 import VcoPagePanel from './vco-page-panel/index.vue'
 import VcoMeter from './vco-meter/index.vue';
+import VcoAddress from './vco-address/index.vue';
 
 export default {
   install(Vue) {
@@ -51,5 +52,6 @@ export default {
     Vue.component('VcoUserItem', VcoUserItem)
     Vue.component('VcoPagePanel', VcoPagePanel)
     Vue.component('VcoMeter', VcoMeter)
+    Vue.component('VcoAddress', VcoAddress)
   }
 }

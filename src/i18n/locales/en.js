@@ -440,5 +440,7 @@ export default {
   "承包商": "Main Contractor",
   "履约保函": "Security package",
   "担保人": "Guarantor",
-  "请先设置后保存再审核": "Please set first, save and then check"
+  "请先设置后保存再审核": "Please set first, save and then check",
+  "郊区": "Suburb",
+  "城市/州": "City/State"
 }

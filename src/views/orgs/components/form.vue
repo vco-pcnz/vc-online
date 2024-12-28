@@ -154,28 +154,9 @@
             </a-form-item>
           </a-col>
           <!-- ####################################### -->
-          <template v-if="form.type != 20">
-            <a-col :span="24">
-              <a-form-item :label="t('地址1')" name="addr">
-                <a-input v-model:value="form.addr" :placeholder="t('请输入')" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="24">
-              <a-form-item :label="t('地址2')">
-                <a-input v-model:value="form.address" :placeholder="t('请输入')" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="16">
-              <a-form-item :label="t('区域')">
-                <vco-address-select v-model:value="region"></vco-address-select>
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item :label="t('邮编')">
-                <a-input v-model:value="form.postal" :placeholder="t('请输入')" />
-              </a-form-item>
-            </a-col>
-          </template>
+          <a-col :span="24" v-if="form.type != 20">
+            <vco-address ref="vcoAddressRef" @change="setAddressInfo"></vco-address>
+          </a-col>
 
           <a-col :span="24">
             <a-form-item :label="t('证件f')" name="document">
@@ -229,7 +210,7 @@
 </template>
 
 <script setup>
-import { reactive, onMounted, ref, computed, watch } from 'vue';
+import { reactive, onMounted, ref, computed, watch, nextTick } from 'vue';
 import useFormData from '@/utils/use-form-data';
 import { preMobileOpts, EMAIL_RULE, VERIFY_KEY } from '@/constant';
 import { useI18n } from 'vue-i18n';
@@ -249,11 +230,11 @@ const orgsStore = useOrgsStore();
 const { t } = useI18n();
 
 const formRef = ref();
-const region = ref();
 const loading = ref(false);
 const documentList = ref([]);
 const isEdit = ref(false);
 const check_user_uuid = ref('');
+const vcoAddressRef = ref();
 const emit = defineEmits(['update']);
 
 const props = defineProps({
@@ -303,7 +284,9 @@ const { form, assignFields } = useFormData({
   postal: '',
   document: [], //证件
   expire_time: [], //证件有效期
-  note: ''
+  note: '',
+  suburb: '',
+  province_code_name: ''
 });
 
 const mobile_ok = ref(0);
@@ -346,7 +329,8 @@ const rules = reactive({
   addr: [
     {
       required: true,
-      message: t('请输入')
+      message: t('请输入'),
+      trigger: 'blur'
     }
   ]
 });
@@ -465,13 +449,36 @@ const remove = (index) => {
 };
 // 选择用户
 const checkUser = (val) => {
-  let keys = ['avatar', 'idcard', 'email', 'emailCode', 'pre', 'mobile', 'mobileCode', 'province_code', 'city_code', 'district_code', 'address', 'document', 'expire_time', 'note', 'firstName', 'middleName', 'lastName'];
+  let keys = [
+    'avatar',
+    'idcard',
+    'email',
+    'emailCode',
+    'pre',
+    'mobile',
+    'mobileCode',
+    'province_code',
+    'city_code',
+    'district_code',
+    'address',
+    'document',
+    'expire_time',
+    'note',
+    'firstName',
+    'middleName',
+    'lastName'
+  ];
   const newData = pick(val, keys);
 
   check_user_uuid.value = val.uuid;
   Object.assign(form, newData);
   mobile_ok.value = val.mobile_ok;
   email_ok.value = val.email_ok;
+};
+
+// 跟新地址信息
+const setAddressInfo = (val) => {
+  assignFields({ ...form, ...val });
 };
 
 // 提交
@@ -481,11 +488,20 @@ const submit = () => {
     if (form.type == 20) {
       keys = keys.concat(['firstName', 'middleName', 'lastName', 'sendEmail', 'sendSms', 'user_uuid', 'idcard']);
     } else {
-      keys = keys.concat(['name', 'nzbz', 'contactName', 'province_code', 'city_code', 'district_code', 'address', 'addr', 'postal', 'idcard']);
-      // if (form.type != 2 && form.type != 3 && form.type != 20) {
-      //   // 组织机构代码 Company No
-      //   keys.push('idcard');
-      // }
+      keys = keys.concat([
+        'name',
+        'nzbz',
+        'contactName',
+        'province_code',
+        'city_code',
+        'district_code',
+        'address',
+        'addr',
+        'postal',
+        'idcard',
+        'suburb',
+        'province_code_name'
+      ]);
     }
     const newData = pick(form, keys);
     if (form.type == 20) {
@@ -535,6 +551,7 @@ const hasData = (data) => {
     return false;
   }
 };
+
 onMounted(() => {
   // 加载分类
   orgsStore.getCategory();
@@ -565,6 +582,12 @@ watch(
         orgsStore.getJob('stakeholder_job1');
         break;
     }
+
+    if (val != 20) {
+      nextTick(() => {
+        vcoAddressRef.value.init(form);
+      });
+    }
   },
   { immediate: true }
 );
@@ -579,16 +602,6 @@ watch(
   { immediate: true }
 );
 
-// 监听地址选择组件赋值
-watch(
-  () => region.value,
-  (val) => {
-    let arr = region.value.split(',');
-    form.province_code = arr[0] || '';
-    form.city_code = arr[1] || '';
-    form.district_code = arr[2] || '';
-  }
-);
 watch(
   () => props.detail,
   (val) => {
@@ -610,7 +623,6 @@ watch(
       assignFields({
         ...data
       });
-      region.value = [data.province_code, data.city_code, data.district_code].filter((item) => item).join(',');
       mobile_ok.value = val.mobile_ok;
       email_ok.value = val.email_ok;
     }

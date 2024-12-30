@@ -286,7 +286,8 @@ const { form, assignFields } = useFormData({
   expire_time: [], //证件有效期
   note: '',
   suburb: '',
-  province_code_name: ''
+  province_code_name: '',
+  con_id: ''
 });
 
 const mobile_ok = ref(0);
@@ -500,7 +501,8 @@ const submit = () => {
         'postal',
         'idcard',
         'suburb',
-        'province_code_name'
+        'province_code_name',
+        'con_id'
       ]);
     }
     const newData = pick(form, keys);
@@ -623,6 +625,11 @@ watch(
       assignFields({
         ...data
       });
+      if (form.type != 20) {
+        nextTick(() => {
+          vcoAddressRef.value.init(form);
+        });
+      }
       mobile_ok.value = val.mobile_ok;
       email_ok.value = val.email_ok;
     }

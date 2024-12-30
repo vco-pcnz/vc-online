@@ -386,6 +386,7 @@ export default {
   "{0}以后已手动修改的放款是否保留已设置的值": "{0} Whether the loan that has been manually modified in the future will retain the set value",
   "已存在数据，确定生成吗?": "Data already exists, are you sure you want to generate it?",
   "LM 审核": "LM Review",
+  "LM审核": "LM Review",
   "FC 审核": "FC Review",
   "暂无操作记录": "No operation record",
   "创建者": "Created by",
@@ -442,5 +443,6 @@ export default {
   "担保人": "Guarantor",
   "请先设置后保存再审核": "Please set first, save and then check",
   "郊区": "Suburb",
-  "城市/州": "City/State"
+  "城市/州": "City/State",
+  "列表": "List"
 }

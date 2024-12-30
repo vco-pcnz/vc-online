@@ -120,7 +120,7 @@ const searchInfo = (item) => {
           return item.name == res.city;
         });
         form.value[props.config['addr']] = res.address_line_1;
-        form.value[props.config['address']] = res.address_line_2;
+        form.value[props.config['address']] = res.address_line_2 || '';
         form.value[props.config['province_code_name']] = res.city;
         form.value[props.config['postal']] = res.postcode;
         form.value[props.config['suburb']] = res.suburb;

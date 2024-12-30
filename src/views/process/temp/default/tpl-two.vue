@@ -30,29 +30,9 @@
                       <vco-upload-image v-model:value="formState.project_images" :isMultiple="true" :limit="9"></vco-upload-image>
                     </a-form-item>
                   </a-col>
+                  
                   <a-col :span="24">
-                  <a-form-item :label="t('地址1')" name="project_address_short">
-                    <a-input v-model:value="formState.project_address_short" />
-                  </a-form-item>
-                </a-col>
-                  <a-col :span="24">
-                    <a-form-item :label="t('地址2')" name="project_address">
-                      <a-input v-model:value="formState.project_address" />
-                    </a-form-item>
-                  </a-col>
-                  <a-col :span="16">
-                    <a-form-item :label="t('区域')" name="project_region">
-                      <vco-address-select
-                        v-model:value="formState.project_region"
-                        :formRef="formRef"
-                        validateField="project_region"
-                      ></vco-address-select>
-                    </a-form-item>
-                  </a-col>
-                  <a-col :span="8">
-                    <a-form-item :label="t('邮编')" name="project_postcode">
-                      <a-input v-model:value="formState.project_postcode" />
-                    </a-form-item>
+                    <vco-address :config="addressConfig" ref="vcoAddressRef" @change="setAddressInfo"></vco-address>
                   </a-col>
                   <a-col :span="24">
                     <a-form-item :label="t('项目介绍')" name="project_about">
@@ -96,7 +76,7 @@
 </template>
 
 <script setup>
-  import { reactive, ref, watch, onMounted, computed } from "vue";
+  import { reactive, ref, watch, onMounted, computed, nextTick } from "vue";
   import { useI18n } from "vue-i18n";
   import { cloneDeep } from "lodash";
   import {
@@ -177,9 +157,34 @@
     project_address: '',
     project_postcode: '',
     building_num: '',
-    project_about: ''
+    project_about: '',
+    region_one_id:'',
+    region_two_id:'',
+    region_three_id:'',
+    region_one_name:'',
+    project_suburb:'',
+    project_con_id:'',
   })
 
+const vcoAddressRef = ref();
+const addressConfig = ref({
+  addr: 'project_address_short',
+  address: 'project_address',
+  suburb: 'project_suburb',
+  postal: 'project_postcode',
+  con_id: 'project_con_id',
+  region: 'project_region',
+  province_code_name: 'region_one_name',
+  province_code: 'region_one_id',
+  city_code: 'region_two_id',
+  district_code: 'region_three_id'
+});
+
+const setAddressInfo = (e) => {
+  for (const key in e) {
+    formState[key] = e[key];
+  }
+};
   const formRules = {
     project_name: [
       { required: true, message: t('请输入') + t('项目名称'), trigger: 'blur' }
@@ -199,6 +204,7 @@
     project_address_short: [
       { required: true, message: t('请输入') + t('地址1'), trigger: 'blur' }
     ],
+    region_one_name: [{ required: true, message: t('请输入') + t('城市/州'), trigger: 'blur' }],
     project_postcode: [
       { required: true, message: t('请输入') + t('邮编'), trigger: 'blur' },
       {
@@ -220,11 +226,6 @@
     if (params.project_images && params.project_images.length) {
       params.project_images = params.project_images.join(',')
     }
-
-    const regionArr = params.project_region.split(',')
-    params.region_one_id = regionArr[0] ? Number(regionArr[0]) : 0
-    params.region_two_id = regionArr[1] ? Number(regionArr[1]) : 0
-    params.region_three_id = regionArr[2] ? Number(regionArr[2]) : 0
 
     delete params.project_region
     
@@ -338,6 +339,9 @@
     const areaStr = areaArr.filter(item => item).join(',')
     formState.project_region = areaStr || ''
 
+    nextTick(()=>{
+      vcoAddressRef.value.init(formState);
+    })
     emits('dataDone', data.project_apply_sn)
   }
 

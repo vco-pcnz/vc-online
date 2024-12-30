@@ -1,6 +1,6 @@
 <template>
-  <Mode :data="data" @change="change" v-if="appStore.config && appStore.config.address_mode == 2"></Mode>
-  <Mode1 :data="data" @change="change" v-if="appStore.config &&appStore.config.address_mode == 1"></Mode1>
+  <Mode :config="config" :data="data" @change="change" v-if="appStore.config && appStore.config.address_mode == 2"></Mode>
+  <Mode1 :config="config" :data="data" @change="change" v-if="appStore.config && appStore.config.address_mode == 1"></Mode1>
 </template>
 
 <script setup>
@@ -16,13 +16,29 @@ const emits = defineEmits(['update:value', 'change']);
 const props = defineProps({
   value: {
     type: Object
+  },
+  config: {
+    type: Object,
+    default: () => {
+      return {
+        addr: 'addr',
+        address: 'address',
+        suburb: 'suburb',
+        postal: 'postal',
+        con_id: 'con_id',
+        region: 'region',
+        province_code_name: 'province_code_name',
+        province_code: 'province_code',
+        city_code: 'city_code',
+        district_code: 'district_code'
+      };
+    }
   }
 });
 
 const data = ref();
 
 const init = (val) => {
-  console.log(1111111, val);
   data.value = cloneDeep(val);
 };
 

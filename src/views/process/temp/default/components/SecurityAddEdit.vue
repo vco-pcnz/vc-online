@@ -58,7 +58,7 @@
               />
             </a-form-item>
           </a-col>
-          <a-col :span="12">
+          <!-- <a-col :span="12">
             <a-form-item :label="t('地址1')" name="address_short">
               <a-input v-model:value="formState.address_short" />
             </a-form-item>
@@ -81,6 +81,10 @@
             <a-form-item :label="t('邮编')" name="postcode">
               <a-input v-model:value="formState.postcode" />
             </a-form-item>
+          </a-col> -->
+          
+          <a-col :span="24">
+            <vco-address :config="addressConfig" ref="vcoAddressRef" @change="setAddressInfo"></vco-address>
           </a-col>
           <a-col :span="24">
             <a-form-item :label="t('备注')" name="remark">
@@ -103,7 +107,7 @@
 </template>
 
 <script setup>
-  import { watch, computed, ref } from "vue";
+  import { watch, computed, ref, nextTick  } from "vue";
   import dayjs from "dayjs";
   import { useI18n } from "vue-i18n";
   import { cloneDeep } from "lodash";
@@ -152,7 +156,7 @@
   const formRef = ref()
   const formState = ref({
     security_name: '',
-    type: undefined,
+    type: 1,
     card_no: '',
     insurance_value: '',
     insurance_company: "",
@@ -162,9 +166,34 @@
     address: '',
     security_region: '',
     postcode: '',
-    remark: ''
+    remark: '',
+    region_one_id:'',
+    region_two_id:'',
+    region_three_id:'',
+    region_one_name:'',
+    suburb:'',
+    con_id:''
   })
   
+  const vcoAddressRef = ref();
+  const addressConfig = ref({
+    addr: 'address_short',
+    address: 'address',
+    suburb: 'suburb',
+    postal: 'postcode',
+    con_id: 'con_id',
+    region: 'region',
+    province_code_name: 'region_one_name',
+    province_code: 'region_one_id',
+    city_code: 'region_two_id',
+    district_code: 'region_three_id'
+  });
+  const setAddressInfo = (e) => {
+    for (const key in e) {
+      formState.value[key] = e[key];
+    }
+  };
+
   const formRules = {
     security_name: [
       { required: true, message: t('请输入') + t('名称'), trigger: 'blur' }
@@ -190,6 +219,7 @@
     postcode: [
       { required: true, message: t('请输入') + t('邮编'), trigger: 'blur' }
     ],
+    region_one_name: [{ required: true, message: t('请输入') + t('城市/州'), trigger: 'blur' }],
     address_short: [
       { required: true, message: t('请输入') + t('地址1'), trigger: 'blur' }
     ],
@@ -206,11 +236,6 @@
 
       params.insurance_expire_date = params.insurance_expire_date ? dayjs(params.insurance_expire_date).format('YYYY-MM-DD') : ''
       params.mortgage_registration_date = params.mortgage_registration_date ? dayjs(params.mortgage_registration_date).format('YYYY-MM-DD') : ''
-
-      const regionArr = params.security_region.split(',')
-      params.region_one_id = regionArr[0] ? Number(regionArr[0]) : ''
-      params.region_two_id = regionArr[1] ? Number(regionArr[1]) : ''
-      params.region_three_id = regionArr[2] ? Number(regionArr[2]) : ''
 
       delete params.security_region
 
@@ -250,12 +275,12 @@
               formState.value[key] = props.infoData[key] ? dayjs(props.infoData[key]) : ''
             }
           }
-          const areaArr = [props.infoData.region_one_id, props.infoData.region_two_id, props.infoData.region_three_id]
-          const areaStr = areaArr.filter(item => item).join(',')
-          
-          formState.value.security_region = areaStr
         }
       }
+      
+      nextTick(()=>{
+        vcoAddressRef.value.init(formState.value);
+      })
     }
   );
 </script>

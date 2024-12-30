@@ -1,10 +1,10 @@
 <template>
-  <a-row :gutter="24">
+  <a-row :gutter="24" v-if="form">
     <a-col :span="24">
-      <a-form-item :label="t('地址1')" name="addr">
+      <a-form-item :label="t('地址1')" :name="config['addr']">
         <a-dropdown trigger="click" v-model:open="open">
           <a-spin :spinning="loading">
-            <a-input style="display: block" v-model:value="form.addr" :placeholder="t('请输入')" @input="search" @click.prevent />
+            <a-input style="display: block" v-model:value="form[config['addr']]" :placeholder="t('请输入')" @input="search" @click.prevent />
           </a-spin>
           <template #overlay>
             <a-menu v-if="list && list.length">
@@ -17,29 +17,29 @@
       </a-form-item>
     </a-col>
     <a-col :span="24">
-      <a-form-item :label="t('地址2')">
+      <a-form-item :label="t('地址2')" :name="config['address']">
         <a-spin :spinning="loading">
-          <a-input v-model:value="form.address" :placeholder="t('请输入')" />
+          <a-input v-model:value="form[config['address']]" :placeholder="t('请输入')" />
         </a-spin>
       </a-form-item>
     </a-col>
     <a-col :span="16">
       <a-row :gutter="24">
         <a-col :span="12">
-          <a-form-item :label="t('郊区')">
+          <a-form-item :label="t('郊区')" :name="config['suburb']">
             <a-spin :spinning="loading">
-              <a-input v-model:value="form.suburb" :placeholder="t('请输入')" />
+              <a-input v-model:value="form[config['suburb']]" :placeholder="t('请输入')" />
             </a-spin>
           </a-form-item>
         </a-col>
         <a-col :span="12">
-          <a-form-item :label="t('城市/州')">
+          <a-form-item :label="t('城市/州')" :name="config['province_code_name']">
             <a-spin :spinning="loading">
               <a-dropdown trigger="click" v-model:open="showCitys">
                 <a-spin :spinning="loading">
                   <a-input
                     style="display: block"
-                    v-model:value="form.province_code_name"
+                    v-model:value="form[config['province_code_name']]"
                     @focus="showCitys = true"
                     readonly
                     :placeholder="t('请输入')"
@@ -60,9 +60,9 @@
       </a-row>
     </a-col>
     <a-col :span="8">
-      <a-form-item :label="t('邮编')">
+      <a-form-item :label="t('邮编')" :name="config['postal']">
         <a-spin :spinning="loading">
-          <a-input v-model:value="form.postal" :placeholder="t('请输入')" />
+          <a-input v-model:value="form[config['postal']]" :placeholder="t('请输入')" />
         </a-spin>
       </a-form-item>
     </a-col>
@@ -78,6 +78,9 @@ const { t } = useI18n();
 
 const emits = defineEmits(['change']);
 const props = defineProps({
+  config: {
+    type: Object
+  },
   data: {
     type: Object
   }
@@ -88,15 +91,7 @@ const showCitys = ref(false);
 const loading = ref(false);
 const list = ref([]);
 const citys = ref([]);
-const form = ref({
-  addr: '',
-  address: '',
-  suburb: '',
-  postal: '',
-  con_id: '',
-  province_code_name: '',
-  province_code: '0'
-});
+const form = ref(null);
 
 const debounce = (func, wait) => {
   let timeout;
@@ -108,8 +103,8 @@ const debounce = (func, wait) => {
 };
 
 const search = debounce(() => {
-  if (!form.value.addr) return;
-  systemCitySearch({ addr: form.value.addr }).then((res) => {
+  if (!form.value[props.config['addr']]) return;
+  systemCitySearch({ addr: form.value[props.config['addr']] }).then((res) => {
     list.value = res;
     open.value = res && res.length;
   });
@@ -124,13 +119,13 @@ const searchInfo = (item) => {
         const index = citys.value.findIndex((item) => {
           return item.name == res.city;
         });
-        form.value.province_code = index === -1 ? '0' : citys.value[index].id + '';
-        form.value.suburb = res.suburb;
-        form.value.addr = res.address_line_1;
-        form.value.address = res.address_line_2;
-        form.value.province_code_name = res.city;
-        form.value.postal = res.postcode;
-        form.value.con_id = res.con_id;
+        form.value[props.config['addr']] = res.address_line_1;
+        form.value[props.config['address']] = res.address_line_2;
+        form.value[props.config['province_code_name']] = res.city;
+        form.value[props.config['postal']] = res.postcode;
+        form.value[props.config['suburb']] = res.suburb;
+        form.value[props.config['con_id']] = res.con_id;
+        form.value[props.config['province_code']] = index === -1 ? '0' : citys.value[index].id + '';
       }
       loading.value = false;
     })
@@ -139,15 +134,21 @@ const searchInfo = (item) => {
     });
 };
 
-const loadCitys = () => {
+const loadCitys = debounce(() => {
   systemCity().then((res) => {
     citys.value = res;
+    if (form.value[props.config['province_code']]) {
+      const index = citys.value.findIndex((item) => {
+        return item.id == form.value[props.config['province_code']];
+      });
+      form.value[props.config['province_code_name']] = citys.value[index].name;
+    }
   });
-};
+}, 300);
 
 const setCity = (item) => {
-  form.value.province_code_name = item.name;
-  form.value.province_code = item.id;
+  form.value[props.config['province_code_name']] = item.name;
+  form.value[props.config['province_code']] = item.id + '';
   showCitys.value = false;
 };
 
@@ -155,7 +156,13 @@ watch(
   () => props.data,
   (val) => {
     if (trim(val)) {
-      let keys = ['addr', 'address', 'postal', 'suburb', 'province_code_name', 'province_code', 'con_id'];
+      val.city_code = '0';
+      val.district_code = '0';
+      let keys = ['addr', 'address', 'postal', 'suburb', 'province_code_name', 'province_code', 'con_id', 'city_code', 'district_code'].map(
+        (item) => {
+          return props.config[item];
+        }
+      );
       form.value = pick(val, keys);
       loadCitys();
     }

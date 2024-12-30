@@ -399,6 +399,9 @@
 
   onMounted(() => {
     getFormItems()
+    emitter.on('refreshIRR', () => {
+      getFormItems()
+    })
 
     // 重新生成forecast
     emitter.on('resetForecast', async (data) => {

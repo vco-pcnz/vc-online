@@ -353,6 +353,9 @@
       tipsVisible.value = false
       visible.value = false
       subLoading.value = false
+
+      // 刷新IRR
+      emitter.emit('refreshIRR')
     }).catch(() => {
       subLoading.value = false
     })

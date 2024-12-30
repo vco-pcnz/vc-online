@@ -65,26 +65,26 @@
 
       <div v-if="statisticsData && tabData.length" class="static-block flex">
         <div class="item flex-1">
-          <p>{{ t('目前总计') }}<span>{{ nowDate }}</span></p>
-          <h3>{{ t('还有{0}天开放', [statisticsData.sdaysDiff]) }}</h3>
+          <p>{{ t('目前总计') }}<span>{{ statisticsData.now.day }}</span></p>
+          <h3>{{ t('还有{0}天开放', [statisticsData.now.days]) }}</h3>
         </div>
         <div class="item">
           <p>{{ t('利息及费用') }}</p>
-          <vco-number :value="0" color="#ffffff" size="fs_md" :precision="2" :end="true"></vco-number>
+          <vco-number :value="statisticsData.now.interestFees" color="#ffffff" size="fs_md" :precision="2" :end="true"></vco-number>
         </div>
         <div class="item">
           <p>{{ t('提现') }}</p>
-          <vco-number :value="0" color="#ffffff" size="fs_md" :precision="2" :end="true"></vco-number>
+          <vco-number :value="statisticsData.now.withdrawn" color="#ffffff" size="fs_md" :precision="2" :end="true"></vco-number>
         </div>
         <div class="item">
           <p>{{ t('已偿还') }}</p>
-          <vco-number :value="0" color="#ffffff" size="fs_md" :precision="2" :end="true"></vco-number>
+          <vco-number :value="statisticsData.now.repaid" color="#ffffff" size="fs_md" :precision="2" :end="true"></vco-number>
         </div>
         <div class="item">
           <p>{{ t('余额') }}</p>
           <div class="flex justify-end items-center gap-1">
             <i class="iconfont" style="color: #a9ad57;">&#xe767;</i>
-            <vco-number :value="0" color="#ffffff" size="fs_xl" :precision="2" :end="true"></vco-number>
+            <vco-number :value="statisticsData.now.balance" color="#ffffff" size="fs_xl" :precision="2" :end="true"></vco-number>
           </div>
         </div>
       </div>
@@ -92,54 +92,54 @@
       <div v-if="statisticsData && tabData.length" class="static-block flex">
         <div class="item">
           <p>{{ t('估计总数') }}</p>
-          <h3>{{ t('{0}天', [statisticsData.edaysDiff]) }}</h3>
-          <div class="info">{{ t('到期日') }}<span v-if="statisticsData.end_date">{{ dayjs(statisticsData.end_date).format('DD/MM/YYYY') }}</span></div>
+          <h3>{{ t('{0}天', [statisticsData.last.days]) }}</h3>
+          <div class="info">{{ t('到期日') }}<span v-if="statisticsData.last.day">{{ dayjs(statisticsData.last.day).format('DD/MM/YYYY') }}</span></div>
         </div>
         <div class="flex-1 flex gap-4 justify-end pr-2">
           <div class="sec-item mr-5">
             <p class="item-title">{{ t('总内部收益率') }}</p>
             <div class="flex justify-end items-center gap-1">
               <i class="iconfont" style="color: #b8cdcc;">&#xe761;</i>
-              <h3 class="white">0.00%</h3>
+              <h3 class="white">{{statisticsData.last.irr}}%</h3>
             </div>
           </div>
           <div class="sec-item">
             <p class="item-title">{{ t('利息') }}</p>
-            <h3>{{ statisticsData.interestRate || 0 }}%</h3>
-            <vco-number :value="statisticsData.interestMoney || 0" color="#ffffff" size="fs_xs" :precision="2" :end="true"></vco-number>
+            <h3>{{ statisticsData.last.interestRate || 0 }}%</h3>
+            <vco-number :value="statisticsData.last.interest || 0" color="#ffffff" size="fs_xs" :precision="2" :end="true"></vco-number>
           </div>
           <div class="line"></div>
           <div class="sec-item">
             <p class="item-title">{{ t('费率') }}</p>
-            <h3>{{ statisticsData.lineFeeRate || 0 }}%</h3>
-            <vco-number :value="statisticsData.lineFeeMoney || 0" color="#ffffff" size="fs_xs" :precision="2" :end="true"></vco-number>
+            <h3>{{ statisticsData.last.feesRate || 0 }}%</h3>
+            <vco-number :value="statisticsData.last.fees || 0" color="#ffffff" size="fs_xs" :precision="2" :end="true"></vco-number>
           </div>
         </div>
         <div class="item">
           <p>{{ t('利息及费用') }}</p>
-          <vco-number :value="statisticsData.interestFees || 0" color="#ffffff" size="fs_md" :precision="2" :end="true"></vco-number>
+          <vco-number :value="statisticsData.last.interestFees || 0" color="#ffffff" size="fs_md" :precision="2" :end="true"></vco-number>
         </div>
         <div class="item">
           <p>{{ t('提现') }}</p>
-          <vco-number :value="0" color="#ffffff" size="fs_md" :precision="2" :end="true"></vco-number>
+          <vco-number :value="statisticsData.last.withdrawn" color="#ffffff" size="fs_md" :precision="2" :end="true"></vco-number>
           <div class="tips">
             <p>{{ t('facility limit {0}', [1]) }}</p>
-            <vco-number :value="statisticsData.FC1 || 0" color="#ffffff" size="fs_xs" :precision="2" :end="true"></vco-number>
+            <vco-number :value="statisticsData.last.FC1 || 0" color="#ffffff" size="fs_xs" :precision="2" :end="true"></vco-number>
           </div>
         </div>
         <div class="item">
           <p>{{ t('已偿还') }}</p>
-          <vco-number :value="0" color="#ffffff" size="fs_md" :precision="2" :end="true"></vco-number>
+          <vco-number :value="statisticsData.last.repaid" color="#ffffff" size="fs_md" :precision="2" :end="true"></vco-number>
         </div>
         <div class="item">
           <p>{{ t('余额') }}</p>
           <div class="flex justify-end items-center gap-1">
             <i class="iconfont" style="color: #a9ad57;">&#xe767;</i>
-            <vco-number :value="statisticsData.lastBalance || 0" color="#ffffff" size="fs_xl" :precision="2" :end="true"></vco-number>
+            <vco-number :value="statisticsData.last.balance || 0" color="#ffffff" size="fs_xl" :precision="2" :end="true"></vco-number>
           </div>
           <div class="tips">
             <p>{{ t('facility limit {0}', [2]) }}</p>
-            <vco-number :value="statisticsData.FC2 || 0" color="#ffffff" size="fs_xs" :precision="2" :end="true"></vco-number>
+            <vco-number :value="statisticsData.last.FC2 || 0" color="#ffffff" size="fs_xs" :precision="2" :end="true"></vco-number>
           </div>
         </div>
       </div>

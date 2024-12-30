@@ -444,5 +444,9 @@ export default {
   "请先设置后保存再审核": "Please set first, save and then check",
   "郊区": "Suburb",
   "城市/州": "City/State",
-  "列表": "List"
+  "列表": "List",
+  "总金额": "Amount",
+  "建筑总额": "Build amount",
+  "土地总额": "Land amount",
+  "总金额不正确": "Amount is incorrect"
 }

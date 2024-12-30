@@ -1,13 +1,5 @@
 <template>
-  <a-modal
-    :open="visible"
-    :title="t('抵押物信息')"
-    :width="700"
-    :footer="null"
-    :keyboard="false"
-    :maskClosable="false"
-    @update:open="updateVisible"
-  >
+  <a-modal :open="visible" :title="t('抵押物信息')" :width="700" :footer="null" :keyboard="false" :maskClosable="false" @update:open="updateVisible">
     <div class="sys-form-content mt-5">
       <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
         <a-row :gutter="24">
@@ -23,6 +15,48 @@
               </a-select>
             </a-form-item>
           </a-col>
+          <template v-if="formState.type == 1">
+            <a-col :span="7">
+              <a-form-item :label="t('建筑总额')" name="build_amount">
+                <a-input-number
+                  v-model:value="formState.build_amount"
+                  :max="99999999999"
+                  :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                />
+              </a-form-item>
+            </a-col>
+            <a-col :span="1" class="plus-txt"><i class="iconfont">&#xe889;</i></a-col>
+            <a-col :span="7">
+              <a-form-item :label="t('土地总额')" name="land_amount">
+                <a-input-number
+                  v-model:value="formState.land_amount"
+                  :max="99999999999"
+                  :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                />
+              </a-form-item>
+            </a-col>
+            <a-col :span="1" class="plus-txt"><i class="iconfont">=</i></a-col>
+            <a-col :span="8" class="total-amount-info">
+              <a-form-item :label="t('总金额')">
+                <vco-number :value="totalAmountRef" :precision="2" :end="true"></vco-number>
+              </a-form-item>
+            </a-col>
+          </template>
+          <template v-else>
+            <a-col :span="24">
+              <a-form-item :label="t('总金额')" name="amount">
+                <a-input-number
+                  v-model:value="formState.amount"
+                  :max="99999999999"
+                  :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                />
+              </a-form-item>
+            </a-col>
+          </template>
+
           <a-col :span="16">
             <a-form-item :label="t('产权编号')" name="card_no">
               <a-input v-model:value="formState.card_no"></a-input>
@@ -30,11 +64,7 @@
           </a-col>
           <a-col :span="8">
             <a-form-item :label="t('抵押登记日期')" name="mortgage_registration_date">
-              <a-date-picker
-                v-model:value="formState.mortgage_registration_date"
-                :disabledDate="disabledDateFormatAfter"
-                placeholder=""
-              />
+              <a-date-picker v-model:value="formState.mortgage_registration_date" :disabledDate="disabledDateFormatAfter" placeholder="" />
             </a-form-item>
           </a-col>
           <a-col :span="24">
@@ -46,45 +76,17 @@
             <a-form-item :label="t('保险价值')" name="insurance_value">
               <a-input-number
                 v-model:value="formState.insurance_value"
-                :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                :parser="value => value.replace(/\$\s?|(,*)/g, '')"
+                :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
               />
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item :label="t('保险到期日')" name="insurance_expire_date">
-              <a-date-picker
-                v-model:value="formState.insurance_expire_date"
-                placeholder=""
-                :disabledDate="disabledDateFormatBefore"
-              />
+              <a-date-picker v-model:value="formState.insurance_expire_date" placeholder="" :disabledDate="disabledDateFormatBefore" />
             </a-form-item>
           </a-col>
-          <!-- <a-col :span="12">
-            <a-form-item :label="t('地址1')" name="address_short">
-              <a-input v-model:value="formState.address_short" />
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-item :label="t('地址2')" name="address">
-              <a-input v-model:value="formState.address" />
-            </a-form-item>
-          </a-col>
-          <a-col :span="16">
-            <a-form-item :label="t('区域')" name="security_region">
-              <vco-address-select
-                v-model:value="formState.security_region"
-                :formRef="formRef"
-                validateField="security_region"
-              ></vco-address-select>
-            </a-form-item>
-          </a-col>
-          <a-col :span="8">
-            <a-form-item :label="t('邮编')" name="postcode">
-              <a-input v-model:value="formState.postcode" />
-            </a-form-item>
-          </a-col> -->
-          
+
           <a-col :span="24">
             <vco-address :config="addressConfig" ref="vcoAddressRef" @change="setAddressInfo"></vco-address>
           </a-col>
@@ -98,212 +100,226 @@
 
       <div class="flex gap-4 mb-5 mt-5 justify-between">
         <p></p>
-        <a-button
-          type="dark" class="big shadow bold uppercase"
-          :loading="subLoading"
-          @click="submitHandle"
-        >{{ t('保存') }}</a-button>
+        <a-button type="dark" class="big shadow bold uppercase" :loading="subLoading" @click="submitHandle">{{ t('保存') }}</a-button>
       </div>
     </div>
   </a-modal>
 </template>
 
 <script setup>
-  import { watch, computed, ref, nextTick  } from "vue";
-  import dayjs from "dayjs";
-  import { useI18n } from "vue-i18n";
-  import { cloneDeep } from "lodash";
-  import { projectAuditAddSecurity, projectAuditEditSecurity } from "@/api/process"
-  import tool from "@/utils/tool"
-  import emitter from "@/event"
+import { watch, computed, ref, nextTick } from 'vue';
+import dayjs from 'dayjs';
+import { useI18n } from 'vue-i18n';
+import { cloneDeep, template } from 'lodash';
+import { projectAuditAddSecurity, projectAuditEditSecurity } from '@/api/process';
+import tool from '@/utils/tool';
+import emitter from '@/event';
+import { message } from 'ant-design-vue/es';
 
-  const emits = defineEmits(['update:visible']);
+const emits = defineEmits(['update:visible']);
 
-  const props = defineProps({
-    visible: {
-      type: Boolean,
-      default: false
-    },
-    currentId: {
-      type: [Number, String],
-      required: true
-    },
-    infoData: {
-      type: Object,
-      default: () => {}
-    },
-    typeData: {
-      type: Array,
-      default: () => []
-    },
-    securityStatus: {
-      type: [Number, String],
-      default: 407
-    }
-  })
+const props = defineProps({
+  visible: {
+    type: Boolean,
+    default: false
+  },
+  currentId: {
+    type: [Number, String],
+    required: true
+  },
+  infoData: {
+    type: Object,
+    default: () => {}
+  },
+  typeData: {
+    type: Array,
+    default: () => []
+  },
+  securityStatus: {
+    type: [Number, String],
+    default: 407
+  }
+});
 
-  const { t } = useI18n();
+const { t } = useI18n();
 
-  /* 更新visible */
-  const updateVisible = (value) => {
-    emits('update:visible', value);
-  };
+/* 更新visible */
+const updateVisible = (value) => {
+  emits('update:visible', value);
+};
 
-  const totalValue = computed(() => {
-    const land = formState.value.insurance_value || 0
-    const improvement = formState.value.improvement_value || 0
-    return tool.formatMoney(tool.plus(land, improvement))
-  })
+const totalValue = computed(() => {
+  const land = formState.value.insurance_value || 0;
+  const improvement = formState.value.improvement_value || 0;
+  return tool.formatMoney(tool.plus(land, improvement));
+});
 
-  const formRef = ref()
-  const formState = ref({
-    security_name: '',
-    type: 1,
-    card_no: '',
-    insurance_value: '',
-    insurance_company: "",
-    mortgage_registration_date: "",
-    insurance_expire_date: "",
-    address_short: '',
-    address: '',
-    security_region: '',
-    postcode: '',
-    remark: '',
-    region_one_id:'',
-    region_two_id:'',
-    region_three_id:'',
-    region_one_name:'',
-    suburb:'',
-    con_id:''
-  })
-  
-  const vcoAddressRef = ref();
-  const addressConfig = ref({
-    addr: 'address_short',
-    address: 'address',
-    suburb: 'suburb',
-    postal: 'postcode',
-    con_id: 'con_id',
-    region: 'region',
-    province_code_name: 'region_one_name',
-    province_code: 'region_one_id',
-    city_code: 'region_two_id',
-    district_code: 'region_three_id'
-  });
-  const setAddressInfo = (e) => {
-    for (const key in e) {
-      formState.value[key] = e[key];
-    }
-  };
+const formRef = ref();
+const formState = ref({
+  security_name: '',
+  type: 1,
+  card_no: '',
+  insurance_value: '',
+  insurance_company: '',
+  mortgage_registration_date: '',
+  insurance_expire_date: '',
+  address_short: '',
+  address: '',
+  security_region: '',
+  postcode: '',
+  remark: '',
+  region_one_id: '',
+  region_two_id: '',
+  region_three_id: '',
+  region_one_name: '',
+  suburb: '',
+  con_id: '',
+  build_amount: '',
+  land_amount: '',
+  amount: ''
+});
 
-  const formRules = {
-    security_name: [
-      { required: true, message: t('请输入') + t('名称'), trigger: 'blur' }
-    ],
-    type: [
-      { required: true, message: t('请选择') + t('类型'), trigger: 'change' }
-    ],
-    card_no: [
-      { required: true, message: t('请输入') + t('产权编号'), trigger: 'blur' }
-    ],
-    insurance_company: [
-      { required: true, message: t('请输入') + t('担保公司'), trigger: 'blur' }
-    ],
-    insurance_value: [
-      { required: true, message: t('请输入') + t('保险价值'), trigger: 'blur' }
-    ],
-    insurance_expire_date: [
-      { required: true, message: t('请选择') + t('保险到期日'), trigger: 'change' }
-    ],
-    security_region: [
-      { required: true, message: t('请选择') + t('区域'), trigger: 'change' }
-    ],
-    postcode: [
-      { required: true, message: t('请输入') + t('邮编'), trigger: 'blur' }
-    ],
-    region_one_name: [
-      { required: true, message: t('请输入') + t('城市/州'), trigger: 'blur' }
-    ],
-    address_short: [
-      { required: true, message: t('请输入') + t('地址1'), trigger: 'blur' }
-    ],
+const vcoAddressRef = ref();
+const addressConfig = ref({
+  addr: 'address_short',
+  address: 'address',
+  suburb: 'suburb',
+  postal: 'postcode',
+  con_id: 'con_id',
+  region: 'region',
+  province_code_name: 'region_one_name',
+  province_code: 'region_one_id',
+  city_code: 'region_two_id',
+  district_code: 'region_three_id'
+});
+const setAddressInfo = (e) => {
+  for (const key in e) {
+    formState.value[key] = e[key];
+  }
+};
+
+const formRules = {
+  security_name: [{ required: true, message: t('请输入') + t('名称'), trigger: 'blur' }],
+  type: [{ required: true, message: t('请选择') + t('类型'), trigger: 'change' }],
+  build_amount: [{ required: true, message: t('请输入') + t('建筑总额'), trigger: 'change' }],
+  amount: [{ required: true, message: t('请输入') + t('总金额'), trigger: 'change' }],
+  card_no: [{ required: true, message: t('请输入') + t('产权编号'), trigger: 'change' }],
+  security_region: [{ required: true, message: t('请选择') + t('区域'), trigger: 'change' }],
+  postcode: [{ required: true, message: t('请输入') + t('邮编'), trigger: 'blur' }],
+  region_one_name: [{ required: true, message: t('请输入') + t('城市/州'), trigger: 'blur' }],
+  address_short: [{ required: true, message: t('请输入') + t('地址1'), trigger: 'blur' }]
+};
+
+const totalAmountRef = computed(() => {
+  const build_amount = formState.value.build_amount || 0;
+  const land_amount = formState.value.land_amount || 0;
+  formState.value.amount = tool.plus(build_amount, land_amount);
+  return tool.plus(build_amount, land_amount);
+});
+
+const disabledDateFormatBefore = (current) => {
+  const endDate = new Date();
+  if (current && current.isBefore(endDate, 'day')) {
+    return true;
   }
 
-  const disabledDateFormatBefore = (current) => {
-    const endDate = new Date();
-    if (current && current.isBefore(endDate, 'day')) {
-      return true;
-    }
+  return false;
+};
 
-    return false;
-  };
+const disabledDateFormatAfter = (current) => {
+  const endDate = new Date();
+  if (current && current.isAfter(endDate, 'day')) {
+    return true;
+  }
 
-  const disabledDateFormatAfter = (current) => {
-    const endDate = new Date();
-    if (current && current.isAfter(endDate, 'day')) {
-      return true;
-    }
+  return false;
+};
 
-    return false;
-  };
-  
-
-  const subLoading = ref(false)
-  const submitHandle = () => {
-    formRef.value
+const subLoading = ref(false);
+const submitHandle = () => {
+  formRef.value
     .validate()
     .then(() => {
-      const params = cloneDeep(formState.value)
-      params.uuid = props.currentId
-      params.security_status = props.securityStatus
+      const params = cloneDeep(formState.value);
+      params.uuid = props.currentId;
+      params.security_status = props.securityStatus;
 
-      params.insurance_expire_date = params.insurance_expire_date ? dayjs(params.insurance_expire_date).format('YYYY-MM-DD') : ''
-      params.mortgage_registration_date = params.mortgage_registration_date ? dayjs(params.mortgage_registration_date).format('YYYY-MM-DD') : ''
+      params.insurance_expire_date = params.insurance_expire_date ? dayjs(params.insurance_expire_date).format('YYYY-MM-DD') : '';
+      params.mortgage_registration_date = params.mortgage_registration_date ? dayjs(params.mortgage_registration_date).format('YYYY-MM-DD') : '';
 
-      delete params.security_region
+      delete params.security_region;
 
-      let ajaxFn = projectAuditAddSecurity
-      if (props.infoData && props.infoData.uuid) {
-        params.security_uuid = props.infoData.uuid
-        ajaxFn = projectAuditEditSecurity
+      const amount = Number(formState.value.amount);
+
+      if (amount <= 0) {
+        message.error(t('总金额不正确'));
+        return false;
       }
 
-      subLoading.value = true
-      ajaxFn(params).then(() => {
-        subLoading.value = false
-        updateVisible(false)
+      let ajaxFn = projectAuditAddSecurity;
+      if (props.infoData && props.infoData.uuid) {
+        params.security_uuid = props.infoData.uuid;
+        ajaxFn = projectAuditEditSecurity;
+      }
 
-        emitter.emit('refreshSecurityInfo')
-        emitter.emit('refreshSecurityList')
-      }).catch(() => {
-        subLoading.value = false
-      })
+      subLoading.value = true;
+      ajaxFn(params)
+        .then(() => {
+          subLoading.value = false;
+          updateVisible(false);
+
+          emitter.emit('refreshSecurityInfo');
+          emitter.emit('refreshSecurityList');
+        })
+        .catch(() => {
+          subLoading.value = false;
+        });
     })
-    .catch(error => {
+    .catch((error) => {
       console.log('error', error);
     });
-  }
+};
 
-  watch(
-    () => props.visible,
-    (val) => {
-      if (!val) {
-        formRef.value.clearValidate()
-        formRef.value.resetFields()
-      } else {
-        if (props.infoData && props.infoData.uuid) {
-          for (const key in formState.value) {
-            formState.value[key] = props.infoData[key]
-            if (['insurance_expire_date', 'mortgage_registration_date'].includes(key)) {
-              formState.value[key] = props.infoData[key] ? dayjs(props.infoData[key]) : ''
-            }
+watch(
+  () => props.visible,
+  (val) => {
+    if (!val) {
+      formRef.value.clearValidate();
+      formRef.value.resetFields();
+    } else {
+      if (props.infoData && props.infoData.uuid) {
+        for (const key in formState.value) {
+          formState.value[key] = props.infoData[key];
+          if (['insurance_expire_date', 'mortgage_registration_date'].includes(key)) {
+            formState.value[key] = props.infoData[key] ? dayjs(props.infoData[key]) : '';
           }
         }
       }
-      
-      nextTick(()=>{
-        vcoAddressRef.value.init(formState.value);
-      })
     }
-  );
+
+    nextTick(() => {
+      vcoAddressRef.value.init(formState.value);
+    });
+  }
+);
 </script>
+<style lang="less" scoped>
+.total-amount-info {
+  :deep(.ant-statistic-content) {
+    font-size: 24px !important;
+    line-height: 48px !important;
+  }
+}
+.plus-txt {
+  position: relative;
+  .iconfont {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #282828;
+    font-weight: bold;
+    font-size: 18px;
+  }
+}
+</style>

@@ -156,8 +156,8 @@ watch(
   () => props.data,
   (val) => {
     if (trim(val)) {
-      val.city_code = '0';
-      val.district_code = '0';
+      val[props.config.city_code] = '0';
+      val[props.config.district_code] = '0';
       let keys = ['addr', 'address', 'postal', 'suburb', 'province_code_name', 'province_code', 'con_id', 'city_code', 'district_code'].map(
         (item) => {
           return props.config[item];

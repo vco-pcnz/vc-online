@@ -103,7 +103,7 @@ const debounce = (func, wait) => {
 };
 
 const search = debounce(() => {
-  if (!form.value[props.config['addr']]) return;
+  if (!form.value[props.config['addr']] || form.value[props.config['addr']].length < 2) return;
   systemCitySearch({ addr: form.value[props.config['addr']] }).then((res) => {
     list.value = res;
     open.value = res && res.length;

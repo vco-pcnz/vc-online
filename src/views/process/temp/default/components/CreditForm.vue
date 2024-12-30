@@ -107,7 +107,7 @@
           <template v-if="showNumItems.length">
             <a-col v-for="item in showNumItems" :key="item.credit_table" class="data-col-item" :class="colClassName(showNumItems.length)">
               <a-form-item :label="item.credit_name">
-                <vco-number :value="item.value" :precision="2" :end="true"></vco-number>
+                <vco-number :prefix="item.is_ratio?'':'$'" :suffix="item.is_ratio?'%':''" :value="item.value" :precision="2" :end="true"></vco-number>
               </a-form-item>
             </a-col>
           </template>

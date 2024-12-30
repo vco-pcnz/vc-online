@@ -32,6 +32,7 @@
             <a-form-item :label="t('抵押登记日期')" name="mortgage_registration_date">
               <a-date-picker
                 v-model:value="formState.mortgage_registration_date"
+                :disabledDate="disabledDateFormatAfter"
                 placeholder=""
               />
             </a-form-item>
@@ -55,6 +56,7 @@
               <a-date-picker
                 v-model:value="formState.insurance_expire_date"
                 placeholder=""
+                :disabledDate="disabledDateFormatBefore"
               />
             </a-form-item>
           </a-col>
@@ -219,11 +221,32 @@
     postcode: [
       { required: true, message: t('请输入') + t('邮编'), trigger: 'blur' }
     ],
-    region_one_name: [{ required: true, message: t('请输入') + t('城市/州'), trigger: 'blur' }],
+    region_one_name: [
+      { required: true, message: t('请输入') + t('城市/州'), trigger: 'blur' }
+    ],
     address_short: [
       { required: true, message: t('请输入') + t('地址1'), trigger: 'blur' }
     ],
   }
+
+  const disabledDateFormatBefore = (current) => {
+    const endDate = new Date();
+    if (current && current.isBefore(endDate, 'day')) {
+      return true;
+    }
+
+    return false;
+  };
+
+  const disabledDateFormatAfter = (current) => {
+    const endDate = new Date();
+    if (current && current.isAfter(endDate, 'day')) {
+      return true;
+    }
+
+    return false;
+  };
+  
 
   const subLoading = ref(false)
   const submitHandle = () => {

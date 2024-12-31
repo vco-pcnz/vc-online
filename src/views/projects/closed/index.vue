@@ -1,8 +1,7 @@
 <template>
   <vco-page-nav sup-path="/projects"></vco-page-nav>
   <div class="flex justify-between items-center mt-10">
-    <p class="num">{{ pageStore.total }} {{ t('已关闭项目') }}</p>
-    <TableSearch></TableSearch>
+    <TableSearch type="closed"></TableSearch>
   </div>
   <a-spin :spinning="pageStore.loading" size="large">
     <div class="table-content">

@@ -3,13 +3,13 @@
     <div class="flex-1">
       <div class="flex title mb-10">
         <span class="fs_2xl">Transactions</span>
-        <SelectDate v-model:value="date" @change="selectDate"></SelectDate>
+        <SelectDate v-model:value="date"></SelectDate>
         <a-button type="brown" size="small" shape="round" @click="change">{{ type ? 'for repayments' : 'for drawdowns' }}</a-button>
       </div>
       <ul class="CashflowMiniStat_list">
         <li class="item flex items-center" v-for="item in list" :key="item.uuid">
           <div class="flex items-center gap-3">
-            <vco-avatar :src="item.avatar" :radius="true" size="36"></vco-avatar>
+            <vco-avatar :src="item.avatar" :radius="true" :size="36"></vco-avatar>
             <span class="bold">{{ item.name }}</span>
           </div>
           <div class="flex-1 font-bold flex items-center">
@@ -38,14 +38,14 @@
     <div class="flex-1">
       <div class="flex title mb-10">
         <span class="fs_2xl">Forecast</span>
-        <SelectDate v-model:value="date" @change="selectDate"></SelectDate>
+        <SelectDate v-model:value="date"></SelectDate>
         <a-button type="brown" size="small" shape="round" @click="change">{{ type ? 'for repayments' : 'for drawdowns' }}</a-button>
       </div>
 
       <ul class="CashflowMiniStat_list">
         <li class="item flex items-center" v-for="item in list" :key="item.uuid">
           <div class="flex items-center gap-3">
-            <vco-avatar :src="item.avatar" :radius="true" size="36"></vco-avatar>
+            <vco-avatar :src="item.avatar" :radius="true" :size="36"></vco-avatar>
             <span class="bold">{{ item.name }}</span>
           </div>
           <div class="flex-1 font-bold flex items-center">

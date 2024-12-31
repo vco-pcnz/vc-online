@@ -621,6 +621,7 @@ watch(
       data.sendEmail = data.sendEmail ? true : false;
       data.sendSms = data.sendSms ? true : false;
       data.document = data.document ? data.document : [];
+      data.job = data.job ? data.job : [];
       documentList.value = data.document;
       assignFields({
         ...data

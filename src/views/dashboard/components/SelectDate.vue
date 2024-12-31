@@ -40,7 +40,7 @@ import tool from '@/utils/tool';
 const emits = defineEmits(['update:value', 'change']);
 const { t } = useI18n();
 
-const props = defineProps([]);
+const props = defineProps(['value']);
 
 const value = ref('');
 const visible = ref(false);

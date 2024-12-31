@@ -24,6 +24,7 @@
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import xeroImg from '@/assets/images/xero.png';
+import { CheckCircleOutlined } from '@ant-design/icons-vue';
 
 const { t } = useI18n();
 const baseInfo = ref({

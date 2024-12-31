@@ -27,8 +27,7 @@
     
   </div>
   <div class="flex justify-between items-center mt-10">
-    <p class="num">{{ pageStore.total }} {{ t('项目') }}</p>
-    <TableSearch></TableSearch>
+    <TableSearch type="open"></TableSearch>
   </div>
   <a-spin :spinning="pageStore.loading" size="large">
     <div class="table-content">
@@ -128,19 +127,6 @@ onMounted(() => {
 </script>
 
 <style lang="less" scoped>
-.num {
-  font-size: 20px;
-  font-weight: 600;
-  line-height: 1.2;
-}
-:deep(.page-search-content) {
-  margin: 0;
-  .search-item-content {
-    & > p {
-      display: none;
-    }
-  }
-}
 
 .dDggoj {
   height: 400px;

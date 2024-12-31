@@ -2,7 +2,6 @@
   <div>
     <div class="flex title">
       <span class="fs_2xl">Cashflow forecast</span>
-
       <a-button type="brown" size="small" :class="['picker-btn', { open: isOpen }]" shape="round" @click="isOpen = true">
         {{ tool.showDate(searchForm.date) }} <DownOutlined class="DropdownIcon" />
         <a-date-picker
@@ -29,8 +28,8 @@
                 <li class="Filter-Item" v-for="item in managers" :key="item.uuid">
                   <a-checkbox :value="item.uuid" class="Filter-Check">{{ item.name }}</a-checkbox>
                 </li>
-              </ul></a-checkbox-group
-            >
+              </ul>
+            </a-checkbox-group>
           </div>
         </template>
       </a-dropdown>
@@ -78,6 +77,10 @@
           <div class="month">Sep ‘25</div>
         </div>
       </div>
+
+      <div class="chartBox">
+        <v-chart :option="option" autoresize />
+      </div>
     </div>
     <div class="flex flex-col justify-end">
       <i class="iconfont">&#xe75f;</i>
@@ -93,6 +96,8 @@ import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { DownOutlined } from '@ant-design/icons-vue';
 import dayjs, { Dayjs } from 'dayjs';
+import { Tooltip } from 'ant-design-vue';
+import { color } from 'echarts';
 
 const { t } = useI18n();
 
@@ -155,6 +160,54 @@ const requests = ref([
   }
 ]);
 
+const option = ref({
+  xAxis: {
+    type: 'category',
+    data: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
+  
+  },
+  grid: {
+    left: 0,
+    right: 0,
+    bottom: 0,
+    top: 0
+  },
+  color: ['#181818'],
+  yAxis: {
+    label: false,
+    // minLimit: minAmount,
+    // maxLimit: maxAmount,
+    grid: {
+      line: false
+    },
+    
+    splitLine: {
+      show:false
+    },
+  },
+  series: [
+    {
+      data: [0,643995947.46,621002508.54, 233139708.74, 147692893.99,124105908.72, 146078025.34, 138801988.93, 134764373.18, 141426595.99, 151705146.36, 148544045.92],
+      type: 'line',
+      symbolSize: 8,
+      lineStyle: {
+        width: 4
+      }
+    }
+  ]
+  // point: {
+  //   size: 5.5,
+  //   style: (value) => {
+  //     // const isFirstColumn = value.month === data[0].month;
+  //     return {
+  //       fill: '#181818',
+  //       stroke: '#181818',
+  //       lineWidth:  3
+  //     };
+  //   }
+  // }
+});
+
 const searchForm = ref({
   date: dayjs()
 });
@@ -183,7 +236,7 @@ const manager = computed(() => {
 
 const request = computed(() => {
   if (requests_all.value) return 'all requests excluded';
-  if (requests_select.value.length == 1) return getName(request.value, requests_select.value[0]);
+  if (requests_select.value.length == 1) return getName(requests.value, requests_select.value[0]);
   if (requests_select.value.length > 1) return requests_select.value.length + ' requests';
 });
 
@@ -313,8 +366,8 @@ watch(
     grid-template-columns: repeat(12, 1fr);
     height: 100%;
     left: 0;
-    // padding-left: 8px;
-    // padding-right: 8px;
+    padding-left: 8px;
+    padding-right: 8px;
     .chart-list-item {
       background-color: #f7f9f8;
       border: 1px solid #e2e5e2;
@@ -348,5 +401,10 @@ watch(
       }
     }
   }
+}
+
+.chartBox {
+  position: absolute;
+  inset: 0;
 }
 </style>

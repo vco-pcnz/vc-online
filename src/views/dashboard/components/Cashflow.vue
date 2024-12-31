@@ -1,7 +1,7 @@
 <template>
   <div class="flex title mb-10">
     <span class="fs_2xl">Cashflow</span>
-    <SelectDate v-model:value="date" @change="selectDate"></SelectDate>
+    <SelectDate v-model:value="date"></SelectDate>
   </div>
 
   <div class="flex items-center gap-10" style="line-height: 1.2">
@@ -26,7 +26,7 @@
         <p class="fs_xs color_grey">0 repayments</p>
       </div>
     </div>
-    <a-button type="cyan" size="small" shape="round" @click="selectDate">{{ t('证件资料') }}</a-button>
+    <a-button type="cyan" size="small" shape="round">{{ t('证件资料') }}</a-button>
   </div>
   <div class="pwYmV" v-if="show">
     <div class="left">

@@ -5,6 +5,7 @@
         <a-dropdown trigger="click" v-model:open="open">
           <a-spin :spinning="loading">
             <a-input style="display: block" v-model:value="form[config['addr']]" :placeholder="t('请输入')" @input="search" @click.prevent />
+            <div class="loading-tips"><a-spin :spinning="searchLoading" size="small"></a-spin></div>
           </a-spin>
           <template #overlay>
             <a-menu v-if="list && list.length">
@@ -92,6 +93,7 @@ const loading = ref(false);
 const list = ref([]);
 const citys = ref([]);
 const form = ref(null);
+const searchLoading = ref(false)
 
 const debounce = (func, wait) => {
   let timeout;
@@ -104,9 +106,14 @@ const debounce = (func, wait) => {
 
 const search = debounce(() => {
   if (!form.value[props.config['addr']] || form.value[props.config['addr']].length < 2) return;
+
+  searchLoading.value = true
   systemCitySearch({ addr: form.value[props.config['addr']] }).then((res) => {
     list.value = res;
-    open.value = res && res.length;
+    open.value = Boolean(res && res.length);
+    searchLoading.value = false
+  }).catch(() => {
+    searchLoading.value = false
   });
 }, 300);
 
@@ -141,7 +148,9 @@ const loadCitys = debounce(() => {
       const index = citys.value.findIndex((item) => {
         return item.id == form.value[props.config['province_code']];
       });
-      form.value[props.config['province_code_name']] = citys.value[index].name;
+      if (index > -1) {
+        form.value[props.config['province_code_name']] = citys.value[index].name;
+      }
     }
   });
 }, 300);
@@ -183,5 +192,12 @@ watch(
 @import '@/styles/variables.less';
 .active {
   color: @colorPrimary !important;
+}
+
+.loading-tips {
+  position: absolute;
+  right: 15px;
+  top: 55%;
+  transform: translateY(-50%);
 }
 </style>

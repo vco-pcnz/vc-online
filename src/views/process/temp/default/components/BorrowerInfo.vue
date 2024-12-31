@@ -73,11 +73,7 @@
   const { t, locale } = useI18n();
 
   const addressInfo = computed(() => {
-    if (locale.value === 'en') {
-      return `${props.data.borrower_address} ${props.data.borrower_region_three_name} ${props.data.borrower_region_two_name} ${props.data.borrower_region_one_name}`
-    } else {
-      return `${props.data.borrower_region_one_name} ${props.data.borrower_region_two_name} ${props.data.borrower_region_three_name} ${props.data.borrower_address}`
-    }
+    return `${props.data.borrower_address_short} ${props.data.borrower_address} ${props.data.borrower_suburb} ${props.data.borrower_region_one_name} ${props.data.borrower_country_name}`
   })
 </script>
 

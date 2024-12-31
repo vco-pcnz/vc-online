@@ -465,7 +465,7 @@
     justify-content: space-between;
     padding: 0 10px;
     > p {
-      width: 40%;
+      width: 30%;
       line-height: 38px;
       > i {
         font-size: 13px;
@@ -473,7 +473,7 @@
       }
     }
     > div {
-      width: 60%;
+      width: 70%;
       text-align: right;
     }
     .error {

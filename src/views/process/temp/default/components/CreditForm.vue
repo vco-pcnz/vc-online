@@ -26,9 +26,9 @@
       <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
         <a-row :gutter="24">
           <a-col :span="7">
-            <a-form-item :label="t('建筑贷款总额')" name="build_amount">
+            <a-form-item :label="t('土地贷款总额')" name="land_amount">
               <a-input-number
-                v-model:value="formState.build_amount"
+                v-model:value="formState.land_amount"
                 :max="99999999999"
                 :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                 :parser="value => value.replace(/\$\s?|(,*)/g, '')"
@@ -37,9 +37,9 @@
           </a-col>
           <a-col :span="1" class="plus-txt"><i class="iconfont">&#xe889;</i></a-col>
           <a-col :span="7">
-            <a-form-item :label="t('土地贷款总额')" name="land_amount">
+            <a-form-item :label="t('建筑贷款总额')" name="build_amount">
               <a-input-number
-                v-model:value="formState.land_amount"
+                v-model:value="formState.build_amount"
                 :max="99999999999"
                 :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                 :parser="value => value.replace(/\$\s?|(,*)/g, '')"
@@ -54,10 +54,10 @@
           </a-col>
           <a-col :span="24"><div class="form-line"></div></a-col>
           <a-col :span="7">
-            <a-form-item :label="t('首次建筑贷款放款额')" name="initial_build_amount">
+            <a-form-item :label="t('首次土地贷款放款额')" name="initial_land_amount">
               <a-input-number
                 :max="99999999999"
-                v-model:value="formState.initial_build_amount"
+                v-model:value="formState.initial_land_amount"
                 :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                 :parser="value => value.replace(/\$\s?|(,*)/g, '')"
               />
@@ -65,10 +65,10 @@
           </a-col>
           <a-col :span="1" class="plus-txt"><i class="iconfont">&#xe889;</i></a-col>
           <a-col :span="7">
-            <a-form-item :label="t('首次土地贷款放款额')" name="initial_land_amount">
+            <a-form-item :label="t('首次建筑贷款放款额')" name="initial_build_amount">
               <a-input-number
                 :max="99999999999"
-                v-model:value="formState.initial_land_amount"
+                v-model:value="formState.initial_build_amount"
                 :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                 :parser="value => value.replace(/\$\s?|(,*)/g, '')"
               />
@@ -105,7 +105,7 @@
           </template>
           <a-col v-if="showNumItems.length" :span="24"><div class="form-line"></div></a-col>
           <template v-if="showNumItems.length">
-            <a-col v-for="item in showNumItems" :key="item.credit_table" class="data-col-item" :class="colClassName(showNumItems.length)">
+            <a-col v-for="item in showNumItems" :key="item.credit_table" class="data-col-item" :class="colClassName1(showNumItems.length)">
               <a-form-item :label="item.credit_name">
                 <vco-number :prefix="item.is_ratio?'':'$'" :suffix="item.is_ratio?'%':''" :value="item.value" :precision="2" :end="true"></vco-number>
               </a-form-item>
@@ -272,8 +272,8 @@
       }
     })
 
-    formState.value.build_amount = Number(props.offerAmount.build_amount) ? props.offerAmount.build_amount : props.loanMoney || 0
-    formState.value.land_amount = props.offerAmount.land_amount
+    formState.value.land_amount = Number(props.offerAmount.land_amount) ? props.offerAmount.land_amount : props.loanMoney || 0
+    formState.value.build_amount = props.offerAmount.build_amount
 
     formState.value.initial_build_amount = props.initialAmount.initial_build_amount
     formState.value.initial_land_amount = props.initialAmount.initial_land_amount
@@ -357,6 +357,20 @@
       return 'four'
     } else {
       return 'five'
+    }
+  }
+
+  const colClassName1 = (num) => {
+    if (num === 1) {
+      return 'one'
+    } else if (num === 2) {
+      return 'two sta-num'
+    } else if (num === 3) {
+      return 'three sta-num'
+    } else if (num === 4) {
+      return 'four sta-num'
+    }  else {
+      return 'five sta-num'
     }
   }
 
@@ -475,18 +489,34 @@
     &.two {
       flex: 0 0 50%;
       max-width: 50%;
+      :deep(.ant-statistic-content) {
+        font-size: 22px !important;
+      }
     }
     &.three {
       flex: 0 0 33.333333%;
       max-width: 33.333333%;
+      :deep(.ant-statistic-content) {
+        font-size: 20px !important;
+      }
     }
     &.four {
       flex: 0 0 25%;
       max-width: 25%;
+      &.sta-num {
+        :deep(.ant-statistic-content) {
+          font-size: 18px !important;
+        }
+      }
     }
     &.five {
       flex: 0 0 20%;
       max-width: 20%;
+      &.sta-num {
+        :deep(.ant-statistic-content) {
+          font-size: 15px !important;
+        }
+      }
     }
   }
 </style>

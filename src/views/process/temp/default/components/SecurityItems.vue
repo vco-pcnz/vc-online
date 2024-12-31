@@ -33,12 +33,17 @@
     <div class="sys-form-content mt-5">
       <a-form layout="vertical">
         <a-row :gutter="24">
-          <a-col :span="12">
+          <a-col :span="8">
+            <a-form-item :label="t('总金额')">
+              <vco-number :value="securityInfo.total_money" :precision="2" :end="true"></vco-number>
+            </a-form-item>
+          </a-col>
+          <a-col :span="8">
             <a-form-item :label="t('抵押物价值')">
               <vco-number :value="securityInfo.total_value" :precision="2" :end="true"></vco-number>
             </a-form-item>
           </a-col>
-          <a-col :span="12">
+          <a-col :span="8">
             <a-form-item :label="t('抵押物数量')">
               <p class="total-count">{{ securityInfo.count }}</p>
             </a-form-item>

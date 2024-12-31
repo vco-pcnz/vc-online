@@ -1,6 +1,8 @@
 <template>
   <div class="mt-6">
     <div class="block-item sec">
+      <vco-process-title :title="t('操作记录')"></vco-process-title>
+
       <a-spin :spinning="pageLoading" size="large">
         <div class="log-content" :class="{'no-data': !listData.length}">
           <template v-if="listData.length">
@@ -71,6 +73,7 @@
     height: 300px;
     overflow-y: scroll;
     overflow-x: hidden;
+    margin-top: 10px;
     &.no-data {
       overflow: hidden;
       height: 100px;

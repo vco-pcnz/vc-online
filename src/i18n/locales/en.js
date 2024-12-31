@@ -448,5 +448,7 @@ export default {
   "总金额": "Amount",
   "建筑总额": "Build amount",
   "土地总额": "Land amount",
-  "总金额不正确": "Amount is incorrect"
+  "总金额不正确": "Amount is incorrect",
+  "贷款统筹人员": "Loan Coordinator",
+  "操作记录": "Operation log"
 }

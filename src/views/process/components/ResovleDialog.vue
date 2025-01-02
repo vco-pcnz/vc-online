@@ -10,9 +10,9 @@
   >
     <div class="sys-form-content mt-5">
       <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
-        <a-form-item label="" name="fc_review">
+        <a-form-item label="" name="reason">
           <a-textarea
-            v-model:value="formState.fc_review"
+            v-model:value="formState.reason"
             :placeholder="t('请输入')"
             :auto-size="{ minRows: 2, maxRows: 5 }"
           />
@@ -38,7 +38,7 @@
 <script setup>
   import { ref, reactive, watch } from "vue";
   import { useI18n } from "vue-i18n";
-  import { projectAuditDeclineProject } from "@/api/process"
+  import { projectAuditFncheck, projectAuditDirectorcheck } from "@/api/process"
   import { navigationTo } from "@/utils/tool"
   import emitter from "@/event"
 
@@ -52,6 +52,10 @@
     uuid: {
       type: String,
       default: ''
+    },
+    type: {
+      type: Number,
+      default: 2
     }
   });
 
@@ -59,12 +63,12 @@
 
   const formRef = ref()
   const formState = reactive({
-    fc_review: ''
+    reason: ''
   })
 
   const formRules = {
-    fc_review: [
-      { required: true, message: t('请输入') + t('审核批示'), trigger: 'blur' }
+    reason: [
+      { required: true, message: t('请输入'), trigger: 'blur' }
     ]
   }
 
@@ -78,22 +82,32 @@
     formRef.value
     .validate()
     .then(() => {
-      subLoading.value = true
-
+      let ajaxFn = null
       const params = {
-        uuid: props.uuid,
-        fc_review: formState.fc_review
+        uuid: props.uuid
+      }
+      if (props.type === 2) {
+        ajaxFn = projectAuditFncheck
+        params.fc_review = formState.reason
+      } else if (props.type === 3) {
+        ajaxFn = projectAuditDirectorcheck
+        params.director_review = formState.reason
       }
 
-      projectAuditDeclineProject(params).then(() => {
-        subLoading.value = false
+      if (ajaxFn) {
+        subLoading.value = true
 
-        // 触发列表数据刷新
-        emitter.emit('refreshRequestsList')
-        navigationTo('/requests/loan')
-      }).catch(() => {
-        subLoading.value = false
-      })
+        ajaxFn(params).then(() => {
+          subLoading.value = false
+          updateVisible(false)
+
+          // 触发列表数据刷新
+          emitter.emit('refreshRequestsList')
+          navigationTo('/requests/loan')
+        }).catch(() => {
+          subLoading.value = false
+        })
+      }
     })
     .catch(error => {
       console.log('error', error);
@@ -104,7 +118,7 @@
     () => props.visible,
     (val) => {
       if (!val) {
-        formState.fc_review = '';
+        formState.reason = '';
         subLoading.value = false;
         formRef.value?.clearValidate();
       }

@@ -1,7 +1,7 @@
 <template>
-  <div class="block-item mb" :class="{'checked': offerAmount.is_check}">
+  <div class="block-item mb" :class="{'checked': offerAmount.is_check && showCheck}">
     <vco-process-title :title="t('放款信息')">
-      <div class="flex gap-5">
+      <div v-if="showCheck" class="flex gap-5">
         <a-popconfirm
           :title="t('确定通过审核吗？')"
           :ok-text="t('确定')"
@@ -26,10 +26,11 @@
       <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
         <a-row :gutter="24">
           <a-col :span="7">
-            <a-form-item :label="t('建筑贷款总额')" name="build_amount">
+            <a-form-item :label="t('土地贷款总额')" name="land_amount">
               <a-input-number
-                v-model:value="formState.build_amount"
+                v-model:value="formState.land_amount"
                 :max="99999999999"
+                :disabled="!showCheck"
                 :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                 :parser="value => value.replace(/\$\s?|(,*)/g, '')"
               />
@@ -37,10 +38,11 @@
           </a-col>
           <a-col :span="1" class="plus-txt"><i class="iconfont">&#xe889;</i></a-col>
           <a-col :span="7">
-            <a-form-item :label="t('土地贷款总额')" name="land_amount">
+            <a-form-item :label="t('建筑贷款总额')" name="build_amount">
               <a-input-number
-                v-model:value="formState.land_amount"
+                v-model:value="formState.build_amount"
                 :max="99999999999"
+                :disabled="!showCheck"
                 :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                 :parser="value => value.replace(/\$\s?|(,*)/g, '')"
               />
@@ -54,10 +56,11 @@
           </a-col>
           <a-col :span="24"><div class="form-line"></div></a-col>
           <a-col :span="7">
-            <a-form-item :label="t('首次建筑贷款放款额')" name="initial_build_amount">
+            <a-form-item :label="t('首次土地贷款放款额')" name="initial_land_amount">
               <a-input-number
                 :max="99999999999"
-                v-model:value="formState.initial_build_amount"
+                :disabled="!showCheck"
+                v-model:value="formState.initial_land_amount"
                 :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                 :parser="value => value.replace(/\$\s?|(,*)/g, '')"
               />
@@ -65,10 +68,11 @@
           </a-col>
           <a-col :span="1" class="plus-txt"><i class="iconfont">&#xe889;</i></a-col>
           <a-col :span="7">
-            <a-form-item :label="t('首次土地贷款放款额')" name="initial_land_amount">
+            <a-form-item :label="t('首次建筑贷款放款额')" name="initial_build_amount">
               <a-input-number
                 :max="99999999999"
-                v-model:value="formState.initial_land_amount"
+                :disabled="!showCheck"
+                v-model:value="formState.initial_build_amount"
                 :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                 :parser="value => value.replace(/\$\s?|(,*)/g, '')"
               />
@@ -86,6 +90,7 @@
               <a-form-item :label="item.credit_name" :name="item.credit_table">
                 <a-input
                   v-model:value="formState[item.credit_table]"
+                  :disabled="!showCheck"
                   :suffix="item.credit_unit"
                 />
               </a-form-item>
@@ -97,6 +102,7 @@
               <a-form-item :label="item.credit_name" :name="item.credit_table">
                 <a-input-number
                   v-model:value="formState[item.credit_table]"
+                  :disabled="!showCheck"
                   :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                   :parser="value => value.replace(/\$\s?|(,*)/g, '')"
                 />
@@ -105,7 +111,7 @@
           </template>
           <a-col v-if="showNumItems.length" :span="24"><div class="form-line"></div></a-col>
           <template v-if="showNumItems.length">
-            <a-col v-for="item in showNumItems" :key="item.credit_table" class="data-col-item" :class="colClassName(showNumItems.length)">
+            <a-col v-for="item in showNumItems" :key="item.credit_table" class="data-col-item" :class="colClassName1(showNumItems.length)">
               <a-form-item :label="item.credit_name">
                 <vco-number :prefix="item.is_ratio?'':'$'" :suffix="item.is_ratio?'%':''" :value="item.value" :precision="2" :end="true"></vco-number>
               </a-form-item>
@@ -114,7 +120,7 @@
         </a-row>
       </a-form>
     </div>
-    <div class="check-content"><i class="iconfont">&#xe647;</i></div>
+    <div v-if="showCheck" class="check-content"><i class="iconfont">&#xe647;</i></div>
   </div>
 </template>
 
@@ -123,7 +129,16 @@
   import { useI18n } from "vue-i18n";
   import { cloneDeep } from "lodash";
   import { message } from "ant-design-vue/es";
-  import { ruleCredit, creditInitial, creditInfo, lmAuditStatus, fcAuditStatus, projectAuditSaveLoanAmount } from "@/api/process"
+  import {
+    ruleCredit,
+    creditInitial,
+    creditInfo,
+    lmAuditStatus,
+    fcAuditStatus,
+    auditLmCheckStatus,
+    projectAuditSaveLoanAmount,
+    projectCreditFcSave
+  } from "@/api/process"
   import emitter from "@/event"
   import useProcessStore from "@/store/modules/process"
   import tool from "@/utils/tool"
@@ -194,6 +209,10 @@
 
   const { t } = useI18n();
 
+  const showCheck = computed(() => {
+    return [1, 2, 4].includes(props.stepType)
+  })
+
   const formRef = ref()
   const formState = ref({
     build_amount: '',
@@ -254,7 +273,7 @@
   }
 
   const updateFormData = async () => {
-    await creditInfo({apply_uuid: props.currentId}).then(res => {
+    await creditInfo({apply_uuid: props.currentId, type: props.creditCate}).then(res => {
       if (res.length || Object.keys(res).length) {
         for (const key in formState.value) {
           formState.value[key] = res[key] || '0'
@@ -272,8 +291,8 @@
       }
     })
 
-    formState.value.build_amount = Number(props.offerAmount.build_amount) ? props.offerAmount.build_amount : props.loanMoney || 0
-    formState.value.land_amount = props.offerAmount.land_amount
+    formState.value.land_amount = Number(props.offerAmount.land_amount) ? props.offerAmount.land_amount : props.loanMoney || 0
+    formState.value.build_amount = props.offerAmount.build_amount
 
     formState.value.initial_build_amount = props.initialAmount.initial_build_amount
     formState.value.initial_land_amount = props.initialAmount.initial_land_amount
@@ -310,36 +329,70 @@
       }
 
       subLoading.value = true
-
-      await projectAuditSaveLoanAmount({
+      const amountParams = {
         uuid: props.currentId,
         build_amount: formState.value.build_amount || 0,
         land_amount: formState.value.land_amount || 0,
         offer_amount_status: props.offerAmount.check_status,
         initial_build_amount: formState.value.initial_build_amount || 0,
         initial_land_amount: formState.value.initial_land_amount || 0
-      }).then(() => {
+      }
+
+      const amountChanged = (Number(amountParams.land_amount) !== Number(props.offerAmount.land_amount) ||
+        Number(amountParams.build_amount) !== Number(props.offerAmount.build_amount) ||
+        Number(amountParams.initial_land_amount) !== Number(props.initialAmount.initial_land_amount) ||
+        Number(amountParams.initial_build_amount) !== Number(props.initialAmount.initial_build_amount)
+      ) 
+
+      await projectAuditSaveLoanAmount(amountParams).then(() => {
         emits('refresh')
       }).catch(() => {
         subLoading.value = false
       })
 
-      const params = cloneDeep(formState.value)
-      params.apply_uuid = props.currentId
-      if (creditId.value) {
-        params.id = creditId.value
+      // lm 审核
+      if (props.stepType === 1) {
+        const params = cloneDeep(formState.value)
+        params.apply_uuid = props.currentId
+        if (creditId.value) {
+          params.id = creditId.value
+        }
+
+        creditInitial(params).then(async () => {
+          subLoading.value = false
+
+          // 触发预测数据刷新
+          emitter.emit('refreshForecastList')
+
+          await updateFormData()
+        }).catch(() => {
+          subLoading.value = false
+        })
+      } else if (props.stepType === 2) { // fc 审核
+        const params = cloneDeep(formState.value)
+        params.apply_uuid = props.currentId
+        if (creditId.value) {
+          params.id = creditId.value
+        }
+        projectCreditFcSave(params).then(async () => {
+          if (amountChanged) {
+            creditInitial(params).then(async () => {
+              subLoading.value = false
+
+              // 触发预测数据刷新
+              emitter.emit('refreshForecastList')
+            }).catch(() => {
+              subLoading.value = false
+            })
+          } else {
+            subLoading.value = false
+          }
+
+          await updateFormData()
+        }).catch(() => {
+          subLoading.value = false
+        })
       }
-
-      creditInitial(params).then(async () => {
-        subLoading.value = false
-
-        // 触发预测数据刷新
-        emitter.emit('refreshForecastList')
-
-        await updateFormData()
-      }).catch(() => {
-        subLoading.value = false
-      })
     })
     .catch(error => {
       console.log('error', error);
@@ -357,6 +410,20 @@
       return 'four'
     } else {
       return 'five'
+    }
+  }
+
+  const colClassName1 = (num) => {
+    if (num === 1) {
+      return 'one'
+    } else if (num === 2) {
+      return 'two sta-num'
+    } else if (num === 3) {
+      return 'three sta-num'
+    } else if (num === 4) {
+      return 'four sta-num'
+    }  else {
+      return 'five sta-num'
     }
   }
 
@@ -380,6 +447,12 @@
         ajaxFn = fcAuditStatus
         params = {
           fc_audit_status: props.offerAmount.check_status,
+          uuid: props.currentId
+        }
+      } else if (props.stepType === 4) {
+        ajaxFn = auditLmCheckStatus
+        params = {
+          lm_check_status: props.offerAmount.check_status,
           uuid: props.currentId
         }
       }
@@ -475,18 +548,41 @@
     &.two {
       flex: 0 0 50%;
       max-width: 50%;
+      :deep(.ant-statistic-content) {
+        font-size: 22px !important;
+      }
     }
     &.three {
       flex: 0 0 33.333333%;
       max-width: 33.333333%;
+      :deep(.ant-statistic-content) {
+        font-size: 20px !important;
+      }
     }
     &.four {
       flex: 0 0 25%;
       max-width: 25%;
+      &.sta-num {
+        :deep(.ant-statistic-content) {
+          font-size: 18px !important;
+        }
+      }
     }
     &.five {
       flex: 0 0 20%;
       max-width: 20%;
+      &.sta-num {
+        :deep(.ant-statistic-content) {
+          font-size: 15px !important;
+        }
+      }
+    }
+  }
+
+  .block-item {
+    :deep(.ant-input[disabled]),
+    :deep(.ant-input-number-disabled ) {
+      color: #282828 !important;
     }
   }
 </style>

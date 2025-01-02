@@ -25,13 +25,13 @@
           <p class="txt">{{ data.building_num }}</p>
         </div>
       </a-col>
-      <a-col :span="12">
+      <a-col :span="14">
         <div class="info-content">
           <p class="name">{{ t('项目地址') }}</p>
           <p class="txt">{{ addressInfo }}</p>
         </div>
       </a-col>
-      <a-col :span="12">
+      <a-col :span="10">
         <div class="info-content">
           <p class="name">{{ t('项目照片') }}</p>
           <div v-if="data.project_images && data.project_images.length">
@@ -77,11 +77,7 @@
   const { t, locale } = useI18n();
 
   const addressInfo = computed(() => {
-    if (locale.value === 'en') {
-      return `${props.data.project_address} ${props.data.region_three_name} ${props.data.region_two_name} ${props.data.region_one_name}`
-    } else {
-      return `${props.data.region_one_name} ${props.data.region_two_name} ${props.data.region_three_name} ${props.data.project_address}`
-    }
+    return `${props.data.project_address_short} ${props.data.project_address} ${props.data.project_suburb} ${props.data.region_one_name} ${props.data.country_name}`
   })
 </script>
 

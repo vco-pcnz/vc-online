@@ -1,5 +1,5 @@
 <template>
-  <main-content :current="6"></main-content>
+  <main-content :current="5"></main-content>
 </template>
 
 <script setup>

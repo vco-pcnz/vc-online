@@ -9,7 +9,16 @@
     ></security-add-edit>
 
     <div class="block-item sec">
-      <vco-process-title :title="t('抵押物信息')"></vco-process-title>
+      <vco-process-title :title="t('抵押物信息')">
+        <a-button
+          v-if="tabData.length && !isDetails"
+          type="primary" shape="round"
+          size="small"
+          class="uppercase"
+          @click="editVisible = true"
+        >{{ t('添加') }}</a-button>
+      </vco-process-title>
+      
       <a-spin :spinning="tabLoading" size="large">
         <div class="table-content">
           <template v-if="tabData.length">
@@ -19,7 +28,7 @@
                   <span>{{ item.type_name }}</span
                   >{{ item.card_no }}
                 </p>
-                <div class="flex">
+                <div v-if="!isDetails" class="flex">
                   <i class="iconfont" @click="editHandle(item)">&#xe8cf;</i>
                   <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="() => deleteHandle(item)">
                     <i class="iconfont">&#xe8c1;</i>
@@ -53,7 +62,7 @@
                 </a-col>
                 <a-col :span="24" class="item-txt">
                   <p>{{ t('地址') }}</p>
-                  <p>{{ `${item.address_short} ${item.region_three_name} ${item.region_two_name} ${item.region_one_name}` }}</p>
+                  <p>{{ addressInfo(item) }}</p>
                 </a-col>
                 <a-col :span="12" class="item-txt">
                   <div class="item-txt">
@@ -102,6 +111,10 @@ const props = defineProps({
   currentId: {
     type: [Number, String],
     required: true
+  },
+  isDetails: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -146,6 +159,10 @@ const deleteHandle = async (data) => {
       return false;
     });
 };
+
+const addressInfo = (data) => {
+  return `${data.address_short} ${data.address} ${data.suburb} ${data.region_one_name} ${data.country_name}`
+}
 
 onMounted(() => {
   getTableData();
@@ -197,7 +214,6 @@ onMounted(() => {
       margin-top: 10px;
       &.total {
         width: 100%;
-        padding-right: 20px;
         display: flex;
         flex-direction: column;
         align-items: flex-end;
@@ -207,6 +223,9 @@ onMounted(() => {
         &:first-child {
           color: #999;
         }
+      }
+      :deep(.ant-statistic-content) {
+        font-size: 22px !important;
       }
     }
   }

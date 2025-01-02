@@ -17,9 +17,9 @@
           </a-col>
           <template v-if="formState.type == 1">
             <a-col :span="7">
-              <a-form-item :label="t('建筑总额')" name="build_amount">
+              <a-form-item :label="t('土地总额')" name="land_amount">
                 <a-input-number
-                  v-model:value="formState.build_amount"
+                  v-model:value="formState.land_amount"
                   :max="99999999999"
                   :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                   :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
@@ -28,9 +28,9 @@
             </a-col>
             <a-col :span="1" class="plus-txt"><i class="iconfont">&#xe889;</i></a-col>
             <a-col :span="7">
-              <a-form-item :label="t('土地总额')" name="land_amount">
+              <a-form-item :label="t('建筑总额')" name="build_amount">
                 <a-input-number
-                  v-model:value="formState.land_amount"
+                  v-model:value="formState.build_amount"
                   :max="99999999999"
                   :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                   :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"

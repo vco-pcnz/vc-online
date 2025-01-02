@@ -399,3 +399,51 @@ export const projectAuditSaveGuarantor = (data) =>
     method: "post",
     data
   });
+
+// 更新借款金额
+export const projectAuditUpdLoanAmount = (data) =>
+  request({
+    url: "/project/audit/updLoanAmount",
+    method: "post",
+    data
+  });
+
+// fc提交申请项目财务字段
+export const projectCreditFcSave = (data) =>
+  request({
+    url: "/project/credit/fcSave",
+    method: "post",
+    data
+  });
+
+// fc提交审核
+export const projectAuditFncheck = (data) =>
+  request({
+    url: "/project/audit/fcCheck",
+    method: "post",
+    data
+  });
+
+// 总负责人提交确认
+export const projectAuditDirectorcheck = (data) =>
+  request({
+    url: "/project/audit/directorCheck",
+    method: "post",
+    data
+  });
+
+// LM 检查Check
+export const auditLmCheckStatus = (data) =>
+  request({
+    url: "/project/audit/lmCheckStatus",
+    method: "post",
+    data
+  });
+
+// lm再次检查
+export const projectAuditLmInspect = (data) =>
+  request({
+    url: "/project/audit/lmInspect",
+    method: "post",
+    data
+  });

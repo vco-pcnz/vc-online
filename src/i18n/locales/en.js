@@ -407,7 +407,7 @@ export default {
   "创建人": "Creat by",
   "确定删除吗？": "Are you sure you want to delete?",
   "请审核": "Please review ",
-  "退回重新修改": "Push back to lm",
+  "退回重新修改": "Return and revise",
   "退回原因": "Reason for return",
   "首次建筑贷款放款额": "Initial build amount",
   "首次土地贷款放款额": "Initial land amount",
@@ -448,5 +448,15 @@ export default {
   "总金额": "Amount",
   "建筑总额": "Build amount",
   "土地总额": "Land amount",
-  "总金额不正确": "Amount is incorrect"
+  "总金额不正确": "Amount is incorrect",
+  "贷款统筹人员": "Loan Coordinator",
+  "操作记录": "Operation log",
+  "修改": "Modify",
+  "将借款金额修改为{0}": "Change the loan amount to {0}",
+  "确定修改吗？": "Are you sure you want to modify it?",
+  "审核批示": "review instructions",
+  "{0}审核批示": "{0} review instructions",
+  "总负责人审核": "Review by the Chief Executive",
+  "LM 检查": "LM inspection",
+  "确定通过审核吗？": "Are you sure it passed the review?"
 }

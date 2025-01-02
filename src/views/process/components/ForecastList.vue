@@ -1,5 +1,12 @@
 <template>
   <div class="mt-6">
+    <!-- 确认弹窗 -->
+    <vco-confirm-alert
+      ref="changeAlertRef"
+      v-model:visible="changeVisible"
+      @submit="confirmSub"
+    ></vco-confirm-alert>
+
     <!-- 提示弹窗 -->
     <a-modal
       :open="tipsVisible"
@@ -80,7 +87,7 @@
 
     <div class="block-item sec">
       <vco-process-title :title="t('预测列表')">
-        <div class="flex gap-3">
+        <div v-if="!isDetails" class="flex gap-3">
           <a-button
             v-if="tabData.length"
             type="dark" shape="round"
@@ -104,7 +111,7 @@
             <div class="item uppercase">{{ t('日期') }}</div>
             <div class="item uppercase">{{ t('类型') }}</div>
             <div class="item uppercase">{{ t('金额') }}</div>
-            <div class="item uppercase">{{ t('操作1') }}</div>
+            <div v-if="!isDetails" class="item uppercase">{{ t('操作1') }}</div>
           </div>
 
           <div class="col-content">
@@ -115,7 +122,7 @@
                 <div class="item">
                   <vco-number :value="_item.amount" :precision="2" :end="true"></vco-number>
                 </div>
-                <div class="item ops">
+                <div v-if="!isDetails" class="item ops">
                   <i class="iconfont" @click="addEditHandle(_item, index, _index)">&#xe8cf;</i>
                   <i class="iconfont" :class="{'disabled': _item.first}" @click="removeHandle(_item)">&#xe8c1;</i>
                 </div>
@@ -128,6 +135,21 @@
           <div :class="{'error': errorColor}">
             <vco-number :value="cMoney" :precision="2" :end="true"></vco-number>
             <p v-if="showTips">{{ showTips }}</p>
+            <div v-if="showTips" class="flex justify-end mt-2">
+              <a-button
+                type="primary" shape="round"
+                class="uppercase flex items-center justify-center"
+                @click="changeVisible = true"
+              >
+                {{ t('修改') }}
+                <a-tooltip>
+                  <template #title>
+                    <span>{{ t('将借款金额修改为{0}', [cMoney]) }}</span>
+                  </template>
+                  <QuestionCircleOutlined />
+                </a-tooltip>
+              </a-button>
+            </div>
           </div>
         </div>
         <div v-if="Number(pTimes)" class="forecast-total mt-1">
@@ -142,9 +164,10 @@
 <script setup>
   import { ref, onMounted, computed, reactive, watch } from "vue";
   import { useI18n } from "vue-i18n";
+  import { QuestionCircleOutlined } from '@ant-design/icons-vue';
   import dayjs from "dayjs";
   import { cloneDeep } from "lodash";
-  import { projectForecastDarwDownList, projectForecastAdd, projectForecastDelete } from "@/api/process"
+  import { projectForecastDarwDownList, projectForecastAdd, projectForecastDelete, projectAuditUpdLoanAmount } from "@/api/process"
   import tool, { numberStrFormat, navigationTo } from "@/utils/tool"
   import emitter from "@/event"
   import { message } from "ant-design-vue/es";
@@ -157,6 +180,10 @@
     currentId: {
       type: [Number, String],
       required: true
+    },
+    isDetails: {
+      type: Boolean,
+      default: false
     }
   })
 
@@ -361,6 +388,27 @@
     })
   }
 
+  const changeAlertRef = ref()
+  const changeVisible = ref(false)
+  const confirmSub = () => {
+    const params = {
+      uuid: props.currentId,
+      loan_money: cMoney.value,
+      offer_amount_status: props.infoData.offer_amount.check_status
+    }
+
+    projectAuditUpdLoanAmount(params).then(() => {
+      changeAlertRef.value.changeLoading(false)
+      changeVisible.value = false
+
+      getTableData()
+      emitter.emit('refreshIRR')
+      emitter.emit('refreshSecurityInfo')
+    }).catch(() => {
+      changeAlertRef.value.changeLoading(false)
+    })
+  }
+
   watch(
     () => visible.value,
     (val) => {
@@ -465,7 +513,7 @@
     justify-content: space-between;
     padding: 0 10px;
     > p {
-      width: 40%;
+      width: 30%;
       line-height: 38px;
       > i {
         font-size: 13px;
@@ -473,7 +521,7 @@
       }
     }
     > div {
-      width: 60%;
+      width: 70%;
       text-align: right;
     }
     .error {

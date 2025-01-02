@@ -16,8 +16,7 @@
         </template>
       </slot>
     </div>
-    <div id="vco-choose-user-model"></div>
-    <!-- <a-modal :width="900" v-if="open" :open="open" :title="t('搜索用户')" :getContainer="getContainer" @cancel="close"> -->
+
     <a-modal :width="900" v-if="open" :open="open" :title="t('搜索用户')" @cancel="close">
       <!-- 搜索 -->
       <div class="flex justify-end mb-5">
@@ -38,14 +37,7 @@
           </vco-page-search-item>
         </vco-page-search>
       </div>
-      
-      <!-- <div class="sys-form-content" style="margin: 10px 0 15px">
-        <div class="vco-choose-user-search" style="padding-left: 60%">
-          <vco-type-input v-model="searchForm.keywords" v-model:type="searchForm.key" :type-data="keys" style="flex: 1" :placeholder="t('请输入')"></vco-type-input>
-          <i class="iconfont" style="cursor: pointer" @click="rest()" v-if="showRest">&#xe77b;</i>
-          <i v-else class="iconfont" style="cursor: pointer" @click="searchHandle()"> &#xe756; </i>
-        </div>
-      </div> -->
+
       <a-spin :spinning="loading" size="large">
         <TableBlock :isMultiple="isMultiple" :table-data="tableData" :url="url" v-model:list="checkedList" v-model:ids="checkedIds" v-model:data="checkedData" wrapClassName="vco-choose-user-modal" @change="change"></TableBlock>
       </a-spin>
@@ -147,10 +139,6 @@ const pagination = ref({
   limit: 5
 });
 const emits = defineEmits(['update:list', 'update:ids', 'update:data', 'change', 'done']);
-const getContainer = () => {
-  // 返回自定义容器的 DOM 元素
-  return document.getElementById('vco-choose-user-model');
-};
 
 // 搜索
 const searchHandle = (flag) => {

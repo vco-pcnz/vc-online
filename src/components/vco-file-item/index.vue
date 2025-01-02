@@ -1,10 +1,20 @@
 <template>
-  <div class="fileBox" :class="{ bg: bg }">
+  <div class="fileBox" :class="{ bg: bg }" v-if="!file || file && filterArr.length>1">
     <i v-if="Number(file.type === 1)" class="iconfont">&#xe797;</i>
     <i v-if="Number(file.type === 2)" class="iconfont">&#xe774;</i>
     <i v-if="Number(file.type === 3)" class="iconfont">&#xe798;</i>
     <div class="fileBox-content">
-      <p class="name" :title="showTitle">{{ showTitle }}</p>
+      <p class="name" :title="showTitle">
+        <template v-if="Boolean(!filter)">
+          {{ showTitle }}
+        </template>
+        <template v-else>
+          <template v-for="(item, index) in filterArr" :key="index">
+            <span>{{ item }}</span>
+            <span class="filter" v-if="index < filterArr.length - 1">{{ filter }}</span>
+          </template>
+        </template>
+      </p>
       <p class="info">
         <template v-if="time">
           <span :class="{ err: !validity }">{{ time }}</span> ·
@@ -13,6 +23,7 @@
       </p>
     </div>
     <div class="ops">
+      <div class="icon"><slot name="ops"></slot></div>
       <EyeOutlined @click="handlePreview(file)" class="icon" />
       <a :href="file.value" target="_blank" v-if="!showClose"><i class="iconfont icon" style="font-size: 14px">&#xe780;</i></a>
       <i class="iconfont icon" @click="remove" v-if="showClose">&#xe77d;</i>
@@ -56,6 +67,10 @@ const props = defineProps({
   bg: {
     type: Boolean,
     default: false
+  },
+  filter: {
+    type: String,
+    default: ''
   }
 });
 const emits = defineEmits(['remove']);
@@ -74,6 +89,10 @@ const validity = computed(() => {
 
 const showTitle = computed(() => {
   return props.file.name || props.file.real_name;
+});
+
+const filterArr = computed(() => {
+  return (props.file.name || props.file.real_name).split(props.filter);
 });
 
 // 关闭弹框
@@ -181,6 +200,9 @@ watch(
   }
   .err {
     color: @color_red-error;
+  }
+  .filter {
+    color: @colorPrimary;
   }
 }
 </style>

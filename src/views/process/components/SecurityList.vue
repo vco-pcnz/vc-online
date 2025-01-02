@@ -11,7 +11,7 @@
     <div class="block-item sec">
       <vco-process-title :title="t('抵押物信息')">
         <a-button
-          v-if="tabData.length"
+          v-if="tabData.length && !isDetails"
           type="primary" shape="round"
           size="small"
           class="uppercase"
@@ -28,7 +28,7 @@
                   <span>{{ item.type_name }}</span
                   >{{ item.card_no }}
                 </p>
-                <div class="flex">
+                <div v-if="!isDetails" class="flex">
                   <i class="iconfont" @click="editHandle(item)">&#xe8cf;</i>
                   <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="() => deleteHandle(item)">
                     <i class="iconfont">&#xe8c1;</i>
@@ -111,6 +111,10 @@ const props = defineProps({
   currentId: {
     type: [Number, String],
     required: true
+  },
+  isDetails: {
+    type: Boolean,
+    default: false
   }
 });
 

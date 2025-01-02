@@ -24,6 +24,7 @@ import VcoUserItem from './vco-user-item/index.vue'
 import VcoPagePanel from './vco-page-panel/index.vue'
 import VcoMeter from './vco-meter/index.vue';
 import VcoAddress from './vco-address/index.vue';
+import VcoConfirmAlert from './vco-confirm-alert/index.vue';
 
 export default {
   install(Vue) {
@@ -53,5 +54,6 @@ export default {
     Vue.component('VcoPagePanel', VcoPagePanel)
     Vue.component('VcoMeter', VcoMeter)
     Vue.component('VcoAddress', VcoAddress)
+    Vue.component('VcoConfirmAlert', VcoConfirmAlert)
   }
 }

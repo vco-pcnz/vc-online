@@ -1,29 +1,26 @@
 <template>
   <div>
     <a-spin :spinning="pageLoading" size="large">
-      <resovle-dialog
-        v-model:visible="resovleVisible"
-        :uuid="currentId"
-        :type="2"
-      ></resovle-dialog>
-
-      <div v-if="dataInfo && dataInfo.cancel_reason" class="block-item details process-fail mt-5">
-        <p class="title">{{ t('拒绝原因') }}</p>
-        <p class="info">{{ dataInfo.cancel_reason || t('拒绝原因') }}</p>
-      </div>
+      <!-- 确认弹窗 -->
+      <vco-confirm-alert
+        ref="sureAlertRef"
+        :check="true"
+        v-model:visible="sureVisible"
+        @submit="confirmSub"
+      ></vco-confirm-alert>
 
       <div class="block-container">
         <div v-if="dataInfo" class="left-content">
           <!-- 基础信息 -->
           <base-info-content
-            :step-type="2"
+            :step-type="4"
             :data-info="dataInfo"
             @refresh="getDataInit"
           ></base-info-content>
 
           <!-- 放款信息 -->
           <credit-form
-            :step-type="2"
+            :step-type="4"
             :current-id="currentId"
             :credit-cate="currentStep.credit_cate"
             :offer-amount="offerAmount"
@@ -35,7 +32,7 @@
 
           <!-- 抵押物 -->
           <security-items
-            :step-type="2"
+            :step-type="4"
             :current-id="currentId"
             :security-info="securityInfo"
             @refresh="getDataInit"
@@ -43,7 +40,7 @@
 
           <!-- 担保信息 -->
           <guarantor-info
-            :step-type="2"
+            :step-type="4"
             :current-id="currentId"
             :guarantor-info="guarantorInfo"
             @refresh="getDataInit"
@@ -90,7 +87,8 @@
   import { useI18n } from "vue-i18n";
   import { cloneDeep } from "lodash";
   import {
-    projectFcAuditDetail
+    projectLmAuditDetail,
+    projectAuditLmInspect
   } from "@/api/process";
   import BaseInfoContent from "./components/BaseInfoContent.vue";
   import TempFooter from "./components/TempFooter.vue";
@@ -104,7 +102,7 @@
   import emitter from "@/event"
   import { message } from "ant-design-vue/es";
   import useProcessStore from "@/store/modules/process"
-  import ResovleDialog from "@/views/process/components/ResovleDialog.vue";
+  import { navigationTo } from "@/utils/tool"
 
   // 初始化当前项目的forcastList 状态
   const processStore = useProcessStore()
@@ -159,7 +157,8 @@
   const showForecast = ref(false)
 
   const subLoading = ref(false)
-  const resovleVisible = ref(false)
+  const sureVisible = ref(false)
+  const sureAlertRef = ref()
   const submitHandle = () => {
     const data = currentDataInfo.value
     if (!data.borrower_info.is_check) {
@@ -191,7 +190,24 @@
       return false
     }
 
-    resovleVisible.value = true
+    sureVisible.value = true
+  }
+
+  const confirmSub = () => {
+    const params = {
+      uuid: props.currentId
+    }
+
+    projectAuditLmInspect(params).then(() => {
+      sureAlertRef.value.changeLoading(false)
+      sureVisible.value = false
+
+      // 触发列表数据刷新
+      emitter.emit('refreshRequestsList')
+      navigationTo('/requests/loan')
+    }).catch(() => {
+      sureAlertRef.value.changeLoading(false)
+    })
   }
 
   const dataInfo = ref(null)
@@ -217,8 +233,9 @@
     let infoData = {}
 
     if (props.currentId) {
-      await projectFcAuditDetail({
-        uuid: props.currentId
+      await projectLmAuditDetail({
+        uuid: props.currentId,
+        type: 2
       }).then(res => {
         infoData = res
       })

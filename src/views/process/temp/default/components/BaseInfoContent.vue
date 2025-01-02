@@ -8,9 +8,9 @@
       @done="dataRefresh"
     ></check-edit-dialog>
 
-    <div class="block-item mb" :class="{'checked': dataInfo.borrower_info.is_check}">
+    <div class="block-item mb" :class="{'checked': dataInfo.borrower_info.is_check && showCheck}">
       <vco-process-title :title="t('借款人信息')">
-        <div class="flex gap-5">
+        <div v-if="showCheck" class="flex gap-5">
           <a-popconfirm
             v-if="!dataInfo.borrower_info.is_check"
             :title="t('确定通过审核吗？')"
@@ -31,11 +31,11 @@
         </div>
       </vco-process-title>
       <borrower-info :data="dataInfo.borrower_info"></borrower-info>
-      <div class="check-content"><i class="iconfont">&#xe647;</i></div>
+      <div v-if="showCheck" class="check-content"><i class="iconfont">&#xe647;</i></div>
     </div>
-    <div class="block-item mb" :class="{'checked': dataInfo.project_info.is_check}">
+    <div class="block-item mb" :class="{'checked': dataInfo.project_info.is_check && showCheck}">
       <vco-process-title :title="t('项目信息')">
-        <div class="flex gap-5">
+        <div v-if="showCheck" class="flex gap-5">
           <a-popconfirm
             v-if="!dataInfo.project_info.is_check"
             :title="t('确定通过审核吗？')"
@@ -56,11 +56,11 @@
         </div>
       </vco-process-title>
       <project-info :data="dataInfo.project_info"></project-info>
-      <div class="check-content"><i class="iconfont">&#xe647;</i></div>
+      <div v-if="showCheck" class="check-content"><i class="iconfont">&#xe647;</i></div>
     </div>
-    <div class="block-item mb" :class="{'checked': dataInfo.project_cert.is_check}">
+    <div class="block-item mb" :class="{'checked': dataInfo.project_cert.is_check && showCheck}">
       <vco-process-title :title="t('证件资料')">
-        <div class="flex gap-5">
+        <div v-if="showCheck" class="flex gap-5">
           <a-popconfirm
             v-if="!dataInfo.project_cert.is_check"
             :title="t('确定通过审核吗？')"
@@ -81,11 +81,11 @@
         </div>
       </vco-process-title>
       <document-info :data="dataInfo.project_cert"></document-info>
-      <div class="check-content"><i class="iconfont">&#xe647;</i></div>
+      <div v-if="showCheck" class="check-content"><i class="iconfont">&#xe647;</i></div>
     </div>
-    <div class="block-item mb" :class="{'checked': dataInfo.loan_info.is_check}">
+    <div class="block-item mb" :class="{'checked': dataInfo.loan_info.is_check && showCheck}">
       <vco-process-title :title="t('借款信息')">
-        <div class="flex gap-5">
+        <div v-if="showCheck" class="flex gap-5">
           <a-popconfirm
             v-if="!dataInfo.loan_info.is_check"
             :title="t('确定通过审核吗？')"
@@ -106,13 +106,13 @@
         </div>
       </vco-process-title>
       <loan-info :data="dataInfo.loan_info"></loan-info>
-      <div class="check-content"><i class="iconfont">&#xe647;</i></div>
+      <div v-if="showCheck" class="check-content"><i class="iconfont">&#xe647;</i></div>
     </div>
   </div>
 </template>
 
 <script setup>
-  import { ref } from "vue";
+  import { ref, computed } from "vue";
   import { useI18n } from "vue-i18n";
   import { cloneDeep } from "lodash";
   
@@ -122,7 +122,7 @@
   import LoanInfo from "./LoanInfo.vue";
   import CheckEditDialog from "./CheckEditDialog.vue";
 
-  import { lmAuditStatus, fcAuditStatus } from "@/api/process"
+  import { lmAuditStatus, fcAuditStatus, auditLmCheckStatus } from "@/api/process"
   import emitter from "@/event"
 
   const emits = defineEmits(['refresh'])
@@ -139,6 +139,10 @@
   })
 
   const { t } = useI18n();
+
+  const showCheck = computed(() => {
+    return [1, 2, 4].includes(props.stepType)
+  })
 
   const showCheckDialog = ref(false)
   const currentInfoData = ref(null)
@@ -186,6 +190,12 @@
       ajaxFn = fcAuditStatus
       params = {
         fc_audit_status: check_status,
+        uuid: props.dataInfo.uuid
+      }
+    } else if (props.stepType === 4) {
+      ajaxFn = auditLmCheckStatus
+      params = {
+        lm_check_status: check_status,
         uuid: props.dataInfo.uuid
       }
     }

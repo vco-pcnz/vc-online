@@ -1,5 +1,5 @@
 <template>
-  <div class="block-item mb" :class="{'checked': securityInfo.is_check}">
+  <div class="block-item mb" :class="{'checked': securityInfo.is_check && showCheck}">
     <!-- 新增 -->
     <security-add-edit
       v-model:visible="addVisible"
@@ -9,7 +9,7 @@
     ></security-add-edit>
 
     <vco-process-title :title="t('抵押物信息')">
-      <div class="flex gap-5">
+      <div v-if="showCheck" class="flex gap-5">
         <a-popconfirm
           :title="t('确定通过审核吗？')"
           :ok-text="t('确定')"
@@ -51,14 +51,14 @@
         </a-row>
       </a-form>
     </div>
-    <div class="check-content"><i class="iconfont">&#xe647;</i></div>
+    <div v-if="showCheck" class="check-content"><i class="iconfont">&#xe647;</i></div>
   </div>
 </template>
 
 <script setup>
-  import { ref } from "vue"
+  import { ref, computed } from "vue"
   import { useI18n } from "vue-i18n";
-  import { lmAuditStatus, fcAuditStatus } from "@/api/process";
+  import { lmAuditStatus, fcAuditStatus, auditLmCheckStatus } from "@/api/process";
   import SecurityAddEdit from "./SecurityAddEdit.vue";
 
   const emits = defineEmits(['refresh'])
@@ -87,6 +87,10 @@
 
   const { t } = useI18n();
 
+  const showCheck = computed(() => {
+    return [1, 2, 4].includes(props.stepType)
+  })
+
   const checkHandle = async () => {
     let ajaxFn = null
     let params = {}
@@ -100,6 +104,12 @@
       ajaxFn = fcAuditStatus
       params = {
         fc_audit_status: props.securityInfo.check_status,
+        uuid: props.currentId
+      }
+    } else if (props.stepType === 4) {
+      ajaxFn = auditLmCheckStatus
+      params = {
+        lm_check_status: props.securityInfo.check_status,
         uuid: props.currentId
       }
     }

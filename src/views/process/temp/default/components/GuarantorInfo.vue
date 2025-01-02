@@ -1,5 +1,5 @@
 <template>
-  <div class="block-item mb" :class="{'checked': guarantorInfo.is_check}">
+  <div class="block-item mb" :class="{'checked': guarantorInfo.is_check && showCheck}">
     <!-- 人员选择 -->
     <vco-choose-user
       ref="vcoChooseUserRef"
@@ -11,7 +11,7 @@
     </vco-choose-user>
 
     <vco-process-title :title="t('担保信息')">
-      <div class="flex gap-5">
+      <div v-if="showCheck" class="flex gap-5">
         <a-popconfirm
           :title="t('确定通过审核吗？')"
           :ok-text="t('确定')"
@@ -38,7 +38,7 @@
         <a-row :gutter="24">
           <a-col :span="24">
             <a-form-item :label="t('承包商')" name="main_contractor">
-              <a-input v-model:value="formState.main_contractor" />
+              <a-input v-model:value="formState.main_contractor" :disabled="!showCheck" />
             </a-form-item>
           </a-col>
           <a-col :span="24">
@@ -47,6 +47,7 @@
                 v-model:value="formState.security_package"
                 mode="multiple"
                 style="width: 100%"
+                :disabled="!showCheck"
                 :options="securityOptions"
               ></a-select>
             </a-form-item>
@@ -56,7 +57,7 @@
               <div class="title-content">
                 <p>{{ t('担保人') }}</p>
                 <a-button
-                  v-if="userData.length"
+                  v-if="userData.length && showCheck"
                   type="primary"
                   size="small"
                   shape="round"
@@ -72,7 +73,7 @@
                     class="user-item"
                   >
                     <vco-user-item :data="item" :main="true"></vco-user-item>
-                    <i class="iconfont" @click="removeItem(index)">&#xe77d;</i>
+                    <i v-if="showCheck" class="iconfont" @click="removeItem(index)">&#xe77d;</i>
                   </div>
                 </template>
                 <p v-else class="no-data" @click="openDialg">{{ t('请选择') }}</p>
@@ -81,19 +82,19 @@
           </a-col>
         </a-row>
       </a-form>
-      <div class="check-content"><i class="iconfont">&#xe647;</i></div>
+      <div v-if="showCheck" class="check-content"><i class="iconfont">&#xe647;</i></div>
     </div>
   </div>
 </template>
 
 <script setup>
-  import { reactive, ref, onMounted } from "vue";
+  import { reactive, ref, onMounted, computed } from "vue";
   import { useI18n } from "vue-i18n";
   import { removeDuplicates } from "@/utils/tool"
   import { cloneDeep } from "lodash";
   import { message } from "ant-design-vue/es";
   import { systemDictData } from "@/api/system"
-  import { projectAuditSaveGuarantor, lmAuditStatus, fcAuditStatus } from "@/api/process"
+  import { projectAuditSaveGuarantor, lmAuditStatus, fcAuditStatus, auditLmCheckStatus } from "@/api/process"
 
   const emits = defineEmits(['refresh'])
   const props = defineProps({
@@ -121,6 +122,10 @@
 
   const { t } = useI18n();
   const vcoChooseUserRef = ref()
+
+  const showCheck = computed(() => {
+    return [1, 2, 4].includes(props.stepType)
+  })
 
   const formRef = ref()
   const formState = reactive({
@@ -220,6 +225,12 @@
           fc_audit_status: props.guarantorInfo.check_status,
           uuid: props.currentId
         }
+      } else if (props.stepType === 4) {
+        ajaxFn = auditLmCheckStatus
+        params = {
+          lm_check_status: props.guarantorInfo.check_status,
+          uuid: props.currentId
+        }
       }
 
       if (ajaxFn) {
@@ -300,5 +311,12 @@
     display: block;
     width: 100%;
     cursor: pointer;
+  }
+
+  .block-item {
+    :deep(.ant-input[disabled]),
+    :deep(.ant-select-disabled .ant-select-selection-item-content) {
+      color: #282828 !important;
+    }
   }
 </style>

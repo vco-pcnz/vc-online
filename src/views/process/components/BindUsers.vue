@@ -89,7 +89,7 @@
             <div v-else class="no-data">{{ t('暂无数据') }}</div>
           </div>
         </div>
-        <div v-if="isDetails" class="user-show-item">
+        <div v-if="isDetails && createdUser.name" class="user-show-item">
           <div class="title-content">
             <p class="uppercase">{{ t('创建者') }}</p>
           </div>

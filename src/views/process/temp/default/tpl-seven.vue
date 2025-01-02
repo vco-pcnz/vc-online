@@ -4,7 +4,7 @@
       <resovle-dialog
         v-model:visible="resovleVisible"
         :uuid="currentId"
-        :type="2"
+        :type="3"
       ></resovle-dialog>
 
       <div v-if="dataInfo && dataInfo.cancel_reason" class="block-item details process-fail mt-5">
@@ -16,14 +16,14 @@
         <div v-if="dataInfo" class="left-content">
           <!-- 基础信息 -->
           <base-info-content
-            :step-type="2"
+            :step-type="3"
             :data-info="dataInfo"
             @refresh="getDataInit"
           ></base-info-content>
 
           <!-- 放款信息 -->
           <credit-form
-            :step-type="2"
+            :step-type="3"
             :current-id="currentId"
             :credit-cate="currentStep.credit_cate"
             :offer-amount="offerAmount"
@@ -35,7 +35,7 @@
 
           <!-- 抵押物 -->
           <security-items
-            :step-type="2"
+            :step-type="3"
             :current-id="currentId"
             :security-info="securityInfo"
             @refresh="getDataInit"
@@ -43,11 +43,16 @@
 
           <!-- 担保信息 -->
           <guarantor-info
-            :step-type="2"
+            :step-type="3"
             :current-id="currentId"
             :guarantor-info="guarantorInfo"
             @refresh="getDataInit"
           ></guarantor-info>
+
+          <div class="block-item mb">
+            <vco-process-title :title="t('{0}审核批示', ['FC'])"></vco-process-title>
+            <div class="mt-2">{{ dataInfo.fc_review }}</div>
+          </div>
 
           <temp-footer
             ref="footerRef"
@@ -66,16 +71,18 @@
         </div>
 
         <div v-if="dataInfo" class="right-content">
-          <bind-users :current-id="currentId"></bind-users>
+          <bind-users :current-id="currentId" :is-details="true"></bind-users>
           <operation-log :current-id="currentId"></operation-log>
           <forecast-list
             v-if="showForecast"
             :current-id="currentId"
             :info-data="currentDataInfo"
+            :is-details="true"
           ></forecast-list>
           <security-list
             :current-id="currentId"
             :security-info="securityInfo"
+            :is-details="true"
           >
           </security-list>
         </div>

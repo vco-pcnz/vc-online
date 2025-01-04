@@ -7,21 +7,21 @@
           <div class="content" :class="{ grid: tree && tree[tabIndex] && tree[tabIndex].children }" v-if="!showSearch">
             <template v-if="tree && tree[tabIndex].children">
               <Folders
-                v-model:folder="folder"
+                v-model:active="folderIndex"
                 :pid="tree[tabIndex].id"
                 :apply_uuid="project_id"
                 :tabIndex="tabIndex"
                 :data="tree[tabIndex].children"
-                @change="(val)=>loadData(tabIndex,val)"
+                @change="(findex)=>loadData(tabIndex,findex)"
               ></Folders>
             </template>
             <FileList
               :tree="tree"
               :tabName="tree[tabIndex].name"
               :apply_uuid="project_id"
-              :folder="tree[tabIndex].children ? folder : tree[tabIndex]"
+              :folder="tree[tabIndex].children ? tree[tabIndex].children[folderIndex] : tree[tabIndex]"
               ref="fileListRef"
-              @change="loadData(tabIndex, folder)"
+              @change="loadData(tabIndex, folderIndex)"
             ></FileList>
           </div>
         </template>
@@ -46,7 +46,7 @@ const { t } = useI18n();
 const project_id = ref();
 const tree = ref(null);
 const tabIndex = ref(0);
-const folder = ref(null);
+const folderIndex = ref(0);
 const fileListRef = ref();
 const spinning = ref(false);
 const showSearch = ref(false)
@@ -58,12 +58,12 @@ const baseInfo = ref({
   background: 'xxx'
 });
 
-const loadData = (index, val) => {
+const loadData = (index, fIndex) => {
   spinning.value = true;
   getTree({ apply_uuid: project_id.value })
     .then((res) => {
       tabIndex.value = index || 0;
-      folder.value = val || res[tabIndex.value].children[0];
+      folderIndex.value = fIndex || 0;
       tree.value = res;
       getFiles();
     })
@@ -84,7 +84,7 @@ onMounted(() => {
 });
 
 watch(
-  () => [tabIndex.value, folder.value],
+  () => [tabIndex.value, folderIndex.value],
   (val) => {
     getFiles();
   }

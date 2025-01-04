@@ -85,7 +85,7 @@
       </li>
       <li v-if="trim(detail?.document)">
         <p>{{ t('证件f') }}</p>
-        <vco-file-item :file="item" :time="detail?.expire_time[index]" v-for="(item, index) in detail?.document" :key="index"></vco-file-item>
+        <vco-file-item :file="item" :time="detail?.expire_time[index]" :showValidity="true" v-for="(item, index) in detail?.document" :key="index"></vco-file-item>
       </li>
       <li>
         <p>

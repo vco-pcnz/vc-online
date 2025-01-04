@@ -1,21 +1,38 @@
 <template>
-  <div class="fileBox" :class="{ bg: bg }">
+  <div class="fileBox" :class="{ bg: bg }" v-if="!file || (file && filterArr.length > 1)">
     <i v-if="Number(file.type === 1)" class="iconfont">&#xe797;</i>
     <i v-if="Number(file.type === 2)" class="iconfont">&#xe774;</i>
     <i v-if="Number(file.type === 3)" class="iconfont">&#xe798;</i>
     <div class="fileBox-content">
-      <p class="name" :title="showTitle">{{ showTitle }}</p>
+      <p class="name" :title="showTitle">
+        <template v-if="Boolean(!filter)">
+          {{ showTitle }}
+        </template>
+        <template v-else>
+          <template v-for="(item, index) in filterArr" :key="index">
+            <span>{{ item }}</span>
+            <span class="filter" v-if="index < filterArr.length - 1">{{ filter }}</span>
+          </template>
+        </template>
+      </p>
       <p class="info">
         <template v-if="time">
-          <span :class="{ err: !validity }">{{ time }}</span> ·
+          <span :class="{ err: !validity && showValidity }">{{ tool.showDate(time) }}</span> ·
         </template>
         {{ tool.formatSize(file.size) }}
+        <template v-if="file.user_name">
+          ·
+          {{ file.user_name }}
+        </template>
       </p>
     </div>
-    <div class="ops">
+    <div class="ops" :style="{ color: iconColor }">
+      <div class="icon"><slot name="ops"></slot></div>
       <EyeOutlined @click="handlePreview(file)" class="icon" />
-      <a :href="file.value" target="_blank" v-if="!showClose"><i class="iconfont icon" style="font-size: 14px">&#xe780;</i></a>
-      <i class="iconfont icon" @click="remove" v-if="showClose">&#xe77d;</i>
+      <a :href="file.value" target="_blank" v-if="!showClose || showDownload">
+        <i class="iconfont icon" :style="{ color: iconColor }" style="font-size: 14px">&#xe780;</i>
+      </a>
+      <i class="iconfont icon remove" @click="remove" v-if="showClose">&#xe77b;</i>
     </div>
   </div>
   <a-modal v-model:open="previewVisible" :footer="null" @cancel="previewHandleCancel">
@@ -53,9 +70,25 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
+  showDownload: {
+    type: Boolean,
+    default: false
+  },
   bg: {
     type: Boolean,
     default: false
+  },
+  filter: {
+    type: String,
+    default: ''
+  },
+  iconColor: {
+    type: String,
+    default: '#F19915'
+  },
+  showValidity: {
+    type: Boolean,
+    default: false 
   }
 });
 const emits = defineEmits(['remove']);
@@ -74,6 +107,10 @@ const validity = computed(() => {
 
 const showTitle = computed(() => {
   return props.file.name || props.file.real_name;
+});
+
+const filterArr = computed(() => {
+  return (props.file.name || props.file.real_name).split(props.filter);
 });
 
 // 关闭弹框
@@ -114,7 +151,8 @@ watch(
   () => props.file,
   (newVal, oldVal) => {
     if (props.file) {
-      props.file.value = props.file.value || props.file.url;
+      props.file.value = props.file.value || props.file.url || props.file.att_dir;
+      props.file.size = props.file.size || props.file.att_size;
     }
   },
   {
@@ -151,23 +189,22 @@ watch(
     white-space: nowrap; /* 禁止换行 */
     overflow: hidden; /* 隐藏溢出内容 */
     text-overflow: ellipsis; /* 使用省略号表示溢出内容 */
+    margin-right: 10px;
   }
   .ops {
     display: flex;
     align-items: center;
     cursor: pointer;
-    color: @colorPrimary;
     gap: 10px;
-    span {
-      margin-left: 10px;
-    }
   }
   .icon {
     font-size: 12px;
-    display: none;
-    color: @colorPrimary;
+    // display: none;
     &:hover {
       opacity: 0.8;
+    }
+    &.remove {
+      font-size: 9px;
     }
   }
   &:hover {
@@ -181,6 +218,9 @@ watch(
   }
   .err {
     color: @color_red-error;
+  }
+  .filter {
+    color: @colorPrimary;
   }
 }
 </style>

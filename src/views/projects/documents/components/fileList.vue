@@ -16,9 +16,9 @@
             <i class="iconfont">&#xe772;</i>Sort by:<span class="lowercase">{{ sortSelect.name }}</span>
           </div>
           <template #overlay>
-            <ul class="dropdown-list">
+            <ul class="opFileList">
               <li
-                class="dropdown-list-item"
+                class="opFileList-item"
                 :class="{ selected: sortSelect && sortSelect.id === item.id }"
                 v-for="item in sortsList"
                 :key="item.id"
@@ -38,7 +38,7 @@
         <div style="padding-right: 400px; min-height: 400px">
           <template v-for="files in documentList" :key="files.id">
             <template v-if="files.id !== folder.id && files.show">
-              <!-- <div>{{ files.name }}</div> -->
+              <div class="archivedTitle">{{ files.name }}</div>
             </template>
             <template v-if="files.show">
               <vco-file-item
@@ -90,7 +90,8 @@
 
             <template v-if="!files.show">
               <div class="archivedTitle" @click="showArchived = !showArchived">
-                Archived documents <span class="num">{{ files.attach.length }}</span> <i class="iconfont" :class="{active: showArchived}">&#xe778;</i>
+                Archived documents <span class="num">{{ files.attach.length }}</span>
+                <i class="iconfont" :class="{ active: showArchived }">&#xe778;</i>
               </div>
               <template v-if="showArchived">
                 <vco-file-item
@@ -159,17 +160,18 @@ const removeLoading = ref(false);
 const filter = ref('');
 const document = ref([]);
 const upDocument = ref([]);
-const showArchived = ref(true)
+const showArchived = ref(true);
 
 const sortsList = ref([
-  { name: 'Date', id: '1' },
-  { name: 'Name', id: '2' },
-  { name: 'Size', id: '3' }
+  { name: 'Date', id: 'create_time' },
+  { name: 'Name', id: 'name' },
+  { name: 'Size', id: 'att_size' }
 ]);
 
-const sortSelect = ref({ name: 'Date', id: '1' });
+const sortSelect = ref({ name: 'Date', id: 'create_time' });
 const changeSort = (val) => {
   sortSelect.value = val;
+  getFiles()
 };
 
 const setShowFilter = () => {
@@ -187,7 +189,7 @@ const updateVisibleRename = (val) => {
   visibleRename.value = true;
 };
 const getFiles = () => {
-  let params = { uuid: props.apply_uuid };
+  let params = { apply_uuid: props.apply_uuid ,__sort__asc:sortSelect.value.id};
   params['id'] = props.folder.id;
   spinning.value = true;
   showArchived.value = true;
@@ -210,7 +212,7 @@ const remove = (val) => {
     uuids: [val.uuid]
   })
     .then((res) => {
-      getFiles();
+      emits('change');
     })
     .finally((_) => {
       removeLoading.value = false;
@@ -224,7 +226,6 @@ const move = (current, target, uuids) => {
     apply_uuid: props.apply_uuid,
     uuids: uuids
   }).then((res) => {
-    // getFiles();
     emits('change');
   });
 };
@@ -240,7 +241,7 @@ watch(
         files: document.value
       })
         .then((res) => {
-          getFiles();
+          emits('change');
         })
         .finally((_) => {
           upLoading.value = false;
@@ -369,7 +370,7 @@ defineExpose({
   }
   .iconfont {
     font-size: 6px;
-    transition: transform .24s;
+    transition: transform 0.24s;
     color: @color_grey;
     &.active {
       transform: rotate(180deg);
@@ -378,17 +379,16 @@ defineExpose({
   }
 }
 .search-input {
-    &.ant-input {
-      padding: 13.7px 11px;
-      background-color: #f7f9f8;
-      border: 1px solid transparent;
-      &:focus {
-        border-color: #e6d0ac;
-        border-right-width: 1px;
-        box-shadow: 0 0 0 2px hsla(35, 53%, 67%, 0.2);
-        outline: 0;
-      }
+  &.ant-input {
+    padding: 13.7px 11px;
+    background-color: #f7f9f8;
+    border: 1px solid transparent;
+    &:focus {
+      border-color: #e6d0ac;
+      border-right-width: 1px;
+      box-shadow: 0 0 0 2px hsla(35, 53%, 67%, 0.2);
+      outline: 0;
     }
   }
-  
+}
 </style>

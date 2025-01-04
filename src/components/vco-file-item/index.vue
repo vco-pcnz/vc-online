@@ -1,5 +1,5 @@
 <template>
-  <div class="fileBox" :class="{ bg: bg }" v-if="!file || file && filterArr.length>1">
+  <div class="fileBox" :class="{ bg: bg }" v-if="!file || (file && filterArr.length > 1)">
     <i v-if="Number(file.type === 1)" class="iconfont">&#xe797;</i>
     <i v-if="Number(file.type === 2)" class="iconfont">&#xe774;</i>
     <i v-if="Number(file.type === 3)" class="iconfont">&#xe798;</i>
@@ -17,16 +17,20 @@
       </p>
       <p class="info">
         <template v-if="time">
-          <span :class="{ err: !validity }">{{ time }}</span> ·
+          <span :class="{ err: !validity && showValidity }">{{ tool.showDate(time) }}</span> ·
         </template>
         {{ tool.formatSize(file.size) }}
+        <template v-if="file.user_name">
+          ·
+          {{ file.user_name }}
+        </template>
       </p>
     </div>
-    <div class="ops" :style="{color:iconColor}">
+    <div class="ops" :style="{ color: iconColor }">
       <div class="icon"><slot name="ops"></slot></div>
       <EyeOutlined @click="handlePreview(file)" class="icon" />
       <a :href="file.value" target="_blank" v-if="!showClose || showDownload">
-        <i class="iconfont icon" :style="{color:iconColor}" style="font-size: 14px">&#xe780;</i>
+        <i class="iconfont icon" :style="{ color: iconColor }" style="font-size: 14px">&#xe780;</i>
       </a>
       <i class="iconfont icon remove" @click="remove" v-if="showClose">&#xe77b;</i>
     </div>
@@ -81,6 +85,10 @@ const props = defineProps({
   iconColor: {
     type: String,
     default: '#F19915'
+  },
+  showValidity: {
+    type: Boolean,
+    default: false 
   }
 });
 const emits = defineEmits(['remove']);

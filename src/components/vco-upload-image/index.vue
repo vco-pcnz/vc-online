@@ -98,7 +98,7 @@
     maxSize: {
       type: Number,
       required: false,
-      default: 2 // 100 MB
+      default: 5 // 100 MB
     }
   });
 
@@ -201,6 +201,7 @@
         return false;
       }
     }
+
     return isJPG && isLt2M;
   };
 
@@ -225,6 +226,12 @@
 
   // 回传父组件
   const handlePathChange = () => {
+    for (let i = fileList.value.length - 1; i >= 0; i--) {
+      if (!fileList.value[i].response) {
+        fileList.value.splice(i, 1);
+      }
+    }
+
     const uploadFiles = cloneDeep(fileList.value);
 
     let item = [];

@@ -416,6 +416,14 @@ export const projectCreditFcSave = (data) =>
     data
   });
 
+// // fc提交申请项目财务字段
+// export const projectCreditFcSave = (data) =>
+//   request({
+//     url: "/project/credit/fcSave",
+//     method: "post",
+//     data
+//   });
+
 // fc提交审核
 export const projectAuditFncheck = (data) =>
   request({

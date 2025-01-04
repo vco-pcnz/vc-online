@@ -201,7 +201,7 @@ const setAddressInfo = (e) => {
 const formRules = {
   security_name: [{ required: true, message: t('请输入') + t('名称'), trigger: 'blur' }],
   type: [{ required: true, message: t('请选择') + t('类型'), trigger: 'change' }],
-  build_amount: [{ required: true, message: t('请输入') + t('建筑总额'), trigger: 'change' }],
+  // build_amount: [{ required: true, message: t('请输入') + t('建筑总额'), trigger: 'change' }],
   amount: [{ required: true, message: t('请输入') + t('总金额'), trigger: 'change' }],
   card_no: [{ required: true, message: t('请输入') + t('产权编号'), trigger: 'change' }],
   security_region: [{ required: true, message: t('请选择') + t('区域'), trigger: 'change' }],

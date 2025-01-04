@@ -1,5 +1,14 @@
 <template>
   <div>
+    <bind-users-dialog
+      v-model:visible="showDialog"
+      :type="1"
+      :p-ids="pIds"
+      :data="vcTeamObj"
+      :vc-team="vcTeamData"
+      @done="bindDone"
+    ></bind-users-dialog>
+
     <vco-page-nav sup-path="/requests">
       <template #action>
         <a-button type="cyan" shape="round" @click="navigationTo('/process/one')">{{ t('发起借款申请') }}</a-button>
@@ -12,7 +21,12 @@
       <div class="mt-10">
         <vco-table-tool>
           <template #left>
-            <!-- <a-button type="grey" :disabled="!selectedRowKeys.length" class="uppercase" @click="cancelHandle">{{ t('取消项目') }}</a-button> -->
+            <a-button type="grey"
+              v-permission="'requests:loan:allocateLm'"
+              :disabled="!selectedRowKeys.length"
+              class="uppercase"
+              @click="bindHandle(false)"
+            >{{ t('分配LM') }}</a-button>
           </template>
           <template #right>
             <!-- <vco-table-layout-type v-model="tabLayout"></vco-table-layout-type> -->
@@ -34,6 +48,7 @@
                 ref="tableRef"
                 rowKey="uuid"
                 :columns="columns"
+                :row-selection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange }"
                 :data-source="tableDataRef"
                 :pagination="false"
                 :scroll="{ x: '100%' }"
@@ -115,13 +130,24 @@
                     <p v-else>--</p>
                   </template>
                   <template v-if="column.dataIndex === 'status'">
-                    <a-button
-                      v-if="record.has_permission"
-                      type="primary"
-                      shape="round"
-                      @click="itemHandle(record)"
-                    >{{ t(record.status_name) }}</a-button>
-                    <p v-else>{{ t(record.status_name) }}</p>
+                    <template v-if="record.lm_list && record.lm_list.length">
+                      <a-button
+                        v-if="record.has_permission"
+                        type="primary"
+                        shape="round"
+                        @click="itemHandle(record)"
+                      >{{ t(record.status_name) }}</a-button>
+                      <p v-else>{{ t(record.status_name) }}</p>
+                    </template>
+                    <template v-else>
+                      <a-button
+                        v-if="hasPermission('requests:loan:allocateLm')"
+                        type="primary"
+                        shape="round"
+                        @click="bindHandle(record.uuid)"
+                      >{{ t('分配LM') }}</a-button>
+                      <p v-else>{{ t('等待分配LM') }}</p>
+                    </template>
                   </template>
                   <template v-if="column.dataIndex === 'operation'">
                     <a-dropdown :trigger="['click']">
@@ -161,14 +187,16 @@
   import { ref, computed, reactive, onMounted, watch } from "vue"
   import { useI18n } from "vue-i18n";
   import { cloneDeep } from "lodash";
+  import { hasPermission } from "@/directives/permission/index"
   import { useTableList } from "@/hooks/useTableList"
   import TableSearch from "./components/TableSearch.vue";
   import GridBlock from "./components/GridBlock.vue";
   import { navigationTo } from "@/utils/tool";
-  import { projectListApi } from "@/api/process";
+  import { projectListApi, associateSystemConfig } from "@/api/process";
   import tool from "@/utils/tool";
   import { processRoutes } from "@/constant"
   import emitter from "@/event"
+  import BindUsersDialog from "@/views/process/components/BindUsersDialog.vue";
 
   const { t, locale } = useI18n();
 
@@ -282,8 +310,34 @@
     getTableData(data)
   }
 
-  const cancelHandle = () => {
-    console.log('selectedRowKeys', selectedRowKeys.value)
+  const vcTeamObj = ref(null)
+  const vcTeamData = ref([])
+  const showDialog = ref(false)
+  const pIds = ref([])
+
+  const bindHandle = (id) => {
+    pIds.value = id || selectedRowKeys.value
+    showDialog.value = true
+  }
+
+  const bindDone = () => {
+    selectedRowKeys.value = []
+    getTableData()
+  }
+
+  const getVcteamData = () => {
+    associateSystemConfig().then(res => {
+      vcTeamData.value = res || []
+      const vcTeamArr = vcTeamData.value.map(item => item.code)
+
+      const vcObj = {}
+
+      for (let i = 0; i < vcTeamArr.length; i++) {
+        vcObj[vcTeamArr[i]] = []
+      }
+
+      vcTeamObj.value = vcObj
+    })
   }
 
   const itemHandle = (data) => {
@@ -303,6 +357,7 @@
 
   onMounted(() => {
     getTableData(true)
+    getVcteamData()
 
     emitter.on('refreshRequestsList', () => {
       getTableData()

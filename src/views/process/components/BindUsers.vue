@@ -183,6 +183,9 @@
   const vcTeamData = ref([])
 
   const getConfigInfo = async () => {
+    // 触发列表数据刷新
+    emitter.emit('refreshRequestsList');
+
     configLoading.value = true
     let vcTeamArr = []
 
@@ -260,8 +263,9 @@
     for (const key in vcData.value) {
       if (vcData.value[key] && vcData.value[key].length) {
         const params = {
-          uuid,
-          user_uuid: vcData.value[key].map(item => item.uuid).join(','),
+          uuid: [uuid],
+          // user_uuid: vcData.value[key].map(item => item.uuid).join(','),
+          user_uuid: vcData.value[key].map(item => item.uuid),
           role_code: key,
           rule: 2
         }

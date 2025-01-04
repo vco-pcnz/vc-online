@@ -242,6 +242,9 @@ const setAddressInfo = (e) => {
     .validate()
     .then(async () => {
       const params = getParams()
+      // 图片传数组
+      params.project_images = params.project_images.length ? params.project_images.split(',') : [];
+
       let ajaxFn = projectApplySaveProjectInfo
 
       if (props.check) {
@@ -257,13 +260,13 @@ const setAddressInfo = (e) => {
         subLoading.value = false
         if (props.check) {
           emits('checkDone')
+          emitter.emit('refreshAuditHisList')
         } else {
           footerRef.value.nextHandle(res.uuid)
         }
 
         // 触发列表数据刷新
         emitter.emit('refreshRequestsList')
-        emitter.emit('refreshAuditHisList')
       }).catch(() => {
         subLoading.value = false
       })

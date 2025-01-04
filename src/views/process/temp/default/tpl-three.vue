@@ -225,12 +225,12 @@
   }
 
   const formState = reactive({
-    resource_consent_files: '',
-    engineering_plan_approval_files: '',
-    building_consent_files: '',
-    feasibility_files: '',
-    others_files: '',
-    cert_images: '',
+    resource_consent_files: [],
+    engineering_plan_approval_files: [],
+    building_consent_files: [],
+    feasibility_files: [],
+    others_files: [],
+    cert_images: [],
   })
 
   const formRules = {
@@ -250,23 +250,23 @@
 
     // 资源许可
     if (resourceConsentList.value.length) {
-      params.resource_consent_files = resourceConsentList.value.map(item => item.uuid).join(',')
+      params.resource_consent_files = resourceConsentList.value.map(item => item.uuid)
     }
     // 工程计划批准
     if (engineeringConsentList.value.length) {
-      params.engineering_plan_approval_files = engineeringConsentList.value.map(item => item.uuid).join(',')
+      params.engineering_plan_approval_files = engineeringConsentList.value.map(item => item.uuid)
     }
     // 建筑许可
     if (buildingList.value.length) {
-      params.building_consent_files = buildingList.value.map(item => item.uuid).join(',')
+      params.building_consent_files = buildingList.value.map(item => item.uuid)
     }
     // 可行性研究
     if (feasibilityList.value.length) {
-      params.feasibility_files = feasibilityList.value.map(item => item.uuid).join(',')
+      params.feasibility_files = feasibilityList.value.map(item => item.uuid)
     }
     // 其他
     if (othersList.value.length) {
-      params.others_files = othersList.value.map(item => item.uuid).join(',')
+      params.others_files = othersList.value.map(item => item.uuid)
     }
 
     return params

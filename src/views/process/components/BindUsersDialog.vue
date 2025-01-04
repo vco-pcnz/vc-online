@@ -3,7 +3,7 @@
     <!-- 人员选择 -->
     <vco-choose-user
       ref="vcoChooseUserRef"
-      :isMultiple="type !== 1"
+      :isMultiple="type !== 1 || (type === 1 && itemCode === 'alm')"
       :role-code="roleCode"
       @done="userChoiced"
     >
@@ -189,6 +189,10 @@
       type: Array,
       default: () => []
     },
+    pIds: {
+      type: Array,
+      default: () => []
+    },
     currentId: {
       type: [Number, String],
       default: ''
@@ -318,14 +322,19 @@
   const subLoading = ref(false)
   const submitHandle = async () => {
     if (props.type === 1) { // vcTeam 数据
-      if (props.currentId) {
+      if (props.currentId || (props.pIds && props.pIds.length)) {
         subLoading.value = true
         for (let i = 0; i < props.vcTeam.length; i++) {
           const code = props.vcTeam[i].code
           const params = {
-            uuid: props.currentId,
-            user_uuid: vcTeamData.value[code].map(item => item.uuid).join(','),
+            uuid: [props.currentId],
+            // user_uuid: vcTeamData.value[code].map(item => item.uuid).join(','),
+            user_uuid: vcTeamData.value[code].map(item => item.uuid),
             role_code: code
+          }
+
+          if (props.pIds && props.pIds.length) {
+            params.uuid = props.pIds
           }
 
           if (code === 'lm' && params.user_uuid === '') {
@@ -389,7 +398,7 @@
       }
     }
 
-    if (props.currentId) {
+    if (props.currentId || (props.pIds && props.pIds.length)) {
       subLoading.value = false
       emits('done')
     }

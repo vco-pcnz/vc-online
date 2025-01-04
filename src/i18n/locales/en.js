@@ -458,5 +458,8 @@ export default {
   "{0}审核批示": "{0} review instructions",
   "总负责人审核": "Review by the Chief Executive",
   "LM 检查": "LM inspection",
-  "确定通过审核吗？": "Are you sure it passed the review?"
+  "确定通过审核吗？": "Are you sure it passed the review?",
+  "分配LM": "Allocate LM",
+  "等待分配LM": "Waiting for LM allocation",
+  "奖金信息": "Bonus Information"
 }

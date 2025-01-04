@@ -427,6 +427,9 @@ const submitHandle = () => {
     .validate()
     .then(() => {
       const params = getParams();
+      // 图片传数组
+      params.borrower_images = params.borrower_images.length ? params.borrower_images.split(',') : [];
+
       let ajaxFn = projectApplySaveBorrowerInfo;
 
       if (props.check) {
@@ -445,6 +448,8 @@ const submitHandle = () => {
         .then(async (res) => {
           if (props.check) {
             subLoading.value = false;
+            emitter.emit('refreshAuditHisList');
+
             emits('checkDone');
           } else {
             if (needBindUser.value) {
@@ -455,9 +460,9 @@ const submitHandle = () => {
             footerRef.value.nextHandle(res.uuid);
             subLoading.value = false;
           }
+
           // 触发列表数据刷新
           emitter.emit('refreshRequestsList');
-          emitter.emit('refreshAuditHisList');
         })
         .catch(() => {
           subLoading.value = false;

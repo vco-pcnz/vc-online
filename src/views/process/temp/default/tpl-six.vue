@@ -23,10 +23,12 @@
 
           <!-- 放款信息 -->
           <credit-form
+            v-if="[0, 1, 3].includes(currentStep.credit_cate)"
             :step-type="2"
             :current-id="currentId"
             :credit-cate="currentStep.credit_cate"
             :offer-amount="offerAmount"
+            :bonus-info="bonusInfo"
             :loan-money="dataInfo.loan_info.loan_money"
             :initial-amount="initialAmount"
             @done="showForecast = true"
@@ -198,6 +200,7 @@
   const offerAmount = ref(null)
   const initialAmount = ref(null)
   const securityInfo = ref(null)
+  const bonusInfo = ref(null)
   const guarantorInfo = ref(null)
   const dataInit = (infoMsg = {}) => {
     const data = cloneDeep({...infoMsg, ...props.infoData})
@@ -205,6 +208,7 @@
     offerAmount.value = data.offer_amount
     initialAmount.value = data.initial_amount
     securityInfo.value = data.security
+    bonusInfo.value = data.offer_bonus
     guarantorInfo.value = data.guarantor
     dataInfo.value = data
     currentDataInfo.value = data

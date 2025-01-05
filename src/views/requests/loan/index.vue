@@ -144,7 +144,7 @@
                         v-if="hasPermission('requests:loan:allocateLm')"
                         type="primary"
                         shape="round"
-                        @click="bindHandle(record.uuid)"
+                        @click="bindHandle(record)"
                       >{{ t('分配LM') }}</a-button>
                       <p v-else>{{ t('等待分配LM') }}</p>
                     </template>
@@ -256,7 +256,7 @@
     { title: t('期数'), dataIndex: 'term', width: 220, align: 'center' },
     // { title: t('最大费率'), dataIndex: 'lvr', width: 100, align: 'center' },
     { title: t('创建时间'), dataIndex: 'create_time', width: 120, align: 'center' },
-    { title: t('状态'), dataIndex: 'status', width: 200, align: 'center' },
+    { title: t('状态'), dataIndex: 'status', width: 240, align: 'center' },
     {
       title: t('操作1'),
       dataIndex: 'operation',
@@ -315,8 +315,9 @@
   const showDialog = ref(false)
   const pIds = ref([])
 
-  const bindHandle = (id) => {
-    pIds.value = id || selectedRowKeys.value
+  const bindHandle = (data) => {
+    pIds.value = data? data.uuid : selectedRowKeys.value
+    vcTeamObj.value['alm'] =   data? data.alm_list : []
     showDialog.value = true
   }
 

@@ -385,6 +385,7 @@ export default {
   "是的，保留": "Yes, Keep",
   "{0}以后已手动修改的放款是否保留已设置的值": "{0} Whether the loan that has been manually modified in the future will retain the set value",
   "已存在数据，确定生成吗?": "Data already exists, are you sure you want to generate it?",
+  "为必填项": " is required",
   "LM 审核": "LM Review",
   "LM审核": "LM Review",
   "FC 审核": "FC Review",

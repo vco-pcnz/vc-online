@@ -1,6 +1,6 @@
 <template>
   <vco-process-title :title="t('新增反洗钱信息AML')">
-    <div class="flex gap-5">
+    <div class="flex gap-5" v-if="!hide">
       <a-popconfirm :title="t('确定通过审核吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="checkHandle(1)">
         <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase" :loading="loading && type === 1">
           {{ t('审核') }}
@@ -42,7 +42,7 @@
         :pagination="false"
         :scroll="{ x: '100%' }"
         row-key="id"
-        :row-selection="{ selectedRowKeys: selectedRowKeys, onSelect: onSelect, onSelectAll: onSelectAll }"
+        :row-selection="hide ? null : { selectedRowKeys: selectedRowKeys, onSelect: onSelect, onSelectAll: onSelectAll }"
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.dataIndex === 'cate'">
@@ -60,15 +60,17 @@
             <div class="ops">
               <i class="iconfont" style="color: #0bda8e !important" v-if="Boolean(record.status == 3)">&#xe786;</i>
               <i class="iconfont" v-if="Boolean(record.document && record.document.length)" @click="updateVisibleFiles(record.document)">&#xe795;</i>
-              <i class="iconfont" @click="showForm(record)">&#xe753;</i>
-              <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.id)">
-                <i class="iconfont">&#xe8c1;</i>
-              </a-popconfirm>
+              <template v-if="!hide">
+                <i class="iconfont" @click="showForm(record)">&#xe753;</i>
+                <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.id)">
+                  <i class="iconfont">&#xe8c1;</i>
+                </a-popconfirm>
+              </template>
             </div>
           </template>
         </template>
       </a-table>
-      <div class="flex justify-end pt-5">
+      <div class="flex justify-end pt-5" v-if="!hide">
         <a-button type="brown" shape="round" class="uppercase ml-5" @click="toDocuments">
           {{ t('查看文件') }}
         </a-button>
@@ -77,7 +79,15 @@
   </a-spin>
   <WashTableAddEdit v-model:visible="visible" :currentId="currentId" :infoData="editData" @update="loadData"></WashTableAddEdit>
 
-  <a-modal :open="visibleFiles" :title="t('文件')" :width="500" :footer="null" :keyboard="false" :maskClosable="false" @update:open="visibleFiles = false">
+  <a-modal
+    :open="visibleFiles"
+    :title="t('文件')"
+    :width="500"
+    :footer="null"
+    :keyboard="false"
+    :maskClosable="false"
+    @update:open="visibleFiles = false"
+  >
     <div class="documents" v-for="(item, index) in documentList" :key="index">
       <vco-file-item :file="item"></vco-file-item>
     </div>
@@ -97,6 +107,10 @@ const props = defineProps({
   currentId: {
     type: [Number, String],
     required: true
+  },
+  hide: {
+    type: Boolean,
+    default: false
   }
 });
 const { t } = useI18n();

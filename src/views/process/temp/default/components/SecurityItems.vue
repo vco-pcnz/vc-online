@@ -116,7 +116,7 @@ const showCheck = computed(() => {
 });
 
 const showCheckEdit = computed(() => {
-  return [1, 4].includes(props.stepType);
+  return [1].includes(props.stepType);
 });
 
 const checkHandle = async () => {

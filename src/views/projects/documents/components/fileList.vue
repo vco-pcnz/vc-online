@@ -1,7 +1,10 @@
 <template>
   <div class="files">
     <div class="flex items-center justify-between">
-      <h3 class="files-title">{{ tabName }}/ {{ folder.name }}</h3>
+      <h3 class="files-title">
+        <template v-if="isTab"> {{ folder.attach_count }} {{ tabName }}</template>
+        <template v-else> {{ tabName }}/ {{ folder.name }}</template>
+      </h3>
       <div class="files-ops">
         <div class="files-ops-item" :class="{ active: showFilter }" @click="setShowFilter"><i class="iconfont">&#xe756;</i></div>
 
@@ -35,102 +38,62 @@
     <div>
       <a-input class="search-input my-5" v-model:value="filter" v-focus="true" placeholder="Search across the folder..." v-if="showFilter" />
       <a-spin :spinning="spinning">
-        <div style="padding-right: 400px; min-height: 400px">
+        <div :class="{ row2: isTab, row1: !isTab }">
           <template v-for="files in documentList" :key="files.id">
             <template v-if="files.id !== folder.id && files.show">
               <div class="archivedTitle">{{ files.name }}</div>
             </template>
-            <template v-if="files.show">
-              <vco-file-item
-                :showClose="true"
-                :filter="filter"
-                :file="item"
-                :time="item.create_time"
-                :key="index"
-                iconColor="#bf9425"
-                :showDownload="true"
-                @remove="remove(item)"
-                v-for="(item, index) in files.attach"
-              >
-                <template #ops>
-                  <a-dropdown trigger="click">
-                    <a class="ant-dropdown-link" @click.prevent>
-                      <i class="iconfont icon-ops">&#xe77f;</i>
-                    </a>
-                    <template #overlay>
-                      <ul class="opFileList">
-                        <li class="opFileList-item" @click="updateVisibleRename(item)">Rename</li>
-                        <li class="opFileList-item">Copy to...</li>
-                        <a-dropdown class="Filter" trigger="hover" v-for="(tabItem, index) in tree" :key="tabItem.id" placement="right">
-                          <li class="opFileList-item" :class="{ disabled: tabItem.status == 0 }">
-                            <span class="index">{{ index + 1 }}</span>
-                            <span class="name">{{ tabItem.name }}</span>
-                            <i class="iconfont" v-if="tabItem.children && tabItem.children.length">&#xe791;</i>
-                          </li>
-                          <template #overlay v-if="tabItem.children && tabItem.children.length">
-                            <ul class="opFileList">
-                              <li
-                                class="opFileList-item"
-                                v-for="(sub, subIndex) in tabItem.children"
-                                @click="move(files.id, sub.id, [item.uuid])"
-                                :key="sub.id"
-                              >
-                                <span class="index">{{ index + 1 }}.{{ subIndex + 1 }}</span>
-                                <span class="name">{{ sub.name }}</span>
-                              </li>
-                            </ul>
-                          </template>
-                        </a-dropdown>
-                      </ul>
-                    </template>
-                  </a-dropdown>
-                </template>
-              </vco-file-item>
-            </template>
+            <div class="row">
+              <template v-if="files.show">
+                <File
+                  :file="item"
+                  :tree="tree"
+                  :apply_uuid="apply_uuid"
+                  :filter="filter"
+                  :files="files"
+                  :folder="folder"
+                  v-for="(item, index) in files.attach"
+                  :key="index"
+                  @reload="reload"
+                  @update="getFiles"
+                ></File>
+              </template>
+            </div>
 
             <template v-if="!files.show">
               <div class="archivedTitle" @click="showArchived = !showArchived">
                 Archived documents <span class="num">{{ files.attach.length }}</span>
                 <i class="iconfont" :class="{ active: showArchived }">&#xe778;</i>
               </div>
-              <template v-if="showArchived">
-                <vco-file-item
-                  :filter="filter"
-                  :file="item"
-                  :key="index"
-                  iconColor="#bf9425"
-                  :time="item.create_time"
-                  :showDownload="true"
-                  v-for="(item, index) in files.attach"
-                >
-                  <template #ops>
-                    <a-dropdown trigger="click">
-                      <a class="ant-dropdown-link" @click.prevent>
-                        <i class="iconfont icon-ops">&#xe77f;</i>
-                      </a>
-                      <template #overlay>
-                        <ul class="opFileList">
-                          <li class="opFileList-item" @click="move(files.id, folder.id, [item.uuid])">Unarchive</li>
-                        </ul>
-                      </template>
-                    </a-dropdown>
-                  </template>
-                </vco-file-item>
-              </template>
+              <div class="row">
+                <template v-if="showArchived">
+                  <File
+                    :file="item"
+                    :tree="tree"
+                    :apply_uuid="apply_uuid"
+                    :filter="filter"
+                    :folder="folder"
+                    :files="files"
+                    v-for="(item, index) in files.attach"
+                    :key="index"
+                    @reload="reload"
+                    @update="getFiles"
+                  ></File>
+                </template>
+              </div>
             </template>
           </template>
         </div>
       </a-spin>
     </div>
   </div>
-  <RenameModel :formParams="formParams" v-model:visible="visibleRename" @change="getFiles"></RenameModel>
 </template>
 
 <script scoped setup>
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { getChild, fadd, fdel, fmove } from '@/api/project/annex';
-import RenameModel from './rename.vue';
+import File from './file.vue';
 
 const { t } = useI18n();
 const emits = defineEmits(['update:visible', 'change']);
@@ -148,15 +111,17 @@ const props = defineProps({
   },
   tabName: {
     type: String
+  },
+  isTab: {
+    type: Boolean,
+    default: false
   }
 });
 
-const visibleRename = ref(false);
 const documentList = ref([]);
 const showFilter = ref(false);
 const spinning = ref(false);
 const upLoading = ref(false);
-const removeLoading = ref(false);
 const filter = ref('');
 const document = ref([]);
 const upDocument = ref([]);
@@ -171,25 +136,15 @@ const sortsList = ref([
 const sortSelect = ref({ name: 'Date', id: 'create_time' });
 const changeSort = (val) => {
   sortSelect.value = val;
-  getFiles()
+  getFiles();
 };
 
 const setShowFilter = () => {
   showFilter.value = !showFilter.value;
 };
 
-const formParams = ref(null);
-const updateVisibleRename = (val) => {
-  formParams.value = {
-    did: props.folder.id,
-    apply_uuid: props.apply_uuid,
-    uuid: val.uuid,
-    name: val.name
-  };
-  visibleRename.value = true;
-};
 const getFiles = () => {
-  let params = { apply_uuid: props.apply_uuid ,__sort__asc:sortSelect.value.id};
+  let params = { apply_uuid: props.apply_uuid, __sort__asc: sortSelect.value.id };
   params['id'] = props.folder.id;
   spinning.value = true;
   showArchived.value = true;
@@ -203,31 +158,8 @@ const getFiles = () => {
     });
 };
 
-const remove = (val) => {
-  removeLoading.value = true;
-  fdel({
-    did: props.folder.id,
-    apply_uuid: props.apply_uuid,
-    files: document.value,
-    uuids: [val.uuid]
-  })
-    .then((res) => {
-      emits('change');
-    })
-    .finally((_) => {
-      removeLoading.value = false;
-    });
-};
-
-const move = (current, target, uuids) => {
-  fmove({
-    did: current,
-    nid: target,
-    apply_uuid: props.apply_uuid,
-    uuids: uuids
-  }).then((res) => {
-    emits('change');
-  });
+const reload = () => {
+  emits('change');
 };
 
 watch(
@@ -389,6 +321,20 @@ defineExpose({
       box-shadow: 0 0 0 2px hsla(35, 53%, 67%, 0.2);
       outline: 0;
     }
+  }
+}
+
+.row1 {
+  min-height: 400px;
+  padding-right: 400px;
+}
+.row2 {
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    // .fileBox {
+    //   flex: 0 0 50%;
+    // }
   }
 }
 </style>

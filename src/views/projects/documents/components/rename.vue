@@ -1,6 +1,6 @@
 <template>
-  <div @click="updateVisible(true)"><slot></slot></div>
-  <div ref="renameRef" class="rename">
+  <div @click.stop="updateVisible(true)"><slot></slot></div>
+  <div @click.stop ref="renameRef" class="rename">
     <a-modal
       :width="486"
       :open="visible"

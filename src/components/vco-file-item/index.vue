@@ -28,11 +28,11 @@
     </div>
     <div class="ops" :style="{ color: iconColor }">
       <div class="icon"><slot name="ops"></slot></div>
-      <EyeOutlined @click="handlePreview(file)" class="icon" />
+      <EyeOutlined @click.stop="handlePreview(file)" class="icon" />
       <a :href="file.value" target="_blank" v-if="!showClose || showDownload">
         <i class="iconfont icon" :style="{ color: iconColor }" style="font-size: 14px">&#xe780;</i>
       </a>
-      <i class="iconfont icon remove" @click="remove" v-if="showClose">&#xe77b;</i>
+      <i class="iconfont icon remove" @click.stop="remove" v-if="showClose">&#xe77b;</i>
     </div>
   </div>
   <a-modal v-model:open="previewVisible" :footer="null" @cancel="previewHandleCancel">

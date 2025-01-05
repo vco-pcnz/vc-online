@@ -7,7 +7,7 @@
       :tree-data="data"
       @select="onSelect"
       :fieldNames="{ children: 'children', title: 'name', key: 'id' }"
-      v-model:expandedKeys="expandedKeys"
+      :autoExpandParent="true"
     >
       <template #title="item">
         <div class="folder-item" :class="{ select: folder && item.id == folder.id }">
@@ -19,7 +19,7 @@
           <div>
             <i class="iconfont mr-2" @click.stop="updateAddModel('0', item)">&#xe790;</i>
             <i class="iconfont mr-2" @click.stop="updateAddModel(item.id, item)">&#xe8cf;</i>
-            <a-popconfirm title="Are you sure delete this task?" ok-text="Yes" cancel-text="No" @confirm="remove(item.id, index)">
+            <a-popconfirm title="Are you sure delete this Folders?" ok-text="Yes" cancel-text="No" @confirm="remove(item.id, index)">
               <a href="#" @click.stop class="iconfont">&#xe8c1;</a>
             </a-popconfirm>
           </div>
@@ -72,7 +72,7 @@ const props = defineProps({
 const visibleAdd = ref(false);
 const formParams = ref();
 const selectFolder = ref();
-const expandedKeys = ref();
+const expandedKeys = ref([426]);
 
 const onSelect = (selectedKeys, e) => {
   emits('update:folder', e.node.dataRef);
@@ -104,13 +104,16 @@ const remove = (id) => {
 watch(
   () => props.folder,
   (val) => {
-    selectFolder.value = cloneDeep(props.folder);
-    nextTick(() => {
-      // expandedKeys.value = [selectFolder.value.id]
-      // console.log(expandedKeys.value)
-      
-    })
-  }
+    if (val) {
+      selectFolder.value = cloneDeep(props.folder);
+      nextTick(() => {
+        expandedKeys.value = [selectFolder.value.id];
+        console.log(expandedKeys.value);
+        // console.log(expandedKeys.value)
+      });
+    }
+  },
+  { deep: true, immediate: true }
 );
 </script>
 <style lang="less">

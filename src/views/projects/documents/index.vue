@@ -3,7 +3,7 @@
     <template #content>
       <a-spin :spinning="spinning">
         <template v-if="tree">
-          <Tab v-model:active="tabIndex" :data="tree" v-model:showSearch="showSearch"></Tab>
+          <Tab v-model:active="tabIndex" v-model:folder="folder" :data="tree" :apply_uuid="project_id" v-model:showSearch="showSearch"></Tab>
           <div class="content" :class="{ grid: tree && tree[tabIndex] && tree[tabIndex].children }" v-if="!showSearch">
             <template v-if="tree && tree[tabIndex].children">
               <Folders
@@ -12,7 +12,7 @@
                 :apply_uuid="project_id"
                 :tabIndex="tabIndex"
                 :data="tree[tabIndex].children"
-                @change="(val)=>loadData(tabIndex,val)"
+                @change="(val) => loadData(tabIndex, val)"
               ></Folders>
             </template>
             <FileList
@@ -20,6 +20,7 @@
               :tabName="tree[tabIndex].name"
               :apply_uuid="project_id"
               :folder="tree[tabIndex].children ? folder : tree[tabIndex]"
+              :isTab="Boolean(!tree[tabIndex].children)"
               ref="fileListRef"
               @change="loadData(tabIndex, folder)"
             ></FileList>
@@ -49,7 +50,7 @@ const tabIndex = ref(0);
 const folder = ref(null);
 const fileListRef = ref();
 const spinning = ref(false);
-const showSearch = ref(false)
+const showSearch = ref(false);
 
 const baseInfo = ref({
   id: 1614,
@@ -84,8 +85,9 @@ onMounted(() => {
 });
 
 watch(
-  () => [tabIndex.value, folder.value],
+  () => [folder.value],
   (val) => {
+    if (showSearch.value) return;
     getFiles();
   }
 );

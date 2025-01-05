@@ -463,13 +463,14 @@ export default {
   "分配LM": "Allocate LM",
   "等待分配LM": "Waiting for LM allocation",
   "奖金信息": "Bonus Information",
-  "新增反洗钱信息AML":"New Anti-Money Laundering Information AML",
+  "新增反洗钱信息AML":"New AML Information",
   "投资人": "Investors",
   "已完成": "Completed",
   "待反馈": "Awaiting feedback",
   "借款人": "Borrower",
   "确定发送邮件吗？": "Are you sure you want to send the email?",
   "确定发送短信吗？": "Are you sure you want to send SMS?",
-  "新增信息": "New information"
+  "新增信息": "New information",
+  "反洗钱流程": "AML procedures"
 
 }

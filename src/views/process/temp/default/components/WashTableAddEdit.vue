@@ -1,0 +1,207 @@
+<template>
+  <a-modal :open="visible" :title="t('新增信息')" :width="500" :footer="null" :keyboard="false" :maskClosable="false" @update:open="updateVisible">
+    <div class="sys-form-content mt-5">
+      <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
+        <a-row :gutter="24">
+          <a-col :span="24">
+            <a-form-item label="">
+              <vco-choose-user ref="vcoChooseUserRef" url="stake/selStake" @change="choiceUserDone"> </vco-choose-user>
+            </a-form-item>
+          </a-col>
+
+          <a-col :span="24">
+            <a-form-item :label="t('名称')" name="name">
+              <a-input v-model:value="formState.name" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <a-form-item :label="t('邮箱')" name="email">
+              <a-input v-model:value="formState.email" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <a-form-item :label="t('手机号')" name="mobile">
+              <vco-mobile-input v-model:value="formState.mobile" v-model:areaCode="formState.pre" :formRef="formRef" validateField="mobile">
+              </vco-mobile-input>
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <a-form-item :label="t('类型')" name="cate">
+              <a-select v-model:value="formState.cate">
+                <a-select-option v-for="item in cateList" :key="item.id" :value="item.id">{{ item.title }}</a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item-rest>
+              <a-checkbox v-model:checked="formState.sendEmail">
+                {{ t('发送邀请邮件') }}
+              </a-checkbox>
+            </a-form-item-rest>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item-rest>
+              <a-checkbox v-model:checked="formState.sendSms">
+                {{ t('发送邀请短信') }}
+              </a-checkbox>
+            </a-form-item-rest>
+          </a-col>
+          <a-col :span="24" class="mt-5">
+            <a-form-item :label="t('项目文件')">
+              <vco-upload-modal v-model:list="documentList" v-model:value="formState.document"></vco-upload-modal>
+              <div class="documents" v-for="(item, index) in documentList" :key="index">
+                <vco-file-item :file="item" :showClose="true" @remove="remove(index)"></vco-file-item>
+              </div>
+            </a-form-item>
+          </a-col>
+        </a-row>
+      </a-form>
+
+      <a-button type="dark" class="big shadow bold uppercas mb-5 mt-5ze" style="width: 100%" :loading="subLoading" @click="submitHandle">
+        {{ t('保存') }}
+      </a-button>
+    </div>
+  </a-modal>
+</template>
+
+<script setup>
+import { watch, computed, ref, nextTick } from 'vue';
+import dayjs from 'dayjs';
+import { useI18n } from 'vue-i18n';
+import { pick, trim, cloneDeep } from 'lodash';
+import { washAdd } from '@/api/project/wash';
+import tool from '@/utils/tool';
+import { message } from 'ant-design-vue/es';
+
+const emits = defineEmits(['update:visible', 'update']);
+
+const props = defineProps({
+  visible: {
+    type: Boolean,
+    default: false
+  },
+  currentId: {
+    type: [Number, String],
+    required: true
+  },
+  infoData: {
+    type: Object,
+    default: () => {}
+  }
+});
+
+const { t } = useI18n();
+
+/* 更新visible */
+const updateVisible = (value) => {
+  emits('update:visible', value);
+};
+
+const cateList = ref([
+  { title: t('借款人'), id: 1 },
+  { title: t('担保人'), id: 2 },
+  { title: t('投资人'), id: 3 }
+]);
+
+const formRef = ref();
+const formState = ref({
+  id: '',
+  uuid: '',
+  stake_id: '',
+  cate: '',
+  name: '',
+  pre: '',
+  mobile: '',
+  email: '',
+  sendEmail: false,
+  sendSms: false,
+  document: []
+});
+const formRules = {
+  name: [{ required: true, message: t('请输入') + t('名称'), trigger: 'blur' }],
+  email: [{ required: true, message: t('请输入') + t('邮箱'), trigger: 'blur' }],
+  mobile: [{ required: true, message: t('请输入') + t('电话'), trigger: 'blur' }],
+  cate: [{ required: true, message: t('请选择') + t('类型'), trigger: 'blur' }],
+};
+
+const subLoading = ref(false);
+const submitHandle = () => {
+  formRef.value
+    .validate()
+    .then(() => {
+      const params = cloneDeep(formState.value);
+      params.uuid = props.currentId;
+      (params.sendEmail = formState.value.sendEmail ? 1 : 0),
+        (params.sendSms = formState.value.sendSms ? 1 : 0),
+        // if (amount <= 0) {
+        //   message.error(t('总金额不正确'));
+        //   return false;
+        // }
+
+        (subLoading.value = true);
+      washAdd(params)
+        .then(() => {
+          subLoading.value = false;
+          emits('update');
+          updateVisible(false);
+        })
+        .catch(() => {
+          subLoading.value = false;
+        });
+    })
+    .catch((error) => {
+      console.log('error', error);
+    });
+};
+
+const vcoChooseUserRef = ref();
+
+const choiceUserDone = (data) => {
+  console.log(data);
+  let keys = ['name', 'email', 'pre', 'pre', 'mobile', 'pre', 'document'];
+  const newData = pick(data, keys);
+
+  formState.value = { ...formState.value, ...newData };
+};
+
+const documentList = ref([]);
+// 删除文件
+const remove = (index) => {
+  documentList.value.splice(index, 1);
+};
+
+watch(
+  () => props.visible,
+  (val) => {
+    if (!val) {
+      formRef.value.clearValidate();
+      formRef.value.resetFields();
+    } else {
+      formState.value = cloneDeep(props.infoData);
+      formState.value.sendEmail = formState.value.sendEmail == '1';
+      formState.value.sendSms = formState.value.sendSms == '1';
+      documentList.value = props.infoData.document;
+    }
+  }
+);
+</script>
+<style lang="less" scoped>
+.total-amount-info {
+  :deep(.ant-statistic-content) {
+    font-size: 24px !important;
+    line-height: 48px !important;
+  }
+}
+.plus-txt {
+  position: relative;
+  .iconfont {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #282828;
+    font-weight: bold;
+    font-size: 18px;
+  }
+}
+</style>

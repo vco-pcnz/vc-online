@@ -1,164 +1,227 @@
 <template>
-  <div
-    class="block-item mb"
-    :class="{ checked: securityInfo.is_check && showCheck }"
-  >
-    <!-- 新增 -->
-    <security-add-edit
-      v-model:visible="addVisible"
-      :current-id="currentId"
-      :security-status="securityInfo.check_status"
-      :typeData="securityInfo.type"
-    ></security-add-edit>
+  <vco-process-title :title="t('新增反洗钱信息AML')">
+    <div class="flex gap-5">
+      <a-popconfirm :title="t('确定通过审核吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="checkHandle(1)">
+        <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase" :loading="loading && type === 1">
+          {{ t('审核') }}
+        </a-button>
+      </a-popconfirm>
+      <a-popconfirm
+        :title="t('确定发送邮件吗？')"
+        :ok-text="t('确定')"
+        :cancel-text="t('取消')"
+        @confirm="checkHandle(2)"
+        :loading="loading && type === 2"
+      >
+        <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase">
+          {{ t('Send E-mail') }}
+        </a-button>
+      </a-popconfirm>
+      <a-popconfirm
+        :title="t('确定发送短信吗？')"
+        :ok-text="t('确定')"
+        :cancel-text="t('取消')"
+        @confirm="checkHandle(3)"
+        :loading="loading && type === 3"
+      >
+        <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase">
+          {{ t('Send SMS') }}
+        </a-button>
+      </a-popconfirm>
 
-    <vco-process-title :title="t('抵押物信息')">
-      <div v-if="showCheck" class="flex gap-5">
-        <a-popconfirm
-          :title="t('确定通过审核吗？')"
-          :ok-text="t('确定')"
-          :cancel-text="t('取消')"
-          @confirm="checkHandle()"
-        >
-          <a-button
-            type="dark"
-            shape="round"
-            class="uppercase"
-            v-if="!securityInfo.is_check"
-          >
-            {{ t('审核') }}
-          </a-button>
-        </a-popconfirm>
-        <a-button
-          v-if="showCheckEdit"
-          type="primary"
-          shape="round"
-          class="uppercase"
-          @click="addVisible = true"
-        >
-          {{ t('添加') }}
+      <a-button type="primary" shape="round" class="uppercase" @click="showForm">
+        {{ t('添加') }}
+      </a-button>
+    </div>
+  </vco-process-title>
+  <a-spin :spinning="loading">
+    <div class="sys-table-content border-top-none">
+      <a-table
+        :columns="columns"
+        :data-source="tableData"
+        :pagination="false"
+        :scroll="{ x: '100%' }"
+        row-key="id"
+        :row-selection="{ selectedRowKeys: selectedRowKeys, onSelect: onSelect, onSelectAll: onSelectAll }"
+      >
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.dataIndex === 'cate'">
+            <span v-if="record.cate == 1">{{ t('借款人') }}</span>
+            <span v-if="record.cate == 2">{{ t('担保人') }}</span>
+            <span v-if="record.cate == 3">{{ t('投资人') }}</span>
+          </template>
+          <template v-if="column.dataIndex === 'status'">
+            <span v-if="record.status == 0">{{ t('待通知') }}</span>
+            <span v-if="record.status == 1">{{ t('待反馈') }}</span>
+            <span v-if="record.status == 2">{{ t('已反馈') }}</span>
+            <span v-if="record.status == 3">{{ t('已完成') }}</span>
+          </template>
+          <template v-if="column.dataIndex === 'operation'">
+            <div class="ops">
+              <i class="iconfont" style="color: #0bda8e !important" v-if="Boolean(record.status == 3)">&#xe786;</i>
+              <!-- <i class="iconfont" v-if="Boolean(record.documents)">&#xe690;</i> -->
+              <i class="iconfont" @click="showForm(record)">&#xe753;</i>
+              <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.id)">
+                <i class="iconfont">&#xe8c1;</i>
+              </a-popconfirm>
+            </div>
+          </template>
+        </template>
+      </a-table>
+      <div class="flex justify-end pt-5">
+        <a-button type="brown" shape="round" class="uppercase ml-5" @click="toDocuments">
+          {{ t('查看文件') }}
         </a-button>
       </div>
-    </vco-process-title>
-
-    <div class="sys-form-content mt-5">
-      <a-form layout="vertical">
-        <a-row :gutter="24">
-          <a-col :span="8">
-            <a-form-item :label="t('总金额')">
-              <vco-number
-                :value="securityInfo.total_money"
-                :precision="2"
-                :end="true"
-              ></vco-number>
-            </a-form-item>
-          </a-col>
-          <a-col :span="8">
-            <a-form-item :label="t('抵押物价值')">
-              <vco-number
-                :value="securityInfo.total_value"
-                :precision="2"
-                :end="true"
-              ></vco-number>
-            </a-form-item>
-          </a-col>
-          <a-col :span="8">
-            <a-form-item :label="t('抵押物数量')">
-              <p class="total-count">{{ securityInfo.count }}</p>
-            </a-form-item>
-          </a-col>
-        </a-row>
-      </a-form>
     </div>
-    <div v-if="showCheck" class="check-content">
-      <i class="iconfont">&#xe647;</i>
-    </div>
-  </div>
+  </a-spin>
+  <WashTableAddEdit v-model:visible="visible" :currentId="currentId" :infoData="editData" @update="loadData"></WashTableAddEdit>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import {
-  lmAuditStatus,
-  fcAuditStatus,
-  auditLmCheckStatus,
-} from '@/api/process';
-import SecurityAddEdit from './SecurityAddEdit.vue';
+import { getWash, washCheck, sendEmail, sendSms, washRemove, washAdd } from '@/api/project/wash';
+import { navigationTo } from '@/utils/tool';
+import WashTableAddEdit from './WashTableAddEdit.vue';
 
-const emits = defineEmits(['refresh']);
+const emits = defineEmits(['check']);
+
 const props = defineProps({
   currentId: {
     type: [Number, String],
-    required: true,
-  },
-  stepType: {
-    type: Number,
-    default: 1,
-  },
-  securityInfo: {
-    type: Object,
-    default: () => {
-      return {
-        count: 0,
-        total_value: '0.00',
-        is_check: false,
-        check_status: 407,
-        type: [],
-      };
-    },
-  },
+    required: true
+  }
 });
-
 const { t } = useI18n();
 
-const showCheck = computed(() => {
-  return [1, 2, 4].includes(props.stepType);
-});
-
-const showCheckEdit = computed(() => {
-  return [1].includes(props.stepType);
-});
-
-const checkHandle = async () => {
-  let ajaxFn = null;
-  let params = {};
-  if (props.stepType === 1) {
-    ajaxFn = lmAuditStatus;
-    params = {
-      lm_audit_status: props.securityInfo.check_status,
-      uuid: props.currentId,
-    };
-  } else if (props.stepType === 2) {
-    ajaxFn = fcAuditStatus;
-    params = {
-      fc_audit_status: props.securityInfo.check_status,
-      uuid: props.currentId,
-    };
-  } else if (props.stepType === 4) {
-    ajaxFn = auditLmCheckStatus;
-    params = {
-      lm_check_status: props.securityInfo.check_status,
-      uuid: props.currentId,
-    };
+const columns = reactive([
+  { title: t('名称'), dataIndex: 'name', width: 150, align: 'center' },
+  { title: t('类型'), dataIndex: 'cate', width: 100, align: 'center' },
+  { title: t('邮箱'), dataIndex: 'email', width: 150, align: 'left' },
+  { title: t('电话'), dataIndex: 'mobile', width: 150, align: 'center' },
+  { title: t('状态t'), dataIndex: 'status', width: 100, align: 'center' },
+  {
+    title: t('操作1'),
+    dataIndex: 'operation',
+    // fixed: 'right',
+    align: 'right',
+    width: 150
   }
+]);
 
+const tableData = ref();
+
+const selectedRowKeys = ref([]); // 存放UUid
+const selectedRows = ref([]); // 存放所有选中的选项的所有内容
+const onSelect = (record, selected) => {
+  if (selected) {
+    selectedRowKeys.value.push(record.id);
+    selectedRows.value.push(record);
+  } else {
+    let index = selectedRowKeys.value.findIndex((it) => {
+      return it === record.id;
+    });
+    selectedRowKeys.value.splice(index, 1);
+    selectedRows.value.splice(index, 1);
+  }
+  handlePathChange();
+};
+const onSelectAll = (selected, Rows, changeRows) => {
+  const changeRowId = changeRows.map((it) => {
+    return it.id;
+  });
+  if (selected) {
+    let newIds = Array.from(new Set(changeRowId.concat(selectedRowKeys.value)));
+    let newRows = Array.from(new Set(changeRows.concat(selectedRows.value)));
+    selectedRowKeys.value = newIds;
+    selectedRows.value = newRows;
+  } else {
+    // 取消选中
+    changeRowId.map((it) => {
+      let index = selectedRowKeys.value.findIndex((item) => {
+        return item == it;
+      });
+      if (index != -1) {
+        selectedRowKeys.value.splice(index, 1);
+        selectedRows.value.splice(index, 1);
+      }
+    });
+  }
+  handlePathChange();
+};
+
+const toDocuments = () => {
+  navigationTo({ path: '/requests/documents', query: { uuid: props.currentId } });
+};
+
+const loading = ref(false);
+const type = ref();
+const checkHandle = async (val) => {
+  let ajaxFn = null;
+  type.value = val;
+  if (val === 1) {
+    ajaxFn = washCheck;
+  } else if (val === 2) {
+    ajaxFn = sendEmail;
+  } else if (val === 3) {
+    ajaxFn = sendSms;
+  }
   if (ajaxFn) {
-    await ajaxFn(params)
+    loading.value = true;
+    await ajaxFn({ id: selectedRowKeys.value })
       .then(() => {
-        emits('refresh');
+        loadData();
+        loading.value = false;
+        selectedRowKeys.value = [];
+        selectedRows.value = [];
         return true;
       })
       .catch(() => {
+        loading.value = false;
         return false;
       });
   }
 };
 
-const addVisible = ref(false);
+const remove = (id) => {
+  loading.value = true;
+  washRemove({ id: [id] })
+    .then((res) => {
+      loadData();
+    })
+    .finally((_) => {
+      loading.value = false;
+    });
+};
+
+const visible = ref(false);
+const editData = ref(null);
+const showForm = (val) => {
+  visible.value = true;
+  editData.value = val || null;
+};
+
+const loadData = () => {
+  getWash({ uuid: props.currentId }).then((res) => {
+    tableData.value = res.data;
+  });
+};
+
+onMounted(() => {
+  loadData();
+});
 </script>
 
 <style lang="less" scoped>
-.total-count {
-  font-size: 24px;
+@import '@/styles/variables.less';
+.ops {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  .iconfont {
+    cursor: pointer;
+    color: @colorPrimary!important;
+  }
 }
 </style>

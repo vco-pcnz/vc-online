@@ -70,7 +70,7 @@
           </template>
         </template>
       </a-table>
-      <div class="flex justify-end pt-5" v-if="!hide">
+      <div class="flex justify-end pt-5">
         <a-button type="brown" shape="round" class="uppercase ml-5" @click="toDocuments">
           {{ t('查看文件') }}
         </a-button>

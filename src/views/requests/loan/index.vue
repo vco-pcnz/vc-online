@@ -304,6 +304,10 @@
 
   const tabChange = () => {
     console.log(currentTab.value)
+    const params = cloneDeep(currentParams.value)
+    params.type = currentTab.value
+    params.page = 1
+    getTableData(params)
   }
 
   const searchHandle = (data = {}) => {

@@ -145,7 +145,7 @@ const onSelect = (record, selected) => {
     selectedRowKeys.value.splice(index, 1);
     selectedRows.value.splice(index, 1);
   }
-  handlePathChange();
+  // handlePathChange();
 };
 const onSelectAll = (selected, Rows, changeRows) => {
   const changeRowId = changeRows.map((it) => {
@@ -168,7 +168,7 @@ const onSelectAll = (selected, Rows, changeRows) => {
       }
     });
   }
-  handlePathChange();
+  // handlePathChange();
 };
 
 const toDocuments = () => {

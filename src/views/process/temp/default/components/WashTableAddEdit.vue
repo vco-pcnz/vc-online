@@ -1,11 +1,28 @@
 <template>
-  <a-modal :open="visible" :title="t('新增信息')" :width="500" :footer="null" :keyboard="false" :maskClosable="false" @update:open="updateVisible">
+  <a-modal
+    :open="visible"
+    :title="t('新增信息')"
+    :width="500"
+    :footer="null"
+    :keyboard="false"
+    :maskClosable="false"
+    @update:open="updateVisible"
+  >
     <div class="sys-form-content mt-5">
-      <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
+      <a-form
+        ref="formRef"
+        layout="vertical"
+        :model="formState"
+        :rules="formRules"
+      >
         <a-row :gutter="24">
           <a-col :span="24">
             <a-form-item label="">
-              <vco-choose-user ref="vcoChooseUserRef" url="stake/selStake" @change="choiceUserDone"> </vco-choose-user>
+              <vco-choose-user
+                ref="vcoChooseUserRef"
+                url="stake/selStake"
+                @change="choiceUserDone"
+              ></vco-choose-user>
             </a-form-item>
           </a-col>
 
@@ -21,14 +38,24 @@
           </a-col>
           <a-col :span="24">
             <a-form-item :label="t('手机号')" name="mobile">
-              <vco-mobile-input v-model:value="formState.mobile" v-model:areaCode="formState.pre" :formRef="formRef" validateField="mobile">
-              </vco-mobile-input>
+              <vco-mobile-input
+                v-model:value="formState.mobile"
+                v-model:areaCode="formState.pre"
+                :formRef="formRef"
+                validateField="mobile"
+              ></vco-mobile-input>
             </a-form-item>
           </a-col>
           <a-col :span="24">
             <a-form-item :label="t('类型')" name="cate">
               <a-select v-model:value="formState.cate">
-                <a-select-option v-for="item in cateList" :key="item.id" :value="item.id">{{ item.title }}</a-select-option>
+                <a-select-option
+                  v-for="item in cateList"
+                  :key="item.id"
+                  :value="item.id"
+                >
+                  {{ item.title }}
+                </a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
@@ -48,16 +75,33 @@
           </a-col>
           <a-col :span="24" class="mt-5">
             <a-form-item :label="t('项目文件')">
-              <vco-upload-modal v-model:list="documentList" v-model:value="formState.document"></vco-upload-modal>
-              <div class="documents" v-for="(item, index) in documentList" :key="index">
-                <vco-file-item :file="item" :showClose="true" @remove="remove(index)"></vco-file-item>
+              <vco-upload-modal
+                v-model:list="documentList"
+                v-model:value="formState.document"
+              ></vco-upload-modal>
+              <div
+                class="documents"
+                v-for="(item, index) in documentList"
+                :key="index"
+              >
+                <vco-file-item
+                  :file="item"
+                  :showClose="true"
+                  @remove="remove(index)"
+                ></vco-file-item>
               </div>
             </a-form-item>
           </a-col>
         </a-row>
       </a-form>
 
-      <a-button type="dark" class="big shadow bold uppercas mb-5 mt-5ze" style="width: 100%" :loading="subLoading" @click="submitHandle">
+      <a-button
+        type="dark"
+        class="big shadow bold uppercas mb-5 mt-5ze"
+        style="width: 100%"
+        :loading="subLoading"
+        @click="submitHandle"
+      >
         {{ t('保存') }}
       </a-button>
     </div>
@@ -78,16 +122,16 @@ const emits = defineEmits(['update:visible', 'update']);
 const props = defineProps({
   visible: {
     type: Boolean,
-    default: false
+    default: false,
   },
   currentId: {
     type: [Number, String],
-    required: true
+    required: true,
   },
   infoData: {
     type: Object,
-    default: () => {}
-  }
+    default: () => {},
+  },
 });
 
 const { t } = useI18n();
@@ -100,7 +144,7 @@ const updateVisible = (value) => {
 const cateList = ref([
   { title: t('借款人'), id: 1 },
   { title: t('担保人'), id: 2 },
-  { title: t('投资人'), id: 3 }
+  { title: t('投资人'), id: 3 },
 ]);
 
 const formRef = ref();
@@ -115,12 +159,16 @@ const formState = ref({
   email: '',
   sendEmail: false,
   sendSms: false,
-  document: []
+  document: [],
 });
 const formRules = {
   name: [{ required: true, message: t('请输入') + t('名称'), trigger: 'blur' }],
-  email: [{ required: true, message: t('请输入') + t('邮箱'), trigger: 'blur' }],
-  mobile: [{ required: true, message: t('请输入') + t('电话'), trigger: 'blur' }],
+  email: [
+    { required: true, message: t('请输入') + t('邮箱'), trigger: 'blur' },
+  ],
+  mobile: [
+    { required: true, message: t('请输入') + t('电话'), trigger: 'blur' },
+  ],
   cate: [{ required: true, message: t('请选择') + t('类型'), trigger: 'blur' }],
 };
 
@@ -157,9 +205,9 @@ const submitHandle = () => {
 const vcoChooseUserRef = ref();
 
 const choiceUserDone = (data) => {
-  let keys = ['name', 'email', 'pre', 'pre', 'mobile', 'pre', 'document'];
+  let keys = ['name', 'email', 'pre', 'mobile', 'document'];
   const newData = pick(data, keys);
-  documentList.value = newData.document?cloneDeep(newData.document):[];
+  documentList.value = newData.document ? cloneDeep(newData.document) : [];
 
   formState.value = { ...formState.value, ...newData };
 };
@@ -180,7 +228,9 @@ watch(
       formState.value = cloneDeep(props.infoData);
       formState.value.sendEmail = formState.value.sendEmail == '1';
       formState.value.sendSms = formState.value.sendSms == '1';
-      documentList.value = props.infoData.document?cloneDeep(props.infoData.document):[];
+      documentList.value = props.infoData.document
+        ? cloneDeep(props.infoData.document)
+        : [];
     }
   }
 );

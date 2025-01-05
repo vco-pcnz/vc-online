@@ -372,7 +372,7 @@ const showCheck = computed(() => {
   return [1, 2, 4].includes(props.stepType);
 });
 const showCheckEdit = computed(() => {
-  return [1].includes(props.stepType);
+  return [1, 2].includes(props.stepType);
 });
 
 const formRef = ref();

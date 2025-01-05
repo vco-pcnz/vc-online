@@ -31,58 +31,7 @@
             <template v-if="files.show">
               <div class="folderPath">{{ getPath(files.id) }}</div>
               <div v-for="(item, index) in files.attach" :key="index" @click="toTarget(files.id)">
-                <File
-                  :file="item"
-                  :tree="data"
-                  :apply_uuid="apply_uuid"
-                  :files="files"
-                  :folder="files"
-                  :key="index"
-                  @update="search"
-                ></File>
-                <!-- <vco-file-item
-                  :showClose="true"
-                  :filter="filter"
-                  :file="item"
-                  :time="item.create_time"
-                  iconColor="#bf9425"
-                  :showDownload="true"
-                  @remove="remove(item)"
-                >
-                  <template #ops>
-                    <a-dropdown trigger="click">
-                      <a class="ant-dropdown-link" @click.prevent>
-                        <i class="iconfont icon-ops">&#xe77f;</i>
-                      </a>
-                      <template #overlay>
-                        <ul class="opFileList">
-                          <li class="opFileList-item" @click="updateVisibleRename(item)">Rename</li>
-                          <li class="opFileList-item">Copy to...</li>
-                          <a-dropdown class="Filter" trigger="hover" v-for="(tabItem, index) in data" :key="tabItem.id" placement="right">
-                            <li class="opFileList-item" :class="{ disabled: tabItem.status == 0 }">
-                              <span class="index">{{ index + 1 }}</span>
-                              <span class="name">{{ tabItem.name }}</span>
-                              <i class="iconfont" v-if="tabItem.children && tabItem.children.length">&#xe791;</i>
-                            </li>
-                            <template #overlay v-if="tabItem.children && tabItem.children.length">
-                              <ul class="opFileList">
-                                <li
-                                  class="opFileList-item"
-                                  v-for="(sub, subIndex) in tabItem.children"
-                                  @click="move(files.id, sub.id, [item.uuid])"
-                                  :key="sub.id"
-                                >
-                                  <span class="index">{{ index + 1 }}.{{ subIndex + 1 }}</span>
-                                  <span class="name">{{ sub.name }}</span>
-                                </li>
-                              </ul>
-                            </template>
-                          </a-dropdown>
-                        </ul>
-                      </template>
-                    </a-dropdown>
-                  </template>
-                </vco-file-item> -->
+                <File :file="item" :tree="data" :apply_uuid="apply_uuid" :files="files" :folder="files" :key="index" @update="search"></File>
               </div>
             </template>
           </template>
@@ -146,6 +95,7 @@ const setIndex = (index, obj) => {
 
 const updateSearch = () => {
   keywords.value = '';
+  folders.value = [];
   emits('update:active', '');
   emits('update:showSearch', true);
 };

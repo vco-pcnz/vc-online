@@ -51,6 +51,7 @@
                   :apply_uuid="apply_uuid"
                   :filter="filter"
                   :files="files"
+                  :showClose="true"
                   :folder="folder"
                   v-for="(item, index) in files.attach"
                   :key="index"

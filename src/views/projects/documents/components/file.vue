@@ -1,6 +1,6 @@
 <template>
   <vco-file-item
-    :showClose="files.show"
+    :showClose="showClose"
     :filter="filter"
     :file="file"
     :time="file.create_time"
@@ -67,8 +67,7 @@ const props = defineProps({
     type: Object
   },
   tree: {
-    type: Array,
-    default: false
+    type: Array
   },
   apply_uuid: {
     type: String
@@ -79,6 +78,9 @@ const props = defineProps({
   filter: {
     type: String
   },
+  showClose: {
+    type: Boolean
+  },
   files: {
     type: Object
   }
@@ -86,7 +88,6 @@ const props = defineProps({
 
 const visibleRename = ref(false);
 const removeLoading = ref(false);
-const filter = ref('');
 
 const formParams = ref(null);
 const updateVisibleRename = () => {

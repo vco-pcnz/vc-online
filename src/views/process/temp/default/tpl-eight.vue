@@ -9,6 +9,14 @@
         @submit="confirmSub"
       ></vco-confirm-alert>
 
+      <div
+        v-if="dataInfo && dataInfo.cancel_reason"
+        class="block-item details process-fail mt-5"
+      >
+        <p class="title">{{ t('拒绝原因') }}</p>
+        <p class="info">{{ dataInfo.cancel_reason || t('拒绝原因') }}</p>
+      </div>
+
       <div class="block-container">
         <div v-if="dataInfo" class="left-content">
           <!-- 基础信息 -->
@@ -45,6 +53,20 @@
             :guarantor-info="guarantorInfo"
             @refresh="getDataInit"
           ></guarantor-info>
+
+          <div class="block-item mb">
+            <vco-process-title
+              :title="t('{0}审核批示', ['FC'])"
+            ></vco-process-title>
+            <div class="mt-2">{{ dataInfo.fc_review }}</div>
+          </div>
+
+          <div class="block-item mb">
+            <vco-process-title
+              :title="t('{0}审核批示', ['Director'])"
+            ></vco-process-title>
+            <div class="mt-2">{{ dataInfo.director_review }}</div>
+          </div>
 
           <temp-footer
             ref="footerRef"

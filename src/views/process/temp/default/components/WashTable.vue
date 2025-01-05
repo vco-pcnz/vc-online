@@ -59,7 +59,7 @@
           <template v-if="column.dataIndex === 'operation'">
             <div class="ops">
               <i class="iconfont" style="color: #0bda8e !important" v-if="Boolean(record.status == 3)">&#xe786;</i>
-              <!-- <i class="iconfont" v-if="Boolean(record.documents)">&#xe690;</i> -->
+              <i class="iconfont" v-if="Boolean(record.document && record.document.length)" @click="updateVisibleFiles(record.document)">&#xe795;</i>
               <i class="iconfont" @click="showForm(record)">&#xe753;</i>
               <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.id)">
                 <i class="iconfont">&#xe8c1;</i>
@@ -76,6 +76,12 @@
     </div>
   </a-spin>
   <WashTableAddEdit v-model:visible="visible" :currentId="currentId" :infoData="editData" @update="loadData"></WashTableAddEdit>
+
+  <a-modal :open="visibleFiles" :title="t('文件')" :width="500" :footer="null" :keyboard="false" :maskClosable="false" @update:open="visibleFiles = false">
+    <div class="documents" v-for="(item, index) in documentList" :key="index">
+      <vco-file-item :file="item"></vco-file-item>
+    </div>
+  </a-modal>
 </template>
 
 <script setup>
@@ -200,6 +206,14 @@ const editData = ref(null);
 const showForm = (val) => {
   visible.value = true;
   editData.value = val || null;
+};
+
+const visibleFiles = ref(false);
+const documentList = ref([]);
+
+const updateVisibleFiles = (val) => {
+  documentList.value = val;
+  visibleFiles.value = true;
 };
 
 const loadData = () => {

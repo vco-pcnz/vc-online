@@ -1,17 +1,9 @@
 <template>
   <div>
     <a-spin :spinning="pageLoading" size="large">
-      <vco-confirm-alert
-        ref="sureAlertRef"
-        :check="true"
-        v-model:visible="sureVisible"
-        @submit="confirmSub"
-      ></vco-confirm-alert>
+      <vco-confirm-alert ref="sureAlertRef" :check="true" v-model:visible="sureVisible" @submit="confirmSub"></vco-confirm-alert>
 
-      <div
-        v-if="dataInfo && dataInfo.cancel_reason"
-        class="block-item details process-fail mt-5"
-      >
+      <div v-if="dataInfo && dataInfo.cancel_reason" class="block-item details process-fail mt-5">
         <p class="title">{{ t('拒绝原因') }}</p>
         <p class="info">{{ dataInfo.cancel_reason || t('拒绝原因') }}</p>
       </div>
@@ -19,12 +11,7 @@
       <div class="block-container">
         <div v-if="dataInfo" class="left-content">
           <!-- 反洗钱文件 -->
-          <wash-table
-            :step-type="5"
-            :current-id="currentId"
-            :security-info="securityInfo"
-            @refresh="getDataInit"
-          ></wash-table>
+          <wash-table :step-type="5" :current-id="currentId" :security-info="securityInfo" @refresh="getDataInit"></wash-table>
 
           <temp-footer
             ref="footerRef"
@@ -42,11 +29,7 @@
           ></temp-footer>
           <div class="mb-10"></div>
           <!-- 基础信息 -->
-          <base-info-content
-            :step-type="5"
-            :data-info="dataInfo"
-            @refresh="getDataInit"
-          ></base-info-content>
+          <base-info-content :step-type="5" :data-info="dataInfo" @refresh="getDataInit"></base-info-content>
 
           <!-- 放款信息 -->
           <credit-form
@@ -61,36 +44,17 @@
           ></credit-form>
 
           <!-- 抵押物 -->
-          <security-items
-            :step-type="5"
-            :current-id="currentId"
-            :security-info="securityInfo"
-            @refresh="getDataInit"
-          ></security-items>
+          <security-items :step-type="5" :current-id="currentId" :security-info="securityInfo" @refresh="getDataInit"></security-items>
 
           <!-- 担保信息 -->
-          <guarantor-info
-            :step-type="5"
-            :current-id="currentId"
-            :guarantor-info="guarantorInfo"
-            @refresh="getDataInit"
-          ></guarantor-info>
+          <guarantor-info :step-type="5" :current-id="currentId" :guarantor-info="guarantorInfo" @refresh="getDataInit"></guarantor-info>
         </div>
 
         <div v-if="dataInfo" class="right-content">
           <bind-users :current-id="currentId" :is-details="true"></bind-users>
           <operation-log :current-id="currentId"></operation-log>
-          <forecast-list
-            v-if="showForecast"
-            :current-id="currentId"
-            :info-data="currentDataInfo"
-            :is-details="true"
-          ></forecast-list>
-          <security-list
-            :current-id="currentId"
-            :security-info="securityInfo"
-            :is-details="true"
-          ></security-list>
+          <forecast-list v-if="showForecast" :current-id="currentId" :info-data="currentDataInfo" :is-details="true"></forecast-list>
+          <security-list :current-id="currentId" :security-info="securityInfo" :is-details="true"></security-list>
         </div>
       </div>
     </a-spin>
@@ -101,7 +65,7 @@
 import { ref, watch, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { cloneDeep } from 'lodash';
-import { projectFcAuditDetail } from '@/api/process';
+import { projectFcAuditDetail, projectAuditWashCheck } from '@/api/process';
 import BaseInfoContent from './components/BaseInfoContent.vue';
 import TempFooter from './components/TempFooter.vue';
 import CreditForm from './components/CreditForm.vue';
@@ -116,6 +80,7 @@ import emitter from '@/event';
 import { message } from 'ant-design-vue/es';
 import useProcessStore from '@/store/modules/process';
 import ResovleDialog from '@/views/process/components/ResovleDialog.vue';
+import { navigationTo } from '@/utils/tool';
 
 // 初始化当前项目的forcastList 状态
 const processStore = useProcessStore();
@@ -126,41 +91,41 @@ const emits = defineEmits(['checkDone', 'dataDone']);
 const props = defineProps({
   infoData: {
     type: Object,
-    default: () => {},
+    default: () => {}
   },
   draftData: {
     type: Object,
-    default: () => {},
+    default: () => {}
   },
   previousStep: {
-    type: Object,
+    type: Object
   },
   currentStep: {
-    type: Object,
+    type: Object
   },
   nextStep: {
-    type: Object,
+    type: Object
   },
   currentId: {
     type: [Number, String],
-    default: '',
+    default: ''
   },
   check: {
     type: Boolean,
-    default: false,
+    default: false
   },
   previousPage: {
     type: String,
-    default: '',
+    default: ''
   },
   nextPage: {
     type: String,
-    default: '',
+    default: ''
   },
   canNext: {
     type: Boolean,
-    default: false,
-  },
+    default: false
+  }
 });
 
 const { t } = useI18n();
@@ -207,17 +172,17 @@ const submitHandle = () => {
 
 const confirmSub = () => {
   const params = {
-    uuid: props.currentId,
+    uuid: props.currentId
   };
 
-  projectAuditLmInspect(params)
+  projectAuditWashCheck(params)
     .then(() => {
       sureAlertRef.value.changeLoading(false);
       sureVisible.value = false;
 
       // 触发列表数据刷新
       emitter.emit('refreshRequestsList');
-      navigationTo('/requests/loan');
+      navigationTo(`/requests/details?uuid_info=${props.currentId}`);
     })
     .catch(() => {
       sureAlertRef.value.changeLoading(false);
@@ -248,7 +213,7 @@ const getDataInit = async () => {
 
   if (props.currentId) {
     await projectFcAuditDetail({
-      uuid: props.currentId,
+      uuid: props.currentId
     }).then((res) => {
       infoData = res;
     });
@@ -266,7 +231,7 @@ watch(
     }
   },
   {
-    immediate: true,
+    immediate: true
   }
 );
 

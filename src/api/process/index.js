@@ -455,3 +455,20 @@ export const projectAuditLmInspect = (data) =>
     method: "post",
     data
   });
+
+
+// FC或LC 反洗钱提交
+export const projectAuditWashCheck = (data) =>
+  request({
+    url: "/project/audit/washCheck",
+    method: "post",
+    data
+  });
+
+// lmOpen
+export const projectAuditLmOpen = (data) =>
+  request({
+    url: "/project/audit/lmOpen",
+    method: "post",
+    data
+  });

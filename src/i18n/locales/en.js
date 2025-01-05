@@ -470,5 +470,6 @@ export default {
   "借款人": "Borrower",
   "确定发送邮件吗？": "Are you sure you want to send the email?",
   "确定发送短信吗？": "Are you sure you want to send SMS?",
+  "新增信息": "New information"
 
 }

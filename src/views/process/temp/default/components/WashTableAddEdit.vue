@@ -157,9 +157,9 @@ const submitHandle = () => {
 const vcoChooseUserRef = ref();
 
 const choiceUserDone = (data) => {
-  console.log(data);
   let keys = ['name', 'email', 'pre', 'pre', 'mobile', 'pre', 'document'];
   const newData = pick(data, keys);
+  documentList.value = newData.document?cloneDeep(newData.document):[];
 
   formState.value = { ...formState.value, ...newData };
 };
@@ -180,7 +180,7 @@ watch(
       formState.value = cloneDeep(props.infoData);
       formState.value.sendEmail = formState.value.sendEmail == '1';
       formState.value.sendSms = formState.value.sendSms == '1';
-      documentList.value = props.infoData.document;
+      documentList.value = props.infoData.document?cloneDeep(props.infoData.document):[];
     }
   }
 );

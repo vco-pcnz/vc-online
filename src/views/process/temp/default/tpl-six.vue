@@ -7,7 +7,10 @@
         :type="2"
       ></resovle-dialog>
 
-      <div v-if="dataInfo && dataInfo.cancel_reason" class="block-item details process-fail mt-5">
+      <div
+        v-if="dataInfo && dataInfo.cancel_reason"
+        class="block-item details process-fail mt-5"
+      >
         <p class="title">{{ t('拒绝原因') }}</p>
         <p class="info">{{ dataInfo.cancel_reason || t('拒绝原因') }}</p>
       </div>
@@ -68,7 +71,7 @@
         </div>
 
         <div v-if="dataInfo" class="right-content">
-          <bind-users :current-id="currentId"></bind-users>
+          <bind-users :current-id="currentId" :is-details="true"></bind-users>
           <operation-log :current-id="currentId"></operation-log>
           <forecast-list
             v-if="showForecast"
@@ -76,189 +79,187 @@
             :info-data="currentDataInfo"
           ></forecast-list>
           <security-list
+            :is-details="true"
             :current-id="currentId"
             :security-info="securityInfo"
-          >
-          </security-list>
+          ></security-list>
         </div>
       </div>
     </a-spin>
   </div>
-  
 </template>
 
 <script setup>
-  import { ref, watch, onMounted } from "vue";
-  import { useI18n } from "vue-i18n";
-  import { cloneDeep } from "lodash";
-  import {
-    projectFcAuditDetail
-  } from "@/api/process";
-  import BaseInfoContent from "./components/BaseInfoContent.vue";
-  import TempFooter from "./components/TempFooter.vue";
-  import CreditForm from "./components/CreditForm.vue";
-  import SecurityItems from "./components/SecurityItems.vue";
-  import GuarantorInfo from "./components/GuarantorInfo.vue";
-  import BindUsers from "./../../components/BindUsers.vue";
-  import OperationLog from "./../../components/OperationLog.vue";
-  import ForecastList from "./../../components/ForecastList.vue";
-  import SecurityList from "./../../components/SecurityList.vue";
-  import emitter from "@/event"
-  import { message } from "ant-design-vue/es";
-  import useProcessStore from "@/store/modules/process"
-  import ResovleDialog from "@/views/process/components/ResovleDialog.vue";
+import { ref, watch, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { cloneDeep } from 'lodash';
+import { projectFcAuditDetail } from '@/api/process';
+import BaseInfoContent from './components/BaseInfoContent.vue';
+import TempFooter from './components/TempFooter.vue';
+import CreditForm from './components/CreditForm.vue';
+import SecurityItems from './components/SecurityItems.vue';
+import GuarantorInfo from './components/GuarantorInfo.vue';
+import BindUsers from './../../components/BindUsers.vue';
+import OperationLog from './../../components/OperationLog.vue';
+import ForecastList from './../../components/ForecastList.vue';
+import SecurityList from './../../components/SecurityList.vue';
+import emitter from '@/event';
+import { message } from 'ant-design-vue/es';
+import useProcessStore from '@/store/modules/process';
+import ResovleDialog from '@/views/process/components/ResovleDialog.vue';
 
-  // 初始化当前项目的forcastList 状态
-  const processStore = useProcessStore()
-  processStore.setForcastState(false)
+// 初始化当前项目的forcastList 状态
+const processStore = useProcessStore();
+processStore.setForcastState(false);
 
-  const emits = defineEmits(['checkDone', 'dataDone'])
+const emits = defineEmits(['checkDone', 'dataDone']);
 
-  const props = defineProps({
-    infoData: {
-      type: Object,
-      default: () => {}
-    },
-    draftData: {
-      type: Object,
-      default: () => {}
-    },
-    previousStep: {
-      type: Object
-    },
-    currentStep: {
-      type: Object
-    },
-    nextStep: {
-      type: Object
-    },
-    currentId: {
-      type: [Number, String],
-      default: ''
-    },
-    check: {
-      type: Boolean,
-      default: false
-    },
-    previousPage: {
-      type: String,
-      default: ''
-    },
-    nextPage: {
-      type: String,
-      default: ''
-    },
-    canNext: {
-      type: Boolean,
-      default: false
-    }
-  })
+const props = defineProps({
+  infoData: {
+    type: Object,
+    default: () => {},
+  },
+  draftData: {
+    type: Object,
+    default: () => {},
+  },
+  previousStep: {
+    type: Object,
+  },
+  currentStep: {
+    type: Object,
+  },
+  nextStep: {
+    type: Object,
+  },
+  currentId: {
+    type: [Number, String],
+    default: '',
+  },
+  check: {
+    type: Boolean,
+    default: false,
+  },
+  previousPage: {
+    type: String,
+    default: '',
+  },
+  nextPage: {
+    type: String,
+    default: '',
+  },
+  canNext: {
+    type: Boolean,
+    default: false,
+  },
+});
 
-  const { t } = useI18n();
-  const footerRef = ref()
+const { t } = useI18n();
+const footerRef = ref();
 
-  const currentDataInfo = ref()
-  const showForecast = ref(false)
+const currentDataInfo = ref();
+const showForecast = ref(false);
 
-  const subLoading = ref(false)
-  const resovleVisible = ref(false)
-  const submitHandle = () => {
-    const data = currentDataInfo.value
-    if (!data.borrower_info.is_check) {
-      message.error(t('请审核') + t('借款人信息'))
-      return false
-    }
-    if (!data.project_info.is_check) {
-      message.error(t('请审核') + t('项目信息'))
-      return false
-    }
-    if (!data.project_cert.is_check) {
-      message.error(t('请审核') + t('证件资料'))
-      return false
-    }
-    if (!data.loan_info.is_check) {
-      message.error(t('请审核') + t('借款信息'))
-      return false
-    }
-    if (!data.offer_amount.is_check) {
-      message.error(t('请审核') + t('放款信息'))
-      return false
-    }
-    if (!data.security.is_check) {
-      message.error(t('请审核') + t('抵押物信息'))
-      return false
-    }
-    if (!data.guarantor.is_check) {
-      message.error(t('请审核') + t('担保信息'))
-      return false
-    }
-
-    resovleVisible.value = true
+const subLoading = ref(false);
+const resovleVisible = ref(false);
+const submitHandle = () => {
+  const data = currentDataInfo.value;
+  if (!data.borrower_info.is_check) {
+    message.error(t('请审核') + t('借款人信息'));
+    return false;
+  }
+  if (!data.project_info.is_check) {
+    message.error(t('请审核') + t('项目信息'));
+    return false;
+  }
+  if (!data.project_cert.is_check) {
+    message.error(t('请审核') + t('证件资料'));
+    return false;
+  }
+  if (!data.loan_info.is_check) {
+    message.error(t('请审核') + t('借款信息'));
+    return false;
+  }
+  if (!data.offer_amount.is_check) {
+    message.error(t('请审核') + t('放款信息'));
+    return false;
+  }
+  if (!data.security.is_check) {
+    message.error(t('请审核') + t('抵押物信息'));
+    return false;
+  }
+  if (!data.guarantor.is_check) {
+    message.error(t('请审核') + t('担保信息'));
+    return false;
   }
 
-  const dataInfo = ref(null)
-  const offerAmount = ref(null)
-  const initialAmount = ref(null)
-  const securityInfo = ref(null)
-  const bonusInfo = ref(null)
-  const guarantorInfo = ref(null)
-  const dataInit = (infoMsg = {}) => {
-    const data = cloneDeep({...infoMsg, ...props.infoData})
+  resovleVisible.value = true;
+};
 
-    offerAmount.value = data.offer_amount
-    initialAmount.value = data.initial_amount
-    securityInfo.value = data.security
-    bonusInfo.value = data.offer_bonus
-    guarantorInfo.value = data.guarantor
-    dataInfo.value = data
-    currentDataInfo.value = data
-    emits('dataDone', data.project_apply_sn)
+const dataInfo = ref(null);
+const offerAmount = ref(null);
+const initialAmount = ref(null);
+const securityInfo = ref(null);
+const bonusInfo = ref(null);
+const guarantorInfo = ref(null);
+const dataInit = (infoMsg = {}) => {
+  const data = cloneDeep({ ...infoMsg, ...props.infoData });
+
+  offerAmount.value = data.offer_amount;
+  initialAmount.value = data.initial_amount;
+  securityInfo.value = data.security;
+  bonusInfo.value = data.offer_bonus;
+  guarantorInfo.value = data.guarantor;
+  dataInfo.value = data;
+  currentDataInfo.value = data;
+  emits('dataDone', data.project_apply_sn);
+};
+
+const pageLoading = ref(false);
+const getDataInit = async () => {
+  pageLoading.value = true;
+  let infoData = {};
+
+  if (props.currentId) {
+    await projectFcAuditDetail({
+      uuid: props.currentId,
+    }).then((res) => {
+      infoData = res;
+    });
   }
 
-  const pageLoading = ref(false)
-  const getDataInit = async () => {
-    pageLoading.value = true
-    let infoData = {}
+  pageLoading.value = false;
+  dataInit(infoData);
+};
 
-    if (props.currentId) {
-      await projectFcAuditDetail({
-        uuid: props.currentId
-      }).then(res => {
-        infoData = res
-      })
+watch(
+  () => props.infoData,
+  (val) => {
+    if (val) {
+      dataInit();
     }
+  },
+  {
+    immediate: true,
+  }
+);
 
-    pageLoading.value = false
-    dataInit(infoData)
+onMounted(() => {
+  if (!props.check) {
+    getDataInit();
   }
 
-  watch(
-    () => props.infoData,
-    (val) => {
-      if (val) {
-        dataInit()
-      }
-    }, {
-      immediate: true
-    }
-  )
-
-  onMounted(() => {
-    if (!props.check) {
-      getDataInit()
-    }
-
-    emitter.on('refreshSecurityInfo', () => {
-      getDataInit()
-    })
-  })
+  emitter.on('refreshSecurityInfo', () => {
+    getDataInit();
+  });
+});
 </script>
 
 <style lang="less" scoped>
-  @import './styles/common.less';
-  .sys-form-content {
-    :deep(.ant-input-number-input) {
-      font-size: 18px !important;
-    }
+@import './styles/common.less';
+.sys-form-content {
+  :deep(.ant-input-number-input) {
+    font-size: 18px !important;
   }
+}
 </style>

@@ -164,32 +164,13 @@ const subLoading = ref(false);
 const resovleVisible = ref(false);
 const submitHandle = () => {
   const data = currentDataInfo.value;
-  if (!data.borrower_info.is_check) {
-    message.error(t('请审核') + t('借款人信息'));
-    return false;
-  }
-  if (!data.project_info.is_check) {
-    message.error(t('请审核') + t('项目信息'));
-    return false;
-  }
-  if (!data.project_cert.is_check) {
-    message.error(t('请审核') + t('证件资料'));
-    return false;
-  }
-  if (!data.loan_info.is_check) {
-    message.error(t('请审核') + t('借款信息'));
-    return false;
-  }
   if (!data.offer_amount.is_check) {
     message.error(t('请审核') + t('放款信息'));
     return false;
   }
-  if (!data.security.is_check) {
-    message.error(t('请审核') + t('抵押物信息'));
-    return false;
-  }
-  if (!data.guarantor.is_check) {
-    message.error(t('请审核') + t('担保信息'));
+
+  if (!data.offer_bonus.is_check) {
+    message.error(t('请审核') + t('奖金信息'));
     return false;
   }
 

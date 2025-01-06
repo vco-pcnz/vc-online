@@ -159,7 +159,7 @@ const { t } = useI18n();
 const vcoChooseUserRef = ref();
 
 const showCheck = computed(() => {
-  return [1, 2, 4].includes(props.stepType);
+  return [1, 4].includes(props.stepType);
 });
 
 const showCheckEdit = computed(() => {

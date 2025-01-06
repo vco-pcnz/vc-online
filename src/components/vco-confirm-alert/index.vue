@@ -10,7 +10,7 @@
   >
     <div class="mt-5 text-center">
       <span v-if="props.check">{{ t('确定通过审核吗？') }}</span>
-      <span>{{ t('确定修改吗？') }}</span>
+      <span v-else>{{ t('确定修改吗？') }}</span>
     </div>
 
     <div class="mt-5 flex justify-between gap-5">

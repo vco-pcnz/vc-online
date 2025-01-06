@@ -12,7 +12,7 @@ const whiteRoute = routes.filter(item => item.name).map(item => item.name)
 const title = import.meta.env.VITE_APP_TITLE
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   routes
 })
 

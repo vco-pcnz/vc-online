@@ -46,7 +46,7 @@
                 <a-input-number
                   v-model:value="formState.land_amount"
                   :max="99999999999"
-                  :disabled="!showCheck"
+                  :disabled="inputDisabled"
                   :formatter="
                     (value) =>
                       `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -63,7 +63,7 @@
                 <a-input-number
                   v-model:value="formState.build_amount"
                   :max="99999999999"
-                  :disabled="!showCheck"
+                  :disabled="inputDisabled"
                   :formatter="
                     (value) =>
                       `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -90,7 +90,7 @@
               >
                 <a-input-number
                   :max="99999999999"
-                  :disabled="!showCheck"
+                  :disabled="inputDisabled"
                   v-model:value="formState.initial_land_amount"
                   :formatter="
                     (value) =>
@@ -110,7 +110,7 @@
               >
                 <a-input-number
                   :max="99999999999"
-                  :disabled="!showCheck"
+                  :disabled="inputDisabled"
                   v-model:value="formState.initial_build_amount"
                   :formatter="
                     (value) =>
@@ -146,7 +146,7 @@
                 >
                   <a-input
                     v-model:value="formState[item.credit_table]"
-                    :disabled="!showCheck"
+                    :disabled="inputDisabled"
                     :suffix="item.credit_unit"
                   />
                 </a-form-item>
@@ -168,7 +168,7 @@
                 >
                   <a-input-number
                     v-model:value="formState[item.credit_table]"
-                    :disabled="!showCheck"
+                    :disabled="inputDisabled"
                     :formatter="
                       (value) =>
                         `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -261,7 +261,7 @@
                 >
                   <a-input
                     v-model:value="bFormState[item.credit_table]"
-                    :disabled="!showCheck"
+                    :disabled="inputDisabled"
                     :suffix="item.credit_unit"
                   />
                 </a-form-item>
@@ -269,6 +269,9 @@
             </template>
           </a-row>
         </a-form>
+      </div>
+      <div v-if="showCheck" class="check-content">
+        <i class="iconfont">&#xe647;</i>
       </div>
     </div>
   </div>
@@ -371,6 +374,11 @@ const { t } = useI18n();
 const showCheck = computed(() => {
   return [1, 2, 4].includes(props.stepType);
 });
+
+const inputDisabled = computed(() => {
+  return ![1, 2].includes(props.stepType);
+});
+
 const showCheckEdit = computed(() => {
   return [1, 2].includes(props.stepType);
 });
@@ -416,13 +424,13 @@ const getFormItems = async () => {
 
   await ruleCredit({ type: creditCate }).then(async (res) => {
     const data = res || [];
-    let writeData = {};
-    let bonusData = {};
-    if (props.stepType > 0) {
-      writeData = data.filter((item) => item.is_write);
-    } else {
+    let writeData = [];
+    let bonusData = [];
+    if (props.creditCate > 0) {
       writeData = data.filter((item) => item.is_write && item.type === 1);
       bonusData = data.filter((item) => item.is_write && item.type === 2);
+    } else {
+      writeData = data.filter((item) => item.is_write);  
     }
     const perData = writeData.filter((item) => item.is_ratio);
     const dolData = writeData.filter((item) => !item.is_ratio);

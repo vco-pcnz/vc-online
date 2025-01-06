@@ -11,9 +11,9 @@
       @cancel="updateVisible(false)"
     >
       <div class="content">
-        <div class="title" :class="{ err: !rename }">Title</div>
+        <div class="title" :class="{ err: !rename }">Name</div>
         <a-input v-model:value="rename" :addon-after="'.' + suffix" />
-        <a-button @click="save" type="dark" class="save big" :loading="loading">
+        <a-button @click="save" type="dark" class="save big uppercase" :loading="loading">
           {{ t('保存') }}
         </a-button>
       </div>

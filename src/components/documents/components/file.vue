@@ -4,7 +4,6 @@
     :filter="filter"
     :file="file"
     :time="file.create_time"
-    :key="index"
     iconColor="#bf9425"
     :showDownload="true"
     @remove="remove(file)"
@@ -15,25 +14,10 @@
           <i class="iconfont icon-ops">&#xe77f;</i>
         </a>
         <template #overlay>
-          <ul class="opFileList">
+          <FoldersDropdown :data="tree" :did="files.id" :apply_uuid="apply_uuid" :uuids="[file.uuid]" @reload="reload">
             <li class="opFileList-item" @click="updateVisibleRename()">Rename</li>
             <li class="opFileList-item">Copy to...</li>
-            <a-dropdown class="Filter" trigger="hover" v-for="(tabItem, index) in tree" :key="tabItem.id" placement="right">
-              <li class="opFileList-item" :class="{ disabled: tabItem.status == 0 }">
-                <span class="index">{{ index + 1 }}</span>
-                <span class="name">{{ tabItem.name }}</span>
-                <i class="iconfont" v-if="tabItem.children && tabItem.children.length">&#xe791;</i>
-              </li>
-              <template #overlay v-if="tabItem.children && tabItem.children.length">
-                <ul class="opFileList">
-                  <li class="opFileList-item" v-for="(sub, subIndex) in tabItem.children" @click="move(files.id, sub.id, [item.uuid])" :key="sub.id">
-                    <span class="index">{{ index + 1 }}.{{ subIndex + 1 }}</span>
-                    <span class="name">{{ sub.name }}</span>
-                  </li>
-                </ul>
-              </template>
-            </a-dropdown>
-          </ul>
+          </FoldersDropdown>
         </template>
       </a-dropdown>
     </template>
@@ -56,8 +40,9 @@
 <script scoped setup>
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { getChild, fadd, fdel, fmove } from '@/api/project/annex';
+import { fdel, fmove } from '@/api/project/annex';
 import RenameModel from './rename.vue';
+import FoldersDropdown from './foldersDropdown.vue';
 
 const { t } = useI18n();
 const emits = defineEmits(['update', 'reload']);
@@ -124,6 +109,11 @@ const move = (current, target, uuids) => {
   }).then((res) => {
     emits('reload');
   });
+};
+
+const reload = () => {
+  emits('reload');
+  update()
 };
 
 const update = () => {

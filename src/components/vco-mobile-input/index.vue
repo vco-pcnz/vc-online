@@ -98,6 +98,7 @@
 
   const inputHandle = () => {
     emits('update:value', mobileValue.value)
+    blurHandle()
   }
 
   const blurHandle = () => {

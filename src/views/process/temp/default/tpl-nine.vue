@@ -11,7 +11,7 @@
       <div class="block-container">
         <div v-if="dataInfo" class="left-content">
           <!-- 反洗钱文件 -->
-          <wash-table :step-type="5" :current-id="currentId" :security-info="securityInfo" @refresh="getDataInit"></wash-table>
+          <wash-table :current-id="currentId"></wash-table>
 
           <temp-footer
             ref="footerRef"

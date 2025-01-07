@@ -81,34 +81,34 @@ watch(
 <style scoped lang="less">
 @import '@/styles/variables.less';
 
-:deep(.addModel) {
-  .ant-modal-header {
-    padding: 72px 84px 24px;
-    border-radius: 24px;
-    .ant-modal-title {
-      font-size: 20px;
-      font-weight: 500;
-    }
-  }
-  .ant-modal-content {
+.addModel {
+  :deep(.ant-modal-content) {
     padding: 0px !important;
-  }
-}
-
-.content {
-  line-height: 1.33;
-  padding: 24px 84px 72px;
-  .title {
-    color: #888;
-    font-size: 12px;
-    padding: 0 0 8px;
-    &.err {
-      color: #c1430c;
+    .ant-modal-header {
+      padding: 72px 84px 24px;
+      border-radius: 24px;
+      .ant-modal-title {
+        font-size: 20px;
+        font-weight: 500;
+      }
     }
-  }
-  .save {
-    width: 100%;
-    margin-top: 24px;
+
+    .content {
+      line-height: 1.33;
+      padding: 24px 84px 72px;
+      .title {
+        color: #888;
+        font-size: 12px;
+        padding: 0 0 8px;
+        &.err {
+          color: #c1430c;
+        }
+      }
+      .save {
+        width: 100%;
+        margin-top: 24px;
+      }
+    }
   }
 }
 </style>

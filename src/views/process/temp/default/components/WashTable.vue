@@ -1,7 +1,13 @@
 <template>
   <vco-process-title :title="t('新增反洗钱信息AML')">
     <div class="flex gap-5" v-if="!hide">
-      <a-popconfirm :title="t('确定通过审核吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="checkHandle(1)">
+      <a-popconfirm
+        :title="t('确定通过审核吗？')"
+        :ok-text="t('确定')"
+        :cancel-text="t('取消')"
+        :disabled="Boolean(!selectedRowKeys.length)"
+        @confirm="checkHandle(1)"
+      >
         <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase" :loading="loading && type === 1">
           {{ t('审核') }}
         </a-button>
@@ -10,22 +16,24 @@
         :title="t('确定发送邮件吗？')"
         :ok-text="t('确定')"
         :cancel-text="t('取消')"
+        :disabled="Boolean(!selectedRowKeys.length)"
         @confirm="checkHandle(2)"
         :loading="loading && type === 2"
       >
         <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase">
-          {{ t('Send E-mail') }}
+          {{ t('发送邮件') }}
         </a-button>
       </a-popconfirm>
       <a-popconfirm
         :title="t('确定发送短信吗？')"
         :ok-text="t('确定')"
         :cancel-text="t('取消')"
+        :disabled="Boolean(!selectedRowKeys.length)"
         @confirm="checkHandle(3)"
         :loading="loading && type === 3"
       >
         <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase">
-          {{ t('Send SMS') }}
+          {{ t('发送短信') }}
         </a-button>
       </a-popconfirm>
 
@@ -45,16 +53,19 @@
         :row-selection="hide ? null : { selectedRowKeys: selectedRowKeys, onSelect: onSelect, onSelectAll: onSelectAll }"
       >
         <template #bodyCell="{ column, record }">
+          <template v-if="column.dataIndex === 'name'">
+            <span class="bold black">{{ record.name }}</span>
+          </template>
           <template v-if="column.dataIndex === 'cate'">
             <span v-if="record.cate == 1">{{ t('借款人') }}</span>
             <span v-if="record.cate == 2">{{ t('担保人') }}</span>
             <span v-if="record.cate == 3">{{ t('投资人') }}</span>
           </template>
           <template v-if="column.dataIndex === 'status'">
-            <span v-if="record.status == 0">{{ t('待通知') }}</span>
-            <span v-if="record.status == 1">{{ t('待反馈') }}</span>
-            <span v-if="record.status == 2">{{ t('已反馈') }}</span>
-            <span v-if="record.status == 3">{{ t('已完成') }}</span>
+            <span v-if="record.status == 0" class="cer">{{ t('待通知') }}</span>
+            <span v-if="record.status == 1" class="cer">{{ t('待反馈') }}</span>
+            <span v-if="record.status == 2" class="cer">{{ t('已反馈') }}</span>
+            <span v-if="record.status == 3" class="cer">{{ t('已完成') }}</span>
           </template>
           <template v-if="column.dataIndex === 'operation'">
             <div class="ops">
@@ -116,11 +127,11 @@ const props = defineProps({
 const { t } = useI18n();
 
 const columns = reactive([
-  { title: t('名称'), dataIndex: 'name', width: 150, align: 'center' },
-  { title: t('类型'), dataIndex: 'cate', width: 100, align: 'center' },
-  { title: t('邮箱'), dataIndex: 'email', width: 150, align: 'left' },
-  { title: t('电话'), dataIndex: 'mobile', width: 150, align: 'center' },
-  { title: t('状态t'), dataIndex: 'status', width: 100, align: 'center' },
+  { title: t('名称'), dataIndex: 'name', width: 150, align: 'center', ellipsis: true },
+  { title: t('类型'), dataIndex: 'cate', width: 100, align: 'center', ellipsis: true },
+  { title: t('邮箱'), dataIndex: 'email', width: 150, align: 'left', ellipsis: true },
+  { title: t('电话'), dataIndex: 'mobile', width: 140, align: 'center', ellipsis: true },
+  { title: t('状态t'), dataIndex: 'status', width: 150, align: 'center' },
   {
     title: t('操作1'),
     dataIndex: 'operation',

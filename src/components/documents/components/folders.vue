@@ -11,12 +11,15 @@
     >
       <template #title="item">
         <div class="folder-item" :class="{ select: folder && item.id == folder.id }">
-          <div>
+          <div class="folder-item-name">
             <!-- <span class="serial-number">{{ tabIndex + 1 }}.{{ index + 1 }}</span> -->
+            <!-- <a-tooltip>
+              <template #title>{{ item.name }}</template>
+            </a-tooltip> -->
             <span class="name">{{ item.name }}</span>
             <span class="num">・{{ item.attach_count }}</span>
           </div>
-          <div>
+          <div class="folder-item-ops">
             <i class="iconfont mr-2" @click.stop="updateAddModel('0', item)">&#xe790;</i>
             <i class="iconfont mr-2" @click.stop="updateAddModel(item.id, item)">&#xe8cf;</i>
             <a-popconfirm title="Are you sure delete this Folders?" ok-text="Yes" cancel-text="No" @confirm="remove(item.id, index)">
@@ -127,6 +130,12 @@ watch(
   padding-right: 10px;
   position: relative;
   &-item {
+    flex: 1;
+    justify-content: space-between;
+    position: absolute;
+    inset: 0;
+    left: 25px;
+    line-height: 40px;
     &.select {
       &::before {
         display: inline-block;
@@ -137,15 +146,36 @@ watch(
         border-radius: 6px;
       }
     }
+
     > div {
+      display: absolute;
+    }
+    &-name {
       display: flex;
+      align-items: center;
+      .name {
+        white-space: nowrap; /* 禁止换行 */
+        overflow: hidden; /* 隐藏溢出内容 */
+        text-overflow: ellipsis; /* 使用省略号表示溢出内容 */
+        display: inline-block;
+        max-width: calc(100% - 60px);
+      }
     }
-    .name {
-      white-space: nowrap; /* 禁止换行 */
-      overflow: hidden; /* 隐藏溢出内容 */
-      text-overflow: ellipsis; /* 使用省略号表示溢出内容 */
-      display: inline-block;
+    &:hover {
+      .folder-item-name {
+        .name {
+          max-width: calc(100% - 100px);
+        }
+      }
     }
+    &-ops {
+      position: absolute;
+      right: 10px;
+      top: 0;
+      bottom: 0;
+      display: none;
+    }
+
     .serial-number {
       color: #888;
       margin-right: 10px;
@@ -162,8 +192,8 @@ watch(
     }
 
     .iconfont {
+      position: absolute;
       font-size: 12px;
-      display: none;
       color: @color_brown;
       position: relative;
       z-index: 1;
@@ -175,7 +205,6 @@ watch(
     top: 15px;
   }
 }
-
 
 :deep(.ant-tree) {
   background: transparent;
@@ -198,17 +227,12 @@ watch(
     width: 100%;
     padding: 0;
     padding-right: 10px;
-    .folder-item {
-      flex: 1;
-      display: flex;
-      justify-content: space-between;
-    }
     .ant-tree-title {
       flex: 1;
     }
     &:hover {
-      .iconfont {
-        display: inline-block !important;
+      .folder-item-ops {
+        display: block !important;
       }
     }
   }

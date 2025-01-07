@@ -16,7 +16,7 @@
               type="dark"
               shape="round"
               class="uppercase"
-              v-if="!offerAmount.is_check"
+              v-if="!offerAmount.is_check && creditId"
             >
               {{ t('审核') }}
             </a-button>
@@ -224,7 +224,7 @@
               type="dark"
               shape="round"
               class="uppercase"
-              v-if="!bonusInfo.is_check"
+              v-if="!bonusInfo.is_check && showBonusCheck"
             >
               {{ t('审核') }}
             </a-button>
@@ -488,6 +488,7 @@ const getFormItems = async () => {
   });
 };
 
+const showBonusCheck = ref(false)
 const updateFormData = async () => {
   await creditInfo({
     apply_uuid: props.currentId,
@@ -509,7 +510,18 @@ const updateFormData = async () => {
       if (creditId.value) {
         emits('done');
 
+        let num = 0
+        for (const key in bFormState.value) {
+          if (Number(bFormState.value[key])) {
+            num += 1
+          }
+        }
+        showBonusCheck.value = Boolean(num)
+
         processStore.setForcastState(true);
+
+        // 触发头部模块切换显示
+        emitter.emit('showHeaderTab');
       }
     }
   });

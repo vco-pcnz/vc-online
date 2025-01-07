@@ -25,7 +25,7 @@
             type="dark"
             shape="round"
             class="uppercase"
-            v-if="!guarantorInfo.is_check"
+            v-if="!guarantorInfo.is_check && props.guarantorInfo.main_contractor && props.guarantorInfo.security_package.length && props.guarantorInfo.guarantor_list.length"
           >
             {{ t('审核') }}
           </a-button>

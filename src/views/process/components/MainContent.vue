@@ -17,6 +17,11 @@
             </template>
             <template #right>
               <!-- <a-button type="primary" shape="round" ghost size="small">{{ t('帮助') }}?</a-button> -->
+              
+              <div v-if="orderSn && showHeaderTab" class="flex gap-5">
+                <a-button type="dark" @click="navigationTo(`/requests/schedule?uuid_info=${currentId}`)">{{ t('放款计划') }}</a-button>
+                <a-button type="dark" @click="navigationTo(`/requests/documents?uuid=${currentId}`)">{{ t('项目文件') }}</a-button>
+              </div>
             </template>
           </process-header>
 
@@ -41,11 +46,12 @@
 </template>
 
 <script setup>
-  import { ref } from "vue"
+  import { ref, onMounted } from "vue"
   import { useDynamicModule } from "@/hooks/useDynamicModule";
   import ProcessHeader from "./ProcessHeader.vue";
   import { useI18n } from "vue-i18n";
-  import { goBack } from "@/utils/tool"
+  import { goBack, navigationTo } from "@/utils/tool"
+  import emitter from '@/event';
 
   defineProps({
     current: {
@@ -79,6 +85,14 @@
     pageDone.value = true
     orderSn.value = res
   }
+
+  const showHeaderTab = ref(false)
+
+  onMounted(() => {
+    emitter.on('showHeaderTab', () => {
+      showHeaderTab.value = true
+    });
+  })
 </script>
 
 <style lang="less" scoped>

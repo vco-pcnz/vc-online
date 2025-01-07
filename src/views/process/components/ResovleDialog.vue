@@ -56,6 +56,10 @@
     type: {
       type: Number,
       default: 2
+    },
+    required: {
+      type: Boolean,
+      default: true
     }
   });
 
@@ -68,7 +72,7 @@
 
   const formRules = {
     reason: [
-      { required: true, message: t('请输入'), trigger: 'blur' }
+      { required: props.required, message: t('请输入'), trigger: 'blur' }
     ]
   }
 

@@ -13,9 +13,9 @@
       :class="{ checked: dataInfo.borrower_info.is_check && showCheck }"
     >
       <vco-process-title :title="t('借款人信息')">
-        <div v-if="showCheck" class="flex gap-5">
+        <div class="flex gap-5">
           <a-popconfirm
-            v-if="!dataInfo.borrower_info.is_check"
+            v-if="!dataInfo.borrower_info.is_check && showCheck"
             :title="t('确定通过审核吗？')"
             :ok-text="t('确定')"
             :cancel-text="t('取消')"
@@ -46,9 +46,9 @@
       :class="{ checked: dataInfo.project_info.is_check && showCheck }"
     >
       <vco-process-title :title="t('项目信息')">
-        <div v-if="showCheck" class="flex gap-5">
+        <div class="flex gap-5">
           <a-popconfirm
-            v-if="!dataInfo.project_info.is_check"
+            v-if="!dataInfo.project_info.is_check && showCheck"
             :title="t('确定通过审核吗？')"
             :ok-text="t('确定')"
             :cancel-text="t('取消')"
@@ -79,9 +79,9 @@
       :class="{ checked: dataInfo.project_cert.is_check && showCheck }"
     >
       <vco-process-title :title="t('证件资料')">
-        <div v-if="showCheck" class="flex gap-5">
+        <div class="flex gap-5">
           <a-popconfirm
-            v-if="!dataInfo.project_cert.is_check"
+            v-if="!dataInfo.project_cert.is_check && showCheck"
             :title="t('确定通过审核吗？')"
             :ok-text="t('确定')"
             :cancel-text="t('取消')"
@@ -112,9 +112,9 @@
       :class="{ checked: dataInfo.loan_info.is_check && showCheck }"
     >
       <vco-process-title :title="t('借款信息')">
-        <div v-if="showCheck" class="flex gap-5">
+        <div class="flex gap-5">
           <a-popconfirm
-            v-if="!dataInfo.loan_info.is_check"
+            v-if="!dataInfo.loan_info.is_check && showCheck"
             :title="t('确定通过审核吗？')"
             :ok-text="t('确定')"
             :cancel-text="t('取消')"
@@ -181,7 +181,7 @@ const showCheck = computed(() => {
 });
 
 const showCheckEdit = computed(() => {
-  return [1].includes(props.stepType);
+  return [1, 2].includes(props.stepType);
 });
 
 const showCheckLastEdit = computed(() => {

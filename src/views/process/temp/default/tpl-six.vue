@@ -5,6 +5,7 @@
         v-model:visible="resovleVisible"
         :uuid="currentId"
         :type="2"
+        :required="false"
       ></resovle-dialog>
 
       <div
@@ -79,7 +80,6 @@
             :info-data="currentDataInfo"
           ></forecast-list>
           <security-list
-            :is-details="true"
             :current-id="currentId"
             :security-info="securityInfo"
           ></security-list>

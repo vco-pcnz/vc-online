@@ -5,6 +5,7 @@
         v-model:visible="resovleVisible"
         :uuid="currentId"
         :type="3"
+        :required="false"
       ></resovle-dialog>
 
       <div v-if="dataInfo && dataInfo.cancel_reason" class="block-item details process-fail mt-5">
@@ -49,7 +50,7 @@
             @refresh="getDataInit"
           ></guarantor-info>
 
-          <div class="block-item mb">
+          <div v-if="dataInfo.fc_review" class="block-item mb">
             <vco-process-title :title="t('{0}审核批示', ['FC'])"></vco-process-title>
             <div class="mt-2">{{ dataInfo.fc_review }}</div>
           </div>
@@ -78,6 +79,7 @@
             :current-id="currentId"
             :info-data="currentDataInfo"
             :is-details="true"
+            :show-list="true"
           ></forecast-list>
           <security-list
             :current-id="currentId"

@@ -130,7 +130,8 @@
                     <p v-else>--</p>
                   </template>
                   <template v-if="column.dataIndex === 'status'">
-                    <template v-if="record.lm_list && record.lm_list.length">
+
+                    <template v-if="record.lm_list && record.lm_list.length || !record.allocation">
                       <a-button
                         v-if="record.has_permission"
                         type="primary"

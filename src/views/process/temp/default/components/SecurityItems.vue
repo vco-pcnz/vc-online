@@ -23,7 +23,7 @@
             type="dark"
             shape="round"
             class="uppercase"
-            v-if="!securityInfo.is_check"
+            v-if="!securityInfo.is_check && securityInfo.count"
           >
             {{ t('审核') }}
           </a-button>

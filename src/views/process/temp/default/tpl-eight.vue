@@ -54,14 +54,14 @@
             @refresh="getDataInit"
           ></guarantor-info>
 
-          <div class="block-item mb">
+          <div v-if="dataInfo.fc_review" class="block-item mb">
             <vco-process-title
               :title="t('{0}审核批示', ['FC'])"
             ></vco-process-title>
             <div class="mt-2">{{ dataInfo.fc_review }}</div>
           </div>
 
-          <div class="block-item mb">
+          <div v-if="dataInfo.director_review" class="block-item mb">
             <vco-process-title
               :title="t('{0}审核批示', ['Director'])"
             ></vco-process-title>

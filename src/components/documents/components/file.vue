@@ -113,7 +113,7 @@ const move = (current, target, uuids) => {
 
 const reload = () => {
   emits('reload');
-  update()
+  update();
 };
 
 const update = () => {
@@ -258,17 +258,4 @@ const update = () => {
   }
 }
 
-.row1 {
-  min-height: 400px;
-  padding-right: 400px;
-}
-.row2 {
-  .row {
-    display: flex;
-    flex-wrap: wrap;
-    // .fileBox {
-    //   flex: 0 0 50%;
-    // }
-  }
-}
 </style>

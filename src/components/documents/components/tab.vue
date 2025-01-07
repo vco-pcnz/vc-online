@@ -96,7 +96,7 @@ const setIndex = (index, obj) => {
 const updateSearch = () => {
   keywords.value = '';
   folders.value = [];
-  emits('update:active', '');
+  emits('update:active', 0);
   emits('update:showSearch', true);
 };
 

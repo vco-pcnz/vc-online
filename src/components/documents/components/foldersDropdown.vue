@@ -28,7 +28,7 @@ const props = defineProps({
     type: Number
   },
   apply_uuid: {
-    type: Number
+    type: String
   },
   uuids: {
     type: Array,

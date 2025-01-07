@@ -99,4 +99,8 @@ watch(
     grid-template-columns: 1.2fr 3fr;
   }
 }
+
+:deep(.fileBox-content) {
+  width: calc(100% - 150px) !important;
+}
 </style>

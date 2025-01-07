@@ -37,6 +37,19 @@
         </a-button>
       </a-popconfirm>
 
+      <a-popconfirm
+        :title="t('确定删除吗？')"
+        :ok-text="t('确定')"
+        :cancel-text="t('取消')"
+        :disabled="Boolean(!selectedRowKeys.length)"
+        @confirm="checkHandle(4)"
+        :loading="loading && type === 4"
+      >
+        <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase">
+          {{ t('删除') }}
+        </a-button>
+      </a-popconfirm>
+
       <a-button type="primary" shape="round" class="uppercase" @click="showForm">
         {{ t('添加') }}
       </a-button>
@@ -70,7 +83,7 @@
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.dataIndex === 'name'">
-            <span class="bold">{{ record.name }}</span>
+            {{ record.name }}
           </template>
           <template v-if="column.dataIndex === 'cate'">
             <span class="cer" v-if="record.cate == 1">{{ t('借款人') }}</span>
@@ -109,11 +122,6 @@
           @change="setPaginate"
         />
       </div>
-      <!-- <div class="flex justify-end pt-5">
-        <a-button type="brown" shape="round" class="uppercase ml-5" @click="toDocuments">
-          {{ t('查看文件') }}
-        </a-button>
-      </div> -->
     </div>
   </a-spin>
   <WashTableAddEdit v-model:visible="visible" :currentId="currentId" :infoData="editData" @update="loadData"></WashTableAddEdit>
@@ -134,10 +142,9 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { getWash, washCheck, sendEmail, sendSms, washRemove, washAdd } from '@/api/project/wash';
-import { navigationTo } from '@/utils/tool';
+import { getWash, washCheck, sendEmail, sendSms, washRemove } from '@/api/project/wash';
 import WashTableAddEdit from './WashTableAddEdit.vue';
 
 const emits = defineEmits(['check']);
@@ -220,10 +227,6 @@ const onSelectAll = (type) => {
   }
 };
 
-// const toDocuments = () => {
-//   navigationTo({ path: '/requests/documents', query: { uuid: props.currentId } });
-// };
-
 const loading = ref(false);
 const type = ref();
 const checkHandle = async (val) => {
@@ -235,10 +238,13 @@ const checkHandle = async (val) => {
     ajaxFn = sendEmail;
   } else if (val === 3) {
     ajaxFn = sendSms;
+  } else if (val === 4) {
+    ajaxFn = washRemove;
   }
+
   if (ajaxFn) {
     loading.value = true;
-    await ajaxFn({ id: selectAll.value == 'all' ? 'all' : selectedRowKeys.value })
+    await ajaxFn({ id: selectAll.value == 'all' ? 'all' : selectedRowKeys.value, uuid: props.currentId })
       .then(() => {
         loadData();
         loading.value = false;
@@ -255,7 +261,7 @@ const checkHandle = async (val) => {
 
 const remove = (id) => {
   loading.value = true;
-  washRemove({ id: [id] })
+  washRemove({ id: [id], uuid: props.currentId })
     .then((res) => {
       loadData();
     })
@@ -318,6 +324,9 @@ onMounted(() => {
 :deep(.ant-table-tbody) {
   & > tr td {
     color: #181818;
+  }
+  & > tr:nth-child(2) {
+    font-weight: 500;
   }
 }
 .selectAll {

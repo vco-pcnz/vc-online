@@ -129,8 +129,12 @@ watch(
         content: '';
         position: absolute;
         inset: 0;
+        left: -25px;
         background-color: hsla(35, 53%, 67%, 0.2);
         border-radius: 6px;
+      }
+      .folder-item-ops {
+        display: block!important;
       }
     }
 

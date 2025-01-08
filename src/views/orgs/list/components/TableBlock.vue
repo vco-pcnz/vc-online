@@ -53,7 +53,7 @@
               </span>
             </p>
           </div>
-          <a-button v-else  type="brown" shape="round" size="small" @click="showBindUser(record.uuid)">{{ t('绑定用户') }}</a-button>
+          <a-button v-else type="brown" shape="round" size="small" @click="showBindUser(record.uuid)">{{ t('绑定用户') }}</a-button>
         </template>
         <template v-if="column.key === '4'">
           <p v-if="record.user_roles.length">
@@ -88,14 +88,10 @@
           </p>
         </template>
         <template v-if="column.key === '7'">
-          <p>
-            <span class="cer">
-              {{ record.is_expire ? t('有效') : t('无效') }}
-            </span>
-          </p>
-          <p v-if="record.expire_time" :class="{ err: !record.is_expire }">
-            {{ tool.showDate(record.expire_time) }}
-          </p>
+          <template v-if="record.expire_time && record.expire_time.length">
+            <p>{{ t('有效') }}({{ getExpireTimeNum(record.expire_time).valid }})</p>
+            <p class="err">{{ t('无效') }}({{ getExpireTimeNum(record.expire_time).invalid }})</p>
+          </template>
         </template>
         <template v-if="column.key === 'operation'">
           <a-dropdown :trigger="['click']">
@@ -183,19 +179,6 @@ const columns = reactive([
   }
 ]);
 
-const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE;
-
-const checkedAll = ref(false);
-
-const itemcheck = () => {
-  const length = props.tableData.filter((item) => item.checked).length;
-  checkedAll.value = length === props.tableData.length;
-};
-
-const checkedAllHandle = () => {
-  emits('check', checkedAll.value);
-};
-
 const bindForm = ref({
   user_uuid: '',
   uuid: ''
@@ -208,6 +191,21 @@ const showBindUser = (uuid) => {
 const bindUser = (e) => {
   bindForm.value.user_uuid = e.uuid;
   orgsStore.stakeBind(bindForm.value);
+};
+
+const getExpireTimeNum = (val) => {
+  let obj = {
+    valid: 0,
+    invalid: 0
+  };
+  val.map((item) => {
+    if (tool.toUnixTime(item) >= Math.floor(new Date().getTime() / 1000)) {
+      obj.valid += 1;
+    } else {
+      obj.invalid += 1;
+    }
+  });
+  return obj;
 };
 
 // 跳转详情

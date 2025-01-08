@@ -14,6 +14,17 @@
           </a-spin>
         </vco-upload-modal>
 
+        <div class="files-ops-item">
+          <i
+            class="iconfont"
+            :class="{ asc: !isDefault }"
+            @click="
+              isDefault = !isDefault;
+              getFiles();
+            "
+            >&#xe74d;</i
+          >
+        </div>
         <a-dropdown class="Filter" trigger="click">
           <div class="files-ops-item">
             <i class="iconfont">&#xe772;</i>Sort by:<span class="lowercase">{{ sortSelect.name }}</span>
@@ -134,6 +145,7 @@ const sortsList = ref([
   { name: 'Size', id: 'att_size' }
 ]);
 
+const isDefault = ref(false);
 const sortSelect = ref({ name: 'Date', id: 'create_time' });
 const changeSort = (val) => {
   sortSelect.value = val;
@@ -145,7 +157,12 @@ const setShowFilter = () => {
 };
 
 const getFiles = () => {
-  let params = { apply_uuid: props.apply_uuid, __sort__asc: sortSelect.value.id };
+  let params = { apply_uuid: props.apply_uuid };
+  if (!isDefault.value) {
+    params['__sort__asc'] = sortSelect.value.id;
+  } else {
+    params['__sort__desc'] = sortSelect.value.id;
+  }
   params['id'] = props.folder.id;
   spinning.value = true;
   showArchived.value = true;
@@ -215,6 +232,13 @@ defineExpose({
         background-color: #f7f9f8;
         color: #181818;
         border-radius: 6px;
+      }
+
+      .iconfont {
+        transition: all 0.3s ease;
+        &.asc {
+          transform: rotateX(180deg);
+        }
       }
     }
 
@@ -328,7 +352,7 @@ defineExpose({
 
 .row1 {
   min-height: 400px;
-  padding-right: 400px;
+  width: 400px;
 }
 .row2 {
   .row {

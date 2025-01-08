@@ -5,17 +5,13 @@
       :show-line="true"
       show-icon
       :tree-data="data"
-      @select="onSelect"
+      v-model:expandedKeys="expandedKeys"
       :fieldNames="{ children: 'children', title: 'name', key: 'id' }"
-      :autoExpandParent="true"
+      @select="onSelect"
     >
       <template #title="item">
         <div class="folder-item" :class="{ select: folder && item.id == folder.id }">
           <div class="folder-item-name">
-            <!-- <span class="serial-number">{{ tabIndex + 1 }}.{{ index + 1 }}</span> -->
-            <!-- <a-tooltip>
-              <template #title>{{ item.name }}</template>
-            </a-tooltip> -->
             <span class="name">{{ item.name }}</span>
             <span class="num">・{{ item.attach_count }}</span>
           </div>
@@ -31,32 +27,24 @@
       <template #icon="{ expanded }">
         <FolderOpenOutlined v-if="expanded" />
         <FolderOutlined v-else />
-        <!-- <FolderOutlined v-if="!expanded && !data.children" /> -->
       </template>
-      <!-- <template #switcherIcon="{ expanded }">
-        <FolderOpenOutlined v-if="expanded" />
-        <FolderOutlined v-else />
-      </template> -->
     </a-tree>
     <Add :formParams="formParams" v-model:visible="visibleAdd" @change="change(selectFolder)"></Add>
   </div>
 </template>
 
 <script scoped setup>
-import { nextTick, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
+import { FolderOutlined, FolderOpenOutlined } from '@ant-design/icons-vue';
 import { useI18n } from 'vue-i18n';
 import { annexRemove } from '@/api/project/annex';
 import Add from './add.vue';
 import { cloneDeep } from 'lodash';
-import { FolderOutlined, FolderOpenOutlined } from '@ant-design/icons-vue';
 
 const { t } = useI18n();
 const emits = defineEmits(['update:folder', 'change']);
 
 const props = defineProps({
-  active: {
-    type: Number
-  },
   data: {
     type: Array,
     default: false
@@ -75,7 +63,7 @@ const props = defineProps({
 const visibleAdd = ref(false);
 const formParams = ref();
 const selectFolder = ref();
-const expandedKeys = ref([426]);
+const expandedKeys = ref();
 
 const onSelect = (selectedKeys, e) => {
   emits('update:folder', e.node.dataRef);
@@ -109,11 +97,7 @@ watch(
   (val) => {
     if (val) {
       selectFolder.value = cloneDeep(props.folder);
-      nextTick(() => {
-        expandedKeys.value = [selectFolder.value.id];
-        console.log(expandedKeys.value);
-        // console.log(expandedKeys.value)
-      });
+      expandedKeys.value = [selectFolder.value.pid];
     }
   },
   { deep: true, immediate: true }

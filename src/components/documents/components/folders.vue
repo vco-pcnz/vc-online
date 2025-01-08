@@ -92,12 +92,15 @@ const remove = (id) => {
     }
   });
 };
+
 watch(
   () => props.folder,
   (val) => {
     if (val) {
       selectFolder.value = cloneDeep(props.folder);
-      expandedKeys.value = [selectFolder.value.pid];
+      if (!expandedKeys.value) {
+        expandedKeys.value = [selectFolder.value.pid];
+      }
     }
   },
   { deep: true, immediate: true }

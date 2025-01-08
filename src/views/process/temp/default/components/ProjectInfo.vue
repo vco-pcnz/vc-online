@@ -44,7 +44,7 @@
                 >
                   <a-image
                     :width="50"
-                    :src="item.url"
+                    :src="item.value"
                   />
                 </div>
               </div>

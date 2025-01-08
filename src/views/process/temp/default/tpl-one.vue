@@ -9,7 +9,7 @@
       <div class="block-container">
         <div class="left-content">
           <div class="block-item" :class="{ check: check }">
-            <div v-if="!check && !currentId" class="flex justify-end gap-5">
+            <div v-if="!check" class="flex justify-end gap-5">
               <a-button v-permission="'process:one:tempImport'" type="primary-line" shape="round" size="small" @click="importStaHandle">{{
                 t('从利益相关者导入')
               }}</a-button>

@@ -11,9 +11,7 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
     routerInit: false,
     routerInfo: undefined,
     // 当前登录用户的权限
-    authorities: [],
-    // 是否为普通用户
-    isNormalUser: false
+    authorities: []
   }),
 
   getters: {
@@ -48,9 +46,6 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
       result.roles =
         result.roles && result.roles.length ? result.roles.join("/") : "";
       this.userInfo = result;
-
-      const str = String(result.roles).toLocaleLowerCase()
-      this.isNormalUser = str === 'vip'
 
       // 用户权限
       this.authorities = result.permissionList;

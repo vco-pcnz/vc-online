@@ -45,8 +45,30 @@
       </a-col>
       <a-col :span="24">
         <div class="info-content">
+          <p class="name">{{ t('证件照片') }}</p>
+          <div v-if="data.borrower_images && data.borrower_images.length">
+            <a-image-preview-group>
+              <div class="images-box-content">
+                <div
+                  v-for="(item, index) in data.borrower_images"
+                  :key="index"
+                  class="item"
+                >
+                  <a-image
+                    :width="50"
+                    :src="item.value"
+                  />
+                </div>
+              </div>
+            </a-image-preview-group>
+          </div>
+          <p v-else class="txt">--</p>
+        </div>
+      </a-col>
+      <a-col :span="24">
+        <div class="info-content">
           <p class="name">{{ t('借款人地址') }}</p>
-          <p class="txt">{{ addressInfo }}</p>
+          <p class="txt">{{ data.borrower_city }}</p>
         </div>
       </a-col>
       <a-col :span="24">
@@ -60,7 +82,6 @@
 </template>
 
 <script setup>
-  import { computed } from "vue"
   import { useI18n } from "vue-i18n";
 
   const props = defineProps({
@@ -70,11 +91,7 @@
     }
   })
 
-  const { t, locale } = useI18n();
-
-  const addressInfo = computed(() => {
-    return `${props.data.borrower_address_short} ${props.data.borrower_address} ${props.data.borrower_suburb} ${props.data.borrower_region_one_name} ${props.data.borrower_country_name}`
-  })
+  const { t } = useI18n();
 </script>
 
 <style lang="less" scoped>

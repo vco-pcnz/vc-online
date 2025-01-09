@@ -59,7 +59,7 @@ const onChange = (key) => {
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  gap: 5px;
+  gap: 10px;
 }
 .tab-button {
   color: @clr_charcoal;

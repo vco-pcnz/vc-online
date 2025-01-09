@@ -2,6 +2,12 @@
   <div>
     <a-spin :spinning="pageLoading" size="large">
       <vco-confirm-alert ref="sureAlertRef" :check="true" v-model:visible="sureVisible" @submit="confirmSub"></vco-confirm-alert>
+
+      <div v-if="dataInfo && dataInfo.cancel_reason" class="block-item details process-fail mt-5">
+        <p class="title">{{ t('拒绝原因') }}</p>
+        <p class="info">{{ dataInfo.cancel_reason || t('拒绝原因') }}</p>
+      </div>
+      
       <div class="block-container">
         <div v-if="dataInfo" class="left-content">
           <!-- 基础信息 -->
@@ -15,6 +21,7 @@
             :offer-amount="offerAmount"
             :loan-money="dataInfo.loan_info.loan_money"
             :initial-amount="initialAmount"
+            :bonus-info="bonusInfo"
             @done="showForecast = true"
             @refresh="getDataInit"
           ></credit-form>
@@ -24,8 +31,17 @@
 
           <!-- 担保信息 -->
           <guarantor-info :step-type="5" :current-id="currentId" :guarantor-info="guarantorInfo" @refresh="getDataInit"></guarantor-info>
+          
           <!-- 反洗钱文件 -->
-          <wash-table :step-type="5" :current-id="currentId" :security-info="securityInfo" @refresh="getDataInit" :hide="true"></wash-table>
+          <wash-table
+            :step-type="5"
+            :current-id="currentId"
+            :security-info="securityInfo"
+            :wash-info="washInfo"
+            :wash-check="true"
+            @refresh="getDataInit"
+            :hide="true"
+          ></wash-table>
 
           <temp-footer
             ref="footerRef"
@@ -57,7 +73,7 @@
 import { ref, watch, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { cloneDeep } from 'lodash';
-import { projectFcAuditDetail, projectAuditLmOpen } from '@/api/process';
+import { projectLmAuditDetail, projectAuditLmOpen } from '@/api/process';
 import BaseInfoContent from './components/BaseInfoContent.vue';
 import TempFooter from './components/TempFooter.vue';
 import CreditForm from './components/CreditForm.vue';
@@ -70,6 +86,7 @@ import ForecastList from './../../components/ForecastList.vue';
 import SecurityList from './../../components/SecurityList.vue';
 import emitter from '@/event';
 import useProcessStore from '@/store/modules/process';
+import { message } from 'ant-design-vue/es';
 import { navigationTo } from '@/utils/tool';
 
 // 初始化当前项目的forcastList 状态
@@ -128,6 +145,44 @@ const subLoading = ref(false);
 const sureVisible = ref(false);
 const sureAlertRef = ref();
 const submitHandle = () => {
+  const data = currentDataInfo.value
+  if (!data.borrower_info.is_check) {
+    message.error(t('请审核') + t('借款人信息'))
+    return false
+  }
+  if (!data.project_info.is_check) {
+    message.error(t('请审核') + t('项目信息'))
+    return false
+  }
+  if (!data.project_cert.is_check) {
+    message.error(t('请审核') + t('证件资料'))
+    return false
+  }
+  if (!data.loan_info.is_check) {
+    message.error(t('请审核') + t('借款信息'))
+    return false
+  }
+  if (!data.offer_amount.is_check) {
+    message.error(t('请审核') + t('放款信息'))
+    return false
+  }
+  if (!data.offer_bonus.is_check) {
+    message.error(t('请审核') + t('奖金信息'))
+    return false
+  }
+  if (!data.security.is_check) {
+    message.error(t('请审核') + t('抵押物信息'))
+    return false
+  }
+  if (!data.guarantor.is_check) {
+    message.error(t('请审核') + t('担保信息'))
+    return false
+  }
+  if (!data.wash.is_check) {
+    message.error(t('请审核') + t('新增反洗钱信息'))
+    return false
+  }
+
   sureVisible.value = true;
 };
 
@@ -137,13 +192,14 @@ const confirmSub = () => {
   };
 
   projectAuditLmOpen(params)
-    .then(() => {
+    .then(res => {
       sureAlertRef.value.changeLoading(false);
       sureVisible.value = false;
 
       // 触发列表数据刷新
-      emitter.emit('refreshRequestsList');
-      navigationTo(`/requests/loan`);
+      emitter.emit('refreshRequestsList2');
+
+      navigationTo('/requests/loan')
     })
     .catch(() => {
       sureAlertRef.value.changeLoading(false);
@@ -154,14 +210,18 @@ const dataInfo = ref(null);
 const offerAmount = ref(null);
 const initialAmount = ref(null);
 const securityInfo = ref(null);
+const bonusInfo = ref(null);
 const guarantorInfo = ref(null);
+const washInfo = ref(null);
 const dataInit = (infoMsg = {}) => {
   const data = cloneDeep({ ...infoMsg, ...props.infoData });
 
   offerAmount.value = data.offer_amount;
   initialAmount.value = data.initial_amount;
   securityInfo.value = data.security;
+  bonusInfo.value = data.offer_bonus;
   guarantorInfo.value = data.guarantor;
+  washInfo.value = data.wash;
   dataInfo.value = data;
   currentDataInfo.value = data;
   emits('dataDone', data.project_apply_sn);
@@ -173,8 +233,9 @@ const getDataInit = async () => {
   let infoData = {};
 
   if (props.currentId) {
-    await projectFcAuditDetail({
-      uuid: props.currentId
+    await projectLmAuditDetail({
+      uuid: props.currentId,
+      type: 2
     }).then((res) => {
       infoData = res;
     });

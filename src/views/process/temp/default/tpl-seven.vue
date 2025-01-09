@@ -6,6 +6,7 @@
         :uuid="currentId"
         :type="3"
         :required="false"
+        @done="subDone"
       ></resovle-dialog>
 
       <div v-if="dataInfo && dataInfo.cancel_reason" class="block-item details process-fail mt-5">
@@ -30,6 +31,7 @@
             :offer-amount="offerAmount"
             :loan-money="dataInfo.loan_info.loan_money"
             :initial-amount="initialAmount"
+            :bonus-info="bonusInfo"
             @done="showForecast = true"
             @refresh="getDataInit"
           ></credit-form>
@@ -177,6 +179,7 @@
   const offerAmount = ref(null)
   const initialAmount = ref(null)
   const securityInfo = ref(null)
+  const bonusInfo = ref(null);
   const guarantorInfo = ref(null)
   const dataInit = (infoMsg = {}) => {
     const data = cloneDeep({...infoMsg, ...props.infoData})
@@ -184,6 +187,7 @@
     offerAmount.value = data.offer_amount
     initialAmount.value = data.initial_amount
     securityInfo.value = data.security
+    bonusInfo.value = data.offer_bonus;
     guarantorInfo.value = data.guarantor
     dataInfo.value = data
     currentDataInfo.value = data
@@ -205,6 +209,13 @@
 
     pageLoading.value = false
     dataInit(infoData)
+  }
+
+  const subDone = (data) => {
+    footerRef.value.nextHandle({
+      ...data,
+      uuid: props.currentId
+    })
   }
 
   watch(

@@ -110,7 +110,6 @@
   import AdsContent from "@/views/process/components/AdsContent.vue";
   import RejectDialog from "@/views/process/components/RejectDialog.vue";
 
-  import { useUserStore } from "@/store";
   import { processRoutes } from "@/constant"
   import emitter from "@/event"
 
@@ -128,9 +127,6 @@
   const documentInfoData = ref()
   const loanInfoData = ref()
 
-  const userStore = useUserStore();
-
-  const isNormalUser = computed(() => userStore.isNormalUser);
   const createdUser = ref({
     avatar: "",
     name: ""
@@ -209,14 +205,14 @@
   const nextHandle = () => {
     const href = processRoutes[dataInfo.value.next_index - 1]
     if (href) {
-      navigationTo(`${href}?uuid_info=${dataInfo.value.uuid}`)
+      navigationTo(`${href}?uuid=${dataInfo.value.uuid}`)
     }
   }
 
   onMounted(() => {
-    const { uuid_info } = route.query;
-    if (uuid_info) {
-      currentId.value = uuid_info
+    const { uuid } = route.query;
+    if (uuid) {
+      currentId.value = uuid
       getDataInfo()
     } else {
       pageLoading.value = false

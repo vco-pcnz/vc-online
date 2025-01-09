@@ -39,6 +39,7 @@
             :offer-amount="offerAmount"
             :loan-money="dataInfo.loan_info.loan_money"
             :initial-amount="initialAmount"
+            :bonus-info="bonusInfo"
             @done="showForecast = true"
             @refresh="getDataInit"
           ></credit-form>
@@ -77,10 +78,7 @@ import OperationLog from './../../components/OperationLog.vue';
 import ForecastList from './../../components/ForecastList.vue';
 import SecurityList from './../../components/SecurityList.vue';
 import emitter from '@/event';
-import { message } from 'ant-design-vue/es';
 import useProcessStore from '@/store/modules/process';
-import ResovleDialog from '@/views/process/components/ResovleDialog.vue';
-import { navigationTo } from '@/utils/tool';
 
 // 初始化当前项目的forcastList 状态
 const processStore = useProcessStore();
@@ -138,35 +136,6 @@ const subLoading = ref(false);
 const sureVisible = ref(false);
 const sureAlertRef = ref();
 const submitHandle = () => {
-  // const data = currentDataInfo.value;
-  // if (!data.borrower_info.is_check) {
-  //   message.error(t('请审核') + t('借款人信息'));
-  //   return false;
-  // }
-  // if (!data.project_info.is_check) {
-  //   message.error(t('请审核') + t('项目信息'));
-  //   return false;
-  // }
-  // if (!data.project_cert.is_check) {
-  //   message.error(t('请审核') + t('证件资料'));
-  //   return false;
-  // }
-  // if (!data.loan_info.is_check) {
-  //   message.error(t('请审核') + t('借款信息'));
-  //   return false;
-  // }
-  // if (!data.offer_amount.is_check) {
-  //   message.error(t('请审核') + t('放款信息'));
-  //   return false;
-  // }
-  // if (!data.security.is_check) {
-  //   message.error(t('请审核') + t('抵押物信息'));
-  //   return false;
-  // }
-  // if (!data.guarantor.is_check) {
-  //   message.error(t('请审核') + t('担保信息'));
-  //   return false;
-  // }
   sureVisible.value = true;
 };
 
@@ -176,13 +145,17 @@ const confirmSub = () => {
   };
 
   projectAuditWashCheck(params)
-    .then(() => {
+    .then(res => {
       sureAlertRef.value.changeLoading(false);
       sureVisible.value = false;
 
       // 触发列表数据刷新
       emitter.emit('refreshRequestsList');
-      navigationTo(`/requests/details?uuid_info=${props.currentId}`);
+
+      footerRef.value.nextHandle({
+        ...res,
+        uuid: props.currentId
+      })
     })
     .catch(() => {
       sureAlertRef.value.changeLoading(false);
@@ -192,6 +165,7 @@ const confirmSub = () => {
 const dataInfo = ref(null);
 const offerAmount = ref(null);
 const initialAmount = ref(null);
+const bonusInfo = ref(null);
 const securityInfo = ref(null);
 const guarantorInfo = ref(null);
 const dataInit = (infoMsg = {}) => {
@@ -200,6 +174,7 @@ const dataInit = (infoMsg = {}) => {
   offerAmount.value = data.offer_amount;
   initialAmount.value = data.initial_amount;
   securityInfo.value = data.security;
+  bonusInfo.value = data.offer_bonus;
   guarantorInfo.value = data.guarantor;
   dataInfo.value = data;
   currentDataInfo.value = data;

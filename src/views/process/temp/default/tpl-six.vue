@@ -6,6 +6,7 @@
         :uuid="currentId"
         :type="2"
         :required="false"
+        @done="subDone"
       ></resovle-dialog>
 
       <div
@@ -176,6 +177,13 @@ const submitHandle = () => {
 
   resovleVisible.value = true;
 };
+
+const subDone = (data) => {
+  footerRef.value.nextHandle({
+    ...data,
+    uuid: props.currentId
+  })
+}
 
 const dataInfo = ref(null);
 const offerAmount = ref(null);

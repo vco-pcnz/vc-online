@@ -1,5 +1,8 @@
 <template>
-  <div class="block-item mb">
+  <div
+    class="block-item mb"
+    :class="{ checked: washInfo.is_check && washCheck }"
+  >
     <vco-process-title :title="t('新增反洗钱信息AML')">
       <div class="flex gap-5" v-if="!hide">
         <a-popconfirm
@@ -55,6 +58,22 @@
           {{ t('添加') }}
         </a-button>
       </div>
+
+      <a-popconfirm
+        :title="t('确定通过审核吗？')"
+        :ok-text="t('确定')"
+        :cancel-text="t('取消')"
+        v-if="!washInfo.is_check && washCheck"
+        @confirm="washCheckHandle"
+      >
+        <a-button
+          type="dark"
+          shape="round"
+          class="uppercase"
+        >
+          {{ t('审核') }}
+        </a-button>
+      </a-popconfirm>
     </vco-process-title>
     <a-spin :spinning="loading">
       <div class="sys-table-content border-top-none">
@@ -140,16 +159,23 @@
         <vco-file-item :file="item"></vco-file-item>
       </div>
     </a-modal>
+
+    <div v-if="washCheck" class="check-content">
+      <i class="iconfont">&#xe647;</i>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import {
+  auditLmCheckStatus,
+} from '@/api/process';
 import { getWash, washCheck, sendEmail, sendSms, washRemove } from '@/api/project/wash';
 import WashTableAddEdit from './WashTableAddEdit.vue';
 
-const emits = defineEmits(['check']);
+const emits = defineEmits(['check', 'refresh']);
 
 const props = defineProps({
   currentId: {
@@ -159,6 +185,14 @@ const props = defineProps({
   hide: {
     type: Boolean,
     default: false
+  },
+  washCheck: {
+    type: Boolean,
+    default: false
+  },
+  washInfo: {
+    is_check: false,
+    check_status: 710
   }
 });
 const { t } = useI18n();
@@ -271,6 +305,22 @@ const remove = (id) => {
       loading.value = false;
     });
 };
+
+const washCheckHandle = async () => {
+  const params = {
+    lm_check_status: props.washInfo.check_status,
+    uuid: props.currentId,
+  };
+
+  await auditLmCheckStatus(params)
+    .then(() => {
+      emits('refresh');
+      return true;
+    })
+    .catch(() => {
+      return false;
+    });
+}
 
 const visible = ref(false);
 const editData = ref(null);

@@ -6,7 +6,7 @@
       :type="currentType"
       :data="currentData"
       :vc-team="vcTeamData"
-      @done="getConfigInfo"
+      @done="getConfigInfo(true)"
     ></bind-users-dialog>
 
     <a-spin :spinning="configLoading" size="large">
@@ -182,9 +182,12 @@
   const configLoading = ref(false)
   const vcTeamData = ref([])
 
-  const getConfigInfo = async () => {
-    // 触发列表数据刷新
-    emitter.emit('refreshRequestsList');
+  const getConfigInfo = async (flag) => {
+    if (flag) {
+      // 触发列表数据刷新
+      emitter.emit('refreshRequestsList');
+    }
+    
 
     configLoading.value = true
     let vcTeamArr = []
@@ -302,7 +305,7 @@
   }
 
   onMounted(() => {
-    getConfigInfo()
+    getConfigInfo(false)
 
     emitter.on('stepOneBindUser', (data) => {
       bindUsersHandle(data)

@@ -158,7 +158,7 @@
                       <template #overlay>
                         <a-menu>
                           <a-menu-item key="0">
-                            <a @click="navigationTo(`/requests/details?uuid_info=${record.uuid}`)">{{ t('查看详情') }}</a>
+                            <a @click="navigationTo(`/requests/details?uuid=${record.uuid}`)">{{ t('查看详情') }}</a>
                           </a-menu-item>
                         </a-menu>
                       </template>
@@ -304,8 +304,7 @@
   }
 
   const tabChange = () => {
-    console.log(currentTab.value)
-    const params = cloneDeep(currentParams.value)
+    const params = cloneDeep(currentParams.value) || {}
     params.type = currentTab.value
     params.page = 1
     getTableData(params)
@@ -349,7 +348,7 @@
   const itemHandle = (data) => {
     const href = processRoutes[data.next_index - 1]
     if (href) {
-      navigationTo(`${href}?uuid_info=${data.uuid}`)
+      navigationTo(`${href}?uuid=${data.uuid}`)
     }
   }
 
@@ -362,11 +361,16 @@
   });
 
   onMounted(() => {
-    getTableData(true)
+    tabChange()
     getVcteamData()
 
     emitter.on('refreshRequestsList', () => {
       getTableData()
+    })
+
+    emitter.on('refreshRequestsList2', () => {
+      currentTab.value = '2'
+      tabChange()
     })
   })
 </script>

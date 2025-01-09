@@ -25,13 +25,7 @@
           <p class="txt">{{ data.building_num }}</p>
         </div>
       </a-col>
-      <a-col :span="14">
-        <div class="info-content">
-          <p class="name">{{ t('项目地址') }}</p>
-          <p class="txt">{{ addressInfo }}</p>
-        </div>
-      </a-col>
-      <a-col :span="10">
+      <a-col :span="24">
         <div class="info-content">
           <p class="name">{{ t('项目照片') }}</p>
           <div v-if="data.project_images && data.project_images.length">
@@ -55,6 +49,12 @@
       </a-col>
       <a-col :span="24">
         <div class="info-content">
+          <p class="name">{{ t('项目地址') }}</p>
+          <p class="txt">{{ data.project_city }}</p>
+        </div>
+      </a-col>
+      <a-col :span="24">
+        <div class="info-content">
           <p class="name">{{ t('项目介绍') }}</p>
           <p class="txt">{{ data.project_about }}</p>
         </div>
@@ -64,7 +64,6 @@
 </template>
 
 <script setup>
-  import { computed } from "vue"
   import { useI18n } from "vue-i18n";
 
   const props = defineProps({
@@ -74,11 +73,7 @@
     }
   })
 
-  const { t, locale } = useI18n();
-
-  const addressInfo = computed(() => {
-    return `${props.data.project_address_short} ${props.data.project_address} ${props.data.project_suburb} ${props.data.region_one_name} ${props.data.country_name}`
-  })
+  const { t } = useI18n();
 </script>
 
 <style lang="less" scoped>

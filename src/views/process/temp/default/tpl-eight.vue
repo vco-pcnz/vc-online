@@ -34,6 +34,7 @@
             :offer-amount="offerAmount"
             :loan-money="dataInfo.loan_info.loan_money"
             :initial-amount="initialAmount"
+            :bonus-info="bonusInfo"
             @done="showForecast = true"
             @refresh="getDataInit"
           ></credit-form>
@@ -218,13 +219,17 @@ const confirmSub = () => {
   };
 
   projectAuditLmInspect(params)
-    .then(() => {
+    .then(res => {
       sureAlertRef.value.changeLoading(false);
       sureVisible.value = false;
 
       // 触发列表数据刷新
       emitter.emit('refreshRequestsList');
-      navigationTo('/requests/loan');
+
+      footerRef.value.nextHandle({
+        ...res,
+        uuid: props.currentId
+      })
     })
     .catch(() => {
       sureAlertRef.value.changeLoading(false);
@@ -235,6 +240,7 @@ const dataInfo = ref(null);
 const offerAmount = ref(null);
 const initialAmount = ref(null);
 const securityInfo = ref(null);
+const bonusInfo = ref(null);
 const guarantorInfo = ref(null);
 const dataInit = (infoMsg = {}) => {
   const data = cloneDeep({ ...infoMsg, ...props.infoData });
@@ -242,6 +248,7 @@ const dataInit = (infoMsg = {}) => {
   offerAmount.value = data.offer_amount;
   initialAmount.value = data.initial_amount;
   securityInfo.value = data.security;
+  bonusInfo.value = data.offer_bonus;
   guarantorInfo.value = data.guarantor;
   dataInfo.value = data;
   currentDataInfo.value = data;

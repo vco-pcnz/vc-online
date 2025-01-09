@@ -208,12 +208,12 @@
     </div>
 
     <div
-      v-if="stepType === 2 && bonusItems.length"
+      v-if="[2, 3].includes(creditCate) && bonusItems.length"
       class="block-item mb"
       :class="{ checked: bonusInfo.is_check && showCheck }"
     >
       <vco-process-title :title="t('奖金信息')">
-        <div v-if="showCheck" class="flex gap-5">
+        <div class="flex gap-5">
           <a-popconfirm
             :title="t('确定通过审核吗？')"
             :ok-text="t('确定')"
@@ -224,12 +224,13 @@
               type="dark"
               shape="round"
               class="uppercase"
-              v-if="!bonusInfo.is_check && showBonusCheck"
+              v-if="!bonusInfo.is_check && showBonusCheck && showCheck"
             >
               {{ t('审核') }}
             </a-button>
           </a-popconfirm>
           <a-button
+            v-if="showBonusSave"
             type="primary"
             shape="round"
             :loading="bonusSubLoading"
@@ -264,6 +265,27 @@
                     :disabled="inputDisabled"
                     :suffix="item.credit_unit"
                   />
+                </a-form-item>
+              </a-col>
+            </template>
+            <a-col v-if="dollarItems.length" :span="24">
+              <div class="form-line"></div>
+            </a-col>
+            <template v-if="showBonusItems.length">
+              <a-col
+                v-for="item in showBonusItems"
+                :key="item.credit_table"
+                class="data-col-item"
+                :class="colClassName1(showBonusItems.length)"
+              >
+                <a-form-item :label="item.credit_name">
+                  <vco-number
+                    :prefix="item.is_ratio ? '' : '$'"
+                    :suffix="item.is_ratio ? '%' : ''"
+                    :value="item.value"
+                    :precision="2"
+                    :end="true"
+                  ></vco-number>
                 </a-form-item>
               </a-col>
             </template>
@@ -372,6 +394,10 @@ const validateNum1 = (rule, value) => {
 const { t } = useI18n();
 
 const showCheck = computed(() => {
+  return [1, 2, 4, 5].includes(props.stepType);
+});
+
+const showBonusSave = computed(() => {
   return [1, 2, 4].includes(props.stepType);
 });
 
@@ -405,6 +431,7 @@ const bonusItems = ref([]);
 const percentItems = ref([]);
 const dollarItems = ref([]);
 const showNumItems = ref([]);
+const showBonusItems = ref([])
 const creditId = ref(null);
 
 const totalAmountRef = computed(() => {
@@ -435,7 +462,7 @@ const getFormItems = async () => {
     const perData = writeData.filter((item) => item.is_ratio);
     const dolData = writeData.filter((item) => !item.is_ratio);
 
-    if (props.stepType === 2) {
+    if ([2, 3].includes(props.creditCate)) {
       // FC 审核，将奖金抽离
       const bRulesData = {};
 
@@ -459,6 +486,8 @@ const getFormItems = async () => {
 
       bFormRules.value = { ...bFormRules.value, ...bRulesData };
       bonusItems.value = bonusData;
+
+      showBonusItems.value = data.filter((item) => !item.is_write && item.type === 2);
     }
 
     const rulesData = {};
@@ -482,7 +511,8 @@ const getFormItems = async () => {
     formRules.value = { ...formRules.value, ...rulesData };
     percentItems.value = perData;
     dollarItems.value = dolData;
-    showNumItems.value = data.filter((item) => !item.is_write);
+
+    showNumItems.value = props.creditCate ? data.filter((item) => !item.is_write && item.type === 1) : data.filter((item) => !item.is_write);
 
     await updateFormData();
   });
@@ -500,6 +530,9 @@ const updateFormData = async () => {
       }
       for (let i = 0; i < showNumItems.value.length; i++) {
         showNumItems.value[i].value = res[showNumItems.value[i].credit_table];
+      }
+      for (let i = 0; i < showBonusItems.value.length; i++) {
+        showBonusItems.value[i].value = res[showBonusItems.value[i].credit_table];
       }
       creditId.value = res.id || null;
 
@@ -715,6 +748,12 @@ const checkHandle = async () => {
         lm_check_status: props.offerAmount.check_status,
         uuid: props.currentId,
       };
+    } else if (props.stepType === 5) {
+      ajaxFn = auditLmCheckStatus;
+      params = {
+        lm_check_status: props.offerAmount.check_status,
+        uuid: props.currentId,
+      };
     }
 
     if (ajaxFn) {
@@ -733,11 +772,29 @@ const checkHandle = async () => {
 };
 
 const bonusCheckHandle = async () => {
-  const params = {
-    fc_audit_status: props.bonusInfo.check_status,
-    uuid: props.currentId,
-  };
-  await fcAuditStatus(params)
+  let ajaxFn = null;
+  let params = {};
+  if (props.stepType === 2) {
+    ajaxFn = fcAuditStatus;
+    params = {
+      fc_audit_status: props.bonusInfo.check_status,
+      uuid: props.currentId,
+    };
+  } else if (props.stepType === 4) {
+    ajaxFn = auditLmCheckStatus;
+    params = {
+      lm_check_status: props.bonusInfo.check_status,
+      uuid: props.currentId,
+    };
+  } else if (props.stepType === 5) {
+    ajaxFn = auditLmCheckStatus;
+    params = {
+      lm_check_status: props.bonusInfo.check_status,
+      uuid: props.currentId,
+    };
+  }
+
+  await ajaxFn(params)
     .then(() => {
       emits('refresh');
       return true;
@@ -761,9 +818,7 @@ const bonusSaveHandle = () => {
     projectCreditFcSave(params)
       .then(async () => {
         bonusSubLoading.value = false;
-
-        emits('refresh');
-        await updateFormData();
+        getFormItems();
       })
       .catch(() => {
         bonusSubLoading.value = false;

@@ -127,7 +127,11 @@
           </div>
         </div>
         <div v-if="!check" class="right-content">
-          <bind-users ref="bindUsersRef" v-permission="'process:bind:pre'" :current-id="currentId"></bind-users>
+          <bind-users
+            ref="bindUsersRef"
+            v-permission="'process:bind:pre'"
+            :current-id="currentId"
+          ></bind-users>
 
           <ads-content></ads-content>
         </div>
@@ -149,7 +153,6 @@ import { projectApplyBorrowerInfo, projectDraftInfo, getApproveTemp } from '@/ap
 import TempFooter from './components/TempFooter.vue';
 import BindUsers from './../../components/BindUsers.vue';
 import AdsContent from './../../components/AdsContent.vue';
-import { useUserStore } from '@/store';
 import emitter from '@/event';
 
 const emits = defineEmits(['checkDone', 'dataDone']);
@@ -193,10 +196,6 @@ const props = defineProps({
     default: false
   }
 });
-
-const userStore = useUserStore();
-
-const isNormalUser = computed(() => userStore.isNormalUser);
 
 const { t } = useI18n();
 const formRef = ref();
@@ -447,7 +446,6 @@ const submitHandle = () => {
       ajaxFn(params)
         .then(async (res) => {
           if (props.check) {
-            subLoading.value = false;
             emitter.emit('refreshAuditHisList');
 
             emits('checkDone');
@@ -457,9 +455,10 @@ const submitHandle = () => {
               needBindUser.value = false;
             }
 
-            footerRef.value.nextHandle(res.uuid);
-            subLoading.value = false;
+            footerRef.value.nextHandle(res);
           }
+
+          subLoading.value = false;
 
           // 触发列表数据刷新
           emitter.emit('refreshRequestsList');

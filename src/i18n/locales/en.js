@@ -359,7 +359,7 @@ export default {
   "笔放款": "drawdowns",
   "笔还款": "repayment",
   "放款": "Drawdown",
-  "还款": "Repayment",
+  "还款": "Repayments",
   "估价高于借款金额{0}": "Estimation is higher than the loan amount for {0}",
   "估价低于借款金额{0}": "Estimation is less than the loan amount for {0}",
   "预测列表": "Forecast list",
@@ -475,7 +475,11 @@ export default {
   "发送短信": "Send SMS",
   "发送邮件": "Send E-mail",
   "选中本页": "Select this page",
-  "选中所有": "Select all"
-
-
+  "选中所有": "Select all",
+  "项目详情1": "About",
+  "当前余额": "Current balance",
+  "可用余额": "available",
+  "应计利息": "Accrued interest",
+  "包括利息和费用": "including interest & fees",
+  "批准项目": "Open"
 }

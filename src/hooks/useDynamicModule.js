@@ -64,7 +64,7 @@ export function useDynamicModule() {
       if (currentStatusInfo.value.examine) {
         if (currentStatus.value !== currentStepStatus) {
           if (currentId.value) {
-            navigationTo(`/requests/details?uuid_info=${currentId.value}`)
+            navigationTo(`/requests/details?uuid=${currentId.value}`)
           } else {
             navigationTo('/')
           }
@@ -72,7 +72,7 @@ export function useDynamicModule() {
       } else {
         if (currentStepStatus > currentStatus.value) {
           if (currentId.value) {
-            navigationTo(`/requests/details?uuid_info=${currentId.value}`)
+            navigationTo(`/requests/details?uuid=${currentId.value}`)
           } else {
             navigationTo('/')
           }
@@ -105,15 +105,15 @@ export function useDynamicModule() {
   // 挂载时的逻辑
   onMounted(() => {
     let pass = true
-    const { type, uuid_info } = route.query;
+    const { type, uuid } = route.query;
     const path = route.path
 
     if (type) {
       tempFile.value = type;
     }
 
-    if (uuid_info) {
-      currentId.value = uuid_info;
+    if (uuid) {
+      currentId.value = uuid;
     } else {
       if (path !== processRoutes[0]) {
         pass = false

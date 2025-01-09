@@ -286,6 +286,9 @@ watch(
     if (!val) {
       formRef.value.clearValidate();
       formRef.value.resetFields();
+      Object.keys(formState.value).forEach((key) => {
+        formState.value[key] = ''; // 清空每个字段
+      });
     } else {
       if (props.infoData && props.infoData.uuid) {
         for (const key in formState.value) {

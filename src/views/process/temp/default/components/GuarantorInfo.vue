@@ -35,6 +35,7 @@
           type="primary"
           shape="round"
           :loading="subLoading"
+          :disabled="!formState.main_contractor || !formState.security_package.length || !formState.guarantor_uuids.length"
           class="uppercase"
           @click="saveHandle()"
         >
@@ -159,7 +160,7 @@ const { t } = useI18n();
 const vcoChooseUserRef = ref();
 
 const showCheck = computed(() => {
-  return [1, 4].includes(props.stepType);
+  return [1, 4, 5].includes(props.stepType);
 });
 
 const showCheckEdit = computed(() => {
@@ -264,6 +265,12 @@ const checkHandle = async () => {
         uuid: props.currentId,
       };
     } else if (props.stepType === 4) {
+      ajaxFn = auditLmCheckStatus;
+      params = {
+        lm_check_status: props.guarantorInfo.check_status,
+        uuid: props.currentId,
+      };
+    } else if (props.stepType === 5) {
       ajaxFn = auditLmCheckStatus;
       params = {
         lm_check_status: props.guarantorInfo.check_status,

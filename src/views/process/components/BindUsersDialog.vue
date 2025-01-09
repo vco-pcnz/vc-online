@@ -337,7 +337,7 @@
             params.uuid = props.pIds
           }
 
-          if (code === 'lm' && params.user_uuid === '') {
+          if (code === 'lm' && !params.user_uuid.length) {
             message.error(t(code) + t('为必填项'))
             subLoading.value = false
             return false
@@ -347,10 +347,6 @@
           })
         }
       } else {
-        if (!vcTeamData.value['lm'].length) {
-          message.error(t('lm') + t('为必填项'))
-          return false
-        }
         emitter.emit('stepOneBindUser', {
           type: 1,
           data: vcTeamData.value

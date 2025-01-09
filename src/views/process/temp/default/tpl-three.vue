@@ -120,7 +120,7 @@
         </div>
         <div v-if="!check" class="right-content">
           <bind-users
-            v-if="!isNormalUser"
+            ref="bindUsersRef"
             v-permission="'process:bind:pre'"
             :current-id="currentId"
           ></bind-users>
@@ -148,7 +148,6 @@
   import TempFooter from "./components/TempFooter.vue";
   import BindUsers from "./../../components/BindUsers.vue";
   import AdsContent from "./../../components/AdsContent.vue";
-  import { useUserStore } from "@/store";
   import emitter from "@/event"
 
   const emits = defineEmits(['checkDone', 'dataDone'])
@@ -196,10 +195,7 @@
   const { t } = useI18n();
   const formRef = ref()
   const footerRef = ref()
-
-  const userStore = useUserStore();
-
-  const isNormalUser = computed(() => userStore.isNormalUser);
+  const bindUsersRef = ref();
 
   const resourceConsentList = ref([])
   const engineeringConsentList = ref([])
@@ -272,6 +268,8 @@
     return params
   }
 
+  const needBindUser = ref(false);
+
   const subLoading = ref(false)
   const submitHandle = () => {
     formRef.value
@@ -289,13 +287,19 @@
 
       subLoading.value = true
 
-      ajaxFn(params).then(res => {
-        subLoading.value = false
+      ajaxFn(params).then(async (res) => {
         if (props.check) {
           emits('checkDone')
         } else {
-          footerRef.value.nextHandle(res.uuid)
+
+          if (needBindUser.value) {
+            await bindUsersRef.value.bindUsersRequest(res.uuid);
+            needBindUser.value = false;
+          }
+          footerRef.value.nextHandle(res)
         }
+
+        subLoading.value = false
 
         // 触发列表数据刷新
         emitter.emit('refreshRequestsList')
@@ -361,35 +365,35 @@
       resourceConsentList.value = data.resource_consent_files.map(item => {
         return {
           ...item,
-          name: item.real_name
+          url: item.value || ''
         }
       })
 
       engineeringConsentList.value = data.engineering_plan_approval_files.map(item => {
         return {
           ...item,
-          name: item.real_name
+          url: item.value || ''
         }
       })
 
       buildingList.value = data.building_consent_files.map(item => {
         return {
           ...item,
-          name: item.real_name
+          url: item.value || ''
         }
       })
 
       feasibilityList.value = data.feasibility_files.map(item => {
         return {
           ...item,
-          name: item.real_name
+          url: item.value || ''
         }
       })
 
       othersList.value = data.others_files.map(item => {
         return {
           ...item,
-          name: item.real_name
+          url: item.value || ''
         }
       })
     }
@@ -446,6 +450,10 @@
     if (!props.check) {
       getDataInit()
     }
+
+    emitter.on('stepOneBindUser', () => {
+      needBindUser.value = true;
+    });
   })
 </script>
 

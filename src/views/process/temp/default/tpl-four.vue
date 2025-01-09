@@ -104,7 +104,7 @@
         </div>
         <div v-if="!check" class="right-content">
           <bind-users
-            v-if="!isNormalUser"
+            ref="bindUsersRef"
             v-permission="'process:bind:pre'"
             :current-id="currentId"
           ></bind-users>
@@ -135,7 +135,6 @@
   import TempFooter from "./components/TempFooter.vue";
   import BindUsers from "./../../components/BindUsers.vue";
   import AdsContent from "./../../components/AdsContent.vue";
-  import { useUserStore } from "@/store";
   import emitter from "@/event"
   import useProcessStore from "@/store/modules/process"
 
@@ -185,10 +184,7 @@
   const { t } = useI18n();
   const formRef = ref()
   const footerRef = ref()
-
-  const userStore = useUserStore();
-
-  const isNormalUser = computed(() => userStore.isNormalUser);
+  const bindUsersRef = ref();
 
   const markInfo = computed(() => (props.currentStep ? props.currentStep.mark : ''))
 
@@ -245,18 +241,27 @@
     sureLoading.value = false
   }
 
+  const needBindUser = ref(false);
+
   const subLoading = ref(false)
   const normalRequest = async (params, flag) => {
     const ajaxFn = flag ? projectAuditSaveLoanInfo : projectApplySaveLoanInfo
     subLoading.value = true
 
-    await ajaxFn(params).then(res => {
-      subLoading.value = false
+    await ajaxFn(params).then(async (res) => {
       if (props.check) {
         emits('checkDone')
       } else {
-        footerRef.value.nextHandle(res.uuid)
+
+        if (needBindUser.value) {
+          await bindUsersRef.value.bindUsersRequest(res.uuid);
+          needBindUser.value = false;
+        }
+
+        footerRef.value.nextHandle(res)
       }
+
+      subLoading.value = false
 
       // 触发列表数据刷新
       emitter.emit('refreshRequestsList')
@@ -454,6 +459,10 @@
     if (!props.check) {
       getDataInit()
     }
+
+    emitter.on('stepOneBindUser', () => {
+      needBindUser.value = true;
+    });
   })
 </script>
 

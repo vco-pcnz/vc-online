@@ -107,10 +107,10 @@
   }
 
   const stepHandle = (data) => {
-    if (route.query.uuid_info && checkPointer(data) && data.stateCode && data.stateCode.length === 1) {
+    if (route.query.uuid && checkPointer(data) && data.stateCode && data.stateCode.length === 1) {
       const index = props.stepData.findIndex(item => Number(item.stateCode) === Number(data.stateCode[0]))
       if (index > -1 && processRoutes[index] !== route.path) {
-        navigationTo(`${processRoutes[index]}?uuid_info=${route.query.uuid_info}`)
+        navigationTo(`${processRoutes[index]}?uuid=${route.query.uuid}`)
       }
     }
   }

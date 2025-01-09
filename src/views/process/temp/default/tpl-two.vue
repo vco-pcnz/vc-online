@@ -62,7 +62,7 @@
         </div>
         <div v-if="!check" class="right-content">
           <bind-users
-            v-if="!isNormalUser"
+            ref="bindUsersRef"
             v-permission="'process:bind:pre'"
             :current-id="currentId"
           ></bind-users>
@@ -93,7 +93,6 @@
   import TempFooter from "./components/TempFooter.vue";
   import BindUsers from "./../../components/BindUsers.vue";
   import AdsContent from "./../../components/AdsContent.vue";
-  import { useUserStore } from "@/store";
   import emitter from "@/event"
 
   const emits = defineEmits(['checkDone', 'dataDone'])
@@ -138,13 +137,10 @@
     }
   })
 
-  const userStore = useUserStore();
-
-  const isNormalUser = computed(() => userStore.isNormalUser);
-
   const { t } = useI18n();
   const formRef = ref()
   const footerRef = ref()
+  const bindUsersRef = ref();
 
   const markInfo = computed(() => (props.currentStep ? props.currentStep.mark : ''))
 
@@ -236,6 +232,8 @@ const setAddressInfo = (e) => {
     return params
   }
 
+  const needBindUser = ref(false);
+
   const subLoading = ref(false)
   const submitHandle = () => {
     formRef.value
@@ -256,14 +254,21 @@ const setAddressInfo = (e) => {
 
       subLoading.value = true
       
-      ajaxFn(params).then(res => {
-        subLoading.value = false
+      ajaxFn(params).then(async (res) => {
         if (props.check) {
           emits('checkDone')
           emitter.emit('refreshAuditHisList')
         } else {
-          footerRef.value.nextHandle(res.uuid)
+
+          if (needBindUser.value) {
+            await bindUsersRef.value.bindUsersRequest(res.uuid);
+            needBindUser.value = false;
+          }
+
+          footerRef.value.nextHandle(res)
         }
+
+        subLoading.value = false
 
         // 触发列表数据刷新
         emitter.emit('refreshRequestsList')
@@ -401,6 +406,10 @@ const setAddressInfo = (e) => {
     if (!props.check) {
       getDataInit()
     }
+
+    emitter.on('stepOneBindUser', () => {
+      needBindUser.value = true;
+    });
   })
 </script>
 

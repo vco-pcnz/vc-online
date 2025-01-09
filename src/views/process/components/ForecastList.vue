@@ -93,7 +93,7 @@
             type="dark" shape="round"
             size="small"
             class="uppercase"
-            @click="navigationTo(`/requests/schedule?uuid_info=${currentId}`)"
+            @click="navigationTo(`/requests/schedule?uuid=${currentId}`)"
           >{{ t('放款计划') }}</a-button>
           <a-button
             v-if="!isDetails"

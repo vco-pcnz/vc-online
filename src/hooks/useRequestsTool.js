@@ -22,7 +22,7 @@ export const canCancelCheck = (status) => {
 }
 
 // 进入表单\审核页面
-export const enterPage = (status, uuid_info) => {
+export const enterPage = (status, uuid) => {
   const num = Number(status)
   let step = ''
   if (num === 100) {
@@ -38,7 +38,7 @@ export const enterPage = (status, uuid_info) => {
     router.push({
       path: `/process/${step}`,
       query: {
-        uuid_info
+        uuid
       }
     })
   }

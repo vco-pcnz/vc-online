@@ -104,7 +104,7 @@ const columns = reactive([
 const rowClick = (record, index) => {
   return {
     onClick: () => {
-      navigationTo(`/projects/about?uuid_info=${record.id}`);
+      navigationTo(`/projects/about?uuid=${record.id}`);
     }
   };
 };

@@ -116,11 +116,16 @@
     if (props.check) {
       txt = '保存'
     } else {
-      if (props.canNext) {
-        txt = '下一步'
+      if (props.currentStep.mark === 'step_open') {
+        txt = '批准项目'
       } else {
-        txt = props.currentStep && props.currentStep.examine ? '通过审核' : '提交审核1'
+        if (props.canNext) {
+          txt = '下一步'
+        } else {
+          txt = props.currentStep && props.currentStep.examine ? '通过审核' : '提交审核1'
+        }
       }
+      
     }
     return txt
   })
@@ -135,13 +140,13 @@
 
   const previousHandle = () => {
     if (props.previousPage && props.currentId) {
-      navigationTo(`${props.previousPage}?uuid_info=${props.currentId}`)
+      navigationTo(`${props.previousPage}?uuid=${props.currentId}`)
     }
   }
 
-  const nextHandle = (uuid) => {
-    const page = props.canNext ? props.nextPage : '/requests/details'
-    navigationTo(`${page}?uuid_info=${uuid}`)
+  const nextHandle = (data) => {
+    const page = data.permission ? props.nextPage : '/requests/details'
+    navigationTo(`${page}?uuid=${data.uuid}`)
   }
 
   defineExpose({

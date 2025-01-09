@@ -160,12 +160,12 @@
     const list = data.map(item => {
       return {
         uid: item.uuid || item.id || uidGenerator(),
-        name: item.real_name || item.name || getFileName(item.url),
+        name: item.real_name || item.name || getFileName(item.value),
         status: 'done',
-        url: item.url,
+        url: item.value,
         response: {
           status: 'history',
-          data: item.url
+          data: item.value
         }
       }
     })
@@ -338,7 +338,7 @@
             if (data.length) {
               if (typeof data[0] === 'string') {
                 initFileList(data.join(','));
-              } else if ((data[0].uuid || data[0].id ) && data[0].url) {
+              } else if ((data[0].uuid || data[0].id ) && data[0].value) {
                 initObjectFileList(data)
               }
             }

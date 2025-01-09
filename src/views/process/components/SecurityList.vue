@@ -15,7 +15,7 @@
           type="primary" shape="round"
           size="small"
           class="uppercase"
-          @click="editVisible = true"
+          @click="editHandle(null)"
         >{{ t('添加') }}</a-button>
       </vco-process-title>
       

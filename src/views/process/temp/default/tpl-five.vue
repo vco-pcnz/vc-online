@@ -175,6 +175,10 @@
       message.error(t('请审核') + t('放款信息'))
       return false
     }
+    if (!data.security.count) {
+      message.error(t('请上传') + t('抵押物信息'))
+      return false
+    }
     if (!data.security.is_check) {
       message.error(t('请审核') + t('抵押物信息'))
       return false
@@ -188,9 +192,13 @@
       uuid: props.currentId
     }
     subLoading.value = true
-    projectAuditLmCheck(params).then(() => {
+    projectAuditLmCheck(params).then((res) => {
       subLoading.value = false
-      footerRef.value.nextHandle(props.currentId)
+      
+      footerRef.value.nextHandle({
+        ...res,
+        uuid: props.currentId
+      })
 
       // 触发列表数据刷新
       emitter.emit('refreshRequestsList')

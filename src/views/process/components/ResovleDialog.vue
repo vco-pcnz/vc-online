@@ -39,10 +39,9 @@
   import { ref, reactive, watch } from "vue";
   import { useI18n } from "vue-i18n";
   import { projectAuditFncheck, projectAuditDirectorcheck } from "@/api/process"
-  import { navigationTo } from "@/utils/tool"
   import emitter from "@/event"
 
-  const emits = defineEmits(['update:visible'])
+  const emits = defineEmits(['update:visible', 'done'])
 
   const props = defineProps({
     visible: {
@@ -101,13 +100,14 @@
       if (ajaxFn) {
         subLoading.value = true
 
-        ajaxFn(params).then(() => {
+        ajaxFn(params).then((res) => {
           subLoading.value = false
           updateVisible(false)
 
           // 触发列表数据刷新
           emitter.emit('refreshRequestsList')
-          navigationTo('/requests/loan')
+
+          emits('done', res)
         }).catch(() => {
           subLoading.value = false
         })

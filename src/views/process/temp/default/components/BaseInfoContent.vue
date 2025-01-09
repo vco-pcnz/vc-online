@@ -177,7 +177,7 @@ const props = defineProps({
 const { t } = useI18n();
 
 const showCheck = computed(() => {
-  return [1, 4].includes(props.stepType);
+  return [1, 4, 5].includes(props.stepType);
 });
 
 const showCheckEdit = computed(() => {
@@ -237,6 +237,12 @@ const checkHandle = async (check_status) => {
       uuid: props.dataInfo.uuid,
     };
   } else if (props.stepType === 4) {
+    ajaxFn = auditLmCheckStatus;
+    params = {
+      lm_check_status: check_status,
+      uuid: props.dataInfo.uuid,
+    };
+  } else if (props.stepType === 5) {
     ajaxFn = auditLmCheckStatus;
     params = {
       lm_check_status: check_status,

@@ -92,12 +92,15 @@ const remove = (id) => {
     }
   });
 };
+
 watch(
   () => props.folder,
   (val) => {
     if (val) {
       selectFolder.value = cloneDeep(props.folder);
-      expandedKeys.value = [selectFolder.value.pid];
+      if (!expandedKeys.value) {
+        expandedKeys.value = [selectFolder.value.pid];
+      }
     }
   },
   { deep: true, immediate: true }
@@ -126,8 +129,12 @@ watch(
         content: '';
         position: absolute;
         inset: 0;
+        left: -25px;
         background-color: hsla(35, 53%, 67%, 0.2);
         border-radius: 6px;
+      }
+      .folder-item-ops {
+        display: block!important;
       }
     }
 

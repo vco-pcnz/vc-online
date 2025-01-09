@@ -89,8 +89,8 @@
         </template>
         <template v-if="column.key === '7'">
           <template v-if="record.expire_time && record.expire_time.length">
-            <p>{{ t('有效') }}({{ getExpireTimeNum(record.expire_time).valid }})</p>
-            <p class="err">{{ t('无效') }}({{ getExpireTimeNum(record.expire_time).invalid }})</p>
+            <p class="black">{{ getExpireTimeNum(record.expire_time).valid }} {{ t('有效') }}</p>
+            <p class="err">{{ getExpireTimeNum(record.expire_time).invalid }} {{ t('无效') }}</p>
           </template>
         </template>
         <template v-if="column.key === 'operation'">

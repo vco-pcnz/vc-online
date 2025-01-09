@@ -22,7 +22,7 @@
             </template>
             <template #right>
               <!-- <a-button type="primary" shape="round" ghost size="small">{{ t('帮助') }}?</a-button> -->
-              <div v-if="orderSn" class="flex nav-content">
+              <div v-if="orderSn && currentStep.examine" class="flex nav-content">
                 <a-button class="active" shape="round">{{ t('项目详情1') }}</a-button>
                 <a-button
                   v-if="showHeaderTab" shape="round"

@@ -52,6 +52,15 @@
             @refresh="getDataInit"
           ></guarantor-info>
 
+          <!-- 反洗钱文件 -->
+          <wash-table
+            :step-type="3"
+            :current-id="currentId"
+            :security-info="securityInfo"
+            :wash-info="washInfo"
+            :hide="true"
+          ></wash-table>
+
           <div v-if="dataInfo.fc_review" class="block-item mb">
             <vco-process-title :title="t('{0}审核批示', ['FC'])"></vco-process-title>
             <div class="mt-2">{{ dataInfo.fc_review }}</div>
@@ -113,6 +122,7 @@
   import ForecastList from "./../../components/ForecastList.vue";
   import SecurityList from "./../../components/SecurityList.vue";
   import emitter from "@/event"
+  import WashTable from './components/WashTable.vue';
   import { message } from "ant-design-vue/es";
   import useProcessStore from "@/store/modules/process"
   import ResovleDialog from "@/views/process/components/ResovleDialog.vue";
@@ -179,6 +189,7 @@
   const offerAmount = ref(null)
   const initialAmount = ref(null)
   const securityInfo = ref(null)
+  const washInfo = ref(null);
   const bonusInfo = ref(null);
   const guarantorInfo = ref(null)
   const dataInit = (infoMsg = {}) => {
@@ -189,6 +200,7 @@
     securityInfo.value = data.security
     bonusInfo.value = data.offer_bonus;
     guarantorInfo.value = data.guarantor
+    washInfo.value = data.wash;
     dataInfo.value = data
     currentDataInfo.value = data
     emits('dataDone', data.project_apply_sn)

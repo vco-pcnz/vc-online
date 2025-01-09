@@ -63,13 +63,13 @@
         :title="t('确定通过审核吗？')"
         :ok-text="t('确定')"
         :cancel-text="t('取消')"
-        v-if="!washInfo.is_check && washCheck"
         @confirm="washCheckHandle"
       >
         <a-button
           type="dark"
           shape="round"
           class="uppercase"
+          v-if="!washInfo.is_check && washCheckShow"
         >
           {{ t('审核') }}
         </a-button>
@@ -160,7 +160,7 @@
       </div>
     </a-modal>
 
-    <div v-if="washCheck" class="check-content">
+    <div v-if="washCheckShow" class="check-content">
       <i class="iconfont">&#xe647;</i>
     </div>
   </div>
@@ -186,13 +186,18 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  washCheck: {
+  washCheckShow: {
     type: Boolean,
     default: false
   },
   washInfo: {
-    is_check: false,
-    check_status: 710
+    type: Object,
+    default: () => {
+      return {
+        is_check: false,
+        check_status: 710
+      };
+    }
   }
 });
 const { t } = useI18n();

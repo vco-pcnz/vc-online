@@ -11,7 +11,9 @@
       <div class="block-container">
         <div v-if="dataInfo" class="left-content">
           <!-- 反洗钱文件 -->
-          <wash-table :current-id="currentId"></wash-table>
+          <wash-table
+            :current-id="currentId"
+          ></wash-table>
 
           <temp-footer
             ref="footerRef"
@@ -29,11 +31,11 @@
           ></temp-footer>
           <div class="mb-10"></div>
           <!-- 基础信息 -->
-          <base-info-content :step-type="5" :data-info="dataInfo" @refresh="getDataInit"></base-info-content>
+          <base-info-content :step-type="6" :data-info="dataInfo" @refresh="getDataInit"></base-info-content>
 
           <!-- 放款信息 -->
           <credit-form
-            :step-type="5"
+            :step-type="6"
             :current-id="currentId"
             :credit-cate="currentStep.credit_cate"
             :offer-amount="offerAmount"
@@ -45,10 +47,10 @@
           ></credit-form>
 
           <!-- 抵押物 -->
-          <security-items :step-type="5" :current-id="currentId" :security-info="securityInfo" @refresh="getDataInit"></security-items>
+          <security-items :step-type="6" :current-id="currentId" :security-info="securityInfo" @refresh="getDataInit"></security-items>
 
           <!-- 担保信息 -->
-          <guarantor-info :step-type="5" :current-id="currentId" :guarantor-info="guarantorInfo" @refresh="getDataInit"></guarantor-info>
+          <guarantor-info :step-type="6" :current-id="currentId" :guarantor-info="guarantorInfo" @refresh="getDataInit"></guarantor-info>
         </div>
 
         <div v-if="dataInfo" class="right-content">

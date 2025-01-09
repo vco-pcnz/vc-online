@@ -178,7 +178,7 @@ const addressConfig = ref({
 
 const setAddressInfo = (e) => {
   for (const key in e) {
-    formState[key] = e[key];
+    formState[key] = e[key] || '';
   }
 };
   const formRules = {

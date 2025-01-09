@@ -38,7 +38,7 @@
             :current-id="currentId"
             :security-info="securityInfo"
             :wash-info="washInfo"
-            :wash-check="true"
+            :wash-check-show="true"
             @refresh="getDataInit"
             :hide="true"
           ></wash-table>
@@ -166,10 +166,14 @@ const submitHandle = () => {
     message.error(t('请审核') + t('放款信息'))
     return false
   }
-  if (!data.offer_bonus.is_check) {
-    message.error(t('请审核') + t('奖金信息'))
-    return false
+
+  if ([2, 3].includes(props.currentStep.credit_cate)) {
+    if (!data.offer_bonus.is_check) {
+      message.error(t('请审核') + t('奖金信息'))
+      return false
+    }
   }
+  
   if (!data.security.is_check) {
     message.error(t('请审核') + t('抵押物信息'))
     return false

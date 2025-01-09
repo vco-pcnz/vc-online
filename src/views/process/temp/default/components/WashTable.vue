@@ -1,144 +1,146 @@
 <template>
-  <vco-process-title :title="t('新增反洗钱信息AML')">
-    <div class="flex gap-5" v-if="!hide">
-      <a-popconfirm
-        :title="t('确定通过审核吗？')"
-        :ok-text="t('确定')"
-        :cancel-text="t('取消')"
-        :disabled="Boolean(!selectedRowKeys.length)"
-        @confirm="checkHandle(1)"
-      >
-        <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase" :loading="loading && type === 1">
-          {{ t('审核') }}
-        </a-button>
-      </a-popconfirm>
-      <a-popconfirm
-        :title="t('确定发送邮件吗？')"
-        :ok-text="t('确定')"
-        :cancel-text="t('取消')"
-        :disabled="Boolean(!selectedRowKeys.length)"
-        @confirm="checkHandle(2)"
-        :loading="loading && type === 2"
-      >
-        <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase">
-          {{ t('发送邮件') }}
-        </a-button>
-      </a-popconfirm>
-      <a-popconfirm
-        :title="t('确定发送短信吗？')"
-        :ok-text="t('确定')"
-        :cancel-text="t('取消')"
-        :disabled="Boolean(!selectedRowKeys.length)"
-        @confirm="checkHandle(3)"
-        :loading="loading && type === 3"
-      >
-        <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase">
-          {{ t('发送短信') }}
-        </a-button>
-      </a-popconfirm>
+  <div class="block-item mb">
+    <vco-process-title :title="t('新增反洗钱信息AML')">
+      <div class="flex gap-5" v-if="!hide">
+        <a-popconfirm
+          :title="t('确定通过审核吗？')"
+          :ok-text="t('确定')"
+          :cancel-text="t('取消')"
+          :disabled="Boolean(!selectedRowKeys.length)"
+          @confirm="checkHandle(1)"
+        >
+          <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase" :loading="loading && type === 1">
+            {{ t('审核') }}
+          </a-button>
+        </a-popconfirm>
+        <a-popconfirm
+          :title="t('确定发送邮件吗？')"
+          :ok-text="t('确定')"
+          :cancel-text="t('取消')"
+          :disabled="Boolean(!selectedRowKeys.length)"
+          @confirm="checkHandle(2)"
+          :loading="loading && type === 2"
+        >
+          <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase">
+            {{ t('发送邮件') }}
+          </a-button>
+        </a-popconfirm>
+        <a-popconfirm
+          :title="t('确定发送短信吗？')"
+          :ok-text="t('确定')"
+          :cancel-text="t('取消')"
+          :disabled="Boolean(!selectedRowKeys.length)"
+          @confirm="checkHandle(3)"
+          :loading="loading && type === 3"
+        >
+          <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase">
+            {{ t('发送短信') }}
+          </a-button>
+        </a-popconfirm>
 
-      <a-popconfirm
-        :title="t('确定删除吗？')"
-        :ok-text="t('确定')"
-        :cancel-text="t('取消')"
-        :disabled="Boolean(!selectedRowKeys.length)"
-        @confirm="checkHandle(4)"
-        :loading="loading && type === 4"
-      >
-        <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase">
-          {{ t('删除') }}
-        </a-button>
-      </a-popconfirm>
+        <a-popconfirm
+          :title="t('确定删除吗？')"
+          :ok-text="t('确定')"
+          :cancel-text="t('取消')"
+          :disabled="Boolean(!selectedRowKeys.length)"
+          @confirm="checkHandle(4)"
+          :loading="loading && type === 4"
+        >
+          <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase">
+            {{ t('删除') }}
+          </a-button>
+        </a-popconfirm>
 
-      <a-button type="primary" shape="round" class="uppercase" @click="showForm">
-        {{ t('添加') }}
-      </a-button>
-    </div>
-  </vco-process-title>
-  <a-spin :spinning="loading">
-    <div class="sys-table-content border-top-none">
-      <a-dropdown class="selectAll" v-model:open="visibleSlect">
-        <a class="ant-dropdown-link" @click.prevent>
-          <span class="uppercase bold fs_xs">{{ t('选择') }}</span>
-          <i :class="['iconfont', { open: visibleSlect }]">&#xe778;</i>
-        </a>
-        <template #overlay>
-          <a-menu :selectedKeys="[selectAll]">
-            <a-menu-item key="all" :class="{ active: selectAll === 'all' }" @click="onSelectAll('all')">
-              {{ t('选中所有') }}
-            </a-menu-item>
-            <a-menu-item key="page" :class="{ active: selectAll === 'page' }" @click="onSelectAll('page')">
-              {{ t('选中本页') }}
-            </a-menu-item>
-          </a-menu>
-        </template>
-      </a-dropdown>
-      <a-table
-        :columns="columns"
-        :data-source="tableData"
-        :pagination="false"
-        :scroll="{ x: '100%' }"
-        row-key="id"
-        :row-selection="hide ? null : { selectedRowKeys: selectedRowKeys, onSelect: onSelect, hideSelectAll: true }"
-      >
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.dataIndex === 'name'">
-            {{ record.name }}
-          </template>
-          <template v-if="column.dataIndex === 'cate'">
-            <span class="cer" v-if="record.cate == 1">{{ t('借款人') }}</span>
-            <span class="cer" v-if="record.cate == 2">{{ t('担保人') }}</span>
-            <span class="cer" v-if="record.cate == 3">{{ t('投资人') }}</span>
-          </template>
-          <template v-if="column.dataIndex === 'status'">
-            <span v-if="record.status == 0" class="cer">{{ t('待通知') }}</span>
-            <span v-if="record.status == 1" class="cer">{{ t('待反馈') }}</span>
-            <span v-if="record.status == 2" class="cer">{{ t('已反馈') }}</span>
-            <span v-if="record.status == 3" style="color: #0bda8e">{{ t('已完成') }}</span>
-          </template>
-          <template v-if="column.dataIndex === 'operation'">
-            <div class="ops">
-              <i class="iconfont" style="color: #0bda8e !important" v-if="Boolean(record.status == 3)">&#xe786;</i>
-              <i class="iconfont" v-if="Boolean(record.document && record.document.length)" @click="updateVisibleFiles(record.document)">&#xe690;</i>
-              <template v-if="!hide">
-                <i class="iconfont" @click="showForm(record)">&#xe753;</i>
-                <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.id)">
-                  <i class="iconfont">&#xe8c1;</i>
-                </a-popconfirm>
-              </template>
-            </div>
-          </template>
-        </template>
-      </a-table>
-      <div class="flex justify-end">
-        <a-pagination
-          size="small"
-          :total="total"
-          :pageSize="pagination.limit"
-          :current="pagination.page"
-          show-size-changer
-          show-quick-jumper
-          :show-total="(total) => t('共{0}条', [total])"
-          @change="setPaginate"
-        />
+        <a-button type="primary" shape="round" class="uppercase" @click="showForm">
+          {{ t('添加') }}
+        </a-button>
       </div>
-    </div>
-  </a-spin>
-  <WashTableAddEdit v-model:visible="visible" :currentId="currentId" :infoData="editData" @update="loadData"></WashTableAddEdit>
+    </vco-process-title>
+    <a-spin :spinning="loading">
+      <div class="sys-table-content border-top-none">
+        <a-dropdown class="selectAll" v-model:open="visibleSlect">
+          <a class="ant-dropdown-link" @click.prevent>
+            <span class="uppercase bold fs_xs">{{ t('选择') }}</span>
+            <i :class="['iconfont', { open: visibleSlect }]">&#xe778;</i>
+          </a>
+          <template #overlay>
+            <a-menu :selectedKeys="[selectAll]">
+              <a-menu-item key="all" :class="{ active: selectAll === 'all' }" @click="onSelectAll('all')">
+                {{ t('选中所有') }}
+              </a-menu-item>
+              <a-menu-item key="page" :class="{ active: selectAll === 'page' }" @click="onSelectAll('page')">
+                {{ t('选中本页') }}
+              </a-menu-item>
+            </a-menu>
+          </template>
+        </a-dropdown>
+        <a-table
+          :columns="columns"
+          :data-source="tableData"
+          :pagination="false"
+          :scroll="{ x: '100%' }"
+          row-key="id"
+          :row-selection="hide ? null : { selectedRowKeys: selectedRowKeys, onSelect: onSelect, hideSelectAll: true }"
+        >
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.dataIndex === 'name'">
+              {{ record.name }}
+            </template>
+            <template v-if="column.dataIndex === 'cate'">
+              <span class="cer" v-if="record.cate == 1">{{ t('借款人') }}</span>
+              <span class="cer" v-if="record.cate == 2">{{ t('担保人') }}</span>
+              <span class="cer" v-if="record.cate == 3">{{ t('投资人') }}</span>
+            </template>
+            <template v-if="column.dataIndex === 'status'">
+              <span v-if="record.status == 0" class="cer">{{ t('待通知') }}</span>
+              <span v-if="record.status == 1" class="cer">{{ t('待反馈') }}</span>
+              <span v-if="record.status == 2" class="cer">{{ t('已反馈') }}</span>
+              <span v-if="record.status == 3" style="color: #0bda8e">{{ t('已完成') }}</span>
+            </template>
+            <template v-if="column.dataIndex === 'operation'">
+              <div class="ops">
+                <i class="iconfont" style="color: #0bda8e !important" v-if="Boolean(record.status == 3)">&#xe786;</i>
+                <i class="iconfont" v-if="Boolean(record.document && record.document.length)" @click="updateVisibleFiles(record.document)">&#xe690;</i>
+                <template v-if="!hide">
+                  <i class="iconfont" @click="showForm(record)">&#xe753;</i>
+                  <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.id)">
+                    <i class="iconfont">&#xe8c1;</i>
+                  </a-popconfirm>
+                </template>
+              </div>
+            </template>
+          </template>
+        </a-table>
+        <div class="flex justify-end">
+          <a-pagination
+            size="small"
+            :total="total"
+            :pageSize="pagination.limit"
+            :current="pagination.page"
+            show-size-changer
+            show-quick-jumper
+            :show-total="(total) => t('共{0}条', [total])"
+            @change="setPaginate"
+          />
+        </div>
+      </div>
+    </a-spin>
+    <WashTableAddEdit v-model:visible="visible" :currentId="currentId" :infoData="editData" @update="loadData"></WashTableAddEdit>
 
-  <a-modal
-    :open="visibleFiles"
-    :title="t('项目文件')"
-    :width="500"
-    :footer="null"
-    :keyboard="false"
-    :maskClosable="false"
-    @update:open="visibleFiles = false"
-  >
-    <div class="documents" v-for="(item, index) in documentList" :key="index">
-      <vco-file-item :file="item"></vco-file-item>
-    </div>
-  </a-modal>
+    <a-modal
+      :open="visibleFiles"
+      :title="t('项目文件')"
+      :width="500"
+      :footer="null"
+      :keyboard="false"
+      :maskClosable="false"
+      @update:open="visibleFiles = false"
+    >
+      <div class="documents" v-for="(item, index) in documentList" :key="index">
+        <vco-file-item :file="item"></vco-file-item>
+      </div>
+    </a-modal>
+  </div>
 </template>
 
 <script setup>
@@ -305,6 +307,7 @@ const setPaginate = (page, limit) => {
   };
   loadData();
 };
+
 onMounted(() => {
   loadData();
 });

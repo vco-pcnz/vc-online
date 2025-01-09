@@ -69,9 +69,7 @@ import OperationLog from './../../components/OperationLog.vue';
 import ForecastList from './../../components/ForecastList.vue';
 import SecurityList from './../../components/SecurityList.vue';
 import emitter from '@/event';
-import { message } from 'ant-design-vue/es';
 import useProcessStore from '@/store/modules/process';
-import ResovleDialog from '@/views/process/components/ResovleDialog.vue';
 import { navigationTo } from '@/utils/tool';
 
 // 初始化当前项目的forcastList 状态
@@ -130,35 +128,6 @@ const subLoading = ref(false);
 const sureVisible = ref(false);
 const sureAlertRef = ref();
 const submitHandle = () => {
-  const data = currentDataInfo.value;
-  if (!data.borrower_info.is_check) {
-    message.error(t('请审核') + t('借款人信息'));
-    return false;
-  }
-  if (!data.project_info.is_check) {
-    message.error(t('请审核') + t('项目信息'));
-    return false;
-  }
-  if (!data.project_cert.is_check) {
-    message.error(t('请审核') + t('证件资料'));
-    return false;
-  }
-  if (!data.loan_info.is_check) {
-    message.error(t('请审核') + t('借款信息'));
-    return false;
-  }
-  if (!data.offer_amount.is_check) {
-    message.error(t('请审核') + t('放款信息'));
-    return false;
-  }
-  if (!data.security.is_check) {
-    message.error(t('请审核') + t('抵押物信息'));
-    return false;
-  }
-  if (!data.guarantor.is_check) {
-    message.error(t('请审核') + t('担保信息'));
-    return false;
-  }
   sureVisible.value = true;
 };
 

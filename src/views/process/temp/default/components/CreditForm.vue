@@ -447,7 +447,7 @@ const totalInitialAmountRef = computed(() => {
 });
 
 const getFormItems = async () => {
-  const creditCate = props.stepType === 2 ? 0 : props.creditCate;
+  const creditCate = props.creditCate;
 
   await ruleCredit({ type: creditCate }).then(async (res) => {
     const data = res || [];
@@ -634,8 +634,6 @@ const saveHandle = async () => {
           subLoading.value = false;
         });
 
-      // lm 审核
-      if (props.stepType === 1) {
         const params = cloneDeep(formState.value);
         params.apply_uuid = props.currentId;
         if (creditId.value) {
@@ -654,36 +652,57 @@ const saveHandle = async () => {
           .catch(() => {
             subLoading.value = false;
           });
-      } else if (props.stepType === 2) {
-        // fc 审核
-        const params = cloneDeep(formState.value);
-        params.apply_uuid = props.currentId;
-        if (creditId.value) {
-          params.id = creditId.value;
-        }
-        projectCreditFcSave(params)
-          .then(async () => {
-            if (amountChanged) {
-              creditInitial(params)
-                .then(async () => {
-                  subLoading.value = false;
 
-                  // 触发预测数据刷新
-                  emitter.emit('refreshForecastList');
-                })
-                .catch(() => {
-                  subLoading.value = false;
-                });
-            } else {
-              subLoading.value = false;
-            }
+      // lm 审核
+      // if (props.stepType === 1) {
+      //   const params = cloneDeep(formState.value);
+      //   params.apply_uuid = props.currentId;
+      //   if (creditId.value) {
+      //     params.id = creditId.value;
+      //   }
 
-            await updateFormData();
-          })
-          .catch(() => {
-            subLoading.value = false;
-          });
-      }
+      //   creditInitial(params)
+      //     .then(async () => {
+      //       subLoading.value = false;
+
+      //       // 触发预测数据刷新
+      //       emitter.emit('refreshForecastList');
+
+      //       await updateFormData();
+      //     })
+      //     .catch(() => {
+      //       subLoading.value = false;
+      //     });
+      // } else if (props.stepType === 2) {
+      //   // fc 审核
+      //   const params = cloneDeep(formState.value);
+      //   params.apply_uuid = props.currentId;
+      //   if (creditId.value) {
+      //     params.id = creditId.value;
+      //   }
+      //   projectCreditFcSave(params)
+      //     .then(async () => {
+      //       if (amountChanged) {
+      //         creditInitial(params)
+      //           .then(async () => {
+      //             subLoading.value = false;
+
+      //             // 触发预测数据刷新
+      //             emitter.emit('refreshForecastList');
+      //           })
+      //           .catch(() => {
+      //             subLoading.value = false;
+      //           });
+      //       } else {
+      //         subLoading.value = false;
+      //       }
+
+      //       await updateFormData();
+      //     })
+      //     .catch(() => {
+      //       subLoading.value = false;
+      //     });
+      // }
     })
     .catch((error) => {
       console.log('error', error);

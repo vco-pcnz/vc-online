@@ -218,6 +218,7 @@ const getDataInit = async () => {
   }
 
   pageLoading.value = false;
+
   dataInit(infoData);
 };
 

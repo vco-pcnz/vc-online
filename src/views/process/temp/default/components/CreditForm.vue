@@ -838,6 +838,7 @@ const bonusSaveHandle = () => {
       .then(async () => {
         bonusSubLoading.value = false;
         getFormItems();
+        emits('refresh');
       })
       .catch(() => {
         bonusSubLoading.value = false;

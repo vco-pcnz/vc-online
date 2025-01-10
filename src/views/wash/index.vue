@@ -4,7 +4,7 @@
       <div class="anti-money" v-if="!showTip">
         <a-card>
           <template #extra>
-            <vco-upload-modal v-model:list="list" controller="wash" :params="{ code: code }">
+            <vco-upload-modal v-model:list="list" controller="/wash" :params="{ code: code }">
               <div class="upload-btn"><i class="iconfont">&#xe734;</i>{{ t('上传文件') }}</div>
             </vco-upload-modal>
           </template>

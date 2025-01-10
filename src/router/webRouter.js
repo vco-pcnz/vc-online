@@ -40,7 +40,7 @@ const routes = [
     name: "wash",
     path: "/wash",
     component: () => import("@/views/wash/index.vue"),
-    meta: { title: "成为中介" },
+    meta: { title: "反洗钱流程" },
   },
   {
     path: "/403",

@@ -115,6 +115,7 @@ const formState = ref({
   id: '',
   uuid: '',
   stake_id: '',
+  annex_id: 0,
   cate: '',
   name: '',
   pre: '',
@@ -125,27 +126,29 @@ const formState = ref({
   document: []
 });
 const formRules = {
-  name: [{ required: true, message: t('请输入') + t('名称')}],
-  email: [{ required: true, message: t('请输入') + t('邮箱')}],
-  mobile: [{ required: true, message: t('请输入') + t('电话')}],
-  cate: [{ required: true, message: t('请选择') + t('类型')}]
+  name: [{ required: true, message: t('请输入') + t('名称') }],
+  email: [{ required: true, message: t('请输入') + t('邮箱') }],
+  mobile: [{ required: true, message: t('请输入') + t('电话') }],
+  cate: [{ required: true, message: t('请选择') + t('类型') }]
 };
 
 const subLoading = ref(false);
 const submitHandle = () => {
+  console.log(formState.value);
   formRef.value
     .validate()
     .then(() => {
+      console.log(formState.value);
       const params = cloneDeep(formState.value);
       params.uuid = props.currentId;
-      (params.sendEmail = formState.value.sendEmail ? 1 : 0),
-        (params.sendSms = formState.value.sendSms ? 1 : 0),
-        // if (amount <= 0) {
-        //   message.error(t('总金额不正确'));
-        //   return false;
-        // }
+      params.sendEmail = formState.value.sendEmail ? 1 : 0;
+      params.sendSms = formState.value.sendSms ? 1 : 0;
+      // if (amount <= 0) {
+      //   message.error(t('总金额不正确'));
+      //   return false;
+      // }
 
-        (subLoading.value = true);
+      subLoading.value = true;
       washAdd(params)
         .then(() => {
           subLoading.value = false;
@@ -184,10 +187,12 @@ watch(
       formRef.value.clearValidate();
       formRef.value.resetFields();
     } else {
-      formState.value = cloneDeep(props.infoData);
-      formState.value.sendEmail = formState.value.sendEmail == '1';
-      formState.value.sendSms = formState.value.sendSms == '1';
-      documentList.value = props.infoData.document ? cloneDeep(props.infoData.document) : [];
+      if (props.infoData) {
+        formState.value = cloneDeep(props.infoData);
+        formState.value.sendEmail = formState.value.sendEmail == '1';
+        formState.value.sendSms = formState.value.sendSms == '1';
+        documentList.value = props.infoData.document ? cloneDeep(props.infoData.document) : [];
+      }
     }
   }
 );

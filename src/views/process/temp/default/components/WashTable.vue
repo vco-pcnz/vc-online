@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="block-item mb"
-    :class="{ checked: washInfo.is_check && washCheck }"
-  >
+  <div class="block-item mb" :class="{ checked: washInfo.is_check && washCheck }">
     <vco-process-title :title="t('新增反洗钱信息AML')">
       <div class="flex gap-5" v-if="!hide">
         <a-popconfirm
@@ -54,23 +51,13 @@
           </a-button>
         </a-popconfirm>
 
-        <a-button type="primary" shape="round" class="uppercase" @click="showForm">
+        <a-button type="primary" shape="round" class="uppercase" @click="showForm(null)">
           {{ t('添加') }}
         </a-button>
       </div>
 
-      <a-popconfirm
-        :title="t('确定通过审核吗？')"
-        :ok-text="t('确定')"
-        :cancel-text="t('取消')"
-        @confirm="washCheckHandle"
-      >
-        <a-button
-          type="dark"
-          shape="round"
-          class="uppercase"
-          v-if="!washInfo.is_check && washCheckShow"
-        >
+      <a-popconfirm :title="t('确定通过审核吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="washCheckHandle">
+        <a-button type="dark" shape="round" class="uppercase" v-if="!washInfo.is_check && washCheckShow">
           {{ t('审核') }}
         </a-button>
       </a-popconfirm>
@@ -119,7 +106,9 @@
             <template v-if="column.dataIndex === 'operation'">
               <div class="ops">
                 <i class="iconfont" style="color: #0bda8e !important" v-if="Boolean(record.status == 3)">&#xe786;</i>
-                <i class="iconfont" v-if="Boolean(record.document && record.document.length)" @click="updateVisibleFiles(record.document)">&#xe690;</i>
+                <i class="iconfont" v-if="Boolean(record.document && record.document.length)" @click="updateVisibleFiles(record.document)"
+                  >&#xe690;</i
+                >
                 <template v-if="!hide">
                   <i class="iconfont" @click="showForm(record)">&#xe753;</i>
                   <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.id)">
@@ -167,11 +156,9 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
-import {
-  auditLmCheckStatus,
-} from '@/api/process';
+import { auditLmCheckStatus } from '@/api/process';
 import { getWash, washCheck, sendEmail, sendSms, washRemove } from '@/api/project/wash';
 import WashTableAddEdit from './WashTableAddEdit.vue';
 
@@ -244,6 +231,8 @@ const onSelect = (record, selected) => {
   selectAll.value = '';
 };
 const onSelectAll = (type) => {
+  selectedRowKeys.value = [];
+  selectedRows.value = [];
   let selected = selectAll.value !== type;
   selectAll.value = selectAll.value !== type ? type : '';
   const changeRowId = tableData.value.map((it) => {
@@ -314,7 +303,7 @@ const remove = (id) => {
 const washCheckHandle = async () => {
   const params = {
     lm_check_status: props.washInfo.check_status,
-    uuid: props.currentId,
+    uuid: props.currentId
   };
 
   await auditLmCheckStatus(params)
@@ -325,7 +314,7 @@ const washCheckHandle = async () => {
     .catch(() => {
       return false;
     });
-}
+};
 
 const visible = ref(false);
 const editData = ref(null);
@@ -343,12 +332,18 @@ const updateVisibleFiles = (val) => {
 };
 
 const loadData = () => {
-  selectAll.value = '';
   loading.value = true;
   getWash({ uuid: props.currentId, ...pagination.value })
     .then((res) => {
       tableData.value = res.data;
       total.value = res.count;
+      if (selectAll.value == 'all') {
+        selectAll.value = '';
+        onSelectAll('all');
+      } else {
+        selectAll.value = '';
+        onSelectAll('');
+      }
     })
     .finally((_) => {
       loading.value = false;

@@ -5,7 +5,7 @@
     </a-button>
     <template #overlay>
       <ul class="list">
-        <li class="item" v-for="item in list" :key="item.uuid" @click="change(item.name)">{{ item.name }}</li>
+        <li class="item" v-for="(item, index) in list" :key="item.code" @click="change(index)">{{ item.name }}</li>
         <li class="item customPeriod" @click="showDate">Custom period…</li>
       </ul>
     </template>
@@ -37,7 +37,7 @@ import { DownOutlined } from '@ant-design/icons-vue';
 import dayjs, { Dayjs } from 'dayjs';
 import tool from '@/utils/tool';
 
-const emits = defineEmits(['update:value', 'change']);
+const emits = defineEmits(['change']);
 const { t } = useI18n();
 
 const props = defineProps(['value']);
@@ -48,13 +48,13 @@ const date = ref(null);
 const open = ref(false);
 
 const list = ref([
-  { name: 'Current week', uuid: '1' },
-  { name: 'Previous week', uuid: '2' },
-  { name: 'Previous month', uuid: '3' },
-  { name: 'Previous 2 months', uuid: '4' },
-  { name: 'Upcoming week', uuid: '5' },
-  { name: 'Upcoming month', uuid: '6' },
-  { name: 'Upcoming 2 months', uuid: '7' }
+  { name: 'Current week', code: 'current_week' },
+  { name: 'Previous week', code: 'previous_week' },
+  { name: 'Previous month', code: 'previous_month' },
+  { name: 'Previous 2 months', code: 'previous_two_month' },
+  { name: 'Upcoming week', code: 'upcoming_week' },
+  { name: 'Upcoming month', code: 'upcoming_month' },
+  { name: 'Upcoming 2 months', code: 'upcoming_two_month' }
 ]);
 
 const showDate = () => {
@@ -62,8 +62,9 @@ const showDate = () => {
   open.value = true;
 };
 
-const change = (val) => {
-  value.value = val;
+const change = (index) => {
+  value.value = list.value[index].name;
+  emits('change', list.value[index].code);
   visible.value = false;
 };
 
@@ -72,12 +73,11 @@ const selectDate = () => {
     value.value = tool.showDate(date.value[0]) + ' - ' + tool.showDate(date.value[1]);
   }
   open.value = false;
-  emits('update:value', date.value);
   emits('change', date.value);
 };
 
 onMounted(() => {
-  value.value = list.value[0].name;
+  change(0)
 });
 </script>
 

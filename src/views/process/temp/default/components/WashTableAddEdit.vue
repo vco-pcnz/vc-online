@@ -134,11 +134,9 @@ const formRules = {
 
 const subLoading = ref(false);
 const submitHandle = () => {
-  console.log(formState.value);
   formRef.value
     .validate()
     .then(() => {
-      console.log(formState.value);
       const params = cloneDeep(formState.value);
       params.uuid = props.currentId;
       params.sendEmail = formState.value.sendEmail ? 1 : 0;

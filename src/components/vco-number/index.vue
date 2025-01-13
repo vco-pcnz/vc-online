@@ -49,8 +49,10 @@ const props = defineProps({
 const numberRef = ref();
 const showPrefix = computed(() => {
   let res = '';
-  if (props.prefix) {
+  if (props.prefix === '$') {
     res = Number(props.value) < 0 ? '-$' : '$';
+  } else {
+    res = props.prefix;
   }
   return res;
 });
@@ -70,8 +72,12 @@ onMounted(() => {
 
 <style lang="less" scoped>
 .vco-number {
+  :deep(.ant-statistic-content) {
+    display: inline-flex;
+  }
   &.line {
     :deep(.ant-statistic-content) {
+      display: flex;
       .ant-statistic-content-prefix,
       .ant-statistic-content-value-decimal,
       .ant-statistic-content-suffix,

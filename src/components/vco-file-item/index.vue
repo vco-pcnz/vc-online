@@ -1,40 +1,95 @@
 <template>
-  <div class="fileBox" :class="{ bg: bg }" v-if="!file || (file && filterArr.length > 1)">
-    <i v-if="Number(file.type === 1)" class="iconfont">&#xe797;</i>
-    <i v-if="Number(file.type === 2)" class="iconfont">&#xe774;</i>
-    <i v-if="Number(file.type === 3)" class="iconfont">&#xe798;</i>
-    <div class="fileBox-content">
-      <p class="name" :title="showTitle">
-        <template v-if="Boolean(!filter)">
-          {{ showTitle }}
-        </template>
-        <template v-else>
-          <template v-for="(item, index) in filterArr" :key="index">
-            <span>{{ item }}</span>
-            <span class="filter" v-if="index < filterArr.length - 1">{{ filter }}</span>
+  <template v-if="type === 'list'">
+    <div class="fileBox" :class="{ bg: bg }" v-if="!file || (file && filterArr.length > 1)">
+      <i v-if="Number(file.type === 1)" class="iconfont">&#xe797;</i>
+      <i v-if="Number(file.type === 2)" class="iconfont">&#xe774;</i>
+      <i v-if="Number(file.type === 3)" class="iconfont">&#xe798;</i>
+
+      <div class="fileBox-content">
+        <p class="name" :title="showTitle">
+          <template v-if="Boolean(!filter)">
+            {{ showTitle }}
           </template>
-        </template>
-      </p>
-      <p class="info">
-        <template v-if="time">
-          <span :class="{ err: !validity && showValidity }">{{ tool.showDate(time) }}</span> ·
-        </template>
-        {{ tool.formatSize(file.size) }}
-        <template v-if="file.user_name">
-          ·
-          {{ file.user_name }}
-        </template>
-      </p>
+          <template v-else>
+            <template v-for="(item, index) in filterArr" :key="index">
+              <span>{{ item }}</span>
+              <span class="filter" v-if="index < filterArr.length - 1">{{ filter }}</span>
+            </template>
+          </template>
+        </p>
+        <p class="info">
+          <template v-if="time">
+            <span :class="{ err: !validity && showValidity }">{{ tool.showDate(time) }}</span> ·
+          </template>
+          {{ tool.formatSize(file.size) }}
+          <template v-if="file.user_name">
+            ·
+            {{ file.user_name }}
+          </template>
+        </p>
+      </div>
+      <div class="ops" :style="{ color: iconColor }">
+        <div class="icon"><slot name="ops"></slot></div>
+        <EyeOutlined @click.stop="handlePreview(file)" class="icon" />
+        <a :href="file.value" target="_blank" v-if="!showClose || showDownload">
+          <i class="iconfont icon" :style="{ color: iconColor }" style="font-size: 14px">&#xe780;</i>
+        </a>
+        <i class="iconfont icon remove" @click.stop="remove" v-if="showClose">&#xe77b;</i>
+      </div>
     </div>
-    <div class="ops" :style="{ color: iconColor }">
-      <div class="icon"><slot name="ops"></slot></div>
-      <EyeOutlined @click.stop="handlePreview(file)" class="icon" />
-      <a :href="file.value" target="_blank" v-if="!showClose || showDownload">
-        <i class="iconfont icon" :style="{ color: iconColor }" style="font-size: 14px">&#xe780;</i>
-      </a>
-      <i class="iconfont icon remove" @click.stop="remove" v-if="showClose">&#xe77b;</i>
+  </template>
+
+  <template v-if="type === 'card'">
+    <div class="fileCard" :class="{ bg: bg }" v-if="!file || (file && filterArr.length > 1)">
+      <a-card hoverable style="width: 140px">
+        <template #cover>
+          <template v-if="Number(file.type === 1)">
+            <img :src="file.value" alt="" />
+          </template>
+          <template v-if="Number(file.type === 3)">
+            <video :src="file.value" controls></video>
+          </template>
+          <i v-if="Number(file.type === 2)" class="iconfont fileIcon">&#xe774;</i>
+
+          <div class="ops" :style="{ color: iconColor }">
+            <div class="icon"><slot name="ops"></slot></div>
+            <EyeOutlined @click.stop="handlePreview(file)" class="icon" />
+            <a :href="file.value" target="_blank" v-if="!showClose || showDownload">
+              <i class="iconfont icon" :style="{ color: iconColor }" style="font-size: 14px">&#xe780;</i>
+            </a>
+            <i class="iconfont icon remove" @click.stop="remove" v-if="showClose">&#xe77b;</i>
+          </div>
+        </template>
+        <a-card-meta>
+          <template #description>
+            <p class="name" :title="showTitle">
+              <template v-if="Boolean(!filter)">
+                {{ showTitle }}
+              </template>
+              <template v-else>
+                <template v-for="(item, index) in filterArr" :key="index">
+                  <span>{{ item }}</span>
+                  <span class="filter" v-if="index < filterArr.length - 1">{{ filter }}</span>
+                </template>
+              </template>
+            </p>
+            <p class="info">
+              <template v-if="time">
+                <span :class="{ err: !validity && showValidity }">{{ tool.showDate(time) }}</span> ·
+              </template>
+              {{ tool.formatSize(file.size) }}
+              <!-- <template v-if="file.user_name">
+                ·
+                {{ file.user_name }}
+              </template> -->
+            </p>
+          </template>
+        </a-card-meta>
+      </a-card>
     </div>
-  </div>
+  </template>
+
+  <!--  -->
   <a-modal v-model:open="previewVisible" :footer="null" @cancel="previewHandleCancel">
     <template v-if="previewVisible">
       <div style="padding-top: 30px"></div>
@@ -62,6 +117,10 @@ const props = defineProps({
     type: Object,
     required: false
   },
+  type: {
+    type: String,
+    default: 'list'
+  },
   time: {
     type: String,
     default: ''
@@ -88,7 +147,7 @@ const props = defineProps({
   },
   showValidity: {
     type: Boolean,
-    default: false 
+    default: false
   }
 });
 const emits = defineEmits(['remove']);
@@ -221,6 +280,65 @@ watch(
   }
   .filter {
     color: @colorPrimary;
+  }
+}
+
+.fileCard {
+  display: inline-block;
+  .name {
+    white-space: nowrap; /* 禁止换行 */
+    overflow: hidden; /* 隐藏溢出内容 */
+    text-overflow: ellipsis; /* 使用省略号表示溢出内容 */
+  }
+  &.bg {
+    background-color: #f7f0e6 !important;
+  }
+  :deep(.ant-card) {
+    overflow: hidden;
+    .ant-card-body {
+      padding: 10px 6px;
+    }
+    .ant-card-cover {
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.05);
+      text-align: center;
+      position: relative;
+      .fileIcon {
+        font-size: 60px;
+      }
+
+      &:hover {
+        .ops {
+          display: flex;
+        }
+      }
+    }
+    .info {
+      font-size: 12px;
+      color: @color_grey;
+    }
+    .name {
+      color: #181818;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .ops {
+      position: absolute;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      .icon,
+      .iconfont {
+        color: #fff !important;
+      }
+    }
   }
 }
 </style>

@@ -9,7 +9,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import CashflowForecast from './components/CashflowForecast.vue';
+import CashflowForecast from './components/CashflowForecast/index.vue';
 import Cashflow from './components/Cashflow.vue';
 import transactions from './components/transactions.vue';
 import ForecastPerformance from './components/Performance.vue';

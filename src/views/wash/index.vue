@@ -24,7 +24,13 @@
           </a-button>
         </div>
       </div>
-      <div v-else class="tip">{{ t('感谢您的上传') }}</div>
+      <div v-else class="tip">
+        <p class="tip-name">Thank you!</p>
+        <div class="tip-content">
+          We have received your AML documents throughour submission form, Our team will review it. andwe will contact you if further action is
+          required.
+        </div>
+      </div>
     </template>
   </auth-template>
 </template>
@@ -38,8 +44,8 @@ import { wash, washCode } from '@/api/wash';
 
 const { t } = useI18n();
 
-const showTip = ref(false);
-const req = ref(false);
+const showTip = ref(true);
+const req = ref(true);
 const code = ref('');
 const list = ref([]);
 
@@ -62,9 +68,10 @@ const submit = () => {
 
 onMounted(() => {
   code.value = tool.getRequestParams(window.location.href).wash_code;
+  if (!code.value) return;
   washCode({ code: code.value }).then((res) => {
     showTip.value = res !== 1;
-    req.value = true
+    req.value = true;
   });
 });
 </script>
@@ -119,17 +126,21 @@ onMounted(() => {
 }
 
 .tip {
-  width: calc(100% - 20px);
-  margin: 20px 10px;
+  width: 60%;
+  margin: 100px auto 0;
   background: #fff;
   padding: 16px;
-  min-height: 35vh;
-  font-size: 40px;
-  color: #bf9425;
-  font-weight: 500;
   border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 60px 70px;
+  &-name {
+    text-align: center;
+
+    font-size: 30px;
+    margin-bottom: 20px;
+  }
+
+  &-content {
+    font-weight: 500;
+  }
 }
 </style>

@@ -3,22 +3,22 @@ import dayjs from 'dayjs';
 import router from '@/router';
 import i18n from './../i18n';
 
-const tool = {}
+const tool = {};
 
 /**
  * LocalStorage
  */
 tool.local = {
   set(table, settings) {
-    let _set = JSON.stringify(settings)
+    let _set = JSON.stringify(settings);
     return localStorage.setItem(table, _set);
   },
   get(table) {
     let data = localStorage.getItem(table);
     try {
-      data = JSON.parse(data)
+      data = JSON.parse(data);
     } catch (err) {
-      return null
+      return null;
     }
     return data;
   },
@@ -28,22 +28,22 @@ tool.local = {
   clear() {
     return localStorage.clear();
   }
-}
+};
 
 /**
  * SessionStorage
  */
 tool.session = {
   set(table, settings) {
-    let _set = JSON.stringify(settings)
+    let _set = JSON.stringify(settings);
     return sessionStorage.setItem(table, _set);
   },
   get(table) {
     let data = sessionStorage.getItem(table);
     try {
-      data = JSON.parse(data)
+      data = JSON.parse(data);
     } catch (err) {
-      return null
+      return null;
     }
     return data;
   },
@@ -53,7 +53,7 @@ tool.session = {
   clear() {
     return sessionStorage.clear();
   }
-}
+};
 
 /**
  * CookieStorage
@@ -67,35 +67,35 @@ tool.cookie = {
       secure: false,
       httpOnly: false,
       ...config
-    }
-    var cookieStr = `${name}=${escape(value)}`
+    };
+    var cookieStr = `${name}=${escape(value)}`;
     if (cfg.expires) {
-      var exp = new Date()
-      exp.setTime(exp.getTime() + parseInt(cfg.expires) * 1000)
-      cookieStr += `;expires=${exp.toGMTString()}`
+      var exp = new Date();
+      exp.setTime(exp.getTime() + parseInt(cfg.expires) * 1000);
+      cookieStr += `;expires=${exp.toGMTString()}`;
     }
     if (cfg.path) {
-      cookieStr += `;path=${cfg.path}`
+      cookieStr += `;path=${cfg.path}`;
     }
     if (cfg.domain) {
-      cookieStr += `;domain=${cfg.domain}`
+      cookieStr += `;domain=${cfg.domain}`;
     }
-    document.cookie = cookieStr
+    document.cookie = cookieStr;
   },
   get(name) {
-    var arr = document.cookie.match(new RegExp("(^| )" + name + "=([^;]*)(;|$)"))
+    var arr = document.cookie.match(new RegExp('(^| )' + name + '=([^;]*)(;|$)'));
     if (arr != null) {
-      return unescape(arr[2])
+      return unescape(arr[2]);
     } else {
-      return null
+      return null;
     }
   },
   remove(name) {
-    var exp = new Date()
-    exp.setTime(exp.getTime() - 1)
-    document.cookie = `${name}=;expires=${exp.toGMTString()}`
+    var exp = new Date();
+    exp.setTime(exp.getTime() - 1);
+    document.cookie = `${name}=;expires=${exp.toGMTString()}`;
   }
-}
+};
 
 /* Fullscreen */
 tool.screen = (element) => {
@@ -121,18 +121,20 @@ tool.screen = (element) => {
       element.webkitRequestFullscreen();
     }
   }
-}
+};
 
 /* 千分符 */
 tool.groupSeparator = (num) => {
   num = num + '';
   if (!num.includes('.')) {
-    num += '.'
+    num += '.';
   }
-  return num.replace(/(\d)(?=(\d{3})+\.)/g, function ($0, $1) {
-    return $1 + ',';
-  }).replace(/\.$/, '');
-}
+  return num
+    .replace(/(\d)(?=(\d{3})+\.)/g, function ($0, $1) {
+      return $1 + ',';
+    })
+    .replace(/\.$/, '');
+};
 
 tool.formatSize = (size) => {
   if (typeof size === 'undefined' || size === null || isNaN(size)) {
@@ -148,31 +150,31 @@ tool.formatSize = (size) => {
 
   // 保留两位小数
   return `${Number(size.toFixed(2))} ${units[index]}`;
-}
+};
 
 tool.download = (res, downName = '') => {
   const aLink = document.createElement('a');
-  let fileName = downName
-  let blob = res //第三方请求返回blob对象
+  let fileName = downName;
+  let blob = res; //第三方请求返回blob对象
 
   //通过后端接口返回
   if (res.headers && res.data) {
-    blob = new Blob([res.data], {type: res.headers['content-type'].replace(';charset=utf8', '')})
+    blob = new Blob([res.data], { type: res.headers['content-type'].replace(';charset=utf8', '') });
     if (!downName) {
-        const contentDisposition = decodeURI(res.headers['content-disposition'])
-        const result = contentDisposition.match(/filename\*=utf-8\'\'(.+)/gi)
-        fileName = result[0].replace(/filename\*=utf-8\'\'/gi, '')
+      const contentDisposition = decodeURI(res.headers['content-disposition']);
+      const result = contentDisposition.match(/filename\*=utf-8\'\'(.+)/gi);
+      fileName = result[0].replace(/filename\*=utf-8\'\'/gi, '');
     }
   }
-  
-  aLink.href = URL.createObjectURL(blob)
+
+  aLink.href = URL.createObjectURL(blob);
   // 设置下载文件名称
-  aLink.setAttribute('download', fileName)
-  document.body.appendChild(aLink)
-  aLink.click()
-  document.body.removeChild(aLink)
-  URL.revokeObjectURL(aLink.href)
-}
+  aLink.setAttribute('download', fileName);
+  document.body.appendChild(aLink);
+  aLink.click();
+  document.body.removeChild(aLink);
+  URL.revokeObjectURL(aLink.href);
+};
 
 /**
  * 对象转url参数
@@ -180,146 +182,146 @@ tool.download = (res, downName = '') => {
  * @param {*} isPrefix
  */
 tool.httpBuild = (data, isPrefix = false) => {
-  let prefix = isPrefix ? '?' : ''
-  let _result = []
+  let prefix = isPrefix ? '?' : '';
+  let _result = [];
   for (let key in data) {
-    let value = data[key]
+    let value = data[key];
     // 去掉为空的参数
     if (['', undefined, null].includes(value)) {
-      continue
+      continue;
     }
     if (value.constructor === Array) {
-      value.forEach(_value => {
-        _result.push(encodeURIComponent(key) + '[]=' + encodeURIComponent(_value))
-      })
+      value.forEach((_value) => {
+        _result.push(encodeURIComponent(key) + '[]=' + encodeURIComponent(_value));
+      });
     } else {
-      _result.push(encodeURIComponent(key) + '=' + encodeURIComponent(value))
+      _result.push(encodeURIComponent(key) + '=' + encodeURIComponent(value));
     }
   }
 
-  return _result.length ? prefix + _result.join('&') : ''
-}
+  return _result.length ? prefix + _result.join('&') : '';
+};
 
 tool.getRequestParams = (url) => {
-  const theRequest = new Object()
+  const theRequest = new Object();
   if (url.indexOf('?') != -1) {
-    const params = url.split('?')[1].split('&')
+    const params = url.split('?')[1].split('&');
     for (let i = 0; i < params.length; i++) {
-      const param = params[i].split('=')
-      theRequest[param[0]] = decodeURIComponent(param[1])
+      const param = params[i].split('=');
+      theRequest[param[0]] = decodeURIComponent(param[1]);
     }
   }
-  return theRequest
-}
+  return theRequest;
+};
 
 /**
  * 获取token
  */
 tool.getToken = () => {
-  return tool.local.get(import.meta.env.VITE_APP_TOKEN_PREFIX)
-}
+  return tool.local.get(import.meta.env.VITE_APP_TOKEN_PREFIX);
+};
 
 /**
  * 转Unix时间戳
  */
 tool.toUnixTime = (date) => {
-  return Math.floor((new Date(date)).getTime() / 1000)
-}
+  return Math.floor(new Date(date).getTime() / 1000);
+};
 
 tool.arrSum = (arr) => {
-  let sum = 0
-  arr.map(item => sum += item)
-  return sum
-}
+  let sum = 0;
+  arr.map((item) => (sum += item));
+  return sum;
+};
 
 /**
  * 获取数据类型
  */
 tool.getObjType = (o) => {
   if (o === null) {
-    return "null"
+    return 'null';
   }
-  if (typeof o !== "object") {
-    return typeof o
+  if (typeof o !== 'object') {
+    return typeof o;
   } else {
-    return Object.prototype.toString.call(o).slice(8, -1).toLocaleLowerCase()
+    return Object.prototype.toString.call(o).slice(8, -1).toLocaleLowerCase();
   }
-}
+};
 
 /**
  * 加法运算
  */
 tool.plus = (num1, num2) => {
   if (isNaN(num1) || isNaN(num2)) {
-    return "NaN"
+    return 'NaN';
   }
 
-  const res = Big(Number(num1)).plus(Big(Number(num2)))
-  return res.toString()
-}
+  const res = Big(Number(num1)).plus(Big(Number(num2)));
+  return res.toString();
+};
 
 /**
  * 减法运算
  */
 tool.minus = (num1, num2) => {
   if (isNaN(num1) || isNaN(num2)) {
-    return "NaN"
+    return 'NaN';
   }
 
-  const res = Big(Number(num1)).minus(Big(Number(num2)))
-  return res.toString()
-}
+  const res = Big(Number(num1)).minus(Big(Number(num2)));
+  return res.toString();
+};
 
 /**
  * 乘法运算
  */
 tool.times = (num1, num2) => {
   if (isNaN(num1) || isNaN(num2)) {
-    return "NaN"
+    return 'NaN';
   }
 
-  const res = Big(Number(num1)).times(Big(Number(num2)))
-  return res.toString()
-}
+  const res = Big(Number(num1)).times(Big(Number(num2)));
+  return res.toString();
+};
 
 /**
  * 除法运算
  */
 tool.div = (num1, num2) => {
   if (isNaN(num1) || isNaN(num2)) {
-    return "NaN"
+    return 'NaN';
   }
 
-  const res = Big(Number(num1)).div(Big(Number(num2)))
-  return res.toString()
-}
+  const res = Big(Number(num1)).div(Big(Number(num2)));
+  return res.toString();
+};
 
 /**
  * 日期格式本地化
  */
 tool.showDate = (time) => {
-  const locale = i18n.global.locale.value
+  const locale = i18n.global.locale.value;
   const date = dayjs(time, 'YYYY/MM/DD'); // 解析原始日期字符串
-  const format = locale === 'en' ? `DD MMM 'YY` : 'YYYY/MM/DD'
-  return date.format(format)
-}
+  const format = locale === 'en' ? `DD MMM 'YY` : 'YYYY/MM/DD';
+  return date.format(format);
+};
 
 /**
  * 时间格式
  */
 tool.showTime = (time) => {
-  return dayjs(time).format('YYYY-MM-DD HH:mm:ss')
-}
+  return dayjs(time).format('YYYY-MM-DD HH:mm:ss');
+};
 
 /**
  * 日期天数
  */
 tool.diffDate = (a, b) => {
-  const date1 = dayjs(a)
-  const date2 = dayjs(b)
+  const date1 = dayjs(a);
+  const date2 = dayjs(b);
 
-  return date2.diff(date1, 'day')
-}
+  return date2.diff(date1, 'day');
+};
 
 /**
  * 日期天数-月份数
@@ -334,10 +336,10 @@ tool.calculateDurationPrecise = (startDate, endDate) => {
   let res = {
     months,
     days: remainingDays
-  }
+  };
 
-  return res
-}
+  return res;
+};
 
 /**
  * 日期天数-倒推得到结束时间
@@ -347,7 +349,7 @@ tool.calculateEndDate = (startDate, months = 0, days = 0) => {
   // 增加月数和天数
   const end = start.add(months, 'month').add(days, 'day');
   return end.format('YYYY-MM-DD'); // 返回格式化的日期
-}
+};
 
 /**
  * 判断一个对象里面的所有值都不存在
@@ -357,7 +359,7 @@ tool.isAllValuesEmpty = (obj) => {
     return false; // 不是对象或是 null，直接返回 false
   }
 
-  return Object.values(obj).every(value => {
+  return Object.values(obj).every((value) => {
     if (value === null || value === undefined || value === '') {
       return true; // 空值
     } else if (Array.isArray(value)) {
@@ -367,7 +369,7 @@ tool.isAllValuesEmpty = (obj) => {
     }
     return false; // 非空值
   });
-}
+};
 
 /**
  * 过滤对象里面的空数据
@@ -377,7 +379,7 @@ tool.filterEmptyValues = (obj) => {
   if (typeof obj === 'object' && obj !== null) {
     if (Array.isArray(obj)) {
       // 处理数组：过滤掉空数据并递归处理数组元素
-      return obj.map(tool.filterEmptyValues).filter(item => item !== null && item !== undefined && item !== '');
+      return obj.map(tool.filterEmptyValues).filter((item) => item !== null && item !== undefined && item !== '');
     } else {
       // 处理对象：过滤掉空数据并递归处理值
       return Object.entries(obj).reduce((acc, [key, value]) => {
@@ -391,7 +393,7 @@ tool.filterEmptyValues = (obj) => {
   }
   // 如果是基础类型，直接返回
   return obj;
-}
+};
 
 // 保留小数点后n位 ，默认2
 tool.fixNumber = (value, fractionDigits = 2) => +value.toFixed(fractionDigits);
@@ -399,64 +401,95 @@ tool.fixNumber = (value, fractionDigits = 2) => +value.toFixed(fractionDigits);
 const initialMoneyFormatOptions = {
   prefix: true,
   parentheses: false,
-  cents: true,
-}
+  cents: true
+};
 
 // 格式化金额 - 美元
 tool.formatMoney = (value, formatOptions) => {
-  const options = formatOptions
-    ? { ...initialMoneyFormatOptions, ...formatOptions }
-    : initialMoneyFormatOptions;
+  const options = formatOptions ? { ...initialMoneyFormatOptions, ...formatOptions } : initialMoneyFormatOptions;
   const centsCount = options.cents ? 2 : 0;
   const money = new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: centsCount,
+    minimumFractionDigits: centsCount
   }).format(tool.fixNumber(Math.abs(value), centsCount));
   const isNegative = value < 0;
-  return `${isNegative ? '-' : ''}${options.prefix ? '$' : ''}${
-    options.parentheses ? `(${money})` : money
-  }`;
+  return `${isNegative ? '-' : ''}${options.prefix ? '$' : ''}${options.parentheses ? `(${money})` : money}`;
+};
+
+/**
+ * 日期格式本地化
+ */
+tool.monthYear = (time) => {
+  const [year, month] = time.split('-');
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const monthIndex = parseInt(month, 10) - 1;
+  const formattedMonthName = monthNames[monthIndex];
+  const formattedYear = year.slice(-2);
+  return `${formattedMonthName} ‘${formattedYear}`;
+};
+
+/**
+ * 日期格式本地化
+ */
+tool.monthYearFull = (time) => {
+  const [year, month] = time.split('-');
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const monthIndex = parseInt(month, 10) - 1;
+  const formattedMonthName = monthNames[monthIndex];
+  return `${formattedMonthName} ${year}`;
+};
+
+/**
+ * 日期格式本地化
+ */
+tool.monthYearDay = (time) => {
+  const [year, month, day] = time.split('-');
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const monthIndex = parseInt(month, 10) - 1;
+  const formattedMonthName = monthNames[monthIndex];
+  const formattedYear = year.slice(-2);
+  return `${day} ${formattedMonthName} ‘${formattedYear}`;
 };
 
 export const navigationTo = (path) => {
-  router.push(path)
-}
+  router.push(path);
+};
 
 export const goBack = () => {
-  router.back()
-}
+  router.back();
+};
 
 // 数字格式化
 export const numberStrFormat = (number, decimal = 2, flag = false) => {
-  let resStr = decimal === 0 ? 0 : '0.00'
-  const amount = Number(number)
+  let resStr = decimal === 0 ? 0 : '0.00';
+  const amount = Number(number);
   if (!isNaN(amount)) {
     const options = {
       minimumFractionDigits: decimal
-    }
-    resStr = flag ? String(Math.abs(amount)) : Math.abs(amount).toLocaleString('en-US', options)
+    };
+    resStr = flag ? String(Math.abs(amount)) : Math.abs(amount).toLocaleString('en-US', options);
     if (resStr.indexOf('.') > -1) {
-      const arr = resStr.split('.')
+      const arr = resStr.split('.');
       if (arr[1].length === 1) {
-        resStr = resStr + '0'
+        resStr = resStr + '0';
       }
       if (arr[1].length > 2 && decimal === 2) {
-        resStr = arr[0] + '.' + arr[1].slice(0, 2)
+        resStr = arr[0] + '.' + arr[1].slice(0, 2);
       }
     } else {
-      resStr = decimal === 0 ? resStr : resStr + '.00'
+      resStr = decimal === 0 ? resStr : resStr + '.00';
     }
   }
-  return !isNaN(amount) && amount < 0 ? '-' + resStr : resStr
-}
+  return !isNaN(amount) && amount < 0 ? '-' + resStr : resStr;
+};
 
 // 对象数组去重
 export const removeDuplicates = (arr, key) => {
   return arr.reduce((acc, item) => {
-    if (!acc.some(i => i[key] === item[key])) {
+    if (!acc.some((i) => i[key] === item[key])) {
       acc.push(item);
     }
     return acc;
   }, []);
-}
+};
 
-export default tool
+export default tool;

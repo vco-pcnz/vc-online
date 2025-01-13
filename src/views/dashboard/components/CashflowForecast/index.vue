@@ -38,7 +38,8 @@
     <a-button type="cyan" size="small" class="ml-3" shape="round" @click="report" :loading="downloading">Create report</a-button>
   </div>
   <a-spin :spinning="loading">
-    <div class="CashflowForecastChart" v-if="data">
+    <div class="CashflowForecastChart" >
+      <template v-if="data">
       <div class="flex flex-col justify-between">
         <p class="bold">Available fund for upcoming 11 months</p>
         <div>
@@ -69,7 +70,7 @@
                       <vco-number
                         :bold="true"
                         prefix=""
-                        :value="data.data[2].data[dates[index]] / 1000"
+                        :value="Math.round(Math.round(data.data[2].data[dates[index]] / 10) / 100)"
                         suffix="k"
                         :precision="2"
                         size="fs_xs"
@@ -90,7 +91,7 @@
                         <vco-number
                           :bold="true"
                           prefix=""
-                          :value="data.data[2].data[dates[index]] / 1000"
+                          :value="Math.round(data.data[2].data[dates[index]] / 10) / 100"
                           suffix="k"
                           :precision="2"
                           size="fs_xs"
@@ -101,15 +102,15 @@
                       <div
                         class="line"
                         :style="{
-                          top: 'calc(' + (Math.abs(option.series[0].data[index]) / Math.abs(minMax)) * 100 + '% + 5px)',
-                          bottom: 'calc( 100% - ' + (Math.abs(option.series[0].data[index]) / Math.abs(minMax)) * 100 + '% - 20px)'
+                          top: 'calc(' + (Math.abs(option.series[0].data[index]) / Math.abs(minMax)) * 100 + '% + 22px)',
+                          bottom: 'calc( 100% - ' + (Math.abs(option.series[0].data[index]) / Math.abs(minMax)) * 100 + '% - 30px)'
                         }"
                       ></div>
-                      <div class="value" :style="{ top: 'calc(' + (Math.abs(option.series[0].data[index]) / Math.abs(minMax)) * 100 + '% + 20px)' }">
+                      <div class="value" :style="{ top: 'calc(' + (Math.abs(option.series[0].data[index]) / Math.abs(minMax)) * 100 + '% + 30px)' }">
                         <vco-number
                           :bold="true"
                           prefix=""
-                          :value="data.data[2].data[dates[index]] / 1000"
+                          :value="Math.round(data.data[2].data[dates[index]] / 10) / 100"
                           suffix="k"
                           :precision="2"
                           size="fs_xs"
@@ -133,7 +134,7 @@
                       color="#6d7b1f"
                       prefix=""
                       suffix="k"
-                      :value="data.data[2].data[dates[index]] / 1000"
+                      :value="Math.round(data.data[2].data[dates[index]] / 10) / 100"
                       :precision="2"
                       size="fs_xs"
                     ></vco-number>
@@ -144,8 +145,16 @@
             <div class="month">{{ tool.monthYear(item) }}</div>
           </div>
         </div>
-
-        <div class="chartBox" @click="visible_forecast = true">
+        <div class="hoverBox chart-list" style="height: 300px" @click="visible_forecast = true">
+          <div
+            class="chart-list-item hover"
+            v-for="(item, index) in dates"
+            :key="item"
+            @mousemove="mousemove($event, index)"
+            @mouseout="mouseout"
+          ></div>
+        </div>
+        <div class="chartBox">
           <v-chart :option="option" autoresize />
         </div>
       </div>
@@ -154,11 +163,13 @@
         <vco-number :value="data.data[3].data[dates[dates.length - 1]]" :precision="2" :bold="true"></vco-number>
         <p class="fs_xs color_grey">Forecasted available fund</p>
       </div>
+        
+      </template>
     </div>
     <TableBlock v-if="data" :data="data.data"></TableBlock>
   </a-spin>
 
-  <div class="tooltipBoxWrapper">
+  <div class="tooltipBoxWrapper" v-if="chartData && hoverIndex" :style="{ top: `${mouseY - 60}px`, left: `${mouseX - 155}px` }">
     <div class="tooltipBox" ref="tooltipBoxRef">
       <template v-if="chartData">
         <!-- {{ chartData }} -->
@@ -282,10 +293,10 @@ const option = ref({
 
     //   return [x, y];
     // },
-    formatter: function (params) {
-      hoverIndex.value = params[0].dataIndex;
-      return tooltipBoxRef.value;
-    }
+    // formatter: function (params) {
+    //   hoverIndex.value = params[0].dataIndex;
+    //   return tooltipBoxRef.value;
+    // }
   },
   series: [
     {
@@ -322,7 +333,7 @@ const disabledDateFormat = (current) => {
   return false;
 };
 
-const data = ref({});
+const data = ref(null);
 const zeroLine = ref(0);
 const Min = ref(0);
 const Max = ref(0);
@@ -494,6 +505,7 @@ const loadData = () => {
       data.value = res;
       let chartData = [res.available_fund];
       dates.value = [dayjs().format('YYYY-MM')];
+      if(!res.data) return
       Object.keys(res.data[0].data).forEach((item) => {
         dates.value.push(item);
         chartData.push(res.data[3].data[item]);
@@ -510,15 +522,22 @@ const loadData = () => {
         zeroLine.value = (Max.value / minMax.value) * 100;
       }
 
-      console.log(minMax.value);
-      console.log(chartData);
       option.value.series[0].data = chartData;
     })
     .finally(() => {
       loading.value = false;
     });
 };
-
+const mouseX = ref(0);
+const mouseY = ref(0);
+const mousemove = (e, index) => {
+  mouseX.value = e.screenX;
+  mouseY.value = e.screenY;
+  hoverIndex.value = index;
+};
+const mouseout = () => {
+  hoverIndex.value = 0;
+};
 onMounted(() => {
   loadData();
 });
@@ -538,6 +557,7 @@ onMounted(() => {
 }
 
 .CashflowForecastChart {
+  min-height: 348px;
   border-bottom: 1px solid #e2e5e2;
   display: grid;
   gap: 32px;
@@ -570,6 +590,7 @@ onMounted(() => {
     left: 0;
     padding-left: 8px;
     padding-right: 8px;
+    position: relative;
     .chart-list-item {
       background-color: #f7f9f8;
       border: 1px solid #e2e5e2;
@@ -581,6 +602,10 @@ onMounted(() => {
       padding-bottom: 60px;
       padding-top: 60px;
       position: relative;
+      &.hover {
+        background: transparent;
+        border: none;
+      }
       .month {
         bottom: 6px;
         left: 0;
@@ -611,7 +636,7 @@ onMounted(() => {
       }
       .line {
         position: absolute;
-        left: 50%;
+        left: calc(50% + 2px) ;
         border-right: 1.5px dashed #181818;
       }
     }
@@ -625,12 +650,14 @@ onMounted(() => {
   bottom: 60px;
 }
 .tooltipBoxWrapper {
-  display: none;
+  // display: none;
   position: fixed;
   top: 100px;
   padding: 10px;
   background: #fff;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+  z-index: 3;
 }
 
 .tooltipBox {
@@ -652,5 +679,11 @@ onMounted(() => {
 :deep(.chartTooltip) {
   border-radius: 8px !important;
   padding: 0 !important;
+}
+
+.hoverBox {
+  position: absolute !important;
+  inset: 0;
+  z-index: 3;
 }
 </style>

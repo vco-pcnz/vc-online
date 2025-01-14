@@ -12,25 +12,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Update packages
+      # 更新系统包
+      - name: Update system packages
         run: sudo apt-get update
 
+      # 安装 Yarn（如果未安装）
       - name: Install Yarn
         run: |
-          curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-          echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-          sudo apt-get update && sudo apt-get install -y yarn
+          if ! command -v yarn &> /dev/null; then
+            curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+            echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+            sudo apt-get update && sudo apt-get install -y yarn
+          else
+            echo "Yarn is already installed"
+          fi
 
-      - name: Update AWS CLI
+      # 检查 AWS CLI 是否可用
+      - name: Check AWS CLI
         run: |
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip awscliv2.zip
-          sudo ./aws/install --update
-          aws --version
+          aws --version || echo "AWS CLI is not available. Check installation steps."
 
+      # 检出代码
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # 构建项目
       - name: Build the project
         run: |
           yarn --silent
@@ -41,6 +47,7 @@ jobs:
           VITE_APP_BASE_URL: https://test-admin-api.new.vincentcapital.co.nz/api
           VITE_APP_TOKEN_PREFIX: vc-online-user-token
 
+      # 部署到 AWS S3
       - name: Deploy to AWS S3
         run: |
           aws s3 rm s3://test-vco.new.vincentcapital.co.nz --recursive --quiet

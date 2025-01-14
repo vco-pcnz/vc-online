@@ -28,8 +28,8 @@
       <DropdownList
         :type="2"
         label="requests"
-        labelKey="project_title"
-        searchKey="project_title"
+        labelKey="project_name"
+        searchKey="project_name"
         v-model:value="searchForm.apply_project_id"
         @change="loadData()"
       ></DropdownList>
@@ -171,7 +171,7 @@
     <TableBlock v-if="data" :data="data.data"></TableBlock>
   </a-spin>
 
-  <div class="tooltipBoxWrapper" v-if="chartData && hoverIndex" :style="{ top: `${mouseY - 60}px`, left: `${mouseX - 155}px` }">
+  <div class="tooltipBoxWrapper" v-if="chartData && hoverIndex && showTipCard" :style="{ top: `${mouseY - 60}px`, left: `${mouseX - 155}px` }">
     <div class="tooltipBox" ref="tooltipBoxRef">
       <template v-if="chartData">
         <!-- {{ chartData }} -->

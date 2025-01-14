@@ -24,7 +24,6 @@
       :total="total"
       :pageSize="pagination.limit"
       :current="pagination.page"
-      show-size-changer
       show-quick-jumper
       :show-total="(total) => t('共{0}条', [total])"
       @change="setPaginate"
@@ -123,7 +122,7 @@ const { t } = useI18n();
 
 const pagination = ref({
   page: 1,
-  limit: 1
+  limit: 10
 });
 
 const setPaginate = (page, limit) => {

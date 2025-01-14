@@ -250,7 +250,7 @@ export default {
   "日期": "Date",
   "委托人": "client",
   "参考": "reference",
-  "描述": "description",
+  "描述": "Description",
   "支出": "spent",
   "收入": "received",
   "状态": "status",
@@ -493,5 +493,9 @@ export default {
   "审阅意见": "Comments for review",
   "声明说明": "Statement note",
   "金额，新西兰元":'Amount, $ nzd',
-  "凭证信息": "Offer Info"
+  "凭证信息": "Offer Info",
+  "状况": "Conditions",
+  "添加状况": "add condition",
+  "添加新状况": "Add new condition",
+  "显示借款人": "Show borrower"
 }

@@ -67,7 +67,7 @@
 
     <a-spin :spinning="loading">
       <div class="sys-table-content border-top-none">
-        <a-dropdown class="selectAll" v-model:open="visibleSlect">
+        <a-dropdown v-if="blockInfo.showEdit" class="selectAll" v-model:open="visibleSlect">
           <a class="ant-dropdown-link" @click.prevent>
             <span class="uppercase bold fs_xs">{{ t('选择') }}</span>
             <i :class="['iconfont', { open: visibleSlect }]">&#xe778;</i>

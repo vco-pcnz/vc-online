@@ -1,12 +1,12 @@
 <template>
   <div class="vco-user-item" :class="{'main': main}">
-    <div class="avatar">
+    <div class="avatar" :class="{'auto': size !== 28 || size !== 32}">
       <div v-if="tips" class="icon">
         <i v-if="tips === 'edit'" class="iconfont">&#xe739;</i>
         <i v-else-if="tips === 'view'" class="iconfont view">&#xe776;</i>
         <p v-else>{{ tips }}</p>
       </div>
-      <vco-avatar :src="data.avatar" :size="size"></vco-avatar>
+      <vco-avatar :src="data.avatar" :size="sizeRef || size"></vco-avatar>
     </div>
     <p><span v-if="post">[{{ post }}]</span>{{ data.name }}</p>
   </div>
@@ -39,14 +39,18 @@
     post: {
       type: String,
       default: ''
+    },
+    size: {
+      type: [String, Number],
+      default: 28
     }
   })
 
-  const size = ref(28)
+  const sizeRef = ref(0)
 
   onMounted(() => {
     if (props.main) {
-      size.value = 32
+      sizeRef.value = 32
     }
   })
 </script>
@@ -59,6 +63,10 @@
       width: 43px;
       padding-left: 3px;
       position: relative;
+      &.auto {
+        width: auto;
+        margin-right: 8px;
+      }
       > .icon {
         position: absolute;
         width: 18px;

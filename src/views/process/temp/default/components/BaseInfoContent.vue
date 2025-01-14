@@ -262,4 +262,6 @@ const checkHandle = async (check_status) => {
       });
   }
 };
+
+console.log('dataInfo', props.dataInfo)
 </script>

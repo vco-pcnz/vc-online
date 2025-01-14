@@ -504,3 +504,35 @@ export const projectAuditSaveStep = (data) =>
     method: "post",
     data
   });
+
+// 条件列表
+export const auditConditionList = (params) =>
+  request({
+    url: "/project/audit/conditionList",
+    method: "get",
+    params
+  });
+
+// 添加或修改条件
+export const projectAuditEditCondition = (data) =>
+  request({
+    url: "/project/audit/editCondition",
+    method: "post",
+    data
+  });
+  
+// 修改条件状态
+export const projectAuditStatusCondition = (data) =>
+  request({
+    url: "project/audit/statusCondition",
+    method: "post",
+    data
+  });
+
+// 删除条件
+export const projectAuditDeleteCondition = (data) =>
+  request({
+    url: "project/audit/deleteCondition",
+    method: "post",
+    data
+  });

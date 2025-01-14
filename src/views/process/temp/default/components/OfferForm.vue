@@ -42,8 +42,8 @@
         </template>
         <p v-else>{{ t('暂无数据，请上传') }}</p>
 
-        <vco-upload-modal v-model:list="offerList" class="upload-content">
-          <div v-if="blockInfo.showEdit" class="upload-btn">
+        <vco-upload-modal v-if="blockInfo.showEdit" v-model:list="offerList" class="upload-content">
+          <div class="upload-btn">
             <i class="iconfont">&#xe734;</i>
             {{ t('上传文件') }}
           </div>

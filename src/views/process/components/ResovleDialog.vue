@@ -53,8 +53,8 @@
       default: ''
     },
     type: {
-      type: Number,
-      default: 2
+      type: String,
+      default: ''
     },
     required: {
       type: Boolean,
@@ -88,9 +88,9 @@
       const params = {
         uuid: props.uuid
       }
-      if (props.type === 2) {
+      if (props.type === 'step_fc_audit') {
         params.fc_review = formState.reason
-      } else if (props.type === 3) {
+      } else if (props.type === 'step_director_audit') {
         params.director_review = formState.reason
       }
 

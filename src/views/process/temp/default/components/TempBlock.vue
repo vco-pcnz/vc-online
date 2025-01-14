@@ -10,6 +10,17 @@
     ></check-edit-dialog>
 
     <template v-for="item in blockArr">
+      <!-- 反洗钱 -->
+      <template v-if="item === 'AML' && !hideWash">
+        <wash-table
+          :current-id="currentId"
+          :current-step="currentStep"
+          :block-info="blockInfo.AML"
+          :wash-info="dataInfo.AML"
+          @refresh="dataRefresh"
+        ></wash-table>
+      </template>
+
       <!-- 借款人信息 -->
       <template v-if="item === 'borrower'">
         <div
@@ -220,6 +231,7 @@ import { useI18n } from "vue-i18n";
 import { cloneDeep } from "lodash";
 
 import CheckEditDialog from './CheckEditDialog.vue';
+import WashTable from './WashTable.vue';
 import BorrowerInfo from './BorrowerInfo.vue';
 import ProjectInfo from './ProjectInfo.vue';
 import DocumentInfo from './DocumentInfo.vue';
@@ -255,6 +267,10 @@ const props = defineProps({
   },
   currentStep: {
     type: Object
+  },
+  hideWash: {
+    type: Boolean,
+    default: false
   }
 })
 

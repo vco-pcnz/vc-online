@@ -1,24 +1,72 @@
 <template>
   <div>
+    <resovle-dialog
+      v-if="needInsMark.includes(currentMark)"
+      v-model:visible="resovleVisible"
+      :uuid="currentId"
+      :type="currentMark"
+      :required="false"
+      @done="subDone"
+    ></resovle-dialog>
+
     <a-spin :spinning="pageLoading" size="large">
       <div v-if="dataInfo && dataInfo.base.cancel_reason" class="block-item details process-fail mt-5">
         <p class="title">{{ t('拒绝原因') }}</p>
         <p class="info">{{ dataInfo.base.cancel_reason || t('拒绝原因') }}</p>
       </div>
-
+      
       <div class="block-container">
         <div v-if="dataInfo && PageBlockObjRef" class="left-content">
+          <div v-if="isAml" class="mb-10">
+            <wash-table
+              :current-id="currentId"
+              :current-step="currentStep"
+              :block-info="PageBlockObjRef.AML"
+              :wash-info="dataInfo.AML"
+              @refresh="getDataInit"
+            ></wash-table>
+
+            <temp-footer
+              ref="footerRef"
+              :check="check"
+              :sub-loading="subLoading"
+              :show-draft="false"
+              :previous-page="previousPage"
+              :previous-step="previousStep"
+              :next-page="nextPage"
+              :can-next="canNext"
+              :current-id="currentId"
+              :current-step="currentStep"
+              :next-step="nextStep"
+              @submit="submitHandle"
+            ></temp-footer>
+          </div>
+          
           <temp-block
             :block-arr="PageBlockArrRef"
             :block-info="PageBlockObjRef"
             :data-info="dataInfo"
             :current-id="currentId"
             :current-step="currentStep"
+            :hide-wash="tempHideWash"
             @refresh="getDataInit"
             @lendingDone="showForecast = true"
           ></temp-block>
 
+          <div v-if="dataInfo.base.fc_review" class="block-item mb">
+            <vco-process-title :title="t('{0}审核批示', ['FC'])"></vco-process-title>
+            <div class="mt-2">{{ dataInfo.base.fc_review }}</div>
+          </div>
+
+          <div v-if="dataInfo.base.director_review" class="block-item mb">
+            <vco-process-title
+              :title="t('{0}审核批示', ['Director'])"
+            ></vco-process-title>
+            <div class="mt-2">{{ dataInfo.base.director_review }}</div>
+          </div>
+
           <temp-footer
+            v-if="!isAml"
             ref="footerRef"
             :check="check"
             :sub-loading="subLoading"
@@ -36,6 +84,7 @@
 
         <div v-if="dataInfo && PageBlockObjRef" class="right-content">
           <bind-users :current-id="currentId"></bind-users>
+
           <operation-log :current-id="currentId"></operation-log>
 
           <forecast-list
@@ -60,7 +109,7 @@
 </template>
 
 <script setup>
-  import { ref, watch, onMounted } from "vue";
+  import { ref, watch, onMounted, computed } from "vue";
   import { useI18n } from "vue-i18n";
   import { cloneDeep } from "lodash";
   import {
@@ -73,10 +122,13 @@
   import OperationLog from "./../../components/OperationLog.vue";
   import ForecastList from "./../../components/ForecastList.vue";
   import SecurityList from "./../../components/SecurityList.vue";
+  import WashTable from './components/WashTable.vue';
   import emitter from "@/event"
   import { message } from "ant-design-vue/es";
   import useProcessStore from "@/store/modules/process"
   import { processBlockName } from "@/constant"
+
+  import ResovleDialog from '@/views/process/components/ResovleDialog.vue';
 
   // 初始化当前项目的forcastList 状态
   const processStore = useProcessStore()
@@ -133,7 +185,15 @@
   const currentDataInfo = ref()
   const showForecast = ref(false)
 
+  // 审核需要填写原因的流程
+  const needInsMark = ['step_fc_audit', 'step_director_audit']
+
+  const currentMark = computed(() => props.currentStep.mark)
+  const tempHideWash = computed(() => ['step_aml_audit'].includes(currentMark.value))
+  const isAml = computed(() => (PageBlockArrRef.value.includes('AML') && tempHideWash.value))
+
   const subLoading = ref(false)
+  const resovleVisible = ref(false);
   const submitHandle = () => {
     const data = currentDataInfo.value
 
@@ -148,6 +208,7 @@
           message.error(t('请上传') + t(processBlockName[key]))
           return false
         }
+
         if (!data[key].is_check) {
           message.error(t('请审核') + t(processBlockName[key]))
           return false
@@ -155,21 +216,32 @@
       }
     }
 
-    const params = {
-      uuid: props.currentId
-    }
-    subLoading.value = true
-    projectAuditSaveStep(params).then((res) => {
-      subLoading.value = false
-      footerRef.value.nextHandle({
-        ...res,
+    if (needInsMark.includes(currentMark.value)) {
+      resovleVisible.value = true;
+    } else {
+      const params = {
         uuid: props.currentId
-      })
+      }
+      subLoading.value = true
+      projectAuditSaveStep(params).then((res) => {
+        subLoading.value = false
+        footerRef.value.nextHandle({
+          ...res,
+          uuid: props.currentId
+        })
 
-      // 触发列表数据刷新
-      emitter.emit('refreshRequestsList')
-    }).catch(() => {
-      subLoading.value = false
+        // 触发列表数据刷新
+        emitter.emit('refreshRequestsList')
+      }).catch(() => {
+        subLoading.value = false
+      })
+    }
+  }
+
+  const subDone = (data) => {
+    footerRef.value.nextHandle({
+      ...data,
+      uuid: props.currentId
     })
   }
 

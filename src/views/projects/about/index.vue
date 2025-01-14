@@ -35,7 +35,8 @@
           <div class="flex justify-center mt-10 mb-10">
             <a-button type="brown" shape="round" size="small">{{ t('默认开始') }}</a-button>
             <a-button type="brown" shape="round" size="small" class="ml-10 mr-10">{{ t('添加变更') }}</a-button>
-            <a-button type="brown" shape="round" size="small">{{ t('日志') }}</a-button>
+            <Journal><a-button type="brown" shape="round" size="small">{{ t('日志') }}</a-button></Journal>
+            
           </div>
           <Stats></Stats>
         </div>
@@ -57,6 +58,7 @@ import RequestDetails from './components/requestDetails.vue';
 import Stats from './components/stats.vue';
 import PeriodLine from './components/PeriodLine.vue';
 import MeterStat from './components/MeterStat.vue';
+import Journal from './components/form/Journal.vue';
 const { t } = useI18n();
 const route = useRoute();
 

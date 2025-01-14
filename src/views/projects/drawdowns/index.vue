@@ -10,7 +10,9 @@
           <div class="HelpBorrower">
             <div class="flex items-center"><i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">Help borrower</span></div>
             <p class="color_grey mt-1 mb-3">You can help to create drawdown on their behalf.</p>
-            <a-button type="brown" shape="round" size="small">{{ t('默认开始') }}</a-button>
+            <drawdownre-quest>
+              <a-button type="brown" shape="round" size="small">{{ t('默认开始') }}</a-button>
+            </drawdownre-quest>
           </div>
           <Detail></Detail>
         </div>
@@ -27,6 +29,7 @@ import detailLayout from '../components/detailLayout.vue';
 import MeterStat from './components/MeterStat.vue';
 import TableBlock from './components/TableBlock.vue';
 import Detail from './components/Detail.vue';
+import DrawdownreQuest from './components/DrawdownreQuest.vue';
 
 const { t } = useI18n();
 

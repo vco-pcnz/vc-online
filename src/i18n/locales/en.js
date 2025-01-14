@@ -490,4 +490,7 @@ export default {
   "待反洗钱": "Pending Anti-Money Laundering",
   "LM OPEN": "LM OPEN",
   "LM 待OPEN": "LM Waiting for OPEN",
+  "审阅意见": "Comments for review",
+  "声明说明": "Statement note",
+  "金额，新西兰元":'Amount, $ nzd'
 }

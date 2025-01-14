@@ -1,6 +1,5 @@
 <template>
   <div class="indicatorsGrid">
-
     <div class="MeterStat MeterStat_type_charcoal">
       <div class="MeterStat-Meter"></div>
       <div>
@@ -19,10 +18,12 @@
       <div>
         <p class="color_grey" style="margin-bottom: 2px">Pending drawdown</p>
         <div class="fs_3xl bold">$0.00</div>
-        <p style="opacity: 0;">.</p>
+        <p style="opacity: 0">.</p>
       </div>
     </div>
-    <div class="chart"></div>
+    <div class="chart">
+      <v-chart class="chart2" :option="option" autoresize />
+    </div>
     <div class="MeterStat MeterStat_type_transparent text-right">
       <div>
         <p>Loan</p>
@@ -41,6 +42,52 @@ import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 
 const props = defineProps([]);
+
+const data = ref({
+  facilityLimit2: 2873824.21,
+  current_balance: 979262.58,
+  availableBalance: 1884561.63,
+  accrued_interest: 5610.41,
+
+  facilityLimit1: 2504000.0,
+  drawn_amount: 804000.0,
+  availableWithdrawal: 1611366.0,
+  pending_drawdown: 88634.0
+});
+// 初始化图表
+const option = ref({
+  autoFit: false,
+  legend: false,
+  tooltip: false,
+
+  series: [
+    {
+      type: 'pie',
+      center: ['50%', '50%'],
+      radius: '100%',
+      color: ['#181818', 'rgba(169, 173, 87, 0.7)', '#fff'],
+      label: {
+        show: false
+      },
+      label: {
+        show: true, // 显示标签
+        position: 'inside', // 标签位置：扇区内部
+        formatter: function (params) {
+          // 仅显示第一个数据项的百分比
+          return params.dataIndex === 0 ? `{d}%`.replace('{d}', params.percent) : '';
+        },
+        textStyle: {
+          color: '#fff', // 文本颜色
+          fontWeight: 'bold',
+          fontSize: 14,
+          textBorderWidth: 0 // 取消描边
+        }
+      },
+      silent: true,
+      data: [{ value: data.value.drawn_amount }, { value: data.value.pending_drawdown }, { value: data.value.availableWithdrawal }]
+    }
+  ]
+});
 </script>
 
 <style scoped lang="less">
@@ -102,5 +149,11 @@ const props = defineProps([]);
 .MeterStat_type_dotsYellow .MeterStat-Dot {
   background-color: #f19915;
   border-color: #f19915;
+}
+.chart {
+  height: 180px;
+  width: 180px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
 }
 </style>

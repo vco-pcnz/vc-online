@@ -960,7 +960,7 @@ onMounted(() => {
 .block-item {
   :deep(.ant-input[disabled]),
   :deep(.ant-input-number-disabled) {
-    color: #282828 !important;
+    color: #999 !important;
   }
 }
 </style>

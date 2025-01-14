@@ -48,3 +48,14 @@ export const processRoutes = [
   '/process/nine',
   '/process/ten'
 ]
+
+export const processBlockName = {
+  borrower: '借款人信息',
+  project: '项目信息',
+  cert: '证件资料',
+  loan: '借款信息',
+  lending: '放款信息',
+  security: '抵押物信息',
+  warranty: '担保信息',
+  offer: '凭证信息'
+}

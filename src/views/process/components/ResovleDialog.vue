@@ -38,7 +38,7 @@
 <script setup>
   import { ref, reactive, watch } from "vue";
   import { useI18n } from "vue-i18n";
-  import { projectAuditFncheck, projectAuditDirectorcheck } from "@/api/process"
+  import { projectAuditSaveStep } from "@/api/process"
   import emitter from "@/event"
 
   const emits = defineEmits(['update:visible', 'done'])
@@ -85,33 +85,28 @@
     formRef.value
     .validate()
     .then(() => {
-      let ajaxFn = null
       const params = {
         uuid: props.uuid
       }
       if (props.type === 2) {
-        ajaxFn = projectAuditFncheck
         params.fc_review = formState.reason
       } else if (props.type === 3) {
-        ajaxFn = projectAuditDirectorcheck
         params.director_review = formState.reason
       }
 
-      if (ajaxFn) {
-        subLoading.value = true
+      subLoading.value = true
 
-        ajaxFn(params).then((res) => {
-          subLoading.value = false
-          updateVisible(false)
+      projectAuditSaveStep(params).then((res) => {
+        subLoading.value = false
+        updateVisible(false)
 
-          // 触发列表数据刷新
-          emitter.emit('refreshRequestsList')
+        // 触发列表数据刷新
+        emitter.emit('refreshRequestsList')
 
-          emits('done', res)
-        }).catch(() => {
-          subLoading.value = false
-        })
-      }
+        emits('done', res)
+      }).catch(() => {
+        subLoading.value = false
+      })
     })
     .catch(error => {
       console.log('error', error);

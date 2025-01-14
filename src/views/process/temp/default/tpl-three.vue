@@ -147,7 +147,7 @@
 import { reactive, ref, watch, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { cloneDeep } from 'lodash';
-import { projectApplySaveProjectCert, projectAuditSaveProjectCert, projectSaveSaveDraft, projectApplyProjectCert, projectDraftInfo } from '@/api/process';
+import { projectApplySaveProjectCert, projectAuditSaveMode, projectSaveSaveDraft, projectApplyProjectCert, projectDraftInfo } from '@/api/process';
 import tool from '@/utils/tool';
 import { message } from 'ant-design-vue/es';
 import TempFooter from './components/TempFooter.vue';
@@ -182,6 +182,10 @@ const props = defineProps({
   check: {
     type: Boolean,
     default: false,
+  },
+  code: {
+    type: String,
+    default: ''
   },
   previousPage: {
     type: String,
@@ -283,7 +287,8 @@ const submitHandle = () => {
 
       if (props.check) {
         params.project_cert_status = props.infoData.check_status;
-        ajaxFn = projectAuditSaveProjectCert;
+        params.code = props.code
+        ajaxFn = projectAuditSaveMode;
       } else {
         params.draft_step = markInfo.value;
       }
@@ -294,19 +299,18 @@ const submitHandle = () => {
         .then(async (res) => {
           if (props.check) {
             emits('checkDone');
+            emitter.emit('refreshAuditHisList');
           } else {
             if (needBindUser.value) {
               await bindUsersRef.value.bindUsersRequest(res.uuid);
               needBindUser.value = false;
             }
+            // 触发列表数据刷新
+            emitter.emit('refreshRequestsList');
             footerRef.value.nextHandle(res);
           }
 
           subLoading.value = false;
-
-          // 触发列表数据刷新
-          emitter.emit('refreshRequestsList');
-          emitter.emit('refreshAuditHisList');
         })
         .catch(() => {
           subLoading.value = false;

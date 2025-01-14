@@ -29,6 +29,11 @@
     </a-modal>
 
     <a-spin :spinning="pageLoading" size="large">
+      <div v-if="currentInfo && currentInfo.cancel_reason && !check" class="block-item details process-fail mt-5">
+        <p class="title">{{ t('拒绝原因') }}</p>
+        <p class="info">{{ currentInfo.cancel_reason || t('拒绝原因') }}</p>
+      </div>
+
       <div class="block-container">
         <div class="left-content">
           <div class="block-item" :class="{'check': check}">
@@ -125,7 +130,7 @@
   import {
     projectSelectList,
     projectApplySaveLoanInfo,
-    projectAuditSaveLoanInfo,
+    projectAuditSaveMode,
     projectSaveSaveDraft,
     projectDraftInfo,
     projectApplyLoanInfo
@@ -167,6 +172,10 @@
       type: Boolean,
       default: false
     },
+    code: {
+      type: String,
+      default: ''
+    },
     previousPage: {
       type: String,
       default: ''
@@ -187,6 +196,8 @@
   const bindUsersRef = ref();
 
   const markInfo = computed(() => (props.currentStep ? props.currentStep.mark : ''))
+
+  const currentInfo = ref(null)
 
   const formState = reactive({
     loan_money: '',
@@ -245,11 +256,12 @@
 
   const subLoading = ref(false)
   const normalRequest = async (params, flag) => {
-    const ajaxFn = flag ? projectAuditSaveLoanInfo : projectApplySaveLoanInfo
+    const ajaxFn = flag ? projectAuditSaveMode : projectApplySaveLoanInfo
     subLoading.value = true
 
     await ajaxFn(params).then(async (res) => {
       if (props.check) {
+        emitter.emit('refreshAuditHisList')
         emits('checkDone')
       } else {
 
@@ -258,14 +270,13 @@
           needBindUser.value = false;
         }
 
+        // 触发列表数据刷新
+        emitter.emit('refreshRequestsList')
+
         footerRef.value.nextHandle(res)
       }
 
       subLoading.value = false
-
-      // 触发列表数据刷新
-      emitter.emit('refreshRequestsList')
-      emitter.emit('refreshAuditHisList')
     }).catch(() => {
       subLoading.value = false
     })
@@ -289,6 +300,7 @@
 
       if (props.check) {
         params.loan_info_status = props.infoData.check_status
+        params.code = props.code
         if (props.infoData.start_date === params.start_date && props.infoData.end_date === params.end_date && Number(props.infoData.loan_money) === Number(params.loan_money)) {
           await normalRequest(params, true)
         } else {
@@ -325,8 +337,8 @@
         draft: JSON.stringify(tool.filterEmptyValues(dataObj))
       }
 
-      if ((props.infoData && props.infoData.uuid) || props.currentId) {
-        params.uuid = props.infoData?.uuid || props.currentId
+      if ((props.infoData && props.infoData.base.uuid) || props.currentId) {
+        params.uuid = props.infoData?.base?.uuid || props.currentId
       }
 
       draftLoading.value = true
@@ -440,6 +452,8 @@
     }
 
     pageLoading.value = false
+
+    currentInfo.value = infoData
 
     dataInit(infoData, draftData)
   }

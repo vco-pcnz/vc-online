@@ -27,16 +27,16 @@
       >{{ t('上一步') }}</a-button>
 
       <a-button
-        v-if="previousStep && !previousStep.examine && currentStep.examine"
-        type="grey" shape="round" class="big shadow bold uppercase"
-        @click="rejectHandle(1)"
-      >{{ t('拒绝申请') }}</a-button>
-
-      <a-button
-        v-if="previousStep && previousStep.examine && currentStep.examine"
+        v-if="previousStep && currentStep.examine"
         type="grey" shape="round" class="big shadow bold uppercase"
         @click="rejectHandle(2)"
       >{{ t('退回重新修改') }}</a-button>
+
+      <a-button
+        v-if="previousStep && currentStep.examine"
+        type="danger" shape="round" class="big shadow bold uppercase"
+        @click="rejectHandle(1)"
+      >{{ t('拒绝申请') }}</a-button>
 
       <a-button
         type="dark" shape="round" class="big shadow bold uppercase"

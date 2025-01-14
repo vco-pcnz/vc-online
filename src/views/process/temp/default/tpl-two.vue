@@ -82,7 +82,7 @@
   import {
     projectSelectList,
     projectApplySaveProjectInfo,
-    projectAuditSaveProjectInfo,
+    projectAuditSaveMode,
     projectApplyProjectInfo,
     projectSaveSaveDraft,
     projectDraftInfo
@@ -122,6 +122,10 @@
     check: {
       type: Boolean,
       default: false
+    },
+    code: {
+      type: String,
+      default: ''
     },
     previousPage: {
       type: String,
@@ -247,7 +251,8 @@ const setAddressInfo = (e) => {
 
       if (props.check) {
         params.project_info_status = props.infoData.check_status
-        ajaxFn = projectAuditSaveProjectInfo
+        params.code = props.code
+        ajaxFn = projectAuditSaveMode
       } else {
         params.draft_step = markInfo.value
       }
@@ -265,13 +270,13 @@ const setAddressInfo = (e) => {
             needBindUser.value = false;
           }
 
+          // 触发列表数据刷新
+          emitter.emit('refreshRequestsList')
+
           footerRef.value.nextHandle(res)
         }
 
         subLoading.value = false
-
-        // 触发列表数据刷新
-        emitter.emit('refreshRequestsList')
       }).catch(() => {
         subLoading.value = false
       })

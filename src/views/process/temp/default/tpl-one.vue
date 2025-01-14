@@ -146,7 +146,7 @@ import { useI18n } from 'vue-i18n';
 import { Modal } from 'ant-design-vue';
 import { cloneDeep } from 'lodash';
 import { QuestionCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons-vue';
-import { projectApplySaveBorrowerInfo, projectAuditSaveBorrowerInfo, projectSaveSaveDraft } from '@/api/process';
+import { projectApplySaveBorrowerInfo, projectAuditSaveMode, projectSaveSaveDraft } from '@/api/process';
 import tool from '@/utils/tool';
 import { message } from 'ant-design-vue/es';
 import { projectApplyBorrowerInfo, projectDraftInfo, getApproveTemp } from '@/api/process';
@@ -182,6 +182,10 @@ const props = defineProps({
   check: {
     type: Boolean,
     default: false
+  },
+  code: {
+    type: String,
+    default: ''
   },
   previousPage: {
     type: String,
@@ -433,7 +437,8 @@ const submitHandle = () => {
 
       if (props.check) {
         params.borrower_info_status = props.infoData.check_status;
-        ajaxFn = projectAuditSaveBorrowerInfo;
+        params.code = props.code
+        ajaxFn = projectAuditSaveMode;
       } else {
         params.draft_step = markInfo.value;
       }
@@ -454,14 +459,13 @@ const submitHandle = () => {
               await bindUsersRef.value.bindUsersRequest(res.uuid);
               needBindUser.value = false;
             }
+            // 触发列表数据刷新
+            emitter.emit('refreshRequestsList');
 
             footerRef.value.nextHandle(res);
           }
 
           subLoading.value = false;
-
-          // 触发列表数据刷新
-          emitter.emit('refreshRequestsList');
         })
         .catch(() => {
           subLoading.value = false;

@@ -18,7 +18,7 @@
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import FoldersDropdown from './foldersDropdown.vue';
-import { fmove } from '@/api/project/annex';
+import { fcopy } from '@/api/project/annex';
 
 const { t } = useI18n();
 const emits = defineEmits(['reload']);
@@ -41,7 +41,7 @@ const props = defineProps({
 });
 
 const move = (target) => {
-  fmove({
+  fcopy({
     did: props.did,
     nid: target,
     apply_uuid: props.apply_uuid,

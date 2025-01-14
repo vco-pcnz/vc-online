@@ -64,3 +64,11 @@ export const fmove = (data) =>
     method: 'post',
     data
   });
+
+// 文件-复制
+export const fcopy = (data) =>
+  request({
+    url: 'project/annex/fcopy',
+    method: 'post',
+    data
+  });

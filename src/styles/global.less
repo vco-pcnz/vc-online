@@ -424,6 +424,54 @@ a:hover {
   }
 }
 
+.ant-btn-danger {
+  background-color: #ea3535;
+  color: #fff !important;
+
+  &.ant-btn-loading {
+    background-color: #ea3535 !important;
+  }
+
+  &:hover {
+    color: #fff !important;
+    background-color: #f24f4f;
+  }
+
+  &:disabled {
+    background-color: rgba(0, 0, 0, 0.4);
+    border-color: rgba(0, 0, 0, 0.4);
+    color: rgba(255, 255, 255, 0.8) !important;
+  }
+
+  .ant-wave {
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.65);
+
+    &.wave-motion-appear-active {
+      box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.65);
+    }
+  }
+}
+
+.ant-btn-danger-line {
+  border-color: #ea3535;
+
+  &:disabled {
+    opacity: 0.65;
+  }
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  .ant-wave {
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.65);
+
+    &.wave-motion-appear-active {
+      box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.65);
+    }
+  }
+}
+
 .ant-btn-brown {
   background: rgba(215, 178, 126, 0.2);
   border-color: rgba(215, 178, 126, 0.2);

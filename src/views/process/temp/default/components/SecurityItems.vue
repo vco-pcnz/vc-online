@@ -1,7 +1,7 @@
 <template>
   <div
     class="block-item mb"
-    :class="{ checked: securityInfo.is_check && showCheck }"
+    :class="{ checked: securityInfo.is_check && blockInfo.showCheck }"
   >
     <!-- 新增 -->
     <security-add-edit
@@ -12,8 +12,9 @@
     ></security-add-edit>
 
     <vco-process-title :title="t('抵押物信息')">
-      <div v-if="showCheck" class="flex gap-5">
+      <div class="flex gap-5">
         <a-popconfirm
+          v-if="!securityInfo.is_check && securityInfo.count && blockInfo.showCheck"
           :title="t('确定通过审核吗？')"
           :ok-text="t('确定')"
           :cancel-text="t('取消')"
@@ -23,13 +24,12 @@
             type="dark"
             shape="round"
             class="uppercase"
-            v-if="!securityInfo.is_check && securityInfo.count"
           >
             {{ t('审核') }}
           </a-button>
         </a-popconfirm>
         <a-button
-          v-if="showCheckEdit"
+          v-if="blockInfo.showEdit"
           type="primary"
           shape="round"
           class="uppercase"
@@ -69,98 +69,55 @@
         </a-row>
       </a-form>
     </div>
-    <div v-if="showCheck" class="check-content">
+    <div v-if="blockInfo.showCheck" class="check-content">
       <i class="iconfont">&#xe647;</i>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import {
-  lmAuditStatus,
-  fcAuditStatus,
-  auditLmCheckStatus,
-} from '@/api/process';
+import { projectAuditCheckMode } from '@/api/process';
 import SecurityAddEdit from './SecurityAddEdit.vue';
 
 const emits = defineEmits(['refresh']);
 const props = defineProps({
-  currentId: {
-    type: [Number, String],
-    required: true,
-  },
-  stepType: {
-    type: Number,
-    default: 1,
-  },
   securityInfo: {
     type: Object,
-    default: () => {
-      return {
-        count: 0,
-        total_value: '0.00',
-        is_check: false,
-        check_status: 407,
-        type: [],
-      };
-    },
+    default: () => {}
   },
+  blockInfo: {
+    type: Object,
+    default: () => {}
+  },
+  currentStep: {
+    type: Object
+  },
+  currentId: {
+    type: [Number, String],
+    default: ''
+  }
 });
 
 const { t } = useI18n();
-
-const showCheck = computed(() => {
-  return [1, 4, 5].includes(props.stepType);
-});
-
-const showCheckEdit = computed(() => {
-  return [1].includes(props.stepType);
-});
+const addVisible = ref(false);
 
 const checkHandle = async () => {
-  let ajaxFn = null;
-  let params = {};
-  if (props.stepType === 1) {
-    ajaxFn = lmAuditStatus;
-    params = {
-      lm_audit_status: props.securityInfo.check_status,
-      uuid: props.currentId,
-    };
-  } else if (props.stepType === 2) {
-    ajaxFn = fcAuditStatus;
-    params = {
-      fc_audit_status: props.securityInfo.check_status,
-      uuid: props.currentId,
-    };
-  } else if (props.stepType === 4) {
-    ajaxFn = auditLmCheckStatus;
-    params = {
-      lm_check_status: props.securityInfo.check_status,
-      uuid: props.currentId,
-    };
-  } else if (props.stepType === 5) {
-    ajaxFn = auditLmCheckStatus;
-    params = {
-      lm_check_status: props.securityInfo.check_status,
-      uuid: props.currentId,
-    };
+  const params = {
+    uuid: props.currentId,
+    code: props.blockInfo.code
   }
-
-  if (ajaxFn) {
-    await ajaxFn(params)
-      .then(() => {
-        emits('refresh');
-        return true;
-      })
-      .catch(() => {
-        return false;
-      });
-  }
-};
-
-const addVisible = ref(false);
+  await projectAuditCheckMode(params)
+    .then(() => {
+      emits('refresh');
+      emitter.emit('refreshAuditHisList');
+      return true;
+    })
+    .catch(() => {
+      return false;
+    });
+}
 </script>
 
 <style lang="less" scoped>

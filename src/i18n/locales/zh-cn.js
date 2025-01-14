@@ -486,4 +486,5 @@ export default {
   "待反洗钱": "待反洗钱",
   "LM OPEN": "LM OPEN",
   "LM 待OPEN": "LM 待OPEN",
+  "凭证信息": "凭证信息"
 }

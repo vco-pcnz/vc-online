@@ -490,4 +490,5 @@ export default {
   "待反洗钱": "Pending Anti-Money Laundering",
   "LM OPEN": "LM OPEN",
   "LM 待OPEN": "LM Waiting for OPEN",
+  "凭证信息": "Offer Info"
 }

@@ -472,3 +472,35 @@ export const projectAuditLmOpen = (data) =>
     method: "post",
     data
   });
+
+// 审核check
+export const projectAuditCheckMode = (data) =>
+  request({
+    url: "/project/audit/checkMode",
+    method: "post",
+    data
+  });
+
+// 审核保存
+export const projectAuditSaveMode = (data) =>
+  request({
+    url: "/project/audit/saveMode",
+    method: "post",
+    data
+  });
+
+// 审核详情
+export const projectAuditStepDetail = (params) =>
+  request({
+    url: "/project/audit/stepDetail",
+    method: "get",
+    params
+  });
+
+// 审核提交
+export const projectAuditSaveStep = (data) =>
+  request({
+    url: "/project/audit/saveStep",
+    method: "post",
+    data
+  });

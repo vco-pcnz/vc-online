@@ -96,7 +96,7 @@
             @click="navigationTo(`/requests/schedule?uuid=${currentId}`)"
           >{{ t('放款计划') }}</a-button>
           <a-button
-            v-if="!isDetails"
+            v-if="!isDetails && blockInfo.showEdit"
             type="primary" shape="round"
             size="small"
             class="uppercase"
@@ -112,7 +112,7 @@
             <div class="item uppercase">{{ t('日期') }}</div>
             <div class="item uppercase">{{ t('类型') }}</div>
             <div class="item uppercase">{{ t('金额') }}</div>
-            <div v-if="!isDetails" class="item uppercase">{{ t('操作1') }}</div>
+            <div v-if="!isDetails && blockInfo.showEdit" class="item uppercase">{{ t('操作1') }}</div>
           </div>
 
           <div class="col-content">
@@ -123,7 +123,7 @@
                 <div class="item">
                   <vco-number :value="_item.amount" :precision="2" :end="true"></vco-number>
                 </div>
-                <div v-if="!isDetails" class="item ops">
+                <div v-if="!isDetails && blockInfo.showEdit" class="item ops">
                   <i class="iconfont" @click="addEditHandle(_item, index, _index)">&#xe8cf;</i>
                   <i class="iconfont" :class="{'disabled': _item.first}" @click="removeHandle(_item)">&#xe8c1;</i>
                 </div>
@@ -136,7 +136,7 @@
           <div :class="{'error': errorColor}">
             <vco-number :value="cMoney" :precision="2" :end="true"></vco-number>
             <p v-if="showTips">{{ showTips }}</p>
-            <div v-if="showTips" class="flex justify-end mt-2">
+            <!-- <div v-if="showTips" class="flex justify-end mt-2">
               <a-button
                 type="primary" shape="round"
                 class="uppercase flex items-center justify-center"
@@ -150,7 +150,7 @@
                   <QuestionCircleOutlined />
                 </a-tooltip>
               </a-button>
-            </div>
+            </div> -->
           </div>
         </div>
         <div v-if="Number(pTimes)" class="forecast-total mt-1">
@@ -175,6 +175,10 @@
 
   const props = defineProps({
     infoData: {
+      type: Object,
+      default: () => {}
+    },
+    blockInfo: {
       type: Object,
       default: () => {}
     },

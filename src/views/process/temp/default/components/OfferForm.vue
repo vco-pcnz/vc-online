@@ -21,7 +21,7 @@
           </a-button>
         </a-popconfirm>
         <a-button
-          v-if="blockInfo.showEdit"
+          v-if="blockInfo.showEdit && offerList.length"
           type="primary"
           shape="round"
           :loading="subLoading"

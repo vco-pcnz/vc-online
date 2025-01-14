@@ -232,8 +232,8 @@
   })
 
   const disabledDateFormat = (current) => {
-    const startDate = props.infoData.loan_info.start_date
-    const endDate = props.infoData.loan_info.end_date
+    const startDate = props.infoData.loan.start_date
+    const endDate = props.infoData.loan.end_date
 
     if (current && current.isBefore(startDate, 'day')) {
       return true;

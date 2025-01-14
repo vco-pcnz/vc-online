@@ -145,7 +145,6 @@ const getTableData = () => {
 const editVisible = ref(false);
 const currentData = ref(null);
 const editHandle = (data) => {
-  console.log('data', data)
   currentData.value = data;
   editVisible.value = true;
 };

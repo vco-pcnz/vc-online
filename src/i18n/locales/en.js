@@ -250,7 +250,7 @@ export default {
   "日期": "Date",
   "委托人": "client",
   "参考": "reference",
-  "描述": "description",
+  "描述": "Description",
   "支出": "spent",
   "收入": "received",
   "状态": "status",
@@ -490,5 +490,9 @@ export default {
   "待反洗钱": "Pending Anti-Money Laundering",
   "LM OPEN": "LM OPEN",
   "LM 待OPEN": "LM Waiting for OPEN",
-  "凭证信息": "Offer Info"
+  "凭证信息": "Offer Info",
+  "状况": "Conditions",
+  "添加状况": "add condition",
+  "添加新状况": "Add new condition",
+  "显示借款人": "Show borrower"
 }

@@ -101,6 +101,11 @@
             :block-info="PageBlockObjRef.security"
           >
           </security-list>
+
+          <conditions-list
+            :current-id="currentId"
+            :info-data="currentDataInfo"
+          ></conditions-list>
         </div>
       </div>
     </a-spin>
@@ -122,6 +127,7 @@
   import OperationLog from "./../../components/OperationLog.vue";
   import ForecastList from "./../../components/ForecastList.vue";
   import SecurityList from "./../../components/SecurityList.vue";
+  import ConditionsList from "./../../components/ConditionsList.vue";
   import WashTable from './components/WashTable.vue';
   import emitter from "@/event"
   import { message } from "ant-design-vue/es";

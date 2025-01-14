@@ -85,15 +85,21 @@ export function useDynamicModule() {
             if (res) {
               tempModule.value = res.default;
             } else {
+              console.log('temp is undefined')
+
               router.push("/404");
             }
             tempLoading.value = false;
           })
-          .catch(() => {
+          .catch((err) => {
+            console.log(err)
+
             router.push("/404");
             tempLoading.value = false;
           });
       } else {
+        console.log('currentStep is undefined')
+
         router.push("/404");
         tempLoading.value = false;
       }

@@ -12,30 +12,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: 更新系统包
       - name: Update packages
         run: sudo apt-get update
 
-      # Step 2: 安装 Yarn
       - name: Install Yarn
         run: |
           curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
           echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
           sudo apt-get update && sudo apt-get install -y yarn
 
-      # Step 3: 安装 AWS CLI
-      - name: Install AWS CLI
+      - name: Update AWS CLI
         run: |
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip awscliv2.zip
-          sudo ./aws/install
+          sudo ./aws/install --update
           aws --version
 
-      # Step 4: 检出代码
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 5: 构建项目
       - name: Build the project
         run: |
           yarn --silent
@@ -46,7 +41,6 @@ jobs:
           VITE_APP_BASE_URL: https://dev-admin-api.new.vincentcapital.co.nz/api
           VITE_APP_TOKEN_PREFIX: vc-online-user-token
 
-      # Step 6: 部署到 AWS S3
       - name: Deploy to AWS S3
         run: |
           aws s3 rm s3://dev-vco.new.vincentcapital.co.nz --recursive --quiet
@@ -56,4 +50,3 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_KEY_SECRET }}
           AWS_DEFAULT_REGION: ap-southeast-2
-          

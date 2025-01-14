@@ -18,7 +18,7 @@
         />
       </a-button>
       <DropdownList
-        v-if="data"
+        v-if="data && toDay === searchForm.date"
         label="managers"
         labelKey="user_name"
         :dataList="data.managers"
@@ -341,6 +341,7 @@ const Max = ref(0);
 const minMax = ref(0);
 const dates = ref([]);
 const loading = ref(false);
+const toDay = ref(dayjs().format('YYYY-MM-DD'))
 const searchForm = ref({
   date: dayjs().format('YYYY-MM-DD'),
   uid: '',
@@ -361,6 +362,7 @@ const report = () => {
 
 const loadData = () => {
   loading.value = true;
+  if(toDay.value !== searchForm.value.date) searchForm.apply_project_id = ''
   cashFlowForecast(searchForm.value)
     .then((res) => {
       // res = {

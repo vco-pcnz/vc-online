@@ -38,47 +38,27 @@
     <a-button type="cyan" size="small" class="ml-3" shape="round" @click="report" :loading="downloading">Create report</a-button>
   </div>
   <a-spin :spinning="loading">
-    <div class="CashflowForecastChart" >
+    <div class="CashflowForecastChart">
       <template v-if="data">
-      <div class="flex flex-col justify-between">
-        <p class="bold">Available fund for upcoming 11 months</p>
-        <div>
-          <i class="iconfont">&#xe75f;</i>
-          <vco-number :value="data.available_fund" :bold="true" :precision="2"></vco-number>
-          <p class="fs_xs color_grey">Open available fund</p>
+        <div class="flex flex-col justify-between">
+          <p class="bold">Available fund for upcoming 11 months</p>
+          <div>
+            <i class="iconfont">&#xe75f;</i>
+            <vco-number :value="data.available_fund" :bold="true" :precision="2"></vco-number>
+            <p class="fs_xs color_grey">Open available fund</p>
+          </div>
         </div>
-      </div>
-      <div class="flex-1 relative">
-        <div class="zeroWrapper">
-          <div class="zeroLine" :style="{ top: 'calc(' + zeroLine + '%)' }"></div>
-        </div>
-        <div class="chart-list" style="height: 300px">
-          <div class="chart-list-item" v-for="(item, index) in dates" :key="item">
-            <div class="relative" style="height: 100%">
-              <div class="inner" :style="{ height: 'calc(' + zeroLine + '% + 60px)' }"></div>
-              <template v-if="index">
-                <template v-if="option.series[0].data[index] > option.series[0].data[index - 1]">
-                  <template v-if="option.series[0].data[index] > 0">
-                    <div
-                      class="line"
-                      :style="{
-                        top: 'calc(' + (zeroLine - (zeroLine * option.series[0].data[index]) / Max) + '% + 5px)',
-                        bottom: 'calc( 100% - ' + (zeroLine - (zeroLine * option.series[0].data[index]) / Max) + '% - 20px)'
-                      }"
-                    ></div>
-                    <div class="value" :style="{ top: 'calc(' + (zeroLine - (zeroLine * option.series[0].data[index]) / Max) + '% + 20px)' }">
-                      <vco-number
-                        :bold="true"
-                        prefix=""
-                        :value="Math.round(Math.round(data.data[2].data[dates[index]] / 10) / 100)"
-                        suffix="k"
-                        :precision="2"
-                        size="fs_xs"
-                      ></vco-number>
-                    </div>
-                  </template>
-                  <template v-else>
-                    <template v-if="zeroLine !== 0">
+        <div class="flex-1 relative">
+          <div class="zeroWrapper">
+            <div class="zeroLine" :style="{ top: 'calc(' + zeroLine + '%)' }"></div>
+          </div>
+          <div class="chart-list" style="height: 300px">
+            <div class="chart-list-item" v-for="(item, index) in dates" :key="item">
+              <div class="relative" style="height: 100%">
+                <div class="inner" :style="{ height: 'calc(' + zeroLine + '% + 60px)' }"></div>
+                <template v-if="index">
+                  <template v-if="option.series[0].data[index] > option.series[0].data[index - 1]">
+                    <template v-if="option.series[0].data[index] > 0">
                       <div
                         class="line"
                         :style="{
@@ -86,12 +66,11 @@
                           bottom: 'calc( 100% - ' + (zeroLine - (zeroLine * option.series[0].data[index]) / Max) + '% - 20px)'
                         }"
                       ></div>
-
-                      <div class="value" :style="{ top: 'calc(' + (zeroLine + (zeroLine * option.series[0].data[index]) / Min) + '% + 20px)' }">
+                      <div class="value" :style="{ top: 'calc(' + (zeroLine - (zeroLine * option.series[0].data[index]) / Max) + '% + 20px)' }">
                         <vco-number
                           :bold="true"
                           prefix=""
-                          :value="Math.round(data.data[2].data[dates[index]] / 10) / 100"
+                          :value="Math.round(Math.round(data.data[2].data[dates[index]] / 10) / 100)"
                           suffix="k"
                           :precision="2"
                           size="fs_xs"
@@ -99,71 +78,94 @@
                       </div>
                     </template>
                     <template v-else>
-                      <div
-                        class="line"
-                        :style="{
-                          top: 'calc(' + (Math.abs(option.series[0].data[index]) / Math.abs(minMax)) * 100 + '% + 22px)',
-                          bottom: 'calc( 100% - ' + (Math.abs(option.series[0].data[index]) / Math.abs(minMax)) * 100 + '% - 30px)'
-                        }"
-                      ></div>
-                      <div class="value" :style="{ top: 'calc(' + (Math.abs(option.series[0].data[index]) / Math.abs(minMax)) * 100 + '% + 30px)' }">
-                        <vco-number
-                          :bold="true"
-                          prefix=""
-                          :value="Math.round(data.data[2].data[dates[index]] / 10) / 100"
-                          suffix="k"
-                          :precision="2"
-                          size="fs_xs"
-                        ></vco-number>
-                      </div>
+                      <template v-if="zeroLine !== 0">
+                        <div
+                          class="line"
+                          :style="{
+                            top: 'calc(' + (zeroLine - (zeroLine * option.series[0].data[index]) / Max) + '% + 5px)',
+                            bottom: 'calc( 100% - ' + (zeroLine - (zeroLine * option.series[0].data[index]) / Max) + '% - 20px)'
+                          }"
+                        ></div>
+
+                        <div class="value" :style="{ top: 'calc(' + (zeroLine + (zeroLine * option.series[0].data[index]) / Min) + '% + 20px)' }">
+                          <vco-number
+                            :bold="true"
+                            prefix=""
+                            :value="Math.round(data.data[2].data[dates[index]] / 10) / 100"
+                            suffix="k"
+                            :precision="2"
+                            size="fs_xs"
+                          ></vco-number>
+                        </div>
+                      </template>
+                      <template v-else>
+                        <div
+                          class="line"
+                          :style="{
+                            top: 'calc(' + (Math.abs(option.series[0].data[index]) / Math.abs(minMax)) * 100 + '% + 22px)',
+                            bottom: 'calc( 100% - ' + (Math.abs(option.series[0].data[index]) / Math.abs(minMax)) * 100 + '% - 30px)'
+                          }"
+                        ></div>
+                        <div
+                          class="value"
+                          :style="{ top: 'calc(' + (Math.abs(option.series[0].data[index]) / Math.abs(minMax)) * 100 + '% + 30px)' }"
+                        >
+                          <vco-number
+                            :bold="true"
+                            prefix=""
+                            :value="Math.round(data.data[2].data[dates[index]] / 10) / 100"
+                            suffix="k"
+                            :precision="2"
+                            size="fs_xs"
+                          ></vco-number>
+                        </div>
+                      </template>
                     </template>
                   </template>
+                  <template v-else>
+                    <div
+                      class="line"
+                      style="border-color: #6d7b1f"
+                      :style="{
+                        top: 'calc(' + (zeroLine - (zeroLine * option.series[0].data[index]) / Min) + '%)',
+                        bottom: 'calc(' + (100 - (zeroLine + ((100 - zeroLine) * option.series[0].data[index]) / Min)) + '% + 10px)'
+                      }"
+                    ></div>
+                    <div class="value" :style="{ top: 'calc(' + (zeroLine - (zeroLine * option.series[0].data[index]) / Min) + '% - 20px)' }">
+                      <vco-number
+                        :bold="true"
+                        color="#6d7b1f"
+                        prefix=""
+                        suffix="k"
+                        :value="Math.round(data.data[2].data[dates[index]] / 10) / 100"
+                        :precision="2"
+                        size="fs_xs"
+                      ></vco-number>
+                    </div>
+                  </template>
                 </template>
-                <template v-else>
-                  <div
-                    class="line"
-                    style="border-color: #6d7b1f"
-                    :style="{
-                      top: 'calc(' + (zeroLine - (zeroLine * option.series[0].data[index]) / Min) + '%)',
-                      bottom: 'calc(' + (100 - (zeroLine + ((100 - zeroLine) * option.series[0].data[index]) / Min)) + '% + 10px)'
-                    }"
-                  ></div>
-                  <div class="value" :style="{ top: 'calc(' + (zeroLine - (zeroLine * option.series[0].data[index]) / Min) + '% - 20px)' }">
-                    <vco-number
-                      :bold="true"
-                      color="#6d7b1f"
-                      prefix=""
-                      suffix="k"
-                      :value="Math.round(data.data[2].data[dates[index]] / 10) / 100"
-                      :precision="2"
-                      size="fs_xs"
-                    ></vco-number>
-                  </div>
-                </template>
-              </template>
+              </div>
+              <div class="month">{{ tool.monthYear(item) }}</div>
             </div>
-            <div class="month">{{ tool.monthYear(item) }}</div>
+          </div>
+          <div class="hoverBox chart-list" style="height: 300px" @click="visible_forecast = true">
+            <div
+              class="chart-list-item hover"
+              v-for="(item, index) in dates"
+              :key="item"
+              @mousemove="mousemove($event, index)"
+              @mouseout="mouseout"
+            ></div>
+          </div>
+          <div class="chartBox">
+            <v-chart :option="option" autoresize />
           </div>
         </div>
-        <div class="hoverBox chart-list" style="height: 300px" @click="visible_forecast = true">
-          <div
-            class="chart-list-item hover"
-            v-for="(item, index) in dates"
-            :key="item"
-            @mousemove="mousemove($event, index)"
-            @mouseout="mouseout"
-          ></div>
+        <div class="flex flex-col justify-end">
+          <i class="iconfont">&#xe75f;</i>
+          <vco-number :value="data.data[3].data[dates[dates.length - 1]]" :precision="2" :bold="true"></vco-number>
+          <p class="fs_xs color_grey">Forecasted available fund</p>
         </div>
-        <div class="chartBox">
-          <v-chart :option="option" autoresize />
-        </div>
-      </div>
-      <div class="flex flex-col justify-end">
-        <i class="iconfont">&#xe75f;</i>
-        <vco-number :value="data.data[3].data[dates[dates.length - 1]]" :precision="2" :bold="true"></vco-number>
-        <p class="fs_xs color_grey">Forecasted available fund</p>
-      </div>
-        
       </template>
     </div>
     <TableBlock v-if="data" :data="data.data"></TableBlock>
@@ -225,7 +227,6 @@
       </template>
     </div>
   </div>
-
   <Forecast :date="dates[hoverIndex]" v-model:visible="visible_forecast"></Forecast>
 </template>
 
@@ -272,7 +273,7 @@ const option = ref({
     }
   },
   tooltip: {
-    trigger: 'axis',
+    trigger: 'axis'
     // position: function (point, params, dom, rect, size) {
     //   // point[0] 是鼠标的 x 坐标，point[1] 是鼠标的 y 坐标
     //   // size[0] 是图表的宽度，size[1] 是图表的高度
@@ -505,7 +506,7 @@ const loadData = () => {
       data.value = res;
       let chartData = [res.available_fund];
       dates.value = [dayjs().format('YYYY-MM')];
-      if(!res.data) return
+      if (!res.data) return;
       Object.keys(res.data[0].data).forEach((item) => {
         dates.value.push(item);
         chartData.push(res.data[3].data[item]);
@@ -530,13 +531,15 @@ const loadData = () => {
 };
 const mouseX = ref(0);
 const mouseY = ref(0);
+const showTipCard = ref(false);
 const mousemove = (e, index) => {
   mouseX.value = e.screenX;
   mouseY.value = e.screenY;
   hoverIndex.value = index;
+  showTipCard.value = true;
 };
 const mouseout = () => {
-  hoverIndex.value = 0;
+  showTipCard.value = false;
 };
 onMounted(() => {
   loadData();
@@ -636,7 +639,7 @@ onMounted(() => {
       }
       .line {
         position: absolute;
-        left: calc(50% + 2px) ;
+        left: calc(50% + 2px);
         border-right: 1.5px dashed #181818;
       }
     }

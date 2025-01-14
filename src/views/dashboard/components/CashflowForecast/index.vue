@@ -18,7 +18,7 @@
         />
       </a-button>
       <DropdownList
-        v-if="data && toDay === searchForm.date"
+        v-if="data"
         label="managers"
         labelKey="user_name"
         :dataList="data.managers"
@@ -26,6 +26,7 @@
         @change="loadData()"
       ></DropdownList>
       <DropdownList
+        v-if="toDay === searchForm.date"
         :type="2"
         label="requests"
         labelKey="project_name"
@@ -44,7 +45,8 @@
           <p class="bold">Available fund for upcoming 11 months</p>
           <div>
             <i class="iconfont">&#xe75f;</i>
-            <vco-number :value="data.available_fund" :bold="true" :precision="2"></vco-number>
+            <vco-number :value="data.available_fund" :bold="true" :precision="2" v-if="data.available_fund > 0"></vco-number>
+            <vco-number :value="data.available_fund" :bold="true" :precision="2" prefix="(" suffix=")" v-else></vco-number>
             <p class="fs_xs color_grey">Open available fund</p>
           </div>
         </div>
@@ -163,7 +165,13 @@
         </div>
         <div class="flex flex-col justify-end">
           <i class="iconfont">&#xe75f;</i>
-          <vco-number :value="data.data[3].data[dates[dates.length - 1]]" :precision="2" :bold="true"></vco-number>
+          <vco-number
+            :value="data.data[3].data[dates[dates.length - 1]]"
+            :precision="2"
+            :bold="true"
+            v-if="data.data[3].data[dates[dates.length - 1]] > 0"
+          ></vco-number>
+          <vco-number :value="data.data[3].data[dates[dates.length - 1]]" :precision="2" :bold="true" prefix="(" suffix=")" v-else></vco-number>
           <p class="fs_xs color_grey">Forecasted available fund</p>
         </div>
       </template>
@@ -341,7 +349,7 @@ const Max = ref(0);
 const minMax = ref(0);
 const dates = ref([]);
 const loading = ref(false);
-const toDay = ref(dayjs().format('YYYY-MM-DD'))
+const toDay = ref(dayjs().format('YYYY-MM-DD'));
 const searchForm = ref({
   date: dayjs().format('YYYY-MM-DD'),
   uid: '',
@@ -362,7 +370,7 @@ const report = () => {
 
 const loadData = () => {
   loading.value = true;
-  if(toDay.value !== searchForm.value.date) searchForm.apply_project_id = ''
+  if (toDay.value !== searchForm.value.date) searchForm.apply_project_id = '';
   cashFlowForecast(searchForm.value)
     .then((res) => {
       // res = {

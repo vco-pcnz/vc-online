@@ -1,7 +1,7 @@
 <template>
-  <div class="block-item mb" :class="{ checked: washInfo.is_check && washCheck }">
+  <div class="block-item mb" :class="{ checked: washInfo.is_check && blockInfo.showCheck }">
     <vco-process-title :title="t('新增反洗钱信息AML')">
-      <div class="flex gap-5" v-if="!hide">
+      <div v-if="blockInfo.showEdit" class="flex gap-5">
         <a-popconfirm
           :title="t('确定通过审核吗？')"
           :ok-text="t('确定')"
@@ -13,6 +13,7 @@
             {{ t('审核') }}
           </a-button>
         </a-popconfirm>
+
         <a-popconfirm
           :title="t('确定发送邮件吗？')"
           :ok-text="t('确定')"
@@ -25,6 +26,7 @@
             {{ t('发送邮件') }}
           </a-button>
         </a-popconfirm>
+
         <a-popconfirm
           :title="t('确定发送短信吗？')"
           :ok-text="t('确定')"
@@ -56,12 +58,13 @@
         </a-button>
       </div>
 
-      <a-popconfirm :title="t('确定通过审核吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="washCheckHandle">
-        <a-button type="dark" shape="round" class="uppercase" v-if="!washInfo.is_check && washCheckShow">
+      <a-popconfirm v-if="!washInfo.is_check && blockInfo.showCheck" :title="t('确定通过审核吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="washCheckHandle">
+        <a-button type="dark" shape="round" class="uppercase">
           {{ t('审核') }}
         </a-button>
       </a-popconfirm>
     </vco-process-title>
+
     <a-spin :spinning="loading">
       <div class="sys-table-content border-top-none">
         <a-dropdown class="selectAll" v-model:open="visibleSlect">
@@ -86,7 +89,7 @@
           :pagination="false"
           :scroll="{ x: '100%' }"
           row-key="id"
-          :row-selection="hide ? null : { selectedRowKeys: selectedRowKeys, onSelect: onSelect, hideSelectAll: true }"
+          :row-selection="!blockInfo.showEdit ? null : { selectedRowKeys: selectedRowKeys, onSelect: onSelect, hideSelectAll: true }"
         >
           <template #bodyCell="{ column, record }">
             <template v-if="column.dataIndex === 'name'">
@@ -105,11 +108,11 @@
             </template>
             <template v-if="column.dataIndex === 'operation'">
               <div class="ops">
-                <i class="iconfont" style="color: #0bda8e !important" v-if="Boolean(record.status == 3)">&#xe786;</i>
+                <!-- <i class="iconfont" style="color: #0bda8e !important" v-if="Boolean(record.status == 3)">&#xe786;</i> -->
                 <i class="iconfont" v-if="Boolean(record.document && record.document.length)" @click="updateVisibleFiles(record.document)"
                   >&#xe690;</i
                 >
-                <template v-if="!hide">
+                <template v-if="blockInfo.showEdit">
                   <i class="iconfont" @click="showForm(record)">&#xe753;</i>
                   <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.id)">
                     <i class="iconfont">&#xe8c1;</i>
@@ -149,7 +152,7 @@
       </div>
     </a-modal>
 
-    <div v-if="washCheckShow" class="check-content">
+    <div v-if="blockInfo.showCheck" class="check-content">
       <i class="iconfont">&#xe647;</i>
     </div>
   </div>
@@ -169,22 +172,16 @@ const props = defineProps({
     type: [Number, String],
     required: true
   },
-  hide: {
-    type: Boolean,
-    default: false
-  },
-  washCheckShow: {
-    type: Boolean,
-    default: false
-  },
   washInfo: {
     type: Object,
-    default: () => {
-      return {
-        is_check: false,
-        check_status: 710
-      };
-    }
+    default: () => {}
+  },
+  blockInfo: {
+    type: Object,
+    default: () => {}
+  },
+  currentStep: {
+    type: Object
   }
 });
 const { t } = useI18n();
@@ -212,6 +209,10 @@ const columns = reactive([
     width: 150
   }
 ]);
+
+if (!props.blockInfo.showEdit) {
+  columns.splice(columns.length - 1)
+}
 
 const tableData = ref();
 

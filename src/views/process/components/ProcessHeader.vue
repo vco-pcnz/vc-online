@@ -100,9 +100,8 @@
 
   const checkPointer = (data) => {
     const codeArr = data.stateCode || []
-    const isForm = codeArr.length ? getStepInfo(codeArr).every(item => !item.examine) : false
+    const isForm = codeArr.length ? getStepInfo(codeArr).every(item => (!item.examine && item.stateCode >= 0)) : false
     const isBefore = codeArr.length ? codeArr.every(item => (Number(item) < Number(props.statusInfo.stateCode) || Number(item) === Number(props.statusInfo.stateCode))) : false
-
     return isForm && isBefore && !props.currentStep.examine
   }
 

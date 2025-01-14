@@ -1,7 +1,7 @@
 <template>
   <div
     class="block-item mb"
-    :class="{ checked: guarantorInfo.is_check && showCheck }"
+    :class="{ checked: guarantorInfo.is_check && blockInfo.showCheck }"
   >
     <!-- 人员选择 -->
     <vco-choose-user
@@ -14,12 +14,13 @@
     </vco-choose-user>
 
     <vco-process-title :title="t('担保信息')">
-      <div v-if="showCheck" class="flex gap-5">
+      <div class="flex gap-5">
         <a-popconfirm
           :title="t('确定通过审核吗？')"
           :ok-text="t('确定')"
           :cancel-text="t('取消')"
-          @confirm="checkHandle()"
+          v-if="blockInfo.showCheck"
+          @confirm="checkHandle"
         >
           <a-button
             type="dark"
@@ -31,7 +32,7 @@
           </a-button>
         </a-popconfirm>
         <a-button
-          v-if="showCheckEdit"
+          v-if="blockInfo.showEdit"
           type="primary"
           shape="round"
           :loading="subLoading"
@@ -56,7 +57,7 @@
             <a-form-item :label="t('承包商')" name="main_contractor">
               <a-input
                 v-model:value="formState.main_contractor"
-                :disabled="!showCheckEdit"
+                :disabled="!blockInfo.showEdit"
               />
             </a-form-item>
           </a-col>
@@ -66,7 +67,7 @@
                 v-model:value="formState.security_package"
                 mode="multiple"
                 style="width: 100%"
-                :disabled="!showCheckEdit"
+                :disabled="!blockInfo.showEdit"
                 :options="securityOptions"
               ></a-select>
             </a-form-item>
@@ -76,7 +77,7 @@
               <div class="title-content">
                 <p>{{ t('担保人') }}</p>
                 <a-button
-                  v-if="userData.length && showCheckEdit"
+                  v-if="userData.length && blockInfo.showEdit"
                   type="primary"
                   size="small"
                   shape="round"
@@ -95,7 +96,7 @@
                   >
                     <vco-user-item :data="item" :main="true"></vco-user-item>
                     <i
-                      v-if="showCheckEdit"
+                      v-if="blockInfo.showEdit"
                       class="iconfont"
                       @click="removeItem(index)"
                     >
@@ -111,7 +112,7 @@
           </a-col>
         </a-row>
       </a-form>
-      <div v-if="showCheck" class="check-content">
+      <div v-if="blockInfo.showEdit" class="check-content">
         <i class="iconfont">&#xe647;</i>
       </div>
     </div>
@@ -126,17 +127,16 @@ import { cloneDeep } from 'lodash';
 import { message } from 'ant-design-vue/es';
 import { systemDictData } from '@/api/system';
 import {
-  projectAuditSaveGuarantor,
-  lmAuditStatus,
-  fcAuditStatus,
-  auditLmCheckStatus,
+  projectAuditSaveMode,
+  projectAuditCheckMode
 } from '@/api/process';
+import emitter from '@/event';
 
 const emits = defineEmits(['refresh']);
 const props = defineProps({
-  stepType: {
-    type: Number,
-    default: 1,
+  blockInfo: {
+    type: Object,
+    default: () => {}
   },
   currentId: {
     type: [Number, String],
@@ -158,14 +158,6 @@ const props = defineProps({
 
 const { t } = useI18n();
 const vcoChooseUserRef = ref();
-
-const showCheck = computed(() => {
-  return [1, 4, 5].includes(props.stepType);
-});
-
-const showCheckEdit = computed(() => {
-  return [1].includes(props.stepType);
-});
 
 const formRef = ref();
 const formState = reactive({
@@ -196,12 +188,13 @@ const saveHandle = () => {
       const params = cloneDeep(formState);
       params.security_package = params.security_package.join(',');
       params.uuid = props.currentId;
-      params.guarantor_status = props.guarantorInfo.check_status;
+      params.code = props.blockInfo.code;
 
       subLoading.value = true;
-      projectAuditSaveGuarantor(params)
+      projectAuditSaveMode(params)
         .then(() => {
           subLoading.value = false;
+          emitter.emit('refreshAuditHisList');
           emits('refresh');
         })
         .catch(() => {
@@ -250,44 +243,20 @@ const dataInit = () => {
 
 const checkHandle = async () => {
   if (props.guarantorInfo.main_contractor) {
-    let ajaxFn = null;
-    let params = {};
-    if (props.stepType === 1) {
-      ajaxFn = lmAuditStatus;
-      params = {
-        lm_audit_status: props.guarantorInfo.check_status,
-        uuid: props.currentId,
-      };
-    } else if (props.stepType === 2) {
-      ajaxFn = fcAuditStatus;
-      params = {
-        fc_audit_status: props.guarantorInfo.check_status,
-        uuid: props.currentId,
-      };
-    } else if (props.stepType === 4) {
-      ajaxFn = auditLmCheckStatus;
-      params = {
-        lm_check_status: props.guarantorInfo.check_status,
-        uuid: props.currentId,
-      };
-    } else if (props.stepType === 5) {
-      ajaxFn = auditLmCheckStatus;
-      params = {
-        lm_check_status: props.guarantorInfo.check_status,
-        uuid: props.currentId,
-      };
+    const params = {
+      uuid: props.currentId,
+      code: props.blockInfo.code
     }
-
-    if (ajaxFn) {
-      await ajaxFn(params)
-        .then(() => {
-          emits('refresh');
-          return true;
-        })
-        .catch(() => {
-          return false;
-        });
-    }
+    
+    await projectAuditCheckMode(params)
+      .then(() => {
+        emits('refresh');
+        emitter.emit('refreshAuditHisList');
+        return true;
+      })
+      .catch(() => {
+        return false;
+      });
   } else {
     message.error(t('请先设置后保存再审核'));
   }
@@ -363,7 +332,7 @@ onMounted(() => {
 .block-item {
   :deep(.ant-input[disabled]),
   :deep(.ant-select-disabled .ant-select-selection-item-content) {
-    color: #282828 !important;
+    color: #999 !important;
   }
 }
 </style>

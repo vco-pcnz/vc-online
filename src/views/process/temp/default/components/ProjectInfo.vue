@@ -15,7 +15,7 @@
       </a-col>
       <a-col :span="6">
         <div class="info-content">
-          <p class="name">{{ t('邮箱') }}</p>
+          <p class="name">{{ t('邮编') }}</p>
           <p class="txt">{{ data.project_postcode }}</p>
         </div>
       </a-col>

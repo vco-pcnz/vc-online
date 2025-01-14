@@ -1,32 +1,35 @@
 <template>
-  <div class="mt-6">
-    <div class="block-item sec">
-      <vco-process-title :title="t('操作记录')"></vco-process-title>
+  <div>
+    <div v-if="listData.length" class="mt-6">
+      <div class="block-item sec">
+        <vco-process-title :title="t('操作记录')"></vco-process-title>
 
-      <a-spin :spinning="pageLoading" size="large">
-        <div class="log-content" :class="{'no-data': !listData.length}">
-          <template v-if="listData.length">
-            <div v-for="(item, index) in listData" :key="index" class="log-item">
-              <div class="icon">
-                <i v-if="item.type === 'add'" class="iconfont">&#xe889;</i>
-                <i v-if="item.type === 'check'" class="iconfont">&#xe8c5;</i>
-                <i v-if="item.type === 'save'" class="iconfont">&#xe8cf;</i>
-                <i v-if="item.type === 'edit'" class="iconfont">&#xe8cf;</i>
-                <i v-if="item.type === 'delete'" class="iconfont">&#xe8c1;</i>
+        <a-spin :spinning="pageLoading" size="large">
+          <div class="log-content" :class="{'no-data': !listData.length}">
+            <template v-if="listData.length">
+              <div v-for="(item, index) in listData" :key="index" class="log-item">
+                <div class="icon">
+                  <i v-if="item.type === 'add'" class="iconfont">&#xe889;</i>
+                  <i v-if="item.type === 'check'" class="iconfont">&#xe8c5;</i>
+                  <i v-if="item.type === 'save'" class="iconfont">&#xe8cf;</i>
+                  <i v-if="item.type === 'edit'" class="iconfont">&#xe8cf;</i>
+                  <i v-if="item.type === 'delete'" class="iconfont">&#xe8c1;</i>
+                </div>
+                <div class="info">
+                  <p>{{ item.create_time }}</p>
+                  <div>{{ item.create_user_name }} {{ item.message }}</div>
+                </div>
               </div>
-              <div class="info">
-                <p>{{ item.create_time }}</p>
-                <div>{{ item.create_user_name }} {{ item.message }}</div>
-              </div>
-            </div>
-          </template>
-          <template v-if="!pageLoading && !listData.length">
-            <div class="no-data-content log-content no-data">{{ t('暂无操作记录') }}</div>
-          </template>
-        </div>
-      </a-spin>
+            </template>
+            <template v-if="!pageLoading && !listData.length">
+              <div class="no-data-content log-content no-data">{{ t('暂无操作记录') }}</div>
+            </template>
+          </div>
+        </a-spin>
+      </div>
     </div>
   </div>
+  
 </template>
 
 <script setup>

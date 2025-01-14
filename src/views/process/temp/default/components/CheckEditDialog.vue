@@ -11,6 +11,7 @@
       v-if="currentComponent"
       :is="currentComponent"
       :info-data="infoData"
+      :code="code"
       :check="true"
       @checkDone="doneHandle"
     ></component>
@@ -37,6 +38,10 @@
       default: () => {}
     },
     type: {
+      type: String,
+      default: ''
+    },
+    code: {
       type: String,
       default: ''
     }

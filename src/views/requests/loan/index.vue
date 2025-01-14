@@ -171,6 +171,8 @@
               <a-pagination
                 size="small"
                 :total="pageObj.total"
+                :current="pageObj.currentPage"
+                :page-size="pageObj.pageSize"
                 show-size-changer
                 show-quick-jumper
                 :show-total="total => t('共{0}条', [total])"
@@ -306,7 +308,6 @@
   const tabChange = () => {
     const params = cloneDeep(currentParams.value) || {}
     params.type = currentTab.value
-    params.page = 1
     getTableData(params)
   }
 

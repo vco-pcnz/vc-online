@@ -51,14 +51,14 @@
           </div>
         </div>
         <div class="flex-1 relative">
+          <div class="zeroWrapper">
+            <div class="zeroLine" :style="{ top: 'calc(' + zeroLine + '%)' }"></div>
+          </div>
           <div class="chart-list" style="height: 300px">
-            <div class="zeroWrapper">
-              <div class="zeroLine" :style="{ top: 'calc(' + zeroLine + '% + 10px) ' }"></div>
-            </div>
             <div class="chart-list-item" v-for="(item, index) in dates" :key="item">
               <div class="relative" style="height: 100%">
-                <div class="inner" :style="{ height: 'calc(' + zeroLine + '% + 70px)' }"></div>
-                <template v-if="index">
+                <div class="inner" :style="{ height: 'calc(' + zeroLine + '% + 60px)' }"></div>
+                <!-- <template v-if="index">
                   <template v-if="option.series[0].data[index] > option.series[0].data[index - 1]">
                     <template v-if="option.series[0].data[index] > 0">
                       <div
@@ -100,6 +100,7 @@
                           ></vco-number>
                         </div>
                       </template>
+                  
                     </template>
                   </template>
                   <template v-else>
@@ -123,7 +124,7 @@
                       ></vco-number>
                     </div>
                   </template>
-                </template>
+                </template> -->
               </div>
               <div class="month">{{ tool.monthYear(item) }}</div>
             </div>
@@ -240,7 +241,7 @@ const option = ref({
   xAxis: {
     type: 'category',
     data: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
-    show: false
+    show: true
   },
   grid: {
     left: 0,
@@ -288,6 +289,22 @@ const option = ref({
   series: [
     {
       data: [],
+      label: {
+        show: true,
+        position: 'bottom',
+        color: '#181818', // 标签文字颜色
+        fontSize: 12, // 标签文字大小
+        fontWeight: 'bold', // 标签文字粗细
+        // backgroundColor: 'rgba(255, 255, 255, 0.7)', // 标签背景颜色
+        // borderColor: '#000', // 标签边框颜色
+        borderWidth: 1, // 标签边框宽度
+        borderRadius: 4, // 标签边框圆角
+        padding: [5, 10], // 标签内边距 [上, 右, 下, 左]
+        formatter: function (params) {
+          console.log(params);
+          return data.value.data[2].data[dates.value[params.dataIndex]];
+        }
+      },
       type: 'line',
       symbolSize: 8,
       smooth: true,
@@ -502,10 +519,15 @@ const loadData = () => {
       chartData = chartData.map((item) => {
         return 0 - item;
       });
-
+      // chartData[0] = -8800000
       Max.value = chartData.reduce((a, b) => Math.max(a, b), -Infinity);
       Min.value = chartData.reduce((a, b) => Math.min(a, b), Infinity);
+
       minMax.value = Math.abs(Max.value) + Math.abs(Min.value);
+
+      zeroLine.value = (Max.value / minMax.value) * 100;
+      console.log((Max.value / minMax.value) * 100 > 0);
+
       zeroLine.value = (Max.value / minMax.value) * 100;
 
       option.value.series[0].data = chartData;
@@ -563,7 +585,7 @@ onMounted(() => {
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 70px;
+    bottom: 65px;
     height: calc(100% - 130px);
     .zeroLine {
       border-bottom: 1px dashed #bfbfbf;
@@ -589,8 +611,8 @@ onMounted(() => {
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
-      padding-bottom: 70px;
-      padding-top: 70px;
+      padding-bottom: 65px;
+      padding-top: 65px;
       position: relative;
       &.hover {
         background: transparent;
@@ -608,7 +630,7 @@ onMounted(() => {
         text-transform: uppercase;
       }
       .inner {
-        top: -70px;
+        top: -65px;
         background-color: #eeefdd;
         border: 1px solid rgba(169, 173, 87, 0.3);
         border-bottom: none;

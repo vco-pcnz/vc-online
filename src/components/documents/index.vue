@@ -1,29 +1,31 @@
 <template>
   <a-spin :spinning="spinning">
-    <template v-if="tree">
-      <Tab v-model:active="tabIndex" v-model:folder="folder" :data="tree" :apply_uuid="project_id" v-model:showSearch="showSearch"></Tab>
-      <div class="content" :class="{ grid: tree && tree[tabIndex] && tree[tabIndex].children }" v-if="!showSearch">
-        <template v-if="tree && tree[tabIndex].children">
-          <Folders
-            v-model:folder="folder"
-            :pid="tree[tabIndex].id"
+    <div style="min-height: 200px;">
+      <template v-if="tree">
+        <Tab v-model:active="tabIndex" v-model:folder="folder" :data="tree" :apply_uuid="project_id" v-model:showSearch="showSearch"></Tab>
+        <div class="content" :class="{ grid: tree && tree[tabIndex] && tree[tabIndex].children }" v-if="!showSearch">
+          <template v-if="tree && tree[tabIndex].children">
+            <Folders
+              v-model:folder="folder"
+              :pid="tree[tabIndex].id"
+              :apply_uuid="project_id"
+              :tabIndex="tabIndex"
+              :data="tree[tabIndex].children"
+              @change="(val) => loadData(tabIndex, val)"
+            ></Folders>
+          </template>
+          <FileList
+            :tree="tree"
+            :tabName="tree[tabIndex].name"
             :apply_uuid="project_id"
-            :tabIndex="tabIndex"
-            :data="tree[tabIndex].children"
-            @change="(val) => loadData(tabIndex, val)"
-          ></Folders>
-        </template>
-        <FileList
-          :tree="tree"
-          :tabName="tree[tabIndex].name"
-          :apply_uuid="project_id"
-          :folder="tree[tabIndex].children ? folder : tree[tabIndex]"
-          :isTab="Boolean(!tree[tabIndex].children)"
-          ref="fileListRef"
-          @change="loadData(tabIndex, folder)"
-        ></FileList>
-      </div>
-    </template>
+            :folder="tree[tabIndex].children ? folder : tree[tabIndex]"
+            :isTab="Boolean(!tree[tabIndex].children)"
+            ref="fileListRef"
+            @change="loadData(tabIndex, folder)"
+          ></FileList>
+        </div>
+      </template>
+    </div>
   </a-spin>
 </template>
 

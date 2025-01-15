@@ -78,6 +78,7 @@
             :current-id="currentId"
             :current-step="currentStep"
             :next-step="nextStep"
+            :sub-disabled="subDisabled"
             @submit="submitHandle"
           ></temp-footer>
         </div>
@@ -198,28 +199,25 @@
   const tempHideWash = computed(() => ['step_aml_audit'].includes(currentMark.value))
   const isAml = computed(() => (PageBlockArrRef.value.includes('AML') && tempHideWash.value))
 
-  const subLoading = ref(false)
-  const resovleVisible = ref(false);
-  const submitHandle = () => {
+  const subDisabled = computed(() => {
+    let res = false
     const data = currentDataInfo.value
 
     for (let i = 0; i < PageBlockArrRef.value.length; i ++) {
       const key = PageBlockArrRef.value[i]
-      if (PageBlockObjRef.value[key].showCheck) {
-        if (key === 'security' && !data.security.count) {
-          message.error(t('请上传') + t(processBlockName[key]))
-          return false
-        }
-        if (key === 'offer' && !data.offer.cert_images) {
-          message.error(t('请上传') + t(processBlockName[key]))
-          return false
-        }
-
-        if (!data[key].is_check) {
-          message.error(t('请审核') + t(processBlockName[key]))
-          return false
-        }
+      if (PageBlockObjRef.value[key].showCheck && !data[key].is_check) {
+        res = true
       }
+    }
+    return res
+  })
+
+  const subLoading = ref(false)
+  const resovleVisible = ref(false);
+
+  const submitHandle = () => {
+    if (subDisabled.value) {
+      return false
     }
 
     if (needInsMark.includes(currentMark.value)) {

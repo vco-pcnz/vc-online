@@ -1,203 +1,205 @@
 <template>
   <div>
     <a-spin :spinning="pageLoading" size="large">
-      <div v-if="statisticsData && tabData.length" class="flex header-static">
-        <div class="item-content">
-          <div class="item">
-            <div class="line one"></div>
-            <div class="info-content">
-              <p>{{ t('当前余额') }}</p>
-              <vco-number class="num" :value="statisticsData.currentBalance" :precision="2" :end="true"></vco-number>
-              <div>
-                <vco-number :value="statisticsData.available" color="#666666" size="fs_xs" :precision="2" :end="true"></vco-number>
-                <span>{{ t('可用余额') }}</span>
-              </div>
-            </div>
-          </div>
-          <div class="item">
-            <div class="line-content">
-              <div class="round"></div>
-              <div class="round"></div>
-              <div class="round"></div>
-              <div class="round"></div>
-            </div>
-            <div class="info-content">
-              <p>{{ t('应计利息') }}</p>
-              <vco-number class="num" :value="statisticsData.accruedInterest" :precision="2" :end="true"></vco-number>
-            </div>
-          </div>
-          <div class="chart-content">
-            <v-chart :option="option" autoresize />
-          </div>
-          <div class="item">
-            <div class="info-content">
-              <p>{{ 'Facility limit 2' }}</p>
-              <vco-number class="num" :value="statisticsData.forecastFC2" :precision="2" :end="true"></vco-number>
-              <div>
-                <span>{{ t('包括利息和费用') }}</span>
-              </div>
-            </div>
-            <div class="line two"></div>
-          </div>
-          <div class="item">
-            <div class="info-content">
-              <p>{{ t('还款') }}</p>
-              <vco-number class="num" :value="statisticsData.repayments" :precision="2" :end="true"></vco-number>
-              <div>
-                {{ statisticsData.repaid }}%
-                <span>{{ t('已偿还') }}</span>
-              </div>
-            </div>
-            <div class="line three"></div>
-          </div>
-        </div>
-
-        <a-dropdown :trigger="['click']">
-          <a-button :loading="downloading" type="dark" class="big shadow bold uppercase flex-button">
-            {{ t('创建报告') }}
-            <DownOutlined />
-          </a-button>
-          <template #overlay>
-            <a-menu>
-              <a-menu-item>
-                <div class="pt-2 pb-2" @click="downLoadExcel(1)">{{ t('预测放款时间表') }}</div>
-              </a-menu-item>
-              <a-menu-item>
-                <div class="pt-2 pb-2" @click="downLoadExcel(2)">{{ t('放款时间表') }}</div>
-              </a-menu-item>
-              <a-menu-item>
-                <div class="pt-2 pb-2" @click="downLoadExcel(0)">{{ t('额度费用计算时间表') }}</div>
-              </a-menu-item>
-            </a-menu>
-          </template>
-        </a-dropdown>
-      </div>
-
-      <div v-if="tabData.length" class="table-content">
-        <div class="col-item th">
-          <div class="item uppercase">{{ t('日期') }}</div>
-          <div class="item uppercase">{{ t('类型') }}</div>
-          <div class="item uppercase">{{ t('说明') }}</div>
-          <div class="item uppercase">{{ t('利息、费用') }}</div>
-          <div class="item uppercase">{{ t('放款') }}</div>
-          <div class="item uppercase">{{ t('还款') }}</div>
-          <div class="item uppercase">{{ t('余额') }}</div>
-        </div>
-
-        <div class="col-content">
-          <div v-for="(item, index) in tabData" :key="index" class="col-block" :class="{ passed: item.passed }">
-            <div v-for="(_item, _index) in item.list" :key="_item.date" class="col-item">
-              <div class="item">{{ tool.showDate(_item.date) }}</div>
-              <div class="item type">
-                <div v-if="[2, 4].includes(_item.type)">
-                  <i v-if="_item.type === 2" class="iconfont">&#xe755;</i>
-                  <i v-if="_item.type === 4" class="iconfont">&#xe757;</i>
-                  <span>{{ _item.name }}</span>
+      <div style="min-height: 200px;">
+        <div v-if="statisticsData && tabData.length" class="flex header-static">
+          <div class="item-content">
+            <div class="item">
+              <div class="line one"></div>
+              <div class="info-content">
+                <p>{{ t('当前余额') }}</p>
+                <vco-number class="num" :value="statisticsData.currentBalance" :precision="2" :end="true"></vco-number>
+                <div>
+                  <vco-number :value="statisticsData.available" color="#666666" size="fs_xs" :precision="2" :end="true"></vco-number>
+                  <span>{{ t('可用余额') }}</span>
                 </div>
-                <p v-else>{{ _item.name }}</p>
               </div>
-              <div class="item">
-                <p class="note">{{ _item.note }}</p>
+            </div>
+            <div class="item">
+              <div class="line-content">
+                <div class="round"></div>
+                <div class="round"></div>
+                <div class="round"></div>
+                <div class="round"></div>
               </div>
-              <div class="item">{{ _item.fee }}</div>
-              <div class="item drawdown">{{ _item.drawdown }}</div>
-              <div class="item">{{ _item.repayment }}</div>
-              <div class="item">
-                <vco-number :value="_item.balance" :precision="2" :end="true"></vco-number>
+              <div class="info-content">
+                <p>{{ t('应计利息') }}</p>
+                <vco-number class="num" :value="statisticsData.accruedInterest" :precision="2" :end="true"></vco-number>
+              </div>
+            </div>
+            <div class="chart-content">
+              <v-chart :option="option" autoresize />
+            </div>
+            <div class="item">
+              <div class="info-content">
+                <p>{{ 'Facility limit 2' }}</p>
+                <vco-number class="num" :value="statisticsData.forecastFC2" :precision="2" :end="true"></vco-number>
+                <div>
+                  <span>{{ t('包括利息和费用') }}</span>
+                </div>
+              </div>
+              <div class="line two"></div>
+            </div>
+            <div class="item">
+              <div class="info-content">
+                <p>{{ t('还款') }}</p>
+                <vco-number class="num" :value="statisticsData.repayments" :precision="2" :end="true"></vco-number>
+                <div>
+                  {{ statisticsData.repaid }}%
+                  <span>{{ t('已偿还') }}</span>
+                </div>
+              </div>
+              <div class="line three"></div>
+            </div>
+          </div>
+
+          <a-dropdown :trigger="['click']">
+            <a-button :loading="downloading" type="dark" class="big shadow bold uppercase flex-button">
+              {{ t('创建报告') }}
+              <DownOutlined />
+            </a-button>
+            <template #overlay>
+              <a-menu>
+                <a-menu-item>
+                  <div class="pt-2 pb-2" @click="downLoadExcel(1)">{{ t('预测放款时间表') }}</div>
+                </a-menu-item>
+                <a-menu-item>
+                  <div class="pt-2 pb-2" @click="downLoadExcel(2)">{{ t('放款时间表') }}</div>
+                </a-menu-item>
+                <a-menu-item>
+                  <div class="pt-2 pb-2" @click="downLoadExcel(0)">{{ t('额度费用计算时间表') }}</div>
+                </a-menu-item>
+              </a-menu>
+            </template>
+          </a-dropdown>
+        </div>
+
+        <div v-if="tabData.length" class="table-content">
+          <div class="col-item th">
+            <div class="item uppercase">{{ t('日期') }}</div>
+            <div class="item uppercase">{{ t('类型') }}</div>
+            <div class="item uppercase">{{ t('说明') }}</div>
+            <div class="item uppercase">{{ t('利息、费用') }}</div>
+            <div class="item uppercase">{{ t('放款') }}</div>
+            <div class="item uppercase">{{ t('还款') }}</div>
+            <div class="item uppercase">{{ t('余额') }}</div>
+          </div>
+
+          <div class="col-content">
+            <div v-for="(item, index) in tabData" :key="index" class="col-block" :class="{ passed: item.passed }">
+              <div v-for="(_item, _index) in item.list" :key="_item.date" class="col-item">
+                <div class="item">{{ tool.showDate(_item.date) }}</div>
+                <div class="item type">
+                  <div v-if="[2, 4].includes(_item.type)">
+                    <i v-if="_item.type === 2" class="iconfont">&#xe755;</i>
+                    <i v-if="_item.type === 4" class="iconfont">&#xe757;</i>
+                    <span>{{ _item.name }}</span>
+                  </div>
+                  <p v-else>{{ _item.name }}</p>
+                </div>
+                <div class="item">
+                  <p class="note">{{ _item.note }}</p>
+                </div>
+                <div class="item">{{ _item.fee }}</div>
+                <div class="item drawdown">{{ _item.drawdown }}</div>
+                <div class="item">{{ _item.repayment }}</div>
+                <div class="item">
+                  <vco-number :value="_item.balance" :precision="2" :end="true"></vco-number>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div v-if="statisticsData && tabData.length" class="static-block flex">
-        <div class="item flex-1">
-          <p>
-            {{ t('目前总计') }}
-            <span>{{ statisticsData.now.day }}</span>
-          </p>
-          <h3>{{ t('还有{0}天开放', [statisticsData.now.days]) }}</h3>
-        </div>
-        <div class="item">
-          <p>{{ t('利息及费用') }}</p>
-          <vco-number :value="statisticsData.now.interestFees" color="#ffffff" size="fs_md" :precision="2" :end="true"></vco-number>
-        </div>
-        <div class="item">
-          <p>{{ t('提现') }}</p>
-          <vco-number :value="statisticsData.now.withdrawn" color="#ffffff" size="fs_md" :precision="2" :end="true"></vco-number>
-        </div>
-        <div class="item">
-          <p>{{ t('已偿还') }}</p>
-          <vco-number :value="statisticsData.now.repaid" color="#ffffff" size="fs_md" :precision="2" :end="true"></vco-number>
-        </div>
-        <div class="item">
-          <p>{{ t('余额') }}</p>
-          <div class="flex justify-end items-center gap-1">
-            <i class="iconfont" style="color: #a9ad57">&#xe767;</i>
-            <vco-number :value="statisticsData.now.balance" color="#ffffff" size="fs_xl" :precision="2" :end="true"></vco-number>
+        <div v-if="statisticsData && tabData.length" class="static-block flex">
+          <div class="item flex-1">
+            <p>
+              {{ t('目前总计') }}
+              <span>{{ statisticsData.now.day }}</span>
+            </p>
+            <h3>{{ t('还有{0}天开放', [statisticsData.now.days]) }}</h3>
           </div>
-        </div>
-      </div>
-
-      <div v-if="statisticsData && tabData.length" class="static-block flex">
-        <div class="item">
-          <p>{{ t('估计总数') }}</p>
-          <h3>{{ t('{0}天', [statisticsData.last.days]) }}</h3>
-          <div class="info">
-            {{ t('到期日') }}
-            <span v-if="statisticsData.last.day">{{ dayjs(statisticsData.last.day).format('DD/MM/YYYY') }}</span>
+          <div class="item">
+            <p>{{ t('利息及费用') }}</p>
+            <vco-number :value="statisticsData.now.interestFees" color="#ffffff" size="fs_md" :precision="2" :end="true"></vco-number>
           </div>
-        </div>
-        <div class="flex-1 flex gap-4 justify-end pr-2">
-          <div class="sec-item mr-5">
-            <p class="item-title">{{ t('总内部收益率') }}</p>
+          <div class="item">
+            <p>{{ t('提现') }}</p>
+            <vco-number :value="statisticsData.now.withdrawn" color="#ffffff" size="fs_md" :precision="2" :end="true"></vco-number>
+          </div>
+          <div class="item">
+            <p>{{ t('已偿还') }}</p>
+            <vco-number :value="statisticsData.now.repaid" color="#ffffff" size="fs_md" :precision="2" :end="true"></vco-number>
+          </div>
+          <div class="item">
+            <p>{{ t('余额') }}</p>
             <div class="flex justify-end items-center gap-1">
-              <i class="iconfont" style="color: #b8cdcc">&#xe761;</i>
-              <h3 class="white">{{ statisticsData.last.irr }}%</h3>
+              <i class="iconfont" style="color: #a9ad57">&#xe767;</i>
+              <vco-number :value="statisticsData.now.balance" color="#ffffff" size="fs_xl" :precision="2" :end="true"></vco-number>
             </div>
           </div>
-          <div class="sec-item">
-            <p class="item-title">{{ t('利息') }}</p>
-            <h3>{{ statisticsData.last.interestRate || 0 }}%</h3>
-            <vco-number :value="statisticsData.last.interest || 0" color="#ffffff" size="fs_xs" :precision="2" :end="true"></vco-number>
-          </div>
-          <div class="line"></div>
-          <div class="sec-item">
-            <p class="item-title">{{ t('费率') }}</p>
-            <h3>{{ statisticsData.last.feesRate || 0 }}%</h3>
-            <vco-number :value="statisticsData.last.fees || 0" color="#ffffff" size="fs_xs" :precision="2" :end="true"></vco-number>
-          </div>
         </div>
-        <div class="item">
-          <p>{{ t('利息及费用') }}</p>
-          <vco-number :value="statisticsData.last.interestFees || 0" color="#ffffff" size="fs_md" :precision="2" :end="true"></vco-number>
-        </div>
-        <div class="item">
-          <p>{{ t('提现') }}</p>
-          <vco-number :value="statisticsData.last.withdrawn" color="#ffffff" size="fs_md" :precision="2" :end="true"></vco-number>
-          <div class="tips">
-            <p>{{ t('facility limit {0}', [1]) }}</p>
-            <vco-number :value="statisticsData.last.FC1 || 0" color="#ffffff" size="fs_xs" :precision="2" :end="true"></vco-number>
-          </div>
-        </div>
-        <div class="item">
-          <p>{{ t('已偿还') }}</p>
-          <vco-number :value="statisticsData.last.repaid" color="#ffffff" size="fs_md" :precision="2" :end="true"></vco-number>
-        </div>
-        <div class="item">
-          <p>{{ t('余额') }}</p>
-          <div class="flex justify-end items-center gap-1">
-            <i class="iconfont" style="color: #a9ad57">&#xe767;</i>
-            <vco-number :value="statisticsData.last.balance || 0" color="#ffffff" size="fs_xl" :precision="2" :end="true"></vco-number>
-          </div>
-          <div class="tips">
-            <p>{{ t('facility limit {0}', [2]) }}</p>
-            <vco-number :value="statisticsData.last.FC2 || 0" color="#ffffff" size="fs_xs" :precision="2" :end="true"></vco-number>
-          </div>
-        </div>
-      </div>
 
-      <a-empty v-if="!statisticsData && !tabData.length && !pageLoading" />
+        <div v-if="statisticsData && tabData.length" class="static-block flex">
+          <div class="item">
+            <p>{{ t('估计总数') }}</p>
+            <h3>{{ t('{0}天', [statisticsData.last.days]) }}</h3>
+            <div class="info">
+              {{ t('到期日') }}
+              <span v-if="statisticsData.last.day">{{ dayjs(statisticsData.last.day).format('DD/MM/YYYY') }}</span>
+            </div>
+          </div>
+          <div class="flex-1 flex gap-4 justify-end pr-2">
+            <div class="sec-item mr-5">
+              <p class="item-title">{{ t('总内部收益率') }}</p>
+              <div class="flex justify-end items-center gap-1">
+                <i class="iconfont" style="color: #b8cdcc">&#xe761;</i>
+                <h3 class="white">{{ statisticsData.last.irr }}%</h3>
+              </div>
+            </div>
+            <div class="sec-item">
+              <p class="item-title">{{ t('利息') }}</p>
+              <h3>{{ statisticsData.last.interestRate || 0 }}%</h3>
+              <vco-number :value="statisticsData.last.interest || 0" color="#ffffff" size="fs_xs" :precision="2" :end="true"></vco-number>
+            </div>
+            <div class="line"></div>
+            <div class="sec-item">
+              <p class="item-title">{{ t('费率') }}</p>
+              <h3>{{ statisticsData.last.feesRate || 0 }}%</h3>
+              <vco-number :value="statisticsData.last.fees || 0" color="#ffffff" size="fs_xs" :precision="2" :end="true"></vco-number>
+            </div>
+          </div>
+          <div class="item">
+            <p>{{ t('利息及费用') }}</p>
+            <vco-number :value="statisticsData.last.interestFees || 0" color="#ffffff" size="fs_md" :precision="2" :end="true"></vco-number>
+          </div>
+          <div class="item">
+            <p>{{ t('提现') }}</p>
+            <vco-number :value="statisticsData.last.withdrawn" color="#ffffff" size="fs_md" :precision="2" :end="true"></vco-number>
+            <div class="tips">
+              <p>{{ t('facility limit {0}', [1]) }}</p>
+              <vco-number :value="statisticsData.last.FC1 || 0" color="#ffffff" size="fs_xs" :precision="2" :end="true"></vco-number>
+            </div>
+          </div>
+          <div class="item">
+            <p>{{ t('已偿还') }}</p>
+            <vco-number :value="statisticsData.last.repaid" color="#ffffff" size="fs_md" :precision="2" :end="true"></vco-number>
+          </div>
+          <div class="item">
+            <p>{{ t('余额') }}</p>
+            <div class="flex justify-end items-center gap-1">
+              <i class="iconfont" style="color: #a9ad57">&#xe767;</i>
+              <vco-number :value="statisticsData.last.balance || 0" color="#ffffff" size="fs_xl" :precision="2" :end="true"></vco-number>
+            </div>
+            <div class="tips">
+              <p>{{ t('facility limit {0}', [2]) }}</p>
+              <vco-number :value="statisticsData.last.FC2 || 0" color="#ffffff" size="fs_xs" :precision="2" :end="true"></vco-number>
+            </div>
+          </div>
+        </div>
+
+        <a-empty v-if="!statisticsData && !tabData.length && !pageLoading" />
+      </div>
     </a-spin>
   </div>
 </template>

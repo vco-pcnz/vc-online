@@ -42,6 +42,7 @@
         type="dark" shape="round" class="big shadow bold uppercase"
         @click="submitHandle"
         :loading="subLoading"
+        :disabled="subDisabled"
       >{{ t(submitText) }}</a-button>
     </div>
   </div>
@@ -72,6 +73,10 @@
       default: false
     },
     subLoading: {
+      type: Boolean,
+      default: false
+    },
+    subDisabled: {
       type: Boolean,
       default: false
     },

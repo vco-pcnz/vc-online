@@ -78,8 +78,11 @@
                     <p v-else>--</p>
                   </template>
                   <template v-if="column.dataIndex === 'project_info'">
-                    <span>ID: {{ record.project_apply_sn }}</span>
-                    <div :title="record.project_name" class="mt-1.5 truncate">{{ record.project_name || t('项目名称') }}</div>
+                    <!-- <a-button type="link" @click="navigationTo(`/requests/details?uuid=${record.uuid}`)">
+                      ID: {{ record.project_apply_sn }}
+                    </a-button> -->
+                    <div class="id-info" @click="navigationTo(`/requests/details?uuid=${record.uuid}`)">ID: {{ record.project_apply_sn }}</div>
+                    <div :title="record.project_name">{{ record.project_name || t('项目名称') }}</div>
                     <div v-if="record.showAddress && record.showAddress.length > 3" class="icon-txt mt-1">
                       <i class="iconfont cer">&#xe814;</i>
                       <span :title="record.showAddress" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-2">{{ record.showAddress }}</span>
@@ -312,7 +315,11 @@
   }
 
   const searchHandle = (data = {}) => {
-    getTableData(data)
+    const params = {
+      ...data,
+      type: currentTab.value
+    }
+    getTableData(params)
   }
 
   const vcTeamObj = ref(null)
@@ -386,6 +393,12 @@
       font-size: 15px !important;
       white-space: nowrap;
     }
+  }
+
+  .id-info {
+    cursor: pointer;
+    color: @colorPrimary;
+    margin-bottom: 5px;
   }
 
   .icon-txt {

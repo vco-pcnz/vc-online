@@ -270,7 +270,12 @@
         ...vcTeamData.value[itemCode.value],
         ...data
       ]
-      vcTeamData.value[itemCode.value] = removeDuplicates(dataArr, 'uuid')
+      
+      if (itemCode.value === 'lm') { // 单选
+        vcTeamData.value[itemCode.value] = removeDuplicates(data, 'uuid')
+      } else {
+        vcTeamData.value[itemCode.value] = removeDuplicates(dataArr, 'uuid')
+      }
     }
 
     if (props.type === 2) {

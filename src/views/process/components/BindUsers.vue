@@ -202,13 +202,13 @@
         uuid: props.currentId
       }).then(res => {
         res.user = {
-          edit: res.user.edit || [],
-          view: res.user.view || []
+          edit: res.user?.edit || [],
+          view: res.user?.view || []
         }
 
         res.broker = {
-          edit: res.broker.edit || [],
-          view: res.broker.view || []
+          edit: res.broker?.edit || [],
+          view: res.broker?.view || []
         }
 
         const vcObj = {}
@@ -216,7 +216,7 @@
         for (let i = 0; i < vcTeamArr.length; i++) {
           vcObj[vcTeamArr[i]] = []
           if (res[vcTeamArr[i]] && Object.keys(res[vcTeamArr[i]]).length) {
-            vcObj[vcTeamArr[i]] = [...res[vcTeamArr[i]]]
+            vcObj[vcTeamArr[i]] = [...res[vcTeamArr[i]]] || []
           }
         }
 

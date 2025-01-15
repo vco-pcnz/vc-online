@@ -201,24 +201,32 @@
       await associateUserList({
         uuid: props.currentId
       }).then(res => {
+        res.user = {
+          edit: res.user.edit || [],
+          view: res.user.view || []
+        }
+
+        res.broker = {
+          edit: res.broker.edit || [],
+          view: res.broker.view || []
+        }
+
         const vcObj = {}
 
         for (let i = 0; i < vcTeamArr.length; i++) {
           vcObj[vcTeamArr[i]] = []
           if (res[vcTeamArr[i]] && Object.keys(res[vcTeamArr[i]]).length) {
-            const editArr = res[vcTeamArr[i]].edit || []
-            const viewArr = res[vcTeamArr[i]].view || []
-            vcObj[vcTeamArr[i]] = [...editArr, ...viewArr]
+            vcObj[vcTeamArr[i]] = [...res[vcTeamArr[i]]]
           }
         }
 
         vcData.value = vcObj && Object.keys(vcObj).length ? vcObj : null
         vcDataCom.value = userFlatFn(vcData.value)
 
-        borrowerData.value = res.user && Object.keys(res.user).length ? res.user : null
+        borrowerData.value = res.user
         borrowerDataCom.value = userFlatFn(borrowerData.value)
 
-        brokerData.value = res.broker && Object.keys(res.broker).length ? res.broker : null
+        brokerData.value = res.broker
         brokerDataCom.value = userFlatFn(brokerData.value)
 
         configLoading.value = false

@@ -347,6 +347,7 @@ onMounted(() => {
       display: flex;
       gap: 15px;
       min-height: 75px;
+      min-width: 15%;
       > .line {
         border-radius: 4px;
         width: 6px;

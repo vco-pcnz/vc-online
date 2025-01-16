@@ -33,10 +33,15 @@
           <MeterStat></MeterStat>
           <PeriodLine></PeriodLine>
           <div class="flex justify-center mt-10 mb-10">
-            <a-button type="brown" shape="round" size="small">{{ t('默认开始') }}</a-button>
-            <a-button type="brown" shape="round" size="small" class="ml-10 mr-10">{{ t('添加变更') }}</a-button>
-            <Journal><a-button type="brown" shape="round" size="small">{{ t('日志') }}</a-button></Journal>
-            
+            <StartDefault>
+              <a-button type="brown" shape="round" size="small">{{ t('默认开始') }}</a-button>
+            </StartDefault>
+            <AddVariations>
+              <a-button type="brown" shape="round" size="small" class="ml-10 mr-10">{{ t('添加变更') }}</a-button>
+            </AddVariations>
+            <Journal>
+              <a-button type="brown" shape="round" size="small">{{ t('日志') }}</a-button>
+            </Journal>
           </div>
           <Stats></Stats>
         </div>
@@ -59,6 +64,8 @@ import Stats from './components/stats.vue';
 import PeriodLine from './components/PeriodLine.vue';
 import MeterStat from './components/MeterStat.vue';
 import Journal from './components/form/Journal.vue';
+import StartDefault from './components/form/StartDefault.vue';
+import AddVariations from './components/form/AddVariations.vue';
 const { t } = useI18n();
 const route = useRoute();
 

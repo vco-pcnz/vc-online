@@ -4,7 +4,7 @@
     <a-modal
       :width="550"
       :open="visible"
-      :title="t('日志')"
+      :title="t('默认开始')"
       :getContainer="() => $refs.JournalRef"
       :maskClosable="false"
       :footer="false"
@@ -12,17 +12,7 @@
     >
       <div class="content sys-form-content">
         <div class="input-item">
-          <div class="label" :class="{ err: !formState.type && validate }">{{ t('类型') }}</div>
-          <a-select
-            style="width: 100%"
-            v-model:value="formState.type"
-            show-search
-            :options="types"
-            :filter-option="customFilter"
-          ></a-select>
-        </div>
-        <div class="input-item">
-          <div class="label" :class="{ err: !formState.date && validate }">{{ t('日期') }}</div>
+          <div class="label" :class="{ err: !formState.date && validate }">{{ t('开始日期') }}</div>
           <a-date-picker
             class="datePicker"
             inputReadOnly
@@ -34,21 +24,8 @@
           />
         </div>
         <div class="input-item">
-          <div class="label" :class="{ err: !formState.amount && validate }">{{ t('金额，新西兰元') }}</div>
-          <a-input-number
-            v-model:value="formState.amount"
-            :max="99999999999"
-            :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-            :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-          />
-        </div>
-        <div class="input-item">
-          <div class="label" :class="{ err: !formState.note && validate }">{{ t('声明说明') }}</div>
-          <a-input v-model:value="formState.note" />
-        </div>
-        <div class="input-item">
           <div class="label" :class="{ err: !formState.review && validate }">{{ t('审阅意见') }}</div>
-          <a-textarea v-model:value="formState.review" placeholder="Basic usage" :rows="4" />
+          <a-textarea v-model:value="formState.review" placeholder="Basic usage" :rows="6" />
         </div>
 
         <div class="flex justify-center">
@@ -80,26 +57,13 @@ const props = defineProps({
 const visible = ref(false);
 const loading = ref(false);
 const validate = ref(false);
-const rename = ref('');
 
-const types = ref([
-  { label: 'Journal Credit', value: 1 },
-  { label: 'Journal Debit', value: 2 },
-  { label: 'Journal Default Interest Credit', value: 3 }
-]);
 
 const formState = ref({
-  type: '',
   date: '',
-  amount: '',
-  note: '',
   review: ''
 });
 
-const customFilter = (input, option) => {
-  // 根据自定义字段名 'name' 进行筛选
-  return option.name.toLowerCase().includes(input.toLowerCase());
-};
 
 const updateVisible = (value) => {
   visible.value = value;

@@ -28,7 +28,7 @@ const baseInfo = ref({
 const project_id = ref()
 
 onMounted(() => {
-  project_id.value = route.query.uuid || '9ff3cda9-a04c-48a0-b49a-05642a2e461b';
+  project_id.value = route.query.uuid || 'a0f7382c-ae5b-422c-94f5-6c0a87d0351b' || '795e168e-51eb-48dd-aa39-a14792ed8f1c';
 });
 
 </script>

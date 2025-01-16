@@ -4,6 +4,7 @@
     <a-modal
       :width="850"
       :open="visible"
+      v-if="visible"
       title="Drawdown request"
       :getContainer="() => $refs.drawdownRequestRef"
       :maskClosable="false"
@@ -30,32 +31,34 @@
           <a-col :span="12">
             <div class="input-item">
               <div class="label">Notes</div>
-              <a-textarea v-model:value="formState.notes" placeholder="Basic usage" :rows="6" />
+              <a-textarea v-model:value="formState.note" placeholder="Basic usage" :rows="6" />
             </div>
           </a-col>
         </a-row>
         <p class="my-5 bold fs_xl">Documents</p>
+        <p class="label" style="margin-top: -15px; opacity: 0" :class="{ err: !formState.d_file.length && validate }">
+          Provide at least one of these documents
+        </p>
 
-        <template v-for="(item, index) in formModal" :key="index">
-          <documents-upload v-if="!item.children" v-model:value="formState[item.key]">
+        <template v-for="item in formModal2" :key="item.id">
+          <documents-upload v-if="!item.children" v-model:value="documents[item.id]">
             <div class="upload-title">
               <i class="iconfont">&#xe795;</i>
               <span class="name">{{ item.name }}</span>
             </div>
           </documents-upload>
-          <template v-else>
-            <div class="upload-title">
-              <i class="iconfont">&#xe795;</i>
-              <span class="name">Certificates</span>
+        </template>
+
+        <div class="upload-title">
+          <i class="iconfont">&#xe795;</i>
+          <span class="name">Certificates</span>
+        </div>
+        <template v-for="item in formModal3" :key="item.id">
+          <documents-upload v-model:visible="item.check" v-model:value="documents[item.id]">
+            <div class="checkbox-item">
+              <a-checkbox v-model:checked="item.check"> {{ item.name }}</a-checkbox>
             </div>
-            <template v-for="sub in item.children" :key="sub.key">
-              <documents-upload v-model:visible="sub.check" v-model:value="formState[sub.key]">
-                <div class="checkbox-item">
-                  <a-checkbox v-model:checked="sub.check"> {{ sub.name }}</a-checkbox>
-                </div>
-              </documents-upload>
-            </template>
-          </template>
+          </documents-upload>
         </template>
 
         <div class="flex justify-center">
@@ -72,47 +75,32 @@
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
-import { frename } from '@/api/project/annex';
+import { annexSel, annexEdit } from '@/api/project/annex';
 import DocumentsUpload from './DocumentsUpload.vue';
 
 const { t } = useI18n();
 const emits = defineEmits(['change']);
 
 const props = defineProps({
-  formParams: {
-    type: Object,
-    default: ''
+  uuid: {
+    type: String
   }
 });
 
 const visible = ref(false);
 const loading = ref(false);
 const validate = ref(false);
-const rename = ref('');
+const formModal2 = ref([]);
+const formModal3 = ref([]);
+const documents = ref({});
 
 const formState = ref({
+  uuid: '',
   name: '',
-  notes: '',
-  amount: ''
+  note: '',
+  amount: '',
+  d_file: []
 });
-
-const formModal = ref([
-  { name: 'Drawdown notice', key: 'drawdownNotice' },
-  { name: 'Invoices', key: 'invoices' },
-  { name: 'Photos', key: 'photos' },
-  {
-    name: 'Certificates',
-    key: 'certificates',
-    children: [
-      { name: 'Building inspections', key: 'BuildingInspections', check: false },
-      { name: 'Engineer reports', key: 'Engineer', check: false },
-      { name: 'Utility certification & compliance', key: 'Utility', check: false },
-      { name: 'QS reports', key: 'QS', check: false },
-      { name: 'CCC & titles', key: 'CCC', check: false },
-      { name: 'Pre-sales', key: 'Pre', check: false }
-    ]
-  }
-]);
 
 const updateVisible = (value) => {
   visible.value = value;
@@ -120,21 +108,20 @@ const updateVisible = (value) => {
 
 const save = () => {
   validate.value = true;
-  console.log(formState.value);
-
-  return;
-  if (!rename.value) return message.error(t('请输入') + t('名称'));
+  formState.value.d_file = [];
+  formState.value.uuid = props.uuid;
+  for (let key in documents.value) {
+    if (documents.value[key].length) {
+      formState.value.d_file.push({ id: key, files: documents.value[key] });
+    }
+  }
+  if (!formState.value.name || !formState.value.amount || !formState.value.d_file.length) return;
   loading.value = true;
-  let params = {
-    ...props.formParams,
-    name: rename.value
-  };
-  frename(params)
+  annexEdit(formState.value)
     .then((res) => {
+      validate.value = false;
       emits('change');
-      rename.value = '';
-      message.success(t('保存成功'));
-      updateVisible(false);
+      message.success(t('提交成功'));
     })
     .finally((_) => {
       loading.value = false;
@@ -142,6 +129,17 @@ const save = () => {
 };
 
 const init = () => {
+  annexSel({ apply_uuid: props.uuid, type: 2 }).then((res) => {
+    formModal2.value = res;
+  });
+  annexSel({ apply_uuid: props.uuid, type: 3 }).then((res) => {
+    if (res && res.length) {
+      res.map((item) => {
+        item['check'] = false;
+      });
+    }
+    formModal3.value = res;
+  });
   visible.value = true;
 };
 </script>
@@ -169,6 +167,7 @@ const init = () => {
         padding: 0 0 8px;
         &.err {
           color: #c1430c;
+          opacity: 1 !important;
         }
       }
 

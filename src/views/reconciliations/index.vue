@@ -12,7 +12,7 @@
             </p>
           </a-col>
         </a-row>
-        <a-row v-for="{ statement, transaction } in rowData">
+        <a-row v-for="{ statement, transaction } in rowData" :key="statement.id">
           <a-col :span="11">
             <!-- TODO -->
             <a-row :class="['content', { content_match: false }]">
@@ -33,7 +33,7 @@
             </a-row>
           </a-col>
           <a-col :span="2" class="content_btn">
-            <a-button>OK</a-button>
+            <a-button @click="visible = true" :disabled="false">OK</a-button>
           </a-col>
           <a-col :span="11" v-if="!!transaction">
             <a-row :class="['content', { content_match: true }]">
@@ -76,11 +76,7 @@
               <a-col :span="24" class="empty_slip why_slip">
                 <p class="xs_text">Why</p>
                 <a-select>
-                  <a-select-option
-                    v-for="item in WHY_OPTIONS"
-                    :key="item.value"
-                    :value="item.value"
-                  >
+                  <a-select-option v-for="item in WHY_OPTIONS" :key="item.value" :value="item.value">
                     {{ item.value }}
                   </a-select-option>
                 </a-select>
@@ -91,27 +87,31 @@
       </div>
     </template>
   </layout>
+
+  <TipModal v-model:visible="visible"></TipModal>
 </template>
 
 <script setup>
 import { ref, reactive } from 'vue';
 import { useI18n } from 'vue-i18n';
 import Layout from './components/layout.vue';
+import TipModal from './components/tipModal.vue';
 
+const visible = ref(false)
 const { t } = useI18n();
 const WHAT_OPTIONS = [
   { value: 'legal-fee', label: 'Legal fee' },
   { value: 'broker-fee', label: 'Broker fee' },
   { value: 'other-fee', label: 'Other fee' },
   { value: 'repayment', label: 'Repayment' },
-  { value: 'application-fee', label: 'Application fee' },
+  { value: 'application-fee', label: 'Application fee' }
 ];
 const WHY_OPTIONS = [
   { value: 'Commitment payment received on [Date on bank statement]' },
   { value: 'Equity Injection or Project Contribution' },
   { value: 'Repayment from sale proceeds of [Address]' },
   { value: 'Full Repayment' },
-  { value: 'Repayment from GST Refund' },
+  { value: 'Repayment from GST Refund' }
 ];
 const rowData = reactive([
   {
@@ -122,7 +122,7 @@ const rowData = reactive([
       received: '60,000,000.00',
       description: 'description',
       client: 'stag-ex-0722',
-      item: 'drawdown',
+      item: 'drawdown'
     },
     transaction: {
       id: 'uuid11112222',
@@ -131,8 +131,8 @@ const rowData = reactive([
       notes: 'notes',
       spent: '60,000,000.00',
       received: '60,000,000.00',
-      account: 'wwwwwww',
-    },
+      account: 'wwwwwww'
+    }
   },
   {
     statement: {
@@ -142,10 +142,10 @@ const rowData = reactive([
       received: '60,000,000.00',
       description: 'description',
       client: 'stag-ex-0722',
-      item: 'drawdown',
+      item: 'drawdown'
     },
-    transaction: null,
-  },
+    transaction: null
+  }
 ]);
 // const rowData = reactive([])
 </script>

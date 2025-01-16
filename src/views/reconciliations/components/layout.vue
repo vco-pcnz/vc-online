@@ -3,7 +3,15 @@
     <vco-page-nav sup-path="/reconciliations">
       <template #action>
         <img :width="58" :height="14" :src="xeroImg" alt="Xero" />
-        <a-button class="sync-btn">
+        <a-statistic-countdown :value="deadline" @finish="onFinish" format="mm:ss" v-if="Boolean(countdown)">
+          <template #prefix>
+            <span>Processing (</span>
+          </template>
+          <template #suffix>
+            <span>)</span>
+          </template>
+        </a-statistic-countdown>
+        <a-button class="sync-btn" v-if="Boolean(!countdown)" @click="update">
           <template #icon>
             <i class="iconfont">&#xe749;</i>
           </template>
@@ -17,9 +25,13 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import xeroImg from '@/assets/images/services-xero.png';
-
-const onClick = (e) => {};
+const deadline = Date.now() + 1000 * 60 * 10;
+const countdown = ref(false);
+const update = (e) => {
+  countdown.value = true;
+};
 </script>
 
 <style scoped lang="less">
@@ -35,5 +47,10 @@ const onClick = (e) => {};
   background-color: #f0f0f0;
   border: 1px solid #e2e5e2;
   border-radius: 12px;
+}
+
+:deep(.ant-statistic-content) {
+  color: #888;
+  font-size: 12px;
 }
 </style>

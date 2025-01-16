@@ -23,7 +23,7 @@
         </ul>
       </template>
     </div>
-    <a-empty v-else :image="simpleImage" />
+    <a-empty v-else />
   </div>
 </template>
 
@@ -32,41 +32,40 @@ import { ref, reactive } from 'vue';
 import { Empty } from 'ant-design-vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
-import { navigationTo } from '@/utils/tool';
 
-// const props = defineProps({
-//   tableData: {
-//     type: Array,
-//     default: () => []
-//   }
-// });
+const props = defineProps({
+  tableData: {
+    type: Array,
+    default: () => []
+  }
+});
 
 const { t } = useI18n();
 const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE;
-const tableData = reactive([
-  {
-    id: 1,
-    uuid: 1,
-    drawdown: 12313,
-    status: 'Lending manager review',
-    request: {
-      amount: 13213321,
-      date: '20.12.2024'
-    },
-    approved: 1231
-  },
-  {
-    id: 2,
-    uuid: 2,
-    drawdown: 1221,
-    status: 'Lending manager review',
-    request: {
-      amount: 1231,
-      date: '20.12.2024'
-    },
-    approved: 1231
-  }
-]);
+// const tableData = reactive([
+//   {
+//     id: 1,
+//     uuid: 1,
+//     drawdown: 12313,
+//     status: 'Lending manager review',
+//     request: {
+//       amount: 13213321,
+//       date: '20.12.2024'
+//     },
+//     approved: 1231
+//   },
+//   {
+//     id: 2,
+//     uuid: 2,
+//     drawdown: 1221,
+//     status: 'Lending manager review',
+//     request: {
+//       amount: 1231,
+//       date: '20.12.2024'
+//     },
+//     approved: 1231
+//   }
+// ]);
 
 const active_uuid = ref('');
 

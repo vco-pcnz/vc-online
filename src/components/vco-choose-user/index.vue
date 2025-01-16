@@ -19,7 +19,7 @@
 
     <a-modal :width="900" v-if="open" :open="open" :title="t('搜索用户')" @cancel="close">
       <!-- 搜索 -->
-      <div class="flex justify-end mb-5">
+      <div v-if="!hideSearch" class="flex justify-end mb-5">
         <vco-page-search>
           <vco-page-search-item title="" width="300">
             <vco-type-input
@@ -94,6 +94,10 @@ const props = defineProps({
     type: String,
     default: ''
   },
+  hideSearch: {
+    type: Boolean,
+    default: false
+  }
 });
 const open = ref(false);
 const loading = ref(false);
@@ -169,14 +173,26 @@ const close = () => {
 const lodaData = () => {
   loading.value = true;
 
-  request({
+  const paramsInfo = {
     url: props.url,
     method: 'get',
     params: { ...searchForm.value, ...pagination.value, ...{role_code: props.roleCode} }
-  })
+  }
+
+  if (props.hideSearch) {
+    delete paramsInfo.params
+  }
+
+  request(paramsInfo)
     .then((res) => {
       tableData.value = res.data;
       count.value = res.count;
+
+      if (props.hideSearch) {
+        tableData.value = res || []
+        count.value = res.length || 0
+      }
+
       loading.value = false;
     })
     .catch((e) => {

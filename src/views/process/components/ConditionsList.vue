@@ -1,5 +1,16 @@
 <template>
   <div class="mt-6">
+    <!-- 人员选择 -->
+    <vco-choose-user
+      ref="vcoChooseUserRef"
+      :isMultiple="true"
+      :hide-search="true"
+      :url="userApiUrl"
+      @done="userChoiced"
+    >
+      <div></div>
+    </vco-choose-user>
+
     <a-modal
       :open="visible"
       :title="t('添加新状况')"
@@ -21,6 +32,25 @@
           <a-form-item :label="t('描述')" name="note">
             <a-textarea v-model:value="formState.note" />
           </a-form-item>
+          <a-form-item :label="t('处理人')">
+            <div class="user-content">
+              <div class="content">
+                <template v-if="handleUsers.length">
+                  <div
+                    v-for="(item, index) in handleUsers"
+                    :key="index"
+                    class="user-item"
+                  >
+                    <vco-user-item :data="item" :main="true"></vco-user-item>
+                    <i class="iconfont" @click="removeuserItem(index)">&#xe77d;</i>
+                  </div>
+                </template>
+                <p v-else>{{ t('请选择') }}</p>
+              </div>
+              <a-button type="link" @click="openUserSelect">{{ t('选择') }}</a-button>
+            </div>
+          </a-form-item>
+
           <div class="flex justify-between">
             <vco-user-item :data="{name: t('显示借款人')}"></vco-user-item>
             <a-switch v-model:checked="formState.is_show" :checkedValue="1" :unCheckedValue="0" />
@@ -51,7 +81,7 @@
             <div v-for="(item, index) in listData" :key="index" class="item" :class="{'pass': item.pass, 'done': item.is_ok}">
               <div class="title">
                 <p>{{ tool.showDate(item.date) }}</p>
-                <div v-if="!item.is_ok" class="flex">
+                <div v-if="!item.is_ok && item.do" class="flex">
                   <a-button :loading="item.delLoading" type="link" class="danger" @click="delHandle(item)">
                     <i v-if="!item.delLoading" class="iconfont">&#xe8c1;</i>
                   </a-button>
@@ -80,11 +110,11 @@
 </template>
 
 <script setup>
-  import { ref, reactive, onMounted, watch } from "vue";
+  import { ref, reactive, onMounted, watch, computed } from "vue";
   import { useI18n } from "vue-i18n";
   import dayjs from "dayjs";
   import { auditConditionList, projectAuditEditCondition, projectAuditStatusCondition, projectAuditDeleteCondition } from "@/api/process";
-  import tool from "@/utils/tool"
+  import tool, { removeDuplicates } from "@/utils/tool"
 
   const props = defineProps({
     infoData: {
@@ -100,6 +130,8 @@
   const { t } = useI18n();
 
   const listData = ref([])
+  const handleUsers = ref([])
+  const vcoChooseUserRef = ref()
 
   const pageLoading = ref(false)
   const getListData = () => {
@@ -159,6 +191,13 @@
       formState.date = dayjs(data.date)
       formState.note = data.note
       formState.is_show = data.is_show
+
+      const userData = data.do_user || []
+      userData.forEach(item => {
+        item.name = item.user_name
+      })
+
+      handleUsers.value = userData
     }
     visible.value = true
   }
@@ -169,12 +208,17 @@
     .validate()
     .then(() => {
       const {id, date, note, is_show} = formState
+      let do_user = []
+      if (handleUsers.value.length) {
+        do_user = handleUsers.value.map(item => item.uuid)
+      }
       const params = {
         id,
         date: date.format('YYYY-MM-DD'),
         note,
         is_show,
-        uuid: props.currentId
+        uuid: props.currentId,
+        do_user
       }
 
       subLoading.value = true
@@ -219,6 +263,27 @@
     })
   }
 
+  const userApiUrl = computed(() => {
+    return `project/audit/userCondition?uuid=${props.currentId}`
+  })
+
+  const userChoiced = (data) => {
+    data.forEach(item => {
+      item.name = item.user_name
+    })
+    
+    const dataArr = [...handleUsers.value, ...data] 
+    handleUsers.value = removeDuplicates(dataArr, 'uuid')
+  }
+
+  const openUserSelect = () => {
+    vcoChooseUserRef.value.init()
+  }
+
+  const removeuserItem = (index) => {
+    handleUsers.value.splice(index, 1)
+  }
+
   watch(
     () => visible.value,
     (val) => {
@@ -229,6 +294,8 @@
         formState.date = ""
         formState.note = ""
         formState.is_show = 0
+
+        handleUsers.value = []
       }
     }
   );
@@ -310,6 +377,46 @@
       display: flex;
       justify-content: center;
       align-items: center;
+    }
+  }
+
+  .user-content {
+    width: 100%;
+    min-height: 50px;
+    border-radius: 10px;
+    border: 1px solid #272727;
+    background-color: #f7f9f8;
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    > .content {
+      flex: 1;
+      padding-right: 10px;
+      border-right: 1px solid #999;
+      margin-right: 10px;
+      > p {
+        color: #999;
+      }
+      .user-item {
+        padding: 8px 10px;
+        background-color: #f7f0e6;
+        border-radius: 8px;
+        margin-top: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        &:first-child {
+          margin-top: 0;
+        }
+        .iconfont {
+          font-size: 13px;
+          cursor: pointer;
+          color: @colorPrimary;
+          &:hover {
+            opacity: 0.8;
+          }
+        }
+      }
     }
   }
 </style>

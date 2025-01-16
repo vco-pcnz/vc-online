@@ -375,10 +375,10 @@
         rule: 1
       }
 
-      if (props.type === 2 && editParams.user_uuid === '') {
-        message.error(t('编辑者') + t('为必填项'))
-        return false
-      }
+      // if (props.type === 2 && editParams.user_uuid === '') {
+      //   message.error(t('编辑者') + t('为必填项'))
+      //   return false
+      // }
 
       if (props.currentId) {
         subLoading.value = true

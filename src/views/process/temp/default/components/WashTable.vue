@@ -210,10 +210,6 @@ const columns = reactive([
   }
 ]);
 
-if (!props.blockInfo.showEdit) {
-  columns.splice(columns.length - 1)
-}
-
 const tableData = ref();
 
 const selectedRowKeys = ref([]); // 存放UUid

@@ -257,7 +257,7 @@
     const data = cloneDeep({...infoMsg, ...props.infoData})
     securityInfo.value = data.security
     guarantorInfo.value = data.guarantor
-    
+
     dataInfo.value = data
     currentDataInfo.value = data
     emits('dataDone', data.base.project_apply_sn)

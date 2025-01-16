@@ -9,9 +9,9 @@ export default {
   "回到主页": "Return to home page",
   "复制成功": "Copy successful",
   "复制失败": "Copy failed",
-  "请输入": "Please enter ",
-  "请选择": "Please select ",
-  "请上传": "Please upload ",
+  "请输入": "Please Enter ",
+  "请选择": "Please Select ",
+  "请上传": "Please Upload ",
   "邮箱": "Email",
   "密码": "Password",
   "忘记密码": "Forgot your password?",
@@ -485,8 +485,8 @@ export default {
   "LM 待审核": "LM pending review",
   "FC 待审核": "FC pending revie",
   "总负责人待审核": "General Manager to be reviewed",
-  "LM 检査": "LM Check",
-  "LM 待检査": "LM to be checked",
+  "LM 检查": "LM Check",
+  "LM 待检查": "LM to be checked",
   "待反洗钱": "Pending Anti-Money Laundering",
   "LM OPEN": "LM OPEN",
   "LM 待OPEN": "LM Waiting for OPEN",
@@ -523,5 +523,7 @@ export default {
   "实际提取贷款": "actual loan withdrawn",
   "预测撤回": "forecasted withdrawn",
   "方差": "variance",
-  "积分": "points"
+  "积分": "points",
+  "已反馈": "Feedback received",
+  "处理人": "Handler"
 }

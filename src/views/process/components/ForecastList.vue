@@ -392,6 +392,9 @@
 
       // 刷新IRR
       emitter.emit('refreshIRR')
+
+      // 操作记录
+      emitter.emit('refreshAuditHisList');
     }).catch(() => {
       subLoading.value = false
     })

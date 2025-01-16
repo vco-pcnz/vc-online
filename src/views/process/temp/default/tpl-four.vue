@@ -110,7 +110,7 @@
         <div v-if="!check" class="right-content">
           <bind-users
             ref="bindUsersRef"
-            v-permission="'process:bind:pre'"
+            v-if="hasPermission('process:bind:pre')"
             :current-id="currentId"
           ></bind-users>
 
@@ -142,6 +142,7 @@
   import AdsContent from "./../../components/AdsContent.vue";
   import emitter from "@/event"
   import useProcessStore from "@/store/modules/process"
+    import { hasPermission } from "@/directives/permission/index"
 
   const processStore = useProcessStore()
   const emits = defineEmits(['checkDone', 'dataDone'])

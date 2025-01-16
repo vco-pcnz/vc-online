@@ -129,7 +129,7 @@
         <div v-if="!check" class="right-content">
           <bind-users
             ref="bindUsersRef"
-            v-permission="'process:bind:pre'"
+            v-if="hasPermission('process:bind:pre')"
             :current-id="currentId"
           ></bind-users>
 
@@ -154,6 +154,8 @@ import TempFooter from './components/TempFooter.vue';
 import BindUsers from './../../components/BindUsers.vue';
 import AdsContent from './../../components/AdsContent.vue';
 import emitter from '@/event';
+import { hasPermission } from "@/directives/permission/index"
+
 
 const emits = defineEmits(['checkDone', 'dataDone']);
 

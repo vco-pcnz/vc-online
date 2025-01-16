@@ -184,6 +184,21 @@ watch(
     if (!val) {
       formRef.value.clearValidate();
       formRef.value.resetFields();
+      formState.value = {
+        id: '',
+        uuid: '',
+        stake_id: '',
+        annex_id: 0,
+        cate: '',
+        name: '',
+        pre: '',
+        mobile: '',
+        email: '',
+        sendEmail: false,
+        sendSms: false,
+        document: []
+      };
+      documentList.value = []
     } else {
       if (props.infoData) {
         formState.value = cloneDeep(props.infoData);

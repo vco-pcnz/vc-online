@@ -80,12 +80,3 @@ export const annexSel = (params) =>
     method: 'get',
     params
   });
-
-  // 文件夹-选择
-  export const annexEdit = (data) =>
-    request({
-      url: 'project/annex/edit',
-      method: 'post',
-      data
-    });
-  

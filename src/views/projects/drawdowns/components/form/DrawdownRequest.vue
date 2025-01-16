@@ -75,7 +75,8 @@
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
-import { annexSel, annexEdit } from '@/api/project/annex';
+import { annexSel } from '@/api/project/annex';
+import { loanEdit } from '@/api/project/loan';
 import DocumentsUpload from './DocumentsUpload.vue';
 
 const { t } = useI18n();
@@ -117,7 +118,7 @@ const save = () => {
   }
   if (!formState.value.name || !formState.value.amount || !formState.value.d_file.length) return;
   loading.value = true;
-  annexEdit(formState.value)
+  loanEdit(formState.value)
     .then((res) => {
       validate.value = false;
       emits('change');

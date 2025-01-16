@@ -7,3 +7,11 @@ export const loanDrawdown = (params) =>
     method: 'get',
     params
   });
+  // 文件夹-选择
+  export const loanEdit = (data) =>
+    request({
+      url: 'project/loan/edit',
+      method: 'post',
+      data
+    });
+  

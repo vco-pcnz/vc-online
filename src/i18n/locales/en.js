@@ -498,5 +498,6 @@ export default {
   "添加状况": "add condition",
   "添加新状况": "Add new condition",
   "显示借款人": "Show borrower",
-  "已反馈": "Feedback received"
+  "已反馈": "Feedback received",
+  "处理人": "Handler"
 }

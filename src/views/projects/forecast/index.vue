@@ -1,7 +1,7 @@
 <template>
   <detail-layout :title="baseInfo.name" active-tab="forecast">
     <template #content>
-      <tableHook :currentId="'a0f7382c-ae5b-422c-94f5-6c0a87d0351b'"></tableHook>
+      <tableHook :currentId="'ec58c625-3df7-465d-8316-1db220fdb0c2' ||'a0f7382c-ae5b-422c-94f5-6c0a87d0351b'"></tableHook>
     </template>
   </detail-layout>
 </template>

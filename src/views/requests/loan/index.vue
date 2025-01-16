@@ -150,7 +150,7 @@
                         shape="round"
                         @click="bindHandle(record)"
                       >{{ t('分配LM') }}</a-button>
-                      <p v-else>{{ t('等待分配LM') }}</p>
+                      <p v-else>{{ isNormalUser ? t('待审核') : t('等待分配LM') }}</p>
                     </template>
                   </template>
                   <template v-if="column.dataIndex === 'operation'">
@@ -203,6 +203,7 @@
   import { processRoutes } from "@/constant"
   import emitter from "@/event"
   import BindUsersDialog from "@/views/process/components/BindUsersDialog.vue";
+  import useUserStore from "@/store/modules/user"
 
   const { t, locale } = useI18n();
 
@@ -215,6 +216,9 @@
     pageChange,
     getTableData
   } = useTableList(projectListApi, {}, false)
+
+  const userStore = useUserStore()
+  const isNormalUser = computed(() => userStore.isNormalUser)
 
   const tabLayout = ref(0)
   const currentTab = ref('1')

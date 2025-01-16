@@ -262,6 +262,9 @@
     await ajaxFn(params).then(async (res) => {
       if (props.check) {
         emitter.emit('refreshAuditHisList')
+        
+        // 触发奖金刷新
+        emitter.emit('refreshBouns')
         emits('checkDone')
       } else {
 

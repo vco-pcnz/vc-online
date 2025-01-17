@@ -9,6 +9,7 @@
       :beforeUpload="beforeUpload"
       :data="{ biz: bizPath }"
       :multiple="isMultiple"
+      :maxCount="limit"
       :showUploadList="isMultiple"
       accept="image/*"
       @preview="handlePreview"

@@ -108,7 +108,7 @@ const report = () => {
 const search_key = ref();
 const loadData = (val, pagination) => {
   loading.value = false;
-  pagination = pagination ? pagination : { page: 1, limit: 1 };
+  pagination = pagination ? pagination : { page: 1, limit: 10 };
   search_key.value = val || '';
   cashFlowList({ search_key: search_key.value, ...pagination })
     .then((res) => {

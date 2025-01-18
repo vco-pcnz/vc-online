@@ -9,10 +9,16 @@
         </template>
         <template v-if="column.key === '2'">
           <div @click="toDetail(record)" class="cursor">
-            <p class="bold black">{{ record.name }}</p>
-            <p v-if="record.org_name">
+            <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="record.name" style="width: 200px">{{ record.name }}</p>
+            <p v-if="record.org_name" class="flex items-center">
               <i class="iconfont" :class="{ cer: record.org_name }">&#xe679;</i>
-              <span :class="{ cer: record.org_name }">{{ record.org_name }}</span>
+              <span
+                class="text-ellipsis overflow-hidden inline-block text-nowrap"
+                style="width: 200px"
+                :title="record.org_name"
+                :class="{ cer: record.org_name }"
+                >{{ record.org_name }}</span
+              >
             </p>
             <p v-if="record.email">
               <i class="iconfont" :class="{ cer: record.email_ok }">&#xe66f;</i>

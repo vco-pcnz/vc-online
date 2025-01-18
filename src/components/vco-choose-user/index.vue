@@ -17,7 +17,7 @@
       </slot>
     </div>
 
-    <a-modal :width="900" v-if="open" :open="open" :title="t('搜索用户')" @cancel="close">
+    <a-modal :width="900" v-if="open" :open="open" :title="title" @cancel="close">
       <!-- 搜索 -->
       <div v-if="!hideSearch" class="flex justify-end mb-5">
         <vco-page-search>
@@ -69,6 +69,10 @@ import { request } from '@/utils/request';
 const { t } = useI18n();
 
 const props = defineProps({
+  title: {
+    type: String,
+    default: 'User search'
+  },
   url: {
     type: String,
     default: 'user/selUser'

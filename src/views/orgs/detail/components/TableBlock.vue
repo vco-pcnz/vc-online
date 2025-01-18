@@ -9,10 +9,18 @@
         </template>
         <template v-if="column.key === '2'">
           <div @click="toDetail(record)" class="cursor">
-            <p class="bold black">{{ record.name }}</p>
-            <p v-if="record.org_name">
+            <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="record.name" style="width: 200px">
+              {{ record.name }}
+            </p>
+            <p v-if="record.org_name" class="flex items-center">
               <i class="iconfont" :class="{ cer: record.org_name }">&#xe679;</i>
-              <span :class="{ cer: record.org_name }">{{ record.org_name }}</span>
+              <span
+                class="text-ellipsis overflow-hidden inline-block text-nowrap"
+                style="width: 200px"
+                :title="record.org_name"
+                :class="{ cer: record.org_name }"
+                >{{ record.org_name }}</span
+              >
             </p>
             <p v-if="record.email">
               <i class="iconfont" :class="{ cer: record.email_ok }">&#xe66f;</i>
@@ -36,7 +44,12 @@
                 <span>{{ record.user_username }}</span>
               </p>
               <div @click.stop>
-                <a-popconfirm :title="'Are you sure ' + t('解绑用户')" ok-text="Yes" cancel-text="No" @confirm="orgsDetailStore.stakeUnbind(record.uuid)">
+                <a-popconfirm
+                  :title="'Are you sure ' + t('解绑用户')"
+                  ok-text="Yes"
+                  cancel-text="No"
+                  @confirm="orgsDetailStore.stakeUnbind(record.uuid)"
+                >
                   <span class="cer ml-2"><DisconnectOutlined /></span>
                 </a-popconfirm>
               </div>
@@ -53,7 +66,7 @@
               </span>
             </p>
           </div>
-          <a-button v-else  type="brown" shape="round" size="small" @click="showBindUser(record.uuid)">{{ t('绑定用户') }}</a-button>
+          <a-button v-else type="brown" shape="round" size="small" @click="showBindUser(record.uuid)">{{ t('绑定用户') }}</a-button>
         </template>
         <template v-if="column.key === '4'">
           <p v-if="record.user_roles.length">
@@ -111,7 +124,13 @@
                   <a-menu-item key="1" @click="toEdit(record)">
                     <span>{{ t('编辑') }}</span>
                   </a-menu-item>
-                  <a-popconfirm v-if="record.has_user" :title="'Are you sure ' + t('解绑用户')" ok-text="Yes" cancel-text="No" @confirm="orgsDetailStore.stakeUnbind(record.uuid)">
+                  <a-popconfirm
+                    v-if="record.has_user"
+                    :title="'Are you sure ' + t('解绑用户')"
+                    ok-text="Yes"
+                    cancel-text="No"
+                    @confirm="orgsDetailStore.stakeUnbind(record.uuid)"
+                  >
                     <a-menu-item key="2" @click.stop>
                       <span>{{ t('解绑用户') }}</span>
                     </a-menu-item>

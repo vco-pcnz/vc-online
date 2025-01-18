@@ -423,8 +423,8 @@ export default {
   "{0}不能大于{1}": "{0} cannot be greater than {1}",
   "保险价值": "Insurance value",
   "抵押登记日期": "Mortgage registration date",
-  "保险到期日": "Nsurance expiry date",
-  "担保公司": "Nsurance company",
+  "保险到期日": "Insurance expiry date",
+  "担保公司": "Insurance company",
   "已存在预测列表，修改借款金额或者贷款周期，将会强制重新生成预测列表，是否提交？": "A forecast list already exists. Modifying the loan amount or loan period will force the forecast list to be regenerated. Do you want to submit?",
   "目前总计": "current total",
   "还有{0}天开放": "{0} days to open",
@@ -525,5 +525,6 @@ export default {
   "方差": "variance",
   "积分": "points",
   "已反馈": "Feedback received",
-  "处理人": "Handler"
+  "处理人": "Handler",
+  "搜索利益相关者": "Org search",
 }

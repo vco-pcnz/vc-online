@@ -48,7 +48,7 @@
                   />
                 </a-spin>
                 <template #overlay>
-                  <a-menu v-if="citys && citys.length">
+                  <a-menu v-if="citys && citys.length" style="max-height: 300px; overflow-y: auto">
                     <a-menu-item v-for="item in citys" :key="item.id" @click="setCity(item)">
                       <a href="javascript:;" :class="{ active: item.name == form.province_code_name }">{{ item.name }}</a>
                     </a-menu-item>
@@ -93,7 +93,7 @@ const loading = ref(false);
 const list = ref([]);
 const citys = ref([]);
 const form = ref(null);
-const searchLoading = ref(false)
+const searchLoading = ref(false);
 
 const debounce = (func, wait) => {
   let timeout;
@@ -107,14 +107,16 @@ const debounce = (func, wait) => {
 const search = debounce(() => {
   if (!form.value[props.config['addr']] || form.value[props.config['addr']].length < 2) return;
 
-  searchLoading.value = true
-  systemCitySearch({ addr: form.value[props.config['addr']] }).then((res) => {
-    list.value = res;
-    open.value = Boolean(res && res.length);
-    searchLoading.value = false
-  }).catch(() => {
-    searchLoading.value = false
-  });
+  searchLoading.value = true;
+  systemCitySearch({ addr: form.value[props.config['addr']] })
+    .then((res) => {
+      list.value = res;
+      open.value = Boolean(res && res.length);
+      searchLoading.value = false;
+    })
+    .catch(() => {
+      searchLoading.value = false;
+    });
 }, 300);
 
 const searchInfo = (item) => {

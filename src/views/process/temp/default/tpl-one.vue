@@ -129,7 +129,7 @@
         <div v-if="!check" class="right-content">
           <bind-users
             ref="bindUsersRef"
-            v-if="hasPermission('process:bind:pre')"
+            v-if="bindUserPermission"
             :current-id="currentId"
           ></bind-users>
 
@@ -208,6 +208,10 @@ const formRef = ref();
 const footerRef = ref();
 const vcoChooseUserRef = ref();
 const bindUsersRef = ref();
+
+const bindUserPermission = computed(() => {
+  return hasPermission('requests:loan:bind:vcTeam') || hasPermission('requests:loan:bind:broker') || hasPermission('requests:loan:bind:user')
+})
 
 const vcoAddressRef = ref();
 const addressConfig = ref({
@@ -288,14 +292,6 @@ const formRules = {
     {
       pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
       message: t('邮箱格式不正确'),
-      trigger: 'blur'
-    }
-  ],
-  borrower_phone: [
-    { required: true, message: t('请输入') + t('手机号'), trigger: 'change' },
-    {
-      pattern: /^\+?[1-9]\d{1,14}$|^\(?\d+\)?[-.\s]?\d+([-.\s]?\d+)*$/,
-      message: t('手机号') + t('格式不正确'),
       trigger: 'blur'
     }
   ],

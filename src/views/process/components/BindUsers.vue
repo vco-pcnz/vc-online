@@ -11,11 +11,11 @@
 
     <a-spin :spinning="configLoading" size="large">
       <div class="block-item sec mb-5">
-        <div class="user-show-item">
+        <div v-if="vcTeamData.length && (isDetails || hasPermission('requests:loan:bind:vcTeam'))" class="user-show-item">
           <div class="title-content">
             <p class="uppercase">{{ t('管理者信息') }}</p>
             <a-button
-              v-if="vcTeamData.length && !isDetails && hasPermission('process:bind:vcTeam')"
+              v-if="!isDetails && hasPermission('requests:loan:bind:vcTeam')"
               type="primary"
               size="small"
               shape="round"
@@ -24,26 +24,24 @@
             >{{ t('编辑') }}</a-button>
           </div>
           <div class="info-content">
-            <!-- <template v-if="currentId"> -->
-              <div v-if="vcDataCom.length" class="user-item-content">
-                <vco-user-item
-                  v-for="(item, index) in vcDataCom"
-                  :key="index"
-                  :data="item"
-                  :main="true"
-                  :post="item.post"
-                ></vco-user-item>
-              </div>
-              <div v-else class="no-data">{{ t('暂无数据') }}</div>
-            <!-- </template> -->
-            <!-- <div v-else class="no-data">{{ t('请提交信息后操作') }}</div> -->
+            <div v-if="vcDataCom.length" class="user-item-content">
+              <vco-user-item
+                v-for="(item, index) in vcDataCom"
+                :key="index"
+                :data="item"
+                :main="true"
+                :post="item.post"
+              ></vco-user-item>
+            </div>
+            <div v-else class="no-data">{{ t('暂无数据') }}</div>
           </div>
         </div>
-        <div class="user-show-item">
+
+        <div v-if="isDetails || hasPermission('requests:loan:bind:broker')" class="user-show-item">
           <div class="title-content">
             <p class="uppercase">{{ t('中介信息') }}</p>
             <a-button
-              v-if="!isDetails && hasPermission('process:bind:broker')"
+              v-if="!isDetails && hasPermission('requests:loan:bind:broker')"
               type="primary"
               size="small"
               shape="round"
@@ -64,11 +62,12 @@
             <div v-else class="no-data">{{ t('暂无数据') }}</div>
           </div>
         </div>
-        <div class="user-show-item">
+
+        <div v-if="isDetails || hasPermission('requests:loan:bind:user')" class="user-show-item">
           <div class="title-content">
             <p class="uppercase">{{ t('借款账号信息') }}</p>
             <a-button
-              v-if="!isDetails && hasPermission('process:bind:user')"
+              v-if="!isDetails && hasPermission('requests:loan:bind:user')"
               type="primary"
               size="small"
               shape="round"
@@ -106,10 +105,10 @@
 </template>
 
 <script setup>
-  import { ref, onMounted, computed } from "vue"
+  import { ref, onMounted } from "vue"
   import BindUsersDialog from "./BindUsersDialog.vue";
   import { useI18n } from "vue-i18n";
-  import { associateSystemConfig, associateUserList, associateAssignUser } from "@/api/process"
+  import { associateSystemConfig, associateUserList, associateAssignUser, associateAssignTeam } from "@/api/process"
   import { hasPermission } from "@/directives/permission"
   import emitter from "@/event"
 
@@ -275,13 +274,11 @@
       if (vcData.value[key] && vcData.value[key].length) {
         const params = {
           uuid: [uuid],
-          // user_uuid: vcData.value[key].map(item => item.uuid).join(','),
           user_uuid: vcData.value[key].map(item => item.uuid),
-          role_code: key,
-          rule: 2
+          role_code: key
         }
 
-        await associateAssignUser(params)
+        await associateAssignTeam(params)
       }
     }
 

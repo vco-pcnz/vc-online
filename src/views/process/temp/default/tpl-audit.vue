@@ -9,6 +9,16 @@
       @done="subDone"
     ></resovle-dialog>
 
+    <!-- 项目open -->
+    <open-dialog
+      v-if="currentDataInfo"
+      :uuid="currentId"
+      :block-info="PageBlockObjRef"
+      :info-data="currentDataInfo.loan"
+      v-model:visible="openVisible"
+      @done="subDone"
+    ></open-dialog>
+
     <a-spin :spinning="pageLoading" size="large">
       <div v-if="dataInfo && dataInfo.base.cancel_reason" class="block-item details process-fail mt-5">
         <p class="title">{{ t('拒绝原因') }}</p>
@@ -99,6 +109,7 @@
             v-if="PageBlockObjRef.security"
             :current-id="currentId"
             :security-info="securityInfo"
+            :project-info="dataInfo.project"
             :block-info="PageBlockObjRef.security"
           >
           </security-list>
@@ -131,9 +142,8 @@
   import ConditionsList from "./../../components/ConditionsList.vue";
   import WashTable from './components/WashTable.vue';
   import emitter from "@/event"
-  import { message } from "ant-design-vue/es";
   import useProcessStore from "@/store/modules/process"
-  import { processBlockName } from "@/constant"
+  import OpenDialog from "./components/OpenDialog.vue";
 
   import ResovleDialog from '@/views/process/components/ResovleDialog.vue';
 
@@ -212,6 +222,8 @@
     return res
   })
 
+  const openVisible = ref(false)
+
   const subLoading = ref(false)
   const resovleVisible = ref(false);
 
@@ -226,19 +238,24 @@
       const params = {
         uuid: props.currentId
       }
-      subLoading.value = true
-      projectAuditSaveStep(params).then((res) => {
-        subLoading.value = false
-        footerRef.value.nextHandle({
-          ...res,
-          uuid: props.currentId
-        })
 
-        // 触发列表数据刷新
-        emitter.emit('refreshRequestsList')
-      }).catch(() => {
-        subLoading.value = false
-      })
+      if (currentMark.value === 'step_open') {
+        openVisible.value = true
+      } else {
+        subLoading.value = true
+        projectAuditSaveStep(params).then((res) => {
+          subLoading.value = false
+          footerRef.value.nextHandle({
+            ...res,
+            uuid: props.currentId
+          })
+
+          // 触发列表数据刷新
+          emitter.emit('refreshRequestsList')
+        }).catch(() => {
+          subLoading.value = false
+        })
+      }
     }
   }
 

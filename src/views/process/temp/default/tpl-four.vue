@@ -110,7 +110,7 @@
         <div v-if="!check" class="right-content">
           <bind-users
             ref="bindUsersRef"
-            v-if="hasPermission('process:bind:pre')"
+            v-if="bindUserPermission"
             :current-id="currentId"
           ></bind-users>
 
@@ -142,7 +142,7 @@
   import AdsContent from "./../../components/AdsContent.vue";
   import emitter from "@/event"
   import useProcessStore from "@/store/modules/process"
-    import { hasPermission } from "@/directives/permission/index"
+  import { hasPermission } from "@/directives/permission/index"
 
   const processStore = useProcessStore()
   const emits = defineEmits(['checkDone', 'dataDone'])
@@ -195,6 +195,10 @@
   const formRef = ref()
   const footerRef = ref()
   const bindUsersRef = ref();
+
+  const bindUserPermission = computed(() => {
+    return hasPermission('requests:loan:bind:vcTeam') || hasPermission('requests:loan:bind:broker') || hasPermission('requests:loan:bind:user')
+  })
 
   const markInfo = computed(() => (props.currentStep ? props.currentStep.mark : ''))
 

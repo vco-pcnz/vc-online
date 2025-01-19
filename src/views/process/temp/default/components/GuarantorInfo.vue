@@ -13,7 +13,7 @@
       <div></div>
     </vco-choose-user>
 
-    <vco-process-title :title="t('担保信息')">
+    <vco-process-title :title="t('其他安全信息')">
       <div class="flex gap-5">
         <a-popconfirm
           :title="t('确定通过审核吗？')"
@@ -26,7 +26,7 @@
             type="dark"
             shape="round"
             class="uppercase"
-            v-if="!guarantorInfo.is_check && props.guarantorInfo.main_contractor && props.guarantorInfo.security_package.length && props.guarantorInfo.guarantor_list.length"
+            v-if="!guarantorInfo.is_check && props.guarantorInfo.security_package.length && props.guarantorInfo.guarantor_list.length"
           >
             {{ t('审核') }}
           </a-button>
@@ -36,7 +36,7 @@
           type="primary"
           shape="round"
           :loading="subLoading"
-          :disabled="!formState.main_contractor || !formState.security_package.length || !formState.guarantor_uuids.length"
+          :disabled="!formState.security_package.length || !formState.guarantor_uuids.length"
           class="uppercase"
           @click="saveHandle()"
         >
@@ -142,12 +142,15 @@ const props = defineProps({
     type: [Number, String],
     required: true,
   },
+  currentStep: {
+    type: Object
+  },
   guarantorInfo: {
     type: Object,
     default: () => {
       return {
         is_check: false,
-        check_status: 408,
+        check_status: 407,
         main_contractor: '',
         security_package: [],
         guarantor_list: [],
@@ -166,17 +169,20 @@ const formState = reactive({
   guarantor_uuids: '',
 });
 
-const formRules = {
-  main_contractor: [
-    { required: true, message: t('请输入') + t('承包商'), trigger: 'blur' },
-  ],
+const formRules = ref({
   security_package: [
     { required: true, message: t('请选择') + t('履约保函'), trigger: 'change' },
   ],
   guarantor_uuids: [
     { required: true, message: t('请选择') + t('担保人'), trigger: 'change' },
   ],
-};
+});
+
+if (props.currentStep.mark === 'step_open') {
+  formRules.value['main_contractor'] = [
+    { required: true, message: t('请输入') + t('承包商'), trigger: 'blur' },
+  ]
+}
 
 const securityOptions = ref([]);
 
@@ -242,7 +248,9 @@ const dataInit = () => {
 };
 
 const checkHandle = async () => {
-  if (props.guarantorInfo.main_contractor) {
+  if (props.currentStep.mark === 'step_open' && !props.guarantorInfo.main_contractor) {
+    message.error(t('请先设置后保存再审核'));
+  } else {
     const params = {
       uuid: props.currentId,
       code: props.blockInfo.code
@@ -257,8 +265,6 @@ const checkHandle = async () => {
       .catch(() => {
         return false;
       });
-  } else {
-    message.error(t('请先设置后保存再审核'));
   }
 };
 

@@ -9,6 +9,8 @@
       :current-id="currentId"
       :security-status="securityInfo.check_status"
       :typeData="securityInfo.type"
+      :block-info="blockInfo"
+      :project-info="projectInfo"
     ></security-add-edit>
 
     <vco-process-title :title="t('抵押物信息')">
@@ -84,6 +86,10 @@ import SecurityAddEdit from './SecurityAddEdit.vue';
 const emits = defineEmits(['refresh']);
 const props = defineProps({
   securityInfo: {
+    type: Object,
+    default: () => {}
+  },
+  projectInfo: {
     type: Object,
     default: () => {}
   },

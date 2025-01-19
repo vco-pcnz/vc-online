@@ -196,15 +196,17 @@
           :current-id="currentId"
           :current-step="currentStep"
           :block-info="blockInfo.security"
+          :project-info="dataInfo.project"
           :security-info="dataInfo.security"
           @refresh="dataRefresh"
         ></security-items>
       </template>
 
-      <!-- 担保信息 -->
+      <!-- 其他安全信息 -->
       <template v-else-if="item === 'warranty'">
         <guarantor-info
           :current-id="currentId"
+          :current-step="currentStep"
           :block-info="blockInfo.warranty"
           :guarantor-info="dataInfo.warranty"
           @refresh="dataRefresh"

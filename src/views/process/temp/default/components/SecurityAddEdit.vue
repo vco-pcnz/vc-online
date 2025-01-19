@@ -1,5 +1,13 @@
 <template>
   <a-modal :open="visible" :title="t('抵押物信息')" :width="700" :footer="null" :keyboard="false" :maskClosable="false" @update:open="updateVisible">
+    <!-- 确认弹窗 -->
+    <vco-confirm-alert
+      ref="changeAlertRef"
+      :confirm-txt="confirmTxt"
+      v-model:visible="changeVisible"
+      @submit="submitRquest"
+    ></vco-confirm-alert>
+
     <div class="sys-form-content mt-5">
       <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
         <a-row :gutter="24">
@@ -98,8 +106,11 @@
         </a-row>
       </a-form>
 
-      <div class="flex gap-4 mb-5 mt-5 justify-between">
-        <p></p>
+      <div class="flex gap-4 mb-5 mt-5 justify-end">
+        <a-button
+          type="grey" class="big shadow bold uppercase"
+          @click="updateVisible(false)"
+        >{{ t('取消') }}</a-button>
         <a-button type="dark" class="big shadow bold uppercase" :loading="subLoading" @click="submitHandle">{{ t('保存') }}</a-button>
       </div>
     </div>
@@ -110,8 +121,8 @@
 import { watch, computed, ref, nextTick } from 'vue';
 import dayjs from 'dayjs';
 import { useI18n } from 'vue-i18n';
-import { cloneDeep, template } from 'lodash';
-import { projectAuditAddSecurity, projectAuditEditSecurity } from '@/api/process';
+import { cloneDeep } from 'lodash';
+import { projectAuditSaveMode } from '@/api/process';
 import tool from '@/utils/tool';
 import emitter from '@/event';
 import { message } from 'ant-design-vue/es';
@@ -122,6 +133,14 @@ const props = defineProps({
   visible: {
     type: Boolean,
     default: false
+  },
+  blockInfo: {
+    type: Object,
+    default: () => {}
+  },
+  projectInfo: {
+    type: Object,
+    default: () => {}
   },
   currentId: {
     type: [Number, String],
@@ -235,7 +254,33 @@ const disabledDateFormatAfter = (current) => {
   return false;
 };
 
+const currentParams = ref(null)
 const subLoading = ref(false);
+
+const submitRquest = () => {
+  if (currentParams.value) {
+    subLoading.value = true;
+    projectAuditSaveMode(params)
+      .then(() => {
+        currentParams.value = null
+        subLoading.value = false;
+        updateVisible(false);
+
+        emitter.emit('refreshSecurityInfo');
+        emitter.emit('refreshSecurityList');
+        emitter.emit('refreshAuditHisList');
+        emitter.emit('refreshIRR');
+      })
+      .catch(() => {
+        subLoading.value = false;
+      });
+  }
+}
+
+const changeAlertRef = ref()
+const changeVisible = ref(false)
+const confirmTxt = ref('')
+
 const submitHandle = () => {
   formRef.value
     .validate()
@@ -256,24 +301,33 @@ const submitHandle = () => {
         return false;
       }
 
-      let ajaxFn = projectAuditAddSecurity;
       if (props.infoData && props.infoData.uuid) {
         params.security_uuid = props.infoData.uuid;
-        ajaxFn = projectAuditEditSecurity;
       }
 
-      subLoading.value = true;
-      ajaxFn(params)
-        .then(() => {
-          subLoading.value = false;
-          updateVisible(false);
+      params.code = props.blockInfo.code
 
-          emitter.emit('refreshSecurityInfo');
-          emitter.emit('refreshSecurityList');
-        })
-        .catch(() => {
-          subLoading.value = false;
-        });
+      currentParams.value = params
+
+      const {project_address_short, project_address, project_suburb, region_one_id, region_two_id, region_three_id, project_postcode, project_city} = props.projectInfo
+      const {address_short, address, suburb, postcode} = formState.value
+      const region_one_id1 = formState.value.region_one_id
+      const region_two_id1 = formState.value.region_two_id
+      const region_three_id1 = formState.value.region_three_id
+
+      if (project_address_short !== address_short ||
+        project_address !== address || 
+        project_suburb !== suburb || 
+        project_postcode !== postcode || 
+        Number(region_one_id) !== Number(region_one_id1) || 
+        Number(region_two_id) !== Number(region_two_id1) || 
+        Number(region_three_id) !== Number(region_three_id1)
+      ) {
+        confirmTxt.value = t('当前项目地址为：{0}，抵押物地址与项目地址不一致，确定提交吗？', [project_city])
+        changeVisible.value = true
+      } else {
+        submitRquest()
+      }
     })
     .catch((error) => {
       console.log('error', error);
@@ -293,12 +347,23 @@ watch(
         }
       });
     } else {
-      if (props.infoData && props.infoData.uuid) {
+      if (props.infoData) {
         for (const key in formState.value) {
           formState.value[key] = props.infoData[key];
           if (['insurance_expire_date', 'mortgage_registration_date'].includes(key)) {
             formState.value[key] = props.infoData[key] ? dayjs(props.infoData[key]) : '';
           }
+        }
+      } else {
+        if (props.projectInfo) {
+          const {project_address_short, project_address, project_suburb, region_one_id, region_two_id, region_three_id, project_postcode} = props.projectInfo
+          formState.value.address_short = project_address_short || ''
+          formState.value.address = project_address || ''
+          formState.value.suburb = project_suburb || ''
+          formState.value.region_one_id = region_one_id || 0
+          formState.value.region_two_id = region_two_id || 0
+          formState.value.region_three_id = region_three_id || 0
+          formState.value.postcode = project_postcode || ''
         }
       }
     }

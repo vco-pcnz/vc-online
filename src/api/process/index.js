@@ -392,7 +392,7 @@ export const projectAuditLmCheck = (data) =>
     data
   });
 
-// 保存担保信息
+// 保存其他安全信息
 export const projectAuditSaveGuarantor = (data) =>
   request({
     url: "/project/audit/saveGuarantor",
@@ -485,6 +485,14 @@ export const projectAuditCheckMode = (data) =>
 export const projectAuditSaveMode = (data) =>
   request({
     url: "/project/audit/saveMode",
+    method: "post",
+    data
+  });
+
+// 删除模块内容
+export const projectAuditDeleteMode = (data) =>
+  request({
+    url: "/project/audit/deleteMode",
     method: "post",
     data
   });

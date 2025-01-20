@@ -73,7 +73,7 @@
             </div>
           </div>
           <!-- hover -->
-          <!-- <div class="hoverBox chart-list" style="height: 300px" @click="visible_forecast = true">
+          <div class="hoverBox chart-list" style="height: 300px" @click="visible_forecast = true">
             <div
               class="chart-list-item hover"
               v-for="(item, index) in dates"
@@ -81,7 +81,7 @@
               @mousemove="mousemove($event, index)"
               @mouseout="mouseout"
             ></div>
-          </div> -->
+          </div>
           <!-- charts -->
           <div class="chartBox">
             <v-chart :option="option" autoresize />
@@ -409,14 +409,15 @@ const loadData = () => {
         Min.value = 0;
       }
       minMax.value = Math.abs(Max.value) + Math.abs(Min.value);
-      if (Max.value == minMax.value) {
-        zeroLine.value = 0;
-      } else if (Math.abs(Min.value) == minMax.value) {
-        zeroLine.value = 100;
-      } else {
-        zeroLine.value = (Max.value / minMax.value) * 100;
-      }
+      // if (Max.value == minMax.value) {
+      //   zeroLine.value = 0;
+      // } else if (Math.abs(Min.value) == minMax.value) {
+      //   zeroLine.value = 100;
+      // } else {
+      //   zeroLine.value = (Max.value / minMax.value) * 100;
+      // }
 
+      zeroLine.value = (Max.value / minMax.value) * 100;
       option.value.series[0].data = chartData;
 
       console.log('Max', Max.value);

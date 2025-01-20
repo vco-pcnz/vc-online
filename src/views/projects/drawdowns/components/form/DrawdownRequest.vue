@@ -36,7 +36,7 @@
           </a-col>
         </a-row>
         <p class="my-5 bold fs_xl">Documents</p>
-        <p class="label" style="margin-top: -15px; opacity: 0" :class="{ err: !formState.p_file.length && !formState.d_file.length && validate }">
+        <p class="label" style="margin-top: -15px; opacity: 0" :class="{ err: !formState.d_file.length && validate }">
           Provide at least one of these documents
         </p>
 
@@ -119,14 +119,14 @@ const updateVisible = (value) => {
 const save = () => {
   validate.value = true;
   formState.value.uuid = props.uuid;
-  formState.value.p_file = formModal2.value.filter((item) => {
+  formState.value.d_file = formModal2.value.filter((item) => {
     return item.files && item.files.length;
   });
-  formState.value.d_file = formModal3.value.filter((item) => {
+  formState.value.p_file = formModal3.value.filter((item) => {
     return item.files && item.files.length;
   });
 
-  if (!formState.value.name || !formState.value.amount || (!formState.value.p_file.length && !formState.value.d_file.length)) return;
+  if (!formState.value.name || !formState.value.amount || !formState.value.d_file.length) return;
   loading.value = true;
   loanEdit(formState.value)
     .then((res) => {
@@ -140,8 +140,8 @@ const save = () => {
 };
 
 const init = () => {
-  formState.value.p_file = [];
   formState.value.d_file = [];
+  formState.value.p_file = [];
   annexSel({ apply_uuid: props.uuid, type: 2 }).then((res) => {
     formModal2.value = res;
   });

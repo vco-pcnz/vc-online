@@ -113,6 +113,7 @@
             <div class="item uppercase">{{ t('类型') }}</div>
             <div class="item uppercase">{{ t('金额') }}</div>
             <div v-if="!isDetails && blockInfo.showEdit" class="item uppercase">{{ t('操作1') }}</div>
+            <div v-else class="empty"></div>
           </div>
 
           <div class="col-content">
@@ -127,6 +128,7 @@
                   <i class="iconfont" @click="addEditHandle(_item, index, _index)">&#xe8cf;</i>
                   <i class="iconfont" :class="{'disabled': _item.first}" @click="removeHandle(_item)">&#xe8c1;</i>
                 </div>
+                <div v-else class="empty"></div>
               </div>
             </div>
           </div>
@@ -475,6 +477,9 @@
         &:last-child {
           width: 40px;
           text-align: right;
+          &.empty {
+            width: 0;
+          }
         }
         &.ops {
           display: flex;

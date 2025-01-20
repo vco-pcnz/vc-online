@@ -36,12 +36,12 @@
           </a-col>
         </a-row>
         <p class="my-5 bold fs_xl">Documents</p>
-        <p class="label" style="margin-top: -15px; opacity: 0" :class="{ err: !formState.d_file.length && validate }">
+        <p class="label" style="margin-top: -15px; opacity: 0" :class="{ err: !formState.p_file.length && !formState.d_file.length && validate }">
           Provide at least one of these documents
         </p>
 
         <template v-for="item in formModal2" :key="item.id">
-          <documents-upload v-if="!item.children" v-model:value="documents[item.id]">
+          <documents-upload v-if="!item.children" v-model:value="item['files']">
             <div class="upload-title">
               <i class="iconfont">&#xe795;</i>
               <span class="name">{{ item.name }}</span>
@@ -54,7 +54,7 @@
           <span class="name">Certificates</span>
         </div>
         <template v-for="item in formModal3" :key="item.id">
-          <documents-upload v-model:visible="item.check" v-model:value="documents[item.id]">
+          <documents-upload v-model:visible="item.check" v-model:value="item['files']">
             <div class="checkbox-item">
               <a-checkbox v-model:checked="item.check"> {{ item.name }}</a-checkbox>
             </div>
@@ -100,6 +100,7 @@ const formState = ref({
   name: '',
   note: '',
   amount: '',
+  p_file: [],
   d_file: []
 });
 
@@ -107,16 +108,25 @@ const updateVisible = (value) => {
   visible.value = value;
 };
 
+// const initUpload = (arr) => {
+//   for (let key in arr) {
+//     if (documents.value[key].length) {
+//       formState.value.d_file.push({ id: key, files: documents.value[key] });
+//     }
+//   }
+// };
+
 const save = () => {
   validate.value = true;
-  formState.value.d_file = [];
   formState.value.uuid = props.uuid;
-  for (let key in documents.value) {
-    if (documents.value[key].length) {
-      formState.value.d_file.push({ id: key, files: documents.value[key] });
-    }
-  }
-  if (!formState.value.name || !formState.value.amount || !formState.value.d_file.length) return;
+  formState.value.p_file = formModal2.value.filter((item) => {
+    return item.files && item.files.length;
+  });
+  formState.value.d_file = formModal3.value.filter((item) => {
+    return item.files && item.files.length;
+  });
+
+  if (!formState.value.name || !formState.value.amount || (!formState.value.p_file.length && !formState.value.d_file.length)) return;
   loading.value = true;
   loanEdit(formState.value)
     .then((res) => {
@@ -130,6 +140,8 @@ const save = () => {
 };
 
 const init = () => {
+  formState.value.p_file = [];
+  formState.value.d_file = [];
   annexSel({ apply_uuid: props.uuid, type: 2 }).then((res) => {
     formModal2.value = res;
   });

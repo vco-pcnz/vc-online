@@ -34,6 +34,7 @@ const pageStore = useCloseProjectsStore();
 
 onMounted(() => {
   // 加载数据
+  pageStore.sta = 2;
   pageStore.getList();
 });
 </script>

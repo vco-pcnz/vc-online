@@ -1,13 +1,12 @@
 import { defineStore } from 'pinia';
-import { getList } from '@/api/orgs';
+import { listProject } from '@/api/project/project';
 
 const useCloseProjectsStore = defineStore('VcOnlineCloseProjects', {
   state: () => ({
     list: [],
+    sta: 1, //类型 1open 2close
     loading: false,
-    searchParams: {
-      keywords: undefined
-    },
+    searchParams: {},
     total: 0,
     pagination: {
       page: 1,
@@ -31,43 +30,43 @@ const useCloseProjectsStore = defineStore('VcOnlineCloseProjects', {
       this.getList();
     },
     getList() {
-      this.list = [
-        {
-          id: 1,
-          project: '项目1',
-          borrower: {
-            avatar: '',
-            name: 'Youd Limited',
-          },
-          maturity: '2022-01-01',
-          irr: '5.5%',
-          income: '1820000',
-          undrawn: '434422',
-          balance: '1538764',
-          facility2: '1820000',
-          upd: '11',
-        },
-        {
-          id: 2,
-          project: 'TEST 0315',
-          borrower: {
-            avatar: '',
-            name: 'vicensh',
-          },
-          maturity: '2022-01-01',
-          irr: '5.5%',
-          income: '13600',
-          undrawn: '85685',
-          balance: '45822',
-          facility2: '325500',
-        },
-      ]
-      return
+      // this.list = [
+      //   {
+      //     id: 1,
+      //     project: '项目1',
+      //     borrower: {
+      //       avatar: '',
+      //       name: 'Youd Limited',
+      //     },
+      //     maturity: '2022-01-01',
+      //     irr: '5.5%',
+      //     income: '1820000',
+      //     undrawn: '434422',
+      //     balance: '1538764',
+      //     facility2: '1820000',
+      //     upd: '11',
+      //   },
+      //   {
+      //     id: 2,
+      //     project: 'TEST 0315',
+      //     borrower: {
+      //       avatar: '',
+      //       name: 'vicensh',
+      //     },
+      //     maturity: '2022-01-01',
+      //     irr: '5.5%',
+      //     income: '13600',
+      //     undrawn: '85685',
+      //     balance: '45822',
+      //     facility2: '325500',
+      //   },
+      // ]
       const param = this.searchParams;
       const page = this.pagination;
       this.loading = true;
       return new Promise((resolve, reject) => {
-        getList({
+        listProject({
+          sta: this.sta,
           ...param,
           ...page
         })

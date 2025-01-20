@@ -37,8 +37,8 @@
     </vco-page-search>
 
     <div class="flex justify-between items-end">
-      <p class="num" v-if="type == 'closed'">{{ 2 }} {{ t('已关闭项目') }}</p>
-      <p class="num" v-if="type == 'open'">{{ 2 }} {{ t('项目') }}</p>
+      <p class="num" v-if="type == 'closed'">{{ pageStore.list.length }} {{ t('已关闭项目') }}</p>
+      <p class="num" v-if="type == 'open'">{{ pageStore.list.length }} {{ t('项目') }}</p>
       <vco-page-search-item width="100%">
         <div class="flex items-center gap-2">
           <a-button type="dark" @click="searchHandle(false)"><i class="iconfont">&#xe756;</i>{{ t('搜索') }}</a-button>
@@ -54,6 +54,8 @@ import { ref } from 'vue';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash';
 import { useI18n } from 'vue-i18n';
+import { useCloseProjectsStore } from '@/store';
+const pageStore = useCloseProjectsStore();
 
 const emits = defineEmits(['search']);
 
@@ -123,7 +125,8 @@ const searchHandle = (flag) => {
     data.end_date = dayjs(data.time[1]).format('YYYY-MM-DD');
   }
   delete data.time;
-  emits('search', data);
+  pageStore.setSearchParams(data)
+  // emits('search', data);
 };
 </script>
 

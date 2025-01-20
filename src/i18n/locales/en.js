@@ -527,4 +527,5 @@ export default {
   "已反馈": "Feedback received",
   "处理人": "Handler",
   "搜索利益相关者": "Org search",
+  "反洗钱说明": "Notes",
 }

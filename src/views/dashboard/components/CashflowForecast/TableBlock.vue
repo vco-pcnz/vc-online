@@ -24,20 +24,10 @@
                 <vco-number prefix="(" suffix=")" :value="record.data[column.title]" size="fs_md" :precision="2"></vco-number>
               </template>
               <template v-else-if="index === 2">
-                <template v-if="record.data[column.title] < 0">
-                  <vco-number prefix="(" suffix=")" :value="record.data[column.title]" size="fs_md" :precision="2"></vco-number>
-                </template>
-                <template v-else>
-                  <vco-number prefix="" :value="record.data[column.title]" size="fs_md" :precision="2"></vco-number>
-                </template>
+                <vco-number-new :type="4" :value="record.data[column.title]" size="fs_md"></vco-number-new>
               </template>
               <template v-else-if="index === 3">
-                <template v-if="record.data[column.title] < 0">
-                  <vco-number prefix="(" suffix=")" color="#6d7b1f" :value="record.data[column.title]" size="fs_md" :precision="2"></vco-number>
-                </template>
-                <template v-else>
-                  <vco-number prefix="" :value="record.data[column.title]" size="fs_md" :precision="2"></vco-number>
-                </template>
+                <vco-number-new :type="3" :value="record.data[column.title]" size="fs_md"></vco-number-new>
               </template>
               <template v-else>
                 <vco-number prefix="" :value="record.data[column.title]" size="fs_md" :precision="2"></vco-number>
@@ -56,6 +46,7 @@ import { ref, reactive, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { cloneDeep } from 'lodash';
+import VcoNumberNew from './vco-number-new.vue';
 
 const emits = defineEmits(['check']);
 

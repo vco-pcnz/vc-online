@@ -129,9 +129,7 @@
   watch(
     () => props.value,
     (val) => {
-      if (val) {
-        dataInit()
-      }
+      dataInit()
     },
     {
       immediate: true

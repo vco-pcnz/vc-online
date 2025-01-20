@@ -1,7 +1,7 @@
 <template>
   <vco-page-nav sup-path="/projects"></vco-page-nav>
 
-  <div class="dDggoj">
+  <div class="dDggoj" v-if="false">
     <ChartOne></ChartOne>
     <div class="hRgViQ number">
       <p class="title">Total IRR Forecast</p>
@@ -24,7 +24,6 @@
       </div>
     </div>
     <ChartTwo></ChartTwo>
-    
   </div>
   <div class="flex justify-between items-center mt-10">
     <TableSearch type="open"></TableSearch>
@@ -56,7 +55,6 @@ import TableBlock from '../components/TableBlock.vue';
 import { useCloseProjectsStore } from '@/store';
 import ChartOne from './components/ChartOne.vue';
 import ChartTwo from './components/ChartTwo.vue';
-
 
 const { t } = useI18n();
 const pageStore = useCloseProjectsStore();
@@ -117,6 +115,7 @@ const getPercentage = (item) => {
 const show = ref(false);
 onMounted(() => {
   // 加载数据
+  pageStore.sta = 1;
   pageStore.getList();
   maxBalance.value = projectBalance.value.reduce((max, item) => Math.max(max, item.balance), -Infinity);
   maxCurrentFC2.value = projectBalance.value.reduce((max, item) => Math.max(max, item.currentFC2), -Infinity);
@@ -127,7 +126,6 @@ onMounted(() => {
 </script>
 
 <style lang="less" scoped>
-
 .dDggoj {
   height: 400px;
   margin-bottom: 2rem;
@@ -237,8 +235,6 @@ onMounted(() => {
         color: rgba(39, 39, 39, 0.467);
       }
     }
-
-  
   }
 }
 </style>

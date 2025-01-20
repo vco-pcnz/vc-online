@@ -1,7 +1,7 @@
 <template>
   <detail-layout :title="baseInfo.name" active-tab="forecast">
     <template #content>
-      <tableHook :currentId="'ec58c625-3df7-465d-8316-1db220fdb0c2' ||'a0f7382c-ae5b-422c-94f5-6c0a87d0351b'"></tableHook>
+      <tableHook v-if="uuid" :currentId="uuid"></tableHook>
     </template>
   </detail-layout>
 </template>
@@ -12,6 +12,9 @@ import { useI18n } from 'vue-i18n';
 import { size, template } from 'lodash';
 import detailLayout from '../components/detailLayout.vue';
 import tableHook from './components/tableHook.vue';
+import { useRoute } from 'vue-router';
+
+const route = useRoute();
 
 const { t } = useI18n();
 
@@ -22,7 +25,11 @@ const baseInfo = ref({
   background: 'xxx'
 });
 
-onMounted(() => {});
+const uuid = ref('');
+
+onMounted(() => {
+  uuid.value = route.query.uuid;
+});
 </script>
 
 <style scoped lang="less">

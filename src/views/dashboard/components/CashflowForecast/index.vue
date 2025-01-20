@@ -45,90 +45,35 @@
           <p class="bold">Available fund for upcoming 11 months</p>
           <div>
             <i class="iconfont">&#xe75f;</i>
-            <vco-number :value="data.available_fund" :bold="true" :precision="2" v-if="data.available_fund > 0"></vco-number>
-            <vco-number :value="data.available_fund" :bold="true" :precision="2" prefix="(" suffix=")" v-else></vco-number>
+            <vco-number-new :value="data.available_fund"></vco-number-new>
             <p class="fs_xs color_grey">Open available fund</p>
           </div>
         </div>
         <div class="flex-1 relative">
           <div class="chart-list" style="height: 300px">
             <div class="zeroWrapper">
-              <div class="zeroLine" :style="{ top: 'calc(' + zeroLine + '% + 10px) ' }"></div>
+              <div class="zeroLine" :style="{ top: 'calc(' + zeroLine + '%) ' }"></div>
             </div>
             <div class="chart-list-item" v-for="(item, index) in dates" :key="item">
-              <div class="relative" style="height: 100%">
-                <div class="inner" :style="{ height: 'calc(' + zeroLine + '% + 70px)' }"></div>
-                <template v-if="index">
-                  <template v-if="option.series[0].data[index] > option.series[0].data[index - 1]">
-                    <template v-if="option.series[0].data[index] > 0">
-                      <div
-                        class="line"
-                        :style="{
-                          top: 'calc(' + (zeroLine - (zeroLine * option.series[0].data[index]) / Max) + '% + 20px)',
-                          bottom: 'calc( 100% - ' + (zeroLine - (zeroLine * option.series[0].data[index]) / Max) + '% - 35px)'
-                        }"
-                      ></div>
-                      <div class="value" :style="{ top: 'calc(' + (zeroLine - (zeroLine * option.series[0].data[index]) / Max) + '% + 30px)' }">
-                        <vco-number
-                          :bold="true"
-                          prefix=""
-                          :value="Math.round(Math.round(data.data[2].data[dates[index]] / 10) / 100)"
-                          suffix="k"
-                          :precision="2"
-                          size="fs_xs"
-                        ></vco-number>
-                      </div>
-                    </template>
-                    <template v-else>
-                      <template v-if="zeroLine !== 0">
-                        <div
-                          class="line"
-                          :style="{
-                            top: 'calc(' + (zeroLine - (zeroLine * option.series[0].data[index]) / Max) + '% + 5px)',
-                            bottom: 'calc( 100% - ' + (zeroLine - (zeroLine * option.series[0].data[index]) / Max) + '% - 20px)'
-                          }"
-                        ></div>
-
-                        <div class="value" :style="{ top: 'calc(' + (zeroLine - (zeroLine * option.series[0].data[index]) / Max) + '% + 20px)' }">
-                          <vco-number
-                            :bold="true"
-                            prefix=""
-                            :value="Math.round(data.data[2].data[dates[index]] / 10) / 100"
-                            suffix="k"
-                            :precision="2"
-                            size="fs_xs"
-                          ></vco-number>
-                        </div>
-                      </template>
-                    </template>
-                  </template>
-                  <template v-else>
-                    <div
-                      class="line"
-                      style="border-color: #6d7b1f"
-                      :style="{
-                        top: 'calc(' + (zeroLine - (zeroLine * option.series[0].data[index]) / Min) + '%)',
-                        bottom: 'calc(' + (100 - (zeroLine + ((100 - zeroLine) * option.series[0].data[index]) / Min)) + '% + 10px)'
-                      }"
-                    ></div>
-                    <div class="value" :style="{ top: 'calc(' + (zeroLine - (zeroLine * option.series[0].data[index]) / Min) + '% - 20px)' }">
-                      <vco-number
-                        :bold="true"
-                        color="#6d7b1f"
-                        prefix=""
-                        suffix="k"
-                        :value="Math.round(data.data[2].data[dates[index]] / 10) / 100"
-                        :precision="2"
-                        size="fs_xs"
-                      ></vco-number>
-                    </div>
-                  </template>
+              <div class="relative" style="height: calc(100% - 8px); top: -5px">
+                <div class="inner" :style="{ height: 'calc(' + zeroLine + '% + 65px)' }"></div>
+                <!-- label -->
+                <template v-if="index && true">
+                  <line-label
+                    :Max="Max"
+                    :Min="Min"
+                    :zeroLine="zeroLine"
+                    :value="option.series[0].data[index]"
+                    :amount="data.data[2].data[dates[index]]"
+                    :isAdd="option.series[0].data[index] >= option.series[0].data[index - 1]"
+                  ></line-label>
                 </template>
               </div>
               <div class="month">{{ tool.monthYear(item) }}</div>
             </div>
           </div>
-          <div class="hoverBox chart-list" style="height: 300px" @click="visible_forecast = true">
+          <!-- hover -->
+          <!-- <div class="hoverBox chart-list" style="height: 300px" @click="visible_forecast = true">
             <div
               class="chart-list-item hover"
               v-for="(item, index) in dates"
@@ -136,20 +81,15 @@
               @mousemove="mousemove($event, index)"
               @mouseout="mouseout"
             ></div>
-          </div>
+          </div> -->
+          <!-- charts -->
           <div class="chartBox">
             <v-chart :option="option" autoresize />
           </div>
         </div>
         <div class="flex flex-col justify-end">
           <i class="iconfont">&#xe75f;</i>
-          <vco-number
-            :value="data.data[3].data[dates[dates.length - 1]]"
-            :precision="2"
-            :bold="true"
-            v-if="data.data[3].data[dates[dates.length - 1]] > 0"
-          ></vco-number>
-          <vco-number :value="data.data[3].data[dates[dates.length - 1]]" :precision="2" :bold="true" prefix="(" suffix=")" v-else></vco-number>
+          <vco-number-new :value="data.data[3].data[dates[dates.length - 1]]"></vco-number-new>
           <p class="fs_xs color_grey">Forecasted available fund</p>
         </div>
       </template>
@@ -177,35 +117,16 @@
             </p>
             <p class="color_grey fs_xs">{{ data.repayment_num[dates[hoverIndex]] }} repayments</p>
           </div>
-          <vco-number :bold="true" :value="chartData.Total" prefix="$(" suffix=")" :precision="2" size="fs_md"></vco-number>
+          <vco-number-new :value="chartData.Total" size="fs_md"></vco-number-new>
         </div>
         <a-divider />
         <div class="card" style="padding-top: 0px">
-          <vco-number
-            v-if="chartData.AvailableFund - chartData.Total < 0"
-            :bold="true"
-            :value="chartData.AvailableFund - chartData.Total"
-            color="#6d7b1f"
-            prefix=" $"
-            :precision="2"
-            size="fs_md"
-          ></vco-number>
-          <vco-number v-else :bold="true" :value="chartData.AvailableFund - chartData.Total" :precision="2" size="fs_md"></vco-number>
+          <vco-number-new :type="2" :value="chartData.AvailableFund - chartData.Total" size="fs_md"></vco-number-new>
           <p class="color_grey fs_xs">Available fund {{ tool.monthYear(chartData.Date) }}</p>
           <div class="flex items-center justify-between mt-5">
             <i class="iconfont available-fund-icon">&#xe75f;</i>
             <div class="text-left">
-              <vco-number
-                v-if="chartData.AvailableFund < 0"
-                :bold="true"
-                :value="chartData.AvailableFund"
-                color=" #6d7b1f"
-                prefix="$("
-                suffix=")"
-                :precision="2"
-                size="fs_3xl"
-              ></vco-number>
-              <vco-number v-else :bold="true" :value="chartData.AvailableFund" :precision="2" size="fs_3xl"></vco-number>
+              <vco-number-new :type="2" :value="chartData.AvailableFund"></vco-number-new>
               <p class="color_grey fs_xs">Available fund</p>
             </div>
           </div>
@@ -226,6 +147,8 @@ import TableBlock from './TableBlock.vue';
 import { cashFlowForecast, cashFlowForecastExport } from '@/api/project/forecast';
 import DropdownList from './chooseList.vue';
 import Forecast from './ForecastModal.vue';
+import VcoNumberNew from './vco-number-new.vue';
+import LineLabel from './line-label.vue';
 
 const { t } = useI18n();
 
@@ -240,7 +163,7 @@ const option = ref({
   xAxis: {
     type: 'category',
     data: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
-    show: false
+    show: true
   },
   grid: {
     left: 0,
@@ -257,33 +180,6 @@ const option = ref({
     splitLine: {
       show: false
     }
-  },
-  tooltip: {
-    trigger: 'axis'
-    // position: function (point, params, dom, rect, size) {
-    //   // point[0] 是鼠标的 x 坐标，point[1] 是鼠标的 y 坐标
-    //   // size[0] 是图表的宽度，size[1] 是图表的高度
-    //   // rect 是数据点所在图形的边界框
-
-    //   // 设置 tooltip 显示在鼠标下方 20px 处，且水平居中
-    //   var x = point[0] - size.viewSize[0] / 2 + size.contentSize[0] / 2;
-    //   var y = point[1] + 20; // 20px 是 tooltip 距离鼠标指针的距离
-
-    //   // 确保 tooltip 不会超出图表边界
-    //   if (x < 0) x = 0;
-    //   if (x + size.contentSize[0] > size.viewSize[0]) {
-    //     x = size.viewSize[0] - size.contentSize[0];
-    //   }
-    //   if (y + size.contentSize[1] > size.viewSize[1]) {
-    //     y = size.viewSize[1] - size.contentSize[1];
-    //   }
-
-    //   return [x, y];
-    // },
-    // formatter: function (params) {
-    //   hoverIndex.value = params[0].dataIndex;
-    //   return tooltipBoxRef.value;
-    // }
   },
   series: [
     {
@@ -505,12 +401,29 @@ const loadData = () => {
 
       Max.value = chartData.reduce((a, b) => Math.max(a, b), -Infinity);
       Min.value = chartData.reduce((a, b) => Math.min(a, b), Infinity);
+
+      if (Max.value < 0) {
+        Max.value = 0;
+      }
+      if (Min.value > 0) {
+        Min.value = 0;
+      }
       minMax.value = Math.abs(Max.value) + Math.abs(Min.value);
-      zeroLine.value = (Max.value / minMax.value) * 100;
+      if (Max.value == minMax.value) {
+        zeroLine.value = 0;
+      } else if (Math.abs(Min.value) == minMax.value) {
+        zeroLine.value = 100;
+      } else {
+        zeroLine.value = (Max.value / minMax.value) * 100;
+      }
 
       option.value.series[0].data = chartData;
 
-      console.log(chartData)
+      console.log('Max', Max.value);
+      console.log('Min', Min.value);
+      console.log('minMax', minMax.value);
+      console.log('zeroLine', zeroLine.value);
+      console.log(chartData);
     })
     .finally(() => {
       loading.value = false;
@@ -563,8 +476,8 @@ onMounted(() => {
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 70px;
-    height: calc(100% - 130px);
+    top: 65px;
+    bottom: 65px;
     .zeroLine {
       border-bottom: 1px dashed #bfbfbf;
       position: absolute;
@@ -589,8 +502,8 @@ onMounted(() => {
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
-      padding-bottom: 70px;
-      padding-top: 70px;
+      padding-bottom: 60px;
+      padding-top: 60px;
       position: relative;
       &.hover {
         background: transparent;
@@ -608,7 +521,7 @@ onMounted(() => {
         text-transform: uppercase;
       }
       .inner {
-        top: -70px;
+        top: -65px;
         background-color: #eeefdd;
         border: 1px solid rgba(169, 173, 87, 0.3);
         border-bottom: none;
@@ -617,19 +530,6 @@ onMounted(() => {
         left: -1px;
         position: absolute;
         width: calc(100% + 2px);
-      }
-      .value {
-        position: absolute;
-        z-index: 2;
-        left: 0;
-        right: 0;
-        display: flex;
-        justify-content: center;
-      }
-      .line {
-        position: absolute;
-        left: calc(50% + 2px);
-        border-right: 1.5px dashed #181818;
       }
     }
   }

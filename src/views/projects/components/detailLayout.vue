@@ -1,7 +1,12 @@
 <template>
-  <vco-page-panel :title="title" :isBack="true">
+  <vco-page-panel :title="title" @back="back">
     <div class="TabsPanel-Tab">
-      <a-button v-for="item in panes" :key="item.key" @click="onChange(item.key)" :class="`tab-button ${item.key === props.activeTab ? 'active-tab' : ''}`">
+      <a-button
+        v-for="item in panes"
+        :key="item.key"
+        @click="onChange(item.key)"
+        :class="`tab-button ${item.key === props.activeTab ? 'active-tab' : ''}`"
+      >
         {{ item.label }}
         {{ item.extraInfo ? `(${item.extraInfo})` : '' }}
       </a-button>
@@ -13,12 +18,13 @@
 <script setup>
 import { reactive, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 
 const { t } = useI18n();
 const router = useRouter();
+const route = useRoute();
 
-const props = defineProps(['title','activeTab']);
+const props = defineProps(['title', 'activeTab']);
 
 const panes = reactive([
   {
@@ -47,9 +53,12 @@ const panes = reactive([
 ]);
 
 const onChange = (key) => {
-  router.push(`/projects/${key}`);
+  router.push(`/projects/${key}?uuid=` + route.query.uuid);
 };
 
+const back = () => {
+  router.push(`/projects/current`);
+};
 </script>
 
 <style scoped lang="less">

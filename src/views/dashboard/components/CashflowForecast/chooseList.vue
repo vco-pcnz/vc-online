@@ -83,7 +83,7 @@ const props = defineProps({
     type: String
   },
   dataList: {
-    type: Array
+    type: [Array,Object]
   }
 });
 

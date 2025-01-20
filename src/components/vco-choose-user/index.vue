@@ -11,7 +11,13 @@
           </div>
         </template>
         <template v-else>
-          <vco-type-input v-model="searchForm.keywords" v-model:type="searchForm.key" :type-data="keys" style="flex: 1" :placeholder="t('请输入')"></vco-type-input>
+          <vco-type-input
+            v-model="searchForm.keywords"
+            v-model:type="searchForm.key"
+            :type-data="keys"
+            style="flex: 1"
+            :placeholder="t('请输入')"
+          ></vco-type-input>
           <i class="iconfont" style="cursor: pointer" @click="searchHandle()"> &#xe756; </i>
         </template>
       </slot>
@@ -22,12 +28,7 @@
       <div v-if="!hideSearch" class="flex justify-end mb-5">
         <vco-page-search>
           <vco-page-search-item title="" width="300">
-            <vco-type-input
-              v-model="searchForm.keywords"
-              v-model:type="searchForm.key"
-              :type-data="keys"
-              :placeholder="t('请输入')"
-            ></vco-type-input>
+            <vco-type-input v-model="searchForm.keywords" v-model:type="searchForm.key" :type-data="keys" :placeholder="t('请输入')"></vco-type-input>
           </vco-page-search-item>
           <vco-page-search-item width="100%">
             <div class="flex items-center gap-2">
@@ -39,19 +40,33 @@
       </div>
 
       <a-spin :spinning="loading" size="large">
-        <TableBlock :isMultiple="isMultiple" :table-data="tableData" :url="url" v-model:list="checkedList" v-model:ids="checkedIds" v-model:data="checkedData" wrapClassName="vco-choose-user-modal" @change="change"></TableBlock>
+        <TableBlock
+          :isMultiple="isMultiple"
+          :table-data="tableData"
+          :url="url"
+          v-model:list="checkedList"
+          v-model:ids="checkedIds"
+          v-model:data="checkedData"
+          wrapClassName="vco-choose-user-modal"
+          @change="change"
+        ></TableBlock>
       </a-spin>
       <template #footer>
         <div class="modal-footer">
           <div>
-            <a-button
-              v-if="isMultiple"
-              type="primary"
-              :disabled="!checkedIds.length"
-              @click="handlePathChange"
-            >{{ t('选择') }}</a-button>
+            <a-button v-if="isMultiple" type="primary" :disabled="!checkedIds.length" @click="handlePathChange">{{ t('选择') }}</a-button>
           </div>
-          <a-pagination v-if="count" size="small" :total="count" :pageSize="pagination.limit" :current="pagination.page" show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
+          <a-pagination
+            v-if="count"
+            size="small"
+            :total="count"
+            :pageSize="pagination.limit"
+            :showSizeChanger="false"
+            :current="pagination.page"
+            show-quick-jumper
+            :show-total="(total) => t('共{0}条', [total])"
+            @change="setPaginate"
+          />
         </div>
       </template>
     </a-modal>
@@ -154,7 +169,7 @@ const searchHandle = (flag) => {
     searchForm.value = {
       key: 'all',
       keywords: ''
-    }
+    };
   }
 
   pagination.value.page = 1;
@@ -169,7 +184,7 @@ const close = () => {
   };
   pagination.value.page = 1;
   tableData.value = [];
-  count.value = 0
+  count.value = 0;
   open.value = false;
 };
 
@@ -180,11 +195,11 @@ const lodaData = () => {
   const paramsInfo = {
     url: props.url,
     method: 'get',
-    params: { ...searchForm.value, ...pagination.value, ...{role_code: props.roleCode} }
-  }
+    params: { ...searchForm.value, ...pagination.value, ...{ role_code: props.roleCode } }
+  };
 
   if (props.hideSearch) {
-    delete paramsInfo.params
+    delete paramsInfo.params;
   }
 
   request(paramsInfo)
@@ -193,8 +208,8 @@ const lodaData = () => {
       count.value = res.count;
 
       if (props.hideSearch) {
-        tableData.value = res || []
-        count.value = res.length || 0
+        tableData.value = res || [];
+        count.value = res.length || 0;
       }
 
       loading.value = false;
@@ -218,7 +233,7 @@ const handlePathChange = () => {
   emits('update:ids', checkedIds.value);
   emits('change', checkedIds.value);
 
-  emits('done', checkedList.value)
+  emits('done', checkedList.value);
   close();
 };
 const change = () => {
@@ -226,7 +241,7 @@ const change = () => {
     emits('update:data', checkedData.value);
     emits('change', checkedData.value);
 
-    emits('done', [checkedData.value])
+    emits('done', [checkedData.value]);
     close();
   }
 };
@@ -243,7 +258,7 @@ const init = (parameters) => {
     searchForm.value = cloneDeep(parameters);
   }
   open.value = true;
-  searchHandle()
+  searchHandle();
 };
 // 暴露方法给父组件
 defineExpose({

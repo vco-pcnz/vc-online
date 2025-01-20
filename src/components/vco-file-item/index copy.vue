@@ -1,9 +1,9 @@
 <template>
   <template v-if="type === 'list'">
-    <div class="fileBox" :class="{ bg: bg }" v-if="file || (filter && filterArr.length > 1)">
-      <i v-if="Number(file.type === 1)" class="iconfont">&#xe797;</i>
-      <i v-if="Number(file.type === 2)" class="iconfont">&#xe774;</i>
-      <i v-if="Number(file.type === 3)" class="iconfont">&#xe798;</i>
+    <div class="fileBox" :class="{ bg: bg }" v-if="data || (filter && filterArr.length > 1)">
+      <i v-if="Number(data.type === 1)" class="iconfont">&#xe797;</i>
+      <i v-if="Number(data.type === 2)" class="iconfont">&#xe774;</i>
+      <i v-if="Number(data.type === 3)" class="iconfont">&#xe798;</i>
 
       <div class="fileBox-content">
         <p class="name" :title="showTitle">
@@ -21,17 +21,17 @@
           <template v-if="time">
             <span :class="{ err: !validity && showValidity }">{{ tool.showDate(time) }}</span> ·
           </template>
-          {{ tool.formatSize(file.size) }}
-          <template v-if="file.user_name">
+          {{ tool.formatSize(data.size) }}
+          <template v-if="data.user_name">
             ·
-            {{ file.user_name }}
+            {{ data.user_name }}
           </template>
         </p>
       </div>
       <div class="ops" :style="{ color: iconColor }">
         <div class="icon"><slot name="ops"></slot></div>
-        <EyeOutlined @click.stop="handlePreview(file)" class="icon" />
-        <a :href="file.value" target="_blank" v-if="!showClose || showDownload">
+        <EyeOutlined @click.stop="handlePreview(data)" class="icon" />
+        <a :href="data.value" target="_blank" v-if="!showClose || showDownload">
           <i class="iconfont icon" :style="{ color: iconColor }" style="font-size: 14px">&#xe780;</i>
         </a>
         <i class="iconfont icon remove" @click.stop="remove" v-if="showClose">&#xe77b;</i>
@@ -40,21 +40,21 @@
   </template>
 
   <template v-if="type === 'card'">
-    <div class="fileCard" :class="{ bg: bg }" v-if="file || (filter && filterArr.length > 1)">
+    <div class="fileCard" :class="{ bg: bg }" v-if="data || (filter && filterArr.length > 1)">
       <a-card hoverable style="width: 140px">
         <template #cover>
-          <template v-if="Number(file.type === 1)">
-            <img :src="file.value" alt="" />
+          <template v-if="Number(data.type === 1)">
+            <img :src="data.value" alt="" />
           </template>
-          <template v-if="Number(file.type === 3)">
-            <video :src="file.value" controls></video>
+          <template v-if="Number(data.type === 3)">
+            <video :src="data.value" controls></video>
           </template>
-          <i v-if="Number(file.type === 2)" class="iconfont fileIcon">&#xe774;</i>
+          <i v-if="Number(data.type === 2)" class="iconfont fileIcon">&#xe774;</i>
 
           <div class="ops" :style="{ color: iconColor }">
             <div class="icon"><slot name="ops"></slot></div>
-            <EyeOutlined @click.stop="handlePreview(file)" class="icon" />
-            <a :href="file.value" target="_blank" v-if="!showClose || showDownload">
+            <EyeOutlined @click.stop="handlePreview(data)" class="icon" />
+            <a :href="data.value" target="_blank" v-if="!showClose || showDownload">
               <i class="iconfont icon" :style="{ color: iconColor }" style="font-size: 14px">&#xe780;</i>
             </a>
             <i class="iconfont icon remove" @click.stop="remove" v-if="showClose">&#xe77b;</i>
@@ -77,10 +77,10 @@
               <template v-if="time">
                 <span :class="{ err: !validity && showValidity }">{{ tool.showDate(time) }}</span> ·
               </template>
-              {{ tool.formatSize(file.size) }}
-              <!-- <template v-if="file.user_name">
+              {{ tool.formatSize(data.size) }}
+              <!-- <template v-if="data.user_name">
                 ·
-                {{ file.user_name }}
+                {{ data.user_name }}
               </template> -->
             </p>
           </template>
@@ -93,8 +93,8 @@
   <a-modal v-model:open="previewVisible" :footer="null" @cancel="previewHandleCancel">
     <template v-if="previewVisible">
       <div style="padding-top: 30px"></div>
-      <img alt="example" style="width: 100%" :src="file.value" v-if="Number(file.type === 1)" />
-      <video alt="example" style="width: 100%" :src="file.value" controls v-if="Number(file.type === 3)"></video>
+      <img alt="example" style="width: 100%" :src="data.value" v-if="Number(data.type === 1)" />
+      <video alt="example" style="width: 100%" :src="data.value" controls v-if="Number(data.type === 3)"></video>
     </template>
   </a-modal>
 </template>
@@ -108,6 +108,7 @@ import { DeleteOutlined, EyeOutlined } from '@ant-design/icons-vue';
 import { fill } from 'lodash';
 import axios from 'axios';
 import { getToken, removeToken } from '@/utils/token-util.js';
+import { pick, trim, cloneDeep } from 'lodash';
 
 const { t } = useI18n();
 
@@ -151,7 +152,7 @@ const props = defineProps({
   }
 });
 const emits = defineEmits(['remove']);
-
+const data = ref(null)
 // 预览
 const handlePreview = (val) => {
   if (val.type === 1 || val.type === 3) {
@@ -165,11 +166,11 @@ const validity = computed(() => {
 });
 
 const showTitle = computed(() => {
-  return props.file.name || props.file.real_name;
+  return props.data.name || props.data.real_name;
 });
 
 const filterArr = computed(() => {
-  return (props.file.name || props.file.real_name).split(props.filter);
+  return (props.data.name || props.data.real_name).split(props.filter);
 });
 
 // 关闭弹框
@@ -179,12 +180,12 @@ const previewHandleCancel = () => {
 
 // 下载
 const down = () => {
-  if (props.file.value) {
+  if (props.data.value) {
     let token = getToken();
     const env = import.meta.env;
     axios
       .post(
-        props.file.value,
+        props.data.value,
         {},
         {
           headers: {
@@ -210,8 +211,12 @@ watch(
   () => props.file,
   (newVal, oldVal) => {
     if (props.file) {
-      props.file.value = props.file.value || props.file.url || props.file.att_dir;
-      props.file.size = props.file.size || props.file.att_size;
+      data.vlue = {
+        ...cloneDeep(props.file),
+        value: props.file.value || props.file.url || props.file.att_dir,
+        size:props.file.size || props.file.att_size
+      }
+      console.log(data.vlue)
     }
   },
   {

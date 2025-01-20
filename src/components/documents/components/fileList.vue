@@ -53,6 +53,7 @@
           <template v-for="files in documentList" :key="files.id">
             <template v-if="files.id !== folder.id && files.show">
               <div class="archivedTitle">{{ files.name }}</div>
+              <p class="color_grey fs_xs">{{ files.note }}</p>
             </template>
             <div class="row">
               <template v-if="files.show">

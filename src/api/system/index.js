@@ -54,3 +54,11 @@ export const indexPub = (params) =>
     method: "get",
     params
   });
+
+// 获取图片历史
+export const attach = (params) =>
+  request({
+    url: "system/attach/index",
+    method: "get",
+    params
+  });

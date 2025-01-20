@@ -103,7 +103,7 @@
               <a-input v-model:value="formState.remark" />
             </a-form-item>
           </a-col>
-          <a-col v-if="!props.infoData" :span="24">
+          <a-col v-if="!props.infoData || (props.infoData && !props.infoData.uuid)" :span="24">
             <a-form-item label="" name="copy__num">
               <div class="flex justify-end items-center gap-4">
                 <p>{{ t('是否复制以上信息') }}</p>

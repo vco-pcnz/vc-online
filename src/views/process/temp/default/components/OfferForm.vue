@@ -6,7 +6,7 @@
     <vco-process-title :title="t('凭证信息')">
       <div class="flex gap-5">
         <a-popconfirm
-          v-if="blockInfo.showCheck && !offerInfo.is_check && offerInfo.cert_images.length"
+          v-if="blockInfo.showCheck && !offerInfo.is_check && offerInfo.cert_images"
           :title="t('确定通过审核吗？')"
           :ok-text="t('确定')"
           :cancel-text="t('取消')"
@@ -139,7 +139,7 @@
   };
 
   onMounted(() => {
-    if (props.offerInfo.cert_images && props.offerInfo.cert_images.length) {
+    if (props.offerInfo.cert_images) {
       const images = props.offerInfo.cert_images
       const data = images.map((item) => {
         return {

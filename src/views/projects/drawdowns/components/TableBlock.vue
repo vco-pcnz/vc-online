@@ -9,16 +9,18 @@
     </ul>
     <div v-if="tableData.length" class="table-body">
       <template v-for="item in tableData" :key="item.id">
-        <ul class="table-col tr" :class="{ active: active_uuid == item.uuid }" @click="viewDetail(item.uuid)">
+        <ul class="table-col tr" :class="{ active: active_id == item.id }" @click="viewDetail(item.id)">
           <li><div class="circle"></div></li>
-          <li>{{ item.drawdown }}</li>
+          <li>{{ item.name }}</li>
           <li>
-            <vco-number :value="item.request.amount" :precision="2" size="fs_xs" :end="true"></vco-number>
-            <p class="fs_xs color_grey">{{ item.request.date }}</p>
+            <vco-number :value="item.apply_amount" :precision="2" size="fs_xs" :end="true"></vco-number>
+            <p class="fs_xs color_grey">{{ tool.showDate(item.create_time) }}</p>
           </li>
-          <li>{{ item.status }}</li>
           <li>
-            <vco-number :value="item.approved" :precision="2" size="fs_xs"></vco-number>
+            <!-- {{item.status}} -->
+          </li>
+          <li>
+            <vco-number :value="item.amount" :precision="2" size="fs_xs"></vco-number>
           </li>
         </ul>
       </template>
@@ -28,11 +30,12 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, watch } from 'vue';
 import { Empty } from 'ant-design-vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 
+const emit = defineEmits(['change']);
 const props = defineProps({
   tableData: {
     type: Array,
@@ -41,37 +44,24 @@ const props = defineProps({
 });
 
 const { t } = useI18n();
-const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE;
-// const tableData = reactive([
-//   {
-//     id: 1,
-//     uuid: 1,
-//     drawdown: 12313,
-//     status: 'Lending manager review',
-//     request: {
-//       amount: 13213321,
-//       date: '20.12.2024'
-//     },
-//     approved: 1231
-//   },
-//   {
-//     id: 2,
-//     uuid: 2,
-//     drawdown: 1221,
-//     status: 'Lending manager review',
-//     request: {
-//       amount: 1231,
-//       date: '20.12.2024'
-//     },
-//     approved: 1231
-//   }
-// ]);
 
-const active_uuid = ref('');
+const active_id = ref('');
 
-const viewDetail = (uuid) => {
-  active_uuid.value = uuid;
+const viewDetail = (id) => {
+  active_id.value = id;
+  emit('change', id);
 };
+
+watch(
+  () => props.tableData,
+  (val) => {
+    if (val && val.length) {
+      viewDetail(val[0].id);
+    } else {
+      viewDetail('');
+    }
+  }
+);
 </script>
 
 <style lang="less" scoped>
@@ -104,6 +94,16 @@ const viewDetail = (uuid) => {
     }
     &.active {
       background-color: transparent;
+      position: relative;
+      &::after {
+        display: inline-block;
+        content: ' ';
+        width: 38px;
+        position: absolute;
+        right: -38px;
+        top: 50%;
+        border-bottom: 1px solid #e2e5e2;
+      }
     }
   }
   > li {

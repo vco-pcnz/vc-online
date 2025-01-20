@@ -19,9 +19,9 @@
               <a-input v-model:value="formState.name" />
             </div>
             <div class="input-item" style="margin-top: 16px">
-              <div class="label" :class="{ err: !formState.amount && validate }">Requested amount, $ nzd</div>
+              <div class="label" :class="{ err: !formState.apply_amount && validate }">Requested amount, $ nzd</div>
               <a-input-number
-                v-model:value="formState.amount"
+                v-model:value="formState.apply_amount"
                 :max="99999999999"
                 :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                 :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
@@ -99,7 +99,7 @@ const formState = ref({
   uuid: '',
   name: '',
   note: '',
-  amount: '',
+  apply_amount: '',
   p_file: [],
   d_file: []
 });
@@ -107,14 +107,6 @@ const formState = ref({
 const updateVisible = (value) => {
   visible.value = value;
 };
-
-// const initUpload = (arr) => {
-//   for (let key in arr) {
-//     if (documents.value[key].length) {
-//       formState.value.d_file.push({ id: key, files: documents.value[key] });
-//     }
-//   }
-// };
 
 const save = () => {
   validate.value = true;
@@ -126,10 +118,11 @@ const save = () => {
     return item.files && item.files.length;
   });
 
-  if (!formState.value.name || !formState.value.amount || !formState.value.d_file.length) return;
+  if (!formState.value.name || !formState.value.apply_amount || !formState.value.d_file.length) return;
   loading.value = true;
   loanEdit(formState.value)
     .then((res) => {
+      visible.value = false;
       validate.value = false;
       emits('change');
       message.success(t('提交成功'));

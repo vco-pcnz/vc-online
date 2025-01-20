@@ -4,10 +4,9 @@
       <div class="ProjectDrawdowns">
         <div>
           <MeterStat></MeterStat>
-
           <a-spin :spinning="loading" size="large">
             <div class="table-content">
-              <TableBlock :tableData="tableData"></TableBlock>
+              <TableBlock :tableData="tableData" @change="change"></TableBlock>
             </div>
             <div class="mt-5" v-if="total">
               <a-pagination
@@ -15,7 +14,7 @@
                 :total="total"
                 :pageSize="pagination.limit"
                 :current="pagination.page"
-                show-size-changer
+                :show-size-changer="false"
                 show-quick-jumper
                 :show-total="(total) => t('共{0}条', [total])"
                 @change="setPaginate"
@@ -27,11 +26,11 @@
           <div class="HelpBorrower">
             <div class="flex items-center"><i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">Help borrower</span></div>
             <p class="color_grey mt-1 mb-3">You can help to create drawdown on their behalf.</p>
-            <drawdownre-quest :uuid="uuid">
+            <drawdownre-quest :uuid="uuid" @change="update">
               <a-button type="brown" shape="round" size="small">{{ t('默认开始') }}</a-button>
             </drawdownre-quest>
           </div>
-          <Detail :uuid="uuid"></Detail>
+          <Detail :id="detail_id"></Detail>
         </div>
       </div>
     </template>
@@ -49,7 +48,6 @@ import Detail from './components/Detail.vue';
 import DrawdownreQuest from './components/form/DrawdownRequest.vue';
 import { loanDrawdown } from '@/api/project/loan';
 import { useRoute } from 'vue-router';
-
 const route = useRoute();
 
 const { t } = useI18n();
@@ -62,11 +60,12 @@ const baseInfo = ref({
 });
 
 const uuid = ref('');
+const detail_id = ref('');
 const total = ref(0);
 const loading = ref(true);
 const pagination = ref({
   page: 1,
-  limit: 10
+  limit: 5
 });
 
 const setPaginate = (page, limit) => {
@@ -77,22 +76,31 @@ const setPaginate = (page, limit) => {
   loadData();
 };
 
+const update = () => {
+  pagination.value.page = 1;
+  loadData()
+}
+
 const tableData = ref([]);
 
 const loadData = () => {
   loading.value = true;
   loanDrawdown({ uuid: uuid.value, ...pagination.value })
     .then((res) => {
-      tableData.value = res.list;
+      tableData.value = res.data.list;
       total.value = res.count;
     })
     .finally(() => {
       loading.value = false;
     });
 };
+
+const change = (id) => {
+  detail_id.value = id;
+};
+
 onMounted(() => {
   uuid.value = route.query.uuid;
-  // uuid.value =  'ec58c625-3df7-465d-8316-1db220fdb0c2' || 'a0f7382c-ae5b-422c-94f5-6c0a87d0351b' || '795e168e-51eb-48dd-aa39-a14792ed8f1c';
   loadData();
 });
 </script>

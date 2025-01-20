@@ -448,6 +448,8 @@
       font-size: 13px;
       overflow: hidden;
       position: relative;
+      display: flex;
+      justify-content: space-between;
       &.th {
         font-weight: 500;
         padding: 10px;
@@ -460,7 +462,6 @@
       }
       > .item {
         word-break: break-all;
-        float: left;
         font-size: 12px !important;
         line-height: 22px;
         &:nth-child(1) {
@@ -468,11 +469,11 @@
         }
         &:nth-child(2) {
           text-align: center;
-          width: 90px;
+          width: 100px;
         }
         &:nth-child(3) {
           text-align: center;
-          width: 95px;
+          flex: 1;
         }
         &:last-child {
           width: 40px;

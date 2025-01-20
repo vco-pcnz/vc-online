@@ -342,7 +342,14 @@
     } else if (num === 4) {
       return 'four';
     } else {
-      return 'five';
+      if (num % 3 === 0) {
+        return 'three';
+      } else if (num % 4 === 0) {
+        return 'four';
+      } else {
+        return 'five';
+      }
+      
     }
   };
 
@@ -356,7 +363,13 @@
     } else if (num === 4) {
       return 'four sta-num';
     } else {
-      return 'five sta-num';
+      if (num % 3 === 0) {
+        return 'three sta-num';
+      } else if (num % 4 === 0) {
+        return 'four sta-num';
+      } else {
+        return 'five sta-num';
+      }
     }
   };
 

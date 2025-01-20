@@ -533,5 +533,7 @@ export default {
   "请输入小于或等于{0}的数字": "Please enter a number less than or equal to {0}",
   "当前项目地址为：{0}，抵押物地址与项目地址不一致，确定提交吗？": "The current project address is: <span>{0}</span>. The collateral address is inconsistent with the project address. Are you sure you want to submit?",
   "项目Open": "Project Open",
-  "LM检查及Open": "LM inspection and Open"
+  "LM检查及Open": "LM inspection and Open",
+  "是否复制以上信息": "Do you want to copy the above information?",
+  "复制条数": "Number of copies",
 }

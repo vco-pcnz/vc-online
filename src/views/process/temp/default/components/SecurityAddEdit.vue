@@ -103,6 +103,19 @@
               <a-input v-model:value="formState.remark" />
             </a-form-item>
           </a-col>
+          <a-col :span="24">
+            <a-form-item label="" name="copy__num">
+              <div class="flex justify-end items-center gap-4">
+                <p>{{ t('是否复制以上信息') }}</p>
+                <a-switch v-model:checked="showCopy" />
+
+                <template v-if="showCopy">
+                  <p class="ml-5">{{ t('复制条数') }}</p>
+                  <a-input-number v-model:value="formState.copy__num" :min="1" style="width: 100px;" />
+                </template>
+              </div>
+            </a-form-item>
+          </a-col>
         </a-row>
       </a-form>
 
@@ -195,8 +208,10 @@ const formState = ref({
   con_id: '',
   build_amount: '',
   land_amount: '',
-  amount: ''
+  amount: '',
+  copy__num: ""
 });
+const showCopy = ref(false)
 
 const vcoAddressRef = ref();
 const addressConfig = ref({
@@ -259,7 +274,14 @@ const subLoading = ref(false);
 
 const submitRquest = () => {
   if (currentParams.value) {
+
     subLoading.value = true;
+    const params = {
+      code: props.blockInfo.code,
+      uuid: props.currentId,
+      security__data: currentParams.value
+    }
+
     projectAuditSaveMode(params)
       .then(() => {
         currentParams.value = null
@@ -286,7 +308,6 @@ const submitHandle = () => {
     .validate()
     .then(() => {
       const params = cloneDeep(formState.value);
-      params.uuid = props.currentId;
       params.security_status = props.securityStatus;
 
       params.insurance_expire_date = params.insurance_expire_date ? dayjs(params.insurance_expire_date).format('YYYY-MM-DD') : '';
@@ -305,7 +326,9 @@ const submitHandle = () => {
         params.security_uuid = props.infoData.uuid;
       }
 
-      params.code = props.blockInfo.code
+      if (!showCopy.value) {
+        delete params.copy__num
+      }
 
       currentParams.value = params
 
@@ -353,6 +376,8 @@ watch(
           if (['insurance_expire_date', 'mortgage_registration_date'].includes(key)) {
             formState.value[key] = props.infoData[key] ? dayjs(props.infoData[key]) : '';
           }
+
+          showCopy.value = Boolean(Number(formState.value.copy__num))
         }
       } else {
         if (props.projectInfo) {

@@ -52,20 +52,20 @@
         <div class="flex-1 relative">
           <div class="chart-list" style="height: 300px">
             <div class="zeroWrapper">
-              <div class="zeroLine" :style="{ top: 'calc(' + zeroLine + '%) ' }"></div>
+              <div class="zeroLine" :style="{ top: 'calc(' + zeroLine + '% + 5px)' }"></div>
             </div>
             <div class="chart-list-item" v-for="(item, index) in dates" :key="item">
-              <div class="relative" style="height: calc(100% - 8px); top: -5px">
-                <div class="inner" :style="{ height: 'calc(' + zeroLine + '% + 65px)' }"></div>
+              <div class="relative" style="height: 100%">
+                <div class="inner" v-if="!isAllElementsEqual" :style="{ height: 'calc(' + zeroLine + '% + 65px)' }"></div>
                 <!-- label -->
-                <template v-if="index && true">
+                <template v-if="index && !isAllElementsEqual">
                   <line-label
                     :Max="Max"
                     :Min="Min"
                     :zeroLine="zeroLine"
                     :value="option.series[0].data[index]"
+                    :pre-value="option.series[0].data[index - 1]"
                     :amount="data.data[2].data[dates[index]]"
-                    :isAdd="option.series[0].data[index] >= option.series[0].data[index - 1]"
                   ></line-label>
                 </template>
               </div>
@@ -73,7 +73,7 @@
             </div>
           </div>
           <!-- hover -->
-          <div class="hoverBox chart-list" style="height: 300px" @click="visible_forecast = true">
+          <!-- <div class="hoverBox chart-list" style="height: 300px" @click="visible_forecast = true">
             <div
               class="chart-list-item hover"
               v-for="(item, index) in dates"
@@ -81,7 +81,7 @@
               @mousemove="mousemove($event, index)"
               @mouseout="mouseout"
             ></div>
-          </div>
+          </div> -->
           <!-- charts -->
           <div class="chartBox">
             <v-chart :option="option" autoresize />
@@ -163,7 +163,7 @@ const option = ref({
   xAxis: {
     type: 'category',
     data: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
-    show: true
+    show: false
   },
   grid: {
     left: 0,
@@ -179,7 +179,9 @@ const option = ref({
     },
     splitLine: {
       show: false
-    }
+    },
+    min: 0,
+    min: 0
   },
   series: [
     {
@@ -240,6 +242,22 @@ const report = () => {
     .finally(() => {
       downloading.value = false;
     });
+};
+
+const isAllElementsEqual = ref(false);
+const areAllElementsEqual = (arr) => {
+  if (arr.length === 0) {
+    // 如果数组为空，可以根据需求返回 true 或抛出错误，这里假设空数组视为所有元素“相同”
+    return true;
+  }
+
+  const firstElement = arr[0];
+  for (let i = 1; i < arr.length; i++) {
+    if (arr[i] !== firstElement) {
+      return false;
+    }
+  }
+  return true;
 };
 
 const loadData = () => {
@@ -409,22 +427,26 @@ const loadData = () => {
         Min.value = 0;
       }
       minMax.value = Math.abs(Max.value) + Math.abs(Min.value);
-      // if (Max.value == minMax.value) {
-      //   zeroLine.value = 0;
-      // } else if (Math.abs(Min.value) == minMax.value) {
-      //   zeroLine.value = 100;
-      // } else {
-      //   zeroLine.value = (Max.value / minMax.value) * 100;
-      // }
 
-      zeroLine.value = (Max.value / minMax.value) * 100;
+      isAllElementsEqual.value = areAllElementsEqual(chartData);
+
+      // 全是负数的情况
+      if (Max.value == 0) {
+        zeroLine.value = 0;
+      } else if (Min.value == 0) {
+        zeroLine.value = 100;
+      } else {
+        zeroLine.value = (Max.value / minMax.value) * 100;
+      }
       option.value.series[0].data = chartData;
+      option.value.yAxis.min = Min.value;
+      option.value.yAxis.max = Max.value;
 
-      console.log('Max', Max.value);
-      console.log('Min', Min.value);
-      console.log('minMax', minMax.value);
-      console.log('zeroLine', zeroLine.value);
-      console.log(chartData);
+      // console.log('Max', Max.value);
+      // console.log('Min', Min.value);
+      // console.log('minMax', minMax.value);
+      // console.log('zeroLine', zeroLine.value);
+      // console.log(chartData);
     })
     .finally(() => {
       loading.value = false;
@@ -477,8 +499,8 @@ onMounted(() => {
     position: absolute;
     left: 0;
     right: 0;
-    top: 65px;
-    bottom: 65px;
+    top: 60px;
+    bottom: 60px;
     .zeroLine {
       border-bottom: 1px dashed #bfbfbf;
       position: absolute;
@@ -522,7 +544,7 @@ onMounted(() => {
         text-transform: uppercase;
       }
       .inner {
-        top: -65px;
+        top: -60px;
         background-color: #eeefdd;
         border: 1px solid rgba(169, 173, 87, 0.3);
         border-bottom: none;

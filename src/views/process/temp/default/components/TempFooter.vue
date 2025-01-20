@@ -17,7 +17,13 @@
       <slot name="draf-tips"></slot>
       <p v-if="hasDraft" class="mt-2 text-sm pl-1 form-tips-color">{{ t('* 存在草稿数据，请点击{0}保存', [`"${t(submitText)}"`]) }}</p>
     </div>
-    <p v-else></p>
+    <div v-else>
+      <a-button
+        v-if="previousStep && currentStep.examine"
+        type="danger" shape="round" class="big shadow bold uppercase"
+        @click="rejectHandle(1)"
+      >{{ t('拒绝申请') }}</a-button>
+    </div>
     
     <div class="flex gap-5">
       <a-button
@@ -31,12 +37,6 @@
         type="grey" shape="round" class="big shadow bold uppercase"
         @click="rejectHandle(2)"
       >{{ t('退回重新修改') }}</a-button>
-
-      <a-button
-        v-if="previousStep && currentStep.examine"
-        type="danger" shape="round" class="big shadow bold uppercase"
-        @click="rejectHandle(1)"
-      >{{ t('拒绝申请') }}</a-button>
 
       <a-button
         type="dark" shape="round" class="big shadow bold uppercase"

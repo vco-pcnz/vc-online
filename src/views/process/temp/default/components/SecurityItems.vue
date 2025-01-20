@@ -44,8 +44,26 @@
 
     <div class="sys-form-content mt-5">
       <a-form layout="vertical">
-        <a-row :gutter="24">
-          <a-col :span="8">
+        <div class="col-item-content">
+          <div class="col-item">
+            <a-form-item :label="t('土地总额')">
+              <vco-number
+                :value="securityInfo.land_amount"
+                :precision="2"
+                :end="true"
+              ></vco-number>
+            </a-form-item>
+          </div>
+          <div class="col-item">
+            <a-form-item :label="t('建筑总额')">
+              <vco-number
+                :value="securityInfo.build_amount"
+                :precision="2"
+                :end="true"
+              ></vco-number>
+            </a-form-item>
+          </div>
+          <div class="col-item">
             <a-form-item :label="t('总金额')">
               <vco-number
                 :value="securityInfo.total_money"
@@ -53,8 +71,8 @@
                 :end="true"
               ></vco-number>
             </a-form-item>
-          </a-col>
-          <a-col :span="8">
+          </div>
+          <div class="col-item">
             <a-form-item :label="t('抵押物价值')">
               <vco-number
                 :value="securityInfo.total_value"
@@ -62,13 +80,13 @@
                 :end="true"
               ></vco-number>
             </a-form-item>
-          </a-col>
-          <a-col :span="8">
+          </div>
+          <div class="col-item">
             <a-form-item :label="t('抵押物数量')">
               <p class="total-count">{{ securityInfo.count }}</p>
             </a-form-item>
-          </a-col>
-        </a-row>
+          </div>
+        </div>
       </a-form>
     </div>
     <div v-if="blockInfo.showCheck" class="check-content">
@@ -129,5 +147,16 @@ const checkHandle = async () => {
 <style lang="less" scoped>
 .total-count {
   font-size: 24px;
+}
+
+.col-item-content {
+  overflow: hidden;
+  > .col-item {
+    width: 20%;
+    float: left;
+    :deep(.ant-statistic-content) {
+      font-size: 18px !important;
+    }
+  }
 }
 </style>

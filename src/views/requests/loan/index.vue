@@ -42,32 +42,27 @@
                 <template #bodyCell="{ column, record }">
                   <template v-if="column.dataIndex === 'project_image'">
                     <template v-if="record.imgsArr.length">
-                      <div class="flex justify-center cursor-pointer">
-                        <vco-avatar :src="record.imgsArr[0]" :radius="true" :round="false" @click="showPreviewHandle(record)"></vco-avatar>
-                      </div>
-
-                      <div style="display: none">
-                        <a-image-preview-group :preview="{ visible: record.showPreview, onVisibleChange: (vis) => (record.showPreview = vis) }">
-                          <a-image v-for="item in record.imgsArr" :key="item" :src="item" />
-                        </a-image-preview-group>
+                      <div class="flex justify-center cursor-pointer" @click="navigationTo(`/requests/details?uuid=${record.uuid}`)">
+                        <vco-avatar :src="record.imgsArr[0]" :radius="true" :round="false"></vco-avatar>
                       </div>
                     </template>
                     <p v-else>--</p>
                   </template>
                   <template v-if="column.dataIndex === 'project_info'">
-                    <!-- <a-button type="link" @click="navigationTo(`/requests/details?uuid=${record.uuid}`)">
-                      ID: {{ record.project_apply_sn }}
-                    </a-button> -->
-                    <div class="id-info" @click="navigationTo(`/requests/details?uuid=${record.uuid}`)">ID: {{ record.project_apply_sn }}</div>
-                    <div :title="record.project_name">{{ record.project_name || t('项目名称') }}</div>
-                    <div v-if="record.showAddress && record.showAddress.length > 3" class="icon-txt mt-1">
-                      <i class="iconfont cer">&#xe814;</i>
-                      <span :title="record.showAddress" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-2">{{ record.showAddress }}</span>
-                    </div>
+                    <span class="cursor-pointer" @click="navigationTo(`/requests/details?uuid=${record.uuid}`)">
+                      <div class="id-info">ID: {{ record.project_apply_sn }}</div>
+                      <div :title="record.project_name">{{ record.project_name || t('项目名称') }}</div>
+                      <div v-if="record.showAddress && record.showAddress.length > 3" class="icon-txt mt-1">
+                        <i class="iconfont cer">&#xe814;</i>
+                        <span :title="record.showAddress" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-2">{{ record.showAddress }}</span>
+                      </div>
+                    </span>
                   </template>
                   <template v-if="column.dataIndex === 'loan_money'">
-                    <vco-number v-if="record.loan_money" :value="record.loan_money" :precision="2"></vco-number>
-                    <p v-else>--</p>
+                    <span class="cursor-pointer" @click="navigationTo(`/requests/details?uuid=${record.uuid}`)">
+                      <vco-number v-if="record.loan_money" :value="record.loan_money" :precision="2"></vco-number>
+                      <p v-else>--</p>
+                    </span>
                   </template>
                   <template v-if="column.dataIndex === 'borrower_info'">
                     <div class="icon-txt">
@@ -106,13 +101,13 @@
                     <p v-else>--</p>
                   </template>
                   <template v-if="column.dataIndex === 'status'">
-                    <template v-if="(record.lm_list && record.lm_list.length) || !record.allocation">
-                      <a-button v-if="record.has_permission" type="primary" shape="round" @click="itemHandle(record)">{{ t(record.status_name) }}</a-button>
-                      <p v-else>{{ t(record.status_name) }}</p>
-                    </template>
-                    <template v-else>
+                    <template v-if="record.status_name === 'LC 分配 LM'">
                       <a-button v-if="hasPermission('requests:loan:allocateLm')" type="primary" shape="round" @click="bindHandle(record)">{{ t('分配LM') }}</a-button>
                       <p v-else>{{ isNormalUser ? t('待审核') : t('等待分配LM') }}</p>
+                    </template>
+                    <template v-else>
+                      <a-button v-if="record.has_permission" type="primary" shape="round" @click="itemHandle(record)">{{ t(record.status_name) }}</a-button>
+                      <p v-else>{{ t(record.status_name) }}</p>
                     </template>
                   </template>
                   <template v-if="column.dataIndex === 'operation'">
@@ -252,14 +247,9 @@ const tableDataRef = computed(() => {
     }
 
     item.imgsArr = imgsArr;
-    item.showPreview = false;
   });
   return data;
 });
-
-const showPreviewHandle = (data) => {
-  data.showPreview = true;
-};
 
 const selectedRowKeys = ref([]);
 const onSelectChange = (keys) => {
@@ -354,7 +344,6 @@ onMounted(() => {
 }
 
 .id-info {
-  cursor: pointer;
   color: @colorPrimary;
   margin-bottom: 5px;
 }

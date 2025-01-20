@@ -438,7 +438,7 @@ export default {
   "总内部收益率": "total IRR",
   "利息": "interest",
   "费率": "fees",
-  "担保信息": "Warranty Information",
+  "其他安全信息": "Additional Security Information",
   "承包商": "Main Contractor",
   "履约保函": "Security package",
   "担保人": "Guarantor",
@@ -528,4 +528,10 @@ export default {
   "处理人": "Handler",
   "搜索利益相关者": "Org search",
   "反洗钱说明": "Notes",
+  "请输入数字": "Please enter a number",
+  "请输入大于或等于{0}的数字": "Please enter a number greater than or equal to {0}",
+  "请输入小于或等于{0}的数字": "Please enter a number less than or equal to {0}",
+  "当前项目地址为：{0}，抵押物地址与项目地址不一致，确定提交吗？": "The current project address is: <span>{0}</span>. The collateral address is inconsistent with the project address. Are you sure you want to submit?",
+  "项目Open": "Project Open",
+  "LM检查及Open": "LM inspection and Open"
 }

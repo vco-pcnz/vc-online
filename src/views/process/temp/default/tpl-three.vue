@@ -134,7 +134,11 @@
           </div>
         </div>
         <div v-if="!check" class="right-content">
-          <bind-users ref="bindUsersRef" v-if="hasPermission('process:bind:pre')" :current-id="currentId"></bind-users>
+          <bind-users
+            ref="bindUsersRef"
+            v-if="bindUserPermission"
+            :current-id="currentId"
+          ></bind-users>
 
           <ads-content></ads-content>
         </div>
@@ -207,6 +211,10 @@ const formRef = ref();
 const footerRef = ref();
 const bindUsersRef = ref();
 
+const bindUserPermission = computed(() => {
+  return hasPermission('requests:loan:bind:vcTeam') || hasPermission('requests:loan:bind:broker') || hasPermission('requests:loan:bind:user')
+})
+
 const resourceConsentList = ref([]);
 const engineeringConsentList = ref([]);
 const buildingList = ref([]);
@@ -236,11 +244,10 @@ const formState = reactive({
   building_consent_files: [],
   feasibility_files: [],
   others_files: [],
-  cert_images: [],
 });
 
 const formRules = {
-  cert_images: [{ required: true, message: t('请上传') + t('项目照片'), trigger: 'change' }],
+  // cert_images: [{ required: true, message: t('请上传') + t('项目照片'), trigger: 'change' }],
 };
 
 const markInfo = computed(() => (props.currentStep ? props.currentStep.mark : ''));

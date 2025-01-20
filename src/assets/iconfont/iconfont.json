@@ -6,6 +6,13 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "2076332",
+      "name": "经典玩法",
+      "font_class": "jingdianwanfa",
+      "unicode": "e8a7",
+      "unicode_decimal": 59559
+    },
+    {
       "icon_id": "2076243",
       "name": " 增加",
       "font_class": "zengjia",

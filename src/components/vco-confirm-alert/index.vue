@@ -9,8 +9,11 @@
     @cancel="updateVisible(false)"
   >
     <div class="mt-5 text-center">
-      <span v-if="props.check">{{ t('确定通过审核吗？') }}</span>
-      <span v-else>{{ t('确定修改吗？') }}</span>
+      <span v-if="confirmTxt" v-html="confirmTxt" class="confirm-txt"></span>
+      <template v-else>
+        <span v-if="props.check">{{ t('确定通过审核吗？') }}</span>
+        <span v-else>{{ t('确定修改吗？') }}</span>
+      </template>
     </div>
 
     <div class="mt-5 flex justify-between gap-5">
@@ -42,6 +45,10 @@
     check: {
       type: Boolean,
       default: false
+    },
+    confirmTxt: {
+      type: String,
+      default: ''
     }
   });
 
@@ -75,3 +82,12 @@
     changeLoading
   })
 </script>
+
+<style lang="less" scoped>
+  @import '@/styles/variables.less';
+  .confirm-txt {
+    :deep(span) {
+      color: @colorPrimary;
+    }
+  }
+</style>

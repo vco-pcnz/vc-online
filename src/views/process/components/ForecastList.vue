@@ -392,9 +392,6 @@
 
       // 刷新IRR
       emitter.emit('refreshIRR')
-
-      // 操作记录
-      emitter.emit('refreshAuditHisList');
     }).catch(() => {
       subLoading.value = false
     })
@@ -451,26 +448,33 @@
       position: relative;
       &.th {
         font-weight: 500;
-        margin-top: 10px;
-        padding: 0 10px;
+        padding: 10px;
+        padding-bottom: 5px;
+        box-shadow: 0 2px 3px rgba(0, 0, 0, .1);
+        > .item {
+          font-size: 13px !important;
+        }
+        
       }
       > .item {
         word-break: break-all;
         float: left;
+        font-size: 12px !important;
+        line-height: 22px;
         &:nth-child(1) {
-          width: 85px;
+          width: 80px;
         }
         &:nth-child(2) {
           text-align: center;
-          width: 95px;
+          width: 90px;
         }
         &:nth-child(3) {
           text-align: center;
-          width: 130px;
+          width: 95px;
         }
         &:last-child {
-          position: absolute;
-          right: 10px;
+          width: 40px;
+          text-align: right;
         }
         &.ops {
           display: flex;
@@ -506,7 +510,7 @@
         padding: 7px 5px;
         :deep(.ant-statistic-content) {
           font-weight: 500 !important;
-          font-size: 14px !important;
+          font-size: 12px !important;
         }
         > .item {
           &:nth-child(1) {

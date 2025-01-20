@@ -63,7 +63,7 @@
         <div v-if="!check" class="right-content">
           <bind-users
             ref="bindUsersRef"
-            v-if="hasPermission('process:bind:pre')"
+            v-if="bindUserPermission"
             :current-id="currentId"
           ></bind-users>
 
@@ -146,6 +146,10 @@
   const formRef = ref()
   const footerRef = ref()
   const bindUsersRef = ref();
+
+  const bindUserPermission = computed(() => {
+    return hasPermission('requests:loan:bind:vcTeam') || hasPermission('requests:loan:bind:broker') || hasPermission('requests:loan:bind:user')
+  })
 
   const markInfo = computed(() => (props.currentStep ? props.currentStep.mark : ''))
 

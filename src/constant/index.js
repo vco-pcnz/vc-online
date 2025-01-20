@@ -56,6 +56,6 @@ export const processBlockName = {
   loan: '借款信息',
   lending: '放款信息',
   security: '抵押物信息',
-  warranty: '担保信息',
+  warranty: '其他安全信息',
   offer: '凭证信息'
 }

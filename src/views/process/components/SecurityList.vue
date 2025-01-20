@@ -6,6 +6,8 @@
         :current-id="currentId"
         :security-status="securityInfo.check_status"
         :info-data="currentData"
+        :block-info="blockInfo"
+        :project-info="projectInfo"
         :type-data="securityInfo.type"
       ></security-add-edit>
 
@@ -30,6 +32,7 @@
                     >{{ item.card_no }}
                   </p>
                   <div v-if="!isDetails && blockInfo.showEdit" class="flex">
+                    <i class="iconfont" @click="copyHandle(item)">&#xe8a7;</i>
                     <i class="iconfont" @click="editHandle(item)">&#xe8cf;</i>
                     <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="() => deleteHandle(item)">
                       <i class="iconfont">&#xe8c1;</i>
@@ -96,7 +99,8 @@ import { projectAuditSecurityList } from '@/api/process';
 import tool from '@/utils/tool';
 import SecurityAddEdit from '@/views/process/temp/default/components/SecurityAddEdit.vue';
 import emitter from '@/event';
-import { projectAuditDeleteSecurity } from '@/api/process';
+import { projectAuditDeleteMode } from '@/api/process';
+import { cloneDeep } from "lodash"
 
 const props = defineProps({
   securityInfo: {
@@ -110,6 +114,10 @@ const props = defineProps({
     }
   },
   blockInfo: {
+    type: Object,
+    default: () => {}
+  },
+  projectInfo: {
     type: Object,
     default: () => {}
   },
@@ -149,15 +157,25 @@ const editHandle = (data) => {
   editVisible.value = true;
 };
 
+const copyHandle = (data) => {
+  const newData = cloneDeep(data)
+  delete newData.uuid
+  currentData.value = newData;
+  editVisible.value = true;
+}
+
 const deleteHandle = async (data) => {
-  await projectAuditDeleteSecurity({
+  await projectAuditDeleteMode({
     security_uuid: data.uuid,
     uuid: props.currentId,
-    security_status: props.securityInfo.check_status
+    code: props.blockInfo.code
   })
     .then(() => {
       getTableData();
+
       emitter.emit('refreshSecurityInfo');
+      emitter.emit('refreshAuditHisList');
+      emitter.emit('refreshIRR');
       return true;
     })
     .catch(() => {
@@ -204,7 +222,7 @@ onMounted(() => {
         }
       }
       > .flex {
-        gap: 5px;
+        gap: 10px;
         > .iconfont {
           cursor: pointer;
           color: @colorPrimary;

@@ -537,5 +537,7 @@ export default {
   "是否复制以上信息": "Do you want to copy the above information?",
   "复制条数": "Number of copies",
   "需要点击选择已上传的文件进行上传": "You need to click to select the uploaded file to upload",
-  "同时更改利益相关者数据": "Changing stakeholder data simultaneously"
+  "同时更改利益相关者数据": "Changing stakeholder data simultaneously",
+  "人员": "Member",
+  "数量不能超过{0}": "The quantity cannot exceed {0}"
 }

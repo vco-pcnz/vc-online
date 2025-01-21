@@ -4,8 +4,25 @@
       <a-form ref="formRef" :model="form" :rules="dynamicRules" layout="vertical">
         <a-row :gutter="24">
           <a-col :span="24" class="avatar-box">
-            <div style="position: relative">
-              <vco-upload-image v-model:value="form.avatar" text="上传头像"></vco-upload-image>
+            <div class="flex justify-center pb-3" style="font-size: 0">
+              <!-- <vco-upload-image v-model:value="form.avatar" text="上传头像"></vco-upload-image> -->
+              <vco-upload-modal v-model:value="form.avatar" :uploadType="1" :limit="1">
+                <div class="avatarBox">
+                  <template v-if="form.avatar">
+                    <vco-avatar :src="form.avatar" :size="128"></vco-avatar>
+                    <div class="delete-img" @click="deleteImg" @click.stop="form.avatar = ''">
+                      <DeleteOutlined />
+                      <p>{{ t('删除') }}</p>
+                    </div>
+                  </template>
+                  <template v-else>
+                    <div class="default">
+                      <plus-outlined />
+                      <div class="ant-upload-text">{{ t('头像') }}</div>
+                    </div>
+                  </template>
+                </div>
+              </vco-upload-modal>
             </div>
           </a-col>
           <template v-if="!isMember">
@@ -224,6 +241,7 @@ import { pick, trim, cloneDeep } from 'lodash';
 import { message } from 'ant-design-vue';
 import { useRouter } from 'vue-router';
 import { useOrgsStore } from '@/store';
+import { DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue';
 const router = useRouter();
 const orgsStore = useOrgsStore();
 
@@ -587,7 +605,9 @@ watch(
 
     if (val != 20) {
       nextTick(() => {
-        vcoAddressRef.value.init(form);
+        if (vcoAddressRef.value) {
+          vcoAddressRef.value.init(form);
+        }
       });
     }
   },
@@ -649,40 +669,65 @@ watch(
   margin-bottom: 0;
 }
 
-// 头像上传样式重置
-.avatar-box {
-  display: flex;
-  justify-content: center;
-  padding: 20px 0 50px;
-
-  :deep(.images-uploader) {
-    .ant-upload {
-      width: 128px !important;
-      height: 128px !important;
-      border-color: #282828 !important;
-      border-radius: 50%;
-
-      &:hover {
-        border-color: @colorPrimary !important;
-      }
-
-      img {
-        width: 100% !important;
-        height: 100% !important;
-      }
-    }
-    .delete-img {
-      width: 128px !important;
-      height: 128px !important;
-      border-radius: 50% !important;
-    }
-  }
-}
-
 .documents {
   margin-top: 20px;
   .document-name {
     margin: 15px 0 10px;
+  }
+}
+
+.avatarBox {
+  position: relative;
+  width: 128px;
+  height: 128px;
+  cursor: pointer;
+  .default {
+    width: 100%;
+    height: 100%;
+    border: 1px dashed #282828;
+    box-sizing: border-box;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    &:hover {
+      border-color: @colorPrimary !important;
+    }
+  }
+  .anticon-loading,
+  .anticon-plus {
+    font-size: 18px;
+  }
+  .delete-img {
+    background-color: rgba(0, 0, 0, 0.45);
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.7);
+    &:hover {
+      color: rgba(255, 255, 255, 1);
+      .anticon-delete {
+        color: rgba(255, 255, 255, 1);
+      }
+    }
+    .anticon-delete {
+      font-size: 17px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+    p {
+      font-size: 13px;
+      margin-top: 5px;
+    }
   }
 }
 </style>

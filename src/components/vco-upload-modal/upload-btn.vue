@@ -10,13 +10,34 @@
     <a-modal :width="600" v-if="open" :open="open" :title="t('上传')" @cancel="open = false" class="sys-form-content">
       <a-tabs v-model:activeKey="activeKey">
         <a-tab-pane :key="1" :tab="t('图片')">
-          <vco-upload :controller="controller" :params="params" type="image" :limit="20" isMultiple v-model:list="images"></vco-upload>
+          <vco-upload
+            :controller="controller"
+            :params="params"
+            type="image"
+            :limit="20"
+            isMultiple
+            v-model:list="images"
+          ></vco-upload>
         </a-tab-pane>
         <a-tab-pane :key="2" :tab="t('文件')">
-          <vco-upload :controller="controller" :params="params" type="file" :limit="20" isMultiple v-model:list="files"></vco-upload>
+          <vco-upload
+            :controller="controller"
+            :params="params"
+            type="file"
+            :limit="20"
+            isMultiple
+            v-model:list="files"
+          ></vco-upload>
         </a-tab-pane>
         <a-tab-pane :key="3" :tab="t('视频')">
-          <vco-upload :controller="controller" :params="params" type="video" :limit="20" isMultiple v-model:list="videos"></vco-upload>
+          <vco-upload
+            :controller="controller"
+            :params="params"
+            type="video"
+            :limit="20"
+            isMultiple
+            v-model:list="videos"
+          ></vco-upload>
         </a-tab-pane>
       </a-tabs>
       <template #footer>

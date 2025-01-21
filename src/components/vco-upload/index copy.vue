@@ -1,28 +1,28 @@
 <template>
-  <div :class="[{ 'images-uploader': listType === 'picture-card' }]">
+  <div class="images-uploader">
     <a-upload
       ref="uploadRef"
       :action="uploadAction"
-      :list-type="listType"
+      list-type="picture-card"
       :disabled="disabled"
       :headers="headers"
       :file-list="fileList"
       :beforeUpload="beforeUpload"
-      :data="{ biz: bizPath, ...params }"
+      :data="{ biz: bizPath,...params }"
       :name="fileName"
       :multiple="isMultiple"
-      :showUploadList="showUploadList"
+      :showUploadList="type !== 'image' || isMultiple"
       :accept="accept"
       @preview="handlePreview"
       @change="handleChange"
     >
-      <slot>
-        <div v-if="(isMultiple && fileList.length < limit && !disabled) || (!isMultiple && !picUrl)">
-          <loading-outlined v-if="loading" />
-          <plus-outlined v-else />
-          <div class="ant-upload-text">{{ t(text || upText) }}</div>
-        </div>
-      </slot>
+    
+      <img v-if="type == 'image' && !isMultiple && picUrl" :src="getAvatarView()" />
+      <div v-else-if="(isMultiple && fileList.length < limit && !disabled) || (!isMultiple && !picUrl)">
+        <loading-outlined v-if="loading" />
+        <plus-outlined v-else />
+        <div class="ant-upload-text">{{ t(text || upText) }}</div>
+      </div>
     </a-upload>
     <div class="delete-img" @click="deleteImg" v-if="type == 'image' && picUrl && limit == 1 && !isMultiple">
       <DeleteOutlined />
@@ -77,7 +77,7 @@ const props = defineProps({
     type: Object,
     required: false,
     default: () => {
-      return {};
+      return {}
     }
   },
   // 只能查看不可上传和删除时开启该属性
@@ -106,15 +106,6 @@ const props = defineProps({
   controller: {
     type: String,
     default: '/upload'
-  },
-  showUploadList: {
-    type: Boolean,
-    required: false,
-    default: true
-  },
-  listType: {
-    type: String,
-    default: 'picture-card'
   }
 });
 
@@ -292,14 +283,14 @@ const handlePathChange = () => {
         uploadFiles[i].response.status === 'history'
           ? {
               name: uploadFiles[i].name,
-              type: uploadFiles[i].fileType || types[props.type],
+              type: types[props.type],
               uuid: uploadFiles[i].uid,
               size: uploadFiles[i].size,
               value: uploadFiles[i].url
             }
           : {
               name: uploadFiles[i].name,
-              type: uploadFiles[i].fileType || types[props.type],
+              type: types[props.type],
               uuid: uploadFiles[i].url,
               size: uploadFiles[i].size,
               value: uploadFiles[i].url
@@ -323,7 +314,6 @@ const handleChange = (info) => {
       list = list.map((file) => {
         if (file.response) {
           file.url = getFileAccessHttpUrl(file.response.data);
-          file.fileType = file.fileType || types[props.type];
         }
         return file;
       });
@@ -419,16 +409,6 @@ watch(
     deep: true
   }
 );
-
-const reset = () => {
-  fileList.value = [];
-  picUrl.value = false;
-};
-
-// 暴露方法给父组件
-defineExpose({
-  reset
-});
 </script>
 
 <style lang="less" scoped>

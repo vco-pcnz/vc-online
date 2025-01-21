@@ -18,12 +18,22 @@
           <a-radio-button value="list"><i class="iconfont">&#xe62e;</i></a-radio-button>
           <a-radio-button value="card"><i class="iconfont">&#xe60a;</i></a-radio-button>
         </a-radio-group>
-        <upload-btn v-model:list="documentList" :controller="controller" :params="params" :defaultUploadType="activeKey" class="ml-2" v-if="!uploadType">
-          <a-button type="brown">{{ t('上传') }}</a-button>
-        </upload-btn>
-        <!-- <vco-upload :controller="controller" :params="params" type="video" :limit="20" isMultiple v-model:list="videos">
-          <a-button type="brown">{{ t('上传') }}</a-button>
-        </vco-upload> -->
+        <div class="ml-2">
+          <vco-upload
+            :controller="controller"
+            :params="params"
+            :type="TYPE_TEXT[activeKey]"
+            :showUploadList="false"
+            :limit="limit"
+            isMultiple
+            v-model:list="documentList"
+            ref="vcoUploadRef"
+            listType="text"
+            @change="updateNewFile"
+          >
+            <a-button type="brown">{{ t('上传') }}</a-button>
+          </vco-upload>
+        </div>
       </div>
       <div class="flex items-end justify-between mb-5">
         <div>
@@ -44,7 +54,7 @@
         </vco-page-search>
       </div>
       <!-- 新上传 -->
-      <template v-if="Boolean(documentList && documentList.length)">
+      <template v-if="Boolean(newFile && newFile.length)">
         <div class="flex items-center">
           <h3 class="title">New files</h3>
           <p class="fs_xs color_grey ml-2">{{ t('需要点击选择已上传的文件进行上传') }}</p>
@@ -52,10 +62,11 @@
         <div :class="['file-' + fileType]">
           <div
             :class="['file-' + fileType + '-item', { checked: checkedIds.includes(item.uuid) }]"
-            v-for="item in documentList"
+            v-for="item in newFile"
             :key="item.uuid"
             @click="itemcheck(item)"
           >
+            {{ item }}
             <vco-file-item :file="item" :type="fileType" :time="item.create_time"></vco-file-item>
             <div class="check-content"><i class="iconfont">&#xe647;</i></div>
           </div>
@@ -115,7 +126,7 @@ const { t } = useI18n();
 
 const props = defineProps({
   value: {
-    type: Array,
+    type: [Array, String],
     required: false
   },
   list: {
@@ -141,10 +152,16 @@ const props = defineProps({
   },
   uploadType: {
     type: Number,
-    default: 0 //1 image,2 file,3 video
+    default: '' //1 image,2 file,3 video
+  },
+  limit: {
+    type: Number,
+    default: 99 //1 image,2 file,3 video
   }
 });
 const emits = defineEmits(['update:value', 'update:list', 'change']);
+
+const vcoUploadRef = ref();
 const open = ref(false);
 const fileType = ref('card');
 const activeKey = ref(1);
@@ -153,6 +170,7 @@ const total = ref(0);
 const checkedIds = ref([]);
 const checkedList = ref([]);
 const documentList = ref([]);
+const newFile = ref([]);
 const pagination = ref({
   page: 1,
   limit: 10
@@ -161,18 +179,23 @@ const searchForm = ref({
   name: ''
 });
 
+const TYPE_TEXT = ref({
+  1: 'image',
+  2: 'file',
+  3: 'video'
+});
+
 const show = () => {
   activeKey.value = props.defaultUploadType;
   if (props.uploadType) activeKey.value = props.uploadType;
   documentList.value = [];
+  newFile.value = [];
   checkedIds.value = [];
   checkedList.value = [];
   open.value = true;
   loadData();
 };
-setTimeout(() => {
-  show();
-}, 1000);
+
 // 搜索
 const searchHandle = (flag) => {
   if (flag) {
@@ -189,6 +212,9 @@ const searchHandle = (flag) => {
 const itemcheck = (item) => {
   let index = checkedIds.value.indexOf(item.uuid);
   if (index < 0) {
+    if (checkedIds.value.length >= props.limit) {
+      return message.error(t('数量不能超过{0}', [`${props.limit}`]));
+    }
     checkedIds.value.push(item.uuid);
     checkedList.value.push(item);
   } else {
@@ -217,9 +243,23 @@ const loadData = () => {
   });
 };
 
+const updateNewFile = () => {
+  newFile.value = [...newFile.value, ...documentList.value];
+  documentList.value.map((item) => {
+    if (checkedIds.value.length >= props.limit) return;
+    itemcheck(item);
+  });
+  vcoUploadRef.value.reset();
+};
+
 const confirm = () => {
   const list = [...props.list, ...checkedList.value];
-  emits('update:list', list);
+  const isOneImg = props.uploadType == 1 && props.limit == 1;
+  if (isOneImg) {
+    emits('update:value', checkedList.value[0].value);
+  } else {
+    emits('update:list', list);
+  }
   emits('change', list);
   open.value = false;
 };
@@ -227,6 +267,7 @@ const confirm = () => {
 watch(
   () => props.list,
   (val) => {
+    if (props.uploadType == 1 && props.limit == 1) return;
     if (val) {
       const formData = val.map((item) => {
         return item.uuid;

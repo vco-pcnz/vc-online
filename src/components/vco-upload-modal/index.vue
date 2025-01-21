@@ -141,7 +141,7 @@ const props = defineProps({
   },
   uploadType: {
     type: Number,
-    default: 2 //1 image,2 file,3 video
+    default: 0 //1 image,2 file,3 video
   }
 });
 const emits = defineEmits(['update:value', 'update:list', 'change']);
@@ -170,9 +170,9 @@ const show = () => {
   open.value = true;
   loadData();
 };
-// setTimeout(() => {
-//   show();
-// }, 1000);
+setTimeout(() => {
+  show();
+}, 1000);
 // 搜索
 const searchHandle = (flag) => {
   if (flag) {

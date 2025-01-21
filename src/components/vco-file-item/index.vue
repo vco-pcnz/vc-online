@@ -255,6 +255,8 @@ watch(
     align-items: center;
     cursor: pointer;
     gap: 10px;
+    position: relative;
+    z-index: 2;
   }
   .icon {
     font-size: 12px;

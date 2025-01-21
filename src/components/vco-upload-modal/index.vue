@@ -346,13 +346,13 @@ watch(
   }
 }
 .check-content::after {
+  z-index: -1;
   content: '';
   display: block;
   width: 40px;
   height: 40px;
   position: absolute;
   background-color: #3fdea4;
-  z-index: -1;
   transform: rotate(45deg);
   right: -20px;
   bottom: -20px;

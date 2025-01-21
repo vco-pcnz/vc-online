@@ -229,6 +229,8 @@
       if (!val) {
         subLoading.value = false;
         openDate.value = ''
+        confirmForm.value = {}
+        fonfirmTable.value = []
       } else {
         openDate.value = dayjs(props.infoData.start_date)
 

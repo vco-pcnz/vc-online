@@ -3,6 +3,14 @@
     class="block-item mb"
     :class="{ checked: securityInfo.is_check && blockInfo.showCheck }"
   >
+    <!-- 确认弹窗 -->
+    <vco-confirm-alert
+      ref="changeAlertRef"
+      :confirm-txt="confirmTxt"
+      v-model:visible="changeVisible"
+      @submit="submitRquest"
+    ></vco-confirm-alert>
+
     <!-- 新增 -->
     <security-add-edit
       v-model:visible="addVisible"
@@ -15,21 +23,33 @@
 
     <vco-process-title :title="t('抵押物信息')">
       <div class="flex gap-5">
-        <a-popconfirm
-          v-if="!securityInfo.is_check && securityInfo.count && blockInfo.showCheck"
-          :title="t('确定通过审核吗？')"
-          :ok-text="t('确定')"
-          :cancel-text="t('取消')"
-          @confirm="checkHandle()"
-        >
+        <template v-if="!securityInfo.is_check && securityInfo.count && blockInfo.showCheck">
           <a-button
+            v-if="confirmTxt"
             type="dark"
             shape="round"
             class="uppercase"
+            @click="changeVisible = true"
           >
             {{ t('审核') }}
           </a-button>
-        </a-popconfirm>
+          <a-popconfirm
+            v-else
+            :title="t('确定通过审核吗？')"
+            :ok-text="t('确定')"
+            :cancel-text="t('取消')"
+            @confirm="checkHandle()"
+          >
+            <a-button
+              type="dark"
+              shape="round"
+              class="uppercase"
+            >
+              {{ t('审核') }}
+            </a-button>
+          </a-popconfirm>
+        </template>
+        
         <a-button
           v-if="blockInfo.showEdit"
           type="primary"
@@ -96,7 +116,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { projectAuditCheckMode } from '@/api/process';
 import SecurityAddEdit from './SecurityAddEdit.vue';
@@ -126,6 +146,26 @@ const props = defineProps({
 
 const { t } = useI18n();
 const addVisible = ref(false);
+
+const changeAlertRef = ref()
+const changeVisible = ref(false)
+
+const confirmTxt = computed(() => {
+  const count = props.securityInfo.count
+  const building_num = props.projectInfo.building_num
+
+  if (count !== building_num) {
+    return t('项目楼栋数为{0}，抵押物数量为{1}，确认通过审核吗？', [building_num, count])
+  } else {
+    return ''
+  }
+})
+
+const submitRquest = async () => {
+  await checkHandle()
+  changeAlertRef.value.changeLoading(false)
+  changeVisible.value = false
+}
 
 const checkHandle = async () => {
   const params = {

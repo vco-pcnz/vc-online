@@ -105,15 +105,17 @@
           </a-col>
           <a-col v-if="!props.infoData || (props.infoData && !props.infoData.uuid)" :span="24">
             <a-form-item label="" name="copy__num">
-              <div class="flex justify-end items-center gap-4">
-                <p>{{ t('是否复制以上信息') }}</p>
-                <a-switch v-model:checked="showCopy" />
+              <a-form-item-rest>
+                <div class="flex justify-end items-center gap-4">
+                  <p>{{ t('是否复制以上信息') }}</p>
+                  <a-switch v-model:checked="showCopy" />
 
-                <template v-if="showCopy">
-                  <p class="ml-5">{{ t('复制条数') }}</p>
-                  <a-input-number v-model:value="formState.copy__num" :min="1" style="width: 100px;" />
-                </template>
-              </div>
+                  <template v-if="showCopy">
+                    <p class="ml-5">{{ t('复制条数') }}</p>
+                    <a-input-number v-model:value="formState.copy__num" :min="1" style="width: 100px;" />
+                  </template>
+                </div>
+              </a-form-item-rest>
             </a-form-item>
           </a-col>
         </a-row>
@@ -286,7 +288,9 @@ const submitRquest = () => {
       .then(() => {
         currentParams.value = null
         subLoading.value = false;
+        changeVisible.value = false
         updateVisible(false);
+        changeAlertRef.value.changeLoading(false)
 
         emitter.emit('refreshSecurityInfo');
         emitter.emit('refreshSecurityList');
@@ -294,6 +298,7 @@ const submitRquest = () => {
         emitter.emit('refreshIRR');
       })
       .catch(() => {
+        changeAlertRef.value.changeLoading(false)
         subLoading.value = false;
       });
   }
@@ -369,6 +374,7 @@ watch(
           formState.value[key] = 1
         }
       });
+      showCopy.value = false
     } else {
       if (props.infoData) {
         for (const key in formState.value) {

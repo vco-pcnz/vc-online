@@ -72,7 +72,7 @@
           size="small"
           class="uppercase"
           @click="openAddEdit(false)"
-        >{{ t('添加状况') }}</a-button>
+        >{{ t('添加') }}</a-button>
       </vco-process-title>
 
       <a-spin :spinning="pageLoading" size="large">

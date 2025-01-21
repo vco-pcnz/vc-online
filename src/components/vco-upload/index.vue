@@ -136,6 +136,7 @@ watch(
         uploadAction.value = uploadUrl + props.controller + '/uploadImage';
         fileType.value = ['jpg', 'jpeg', 'png', 'gif', 'bmp'];
         errTip.value = t('上传图片的格式不正确，不是JPG、JPEG、GIF、PNG、BMP');
+        fileName.value = 'file';
         upText.value = '上传图片';
         break;
       case 'video':
@@ -151,6 +152,7 @@ watch(
         uploadAction.value = uploadUrl + props.controller + '/uploadFile';
         fileType.value = ['xls', 'xlsx', 'csv', 'json', 'txt', 'doc', 'docx', 'ppt', 'pptx', 'pdf', 'xmind'];
         errTip.value = t('上传文件的格式不正确，不是XLS、XLSX、CSV、JSON、TXT、DOC、DOCX、PPT、PPTX、PDF、Xmind');
+        fileName.value = 'file';
         upText.value = '上传文件';
         break;
     }

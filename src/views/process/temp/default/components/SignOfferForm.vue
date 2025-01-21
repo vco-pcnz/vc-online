@@ -3,10 +3,10 @@
     class="block-item mb"
     :class="{ checked: offerInfo.is_check && blockInfo.showCheck && staticCheck }"
   >
-    <vco-process-title :title="t('凭证信息')">
+    <vco-process-title :title="t('已签订凭证信息')">
       <div class="flex gap-5">
         <a-popconfirm
-          v-if="blockInfo.showCheck && !offerInfo.is_check && offerInfo.cert_images"
+          v-if="blockInfo.showCheck && !offerInfo.is_check && offerInfo.sign_offer"
           :title="t('确定通过审核吗？')"
           :ok-text="t('确定')"
           :cancel-text="t('取消')"
@@ -21,7 +21,7 @@
           </a-button>
         </a-popconfirm>
         <a-button
-          v-if="blockInfo.showEdit"
+          v-if="blockInfo.showEdit && offerList.length"
           type="primary"
           shape="round"
           :loading="subLoading"
@@ -121,7 +121,7 @@
     const params = {
       code: props.blockInfo.code,
       uuid: props.currentId,
-      cert_images: offerList.value.map((item) => item.uuid)
+      sign_offer: offerList.value.map((item) => item.uuid)
     };
 
     subLoading.value = true;
@@ -153,8 +153,8 @@
   )
 
   onMounted(() => {
-    if (props.offerInfo.cert_images) {
-      const images = props.offerInfo.cert_images
+    if (props.offerInfo.sign_offer) {
+      const images = props.offerInfo.sign_offer
       const data = images.map((item) => {
         return {
           ...item,

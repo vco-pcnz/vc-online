@@ -52,9 +52,9 @@
                     <span class="cursor-pointer" @click="navigationTo(`/requests/details?uuid=${record.uuid}`)">
                       <div class="id-info">ID: {{ record.project_apply_sn }}</div>
                       <div :title="record.project_name">{{ record.project_name || t('项目名称') }}</div>
-                      <div v-if="record.showAddress && record.showAddress.length > 3" class="icon-txt mt-1">
+                      <div v-if="record.project_city && record.project_city.length > 3" class="icon-txt mt-1">
                         <i class="iconfont cer">&#xe814;</i>
-                        <span :title="record.showAddress" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-2">{{ record.showAddress }}</span>
+                        <span :title="record.project_city" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-2">{{ record.project_city }}</span>
                       </div>
                     </span>
                   </template>
@@ -234,11 +234,11 @@ const tableDataRef = computed(() => {
       imgsArr = images.split(',');
     }
 
-    if (locale.value === 'en') {
-      item.showAddress = `${item.project_address_short} ${item.region_three_name} ${item.region_two_name} ${item.region_one_name}`;
-    } else {
-      item.showAddress = `${item.region_one_name} ${item.region_two_name} ${item.region_three_name} ${item.project_address_short}`;
-    }
+    // if (locale.value === 'en') {
+    //   item.showAddress = `${item.project_address_short} ${item.region_three_name} ${item.region_two_name} ${item.region_one_name}`;
+    // } else {
+    //   item.showAddress = `${item.region_one_name} ${item.region_two_name} ${item.region_three_name} ${item.project_address_short}`;
+    // }
 
     if (item.borrower_type === 1) {
       item.showName = `${item.first_name} ${item.middle_name} ${item.last_name}`;
@@ -276,7 +276,7 @@ const showDialog = ref(false);
 const pIds = ref([]);
 
 const bindHandle = (data) => {
-  pIds.value = data ? data.uuid : selectedRowKeys.value;
+  pIds.value = data ? [data.uuid] : selectedRowKeys.value;
   vcTeamObj.value['alm'] = data ? data.alm_list : [];
   showDialog.value = true;
 };
@@ -315,6 +315,15 @@ watch([sortType, sortValue], ([newSortType, newSortValue]) => {
   params.page = 1;
   getTableData(params);
 });
+
+watch(
+  tableData,
+  () => {
+    tabData.value.forEach(item => item.num = 0)
+    const currentTabInfo = tabData.value.find(item => item.value === currentTab.value)
+    currentTabInfo.num = pageObj.value.total
+  }
+)
 
 onMounted(() => {
   tabChange();

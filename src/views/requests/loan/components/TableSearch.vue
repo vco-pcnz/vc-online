@@ -1,20 +1,20 @@
 <template>
   <div>
     <vco-page-search>
-      <vco-page-search-item :title="t('借款人信息')" width="250">
-        <vco-type-input
-          v-model="searchForm.borrower_keyword"
-          v-model:type="searchForm.borrower_search_type"
-          :type-data="borrowerTypeData"
-          :placeholder="t('请输入')"
-        ></vco-type-input>
-      </vco-page-search-item>
-
       <vco-page-search-item :title="t('项目信息')" width="250">
         <vco-type-input
           v-model="searchForm.project_keyword"
           v-model:type="searchForm.project_search_type"
           :type-data="projectsTypeData"
+          :placeholder="t('请输入')"
+        ></vco-type-input>
+      </vco-page-search-item>
+      
+      <vco-page-search-item :title="t('借款人信息')" width="250">
+        <vco-type-input
+          v-model="searchForm.borrower_keyword"
+          v-model:type="searchForm.borrower_search_type"
+          :type-data="borrowerTypeData"
           :placeholder="t('请输入')"
         ></vco-type-input>
       </vco-page-search-item>

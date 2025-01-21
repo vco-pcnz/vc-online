@@ -177,6 +177,7 @@
           :lending-info="lendingInfo"
           @refresh="dataRefresh"
           @done="doneHandle('lendingDone')"
+          @openData="openDataHanle"
         ></lending-form>
       </template>
 
@@ -223,6 +224,28 @@
           @refresh="dataRefresh"
         ></offer-form>
       </template>
+
+      <!-- 已签offer -->
+      <template v-else-if="item === 'sign_offer'">
+        <sign-offer-form
+          :current-id="currentId"
+          :current-step="currentStep"
+          :block-info="blockInfo.sign_offer"
+          :offer-info="dataInfo.sign_offer"
+          @refresh="dataRefresh"
+        ></sign-offer-form>
+      </template>
+
+      <!-- 确认信息 -->
+      <template v-else-if="item === 'confirm'">
+        <confirm-form
+          :current-id="currentId"
+          :current-step="currentStep"
+          :block-info="blockInfo.confirm"
+          :confirm-info="dataInfo.confirm"
+          @refresh="dataRefresh"
+        ></confirm-form>
+      </template>
     </template>
   </div>
 </template>
@@ -243,12 +266,14 @@ import BounsForm from "./BounsForm.vue";
 import SecurityItems from "./SecurityItems.vue";
 import GuarantorInfo from "./GuarantorInfo.vue";
 import OfferForm from "./OfferForm.vue";
+import SignOfferForm from "./SignOfferForm.vue";
+import ConfirmForm from "./ConfirmForm.vue";
 
 import { projectAuditCheckMode } from "@/api/process"
 import emitter from '@/event';
 
 const { t } = useI18n();
-const emits = defineEmits(['refresh', 'lendingDone']);
+const emits = defineEmits(['refresh', 'lendingDone', 'openData']);
 
 const props = defineProps({
   blockArr: {
@@ -338,5 +363,9 @@ const dataRefresh = () => {
 
 const doneHandle = (type) => {
   emits(type)
+}
+
+const openDataHanle = (data) => {
+  emits('openData', data)
 }
 </script>

@@ -112,7 +112,7 @@
           </a-col>
         </a-row>
       </a-form>
-      <div v-if="blockInfo.showEdit" class="check-content">
+      <div class="check-content">
         <i class="iconfont">&#xe647;</i>
       </div>
     </div>

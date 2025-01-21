@@ -48,9 +48,17 @@
               :class="colClassName(percentItems.length)"
             >
               <a-form-item
-                :label="item.credit_name"
                 :name="item.credit_table"
               >
+                <template #label>
+                  {{ item.credit_name }}
+                  <a-tooltip v-if="item.tips" placement="topLeft">
+                    <template #title>
+                      <span>{{ item.tips }}</span>
+                    </template>
+                    <QuestionCircleOutlined class="ml-2" />
+                  </a-tooltip>
+                </template>
                 <a-input
                   v-model:value="formState[item.credit_table]"
                   :disabled="!blockInfo.showEdit"
@@ -70,9 +78,17 @@
               :class="colClassName(dollarItems.length)"
             >
               <a-form-item
-                :label="item.credit_name"
                 :name="item.credit_table"
               >
+                <template #label>
+                  {{ item.credit_name }}
+                  <a-tooltip v-if="item.tips" placement="topLeft">
+                    <template #title>
+                      <span>{{ item.tips }}</span>
+                    </template>
+                    <QuestionCircleOutlined class="ml-2" />
+                  </a-tooltip>
+                </template>
                 <a-input-number
                   v-model:value="formState[item.credit_table]"
                   :disabled="!blockInfo.showEdit"
@@ -95,7 +111,16 @@
               class="data-col-item"
               :class="colClassName1(showNumItems.length)"
             >
-              <a-form-item :label="item.credit_name">
+              <a-form-item>
+                <template #label>
+                  {{ item.credit_name }}
+                  <a-tooltip v-if="item.tips" placement="topLeft">
+                    <template #title>
+                      <span>{{ item.tips }}</span>
+                    </template>
+                    <QuestionCircleOutlined class="ml-2" />
+                  </a-tooltip>
+                </template>
                 <vco-number
                   :prefix="item.is_ratio ? '' : '$'"
                   :suffix="item.is_ratio ? '%' : ''"
@@ -117,6 +142,7 @@
 
 <script setup>
   import { ref, onMounted } from 'vue';
+  import { QuestionCircleOutlined } from '@ant-design/icons-vue'
   import { useI18n } from 'vue-i18n';
   import { cloneDeep } from 'lodash';
   import {

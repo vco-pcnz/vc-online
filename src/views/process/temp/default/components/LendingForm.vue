@@ -45,7 +45,7 @@
               <a-input-number
                 v-model:value="formState.land_amount"
                 :max="99999999999"
-                :disabled="amountDisabled"
+                :disabled="amountDisabled || inputADis"
                 :formatter="
                   (value) =>
                     `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -62,7 +62,7 @@
               <a-input-number
                 v-model:value="formState.build_amount"
                 :max="99999999999"
-                :disabled="amountDisabled"
+                :disabled="amountDisabled || inputADis"
                 :formatter="
                   (value) =>
                     `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -140,9 +140,17 @@
               :class="colClassName(percentItems.length)"
             >
               <a-form-item
-                :label="item.credit_name"
                 :name="item.credit_table"
               >
+                <template #label>
+                  {{ item.credit_name }}
+                  <a-tooltip v-if="item.tips" placement="topLeft">
+                    <template #title>
+                      <span>{{ item.tips }}</span>
+                    </template>
+                    <QuestionCircleOutlined class="ml-2" />
+                  </a-tooltip>
+                </template>
                 <a-input
                   v-model:value="formState[item.credit_table]"
                   :disabled="inputDisabled(item.editMark)"
@@ -162,9 +170,17 @@
               :class="colClassName(dollarItems.length)"
             >
               <a-form-item
-                :label="item.credit_name"
                 :name="item.credit_table"
               >
+                <template #label>
+                  {{ item.credit_name }}
+                  <a-tooltip v-if="item.tips" placement="topLeft">
+                    <template #title>
+                      <span>{{ item.tips }}</span>
+                    </template>
+                    <QuestionCircleOutlined class="ml-2" />
+                  </a-tooltip>
+                </template>
                 <a-input-number
                   v-model:value="formState[item.credit_table]"
                   :disabled="inputDisabled(item.editMark)"
@@ -187,7 +203,16 @@
               class="data-col-item"
               :class="colClassName1(showNumItems.length)"
             >
-              <a-form-item :label="item.credit_name">
+              <a-form-item>
+                <template #label>
+                  {{ item.credit_name }}
+                  <a-tooltip v-if="item.tips" placement="topLeft">
+                    <template #title>
+                      <span>{{ item.tips }}</span>
+                    </template>
+                    <QuestionCircleOutlined class="ml-2" />
+                  </a-tooltip>
+                </template>
                 <vco-number
                   :prefix="item.is_ratio ? '' : '$'"
                   :suffix="item.is_ratio ? '%' : ''"
@@ -212,6 +237,7 @@
   import { useI18n } from 'vue-i18n';
   import { cloneDeep } from 'lodash';
   import { message } from 'ant-design-vue/es';
+  import { QuestionCircleOutlined } from '@ant-design/icons-vue'
   import {
     ruleCredit,
     creditInfo,
@@ -224,7 +250,7 @@
 
   const processStore = useProcessStore();
 
-  const emits = defineEmits(['done', 'refresh']);
+  const emits = defineEmits(['done', 'refresh', 'openData']);
 
   const { t } = useI18n();
 
@@ -253,6 +279,11 @@
     } else {
       return true
     }
+  })
+
+  const inputADis = computed(() => {
+    const mark = props.currentStep.mark
+    return ['step_open'].includes(mark)
   })
 
   const inputDisabled = (str = '') => {
@@ -349,7 +380,6 @@
       } else {
         return 'five';
       }
-      
     }
   };
 
@@ -405,11 +435,11 @@
       dollarItems.value = dolData;
 
       showNumItems.value = props.currentStep.credit_cate ? data.filter((item) => !item.is_write && item.type === 1) : data.filter((item) => !item.is_write);
-      await updateFormData();
+      await updateFormData(res);
     });
   };
 
-  const updateFormData = async () => {
+  const updateFormData = async (tableData) => {
     await creditInfo({
       apply_uuid: props.currentId,
       type: props.currentStep.credit_cate,
@@ -440,6 +470,11 @@
     formState.value.build_amount = props.lendingInfo.build_amount;
     formState.value.initial_build_amount = props.lendingInfo.initial_build_amount;
     formState.value.initial_land_amount = props.lendingInfo.initial_land_amount;
+
+    emits('openData', {
+      table: tableData,
+      data: formState.value
+    })
   };
 
   const checkHandle = async () => {

@@ -537,5 +537,17 @@ export default {
   "是否复制以上信息": "Do you want to copy the above information?",
   "复制条数": "Number of copies",
   "需要点击选择已上传的文件进行上传": "You need to click to select the uploaded file to upload",
-  "同时更改利益相关者数据": "Changing stakeholder data simultaneously"
+  "同时更改利益相关者数据": "Changing stakeholder data simultaneously",
+  "项目楼栋数为{0}，抵押物数量为{1}，确认通过审核吗？": "The number of buildings in the project is <span>{0}</span>, and the number of Security items is <span>{1}</span>. Are you sure it has passed the review?",
+  "已签订凭证信息": "Signed offer",
+  "确定信息": "Confirm information",
+  "定金是否已收到？": "Has the deposit been received?",
+  "合同是否已签订？": "Has the contract been signed?",
+  "已收到": "Received",
+  "未收到": "Not received",
+  "已签订": "Signed",
+  "未签订": "Not signed",
+  "原因": "Reason",
+  "正确": "Correct",
+  "请确认以下信息": "Please confirm the following information"
 }

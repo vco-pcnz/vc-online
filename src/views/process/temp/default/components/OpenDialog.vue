@@ -28,6 +28,19 @@
             <p class="txt">{{ showTerm }}</p>
           </div>
         </a-col>
+        <a-col v-if="fonfirmTable.length" :span="24" class="mt-4">
+          <p style="font-size: 12px; color: #666;" class="mb-2">{{ t('请确认以下信息') }}</p>
+          <div class="confirm-content">
+            <div v-for="item in fonfirmTable" :key="item.credit_table" class="item">
+              <div>
+                <p>{{ item.credit_name }}</p>
+                <p v-if="item.is_ratio">{{ item.showVal }}{{ item.credit_unit }}</p>
+                <p v-else>{{ item.credit_unit }}{{ item.showVal }}</p>
+              </div>
+              <a-checkbox v-model:checked="confirmForm[item.credit_table]">{{ t('正确') }}</a-checkbox>
+            </div>
+          </div>
+        </a-col>
       </a-row>
     </div>
 
@@ -40,9 +53,9 @@
       <a-button
         type="dark" class="big shadow bold uppercase w-full mb-5 mt-5"
         :loading="subLoading"
+        :disabled="subDisabled"
         @click="submitHandle"
       >{{ t('确定') }}</a-button>
-      
     </div>
   </a-modal>
 </template>
@@ -73,6 +86,14 @@
       type: Object,
       default: () => {}
     },
+    lendingInfo: {
+      type: Object,
+      default: () => {}
+    },
+    openConfig: {
+      type: Object,
+      default: () => {}
+    },
     blockInfo: {
       type: Object,
       default: () => {}
@@ -85,6 +106,14 @@
     subLoading.value = flag
   }
 
+  const subDisabled = computed(() => {
+    if (fonfirmTable.value.length) {
+      return !Boolean(Object.values(confirmForm.value).every(item => item))
+    } else {
+      return false
+    }
+  })
+
   /* 更新visible */
   const updateVisible = (value) => {
     emits('update:visible', value);
@@ -95,6 +124,19 @@
   const endDate = ref('')
 
   const subLoading = ref(false)
+  const submitRquest = () => {
+    const params = {
+      uuid: props.uuid
+    }
+
+    projectAuditSaveStep(params).then((res) => {
+      changeLoading(false)
+      
+      emits('done')
+    }).catch(() => {
+      changeLoading(false)
+    })
+  }
   const submitHandle = async () => {
     if (!openDate.value) {
       message.error(t('请选择') + t('开放日期'))
@@ -109,21 +151,16 @@
         do__open: 1
       }
 
-      await projectAuditSaveMode(loadParams).then(() => {
-        const params = {
-          uuid: props.uuid
-        }
-
-        projectAuditSaveStep(params).then((res) => {
-          changeLoading(false)
-          
-          emits('done')
+      if (props.infoData.start_date !== startDate.value) {
+        console.log('fdsafdsa');
+        await projectAuditSaveMode(loadParams).then(() => {
+          submitRquest()
         }).catch(() => {
           changeLoading(false)
         })
-      }).catch(() => {
-        changeLoading(false)
-      })
+      } else {
+        submitRquest()
+      }
     }
   }
 
@@ -167,6 +204,25 @@
     return '--'
   })
 
+  const confirmForm = ref({})
+  const fonfirmTable = ref([])
+
+  const configInit = () => {
+    const fees = props.openConfig.fee || []
+    const {data, table} = props.lendingInfo
+    if (fees && fees.length) {
+      for (let i = 0; i < fees.length; i++) {
+        confirmForm.value[fees[i]] = false
+
+        const obj = table.find(item => item.credit_table === fees[i])
+        if (obj) {
+          obj.showVal = data[fees[i]]
+        }
+        fonfirmTable.value.push(obj)
+      }
+    }
+  }
+
   watch(
     () => props.visible,
     (val) => {
@@ -174,8 +230,12 @@
         subLoading.value = false;
         openDate.value = ''
       } else {
+        openDate.value = dayjs(props.infoData.start_date)
+
         startDate.value = props.infoData.start_date
         endDate.value = props.infoData.end_date
+
+        configInit()
       }
     }
   )
@@ -194,6 +254,35 @@
       :deep(.ant-statistic-content) {
         font-size: 16px !important;
       }
+    }
+  }
+
+  .confirm-content {
+    border: 1px solid #272727 !important;
+    border-radius: 10px !important;
+    background-color: #f7f9f8;
+    padding: 10px 15px;
+    > .item {
+      border-bottom: 1px dashed #ddd;
+      padding: 5px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      &:last-child {
+        border-bottom: none;
+      }
+      > div {
+        > p {
+          color: #666;
+          font-size: 12px;
+          &:last-child {
+            font-size: 13px;
+            font-weight: 500;
+            color: #272727;
+          }
+        }
+      }
+      
     }
   }
 </style>

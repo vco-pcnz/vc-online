@@ -13,8 +13,10 @@
     <open-dialog
       v-if="currentDataInfo"
       :uuid="currentId"
+      :open-config="openConfig"
       :block-info="PageBlockObjRef"
       :info-data="currentDataInfo.loan"
+      :lending-info="lendingDataInfo"
       v-model:visible="openVisible"
       @done="subDone"
     ></open-dialog>
@@ -61,6 +63,7 @@
             :hide-wash="tempHideWash"
             @refresh="getDataInit"
             @lendingDone="showForecast = true"
+            @openData="openDataHandle"
           ></temp-block>
 
           <div v-if="dataInfo.base.fc_review" class="block-item mb">
@@ -224,8 +227,25 @@
 
   const openVisible = ref(false)
 
+  const openConfig = ref()
   const subLoading = ref(false)
   const resovleVisible = ref(false);
+
+  const submitRquest = (params) => {
+    subLoading.value = true
+    projectAuditSaveStep(params).then((res) => {
+      subLoading.value = false
+      footerRef.value.nextHandle({
+        ...res,
+        uuid: props.currentId
+      })
+
+      // 触发列表数据刷新
+      emitter.emit('refreshRequestsList')
+    }).catch(() => {
+      subLoading.value = false
+    })
+  }
 
   const submitHandle = () => {
     if (subDisabled.value) {
@@ -240,23 +260,27 @@
       }
 
       if (currentMark.value === 'step_open') {
-        openVisible.value = true
+        const not_norm = props.currentStep.not_norm
+        if (not_norm) {
+          const normObj = JSON.parse(not_norm)
+          if (normObj.open) {
+            openConfig.value = normObj
+            openVisible.value = true
+          } else {
+            submitRquest(params)
+          }
+        } else {
+          submitRquest(params)
+        }
       } else {
-        subLoading.value = true
-        projectAuditSaveStep(params).then((res) => {
-          subLoading.value = false
-          footerRef.value.nextHandle({
-            ...res,
-            uuid: props.currentId
-          })
-
-          // 触发列表数据刷新
-          emitter.emit('refreshRequestsList')
-        }).catch(() => {
-          subLoading.value = false
-        })
+        submitRquest(params)
       }
     }
+  }
+
+  const lendingDataInfo = ref()
+  const openDataHandle = (data) => {
+    lendingDataInfo.value = data
   }
 
   const subDone = (data) => {

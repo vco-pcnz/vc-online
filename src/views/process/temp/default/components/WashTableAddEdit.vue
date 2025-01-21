@@ -7,7 +7,8 @@
             <a-form-item label="">
               <vco-choose-user
                 ref="vcoChooseUserRef"
-                url="stake/selStake?type=20"
+                url="stake/selStake"
+                :params="{type:20}"
                 @change="choiceUserDone"
                 :title="t('搜索利益相关者')"
                 :showRest="Boolean(!formState.id && formState.stake_uuid)"

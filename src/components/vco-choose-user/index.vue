@@ -116,7 +116,11 @@ const props = defineProps({
   hideSearch: {
     type: Boolean,
     default: false
-  }
+  },
+  params: {
+    type: Object,
+    default: false
+  },
 });
 const open = ref(false);
 const loading = ref(false);
@@ -195,7 +199,7 @@ const lodaData = () => {
   const paramsInfo = {
     url: props.url,
     method: 'get',
-    params: { ...searchForm.value, ...pagination.value, ...{ role_code: props.roleCode } }
+    params: { ...searchForm.value, ...pagination.value, ...{ role_code: props.roleCode },...props.params }
   };
 
   if (props.hideSearch) {

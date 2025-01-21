@@ -400,9 +400,6 @@ onMounted(() => {
   & > tr td {
     color: #181818;
   }
-  & > tr:nth-child(2) {
-    font-weight: 500;
-  }
 }
 .selectAll {
   position: absolute;

@@ -7,6 +7,7 @@
     <vco-choose-user
       ref="vcoChooseUserRef"
       :isMultiple="true"
+      :title="t('利益相关者')"
       url="stake/selStake"
       @done="userChoiced"
     >

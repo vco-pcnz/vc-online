@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- 人员选择 -->
-    <vco-choose-user ref="vcoChooseUserRef" url="stake/selStake" @change="choiceUserDone">
+    <vco-choose-user ref="vcoChooseUserRef" :title="t('利益相关者')" url="stake/selStake" @change="choiceUserDone">
       <div></div>
     </vco-choose-user>
 

@@ -151,12 +151,15 @@ const props = defineProps({
     default: 1 //1 image,2 file,3 video
   },
   uploadType: {
-    type: Number,
-    default: '' //1 image,2 file,3 video
+    type: Number //1 image,2 file,3 video
   },
   limit: {
     type: Number,
     default: 99 //1 image,2 file,3 video
+  },
+  isAvatar: {
+    type: Boolean,
+    default: false //1 image,2 file,3 video
   }
 });
 const emits = defineEmits(['update:value', 'update:list', 'change']);
@@ -254,7 +257,7 @@ const updateNewFile = () => {
 
 const confirm = () => {
   const list = [...props.list, ...checkedList.value];
-  const isOneImg = props.uploadType == 1 && props.limit == 1;
+  const isOneImg = props.uploadType == 1 && props.limit == 1 && props.isAvatar;
   if (isOneImg) {
     emits('update:value', checkedList.value[0].value);
   } else {

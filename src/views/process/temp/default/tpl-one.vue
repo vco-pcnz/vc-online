@@ -45,7 +45,12 @@
                   </a-col>
                   <a-col :span="24">
                     <a-form-item :label="t('证件照片')" name="borrower_images">
-                      <vco-upload-image v-model:value="formState.borrower_images" :isMultiple="true" :limit="9"></vco-upload-image>
+                      <!-- <vco-upload-image v-model:value="formState.borrower_images" :isMultiple="true" :limit="9"></vco-upload-image> -->
+                      <vco-upload-list
+                        v-model:value="formState.borrower_images"
+                        v-model:list="formState.borrower_images_list"
+                        :limit="9 - formState.borrower_images.length"
+                      ></vco-upload-list>
                     </a-form-item>
                   </a-col>
                   <template v-if="formState.borrower_type === 1">
@@ -127,11 +132,7 @@
           </div>
         </div>
         <div v-if="!check" class="right-content">
-          <bind-users
-            ref="bindUsersRef"
-            v-if="bindUserPermission"
-            :current-id="currentId"
-          ></bind-users>
+          <bind-users ref="bindUsersRef" v-if="bindUserPermission" :current-id="currentId"></bind-users>
 
           <ads-content></ads-content>
         </div>
@@ -141,7 +142,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, watch, onMounted, computed, createVNode,nextTick } from 'vue';
+import { reactive, ref, watch, onMounted, computed, createVNode, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { Modal } from 'ant-design-vue';
 import { cloneDeep } from 'lodash';
@@ -154,8 +155,7 @@ import TempFooter from './components/TempFooter.vue';
 import BindUsers from './../../components/BindUsers.vue';
 import AdsContent from './../../components/AdsContent.vue';
 import emitter from '@/event';
-import { hasPermission } from "@/directives/permission/index"
-
+import { hasPermission } from '@/directives/permission/index';
 
 const emits = defineEmits(['checkDone', 'dataDone']);
 
@@ -210,8 +210,8 @@ const vcoChooseUserRef = ref();
 const bindUsersRef = ref();
 
 const bindUserPermission = computed(() => {
-  return hasPermission('requests:loan:bind:vcTeam') || hasPermission('requests:loan:bind:broker') || hasPermission('requests:loan:bind:user')
-})
+  return hasPermission('requests:loan:bind:vcTeam') || hasPermission('requests:loan:bind:broker') || hasPermission('requests:loan:bind:user');
+});
 
 const vcoAddressRef = ref();
 const addressConfig = ref({
@@ -253,10 +253,9 @@ const formState = reactive({
   borrower_address_short: '',
   borrower_about: '',
 
-
-  borrower_region_one_id:'',
-  borrower_region_two_id:'',
-  borrower_region_three_id:'',
+  borrower_region_one_id: '',
+  borrower_region_two_id: '',
+  borrower_region_three_id: '',
 
   borrower_region_one_name: '',
   borrower_region_one_id: '',
@@ -334,10 +333,10 @@ const getTempData = async () => {
       // formState.borrower_region_two_id = res.borrower_region_two_id;
       // formState.borrower_region_three_id = res.borrower_region_three_id;
       formState.borrower_phone_prefix = '64';
-      
-      nextTick(()=>{
+
+      nextTick(() => {
         vcoAddressRef.value.init(formState);
-      })
+      });
       tempLoading.value = false;
     })
     .catch(() => {
@@ -435,7 +434,7 @@ const submitHandle = () => {
 
       if (props.check) {
         params.borrower_info_status = props.infoData.check_status;
-        params.code = props.code
+        params.code = props.code;
         ajaxFn = projectAuditSaveMode;
       } else {
         params.draft_step = markInfo.value;
@@ -528,9 +527,9 @@ const dataInit = (infoMsg = {}, draftMsg = {}) => {
     }
   }
 
-  nextTick(()=>{
+  nextTick(() => {
     vcoAddressRef.value.init(formState);
-  })
+  });
   emits('dataDone', data.project_apply_sn || '');
 };
 
@@ -551,9 +550,7 @@ const getDataInit = async () => {
   await projectDraftInfo(params).then((res) => {
     if (res.draft) {
       const data = JSON.parse(res.draft);
-      if (data.borrower_images && data.borrower_images.length) {
-        data.borrower_images = data.borrower_images.split(',');
-      }
+      data.borrower_images = data.borrower_images_list;
       draftData = data;
     }
   });

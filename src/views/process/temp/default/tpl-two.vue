@@ -27,7 +27,12 @@
                   </a-col>
                   <a-col :span="24">
                     <a-form-item :label="t('项目照片')" name="project_images">
-                      <vco-upload-image v-model:value="formState.project_images" :isMultiple="true" :limit="9"></vco-upload-image>
+                      <!-- <vco-upload-image v-model:value="formState.project_images" :isMultiple="true" :limit="9"></vco-upload-image> -->
+                      <vco-upload-list
+                        v-model:value="formState.project_images"
+                        v-model:list="formState.project_images_list"
+                        :limit="9 - formState.project_images.length"
+                      ></vco-upload-list>
                     </a-form-item>
                   </a-col>
                   
@@ -380,9 +385,7 @@ const setAddressInfo = (e) => {
     await projectDraftInfo(params).then(res => {
       if (res.draft) {
         const data = JSON.parse(res.draft)
-        if (data.project_images && data.project_images.length) {
-          data.project_images = data.project_images.split(',')
-        }
+        data.project_images = data.project_images_list
         draftData = data
       }
     })

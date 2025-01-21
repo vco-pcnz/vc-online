@@ -6,7 +6,7 @@
           <a-col :span="24" class="avatar-box">
             <div class="flex justify-center pb-3" style="font-size: 0">
               <!-- <vco-upload-image v-model:value="form.avatar" text="上传头像"></vco-upload-image> -->
-              <vco-upload-modal v-model:value="form.avatar" :uploadType="1" :limit="1">
+              <vco-upload-modal v-model:value="form.avatar" :isAvatar="true" :uploadType="1" :limit="1">
                 <div class="avatarBox">
                   <template v-if="form.avatar">
                     <vco-avatar :src="form.avatar" :size="128"></vco-avatar>

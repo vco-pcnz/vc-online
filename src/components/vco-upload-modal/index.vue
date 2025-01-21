@@ -9,15 +9,21 @@
     </div>
     <a-modal :width="800" v-if="open" :open="open" :title="t('上传')" @cancel="open = false">
       <a-tabs v-model:activeKey="activeKey" @change="searchHandle(false)">
-        <a-tab-pane :key="1" :tab="t('图片')"> </a-tab-pane>
-        <a-tab-pane :key="2" :tab="t('文件')"> </a-tab-pane>
-        <a-tab-pane :key="3" :tab="t('视频')"></a-tab-pane>
+        <a-tab-pane :key="1" :tab="t('图片')" v-if="!uploadType || uploadType == 1"> </a-tab-pane>
+        <a-tab-pane :key="2" :tab="t('文件')" v-if="!uploadType || uploadType == 2"> </a-tab-pane>
+        <a-tab-pane :key="3" :tab="t('视频')" v-if="!uploadType || uploadType == 3"></a-tab-pane>
       </a-tabs>
-      <div class="fileType">
+      <div class="fileType flex">
         <a-radio-group v-model:value="fileType">
           <a-radio-button value="list"><i class="iconfont">&#xe62e;</i></a-radio-button>
           <a-radio-button value="card"><i class="iconfont">&#xe60a;</i></a-radio-button>
         </a-radio-group>
+        <upload-btn v-model:list="documentList" :controller="controller" :params="params" :defaultUploadType="activeKey" class="ml-2" v-if="!uploadType">
+          <a-button type="brown">{{ t('上传') }}</a-button>
+        </upload-btn>
+        <!-- <vco-upload :controller="controller" :params="params" type="video" :limit="20" isMultiple v-model:list="videos">
+          <a-button type="brown">{{ t('上传') }}</a-button>
+        </vco-upload> -->
       </div>
       <div class="flex items-end justify-between mb-5">
         <div>
@@ -33,16 +39,16 @@
             <div class="flex items-center gap-2">
               <a-button type="dark" @click="searchHandle(false)"><i class="iconfont">&#xe756;</i>{{ t('搜索') }}</a-button>
               <a-button type="dark-line" @click="searchHandle(true)"><i class="iconfont">&#xe757;</i>{{ t('重置') }}</a-button>
-              <upload-btn v-model:list="documentList" :controller="controller" :params="params" :uploadType="activeKey">
-                <a-button type="dark">{{ t('上传') }}</a-button>
-              </upload-btn>
             </div>
           </vco-page-search-item>
         </vco-page-search>
       </div>
       <!-- 新上传 -->
       <template v-if="Boolean(documentList && documentList.length)">
-        <h3 class="title">New files</h3>
+        <div class="flex items-center">
+          <h3 class="title">New files</h3>
+          <p class="fs_xs color_grey ml-2">{{ t('需要点击选择已上传的文件进行上传') }}</p>
+        </div>
         <div :class="['file-' + fileType]">
           <div
             :class="['file-' + fileType + '-item', { checked: checkedIds.includes(item.uuid) }]"
@@ -59,7 +65,10 @@
 
       <!-- 上传历史 -->
       <template v-if="Boolean(history && history.length)">
-        <h3 class="title">History files</h3>
+        <div class="flex items-center">
+          <h3 class="title">History files</h3>
+          <p class="fs_xs color_grey ml-2">{{ t('需要点击选择已上传的文件进行上传') }}</p>
+        </div>
         <div :class="['file-' + fileType]">
           <div
             :class="['file-' + fileType + '-item', { checked: checkedIds.includes(item.uuid) }]"
@@ -112,7 +121,7 @@ const props = defineProps({
   list: {
     type: Array,
     required: false,
-    default:[]
+    default: []
   },
   controller: {
     type: String,
@@ -126,9 +135,13 @@ const props = defineProps({
       return {};
     }
   },
+  defaultUploadType: {
+    type: Number,
+    default: 1 //1 image,2 file,3 video
+  },
   uploadType: {
     type: Number,
-    default: 1
+    default: 2 //1 image,2 file,3 video
   }
 });
 const emits = defineEmits(['update:value', 'update:list', 'change']);
@@ -149,14 +162,17 @@ const searchForm = ref({
 });
 
 const show = () => {
-  activeKey.value = props.uploadType;
+  activeKey.value = props.defaultUploadType;
+  if (props.uploadType) activeKey.value = props.uploadType;
   documentList.value = [];
   checkedIds.value = [];
   checkedList.value = [];
   open.value = true;
   loadData();
 };
-
+// setTimeout(() => {
+//   show();
+// }, 1000);
 // 搜索
 const searchHandle = (flag) => {
   if (flag) {

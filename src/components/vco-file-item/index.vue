@@ -306,6 +306,7 @@ watch(
       background: rgba(0, 0, 0, 0.05);
       text-align: center;
       position: relative;
+      overflow: hidden;
       .fileIcon {
         font-size: 60px;
       }

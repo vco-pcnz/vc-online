@@ -14,15 +14,6 @@
               ></vco-choose-user>
             </a-form-item>
           </a-col>
-          <!-- <a-col :span="24">
-            <a-form-item :label="t('类型')" name="cate">
-              <a-select v-model:value="formState.cate">
-                <a-select-option v-for="item in cateList" :key="item.id" :value="item.id">
-                  {{ item.title }}
-                </a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-col> -->
 
           <a-col :span="24">
             <a-form-item :label="t('类型')" name="cate">
@@ -33,36 +24,26 @@
               </a-radio-group>
             </a-form-item>
           </a-col>
-          <template v-if="Boolean(formState.stake_uuid)">
-            <a-col :span="24">
-              <a-form-item :label="t('名称')" name="name">
-                <a-input v-model:value="formState.name" />
-              </a-form-item>
-            </a-col>
-          </template>
-
-          <template v-else>
-            <a-col :span="8">
-              <a-form-item name="firstName" :label="t('名')">
-                <a-input v-model:value="formState.firstName" :placeholder="t('名')" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item name="middleName" :label="t('中间名')">
-                <a-input v-model:value="formState.middleName" :placeholder="t('中间名')" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item name="lastName" :label="t('姓')">
-                <a-input v-model:value="formState.lastName" :placeholder="t('姓')" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="24">
-              <a-form-item :label="t('身份证号码')" name="idcard">
-                <a-input v-model:value="formState.idcard" :placeholder="t('请输入')" />
-              </a-form-item>
-            </a-col>
-          </template>
+          <a-col :span="8">
+            <a-form-item name="firstName" :label="t('名')">
+              <a-input v-model:value="formState.firstName" :placeholder="t('名')" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="8">
+            <a-form-item name="middleName" :label="t('中间名')">
+              <a-input v-model:value="formState.middleName" :placeholder="t('中间名')" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="8">
+            <a-form-item name="lastName" :label="t('姓')">
+              <a-input v-model:value="formState.lastName" :placeholder="t('姓')" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <a-form-item :label="t('身份证号码')" name="idcard">
+              <a-input v-model:value="formState.idcard" :placeholder="t('请输入')" />
+            </a-form-item>
+          </a-col>
 
           <a-col :span="24">
             <a-form-item :label="t('邮箱')" name="email">
@@ -84,8 +65,11 @@
           <a-col :span="24">
             <a-form-item :label="t('项目文件')">
               <vco-upload-modal v-model:list="documentList" v-model:value="formState.document"></vco-upload-modal>
+              <div style="max-height: 200px;overflow-y: auto;padding-right: 10px;">
               <div class="documents" v-for="(item, index) in documentList" :key="index">
                 <vco-file-item :file="item" :showClose="true" @remove="remove(index)"></vco-file-item>
+              </div>
+
               </div>
             </a-form-item>
           </a-col>
@@ -93,6 +77,13 @@
             <a-form-item :label="t('背景f')" name="note">
               <a-textarea v-model:value="formState.note" :auto-size="{ minRows: 4, maxRows: 5 }" :placeholder="t('请输入')" />
             </a-form-item>
+          </a-col>
+          <a-col :span="24" class="mb-10" v-if="formState.stake_uuid">
+            <a-form-item-rest>
+              <a-checkbox v-model:checked="formState.change">
+                {{ t('同时更改利益相关者数据') }}
+              </a-checkbox>
+            </a-form-item-rest>
           </a-col>
           <a-col :span="12" class="mb-10">
             <a-form-item-rest>
@@ -164,7 +155,7 @@ const formState = ref({
   stake_uuid: '',
   annex_id: 0,
   cate: '',
-  // name: '',
+  change: 0,
   firstName: '',
   idcard: '',
   middleName: '',
@@ -196,12 +187,13 @@ const submitHandle = () => {
       params.uuid = props.currentId;
       params.sendEmail = formState.value.sendEmail ? 1 : 0;
       params.sendSms = formState.value.sendSms ? 1 : 0;
-      if (params.stake_uuid) {
-        params.firstName = undefined;
-        params.middleName = undefined;
-        params.lastName = undefined;
-        params.idcard = undefined;
-      }
+      params.change = formState.value.change ? 1 : 0;
+      // if (params.stake_uuid) {
+      //   params.firstName = undefined;
+      //   params.middleName = undefined;
+      //   params.lastName = undefined;
+      //   params.idcard = undefined;
+      // }
 
       subLoading.value = true;
       washAdd(params)
@@ -222,7 +214,7 @@ const submitHandle = () => {
 const vcoChooseUserRef = ref();
 
 const choiceUserDone = (data) => {
-  let keys = ['pre', 'mobile', 'email'];
+  let keys = ['pre', 'mobile', 'email','firstName','middleName','lastName','idcard'];
   const newData = pick(data, keys);
   newData['stake_uuid'] = data.uuid;
   documentList.value = data.document ? cloneDeep(data.document) : [];
@@ -247,7 +239,7 @@ watch(
         stake_uuid: '',
         annex_id: 0,
         cate: '',
-        // name: '',
+        change: 0,
         firstName: '',
         middleName: '',
         lastName: '',
@@ -265,6 +257,7 @@ watch(
         formState.value = cloneDeep(props.infoData);
         formState.value.sendEmail = formState.value.sendEmail == '1';
         formState.value.sendSms = formState.value.sendSms == '1';
+        formState.value.change = formState.value.change == '1';
         documentList.value = props.infoData.document ? cloneDeep(props.infoData.document) : [];
       }
     }

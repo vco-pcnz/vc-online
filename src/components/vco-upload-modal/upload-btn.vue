@@ -58,7 +58,7 @@ const props = defineProps({
       return {};
     }
   },
-  uploadType: {
+  defaultUploadType: {
     type: Number,
     default: 1
   }
@@ -71,7 +71,7 @@ const files = ref([]);
 const videos = ref([]);
 
 const show = () => {
-  activeKey.value = props.uploadType;
+  activeKey.value = props.defaultUploadType;
   images.value = [];
   files.value = [];
   videos.value = [];

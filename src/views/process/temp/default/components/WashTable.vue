@@ -58,7 +58,13 @@
         </a-button>
       </div>
 
-      <a-popconfirm v-if="!washInfo.is_check && blockInfo.showCheck" :title="t('确定通过审核吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="washCheckHandle">
+      <a-popconfirm
+        v-if="!washInfo.is_check && blockInfo.showCheck"
+        :title="t('确定通过审核吗？')"
+        :ok-text="t('确定')"
+        :cancel-text="t('取消')"
+        @confirm="washCheckHandle"
+      >
         <a-button type="dark" shape="round" class="uppercase">
           {{ t('审核') }}
         </a-button>
@@ -109,10 +115,9 @@
             <template v-if="column.dataIndex === 'operation'">
               <div class="ops">
                 <!-- <i class="iconfont" style="color: #0bda8e !important" v-if="Boolean(record.status == 3)">&#xe786;</i> -->
-                <i class="iconfont" v-if="Boolean(record.document && record.document.length)" @click="updateVisibleFiles(record.document)"
-                  >&#xe690;</i
-                >
+                <i class="iconfont" v-if="Boolean(record.document && record.document.length)" @click="updateVisibleFiles(record)">&#xe690;</i>
                 <template v-if="blockInfo.showEdit">
+                  <i class="iconfont" @click="checkOne(record.id)" v-if="record.status != 3">&#xe647;</i>
                   <i class="iconfont" @click="showForm(record)">&#xe753;</i>
                   <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.id)">
                     <i class="iconfont">&#xe8c1;</i>
@@ -140,16 +145,25 @@
 
     <a-modal
       :open="visibleFiles"
-      :title="t('项目文件')"
-      :width="500"
+      :title="t('详情')"
+      :width="640"
       :footer="null"
       :keyboard="false"
       :maskClosable="false"
       @update:open="visibleFiles = false"
     >
-      <div class="documents" v-for="(item, index) in documentList" :key="index">
-        <vco-file-item :file="item"></vco-file-item>
+      <p class="fs_xs color_grey">{{ t('项目文件') }}</p>
+      <div style="max-height: 400px; overflow-y: auto; padding-right: 10px">
+        <div class="documents" v-for="(item, index) in itemData.document" :key="index">
+          <vco-file-item :file="item"></vco-file-item>
+        </div>
       </div>
+      <template v-if="itemData.remark">
+        <p class="fs_xs color_grey">{{ t('反洗钱说明') }}</p>
+        <div class="remark bold" style="max-height: 200px; overflow-y: auto">
+          {{ itemData.remark }}
+        </div>
+      </template>
     </a-modal>
 
     <div v-if="blockInfo.showCheck" class="check-content">
@@ -286,6 +300,17 @@ const checkHandle = async (val) => {
   }
 };
 
+const checkOne = (id) => {
+  loading.value = true;
+  washCheck({ id: [id], uuid: props.currentId })
+    .then((res) => {
+      loadData();
+    })
+    .finally((_) => {
+      loading.value = false;
+    });
+};
+
 const remove = (id) => {
   loading.value = true;
   washRemove({ id: [id], uuid: props.currentId })
@@ -321,10 +346,10 @@ const showForm = (val) => {
 };
 
 const visibleFiles = ref(false);
-const documentList = ref([]);
+const itemData = ref();
 
 const updateVisibleFiles = (val) => {
-  documentList.value = val;
+  itemData.value = val;
   visibleFiles.value = true;
 };
 
@@ -396,5 +421,13 @@ onMounted(() => {
   .open {
     transform: rotate(180deg);
   }
+}
+.remark {
+  padding: 10px;
+  background: #f7f9f8;
+  border-radius: 8px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  font-size: 13px;
 }
 </style>

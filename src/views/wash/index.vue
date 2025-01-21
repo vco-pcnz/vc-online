@@ -3,12 +3,9 @@
     <template #content v-if="req">
       <div class="anti-money" v-if="!showTip">
         <a-card>
-          <!-- <template #extra>
-          
-          </template> -->
           <div class="flex items-center justify-between">
             <p class="my-5 bold fs_xl">{{ t('证件资料') }}</p>
-            <UploadBtn v-model:list="list" :uploadType="2" controller="/wash" :params="{ code: code }">
+            <UploadBtn v-model:list="list" :defaultUploadType="2" controller="/wash" :params="{ code: code }">
               <div class="upload-btn"><i class="iconfont">&#xe734;</i>{{ t('上传文件') }}</div>
             </UploadBtn>
           </div>
@@ -21,7 +18,7 @@
             <p v-else>{{ t('暂无数据，请上传') }}</p>
           </div>
           <p class="my-5 bold fs_xl">{{ t('反洗钱说明') }}</p>
-          <a-textarea v-model:value="note" :auto-size="{ minRows: 7, maxRows: 7 }" :placeholder="t('请输入')" show-count :maxlength="500" />
+          <a-textarea v-model:value="remark" :auto-size="{ minRows: 7, maxRows: 7 }" :placeholder="t('请输入')" show-count :maxlength="500" />
         </a-card>
         <div class="flex justify-center my-5">
           <a-button @click="submit" size="large" type="dark" style="width: 40%">
@@ -51,9 +48,9 @@ import UploadBtn from '@/components/vco-upload-modal/upload-btn.vue';
 const { t } = useI18n();
 
 const showTip = ref(true);
-const req = ref(true);
+const req = ref(false);
 const code = ref('');
-const note = ref('');
+const remark = ref('');
 const list = ref([]);
 
 const removeItem = (index) => {
@@ -68,7 +65,8 @@ const submit = () => {
   let uuids = list.value.map((item) => {
     return item.uuid;
   });
-  wash({ code: code.value, document: uuids,note:note.value }).then((res) => {
+
+  wash({ code: code.value, document: uuids,remark:remark.value }).then((res) => {
     showTip.value = true;
   });
 };

@@ -1,29 +1,41 @@
 <template>
-  <layout>
+  <layout ref="layoutRef">
     <template #content>
       <div class="actions">
-        <a-button @click="onRemove" :disabled="!rowKeys.length || selectionStatus !== 'Reconciled'">
+        <a-button @click="onRemove" :disabled="!selectedRowKeys.length">
           {{ t('删除重做') }}
         </a-button>
-        <span class="count">{{ t('选中{ 0 }条', [rowKeys.length]) }}</span>
+        <span class="count">{{ t('选中{ 0 }条', [selectedRowKeys.length]) }}</span>
       </div>
-      <a-table
-        :data-source="dataSource"
-        :columns="columns"
-        :pagination="pagination"
-        :row-selection="rowSelection"
-      >
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'status'">
-            <div v-if="record.status === 'Reconciled'" class="status_tag">
-              {{ record.status }}
-            </div>
-            <div v-else class="status_tag unreconciled_tag">
-              {{ record.status }}
-            </div>
+      <a-spin :spinning="loading" size="large">
+        <a-table
+          :data-source="dataSource"
+          :columns="columns"
+          :pagination="false"
+          :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }"
+          row-key="sn"
+        >
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'status'">
+              <div v-if="record.status" class="status_tag">Reconciled</div>
+              <div v-else class="status_tag unreconciled_tag">Unreconciled</div>
+            </template>
           </template>
-        </template>
-      </a-table>
+        </a-table>
+
+        <a-empty v-if="!dataSource || !dataSource.length" />
+      </a-spin>
+      <div class="flex justify-center pb-5">
+        <a-pagination
+          size="small"
+          :total="total"
+          :pageSize="pagination.limit"
+          :current="pagination.page"
+          show-quick-jumper
+          :show-total="(total) => t('共{0}条', [total])"
+          @change="setPaginate"
+        />
+      </div>
     </template>
   </layout>
 </template>
@@ -33,27 +45,51 @@ import { ref, reactive, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import layout from '../components/layout.vue';
 import tool from '@/utils/tool.js';
-import { getTransactions } from '@/api/reconciliations';
+import { getTransactions, removeTransactions } from '@/api/reconciliations';
 
 const { t } = useI18n();
-const selectionStatus = ref('');
-const rowKeys = ref([]);
 
-const pagination = reactive({
-  position: ['bottomCenter'],
-  showSizeChanger: false,
-  total: 0,
-});
-
+const selectedRowKeys = ref([]); // 存放UUid
+const selectedRows = ref([]); // 存放所有选中的选项的所有内容
 const rowSelection = ref({
   checkStrictly: false,
-  onChange: (selectedRowKeys, rows) => {
-    rowKeys.value = selectedRowKeys;
-    selectionStatus.value = rows?.[0]?.status || ''
+  onSelect: (record, selected) => {
+    if (selected) {
+      selectedRowKeys.value.push(record.sn);
+      selectedRows.value.push(record);
+    } else {
+      let index = selectedRowKeys.value.findIndex((it) => {
+        return it === record.sn;
+      });
+      selectedRowKeys.value.splice(index, 1);
+      selectedRows.value.splice(index, 1);
+    }
+  },
+  onSelectAll: (selected, Rows, changeRows) => {
+    const changeRowId = changeRows.map((it) => {
+      return it.sn;
+    });
+    if (selected) {
+      let newIds = Array.from(new Set(changeRowId.concat(selectedRowKeys.value)));
+      let newRows = Array.from(new Set(changeRows.concat(selectedRows.value)));
+      selectedRowKeys.value = newIds;
+      selectedRows.value = newRows;
+    } else {
+      // 取消选中
+      changeRowId.map((it) => {
+        let index = selectedRowKeys.value.findIndex((item) => {
+          return item == it;
+        });
+        if (index != -1) {
+          selectedRowKeys.value.splice(index, 1);
+          selectedRows.value.splice(index, 1);
+        }
+      });
+    }
   },
   getCheckboxProps: (r) => ({
-    disabled: !!selectionStatus.value && r.status !== selectionStatus.value,
-  }),
+    disabled: Boolean(r.status)
+  })
 });
 
 const columns = reactive([
@@ -63,61 +99,101 @@ const columns = reactive([
     key: 'name',
     customRender: ({ text }) => {
       return tool.showDate(Date(text));
-    },
+    }
   },
   {
     title: t('账户名称'),
     dataIndex: 'account',
     key: 'account',
     width: '16%',
+    customRender: ({ record }) => {
+      return record.project.project_name + ' - ' + 'xxxx';
+    }
   },
   {
     title: t('参考'),
-    dataIndex: 'reference',
-    key: 'reference',
-    width: '12%',
+    dataIndex: 'type',
+    key: 'type',
+    width: '12%'
   },
   {
     title: t('说明'),
-    dataIndex: 'notes',
-    key: 'notes',
-    width: '20%',
+    dataIndex: 'note',
+    key: 'note',
+    width: '20%'
   },
   {
     title: t('支出'),
     dataIndex: 'spent',
     key: 'spent',
-    customRender: ({ text }) =>
-      !text ? '' : tool.formatMoney(parseInt(text), { cents: true }),
+    customRender: ({ record }) => {
+      if (record.amount > 0) return tool.formatMoney(Math.abs(record.amount));
+    }
   },
   {
     title: t('收入'),
     dataIndex: 'received',
     key: 'received',
-    customRender: ({ text }) =>
-      !text ? '' : tool.formatMoney(parseInt(text), { cents: true }),
+    customRender: ({ record }) => {
+      if (record.amount < 0) return tool.formatMoney(Math.abs(record.amount));
+    }
   },
   {
     title: t('状态'),
     dataIndex: 'status',
-    key: 'status',
-  },
+    key: 'status'
+  }
 ]);
 
-const dataSource = reactive([]);
-
 const onRemove = () => {
-  if (!rowKeys.value.length) return;
+  console.log(selectedRowKeys.value);
+  if (!selectedRowKeys.value.length) return;
+  loading.value = true;
+  removeTransactions({ sn: selectedRowKeys.value.join() })
+    .then((res) => {
+      selectedRowKeys.value = []
+      selectedRows.value = []
+      pagination.value.page = 1;
+      loadData();
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+};
+
+const dataSource = ref([]);
+const layoutRef = ref();
+const total = ref(0);
+const loading = ref(false);
+
+const pagination = ref({
+  page: 1,
+  limit: 10
+});
+
+const setPaginate = (page, limit) => {
+  pagination.value = {
+    page,
+    limit
+  };
+  loadData();
+};
+
+const loadData = () => {
+  loading.value = true;
+  getTransactions(pagination.value)
+    .then((res) => {
+      total.value = res.count;
+      dataSource.value = res.data;
+      layoutRef.value.setNum(total.value);
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 };
 
 onMounted(() => {
-  getTransactions().then((res) => {
-    const { data, count } = res;
-    if (count) {
-      Object.assign(dataSource, data);
-      pagination.total = count;
-    }
-  });
+  loadData();
 });
 </script>
 

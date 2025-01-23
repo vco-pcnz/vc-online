@@ -1,35 +1,40 @@
 <template>
-  <layout>
+  <layout ref="layoutRef">
     <template #content>
-      <a-table :data-source="dataSource" :columns="columns" :pagination="pagination">
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'status'">
-            <div v-if="record.status === 'Reconciled'" class="status_tag">
-              {{ record.status }}
-            </div>
-            <div v-else class="status_tag unreconciled_tag">
-              {{ record.status }}
-            </div>
+      <a-spin :spinning="loading" size="large">
+        <a-table :data-source="dataSource" :columns="columns" :pagination="false">
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'status'">
+              <div v-if="record.status" class="status_tag">Reconciled</div>
+              <div v-else class="status_tag unreconciled_tag">Unreconciled</div>
+            </template>
           </template>
-        </template>
-      </a-table>
+        </a-table>
+        <a-empty v-if="!dataSource || !dataSource.length" />
+      </a-spin>
+      <div class="flex justify-center pb-5">
+        <a-pagination
+          size="small"
+          :total="total"
+          :pageSize="pagination.limit"
+          :current="pagination.page"
+          show-quick-jumper
+          :show-total="(total) => t('共{0}条', [total])"
+          @change="setPaginate"
+        />
+      </div>
     </template>
   </layout>
 </template>
 
 <script setup>
-import { reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import layout from '../components/layout.vue';
 import tool from '@/utils/tool.js';
 import { getStatements } from '@/api/reconciliations';
 
 const { t } = useI18n();
-const pagination = reactive({
-  position: ['bottomCenter'],
-  showSizeChanger: false,
-  total: 0,
-});
 
 const columns = reactive([
   {
@@ -38,58 +43,87 @@ const columns = reactive([
     key: 'name',
     customRender: ({ text }) => {
       return tool.showDate(Date(text));
-    },
+    }
   },
   {
     title: t('委托人'),
     dataIndex: 'client',
     key: 'client',
     width: '16%',
+    customRender: ({ record }) => {
+      // console.log(record);
+      //  return record.project.project_name
+    }
   },
   {
     title: t('参考'),
     dataIndex: 'reference',
     key: 'reference',
-    width: '12%',
+    width: '12%'
   },
   {
     title: t('描述'),
     dataIndex: 'description',
     key: 'description',
-    width: '20%',
+    width: '20%'
   },
   {
     title: t('支出'),
     dataIndex: 'spent',
     key: 'spent',
-    customRender: ({ text }) =>
-      !text ? '' : tool.formatMoney(parseInt(text), { cents: true }),
+    customRender: ({ record }) => {
+      if (record.amount > 0) return tool.formatMoney(Math.abs(record.amount));
+    }
   },
   {
     title: t('收入'),
     dataIndex: 'received',
     key: 'received',
-    customRender: ({ text }) =>
-      !text ? '' : tool.formatMoney(parseInt(text), { cents: true }),
+    customRender: ({ record }) => {
+      if (record.amount < 0) return tool.formatMoney(Math.abs(record.amount));
+    }
   },
   {
     title: t('状态'),
     dataIndex: 'status',
-    key: 'status',
-  },
+    key: 'status'
+  }
 ]);
 
-const dataSource = reactive([]);
+const dataSource = ref([]);
+const layoutRef = ref();
+const total = ref(0);
+const loading = ref(false);
+
+const pagination = ref({
+  page: 1,
+  limit: 10
+});
+
+const setPaginate = (page, limit) => {
+  pagination.value = {
+    page,
+    limit
+  };
+  loadData();
+};
+
+const loadData = () => {
+  loading.value = true;
+  getStatements(pagination.value)
+    .then((res) => {
+      total.value = res.count;
+      dataSource.value = res.data;
+      layoutRef.value.setNum(total.value);
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+};
 
 onMounted(() => {
-  getStatements().then(res => {
-    const { data, count } = res;
-    if(count) {
-      Object.assign(dataSource, data);
-      pagination.total = count;
-    }
-  });
-})
+  loadData();
+});
 </script>
 
 <style scoped lang="less">

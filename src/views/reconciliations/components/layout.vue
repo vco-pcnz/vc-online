@@ -1,6 +1,6 @@
 <template>
   <div>
-    <vco-page-nav sup-path="/reconciliations">
+    <vco-page-nav sup-path="/reconciliations" ref="pageNavRef">
       <template #action>
         <img :width="58" :height="14" :src="xeroImg" alt="Xero" />
         <a-statistic-countdown :value="deadline" @finish="onFinish" format="mm:ss" v-if="Boolean(countdown)">
@@ -25,13 +25,26 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { nextTick, ref } from 'vue';
 import xeroImg from '@/assets/images/services-xero.png';
 const deadline = Date.now() + 1000 * 60 * 10;
 const countdown = ref(false);
 const update = (e) => {
   countdown.value = true;
 };
+const pageNavRef = ref()
+
+
+const setNum = (num) => {
+  nextTick(_ => {
+    pageNavRef.value.setNum(num)
+  })
+}
+
+  // 暴露方法给父组件
+  defineExpose({
+    setNum
+  });
 </script>
 
 <style scoped lang="less">

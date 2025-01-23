@@ -25,7 +25,7 @@
         <div class="search-title">Search</div>
         <a-input class="search-input" v-model:value="keywords" v-focus="true" @input="search" placeholder="Search across the folder..." />
       </div>
-      <a-spin :spinning="searchLoading">
+      <a-spin :spinning="searchLoading" size="large">
         <div class="folderBox">
           <template v-for="files in folders" :key="files.id">
             <template v-if="files.show">

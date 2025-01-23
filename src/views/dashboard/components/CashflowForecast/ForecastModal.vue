@@ -10,7 +10,7 @@
       :getContainer="() => $refs.renameRef"
       @update:open="updateVisible"
     >
-      <a-spin :spinning="loading">
+      <a-spin :spinning="loading" size="large">
         <ForecastList :data="data" :total="total" @change="loadData"></ForecastList>
       </a-spin>
     </a-modal>

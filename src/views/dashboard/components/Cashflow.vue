@@ -4,7 +4,7 @@
     <SelectDate @change="loadData"></SelectDate>
   </div>
 
-  <a-spin :spinning="loading">
+  <a-spin :spinning="loading" size="large">
     <div class="flex items-center gap-10" style="line-height: 1.2">
       <div class="flex items-center gap-3">
         <i class="iconfont cashflow_icon">&#xe723;</i>

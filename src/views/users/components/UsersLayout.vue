@@ -23,7 +23,7 @@
         </vco-table-tool>
 
         <div class="mt-5">
-          <a-spin :spinning="tableLoading" size="large">
+          <a-spin :spinning="usersStore.loading" size="large">
             <div class="table-content">
               <table-block :table-data="tableData" v-model:keys="rowSelection" v-model:data="rowSelectionData"></table-block>
             </div>
@@ -50,7 +50,6 @@ import AddUser from './AddUser.vue';
 
 const { t } = useI18n();
 const usersStore = useUsersStore();
-const tableLoading = ref(false);
 const open = ref(false);
 const showAdd = ref(false);
 const userData = ref({});

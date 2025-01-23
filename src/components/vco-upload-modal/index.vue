@@ -29,9 +29,13 @@
             v-model:list="documentList"
             ref="vcoUploadRef"
             listType="text"
+            :disabled="upLoading"
+            @update:loading="upLoading = $event"
             @change="updateNewFile"
           >
-            <a-button type="brown">{{ t('上传') }}</a-button>
+            <a-button type="brown" :icon="h(UploadOutlined)" :loading="upLoading">
+              {{ t('上传') }}
+            </a-button>
           </vco-upload>
         </div>
       </div>
@@ -54,55 +58,61 @@
         </vco-page-search>
       </div>
       <!-- 新上传 -->
-      <template v-if="Boolean(newFile && newFile.length)">
+      <template v-if="Boolean(newFile && newFile.length) || upLoading">
         <div class="flex items-center">
           <h3 class="title">New files</h3>
           <p class="fs_xs color_grey ml-2">{{ t('需要点击选择已上传的文件进行上传') }}</p>
         </div>
-        <div :class="['file-' + fileType]">
-          <div
-            :class="['file-' + fileType + '-item', { checked: checkedIds.includes(item.uuid) }]"
-            v-for="item in newFile"
-            :key="item.uuid"
-            @click="itemcheck(item)"
-          >
-            {{ item }}
-            <vco-file-item :file="item" :type="fileType" :time="item.create_time"></vco-file-item>
-            <div class="check-content"><i class="iconfont">&#xe647;</i></div>
-          </div>
-        </div>
+        <a-spin :spinning="upLoading" size="large">
+          <template v-if="Boolean(newFile && newFile.length)">
+            <div :class="['file-' + fileType]">
+              <div
+                :class="['file-' + fileType + '-item', { checked: checkedIds.includes(item.uuid) }]"
+                v-for="item in newFile"
+                :key="item.uuid"
+                @click="itemcheck(item)"
+              >
+                {{ item }}
+                <vco-file-item :file="item" :type="fileType" :time="item.create_time"></vco-file-item>
+                <div class="check-content"><i class="iconfont">&#xe647;</i></div>
+              </div>
+            </div>
+          </template>
+          <a-empty style="min-height: 192px;" v-else />
+        </a-spin>
         <a-divider />
       </template>
-
       <!-- 上传历史 -->
-      <template v-if="Boolean(history && history.length)">
-        <div class="flex items-center">
-          <h3 class="title">History files</h3>
-          <p class="fs_xs color_grey ml-2">{{ t('需要点击选择已上传的文件进行上传') }}</p>
-        </div>
-        <div :class="['file-' + fileType]">
-          <div
-            :class="['file-' + fileType + '-item', { checked: checkedIds.includes(item.uuid) }]"
-            v-for="item in history"
-            :key="item.uuid"
-            @click="itemcheck(item)"
-          >
-            <vco-file-item :file="item" :type="fileType" :time="item.create_time"></vco-file-item>
-            <div class="check-content"><i class="iconfont">&#xe647;</i></div>
+      <a-spin :spinning="loading" size="large">
+        <template v-if="Boolean(history && history.length)">
+          <div class="flex items-center">
+            <h3 class="title">History files</h3>
+            <p class="fs_xs color_grey ml-2">{{ t('需要点击选择已上传的文件进行上传') }}</p>
           </div>
-        </div>
-        <a-pagination
-          size="small"
-          :total="total"
-          :pageSize="pagination.limit"
-          :current="pagination.page"
-          show-quick-jumper
-          :showSizeChanger="false"
-          :show-total="(total) => t('共{0}条', [total])"
-          @change="setPaginate"
-        />
-      </template>
-      <a-empty v-else />
+          <div :class="['file-' + fileType]">
+            <div
+              :class="['file-' + fileType + '-item', { checked: checkedIds.includes(item.uuid) }]"
+              v-for="item in history"
+              :key="item.uuid"
+              @click="itemcheck(item)"
+            >
+              <vco-file-item :file="item" :type="fileType" :time="item.create_time"></vco-file-item>
+              <div class="check-content"><i class="iconfont">&#xe647;</i></div>
+            </div>
+          </div>
+          <a-pagination
+            size="small"
+            :total="total"
+            :pageSize="pagination.limit"
+            :current="pagination.page"
+            show-quick-jumper
+            :showSizeChanger="false"
+            :show-total="(total) => t('共{0}条', [total])"
+            @change="setPaginate"
+          />
+        </template>
+        <a-empty v-else />
+      </a-spin>
 
       <template #footer>
         <div class="modal-footer">
@@ -116,10 +126,11 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, h } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue';
 import UploadBtn from './upload-btn.vue';
+import { UploadOutlined } from '@ant-design/icons-vue';
 import { attach } from '@/api/system';
 
 const { t } = useI18n();
@@ -163,6 +174,9 @@ const props = defineProps({
   }
 });
 const emits = defineEmits(['update:value', 'update:list', 'change']);
+
+const loading = ref(false);
+const upLoading = ref(false);
 
 const vcoUploadRef = ref();
 const open = ref(false);
@@ -240,10 +254,15 @@ const setPaginate = (page, limit) => {
 };
 
 const loadData = () => {
-  attach({ ...pagination.value, ...searchForm.value, type: activeKey.value }).then((res) => {
-    history.value = res.data;
-    total.value = res.count;
-  });
+  loading.value = true;
+  attach({ ...pagination.value, ...searchForm.value, type: activeKey.value })
+    .then((res) => {
+      history.value = res.data;
+      total.value = res.count;
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 };
 
 const updateNewFile = () => {
@@ -279,6 +298,17 @@ watch(
     } else {
       emits('update:value', []);
     }
+  },
+  {
+    immediate: true,
+    deep: true
+  }
+);
+
+watch(
+  () => upLoading.value,
+  (val) => {
+    console.log(111111111111, val);
   },
   {
     immediate: true,
@@ -392,5 +422,12 @@ watch(
   font-size: 16px;
   font-weight: 500;
   padding: 5px 0;
+}
+
+:deep(.ant-btn-brown) {
+  color: #fff;
+  background-color: #d8b480;
+  display: flex;
+  align-items: center;
 }
 </style>

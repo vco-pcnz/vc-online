@@ -1,5 +1,5 @@
 <template>
-  <a-spin :spinning="loading">
+  <a-spin :spinning="loading" size="large">
     <div class="sys-table-content border-top-none pb-10">
       <a-table :columns="columns" :data-source="tableData" :pagination="false" :scroll="{ x: '100%' }" v-if="columns">
         <template #headerCell="{ title }">

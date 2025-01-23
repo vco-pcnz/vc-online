@@ -1,5 +1,5 @@
 <template>
-  <a-spin :spinning="spinning">
+  <a-spin :spinning="spinning" size="large">
     <div style="min-height: 200px;">
       <template v-if="tree">
         <Tab v-model:active="tabIndex" v-model:folder="folder" :data="tree" :apply_uuid="project_id" v-model:showSearch="showSearch"></Tab>

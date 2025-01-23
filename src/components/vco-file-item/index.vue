@@ -318,6 +318,9 @@ watch(
           display: flex;
         }
       }
+      img {
+        border-radius: 0;
+      }
     }
     .info {
       font-size: 12px;

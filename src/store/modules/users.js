@@ -5,6 +5,7 @@ const useUsersStore = defineStore('VcOnlineUsers', {
   state: () => ({
     userList: [],
     roleList: [],
+    loading: false,
     searchParams: {
       sta: 0, // 0全部 1机构 2个人
       role_id: undefined,
@@ -12,52 +13,55 @@ const useUsersStore = defineStore('VcOnlineUsers', {
       keywords: undefined,
       org__name: '',
       sort__asc: undefined,
-      sort__desc: undefined,
+      sort__desc: undefined
     },
     total: 0,
     pagination: {
       page: 1,
-      limit: 10,
-    },
+      limit: 10
+    }
   }),
   actions: {
     setSearchParams(data) {
       this.searchParams = {
         ...this.searchParams,
-        ...data,
+        ...data
       };
       this.getUserList();
     },
     setPaginate(page, limit) {
       this.pagination = {
         page,
-        limit,
+        limit
       };
       this.getUserList();
     },
     getUserList() {
       const param = this.searchParams;
       const page = this.pagination;
+      this.loading = true;
       return new Promise((resolve, reject) => {
         getUserList({
           ...param,
-          ...page,
+          ...page
         })
           .then((r) => {
             this.userList = r.data;
             this.total = r.count;
+            this.loading = false;
             resolve(r.data);
           })
           .catch((e) => {
+            this.loading = false;
             reject(e);
           });
       });
     },
     getRoleList() {
-      return getRoles().then(res => {
+      return getRoles().then((res) => {
         this.roleList = res;
       });
     }
-  },
+  }
 });
 export default useUsersStore;

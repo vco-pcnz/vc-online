@@ -1,5 +1,5 @@
 <template>
-  <vco-page-panel :title="title" @back="back">
+  <vco-page-panel :title="(detail && detail.project_apply_sn) || ''" @back="back">
     <div class="TabsPanel-Tab">
       <a-button
         v-for="item in panes"
@@ -16,9 +16,10 @@
 </template>
 
 <script setup>
-import { reactive, onMounted } from 'vue';
+import { reactive, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter, useRoute } from 'vue-router';
+import { projectDetailApi } from '@/api/process';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -59,6 +60,21 @@ const onChange = (key) => {
 const back = () => {
   router.push(`/projects/current`);
 };
+
+const detail = ref(null);
+const getProjectDetail = (userId) => {
+  const uuid = userId || route.query.uuid;
+  if (uuid) {
+    // 发起请求
+    projectDetailApi({ uuid }).then((res) => {
+      detail.value = res;
+    });
+  }
+};
+
+onMounted(() => {
+  getProjectDetail();
+});
 </script>
 
 <style scoped lang="less">

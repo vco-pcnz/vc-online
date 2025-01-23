@@ -9,7 +9,7 @@
         <div class="files-ops-item" :class="{ active: showFilter }" @click="setShowFilter"><i class="iconfont">&#xe756;</i></div>
 
         <vco-upload-modal v-model:value="document" v-model:list="upDocument">
-          <a-spin :spinning="upLoading">
+          <a-spin :spinning="upLoading" size="large">
             <div class="files-ops-item"><i class="iconfont">&#xe734;</i></div>
           </a-spin>
         </vco-upload-modal>
@@ -48,7 +48,7 @@
 
     <div>
       <a-input class="search-input my-5" v-model:value="filter" v-focus="true" placeholder="Search across the folder..." v-if="showFilter" />
-      <a-spin :spinning="spinning">
+      <a-spin :spinning="spinning" size="large">
         <div :class="{ row2: isTab, row1: !isTab }">
           <template v-for="files in documentList" :key="files.id">
             <template v-if="files.id !== folder.id && files.show">

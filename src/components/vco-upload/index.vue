@@ -18,7 +18,7 @@
     >
       <slot>
         <div v-if="(isMultiple && fileList.length < limit && !disabled) || (!isMultiple && !picUrl)">
-          <loading-outlined v-if="loading" />
+          <loading-outlined v-if="spinning" />
           <plus-outlined v-else />
           <div class="ant-upload-text">{{ t(text || upText) }}</div>
         </div>
@@ -49,7 +49,7 @@ const uploadUrl = import.meta.env.VITE_APP_OPEN_PROXY === 'true' ? import.meta.e
 
 const { t } = useI18n();
 
-const emits = defineEmits(['update:value', 'change', 'update:list']);
+const emits = defineEmits(['update:value', 'change', 'update:list', 'update:loading']);
 
 const props = defineProps({
   text: {
@@ -168,7 +168,7 @@ const previewSrc = ref('');
 const previewVisible = ref(false);
 const picUrl = ref(false);
 const canClick = ref(true);
-const loading = ref(false);
+const spinning = ref(false);
 
 const getFileAccessHttpUrl = (avatar, subStr = '') => {
   if (!subStr) subStr = 'http';
@@ -313,12 +313,21 @@ const handlePathChange = () => {
   emits('update:value', item);
   emits('update:list', list);
   emits('change', item);
+  updateUploading(false);
+};
+
+const updateUploading = (val) => {
+  spinning.value = val;
+  emits('update:loading', val);
 };
 
 // 上传
 const handleChange = (info) => {
   picUrl.value = false;
   let list = info.fileList.filter((item) => !!item.status);
+  if (list.filter((item) => item.status == 'uploading').length) {
+    updateUploading(true);
+  }
   if (info.file.status === 'done') {
     if (info.file.response.success) {
       picUrl.value = true;
@@ -339,7 +348,6 @@ const handleChange = (info) => {
   }
 
   fileList.value = list;
-
   if (info.file.status === 'done') {
     if (list.length === 1) {
       handlePathChange();

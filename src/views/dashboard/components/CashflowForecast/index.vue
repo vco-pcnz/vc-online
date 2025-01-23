@@ -38,7 +38,7 @@
 
     <a-button type="cyan" size="small" class="ml-3" shape="round" @click="report" :loading="downloading">Create report</a-button>
   </div>
-  <a-spin :spinning="loading">
+  <a-spin :spinning="loading" size="large">
     <div class="CashflowForecastChart">
       <template v-if="data">
         <div class="flex flex-col justify-between">
@@ -73,7 +73,7 @@
             </div>
           </div>
           <!-- hover -->
-          <!-- <div class="hoverBox chart-list" style="height: 300px" @click="visible_forecast = true">
+          <div class="hoverBox chart-list" style="height: 300px" @click="visible_forecast = true">
             <div
               class="chart-list-item hover"
               v-for="(item, index) in dates"
@@ -81,7 +81,7 @@
               @mousemove="mousemove($event, index)"
               @mouseout="mouseout"
             ></div>
-          </div> -->
+          </div>
           <!-- charts -->
           <div class="chartBox">
             <v-chart :option="option" autoresize />

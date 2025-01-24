@@ -104,7 +104,7 @@
             <template v-if="column.dataIndex === 'cate'">
               <span class="cer" v-if="record.cate == 1">{{ t('借款人') }}</span>
               <span class="cer" v-if="record.cate == 2">{{ t('担保人') }}</span>
-              <span class="cer" v-if="record.cate == 3">{{ t('投资人') }}</span>
+              <span class="cer" v-if="record.cate == 3">{{ t('其他') }}</span>
             </template>
             <template v-if="column.dataIndex === 'status'">
               <span v-if="record.status == 0" class="cer">{{ t('待通知') }}</span>

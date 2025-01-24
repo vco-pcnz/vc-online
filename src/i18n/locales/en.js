@@ -285,7 +285,7 @@ export default {
   "取消审核": "Close",
   "拒绝申请": "Decline",
   "前往操作": "Operation",
-  "确定": "Sure",
+  "确定": "Confirm",
   "取消": "Cancel",
   "确定取消项目吗？": "Are you sure you want to cancel the project?",
   "确定取消审核吗？": "Are you sure you want to cancel the review?",

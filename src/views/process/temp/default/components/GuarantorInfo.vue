@@ -23,7 +23,7 @@
             type="dark"
             shape="round"
             class="uppercase"
-            v-if="!guarantorInfo.is_check && props.guarantorInfo.security_package.length && props.guarantorInfo.guarantor_list.length"
+            v-if="!guarantorInfo.is_check && props.guarantorInfo.guarantor_list.length"
           >
             {{ t('审核') }}
           </a-button>
@@ -33,7 +33,7 @@
           type="primary"
           shape="round"
           :loading="subLoading"
-          :disabled="!formState.security_package.length || !formState.guarantor_uuids.length"
+          :disabled="!formState.guarantor_uuids.length"
           class="uppercase"
           @click="saveHandle()"
         >

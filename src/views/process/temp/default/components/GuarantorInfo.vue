@@ -257,24 +257,38 @@ const dataInit = () => {
 };
 
 const checkHandle = async () => {
-  if (props.currentStep.mark === 'step_open' && !props.guarantorInfo.main_contractor) {
-    message.error(t('请先设置后保存再审核'));
-  } else {
-    const params = {
-      uuid: props.currentId,
-      code: props.blockInfo.code
-    }
-    
-    await projectAuditCheckMode(params)
-      .then(() => {
-        emits('refresh');
-        emitter.emit('refreshAuditHisList');
-        return true;
-      })
-      .catch(() => {
-        return false;
-      });
+  const params = {
+    uuid: props.currentId,
+    code: props.blockInfo.code
   }
+  
+  await projectAuditCheckMode(params)
+    .then(() => {
+      emits('refresh');
+      emitter.emit('refreshAuditHisList');
+      return true;
+    })
+    .catch(() => {
+      return false;
+    });
+  // if (props.currentStep.mark === 'step_open' && !props.guarantorInfo.main_contractor) {
+  //   message.error(t('请先设置后保存再审核'));
+  // } else {
+  //   const params = {
+  //     uuid: props.currentId,
+  //     code: props.blockInfo.code
+  //   }
+    
+  //   await projectAuditCheckMode(params)
+  //     .then(() => {
+  //       emits('refresh');
+  //       emitter.emit('refreshAuditHisList');
+  //       return true;
+  //     })
+  //     .catch(() => {
+  //       return false;
+  //     });
+  // }
 };
 
 onMounted(() => {

@@ -146,7 +146,7 @@ const updateVisible = (value) => {
 const cateList = ref([
   { title: t('借款人'), id: 1 },
   { title: t('担保人'), id: 2 },
-  { title: t('投资人'), id: 3 }
+  { title: t('其他'), id: 3 }
 ]);
 
 const formRef = ref();

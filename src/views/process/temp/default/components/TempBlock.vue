@@ -173,6 +173,7 @@
         <lending-form
           :current-id="currentId"
           :current-step="currentStep"
+          :data-info="dataInfo"
           :block-info="blockInfo.lending"
           :lending-info="lendingInfo"
           @refresh="dataRefresh"
@@ -225,17 +226,6 @@
         ></offer-form>
       </template>
 
-      <!-- 已签offer -->
-      <template v-else-if="item === 'sign_offer'">
-        <sign-offer-form
-          :current-id="currentId"
-          :current-step="currentStep"
-          :block-info="blockInfo.sign_offer"
-          :offer-info="dataInfo.sign_offer"
-          @refresh="dataRefresh"
-        ></sign-offer-form>
-      </template>
-
       <!-- 确认信息 -->
       <template v-else-if="item === 'confirm'">
         <confirm-form
@@ -266,7 +256,6 @@ import BounsForm from "./BounsForm.vue";
 import SecurityItems from "./SecurityItems.vue";
 import GuarantorInfo from "./GuarantorInfo.vue";
 import OfferForm from "./OfferForm.vue";
-import SignOfferForm from "./SignOfferForm.vue";
 import ConfirmForm from "./ConfirmForm.vue";
 
 import { projectAuditCheckMode } from "@/api/process"

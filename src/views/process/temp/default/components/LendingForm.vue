@@ -3,23 +3,45 @@
     class="block-item mb"
     :class="{ checked: lendingInfo.is_check && blockInfo.showCheck }"
   >
+    <!-- 确认弹窗 -->
+    <vco-confirm-alert
+      ref="changeAlertRef"
+      :confirm-txt="confirmTxt"
+      v-model:visible="changeVisible"
+      @submit="submitRquest"
+    ></vco-confirm-alert>
+
     <vco-process-title :title="t('放款信息')">
       <div class="flex gap-5">
-        <a-popconfirm
-          v-if="blockInfo.showCheck && !lendingInfo.is_check && creditId"
-          :title="t('确定通过审核吗？')"
-          :ok-text="t('确定')"
-          :cancel-text="t('取消')"
-          @confirm="checkHandle"
-        >
+
+        <template v-if="blockInfo.showCheck && !lendingInfo.is_check && creditId">
           <a-button
+            v-if="confirmTxt"
             type="dark"
             shape="round"
             class="uppercase"
+            @click="changeVisible = true"
           >
             {{ t('审核') }}
           </a-button>
-        </a-popconfirm>
+          <a-popconfirm
+            v-else
+            :title="t('确定通过审核吗？')"
+            :ok-text="t('确定')"
+            :cancel-text="t('取消')"
+            @confirm="checkHandle"
+          >
+            <a-button
+              type="dark"
+              shape="round"
+              class="uppercase"
+            >
+              {{ t('审核') }}
+            </a-button>
+          </a-popconfirm>
+        </template>
+        
+
         <a-button
           v-if="blockInfo.showEdit"
           type="primary"
@@ -259,6 +281,10 @@
       type: Object,
       default: () => {}
     },
+    dataInfo: {
+      type: Object,
+      default: () => {}
+    },
     blockInfo: {
       type: Object,
       default: () => {}
@@ -272,6 +298,17 @@
     }
   })
 
+  const confirmTxt = computed(() => {
+    let res = ''
+    const securityTotal = props.dataInfo.security.total_money || 0
+    const totalAmount = Number(formState.value.land_amount) + Number(formState.value.build_amount)
+    if (totalAmount > securityTotal) {
+      const num = tool.minus(totalAmount, securityTotal)
+      res = t('抵押物总价值为{0}，借款总金额为{1}，差{2}，确认通过审核吗？', [securityTotal, totalAmount, num])
+    }
+    return res
+  })
+
   const amountDisabled = computed(() => {
     const mark = props.currentStep.mark
     if (props.blockInfo.showEdit) {
@@ -280,6 +317,9 @@
       return true
     }
   })
+
+  const changeAlertRef = ref()
+  const changeVisible = ref(false)
 
   const inputADis = computed(() => {
     const mark = props.currentStep.mark
@@ -370,13 +410,13 @@
       return 'two';
     } else if (num === 3) {
       return 'three';
-    } else if (num === 4) {
+    } else if (num === 4 || num === 7) {
       return 'four';
     } else {
-      if (num % 3 === 0) {
-        return 'three';
-      } else if (num % 4 === 0) {
+      if (num % 4 === 0) {
         return 'four';
+      } else if (num % 3 === 0) {
+        return 'three';
       } else {
         return 'five';
       }
@@ -390,13 +430,13 @@
       return 'two sta-num';
     } else if (num === 3) {
       return 'three sta-num';
-    } else if (num === 4) {
+    } else if (num === 4 || num === 7) {
       return 'four sta-num';
     } else {
-      if (num % 3 === 0) {
-        return 'three sta-num';
-      } else if (num % 4 === 0) {
+      if (num % 4 === 0) {
         return 'four sta-num';
+      } else if (num % 3 === 0) {
+        return 'three sta-num';
       } else {
         return 'five sta-num';
       }
@@ -476,6 +516,12 @@
       data: formState.value
     })
   };
+
+  const submitRquest = async () => {
+    await checkHandle()
+    changeAlertRef.value.changeLoading(false)
+    changeVisible.value = false
+  }
 
   const checkHandle = async () => {
     const params = {

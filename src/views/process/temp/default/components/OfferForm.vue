@@ -1,12 +1,12 @@
 <template>
   <div
     class="block-item mb"
-    :class="{ checked: offerInfo.is_check && blockInfo.showCheck && staticCheck }"
+    :class="{ checked: offerInfo.is_check && blockInfo.showCheck}"
   >
     <vco-process-title :title="t('凭证信息')">
       <div class="flex gap-5">
         <a-popconfirm
-          v-if="blockInfo.showCheck && !offerInfo.is_check && offerInfo.cert_images"
+          v-if="blockInfo.showCheck && !offerInfo.is_check"
           :title="t('确定通过审核吗？')"
           :ok-text="t('确定')"
           :cancel-text="t('取消')"
@@ -34,20 +34,42 @@
     </vco-process-title>
 
     <div class="form-item-col mt-5">
-      <div class="file-content">
-        <template v-if="offerList.length">
-          <div v-for="(item, index) in offerList" :key="index" class="file-item">
-            <vco-file-item :file="item" :showClose="Boolean(blockInfo.showEdit)" @remove="removeItem(index)"></vco-file-item>
-          </div>
-        </template>
-        <p v-else>{{ t('暂无数据，请上传') }}</p>
-
-        <vco-upload-modal v-if="blockInfo.showEdit" v-model:list="offerList" class="upload-content">
+      <div class="title">
+        <p>{{ t('未签订Offer') }}</p>
+        <vco-upload-modal v-if="blockInfo.showEdit" v-model:list="offerList" @change="fileChange">
           <div class="upload-btn">
             <i class="iconfont">&#xe734;</i>
             {{ t('上传文件') }}
           </div>
         </vco-upload-modal>
+      </div>
+      <div class="file-content">
+        <template v-if="offerList.length">
+          <div v-for="(item, index) in offerList" :key="index" class="file-item">
+            <vco-file-item :file="item" :showClose="Boolean(blockInfo.showEdit)" @remove="removeItem(index, true)"></vco-file-item>
+          </div>
+        </template>
+        <p v-else>{{ t('暂无数据，请上传') }}</p>
+      </div>
+    </div>
+
+    <div class="form-item-col mt-5">
+      <div class="title">
+        <p>{{ t('已签订Offer') }}</p>
+        <vco-upload-modal v-if="blockInfo.showEdit" v-model:list="offerSignedList" @change="fileChange">
+          <div class="upload-btn">
+            <i class="iconfont">&#xe734;</i>
+            {{ t('上传文件') }}
+          </div>
+        </vco-upload-modal>
+      </div>
+      <div class="file-content">
+        <template v-if="offerSignedList.length">
+          <div v-for="(item, index) in offerSignedList" :key="index" class="file-item">
+            <vco-file-item :file="item" :showClose="Boolean(blockInfo.showEdit)" @remove="removeItem(index, false)"></vco-file-item>
+          </div>
+        </template>
+        <p v-else>{{ t('暂无数据，请上传') }}</p>
       </div>
     </div>
     
@@ -90,14 +112,20 @@
   })
 
   const offerList = ref([])
-  const staticList = ref([])
+  const offerSignedList = ref([])
 
-  const staticCheck = ref(false)
-  staticCheck.value = props.offerInfo.is_check
+  const fileChange = () => {
+    emitter.emit('changeDataLetDis', true)
+  }
 
-  const removeItem = (index) => {
-    offerList.value.splice(index, 1);
-    staticCheck.value = false
+  const removeItem = (index, flag) => {
+    if (flag) {
+      offerList.value.splice(index, 1);
+    } else {
+      offerSignedList.value.splice(index, 1);
+    }
+
+    emitter.emit('changeDataLetDis', true)
   };
 
   const checkHandle = async () => {
@@ -121,7 +149,8 @@
     const params = {
       code: props.blockInfo.code,
       uuid: props.currentId,
-      cert_images: offerList.value.map((item) => item.uuid)
+      cert_images: offerList.value.map((item) => item.uuid),
+      sign_offer: offerSignedList.value.map((item) => item.uuid)
     };
 
     subLoading.value = true;
@@ -140,18 +169,6 @@
     });
   };
 
-  watch(
-    offerList,
-    (val) => {
-      const arr = val.map(item => item.uuid)
-      for (let i = 0; i < arr.length; i++) {
-        if (!staticList.value.includes(arr[i])) {
-          staticCheck.value = false
-        }
-      }
-    }
-  )
-
   onMounted(() => {
     if (props.offerInfo.cert_images) {
       const images = props.offerInfo.cert_images
@@ -161,8 +178,18 @@
           url: item.value || '',
         };
       });
-      staticList.value = data.map(item => item.uuid)
       offerList.value = data
+    }
+
+    if (props.offerInfo.sign_offer) {
+      const images = props.offerInfo.sign_offer
+      const data = images.map((item) => {
+        return {
+          ...item,
+          url: item.value || '',
+        };
+      });
+      offerSignedList.value = data
     }
   })
 </script>

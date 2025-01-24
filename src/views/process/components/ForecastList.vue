@@ -79,6 +79,7 @@
 
         <a-button
           type="dark" class="big shadow bold uppercase w-full mb-5 mt-5"
+          :loading="saveLoading"
           @click="submitHandle"
         >{{ t('保存') }}</a-button>
       </div>
@@ -316,7 +317,7 @@
       formState.id = data.id
       formState.type = data.type
       formState.date = dayjs(data.date)
-      formState.amount = data.amount
+      formState.amount = Math.abs(data.amount)
       formState.note = data.note
       formState.first = data.first
     } else {
@@ -347,32 +348,6 @@
     handleType.value = 1
   }
 
-  const submitHandle = () => {
-    formRef.value
-    .validate()
-    .then(() => {
-      const {id, type, date, amount, note, first} = formState
-      const params = {
-        id,
-        type,
-        date: date.format('YYYY-MM-DD'),
-        amount,
-        note,
-        apply_uuid: props.currentId
-      }
-
-      if (id) {
-        params.first = first
-      }
-      currentParams.value = params
-      tipsVisible.value = true
-      changeType.value = undefined
-    })
-    .catch(error => {
-      console.log('error', error);
-    });
-  }
-
   const subLoading = ref(false)
   const sureHandle = () => {
     if (changeType.value === undefined) {
@@ -391,12 +366,49 @@
       tipsVisible.value = false
       visible.value = false
       subLoading.value = false
+      saveLoading.value = false
 
       // 刷新IRR
       emitter.emit('refreshIRR')
     }).catch(() => {
       subLoading.value = false
+      saveLoading.value = false
     })
+  }
+
+  const saveLoading = ref(false)
+  const submitHandle = () => {
+    formRef.value
+    .validate()
+    .then(() => {
+      const {id, type, date, amount, note, first} = formState
+      const params = {
+        id,
+        type,
+        date: date.format('YYYY-MM-DD'),
+        amount,
+        note,
+        apply_uuid: props.currentId
+      }
+
+      if (id) {
+        params.first = first
+      }
+
+      currentParams.value = params
+
+      if (!id && type === 4) {
+        changeType.value = 2
+        saveLoading.value = true
+        sureHandle()
+      } else {
+        tipsVisible.value = true
+        changeType.value = undefined
+      }
+    })
+    .catch(error => {
+      console.log('error', error);
+    });
   }
 
   const changeAlertRef = ref()

@@ -187,6 +187,11 @@ const tabData = ref([
     value: '3',
     num: 0,
   },
+  {
+    label: t('已取消'),
+    value: '4',
+    num: 0,
+  }
 ]);
 
 const sortType = ref('desc');

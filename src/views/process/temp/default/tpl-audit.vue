@@ -212,6 +212,8 @@
   const tempHideWash = computed(() => ['step_aml_audit'].includes(currentMark.value))
   const isAml = computed(() => (PageBlockArrRef.value.includes('AML') && tempHideWash.value))
 
+  const dataLetDisabled = ref(false)
+
   const subDisabled = computed(() => {
     let res = false
     const data = currentDataInfo.value
@@ -222,7 +224,7 @@
         res = true
       }
     }
-    return res
+    return res || dataLetDisabled.value
   })
 
   const openVisible = ref(false)
@@ -317,6 +319,7 @@
       })
     }
 
+    emitter.emit('changeDataLetDis', false)
     pageLoading.value = false
     dataInit(infoData)
   }
@@ -358,6 +361,10 @@
 
     emitter.on('refreshSecurityInfo', () => {
       getDataInit()
+    })
+
+    emitter.on('changeDataLetDis', (flag) => {
+      dataLetDisabled.value = flag
     })
   })
 </script>

@@ -30,6 +30,18 @@
                 >{{ t('取消项目') }}</a-button>
               </a-popconfirm>
 
+              <a-popconfirm
+                v-if="dataInfo.prev_permission"
+                :title="t('确定召回该项目吗？')"
+                :ok-text="t('确定')"
+                :cancel-text="t('取消')"
+                @confirm="() => recallHandle()"
+              >
+                <a-button
+                  type="grey" shape="round" class="bold uppercase"
+                >{{ t('召回项目') }}</a-button>
+              </a-popconfirm>
+
               <a-button
                 v-if="dataInfo.has_permission && dataInfo.is_audit && dataInfo.next_index === 5"
                 type="grey" shape="round" class="bold uppercase"
@@ -101,7 +113,7 @@
   import { useI18n } from "vue-i18n";
   import { Empty } from 'ant-design-vue';
   import { navigationTo } from "@/utils/tool";
-  import { projectDetailApi, applyCancelProject } from "@/api/process";
+  import { projectDetailApi, applyCancelProject, recallProject } from "@/api/process";
   import BorrowerInfo from "@/views/process/temp/default/components/BorrowerInfo.vue";
   import ProjectInfo from "@/views/process/temp/default/components/ProjectInfo.vue";
   import DocumentInfo from "@/views/process/temp/default/components/DocumentInfo.vue";
@@ -187,6 +199,16 @@
 
   const cancelHandle = async () => {
     await applyCancelProject({
+      uuid: dataInfo.value.uuid
+    }).then(() => {
+      // 触发列表数据刷新
+      emitter.emit('refreshRequestsList')
+      navigationTo('/requests/loan')
+    })
+  }
+
+  const recallHandle = async () => {
+    await recallProject({
       uuid: dataInfo.value.uuid
     }).then(() => {
       // 触发列表数据刷新

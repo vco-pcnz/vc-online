@@ -4,15 +4,11 @@
     :class="{ checked: guarantorInfo.is_check && blockInfo.showCheck }"
   >
     <!-- 人员选择 -->
-    <vco-choose-user
-      ref="vcoChooseUserRef"
-      :isMultiple="true"
+    <vco-choose-add-user
+      v-model:visible="showChooseVisible"
       :title="t('利益相关者')"
-      url="stake/selStake"
       @done="userChoiced"
-    >
-      <div></div>
-    </vco-choose-user>
+    ></vco-choose-add-user>
 
     <vco-process-title :title="t('其他安全信息')">
       <div class="flex gap-5">
@@ -78,14 +74,14 @@
               <div class="title-content">
                 <p>{{ t('担保人') }}</p>
                 <a-button
-                  v-if="userData.length && blockInfo.showEdit"
+                  v-if="userData.length && blockInfo.showEdit && !disabledGua"
                   type="primary"
                   size="small"
                   shape="round"
                   class="uppercase"
                   @click="openDialg"
                 >
-                  {{ t('编辑') }}
+                  {{ t('添加') }}
                 </a-button>
               </div>
               <div class="info-content">
@@ -97,7 +93,7 @@
                   >
                     <vco-user-item :data="item" :main="true"></vco-user-item>
                     <i
-                      v-if="blockInfo.showEdit"
+                      v-if="blockInfo.showEdit && !disabledGua"
                       class="iconfont"
                       @click="removeItem(index)"
                     >
@@ -161,7 +157,6 @@ const props = defineProps({
 });
 
 const { t } = useI18n();
-const vcoChooseUserRef = ref();
 
 const formRef = ref();
 const formState = reactive({
@@ -171,19 +166,21 @@ const formState = reactive({
 });
 
 const formRules = ref({
-  security_package: [
-    { required: true, message: t('请选择') + t('履约保函'), trigger: 'change' },
-  ],
+  // security_package: [
+  //   { required: true, message: t('请选择') + t('履约保函'), trigger: 'change' },
+  // ],
   guarantor_uuids: [
     { required: true, message: t('请选择') + t('担保人'), trigger: 'change' },
   ],
 });
 
-if (props.currentStep.mark === 'step_open') {
-  formRules.value['main_contractor'] = [
-    { required: true, message: t('请输入') + t('承包商'), trigger: 'blur' },
-  ]
-}
+const disabledGua = computed(() => props.currentStep.mark === 'step_open')
+
+// if (props.currentStep.mark === 'step_open') {
+//   // formRules.value['main_contractor'] = [
+//   //   { required: true, message: t('请输入') + t('承包商'), trigger: 'blur' },
+//   // ]
+// }
 
 const securityOptions = ref([]);
 
@@ -213,8 +210,10 @@ const saveHandle = () => {
     });
 };
 
+const showChooseVisible = ref(false)
+
 const openDialg = () => {
-  vcoChooseUserRef.value.init();
+  showChooseVisible.value = true
 };
 
 const userData = ref([]);
@@ -224,10 +223,19 @@ const userChoiced = (data) => {
   userData.value = removeDuplicates(dataArr, 'uuid');
   formState.guarantor_uuids = userData.value.map((item) => item.uuid).join(',');
   formRef.value.validateFields(['guarantor_uuids']);
+
+  emitter.emit('changeDataLetDis', true)
 };
 
 const removeItem = (index) => {
   userData.value.splice(index, 1);
+
+  const uuidsArr = formState.guarantor_uuids.split(',')
+  uuidsArr.splice(index, 1);
+  formState.guarantor_uuids = uuidsArr.join(',')
+  formRef.value.validateFields(['guarantor_uuids']);
+
+  emitter.emit('changeDataLetDis', true)
 };
 
 const getSecurityTypeData = () => {

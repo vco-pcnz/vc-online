@@ -144,6 +144,14 @@ export const projectAuditGoback = (data) =>
     data
   });
 
+// 召回项目
+export const recallProject = (data) =>
+  request({
+    url: "/project/audit/recall",
+    method: "post",
+    data
+  });
+
 // 拒绝项目
 export const projectAuditDeclineProject = (data) =>
   request({

@@ -119,7 +119,7 @@ const props = defineProps({
   },
   params: {
     type: Object,
-    default: false
+    default: () => {}
   },
 });
 const open = ref(false);

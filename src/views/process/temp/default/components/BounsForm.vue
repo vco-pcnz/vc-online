@@ -212,10 +212,16 @@
       return 'two';
     } else if (num === 3) {
       return 'three';
-    } else if (num === 4) {
+    } else if (num === 4 || num === 7) {
       return 'four';
     } else {
-      return 'five';
+      if (num % 4 === 0) {
+        return 'four';
+      } else if (num % 3 === 0) {
+        return 'three';
+      } else {
+        return 'five';
+      }
     }
   };
 
@@ -226,10 +232,16 @@
       return 'two sta-num';
     } else if (num === 3) {
       return 'three sta-num';
-    } else if (num === 4) {
+    } else if (num === 4 || num === 7) {
       return 'four sta-num';
     } else {
-      return 'five sta-num';
+      if (num % 4 === 0) {
+        return 'four sta-num';
+      } else if (num % 3 === 0) {
+        return 'three sta-num';
+      } else {
+        return 'five sta-num';
+      }
     }
   };
 

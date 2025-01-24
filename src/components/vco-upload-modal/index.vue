@@ -14,29 +14,30 @@
         <a-tab-pane :key="3" :tab="t('视频')" v-if="!uploadType || uploadType == 3"></a-tab-pane>
       </a-tabs>
       <div class="fileType flex">
-        <a-radio-group v-model:value="fileType">
-          <a-radio-button value="list"><i class="iconfont">&#xe62e;</i></a-radio-button>
-          <a-radio-button value="card"><i class="iconfont">&#xe60a;</i></a-radio-button>
-        </a-radio-group>
+        <a-form-item-rest>
+          <a-radio-group v-model:value="fileType">
+            <a-radio-button value="list"><i class="iconfont">&#xe62e;</i></a-radio-button>
+            <a-radio-button value="card"><i class="iconfont">&#xe60a;</i></a-radio-button>
+          </a-radio-group>
+        </a-form-item-rest>
+        
         <div class="ml-2">
-          <vco-upload
-            :controller="controller"
-            :params="params"
-            :type="TYPE_TEXT[activeKey]"
-            :showUploadList="false"
-            :limit="limit"
-            isMultiple
-            v-model:list="documentList"
-            ref="vcoUploadRef"
-            listType="text"
-            :disabled="upLoading"
-            @update:loading="upLoading = $event"
-            @change="updateNewFile"
-          >
-            <a-button type="brown" :icon="h(UploadOutlined)" :loading="upLoading">
-              {{ t('上传') }}
-            </a-button>
-          </vco-upload>
+          <a-form-item-rest>
+            <vco-upload
+              :controller="controller"
+              :params="params"
+              :type="TYPE_TEXT[activeKey]"
+              :showUploadList="false"
+              :limit="limit"
+              isMultiple
+              v-model:list="documentList"
+              ref="vcoUploadRef"
+              listType="text"
+              @change="updateNewFile"
+            >
+              <a-button type="brown">{{ t('上传') }}</a-button>
+            </vco-upload>
+          </a-form-item-rest>
         </div>
       </div>
       <div class="flex items-end justify-between mb-5">

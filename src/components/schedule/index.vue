@@ -242,13 +242,25 @@ const getDataInfo = () => {
           const targetDate = dayjs(key);
 
           const itemData = data[key];
-          itemData.forEach((item) => {
+          itemData.forEach((item, index) => {
             if (item.type === 2) {
               item.drawdown = tool.formatMoney(item.amount);
             } else if (item.type === 4) {
               item.repayment = tool.formatMoney(item.amount);
             } else {
-              item.fee = tool.formatMoney(item.amount);
+              if (item.type === 0) {
+                if (!index) {
+                  item.fee = tool.formatMoney(item.amount);
+                } else {
+                  if (Number(item.amount) > 0) {
+                    item.drawdown = tool.formatMoney(item.amount);
+                  } else {
+                    item.repayment = tool.formatMoney(item.amount);
+                  }
+                }
+              } else {
+                item.fee = tool.formatMoney(item.amount);
+              }
             }
           });
 

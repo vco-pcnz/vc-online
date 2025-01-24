@@ -21,7 +21,19 @@
               </div>
             </template>
             <template #right>
-              <!-- <a-button type="primary" shape="round" ghost size="small">{{ t('帮助') }}?</a-button> -->
+              <template v-if="orderSn && !currentStep.examine">
+                <a-popconfirm
+                  :title="t('确定取消项目吗？')"
+                  :ok-text="t('确定')"
+                  :cancel-text="t('取消')"
+                  @confirm="() => cancelHandle()"
+                >
+                  <a-button
+                    type="grey" shape="round" class="uppercase"
+                  >{{ t('取消项目') }}</a-button>
+                </a-popconfirm>
+              </template>
+
               <div v-if="orderSn && currentStep.examine" class="flex nav-content">
                 <a-button class="active" shape="round">{{ t('项目详情1') }}</a-button>
                 <a-button
@@ -62,6 +74,7 @@
   import ProcessHeader from "./ProcessHeader.vue";
   import { useI18n } from "vue-i18n";
   import { goBack, navigationTo } from "@/utils/tool"
+  import { applyCancelProject } from "@/api/process";
   import emitter from '@/event';
 
   defineProps({
@@ -105,6 +118,16 @@
     const href = `/requests/${page}?uuid=${currentId.value}&step=${step}&sn=${orderSn.value}`
 
     navigationTo(href)
+  }
+
+  const cancelHandle = async () => {
+    await applyCancelProject({
+      uuid: currentId.value
+    }).then(() => {
+      // 触发列表数据刷新
+      emitter.emit('refreshRequestsList')
+      navigationTo('/requests/loan')
+    })
   }
 
   onMounted(() => {

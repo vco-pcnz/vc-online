@@ -389,6 +389,7 @@ export default {
   "LM 审核": "LM Review",
   "LM审核": "LM Review",
   "FC 审核": "FC Review",
+  "FC审核": "FC Review",
   "暂无操作记录": "No operation record",
   "创建者": "Created by",
   "拒绝原因": "Reason for rejection",
@@ -541,7 +542,6 @@ export default {
   "人员": "Member",
   "数量不能超过{0}": "The quantity cannot exceed {0}",
   "项目楼栋数为{0}，抵押物数量为{1}，确认通过审核吗？": "The number of buildings in the project is <span>{0}</span>, and the number of Security items is <span>{1}</span>. Are you sure it has passed the review?",
-  "已签订凭证信息": "Signed offer",
   "确定信息": "Confirm information",
   "定金是否已收到？": "Has the deposit been received?",
   "合同是否已签订？": "Has the contract been signed?",
@@ -551,5 +551,15 @@ export default {
   "未签订": "Not signed",
   "原因": "Reason",
   "正确": "Correct",
-  "请确认以下信息": "Please confirm the following information"
+  "请确认以下信息": "Please confirm the following information",
+  "已取消": "Cancelled",
+  "未签订Offer": "Unsigned Offer",
+  "已签订Offer": "Signed Offer",
+  "点击选择": "Click to select",
+  "选择已有数据": "Select existing data",
+  "添加新数据": "Add new data",
+  "抵押物总价值为{0}，借款总金额为{1}，差{2}，确认通过审核吗？": "The total value of the collateral is <span>{0}</span>, the total loan amount is <span>{1}</span>, and the difference is <span>{2}</span>. Are you sure it has passed the review?",
+  "召回项目": "Recall",
+  "确定召回该项目吗？": "Are you sure you want to recall this item?",
+  "LM线下offer": "LM offline offer"
 }

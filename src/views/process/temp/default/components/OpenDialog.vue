@@ -13,7 +13,7 @@
         <a-col :span="24">
           <div class="info-content">
             <p class="name mb-2">{{ t('开放日期') }}</p>
-            <a-date-picker v-model:value="openDate" placeholder="" @change="openDateChange" />
+            <a-date-picker v-model:value="openDate" :disabledDate="disabledDate" placeholder="" @change="openDateChange" />
           </div>
         </a-col>
         <a-col :span="12" class="mt-2">

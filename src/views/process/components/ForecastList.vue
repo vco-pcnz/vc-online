@@ -370,6 +370,8 @@
 
       // 刷新IRR
       emitter.emit('refreshIRR')
+
+      emitter.emit('refreshAuditHisList')
     }).catch(() => {
       subLoading.value = false
       saveLoading.value = false

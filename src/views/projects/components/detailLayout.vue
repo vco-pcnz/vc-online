@@ -1,5 +1,5 @@
 <template>
-  <vco-page-panel :title="(detail && detail.project_apply_sn) || ''" @back="back">
+  <vco-page-panel :title="(detail && detail.base.project_apply_sn) || ''" @back="back">
     <div class="TabsPanel-Tab">
       <a-button
         v-for="item in panes"

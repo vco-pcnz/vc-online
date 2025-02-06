@@ -133,7 +133,7 @@ const searchInfo = (item) => {
         form.value[props.config['province_code_name']] = res.city;
         form.value[props.config['postal']] = res.postcode;
         form.value[props.config['suburb']] = res.suburb;
-        form.value[props.config['con_id']] = res.con_id;
+        form.value[props.config['con_id']] = res.ta_id;
         form.value[props.config['province_code']] = index === -1 ? '0' : citys.value[index].id + '';
       }
       loading.value = false;

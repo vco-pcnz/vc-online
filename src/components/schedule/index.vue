@@ -210,13 +210,17 @@ import { useI18n } from 'vue-i18n';
 import { DownOutlined } from '@ant-design/icons-vue';
 import dayjs from 'dayjs';
 import tool from '@/utils/tool';
-import { projectForecastIndex, projectForecastExportExcel, projectForecastStatistics } from '@/api/process';
+import { projectForecastIndex, projectDetailForecastList, projectForecastExportExcel, projectForecastStatistics } from '@/api/process';
 
 const props = defineProps({
   currentId: {
     type: [String, Number],
     default: '',
   },
+  isDetails: {
+    type: Boolean,
+    default: false
+  }
 });
 
 const { t } = useI18n();
@@ -229,13 +233,15 @@ const statisticsData = ref(null);
 const getDataInfo = () => {
   pageLoading.value = true;
 
-  projectForecastIndex({
+  const ajaxFn = props.isDetails ? projectDetailForecastList : projectForecastIndex
+
+  ajaxFn({
     uuid: props.currentId,
     limit: 5000,
   })
     .then((res) => {
       const dataArr = [];
-      const data = res.data.list || {};
+      const data = res.data || {};
 
       if (Object.keys(data).length) {
         for (const key in data) {

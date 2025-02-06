@@ -152,12 +152,15 @@
                 <forecast-list
                   v-if="Number(lendingData.build_amount) || Number(lendingData.land_amount)"
                   :current-id="currentId"
+                  :is-details="true"
+                  :show-list="true"
                   :block-info="{showEdit: false}"
                 ></forecast-list>
 
                 <security-list
                   v-if="securityInfoData.count"
                   :current-id="currentId"
+                  :is-details="true"
                   :block-info="{showEdit: false}"
                 >
                 </security-list>
@@ -165,6 +168,7 @@
                 <conditions-list
                   v-if="dataInfo.is_audit && statusType === 'primary'"
                   :current-id="currentId"
+                  :is-details="true"
                   :info-data="currentDataInfo"
                 ></conditions-list>
               </template>

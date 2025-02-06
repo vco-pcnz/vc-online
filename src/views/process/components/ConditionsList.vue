@@ -113,7 +113,7 @@
   import { ref, reactive, onMounted, watch, computed } from "vue";
   import { useI18n } from "vue-i18n";
   import dayjs from "dayjs";
-  import { auditConditionList, projectAuditEditCondition, projectAuditStatusCondition, projectAuditDeleteCondition } from "@/api/process";
+  import { auditConditionList, projectDetailConditionList, projectAuditEditCondition, projectAuditStatusCondition, projectAuditDeleteCondition } from "@/api/process";
   import tool, { removeDuplicates } from "@/utils/tool"
 
   const props = defineProps({
@@ -124,6 +124,10 @@
     currentId: {
       type: [Number, String],
       default: ''
+    },
+    isDetails: {
+      type: Boolean,
+      default: false
     }
   })
 
@@ -136,7 +140,9 @@
   const pageLoading = ref(false)
   const getListData = () => {
     pageLoading.value = true
-    auditConditionList({
+
+    const ajaxFn = props.isDetail ? projectDetailConditionList : auditConditionList
+    ajaxFn({
       uuid: props.currentId
     }).then(res => {
       const data = res || []

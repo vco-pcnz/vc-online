@@ -95,7 +95,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { projectAuditSecurityList } from '@/api/process';
+import { projectAuditSecurityList, projectDetailAuditSecurityList } from '@/api/process';
 import tool from '@/utils/tool';
 import SecurityAddEdit from '@/views/process/temp/default/components/SecurityAddEdit.vue';
 import emitter from '@/event';
@@ -137,7 +137,8 @@ const tabLoading = ref(false);
 const tabData = ref([]);
 const getTableData = () => {
   tabLoading.value = true;
-  projectAuditSecurityList({
+  const ajaxFn = props.isDetails ? projectDetailAuditSecurityList : projectAuditSecurityList
+  ajaxFn({
     uuid: props.currentId
   })
     .then((res) => {

@@ -179,7 +179,7 @@
 import { ref, reactive, onMounted, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { auditLmCheckStatus } from '@/api/process';
-import { getWash, washCheck, sendEmail, sendSms, washRemove } from '@/api/project/wash';
+import { getWash, projectDetailGetWash, washCheck, sendEmail, sendSms, washRemove } from '@/api/project/wash';
 import WashTableAddEdit from './WashTableAddEdit.vue';
 
 const emits = defineEmits(['check', 'refresh']);
@@ -362,7 +362,9 @@ const updateVisibleFiles = (val) => {
 
 const loadData = () => {
   loading.value = true;
-  getWash({ uuid: props.currentId, ...pagination.value })
+  const ajaxFn = props.isDetails ? projectDetailGetWash : getWash
+
+  ajaxFn({ uuid: props.currentId, ...pagination.value })
     .then((res) => {
       tableData.value = res.data;
       total.value = res.count;

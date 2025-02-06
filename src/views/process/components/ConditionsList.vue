@@ -68,6 +68,7 @@
     <div class="block-item sec">
       <vco-process-title :title="t('状况')">
         <a-button
+          v-if="!isDetails"
           type="primary" shape="round"
           size="small"
           class="uppercase"
@@ -81,7 +82,7 @@
             <div v-for="(item, index) in listData" :key="index" class="item" :class="{'pass': item.pass, 'done': item.is_ok}">
               <div class="title">
                 <p>{{ tool.showDate(item.date) }}</p>
-                <div v-if="!item.is_ok && item.do" class="flex">
+                <div v-if="!item.is_ok && item.do && !isDetails" class="flex">
                   <a-button :loading="item.delLoading" type="link" class="danger" @click="delHandle(item)">
                     <i v-if="!item.delLoading" class="iconfont">&#xe8c1;</i>
                   </a-button>

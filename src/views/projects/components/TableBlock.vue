@@ -52,7 +52,7 @@
             <i class="iconfont" style="color: #67837e">&#xe761;</i>
             {{ record.credit.irr }}%
           </p>
-          <span class="replenish_text">{{ record.credit.irr }}% · {{ record.credit.forecast }}%</span>
+          <span class="replenish_text">{{ record.credit.irrPreset }}% · {{ record.credit.irrPreset - record.credit.irr  }}%</span>
         </template>
         <template v-if="column.key === '5'">
           <p class="black">{{ tool.formatMoney(record.credit.income) }}</p>
@@ -110,7 +110,7 @@ const columns = reactive([
   { title: t('项目•类型'), key: '1', width: 280 },
   { title: t('借款人•贷款经理'), key: '2', width: 180 },
   { title: t('到期'), key: '3', width: 160 },
-  { title: t('IRR预测'), key: '4', width: 100 },
+  { title: t('IRR预测'), key: '4', width: 140 },
   { title: t('收入'), key: '5', width: 120 },
   { title: t('待提取'), key: '6', width: 100 },
   { title: t('贷款余额'), key: '7', width: 220 },

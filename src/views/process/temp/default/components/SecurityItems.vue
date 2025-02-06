@@ -120,6 +120,7 @@ import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { projectAuditCheckMode } from '@/api/process';
 import SecurityAddEdit from './SecurityAddEdit.vue';
+import emitter from "@/event"
 
 const emits = defineEmits(['refresh']);
 const props = defineProps({

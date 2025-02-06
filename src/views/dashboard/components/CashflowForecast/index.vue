@@ -17,23 +17,9 @@
           @openChange="(val) => (isOpen = val)"
         />
       </a-button>
-      <DropdownList
-        v-if="data"
-        label="managers"
-        labelKey="user_name"
-        :dataList="data.managers"
-        v-model:value="searchForm.uid"
-        @change="loadData()"
-      ></DropdownList>
-      <DropdownList
-        v-if="toDay === searchForm.date"
-        :type="2"
-        label="requests"
-        labelKey="project_name"
-        searchKey="project_name"
-        v-model:value="searchForm.apply_project_id"
-        @change="loadData()"
-      ></DropdownList>
+      <!-- {{ userStore.userInfo }} -->
+      <DropdownList v-if="data" label="managers" labelKey="user_name" :dataList="data.managers" v-model:value="searchForm.uid" @change="loadData()"></DropdownList>
+      <DropdownList v-if="toDay === searchForm.date" :type="2" label="requests" labelKey="project_name" searchKey="project_name" v-model:value="searchForm.apply_project_id" @change="loadData()"></DropdownList>
     </div>
 
     <a-button type="cyan" size="small" class="ml-3" shape="round" @click="report" :loading="downloading">Create report</a-button>
@@ -55,18 +41,11 @@
               <div class="zeroLine" :style="{ top: 'calc(' + zeroLine + '% + 5px)' }"></div>
             </div>
             <div class="chart-list-item" v-for="(item, index) in dates" :key="item">
+              <div class="inner" v-if="!isAllElementsEqual" :style="{ height: setBarHeight(index) }"></div>
               <div class="relative" style="height: 100%">
-                <div class="inner" v-if="!isAllElementsEqual" :style="{ height: 'calc(' + zeroLine + '% + 65px)' }"></div>
                 <!-- label -->
                 <template v-if="index && !isAllElementsEqual">
-                  <line-label
-                    :Max="Max"
-                    :Min="Min"
-                    :zeroLine="zeroLine"
-                    :value="option.series[0].data[index]"
-                    :pre-value="option.series[0].data[index - 1]"
-                    :amount="data.data[2].data[dates[index]]"
-                  ></line-label>
+                  <line-label :Max="Max" :Min="Min" :zeroLine="zeroLine" :value="option.series[0].data[index]" :pre-value="option.series[0].data[index - 1]" :amount="data.data[2].data[dates[index]]"></line-label>
                 </template>
               </div>
               <div class="month">{{ tool.monthYear(item) }}</div>
@@ -74,13 +53,7 @@
           </div>
           <!-- hover -->
           <div class="hoverBox chart-list" style="height: 300px" @click="visible_forecast = true">
-            <div
-              class="chart-list-item hover"
-              v-for="(item, index) in dates"
-              :key="item"
-              @mousemove="mousemove($event, index)"
-              @mouseout="mouseout"
-            ></div>
+            <div class="chart-list-item hover" v-for="(item, index) in dates" :key="item" @mousemove="mousemove($event, index)" @mouseout="mouseout"></div>
           </div>
           <!-- charts -->
           <div class="chartBox">
@@ -149,8 +122,10 @@ import DropdownList from './chooseList.vue';
 import Forecast from './ForecastModal.vue';
 import VcoNumberNew from './vco-number-new.vue';
 import LineLabel from './line-label.vue';
+import { useUserStore } from '@/store';
 
 const { t } = useI18n();
+const userStore = useUserStore();
 
 const props = defineProps([]);
 
@@ -464,6 +439,12 @@ const mousemove = (e, index) => {
 const mouseout = () => {
   showTipCard.value = false;
 };
+
+//图案颜色体现出repayment.drawdown所占比例
+const setBarHeight = (index) => {
+  let all = Math.abs(data.value.data[0].data[dates.value[index]]) + Math.abs(data.value.data[1].data[dates.value[index]]);
+  return (Math.abs(data.value.data[0].data[dates.value[index]]) / all) * 100 + '%';
+};
 onMounted(() => {
   loadData();
 });
@@ -528,6 +509,7 @@ onMounted(() => {
       padding-bottom: 60px;
       padding-top: 60px;
       position: relative;
+      overflow: hidden;
       &.hover {
         background: transparent;
         border: none;
@@ -544,7 +526,7 @@ onMounted(() => {
         text-transform: uppercase;
       }
       .inner {
-        top: -60px;
+        top: 0;
         background-color: #eeefdd;
         border: 1px solid rgba(169, 173, 87, 0.3);
         border-bottom: none;

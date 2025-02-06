@@ -6,6 +6,7 @@
           <a-space>
             <vco-avatar :src="record.project_image" :radius="true" :round="true" :size="32" />
             <div>
+              <p class="cer">ID: {{ record.project_apply_sn }}</p>
               <p class="bold black">{{ record.project_name }}</p>
               <span class="replenish_text">
                 {{ record.loan_type_name }}

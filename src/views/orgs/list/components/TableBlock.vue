@@ -93,6 +93,11 @@
             <span class="cer bold"> {{ record.apply_count }} {{ t('请求') }} </span>
           </p>
         </template>
+        
+        <template v-if="column.key === 'address'">
+          <p>ID: {{ record.idcard }}</p>
+          <p :title="record.address" style="text-wrap: auto;" v-if="record.address"><i class="iconfont">&#xe814;</i>{{ record.address }}</p>
+        </template>
         <template v-if="column.key === '7'">
           <template v-if="record.expire_time && record.expire_time.length">
             <p class="black">{{ getExpireTimeNum(record.expire_time).valid }} {{ t('有效') }}</p>
@@ -174,6 +179,7 @@ const columns = reactive([
   { title: t('关联用户t'), key: '3', width: 250, align: 'left' },
   // { title: t('用户角色t'), key: '4', width: 200, align: 'center' },
   { title: t('注册时间/创建时间t'), key: '5', width: 200, align: 'center' },
+  { title: 'ID/' + t('地址'), key: 'address', width: 200 },
   { title: t('项目数据t'), key: '6', width: 200, align: 'left' },
   { title: t('状态t'), key: '7', width: 150, align: 'center' },
   {

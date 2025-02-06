@@ -1,5 +1,5 @@
 <template>
-    <a-image src="http://vco.com/uploads/images/avatar/20241127/0ea88a8eab11af46206.jpeg" />
+    <a-image :src="zw" />
   <div class="base-card">
     <p class="id_async">
       <span>ID {{ baseInfo.id }}</span>
@@ -24,6 +24,7 @@
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import xeroImg from '@/assets/images/xero.png';
+import zw from '@/assets/images/zw.jpg';
 import { CheckCircleOutlined } from '@ant-design/icons-vue';
 
 const { t } = useI18n();

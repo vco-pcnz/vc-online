@@ -112,8 +112,8 @@ import { projectForecastIndex, projectForecastExportExcel, projectForecastStatis
 const props = defineProps({
   currentId: {
     type: [String, Number],
-    default: ''
-  }
+    default: '',
+  },
 });
 
 const { t } = useI18n();
@@ -128,11 +128,11 @@ const getDataInfo = () => {
 
   projectForecastIndex({
     uuid: props.currentId,
-    limit: 5000
+    limit: 5000,
   })
     .then((res) => {
       const dataArr = [];
-      const data = res.data.list || {};
+      const data = res.data || {};
 
       if (Object.keys(data).length) {
         for (const key in data) {
@@ -151,7 +151,7 @@ const getDataInfo = () => {
 
           const obj = {
             list: itemData,
-            passed: targetDate.isBefore(currentMonth, 'month') || targetDate.isSame(currentMonth, 'month')
+            passed: targetDate.isBefore(currentMonth, 'month') || targetDate.isSame(currentMonth, 'month'),
           };
 
           dataArr.push(obj);
@@ -166,7 +166,7 @@ const getDataInfo = () => {
     });
 
   projectForecastStatistics({
-    uuid: props.currentId
+    uuid: props.currentId,
   }).then((res) => {
     statisticsData.value = res;
     option.value.series[0].data[0].value = res.repayments || 0;
@@ -178,7 +178,7 @@ const downloading = ref(false);
 const downLoadExcel = (type) => {
   const params = {
     type,
-    uuid: props.currentId
+    uuid: props.currentId,
   };
   downloading.value = true;
   projectForecastExportExcel(params)
@@ -199,7 +199,7 @@ const option = ref({
       radius: '100%',
       color: ['#272727', '#f4eee8'],
       label: {
-        show: false
+        show: false,
       },
       silent: true,
       data: [{ value: 0 }, { value: 1 }],
@@ -214,11 +214,11 @@ const option = ref({
           color: '#fff', // 文本颜色
           fontWeight: 'bold',
           fontSize: 14,
-          textBorderWidth: 0 // 取消描边
-        }
-      }
-    }
-  ]
+          textBorderWidth: 0, // 取消描边
+        },
+      },
+    },
+  ],
 });
 
 onMounted(() => {
@@ -340,7 +340,7 @@ onMounted(() => {
   margin-top: 10px;
   font-weight: 500;
   > .item {
-    &:nth-child(3){
+    &:nth-child(3) {
       flex: 1;
       text-align: right;
     }

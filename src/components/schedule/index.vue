@@ -1,7 +1,7 @@
 <template>
   <div>
     <a-spin :spinning="pageLoading" size="large">
-      <div style="min-height: 200px;">
+      <div style="min-height: 200px">
         <div v-if="statisticsData && tabData.length" class="flex header-static">
           <div class="item-content">
             <div class="item">
@@ -235,7 +235,7 @@ const getDataInfo = () => {
   })
     .then((res) => {
       const dataArr = [];
-      const data = res.data.list || {};
+      const data = res.data || {};
 
       if (Object.keys(data).length) {
         for (const key in data) {

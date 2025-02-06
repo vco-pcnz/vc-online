@@ -107,7 +107,7 @@ import { useI18n } from 'vue-i18n';
 import { DownOutlined } from '@ant-design/icons-vue';
 import dayjs from 'dayjs';
 import tool from '@/utils/tool';
-import { projectForecastIndex, projectForecastExportExcel, projectForecastStatistics } from '@/api/process';
+import { projectDetailForecastList, projectForecastExportExcel, projectForecastStatistics } from '@/api/process';
 
 const props = defineProps({
   currentId: {
@@ -126,7 +126,7 @@ const statisticsData = ref(null);
 const getDataInfo = () => {
   pageLoading.value = true;
 
-  projectForecastIndex({
+  projectDetailForecastList({
     uuid: props.currentId,
     limit: 5000,
   })
@@ -165,13 +165,13 @@ const getDataInfo = () => {
       pageLoading.value = false;
     });
 
-  projectForecastStatistics({
-    uuid: props.currentId,
-  }).then((res) => {
-    statisticsData.value = res;
-    option.value.series[0].data[0].value = res.repayments || 0;
-    option.value.series[0].data[1].value = res.pendingRepayment || 0;
-  });
+  // projectForecastStatistics({
+  //   uuid: props.currentId,
+  // }).then((res) => {
+  //   statisticsData.value = res;
+  //   option.value.series[0].data[0].value = res.repayments || 0;
+  //   option.value.series[0].data[1].value = res.pendingRepayment || 0;
+  // });
 };
 
 const downloading = ref(false);

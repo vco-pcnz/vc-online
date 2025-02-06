@@ -123,6 +123,8 @@
     } else {
       if (props.currentStep.mark === 'step_open') {
         txt = '批准项目'
+      } else if (props.currentStep.mark === 'step_director_audit') {
+        txt = '批准'
       } else {
         if (props.canNext) {
           txt = '下一步'

@@ -72,6 +72,7 @@
     projectAuditSaveMode,
     projectAuditCheckMode
   } from '@/api/process';
+  import { message } from 'ant-design-vue/es';
   import emitter from '@/event';
   
   const emits = defineEmits(['done', 'refresh']);
@@ -80,6 +81,10 @@
 
   const props = defineProps({
     confirmInfo: {
+      type: Object,
+      default: () => {}
+    },
+    offerInfo: {
       type: Object,
       default: () => {}
     },
@@ -134,19 +139,36 @@
   }
 
   const checkHandle = async () => {
-    const params = {
-      uuid: props.currentId,
-      code: props.blockInfo.code
-    }
-    await projectAuditCheckMode(params)
-      .then(() => {
-        emits('refresh');
-        emitter.emit('refreshAuditHisList');
-        return true;
-      })
-      .catch(() => {
-        return false;
-      });
+    formRef.value
+    .validate()
+    .then(async () => {
+      // LM 再次检查
+      if (props.currentStep.mark === 'step_lm_check') {
+        if (form.value.depositInfoYes && !props.offerInfo.cert_images) {
+          message.error(t('请上传') + t('未签订Offer'));
+          return false
+        }
+
+        if (form.value.agreementYes && !props.offerInfo.sign_offer) {
+          message.error(t('请上传') + t('已签订Offer'));
+          return false
+        }
+      }
+
+      const params = {
+        uuid: props.currentId,
+        code: props.blockInfo.code
+      }
+      await projectAuditCheckMode(params)
+        .then(() => {
+          emits('refresh');
+          emitter.emit('refreshAuditHisList');
+          return true;
+        })
+        .catch(() => {
+          return false;
+        });
+    })
   }
 
   const subLoading = ref(false);

@@ -561,5 +561,6 @@ export default {
   "抵押物总价值为{0}，借款总金额为{1}，差{2}，确认通过审核吗？": "The total value of the collateral is <span>{0}</span>, the total loan amount is <span>{1}</span>, and the difference is <span>{2}</span>. Are you sure it has passed the review?",
   "召回项目": "Recall",
   "确定召回该项目吗？": "Are you sure you want to recall this item?",
-  "LM线下offer": "LM offline offer"
+  "LM线下offer": "LM offline offer",
+  "批准": "Approve"
 }

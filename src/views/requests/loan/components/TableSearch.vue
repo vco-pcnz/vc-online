@@ -20,7 +20,11 @@
       </vco-page-search-item>
 
       <vco-page-search-item :title="t('项目周期')" width="266">
-        <a-range-picker v-model:value="searchForm.time" :placeholder="[t('开放日期'), t('到期日期')]" />
+        <div class="flex items-center gap-2">
+          <a-date-picker v-model:value="searchForm.start_date" :placeholder="t('开放日期')" @change="searchForm.end_date = ''" />
+          <p>-</p>
+          <a-date-picker v-model:value="searchForm.end_date" :disabledDate="disabledDateFormatAfter" :placeholder="t('到期日期')" />
+        </div>
       </vco-page-search-item>
 
       <vco-page-search-item :title="t('客户经理')" width="180">
@@ -107,7 +111,8 @@
   const searchForm = ref({
     borrower_keyword: '',
     borrower_search_type: '',
-    time: null,
+    start_date: '',
+    end_date: '',
     project_search_type: '',
     project_keyword: '',
     lm_name: '',
@@ -115,19 +120,24 @@
     max_loan_money: ''
   })
 
+  const disabledDateFormatAfter = (current) => {
+    const targetDate = new Date(searchForm.value.start_date).setHours(0, 0, 0, 0)
+    return current && current < targetDate
+  };
+
   const searchHandle = (flag) => {
     if (flag) {
       for (const key in searchForm.value) {
         searchForm.value[key] = ''
       }
-      searchForm.value.time = null
     }
     const data = cloneDeep(searchForm.value)
-    if (data.time && data.time.length) {
-      data.start_date = dayjs(data.time[0]).format('YYYY-MM-DD')
-      data.end_date = dayjs(data.time[1]).format('YYYY-MM-DD')
+    if (data.start_date) {
+      data.start_date = dayjs(data.start_date).format('YYYY-MM-DD')
     }
-    delete data.time
+    if (data.end_date) {
+      data.end_date = dayjs(data.end_date).format('YYYY-MM-DD')
+    }
     emits('search', data)
   }
 </script>

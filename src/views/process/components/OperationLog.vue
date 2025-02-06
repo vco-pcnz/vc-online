@@ -33,7 +33,7 @@
 </template>
 
 <script setup>
-  import { ref, onMounted } from "vue";
+  import { ref, onMounted, onUnmounted } from "vue";
   import { useI18n } from "vue-i18n";
   import { auditHistoryList } from "@/api/process";
   import emitter from "@/event"
@@ -62,11 +62,19 @@
     })
   }
 
+  // 绑定事件
+  const handleRefresh = () => {
+    getListData();
+  };
+
   onMounted(() => {
     getListData()
-    emitter.on('refreshAuditHisList', () => {
-      getListData()
-    })
+    emitter.on('refreshAuditHisList', handleRefresh)
+  })
+
+  onUnmounted(() => {
+    // 移除事件监听
+    emitter.off('refreshAuditHisList', handleRefresh);
   })
 </script>
 

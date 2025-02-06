@@ -249,10 +249,10 @@
   const sureHandle = async () => {
     sureLoading.value = true
     await normalRequest(currentForParams.value, true)
-    emitter.emit('resetForecast', {
-      amount: currentForParams.value.loan_money,
-      months: formState.term
-    })
+
+    emitter.emit('refreshForecastList')
+
+    
 
     sureLoading.value = false
   }

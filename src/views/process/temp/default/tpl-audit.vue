@@ -129,7 +129,7 @@
 </template>
 
 <script setup>
-  import { ref, watch, onMounted, computed } from "vue";
+  import { ref, watch, onMounted, onUnmounted, computed } from "vue";
   import { useI18n } from "vue-i18n";
   import { cloneDeep } from "lodash";
   import {
@@ -340,6 +340,10 @@
     }
   }
 
+  const handleRefreshSecurityInfo = () => {
+    getDataInit()
+  }
+
   watch(
     () => props.infoData,
     (val) => {
@@ -359,13 +363,15 @@
       getDataInit()
     }
 
-    emitter.on('refreshSecurityInfo', () => {
-      getDataInit()
-    })
+    emitter.on('refreshSecurityInfo', handleRefreshSecurityInfo)
 
     emitter.on('changeDataLetDis', (flag) => {
       dataLetDisabled.value = flag
     })
+  })
+
+  onUnmounted(() => {
+    emitter.off('refreshSecurityInfo', handleRefreshSecurityInfo)
   })
 </script>
 

@@ -72,22 +72,71 @@
           <div class="block-container">
             <div class="left-content">
               <template v-if="dataInfo">
-                <div v-if="showBlock(1)" class="block-item details">
+                <div v-if="borrowerInfoData.borrower_about" class="block-item details">
                   <vco-process-title :title="t('借款人信息')"></vco-process-title>
                   <borrower-info :data="borrowerInfoData"></borrower-info>
                 </div>
-                <div v-if="showBlock(2)" class="block-item details">
+                <div v-if="projectInfoData.project_name" class="block-item details">
                   <vco-process-title :title="t('项目信息')"></vco-process-title>
                   <project-info :data="projectInfoData"></project-info>
                 </div>
-                <div v-if="showBlock(3)" class="block-item details">
+                <div v-if="showCert" class="block-item details">
                   <vco-process-title :title="t('证件资料')"></vco-process-title>
                   <document-info :data="documentInfoData"></document-info>
                 </div>
-                <div v-if="showBlock(4)" class="block-item details">
+                <div v-if="Number(loanInfoData.loan_money)" class="block-item details">
                   <vco-process-title :title="t('借款信息')"></vco-process-title>
                   <loan-info :data="loanInfoData"></loan-info>
                 </div>
+
+                <template v-if="showMoreInfo">
+                  <security-items
+                    v-if="securityInfoData.count"
+                    :is-details="true"
+                    :block-info="{showEdit: false}"
+                    :security-info="securityInfoData"
+                  ></security-items>
+
+                  <lending-form
+                    v-if="Number(lendingData.build_amount) || Number(lendingData.land_amount)"
+                    :is-details="true"
+                    :current-id="currentId"
+                    :block-info="{showEdit: false}"
+                    :data-info="dataInfo"
+                    :lending-info="lendingData"
+                  ></lending-form>
+
+                  <guarantor-info
+                    v-if="showWarranty"
+                    :current-id="currentId"
+                    :is-details="true"
+                    :block-info="{showEdit: false}"
+                    :guarantor-info="warrantyData"
+                  ></guarantor-info>
+
+                  <offer-form
+                    v-if="showOffer"
+                    :is-details="true"
+                    :current-id="currentId"
+                    :block-info="{showEdit: false}"
+                    :offer-info="offerData"
+                  ></offer-form>
+
+                  <confirm-form
+                    v-if="confirmData.confirm"
+                    :current-id="currentId"
+                    :is-details="true"
+                    :block-info="{showEdit: false}"
+                    :confirm-info="confirmData"
+                  ></confirm-form>
+
+                  <wash-table
+                    :current-id="currentId"
+                    :is-details="true"
+                    :block-info="{showEdit: false}"
+                    :wash-info="{is_check: false}"
+                  ></wash-table>
+                </template>
               </template>
             </div>
             <div class="right-content">
@@ -98,6 +147,27 @@
               ></bind-users>
 
               <ads-content></ads-content>
+
+              <template v-if="showMoreInfo">
+                <forecast-list
+                  v-if="Number(lendingData.build_amount) || Number(lendingData.land_amount)"
+                  :current-id="currentId"
+                  :block-info="{showEdit: false}"
+                ></forecast-list>
+
+                <security-list
+                  v-if="securityInfoData.count"
+                  :current-id="currentId"
+                  :block-info="{showEdit: false}"
+                >
+                </security-list>
+
+                <conditions-list
+                  v-if="dataInfo.is_audit && statusType === 'primary'"
+                  :current-id="currentId"
+                  :info-data="currentDataInfo"
+                ></conditions-list>
+              </template>
             </div>
           </div>
         </template>
@@ -118,9 +188,20 @@
   import ProjectInfo from "@/views/process/temp/default/components/ProjectInfo.vue";
   import DocumentInfo from "@/views/process/temp/default/components/DocumentInfo.vue";
   import LoanInfo from "@/views/process/temp/default/components/LoanInfo.vue";
+  import SecurityItems from "@/views/process/temp/default/components/SecurityItems.vue";
+  import LendingForm from "@/views/process/temp/default/components/LendingForm.vue";
+  import GuarantorInfo from "@/views/process/temp/default/components/GuarantorInfo.vue";
+  import OfferForm from "@/views/process/temp/default/components/OfferForm.vue";
+  import ConfirmForm from "@/views/process/temp/default/components/ConfirmForm.vue";
+
+  import ForecastList from "@/views/process/components/ForecastList.vue";
+  import SecurityList from "@/views/process/components/SecurityList.vue";
+  import WashTable from '@/views/process/temp/default/components/WashTable.vue';
+  import ConditionsList from "@/views/process/components/ConditionsList.vue";
   import BindUsers from "@/views/process/components/BindUsers.vue";
   import AdsContent from "@/views/process/components/AdsContent.vue";
   import RejectDialog from "@/views/process/components/RejectDialog.vue";
+  
 
   import { processRoutes } from "@/constant"
   import emitter from "@/event"
@@ -133,11 +214,17 @@
   const currentId = ref()
   const pageLoading = ref(true)
   const dataInfo = ref(null)
+  const currentDataInfo = ref(null)
 
   const borrowerInfoData = ref()
   const projectInfoData = ref()
   const documentInfoData = ref()
   const loanInfoData = ref()
+  const securityInfoData = ref()
+  const lendingData = ref()
+  const warrantyData = ref()
+  const offerData = ref()
+  const confirmData = ref()
 
   const createdUser = ref({
     avatar: "",
@@ -157,38 +244,32 @@
     }
   })
 
-  const showBlock = (index = 0) => {
-    const isOpen = dataInfo.value.status > 900 || dataInfo.value.status === 900
-    const isCancel = dataInfo.value.status === -100
-    const isDeclined = dataInfo.value.status === -900
-
-    if (isCancel || isDeclined || isOpen) {
-      return true
-    } else {
-      if (dataInfo.value.next_index) {
-        return dataInfo.value.next_index > index
-      } 
-    }
-
-    return false
-  }
+  const showMoreInfo = computed(() => {
+    return dataInfo.value.ptRole !== 1
+  })
 
   const getDataInfo = () => {
     projectDetailApi({
       uuid: currentId.value
     }).then(res => {
       if (res) {
-        dataInfo.value = res
+        currentDataInfo.value = res
+        dataInfo.value = res.base
 
         createdUser.value = {
-          avatar: res.create_user_avatar,
-          name: res.create_user_name
+          avatar: res.base.create_user_avatar,
+          name: res.base.create_user_name
         }
 
-        borrowerInfoData.value = res.borrower_info
-        projectInfoData.value = res.project_info
-        documentInfoData.value = res.project_cert
-        loanInfoData.value = res.loan_info
+        borrowerInfoData.value = res.borrower
+        projectInfoData.value = res.project
+        documentInfoData.value = res.cert
+        loanInfoData.value = res.loan
+        securityInfoData.value = res.security
+        lendingData.value = res.lending
+        warrantyData.value = res.warranty
+        offerData.value = res.offer
+        confirmData.value = res.confirm
       }
       
       pageLoading.value = false
@@ -196,6 +277,18 @@
       pageLoading.value = false
     })
   }
+
+  const showCert = computed(() => {
+    return documentInfoData.value.building_consent_files || documentInfoData.value.engineering_plan_approval_files || documentInfoData.value.feasibility_files || documentInfoData.value.others_files || documentInfoData.value.resource_consent_files
+  })
+
+  const showWarranty = computed(() => {
+    return warrantyData.value.guarantor_list.length || warrantyData.value.main_contractor || warrantyData.value.security_package.length
+  })
+
+  const showOffer = computed(() => {
+    return offerData.value.cert_images || offerData.value.sign_offer
+  })
 
   const cancelHandle = async () => {
     await applyCancelProject({

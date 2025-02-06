@@ -8,6 +8,14 @@ export const getWash = (params) =>
     params
   });
 
+// 反洗钱列表 - 详情用
+export const projectDetailGetWash = (params) =>
+  request({
+    url: 'projectDetail/washList',
+    method: 'get',
+    params
+  });
+
 // 新增编辑
 export const washAdd = (data) =>
   request({

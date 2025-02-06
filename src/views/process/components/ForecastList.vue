@@ -94,7 +94,7 @@
             type="dark" shape="round"
             size="small"
             class="uppercase"
-            @click="navigationTo(`/requests/schedule?uuid=${currentId}`)"
+            @click="navigationTo(`/requests/schedule?uuid=${currentId}&isDetails=${isDetails}`)"
           >{{ t('放款计划') }}</a-button>
           <a-button
             v-if="!isDetails && blockInfo.showEdit"
@@ -171,7 +171,7 @@
   import { QuestionCircleOutlined } from '@ant-design/icons-vue';
   import dayjs from "dayjs";
   import { cloneDeep } from "lodash";
-  import { projectForecastDarwDownList, projectForecastAdd, projectForecastDelete, projectAuditUpdLoanAmount } from "@/api/process"
+  import { projectForecastDarwDownList, projectDetailDarwDownList, projectForecastAdd, projectForecastDelete, projectAuditUpdLoanAmount } from "@/api/process"
   import tool, { numberStrFormat, navigationTo } from "@/utils/tool"
   import emitter from "@/event"
   import { message } from "ant-design-vue/es";
@@ -279,7 +279,8 @@
 
   const getTableData = () => {
     tabLoading.value = true
-    projectForecastDarwDownList({
+    const ajaxFn = props.isDetails ? projectDetailDarwDownList : projectForecastDarwDownList
+    ajaxFn({
       page: 1,
       limit: 5000,
       uuid: props.currentId

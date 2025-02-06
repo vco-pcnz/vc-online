@@ -15,7 +15,7 @@
       </div>
     </vco-page-panel>
 
-    <Schedule v-if="currentId" :current-id="currentId" />
+    <Schedule v-if="currentId" :current-id="currentId" :is-details="details" />
   </div>
 </template>
 
@@ -32,6 +32,7 @@
 
   const pageLoading = ref(false)
   const currentId = ref()
+  const details = ref(false)
 
   const pageTitle = ref(t('放款计划'))
   const pageStep = ref('')
@@ -48,7 +49,7 @@
   }
   
   onMounted(() => {
-    const { uuid, sn, step } = route.query;
+    const { uuid, sn, step, isDetails } = route.query;
     if (uuid) {
       if (sn) {
         pageTitle.value = sn
@@ -59,6 +60,8 @@
       }
 
       currentId.value = uuid
+
+      details.value = isDetails === 'true'
     } else {
       pageLoading.value = false
     }

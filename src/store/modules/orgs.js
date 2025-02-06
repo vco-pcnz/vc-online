@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
-import { getList, getCategory, getStakeholderType, stakeUnbind, stakeBind } from '@/api/orgs';
+import { getList, getCategory, getStakeholderType, stakeUnbind, stakeBind, stakeDelete } from '@/api/orgs';
 import { systemDictData } from '@/api/system';
+import { remove } from 'lodash';
 
 const useOrgsStore = defineStore('VcOnlineOrgs', {
   state: () => ({
@@ -101,6 +102,21 @@ const useOrgsStore = defineStore('VcOnlineOrgs', {
         this[code] = res;
         this.jobs = res;
       });
+    },
+    // 利益相关者删除
+    remove(uuids, isCurrent) {
+      this.loading = true;
+      return stakeDelete({ uuids })
+        .then(() => {
+          if (isCurrent) {
+            this.getList();
+          } else {
+            this.setSearchParams({});
+          }
+        })
+        .finally(() => {
+          this.loading = false;
+        });
     }
   }
 });

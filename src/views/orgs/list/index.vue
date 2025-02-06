@@ -2,9 +2,7 @@
   <div>
     <div class="types">
       <div class="cidBox">
-        <div v-for="item in categoryData" :key="item.id" class="cidBoxItem" :class="{ active: cid == item.id }" @click="tabChange(item.id)">
-          {{ item.name }}{{item.id?'s':""}}
-        </div>
+        <div v-for="item in categoryData" :key="item.id" class="cidBoxItem" :class="{ active: cid == item.id }" @click="tabChange(item.id)">{{ item.name }}{{ item.id ? 's' : '' }}</div>
       </div>
       <a-button type="cyan" shape="round" @click="navigationTo('/orgs/form/add')">{{ t('添加组织') }}</a-button>
     </div>
@@ -14,9 +12,9 @@
       <div class="mt-10">
         <vco-table-tool>
           <template #left>
-            <!-- <a-button type="cyan" :disabled="!rowSelection.length">{{
-                        t("指派角色")
-                      }}</a-button> -->
+            <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" :disabled="Boolean(!rowSelection.length)" @confirm="remove" :loading="orgsStore.loading" v-if="hasPermission('orgs:delete')">
+              <a-button danger :disabled="!rowSelection.length">{{ t('删除') }}</a-button>
+            </a-popconfirm>
           </template>
           <template #right>
             <vco-table-sort v-model="sortType" v-model:value="sortValue" :type-data="sortTypeData"></vco-table-sort>
@@ -26,7 +24,7 @@
         <div class="mt-5">
           <a-spin :spinning="orgsStore.loading" size="large">
             <div class="table-content">
-              <table-block :table-data="orgsStore.list" :indeterminate="Boolean(rowSelection.length && rowSelection.length !== orgsStore.list.length)" @check="checkHandle"></table-block>
+              <table-block :table-data="orgsStore.list" v-model:keys="rowSelection" v-model:data="rowSelectionData"></table-block>
             </div>
             <div class="mt-5" v-if="orgsStore.total">
               <a-pagination
@@ -36,8 +34,9 @@
                 :current="orgsStore.pagination.page"
                 show-size-changer
                 show-quick-jumper
-                :show-total="total => t('共{0}条', [total])"
-                @change="orgsStore.setPaginate" />
+                :show-total="(total) => t('共{0}条', [total])"
+                @change="orgsStore.setPaginate"
+              />
             </div>
           </a-spin>
         </div>
@@ -48,6 +47,7 @@
 
 <script setup>
 import { ref, computed, reactive, onMounted, watch } from 'vue';
+import { hasPermission } from '@/directives/permission/index';
 import { useI18n } from 'vue-i18n';
 import TableSearch from './components/TableSearch.vue';
 import TableBlock from './components/TableBlock.vue';
@@ -63,49 +63,46 @@ const sortValue = ref('');
 const sortTypeData = [
   {
     label: t('默认'),
-    value: '',
+    value: ''
   },
   {
     label: t('名字'),
-    value: 'firstName',
+    value: 'firstName'
   },
   {
     label: t('ID'),
-    value: 'id',
+    value: 'id'
   },
   {
     label: t('注册日期'),
-    value: 'create_time',
-  },
+    value: 'create_time'
+  }
 ];
 
-const tabChange = val => {
+const tabChange = (val) => {
   cid.value = val;
   orgsStore.setSearchParams({ cid: cid.value });
-};
-
-const rowSelection = computed(() => {
-  return orgsStore.list.filter(item => item.checked);
-});
-
-const currentCheckAll = ref(false);
-const checkHandle = flag => {
-  currentCheckAll.value = flag;
-  orgsStore.list.forEach(item => (item.checked = flag));
 };
 
 const categoryData = computed(() => {
   return [
     {
       name: t('全部'),
-      id: '',
+      id: ''
     },
-    ...orgsStore.category,
+    ...orgsStore.category
   ];
 });
 
+const rowSelection = ref([]);
+const rowSelectionData = ref([]);
+
+const remove = () => {
+  orgsStore.remove(rowSelection.value)
+};
+
 onMounted(() => {
-  cid.value = orgsStore.searchParams.cid
+  cid.value = orgsStore.searchParams.cid;
   // 加载数据
   orgsStore.getList();
   // 加载分类
@@ -119,12 +116,12 @@ watch([sortType, sortValue], ([newSortType, newSortValue]) => {
   if (newSortType === 'desc') {
     params = {
       [desc]: newSortValue,
-      [asc]: undefined,
+      [asc]: undefined
     };
   } else {
     params = {
       [desc]: undefined,
-      [asc]: newSortValue,
+      [asc]: newSortValue
     };
   }
   orgsStore.setSearchParams(params);

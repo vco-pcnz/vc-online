@@ -93,3 +93,12 @@ export const stakeChildMebSync = (params) =>
     method: 'get',
     params
   });
+
+  
+// 利益相关者删除
+export const stakeDelete = (data) =>
+  request({
+    url: 'stake/delete',
+    method: 'post',
+    data
+  });

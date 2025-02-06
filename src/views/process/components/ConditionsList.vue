@@ -141,7 +141,7 @@
   const getListData = () => {
     pageLoading.value = true
 
-    const ajaxFn = props.isDetail ? projectDetailConditionList : auditConditionList
+    const ajaxFn = props.isDetails ? projectDetailConditionList : auditConditionList
     ajaxFn({
       uuid: props.currentId
     }).then(res => {

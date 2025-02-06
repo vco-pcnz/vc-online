@@ -166,7 +166,7 @@
 </template>
 
 <script setup>
-  import { ref, onMounted, computed, reactive, watch } from "vue";
+  import { ref, onMounted, onUnmounted, computed, reactive, watch } from "vue";
   import { useI18n } from "vue-i18n";
   import { QuestionCircleOutlined } from '@ant-design/icons-vue';
   import dayjs from "dayjs";
@@ -444,12 +444,18 @@
     }
   );
 
+  const handleRefreshForecast = () => {
+    getTableData()
+  }
+
   onMounted(() => {
     getTableData()
 
-    emitter.on('refreshForecastList', () => {
-      getTableData()
-    })
+    emitter.on('refreshForecastList', handleRefreshForecast)
+  })
+
+  onUnmounted(() => {
+    emitter.off('refreshForecastList', handleRefreshForecast)
   })
 </script>
 

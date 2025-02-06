@@ -93,7 +93,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { projectAuditSecurityList } from '@/api/process';
 import tool from '@/utils/tool';
@@ -187,12 +187,18 @@ const addressInfo = (data) => {
   return `${data.address_short} ${data.address} ${data.suburb} ${data.region_one_name} ${data.country_name}`
 }
 
+const handleRefreshSecurityList = () => {
+  getTableData();
+}
+
 onMounted(() => {
   getTableData();
-  emitter.on('refreshSecurityList', () => {
-    getTableData();
-  });
+  emitter.on('refreshSecurityList', handleRefreshSecurityList);
 });
+
+onUnmounted(() => {
+  emitter.off('refreshSecurityList', handleRefreshSecurityList);
+})
 </script>
 
 <style lang="less" scoped>

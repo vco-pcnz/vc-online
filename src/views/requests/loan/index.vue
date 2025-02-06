@@ -147,7 +147,7 @@
 </template>
 
 <script setup name="RequestsLoanList">
-import { ref, computed, reactive, onMounted, watch } from 'vue';
+import { ref, computed, reactive, onMounted, onUnmounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { cloneDeep } from 'lodash';
 import { hasPermission } from '@/directives/permission/index';
@@ -330,19 +330,29 @@ watch(
   }
 )
 
+const handleRefreshRequestsList = () => {
+  getTableData();
+}
+
+const handleRefreshRequestsList2 = () => {
+  currentTab.value = '2';
+  tabChange();
+}
+
 onMounted(() => {
   tabChange();
   getVcteamData();
 
-  emitter.on('refreshRequestsList', () => {
-    getTableData();
-  });
+  emitter.on('refreshRequestsList', handleRefreshRequestsList);
 
-  emitter.on('refreshRequestsList2', () => {
-    currentTab.value = '2';
-    tabChange();
-  });
+  emitter.on('refreshRequestsList2', handleRefreshRequestsList2);
 });
+
+onUnmounted(() => {
+  emitter.off('refreshRequestsList', handleRefreshRequestsList);
+
+  emitter.off('refreshRequestsList2', handleRefreshRequestsList2);
+})
 </script>
 
 <style lang="less" scoped>

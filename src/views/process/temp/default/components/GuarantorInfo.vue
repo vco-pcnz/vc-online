@@ -1,7 +1,7 @@
 <template>
   <div
     class="block-item mb"
-    :class="{ checked: guarantorInfo.is_check && blockInfo.showCheck }"
+    :class="{ checked: guarantorInfo.is_check && blockInfo.showCheck, 'details': isDetails }"
   >
     <!-- 人员选择 -->
     <vco-choose-add-user
@@ -72,7 +72,7 @@
           <a-col :span="24">
             <a-form-item label="" name="guarantor_uuids">
               <div class="title-content">
-                <p>{{ t('担保人') }}</p>
+                <p :class="{'details': isDetails}">{{ t('担保人') }}</p>
                 <a-button
                   v-if="userData.length && blockInfo.showEdit && !disabledGua"
                   type="primary"
@@ -154,6 +154,10 @@ const props = defineProps({
       };
     },
   },
+  isDetails: {
+    type: Boolean,
+    default: false
+  }
 });
 
 const { t } = useI18n();
@@ -306,6 +310,11 @@ onMounted(() => {
   > p {
     font-size: 12px;
     color: #888;
+    &.details {
+      &::before {
+        display: none;
+      }
+    }
     &::before {
       display: inline-block;
       margin-inline-end: 4px;

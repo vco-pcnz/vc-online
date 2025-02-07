@@ -87,7 +87,7 @@ const loadData = () => {
   loading.value = true;
   loanDrawdown({ uuid: uuid.value, ...pagination.value })
     .then((res) => {
-      tableData.value = res.data.list;
+      tableData.value = res.data;
       total.value = res.count;
     })
     .finally(() => {

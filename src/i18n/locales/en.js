@@ -562,5 +562,6 @@ export default {
   "召回项目": "Recall",
   "确定召回该项目吗？": "Are you sure you want to recall this item?",
   "LM线下offer": "LM offline offer",
-  "批准": "Approve"
+  "批准": "Approve",
+  "添加文件": "add file"
 }

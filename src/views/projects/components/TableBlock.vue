@@ -1,6 +1,6 @@
 <template>
   <div class="sys-table-content border-top-none">
-    <a-table :columns="columns" :data-source="tableData" :pagination="false" :scroll="{ x: '100%' }" :customRow="rowClick">
+    <a-table :columns="columns" :data-source="tableData" :pagination="false" :scroll="{ x: '100%' }" :customRow="rowClick" row-key="uuid" :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === '1'">
           <a-space>
@@ -92,8 +92,7 @@ import { useOrgsStore } from '@/store';
 import { DisconnectOutlined } from '@ant-design/icons-vue';
 const orgsStore = useOrgsStore();
 import dayjs from 'dayjs';
-
-const emits = defineEmits(['check']);
+const emits = defineEmits(['update:data', 'update:keys', 'change']);
 
 const props = defineProps({
   tableData: {
@@ -127,6 +126,59 @@ const rowClick = (record, index) => {
       navigationTo(`/projects/about?uuid=${record.uuid}`);
     }
   };
+};
+
+
+
+const selectedRowKeys = ref([]); // 存放UUid
+const selectedRows = ref([]); // 存放所有选中的选项的所有内容
+const rowSelection = ref({
+  checkStrictly: false,
+  onSelect: (record, selected) => {
+    if (selected) {
+      selectedRowKeys.value.push(record.uuid);
+      selectedRows.value.push(record);
+    } else {
+      let index = selectedRowKeys.value.findIndex((it) => {
+        return it === record.uuid;
+      });
+      selectedRowKeys.value.splice(index, 1);
+      selectedRows.value.splice(index, 1);
+    }
+    handlePathChange();
+  },
+  onSelectAll: (selected, Rows, changeRows) => {
+    const changeRowId = changeRows.map((it) => {
+      return it.uuid;
+    });
+    if (selected) {
+      let newIds = Array.from(new Set(changeRowId.concat(selectedRowKeys.value)));
+      let newRows = Array.from(new Set(changeRows.concat(selectedRows.value)));
+      selectedRowKeys.value = newIds;
+      selectedRows.value = newRows;
+    } else {
+      // 取消选中
+      changeRowId.map((it) => {
+        let index = selectedRowKeys.value.findIndex((item) => {
+          return item == it;
+        });
+        if (index != -1) {
+          selectedRowKeys.value.splice(index, 1);
+          selectedRows.value.splice(index, 1);
+        }
+      });
+    }
+    handlePathChange();
+  },
+  getCheckboxProps: (r) => ({
+    disabled: Boolean(parseInt(r.open_count) + parseInt(r.close_count) + parseInt(r.apply_count))
+  })
+});
+
+const handlePathChange = () => {
+  emits('update:data', selectedRows.value);
+  emits('update:keys', selectedRowKeys.value);
+  emits('change');
 };
 </script>
 

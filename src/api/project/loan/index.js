@@ -8,9 +8,9 @@ export const loanDrawdown = (params) =>
     params
   });
   // 文件夹-选择
-  export const loanEdit = (data) =>
+  export const loanDedit = (data) =>
     request({
-      url: 'project/loan/edit',
+      url: 'project/loan/dedit',
       method: 'post',
       data
     });

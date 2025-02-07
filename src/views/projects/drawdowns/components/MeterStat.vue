@@ -4,8 +4,9 @@
       <div class="MeterStat-Meter"></div>
       <div>
         <p>Current balance</p>
-        <div class="fs_3xl bold" style="margin-bottom: 2px">$1,826,948.34</div>
-        <p class="color_grey">$0.00 available</p>
+        <vco-number :bold="true" :value="statistics.loanWithdrawal" :precision="2" style="margin-bottom: 2px"></vco-number>
+        <p class="color_grey flex">
+          <vco-number :value="statistics.available" :precision="2" size="fs_xs" color="#888" class="mr-2"></vco-number> available</p>
       </div>
     </div>
     <div class="MeterStat MeterStat_type_dotsBlack">
@@ -17,7 +18,7 @@
       </div>
       <div>
         <p class="color_grey" style="margin-bottom: 2px">Pending drawdown</p>
-        <div class="fs_3xl bold">$0.00</div>
+        <vco-number :bold="true" :value="statistics.pendingDrawdown" :precision="2"></vco-number>
         <p style="opacity: 0">.</p>
       </div>
     </div>
@@ -27,7 +28,7 @@
     <div class="MeterStat MeterStat_type_transparent text-right">
       <div>
         <p>Loan</p>
-        <div class="fs_3xl bold">$0.00</div>
+        <vco-number :bold="true" :value="statistics.loan" :precision="2"></vco-number>
         <p class="color_grey">excluding interest & fees</p>
       </div>
       <div class="MeterStat-Meter"></div>
@@ -36,12 +37,13 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { loanDstatistics } from '@/api/project/loan';
 
 const { t } = useI18n();
 
-const props = defineProps([]);
+const props = defineProps(['uuid']);
 
 const data = ref({
   facilityLimit2: 2873824.21,
@@ -84,9 +86,18 @@ const option = ref({
         }
       },
       silent: true,
-      data: [{ value: data.value.drawn_amount }, { value: data.value.pending_drawdown }, { value: data.value.availableWithdrawal }]
+      data: []
     }
   ]
+});
+
+const statistics = ref();
+
+onMounted(() => {
+  loanDstatistics({ uuid: props.uuid }).then((res) => {
+    statistics.value = res;
+    option.value.series[0].data = [{ value: statistics.value.loanWithdrawal }, { value: statistics.value.pendingDrawdown }, { value: statistics.value.loan }]
+  });
 });
 </script>
 

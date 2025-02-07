@@ -3,7 +3,7 @@
     <template #content>
       <div class="ProjectDrawdowns">
         <div>
-          <MeterStat></MeterStat>
+          <MeterStat :uuid="uuid" v-if="Boolean(uuid)"></MeterStat>
           <a-spin :spinning="loading" size="large">
             <div class="table-content">
               <TableBlock :tableData="tableData" @change="change"></TableBlock>

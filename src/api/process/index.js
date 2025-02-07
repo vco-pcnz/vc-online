@@ -328,6 +328,14 @@ export const projectForecastStatistics = (params) =>
     params
   });
 
+  // 预测放款数据Forecast统计-详情用
+export const projectDetailStatistics = (params) =>
+  request({
+    url: "/projectDetail/statistics",
+    method: "get",
+    params
+  });
+
 // 关联用户-系统配置
 export const associateSystemConfig = () =>
   request({

@@ -210,7 +210,7 @@ import { useI18n } from 'vue-i18n';
 import { DownOutlined } from '@ant-design/icons-vue';
 import dayjs from 'dayjs';
 import tool from '@/utils/tool';
-import { projectForecastIndex, projectDetailForecastList, projectForecastExportExcel, projectForecastStatistics } from '@/api/process';
+import { projectForecastIndex, projectDetailForecastList, projectForecastExportExcel, projectForecastStatistics, projectDetailStatistics } from '@/api/process';
 
 const props = defineProps({
   currentId: {
@@ -286,7 +286,9 @@ const getDataInfo = () => {
       pageLoading.value = false;
     });
 
-  projectForecastStatistics({
+  const staticAjaxFn = props.isDetails ? projectDetailStatistics : projectForecastStatistics
+
+  staticAjaxFn({
     uuid: props.currentId,
   }).then((res) => {
     statisticsData.value = res;

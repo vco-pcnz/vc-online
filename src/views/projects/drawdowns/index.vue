@@ -14,13 +14,14 @@
           </a-spin>
         </div>
         <div>
-          <div class="HelpBorrower">
+          <div class="HelpBorrower" v-if="hasPermission('projects:drawdowns:add')" >
             <div class="flex items-center"><i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">Help borrower</span></div>
             <p class="color_grey mt-1 mb-3">You can help to create drawdown on their behalf.</p>
             <drawdownre-quest :uuid="uuid" @change="update">
               <a-button type="brown" shape="round" size="small">{{ t('默认开始') }}</a-button>
             </drawdownre-quest>
           </div>
+          <div style="height: 225px;" v-else></div>
           <Detail ref="detailRef" :uuid="uuid" :detail="detail_info" v-if="Boolean(uuid && detail_info && detail_info.id)" @update="loadData"></Detail>
         </div>
       </div>
@@ -37,6 +38,7 @@ import MeterStat from './components/MeterStat.vue';
 import TableBlock from './components/TableBlock.vue';
 import Detail from './components/Detail.vue';
 import DrawdownreQuest from './components/form/DrawdownRequest.vue';
+import { hasPermission } from '@/directives/permission/index';
 import { loanDrawdown } from '@/api/project/loan';
 import { useRoute } from 'vue-router';
 const route = useRoute();
@@ -99,7 +101,7 @@ onMounted(() => {
   grid-template-columns: 3fr 1fr;
 
   .HelpBorrower {
-    margin-bottom: 48px;
+    margin-bottom: 61px;
     min-height: 160px;
     padding: 30px;
     background-color: #f0f0f0;

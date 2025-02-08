@@ -1,24 +1,11 @@
 <template>
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="JournalRef" class="Journal">
-    <a-modal
-      :width="486"
-      :open="visible"
-      :title="t('提取金额')"
-      :getContainer="() => $refs.JournalRef"
-      :maskClosable="false"
-      :footer="false"
-      @cancel="updateVisible(false)"
-    >
+    <a-modal :width="486" :open="visible" :title="t('提取金额')" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <div class="input-item">
-          <div class="label" :class="{ err: !formState.amount && validate }">Approved amount (requested $1,222.00)</div>
-          <a-input-number
-            v-model:value="formState.amount"
-            :max="99999999999"
-            :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-            :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-          />
+          <div class="label" :class="{ err: !amount && validate }">Approved amount (requested {{ tool.formatMoney(detail?.amount) }})</div>
+          <a-input-number v-model:value="amount" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
         </div>
 
         <div class="flex justify-center">
@@ -35,15 +22,18 @@
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
-import { frename } from '@/api/project/annex';
+import tool from '@/utils/tool';
+import { loanDchange } from '@/api/project/loan';
 
 const { t } = useI18n();
 const emits = defineEmits(['change']);
 
 const props = defineProps({
-  formParams: {
-    type: Object,
-    default: {}
+  uuid: {
+    type: String
+  },
+  detail: {
+    type: Object
   }
 });
 
@@ -51,10 +41,7 @@ const visible = ref(false);
 const loading = ref(false);
 const validate = ref(false);
 
-const formState = ref({
-  amount: '',
-  review: ''
-});
+const amount = ref('');
 
 const updateVisible = (value) => {
   visible.value = value;
@@ -62,23 +49,22 @@ const updateVisible = (value) => {
 
 const save = () => {
   validate.value = true;
-  console.log(formState.value);
-
-  return;
-  if (!rename.value) return message.error(t('请输入') + t('名称'));
+  if (!amount.value) return message.error(t('请输入') + t('金额'));
   loading.value = true;
   let params = {
-    ...props.formParams,
-    name: rename.value
+    uuid: props.uuid,
+    id: props.detail.id,
+    amount: amount.value
   };
-  frename(params)
+  loanDchange(params)
     .then((res) => {
-      emits('change');
-      rename.value = '';
+      amount.value = '';
       message.success(t('保存成功'));
+      emits('change');
       updateVisible(false);
     })
     .finally((_) => {
+      validate.value = false;
       loading.value = false;
     });
 };

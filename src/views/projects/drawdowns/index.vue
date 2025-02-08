@@ -1,5 +1,5 @@
 <template>
-  <detail-layout :title="baseInfo.name" active-tab="drawdowns">
+  <detail-layout active-tab="drawdowns">
     <template #content>
       <div class="ProjectDrawdowns">
         <div>
@@ -9,16 +9,7 @@
               <TableBlock :tableData="tableData" @change="change"></TableBlock>
             </div>
             <div class="mt-5" v-if="total">
-              <a-pagination
-                size="small"
-                :total="total"
-                :pageSize="pagination.limit"
-                :current="pagination.page"
-                :show-size-changer="false"
-                show-quick-jumper
-                :show-total="(total) => t('共{0}条', [total])"
-                @change="setPaginate"
-              />
+              <a-pagination size="small" :total="total" :pageSize="pagination.limit" :current="pagination.page" :show-size-changer="false" show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
             </div>
           </a-spin>
         </div>
@@ -30,7 +21,7 @@
               <a-button type="brown" shape="round" size="small">{{ t('默认开始') }}</a-button>
             </drawdownre-quest>
           </div>
-          <Detail :id="detail_id"></Detail>
+          <Detail ref="detailRef" :uuid="uuid" :detail="detail_info" v-if="Boolean(uuid && detail_info && detail_info.id)" @update="loadData"></Detail>
         </div>
       </div>
     </template>
@@ -52,17 +43,11 @@ const route = useRoute();
 
 const { t } = useI18n();
 
-const baseInfo = ref({
-  id: 1614,
-  name: 'test1212',
-  purpose: ['Construction'],
-  background: 'xxx'
-});
-
 const uuid = ref('');
-const detail_id = ref('');
+const detail_info = ref(null);
 const total = ref(0);
 const loading = ref(true);
+const detailRef = ref()
 const pagination = ref({
   page: 1,
   limit: 5
@@ -78,8 +63,9 @@ const setPaginate = (page, limit) => {
 
 const update = () => {
   pagination.value.page = 1;
-  loadData()
-}
+  loadData();
+  detailRef.value.loadData()
+};
 
 const tableData = ref([]);
 
@@ -95,8 +81,8 @@ const loadData = () => {
     });
 };
 
-const change = (id) => {
-  detail_id.value = id;
+const change = (val) => {
+  detail_info.value = val;
 };
 
 onMounted(() => {

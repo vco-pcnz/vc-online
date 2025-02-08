@@ -42,7 +42,7 @@
 </template>
 
 <script scoped setup>
-import { ref, watch } from 'vue';
+import { ref, watch,onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { getChild } from '@/api/project/annex';
 import { cloneDeep } from 'lodash';
@@ -67,6 +67,9 @@ const props = defineProps({
   },
   folder: {
     type: Object
+  },
+  annex_id: {
+    type: [String,Number]
   }
 });
 
@@ -159,6 +162,10 @@ const toTarget = (id) => {
   setIndex(pathIndex.value[id][0], obj);
 };
 
+onMounted(() => {
+  toTarget(props.annex_id)
+})
+
 watch(
   () => props.active,
   (val) => {
@@ -176,6 +183,12 @@ watch(
   },
   { immediate: true, deep: true }
 );
+
+
+// 暴露方法给父组件
+defineExpose({
+  toTarget
+});
 </script>
 <style scoped lang="less">
 @import '@/styles/variables.less';

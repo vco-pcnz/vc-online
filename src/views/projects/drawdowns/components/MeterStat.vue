@@ -1,12 +1,13 @@
 <template>
+  <a-spin :spinning="loading" size="large">
   <div class="indicatorsGrid">
     <div class="MeterStat MeterStat_type_charcoal">
       <div class="MeterStat-Meter"></div>
       <div>
         <p>Current balance</p>
-        <vco-number :bold="true" :value="statistics.loanWithdrawal" :precision="2" style="margin-bottom: 2px"></vco-number>
+        <vco-number :bold="true" :value="statistics?.loanWithdrawal" :precision="2" style="margin-bottom: 2px"></vco-number>
         <p class="color_grey flex">
-          <vco-number :value="statistics.available" :precision="2" size="fs_xs" color="#888" class="mr-2"></vco-number> available</p>
+          <vco-number :value="statistics?.available" :precision="2" size="fs_xs" color="#888" class="mr-2"></vco-number> available</p>
       </div>
     </div>
     <div class="MeterStat MeterStat_type_dotsBlack">
@@ -18,7 +19,7 @@
       </div>
       <div>
         <p class="color_grey" style="margin-bottom: 2px">Pending drawdown</p>
-        <vco-number :bold="true" :value="statistics.pendingDrawdown" :precision="2"></vco-number>
+        <vco-number :bold="true" :value="statistics?.pendingDrawdown" :precision="2"></vco-number>
         <p style="opacity: 0">.</p>
       </div>
     </div>
@@ -28,12 +29,13 @@
     <div class="MeterStat MeterStat_type_transparent text-right">
       <div>
         <p>Loan</p>
-        <vco-number :bold="true" :value="statistics.loan" :precision="2"></vco-number>
+        <vco-number :bold="true" :value="statistics?.loan" :precision="2"></vco-number>
         <p class="color_grey">excluding interest & fees</p>
       </div>
       <div class="MeterStat-Meter"></div>
     </div>
   </div>
+  </a-spin>
 </template>
 
 <script setup>
@@ -44,18 +46,7 @@ import { loanDstatistics } from '@/api/project/loan';
 const { t } = useI18n();
 
 const props = defineProps(['uuid']);
-
-const data = ref({
-  facilityLimit2: 2873824.21,
-  current_balance: 979262.58,
-  availableBalance: 1884561.63,
-  accrued_interest: 5610.41,
-
-  facilityLimit1: 2504000.0,
-  drawn_amount: 804000.0,
-  availableWithdrawal: 1611366.0,
-  pending_drawdown: 88634.0
-});
+const loading = ref(false)
 // 初始化图表
 const option = ref({
   autoFit: false,
@@ -94,9 +85,12 @@ const option = ref({
 const statistics = ref();
 
 onMounted(() => {
+  loading.value = true
   loanDstatistics({ uuid: props.uuid }).then((res) => {
     statistics.value = res;
     option.value.series[0].data = [{ value: statistics.value.loanWithdrawal }, { value: statistics.value.pendingDrawdown }, { value: statistics.value.loan }]
+  }).finally(_ => {
+    loading.value = false
   });
 });
 </script>

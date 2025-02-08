@@ -9,7 +9,7 @@
     </ul>
     <div v-if="tableData.length" class="table-body">
       <template v-for="item in tableData" :key="item.id">
-        <ul class="table-col tr" :class="{ active: active_id == item.id }" @click="viewDetail(item.id)">
+        <ul class="table-col tr" :class="{ active: active_id == item.id }" @click="viewDetail(item)">
           <li><div class="circle"></div></li>
           <li>{{ item.name }}</li>
           <li>
@@ -47,18 +47,25 @@ const { t } = useI18n();
 
 const active_id = ref('');
 
-const viewDetail = (id) => {
-  active_id.value = id;
-  emit('change', id);
+const viewDetail = (val) => {
+  active_id.value = val.id;
+  emit('change', val);
 };
 
 watch(
   () => props.tableData,
   (val) => {
     if (val && val.length) {
-      viewDetail(val[0].id);
+      let ids = val.map((item) => {
+        return item.id;
+      });
+      if (!ids.includes(active_id.value)) {
+        viewDetail(val[0]);
+      } else {
+        viewDetail(val[ids.indexOf(active_id.value)]);
+      }
     } else {
-      viewDetail('');
+      viewDetail({ id: '' });
     }
   }
 );

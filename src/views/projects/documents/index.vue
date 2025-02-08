@@ -1,7 +1,7 @@
 <template>
-  <detail-layout :title="baseInfo.name" active-tab="documents">
+  <detail-layout active-tab="documents">
     <template #content>
-      <Documents v-if="project_id" :project_id="project_id"></Documents>
+      <Documents v-if="project_id" :project_id="project_id" :annex_id="annex_id"></Documents>
     </template>
   </detail-layout>
 </template>
@@ -17,16 +17,12 @@ const route = useRoute();
 const { t } = useI18n();
 
 const project_id = ref();
+const annex_id = ref();
 
-const baseInfo = ref({
-  id: 1614,
-  name: 'test1212',
-  purpose: ['Construction'],
-  background: 'xxx'
-});
 
 onMounted(() => {
   project_id.value = route.query.uuid;
+  annex_id.value = route.query.annex_id;
 });
 
 </script>

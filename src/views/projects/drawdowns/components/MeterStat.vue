@@ -58,7 +58,7 @@ const option = ref({
       type: 'pie',
       center: ['50%', '50%'],
       radius: '100%',
-      color: ['#181818', 'rgba(169, 173, 87, 0.7)', '#fff'],
+      color: ['#181818', 'rgba(169, 173, 87, 0.7)', '#f3ede5'],
       label: {
         show: false
       },
@@ -103,6 +103,7 @@ onMounted(() => {
   display: grid;
   gap: 12px;
   grid-template-columns: 1fr 1fr 1fr 1fr;
+  margin-bottom: 40px;
 }
 
 .MeterStat-row {
@@ -122,12 +123,8 @@ onMounted(() => {
   border-radius: 4px;
   width: 6px;
 }
-.MeterStat_type_stone3 > .MeterStat-Meter {
-  background-color: #f3ede5;
-  border-color: #f3ede5;
-}
 .MeterStat_type_transparent > .MeterStat-Meter {
-  background-color: transparent;
+  background-color: #f3ede5;
   border-color: hsla(200, 9%, 66%, 0.5);
 }
 .MeterStat_type_charcoal > .MeterStat-Meter {
@@ -145,14 +142,6 @@ onMounted(() => {
   border-radius: 3px;
   height: 6px;
   width: 6px;
-}
-.MeterStat_type_cyan > .MeterStat-Meter {
-  background-color: #b4f1db;
-  border-color: #b4f1db;
-}
-.MeterStat_type_dotsYellow .MeterStat-Dot {
-  background-color: #f19915;
-  border-color: #f19915;
 }
 .chart {
   height: 180px;

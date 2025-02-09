@@ -9,15 +9,15 @@
     </ul>
     <div v-if="tableData.length" class="table-body">
       <template v-for="item in tableData" :key="item.id">
-        <ul class="table-col tr" :class="{ active: active_id == item.id }" @click="viewDetail(item)">
+        <ul class="table-col tr" :class="{ active: active_id == item.id, declined: item.status_name === 'DECLINED DRAWDOWN' }" @click="viewDetail(item)">
           <li><div class="circle"></div></li>
           <li>{{ item.name }}</li>
           <li>
             <vco-number :value="item.apply_amount" :precision="2" size="fs_xs" :end="true"></vco-number>
             <p class="fs_xs color_grey">{{ tool.showDate(item.create_time) }}</p>
           </li>
-          <li>
-            <!-- {{item.status}} -->
+          <li :style="{ color: colors[item.status_name] }">
+            {{ item.status_name }}
           </li>
           <li>
             <vco-number :value="item.amount" :precision="2" size="fs_xs"></vco-number>
@@ -44,6 +44,13 @@ const props = defineProps({
 });
 
 const { t } = useI18n();
+const colors = ref({
+  'DRAWDOWN CONFIRM': '#a9ad57',
+  'LM REVIEW': '#d3a631',
+  'LM PENDING REVIEW': '#d3a631',
+  'FC REVIEW': '#d3a631',
+  'FC PENDING REVIEW': '#d3a631'
+});
 
 const active_id = ref('');
 
@@ -111,6 +118,10 @@ watch(
         top: 50%;
         border-bottom: 1px solid #e2e5e2;
       }
+    }
+
+    &.declined {
+      opacity: 0.5;
     }
   }
   > li {

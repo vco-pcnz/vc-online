@@ -2,14 +2,15 @@
   <div class="color_grey fs_2xs text-center py-3 text-uppercase uppercase" style="letter-spacing: 1px">Details</div>
 
   <div class="detail">
-    <div class="title">Lending manager review<i class="iconfont mrl-2">&#xe774;</i></div>
+    <div class="title">{{ detail?.status_name }}<i class="iconfont mrl-2">&#xe774;</i></div>
     <div class="my-3">
       <div class="bold fs_xl">{{ detail?.name }}</div>
       <div class="color_grey fs_2xs">{{ detail?.note }}</div>
+      <div class="fs_xs" v-if="Boolean(detail?.cancel_reason)"><span style="color: #c1430c">Push back reason:</span> {{ detail?.cancel_reason }}</div>
     </div>
     <!-- <div class="flex items-center"><i class="iconfont mr-2">&#xe774;</i><span class="weight_demiBold">Documents & photos</span></div>
       <p class="color_grey mt-1 mb-3">1 file had been provided: drawdown notice</p> -->
-    <a-button type="brown" shape="round" size="small" @click="navigationTo('/projects/documents?uuid=' + uuid+'&annex_id='+detail?.annex_id)">{{ t('查看文件') }}</a-button>
+    <a-button type="brown" shape="round" size="small" @click="navigationTo('/projects/documents?uuid=' + uuid + '&annex_id=' + detail?.annex_id)">{{ t('查看文件') }}</a-button>
     <div class="flex items-center box frist mt-5">
       <i class="iconfont left-icon mr-3">&#xe78d;</i>
       <div>
@@ -22,7 +23,7 @@
             <p class="fs_2xl bold">without reference</p>
           </template>
 
-          <a-dropdown class="Filter" trigger="click" v-model:open="visible">
+          <a-dropdown class="Filter" trigger="click" v-model:open="visible" v-if="detail?.has_permission && detail?.mark === 'drawdown_lm'">
             <i class="iconfont dropdown-icon">&#xe778;</i>
             <template #overlay>
               <a-spin :spinning="loading" size="large">
@@ -34,7 +35,7 @@
 
                     <vco-number color="#7dc1c1" :value="item.amount" :precision="2" :bold="true" size="fs_md"></vco-number>
                   </li>
-                  <li class="list-item" @click="chooseforecast({id:0})">without reference</li>
+                  <li class="list-item" @click="chooseforecast({ id: 0 })">without reference</li>
                 </ul>
               </a-spin>
             </template>
@@ -54,23 +55,32 @@
         <div class="flex">
           <vco-number :value="detail?.amount" :precision="2" :bold="true" size="fs_2xl"></vco-number>
           <span class="unit">nzd</span>
-          <DrawdownAmount :uuid="uuid" :detail="detail" @change="update"><i class="iconfont edit">&#xe8cf;</i></DrawdownAmount>
+          <DrawdownAmount :uuid="uuid" :detail="detail" @change="update" v-if="detail?.has_permission && detail?.mark === 'drawdown_lm'"><i class="iconfont edit">&#xe8cf;</i></DrawdownAmount>
         </div>
         <p class="bold color_grey fs_2xs">Requested amount: {{ tool.formatMoney(detail?.amount) }}</p>
       </div>
     </div>
     <div class="flex justify-center mt-3">
-      <a-button type="dark" class="big uppercase" :loading="accept_loading"> Accept documents </a-button>
-    </div>
-    <p class="text-center color_grey fs_xs my-3">You can decline the drawdown request by clicking the button below.</p>
-    <div class="flex justify-center">
-      <a-popconfirm title="Are you sure you want to decline the request?" okText="decline">
+      <a-popconfirm title="Are you sure you want to recall the request?" okText="recall" @confirm="recall" v-if="detail?.prev_permission">
         <template #icon>
           <CheckCircleOutlined :style="{ color: '#a9ad57' }" />
         </template>
-        <a-button type="danger" size="small" shape="round" :loading="decline_loading">decline request</a-button>
+        <a-button type="dark" class="big uppercase" :loading="accept_loading" style="width: 100%"> recall </a-button>
       </a-popconfirm>
+      <a-button type="dark" class="big uppercase" style="width: 100%" :loading="accept_loading" @click="accept" v-if="detail?.has_permission && !detail?.prev_permission"> Accept documents </a-button>
     </div>
+    <template v-if="detail?.has_permission">
+      <p class="text-center color_grey fs_xs my-3">You can decline the drawdown request by clicking the button below.</p>
+      <div class="flex justify-center">
+        <a-popconfirm title="Are you sure you want to decline the request?" okText="decline" @confirm="decline">
+          <template #icon>
+            <CheckCircleOutlined :style="{ color: '#a9ad57' }" />
+          </template>
+          <a-button type="danger" size="small" shape="round" :loading="decline_loading">decline request</a-button>
+        </a-popconfirm>
+      </div>
+      <DrawdownBack :uuid="uuid" :detail="detail" @change="update" v-if="detail?.has_permission && detail?.mark === 'drawdown_fc'"></DrawdownBack>
+    </template>
   </div>
 </template>
 
@@ -78,10 +88,11 @@
 import { ref, watch, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
-import {navigationTo} from '@/utils/tool';
+import { navigationTo } from '@/utils/tool';
 import { CheckCircleOutlined } from '@ant-design/icons-vue';
 import DrawdownAmount from './form/DrawdownAmount.vue';
-import { forecastDarwdown, loanDsel } from '@/api/project/loan';
+import DrawdownBack from './form/DrawdownBack.vue';
+import { forecastDarwdown, loanDsel, loanDdeclinel, loanDsaveStep, loanDrecall } from '@/api/project/loan';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);
@@ -119,6 +130,42 @@ const chooseforecast = (val) => {
   });
 };
 
+// 拒绝
+const decline = () => {
+  decline_loading.value = true;
+  loanDdeclinel({ uuid: props.uuid, id: props.detail?.id })
+    .then((res) => {
+      update();
+    })
+    .finally((_) => {
+      decline_loading.value = false;
+    });
+};
+
+// 同意
+const accept = () => {
+  accept_loading.value = true;
+  loanDsaveStep({ uuid: props.uuid, id: props.detail?.id })
+    .then((res) => {
+      update();
+    })
+    .finally((_) => {
+      accept_loading.value = false;
+    });
+};
+
+// 召回
+const recall = () => {
+  accept_loading.value = true;
+  loanDrecall({ uuid: props.uuid, id: props.detail?.id })
+    .then((res) => {
+      update();
+    })
+    .finally((_) => {
+      accept_loading.value = false;
+    });
+};
+
 const update = () => {
   emits('update');
 };
@@ -152,6 +199,7 @@ defineExpose({
     color: #272727;
     border-radius: 37.4px;
     display: inline-flex;
+    justify-content: center;
     font-size: 14px;
     font-weight: 500;
     gap: 6.8px;

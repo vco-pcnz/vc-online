@@ -70,7 +70,12 @@
         </template>
         <a-button type="dark" class="big uppercase" :loading="accept_loading" style="width: 100%"> recall </a-button>
       </a-popconfirm>
-      <a-button type="dark" class="big uppercase" style="width: 100%" :loading="accept_loading" @click="accept" v-if="detail?.has_permission && !detail?.prev_permission"> Accept documents </a-button>
+      <template v-if="detail?.has_permission && !detail?.prev_permission">
+        <DrawdownFCDate v-if="detail?.mark === 'drawdown_fc'" :uuid="uuid" :detail="detail" :projectDetail="projectDetail" @change="update">
+          <a-button type="dark" class="big uppercase" style="width: 100%" :loading="accept_loading"> Accept documents </a-button>
+        </DrawdownFCDate>
+        <a-button v-else type="dark" class="big uppercase" style="width: 100%" :loading="accept_loading" @click="accept"> Accept documents </a-button>
+      </template>
     </div>
     <template v-if="detail?.has_permission">
       <p class="text-center color_grey fs_xs my-3">You can decline the drawdown request by clicking the button below.</p>
@@ -95,6 +100,7 @@ import { navigationTo } from '@/utils/tool';
 import { CheckCircleOutlined } from '@ant-design/icons-vue';
 import DrawdownAmount from './form/DrawdownAmount.vue';
 import DrawdownBack from './form/DrawdownBack.vue';
+import DrawdownFCDate from './form/DrawdownFCDate.vue';
 import { forecastDarwdown, loanDsel, loanDdeclinel, loanDsaveStep, loanDrecall } from '@/api/project/loan';
 
 const { t } = useI18n();
@@ -105,6 +111,9 @@ const props = defineProps({
     type: String
   },
   detail: {
+    type: Object
+  },
+  projectDetail: {
     type: Object
   }
 });

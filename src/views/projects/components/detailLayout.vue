@@ -1,12 +1,7 @@
 <template>
   <vco-page-panel :title="(detail && detail.base.project_apply_sn) || ''" @back="back">
     <div class="TabsPanel-Tab">
-      <a-button
-        v-for="item in panes"
-        :key="item.key"
-        @click="onChange(item.key)"
-        :class="`tab-button ${item.key === props.activeTab ? 'active-tab' : ''}`"
-      >
+      <a-button v-for="item in panes" :key="item.key" @click="onChange(item.key)" :class="`tab-button ${item.key === props.activeTab ? 'active-tab' : ''}`">
         {{ item.label }}
         {{ item.extraInfo ? `(${item.extraInfo})` : '' }}
       </a-button>
@@ -26,6 +21,7 @@ const router = useRouter();
 const route = useRoute();
 
 const props = defineProps(['title', 'activeTab']);
+const emits = defineEmits(['getProjectDetail']);
 
 const panes = reactive([
   {
@@ -68,6 +64,7 @@ const getProjectDetail = (userId) => {
     // 发起请求
     projectDetailApi({ uuid }).then((res) => {
       detail.value = res;
+      emits('getProjectDetail', res);
     });
   }
 };

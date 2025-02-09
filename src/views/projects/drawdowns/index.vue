@@ -1,5 +1,5 @@
 <template>
-  <detail-layout active-tab="drawdowns">
+  <detail-layout active-tab="drawdowns" @getProjectDetail="getProjectDetail">
     <template #content>
       <div class="ProjectDrawdowns">
         <div :class="{ grid: hasPermission('projects:drawdowns:add') }" class="mb-12">
@@ -12,7 +12,7 @@
             </drawdownre-quest>
           </div>
         </div>
-        <div class="grid">
+        <div :class="{ grid: tableData.length }">
           <a-spin :spinning="loading" size="large">
             <div class="table-content">
               <TableBlock :tableData="tableData" @change="change"></TableBlock>
@@ -22,7 +22,7 @@
             </div>
           </a-spin>
           <div>
-            <Detail ref="detailRef" :uuid="uuid" :detail="detail_info" v-if="Boolean(uuid && detail_info && detail_info.id)" @update="loadData"></Detail>
+            <Detail ref="detailRef" :projectDetail="projectDetail" :uuid="uuid" :detail="detail_info" v-if="Boolean(uuid && detail_info && detail_info.id)" @update="loadData"></Detail>
           </div>
         </div>
       </div>
@@ -86,6 +86,11 @@ const loadData = () => {
 
 const change = (val) => {
   detail_info.value = val;
+};
+
+const projectDetail = ref();
+const getProjectDetail = (val) => {
+  projectDetail.value = val;
 };
 
 onMounted(() => {

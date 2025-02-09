@@ -272,10 +272,26 @@ export const projectForecastDarwDownList = (params) =>
     params
   });
 
+// 预测放款数据darwdown - 详情用
+export const projectDetailDarwDownList = (params) =>
+  request({
+    url: "/projectDetail/darwDownList",
+    method: "get",
+    params
+  });
+
 // 获取预测放款数据Forecast
 export const projectForecastIndex = (params) =>
   request({
     url: "/project/forecast/index",
+    method: "get",
+    params
+  });
+
+// 获取预测放款数据Forecast - 详情用
+export const projectDetailForecastList = (params) =>
+  request({
+    url: "projectDetail/forecastList",
     method: "get",
     params
   });
@@ -308,6 +324,14 @@ export const projectForecastDelete = (data) =>
 export const projectForecastStatistics = (params) =>
   request({
     url: "/project/forecast/statistics",
+    method: "get",
+    params
+  });
+
+  // 预测放款数据Forecast统计-详情用
+export const projectDetailStatistics = (params) =>
+  request({
+    url: "/projectDetail/statistics",
     method: "get",
     params
   });
@@ -363,6 +387,14 @@ export const projectAuditSaveLoanAmount = (data) =>
 export const projectAuditSecurityList = (params) =>
   request({
     url: "/project/audit/securityList",
+    method: "get",
+    params
+  });
+
+// 抵押物列表-详情用
+export const projectDetailAuditSecurityList = (params) =>
+  request({
+    url: "/projectDetail/securityList",
     method: "get",
     params
   });
@@ -525,6 +557,14 @@ export const projectAuditSaveStep = (data) =>
 export const auditConditionList = (params) =>
   request({
     url: "/project/audit/conditionList",
+    method: "get",
+    params
+  });
+
+// 条件列表 - 详情用
+export const projectDetailConditionList = (params) =>
+  request({
+    url: "/projectDetail/conditionList",
     method: "get",
     params
   });

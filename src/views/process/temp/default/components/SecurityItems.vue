@@ -1,7 +1,7 @@
 <template>
   <div
     class="block-item mb"
-    :class="{ checked: securityInfo.is_check && blockInfo.showCheck }"
+    :class="{ checked: securityInfo.is_check && blockInfo?.showCheck, 'details': isDetails }"
   >
     <!-- 确认弹窗 -->
     <vco-confirm-alert
@@ -22,8 +22,8 @@
     ></security-add-edit>
 
     <vco-process-title :title="t('抵押物信息')">
-      <div class="flex gap-5">
-        <template v-if="!securityInfo.is_check && securityInfo.count && blockInfo.showCheck">
+      <div v-if="!isDetails" class="flex gap-5">
+        <template v-if="!securityInfo.is_check && securityInfo.count && blockInfo?.showCheck">
           <a-button
             v-if="confirmTxt"
             type="dark"
@@ -109,7 +109,7 @@
         </div>
       </a-form>
     </div>
-    <div v-if="blockInfo.showCheck" class="check-content">
+    <div v-if="blockInfo?.showCheck" class="check-content">
       <i class="iconfont">&#xe647;</i>
     </div>
   </div>
@@ -120,6 +120,7 @@ import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { projectAuditCheckMode } from '@/api/process';
 import SecurityAddEdit from './SecurityAddEdit.vue';
+import emitter from "@/event"
 
 const emits = defineEmits(['refresh']);
 const props = defineProps({
@@ -141,6 +142,10 @@ const props = defineProps({
   currentId: {
     type: [Number, String],
     default: ''
+  },
+  isDetails: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -151,13 +156,17 @@ const changeAlertRef = ref()
 const changeVisible = ref(false)
 
 const confirmTxt = computed(() => {
-  const count = props.securityInfo.count
-  const building_num = props.projectInfo.building_num
-
-  if (count !== building_num) {
-    return t('项目楼栋数为{0}，抵押物数量为{1}，确认通过审核吗？', [building_num, count])
-  } else {
+  if (props.isDetails) {
     return ''
+  } else {
+    const count = props.securityInfo.count
+    const building_num = props.projectInfo.building_num
+
+    if (count !== building_num) {
+      return t('项目楼栋数为{0}，抵押物数量为{1}，确认通过审核吗？', [building_num, count])
+    } else {
+      return ''
+    }
   }
 })
 

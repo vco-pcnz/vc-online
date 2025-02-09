@@ -1,11 +1,13 @@
 <template>
+  <a-spin :spinning="loading" size="large">
   <div class="indicatorsGrid">
     <div class="MeterStat MeterStat_type_charcoal">
       <div class="MeterStat-Meter"></div>
       <div>
         <p>Current balance</p>
-        <div class="fs_3xl bold" style="margin-bottom: 2px">$1,826,948.34</div>
-        <p class="color_grey">$0.00 available</p>
+        <vco-number :bold="true" :value="statistics?.loanWithdrawal" :precision="2" style="margin-bottom: 2px"></vco-number>
+        <p class="color_grey flex">
+          <vco-number :value="statistics?.available" :precision="2" size="fs_xs" color="#888" class="mr-2"></vco-number> available</p>
       </div>
     </div>
     <div class="MeterStat MeterStat_type_dotsBlack">
@@ -17,7 +19,7 @@
       </div>
       <div>
         <p class="color_grey" style="margin-bottom: 2px">Pending drawdown</p>
-        <div class="fs_3xl bold">$0.00</div>
+        <vco-number :bold="true" :value="statistics?.pendingDrawdown" :precision="2"></vco-number>
         <p style="opacity: 0">.</p>
       </div>
     </div>
@@ -27,33 +29,24 @@
     <div class="MeterStat MeterStat_type_transparent text-right">
       <div>
         <p>Loan</p>
-        <div class="fs_3xl bold">$0.00</div>
+        <vco-number :bold="true" :value="statistics?.loan" :precision="2"></vco-number>
         <p class="color_grey">excluding interest & fees</p>
       </div>
       <div class="MeterStat-Meter"></div>
     </div>
   </div>
+  </a-spin>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { loanDstatistics } from '@/api/project/loan';
 
 const { t } = useI18n();
 
-const props = defineProps([]);
-
-const data = ref({
-  facilityLimit2: 2873824.21,
-  current_balance: 979262.58,
-  availableBalance: 1884561.63,
-  accrued_interest: 5610.41,
-
-  facilityLimit1: 2504000.0,
-  drawn_amount: 804000.0,
-  availableWithdrawal: 1611366.0,
-  pending_drawdown: 88634.0
-});
+const props = defineProps(['uuid']);
+const loading = ref(false)
 // 初始化图表
 const option = ref({
   autoFit: false,
@@ -65,7 +58,7 @@ const option = ref({
       type: 'pie',
       center: ['50%', '50%'],
       radius: '100%',
-      color: ['#181818', 'rgba(169, 173, 87, 0.7)', '#fff'],
+      color: ['#181818', 'rgba(169, 173, 87, 0.7)', '#f3ede5'],
       label: {
         show: false
       },
@@ -84,9 +77,21 @@ const option = ref({
         }
       },
       silent: true,
-      data: [{ value: data.value.drawn_amount }, { value: data.value.pending_drawdown }, { value: data.value.availableWithdrawal }]
+      data: []
     }
   ]
+});
+
+const statistics = ref();
+
+onMounted(() => {
+  loading.value = true
+  loanDstatistics({ uuid: props.uuid }).then((res) => {
+    statistics.value = res;
+    option.value.series[0].data = [{ value: statistics.value.loanWithdrawal }, { value: statistics.value.pendingDrawdown }, { value: statistics.value.loan }]
+  }).finally(_ => {
+    loading.value = false
+  });
 });
 </script>
 
@@ -118,12 +123,8 @@ const option = ref({
   border-radius: 4px;
   width: 6px;
 }
-.MeterStat_type_stone3 > .MeterStat-Meter {
-  background-color: #f3ede5;
-  border-color: #f3ede5;
-}
 .MeterStat_type_transparent > .MeterStat-Meter {
-  background-color: transparent;
+  background-color: #f3ede5;
   border-color: hsla(200, 9%, 66%, 0.5);
 }
 .MeterStat_type_charcoal > .MeterStat-Meter {
@@ -141,14 +142,6 @@ const option = ref({
   border-radius: 3px;
   height: 6px;
   width: 6px;
-}
-.MeterStat_type_cyan > .MeterStat-Meter {
-  background-color: #b4f1db;
-  border-color: #b4f1db;
-}
-.MeterStat_type_dotsYellow .MeterStat-Dot {
-  background-color: #f19915;
-  border-color: #f19915;
 }
 .chart {
   height: 180px;

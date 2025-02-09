@@ -1,11 +1,12 @@
 <template>
   <div class="sys-table-content border-top-none">
-    <a-table :columns="columns" :data-source="tableData" :pagination="false" :scroll="{ x: '100%' }" :customRow="rowClick">
+    <a-table :columns="columns" :data-source="tableData" :pagination="false" :scroll="{ x: '100%' }" :customRow="rowClick" row-key="uuid" :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === '1'">
           <a-space>
             <vco-avatar :src="record.project_image" :radius="true" :round="true" :size="32" />
             <div>
+              <p class="cer">ID: {{ record.project_apply_sn }}</p>
               <p class="bold black">{{ record.project_name }}</p>
               <span class="replenish_text">
                 {{ record.loan_type_name }}
@@ -51,7 +52,7 @@
             <i class="iconfont" style="color: #67837e">&#xe761;</i>
             {{ record.credit.irr }}%
           </p>
-          <span class="replenish_text">{{ record.credit.irr }}% · {{ record.credit.forecast }}%</span>
+          <span class="replenish_text">{{ record.credit.irrPreset }}% · {{ record.credit.irrPreset - record.credit.irr  }}%</span>
         </template>
         <template v-if="column.key === '5'">
           <p class="black">{{ tool.formatMoney(record.credit.income) }}</p>
@@ -91,8 +92,7 @@ import { useOrgsStore } from '@/store';
 import { DisconnectOutlined } from '@ant-design/icons-vue';
 const orgsStore = useOrgsStore();
 import dayjs from 'dayjs';
-
-const emits = defineEmits(['check']);
+const emits = defineEmits(['update:data', 'update:keys', 'change']);
 
 const props = defineProps({
   tableData: {
@@ -109,7 +109,7 @@ const columns = reactive([
   { title: t('项目•类型'), key: '1', width: 280 },
   { title: t('借款人•贷款经理'), key: '2', width: 180 },
   { title: t('到期'), key: '3', width: 160 },
-  { title: t('IRR预测'), key: '4', width: 100 },
+  { title: t('IRR预测'), key: '4', width: 140 },
   { title: t('收入'), key: '5', width: 120 },
   { title: t('待提取'), key: '6', width: 100 },
   { title: t('贷款余额'), key: '7', width: 220 },
@@ -126,6 +126,59 @@ const rowClick = (record, index) => {
       navigationTo(`/projects/about?uuid=${record.uuid}`);
     }
   };
+};
+
+
+
+const selectedRowKeys = ref([]); // 存放UUid
+const selectedRows = ref([]); // 存放所有选中的选项的所有内容
+const rowSelection = ref({
+  checkStrictly: false,
+  onSelect: (record, selected) => {
+    if (selected) {
+      selectedRowKeys.value.push(record.uuid);
+      selectedRows.value.push(record);
+    } else {
+      let index = selectedRowKeys.value.findIndex((it) => {
+        return it === record.uuid;
+      });
+      selectedRowKeys.value.splice(index, 1);
+      selectedRows.value.splice(index, 1);
+    }
+    handlePathChange();
+  },
+  onSelectAll: (selected, Rows, changeRows) => {
+    const changeRowId = changeRows.map((it) => {
+      return it.uuid;
+    });
+    if (selected) {
+      let newIds = Array.from(new Set(changeRowId.concat(selectedRowKeys.value)));
+      let newRows = Array.from(new Set(changeRows.concat(selectedRows.value)));
+      selectedRowKeys.value = newIds;
+      selectedRows.value = newRows;
+    } else {
+      // 取消选中
+      changeRowId.map((it) => {
+        let index = selectedRowKeys.value.findIndex((item) => {
+          return item == it;
+        });
+        if (index != -1) {
+          selectedRowKeys.value.splice(index, 1);
+          selectedRows.value.splice(index, 1);
+        }
+      });
+    }
+    handlePathChange();
+  },
+  getCheckboxProps: (r) => ({
+    disabled: Boolean(parseInt(r.open_count) + parseInt(r.close_count) + parseInt(r.apply_count))
+  })
+});
+
+const handlePathChange = () => {
+  emits('update:data', selectedRows.value);
+  emits('update:keys', selectedRowKeys.value);
+  emits('change');
 };
 </script>
 

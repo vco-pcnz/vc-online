@@ -1,7 +1,7 @@
 <template>
   <div>
     <a-spin :spinning="pageLoading" size="large">
-      <div style="min-height: 200px;">
+      <div style="min-height: 200px">
         <div v-if="statisticsData && tabData.length" class="flex header-static">
           <div class="item-content">
             <div class="item">
@@ -210,13 +210,17 @@ import { useI18n } from 'vue-i18n';
 import { DownOutlined } from '@ant-design/icons-vue';
 import dayjs from 'dayjs';
 import tool from '@/utils/tool';
-import { projectForecastIndex, projectForecastExportExcel, projectForecastStatistics } from '@/api/process';
+import { projectForecastIndex, projectDetailForecastList, projectForecastExportExcel, projectForecastStatistics, projectDetailStatistics } from '@/api/process';
 
 const props = defineProps({
   currentId: {
     type: [String, Number],
     default: '',
   },
+  isDetails: {
+    type: Boolean,
+    default: false
+  }
 });
 
 const { t } = useI18n();
@@ -229,13 +233,15 @@ const statisticsData = ref(null);
 const getDataInfo = () => {
   pageLoading.value = true;
 
-  projectForecastIndex({
+  const ajaxFn = props.isDetails ? projectDetailForecastList : projectForecastIndex
+
+  ajaxFn({
     uuid: props.currentId,
     limit: 5000,
   })
     .then((res) => {
       const dataArr = [];
-      const data = res.data.list || {};
+      const data = res.data || {};
 
       if (Object.keys(data).length) {
         for (const key in data) {
@@ -280,7 +286,9 @@ const getDataInfo = () => {
       pageLoading.value = false;
     });
 
-  projectForecastStatistics({
+  const staticAjaxFn = props.isDetails ? projectDetailStatistics : projectForecastStatistics
+
+  staticAjaxFn({
     uuid: props.currentId,
   }).then((res) => {
     statisticsData.value = res;

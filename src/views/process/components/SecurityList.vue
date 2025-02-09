@@ -93,9 +93,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { projectAuditSecurityList } from '@/api/process';
+import { projectAuditSecurityList, projectDetailAuditSecurityList } from '@/api/process';
 import tool from '@/utils/tool';
 import SecurityAddEdit from '@/views/process/temp/default/components/SecurityAddEdit.vue';
 import emitter from '@/event';
@@ -137,7 +137,8 @@ const tabLoading = ref(false);
 const tabData = ref([]);
 const getTableData = () => {
   tabLoading.value = true;
-  projectAuditSecurityList({
+  const ajaxFn = props.isDetails ? projectDetailAuditSecurityList : projectAuditSecurityList
+  ajaxFn({
     uuid: props.currentId
   })
     .then((res) => {
@@ -187,12 +188,18 @@ const addressInfo = (data) => {
   return `${data.address_short} ${data.address} ${data.suburb} ${data.region_one_name} ${data.country_name}`
 }
 
+const handleRefreshSecurityList = () => {
+  getTableData();
+}
+
 onMounted(() => {
   getTableData();
-  emitter.on('refreshSecurityList', () => {
-    getTableData();
-  });
+  emitter.on('refreshSecurityList', handleRefreshSecurityList);
 });
+
+onUnmounted(() => {
+  emitter.off('refreshSecurityList', handleRefreshSecurityList);
+})
 </script>
 
 <style lang="less" scoped>

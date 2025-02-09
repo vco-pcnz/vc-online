@@ -232,6 +232,7 @@
           :current-id="currentId"
           :current-step="currentStep"
           :block-info="blockInfo.confirm"
+          :offer-info="dataInfo.offer"
           :confirm-info="dataInfo.confirm"
           @refresh="dataRefresh"
         ></confirm-form>

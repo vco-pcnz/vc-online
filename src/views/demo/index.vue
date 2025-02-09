@@ -117,6 +117,12 @@
       <a-button type="brown" loading>brown 类型</a-button>
     </a-space>
 
+    <a-space class="flex mt-5">
+      <a-button type="danger">danger 类型</a-button>
+      <a-button type="danger" shape="round" size="small">danger 类型</a-button>
+      <a-button type="danger" disabled>danger 类型</a-button>
+      <a-button type="danger" loading>danger 类型</a-button>
+    </a-space>
     <p>-------------------------------------------------------------------------------------</p>
 
     <h1 class="mt-5 mb-2">字体库</h1>

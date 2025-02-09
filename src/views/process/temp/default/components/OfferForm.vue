@@ -1,7 +1,7 @@
 <template>
   <div
     class="block-item mb"
-    :class="{ checked: offerInfo.is_check && blockInfo.showCheck}"
+    :class="{ checked: offerInfo.is_check && blockInfo.showCheck, 'details': isDetails}"
   >
     <vco-process-title :title="t('凭证信息')">
       <div class="flex gap-5">
@@ -53,7 +53,7 @@
       </div>
     </div>
 
-    <div class="form-item-col mt-5">
+    <div v-if="!['step_lm_audit', 'step_fc_audit'].includes(props.currentStep?.mark)" class="form-item-col mt-5">
       <div class="title">
         <p>{{ t('已签订Offer') }}</p>
         <vco-upload-modal v-if="blockInfo.showEdit" v-model:list="offerSignedList" @change="fileChange">
@@ -108,6 +108,10 @@
     currentId: {
       type: [Number, String],
       default: ''
+    },
+    isDetails: {
+      type: Boolean,
+      default: false
     }
   })
 

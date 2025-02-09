@@ -105,7 +105,7 @@
 </template>
 
 <script setup>
-  import { ref, onMounted } from "vue"
+  import { ref, onMounted, onUnmounted } from "vue"
   import BindUsersDialog from "./BindUsersDialog.vue";
   import { useI18n } from "vue-i18n";
   import { associateSystemConfig, associateUserList, associateAssignUser, associateAssignTeam } from "@/api/process"
@@ -309,12 +309,18 @@
     }
   }
 
+  const handleStepOneBindUser = (data) => {
+    bindUsersHandle(data)
+  }
+
   onMounted(() => {
     getConfigInfo(false)
 
-    emitter.on('stepOneBindUser', (data) => {
-      bindUsersHandle(data)
-    })
+    emitter.on('stepOneBindUser', handleStepOneBindUser)
+  })
+
+  onUnmounted(() => {
+    emitter.off('stepOneBindUser', handleStepOneBindUser)
   })
 
   defineExpose({

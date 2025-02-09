@@ -163,6 +163,7 @@ function createRequest(service, externalService) {
 
     if (token) {
       headerConfig["Authorization"] = token;
+      // headerConfig["Authorizations"] = token;
     }
     const configDefault = {
       headers: Object.assign(

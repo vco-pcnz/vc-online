@@ -1,7 +1,7 @@
 <template>
   <detail-layout :title="baseInfo.name" active-tab="schedule">
     <template #content>
-      <schedule v-if="project_id" :currentId="project_id"></schedule>
+      <schedule v-if="project_id" :isDetails="true" :currentId="project_id"></schedule>
     </template>
   </detail-layout>
 </template>

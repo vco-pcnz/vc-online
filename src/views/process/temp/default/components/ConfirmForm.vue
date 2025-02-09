@@ -1,7 +1,7 @@
 <template>
   <div
     class="block-item mb"
-    :class="{ checked: confirmInfo.is_check && blockInfo.showCheck }"
+    :class="{ checked: confirmInfo.is_check && blockInfo.showCheck, 'details': isDetails }"
   >
     <vco-process-title :title="t('确定信息')">
       <div class="flex gap-5">
@@ -72,6 +72,7 @@
     projectAuditSaveMode,
     projectAuditCheckMode
   } from '@/api/process';
+  import { message } from 'ant-design-vue/es';
   import emitter from '@/event';
   
   const emits = defineEmits(['done', 'refresh']);
@@ -80,6 +81,10 @@
 
   const props = defineProps({
     confirmInfo: {
+      type: Object,
+      default: () => {}
+    },
+    offerInfo: {
       type: Object,
       default: () => {}
     },
@@ -93,10 +98,14 @@
     currentId: {
       type: [Number, String],
       default: ''
+    },
+    isDetails: {
+      type: Boolean,
+      default: false
     }
   })
 
-  const currentMark = computed(() => props.currentStep.mark)
+  const currentMark = computed(() => props.currentStep?.mark)
   const canEidt = computed(() => ['step_lm_check'].includes(currentMark.value))
 
   const formRef = ref()
@@ -134,19 +143,31 @@
   }
 
   const checkHandle = async () => {
-    const params = {
-      uuid: props.currentId,
-      code: props.blockInfo.code
-    }
-    await projectAuditCheckMode(params)
-      .then(() => {
-        emits('refresh');
-        emitter.emit('refreshAuditHisList');
-        return true;
-      })
-      .catch(() => {
-        return false;
-      });
+    formRef.value
+    .validate()
+    .then(async () => {
+      // LM 再次检查
+      if (props.currentStep?.mark === 'step_lm_check') {
+        if (form.value.agreementYes && !props.offerInfo.sign_offer) {
+          message.error(t('请上传') + t('已签订Offer'));
+          return false
+        }
+      }
+
+      const params = {
+        uuid: props.currentId,
+        code: props.blockInfo.code
+      }
+      await projectAuditCheckMode(params)
+        .then(() => {
+          emits('refresh');
+          emitter.emit('refreshAuditHisList');
+          return true;
+        })
+        .catch(() => {
+          return false;
+        });
+    })
   }
 
   const subLoading = ref(false);

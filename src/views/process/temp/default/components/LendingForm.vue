@@ -1,7 +1,7 @@
 <template>
   <div
     class="block-item mb"
-    :class="{ checked: lendingInfo.is_check && blockInfo.showCheck }"
+    :class="{ checked: lendingInfo.is_check && blockInfo?.showCheck, 'details': isDetails }"
   >
     <!-- 确认弹窗 -->
     <vco-confirm-alert
@@ -12,9 +12,8 @@
     ></vco-confirm-alert>
 
     <vco-process-title :title="t('放款信息')">
-      <div class="flex gap-5">
-
-        <template v-if="blockInfo.showCheck && !lendingInfo.is_check && creditId">
+      <div v-if="!isDetails" class="flex gap-5">
+        <template v-if="blockInfo?.showCheck && !lendingInfo.is_check && creditId">
           <a-button
             v-if="confirmTxt"
             type="dark"
@@ -248,14 +247,14 @@
         </a-row>
       </a-form>
     </div>
-    <div v-if="blockInfo.showCheck" class="check-content">
+    <div v-if="blockInfo?.showCheck" class="check-content">
       <i class="iconfont">&#xe647;</i>
     </div>
   </div>
 </template>
 
 <script setup>
-  import { ref, onMounted, computed, watch } from 'vue';
+  import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { cloneDeep } from 'lodash';
   import { message } from 'ant-design-vue/es';
@@ -295,26 +294,36 @@
     currentId: {
       type: [Number, String],
       default: ''
+    },
+    isDetails: {
+      type: Boolean,
+      default: false
     }
   })
 
   const confirmTxt = computed(() => {
     let res = ''
-    const securityTotal = props.dataInfo.security.total_money || 0
-    const totalAmount = Number(formState.value.land_amount) + Number(formState.value.build_amount)
-    if (totalAmount > securityTotal) {
-      const num = tool.minus(totalAmount, securityTotal)
-      res = t('抵押物总价值为{0}，借款总金额为{1}，差{2}，确认通过审核吗？', [securityTotal, totalAmount, num])
+    if (!props.isDetails) {
+      const securityTotal = props.dataInfo.security.total_money || 0
+      const totalAmount = Number(formState.value.land_amount) + Number(formState.value.build_amount)
+      if (totalAmount > securityTotal) {
+        const num = tool.minus(totalAmount, securityTotal)
+        res = t('抵押物总价值为{0}，借款总金额为{1}，差{2}，确认通过审核吗？', [securityTotal, totalAmount, num])
+      }
     }
     return res
   })
 
   const amountDisabled = computed(() => {
-    const mark = props.currentStep.mark
-    if (props.blockInfo.showEdit) {
-      return ['step_lm_check'].includes(mark)
-    } else {
+    if (props.isDetails) {
       return true
+    } else {
+      const mark = props.currentStep.mark
+      if (props.blockInfo.showEdit) {
+        return ['step_lm_check'].includes(mark)
+      } else {
+        return true
+      }
     }
   })
 
@@ -444,7 +453,7 @@
   };
 
   const getFormItems = async () => {
-    const creditCate = props.currentStep.credit_cate;
+    const creditCate = props.isDetails ? 0 : props.currentStep?.credit_cate;
 
     await ruleCredit({ type: creditCate }).then(async (res) => {
       const data = res || [];
@@ -474,7 +483,7 @@
       percentItems.value = perData;
       dollarItems.value = dolData;
 
-      showNumItems.value = props.currentStep.credit_cate ? data.filter((item) => !item.is_write && item.type === 1) : data.filter((item) => !item.is_write);
+      showNumItems.value = props.currentStep?.credit_cate ? data.filter((item) => !item.is_write && item.type === 1) : data.filter((item) => !item.is_write);
       await updateFormData(res);
     });
   };
@@ -482,7 +491,7 @@
   const updateFormData = async (tableData) => {
     await creditInfo({
       apply_uuid: props.currentId,
-      type: props.currentStep.credit_cate,
+      type: props.currentStep?.credit_cate,
     }).then((res) => {
       if (res.length || Object.keys(res).length) {
         for (const key in formState.value) {
@@ -637,18 +646,18 @@
     }
   )
 
+  const handleRefreshIRR = () => {
+    getFormItems();
+  }
+
   onMounted(() => {
     getFormItems();
-    emitter.on('refreshIRR', () => {
-      getFormItems();
-    });
-
-    // 重新生成forecast
-    emitter.on('resetForecast', () => {
-      // 触发预测数据刷新
-      emitter.emit('refreshForecastList');
-    });
+    emitter.on('refreshIRR', handleRefreshIRR);
   });
+
+  onUnmounted(() => {
+    emitter.off('refreshIRR', handleRefreshIRR);
+  })
 </script>
 
 <style lang="less" scoped>

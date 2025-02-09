@@ -141,7 +141,7 @@
 </template>
 
 <script setup>
-  import { ref, onMounted } from 'vue';
+  import { ref, onMounted, onUnmounted } from 'vue';
   import { QuestionCircleOutlined } from '@ant-design/icons-vue'
   import { useI18n } from 'vue-i18n';
   import { cloneDeep } from 'lodash';
@@ -349,15 +349,24 @@
       });
   };
 
+  const handleRefreshIRR = () => {
+    saveHandle();
+  }
+
+  const handleRefreshBouns = () => {
+    getFormItems();
+  }
+
   onMounted(() => {
     getFormItems();
-    emitter.on('refreshIRR', () => {
-      saveHandle();
-    });
-    emitter.on('refreshBouns', () => {
-      getFormItems();
-    });
+    emitter.on('refreshIRR', handleRefreshIRR);
+    emitter.on('refreshBouns', handleRefreshBouns);
   });
+
+  onUnmounted(() => {
+    emitter.off('refreshIRR', handleRefreshIRR);
+    emitter.off('refreshBouns', handleRefreshBouns);
+  })
 </script>
 
 <style lang="less" scoped>

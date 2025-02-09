@@ -1,11 +1,11 @@
 <template>
-  <div class="inline" @click="init"><slot></slot></div>
-  <div @click.stop ref="JournalRef" class="Journal">
-    <a-modal :width="486" :open="visible" :title="t('提取金额')" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
+  <div class="DrawdownBackTitle"><span @click="init" class="back">push back</span> to Lending Manager</div>
+  <div @click.stop ref="DrawdownBack" class="DrawdownBack">
+    <a-modal :width="486" :open="visible" title="Back to Lending Manager" :getContainer="() => $refs.DrawdownBack" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <div class="input-item">
-          <div class="label" :class="{ err: !amount && validate }">Approved amount (requested {{ tool.formatMoney(detail?.amount) }})</div>
-          <a-input-number v-model:value="amount" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
+          <div class="label" :class="{ err: !description && validate }">Description</div>
+          <a-textarea v-model:value="description" :rows="6" />
         </div>
 
         <div class="flex justify-center">
@@ -23,7 +23,7 @@ import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import tool from '@/utils/tool';
-import { loanDchange } from '@/api/project/loan';
+import { loanDgoBack } from '@/api/project/loan';
 
 const { t } = useI18n();
 const emits = defineEmits(['change']);
@@ -41,7 +41,7 @@ const visible = ref(false);
 const loading = ref(false);
 const validate = ref(false);
 
-const amount = ref('');
+const description = ref('');
 
 const updateVisible = (value) => {
   visible.value = value;
@@ -49,16 +49,16 @@ const updateVisible = (value) => {
 
 const save = () => {
   validate.value = true;
-  if (!amount.value) return message.error(t('请输入') + t('金额'));
+  if (!description.value) return message.error(t('请输入') + 'Description');
   loading.value = true;
   let params = {
     uuid: props.uuid,
     id: props.detail.id,
-    amount: amount.value
+    cancel_reason: description.value
   };
-  loanDchange(params)
+  loanDgoBack(params)
     .then((res) => {
-      amount.value = '';
+      description.value = '';
       message.success(t('保存成功'));
       emits('change');
       updateVisible(false);
@@ -75,8 +75,16 @@ const init = () => {
 </script>
 <style scoped lang="less">
 @import '@/styles/variables.less';
-
-.Journal {
+.DrawdownBackTitle {
+  text-align: center;
+  margin-top: 10px;
+  font-size: @fs_xs;
+  .back {
+    color: #df622b;
+    cursor: pointer;
+  }
+}
+.DrawdownBack {
   :deep(.ant-modal-content) {
     .ant-modal-header {
       padding: 72px 84px 0px;

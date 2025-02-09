@@ -2,7 +2,7 @@
   <a-spin :spinning="spinning" size="large">
     <div style="min-height: 200px;">
       <template v-if="tree">
-        <Tab v-model:active="tabIndex" v-model:folder="folder" :data="tree" :apply_uuid="project_id" v-model:showSearch="showSearch"></Tab>
+        <Tab v-model:active="tabIndex" v-model:folder="folder" :data="tree" :apply_uuid="project_id" :annex_id="annex_id" v-model:showSearch="showSearch"></Tab>
         <div class="content" :class="{ grid: tree && tree[tabIndex] && tree[tabIndex].children }" v-if="!showSearch">
           <template v-if="tree && tree[tabIndex].children">
             <Folders
@@ -37,12 +37,16 @@ import Folders from './components/folders.vue';
 import FileList from './components/fileList.vue';
 import { useRoute } from 'vue-router';
 import { getTree } from '@/api/project/annex';
+import { number } from 'echarts';
 const route = useRoute();
 
 const { t } = useI18n();
 const props = defineProps({
   project_id: {
     type: String
+  },
+  annex_id: {
+    type: [String,Number]
   }
 });
 

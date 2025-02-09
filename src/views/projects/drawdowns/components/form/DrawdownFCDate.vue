@@ -24,6 +24,7 @@ import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import tool from '@/utils/tool';
 import { loanDsaveStep } from '@/api/project/loan';
+import dayjs, { Dayjs } from 'dayjs';
 
 const { t } = useI18n();
 const emits = defineEmits(['change']);
@@ -90,7 +91,7 @@ const save = () => {
 };
 
 const init = () => {
-  date.value = '';
+  date.value =  dayjs().format('YYYY-MM-DD');
   visible.value = true;
 };
 </script>

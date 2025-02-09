@@ -5,19 +5,25 @@
       <li>{{ t('放款') }}</li>
       <li>{{ t('请求数据') }}</li>
       <li>{{ t('状态t') }}</li>
+      <li>{{ t('创建时间') }}</li>
       <li>{{ t('已批准') }}</li>
     </ul>
     <div v-if="tableData.length" class="table-body">
       <template v-for="item in tableData" :key="item.id">
         <ul class="table-col tr" :class="{ active: active_id == item.id, declined: item.status_name === 'DECLINED DRAWDOWN' }" @click="viewDetail(item)">
           <li><div class="circle"></div></li>
-          <li>{{ item.name }}</li>
+          <li>
+            <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.name" style="width: 200px">{{ item.name }}</p>
+          </li>
           <li>
             <vco-number :value="item.apply_amount" :precision="2" size="fs_xs" :end="true"></vco-number>
-            <p class="fs_xs color_grey">{{ tool.showDate(item.create_time) }}</p>
+            <p class="fs_xs color_grey" v-if="item.date">{{ tool.showDate(item.date) }}</p>
           </li>
           <li :style="{ color: colors[item.status_name] }">
             {{ item.status_name }}
+          </li>
+          <li>
+            <p class="fs_xs color_grey">{{ tool.showDate(item.create_time) }}</p>
           </li>
           <li>
             <vco-number :value="item.amount" :precision="2" size="fs_xs"></vco-number>
@@ -83,7 +89,7 @@ watch(
 
 .table-col {
   display: grid;
-  grid-template-columns: 0.15fr 1.8fr 0.6fr 2.2fr 0.6fr 0.15fr;
+  grid-template-columns: 0.15fr 1.5fr 0.6fr 2.2fr 0.6fr 0.6fr 0.15fr;
   padding: 12px 24px;
   font-size: 14px;
   color: @color_coal;
@@ -153,6 +159,9 @@ watch(
       text-transform: uppercase;
     }
     &:nth-child(5) {
+      text-align: center;
+    }
+    &:nth-child(6) {
       text-align: right;
     }
   }

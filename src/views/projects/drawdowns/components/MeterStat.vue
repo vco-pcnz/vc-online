@@ -103,7 +103,6 @@ onMounted(() => {
   display: grid;
   gap: 12px;
   grid-template-columns: 1fr 1fr 1fr 1fr;
-  margin-bottom: 40px;
 }
 
 .MeterStat-row {

@@ -2,8 +2,11 @@
   <div class="color_grey fs_2xs text-center py-3 text-uppercase uppercase" style="letter-spacing: 1px">Details</div>
 
   <div class="detail">
-    <div class="title">{{ detail?.status_name }}<i class="iconfont mrl-2">&#xe774;</i></div>
-    <div class="my-3">
+    <div class="title" :style="{ background: colors[detail?.status_name]?.bg || '#b4f1db', color: colors[detail?.status_name]?.color || '#272727' }">
+      {{ detail?.status_name }}
+      <!-- <i class="iconfont mrl-2">&#xe774;</i> -->
+    </div>
+    <div class="my-3" style="padding-left: 5px">
       <div class="bold fs_xl">{{ detail?.name }}</div>
       <div class="color_grey fs_2xs">{{ detail?.note }}</div>
       <div class="fs_xs" v-if="Boolean(detail?.cancel_reason)"><span style="color: #c1430c">Push back reason:</span> {{ detail?.cancel_reason }}</div>
@@ -111,6 +114,33 @@ const decline_loading = ref(false);
 const visible = ref(false);
 const forecastList = ref();
 
+const colors = ref({
+  'DRAWDOWN CONFIRM': {
+    bg: 'rgba(169,173,87,.2)',
+    color: '#a9ad57'
+  },
+  'LM REVIEW': {
+    bg: 'rgba(211, 166, 49,.2)',
+    color: '#d3a631'
+  },
+  'LM PENDING REVIEW': {
+    bg: 'rgba(211, 166, 49,.2)',
+    color: '#d3a631'
+  },
+  'FC REVIEW': {
+    bg: 'rgba(211, 166, 49,.2)',
+    color: '#d3a631'
+  },
+  'FC PENDING REVIEW': {
+    bg: 'rgba(211, 166, 49,.2)',
+    color: '#d3a631'
+  },
+  'DECLINED DRAWDOWN': {
+    bg: 'rgba(136, 136, 136,.2)',
+    color: '#888'
+  }
+});
+
 const loadData = () => {
   loading.value = true;
   forecastDarwdown({ uuid: props.uuid })
@@ -193,6 +223,7 @@ defineExpose({
   box-shadow: 2px 2px 4px 0 hsla(120, 5%, 89%, 0.15), 5px 5px 7px 0 hsla(0, 0%, 53%, 0.1);
   border-radius: 12px;
   padding: 30px;
+  min-height: 375px;
 
   .title {
     background-color: #b4f1db;

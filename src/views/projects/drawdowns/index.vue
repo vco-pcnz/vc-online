@@ -2,8 +2,17 @@
   <detail-layout active-tab="drawdowns">
     <template #content>
       <div class="ProjectDrawdowns">
-        <div>
+        <div :class="{ grid: hasPermission('projects:drawdowns:add') }" class="mb-12">
           <MeterStat :uuid="uuid" v-if="Boolean(uuid)"></MeterStat>
+          <div class="HelpBorrower" v-if="hasPermission('projects:drawdowns:add')">
+            <div class="flex items-center"><i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">Help borrower</span></div>
+            <p class="color_grey mt-1 mb-3">You can help to create drawdown on their behalf.</p>
+            <drawdownre-quest :uuid="uuid" @change="update">
+              <a-button type="brown" shape="round" size="small">{{ t('默认开始') }}</a-button>
+            </drawdownre-quest>
+          </div>
+        </div>
+        <div class="grid">
           <a-spin :spinning="loading" size="large">
             <div class="table-content">
               <TableBlock :tableData="tableData" @change="change"></TableBlock>
@@ -12,17 +21,9 @@
               <a-pagination size="small" :total="total" :pageSize="pagination.limit" :current="pagination.page" :show-size-changer="false" show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
             </div>
           </a-spin>
-        </div>
-        <div>
-          <div class="HelpBorrower" v-if="hasPermission('projects:drawdowns:add')" >
-            <div class="flex items-center"><i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">Help borrower</span></div>
-            <p class="color_grey mt-1 mb-3">You can help to create drawdown on their behalf.</p>
-            <drawdownre-quest :uuid="uuid" @change="update">
-              <a-button type="brown" shape="round" size="small">{{ t('默认开始') }}</a-button>
-            </drawdownre-quest>
+          <div>
+            <Detail ref="detailRef" :uuid="uuid" :detail="detail_info" v-if="Boolean(uuid && detail_info && detail_info.id)" @update="loadData"></Detail>
           </div>
-          <div style="height: 225px;" v-else></div>
-          <Detail ref="detailRef" :uuid="uuid" :detail="detail_info" v-if="Boolean(uuid && detail_info && detail_info.id)" @update="loadData"></Detail>
         </div>
       </div>
     </template>
@@ -49,7 +50,7 @@ const uuid = ref('');
 const detail_info = ref(null);
 const total = ref(0);
 const loading = ref(true);
-const detailRef = ref()
+const detailRef = ref();
 const pagination = ref({
   page: 1,
   limit: 5
@@ -66,7 +67,7 @@ const setPaginate = (page, limit) => {
 const update = () => {
   pagination.value.page = 1;
   loadData();
-  detailRef.value.loadData()
+  detailRef.value.loadData();
 };
 
 const tableData = ref([]);
@@ -96,12 +97,13 @@ onMounted(() => {
 <style scoped lang="less">
 @import '@/styles/variables.less';
 .ProjectDrawdowns {
-  display: grid;
-  gap: 36px;
-  grid-template-columns: 3fr 1fr;
+  .grid {
+    display: grid;
+    gap: 36px;
+    grid-template-columns: 3fr 1fr;
+  }
 
   .HelpBorrower {
-    margin-bottom: 61px;
     min-height: 160px;
     padding: 30px;
     background-color: #f0f0f0;

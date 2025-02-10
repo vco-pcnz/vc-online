@@ -58,7 +58,7 @@
                       ></a-select>
                     </a-form-item>
                   </a-col>
-                  <a-col :span="16">
+                  <a-col :span="12">
                     <a-form-item :label="t('借款起止日期')" name="time_date">
                       <a-range-picker
                         v-model:value="formState.time_date"
@@ -84,6 +84,14 @@
                         :suffix="t('天')"
                         @input="termInput"
                       />
+                    </a-form-item>
+                  </a-col>
+                  <a-col :span="4">
+                    <a-form-item :label="t('总天数')" name="totalDay">
+                      <div class="show-days">
+                        {{ formState.totalDay }}
+                        <span>{{ t('天') }}</span>
+                      </div>
                     </a-form-item>
                   </a-col>
                 </a-row>
@@ -209,7 +217,8 @@
     loan_type: [],
     time_date: [],
     term: '',
-    days: ''
+    days: '',
+    totalDay: 0
   })
 
   const formRules = {
@@ -369,9 +378,11 @@
       const calcDay = tool.calculateDurationPrecise(date[0], date[1])
       formState.term = calcDay.months
       formState.days = calcDay.days
+      formState.totalDay = calcDay.gapDay
     } else {
       formState.term = ''
       formState.days = ''
+      formState.totalDay = 0
     }
   }
 
@@ -421,6 +432,8 @@
         formState.time_date = [dayjs(useData[key][0]), dayjs(useData[key][1])]
       } else if (key === 'loan_money') {
         formState.loan_money = Number(useData[key]) ? useData[key] : ''
+      } else if (key === 'totalDay') {
+        formState[key] = formState[key] || 0
       } else {
         formState[key] = useData[key] || formState[key] || ''
       }
@@ -503,6 +516,14 @@
     .tips-txt {
       font-size: 14px;
       text-align: center
+    }
+  }
+
+  .show-days {
+    line-height: 50px;
+    font-size: 18px;
+    > span {
+      opacity: 0.7;
     }
   }
 </style>

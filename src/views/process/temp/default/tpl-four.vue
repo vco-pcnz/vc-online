@@ -391,14 +391,17 @@
     const days = Number(formState.days)
     if (!isNaN(months) && !isNaN(days)) {
       if (months || days) {
-        let statrDate = dayjs(new Date())
+        let startDate = dayjs(new Date())
         if (formState.time_date) {
-          statrDate = formState.time_date[0]
+          startDate = formState.time_date[0]
         }
-        const endDate = tool.calculateEndDate(statrDate, months, days)
-        formState.time_date = [dayjs(statrDate), dayjs(endDate)]
+        const endDate = tool.calculateEndDate(startDate, months, days)
+        formState.time_date = [dayjs(startDate), dayjs(endDate)]
+        const calcDay = tool.calculateDurationPrecise(...formState.time_date)
+        formState.totalDay = calcDay.gapDay
       } else {
         formState.time_date = []
+        formState.totalDay = 0
       }
     }
   }

@@ -52,7 +52,7 @@
             <i class="iconfont" style="color: #67837e">&#xe761;</i>
             {{ record.credit.irr }}%
           </p>
-          <span class="replenish_text">{{ record.credit.irrPreset }}% · {{ record.credit.irrPreset - record.credit.irr  }}%</span>
+          <span class="replenish_text">{{ record.credit.irrPreset }}% · {{ (record.credit.irrPreset - record.credit.irr).toFixed(2)  }}%</span>
         </template>
         <template v-if="column.key === '5'">
           <p class="black">{{ tool.formatMoney(record.credit.income) }}</p>

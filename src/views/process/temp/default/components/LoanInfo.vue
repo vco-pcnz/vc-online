@@ -21,10 +21,16 @@
           <p class="txt">{{ tool.showDate(data.start_date) + ' - ' + tool.showDate(data.end_date) }}</p>
         </div>
       </a-col>
-      <a-col :span="12">
+      <a-col :span="6">
         <div class="info-content">
           <p class="name">{{ t('借款周期') }}</p>
           <p class="txt">{{ showTerm }}</p>
+        </div>
+      </a-col>
+      <a-col :span="6">
+        <div class="info-content">
+          <p class="name">{{ t('总天数') }}</p>
+          <p class="txt">{{ totalDay }}</p>
         </div>
       </a-col>
     </a-row>
@@ -60,6 +66,12 @@
     }
     
     return '--'
+  })
+
+  const totalDay = computed(() => {
+    const data = tool.calculateDurationPrecise(props.data.start_date, props.data.end_date)
+    const days = data.gapDay || 0
+    return `${days} ${t('天')}`
   })
 </script>
 

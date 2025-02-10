@@ -16,7 +16,7 @@
           :title="t('确定通过审核吗？')"
           :ok-text="t('确定')"
           :cancel-text="t('取消')"
-          v-if="blockInfo.showCheck"
+          v-if="blockInfo.showCheck && openShowCheck"
           @confirm="checkHandle"
         >
           <a-button
@@ -170,23 +170,31 @@ const formState = reactive({
 });
 
 const formRules = ref({
-  // security_package: [
-  //   { required: true, message: t('请选择') + t('履约保函'), trigger: 'change' },
-  // ],
   guarantor_uuids: [
     { required: true, message: t('请选择') + t('担保人'), trigger: 'change' },
   ],
 });
 
-const disabledGua = computed(() => props.currentStep.mark === 'step_open')
+if (props.currentStep?.mark === 'step_open') {
+  formRules.value['security_package'] = [
+    { required: true, message: t('请选择') + t('履约保函'), trigger: 'change' },
+  ]
+  formRules.value['main_contractor'] = [
+    { required: true, message: t('请输入') + t('承包商'), trigger: 'blur' },
+  ]
+}
 
-// if (props.currentStep.mark === 'step_open') {
-//   // formRules.value['main_contractor'] = [
-//   //   { required: true, message: t('请输入') + t('承包商'), trigger: 'blur' },
-//   // ]
-// }
-
+const disabledGua = computed(() => props.currentStep?.mark === 'step_open')
 const securityOptions = ref([]);
+
+const openShowCheck = computed(() => {
+  let res = true
+  if (disabledGua.value) {
+    res = props.guarantorInfo.security_package.length && props.guarantorInfo.main_contractor
+  }
+
+  return res
+})
 
 const subLoading = ref(false);
 const saveHandle = () => {
@@ -261,20 +269,43 @@ const dataInit = () => {
 };
 
 const checkHandle = async () => {
-  const params = {
-    uuid: props.currentId,
-    code: props.blockInfo.code
-  }
-  
-  await projectAuditCheckMode(params)
-    .then(() => {
-      emits('refresh');
-      emitter.emit('refreshAuditHisList');
-      return true;
+  formRef.value
+    .validate()
+    .then(async () => {
+      const params = {
+        uuid: props.currentId,
+        code: props.blockInfo.code
+      }
+
+      await projectAuditCheckMode(params)
+      .then(() => {
+        emits('refresh');
+        emitter.emit('refreshAuditHisList');
+        return true;
+      })
+      .catch(() => {
+        return false;
+      });
+
     })
-    .catch(() => {
-      return false;
+    .catch((error) => {
+      console.log('error', error);
     });
+
+  // const params = {
+  //   uuid: props.currentId,
+  //   code: props.blockInfo.code
+  // }
+  
+  // await projectAuditCheckMode(params)
+  //   .then(() => {
+  //     emits('refresh');
+  //     emitter.emit('refreshAuditHisList');
+  //     return true;
+  //   })
+  //   .catch(() => {
+  //     return false;
+  //   });
   // if (props.currentStep.mark === 'step_open' && !props.guarantorInfo.main_contractor) {
   //   message.error(t('请先设置后保存再审核'));
   // } else {

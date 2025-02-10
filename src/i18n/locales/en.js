@@ -563,5 +563,6 @@ export default {
   "确定召回该项目吗？": "Are you sure you want to recall this item?",
   "LM线下offer": "LM offline offer",
   "批准": "Approve",
-  "添加文件": "add file"
+  "添加文件": "add file",
+  "总天数": "Total days"
 }

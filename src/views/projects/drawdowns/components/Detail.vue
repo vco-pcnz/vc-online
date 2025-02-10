@@ -144,6 +144,10 @@ const colors = ref({
     bg: 'rgba(211, 166, 49,.2)',
     color: '#d3a631'
   },
+  'PENDING APPROVAL…': {
+    bg: 'rgba(211, 166, 49,.2)',
+    color: '#d3a631'
+  },
   'DECLINED DRAWDOWN': {
     bg: 'rgba(136, 136, 136,.2)',
     color: '#888'
@@ -232,7 +236,7 @@ defineExpose({
   box-shadow: 2px 2px 4px 0 hsla(120, 5%, 89%, 0.15), 5px 5px 7px 0 hsla(0, 0%, 53%, 0.1);
   border-radius: 12px;
   padding: 30px;
-  min-height: 375px;
+  min-height: 395px;
 
   .title {
     background-color: #b4f1db;
@@ -244,7 +248,7 @@ defineExpose({
     font-weight: 500;
     gap: 6.8px;
     letter-spacing: 1px;
-    padding: 10.2px 20.4px;
+    padding: 8px 20.4px;
     text-transform: uppercase;
     white-space: nowrap;
     .iconfont {

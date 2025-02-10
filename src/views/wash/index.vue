@@ -360,9 +360,13 @@ watch(
   width: 60%;
   margin: 100px auto 0;
   background: #fff;
-  padding: 16px;
   border-radius: 16px;
   padding: 60px 70px;
+  
+  @media (max-width: 560px) {
+    width: 80%;
+    padding: 60px 30px;
+  }
   &-name {
     text-align: center;
 

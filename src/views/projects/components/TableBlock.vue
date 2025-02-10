@@ -4,8 +4,8 @@
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === '1'">
           <a-space>
-            <vco-avatar :src="record.project_image" :radius="true" :round="true" :size="32" />
-            <div>
+            <vco-avatar :src="record.project_image" :radius="true" :round="false" :size="48" />
+            <div class="ml-3">
               <p class="cer">ID: {{ record.project_apply_sn }}</p>
               <p class="bold black">{{ record.project_name }}</p>
               <span class="replenish_text">

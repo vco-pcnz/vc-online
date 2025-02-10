@@ -55,6 +55,7 @@ const colors = ref({
   'LM REVIEW': '#d3a631',
   'LM PENDING REVIEW': '#d3a631',
   'FC REVIEW': '#d3a631',
+  'PENDING APPROVAL…': '#d3a631',
   'FC PENDING REVIEW': '#d3a631'
 });
 
@@ -136,6 +137,7 @@ watch(
     flex: 1;
     flex-direction: column;
     justify-content: center;
+    min-height: 43px;
 
     .circle {
       border-radius: 4px;

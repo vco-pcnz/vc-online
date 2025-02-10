@@ -133,6 +133,9 @@ const save = () => {
 };
 
 const init = () => {
+  formState.value.name = '';
+  formState.value.note = '';
+  formState.value.apply_amount = '';
   formState.value.d_file = [];
   formState.value.p_file = [];
   annexSel({ apply_uuid: props.uuid, type: 2 }).then((res) => {

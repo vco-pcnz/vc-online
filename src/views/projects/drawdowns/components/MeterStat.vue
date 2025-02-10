@@ -84,7 +84,7 @@ const option = ref({
 
 const statistics = ref();
 
-onMounted(() => {
+const loadData = () => {
   loading.value = true
   loanDstatistics({ uuid: props.uuid }).then((res) => {
     statistics.value = res;
@@ -92,6 +92,15 @@ onMounted(() => {
   }).finally(_ => {
     loading.value = false
   });
+}
+
+onMounted(() => {
+  loadData()
+});
+
+// 暴露方法给父组件
+defineExpose({
+  loadData
 });
 </script>
 

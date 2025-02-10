@@ -3,7 +3,7 @@
     <template #content>
       <div class="ProjectDrawdowns">
         <div :class="{ grid: hasPermission('projects:drawdowns:add') }" class="mb-12">
-          <MeterStat :uuid="uuid" v-if="Boolean(uuid)"></MeterStat>
+          <MeterStat :uuid="uuid" v-if="Boolean(uuid)" ref="MeterStatRef"></MeterStat>
           <div class="HelpBorrower" v-if="hasPermission('projects:drawdowns:add')">
             <div class="flex items-center"><i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">Help borrower</span></div>
             <p class="color_grey mt-1 mb-3">You can help to create drawdown on their behalf.</p>
@@ -51,6 +51,7 @@ const detail_info = ref(null);
 const total = ref(0);
 const loading = ref(true);
 const detailRef = ref();
+const MeterStatRef = ref();
 const pagination = ref({
   page: 1,
   limit: 5
@@ -68,6 +69,7 @@ const update = () => {
   pagination.value.page = 1;
   loadData();
   detailRef.value.loadData();
+  MeterStatRef.value.loadData();
 };
 
 const tableData = ref([]);

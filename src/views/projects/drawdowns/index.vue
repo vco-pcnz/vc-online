@@ -7,15 +7,15 @@
           <div class="HelpBorrower" v-if="hasPermission('projects:drawdowns:add:lm')">
             <div class="flex items-center"><i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">Help borrower</span></div>
             <p class="color_grey mt-1 mb-3">You can help to create drawdown on their behalf.</p>
-            <drawdownre-quest :uuid="uuid" @change="update">
+            <drawdownre-quest :uuid="uuid" @change="update(true)">
               <a-button type="brown" shape="round" size="small">{{ t('默认开始') }}</a-button>
             </drawdownre-quest>
           </div>
           <div v-if="hasPermission('projects:drawdowns:add')" class="pt-5">
             <p class="fs_2xl bold">0 drawdowns received</p>
             <p class="mb-4 bold">1 drawdown pending -0% of loan drawn</p>
-            <drawdownre-quest :uuid="uuid" @change="update">
-              <a-button type="dark" class="big uppercase fs_2xs" > REQUEST DRAWDOWN </a-button>
+            <drawdownre-quest :uuid="uuid" @change="update(true)">
+              <a-button type="dark" class="big uppercase fs_2xs"> REQUEST DRAWDOWN </a-button>
             </drawdownre-quest>
           </div>
         </div>
@@ -29,7 +29,7 @@
             </div>
           </a-spin>
           <div>
-            <Detail ref="detailRef" :projectDetail="projectDetail" :uuid="uuid" :detail="detail_info" v-if="Boolean(uuid && detail_info && detail_info.id)" @update="loadData"></Detail>
+            <Detail ref="detailRef" :projectDetail="projectDetail" :uuid="uuid" :detail="detail_info" v-if="Boolean(uuid && detail_info && detail_info.id)" @update="update(false)"></Detail>
           </div>
         </div>
       </div>
@@ -72,8 +72,10 @@ const setPaginate = (page, limit) => {
   loadData();
 };
 
-const update = () => {
-  pagination.value.page = 1;
+const update = (val) => {
+  if (val) {
+    pagination.value.page = 1;
+  }
   loadData();
   detailRef.value.loadData();
   MeterStatRef.value.loadData();

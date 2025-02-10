@@ -1,11 +1,21 @@
 <template>
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="JournalRef" class="Journal">
-    <a-modal :width="486" :open="visible" title="Accept documents" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
+    <a-modal :width="486" :open="visible" title="Add forecast item" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <div class="input-item">
-          <div class="label" :class="{ err: !date && validate }">{{ t('日期') }}</div>
-          <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="date" format="YYYY-MM-DD" valueFormat="YYYY-MM-DD" :showToday="false" />
+          <div class="label" :class="{ err: !formState.date && validate }">{{ t('日期') }}</div>
+          <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.date" format="YYYY-MM-DD" valueFormat="YYYY-MM-DD" placeholder="" :showToday="false" />
+        </div>
+
+        <div class="input-item">
+          <div class="label" :class="{ err: !formState.amount && validate }">{{ t('金额') }}</div>
+          <a-input-number v-model:value="formState.amount" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
+        </div>
+
+        <div class="input-item">
+          <div class="label">Notes</div>
+          <a-textarea v-model:value="formState.note" :rows="6" />
         </div>
 
         <div class="flex justify-center">
@@ -23,20 +33,21 @@ import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import tool from '@/utils/tool';
-import { loanDsaveStep } from '@/api/project/loan';
+import { addf } from '@/api/project/loan';
 import dayjs, { Dayjs } from 'dayjs';
+import { cloneDeep } from 'lodash';
 
 const { t } = useI18n();
-const emits = defineEmits(['change']);
+const emits = defineEmits(['update']);
 
 const props = defineProps({
   uuid: {
     type: String
   },
-  detail: {
+  projectDetail: {
     type: Object
   },
-  projectDetail: {
+  itemDate: {
     type: Object
   }
 });
@@ -44,22 +55,26 @@ const props = defineProps({
 const visible = ref(false);
 const loading = ref(false);
 const validate = ref(false);
-
-const date = ref('');
-
+const formState = ref({
+  id: 0,
+  apply_uuid: 0,
+  type: 2,
+  date: '',
+  amount: '',
+  note: ''
+});
 
 const disabledDateFormat = (current) => {
-  const startDate = props.projectDetail.loan.start_date
-    const endDate = props.projectDetail.loan.end_date
+  const startDate = props.projectDetail.loan.start_date;
+  const endDate = props.projectDetail.loan.end_date;
 
-    if (current && current.isBefore(startDate, 'day')) {
-      return true;
-    }
+  if (current && current.isBefore(startDate, 'day')) {
+    return true;
+  }
 
-    if (current && current.isAfter(endDate, 'day')) {
-      return true;
-    }
-
+  if (current && current.isAfter(endDate, 'day')) {
+    return true;
+  }
 
   return false;
 };
@@ -70,18 +85,13 @@ const updateVisible = (value) => {
 
 const save = () => {
   validate.value = true;
-  if (!date.value) return message.error(t('请输入') + t('日期'));
+  if (!formState.value.amount || !formState.value.date) return;
   loading.value = true;
-  let params = {
-    uuid: props.uuid,
-    id: props.detail.id,
-    date: date.value
-  };
-  loanDsaveStep(params)
+  let params = { ...formState.value, apply_uuid: props.uuid };
+  addf(params)
     .then((res) => {
-      date.value = '';
       message.success(t('保存成功'));
-      emits('change');
+      emits('update');
       updateVisible(false);
     })
     .finally((_) => {
@@ -91,7 +101,14 @@ const save = () => {
 };
 
 const init = () => {
-  date.value =  dayjs().format('YYYY-MM-DD');
+  formState.value.date = '';
+  formState.value.amount = '';
+  formState.value = cloneDeep({
+    ...formState.value,
+    id: props.itemDate.id,
+    date: props.itemDate.date,
+    amount: props.itemDate.amount,
+  });
   visible.value = true;
 };
 </script>

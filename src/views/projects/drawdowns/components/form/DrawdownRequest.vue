@@ -31,7 +31,7 @@
           <a-col :span="12">
             <div class="input-item">
               <div class="label">Notes</div>
-              <a-textarea v-model:value="formState.note" placeholder="Basic usage" :rows="6" />
+              <a-textarea v-model:value="formState.note" :rows="6" />
             </div>
           </a-col>
         </a-row>

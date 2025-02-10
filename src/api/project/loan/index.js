@@ -79,3 +79,19 @@ export const loanDgoBack = (data) =>
     method: 'post',
     data
   });
+
+// forecast darwDown列表
+export const darwdownLog = (params) =>
+  request({
+    url: 'project/forecast/darwdownLog',
+    method: 'get',
+    params
+  });
+
+// forecast darwDown列表
+export const addf = (data) =>
+  request({
+    url: 'project/forecast/addf',
+    method: 'post',
+    data
+  });

@@ -1,7 +1,10 @@
 <template>
-  <detail-layout :title="baseInfo.name" active-tab="forecast">
+  <detail-layout active-tab="forecast" @getProjectDetail="getProjectDetail">
     <template #content>
-      <tableHook v-if="uuid" :currentId="uuid"></tableHook>
+      <a-spin :spinning="loading" size="large">
+        <!-- <Cart :data="data"></Cart> -->
+        <tableHook v-if="uuid" :uuid="uuid" :projectDetail="projectDetail" :data="data" @update="loadData"></tableHook
+      ></a-spin>
     </template>
   </detail-layout>
 </template>
@@ -11,24 +14,39 @@ import { ref, reactive, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { size, template } from 'lodash';
 import detailLayout from '../components/detailLayout.vue';
+import Cart from './components/cart.vue';
 import tableHook from './components/tableHook.vue';
 import { useRoute } from 'vue-router';
+import { darwdownLog } from '@/api/project/loan';
 
 const route = useRoute();
 
 const { t } = useI18n();
 
-const baseInfo = ref({
-  id: 1614,
-  name: 'test1212',
-  purpose: ['Construction'],
-  background: 'xxx'
-});
-
 const uuid = ref('');
+
+const data = ref();
+const loading = ref(false);
+
+const loadData = () => {
+  loading.value = true;
+  darwdownLog({ uuid: uuid.value })
+    .then((res) => {
+      data.value = res.data;
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+};
+
+const projectDetail = ref();
+const getProjectDetail = (val) => {
+  projectDetail.value = val;
+};
 
 onMounted(() => {
   uuid.value = route.query.uuid;
+  loadData();
 });
 </script>
 

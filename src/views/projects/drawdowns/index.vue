@@ -11,9 +11,9 @@
               <a-button type="brown" shape="round" size="small">{{ t('默认开始') }}</a-button>
             </drawdownre-quest>
           </div>
-          <div v-else-if="hasPermission('projects:drawdowns:add')" class="pt-5">
-            <p class="fs_2xl bold">0 drawdowns received</p>
-            <p class="mb-4 bold">1 drawdown pending -0% of loan drawn</p>
+          <div v-else-if="hasPermission('projects:drawdowns:add')" class="pt-5" style="padding-top: 65px">
+            <!-- <p class="fs_2xl bold">0 drawdowns received</p>
+            <p class="mb-4 bold">1 drawdown pending -0% of loan drawn</p> -->
             <drawdownre-quest :uuid="uuid" @change="update(true)">
               <a-button type="dark" class="big uppercase fs_2xs"> REQUEST DRAWDOWN </a-button>
             </drawdownre-quest>

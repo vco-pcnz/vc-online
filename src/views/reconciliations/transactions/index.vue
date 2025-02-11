@@ -96,7 +96,7 @@ const columns = reactive([
     dataIndex: 'date',
     key: 'name',
     customRender: ({ text }) => {
-      return tool.showDate(Date(text));
+      return tool.showDate(text);
     }
   },
   {

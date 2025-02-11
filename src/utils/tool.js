@@ -299,11 +299,11 @@ tool.div = (num1, num2) => {
 /**
  * 日期格式本地化
  */
-tool.showDate = (time) => {
+tool.showDate = (time, myformat) => {
   const locale = i18n.global.locale.value;
   const date = dayjs(time, 'YYYY/MM/DD'); // 解析原始日期字符串
   const format = locale === 'en' ? `DD MMM 'YY` : 'YYYY/MM/DD';
-  return date.format(format);
+  return date.format(myformat || format);
 };
 
 /**

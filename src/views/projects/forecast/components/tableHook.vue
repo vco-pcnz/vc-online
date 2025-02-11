@@ -24,14 +24,22 @@
             <div class="item">{{ item.name }}</div>
             <div class="item flex items-center"><vco-avatar :size="30"></vco-avatar></div>
             <div class="item">
-              <div class="flex items-center">
-                <!-- <span class="mr-3 color_grey fs_xs">12/12</span>
-                <vco-number :value="76923076.92" :precision="2" size="fs_xs" prefix="" suffix=""></vco-number> -->
+              <div class="flex items-center justify-between" v-if="item.forecast_log.length">
+                <span class="mr-3 color_grey fs_xs">{{ tool.showDate(item.forecast_log[item.forecast_log.length - 1].create_time, 'DD/MM') }}</span>
+                <vco-number
+                  :value="item.forecast_log[item.forecast_log.length - 1].amount"
+                  :color="item.forecast_apply || item.first ? '#181818' : '#569695'"
+                  :bold="item.forecast_apply || item.first ? false : true"
+                  :precision="2"
+                  size="fs_md"
+                  prefix=""
+                  suffix=""
+                ></vco-number>
               </div>
             </div>
             <div class="item">{{ tool.showDate(item.date) }}</div>
             <div class="item">
-              <vco-number :value="item.amount" :bold="true" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
+              <vco-number v-if="item.forecast_apply || item.first" :value="item.amount" :bold="true" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
             </div>
             <div class="item">
               <div class="flex items-center">
@@ -55,8 +63,8 @@
     <div class="static-block">
       <div class="item">
         <p>period</p>
-        <h3>0 months</h3>
-        <div class="info">{{ getMonths }} months</div>
+        <h3>{{ data?.period1 }} months</h3>
+        <div class="info">{{ data?.period2 }} months</div>
       </div>
       <div class="item sec-item ml-10">
         <p class="item-title">drawdowns</p>
@@ -76,20 +84,20 @@
         <vco-number :value="data?.withdrawn1 || 0" color="#ffffff" size="fs_xl" :precision="2"></vco-number>
         <div class="info">{{ data?.withdrawn2 || 0 }}% from loan</div>
       </div>
-      <div class="item sec-item">
+      <!-- <div class="item sec-item">
         <p class="item-title">forecasted withdrawn</p>
         <vco-number :value="data?.withdrawn1 || 0" color="#ffffff" size="fs_xl" :precision="2"></vco-number>
         <div class="info">forecasted {{ data?.withdrawn2 || 0 }}% loan</div>
-      </div>
+      </div> -->
 
       <div class="item">
         <p>variance</p>
-        <div class="fs_xl" style="color: hsla(0, 0%, 100%, 0.5)">{{ data?.period1 || 0 }}%</div>
+        <!-- <div class="fs_xl" style="color: hsla(0, 0%, 100%, 0.5)">{{ data?.period1 || 0 }}%</div> -->
       </div>
 
       <div class="item">
         <p>points</p>
-        <div class="fs_xl">{{ data?.period2 || 0 }}%</div>
+        <!-- <div class="fs_xl">{{ data?.period2 || 0 }}%</div> -->
       </div>
     </div>
   </div>
@@ -98,7 +106,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted,computed } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { DownOutlined } from '@ant-design/icons-vue';
 import dayjs from 'dayjs';
@@ -182,10 +190,6 @@ const showLog = (val) => {
   logRef.value.init();
 };
 
-const getMonths = computed(() => {
-  return Object.keys(props.data?.list).length || 0
-})
-
 const update = () => {
   emits('update');
 };
@@ -221,6 +225,7 @@ const update = () => {
         text-align: center;
       }
       &:nth-child(6) {
+        flex: 0 0 110px;
         text-align: center;
       }
       &:nth-child(5),
@@ -257,6 +262,20 @@ const update = () => {
       padding: 6px 0;
       border-bottom: 1px solid #e2e5e2;
       cursor: pointer;
+      .item {
+        &:nth-child(6) {
+          position: relative;
+          &::after {
+            display: inline-block;
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 8px;
+            height: 15px;
+            border-left: 1px solid #888;
+          }
+        }
+      }
       &.passed {
         background-color: #f0f0f0 !important;
         border-radius: 10px;

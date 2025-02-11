@@ -3,20 +3,27 @@
   <div @click.stop ref="JournalRef" class="Journal">
     <a-modal :width="700" :open="visible" :title="'Estimated drawdown ' + logList.length + ' forecast history'" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content">
-        <ul class="list" v-for="(item, index) in logList" :key="index">
-          <li>5/02/25</li>
-          <li class="flex items-center"><vco-avatar :size="30"></vco-avatar> <span class="ml-3">renee lm</span></li>
-          <li>{{ tool.showDate(item.date) }}</li>
-          <li class="flex items-center justify-end"><span class="dot mr-3"></span> <vco-number color="#569695" :value="item.amount" :precision="2" size="fs_md"></vco-number></li>
-        </ul>
+        <div style="max-height: 500px;overflow-y: auto;padding: 0 10px;">
+          <ul class="list" v-for="(item, index) in logList" :key="index">
+            <li>{{ tool.showDate(item.create_time, 'DD/MM/YY') }}</li>
+            <!-- <li class="flex items-center"><vco-avatar :size="30"></vco-avatar> <span class="ml-3">renee lm</span></li> -->
+            <li>{{ tool.showDate(item.date) }}</li>
+            <li>
+              <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.note" style="width: 130px">{{ item.note }}</p>
+            </li>
+            <li class="flex items-center justify-end">
+              <!-- <span class="dot mr-3"></span> -->
+              <vco-number color="#569695" :value="item.amount" :precision="2" size="fs_md"></vco-number>
+            </li>
+          </ul>
+        </div>
         <template v-if="itemDate?.forecast_apply">
-          
-        <ul class="list back">
-          <li>{{itemDate?.name}}</li>
-          <li class="flex items-center"></li>
-          <li>{{ tool.showDate(itemDate?.date) }}</li>
-          <li class="flex items-center justify-end"><span class="dot mr-3"></span> <vco-number :value="itemDate?.amount" :precision="2" size="fs_md"></vco-number></li>
-        </ul>
+          <ul class="list back">
+            <li>{{ itemDate?.name }}</li>
+            <li class="flex items-center"></li>
+            <li>{{ tool.showDate(itemDate?.date) }}</li>
+            <li class="flex items-center justify-end"><span class="dot mr-3"></span> <vco-number :value="itemDate?.amount" :precision="2" size="fs_md"></vco-number></li>
+          </ul>
         </template>
         <div class="pt-5 flex justify-end" v-else>
           <Add :uuid="uuid" :projectDetail="projectDetail" :itemDate="itemDate" @update="update"> <a-button type="dark" class="big uppercase fs_2xs"> Edit forecast </a-button></Add>

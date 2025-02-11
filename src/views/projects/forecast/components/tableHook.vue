@@ -16,39 +16,44 @@
 
       <div class="col-content">
         <template v-for="(_item, key) in data?.list">
-          <div v-for="item in data?.list[key]" :key="item.id" class="col-item" :class="{ passed: item.status != 0 || item.first }" @click="showLog(item)">
+          <div v-for="(item, index) in data?.list[key]" :key="item.id" class="col-item" :class="{ passed: item.status != 0 || item.first }" @click="showLog(item)">
             <div class="item flex items-center"><span class="circle" :style="{ background: item.status != 0 || item.first ? '#181818' : '#b4d8d8' }"></span></div>
             <div class="item">
-              {{ tool.monthYear(item.ym) }}
+              <template v-if="!index"> {{ tool.monthYear(item.ym) }}</template>
             </div>
             <div class="item">{{ item.name }}</div>
             <div class="item flex items-center"><vco-avatar :size="30"></vco-avatar></div>
             <div class="item">
               <div class="flex items-center justify-between" v-if="item.forecast_log.length && item.status != 0">
                 <span class="mr-3 color_grey fs_xs">{{ tool.showDate(item.forecast_log[item.forecast_log.length - 1].create_time, 'DD/MM') }}</span>
-                <vco-number
-                  :value="item.forecast_log[item.forecast_log.length - 1].amount"
-                  :precision="2"
-                  size="fs_md"
-                  prefix=""
-                  suffix=""
-                ></vco-number>
+                <vco-number :value="item.forecast_log[item.forecast_log.length - 1].amount" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
               </div>
-              
+
               <div class="flex items-center justify-between" v-else>
                 <span class="mr-3 color_grey fs_xs">{{ tool.showDate(item.date, 'DD/MM') }}</span>
-                <vco-number
-                  :value="item.amount"
-                  :color="item.status != 0 || item.first ? '#181818' : '#569695'"
-                  :bold="item.status != 0 || item.first ? false : true"
-                  :precision="2"
-                  size="fs_md"
-                  prefix=""
-                  suffix=""
-                ></vco-number>
+                <template v-if="item.status != 0 || item.first">
+                  <vco-number :value="item.amount" color="#181818" :bold="false" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
+                </template>
+                <template v-else-if="item.type == 2">
+                  <vco-number :value="item.amount" color="#569695" :bold="true" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
+                </template>
+                <template v-else>
+                  <vco-number :value="item.amount" color="#d6a91f" :bold="true" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
+                </template>
+                <!-- <vco-number :value="item.amount" :color="item.status != 0 || item.first ? '#181818' : '#569695'" :bold="item.status != 0 || item.first ? false : true" :precision="2" size="fs_md" prefix="" suffix=""></vco-number> -->
               </div>
             </div>
-            <div class="item">{{ tool.showDate(item.date) }}</div>
+            <div class="item">
+              <div v-if="item.status != 0 || item.first" style="color: #181818">
+                {{ tool.showDate(item.date) }}
+              </div>
+              <div v-else-if="item.type == 2" style="color: #569695">
+                {{ tool.showDate(item.date) }}
+              </div>
+              <div v-else style="color: #d6a91f">
+                {{ tool.showDate(item.date) }}
+              </div>
+            </div>
             <div class="item">
               <vco-number v-if="item.status != 0 || item.first" :value="item.amount" :bold="true" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
             </div>
@@ -85,10 +90,18 @@
       <div class="item sec-item mr-5">
         <p class="item-title">estimated drawdowns</p>
         <div class="flex justify-end items-center gap-1">
-          <i class="iconfont" style="color: #7dc1c1">&#xe78b;</i>
+          <!-- <i class="iconfont" style="color: #7dc1c1">&#xe78b;</i> -->
           <vco-number :value="data?.estimated1 || 0" color="#7dc1c1" size="fs_xl" :precision="2"></vco-number>
         </div>
         <div class="info flex items-center justify-end"><vco-number :value="data?.estimated2 || 0" color="#fff" size="fs_xs" :precision="2" class="mr-3"></vco-number> available</div>
+      </div>
+      <div class="item sec-item mr-5">
+        <p class="item-title">estimated repayments</p>
+        <div class="flex justify-end items-center gap-1">
+          <!-- <i class="iconfont" style="color: #7dc1c1">&#xe78b;</i> -->
+          <vco-number :value="Math.abs(data?.payment) || 0" color="#d6a91f" size="fs_xl" :precision="2"></vco-number>
+        </div>
+        <!-- <div class="info flex items-center justify-end"><vco-number :value="data?.estimated2 || 0" color="#fff" size="fs_xs" :precision="2" class="mr-3"></vco-number> available</div> -->
       </div>
       <div class="item sec-item">
         <p class="item-title">actual loan withdrawn</p>
@@ -262,9 +275,6 @@ const update = () => {
         font-size: 14px;
         margin-right: 5px;
       }
-      &:nth-child(6) {
-        color: #569695;
-      }
     }
   }
   .col-content {
@@ -275,6 +285,7 @@ const update = () => {
       cursor: pointer;
       .item {
         &:nth-child(6) {
+          color: #569695;
           position: relative;
           &::after {
             display: inline-block;

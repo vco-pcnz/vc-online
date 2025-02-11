@@ -64,7 +64,7 @@ watch(
         font-size: 12px;
         position: relative;
         z-index: 2;
-        background: #fff;
+        background: #f7f9f8;
       }
     }
     .date {

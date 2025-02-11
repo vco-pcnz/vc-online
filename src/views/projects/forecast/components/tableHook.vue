@@ -16,15 +16,15 @@
 
       <div class="col-content">
         <template v-for="(_item, key) in data?.list">
-          <div v-for="item in data?.list[key]" :key="item.id" class="col-item" :class="{ passed: item.forecast_apply || item.first }" @click="showLog(item)">
-            <div class="item flex items-center"><span class="circle" :style="{ background: item.forecast_apply || item.first ? '#181818' : '#b4d8d8' }"></span></div>
+          <div v-for="item in data?.list[key]" :key="item.id" class="col-item" :class="{ passed: item.status != 0 || item.first }" @click="showLog(item)">
+            <div class="item flex items-center"><span class="circle" :style="{ background: item.status != 0 || item.first ? '#181818' : '#b4d8d8' }"></span></div>
             <div class="item">
               {{ tool.monthYear(item.ym) }}
             </div>
             <div class="item">{{ item.name }}</div>
             <div class="item flex items-center"><vco-avatar :size="30"></vco-avatar></div>
             <div class="item">
-              <div class="flex items-center justify-between" v-if="item.forecast_log.length && item.forecast_apply">
+              <div class="flex items-center justify-between" v-if="item.forecast_log.length && item.status != 0">
                 <span class="mr-3 color_grey fs_xs">{{ tool.showDate(item.forecast_log[item.forecast_log.length - 1].create_time, 'DD/MM') }}</span>
                 <vco-number
                   :value="item.forecast_log[item.forecast_log.length - 1].amount"
@@ -39,8 +39,8 @@
                 <span class="mr-3 color_grey fs_xs">{{ tool.showDate(item.date, 'DD/MM') }}</span>
                 <vco-number
                   :value="item.amount"
-                  :color="item.forecast_apply || item.first ? '#181818' : '#569695'"
-                  :bold="item.forecast_apply || item.first ? false : true"
+                  :color="item.status != 0 || item.first ? '#181818' : '#569695'"
+                  :bold="item.status != 0 || item.first ? false : true"
                   :precision="2"
                   size="fs_md"
                   prefix=""
@@ -50,7 +50,7 @@
             </div>
             <div class="item">{{ tool.showDate(item.date) }}</div>
             <div class="item">
-              <vco-number v-if="item.forecast_apply || item.first" :value="item.amount" :bold="true" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
+              <vco-number v-if="item.status != 0 || item.first" :value="item.amount" :bold="true" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
             </div>
             <div class="item">
               <div class="flex items-center">
@@ -61,7 +61,7 @@
             <div class="item">
               <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.note" style="width: 130px">{{ item.note }}</p>
             </div>
-            <div class="item"><i class="iconfont nav-icon">&#xe794;</i></div>
+            <div class="item"><i class="iconfont nav-icon" v-if="!item.first">&#xe794;</i></div>
           </div>
         </template>
       </div>

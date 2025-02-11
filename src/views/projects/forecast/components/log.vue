@@ -17,7 +17,7 @@
             </li>
           </ul>
         </div>
-        <template v-if="itemDate?.forecast_apply">
+        <template v-if="itemDate?.status != 0">
           <ul class="list back">
             <li>{{ itemDate?.name }}</li>
             <li>{{ tool.showDate(itemDate?.date) }}</li>

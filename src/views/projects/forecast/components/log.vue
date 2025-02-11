@@ -20,8 +20,8 @@
         <template v-if="itemDate?.forecast_apply">
           <ul class="list back">
             <li>{{ itemDate?.name }}</li>
-            <li class="flex items-center"></li>
             <li>{{ tool.showDate(itemDate?.date) }}</li>
+            <li class="flex items-center"></li>
             <li class="flex items-center justify-end"><span class="dot mr-3"></span> <vco-number :value="itemDate?.amount" :precision="2" size="fs_md"></vco-number></li>
           </ul>
         </template>

@@ -16,7 +16,7 @@
 
       <div class="col-content">
         <template v-for="(_item, key) in data?.list">
-          <div v-for="(item, index) in data?.list[key]" :key="item.id" class="col-item" :class="{ passed: item.forecast_apply || item.first }" @click="showLog(item)">
+          <div v-for="item in data?.list[key]" :key="item.id" class="col-item" :class="{ passed: item.forecast_apply || item.first }" @click="showLog(item)">
             <div class="item flex items-center"><span class="circle" :style="{ background: item.forecast_apply || item.first ? '#181818' : '#b4d8d8' }"></span></div>
             <div class="item">
               {{ tool.monthYear(item.ym) }}
@@ -24,10 +24,21 @@
             <div class="item">{{ item.name }}</div>
             <div class="item flex items-center"><vco-avatar :size="30"></vco-avatar></div>
             <div class="item">
-              <div class="flex items-center justify-between" v-if="item.forecast_log.length">
+              <div class="flex items-center justify-between" v-if="item.forecast_log.length && item.forecast_apply">
                 <span class="mr-3 color_grey fs_xs">{{ tool.showDate(item.forecast_log[item.forecast_log.length - 1].create_time, 'DD/MM') }}</span>
                 <vco-number
                   :value="item.forecast_log[item.forecast_log.length - 1].amount"
+                  :precision="2"
+                  size="fs_md"
+                  prefix=""
+                  suffix=""
+                ></vco-number>
+              </div>
+              
+              <div class="flex items-center justify-between" v-else>
+                <span class="mr-3 color_grey fs_xs">{{ tool.showDate(item.date, 'DD/MM') }}</span>
+                <vco-number
+                  :value="item.amount"
                   :color="item.forecast_apply || item.first ? '#181818' : '#569695'"
                   :bold="item.forecast_apply || item.first ? false : true"
                   :precision="2"

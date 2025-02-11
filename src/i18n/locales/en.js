@@ -587,5 +587,6 @@ export default {
   "拒绝请求": "decline request",
   "接受请求": "Accept request",
   "确定要拒绝该请求吗？": "Are you sure you want to decline the request?",
-  "包括利息和费用": "including interests & fees"
+  "包括利息和费用": "including interests & fees",
+  "帮助借款人": "Help borrower"
 }

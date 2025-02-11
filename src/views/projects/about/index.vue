@@ -30,7 +30,7 @@
               </a-collapse-panel>
               <a-collapse-panel key="orgs" class="collapse-card request-card">
                 <template #header>
-                  <i class="iconfont">&#xe610;</i>
+                  <i class="iconfont">&#xe8db;</i>
                   <span class="title">{{ t('利益相关者') }}</span>
                 </template>
                 <Wash :currentId="currentId"></Wash>

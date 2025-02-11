@@ -70,7 +70,7 @@
     <TableBlock v-if="data" :data="data.data"></TableBlock>
   </a-spin>
 
-  <div class="tooltipBoxWrapper" v-if="chartData && hoverIndex && showTipCard" :style="{ top: `${mouseY - 60}px`, left: `${mouseX - 155}px` }">
+  <div class="tooltipBoxWrapper" v-if="chartData && showTipCard" :style="{ top: `${mouseY - 60}px`, left: `${mouseX - 155}px` }">
     <div class="tooltipBox" ref="tooltipBoxRef">
       <template v-if="chartData">
         <!-- {{ chartData }} -->
@@ -172,7 +172,7 @@ const option = ref({
 });
 
 const chartData = computed(() => {
-  if (data.value && hoverIndex.value) {
+  if (data.value) {
     return {
       Date: dates.value[hoverIndex.value],
       Repayments: data.value.data[0].data[dates.value[hoverIndex.value]],
@@ -381,8 +381,8 @@ const loadData = () => {
       //   ]
       // };
       data.value = res;
-      let chartData = [res.available_fund];
-      dates.value = [dayjs().format('YYYY-MM')];
+      let chartData = [];
+      dates.value = [];
       if (!res.data) return;
       Object.keys(res.data[0].data).forEach((item) => {
         dates.value.push(item);

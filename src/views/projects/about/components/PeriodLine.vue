@@ -1,31 +1,39 @@
 <template>
   <div class="Period bold">
-    <div class="fs_xs text-center"><span class="weight_demiBold">21 days</span><span class="color_grey ml-2">361 remaining</span></div>
+    <div class="fs_xs text-center">
+      <span class="weight_demiBold">{{ data?.sdaysDiff }} days</span>
+      <span class="color_red-error ml-2" v-if="Boolean(data?.is_overtime)">+ {{ data?.edaysDiff }} days overdue</span>
+      <span class="color_grey ml-2" v-else>{{ data?.edaysDiff }} remaining</span>
+    </div>
     <div class="flex">
       <div class="Box">
-        <p class="fs_3xl" style="margin-bottom: 2px">30 Nov ‘24</p>
+        <p class="fs_3xl" style="margin-bottom: 2px">{{ tool.showDate(data?.start_date) }}</p>
         <p class="fs_xs color_grey">Open</p>
       </div>
       <div class="Period-Line flex-1">
-        <div class="Period-Dash" v-for="item in 14" :key="item"></div>
-        <div class="Period-Meter" style="width: 5.5%"></div>
+        <template v-if="Boolean(data?.is_overtime)">
+          <div class="Period-Dash-red"></div>
+        </template>
+        <div v-else class="Period-Dash" v-for="item in 14" :key="item"></div>
+        <div class="Period-Meter" :style="{ width: (data?.sdaysDiff / (data?.sdaysDiff + data?.edaysDiff)) * 100 + '%' }"></div>
       </div>
       <div class="text-right">
-        <p class="fs_3xl" style="margin-bottom: 2px">16 Dec ‘25</p>
-        <p class="fs_xs color_grey">Maturity</p>
+        <p class="fs_3xl" :class="{ 'color_red-error': Boolean(data?.is_overtime) }" style="margin-bottom: 2px">{{ tool.showDate(data?.end_date) }}</p>
+        <p class="fs_xs color_red-error" v-if="Boolean(data?.is_overtime)">Maturity overdue</p>
+        <p class="fs_xs color_grey" v-else>Maturity</p>
       </div>
     </div>
-    <p class="fs_xs color_grey text-center" style="margin-top: -16px">382 days</p>
+    <p class="fs_xs color_grey text-center" style="margin-top: -16px">{{ data?.sdaysDiff + data?.edaysDiff }} days</p>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import tool from '@/utils/tool';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
 
-const props = defineProps([]);
+const props = defineProps(['data']);
 </script>
 
 <style scoped lang="less">
@@ -45,6 +53,12 @@ const props = defineProps([]);
     border-radius: 4px;
     height: 8px;
     width: 100%;
+  }
+  .Period-Dash-red {
+    background: #c1430c;
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
   }
   .Period-Meter {
     background-color: #181818;

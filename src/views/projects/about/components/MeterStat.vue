@@ -9,15 +9,15 @@
         <div class="MeterStat-Meter"></div>
         <div>
           <p>Facility limit 2</p>
-          <vco-number :value="data.facilityLimit2" :precision="2"></vco-number>
+          <vco-number :value="data?.credit_fc2" :precision="2"></vco-number>
         </div>
       </div>
       <div class="MeterStat MeterStat_type_charcoal">
         <div class="MeterStat-Meter"></div>
         <div>
           <p>Current balance</p>
-          <div class="fs_3xl bold" style="margin-bottom: 2px"><vco-number :value="data.current_balance" :precision="2"></vco-number></div>
-          <p class="color_grey flex"><vco-number :value="data.availableBalance" :precision="2" color="#888" size="fs_md" class="mr-2"></vco-number> available</p>
+          <div class="fs_3xl bold" style="margin-bottom: 2px"><vco-number :value="data?.currentBalance" :precision="2"></vco-number></div>
+          <p class="color_grey flex"><vco-number :value="data?.currentBalanceAvailable" :precision="2" color="#888" size="fs_md" class="mr-2"></vco-number> available</p>
         </div>
       </div>
       <div class="MeterStat MeterStat_type_dotsYellow">
@@ -29,7 +29,7 @@
         </div>
         <div>
           <p class="color_grey" style="margin-bottom: 2px">Accrued interest</p>
-          <vco-number :value="data.accrued_interest" :precision="2"></vco-number>
+          <vco-number :value="data?.interest" :precision="2"></vco-number>
         </div>
       </div>
     </div>
@@ -38,15 +38,15 @@
         <div class="MeterStat-Meter"></div>
         <div>
           <p>Facility limit 1</p>
-          <vco-number :value="data.facilityLimit1" :precision="2"></vco-number>
+          <vco-number :value="data?.credit_fc1" :precision="2"></vco-number>
         </div>
       </div>
       <div class="MeterStat MeterStat_type_cyan">
         <div class="MeterStat-Meter"></div>
         <div>
           <p>Drawn amount</p>
-          <vco-number :value="data.drawn_amount" :precision="2"></vco-number>
-          <p class="color_grey flex"><vco-number :value="data.availableWithdrawal" :precision="2" color="#888" size="fs_md" class="mr-2"></vco-number> available</p>
+          <vco-number :value="data?.loanWithdrawal" :precision="2"></vco-number>
+          <p class="color_grey flex"><vco-number :value="data?.loanWithdrawalAvailable" :precision="2" color="#888" size="fs_md" class="mr-2"></vco-number> available</p>
         </div>
       </div>
       <div class="MeterStat MeterStat_type_dotsBlack">
@@ -58,7 +58,7 @@
         </div>
         <div>
           <p class="color_grey" style="margin-bottom: 2px">Pending drawdown</p>
-          <vco-number :value="data.pending_drawdown" :precision="2"></vco-number>
+          <vco-number :value="data?.pendingDrawdown" :precision="2"></vco-number>
         </div>
       </div>
     </div>
@@ -66,24 +66,12 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
 
-const props = defineProps([]);
-
-const data = ref({
-  facilityLimit2: 2873824.21,
-  current_balance: 979262.58,
-  availableBalance: 1884561.63,
-  accrued_interest: 5610.41,
-
-  facilityLimit1: 2504000.0,
-  drawn_amount: 804000.0,
-  availableWithdrawal: 1611366.0,
-  pending_drawdown: 88634.0
-});
+const props = defineProps(['data']);
 
 const option = ref({
   series: [
@@ -96,7 +84,7 @@ const option = ref({
         show: false
       },
       silent: true,
-      data: [{ value: data.value.current_balance }, { value: data.value.accrued_interest }, { value: data.value.availableBalance }]
+      data: []
     }
   ]
 });
@@ -116,91 +104,23 @@ const option2 = ref({
         show: false
       },
       silent: true,
-      data: [{ value: data.value.drawn_amount }, { value: data.value.pending_drawdown }, { value: data.value.availableWithdrawal }]
+      data: []
     }
   ]
 });
 
-// const data = [
-//   {
-//     type: 'withdrawal',
-//     value: 213
-//   },
-//   {
-//     type: 'pending',
-//     value: 122
-//   },
-//   {
-//     type: 'loan',
-//     value: 523
-//   }
-// ];
-// const options2 = ref( {
-//         // 这里放置你的 ECharts 配置
-//         theme: {
-//           styleSheet: {
-//             fontFamily: 'Aeonik, sans-serif'
-//           }
-//         },
-//         series: [
-//           {
-//             type: 'pie',
-//             radius: '99.5%',
-//             silent: true,
-//             autoFit: false, // 注意：autoFit 通常是容器或组件级别的设置，而不是 series 级别的
-//             legend: { show: false }, // 注意：legend 通常也是组件级别的设置，但可以在 series 中覆盖
-//             tooltip: { show: false }, // 同上
-//             data: [
-//               // 这里应该放置你的数据，例如：
-//               { value: 100, name: 'withdrawal', type: 'withdrawal' },
-//               { value: 200, name: 'loan', type: 'loan' },
-//               { value: 300, name: 'pending', type: 'pending' },
-//               // ...
-//             ],
-//             angleField: 'value',
-//             colorField: 'type',
-//             color: ['#B4F1DB', '#FBFBFB', '#FBFBFB'], // 注意：这里可能需要根据你的数据中的 type 数量来调整颜色数量
-//             label: {
-//               autoRotate: false,
-//               position: 'inside', // 注意：ECharts 中使用 position 而不是 type
-//               offset: ['0', '-50%'], // 注意：offset 通常是一个数组，包含水平和垂直偏移
-//               formatter: ({ type, percent }) => {
-//                 if (type === 'withdrawal') {
-//                   return `${(percent * 100).toFixed(1)}%`;
-//                 }
-//                 // 可以添加其他类型的格式化逻辑
-//                 return ''; // 如果没有匹配到类型，则不显示标签
-//               },
-//               rich: {
-//                 // 如果需要更复杂的样式，可以使用 rich 字段定义
-//                 boldLabel: {
-//                   fontSize: 14,
-//                   fontWeight: 'bold',
-//                   align: 'center' // 注意：ECharts 中使用 align 而不是 textAlign
-//                 }
-//               },
-//               // 如果不使用 rich，则直接在 style 中设置样式
-//               style: {
-//                 fontSize: 14,
-//                 fontWeight: 'bold',
-//                 textAlign: 'center' // 但实际上应该使用 align
-//               }
-//               // 注意：如果使用了 rich，则 style 字段将不会生效，样式应该在 rich 中定义
-//             },
-//             itemStyle: {
-//               borderColor: ({ data }) => {
-//                 // 注意：这里的数据访问方式可能需要根据实际情况调整
-//                 // ECharts 中没有直接的 pieStyle 字段，但可以通过 itemStyle 或 emphasis.itemStyle 来设置
-//                 return data.type === 'withdrawal' ? '#B4F1DB' :
-//                        data.type === 'loan' ? '#FBFBFB' :
-//                        undefined;
-//               }
-//             },
-//             // ECharts 没有直接的 pattern 字段用于 pie 系列，但可以通过 itemStyle 的其他属性（如 fillPatternImage）来设置填充模式
-//             // 如果需要自定义填充模式，你可能需要使用图形元素（如 graphic）或 SVG 图案作为背景
-//           }
-//         ]
-//       })
+watch(
+  () => props.data,
+  (val) => {
+    if (val) {
+      option.value.series[0].data = [{ value: props.data.currentBalance }, { value: props.data.interest }, { value: props.data.currentBalanceAvailable }];
+      option2.value.series[0].data = [{ value: props.data.loanWithdrawal }, { value: props.data.pendingDrawdown }, { value: props.data.loanWithdrawalAvailable }];
+    }
+  },
+  {
+    immediate: true
+  }
+);
 </script>
 
 <style scoped lang="less">

@@ -17,7 +17,7 @@
         >
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'status'">
-              <div v-if="record.status" class="status_tag">Reconciled</div>
+              <div v-if="record.status == 2" class="status_tag">Reconciled</div>
               <div v-else class="status_tag unreconciled_tag">Unreconciled</div>
             </template>
           </template>
@@ -105,7 +105,7 @@ const columns = reactive([
     key: 'account',
     width: '16%',
     customRender: ({ record }) => {
-      return record.project.project_name;
+      return record.project?.project_name || '';
     }
   },
   {

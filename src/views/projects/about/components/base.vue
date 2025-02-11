@@ -1,8 +1,8 @@
 <template>
-    <a-image :src="zw" />
+  <a-image :src="detail?.base.project_image" height="200px" width="100%" />
   <div class="base-card">
     <p class="id_async">
-      <span>ID {{ baseInfo.id }}</span>
+      <span>ID {{ detail?.base.project_apply_sn }}</span>
       <a-popconfirm title="Are you sure you want to sync the project transactions with Xero?" okText="confirm">
         <template #icon>
           <CheckCircleOutlined :style="{ color: '#a9ad57' }" />
@@ -10,13 +10,11 @@
         <img :width="58" :height="14" :src="xeroImg" alt="Xero" />
       </a-popconfirm>
     </p>
-    <p class="text-2xl name">{{ baseInfo.name }}</p>
+    <p class="text-2xl name">{{ detail?.base.project_name }}</p>
     <p class="purpose">
-      <span v-for="item in baseInfo.purpose" :key="item">
-        {{ item }}
-      </span>
+      {{ detail?.base.project_about }}
     </p>
-    <p>{{ baseInfo.background }}</p>
+    <p class="fs_xs">{{ detail?.base.project_city }}</p>
   </div>
 </template>
 
@@ -28,20 +26,14 @@ import zw from '@/assets/images/zw.jpg';
 import { CheckCircleOutlined } from '@ant-design/icons-vue';
 
 const { t } = useI18n();
-const baseInfo = ref({
-  id: 1614,
-  name: 'test1212',
-  purpose: ['Construction'],
-  background: 'xxx'
-});
-const props = defineProps([]);
+const props = defineProps(['detail']);
 </script>
 
 <style scoped lang="less">
 @import '@/styles/variables.less';
 
 .base-card {
-    padding: 30px;
+  padding: 30px;
   font-size: 14px;
   color: @color_grey;
 

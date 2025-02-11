@@ -4,10 +4,8 @@
     <div class="MeterStat MeterStat_type_charcoal">
       <div class="MeterStat-Meter"></div>
       <div>
-        <p>{{ t('已还款金额') }}</p>
-        <vco-number :bold="true" :value="statistics?.loanWithdrawal" :precision="2" style="margin-bottom: 2px"></vco-number>
-        <p class="color_grey flex">
-          <vco-number :value="statistics?.loan" :precision="2" size="fs_xs" color="#888" class="mr-2"></vco-number> {{ t('应还总额') }}</p>
+        <p>{{ t('还款1') }}</p>
+        <vco-number :bold="true" :value="statistics?.loanRepaid" :precision="2" style="margin-bottom: 2px"></vco-number>
       </div>
     </div>
     <div class="MeterStat MeterStat_type_dotsBlack">
@@ -19,7 +17,7 @@
       </div>
       <div>
         <p class="color_grey" style="margin-bottom: 2px">{{ t('待还款') }}</p>
-        <vco-number :bold="true" :value="statistics?.pendingDrawdown" :precision="2"></vco-number>
+        <vco-number :bold="true" :value="statistics?.pendingRepayment" :precision="2"></vco-number>
         <p style="opacity: 0">.</p>
       </div>
     </div>
@@ -28,8 +26,11 @@
     </div>
     <div class="MeterStat MeterStat_type_transparent text-right">
       <div>
-        <p>{{ t('贷款总额') }}</p>
-        <vco-number :bold="true" :value="totalLoan" :precision="2"></vco-number>
+        <div>
+          <p>{{ t('贷款余额1') }}</p>
+          <vco-number :bold="true" :value="statistics?.loanBalance" :precision="2"></vco-number>
+          <p class="color_grey">{{ t('包括利息和费用') }}</p>
+        </div>
       </div>
       <div class="MeterStat-Meter"></div>
     </div>
@@ -65,7 +66,7 @@ const option = ref({
       type: 'pie',
       center: ['50%', '50%'],
       radius: '100%',
-      color: ['#181818', 'rgba(169, 173, 87, 0.7)', '#f3ede5'],
+      color: ['rgba(169, 173, 87, 0.7)', '#f3ede5'],
       label: {
         show: false
       },
@@ -100,7 +101,12 @@ const loadData = () => {
   loading.value = true
   loanRstatistics({ uuid: props.uuid }).then((res) => {
     statistics.value = res;
-    option.value.series[0].data = [{ value: statistics.value.loanWithdrawal }, { value: statistics.value.pendingDrawdown }, { value: statistics.value.loan }]
+
+    const num = 100
+    const rate = res.rate || 0
+
+
+    option.value.series[0].data = [{ value: rate }, { value: num - rate }]
   }).finally(_ => {
     loading.value = false
   });

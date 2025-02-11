@@ -341,6 +341,7 @@ export default {
   "收入": "INCOME",
   "待提取": "UNDRAWN",
   "贷款余额": "LOAN BALANCE",
+  "贷款余额1": "Loan balance",
   "FC2": "FACILITY LIMIT 2",
   "UPD": "UPD",
   "选择利益相关者": "Select stakeholders",
@@ -360,6 +361,7 @@ export default {
   "笔还款": "repayment",
   "放款": "Drawdown",
   "还款": "Repayments",
+  "还款1": "Repayment",
   "估价高于借款金额{0}": "Estimation is higher than the loan amount for {0}",
   "估价低于借款金额{0}": "Estimation is less than the loan amount for {0}",
   "预测列表": "Forecast list",
@@ -566,7 +568,7 @@ export default {
   "添加文件": "add file",
   "总天数": "Total days",
   "创建还款": "Create a Repayment",
-  "您可以帮助他们创建还款请求": "You can help them create a repayment request",
+  "您可以帮助他们创建还款请求": "You can help them create repayment request",
   "点击创建": "Click Create",
   "贷款总额": "Amount of loan",
   "已还款金额": "Amount repaid",
@@ -584,5 +586,7 @@ export default {
   "您可以点击下面的按钮来拒绝还款请求。": "You can decline the repayment request by clicking the button below.",
   "拒绝请求": "decline request",
   "接受请求": "Accept request",
-  "确定要拒绝该请求吗？": "Are you sure you want to decline the request?"
+  "确定要拒绝该请求吗？": "Are you sure you want to decline the request?",
+  "包括利息和费用": "including interests & fees",
+  "帮助借款人": "Help borrower"
 }

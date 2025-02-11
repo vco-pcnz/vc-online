@@ -4,13 +4,18 @@
       <div class="ProjectDrawdowns">
         <div :class="{ grid: hasPermission('projects:repayments:add') }" class="mb-12">
           <MeterStat :uuid="uuid" :projectDetail="projectDetail" v-if="Boolean(uuid)" ref="MeterStatRef"></MeterStat>
-          <div class="HelpBorrower" v-if="hasPermission('projects:repayments:add')">
-            <div class="flex items-center"><i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">{{ t('创建还款') }}</span></div>
-            <p class="color_grey mt-1 mb-3">{{ t('您可以帮助他们创建还款请求') }}</p>
-            <drawdownre-quest :uuid="uuid" @change="update">
-              <a-button type="brown" shape="round" size="small">{{ t('点击创建') }}</a-button>
+          <template v-if="hasPermission('projects:repayments:add')">
+            <drawdownre-quest v-if="isNormalUser" :uuid="uuid" @change="update">
+              <a-button type="dark" class="big uppercase fs_2xs mt-10">{{ t('还款申请') }}</a-button>
             </drawdownre-quest>
-          </div>
+            <div v-else class="HelpBorrower">
+              <div class="flex items-center"><i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">{{ t('帮助借款人') }}</span></div>
+              <p class="color_grey mt-1 mb-3">{{ t('您可以帮助他们创建还款请求') }}</p>
+              <drawdownre-quest :uuid="uuid" @change="update">
+                <a-button type="brown" shape="round" size="small">{{ t('点击创建') }}</a-button>
+              </drawdownre-quest>
+            </div>
+          </template>
         </div>
         <div :class="{ grid: tableData.length }">
           <a-spin :spinning="loading" size="large">
@@ -31,7 +36,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { size, template } from 'lodash';
 import detailLayout from '../components/detailLayout.vue';
@@ -42,9 +47,14 @@ import DrawdownreQuest from './components/form/DrawdownRequest.vue';
 import { hasPermission } from '@/directives/permission/index';
 import { loanRepayment } from '@/api/project/loan';
 import { useRoute } from 'vue-router';
+import { useUserStore } from '@/store';
+
 const route = useRoute();
 
 const { t } = useI18n();
+
+const userStore = useUserStore();
+const isNormalUser = computed(() => userStore.isNormalUser)
 
 const uuid = ref('');
 const detail_info = ref(null);

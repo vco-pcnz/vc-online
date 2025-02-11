@@ -10,8 +10,8 @@
     </ul>
     <div v-if="tableData.length" class="table-body">
       <template v-for="item in tableData" :key="item.id">
-        <ul class="table-col tr" :class="{ active: active_id == item.id, declined: item.status_name === 'DECLINED DRAWDOWN' }" @click="viewDetail(item)">
-          <li><div class="circle"></div></li>
+        <ul class="table-col tr" :class="{ active: active_id == item.id, declined: item.status_name === 'DECLINED REPAYMENT' }" @click="viewDetail(item)">
+          <li><div class="circle" :class="{'done': item.status === 2}"></div></li>
           <li>
             <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.name" style="width: 200px">{{ item.name }}</p>
           </li>
@@ -50,7 +50,6 @@ const props = defineProps({
 const { t } = useI18n();
 const colors = ref({
   'REPAYMENT CONFIRM': '#a9ad57',
-  'DECLINED REPAYMENT': '#c1430c',
   'LM REVIEW': '#d3a631',
   'LM PENDING REVIEW': '#d3a631',
   'FC REVIEW': '#d3a631',
@@ -144,6 +143,9 @@ watch(
       background-color: transparent;
       border: 2px solid;
       border-color: #181818;
+      &.done {
+        background-color: #181818;
+      }
     }
     &:nth-child(1) {
       text-align: center;

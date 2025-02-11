@@ -120,7 +120,7 @@ const updateVisible = (value) => {
 const setShowTip = () => {
   validate.value = true;
   if (formState.value.amount === '' || !formState.value.date) return;
-  if (formState.value.type == 2) {
+  if (formState.value.type == 2 || (props.itemDate && props.itemDate.type == 2)) {
     formState.value.change = 2;
     tipsVisible.value = true;
   } else {

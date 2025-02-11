@@ -13,7 +13,7 @@
             <span class="bold">{{ item.user_name }}</span>
           </div>
           <div class="flex-1 font-bold flex items-center">
-            <span class="text-right mr-2" style="width: 36px">{{ item.amount_percent }}</span>
+            <span class="text-right mr-2" style="width: 50px">{{ item.amount_percent }}</span>
             <div class="flex-1">
               <div class="progress">
                 <div class="value" :style="{ width: item.amount_percent }"></div>
@@ -36,7 +36,7 @@
       <i class="iconfont" style="font-size: 38px; color: #b8cdcc">&#xe78f;</i>
       <div>
         <vco-number :value="data?.total_amount" :precision="2" :bold="true"></vco-number>
-        <p class="color_grey fs_xs">Total for 16 Dec ‘24 - 22 Dec ‘24</p>
+        <p class="color_grey fs_xs">Total for {{ tool.showDate(data?.period.start_date) }} - {{ tool.showDate(data?.period.end_date) }}</p>
       </div>
       <a-button type="dark" size="large" :loading="downloading" class="" @click="report">Create report</a-button>
     </div>
@@ -47,6 +47,7 @@
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import SelectDate from './SelectDate.vue';
+import tool from '@/utils/tool';
 import { transactions, cashFlowListExport } from '@/api/project/forecast';
 
 const { t } = useI18n();

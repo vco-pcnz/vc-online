@@ -7,6 +7,14 @@
       @submit="confirmSub"
     ></vco-confirm-alert>
 
+    <!-- 删除确认弹窗 -->
+    <vco-confirm-alert
+      ref="delAlertRef"
+      :confirmTxt="t('确定删除吗？')"
+      v-model:visible="delVisible"
+      @submit="sureHandle"
+    ></vco-confirm-alert>
+
     <!-- 提示弹窗 -->
     <a-modal
       :open="tipsVisible"
@@ -336,8 +344,11 @@
   const handleType = ref(0)
   const currentParams = ref()
 
+  const delAlertRef = ref()
+  const delVisible = ref(false)
+
   const removeHandle = (data) => {
-    const {id, date} = data
+    const {id, date, type} = data
     const params = {
       apply_uuid: props.currentId,
       id: [id],
@@ -345,8 +356,14 @@
     }
 
     currentParams.value = params
-    tipsVisible.value = true
     handleType.value = 1
+
+    if (type === 4) {
+      changeType.value = 2
+      delVisible.value = true
+    } else {
+      tipsVisible.value = true
+    }
   }
 
   const subLoading = ref(false)
@@ -373,9 +390,18 @@
       emitter.emit('refreshIRR')
 
       emitter.emit('refreshAuditHisList')
+
+      if (delAlertRef.value) {
+        delVisible.value = false
+        delAlertRef.value.changeLoading(false)
+      }
     }).catch(() => {
       subLoading.value = false
       saveLoading.value = false
+
+      if (delAlertRef.value) {
+        delAlertRef.value.changeLoading(false)
+      }
     })
   }
 

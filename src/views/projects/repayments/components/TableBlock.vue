@@ -19,7 +19,7 @@
             <vco-number :value="item.apply_amount" :precision="2" size="fs_md" :end="true"></vco-number>
           </li>
           <li :style="{ color: colors[item.status_name] }">
-            {{ item.status_name }}
+            {{ item.status === 2 ? 'REPAID' : item.status_name }}
           </li>
           <li>
             <p class="fs_xs color_grey">{{ tool.showDate(item.create_time) }}</p>

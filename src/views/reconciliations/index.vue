@@ -8,9 +8,7 @@
               <p class="title">Review your Xero statement lines...</p>
             </a-col>
             <a-col :span="11" :offset="2">
-              <p class="title">
-                ...then match with your transactions in VC Online
-              </p>
+              <p class="title">...then match with your transactions in VC Online</p>
             </a-col>
           </a-row>
           <a-row v-for="item in rowData" :key="item.id">
@@ -38,8 +36,8 @@
             <a-col :span="2" class="content_btn">
               <a-button
                 :loading="ok_loading && formState.id == item.id"
-                :class="{ active: (!item.transaction && item['f_date'] && item['f_fee'] && item['f_note']) || item.transaction }"
-                :disabled="!item.transaction && (!item['f_date'] || !item['f_fee'] || !item['f_note'])"
+                :class="{ active: (!item.transaction && item['f_date'] && item['f_fee'] && item['f_note'] && item.project) || item.transaction }"
+                :disabled="(!item.transaction && (!item['f_date'] || !item['f_fee'] || !item['f_note'])) || !item.project"
                 @click="showTip(item)"
               >
                 OK
@@ -76,17 +74,17 @@
               <a-row :gutter="24">
                 <a-col :span="12" class="empty_slip">
                   <p class="xs_text">When</p>
-                  <a-date-picker valueFormat="YYYY-MM-DD" v-model:value="item['f_date']" placeholder="" />
+                  <a-date-picker :disabled="!item.project" valueFormat="YYYY-MM-DD" v-model:value="item['f_date']" placeholder="" />
                 </a-col>
                 <a-col :span="12" class="empty_slip">
                   <p class="xs_text">When</p>
-                  <a-select v-model:value="item['f_fee']" :options="item.fee_type" :fieldNames="{ label: 'name', value: 'value' }"></a-select>
+                  <a-select :disabled="!item.project" v-model:value="item['f_fee']" :options="item.fee_type" :fieldNames="{ label: 'name', value: 'value' }"></a-select>
                 </a-col>
               </a-row>
               <a-row>
                 <a-col :span="24" class="empty_slip why_slip">
                   <p class="xs_text">Why</p>
-                  <a-select v-model:value="item['f_note']">
+                  <a-select v-model:value="item['f_note']" :disabled="!item.project">
                     <a-select-option v-for="item in WHY_OPTIONS" :key="item.value" :value="item.value">
                       {{ item.value }}
                     </a-select-option>
@@ -183,26 +181,29 @@ const submit = () => {
   if (formState.value.transaction) {
     // 对账
     ajaxFn = checkMatchBill;
+    params = {
+      bank_sn: formState.value.bank_sn,
+      date: formState.value.date
+    };
   } else {
     // 新增
     params = {
-      apply_project_id: formState.value.project ? formState.value.project.id : 0,
+      apply_project_uuid: formState.value.project ? formState.value.project.uuid : 0,
       amount: formState.value.amount,
-      date: formState.value.f_date,
+      date: formState.value.date,
       note: formState.value.f_note,
+      bank_sn: formState.value.bank_sn,
       ...JSON.parse(formState.value.f_fee)
     };
     ajaxFn = addTransaction;
   }
   ok_loading.value = true;
-  console.log(params)
-  return;
-  addTransaction(params)
+  ajaxFn(params)
     .then((res) => {
       reload();
     })
     .finally(() => {
-      loading.value = false;
+      ok_loading.value = false;
     });
   console.log(params);
 };

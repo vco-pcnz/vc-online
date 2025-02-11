@@ -10,17 +10,16 @@
         <div class="item uppercase">{{ t('日期') }}</div>
         <div class="item uppercase">{{ t('借记/贷记') }}</div>
         <div class="item uppercase">{{ t('绩效指标预测') }}</div>
+        <div class="item uppercase">{{ t('说明') }}</div>
         <div class="item uppercase">{{ t('历史') }}</div>
       </div>
 
       <div class="col-content">
         <template v-for="(_item, key) in data?.list">
           <div v-for="(item, index) in data?.list[key]" :key="item.id" class="col-item" :class="{ passed: item.forecast_apply || item.first }" @click="showLog(item)">
-            <div class="item flex items-center"><span class="circle"></span></div>
+            <div class="item flex items-center"><span class="circle" :style="{ background: item.forecast_apply || item.first ? '#181818' : '#b4d8d8' }"></span></div>
             <div class="item">
-              <template v-if="!index">
-                {{ tool.monthYear(item.ym) }}
-              </template>
+              {{ tool.monthYear(item.ym) }}
             </div>
             <div class="item">{{ item.name }}</div>
             <div class="item flex items-center"><vco-avatar :size="30"></vco-avatar></div>
@@ -32,13 +31,16 @@
             </div>
             <div class="item">{{ tool.showDate(item.date) }}</div>
             <div class="item">
-              <vco-number :value="item.amount" :precision="2" size="fs_xs" prefix="" suffix=""></vco-number>
+              <vco-number :value="item.amount" :bold="true" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
             </div>
             <div class="item">
               <div class="flex items-center">
                 <!-- <span class="mr-3 color_grey fs_xs">12/12</span>
                 <vco-number :value="76923076.92" :precision="2" size="fs_xs" prefix="" suffix=""></vco-number> -->
               </div>
+            </div>
+            <div class="item">
+              <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.note" style="width: 130px">{{ item.note }}</p>
             </div>
             <div class="item"><i class="iconfont nav-icon">&#xe794;</i></div>
           </div>
@@ -53,41 +55,41 @@
     <div class="static-block">
       <div class="item">
         <p>period</p>
-        <h3>0 mnths</h3>
-        <div class="info">11 months</div>
+        <h3>0 months</h3>
+        <div class="info">{{ getMonths }} months</div>
       </div>
       <div class="item sec-item ml-10">
         <p class="item-title">drawdowns</p>
-        <h3>4 drawdowns</h3>
-        <div class="info">14 drawdowns</div>
+        <h3>{{ data?.drawdowns1 }} drawdowns</h3>
+        <div class="info">{{ data?.drawdowns2 }} drawdowns</div>
       </div>
       <div class="item sec-item mr-5">
         <p class="item-title">estimated drawdowns</p>
         <div class="flex justify-end items-center gap-1">
           <i class="iconfont" style="color: #7dc1c1">&#xe78b;</i>
-          <vco-number :value="1 || 0" color="#7dc1c1" size="fs_xl" :precision="2"></vco-number>
+          <vco-number :value="data?.estimated1 || 0" color="#7dc1c1" size="fs_xl" :precision="2"></vco-number>
         </div>
-        <div class="info">$19,200.00 available</div>
+        <div class="info flex items-center justify-end"><vco-number :value="data?.estimated2 || 0" color="#fff" size="fs_xs" :precision="2" class="mr-3"></vco-number> available</div>
       </div>
       <div class="item sec-item">
         <p class="item-title">actual loan withdrawn</p>
-        <vco-number :value="1 || 0" color="#ffffff" size="fs_xl" :precision="2"></vco-number>
-        <div class="info">{{ 20 || 0 }}% from loan</div>
+        <vco-number :value="data?.withdrawn1 || 0" color="#ffffff" size="fs_xl" :precision="2"></vco-number>
+        <div class="info">{{ data?.withdrawn2 || 0 }}% from loan</div>
       </div>
       <div class="item sec-item">
         <p class="item-title">forecasted withdrawn</p>
-        <vco-number :value="1 || 0" color="#ffffff" size="fs_xl" :precision="2"></vco-number>
-        <div class="info">forecasted {{ 20 || 0 }}% loan</div>
+        <vco-number :value="data?.withdrawn1 || 0" color="#ffffff" size="fs_xl" :precision="2"></vco-number>
+        <div class="info">forecasted {{ data?.withdrawn2 || 0 }}% loan</div>
       </div>
 
       <div class="item">
         <p>variance</p>
-        <div class="fs_xl" style="color: hsla(0, 0%, 100%, 0.5)">{{ 20 || 0 }}%</div>
+        <div class="fs_xl" style="color: hsla(0, 0%, 100%, 0.5)">{{ data?.period1 || 0 }}%</div>
       </div>
 
       <div class="item">
         <p>points</p>
-        <div class="fs_xl">{{ 20 || 0 }}%</div>
+        <div class="fs_xl">{{ data?.period2 || 0 }}%</div>
       </div>
     </div>
   </div>
@@ -96,7 +98,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted,computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { DownOutlined } from '@ant-design/icons-vue';
 import dayjs from 'dayjs';
@@ -180,6 +182,10 @@ const showLog = (val) => {
   logRef.value.init();
 };
 
+const getMonths = computed(() => {
+  return Object.keys(props.data?.list).length || 0
+})
+
 const update = () => {
   emits('update');
 };
@@ -223,6 +229,9 @@ const update = () => {
         text-align: center;
       }
       &:nth-child(9) {
+        flex: 0 0 150px;
+      }
+      &:nth-child(10) {
         flex: 0 0 100px;
         text-align: right;
       }

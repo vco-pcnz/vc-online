@@ -103,12 +103,15 @@ const save = () => {
 const init = () => {
   formState.value.date = '';
   formState.value.amount = '';
-  formState.value = cloneDeep({
-    ...formState.value,
-    id: props.itemDate.id,
-    date: props.itemDate.date,
-    amount: props.itemDate.amount,
-  });
+
+  if (props.itemDate) {
+    formState.value = cloneDeep({
+      ...formState.value,
+      id: props.itemDate.id,
+      date: props.itemDate.date,
+      amount: props.itemDate.amount
+    });
+  }
   visible.value = true;
 };
 </script>

@@ -2,16 +2,11 @@
   <div class="color_grey fs_2xs text-center py-3 text-uppercase uppercase" style="letter-spacing: 1px">Details</div>
 
   <div class="detail">
-    <div class="title" :style="{  color: colors[detail?.status_name]?.color || '#272727' }">
-      {{ detail?.status_name }}
-    </div>
-    <a-alert
-      v-if="Boolean(detail?.cancel_reason)"
-      message="Push back reason"
-      :description="detail?.cancel_reason"
-      type="error"
-      class="cancel-reason"
-    />
+    <!-- <div class="title" :style="{ color: colors[detail?.status_name]?.color || '#272727' }">
+      <p style="color: #181818" v-if="detail?.status == 2">PAID</p>
+      <p v-else>{{ detail?.status_name }}</p>
+    </div> -->
+    <a-alert v-if="Boolean(detail?.cancel_reason)" message="Push back reason" :description="detail?.cancel_reason" type="error" class="cancel-reason" />
     <div class="my-3" style="padding-left: 5px">
       <div class="bold fs_xl">{{ detail?.name }}</div>
       <div class="color_grey fs_2xs">{{ detail?.note }}</div>

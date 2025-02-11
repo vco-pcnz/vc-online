@@ -11,7 +11,7 @@
     <div v-if="tableData.length" class="table-body">
       <template v-for="item in tableData" :key="item.id">
         <ul class="table-col tr" :class="{ active: active_id == item.id, declined: item.status_name === 'DECLINED DRAWDOWN' }" @click="viewDetail(item)">
-          <li><div class="circle" :class="{solid:item.status == 2}"></div></li>
+          <li><div class="circle" :class="{ solid: item.status == 2 }"></div></li>
           <li>
             <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.name" style="width: 200px">{{ item.name }}</p>
           </li>
@@ -20,10 +20,13 @@
             <p class="fs_xs color_grey" v-if="item.date">{{ tool.showDate(item.date) }}</p>
           </li>
           <li :style="{ color: colors[item.status_name] }">
-            {{ item.status_name }}
+            <p class="fs_xs bold" style="color: #181818;" v-if="item.status == 2">PAID</p>
+            <p v-else>{{ item.status_name }}</p>
           </li>
           <li>
-            <p class="fs_xs color_grey">{{ tool.showDate(item.create_time) }}</p>
+            <p class="fs_xs color_grey">
+              {{ tool.showDate(item.create_time) }}
+            </p>
           </li>
           <li>
             <vco-number :value="item.amount" :precision="2" size="fs_xs"></vco-number>

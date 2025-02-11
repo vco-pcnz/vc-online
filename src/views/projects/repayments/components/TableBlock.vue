@@ -50,7 +50,6 @@ const props = defineProps({
 const { t } = useI18n();
 const colors = ref({
   'REPAYMENT CONFIRM': '#a9ad57',
-  'DECLINED REPAYMENT': '#c1430c',
   'LM REVIEW': '#d3a631',
   'LM PENDING REVIEW': '#d3a631',
   'FC REVIEW': '#d3a631',

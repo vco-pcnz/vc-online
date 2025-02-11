@@ -304,7 +304,7 @@
   const confirmTxt = computed(() => {
     let res = ''
     if (!props.isDetails) {
-      const securityTotal = props.dataInfo.security.total_money || 0
+      const securityTotal = props.dataInfo.security.total_value || 0
       const totalAmount = Number(formState.value.land_amount) + Number(formState.value.build_amount)
       if (totalAmount > securityTotal) {
         const num = tool.minus(totalAmount, securityTotal)

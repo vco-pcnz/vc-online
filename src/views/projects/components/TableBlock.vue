@@ -52,7 +52,7 @@
             <i class="iconfont" style="color: #67837e">&#xe761;</i>
             {{ record.credit.irr }}%
           </p>
-          <span class="replenish_text">{{ record.credit.irrPreset }}% · {{ (record.credit.irrPreset - record.credit.irr).toFixed(2)  }}%</span>
+          <span class="replenish_text">{{ record.credit.irrPreset }}% · {{ (record.credit.irrPreset - record.credit.irr).toFixed(2) }}%</span>
         </template>
         <template v-if="column.key === '5'">
           <p class="black">{{ tool.formatMoney(record.credit.income) }}</p>
@@ -67,8 +67,8 @@
               {{ tool.formatMoney(record.credit.loan_balance) }}
             </p>
             <div class="meter" v-if="type === 'current'">
-              <p :style="{ fontSize: '10px' }">0.0%</p>
-              <vco-meter size="small" :width="48" :value="0" />
+              <p :style="{ fontSize: '10px' }">{{ record.credit.bili }}%</p>
+              <vco-meter size="small" :width="record.credit.bili" :value="0" />
             </div>
           </div>
         </template>
@@ -127,8 +127,6 @@ const rowClick = (record, index) => {
     }
   };
 };
-
-
 
 const selectedRowKeys = ref([]); // 存放UUid
 const selectedRows = ref([]); // 存放所有选中的选项的所有内容

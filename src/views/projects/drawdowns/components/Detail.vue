@@ -2,14 +2,19 @@
   <div class="color_grey fs_2xs text-center py-3 text-uppercase uppercase" style="letter-spacing: 1px">Details</div>
 
   <div class="detail">
-    <div class="title" :style="{ background: colors[detail?.status_name]?.bg || '#b4f1db', color: colors[detail?.status_name]?.color || '#272727' }">
+    <div class="title" :style="{  color: colors[detail?.status_name]?.color || '#272727' }">
       {{ detail?.status_name }}
-      <!-- <i class="iconfont mrl-2">&#xe774;</i> -->
     </div>
+    <a-alert
+      v-if="Boolean(detail?.cancel_reason)"
+      message="Push back reason"
+      :description="detail?.cancel_reason"
+      type="error"
+      class="cancel-reason"
+    />
     <div class="my-3" style="padding-left: 5px">
       <div class="bold fs_xl">{{ detail?.name }}</div>
       <div class="color_grey fs_2xs">{{ detail?.note }}</div>
-      <div class="fs_xs mt-2" v-if="Boolean(detail?.cancel_reason)"><span style="color: #c1430c">Push back reason:</span> {{ detail?.cancel_reason }}</div>
     </div>
     <!-- <div class="flex items-center"><i class="iconfont mr-2">&#xe774;</i><span class="weight_demiBold">Documents & photos</span></div>
       <p class="color_grey mt-1 mb-3">1 file had been provided: drawdown notice</p> -->
@@ -71,10 +76,11 @@
         <a-button type="dark" class="big uppercase" :loading="accept_loading" style="width: 100%"> recall </a-button>
       </a-popconfirm>
       <template v-if="detail?.has_permission && !detail?.prev_permission">
-        <DrawdownFCDate v-if="detail?.mark === 'drawdown_fc'" :uuid="uuid" :detail="detail" :projectDetail="projectDetail" @change="update">
+        <AcceptFc v-if="detail?.mark === 'drawdown_fc'" :uuid="uuid" :detail="detail" :projectDetail="projectDetail" @change="update">
           <a-button type="dark" class="big uppercase" style="width: 100%" :loading="accept_loading"> Accept documents </a-button>
-        </DrawdownFCDate>
+        </AcceptFc>
         <a-button v-else type="dark" class="big uppercase" style="width: 100%" :loading="accept_loading" @click="accept"> Accept documents </a-button>
+        <!-- <AcceptLm></AcceptLm> -->
       </template>
     </div>
     <template v-if="detail?.has_permission">
@@ -100,7 +106,8 @@ import { navigationTo } from '@/utils/tool';
 import { CheckCircleOutlined } from '@ant-design/icons-vue';
 import DrawdownAmount from './form/DrawdownAmount.vue';
 import DrawdownBack from './form/DrawdownBack.vue';
-import DrawdownFCDate from './form/DrawdownFCDate.vue';
+import AcceptFc from './form/AcceptFc.vue';
+import AcceptLm from './form/AcceptLm.vue';
 import { forecastDarwdown, loanDsel, loanDdeclinel, loanDsaveStep, loanDrecall } from '@/api/project/loan';
 
 const { t } = useI18n();
@@ -239,22 +246,11 @@ defineExpose({
   min-height: 395px;
 
   .title {
-    background-color: #b4f1db;
-    color: #272727;
-    border-radius: 37.4px;
-    display: inline-flex;
-    justify-content: center;
     font-size: 14px;
     font-weight: 500;
-    gap: 6.8px;
     letter-spacing: 1px;
-    padding: 8px 20.4px;
     text-transform: uppercase;
-    white-space: nowrap;
-    .iconfont {
-      font-size: 14px;
-      color: #272727;
-    }
+    margin-bottom: 5px;
   }
 
   .box {
@@ -311,6 +307,16 @@ defineExpose({
     &:hover {
       background-color: rgba(227, 235, 235, 0.4);
     }
+  }
+}
+
+.cancel-reason {
+  padding: 10px !important;
+  :deep(.ant-alert-message) {
+    color: #c1430c !important;
+  }
+  :deep(.ant-alert-description) {
+    font-size: 12px !important;
   }
 }
 </style>

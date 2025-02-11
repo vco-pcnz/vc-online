@@ -75,3 +75,10 @@ export const importBankBill = (data) =>
     method: 'post',
     data
   });
+
+// 新增vco交易记录
+export const syncBankBill = (data) =>
+  request({
+    url: 'reconciliation/syncBankBill',
+    method: 'post'
+  });

@@ -27,24 +27,34 @@
 <script setup>
 import { nextTick, ref } from 'vue';
 import xeroImg from '@/assets/images/services-xero.png';
-const deadline = Date.now() + 1000 * 60 * 10;
-const countdown = ref(false);
-const update = (e) => {
-  countdown.value = true;
-};
-const pageNavRef = ref()
+import { syncBankBill } from '@/api/reconciliations';
 
+const emits = defineEmits(['update']);
+const deadline = ref();
+const countdown = ref(false);
+
+const pageNavRef = ref();
 
 const setNum = (num) => {
-  nextTick(_ => {
-    pageNavRef.value.setNum(num)
-  })
-}
-
-  // 暴露方法给父组件
-  defineExpose({
-    setNum
+  nextTick((_) => {
+    pageNavRef.value.setNum(num);
   });
+};
+
+const update = (e) => {
+  deadline.value = Date.now() + 1000 * 60 * 10;
+  countdown.value = true;
+  syncBankBill();
+};
+
+const onFinish = () => {
+  countdown.value = false;
+  emits('update');
+};
+// 暴露方法给父组件
+defineExpose({
+  setNum
+});
 </script>
 
 <style scoped lang="less">

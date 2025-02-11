@@ -22,8 +22,6 @@
             </template>
           </template>
         </a-table>
-
-        <a-empty v-if="!dataSource || !dataSource.length" />
       </a-spin>
       <div class="flex justify-center pb-5">
         <a-pagination
@@ -107,7 +105,7 @@ const columns = reactive([
     key: 'account',
     width: '16%',
     customRender: ({ record }) => {
-      return record.project.project_name + ' - ' + 'xxxx';
+      return record.project.project_name;
     }
   },
   {
@@ -131,7 +129,7 @@ const columns = reactive([
     }
   },
   {
-    title: t('收入'),
+    title: t('已收到'),
     dataIndex: 'received',
     key: 'received',
     customRender: ({ record }) => {

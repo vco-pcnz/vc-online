@@ -20,6 +20,10 @@
       <!-- {{ userStore.userInfo }} -->
       <DropdownList v-if="data" label="managers" labelKey="user_name" :dataList="data.managers" v-model:value="searchForm.uid" @change="loadData()"></DropdownList>
       <DropdownList v-if="toDay === searchForm.date" :type="2" label="requests" labelKey="project_name" searchKey="project_name" v-model:value="searchForm.apply_project_id" @change="loadData()"></DropdownList>
+      <a-radio-group v-model:value="searchForm.search" @change="loadData()" button-style="solid" size="small">
+        <a-radio-button value="open">open</a-radio-button>
+        <a-radio-button value="approve ">approve</a-radio-button>
+      </a-radio-group>
     </div>
 
     <a-button type="cyan" size="small" class="ml-3" shape="round" @click="report" :loading="downloading">Create report</a-button>
@@ -204,7 +208,8 @@ const toDay = ref(dayjs().format('YYYY-MM-DD'));
 const searchForm = ref({
   date: dayjs().format('YYYY-MM-DD'),
   uid: '',
-  apply_project_id: ''
+  apply_project_id: '',
+  search: 'open' //approve
 });
 
 const downloading = ref(false);
@@ -461,6 +466,29 @@ onMounted(() => {
   position: absolute;
   left: 0;
   bottom: 0;
+}
+
+.ant-radio-group-small .ant-radio-button-wrapper:first-child {
+  border-start-start-radius: 14px;
+  border-end-start-radius: 14px;
+}
+.ant-radio-group-small .ant-radio-button-wrapper:last-child {
+  border-start-end-radius: 14px;
+  border-end-end-radius: 14px;
+}
+.ant-radio-group-small .ant-radio-button-wrapper {
+  font-size: 12px;
+}
+.ant-radio-group-solid .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
+  background: rgba(215, 178, 126, 0.2);
+  border-color: rgba(215, 178, 126, 0.2);
+  color: #bf9425;
+}
+.ant-radio-button-wrapper:hover {
+  color: #bf9425;
+}
+.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)::before {
+  background: rgba(215, 178, 126, 0.2);
 }
 
 .CashflowForecastChart {

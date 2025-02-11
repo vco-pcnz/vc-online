@@ -1,19 +1,20 @@
 <template>
-  <layout ref="layoutRef">
+  <layout ref="layoutRef" @update="reload">
     <template #content>
       <a-spin :spinning="loading" size="large">
         <div class="sys-form-content">
           <a-row>
             <a-col :span="11">
-              <p class="title">{{ t('Review your Xero statement lines...') }}</p>
+              <p class="title">Review your Xero statement lines...</p>
             </a-col>
             <a-col :span="11" :offset="2">
               <p class="title">
-                {{ t('...then match with your transactions in VC Online') }}
+                ...then match with your transactions in VC Online
               </p>
             </a-col>
           </a-row>
           <a-row v-for="item in rowData" :key="item.id">
+            <!-- left -->
             <a-col :span="11">
               <!-- TODO -->
               <a-row :class="['content', { content_match: false }]">
@@ -33,24 +34,18 @@
                 </a-col>
               </a-row>
             </a-col>
+            <!-- ok -->
             <a-col :span="2" class="content_btn">
-              <template v-if="item.transaction">
-                <a-button
-                  :class="{ active: item.transaction.date !== item.date }"
-                  @click="showTip(item)"
-                  :disabled="item.transaction.date == item.date"
-                  >OK</a-button
-                >
-              </template>
-              <template v-else>
-                <a-button
-                  :class="{ active: item['f_date'] && item['f_type'] && item['f_name'] }"
-                  @click="showTip(item)"
-                  :disabled="!item['f_date'] || !item['f_type'] || !item['f_name']"
-                  >OK</a-button
-                >
-              </template>
+              <a-button
+                :loading="ok_loading && formState.id == item.id"
+                :class="{ active: (!item.transaction && item['f_date'] && item['f_fee'] && item['f_note']) || item.transaction }"
+                :disabled="!item.transaction && (!item['f_date'] || !item['f_fee'] || !item['f_note'])"
+                @click="showTip(item)"
+              >
+                OK
+              </a-button>
             </a-col>
+            <!-- right -->
             <a-col :span="11" v-if="!!item.transaction">
               <a-row :class="['content', { content_match: true }]">
                 <a-col :span="12" class="content_cell">
@@ -73,7 +68,7 @@
                   <template #header>
                     <span class="xs_text">Change Record Date</span>
                   </template>
-                  <a-date-picker valueFormat="YYYY-MM-DD" :disabled="false" placeholder="" />
+                  <a-date-picker valueFormat="YYYY-MM-DD" v-model:value="item['f_date']" placeholder="" />
                 </a-collapse-panel>
               </a-collapse>
             </a-col>
@@ -85,13 +80,13 @@
                 </a-col>
                 <a-col :span="12" class="empty_slip">
                   <p class="xs_text">When</p>
-                  <a-select v-model:value="item['f_name']" :options="WHAT_OPTIONS"></a-select>
+                  <a-select v-model:value="item['f_fee']" :options="item.fee_type" :fieldNames="{ label: 'name', value: 'value' }"></a-select>
                 </a-col>
               </a-row>
               <a-row>
                 <a-col :span="24" class="empty_slip why_slip">
                   <p class="xs_text">Why</p>
-                  <a-select v-model:value="item['f_type']">
+                  <a-select v-model:value="item['f_note']">
                     <a-select-option v-for="item in WHY_OPTIONS" :key="item.value" :value="item.value">
                       {{ item.value }}
                     </a-select-option>
@@ -105,20 +100,12 @@
         <a-empty v-if="!rowData || !rowData.length" />
       </a-spin>
       <div class="flex justify-center pb-5">
-        <a-pagination
-          size="small"
-          :total="total"
-          :pageSize="pagination.limit"
-          :current="pagination.page"
-          show-quick-jumper
-          :show-total="(total) => t('共{0}条', [total])"
-          @change="setPaginate"
-        />
+        <a-pagination size="small" :total="total" :pageSize="pagination.limit" :current="pagination.page" show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
       </div>
     </template>
   </layout>
 
-  <TipModal v-model:visible="visible" :formState="formState"></TipModal>
+  <TipModal v-model:visible="visible" :formState="formState" @submit="submit"></TipModal>
 </template>
 
 <script setup>
@@ -126,18 +113,11 @@ import { ref, reactive, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import Layout from './components/layout.vue';
 import TipModal from './components/tipModal.vue';
-import { reconciliationList } from '@/api/reconciliations';
+import { reconciliationList, addTransaction, checkMatchBill } from '@/api/reconciliations';
 import tool from '@/utils/tool';
 
 const visible = ref(false);
 const { t } = useI18n();
-const WHAT_OPTIONS = [
-  { value: 'legal-fee', label: 'Legal fee' },
-  { value: 'broker-fee', label: 'Broker fee' },
-  { value: 'other-fee', label: 'Other fee' },
-  { value: 'repayment', label: 'Repayment' },
-  { value: 'application-fee', label: 'Application fee' }
-];
 const WHY_OPTIONS = [
   { value: 'Commitment payment received on [Date on bank statement]' },
   { value: 'Equity Injection or Project Contribution' },
@@ -149,6 +129,7 @@ const WHY_OPTIONS = [
 const layoutRef = ref();
 const total = ref(0);
 const loading = ref(false);
+const ok_loading = ref(false);
 const pagination = ref({
   page: 1,
   limit: 10
@@ -168,6 +149,15 @@ const loadData = () => {
   reconciliationList(pagination.value)
     .then((res) => {
       total.value = res.count;
+      if (res.data.length) {
+        res.data.map((item) => {
+          if (item.fee_type.length) {
+            item.fee_type.map((_item) => {
+              _item['value'] = JSON.stringify(_item);
+            });
+          }
+        });
+      }
       rowData.value = res.data;
       layoutRef.value.setNum(total.value);
     })
@@ -179,7 +169,47 @@ const loadData = () => {
 const formState = ref({});
 const showTip = (val) => {
   formState.value = val;
-  visible.value = true;
+  if (val.f_date && val.f_date !== val.date) {
+    visible.value = true;
+  } else if (val.transaction && val.date !== val.transaction.date) {
+    visible.value = true;
+  } else {
+    submit();
+  }
+};
+const submit = () => {
+  let params = {};
+  let ajaxFn = null;
+  if (formState.value.transaction) {
+    // 对账
+    ajaxFn = checkMatchBill;
+  } else {
+    // 新增
+    params = {
+      apply_project_id: formState.value.project ? formState.value.project.id : 0,
+      amount: formState.value.amount,
+      date: formState.value.f_date,
+      note: formState.value.f_note,
+      ...JSON.parse(formState.value.f_fee)
+    };
+    ajaxFn = addTransaction;
+  }
+  ok_loading.value = true;
+  console.log(params)
+  return;
+  addTransaction(params)
+    .then((res) => {
+      reload();
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+  console.log(params);
+};
+
+const reload = () => {
+  pagination.value.page = 1;
+  loadData();
 };
 
 onMounted((_) => {

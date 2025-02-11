@@ -1,5 +1,5 @@
 <template>
-  <layout ref="layoutRef">
+  <layout ref="layoutRef" @update="reload">
     <template #content>
       <a-spin :spinning="loading" size="large">
         <a-table :data-source="dataSource" :columns="columns" :pagination="false">
@@ -10,7 +10,6 @@
             </template>
           </template>
         </a-table>
-        <a-empty v-if="!dataSource || !dataSource.length" />
       </a-spin>
       <div class="flex justify-center pb-5">
         <a-pagination
@@ -47,7 +46,7 @@ const columns = reactive([
   },
   {
     title: t('委托人'),
-    dataIndex: 'client',
+    dataIndex: 'client_name',
     key: 'client',
     width: '16%',
     customRender: ({ record }) => {
@@ -71,14 +70,16 @@ const columns = reactive([
     title: t('支出'),
     dataIndex: 'spent',
     key: 'spent',
+    width: '150px',
     customRender: ({ record }) => {
       if (record.amount > 0) return tool.formatMoney(Math.abs(record.amount));
     }
   },
   {
-    title: t('收入'),
+    title: t('已收到'),
     dataIndex: 'received',
     key: 'received',
+    width: '150px',
     customRender: ({ record }) => {
       if (record.amount < 0) return tool.formatMoney(Math.abs(record.amount));
     }
@@ -86,7 +87,8 @@ const columns = reactive([
   {
     title: t('状态'),
     dataIndex: 'status',
-    key: 'status'
+    key: 'status',
+    width:'200px'
   }
 ]);
 
@@ -120,6 +122,13 @@ const loadData = () => {
       loading.value = false;
     });
 };
+
+
+const reload = () => {
+  pagination.value.page = 1;
+  loadData();
+};
+
 
 onMounted(() => {
   loadData();

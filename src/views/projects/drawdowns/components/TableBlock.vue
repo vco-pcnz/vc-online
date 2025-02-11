@@ -11,7 +11,7 @@
     <div v-if="tableData.length" class="table-body">
       <template v-for="item in tableData" :key="item.id">
         <ul class="table-col tr" :class="{ active: active_id == item.id, declined: item.status_name === 'DECLINED DRAWDOWN' }" @click="viewDetail(item)">
-          <li><div class="circle"></div></li>
+          <li><div class="circle" :class="{solid:item.status == 2}"></div></li>
           <li>
             <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.name" style="width: 200px">{{ item.name }}</p>
           </li>
@@ -147,6 +147,10 @@ watch(
       background-color: transparent;
       border: 2px solid;
       border-color: #181818;
+
+      &.solid {
+        background: #181818;
+      }
     }
     &:nth-child(1) {
       text-align: center;

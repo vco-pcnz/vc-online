@@ -400,7 +400,7 @@
 
       currentParams.value = params
 
-      if (!id && type === 4) {
+      if (type === 4) {
         changeType.value = 2
         saveLoading.value = true
         sureHandle()

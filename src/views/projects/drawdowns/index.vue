@@ -8,7 +8,7 @@
             <div class="flex items-center"><i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">Help borrower</span></div>
             <p class="color_grey mt-1 mb-3">You can help to create drawdown on their behalf.</p>
             <drawdownre-quest :uuid="uuid" @change="update(true)">
-              <a-button type="brown" shape="round" size="small">{{ t('默认开始') }}</a-button>
+              <a-button type="brown" shape="round" size="small">create drawdown</a-button>
             </drawdownre-quest>
           </div>
           <div v-else-if="hasPermission('projects:drawdowns:add')" class="pt-5" style="padding-top: 65px">

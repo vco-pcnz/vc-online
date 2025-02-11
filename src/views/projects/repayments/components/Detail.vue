@@ -29,7 +29,13 @@
       </div>
     </div>
 
-    <div v-if="detail?.prev_permission && ['repayment_lm', 'REPAYMENT CONFIRM'].includes(detail?.mark)"  class="mt-10">
+    <!-- <div v-if="detail?.prev_permission && ['repayment_lm', 'REPAYMENT CONFIRM'].includes(detail?.mark)"  class="mt-10">
+      <a-popconfirm :title="t('您确实要撤回该请求吗？')" @confirm="recall">
+        <a-button type="dark" class="big uppercase" :loading="accept_loading" style="width: 100%">{{ t('撤回申请') }}</a-button>
+      </a-popconfirm>
+    </div> -->
+    
+    <div v-if="detail?.prev_permission"  class="mt-10">
       <a-popconfirm :title="t('您确实要撤回该请求吗？')" @confirm="recall">
         <a-button type="dark" class="big uppercase" :loading="accept_loading" style="width: 100%">{{ t('撤回申请') }}</a-button>
       </a-popconfirm>

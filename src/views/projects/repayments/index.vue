@@ -6,7 +6,7 @@
           <MeterStat :uuid="uuid" :projectDetail="projectDetail" v-if="Boolean(uuid)" ref="MeterStatRef"></MeterStat>
           <template v-if="hasPermission('projects:repayments:add')">
             <drawdownre-quest v-if="isNormalUser" :uuid="uuid" @change="update">
-              <a-button type="dark" class="big uppercase fs_2xs mt-10">{{ t('还款申请') }}</a-button>
+              <a-button type="dark" class="big uppercase fs_2xs mt-20">{{ t('还款申请') }}</a-button>
             </drawdownre-quest>
             <div v-else class="HelpBorrower">
               <div class="flex items-center"><i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">{{ t('帮助借款人') }}</span></div>

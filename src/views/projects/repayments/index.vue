@@ -1,21 +1,14 @@
 <template>
-  <detail-layout active-tab="drawdowns" @getProjectDetail="getProjectDetail">
+  <detail-layout active-tab="repayments" @getProjectDetail="getProjectDetail">
     <template #content>
       <div class="ProjectDrawdowns">
-        <div :class="{ grid: hasPermission('projects:drawdowns:add') || hasPermission('projects:drawdowns:add:lm') }" class="mb-12">
-          <MeterStat :uuid="uuid" v-if="Boolean(uuid)" ref="MeterStatRef"></MeterStat>
-          <div class="HelpBorrower" v-if="hasPermission('projects:drawdowns:add:lm')">
-            <div class="flex items-center"><i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">Help borrower</span></div>
-            <p class="color_grey mt-1 mb-3">You can help to create drawdown on their behalf.</p>
-            <drawdownre-quest :uuid="uuid" @change="update(true)">
-              <a-button type="brown" shape="round" size="small">{{ t('默认开始') }}</a-button>
-            </drawdownre-quest>
-          </div>
-          <div v-if="hasPermission('projects:drawdowns:add')" class="pt-5">
-            <p class="fs_2xl bold">0 drawdowns received</p>
-            <p class="mb-4 bold">1 drawdown pending -0% of loan drawn</p>
-            <drawdownre-quest :uuid="uuid" @change="update(true)">
-              <a-button type="dark" class="big uppercase fs_2xs"> REQUEST DRAWDOWN </a-button>
+        <div :class="{ grid: hasPermission('projects:repayments:add') }" class="mb-12">
+          <MeterStat :uuid="uuid" :projectDetail="projectDetail" v-if="Boolean(uuid)" ref="MeterStatRef"></MeterStat>
+          <div class="HelpBorrower" v-if="hasPermission('projects:repayments:add')">
+            <div class="flex items-center"><i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">{{ t('创建还款') }}</span></div>
+            <p class="color_grey mt-1 mb-3">{{ t('您可以帮助他们创建还款请求') }}</p>
+            <drawdownre-quest :uuid="uuid" @change="update">
+              <a-button type="brown" shape="round" size="small">{{ t('点击创建') }}</a-button>
             </drawdownre-quest>
           </div>
         </div>
@@ -29,7 +22,7 @@
             </div>
           </a-spin>
           <div>
-            <Detail ref="detailRef" :projectDetail="projectDetail" :uuid="uuid" :detail="detail_info" v-if="Boolean(uuid && detail_info && detail_info.id)" @update="update(false)"></Detail>
+            <Detail ref="detailRef" :projectDetail="projectDetail" :uuid="uuid" :detail="detail_info" v-if="Boolean(uuid && detail_info && detail_info.id)" @update="loadData"></Detail>
           </div>
         </div>
       </div>
@@ -47,7 +40,7 @@ import TableBlock from './components/TableBlock.vue';
 import Detail from './components/Detail.vue';
 import DrawdownreQuest from './components/form/DrawdownRequest.vue';
 import { hasPermission } from '@/directives/permission/index';
-import { loanDrawdown } from '@/api/project/loan';
+import { loanRepayment } from '@/api/project/loan';
 import { useRoute } from 'vue-router';
 const route = useRoute();
 
@@ -72,10 +65,8 @@ const setPaginate = (page, limit) => {
   loadData();
 };
 
-const update = (val) => {
-  if (val) {
-    pagination.value.page = 1;
-  }
+const update = () => {
+  pagination.value.page = 1;
   loadData();
   detailRef.value.loadData();
   MeterStatRef.value.loadData();
@@ -85,8 +76,13 @@ const tableData = ref([]);
 
 const loadData = () => {
   loading.value = true;
-  loanDrawdown({ uuid: uuid.value, ...pagination.value })
+  loanRepayment({ uuid: uuid.value, ...pagination.value })
     .then((res) => {
+      const data = res.data || []
+      data.forEach(item => {
+        item.amount = Math.abs(Number(item.amount))
+        item.apply_amount = Math.abs(Number(item.apply_amount))
+      })
       tableData.value = res.data;
       total.value = res.count;
     })

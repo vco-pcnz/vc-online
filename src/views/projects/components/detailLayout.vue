@@ -2,8 +2,7 @@
   <vco-page-panel :title="(detail && detail.base.project_apply_sn) || ''" @back="back">
     <div class="TabsPanel-Tab">
       <a-button v-for="item in panes" :key="item.key" @click="onChange(item.key)" :class="`tab-button ${item.key === props.activeTab ? 'active-tab' : ''}`">
-        {{ item.label }}
-        {{ item.extraInfo ? `(${item.extraInfo})` : '' }}
+        {{ item.title }}
       </a-button>
     </div>
   </vco-page-panel>
@@ -11,43 +10,43 @@
 </template>
 
 <script setup>
-import { reactive, onMounted, ref } from 'vue';
+import { reactive, onMounted, ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useUserStore } from '@/store';
 import { useRouter, useRoute } from 'vue-router';
 import { projectDetailApi } from '@/api/process';
+import { cloneDeep } from 'lodash';
 
 const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
 
+const userStore = useUserStore();
+
 const props = defineProps(['title', 'activeTab']);
 const emits = defineEmits(['getProjectDetail']);
 
-const panes = reactive([
-  {
-    key: 'about',
-    label: t('关于')
-  },
-  {
-    key: 'drawdowns',
-    label: t('提款')
-  },
-  {
-    key: 'schedule',
-    label: t('明细表'),
-    extraInfo: 0
-  },
-  {
-    key: 'forecast',
-    label: t('预测'),
-    extraInfo: 0
-  },
-  {
-    key: 'documents',
-    label: t('项目文件'),
-    extraInfo: 0
-  }
-]);
+const panes = computed(() => {
+  let arr = []
+  const data = userStore.routerInfo || [];
+  const dataArr = cloneDeep(data);
+
+  const projectsArr = dataArr.find(item => item.path === '/projects')
+  const childArr = projectsArr.children || []
+  const detailsArr = childArr.find(item => item.path === '/projects/details')
+  const child = detailsArr.children || []
+
+  arr = child
+    .filter((item) => !item.meta.hide)
+    .map((item) => {
+      return {
+        title: t(item.meta.title),
+        path: item.path,
+        key: item.path.slice(item.path.lastIndexOf('/') + 1)
+      };
+    });
+  return arr
+})
 
 const onChange = (key) => {
   router.push(`/projects/${key}?uuid=` + route.query.uuid);

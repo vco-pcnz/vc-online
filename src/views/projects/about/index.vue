@@ -1,5 +1,5 @@
 <template>
-  <detail-layout title="test1212" active-tab="about">
+  <detail-layout title="" active-tab="about">
     <template #content>
       <div class="project-container">
         <div class="project-info">

@@ -55,3 +55,19 @@ export const cashFlowListExport = (params) =>
     method: 'get',
     params
   });
+
+// Cashflow Export
+export const transactions = (params) =>
+  request({
+    url: 'project/forecast/transactions',
+    method: 'get',
+    params
+  });
+
+// Cashflow Export
+export const forecast = (params) =>
+  request({
+    url: 'project/forecast/forecast',
+    method: 'get',
+    params
+  });

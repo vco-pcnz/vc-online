@@ -219,6 +219,7 @@ const handlePathChange = () => {
       text-align: center;
       position: relative;
       top: -4px;
+      min-width: 30px;
     }
   }
 }

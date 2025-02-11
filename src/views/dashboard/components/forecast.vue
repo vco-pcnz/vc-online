@@ -1,10 +1,11 @@
 <template>
   <div class="flex-1">
     <div class="flex title mb-10">
-      <span class="fs_2xl">Transactions</span>
+      <span class="fs_2xl">Forecast</span>
       <SelectDate :list="dates" @change="setDate"></SelectDate>
-      <a-button type="brown" size="small" shape="round" @click="change">{{ type !== 2 ? 'for repayments' : 'for drawdowns' }}</a-button>
+      <a-button type="brown" size="small" shape="round" @click="change">{{ type ? 'for repayments' : 'for drawdowns' }}</a-button>
     </div>
+
     <a-spin :spinning="loading" size="large">
       <ul class="CashflowMiniStat_list">
         <li class="item flex items-center" v-for="item in data?.list" :key="item.uuid">
@@ -33,7 +34,7 @@
       </ul>
     </a-spin>
     <div class="flex items-center justify-end gap-5 my-5">
-      <i class="iconfont" style="font-size: 38px; color: #b8cdcc">&#xe78f;</i>
+      <i class="iconfont" style="font-size: 38px; color: #b8cdcc">&#xe721;</i>
       <div>
         <vco-number :value="data?.total_amount" :precision="2" :bold="true"></vco-number>
         <p class="color_grey fs_xs">Total for 16 Dec ‘24 - 22 Dec ‘24</p>
@@ -47,7 +48,7 @@
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import SelectDate from './SelectDate.vue';
-import { transactions, cashFlowListExport } from '@/api/project/forecast';
+import { forecast, cashFlowListExport } from '@/api/project/forecast';
 
 const { t } = useI18n();
 
@@ -82,7 +83,7 @@ const loading = ref(false);
 const search_key = ref();
 const loadData = () => {
   loading.value = true;
-  transactions({ search_key: search_key.value, type: type.value })
+  forecast({ search_key: search_key.value, type: type.value })
     .then((res) => {
       data.value = res.data;
     })
@@ -133,9 +134,9 @@ const setDate = (val) => {
       border-radius: 4px;
       height: 24px;
       .value {
-        background-color: #181818;
-        border-color: hsla(0, 0%, 9%, 0.7);
-        box-shadow: 0 3px 6px -4px hsla(0, 0%, 9%, 0.24), 0 6px 16px 0 hsla(0, 0%, 9%, 0.16), 0 9px 28px 8px hsla(0, 0%, 9%, 0.1);
+        background-color: #b4d8d8;
+        border-color: #569695;
+        box-shadow: 0 3px 6px -4px rgba(86, 150, 149, 0.36), 0 6px 16px 0 rgba(86, 150, 149, 0.24), 0 9px 28px 8px rgba(86, 150, 149, 0.15);
         border-radius: 4px;
         height: 24px;
       }

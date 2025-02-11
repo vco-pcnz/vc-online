@@ -2,7 +2,10 @@
   <div>
     <CashflowForecast></CashflowForecast>
     <Cashflow></Cashflow>
-    <transactions></transactions>
+    <div class="flex gap-5 mt-5">
+      <transactions></transactions>
+      <forecast></forecast>
+    </div>
     <ForecastPerformance></ForecastPerformance>
   </div>
 </template>
@@ -12,6 +15,7 @@ import { ref } from 'vue';
 import CashflowForecast from './components/CashflowForecast/index.vue';
 import Cashflow from './components/Cashflow.vue';
 import transactions from './components/transactions.vue';
+import forecast from './components/forecast.vue';
 import ForecastPerformance from './components/Performance.vue';
 </script>
 

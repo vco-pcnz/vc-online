@@ -1,7 +1,7 @@
 <template>
   <div class="flex title mb-10">
     <span class="fs_2xl">Cashflow</span>
-    <SelectDate @change="loadData"></SelectDate>
+    <SelectDate :list="dates" @change="loadData"></SelectDate>
   </div>
 
   <a-spin :spinning="loading" size="large">
@@ -93,6 +93,17 @@ const data = ref({
     end_date: ''
   }
 });
+
+const dates = ref([
+  { name: 'Current week', code: 'current_week' },
+  { name: 'Previous week', code: 'previous_week' },
+  { name: 'Previous month', code: 'previous_month' },
+  { name: 'Previous 2 months', code: 'previous_two_month' },
+  { name: 'Upcoming week', code: 'upcoming_week' },
+  { name: 'Upcoming month', code: 'upcoming_month' },
+  { name: 'Upcoming 2 months', code: 'upcoming_two_month' }
+]);
+
 const downloading = ref(false);
 const report = () => {
   downloading.value = true;
@@ -107,7 +118,7 @@ const report = () => {
 
 const search_key = ref();
 const loadData = (val, pagination) => {
-  loading.value = false;
+  loading.value = true;
   pagination = pagination ? pagination : { page: 1, limit: 10 };
   search_key.value = val || '';
   cashFlowList({ search_key: search_key.value, ...pagination })

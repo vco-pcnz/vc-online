@@ -40,22 +40,14 @@ import tool from '@/utils/tool';
 const emits = defineEmits(['change']);
 const { t } = useI18n();
 
-const props = defineProps(['value']);
+const props = defineProps(['list']);
 
 const value = ref('');
 const visible = ref(false);
 const date = ref(null);
 const open = ref(false);
 
-const list = ref([
-  { name: 'Current week', code: 'current_week' },
-  { name: 'Previous week', code: 'previous_week' },
-  { name: 'Previous month', code: 'previous_month' },
-  { name: 'Previous 2 months', code: 'previous_two_month' },
-  { name: 'Upcoming week', code: 'upcoming_week' },
-  { name: 'Upcoming month', code: 'upcoming_month' },
-  { name: 'Upcoming 2 months', code: 'upcoming_two_month' }
-]);
+
 
 const showDate = () => {
   date.value = null;
@@ -63,8 +55,8 @@ const showDate = () => {
 };
 
 const change = (index) => {
-  value.value = list.value[index].name;
-  emits('change', list.value[index].code);
+  value.value = props.list[index].name;
+  emits('change', props.list[index].code);
   visible.value = false;
 };
 

@@ -20,10 +20,12 @@
       <!-- {{ userStore.userInfo }} -->
       <DropdownList v-if="data" label="managers" labelKey="user_name" :dataList="data.managers" v-model:value="searchForm.uid" @change="loadData()"></DropdownList>
       <DropdownList v-if="toDay === searchForm.date" :type="2" label="requests" labelKey="project_name" searchKey="project_name" v-model:value="searchForm.apply_project_id" @change="loadData()"></DropdownList>
-      <a-radio-group v-model:value="searchForm.search" @change="loadData()" button-style="solid" size="small">
+      <!-- <a-radio-group v-model:value="searchForm.search" @change="loadData()" button-style="solid" size="small">
         <a-radio-button value="open">open</a-radio-button>
         <a-radio-button value="approve ">approve</a-radio-button>
-      </a-radio-group>
+      </a-radio-group> -->
+      
+      <a-button type="brown" size="small" shape="round" @click="setSearchFormSearch">for {{ searchForm.search }}</a-button>
     </div>
 
     <a-button type="cyan" size="small" class="ml-3" shape="round" @click="report" :loading="downloading">Create report</a-button>
@@ -223,6 +225,11 @@ const report = () => {
       downloading.value = false;
     });
 };
+
+const setSearchFormSearch = () => {
+  searchForm.value.search = searchForm.value.search == 'open' ? 'approve' : 'open'
+  loadData()
+}
 
 const isAllElementsEqual = ref(false);
 const areAllElementsEqual = (arr) => {

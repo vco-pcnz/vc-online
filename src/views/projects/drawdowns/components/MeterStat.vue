@@ -4,7 +4,7 @@
     <div class="MeterStat MeterStat_type_charcoal">
       <div class="MeterStat-Meter"></div>
       <div>
-        <p>Current balance</p>
+        <p>Loan withdrawal</p>
         <vco-number :bold="true" :value="statistics?.loanWithdrawal" :precision="2" style="margin-bottom: 2px"></vco-number>
         <p class="color_grey flex">
           <vco-number :value="statistics?.available" :precision="2" size="fs_xs" color="#888" class="mr-2"></vco-number> available</p>

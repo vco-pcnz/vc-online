@@ -61,8 +61,8 @@
           </documents-upload>
         </template>
 
-        <div class="flex justify-center">
-          <a-button @click="save" type="dark" class="save big uppercase" :loading="loading">
+        <div class="flex justify-center mt-5">
+          <a-button @click="save" type="dark" class="save big uppercase shadow bold" :loading="loading">
             {{ t('提交') }}
           </a-button>
         </div>

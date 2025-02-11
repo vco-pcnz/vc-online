@@ -254,18 +254,14 @@ const getDataInfo = () => {
             } else if (item.type === 4) {
               item.repayment = tool.formatMoney(item.amount);
             } else {
-              if (item.type === 0) {
-                if (!index) {
-                  item.fee = tool.formatMoney(item.amount);
-                } else {
-                  if (Number(item.amount) > 0) {
-                    item.drawdown = tool.formatMoney(item.amount);
-                  } else {
-                    item.repayment = tool.formatMoney(item.amount);
-                  }
-                }
-              } else {
+              if (item.is_fee) {
                 item.fee = tool.formatMoney(item.amount);
+              } else {
+                if (Number(item.amount) > 0) {
+                  item.drawdown = tool.formatMoney(item.amount);
+                } else {
+                  item.repayment = tool.formatMoney(item.amount);
+                }
               }
             }
           });

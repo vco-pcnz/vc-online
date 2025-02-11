@@ -115,10 +115,11 @@ onMounted(() => {
     display: grid;
     gap: 36px;
     grid-template-columns: 3fr 1fr;
+    align-items: start;
   }
 
   .HelpBorrower {
-    min-height: 160px;
+    min-height: 120px;
     padding: 30px;
     background-color: #f0f0f0;
     border: 1px solid #e2e5e2;

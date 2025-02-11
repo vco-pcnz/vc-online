@@ -24,6 +24,38 @@ export const loanDstatistics = (params) =>
     params
   });
 
+// 还款数据统计
+export const loanRstatistics = (params) =>
+  request({
+    url: 'project/loan/rstatistics',
+    method: 'get',
+    params
+  });
+
+// 还款申请--新增
+export const loanRDedit = (data) =>
+  request({
+    url: 'project/loan/redit',
+    method: 'post',
+    data
+  });
+
+// 还款申请-列表
+export const loanRepayment = (params) =>
+  request({
+    url: 'project/loan/repayment',
+    method: 'get',
+    params
+  });
+
+// lm修改实际还款金额
+export const loanRchange = (data) =>
+  request({
+    url: 'project/loan/rchange',
+    method: 'post',
+    data
+  });
+
 // 预测放款数据darwdown
 export const forecastDarwdown = (params) =>
   request({
@@ -56,10 +88,26 @@ export const loanDsaveStep = (data) =>
     data
   });
 
+// 还款审核同意
+export const loanRsaveStep = (data) =>
+  request({
+    url: 'project/loan/rsaveStep',
+    method: 'post',
+    data
+  });
+
 // 放款召回
 export const loanDrecall = (data) =>
   request({
     url: 'project/loan/drecall',
+    method: 'post',
+    data
+  });
+
+// 还款款召回
+export const loanRrecall = (data) =>
+  request({
+    url: 'project/loan/rrecall',
     method: 'post',
     data
   });
@@ -72,10 +120,26 @@ export const loanDdeclinel = (data) =>
     data
   });
 
+// 还款款拒绝
+export const loanRdeclinel = (data) =>
+  request({
+    url: 'project/loan/rdecline',
+    method: 'post',
+    data
+  });
+
 // 放款退回上一步
 export const loanDgoBack = (data) =>
   request({
     url: 'project/loan/dgoBack',
+    method: 'post',
+    data
+  });
+
+// 还款款退回上一步
+export const loanRgoBack = (data) =>
+  request({
+    url: 'project/loan/rgoBack',
     method: 'post',
     data
   });

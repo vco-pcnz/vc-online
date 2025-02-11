@@ -1,36 +1,60 @@
 <template>
-  <ul class="Conditions">
-    <li class="Conditions-item flex items-center" v-for="item in 3" :key="item">
-      <a-checkbox :checked="item.checked"></a-checkbox>
-      <div class="CalendarDate">
-        <p class="CalendarDate-Label">Dec</p>
-        <p class="CalendarDate-Value">16</p>
-        <p class="CalendarDate-Label">Mon</p>
-      </div>
-      <div class="VerticalDivider"></div>
-      <div class="flex-1">
-        <p class="Text Text_cross Box" style="margin-bottom: 6px">111</p>
-        <div class="flex items-center">
-          <vco-avatar src="" :radius="true" :round="true" :size="18" />
-          <span class="name">Created by lm</span>
+  <a-spin :spinning="loading" size="large">
+    <ul class="Conditions">
+      <li class="Conditions-item flex items-center" v-for="item in list" :key="item">
+        <a-checkbox :checked="item.checked"></a-checkbox>
+        <div class="CalendarDate">
+          <p class="CalendarDate-Label">Dec</p>
+          <p class="CalendarDate-Value">16</p>
+          <p class="CalendarDate-Label">Mon</p>
         </div>
-        <div class="flex items-center mt-1">
-          <vco-avatar src="" :radius="true" :round="true" :size="18" />
-          <span class="name black"> Borrower's</span>
+        <div class="VerticalDivider"></div>
+        <div class="flex-1">
+          <p class="Text Text_cross Box" style="margin-bottom: 6px">111</p>
+          <div class="flex items-center">
+            <vco-avatar src="" :radius="true" :round="true" :size="18" />
+            <span class="name">Created by lm</span>
+          </div>
+          <div class="flex items-center mt-1">
+            <vco-avatar src="" :radius="true" :round="true" :size="18" />
+            <span class="name black"> Borrower's</span>
+          </div>
         </div>
-      </div>
-    </li>
-  </ul>
+      </li>
+    </ul>
+  </a-spin>
   <a-button type="brown" shape="round" size="small" class="mt-5">add condition</a-button>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { projectDetailConditionList } from '@/api/process';
 
 const { t } = useI18n();
 
-const props = defineProps([]);
+const props = defineProps(['currentId']);
+
+const loading = ref(false);
+const list = ref([]);
+watch(
+  () => props.currentId,
+  (val) => {
+    if (val) {
+      loading.value = false;
+      projectDetailConditionList({ uuid: props.currentId })
+        .then((res) => {
+          list.value = res;
+        })
+        .finally((_) => {
+          loading.value = false;
+        });
+    }
+  },
+  {
+    immediate: true
+  }
+);
 </script>
 
 <style scoped lang="less">

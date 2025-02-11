@@ -7,3 +7,19 @@ export const listProject = (params) =>
     method: 'get',
     params
   });
+
+// open项目详情
+export const projectDetail = (params) =>
+  request({
+    url: 'projectDetail/detail',
+    method: 'get',
+    params
+  });
+
+// open项目详情
+export const historyList = (params) =>
+  request({
+    url: 'projectDetail/historyList',
+    method: 'get',
+    params
+  });

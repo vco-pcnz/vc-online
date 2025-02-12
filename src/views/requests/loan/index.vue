@@ -164,7 +164,7 @@ import useUserStore from '@/store/modules/user';
 
 const { t, locale } = useI18n();
 
-const { currentParams, tableRef, tableLoading, pageObj, tableData, pageChange, getTableData } = useTableList(projectListApi, {}, false);
+const { currentParams, tableRef, tableLoading, pageObj, tableData, otherInfo, pageChange, getTableData } = useTableList(projectListApi, {}, false);
 
 const userStore = useUserStore();
 const isNormalUser = computed(() => userStore.isNormalUser);
@@ -324,9 +324,12 @@ watch([sortType, sortValue], ([newSortType, newSortValue]) => {
 watch(
   tableData,
   () => {
-    tabData.value.forEach(item => item.num = 0)
-    const currentTabInfo = tabData.value.find(item => item.value === currentTab.value)
-    currentTabInfo.num = pageObj.value.total
+    if (otherInfo.value && otherInfo.value.num) {
+      const numInfo = otherInfo.value.num
+      tabData.value.forEach(item => {
+        item.num = numInfo[item.value] || 0
+      })
+    }
   }
 )
 

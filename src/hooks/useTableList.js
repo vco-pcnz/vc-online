@@ -12,6 +12,7 @@ export function useTableList(ajaxFn, params = {}, immediate = true) {
   const paramsRef = ref()
   const tableData = ref([])
   const tableOtherData = ref(null)
+  const otherInfo = ref(null)
 
   if (params && params.size) {
     pageSize.value = params.size
@@ -40,6 +41,7 @@ export function useTableList(ajaxFn, params = {}, immediate = true) {
       .then((res) => {
         tableData.value = res.data || []
         pageTotal.value = res.count || 0
+        otherInfo.value = res.otherInfo || null
 
         currentParams.value = argObj
         tableLoading.value = false
@@ -87,6 +89,7 @@ export function useTableList(ajaxFn, params = {}, immediate = true) {
     pageObj,
     tableData,
     tableOtherData,
+    otherInfo,
     pageChange,
     searchReset,
     getTableData

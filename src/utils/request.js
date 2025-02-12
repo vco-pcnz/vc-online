@@ -60,12 +60,13 @@ function createService() {
         response.data.success = false;
       }
 
-      const { code, data, msg, count } = response.data;
+      const { code, data, msg, count, otherInfo } = response.data;
       if (code === 0) {
         if (count || count === 0) {
           return Promise.resolve({
             count,
             data,
+            otherInfo
           });
         } else {
           return Promise.resolve(data);

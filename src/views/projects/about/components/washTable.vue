@@ -5,6 +5,11 @@
       <div class="content sys-form-content">
         <a-table :columns="columns" :data-source="tableData" :pagination="false" :scroll="{ x: '100%' }">
           <template #bodyCell="{ column, record }">
+            <template v-if="column.dataIndex === 'avatar'">
+              <div class="flex justify-center">
+                <vco-avatar :size="36" :src="record.avatar" :radius="true"></vco-avatar>
+              </div>
+            </template>
             <template v-if="column.dataIndex === 'name'">
               {{ record.name }}
             </template>
@@ -53,6 +58,7 @@ const pagination = ref({
 });
 
 const columns = reactive([
+  { title: t('头像'), dataIndex: 'avatar', width: 80, align: 'center', ellipsis: true },
   { title: t('名称'), dataIndex: 'name', width: 150, align: 'left', ellipsis: true },
   { title: t('类型'), dataIndex: 'cate', width: 100, align: 'center', ellipsis: true },
   { title: t('邮箱'), dataIndex: 'email', width: 150, align: 'left', ellipsis: true },
@@ -67,13 +73,6 @@ const loadData = () => {
     .then((res) => {
       tableData.value = res.data;
       total.value = res.count;
-      if (selectAll.value == 'all') {
-        selectAll.value = '';
-        onSelectAll('all');
-      } else {
-        selectAll.value = '';
-        onSelectAll('');
-      }
     })
     .finally((_) => {
       loading.value = false;

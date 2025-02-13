@@ -37,7 +37,7 @@
         </a-table>
 
         <div class="flex justify-center">
-          <a-button @click="save" type="dark" class="save big uppercase" :loading="loading" :disabled="!orgs.length">
+          <a-button @click="save" type="dark" class="save big uppercase" :loading="loading" >
             {{ t('提交') }}
           </a-button>
         </div>

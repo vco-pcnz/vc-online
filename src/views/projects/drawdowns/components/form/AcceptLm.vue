@@ -4,12 +4,12 @@
     <a-modal :width="900" :open="visible" title="Accept documents" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content">
         <div class="flex justify-end">
-          <vco-choose-user ref="vcoChooseUserRef" url="stake/selStake" @change="checkUser">
-            <a-button type="brown" shape="round" size="small" @click="vcoChooseUserRef.init()">Select stakeholders</a-button>
+          <vco-choose-user ref="vcoChooseUserRef" url="stake/selStake" v-model:list="chooseUsers" :isMultiple="true" @change="checkUser">
+            <a-button type="brown" shape="round" size="small" @click="showChooseUser">Select stakeholders</a-button>
           </vco-choose-user>
         </div>
         <a-table :columns="columns" :data-source="orgs" :pagination="false" :scroll="{ x: '100%' }">
-          <template #bodyCell="{ column, record,index }">
+          <template #bodyCell="{ column, record, index }">
             <template v-if="column.dataIndex === 'avatar'">
               <div class="flex justify-center">
                 <vco-avatar :size="36" :src="record.avatar" :radius="true"></vco-avatar>
@@ -30,7 +30,7 @@
 
             <template v-if="column.dataIndex === 'operation'">
               <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(index)">
-                <i class="iconfont cursor" style="cursor: pointer;">&#xe8c1;</i>
+                <i class="iconfont cursor" style="cursor: pointer">&#xe8c1;</i>
               </a-popconfirm>
             </template>
           </template>
@@ -66,6 +66,9 @@ const props = defineProps({
   },
   projectDetail: {
     type: Object
+  },
+  stake: {
+    type: Array
   }
 });
 
@@ -75,13 +78,22 @@ const validate = ref(false);
 const vcoChooseUserRef = ref();
 
 const orgs = ref([]);
+const chooseUsers = ref([]);
 
-const checkUser = (val) => {
-  orgs.value.push({
-    uuid: val.uuid,
-    name: val.name,
-    avatar: val.avatar,
-    amount: ''
+const showChooseUser = () => {
+  checkUser.value = [];
+  vcoChooseUserRef.value.init()
+};
+
+const checkUser = () => {
+  chooseUsers.value.map((item) => {
+    orgs.value.push({
+      uuid: item.uuid,
+      name: item.name,
+      avatar: item.avatar,
+      amount: '',
+      note: ''
+    });
   });
 };
 
@@ -97,8 +109,8 @@ const columns = reactive([
 ]);
 
 const remove = (val) => {
- orgs.value.splice(val,1)
-}
+  orgs.value.splice(val, 1);
+};
 
 const save = () => {
   validate.value = true;
@@ -136,6 +148,18 @@ const save = () => {
 };
 
 const init = () => {
+  orgs.value = [];
+  if (props.stake && props.stake.length) {
+    orgs.value = props.stake.map((item) => {
+      return {
+        avatar: item.stakeholder.avatar,
+        name: item.stakeholder.name,
+        uuid: item.stakeholder.uuid,
+        amount: item.amount,
+        note: item.note
+      };
+    });
+  }
   visible.value = true;
 };
 </script>

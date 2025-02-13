@@ -66,7 +66,7 @@
         </template>
       </div>
     </div>
-    <div class="mt-2">
+    <div class="mt-2" v-if="detail?.stake && detail?.stake.length">
       <StakeTable :stake="detail?.stake">
         <a-button type="brown" shape="round" size="small">view stake</a-button>
       </StakeTable>
@@ -82,7 +82,7 @@
         <AcceptFc v-if="detail?.mark === 'drawdown_fc'" :uuid="uuid" :detail="detail" :projectDetail="projectDetail" @change="update">
           <a-button type="dark" class="big uppercase" style="width: 100%" :loading="accept_loading"> Approve </a-button>
         </AcceptFc>
-        <AcceptLm v-else :uuid="uuid" :detail="detail" :projectDetail="projectDetail" @change="update">
+        <AcceptLm v-else :uuid="uuid" :detail="detail" :projectDetail="projectDetail" :stake="detail?.stake" @change="update">
           <a-button type="dark" class="big uppercase" style="width: 100%"> Accept documents </a-button>
         </AcceptLm>
         <!-- <a-button v-else type="dark" class="big uppercase" style="width: 100%" :loading="accept_loading" @click="accept"> Accept documents </a-button> -->

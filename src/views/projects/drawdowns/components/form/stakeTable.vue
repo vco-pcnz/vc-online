@@ -7,8 +7,11 @@
           <template #bodyCell="{ column, record }">
             <template v-if="column.dataIndex === 'avatar'">
               <div class="flex justify-center">
-                <vco-avatar :size="36" :src="record.stake_avatar" :radius="true"></vco-avatar>
+                <vco-avatar :size="36" :src="record.stakeholder.avatar" :radius="true"></vco-avatar>
               </div>
+            </template>
+            <template v-if="column.dataIndex === 'name'">
+              {{ record.stakeholder.name }}
             </template>
             <template v-if="column.dataIndex === 'amount'">
               <vco-number :value="record.amount" :precision="2" size="fs_md" class="mr-2"></vco-number>
@@ -42,9 +45,9 @@ const updateVisible = (value) => {
 };
 const columns = reactive([
   { title: t('头像'), dataIndex: 'avatar', width: 100, align: 'center', ellipsis: true },
-  { title: t('名称'), dataIndex: 'stake_name', width: 120, align: 'left', ellipsis: true },
-  { title: t('金额'), dataIndex: 'amount', width: 180, align: 'center', ellipsis: true },
-  { title: t('备注'), dataIndex: 'note', align: 'left', ellipsis: true }
+  { title: t('名称'), dataIndex: 'name', width: 150, align: 'left', ellipsis: true },
+  { title: t('备注'), dataIndex: 'note', align: 'left', ellipsis: true },
+  { title: t('金额'), dataIndex: 'amount', width: 180, align: 'center', ellipsis: true }
 ]);
 
 const init = () => {

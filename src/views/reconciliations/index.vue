@@ -183,6 +183,7 @@ const submit = () => {
     ajaxFn = checkMatchBill;
     params = {
       bank_sn: formState.value.bank_sn,
+      sn: formState.value.transaction.sn,
       date: formState.value.date
     };
   } else {
@@ -205,7 +206,6 @@ const submit = () => {
     .finally(() => {
       ok_loading.value = false;
     });
-  console.log(params);
 };
 
 const reload = () => {

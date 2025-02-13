@@ -25,9 +25,10 @@
 </template>
 
 <script setup>
-import { nextTick, ref } from 'vue';
+import { nextTick, ref, onMounted } from 'vue';
 import xeroImg from '@/assets/images/services-xero.png';
 import { syncBankBill } from '@/api/reconciliations';
+import { message } from 'ant-design-vue';
 
 const emits = defineEmits(['update']);
 const deadline = ref();
@@ -42,9 +43,12 @@ const setNum = (num) => {
 };
 
 const update = (e) => {
-  deadline.value = Date.now() + 1000 * 60 * 10;
-  countdown.value = true;
-  syncBankBill();
+  syncBankBill().then((res) => {
+    message.success('Xero sync started!');
+    deadline.value = Date.now() + 1000 * 60 * 10;
+    countdown.value = true;
+    localStorage.setItem('deadline', deadline.value);
+  });
 };
 
 const onFinish = () => {
@@ -54,6 +58,13 @@ const onFinish = () => {
 // 暴露方法给父组件
 defineExpose({
   setNum
+});
+
+onMounted(() => {
+  if (localStorage.getItem('deadline') >  Date.now()) {
+    deadline.value = Number(localStorage.getItem('deadline'));
+    countdown.value = true;
+  }
 });
 </script>
 

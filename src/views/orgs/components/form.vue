@@ -318,12 +318,12 @@ const rules = reactive({
     {
       required: true,
       message: t('请输入') + t('组织机构代码f')
+    },
+    {
+      pattern: /^[A-Z0-9]+$/,
+      message: t('组织机构代码f') + t('格式不正确'),
+      trigger: 'blur'
     }
-    // {
-    //   pattern: /^[A-Z0-9]+$/,
-    //   message: t('组织机构代码f') + t('格式不正确'),
-    //   trigger: 'blur',
-    // },
   ],
   mobile: [
     {
@@ -399,9 +399,11 @@ const dynamicRules = computed(() => {
         }
       ],
       nzbz: [
+        { required: true, message: t('请输入') + t('NZBZ'), trigger: 'blur' },
         {
-          required: true,
-          message: t('请输入') + 'NZBZ'
+          pattern: /^[a-zA-Z0-9]+$/,
+          message: t('NZBZ') + t('格式不正确'),
+          trigger: 'blur'
         }
       ],
       contactName: [
@@ -468,25 +470,7 @@ const remove = (index) => {
 };
 // 选择用户
 const checkUser = (val) => {
-  let keys = [
-    'avatar',
-    'idcard',
-    'email',
-    'emailCode',
-    'pre',
-    'mobile',
-    'mobileCode',
-    'province_code',
-    'city_code',
-    'district_code',
-    'address',
-    'document',
-    'expire_time',
-    'note',
-    'firstName',
-    'middleName',
-    'lastName'
-  ];
+  let keys = ['avatar', 'idcard', 'email', 'emailCode', 'pre', 'mobile', 'mobileCode', 'province_code', 'city_code', 'district_code', 'address', 'document', 'expire_time', 'note', 'firstName', 'middleName', 'lastName'];
   const newData = pick(val, keys);
 
   check_user_uuid.value = val.uuid;
@@ -507,21 +491,7 @@ const submit = () => {
     if (form.type == 20) {
       keys = keys.concat(['firstName', 'middleName', 'lastName', 'sendEmail', 'sendSms', 'user_uuid', 'idcard']);
     } else {
-      keys = keys.concat([
-        'name',
-        'nzbz',
-        'contactName',
-        'province_code',
-        'city_code',
-        'district_code',
-        'address',
-        'addr',
-        'postal',
-        'idcard',
-        'suburb',
-        'province_code_name',
-        'con_id'
-      ]);
+      keys = keys.concat(['name', 'nzbz', 'contactName', 'province_code', 'city_code', 'district_code', 'address', 'addr', 'postal', 'idcard', 'suburb', 'province_code_name', 'con_id']);
     }
     const newData = pick(form, keys);
     if (form.type == 20) {

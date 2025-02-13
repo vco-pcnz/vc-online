@@ -21,12 +21,7 @@
         </div>
       </div>
       <div class="MeterStat MeterStat_type_dotsYellow">
-        <div class="MeterStat-Dots">
-          <div class="MeterStat-Dot"></div>
-          <div class="MeterStat-Dot"></div>
-          <div class="MeterStat-Dot"></div>
-          <div class="MeterStat-Dot"></div>
-        </div>
+        <div class="MeterStat-Meter"></div>
         <div>
           <p class="color_grey" style="margin-bottom: 2px">Accrued interest</p>
           <vco-number :value="data?.interest" :precision="2"></vco-number>
@@ -50,12 +45,7 @@
         </div>
       </div>
       <div class="MeterStat MeterStat_type_dotsBlack">
-        <div class="MeterStat-Dots">
-          <div class="MeterStat-Dot"></div>
-          <div class="MeterStat-Dot"></div>
-          <div class="MeterStat-Dot"></div>
-          <div class="MeterStat-Dot"></div>
-        </div>
+        <div class="MeterStat-Meter"></div>
         <div>
           <p class="color_grey" style="margin-bottom: 2px">Pending drawdown</p>
           <vco-number :value="data?.pendingDrawdown" :precision="2"></vco-number>
@@ -176,6 +166,14 @@ watch(
 .MeterStat_type_charcoal > .MeterStat-Meter {
   background-color: #272727;
   border-color: #272727;
+}
+.MeterStat_type_dotsYellow > .MeterStat-Meter {
+  background-color: rgba(169, 173, 87, 0.7);
+  border: 1px solid rgba(109, 123, 31, 0.5);
+}
+.MeterStat_type_dotsBlack > .MeterStat-Meter {
+  background-color: #f19915;
+  border-color: #f19915;
 }
 .MeterStat-Dots {
   display: flex;

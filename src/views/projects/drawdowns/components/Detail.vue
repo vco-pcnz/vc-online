@@ -14,7 +14,21 @@
     <!-- <div class="flex items-center"><i class="iconfont mr-2">&#xe774;</i><span class="weight_demiBold">Documents & photos</span></div>
       <p class="color_grey mt-1 mb-3">1 file had been provided: drawdown notice</p> -->
     <a-button type="brown" shape="round" size="small" @click="navigationTo('/projects/documents?uuid=' + uuid + '&annex_id=' + detail?.annex_id)">{{ t('查看文件') }}</a-button>
-    <div class="flex items-center box frist mt-5">
+
+    <div class="flex items-center box mt-5">
+      <i class="iconfont left-icon mr-3">&#xe755;</i>
+      <div>
+        <div class="flex">
+          <vco-number :value="detail?.amount" :precision="2" :bold="true" size="fs_2xl"></vco-number>
+          <span class="unit">nzd</span>
+          <DrawdownAmount :uuid="uuid" :detail="detail" @change="update" v-if="detail?.has_permission && detail?.mark === 'drawdown_lm'"
+            ><i class="iconfont edit">&#xe8cf;</i></DrawdownAmount
+          >
+        </div>
+        <p class="bold color_grey fs_2xs">Requested amount: {{ tool.formatMoney(detail?.amount) }}</p>
+      </div>
+    </div>
+    <div class="flex items-center box frist mt-2">
       <i class="iconfont left-icon mr-3">&#xe78d;</i>
       <div>
         <div class="flex">
@@ -52,16 +66,10 @@
         </template>
       </div>
     </div>
-    <div class="flex items-center box mt-2">
-      <i class="iconfont left-icon mr-3">&#xe755;</i>
-      <div>
-        <div class="flex">
-          <vco-number :value="detail?.amount" :precision="2" :bold="true" size="fs_2xl"></vco-number>
-          <span class="unit">nzd</span>
-          <DrawdownAmount :uuid="uuid" :detail="detail" @change="update" v-if="detail?.has_permission && detail?.mark === 'drawdown_lm'"><i class="iconfont edit">&#xe8cf;</i></DrawdownAmount>
-        </div>
-        <p class="bold color_grey fs_2xs">Requested amount: {{ tool.formatMoney(detail?.amount) }}</p>
-      </div>
+    <div class="mt-2">
+      <StakeTable :stake="detail?.stake">
+        <a-button type="brown" shape="round" size="small">view stake</a-button>
+      </StakeTable>
     </div>
     <div class="flex justify-center mt-3">
       <a-popconfirm title="Are you sure you want to recall the request?" okText="recall" @confirm="recall" v-if="detail?.prev_permission">
@@ -72,10 +80,12 @@
       </a-popconfirm>
       <template v-if="detail?.has_permission && !detail?.prev_permission">
         <AcceptFc v-if="detail?.mark === 'drawdown_fc'" :uuid="uuid" :detail="detail" :projectDetail="projectDetail" @change="update">
-          <a-button type="dark" class="big uppercase" style="width: 100%" :loading="accept_loading"> Accept documents </a-button>
+          <a-button type="dark" class="big uppercase" style="width: 100%" :loading="accept_loading"> Approve </a-button>
         </AcceptFc>
-        <a-button v-else type="dark" class="big uppercase" style="width: 100%" :loading="accept_loading" @click="accept"> Accept documents </a-button>
-        <!-- <AcceptLm></AcceptLm> -->
+        <AcceptLm v-else :uuid="uuid" :detail="detail" :projectDetail="projectDetail" @change="update">
+          <a-button type="dark" class="big uppercase" style="width: 100%"> Accept documents </a-button>
+        </AcceptLm>
+        <!-- <a-button v-else type="dark" class="big uppercase" style="width: 100%" :loading="accept_loading" @click="accept"> Accept documents </a-button> -->
       </template>
     </div>
     <template v-if="detail?.has_permission">
@@ -103,6 +113,7 @@ import DrawdownAmount from './form/DrawdownAmount.vue';
 import DrawdownBack from './form/DrawdownBack.vue';
 import AcceptFc from './form/AcceptFc.vue';
 import AcceptLm from './form/AcceptLm.vue';
+import StakeTable from './form/stakeTable.vue';
 import { forecastDarwdown, loanDsel, loanDdeclinel, loanDsaveStep, loanDrecall } from '@/api/project/loan';
 
 const { t } = useI18n();

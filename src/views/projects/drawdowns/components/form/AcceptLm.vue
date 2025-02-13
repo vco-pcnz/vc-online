@@ -1,23 +1,43 @@
 <template>
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="JournalRef" class="Journal">
-    <a-modal :width="560" :open="visible" title="Accept documents" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
-      <div class="content sys-form-content">
-        <div class="label">{{ t('选择利益相关者') }}</div>
-        <vco-choose-user ref="vcoChooseUserRef" url="stake/selStake" @change="checkUser"></vco-choose-user>
-        <template v-for="item in orgs" :key="item.uuid">
-          <div class="orgCard">
-            <div class="user-item">
-              <vco-avatar :size="30" :src="item.avatar || ''"></vco-avatar> <span class="ml-3"></span>
-              <p class="name">{{ item.name }}</p>
-              <i class="iconfont">&#xe77d;</i>
-            </div>
-            <a-input-number v-model:value="amount" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
-          </div>
-        </template>
+    <a-modal :width="900" :open="visible" title="Accept documents" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
+      <div class="content">
+        <div class="flex justify-end">
+          <vco-choose-user ref="vcoChooseUserRef" url="stake/selStake" @change="checkUser">
+            <a-button type="brown" shape="round" size="small" @click="vcoChooseUserRef.init()">Select stakeholders</a-button>
+          </vco-choose-user>
+        </div>
+        <a-table :columns="columns" :data-source="orgs" :pagination="false" :scroll="{ x: '100%' }">
+          <template #bodyCell="{ column, record,index }">
+            <template v-if="column.dataIndex === 'avatar'">
+              <div class="flex justify-center">
+                <vco-avatar :size="36" :src="record.avatar" :radius="true"></vco-avatar>
+              </div>
+            </template>
+            <template v-if="column.dataIndex === 'amount'">
+              <a-input-number
+                :class="{ err: validate && !record.amount }"
+                v-model:value="record.amount"
+                :max="99999999999"
+                :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+              />
+            </template>
+            <template v-if="column.dataIndex === 'note'">
+              <a-textarea v-model:value="record.note" :rows="1" />
+            </template>
+
+            <template v-if="column.dataIndex === 'operation'">
+              <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(index)">
+                <i class="iconfont cursor" style="cursor: pointer;">&#xe8c1;</i>
+              </a-popconfirm>
+            </template>
+          </template>
+        </a-table>
 
         <div class="flex justify-center">
-          <a-button @click="save" type="dark" class="save big uppercase" :loading="loading">
+          <a-button @click="save" type="dark" class="save big uppercase" :loading="loading" :disabled="!orgs.length">
             {{ t('提交') }}
           </a-button>
         </div>
@@ -27,7 +47,7 @@
 </template>
 
 <script scoped setup>
-import { ref, watch } from 'vue';
+import { ref, reactive, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import tool from '@/utils/tool';
@@ -49,39 +69,62 @@ const props = defineProps({
   }
 });
 
-const visible = ref(true);
+const visible = ref(false);
 const loading = ref(false);
 const validate = ref(false);
+const vcoChooseUserRef = ref();
 
 const orgs = ref([]);
 
 const checkUser = (val) => {
-  console.log(val);
   orgs.value.push({
     uuid: val.uuid,
     name: val.name,
     avatar: val.avatar,
     amount: ''
   });
-  console.log(orgs.value);
 };
 
 const updateVisible = (value) => {
   visible.value = value;
 };
+const columns = reactive([
+  { title: t('头像'), dataIndex: 'avatar', width: 100, align: 'center', ellipsis: true },
+  { title: t('名称'), dataIndex: 'name', width: 120, align: 'left', ellipsis: true },
+  { title: t('金额'), dataIndex: 'amount', width: 180, align: 'center', ellipsis: true },
+  { title: t('备注'), dataIndex: 'note', align: 'left', ellipsis: true },
+  { title: t('操作'), dataIndex: 'operation', width: 120, align: 'center', ellipsis: true }
+]);
+
+const remove = (val) => {
+ orgs.value.splice(val,1)
+}
 
 const save = () => {
   validate.value = true;
-  if (!date.value) return message.error(t('请输入') + t('日期'));
+
+  let stake = [];
+  stake = orgs.value.map((item) => {
+    return {
+      uuid: item.uuid,
+      amount: item.amount,
+      note: item.note
+    };
+  });
+  let amounts = stake.filter((item) => {
+    return item.amount;
+  });
+  if (amounts.length != stake.length) {
+    return;
+  }
   loading.value = true;
   let params = {
     uuid: props.uuid,
     id: props.detail.id,
-    date: date.value
+    stake: stake
   };
   loanDsaveStep(params)
     .then((res) => {
-      date.value = '';
       message.success(t('保存成功'));
       emits('change');
       updateVisible(false);
@@ -109,6 +152,12 @@ const init = () => {
         font-weight: 500;
       }
     }
+    .ant-input-number {
+      border-color: #d9d9d9;
+      &.err {
+        border-color: #c1430c;
+      }
+    }
     padding: 0px !important;
 
     .content {
@@ -116,7 +165,6 @@ const init = () => {
       padding: 24px 84px 72px;
       .user-item {
         padding: 8px 10px;
-        background-color: #f7f0e6;
         border-radius: 8px;
         margin-top: 10px;
         display: flex;

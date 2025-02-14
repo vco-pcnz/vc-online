@@ -4,7 +4,7 @@
     <a-modal :width="900" :open="visible" title="Accept documents" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content">
         <div class="flex justify-end">
-          <vco-choose-user ref="vcoChooseUserRef" url="stake/selStake" v-model:list="chooseUsers" :isMultiple="true" @change="checkUser">
+          <vco-choose-user ref="vcoChooseUserRef" title="orgs search" url="stake/selStake" v-model:list="chooseUsers" :isMultiple="true" @change="checkUser">
             <a-button type="brown" shape="round" size="small" @click="showChooseUser">Select stakeholders</a-button>
           </vco-choose-user>
         </div>

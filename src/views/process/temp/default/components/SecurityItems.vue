@@ -84,7 +84,7 @@
             </a-form-item>
           </div>
           <div class="col-item">
-            <a-form-item :label="t('总金额')">
+            <a-form-item :label="t('抵押物价值')">
               <vco-number
                 :value="securityInfo.total_money"
                 :precision="2"
@@ -93,7 +93,7 @@
             </a-form-item>
           </div>
           <div class="col-item">
-            <a-form-item :label="t('抵押物价值')">
+            <a-form-item :label="t('保险价值')">
               <vco-number
                 :value="securityInfo.total_value"
                 :precision="2"

@@ -12,7 +12,17 @@
     ></vco-confirm-alert>
 
     <vco-process-title :title="t('放款信息')">
-      <div v-if="!isDetails" class="flex gap-5">
+      <div v-if="!isDetails" class="flex gap-5 items-center">
+        <a-button
+          v-if="blockInfo.showEdit"
+          type="primary"
+          shape="round"
+          :loading="subLoading"
+          class="uppercase"
+          @click="saveHandle"
+        >
+          {{ t('保存') }}
+        </a-button>
         <template v-if="blockInfo?.showCheck && !lendingInfo.is_check && creditId">
           <a-button
             v-if="confirmTxt"
@@ -39,21 +49,15 @@
             </a-button>
           </a-popconfirm>
         </template>
-        
-
-        <a-button
-          v-if="blockInfo.showEdit"
-          type="primary"
-          shape="round"
-          :loading="subLoading"
-          class="uppercase"
-          @click="saveHandle"
-        >
-          {{ t('保存') }}
-        </a-button>
+        <div class="target-content" @click="lendingTarget = !lendingTarget">
+          <div class="icon" :title="lendingTarget ? t('收起') : t('展开')">
+            <i v-if="lendingTarget" class="iconfont">&#xe711;</i>
+            <i v-else class="iconfont">&#xe712;</i>
+          </div>
+        </div>
       </div>
     </vco-process-title>
-    <div class="sys-form-content mt-5">
+    <div v-show="lendingTarget" class="sys-form-content mt-5">
       <a-form
         ref="formRef"
         layout="vertical"
@@ -304,7 +308,7 @@
   const confirmTxt = computed(() => {
     let res = ''
     if (!props.isDetails) {
-      const securityTotal = props.dataInfo.security.total_value || 0
+      const securityTotal = props.dataInfo.security.total_money || 0
       const totalAmount = Number(formState.value.land_amount) + Number(formState.value.build_amount)
       if (totalAmount > securityTotal) {
         const num = tool.minus(totalAmount, securityTotal)
@@ -650,17 +654,26 @@
     getFormItems();
   }
 
+  const lendingTarget = ref(true)
+
+  const blockShowTargetHandle = (flag) => {
+    lendingTarget.value = flag
+  }
+
   onMounted(() => {
     getFormItems();
     emitter.on('refreshIRR', handleRefreshIRR);
+    emitter.on('blockShowTarget', blockShowTargetHandle)
   });
 
   onUnmounted(() => {
     emitter.off('refreshIRR', handleRefreshIRR);
+    emitter.off('blockShowTarget', blockShowTargetHandle)
   })
 </script>
 
 <style lang="less" scoped>
+@import './../styles/common.less';
 .form-line {
   width: 100%;
   border-top: 1px dashed #808080;

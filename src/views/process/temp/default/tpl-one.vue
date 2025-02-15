@@ -77,13 +77,18 @@
                       </a-form-item>
                     </a-col>
                   </template>
-                  <a-col :span="24">
+                  <a-col :span="isNormalUser ? 24 : 16">
                     <a-form-item v-if="formState.borrower_type === 1" :label="t('身份证号码')" name="borrower_id_num">
                       <a-input v-model:value="formState.borrower_id_num" />
                     </a-form-item>
 
                     <a-form-item v-else :label="t('公司编码')" name="company_number">
                       <a-input v-model:value="formState.company_number" />
+                    </a-form-item>
+                  </a-col>
+                  <a-col v-if="!isNormalUser" :span="8">
+                    <a-form-item :label="t('是否存为利益相关者')">
+                      <a-switch v-model:checked="formState.isSaveOrgs" />
                     </a-form-item>
                   </a-col>
                   <a-col :span="12">
@@ -155,6 +160,7 @@ import TempFooter from './components/TempFooter.vue';
 import BindUsers from './../../components/BindUsers.vue';
 import AdsContent from './../../components/AdsContent.vue';
 import emitter from '@/event';
+import { useUserStore } from '@/store';
 import { hasPermission } from '@/directives/permission/index';
 
 const emits = defineEmits(['checkDone', 'dataDone']);
@@ -209,6 +215,10 @@ const footerRef = ref();
 const vcoChooseUserRef = ref();
 const bindUsersRef = ref();
 
+const userStore = useUserStore();
+
+const isNormalUser = computed(() => userStore.isNormalUser)
+
 const bindUserPermission = computed(() => {
   return hasPermission('requests:loan:bind:vcTeam') || hasPermission('requests:loan:bind:broker') || hasPermission('requests:loan:bind:user');
 });
@@ -260,7 +270,9 @@ const formState = reactive({
   borrower_region_one_name: '',
   borrower_region_one_id: '',
   borrower_suburb: '',
-  borrower_con_id: ''
+  borrower_con_id: '',
+
+  isSaveOrgs: false
 });
 
 const formRules = {
@@ -522,6 +534,8 @@ const dataInit = (infoMsg = {}, draftMsg = {}) => {
   for (const key in formState) {
     if (key === 'company_number') {
       formState[key] = useData.borrower_type === 2 ? useData.borrower_id_num : '';
+    } else if(key === 'isSaveOrgs') {
+      formState[key] = useData[key] ? Boolean(Number(useData[key])) : false
     } else {
       formState[key] = useData[key] || formState[key];
     }

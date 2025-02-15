@@ -4,7 +4,17 @@
     :class="{ checked: confirmInfo.is_check && blockInfo.showCheck, 'details': isDetails }"
   >
     <vco-process-title :title="t('确定信息')">
-      <div class="flex gap-5">
+      <div v-if="!isDetails" class="flex gap-5">
+        <a-button
+          v-if="showSaveBtn"
+          type="primary"
+          shape="round"
+          :loading="subLoading"
+          class="uppercase"
+          @click="saveHandle"
+        >
+          {{ t('保存') }}
+        </a-button>
         <a-popconfirm
           v-if="blockInfo.showCheck && !confirmInfo.is_check && confirmInfo.confirm"
           :title="t('确定通过审核吗？')"
@@ -20,20 +30,16 @@
             {{ t('审核') }}
           </a-button>
         </a-popconfirm>
-        <a-button
-          v-if="showSaveBtn"
-          type="primary"
-          shape="round"
-          :loading="subLoading"
-          class="uppercase"
-          @click="saveHandle"
-        >
-          {{ t('保存') }}
-        </a-button>
+        <div class="target-content" @click="confirmTarget = !confirmTarget">
+          <div class="icon" :title="confirmTarget ? t('收起') : t('展开')">
+            <i v-if="confirmTarget" class="iconfont">&#xe711;</i>
+            <i v-else class="iconfont">&#xe712;</i>
+          </div>
+        </div>
       </div>
     </vco-process-title>
 
-    <div class="sys-form-content mt-5">
+    <div v-show="confirmTarget" class="sys-form-content mt-5">
       <a-form ref="formRef" layout="vertical" :model="form" :rules="formRules">
         <div class="col-item">
           <p>1、{{ t('定金是否已收到？') }}</p>
@@ -66,7 +72,7 @@
 </template>
 
 <script setup>
-  import { ref, onMounted, computed } from 'vue';
+  import { ref, onMounted, onUnmounted, computed } from 'vue';
   import { useI18n } from 'vue-i18n';
   import {
     projectAuditSaveMode,
@@ -200,14 +206,26 @@
     });
   };
 
+  const confirmTarget = ref(true)
+
+  const blockShowTargetHandle = (flag) => {
+    confirmTarget.value = flag
+  }
+
   onMounted(() => {
     if (props.confirmInfo.confirm) {
       form.value = JSON.parse(props.confirmInfo.confirm)
     }
+    emitter.on('blockShowTarget', blockShowTargetHandle)
+  })
+
+  onUnmounted(() => {
+    emitter.off('blockShowTarget', blockShowTargetHandle)
   })
 </script>
 
 <style lang="less" scoped>
+  @import '@/views/process/temp/default/styles/common.less';
   .col-item {
     margin-top: 30px;
     &:first-child {

@@ -28,7 +28,16 @@
           :class="{ checked: dataInfo.borrower.is_check && blockInfo.borrower.showCheck }"
         >
           <vco-process-title :title="t('借款人信息')">
-            <div class="flex gap-5">
+            <div class="flex gap-5 items-center">
+              <a-button
+                v-if="blockInfo.borrower.showEdit"
+                type="primary"
+                shape="round"
+                class="uppercase"
+                @click="showEdit(1, blockInfo.borrower.code)"
+              >
+                {{ t('编辑') }}
+              </a-button>
               <a-popconfirm
                 v-if="!dataInfo.borrower.is_check && blockInfo.borrower.showCheck"
                 :title="t('确定通过审核吗？')"
@@ -40,18 +49,16 @@
                   {{ t('审核') }}
                 </a-button>
               </a-popconfirm>
-              <a-button
-                v-if="blockInfo.borrower.showEdit"
-                type="primary"
-                shape="round"
-                class="uppercase"
-                @click="showEdit(1, blockInfo.borrower.code)"
-              >
-                {{ t('编辑') }}
-              </a-button>
+
+              <div class="target-content" @click="borrowerTarget = !borrowerTarget">
+                <div class="icon" :title="borrowerTarget ? t('收起') : t('展开')">
+                  <i v-if="borrowerTarget" class="iconfont">&#xe711;</i>
+                  <i v-else class="iconfont">&#xe712;</i>
+                </div>
+              </div>
             </div>
           </vco-process-title>
-          <borrower-info :data="dataInfo.borrower"></borrower-info>
+          <borrower-info v-show="borrowerTarget" :data="dataInfo.borrower"></borrower-info>
           <div v-if="blockInfo.borrower.showCheck" class="check-content">
             <i class="iconfont">&#xe647;</i>
           </div>
@@ -65,7 +72,16 @@
           :class="{ checked: dataInfo.project.is_check && blockInfo.project.showCheck }"
         >
           <vco-process-title :title="t('项目信息')">
-            <div class="flex gap-5">
+            <div class="flex gap-5 items-center">
+              <a-button
+                v-if="blockInfo.project.showEdit"
+                type="primary"
+                shape="round"
+                class="uppercase"
+                @click="showEdit(2, blockInfo.project.code)"
+              >
+                {{ t('编辑') }}
+              </a-button>
               <a-popconfirm
                 v-if="!dataInfo.project.is_check && blockInfo.project.showCheck"
                 :title="t('确定通过审核吗？')"
@@ -77,18 +93,15 @@
                   {{ t('审核') }}
                 </a-button>
               </a-popconfirm>
-              <a-button
-                v-if="blockInfo.project.showEdit"
-                type="primary"
-                shape="round"
-                class="uppercase"
-                @click="showEdit(2, blockInfo.project.code)"
-              >
-                {{ t('编辑') }}
-              </a-button>
+              <div class="target-content" @click="projectTarget = !projectTarget">
+                <div class="icon" :title="projectTarget ? t('收起') : t('展开')">
+                  <i v-if="projectTarget" class="iconfont">&#xe711;</i>
+                  <i v-else class="iconfont">&#xe712;</i>
+                </div>
+              </div>
             </div>
           </vco-process-title>
-          <project-info :data="dataInfo.project"></project-info>
+          <project-info v-show="projectTarget" :data="dataInfo.project"></project-info>
           <div v-if="blockInfo.project.showCheck" class="check-content">
             <i class="iconfont">&#xe647;</i>
           </div>
@@ -102,7 +115,16 @@
           :class="{ checked: dataInfo.cert.is_check && blockInfo.cert.showCheck }"
         >
           <vco-process-title :title="t('证件资料')">
-            <div class="flex gap-5">
+            <div class="flex gap-5 items-center">
+              <a-button
+                v-if="blockInfo.cert.showEdit"
+                type="primary"
+                shape="round"
+                class="uppercase"
+                @click="showEdit(3, blockInfo.cert.code)"
+              >
+                {{ t('编辑') }}
+              </a-button>
               <a-popconfirm
                 v-if="!dataInfo.cert.is_check && blockInfo.cert.showCheck"
                 :title="t('确定通过审核吗？')"
@@ -114,18 +136,15 @@
                   {{ t('审核') }}
                 </a-button>
               </a-popconfirm>
-              <a-button
-                v-if="blockInfo.cert.showEdit"
-                type="primary"
-                shape="round"
-                class="uppercase"
-                @click="showEdit(3, blockInfo.cert.code)"
-              >
-                {{ t('编辑') }}
-              </a-button>
+              <div class="target-content" @click="documentTarget = !documentTarget">
+                <div class="icon" :title="documentTarget ? t('收起') : t('展开')">
+                  <i v-if="documentTarget" class="iconfont">&#xe711;</i>
+                  <i v-else class="iconfont">&#xe712;</i>
+                </div>
+              </div>
             </div>
           </vco-process-title>
-          <document-info :data="dataInfo.cert"></document-info>
+          <document-info v-show="documentTarget" :data="dataInfo.cert"></document-info>
           <div v-if="blockInfo.cert.showCheck" class="check-content">
             <i class="iconfont">&#xe647;</i>
           </div>
@@ -139,7 +158,16 @@
           :class="{ checked: dataInfo.loan.is_check && blockInfo.loan.showCheck }"
         >
           <vco-process-title :title="t('借款信息')">
-            <div class="flex gap-5">
+            <div class="flex gap-5 items-center">
+              <a-button
+                v-if="blockInfo.loan.showEdit"
+                type="primary"
+                shape="round"
+                class="uppercase"
+                @click="showEdit(4, blockInfo.loan.code)"
+              >
+                {{ t('编辑') }}
+              </a-button>
               <a-popconfirm
                 v-if="!dataInfo.loan.is_check && blockInfo.loan.showCheck"
                 :title="t('确定通过审核吗？')"
@@ -151,18 +179,15 @@
                   {{ t('审核') }}
                 </a-button>
               </a-popconfirm>
-              <a-button
-                v-if="blockInfo.loan.showEdit"
-                type="primary"
-                shape="round"
-                class="uppercase"
-                @click="showEdit(4, blockInfo.loan.code)"
-              >
-                {{ t('编辑') }}
-              </a-button>
+              <div class="target-content" @click="loanTarget = !loanTarget">
+                <div class="icon" :title="loanTarget ? t('收起') : t('展开')">
+                  <i v-if="loanTarget" class="iconfont">&#xe711;</i>
+                  <i v-else class="iconfont">&#xe712;</i>
+                </div>
+              </div>
             </div>
           </vco-process-title>
-          <loan-info :data="dataInfo.loan"></loan-info>
+          <loan-info v-show="loanTarget" :data="dataInfo.loan"></loan-info>
           <div v-if="blockInfo.loan.showCheck" class="check-content">
             <i class="iconfont">&#xe647;</i>
           </div>
@@ -242,7 +267,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { cloneDeep } from "lodash";
 
@@ -290,6 +315,11 @@ const props = defineProps({
     default: false
   }
 })
+
+const borrowerTarget = ref(true)
+const projectTarget = ref(true)
+const documentTarget = ref(true)
+const loanTarget = ref(true)
 
 const showCheckDialog = ref(false);
 const currentInfoData = ref(null);
@@ -358,4 +388,23 @@ const doneHandle = (type) => {
 const openDataHanle = (data) => {
   emits('openData', data)
 }
+
+const blockShowTargetHandle = (flag) => {
+  borrowerTarget.value = flag
+  projectTarget.value = flag
+  documentTarget.value = flag
+  loanTarget.value = flag
+}
+
+onMounted(() => {
+  emitter.on('blockShowTarget', blockShowTargetHandle)
+})
+
+onUnmounted(() => {
+  emitter.off('blockShowTarget', blockShowTargetHandle)
+})
 </script>
+
+<style lang="less" scoped>
+  @import './../styles/common.less';
+</style>

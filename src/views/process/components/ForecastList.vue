@@ -73,7 +73,41 @@
               placeholder=""
             />
           </a-form-item>
-          <a-form-item :label="t('金额')" name="amount">
+          <a-row v-if="isFirstEdit" :gutter="20">
+            <a-col :span="12">
+              <a-form-item
+                :label="t('首次土地贷款放款额')"
+                name="initial_land_amount"
+              >
+                <a-input-number
+                  :max="99999999999"
+                  v-model:value="formState.initial_land_amount"
+                  :formatter="
+                    (value) =>
+                      `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                  "
+                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                />
+              </a-form-item>
+            </a-col>
+            <a-col :span="12">
+              <a-form-item
+                :label="t('首次建筑贷款放款额')"
+                name="initial_build_amount"
+              >
+                <a-input-number
+                  :max="99999999999"
+                  v-model:value="formState.initial_build_amount"
+                  :formatter="
+                    (value) =>
+                      `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                  "
+                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                />
+              </a-form-item>
+            </a-col>
+          </a-row>
+          <a-form-item v-else :label="t('金额')" name="amount">
             <a-input-number
               v-model:value="formState.amount"
               :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
@@ -266,6 +300,8 @@
   const formState = reactive({
     id: 0,
     type: undefined,
+    initial_land_amount: "",
+    initial_build_amount: "",
     date: "",
     amount: "",
     note: "",
@@ -317,6 +353,8 @@
     })
   }
 
+  const isFirstEdit = ref(false)
+
   const addEditHandle = (data, index, _index) => {
     const nameStr = t('预测项')
     dialogTitle.value = data ? t('编辑{0}', [nameStr]) : t('新增{0}', [nameStr])
@@ -335,6 +373,16 @@
       formState.date = ""
       formState.amount = ""
       formState.note = ""
+    }
+
+    if (data?.first) {
+      isFirstEdit.value = true
+      formState.initial_land_amount = props.infoData?.lending.initial_land_amount || ''
+      formState.initial_build_amount = props.infoData?.lending.initial_build_amount || ''
+    } else {
+      isFirstEdit.value = false
+      formState.initial_land_amount = ''
+      formState.initial_build_amount = ''
     }
     visible.value = true
     handleType.value = 0
@@ -376,10 +424,19 @@
 
     const ajaxFn = handleType.value ? projectForecastDelete : projectForecastAdd
 
-    ajaxFn({
+    const params = {
       ...currentParams.value,
       change: changeType.value
-    }).then(() => {
+    }
+
+    if (!isFirstEdit.value) {
+      delete params.initial_land_amount
+      delete params.initial_build_amount
+    } else {
+      delete params.amount
+    }
+
+    ajaxFn(params).then(() => {
       getTableData()
       tipsVisible.value = false
       visible.value = false
@@ -410,13 +467,15 @@
     formRef.value
     .validate()
     .then(() => {
-      const {id, type, date, amount, note, first} = formState
+      const {id, type, date, amount, note, first, initial_land_amount, initial_build_amount} = formState
       const params = {
         id,
         type,
         date: date.format('YYYY-MM-DD'),
         amount,
         note,
+        initial_land_amount,
+        initial_build_amount,
         apply_uuid: props.currentId
       }
 
@@ -467,6 +526,7 @@
       if (!val) {
         formRef.value.clearValidate()
         formRef.value.resetFields()
+        isFirstEdit.value = false
       }
     }
   );

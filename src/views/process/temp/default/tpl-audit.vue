@@ -29,6 +29,18 @@
       
       <div class="block-container">
         <div v-if="dataInfo && PageBlockObjRef" class="left-content">
+          <div class="audit-header-content">
+            <p></p>
+            <div class="target-content bottom" @click="targetChange">
+              <div class="txt">{{ openBlock ? t('全部收起') : t('全部展开') }}</div>
+              <div class="icon">
+                <i v-if="openBlock" class="iconfont">&#xe711;</i>
+                <i v-else class="iconfont">&#xe712;</i>
+              </div>
+            </div>
+          </div>
+          
+          
           <div v-if="isAml" class="mb-10">
             <wash-table
               :current-id="currentId"
@@ -101,13 +113,6 @@
 
           <operation-log :current-id="currentId"></operation-log>
 
-          <forecast-list
-            v-if="showForecast && PageBlockObjRef.lending"
-            :current-id="currentId"
-            :info-data="currentDataInfo"
-            :block-info="PageBlockObjRef.lending"
-          ></forecast-list>
-
           <security-list
             v-if="PageBlockObjRef.security"
             :current-id="currentId"
@@ -116,6 +121,13 @@
             :block-info="PageBlockObjRef.security"
           >
           </security-list>
+
+          <forecast-list
+            v-if="showForecast && PageBlockObjRef.lending"
+            :current-id="currentId"
+            :info-data="currentDataInfo"
+            :block-info="PageBlockObjRef.lending"
+          ></forecast-list>
 
           <conditions-list
             :current-id="currentId"
@@ -147,7 +159,6 @@
   import emitter from "@/event"
   import useProcessStore from "@/store/modules/process"
   import OpenDialog from "./components/OpenDialog.vue";
-
   import ResovleDialog from '@/views/process/components/ResovleDialog.vue';
 
   // 初始化当前项目的forcastList 状态
@@ -204,6 +215,8 @@
 
   const currentDataInfo = ref()
   const showForecast = ref(false)
+
+  const openBlock = ref(true)
 
   // 审核需要填写原因的流程
   const needInsMark = ['step_fc_audit', 'step_director_audit']
@@ -342,6 +355,11 @@
 
   const handleRefreshSecurityInfo = () => {
     getDataInit()
+  }
+
+  const targetChange = () => {
+    openBlock.value = !openBlock.value
+    emitter.emit('blockShowTarget', openBlock.value);
   }
 
   watch(

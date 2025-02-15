@@ -232,7 +232,7 @@
         confirmForm.value = {}
         fonfirmTable.value = []
       } else {
-        openDate.value = dayjs(props.infoData.start_date)
+        // openDate.value = dayjs(props.infoData.start_date)
 
         startDate.value = props.infoData.start_date
         endDate.value = props.infoData.end_date

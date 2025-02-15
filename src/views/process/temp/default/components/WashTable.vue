@@ -2,78 +2,88 @@
   <div>
     <div v-if="isDetails && tableData.length || !isDetails" class="block-item mb" :class="{ checked: washInfo.is_check && blockInfo.showCheck, 'details': isDetails }">
       <vco-process-title :title="t('新增反洗钱信息AML')">
-        <div v-if="blockInfo.showEdit" class="flex gap-5">
-          <a-popconfirm
+        <template v-if="!isDetails">
+          <div v-if="blockInfo.showEdit" class="flex gap-5 items-center">
+            <a-popconfirm
+              :title="t('确定通过审核吗？')"
+              :ok-text="t('确定')"
+              :cancel-text="t('取消')"
+              :disabled="Boolean(!selectedRowKeys.length)"
+              @confirm="checkHandle(1)"
+            >
+              <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase" :loading="loading && type === 1">
+                {{ t('审核') }}
+              </a-button>
+            </a-popconfirm>
+
+            <a-popconfirm
+              :title="t('确定发送邮件吗？')"
+              :ok-text="t('确定')"
+              :cancel-text="t('取消')"
+              :disabled="Boolean(!selectedRowKeys.length)"
+              @confirm="checkHandle(2)"
+              :loading="loading && type === 2"
+            >
+              <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase">
+                {{ t('发送邮件') }}
+              </a-button>
+            </a-popconfirm>
+
+            <a-popconfirm
+              :title="t('确定发送短信吗？')"
+              :ok-text="t('确定')"
+              :cancel-text="t('取消')"
+              :disabled="Boolean(!selectedRowKeys.length)"
+              @confirm="checkHandle(3)"
+              :loading="loading && type === 3"
+            >
+              <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase">
+                {{ t('发送短信') }}
+              </a-button>
+            </a-popconfirm>
+
+            <a-popconfirm
+              :title="t('确定删除吗？')"
+              :ok-text="t('确定')"
+              :cancel-text="t('取消')"
+              :disabled="Boolean(!selectedRowKeys.length)"
+              @confirm="checkHandle(4)"
+              :loading="loading && type === 4"
+            >
+              <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase">
+                {{ t('删除') }}
+              </a-button>
+            </a-popconfirm>
+
+            <a-button type="primary" shape="round" class="uppercase" @click="showForm(null)">
+              {{ t('添加') }}
+            </a-button>
+
+            <div class="target-content" @click="washTarget = !washTarget">
+              <div class="icon" :title="washTarget ? t('收起') : t('展开')">
+                <i v-if="washTarget" class="iconfont">&#xe711;</i>
+                <i v-else class="iconfont">&#xe712;</i>
+              </div>
+            </div>
+          </div>
+
+          <!-- <a-popconfirm
             :title="t('确定通过审核吗？')"
             :ok-text="t('确定')"
             :cancel-text="t('取消')"
-            :disabled="Boolean(!selectedRowKeys.length)"
-            @confirm="checkHandle(1)"
+            @confirm="washCheckHandle"
           >
-            <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase" :loading="loading && type === 1">
+            <a-button type="dark" shape="round" class="uppercase">
               {{ t('审核') }}
             </a-button>
-          </a-popconfirm>
+          </a-popconfirm> -->
 
-          <a-popconfirm
-            :title="t('确定发送邮件吗？')"
-            :ok-text="t('确定')"
-            :cancel-text="t('取消')"
-            :disabled="Boolean(!selectedRowKeys.length)"
-            @confirm="checkHandle(2)"
-            :loading="loading && type === 2"
-          >
-            <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase">
-              {{ t('发送邮件') }}
-            </a-button>
-          </a-popconfirm>
 
-          <a-popconfirm
-            :title="t('确定发送短信吗？')"
-            :ok-text="t('确定')"
-            :cancel-text="t('取消')"
-            :disabled="Boolean(!selectedRowKeys.length)"
-            @confirm="checkHandle(3)"
-            :loading="loading && type === 3"
-          >
-            <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase">
-              {{ t('发送短信') }}
-            </a-button>
-          </a-popconfirm>
-
-          <a-popconfirm
-            :title="t('确定删除吗？')"
-            :ok-text="t('确定')"
-            :cancel-text="t('取消')"
-            :disabled="Boolean(!selectedRowKeys.length)"
-            @confirm="checkHandle(4)"
-            :loading="loading && type === 4"
-          >
-            <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase">
-              {{ t('删除') }}
-            </a-button>
-          </a-popconfirm>
-
-          <a-button type="primary" shape="round" class="uppercase" @click="showForm(null)">
-            {{ t('添加') }}
-          </a-button>
-        </div>
-
-        <a-popconfirm
-          v-if="!washInfo.is_check && blockInfo.showCheck"
-          :title="t('确定通过审核吗？')"
-          :ok-text="t('确定')"
-          :cancel-text="t('取消')"
-          @confirm="washCheckHandle"
-        >
-          <a-button type="dark" shape="round" class="uppercase">
-            {{ t('审核') }}
-          </a-button>
-        </a-popconfirm>
+        </template>
       </vco-process-title>
 
       <a-spin :spinning="loading">
-        <div class="sys-table-content border-top-none">
+        <div v-show="washTarget" class="sys-table-content border-top-none">
           <a-dropdown v-if="blockInfo.showEdit" class="selectAll" v-model:open="visibleSlect">
             <a class="ant-dropdown-link" @click.prevent>
               <span class="uppercase bold fs_xs">{{ t('选择') }}</span>
@@ -176,11 +186,12 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, nextTick } from 'vue';
+import { ref, reactive, onMounted, onUnmounted, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { auditLmCheckStatus } from '@/api/process';
 import { getWash, projectDetailGetWash, washCheck, sendEmail, sendSms, washRemove } from '@/api/project/wash';
 import WashTableAddEdit from './WashTableAddEdit.vue';
+import emitter from '@/event';
 
 const emits = defineEmits(['check', 'refresh']);
 
@@ -389,12 +400,25 @@ const setPaginate = (page, limit) => {
   loadData();
 };
 
+const washTarget = ref(true)
+
+const blockShowTargetHandle = (flag) => {
+  washTarget.value = flag
+}
+
 onMounted(() => {
   loadData();
+
+  emitter.on('blockShowTarget', blockShowTargetHandle)
 });
+
+onUnmounted(() => {
+  emitter.off('blockShowTarget', blockShowTargetHandle)
+})
 </script>
 
 <style lang="less" scoped>
+@import '@/views/process/temp/default/styles/common.less';
 @import '@/styles/variables.less';
 .ops {
   display: flex;

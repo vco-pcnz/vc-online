@@ -73,3 +73,43 @@
   overflow: hidden;
   padding: 10px;
 }
+
+.audit-header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.target-content {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.3s ease;
+  &.bottom {
+    margin-bottom: 12px;
+  }
+  &:hover {
+    color: @colorPrimary;
+    > .icon {
+      border-color: @colorPrimary;
+    }
+  }
+  > .icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 3px;
+    border: 1px solid #999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    > .iconfont {
+      font-size: 14px;
+      line-height: 1;
+    }
+  }
+  > .txt {
+    line-height: 1;
+  }
+}

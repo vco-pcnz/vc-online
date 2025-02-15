@@ -588,5 +588,10 @@ export default {
   "接受请求": "Accept request",
   "确定要拒绝该请求吗？": "Are you sure you want to decline the request?",
   "包括利息和费用": "including interests & fees",
-  "帮助借款人": "Help borrower"
+  "帮助借款人": "Help borrower",
+  "是否存为利益相关者": "Are there stakeholders",
+  "全部收起": "Collapse all",
+  "全部展开": "Expand all",
+  "收起": "Collapse",
+  "展开": "Expand"
 }

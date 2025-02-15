@@ -4,7 +4,17 @@
     :class="{ checked: offerInfo.is_check && blockInfo.showCheck, 'details': isDetails}"
   >
     <vco-process-title :title="t('凭证信息')">
-      <div class="flex gap-5">
+      <div v-if="!isDetails" class="flex gap-5 items-center">
+        <a-button
+          v-if="blockInfo.showEdit"
+          type="primary"
+          shape="round"
+          :loading="subLoading"
+          class="uppercase"
+          @click="saveHandle"
+        >
+          {{ t('保存') }}
+        </a-button>
         <a-popconfirm
           v-if="blockInfo.showCheck && !offerInfo.is_check"
           :title="t('确定通过审核吗？')"
@@ -20,60 +30,57 @@
             {{ t('审核') }}
           </a-button>
         </a-popconfirm>
-        <a-button
-          v-if="blockInfo.showEdit"
-          type="primary"
-          shape="round"
-          :loading="subLoading"
-          class="uppercase"
-          @click="saveHandle"
-        >
-          {{ t('保存') }}
-        </a-button>
+        <div class="target-content" @click="offerTarget = !offerTarget">
+          <div class="icon" :title="offerTarget ? t('收起') : t('展开')">
+            <i v-if="offerTarget" class="iconfont">&#xe711;</i>
+            <i v-else class="iconfont">&#xe712;</i>
+          </div>
+        </div>
       </div>
     </vco-process-title>
 
-    <div class="form-item-col mt-5">
-      <div class="title">
-        <p>{{ t('未签订Offer') }}</p>
-        <vco-upload-modal v-if="blockInfo.showEdit" v-model:list="offerList" @change="fileChange">
-          <div class="upload-btn">
-            <i class="iconfont">&#xe734;</i>
-            {{ t('上传文件') }}
-          </div>
-        </vco-upload-modal>
+    <div v-show="offerTarget">
+      <div class="form-item-col mt-5">
+        <div class="title">
+          <p>{{ t('未签订Offer') }}</p>
+          <vco-upload-modal v-if="blockInfo.showEdit" v-model:list="offerList" @change="fileChange">
+            <div class="upload-btn">
+              <i class="iconfont">&#xe734;</i>
+              {{ t('上传文件') }}
+            </div>
+          </vco-upload-modal>
+        </div>
+        <div class="file-content">
+          <template v-if="offerList.length">
+            <div v-for="(item, index) in offerList" :key="index" class="file-item">
+              <vco-file-item :file="item" :showClose="Boolean(blockInfo.showEdit)" @remove="removeItem(index, true)"></vco-file-item>
+            </div>
+          </template>
+          <p v-else>{{ t('暂无数据，请上传') }}</p>
+        </div>
       </div>
-      <div class="file-content">
-        <template v-if="offerList.length">
-          <div v-for="(item, index) in offerList" :key="index" class="file-item">
-            <vco-file-item :file="item" :showClose="Boolean(blockInfo.showEdit)" @remove="removeItem(index, true)"></vco-file-item>
-          </div>
-        </template>
-        <p v-else>{{ t('暂无数据，请上传') }}</p>
-      </div>
-    </div>
 
-    <div v-if="!['step_lm_audit', 'step_fc_audit'].includes(props.currentStep?.mark)" class="form-item-col mt-5">
-      <div class="title">
-        <p>{{ t('已签订Offer') }}</p>
-        <vco-upload-modal v-if="blockInfo.showEdit" v-model:list="offerSignedList" @change="fileChange">
-          <div class="upload-btn">
-            <i class="iconfont">&#xe734;</i>
-            {{ t('上传文件') }}
-          </div>
-        </vco-upload-modal>
-      </div>
-      <div class="file-content">
-        <template v-if="offerSignedList.length">
-          <div v-for="(item, index) in offerSignedList" :key="index" class="file-item">
-            <vco-file-item :file="item" :showClose="Boolean(blockInfo.showEdit)" @remove="removeItem(index, false)"></vco-file-item>
-          </div>
-        </template>
-        <p v-else>{{ t('暂无数据，请上传') }}</p>
+      <div v-if="!['step_lm_audit', 'step_fc_audit'].includes(props.currentStep?.mark)" class="form-item-col mt-5">
+        <div class="title">
+          <p>{{ t('已签订Offer') }}</p>
+          <vco-upload-modal v-if="blockInfo.showEdit" v-model:list="offerSignedList" @change="fileChange">
+            <div class="upload-btn">
+              <i class="iconfont">&#xe734;</i>
+              {{ t('上传文件') }}
+            </div>
+          </vco-upload-modal>
+        </div>
+        <div class="file-content">
+          <template v-if="offerSignedList.length">
+            <div v-for="(item, index) in offerSignedList" :key="index" class="file-item">
+              <vco-file-item :file="item" :showClose="Boolean(blockInfo.showEdit)" @remove="removeItem(index, false)"></vco-file-item>
+            </div>
+          </template>
+          <p v-else>{{ t('暂无数据，请上传') }}</p>
+        </div>
       </div>
     </div>
     
-
     <div v-if="blockInfo.showCheck" class="check-content">
       <i class="iconfont">&#xe647;</i>
     </div>
@@ -81,7 +88,7 @@
 </template>
 
 <script setup>
-  import { ref, onMounted, watch } from 'vue';
+  import { ref, onMounted, onUnmounted, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
   import {
     projectAuditSaveMode,
@@ -173,6 +180,12 @@
     });
   };
 
+  const offerTarget = ref(true)
+
+  const blockShowTargetHandle = (flag) => {
+    offerTarget.value = flag
+  }
+
   onMounted(() => {
     if (props.offerInfo.cert_images) {
       const images = props.offerInfo.cert_images
@@ -195,6 +208,12 @@
       });
       offerSignedList.value = data
     }
+
+    emitter.on('blockShowTarget', blockShowTargetHandle)
+  })
+
+  onUnmounted(() => {
+    emitter.off('blockShowTarget', blockShowTargetHandle)
   })
 </script>
 

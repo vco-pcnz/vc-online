@@ -88,7 +88,7 @@
                   </a-col>
                   <a-col v-if="!isNormalUser" :span="8">
                     <a-form-item :label="t('是否存为利益相关者')">
-                      <a-switch v-model:checked="formState.isSaveOrgs" />
+                      <a-switch v-model:checked="formState.is_temp_borrower" />
                     </a-form-item>
                   </a-col>
                   <a-col :span="12">
@@ -272,7 +272,7 @@ const formState = reactive({
   borrower_suburb: '',
   borrower_con_id: '',
 
-  isSaveOrgs: false
+  is_temp_borrower: false
 });
 
 const formRules = {
@@ -427,6 +427,8 @@ const getParams = () => {
     params.borrower_id_num = params.company_number;
   }
 
+  params.is_temp_borrower = params.is_temp_borrower ? 1 : 0
+
   delete params.company_number;
 
   return params;
@@ -534,7 +536,7 @@ const dataInit = (infoMsg = {}, draftMsg = {}) => {
   for (const key in formState) {
     if (key === 'company_number') {
       formState[key] = useData.borrower_type === 2 ? useData.borrower_id_num : '';
-    } else if(key === 'isSaveOrgs') {
+    } else if(key === 'is_temp_borrower') {
       formState[key] = useData[key] ? Boolean(Number(useData[key])) : false
     } else {
       formState[key] = useData[key] || formState[key];

@@ -24,13 +24,15 @@
           </a-row>
           <template v-if="item.children && item.children.length">
             <a-row v-for="sub in item.children" :key="sub.id" class="my-5">
-              <!-- left -->
-              <bank-card :data="sub" :project="item.project" @update="loadData"></bank-card>
-              <!-- ok -->
-              <ok :item="sub" :project="item.project" @update="loadData"></ok>
-              <!-- right -->
-              <transaction :item="sub" v-if="!!sub.transaction"></transaction>
-              <reconciliation-form :disabled="!item.project" :fee_type="item.fee_type" v-else :item="sub"></reconciliation-form>
+              <template v-if="!sub.status">
+                <!-- left -->
+                <bank-card :data="sub" :project="item.project" @update="loadData"></bank-card>
+                <!-- ok -->
+                <ok :item="sub" :project="item.project" @update="loadData"></ok>
+                <!-- right -->
+                <transaction :item="sub" v-if="!!sub.transaction"></transaction>
+                <reconciliation-form :disabled="!item.project" :fee_type="item.fee_type" v-else :item="sub"></reconciliation-form>
+              </template>
             </a-row>
           </template>
         </div>

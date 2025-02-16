@@ -124,7 +124,7 @@
                   <!-- <i class="iconfont" :title="t('有条件')" v-if="Boolean(record.status == 3)">&#xe73a;</i> -->
                   <i class="iconfont" :title="t('项目文件')" v-if="Boolean(record.document && record.document.length)" @click="updateVisibleFiles(record)">&#xe690;</i>
                   <template v-if="blockInfo.showEdit">
-                    <i class="iconfont" :title="t('审核')" @click="checkOne(record.id)" v-if="record.status != 4 && record.status != 3">&#xe647;</i>
+                    <i class="iconfont" :title="t('审核')" @click="checkOne(record.id)" v-if="record.status != 4 && record.status != 3 && record.document.length">&#xe647;</i>
                     <i class="iconfont" :title="t('编辑')" @click="showForm(record)">&#xe753;</i>
                     <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.id)">
                       <i class="iconfont" :title="t('删除l')">&#xe8c1;</i>
@@ -154,7 +154,7 @@
         <p class="fs_xs color_grey">{{ t('项目文件') }}</p>
         <div style="max-height: 400px; overflow-y: auto; padding-right: 10px">
           <div class="documents" v-for="(item, index) in itemData.document" :key="index">
-            <vco-file-item :file="item"></vco-file-item>
+            <vco-file-item :file="item" :showValidity="true" :time="itemData.expire_time[index]"></vco-file-item>
           </div>
         </div>
         <template v-if="itemData.remark">

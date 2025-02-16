@@ -267,7 +267,7 @@
       return false
     }
 
-    if (needInsMark.includes(currentMark.value)) {
+    if (needInsMark.includes(currentMark.value)) { // 通过审核填写批语
       resovleVisible.value = true;
     } else {
       const params = {

@@ -177,6 +177,7 @@ const deleteHandle = async (data) => {
       emitter.emit('refreshSecurityInfo');
       emitter.emit('refreshAuditHisList');
       emitter.emit('refreshIRR');
+      emitter.emit('refreshIRR1');
       return true;
     })
     .catch(() => {

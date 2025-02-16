@@ -420,7 +420,6 @@
       message.error(t('请选择') + t('修改方式'))
       return false
     }
-    subLoading.value = true
 
     const ajaxFn = handleType.value ? projectForecastDelete : projectForecastAdd
 
@@ -434,7 +433,21 @@
       delete params.initial_build_amount
     } else {
       delete params.amount
+      if (Number(params.initial_land_amount) > Number(props.infoData.lending.land_amount)) {
+        message.error(
+          t('{0}不能大于{1}', [t('首次土地贷款放款额', t('土地贷款总额'))])
+        );
+        return false;
+      }
+      if (Number(params.initial_build_amount) > Number(props.infoData.lending.build_amount)) {
+        message.error(
+          t('{0}不能大于{1}', [t('首次建筑贷款放款额', t('建筑贷款总额'))])
+        );
+        return false;
+      }
     }
+
+    subLoading.value = true
 
     ajaxFn(params).then(() => {
       getTableData()
@@ -445,6 +458,7 @@
 
       // 刷新IRR
       emitter.emit('refreshIRR')
+      emitter.emit('refreshIRR1')
 
       emitter.emit('refreshAuditHisList')
 
@@ -514,6 +528,7 @@
 
       getTableData()
       emitter.emit('refreshIRR')
+      emitter.emit('refreshIRR1')
       emitter.emit('refreshSecurityInfo')
     }).catch(() => {
       changeAlertRef.value.changeLoading(false)

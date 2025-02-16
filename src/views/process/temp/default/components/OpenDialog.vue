@@ -16,16 +16,22 @@
             <a-date-picker v-model:value="openDate" :disabledDate="disabledDate" placeholder="" @change="openDateChange" />
           </div>
         </a-col>
-        <a-col :span="12" class="mt-2">
+        <a-col :span="10" class="mt-2">
           <div class="info-content">
             <p class="name">{{ t('借款起止日期') }}</p>
             <p class="txt">{{ tool.showDate(startDate) + ' - ' + tool.showDate(endDate) }}</p>
           </div>
         </a-col>
-        <a-col :span="12" class="mt-2">
+        <a-col :span="8" class="mt-2">
           <div class="info-content">
             <p class="name">{{ t('借款周期') }}</p>
             <p class="txt">{{ showTerm }}</p>
+          </div>
+        </a-col>
+        <a-col :span="6" class="mt-2">
+          <div class="info-content">
+            <p class="name">{{ t('总天数') }}</p>
+            <p class="txt">{{ showTotalDay }}</p>
           </div>
         </a-col>
         <a-col v-if="fonfirmTable.length" :span="24" class="mt-4">
@@ -179,7 +185,7 @@
 
       if (months || days) {
         let statrDate = dayjs(date)
-        const endDateStr = tool.calculateEndDate(statrDate, months, days)
+        const endDateStr = tool.calculateEndDate(statrDate, months, days ? days - 1 : days)
         
         startDate.value = dayjs(date).format('YYYY-MM-DD')
         endDate.value = endDateStr
@@ -202,6 +208,11 @@
     }
     
     return '--'
+  })
+
+  const showTotalDay = computed(() => {
+    const data = tool.calculateDurationPrecise(startDate.value, endDate.value)
+    return data.gapDay || 0
   })
 
   const confirmForm = ref({})

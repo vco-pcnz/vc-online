@@ -11,7 +11,7 @@
           shape="round"
           :loading="subLoading"
           class="uppercase"
-          @click="saveHandle"
+          @click="saveHandle(false)"
         >
           {{ t('保存') }}
         </a-button>
@@ -320,7 +320,7 @@
   }
 
   const subLoading = ref(false);
-  const saveHandle = async () => {
+  const saveHandle = async (flag = false) => {
     formRef.value
       .validate()
       .then(async () => {
@@ -340,7 +340,10 @@
         await projectAuditSaveMode(params)
           .then(async () => {
             subLoading.value = false;
-            emits('refresh');
+
+            if (!flag) {
+              emits('refresh');
+            }
             
             // 操作记录
             emitter.emit('refreshAuditHisList');
@@ -355,8 +358,8 @@
       });
   };
 
-  const handleRefreshIRR = () => {
-    saveHandle();
+  const handleRefreshIRR1 = () => {
+    saveHandle(true);
   }
 
   const handleRefreshBouns = () => {
@@ -371,13 +374,13 @@
 
   onMounted(() => {
     getFormItems();
-    emitter.on('refreshIRR', handleRefreshIRR);
+    emitter.on('refreshIRR1', handleRefreshIRR1);
     emitter.on('refreshBouns', handleRefreshBouns);
     emitter.on('blockShowTarget', blockShowTargetHandle)
   });
 
   onUnmounted(() => {
-    emitter.off('refreshIRR', handleRefreshIRR);
+    emitter.off('refreshIRR1', handleRefreshIRR1);
     emitter.off('refreshBouns', handleRefreshBouns);
     emitter.off('blockShowTarget', blockShowTargetHandle)
   })

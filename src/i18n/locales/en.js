@@ -595,5 +595,6 @@ export default {
   "收起": "Collapse",
   "展开": "Expand",
   "{0}由{1}修改为了{2}": "{0} was changed from {1} to {2}",
-  "保存后将退回到上一步审核": "After saving, you will return to the previous step for review"
+  "保存后将退回到上一步审核": "After saving, you will return to the previous step for review",
+  "LC 分配 LM": "LC Assign LM"
 }

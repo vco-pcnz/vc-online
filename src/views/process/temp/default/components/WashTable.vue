@@ -1,16 +1,10 @@
 <template>
   <div>
-    <div v-if="isDetails && tableData.length || !isDetails" class="block-item mb" :class="{ checked: washInfo.is_check && blockInfo.showCheck, 'details': isDetails }">
+    <div v-if="(isDetails && tableData.length) || !isDetails" class="block-item mb" :class="{ checked: washInfo.is_check && blockInfo.showCheck, details: isDetails }">
       <vco-process-title :title="t('新增反洗钱信息AML')">
         <template v-if="!isDetails">
           <div v-if="blockInfo.showEdit" class="flex gap-5 items-center">
-            <a-popconfirm
-              :title="t('确定通过审核吗？')"
-              :ok-text="t('确定')"
-              :cancel-text="t('取消')"
-              :disabled="Boolean(!selectedRowKeys.length)"
-              @confirm="checkHandle(1)"
-            >
+            <a-popconfirm :title="t('确定通过审核吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" :disabled="Boolean(!selectedRowKeys.length)" @confirm="checkHandle(1)">
               <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase" :loading="loading && type === 1">
                 {{ t('审核') }}
               </a-button>
@@ -77,8 +71,6 @@
               {{ t('审核') }}
             </a-button>
           </a-popconfirm> -->
-
-
         </template>
       </vco-process-title>
 
@@ -121,17 +113,21 @@
                 <span v-if="record.status == 0" class="cer">{{ t('待通知') }}</span>
                 <span v-if="record.status == 1" class="cer">{{ t('待反馈') }}</span>
                 <span v-if="record.status == 2" class="cer">{{ t('已反馈') }}</span>
-                <span v-if="record.status == 3" style="color: #0bda8e">{{ t('已完成') }}</span>
+                <template v-if="record.status == 3">
+                  <span v-if="record.status == 3" class="cer">{{ t('有条件') }}</span>
+                  <p class="color_grey ft_xs" v-if="record.condition_time">{{ tool.showDate(record.condition_time) }}</p>
+                </template>
+                <span v-if="record.status == 4" style="color: #0bda8e">{{ t('已完成') }}</span>
               </template>
               <template v-if="column.dataIndex === 'operation'">
                 <div class="ops">
-                  <!-- <i class="iconfont" style="color: #0bda8e !important" v-if="Boolean(record.status == 3)">&#xe786;</i> -->
-                  <i class="iconfont" v-if="Boolean(record.document && record.document.length)" @click="updateVisibleFiles(record)">&#xe690;</i>
+                  <!-- <i class="iconfont" :title="t('有条件')" v-if="Boolean(record.status == 3)">&#xe73a;</i> -->
+                  <i class="iconfont" :title="t('项目文件')" v-if="Boolean(record.document && record.document.length)" @click="updateVisibleFiles(record)">&#xe690;</i>
                   <template v-if="blockInfo.showEdit">
-                    <i class="iconfont" @click="checkOne(record.id)" v-if="record.status != 3">&#xe647;</i>
-                    <i class="iconfont" @click="showForm(record)">&#xe753;</i>
+                    <i class="iconfont" :title="t('审核')" @click="checkOne(record.id)" v-if="record.status != 4 && record.status != 3">&#xe647;</i>
+                    <i class="iconfont" :title="t('编辑')" @click="showForm(record)">&#xe753;</i>
                     <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.id)">
-                      <i class="iconfont">&#xe8c1;</i>
+                      <i class="iconfont" :title="t('删除l')">&#xe8c1;</i>
                     </a-popconfirm>
                   </template>
                 </div>
@@ -154,15 +150,7 @@
       </a-spin>
       <WashTableAddEdit v-model:visible="visible" :currentId="currentId" :infoData="editData" @update="loadData"></WashTableAddEdit>
 
-      <a-modal
-        :open="visibleFiles"
-        :title="t('详情')"
-        :width="640"
-        :footer="null"
-        :keyboard="false"
-        :maskClosable="false"
-        @update:open="visibleFiles = false"
-      >
+      <a-modal :open="visibleFiles" :title="t('详情')" :width="640" :footer="null" :keyboard="false" :maskClosable="false" @update:open="visibleFiles = false">
         <p class="fs_xs color_grey">{{ t('项目文件') }}</p>
         <div style="max-height: 400px; overflow-y: auto; padding-right: 10px">
           <div class="documents" v-for="(item, index) in itemData.document" :key="index">
@@ -177,17 +165,19 @@
         </template>
       </a-modal>
 
+      <!-- 有条件通过 -->
+
       <div v-if="blockInfo.showCheck" class="check-content">
         <i class="iconfont">&#xe647;</i>
       </div>
     </div>
   </div>
-  
 </template>
 
 <script setup>
 import { ref, reactive, onMounted, onUnmounted, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
+import tool from '@/utils/tool.js';
 import { auditLmCheckStatus } from '@/api/process';
 import { getWash, projectDetailGetWash, washCheck, sendEmail, sendSms, washRemove } from '@/api/project/wash';
 import WashTableAddEdit from './WashTableAddEdit.vue';
@@ -373,7 +363,7 @@ const updateVisibleFiles = (val) => {
 
 const loadData = () => {
   loading.value = true;
-  const ajaxFn = props.isDetails ? projectDetailGetWash : getWash
+  const ajaxFn = props.isDetails ? projectDetailGetWash : getWash;
 
   ajaxFn({ uuid: props.currentId, ...pagination.value })
     .then((res) => {
@@ -400,21 +390,21 @@ const setPaginate = (page, limit) => {
   loadData();
 };
 
-const washTarget = ref(true)
+const washTarget = ref(true);
 
 const blockShowTargetHandle = (flag) => {
-  washTarget.value = flag
-}
+  washTarget.value = flag;
+};
 
 onMounted(() => {
   loadData();
 
-  emitter.on('blockShowTarget', blockShowTargetHandle)
+  emitter.on('blockShowTarget', blockShowTargetHandle);
 });
 
 onUnmounted(() => {
-  emitter.off('blockShowTarget', blockShowTargetHandle)
-})
+  emitter.off('blockShowTarget', blockShowTargetHandle);
+});
 </script>
 
 <style lang="less" scoped>

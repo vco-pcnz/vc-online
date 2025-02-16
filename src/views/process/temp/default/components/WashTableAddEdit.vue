@@ -8,7 +8,7 @@
               <vco-choose-user
                 ref="vcoChooseUserRef"
                 url="stake/selStake"
-                :params="{type:20}"
+                :params="{ type: 20 }"
                 @change="choiceUserDone"
                 :title="t('搜索利益相关者')"
                 :showRest="Boolean(!formState.id && formState.stake_uuid)"
@@ -53,24 +53,25 @@
           </a-col>
           <a-col :span="24">
             <a-form-item :label="t('手机号')" name="mobile">
-              <vco-mobile-input
-                v-if="visible"
-                v-model:value="formState.mobile"
-                v-model:areaCode="formState.pre"
-                :formRef="formRef"
-                validateField="mobile"
-              ></vco-mobile-input>
+              <vco-mobile-input v-if="visible" v-model:value="formState.mobile" v-model:areaCode="formState.pre" :formRef="formRef" validateField="mobile"></vco-mobile-input>
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <a-form-item :label="t('有条件')" name="condition_time">
+              <a-date-picker v-model:value="formState.condition_time" format="DD-MM-YYYY" valueFormat="YYYY-MM-DD" />
             </a-form-item>
           </a-col>
 
           <a-col :span="24">
             <a-form-item :label="t('项目文件')">
               <vco-upload-modal v-model:list="documentList" v-model:value="formState.document"></vco-upload-modal>
-              <div style="max-height: 200px;overflow-y: auto;padding-right: 10px;">
-              <div class="documents" v-for="(item, index) in documentList" :key="index">
-                <vco-file-item :file="item" :showClose="true" @remove="remove(index)"></vco-file-item>
-              </div>
-
+              <div style="max-height: 250px; overflow-y: auto; padding-right: 10px">
+                <div class="documents" v-for="(item, index) in documentList" :key="index">
+                  <vco-file-item :file="item" :showClose="true" @remove="remove(index)"></vco-file-item>
+                  <div>
+                    <a-date-picker v-model:value="formState.expire_time[index]" format="DD-MM-YYYY" valueFormat="YYYY-MM-DD" />
+                  </div>
+                </div>
               </div>
             </a-form-item>
           </a-col>
@@ -167,7 +168,9 @@ const formState = ref({
   note: '',
   sendEmail: false,
   sendSms: false,
-  document: []
+  document: [],
+  expire_time: [],
+  condition_time: ''
 });
 const formRules = {
   name: [{ required: true, message: t('请输入') + t('名称') }],
@@ -215,7 +218,7 @@ const submitHandle = () => {
 const vcoChooseUserRef = ref();
 
 const choiceUserDone = (data) => {
-  let keys = ['pre', 'mobile', 'email','firstName','middleName','lastName','idcard'];
+  let keys = ['pre', 'mobile', 'email', 'firstName', 'middleName', 'lastName', 'idcard'];
   const newData = pick(data, keys);
   newData['stake_uuid'] = data.uuid;
   documentList.value = data.document ? cloneDeep(data.document) : [];
@@ -250,7 +253,9 @@ watch(
         note: '',
         sendEmail: false,
         sendSms: false,
-        document: []
+        document: [],
+        expire_time: [],
+        condition_time: ''
       };
       documentList.value = [];
     } else {
@@ -259,6 +264,8 @@ watch(
         formState.value.sendEmail = formState.value.sendEmail == '1';
         formState.value.sendSms = formState.value.sendSms == '1';
         formState.value.change = formState.value.change == '1';
+        formState.value.expire_time = formState.value.expire_time || [];
+
         documentList.value = props.infoData.document ? cloneDeep(props.infoData.document) : [];
       }
     }

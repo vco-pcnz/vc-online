@@ -66,11 +66,6 @@
         </template>
       </div>
     </div>
-    <div class="mt-2" v-if="detail?.stake && detail?.stake.length">
-      <StakeTable :stake="detail?.stake">
-        <a-button type="brown" shape="round" size="small">view stake</a-button>
-      </StakeTable>
-    </div>
     <div class="flex justify-center mt-3">
       <a-popconfirm title="Are you sure you want to recall the request?" okText="recall" @confirm="recall" v-if="detail?.prev_permission">
         <template #icon>
@@ -82,9 +77,13 @@
         <AcceptFc v-if="detail?.mark === 'drawdown_fc'" :uuid="uuid" :detail="detail" :projectDetail="projectDetail" @change="update">
           <a-button type="dark" class="big uppercase" style="width: 100%" :loading="accept_loading"> Approve </a-button>
         </AcceptFc>
-        <AcceptLm v-else :uuid="uuid" :detail="detail" :projectDetail="projectDetail" :stake="detail?.stake" @change="update">
+
+        <a-popconfirm v-else title="Are you sure you want to pass the review?" okText="accept" @confirm="accept">
+          <template #icon>
+            <CheckCircleOutlined :style="{ color: '#a9ad57' }" />
+          </template>
           <a-button type="dark" class="big uppercase" style="width: 100%"> Accept documents </a-button>
-        </AcceptLm>
+        </a-popconfirm>
         <!-- <a-button v-else type="dark" class="big uppercase" style="width: 100%" :loading="accept_loading" @click="accept"> Accept documents </a-button> -->
       </template>
     </div>
@@ -100,6 +99,24 @@
       </div>
       <DrawdownBack :uuid="uuid" :detail="detail" @change="update" v-if="detail?.has_permission && detail?.mark === 'drawdown_fc'"></DrawdownBack>
     </template>
+    <!-- 分配利益相关者 -->
+    <!-- <div class="flex justify-center mt-3" v-if="detail?.stake && detail?.stake.length">
+      <StakeTable :stake="detail?.stake">
+        <a-button type="brown" shape="round" size="small">view investors</a-button>
+      </StakeTable>
+    </div> -->
+    <div class="flex justify-center mt-3">
+      <AddStake
+        :uuid="uuid"
+        :detail="detail"
+        :projectDetail="projectDetail"
+        :stake="detail?.stake"
+        @change="update"
+        v-if="detail?.has_permission && detail?.mark === 'drawdown_fc'"
+      >
+        <a-button type="brown" shape="round" size="small">allocate investors</a-button>
+      </AddStake>
+    </div>
   </div>
 </template>
 
@@ -109,10 +126,11 @@ import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { navigationTo } from '@/utils/tool';
 import { CheckCircleOutlined } from '@ant-design/icons-vue';
+import { hasPermission } from '@/directives/permission/index';
 import DrawdownAmount from './form/DrawdownAmount.vue';
 import DrawdownBack from './form/DrawdownBack.vue';
 import AcceptFc from './form/AcceptFc.vue';
-import AcceptLm from './form/AcceptLm.vue';
+import AddStake from './form/addStake.vue';
 import StakeTable from './form/stakeTable.vue';
 import { forecastDarwdown, loanDsel, loanDdeclinel, loanDsaveStep, loanDrecall } from '@/api/project/loan';
 

@@ -86,7 +86,7 @@ const rowSelection = ref({
     }
   },
   getCheckboxProps: (r) => ({
-    disabled: Boolean(r.status)
+    disabled: Boolean(r.status == 2)
   })
 });
 

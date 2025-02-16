@@ -159,3 +159,11 @@ export const addf = (data) =>
     method: 'post',
     data
   });
+
+// forecast darwDown列表
+export const dsaveStake = (data) =>
+  request({
+    url: 'project/loan/dsaveStake',
+    method: 'post',
+    data
+  });

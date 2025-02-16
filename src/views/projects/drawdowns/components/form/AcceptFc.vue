@@ -91,7 +91,7 @@ const save = () => {
 };
 
 const init = () => {
-  date.value =  dayjs().format('YYYY-MM-DD');
+  date.value =  dayjs(props.detail?.apply_date).format('YYYY-MM-DD');
   visible.value = true;
 };
 </script>

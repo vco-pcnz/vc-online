@@ -1,12 +1,31 @@
 <template>
   <layout ref="layoutRef" @update="reload">
     <template #content>
+      <div class="flex justify-between">
+        <div class="actions">
+          <a-button @click="onRemove" :disabled="!selectedRowKeys.length">
+            {{ t('删除重做') }}
+          </a-button>
+          <span class="count">{{ t('选中{ 0 }条', [selectedRowKeys.length]) }}</span>
+        </div>
+        <div>
+          <vco-page-tab :tabData="tabData" v-model:current="currentTab" @change="tabChange"></vco-page-tab>
+        </div>
+      </div>
       <a-spin :spinning="loading" size="large">
-        <a-table :data-source="dataSource" :columns="columns" :pagination="false">
+        <a-table :data-source="dataSource" :columns="columns" :pagination="false" :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }" row-key="id">
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'status'">
               <div v-if="record.status" class="status_tag">Reconciled</div>
               <div v-else class="status_tag unreconciled_tag">Unreconciled</div>
+            </template>
+
+            <template v-if="column.key === 'operation'">
+              <a-popconfirm :title="t('确定取消对账吗？')" :cancel-text="t('取消')" @confirm="remove(record.uuid)">
+                <span style="text-transform: lowercase" :class="{disabled:!record.status}">
+                  {{ t('取消') }}
+                </span>
+              </a-popconfirm>
             </template>
           </template>
         </a-table>
@@ -39,6 +58,7 @@ const columns = reactive([
   {
     title: t('日期'),
     dataIndex: 'date',
+    width: '120px',
     key: 'name',
     customRender: ({ text }) => {
       return tool.showDate(text);
@@ -88,7 +108,28 @@ const columns = reactive([
     title: t('状态'),
     dataIndex: 'status',
     key: 'status',
-    width:'200px'
+    width: '120px'
+  },
+  {
+    title: t('操作'),
+    dataIndex: 'operation',
+    key: 'operation',
+    align: 'center',
+    width: '100px'
+  }
+]);
+
+const currentTab = ref('1');
+const tabData = ref([
+  {
+    label: t('申请中'),
+    value: '1',
+    num: 0
+  },
+  {
+    label: t('删除'),
+    value: '2',
+    num: 0
   }
 ]);
 
@@ -123,12 +164,58 @@ const loadData = () => {
     });
 };
 
-
 const reload = () => {
   pagination.value.page = 1;
   loadData();
 };
 
+const tabChange = () => {
+  // getTableData(params);
+  reload();
+};
+
+const selectedRowKeys = ref([]); // 存放UUid
+const selectedRows = ref([]); // 存放所有选中的选项的所有内容
+const rowSelection = ref({
+  checkStrictly: false,
+  onSelect: (record, selected) => {
+    if (selected) {
+      selectedRowKeys.value.push(record.id);
+      selectedRows.value.push(record);
+    } else {
+      let index = selectedRowKeys.value.findIndex((it) => {
+        return it === record.id;
+      });
+      selectedRowKeys.value.splice(index, 1);
+      selectedRows.value.splice(index, 1);
+    }
+  },
+  onSelectAll: (selected, Rows, changeRows) => {
+    const changeRowId = changeRows.map((it) => {
+      return it.id;
+    });
+    if (selected) {
+      let newIds = Array.from(new Set(changeRowId.concat(selectedRowKeys.value)));
+      let newRows = Array.from(new Set(changeRows.concat(selectedRows.value)));
+      selectedRowKeys.value = newIds;
+      selectedRows.value = newRows;
+    } else {
+      // 取消选中
+      changeRowId.map((it) => {
+        let index = selectedRowKeys.value.findIndex((item) => {
+          return item == it;
+        });
+        if (index != -1) {
+          selectedRowKeys.value.splice(index, 1);
+          selectedRows.value.splice(index, 1);
+        }
+      });
+    }
+  },
+  getCheckboxProps: (r) => ({
+    disabled: Boolean(r.status)
+  })
+});
 
 onMounted(() => {
   loadData();
@@ -136,23 +223,31 @@ onMounted(() => {
 </script>
 
 <style scoped lang="less">
-.status_tag {
+.actions {
+  padding-bottom: 16px;
+  display: flex;
   align-items: center;
-  border-radius: 38px;
-  display: inline-flex;
+  gap: 16px;
+
+  color: #555;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+
+  .count {
+    padding-left: 20px;
+  }
+}
+
+.status_tag {
   font-size: 14px;
   font-weight: 500;
-  height: 30px;
   letter-spacing: 1px;
-  line-height: 2;
-  padding: 10px 20px;
   text-transform: uppercase;
-  background-color: #b4f1db;
-  color: #272727;
+  color: #76a493;
 }
 
 .unreconciled_tag {
-  background-color: rgba(234, 197, 57, 0.3);
   color: #bf9425;
 }
 </style>

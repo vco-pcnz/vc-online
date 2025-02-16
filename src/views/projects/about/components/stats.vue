@@ -14,9 +14,9 @@
       </div>
     </div>
     <div class="box middle">
-      <div class="box-top">
+      <div class="box-top text-center">
         <p class="bold">Current income</p>
-        <vco-number :value="data?.income" :bold="true" size="fs_2xl" :precision="2"></vco-number>
+        <vco-number :value="data?.income" :bold="true" size="fs_3xl" :precision="2"></vco-number>
         <p class="fs_xs color_grey">current interest & fees</p>
       </div>
       <a-divider />

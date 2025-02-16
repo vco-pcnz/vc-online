@@ -18,7 +18,20 @@
               <div class="label" :class="{ err: !formState.name && validate }">Drawdown title</div>
               <a-input v-model:value="formState.name" />
             </div>
-            <div class="input-item" style="margin-top: 16px">
+            <div class="input-item my-4">
+              <div class="label" :class="{ err: !formState.apply_date && validate }">{{ t('日期') }}</div>
+              <a-date-picker
+                class="datePicker"
+                :disabledDate="disabledDateFormat"
+                inputReadOnly
+                v-model:value="formState.apply_date"
+                format="YYYY-MM-DD"
+                valueFormat="YYYY-MM-DD"
+                placeholder=""
+                :showToday="false"
+              />
+            </div>
+            <div class="input-item">
               <div class="label" :class="{ err: !formState.apply_amount && validate }">Requested amount, $ nzd</div>
               <a-input-number
                 v-model:value="formState.apply_amount"
@@ -31,14 +44,12 @@
           <a-col :span="12">
             <div class="input-item">
               <div class="label">Notes</div>
-              <a-textarea v-model:value="formState.note" :rows="6" />
+              <a-textarea v-model:value="formState.note" :rows="10" />
             </div>
           </a-col>
         </a-row>
         <p class="my-5 bold fs_xl">Documents</p>
-        <p class="label" style="margin-top: -15px; opacity: 0" :class="{ err: !formState.d_file.length && validate }">
-          Provide at least one of these documents
-        </p>
+        <p class="label" style="margin-top: -15px; opacity: 0" :class="{ err: !formState.d_file.length && validate }">Provide at least one of these documents</p>
 
         <template v-for="item in formModal2" :key="item.id">
           <documents-upload v-if="!item.children" v-model:value="item['files']">
@@ -85,6 +96,9 @@ const emits = defineEmits(['change']);
 const props = defineProps({
   uuid: {
     type: String
+  },
+  projectDetail: {
+    type: Object
   }
 });
 
@@ -99,6 +113,7 @@ const formState = ref({
   uuid: '',
   name: '',
   note: '',
+  apply_date: '',
   apply_amount: '',
   p_file: [],
   d_file: []
@@ -106,6 +121,23 @@ const formState = ref({
 
 const updateVisible = (value) => {
   visible.value = value;
+};
+
+
+const disabledDateFormat = (current) => {
+  const startDate = props.projectDetail.loan.start_date
+    const endDate = props.projectDetail.loan.end_date
+
+    if (current && current.isBefore(startDate, 'day')) {
+      return true;
+    }
+
+    if (current && current.isAfter(endDate, 'day')) {
+      return true;
+    }
+
+
+  return false;
 };
 
 const save = () => {
@@ -118,7 +150,7 @@ const save = () => {
     return item.files && item.files.length;
   });
 
-  if (!formState.value.name || !formState.value.apply_amount || !formState.value.d_file.length) return;
+  if (!formState.value.name || !formState.value.apply_amount || !formState.value.d_file.length || !formState.value.apply_date) return;
   loading.value = true;
   loanDedit(formState.value)
     .then((res) => {
@@ -135,6 +167,7 @@ const save = () => {
 const init = () => {
   formState.value.name = '';
   formState.value.note = '';
+  formState.value.apply_date = '';
   formState.value.apply_amount = '';
   formState.value.d_file = [];
   formState.value.p_file = [];

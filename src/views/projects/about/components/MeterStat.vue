@@ -21,10 +21,15 @@
         </div>
       </div>
       <div class="MeterStat MeterStat_type_dotsYellow">
-        <div class="MeterStat-Meter"></div>
+      <div class="MeterStat-Dots">
+        <div class="MeterStat-Dot"></div>
+        <div class="MeterStat-Dot"></div>
+        <div class="MeterStat-Dot"></div>
+        <div class="MeterStat-Dot"></div>
+      </div>
         <div>
           <p class="color_grey" style="margin-bottom: 2px">Accrued interest</p>
-          <vco-number :value="data?.interest" :precision="2"></vco-number>
+          <vco-number :value="data?.accruedInterest" :precision="2"></vco-number>
         </div>
       </div>
     </div>
@@ -45,7 +50,12 @@
         </div>
       </div>
       <div class="MeterStat MeterStat_type_dotsBlack">
-        <div class="MeterStat-Meter"></div>
+      <div class="MeterStat-Dots">
+        <div class="MeterStat-Dot"></div>
+        <div class="MeterStat-Dot"></div>
+        <div class="MeterStat-Dot"></div>
+        <div class="MeterStat-Dot"></div>
+      </div>
         <div>
           <p class="color_grey" style="margin-bottom: 2px">Pending drawdown</p>
           <vco-number :value="data?.pendingDrawdown" :precision="2"></vco-number>
@@ -103,7 +113,7 @@ watch(
   () => props.data,
   (val) => {
     if (val) {
-      option.value.series[0].data = [{ value: props.data.currentBalance }, { value: props.data.interest }, { value: props.data.currentBalanceAvailable }];
+      option.value.series[0].data = [{ value: props.data.currentBalance }, { value: props.data.accruedInterest }, { value: props.data.currentBalanceAvailable }];
       option2.value.series[0].data = [{ value: props.data.loanWithdrawal }, { value: props.data.pendingDrawdown }, { value: props.data.loanWithdrawalAvailable }];
     }
   },

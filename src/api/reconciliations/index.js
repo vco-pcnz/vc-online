@@ -82,3 +82,11 @@ export const syncBankBill = (data) =>
     url: 'reconciliation/syncBankBill',
     method: 'post'
   });
+
+  // 新增vco交易记录
+  export const splitBill = (data) =>
+    request({
+      url: 'reconciliation/splitBill',
+      method: 'post',
+      data
+    });

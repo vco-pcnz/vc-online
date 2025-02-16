@@ -1,7 +1,7 @@
 <template>
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="JournalRef" class="Journal">
-    <a-modal :width="900" :open="visible" title="view stake" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
+    <a-modal :width="900" :open="visible" title="view investors" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content">
         <a-table :columns="columns" :data-source="stake" :pagination="false" :scroll="{ x: '100%' }">
           <template #bodyCell="{ column, record }">

@@ -296,6 +296,7 @@ const submitRquest = () => {
         emitter.emit('refreshSecurityList');
         emitter.emit('refreshAuditHisList');
         emitter.emit('refreshIRR');
+        emitter.emit('refreshIRR1');
       })
       .catch(() => {
         changeAlertRef.value.changeLoading(false)

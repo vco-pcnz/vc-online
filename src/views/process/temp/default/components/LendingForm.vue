@@ -413,6 +413,7 @@
 
   const percentItems = ref([]);
   const dollarItems = ref([]);
+  const changeBackItems = ref([])
   const showNumItems = ref([]);
   const creditId = ref(null);
 
@@ -479,6 +480,7 @@
 
       const perData = writeData.filter((item) => item.is_ratio);
       const dolData = writeData.filter((item) => !item.is_ratio);
+      const backData = writeData.filter((item) => item.backMark);
 
       const rulesData = {};
       for (let i = 0; i < writeData.length; i++) {
@@ -500,6 +502,7 @@
       formRules.value = { ...formRules.value, ...rulesData };
       percentItems.value = perData;
       dollarItems.value = dolData;
+      changeBackItems.value = backData
 
       showNumItems.value = props.currentStep?.credit_cate ? data.filter((item) => !item.is_write && item.type === 1) : data.filter((item) => !item.is_write);
       await updateFormData(res);
@@ -587,16 +590,22 @@
   }
 
   const compareHandle = (obj) => {
+    const backItems = changeBackItems.value
     const arr = []
-    for (const key in staticFormData.value) {
-      if (Number(staticFormData.value[key]) !== Number(obj[key])) {
-        arr.push({
-          name: findCreditName(key),
-          before: staticFormData.value[key],
-          now: obj[key]
-        })
+    for (let i = 0; i < backItems.length; i++) {
+      const backMark = backItems[i].backMark.split(',')
+      if (backMark.includes(props.currentStep.mark)) {
+        const key = backItems[i].credit_table
+        if (Number(staticFormData.value[key]) !== Number(obj[key])) {
+          arr.push({
+            name: findCreditName(key),
+            before: staticFormData.value[key],
+            now: obj[key]
+          })
+        }
       }
     }
+
     saveDataTxtArr.value = arr
     return Boolean(arr.length)
   }
@@ -707,8 +716,8 @@
           ...cloneDeep(params.credit__data)
         }
 
-        // 如果为lm再次审核并且费改变了则退回
-        if (['step_lm_check'].includes(props.currentStep.mark) && compareHandle(compareData)) {
+        // 费改变需退回判断
+        if (compareHandle(compareData)) {
           saveDataChange.value = true
           saveTipsVisible.value = true
         } else {
@@ -737,6 +746,7 @@
   )
 
   const handleRefreshIRR = () => {
+    emits('refresh');
     getFormItems();
   }
 

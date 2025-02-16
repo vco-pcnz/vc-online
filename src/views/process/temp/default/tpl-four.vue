@@ -375,7 +375,9 @@
 
   const timeChange = (date) => {
     if (date) {
-      const calcDay = tool.calculateDurationPrecise(date[0], date[1])
+      const startDate = typeof date[0] === 'string' ? date[0] : date[0].format('YYYY-MM-DD')
+      const endDate = typeof date[1] === 'string' ? date[1] : date[1].format('YYYY-MM-DD')
+      const calcDay = tool.calculateDurationPrecise(startDate, endDate)
       formState.term = calcDay.months
       formState.days = calcDay.days
       formState.totalDay = calcDay.gapDay
@@ -395,9 +397,9 @@
         if (formState.time_date) {
           startDate = formState.time_date[0]
         }
-        const endDate = tool.calculateEndDate(startDate, months, days)
+        const endDate = tool.calculateEndDate(startDate, months, days ? days - 1 : days)
         formState.time_date = [dayjs(startDate), dayjs(endDate)]
-        const calcDay = tool.calculateDurationPrecise(...formState.time_date)
+        const calcDay = tool.calculateDurationPrecise(dayjs(startDate).format('YYYY-MM-DD'), dayjs(endDate).format('YYYY-MM-DD'))
         formState.totalDay = calcDay.gapDay
       } else {
         formState.time_date = []

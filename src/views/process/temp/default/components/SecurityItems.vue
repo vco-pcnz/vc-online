@@ -22,7 +22,16 @@
     ></security-add-edit>
 
     <vco-process-title :title="t('抵押物信息')">
-      <div v-if="!isDetails" class="flex gap-5">
+      <div v-if="!isDetails" class="flex gap-5 items-center">
+        <a-button
+          v-if="blockInfo.showEdit"
+          type="primary"
+          shape="round"
+          class="uppercase"
+          @click="addVisible = true"
+        >
+          {{ t('添加') }}
+        </a-button>
         <template v-if="!securityInfo.is_check && securityInfo.count && blockInfo?.showCheck">
           <a-button
             v-if="confirmTxt"
@@ -49,20 +58,16 @@
             </a-button>
           </a-popconfirm>
         </template>
-        
-        <a-button
-          v-if="blockInfo.showEdit"
-          type="primary"
-          shape="round"
-          class="uppercase"
-          @click="addVisible = true"
-        >
-          {{ t('添加') }}
-        </a-button>
+        <div class="target-content" @click="securityTarget = !securityTarget">
+          <div class="icon" :title="securityTarget ? t('收起') : t('展开')">
+            <i v-if="securityTarget" class="iconfont">&#xe711;</i>
+            <i v-else class="iconfont">&#xe712;</i>
+          </div>
+        </div>
       </div>
     </vco-process-title>
 
-    <div class="sys-form-content mt-5">
+    <div v-show="securityTarget" class="sys-form-content mt-5">
       <a-form layout="vertical">
         <div class="col-item-content">
           <div class="col-item">
@@ -84,7 +89,7 @@
             </a-form-item>
           </div>
           <div class="col-item">
-            <a-form-item :label="t('总金额')">
+            <a-form-item :label="t('抵押物价值')">
               <vco-number
                 :value="securityInfo.total_money"
                 :precision="2"
@@ -93,7 +98,7 @@
             </a-form-item>
           </div>
           <div class="col-item">
-            <a-form-item :label="t('抵押物价值')">
+            <a-form-item :label="t('保险价值')">
               <vco-number
                 :value="securityInfo.total_value"
                 :precision="2"
@@ -116,7 +121,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { projectAuditCheckMode } from '@/api/process';
 import SecurityAddEdit from './SecurityAddEdit.vue';
@@ -191,9 +196,25 @@ const checkHandle = async () => {
       return false;
     });
 }
+
+const securityTarget = ref(true)
+
+const blockShowTargetHandle = (flag) => {
+  securityTarget.value = flag
+}
+
+onMounted(() => {
+  emitter.on('blockShowTarget', blockShowTargetHandle)
+})
+
+onUnmounted(() => {
+  emitter.off('blockShowTarget', blockShowTargetHandle)
+})
 </script>
 
 <style lang="less" scoped>
+@import './../styles/common.less';
+
 .total-count {
   font-size: 24px;
 }

@@ -4,7 +4,17 @@
     :class="{ checked: bonusInfo.is_check && blockInfo.showCheck }"
   >
     <vco-process-title :title="t('奖金信息')">
-      <div class="flex gap-5">
+      <div class="flex gap-5 items-center">
+        <a-button
+          v-if="blockInfo.showEdit"
+          type="primary"
+          shape="round"
+          :loading="subLoading"
+          class="uppercase"
+          @click="saveHandle"
+        >
+          {{ t('保存') }}
+        </a-button>
         <a-popconfirm
           v-if="blockInfo.showCheck && !bonusInfo.is_check"
           :title="t('确定通过审核吗？')"
@@ -20,19 +30,15 @@
             {{ t('审核') }}
           </a-button>
         </a-popconfirm>
-        <a-button
-          v-if="blockInfo.showEdit"
-          type="primary"
-          shape="round"
-          :loading="subLoading"
-          class="uppercase"
-          @click="saveHandle"
-        >
-          {{ t('保存') }}
-        </a-button>
+        <div class="target-content" @click="bonusTarget = !bonusTarget">
+          <div class="icon" :title="bonusTarget ? t('收起') : t('展开')">
+            <i v-if="bonusTarget" class="iconfont">&#xe711;</i>
+            <i v-else class="iconfont">&#xe712;</i>
+          </div>
+        </div>
       </div>
     </vco-process-title>
-    <div class="sys-form-content mt-5">
+    <div v-show="bonusTarget" class="sys-form-content mt-5">
       <a-form
         ref="formRef"
         layout="vertical"
@@ -357,19 +363,28 @@
     getFormItems();
   }
 
+  const bonusTarget = ref(true)
+
+  const blockShowTargetHandle = (flag) => {
+    bonusTarget.value = flag
+  }
+
   onMounted(() => {
     getFormItems();
     emitter.on('refreshIRR', handleRefreshIRR);
     emitter.on('refreshBouns', handleRefreshBouns);
+    emitter.on('blockShowTarget', blockShowTargetHandle)
   });
 
   onUnmounted(() => {
     emitter.off('refreshIRR', handleRefreshIRR);
     emitter.off('refreshBouns', handleRefreshBouns);
+    emitter.off('blockShowTarget', blockShowTargetHandle)
   })
 </script>
 
 <style lang="less" scoped>
+@import '@/views/process/temp/default/styles/common.less';
 .form-line {
   width: 100%;
   border-top: 1px dashed #808080;

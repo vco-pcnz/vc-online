@@ -11,8 +11,26 @@
       @submit="submitRquest"
     ></vco-confirm-alert>
 
+    <!-- 费改动后弹窗 -->
+    <vco-confirm-alert
+      ref="changeFeeRef"
+      :confirm-txt="saveDataTxt"
+      v-model:visible="saveTipsVisible"
+      @submit="saveRequeset"
+    ></vco-confirm-alert>
+
     <vco-process-title :title="t('放款信息')">
-      <div v-if="!isDetails" class="flex gap-5">
+      <div v-if="!isDetails" class="flex gap-5 items-center">
+        <a-button
+          v-if="blockInfo.showEdit"
+          type="primary"
+          shape="round"
+          :loading="subLoading"
+          class="uppercase"
+          @click="saveHandle"
+        >
+          {{ t('保存') }}
+        </a-button>
         <template v-if="blockInfo?.showCheck && !lendingInfo.is_check && creditId">
           <a-button
             v-if="confirmTxt"
@@ -39,21 +57,15 @@
             </a-button>
           </a-popconfirm>
         </template>
-        
-
-        <a-button
-          v-if="blockInfo.showEdit"
-          type="primary"
-          shape="round"
-          :loading="subLoading"
-          class="uppercase"
-          @click="saveHandle"
-        >
-          {{ t('保存') }}
-        </a-button>
+        <div class="target-content" @click="lendingTarget = !lendingTarget">
+          <div class="icon" :title="lendingTarget ? t('收起') : t('展开')">
+            <i v-if="lendingTarget" class="iconfont">&#xe711;</i>
+            <i v-else class="iconfont">&#xe712;</i>
+          </div>
+        </div>
       </div>
     </vco-process-title>
-    <div class="sys-form-content mt-5">
+    <div v-show="lendingTarget" class="sys-form-content mt-5">
       <a-form
         ref="formRef"
         layout="vertical"
@@ -263,11 +275,12 @@
     ruleCredit,
     creditInfo,
     projectAuditSaveMode,
-    projectAuditCheckMode
+    projectAuditCheckMode,
+    projectAuditGoback
   } from '@/api/process';
   import emitter from '@/event';
   import useProcessStore from '@/store/modules/process';
-  import tool from '@/utils/tool';
+  import tool, { navigationTo } from '@/utils/tool';
 
   const processStore = useProcessStore();
 
@@ -301,10 +314,13 @@
     }
   })
 
+  const staticFormData = ref()
+  const staticWriteData = ref()
+
   const confirmTxt = computed(() => {
     let res = ''
     if (!props.isDetails) {
-      const securityTotal = props.dataInfo.security.total_value || 0
+      const securityTotal = props.dataInfo.security.total_money || 0
       const totalAmount = Number(formState.value.land_amount) + Number(formState.value.build_amount)
       if (totalAmount > securityTotal) {
         const num = tool.minus(totalAmount, securityTotal)
@@ -459,6 +475,8 @@
       const data = res || [];
       const writeData = data.filter((item) => item.is_write);
 
+      staticWriteData.value = writeData
+
       const perData = writeData.filter((item) => item.is_ratio);
       const dolData = writeData.filter((item) => !item.is_ratio);
 
@@ -520,6 +538,7 @@
     formState.value.initial_build_amount = props.lendingInfo.initial_build_amount;
     formState.value.initial_land_amount = props.lendingInfo.initial_land_amount;
 
+    staticFormData.value = cloneDeep(formState.value)
     emits('openData', {
       table: tableData,
       data: formState.value
@@ -548,7 +567,84 @@
       });
   }
 
+  const saveDataTxtArr = ref([])
+
+  const saveReturnRea = computed(() => {
+    const txtArr = []
+    for (let i = 0; i < saveDataTxtArr.value.length; i++) {
+      txtArr.push(t('{0}由{1}修改为了{2}', [saveDataTxtArr.value[i].name, saveDataTxtArr.value[i].before, saveDataTxtArr.value[i].now]))
+    }
+    return txtArr.join(', ')
+  })
+
+  const saveDataTxt = computed(() => {
+    return `${saveReturnRea.value}，${t('保存后将退回到上一步审核')}`
+  })
+
+  const findCreditName = (key) => {
+    const obj = staticWriteData.value.find(item => item.credit_table === key)
+    return obj ? obj.credit_name : ''
+  }
+
+  const compareHandle = (obj) => {
+    const arr = []
+    for (const key in staticFormData.value) {
+      if (Number(staticFormData.value[key]) !== Number(obj[key])) {
+        arr.push({
+          name: findCreditName(key),
+          before: staticFormData.value[key],
+          now: obj[key]
+        })
+      }
+    }
+    saveDataTxtArr.value = arr
+    return Boolean(arr.length)
+  }
+
+  const changeFeeRef = ref()
+  const saveParams = ref()
+  const saveDataChange = ref(false)
+  const saveTipsVisible = ref(false)
   const subLoading = ref(false);
+
+  const saveRequeset = async () => {
+    subLoading.value = true;
+
+    await projectAuditSaveMode(saveParams.value)
+      .then(async () => {
+        if (saveDataChange.value) {
+          const params = {
+            uuid: props.currentId,
+            cancel_reason: saveReturnRea.value,
+            again_check: 0
+          }
+
+          projectAuditGoback(params).then(() => {
+            subLoading.value = false
+            changeFeeRef.value.changeLoading(false)
+
+            navigationTo(`/requests/details?uuid=${props.currentId}`)
+          }).catch(() => {
+            changeFeeRef.value.changeLoading(false)
+          })
+        } else {
+          subLoading.value = false;
+
+          emits('refresh');
+          // 操作记录
+          emitter.emit('refreshAuditHisList');
+          // 触发预测数据刷新
+          emitter.emit('refreshForecastList');
+          // 触发奖金刷新
+          emitter.emit('refreshBouns')
+          updateFormData()
+        }
+      })
+      .catch(() => {
+        subLoading.value = false;
+      });
+  }
+
   const saveHandle = async () => {
     formRef.value
       .validate()
@@ -585,8 +681,6 @@
           return false;
         }
 
-        subLoading.value = true;
-
         const credit__data = cloneDeep(formState.value);
         delete credit__data.initial_build_amount
         delete credit__data.initial_land_amount
@@ -605,26 +699,22 @@
         if (creditId.value) {
           params.credit__data.id = creditId.value;
         }
-        
-        await projectAuditSaveMode(params)
-          .then(async () => {
-            subLoading.value = false;
-            emits('refresh');
-            
-            // 操作记录
-            emitter.emit('refreshAuditHisList');
 
-            // 触发预测数据刷新
-            emitter.emit('refreshForecastList');
+        saveParams.value = params
 
-            // 触发奖金刷新
-            emitter.emit('refreshBouns')
+        const compareData = {
+          ...cloneDeep(params),
+          ...cloneDeep(params.credit__data)
+        }
 
-            updateFormData()
-          })
-          .catch(() => {
-            subLoading.value = false;
-          });
+        // 如果为lm再次审核并且费改变了则退回
+        if (['step_lm_check'].includes(props.currentStep.mark) && compareHandle(compareData)) {
+          saveDataChange.value = true
+          saveTipsVisible.value = true
+        } else {
+          saveDataChange.value = false
+          await saveRequeset()
+        }
       })
       .catch((error) => {
         console.log('error', error);
@@ -650,17 +740,26 @@
     getFormItems();
   }
 
+  const lendingTarget = ref(true)
+
+  const blockShowTargetHandle = (flag) => {
+    lendingTarget.value = flag
+  }
+
   onMounted(() => {
     getFormItems();
     emitter.on('refreshIRR', handleRefreshIRR);
+    emitter.on('blockShowTarget', blockShowTargetHandle)
   });
 
   onUnmounted(() => {
     emitter.off('refreshIRR', handleRefreshIRR);
+    emitter.off('blockShowTarget', blockShowTargetHandle)
   })
 </script>
 
 <style lang="less" scoped>
+@import './../styles/common.less';
 .form-line {
   width: 100%;
   border-top: 1px dashed #808080;

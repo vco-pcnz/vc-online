@@ -11,23 +11,7 @@
     ></vco-choose-add-user>
 
     <vco-process-title :title="t('其他安全信息')">
-      <div class="flex gap-5">
-        <a-popconfirm
-          :title="t('确定通过审核吗？')"
-          :ok-text="t('确定')"
-          :cancel-text="t('取消')"
-          v-if="blockInfo.showCheck && openShowCheck"
-          @confirm="checkHandle"
-        >
-          <a-button
-            type="dark"
-            shape="round"
-            class="uppercase"
-            v-if="!guarantorInfo.is_check && props.guarantorInfo.guarantor_list.length"
-          >
-            {{ t('审核') }}
-          </a-button>
-        </a-popconfirm>
+      <div v-if="!isDetails" class="flex gap-5 items-center">
         <a-button
           v-if="blockInfo.showEdit"
           type="primary"
@@ -39,10 +23,33 @@
         >
           {{ t('保存') }}
         </a-button>
+
+        <a-popconfirm
+          :title="t('确定通过审核吗？')"
+          :ok-text="t('确定')"
+          :cancel-text="t('取消')"
+          v-if="blockInfo.showCheck && openShowCheck && !guarantorInfo.is_check && props.guarantorInfo.guarantor_list.length"
+          @confirm="checkHandle"
+        >
+          <a-button
+            type="dark"
+            shape="round"
+            class="uppercase"
+          >
+            {{ t('审核') }}
+          </a-button>
+        </a-popconfirm>
+
+        <div class="target-content" @click="guarantorTarget = !guarantorTarget">
+          <div class="icon" :title="guarantorTarget ? t('收起') : t('展开')">
+            <i v-if="guarantorTarget" class="iconfont">&#xe711;</i>
+            <i v-else class="iconfont">&#xe712;</i>
+          </div>
+        </div>
       </div>
     </vco-process-title>
 
-    <div class="sys-form-content mt-5">
+    <div v-show="guarantorTarget" class="sys-form-content mt-5">
       <a-form
         ref="formRef"
         layout="vertical"
@@ -117,7 +124,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted, computed } from 'vue';
+import { reactive, ref, onMounted, onUnmounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { removeDuplicates } from '@/utils/tool';
 import { cloneDeep } from 'lodash';
@@ -175,14 +182,14 @@ const formRules = ref({
   ],
 });
 
-if (props.currentStep?.mark === 'step_open') {
-  formRules.value['security_package'] = [
-    { required: true, message: t('请选择') + t('履约保函'), trigger: 'change' },
-  ]
-  formRules.value['main_contractor'] = [
-    { required: true, message: t('请输入') + t('承包商'), trigger: 'blur' },
-  ]
-}
+// if (props.currentStep?.mark === 'step_open') {
+//   formRules.value['security_package'] = [
+//     { required: true, message: t('请选择') + t('履约保函'), trigger: 'change' },
+//   ]
+//   formRules.value['main_contractor'] = [
+//     { required: true, message: t('请输入') + t('承包商'), trigger: 'blur' },
+//   ]
+// }
 
 const disabledGua = computed(() => props.currentStep?.mark === 'step_open')
 const securityOptions = ref([]);
@@ -190,7 +197,7 @@ const securityOptions = ref([]);
 const openShowCheck = computed(() => {
   let res = true
   if (disabledGua.value) {
-    res = props.guarantorInfo.security_package.length && props.guarantorInfo.main_contractor
+    // res = props.guarantorInfo.security_package.length && props.guarantorInfo.main_contractor
   }
 
   return res
@@ -326,13 +333,25 @@ const checkHandle = async () => {
   // }
 };
 
+const guarantorTarget = ref(true)
+
+const blockShowTargetHandle = (flag) => {
+  guarantorTarget.value = flag
+}
+
 onMounted(() => {
   dataInit();
   getSecurityTypeData();
+  emitter.on('blockShowTarget', blockShowTargetHandle)
 });
+
+onUnmounted(() => {
+  emitter.off('blockShowTarget', blockShowTargetHandle)
+})
 </script>
 
 <style lang="less" scoped>
+@import './../styles/common.less';
 @import '@/styles/variables.less';
 .title-content {
   display: flex;

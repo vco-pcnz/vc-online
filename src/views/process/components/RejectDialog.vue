@@ -53,7 +53,7 @@
       type: String,
       default: ''
     },
-    type: {
+    type: { // 1 直接拒绝；2 退回审核
       type: Number,
       default: 1
     }

@@ -331,8 +331,8 @@ tool.calculateDurationPrecise = (startDate, endDate) => {
   const end = dayjs(endDate);
 
   const months = end.diff(start, 'month');
-  const gapDay = end.diff(start, 'day');
-  const remainingDays = end.diff(start.add(months, 'month'), 'day');
+  const remainingDays = end.subtract(months, 'month').diff(start, 'day') + 1;
+  const gapDay = end.diff(start, 'day') + 1;
 
   let res = {
     months,

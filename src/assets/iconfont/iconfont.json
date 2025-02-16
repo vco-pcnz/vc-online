@@ -6,6 +6,20 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "9974760",
+      "name": "减",
+      "font_class": "jian1",
+      "unicode": "e711",
+      "unicode_decimal": 59153
+    },
+    {
+      "icon_id": "9974761",
+      "name": "加",
+      "font_class": "jia",
+      "unicode": "e712",
+      "unicode_decimal": 59154
+    },
+    {
       "icon_id": "2076332",
       "name": "经典玩法",
       "font_class": "jingdianwanfa",

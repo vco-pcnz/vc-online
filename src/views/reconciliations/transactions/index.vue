@@ -144,7 +144,6 @@ const columns = reactive([
 ]);
 
 const onRemove = () => {
-  console.log(selectedRowKeys.value);
   if (!selectedRowKeys.value.length) return;
   loading.value = true;
   removeTransactions({ sn: selectedRowKeys.value.join() })

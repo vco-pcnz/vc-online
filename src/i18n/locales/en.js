@@ -590,7 +590,7 @@ export default {
   "包括利息和费用": "including interests & fees",
   "帮助借款人": "Help borrower",
   "申请时间": "Application Date",
-  "确定取消对账吗？": "Are you sure to cancel the reconciliation?",
+  "您确定要撤回该对账吗？": "Are you sure you want to recall the reconciliation?",
   "是否存为利益相关者": "Are there stakeholders",
   "全部收起": "Collapse all",
   "全部展开": "Expand all",
@@ -599,5 +599,7 @@ export default {
   "{0}由{1}修改为了{2}": "{0} was changed from {1} to {2}",
   "保存后将退回到上一步审核": "After saving, you will return to the previous step for review",
   "有条件": "conditional",
-  "删除l": "Delete"
+  "删除l": "Delete",
+  "已取消": "Cancelled",
+  "当前": "Current"
 }

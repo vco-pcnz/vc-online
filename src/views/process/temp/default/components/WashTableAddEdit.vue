@@ -58,7 +58,8 @@
           </a-col>
           <a-col :span="24">
             <a-form-item :label="t('有条件')" name="condition_time">
-              <a-date-picker v-model:value="formState.condition_time" format="DD-MM-YYYY" valueFormat="YYYY-MM-DD" />
+              <a-switch v-model:checked="show_condition_time" @change="change_condition_time" />
+              <a-date-picker class="mt-3" v-if="show_condition_time" v-model:value="formState.condition_time" format="DD-MM-YYYY" valueFormat="YYYY-MM-DD" />
             </a-form-item>
           </a-col>
 
@@ -150,6 +151,7 @@ const cateList = ref([
   { title: t('其他'), id: 3 }
 ]);
 
+const show_condition_time = ref(false);
 const formRef = ref();
 const formState = ref({
   id: '',
@@ -170,7 +172,7 @@ const formState = ref({
   sendSms: false,
   document: [],
   expire_time: [],
-  condition_time: ''
+  condition_time: null
 });
 const formRules = {
   name: [{ required: true, message: t('请输入') + t('名称') }],
@@ -231,6 +233,12 @@ const remove = (index) => {
   documentList.value.splice(index, 1);
 };
 
+const change_condition_time = () => {
+  if (!show_condition_time.value) {
+    formState.value.condition_time = null;
+  }
+};
+
 watch(
   () => props.visible,
   (val) => {
@@ -255,8 +263,9 @@ watch(
         sendSms: false,
         document: [],
         expire_time: [],
-        condition_time: ''
+        condition_time: null
       };
+      show_condition_time.value = false;
       documentList.value = [];
     } else {
       if (props.infoData) {
@@ -266,6 +275,7 @@ watch(
         formState.value.change = formState.value.change == '1';
         formState.value.expire_time = formState.value.expire_time || [];
 
+        show_condition_time.value = !!formState.value.condition_time;
         documentList.value = props.infoData.document ? cloneDeep(props.infoData.document) : [];
       }
     }

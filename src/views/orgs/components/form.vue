@@ -470,7 +470,25 @@ const remove = (index) => {
 };
 // 选择用户
 const checkUser = (val) => {
-  let keys = ['avatar', 'idcard', 'email', 'emailCode', 'pre', 'mobile', 'mobileCode', 'province_code', 'city_code', 'district_code', 'address', 'document', 'expire_time', 'note', 'firstName', 'middleName', 'lastName'];
+  let keys = [
+    'avatar',
+    'idcard',
+    'email',
+    'emailCode',
+    'pre',
+    'mobile',
+    'mobileCode',
+    'province_code',
+    'city_code',
+    'district_code',
+    'address',
+    'document',
+    'expire_time',
+    'note',
+    'firstName',
+    'middleName',
+    'lastName'
+  ];
   const newData = pick(val, keys);
 
   check_user_uuid.value = val.uuid;
@@ -491,7 +509,21 @@ const submit = () => {
     if (form.type == 20) {
       keys = keys.concat(['firstName', 'middleName', 'lastName', 'sendEmail', 'sendSms', 'user_uuid', 'idcard']);
     } else {
-      keys = keys.concat(['name', 'nzbz', 'contactName', 'province_code', 'city_code', 'district_code', 'address', 'addr', 'postal', 'idcard', 'suburb', 'province_code_name', 'con_id']);
+      keys = keys.concat([
+        'name',
+        'nzbz',
+        'contactName',
+        'province_code',
+        'city_code',
+        'district_code',
+        'address',
+        'addr',
+        'postal',
+        'idcard',
+        'suburb',
+        'province_code_name',
+        'con_id'
+      ]);
     }
     const newData = pick(form, keys);
     if (form.type == 20) {
@@ -561,7 +593,7 @@ watch(
     }
     switch (val) {
       case 20:
-        orgsStore.getJob('stakeholder_job2');
+        orgsStore.getJob('stakeholder_job1');
         break;
       case 1:
       case 2:

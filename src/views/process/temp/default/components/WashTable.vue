@@ -218,10 +218,10 @@ const visibleSlect = ref(false);
 const selectAll = ref('');
 
 const columns = reactive([
-  { title: t('名称'), dataIndex: 'name', width: 150, align: 'center', ellipsis: true },
+  { title: t('名称'), dataIndex: 'name', width: 120, align: 'center', ellipsis: true },
   { title: t('类型'), dataIndex: 'cate', width: 100, align: 'center', ellipsis: true },
-  { title: t('邮箱'), dataIndex: 'email', width: 150, align: 'left', ellipsis: true },
-  { title: t('电话'), dataIndex: 'mobile', width: 140, align: 'center', ellipsis: true },
+  { title: t('邮箱'), dataIndex: 'email', width: 120, align: 'left', ellipsis: true },
+  { title: t('电话'), dataIndex: 'mobile', width: 120, align: 'center', ellipsis: true },
   { title: t('状态t'), dataIndex: 'status', width: 150, align: 'center' },
   {
     title: t('操作1'),

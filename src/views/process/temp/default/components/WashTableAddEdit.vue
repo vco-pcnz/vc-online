@@ -120,13 +120,11 @@
 </template>
 
 <script setup>
-import { watch, computed, ref, nextTick } from 'vue';
-import dayjs from 'dayjs';
+import { watch, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { pick, trim, cloneDeep } from 'lodash';
 import { washAdd } from '@/api/project/wash';
-import tool from '@/utils/tool';
-import { message } from 'ant-design-vue/es';
+import emitter from '@/event';
 
 const emits = defineEmits(['update:visible', 'update']);
 
@@ -215,6 +213,7 @@ const submitHandle = () => {
           subLoading.value = false;
           emits('update');
           updateVisible(false);
+          emitter.emit('refreshConditionsList');
         })
         .catch(() => {
           subLoading.value = false;

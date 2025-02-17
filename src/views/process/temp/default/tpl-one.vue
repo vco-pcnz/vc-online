@@ -363,6 +363,7 @@ const tempDataHandle = () => {
   delete dataObj.borrower_region_one_id;
   delete dataObj.borrower_region_two_id;
   delete dataObj.borrower_region_three_id;
+  delete dataObj.is_temp_borrower;
   if (tool.isAllValuesEmpty(dataObj)) {
     getTempData();
   } else {

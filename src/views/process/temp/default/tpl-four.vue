@@ -397,7 +397,7 @@
         if (formState.time_date) {
           startDate = formState.time_date[0]
         }
-        const endDate = tool.calculateEndDate(startDate, months, days ? days - 1 : days)
+        const endDate = tool.calculateEndDate(startDate, months, days)
         formState.time_date = [dayjs(startDate), dayjs(endDate)]
         const calcDay = tool.calculateDurationPrecise(dayjs(startDate).format('YYYY-MM-DD'), dayjs(endDate).format('YYYY-MM-DD'))
         formState.totalDay = calcDay.gapDay

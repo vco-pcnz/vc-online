@@ -185,7 +185,7 @@
 
       if (months || days) {
         let statrDate = dayjs(date)
-        const endDateStr = tool.calculateEndDate(statrDate, months, days ? days - 1 : days)
+        const endDateStr = tool.calculateEndDate(statrDate, months, days)
         
         startDate.value = dayjs(date).format('YYYY-MM-DD')
         endDate.value = endDateStr

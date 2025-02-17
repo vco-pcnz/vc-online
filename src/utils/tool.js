@@ -349,7 +349,7 @@ tool.calculateDurationPrecise = (startDate, endDate) => {
 tool.calculateEndDate = (startDate, months = 0, days = 0) => {
   const start = dayjs(startDate);
   // 增加月数和天数
-  const end = start.add(months, 'month').add(days, 'day');
+  const end = start.add(months, "month").add(days, "day").subtract(1, "day")
   return end.format('YYYY-MM-DD'); // 返回格式化的日期
 };
 

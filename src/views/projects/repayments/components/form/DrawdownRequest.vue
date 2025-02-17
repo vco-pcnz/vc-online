@@ -30,17 +30,20 @@
                   :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                 />
               </a-form-item>
-
             </a-col>
             <a-col :span="12">
               <a-form-item :label="t('还款说明')" name="note">
                 <a-textarea v-model:value="formState.note" :placeholder="t('请输入')" :rows="6" class="textarea" />
               </a-form-item>
             </a-col>
+            <a-col :span="24">
+              <documents-upload v-model:value="document">
+                <div class="upload-title">{{ t('文件') }}</div>
+              </documents-upload>
+            </a-col>
           </a-row>
         </a-form>
         
-
         <div class="flex justify-center mt-5">
           <a-button @click="save" type="dark" class="save big uppercase shadow bold" :loading="loading">
             {{ t('提交') }}
@@ -55,6 +58,7 @@
 import { nextTick, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { loanRDedit } from '@/api/project/loan';
+import DocumentsUpload from './../../../discharge/components/form/DocumentsUpload.vue';
 
 const { t } = useI18n();
 const emits = defineEmits(['change']);
@@ -73,6 +77,8 @@ const formState = ref({
   note: '',
   apply_amount: '',
 });
+
+const document = ref([])
 
 const formRef = ref()
 
@@ -95,7 +101,8 @@ const save = () => {
     .then(() => {
       const params = {
         ...formState.value,
-        uuid: props.uuid
+        uuid: props.uuid,
+        document: document.value
       }
       loading.value = true
 

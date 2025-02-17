@@ -15,6 +15,8 @@
       <div class="color_grey fs_xs mt-2">{{ detail?.note }}</div>
     </div>
 
+    <a-button type="brown" shape="round" size="small" @click="navigationTo('/projects/documents?uuid=' + uuid)">{{ t('查看文件') }}</a-button>
+
     <div class="flex items-center box mt-4">
       <i class="iconfont left-icon mr-3">&#xe757;</i>
       <div>
@@ -29,12 +31,6 @@
       </div>
     </div>
 
-    <!-- <div v-if="detail?.prev_permission && ['repayment_lm', 'REPAYMENT CONFIRM'].includes(detail?.mark)"  class="mt-10">
-      <a-popconfirm :title="t('您确实要撤回该请求吗？')" @confirm="recall">
-        <a-button type="dark" class="big uppercase" :loading="accept_loading" style="width: 100%">{{ t('撤回申请') }}</a-button>
-      </a-popconfirm>
-    </div> -->
-    
     <div v-if="detail?.prev_permission"  class="mt-10">
       <a-popconfirm :title="t('您确实要撤回该请求吗？')" @confirm="recall">
         <a-button type="dark" class="big uppercase" :loading="accept_loading" style="width: 100%">{{ t('撤回申请') }}</a-button>

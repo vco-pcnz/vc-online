@@ -460,7 +460,7 @@ export default {
   "确定修改吗？": "Are you sure you want to modify it?",
   "审核批示": "review instructions",
   "{0}审核批示": "{0} review instructions",
-  "总负责人审核": "Review by the Chief Executive",
+  "总负责人审核": "Director review",
   "LM 检查": "LM inspection",
   "确定通过审核吗？": "Are you sure it passed the review?",
   "分配LM": "Allocate LM",

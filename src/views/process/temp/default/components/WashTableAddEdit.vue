@@ -59,7 +59,14 @@
           <a-col :span="24">
             <a-form-item :label="t('有条件')" name="condition_time">
               <a-switch v-model:checked="show_condition_time" @change="change_condition_time" />
-              <a-date-picker class="mt-3" v-if="show_condition_time" v-model:value="formState.condition_time" format="DD-MM-YYYY" valueFormat="YYYY-MM-DD" />
+              <div class="condition_box" v-if="show_condition_time">
+                <a-form-item :label="t('日期')">
+                  <a-date-picker class="mt-3" v-model:value="formState.show_condition_desc" format="DD-MM-YYYY" valueFormat="YYYY-MM-DD" />
+                </a-form-item>
+                <a-form-item :label="t('描述')">
+                  <a-textarea v-model:value="formState.condition_desc" :auto-size="{ minRows: 4, maxRows: 5 }" :placeholder="t('请输入')" />
+                </a-form-item>
+              </div>
             </a-form-item>
           </a-col>
 
@@ -172,7 +179,8 @@ const formState = ref({
   sendSms: false,
   document: [],
   expire_time: [],
-  condition_time: null
+  condition_time: null,
+  condition_desc: ''
 });
 const formRules = {
   name: [{ required: true, message: t('请输入') + t('名称') }],
@@ -263,7 +271,8 @@ watch(
         sendSms: false,
         document: [],
         expire_time: [],
-        condition_time: null
+        condition_time: null,
+        condition_desc: ''
       };
       show_condition_time.value = false;
       documentList.value = [];
@@ -300,5 +309,12 @@ watch(
     font-weight: bold;
     font-size: 18px;
   }
+}
+.condition_box {
+  background-color: #fffbe6;
+  border: 1px solid #ffe58f;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-top: 15px;
 }
 </style>

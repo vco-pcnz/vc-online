@@ -2,31 +2,27 @@
   <div class="table-block">
     <ul class="table-col header">
       <li></li>
-      <li>{{ t('还款') }}</li>
-      <li>{{ t('请求数据') }}</li>
-      <li>{{ t('状态t') }}</li>
+      <li>{{ t('名称') }}</li>
+      <li>{{ t('产权编号') }}</li>
+      <li>{{ t('类型') }}</li>
+      <li>{{ t('抵押物价值') }}</li>
+      <li>{{ t('状态') }}</li>
       <li>{{ t('创建时间') }}</li>
-      <li>{{ t('已批准') }}</li>
     </ul>
     <div v-if="tableData.length" class="table-body">
       <template v-for="item in tableData" :key="item.id">
-        <ul class="table-col tr" :class="{ active: active_id == item.id, declined: item.status_name === 'DECLINED REPAYMENT' }" @click="viewDetail(item)">
-          <li><div class="circle" :class="{'done': item.status === 2}"></div></li>
+        <ul class="table-col tr" :class="{ active: active_id == item.uuid, declined: item.status === 1 }" @click="viewDetail(item)">
+          <li><div class="circle" :class="{'done': item.status === 1}"></div></li>
           <li>
-            <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.name" style="width: 200px">{{ item.name }}</p>
+            <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.security_name" style="width: 140px">{{ item.security_name }}</p>
           </li>
-          <li>
-            <vco-number :value="item.apply_amount" :precision="2" size="fs_md" :end="true"></vco-number>
-          </li>
-          <li :style="{ color: colors[item.status_name] }">
-            {{ item.status === 2 ? 'REPAID' : item.status_name }}
-          </li>
-          <li>
-            <p class="fs_xs color_grey">{{ tool.showDate(item.create_time) }}</p>
-          </li>
+          <li>{{ item.card_no }}</li>
+          <li>{{ item.type_name }}</li>
           <li>
             <vco-number :value="item.amount" :precision="2" size="fs_md" :end="true"></vco-number>
           </li>
+          <li :style="{ color: colors[item.status_name] }">{{ item.status_name }}</li>
+          <li><p class="fs_xs color_grey">{{ tool.showDate(item.create_time) }}</p></li>
         </ul>
       </template>
     </div>
@@ -49,18 +45,14 @@ const props = defineProps({
 
 const { t } = useI18n();
 const colors = ref({
-  'REPAYMENT CONFIRM': '#a9ad57',
-  'LM REVIEW': '#d3a631',
-  'LM PENDING REVIEW': '#d3a631',
   'FC REVIEW': '#d3a631',
-  'PENDING APPROVAL…': '#d3a631',
   'FC PENDING REVIEW': '#d3a631'
 });
 
 const active_id = ref('');
 
 const viewDetail = (val) => {
-  active_id.value = val.id;
+  active_id.value = val.uuid;
   emit('change', val);
 };
 
@@ -69,7 +61,7 @@ watch(
   (val) => {
     if (val && val.length) {
       let ids = val.map((item) => {
-        return item.id;
+        return item.uuid;
       });
       if (!ids.includes(active_id.value)) {
         viewDetail(val[0]);
@@ -91,6 +83,7 @@ watch(
   padding: 12px 24px;
   font-size: 14px;
   color: @color_coal;
+  justify-content: space-between;
 
   &.header {
     font-weight: bold;
@@ -127,6 +120,7 @@ watch(
     &.declined {
       opacity: 0.5;
     }
+
     > li {
       &:nth-child(4) {
         color: #272727;
@@ -162,20 +156,21 @@ watch(
       flex: 1;
     }
     &:nth-child(3) {
-      width: 160px;
+      width: 100px;
       text-align: center;
     }
     &:nth-child(4) {
       text-align: center;
-      width: 210px;
+      width: 90px;
     }
     &:nth-child(5) {
-      width: 140px;
+      width: 160px;
       text-align: center;
     }
-    &:nth-child(6) {
-      width: 160px;
-      text-align: right;
+    &:nth-child(6),
+    &:nth-child(7) {
+      width: 155px;
+      text-align: center;
     }
   }
 }

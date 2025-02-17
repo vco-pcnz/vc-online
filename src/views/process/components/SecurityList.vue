@@ -62,7 +62,7 @@
                   </a-col>
                   <a-col :span="12" class="item-txt">
                     <p>{{ t('保险到期日') }}</p>
-                    <p>{{ tool.showDate(item.insurance_expire_date) }}</p>
+                    <p>{{ item.insurance_expire_date ? tool.showDate(item.insurance_expire_date) : '--' }}</p>
                   </a-col>
                   <a-col :span="24" class="item-txt">
                     <p>{{ t('地址') }}</p>
@@ -70,7 +70,7 @@
                   </a-col>
                   <a-col :span="12" class="item-txt">
                     <div class="item-txt">
-                      <p>{{ t('总金额') }}</p>
+                      <p>{{ t('抵押物价值') }}</p>
                       <vco-number :value="item.amount" :precision="2" :end="true"></vco-number>
                     </div>
                   </a-col>

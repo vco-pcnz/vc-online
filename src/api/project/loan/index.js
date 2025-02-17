@@ -167,3 +167,51 @@ export const dsaveStake = (data) =>
     method: 'post',
     data
   });
+
+// 解押数据统计
+export const dischargeStatistics = (params) =>
+  request({
+    url: 'project/discharge/statistics',
+    method: 'get',
+    params
+  });
+
+// 解押-列表
+export const dischargeSecurity = (params) =>
+  request({
+    url: 'project/discharge/security',
+    method: 'get',
+    params
+  });
+
+// 解押-申请提交
+export const dischargeEdit = (data) =>
+  request({
+    url: 'project/discharge/edit',
+    method: 'post',
+    data
+  });
+
+// 解押-同意申请
+export const dischargeSaveStep = (data) =>
+  request({
+    url: 'project/discharge/saveStep',
+    method: 'post',
+    data
+  });
+
+// 解押-召回申请
+export const dischargeRecall = (data) =>
+  request({
+    url: 'project/discharge/recall',
+    method: 'post',
+    data
+  });
+
+// 解押-退回
+export const dischargeGoback = (data) =>
+  request({
+    url: 'project/discharge/goBack',
+    method: 'post',
+    data
+  });

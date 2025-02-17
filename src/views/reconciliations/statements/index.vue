@@ -4,7 +4,8 @@
       <div class="flex justify-between">
         <div class="actions">
           <a-button @click="onRemove" :disabled="!selectedRowKeys.length">
-            {{ t('删除重做') }}
+            <template v-if="currentTab == ''">{{ t('删除重做') }}</template>
+            <template v-if="currentTab == '-1'">{{ t('恢复') }}</template>
           </a-button>
           <span class="count">{{ t('选中{ 0 }条', [selectedRowKeys.length]) }}</span>
         </div>
@@ -13,16 +14,34 @@
         </div>
       </div>
       <a-spin :spinning="loading" size="large">
-        <a-table :data-source="dataSource" :columns="columns" :pagination="false" :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }" row-key="bank_sn">
+        <a-table
+          :data-source="dataSource"
+          :columns="columns"
+          :pagination="false"
+          :defaultExpandAllRows="true"
+          :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }"
+          row-key="bank_sn"
+        >
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'status'">
-              <div v-if="record.status" class="status_tag">Reconciled</div>
-              <div v-else class="status_tag unreconciled_tag">Unreconciled</div>
+              <div v-if="record.status == 1" class="status_tag">Reconciled</div>
+              <div v-else-if="record.status == 0" class="status_tag unreconciled_tag">Unreconciled</div>
+              <div v-else class="status_tag unreconciled_tag">Cancelled</div>
             </template>
 
             <template v-if="column.key === 'operation'">
-              <a-popconfirm :title="t('您确定要撤回该对账吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="revoke(record.bank_sn)" :disabled="!record.status">
+              <a-popconfirm
+                :title="t('您确定要撤回该对账吗？')"
+                :cancel-text="t('取消')"
+                :ok-text="t('确定')"
+                @confirm="revoke(record.bank_sn)"
+                :disabled="!record.status"
+                v-if="record.status != -1"
+              >
                 <a-button type="danger" shap="round" :disabled="!record.status"> {{ t('撤回') }}</a-button>
+              </a-popconfirm>
+              <a-popconfirm :title="t('您确定要恢复该对账吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="restore(record.bank_sn)" v-else>
+                <a-button type="danger" shap="round"> {{ t('恢复') }}</a-button>
               </a-popconfirm>
             </template>
           </template>
@@ -117,16 +136,16 @@ const columns = reactive([
   }
 ]);
 
-const currentTab = ref('1');
+const currentTab = ref('');
 const tabData = ref([
   {
     label: t('当前'),
-    value: '1',
+    value: '',
     num: 0
   },
   {
     label: t('已取消'),
-    value: '2',
+    value: '-1',
     num: 0
   }
 ]);
@@ -151,7 +170,7 @@ const setPaginate = (page, limit) => {
 
 const loadData = () => {
   loading.value = true;
-  getStatements(pagination.value)
+  getStatements({ status: currentTab.value, ...pagination.value })
     .then((res) => {
       total.value = res.count;
       res.data.map((item) => {
@@ -173,7 +192,6 @@ const reload = () => {
 };
 
 const tabChange = () => {
-  // getTableData(params);
   reload();
 };
 
@@ -217,7 +235,7 @@ const rowSelection = ref({
   },
   getCheckboxProps: (r) => ({
     disabled: (() => {
-      if (r.status || r.parent_id) {
+      if (r.status == 1 || r.parent_id) {
         return true;
       }
       if (r.children) {
@@ -243,6 +261,14 @@ const onRemove = () => {
     selectedRows.value = [];
     selectedRowKeys.value = [];
     pagination.value.page = 1;
+    loadData();
+  });
+};
+
+// 恢复对账
+const restore = (bank_sn) => {
+  return;
+  revokeReconciliation({ bank_sn }).then((res) => {
     loadData();
   });
 };
@@ -290,5 +316,9 @@ onMounted(() => {
 .disabled {
   color: rgba(0, 0, 0, 0.2);
   cursor: not-allowed;
+}
+
+:deep(.ant-table-row-level-1) {
+  background: #f7f3e6;
 }
 </style>

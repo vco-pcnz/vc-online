@@ -289,7 +289,7 @@ const getDataInfo = () => {
   }).then((res) => {
     statisticsData.value = res;
     option.value.series[0].data[0].value = res.repayments || 0;
-    option.value.series[0].data[1].value = res.pendingRepayment || 0;
+    option.value.series[0].data[1].value = res.pendingRepayment || 1;
   });
 };
 

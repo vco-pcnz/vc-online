@@ -1,6 +1,14 @@
 <template>
   <div class="sys-table-content">
-    <a-table :columns="columns" :data-source="tableData" :pagination="false" :scroll="{ x: '100%' }" row-key="uuid" :row-selection="{ selectedRowKeys: selectedRowKeys, onSelect: onSelect, onSelectAll: onSelectAll }" :customRow="rowClick">
+    <a-table
+      :columns="columns"
+      :data-source="tableData"
+      :pagination="false"
+      :scroll="{ x: '100%' }"
+      row-key="uuid"
+      :row-selection="{ selectedRowKeys: selectedRowKeys, onSelect: onSelect, onSelectAll: onSelectAll }"
+      :customRow="rowClick"
+    >
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === '1'">
           <div class="avatarBox cursor">
@@ -34,7 +42,7 @@
           <p v-if="record.roles.length">{{ record.roles.join('/') }}</p>
           <p v-else>--</p>
         </template>
-        <template v-if="column.key === '5'">
+        <!-- <template v-if="column.key === '5'">
           <p class="black bold" v-if="record.org_stake_type">
             {{ record.org_stake_type }}
           </p>
@@ -51,6 +59,14 @@
               {{ record.stake }}
             </span>
           </p>
+        </template> -->
+        <template v-else-if="column.key === 'type'">
+          <a-tag color="orange" v-if="record.type">
+            {{ t('公司') }}
+          </a-tag>
+          <a-tag color="green" v-else>
+            {{ t('个人') }}
+          </a-tag>
         </template>
         <template v-if="column.key === '6'">
           <p>
@@ -93,7 +109,7 @@ const columns = reactive([
   { title: t('基础信息'), key: '2', align: 'left' },
   { title: t('ID & 注册时间'), key: '3', width: 150, align: 'left' },
   { title: t('用户角色t'), key: '4', width: 200, align: 'center' },
-  { title: t('组织信息'), key: '5', width: 250 },
+  { title: t('类型'), key: 'type', width: 250, align: 'center' },
   { title: t('项目数据'), key: '6', width: 200, align: 'left' },
   { title: t('请求数据'), key: '7', width: 150, align: 'center' }
 ]);

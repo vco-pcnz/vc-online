@@ -604,5 +604,6 @@ export default {
   "已取消": "Cancelled",
   "当前": "Current",
   "您确定要恢复该对账吗？": "Are you sure you want to restore the reconciliation?",
-  "恢复": "Restore"
+  "恢复": "Restore",
+  "公司": "Company"
 }

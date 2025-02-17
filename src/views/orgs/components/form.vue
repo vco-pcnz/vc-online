@@ -593,7 +593,7 @@ watch(
     }
     switch (val) {
       case 20:
-        orgsStore.getJob('stakeholder_job1');
+        orgsStore.getJob('stakeholder_job2');
         break;
       case 1:
       case 2:

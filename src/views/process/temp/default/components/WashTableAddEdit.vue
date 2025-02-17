@@ -61,7 +61,7 @@
               <a-switch v-model:checked="show_condition_time" @change="change_condition_time" />
               <div class="condition_box" v-if="show_condition_time">
                 <a-form-item :label="t('日期')">
-                  <a-date-picker class="mt-3" v-model:value="formState.show_condition_desc" format="DD-MM-YYYY" valueFormat="YYYY-MM-DD" />
+                  <a-date-picker class="mt-3" v-model:value="formState.condition_time" format="DD-MM-YYYY" valueFormat="YYYY-MM-DD" />
                 </a-form-item>
                 <a-form-item :label="t('描述')">
                   <a-textarea v-model:value="formState.condition_desc" :auto-size="{ minRows: 4, maxRows: 5 }" :placeholder="t('请输入')" />

@@ -218,7 +218,7 @@ export default {
   "详情":"Details",
   "添加人员":"Add Member",
   "账号": "Account",
-  "手机": "Cellphone",
+  "手机": "Phone number",
   "验证码": "Verification code",
   "选择登录账号": "Select login account",
   "请上传头像": "Please upload avatar",

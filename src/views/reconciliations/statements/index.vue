@@ -67,7 +67,7 @@ import { ref, reactive, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import layout from '../components/layout.vue';
 import tool from '@/utils/tool.js';
-import { getStatements, revokeReconciliation, cancelReconciliation } from '@/api/reconciliations';
+import { getStatements, revokeReconciliation, cancelReconciliation, recoverReconciliation } from '@/api/reconciliations';
 
 const { t } = useI18n();
 
@@ -267,8 +267,7 @@ const onRemove = () => {
 
 // 恢复对账
 const restore = (bank_sn) => {
-  return;
-  revokeReconciliation({ bank_sn }).then((res) => {
+  recoverReconciliation({ bank_sn }).then((res) => {
     loadData();
   });
 };

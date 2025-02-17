@@ -98,3 +98,11 @@ export const revokeReconciliation = (data) =>
     method: 'post',
     data
   });
+
+// 恢复对账
+export const recoverReconciliation = (data) =>
+  request({
+    url: 'reconciliation/recoverReconciliation',
+    method: 'post',
+    data
+  });

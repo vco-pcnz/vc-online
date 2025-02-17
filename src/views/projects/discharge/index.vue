@@ -1,21 +1,9 @@
 <template>
-  <detail-layout active-tab="repayments" @getProjectDetail="getProjectDetail">
+  <detail-layout active-tab="discharge" @getProjectDetail="getProjectDetail">
     <template #content>
       <div class="ProjectDrawdowns">
-        <div :class="{ grid: hasPermission('projects:repayments:add') }" class="mb-12">
+        <div class="mb-12">
           <MeterStat :uuid="uuid" :projectDetail="projectDetail" v-if="Boolean(uuid)" ref="MeterStatRef"></MeterStat>
-          <template v-if="hasPermission('projects:repayments:add')">
-            <drawdownre-quest v-if="isNormalUser" :uuid="uuid" @change="update">
-              <a-button type="dark" class="big uppercase fs_2xs mt-20">{{ t('还款申请') }}</a-button>
-            </drawdownre-quest>
-            <div v-else class="HelpBorrower">
-              <div class="flex items-center"><i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">{{ t('帮助借款人') }}</span></div>
-              <p class="color_grey mt-1 mb-3">{{ t('您可以帮助他们创建还款请求') }}</p>
-              <drawdownre-quest :uuid="uuid" @change="update">
-                <a-button type="brown" shape="round" size="small">{{ t('点击创建') }}</a-button>
-              </drawdownre-quest>
-            </div>
-          </template>
         </div>
         <div :class="{ grid: tableData.length }">
           <a-spin :spinning="loading" size="large">
@@ -27,7 +15,7 @@
             </div>
           </a-spin>
           <div>
-            <Detail ref="detailRef" :projectDetail="projectDetail" :uuid="uuid" :detail="detail_info" v-if="Boolean(uuid && detail_info && detail_info.id)" @update="loadData"></Detail>
+            <Detail ref="detailRef" :projectDetail="projectDetail" :uuid="uuid" :detail="detail_info" v-if="Boolean(uuid && detail_info && detail_info.uuid)" @update="loadData"></Detail>
           </div>
         </div>
       </div>
@@ -36,25 +24,18 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { size, template } from 'lodash';
 import detailLayout from '../components/detailLayout.vue';
 import MeterStat from './components/MeterStat.vue';
 import TableBlock from './components/TableBlock.vue';
 import Detail from './components/Detail.vue';
-import DrawdownreQuest from './components/form/DrawdownRequest.vue';
-import { hasPermission } from '@/directives/permission/index';
-import { loanRepayment } from '@/api/project/loan';
+import { dischargeSecurity } from '@/api/project/loan';
 import { useRoute } from 'vue-router';
-import { useUserStore } from '@/store';
 
 const route = useRoute();
 
 const { t } = useI18n();
-
-const userStore = useUserStore();
-const isNormalUser = computed(() => userStore.isNormalUser)
 
 const uuid = ref('');
 const detail_info = ref(null);
@@ -75,24 +56,14 @@ const setPaginate = (page, limit) => {
   loadData();
 };
 
-const update = () => {
-  pagination.value.page = 1;
-  loadData();
-  detailRef.value.loadData();
-  MeterStatRef.value.loadData();
-};
-
 const tableData = ref([]);
 
 const loadData = () => {
   loading.value = true;
-  loanRepayment({ uuid: uuid.value, ...pagination.value })
+
+  dischargeSecurity({ uuid: uuid.value, ...pagination.value })
     .then((res) => {
       const data = res.data || []
-      data.forEach(item => {
-        item.amount = Math.abs(Number(item.amount))
-        item.apply_amount = Math.abs(Number(item.apply_amount))
-      })
       tableData.value = data;
       total.value = res.count;
     })
@@ -102,6 +73,7 @@ const loadData = () => {
 };
 
 const change = (val) => {
+  console.log('val', val);
   detail_info.value = val;
 };
 
@@ -122,7 +94,7 @@ onMounted(() => {
   .grid {
     display: grid;
     gap: 36px;
-    grid-template-columns: 3fr 1fr;
+    grid-template-columns: 2.9fr 1.1fr;
     align-items: start;
   }
 

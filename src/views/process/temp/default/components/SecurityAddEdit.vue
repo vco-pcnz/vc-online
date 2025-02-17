@@ -47,14 +47,14 @@
             </a-col>
             <a-col :span="1" class="plus-txt"><i class="iconfont">=</i></a-col>
             <a-col :span="8" class="total-amount-info">
-              <a-form-item :label="t('总金额')">
+              <a-form-item :label="t('抵押物价值')">
                 <vco-number :value="totalAmountRef" :precision="2" :end="true"></vco-number>
               </a-form-item>
             </a-col>
           </template>
           <template v-else>
             <a-col :span="24">
-              <a-form-item :label="t('总金额')" name="amount">
+              <a-form-item :label="t('抵押物价值')" name="amount">
                 <a-input-number
                   v-model:value="formState.amount"
                   :max="99999999999"

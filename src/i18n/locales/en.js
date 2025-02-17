@@ -347,6 +347,7 @@ export default {
   "选择利益相关者": "Select stakeholders",
   "项目": "projects",
   "项目文件": "Documents",
+  "文件": "Documents",
   "预测": "Forecast",
   "明细表": "Schedule",
   "提款": "Drawdowns",
@@ -402,6 +403,7 @@ export default {
   "额度费用计算时间表": "Line Fee Calculation Schedule",
   "利息、费用": "Interest, fees",
   "余额": "Balance",
+  "抵押物": "Securities",
   "抵押物信息": "Security items",
   "产权编号": "Title No.",
   "土地价值": "Land value",
@@ -602,5 +604,13 @@ export default {
   "删除l": "Delete",
   "LC 分配 LM": "LC Assign LM",
   "已取消": "Cancelled",
-  "当前": "Current"
+  "当前": "Current",
+  "解押": "Discharge",
+  "未解押": "Unreleased",
+  "已解押": "Released",
+  "解押时间": "Release time",
+  "解押说明": "Release instructions",
+  "解押标题": "Release Title",
+  "解押申请": "Discharge request",
+  "您可以点击下面的按钮来拒绝解押请求。": "You can reject the release request by clicking the button below."
 }

@@ -73,7 +73,6 @@ const loadData = () => {
 };
 
 const change = (val) => {
-  console.log('val', val);
   detail_info.value = val;
 };
 

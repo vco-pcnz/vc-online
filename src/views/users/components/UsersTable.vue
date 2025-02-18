@@ -87,19 +87,19 @@
             <template #overlay>
               <div>
                 <a-menu :selectable="false">
-                  <a-menu-item key="0" @click="toDetail(record)">
-                    <span>{{ t('查看详情') }}</span>
-                  </a-menu-item>
-                  <a-menu-item key="1" @click="toEdit(record)">
+                  <a-menu-item key="0" @click="toEdit(record)">
                     <span>
                       {{ t('编辑') }}
                     </span>
                   </a-menu-item>
-                  <!-- <a-menu-item key="2" @click="toEdit(record)">
+                  <a-menu-item key="1" @click="toDetail(record)">
+                    <span>{{ t('团队') }}</span>
+                  </a-menu-item>
+                  <a-menu-item key="2" @click="toOrgs(record)">
                     <span>
                       {{ t('利益相关者') }}
                     </span>
-                  </a-menu-item> -->
+                  </a-menu-item>
                 </a-menu>
               </div>
             </template>
@@ -201,6 +201,10 @@ const toDetail = (record) => {
 
 const toEdit = (record) => {
   navigationTo(`/users/edit?uuid=${record.uuid}`);
+}
+
+const toOrgs = (record) => {
+  navigationTo(`/users/orgs?uuid=${record.uuid}`);
 }
 </script>
 

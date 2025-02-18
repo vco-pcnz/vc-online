@@ -1,6 +1,7 @@
 <template>
   <div class="TabsPanel">
-    <vco-page-panel :title="userInfo?.user_name + '` ' + t('用户中心')" :isBack="true"></vco-page-panel>
+    <vco-page-panel :title="userInfo?.user_name+'` '+ title" :isBack="true">
+    </vco-page-panel>
     <div class="profile-container">
       <div class="profile-info">
         <div class="profile-info-header">
@@ -45,6 +46,11 @@ const { t } = useI18n();
 const route = useRoute();
 const emit = defineEmits(['setDetail']);
 
+const props = defineProps({
+  title: {
+    type: String
+  }
+});
 const baseInfo = ref();
 const extraInfo = ref();
 const userInfo = ref();

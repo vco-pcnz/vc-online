@@ -1,5 +1,5 @@
 <template>
-  <detailLayout @setDetail="setDetail" ref="detailLayoutRef">
+  <detailLayout @setDetail="setDetail" ref="detailLayoutRef" :title="t('编辑')">
     <a-form ref="formRef" :model="form" :rules="rules" layout="vertical" class="sys-form-content">
       <a-row>
         <a-col :span="6" :offset="9">

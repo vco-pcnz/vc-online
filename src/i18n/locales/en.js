@@ -626,6 +626,8 @@ export default {
   "确定要拒绝吗？": "Are you sure you want to reject?",
   "确定要添加到我的团队吗？": "Are you sure you want to add to my team?",
   "添加成功": "Added successfully",
-  "提交成功": "Submit successfully"
+  "提交成功": "Submit successfully",
+  "团队": "Team",
+  "确定要对账吗？": "Are you sure you want to reconcile?"
 
 }

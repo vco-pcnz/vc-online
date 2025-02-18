@@ -1,7 +1,7 @@
 <template>
   <profile-layout active-tab="team">
     <template #content>
-      <layout :uuid="userDetailStore.userDetail.uuid"></layout>
+      <layout :uuid="userDetailStore.userDetail.uuid" :edit="true"></layout>
     </template>
   </profile-layout>
 </template>

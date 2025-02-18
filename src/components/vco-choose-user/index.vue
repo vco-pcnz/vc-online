@@ -149,10 +149,6 @@ const keys = ref([
     value: 'mobile'
   },
   {
-    label: t('Id编码'),
-    value: 'code'
-  },
-  {
     label: t('用户Id'),
     value: 'userId'
   }

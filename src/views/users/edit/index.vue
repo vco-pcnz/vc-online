@@ -1,119 +1,83 @@
 <template>
-  <div class="TabsPanel">
-    <vco-page-panel :title="userInfo?.user_name + '` ' + t('用户中心')" :isBack="true"></vco-page-panel>
-    <div class="profile-container">
-      <div class="profile-info">
-        <div class="profile-info-header">
-          <div class="avatar">
-            <vco-avatar :size="110" style="margin: auto" :src="userInfo?.avatar" />
-          </div>
-          <div class="info-detail">
-            <p v-for="(info, index) in baseInfo" :key="index">
-              <span class="label">
-                <i :class="`iconfont ${info.isVerify ? 'iconfont_yellow' : ''}`" v-html="info.icon" v-if="info.icon" />
-                {{ info.label }}:
-              </span>
-              <span class="value">{{ info.value }}</span>
-            </p>
-          </div>
-        </div>
-        <div class="profile-info-detail">
-          <p v-for="(info, index) in extraInfo" :key="index">
-            <span class="label">
-              <i class="iconfont text-2xl" v-html="info.icon" v-if="info.icon" />
-              &nbsp;
-            </span>
-            <span class="detail">
-              {{ info.value }}
-            </span>
-          </p>
-        </div>
-      </div>
-      <div class="profile-content sys-form-content">
-        <a-form ref="formRef" :model="form" :rules="rules" layout="vertical">
-          <a-row>
-            <a-col :span="6" :offset="9">
-              <a-form-item name="avatar" class="avatar-form-item">
-                <vco-upload-image v-model:value="form.avatar" text="头像" :isAvatar="true"></vco-upload-image>
-              </a-form-item>
-            </a-col>
-          </a-row>
-          <a-row :gutter="8">
-            <a-col :span="24">
-              <a-form-item :label="t('类型')" name="type">
-                <a-select v-model:value="form.type" :placeholder="t('类型')">
-                  <a-select-option :value="0">
-                    {{ t('个人') }}
-                  </a-select-option>
-                  <a-select-option :value="1">
-                    {{ t('公司') }}
-                  </a-select-option>
-                </a-select>
-              </a-form-item>
-            </a-col>
+  <detailLayout @setDetail="setDetail" ref="detailLayoutRef">
+    <a-form ref="formRef" :model="form" :rules="rules" layout="vertical" class="sys-form-content">
+      <a-row>
+        <a-col :span="6" :offset="9">
+          <a-form-item name="avatar" class="avatar-form-item">
+            <vco-upload-image v-model:value="form.avatar" text="头像" :isAvatar="true"></vco-upload-image>
+          </a-form-item>
+        </a-col>
+      </a-row>
+      <a-row :gutter="8">
+        <a-col :span="24">
+          <a-form-item :label="t('类型')" name="type">
+            <a-select v-model:value="form.type" :placeholder="t('类型')">
+              <a-select-option :value="0">
+                {{ t('个人') }}
+              </a-select-option>
+              <a-select-option :value="1">
+                {{ t('公司') }}
+              </a-select-option>
+            </a-select>
+          </a-form-item>
+        </a-col>
 
-            <template v-if="form.type">
-              <a-col :span="24">
-                <a-form-item name="user_name" :label="t('名称')">
-                  <a-input v-model:value="form.user_name" :placeholder="t('名称')" />
-                </a-form-item>
-              </a-col>
-            </template>
-            <template v-else>
-              <a-col :span="8">
-                <a-form-item name="firstName" :label="t('名')">
-                  <a-input v-model:value="form.firstName" :placeholder="t('名')" />
-                </a-form-item>
-              </a-col>
-              <a-col :span="8">
-                <a-form-item name="middleName" :label="t('中间名')">
-                  <a-input v-model:value="form.middleName" :placeholder="t('中间名')" />
-                </a-form-item>
-              </a-col>
-              <a-col :span="8">
-                <a-form-item name="lastName" :label="t('姓')">
-                  <a-input v-model:value="form.lastName" :placeholder="t('姓')" />
-                </a-form-item>
-              </a-col>
-            </template>
-          </a-row>
-          <a-form-item name="email" :label="t('邮箱')">
-            <a-input v-model:value="form.email" :placeholder="t('邮箱')" :disabled="true" />
-          </a-form-item>
-          <a-form-item :label="t('手机号')" name="mobile">
-            <vco-mobile-input v-model:value="form.mobile" v-model:areaCode="form.pre" :disabled="true"></vco-mobile-input>
-          </a-form-item>
-          <a-row>
-            <a-col :span="6" :offset="9">
-              <a-button size="large" type="cyan" :loading="loading" class="register-btn big shadow bold" @click="save">
-                {{ t('提交') }}
-              </a-button>
-            </a-col>
-          </a-row>
-        </a-form>
-      </div>
-    </div>
-  </div>
+        <template v-if="form.type">
+          <a-col :span="24">
+            <a-form-item name="user_name" :label="t('名称')">
+              <a-input v-model:value="form.user_name" :placeholder="t('名称')" />
+            </a-form-item>
+          </a-col>
+        </template>
+        <template v-else>
+          <a-col :span="8">
+            <a-form-item name="firstName" :label="t('名')">
+              <a-input v-model:value="form.firstName" :placeholder="t('名')" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="8">
+            <a-form-item name="middleName" :label="t('中间名')">
+              <a-input v-model:value="form.middleName" :placeholder="t('中间名')" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="8">
+            <a-form-item name="lastName" :label="t('姓')">
+              <a-input v-model:value="form.lastName" :placeholder="t('姓')" />
+            </a-form-item>
+          </a-col>
+        </template>
+      </a-row>
+      <a-form-item name="email" :label="t('邮箱')">
+        <a-input v-model:value="form.email" :placeholder="t('邮箱')" :disabled="true" />
+      </a-form-item>
+      <a-form-item :label="t('手机号')" name="mobile">
+        <vco-mobile-input v-model:value="form.mobile" v-model:areaCode="form.pre" :disabled="true"></vco-mobile-input>
+      </a-form-item>
+      <a-row>
+        <a-col :span="6" :offset="9">
+          <a-button size="large" type="cyan" :loading="loading" class="register-btn big shadow bold" @click="save">
+            {{ t('提交') }}
+          </a-button>
+        </a-col>
+      </a-row>
+    </a-form>
+  </detailLayout>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { getUserInfo, editUser } from '@/api/users';
-import { useRoute } from 'vue-router';
+import { editUser } from '@/api/users';
 import useFormData from '@/utils/use-form-data';
 import { EMAIL_RULE } from '@/constant';
-import { goBack } from '@/utils/tool';
 import { message } from 'ant-design-vue';
+import detailLayout from '../components/detailLayout.vue';
 
 const { t } = useI18n();
-const route = useRoute();
 
-const baseInfo = ref();
-const extraInfo = ref();
-const userInfo = ref();
 const formRef = ref(null);
 const loading = ref(false);
+const detailLayoutRef = ref(null)
 
 const { form, assignFields } = useFormData({
   uuid: '',
@@ -177,55 +141,9 @@ const rules = reactive({
   ]
 });
 
-const setInfoCard = (data) => {
-  const { username, email, email_ok, pre, mobile, mobile_ok, user_name, roles } = data;
-  const _baseInfo = [
-    {
-      label: 'ID',
-      value: username
-    },
-    {
-      icon: '&#xe73b;',
-      label: t('名字'),
-      value: user_name
-    },
-    {
-      icon: '&#xe66f;',
-      label: t('邮箱'),
-      value: email,
-      isVerify: !!email_ok
-    },
-    {
-      icon: '&#xe61d;',
-      label: t('手机号'),
-      value: `+${pre} ${mobile}`,
-      isVerify: !!mobile_ok
-    }
-  ];
-  const _extraInfo = [
-    {
-      icon: '&#xe8db;',
-      value: roles.join(' ')
-    }
-  ];
-  baseInfo.value = _baseInfo;
-  extraInfo.value = _extraInfo;
+const setDetail = (val) => {
+  assignFields(val);
 };
-
-const getUserDetail = (userId) => {
-  const uuid = userId || route.query.uuid;
-  if (uuid) {
-    getUserInfo({ uuid }).then((res) => {
-      userInfo.value = res;
-      setInfoCard(res);
-      !userId && assignFields(res);
-    });
-  }
-};
-
-onMounted(() => {
-  getUserDetail();
-});
 
 const save = () => {
   formRef.value.validate().then(() => {
@@ -240,7 +158,7 @@ const save = () => {
     })
       .then(() => {
         loading.value = false;
-        getUserDetail(form.uuid);
+        detailLayoutRef.value.getUserDetail()
         message.success(t('修改成功'));
       })
       .catch(() => {

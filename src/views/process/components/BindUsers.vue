@@ -11,11 +11,11 @@
 
     <a-spin :spinning="configLoading" size="large">
       <div class="block-item sec mb-5" :class="{'about': about}">
-        <div v-if="vcTeamData.length && (isDetails || hasPermission('requests:loan:bind:vcTeam'))" class="user-show-item">
+        <div v-if="vcTeamData.length && (isDetails || (hasPermission('requests:loan:bind:vcTeam') && !about) || about)" class="user-show-item">
           <div class="title-content">
             <p class="uppercase">{{ t('管理者信息') }}</p>
             <a-button
-              v-if="!isDetails && hasPermission('requests:loan:bind:vcTeam')"
+              v-if="!isDetails && ((hasPermission('requests:loan:bind:vcTeam') && !about) || (hasPermission('projects:about:bind:vcTeam') && about))"
               type="primary"
               size="small"
               shape="round"
@@ -37,11 +37,11 @@
           </div>
         </div>
 
-        <div v-if="isDetails || hasPermission('requests:loan:bind:broker')" class="user-show-item">
+        <div v-if="isDetails || (hasPermission('requests:loan:bind:broker') && !about) || about" class="user-show-item">
           <div class="title-content">
             <p class="uppercase">{{ t('中介信息') }}</p>
             <a-button
-              v-if="!isDetails && hasPermission('requests:loan:bind:broker')"
+              v-if="!isDetails && ((hasPermission('requests:loan:bind:broker') && !about) || (hasPermission('projects:about:bind:broker') && about))"
               type="primary"
               size="small"
               shape="round"
@@ -63,11 +63,11 @@
           </div>
         </div>
 
-        <div v-if="isDetails || hasPermission('requests:loan:bind:user')" class="user-show-item">
+        <div v-if="isDetails || (hasPermission('requests:loan:bind:user') && !about) || about" class="user-show-item">
           <div class="title-content">
             <p class="uppercase">{{ t('借款账号信息') }}</p>
             <a-button
-              v-if="!isDetails && hasPermission('requests:loan:bind:user')"
+              v-if="!isDetails && ((hasPermission('requests:loan:bind:user') && !about) || (hasPermission('projects:about:bind:user') && about))"
               type="primary"
               size="small"
               shape="round"

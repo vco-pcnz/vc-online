@@ -631,5 +631,8 @@ export default {
   "抵押物建筑总额为{0}，建筑贷款总额为{1}，差{2}": "The total amount of the mortgaged building is <span>{0}</span>, the total amount of the building loan is <span>{1}</span>, and the difference is <span>{2}</span>",
   "确认通过审核吗？": "Are you sure it passed the review?",
   "您可以点击下面的按钮来退回解押请求。": "You can click the button below to return your unbonding request.",
-  "退回请求": "Push back request"
+  "退回请求": "Push back request",
+  "团队": "Team",
+  "确定要对账吗？": "Are you sure you want to reconcile?"
+
 }

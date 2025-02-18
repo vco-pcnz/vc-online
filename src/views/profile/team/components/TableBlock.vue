@@ -41,7 +41,7 @@
           <span class="type_text cre" v-else>{{ t('待审核') }}</span>
         </template>
         <template v-if="column.key === 'operation'">
-          <a-popconfirm :title="t('确定要移除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.uuid)" :loading="loading">
+          <a-popconfirm :title="t('确定要移除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.uuid)">
             <span style="text-transform: lowercase">
               <a-button type="danger" shape="round" size="small"> {{ t('移除') }}</a-button>
             </span>

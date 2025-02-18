@@ -38,21 +38,21 @@
         <template v-else-if="column.key === 'operation'">
           <div class="flex justify-center">
             <template v-if="!record.parent_sta">
-              <a-popconfirm :title="t('确定要同意吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="agree(record.uuid)" :loading="loading">
+              <a-popconfirm :title="t('确定要同意吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="agree(record.uuid)">
                 <span style="text-transform: lowercase">
                   <a-button type="cyan" shape="round" size="small"> {{ t('同意') }}</a-button>
                 </span>
               </a-popconfirm>
             </template>
             <template v-if="record.parent_sta">
-              <a-popconfirm :title="t('确定要移除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.uuid)" :loading="loading">
+              <a-popconfirm :title="t('确定要移除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.uuid)">
                 <span style="text-transform: lowercase">
                   <a-button class="ml-3" type="danger" shape="round" size="small"> {{ t('移除') }}</a-button>
                 </span>
               </a-popconfirm>
             </template>
             <template v-else>
-              <a-popconfirm :title="t('确定要拒绝吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.uuid)" :loading="loading">
+              <a-popconfirm :title="t('确定要拒绝吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.uuid)">
                 <span style="text-transform: lowercase">
                   <a-button class="ml-3" type="danger" shape="round" size="small"> {{ t('拒绝') }}</a-button>
                 </span>

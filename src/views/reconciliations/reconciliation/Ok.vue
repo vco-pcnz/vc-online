@@ -1,13 +1,14 @@
 <template>
   <a-col :span="2" class="content_btn">
-    <a-button
-      :loading="ok_loading && formState.id == item.id"
-      :class="{ active: (!item.transaction && item['f_date'] && item['f_fee'] && item['f_note'] && project) || item.transaction }"
-      :disabled="(!item.transaction && (!item['f_date'] || !item['f_fee'] || !item['f_note'])) || !project"
-      @click="showTip(item)"
-    >
-      OK
-    </a-button>
+    <a-popconfirm :title="t('确定要对账吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="showTip(item)">
+      <a-button
+        :loading="ok_loading && formState.id == item.id"
+        :class="{ active: (!item.transaction && item['f_date'] && item['f_fee'] && item['f_note'] && project) || item.transaction }"
+        :disabled="(!item.transaction && (!item['f_date'] || !item['f_fee'] || !item['f_note'])) || !project"
+      >
+        OK
+      </a-button>
+    </a-popconfirm>
   </a-col>
   <TipModal v-model:visible="visible" :formState="formState" @submit="submit"></TipModal>
 </template>
@@ -67,7 +68,7 @@ const submit = () => {
   ok_loading.value = true;
   ajaxFn(params)
     .then((res) => {
-      emits('update')
+      emits('update');
     })
     .finally(() => {
       ok_loading.value = false;

@@ -94,10 +94,10 @@
         <a-button type="dark" class="big uppercase" style="width: 100%">{{ t('接受请求') }}</a-button>
       </a-popconfirm>
       <div class="mt-4">
-        <p class="text-center color_grey fs_xs my-3">{{ t('您可以点击下面的按钮来拒绝解押请求。') }}</p>
+        <p class="text-center color_grey fs_xs my-3">{{ t('您可以点击下面的按钮来退回解押请求。') }}</p>
         <DrawdownBack :uuid="uuid" :detail="detail" @change="update">
           <div class="flex justify-center">
-            <a-button type="danger" size="small" shape="round">{{ t('拒绝请求') }}</a-button>
+            <a-button type="danger" size="small" shape="round">{{ t('退回请求') }}</a-button>
           </div>
         </DrawdownBack>
       </div>

@@ -192,8 +192,9 @@ const close = () => {
 const lodaData = () => {
   loading.value = true;
 
+  const url = props.url || 'user/selUser'
   const paramsInfo = {
-    url: props.url,
+    url,
     method: 'get',
     params: { ...searchForm.value, ...pagination.value, ...{ role_code: props.roleCode },...props.params }
   };

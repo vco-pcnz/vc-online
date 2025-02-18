@@ -3,12 +3,15 @@
     <!-- 人员选择 -->
     <vco-choose-user
       ref="vcoChooseUserRef"
-      :isMultiple="type !== 1 || (type === 1 && itemCode === 'alm')"
+      :url="searchUserUrl"
+      :isMultiple="isMultipleSelect"
       :role-code="roleCode"
+      :params="otherParams"
       @done="userChoiced"
     >
       <div></div>
     </vco-choose-user>
+
     <a-modal
       :width="500"
       :open="visible"
@@ -28,7 +31,7 @@
                 size="small"
                 shape="round"
                 class="uppercase"
-                @click="openUserSelect(item.code)"
+                @click="openUserSelect(item.code, item.code !== 'lm')"
               >{{ t('添加') }}</a-button>
             </div>
             <div class="content">
@@ -49,103 +52,158 @@
         <template v-if="type === 2">
           <div class="form-item">
             <div class="title">
-              <p>{{ t('编辑者') }}</p>
+              <p>{{ t('借款账号信息') }}</p>
               <a-button
                 type="primary"
                 size="small"
                 shape="round"
                 class="uppercase"
-                @click="openUserSelect(true)"
+                @click="openUserSelect(true, false, 'borrower')"
               >{{ t('添加') }}</a-button>
             </div>
             <div class="content">
-              <template v-if="borrowerEditors.length">
+              <template v-if="borrowerPuser.length">
                 <div
-                  v-for="(item, index) in borrowerEditors"
+                  v-for="(item, index) in borrowerPuser"
                   :key="index"
                   class="user-item"
                 >
                   <vco-user-item :data="item" :main="true"></vco-user-item>
-                  <i class="iconfont" @click="removeItem(index, 1)">&#xe77d;</i>
+                  <i class="iconfont" @click="removeBorrowerHandle">&#xe77d;</i>
                 </div>
               </template>
             </div>
           </div>
-          <div class="form-item">
-            <div class="title">
-              <p>{{ t('浏览者') }}</p>
-              <a-button
-                type="primary"
-                size="small"
-                shape="round"
-                class="uppercase"
-                @click="openUserSelect(false)"
-              >{{ t('添加') }}</a-button>
+
+          <template v-if="borrowerComUuid && borrowerHasLowerUsers">
+            <div class="form-item">
+              <div class="title">
+                <p>{{ t('编辑者') }}</p>
+                <a-button
+                  type="primary"
+                  size="small"
+                  shape="round"
+                  class="uppercase"
+                  @click="openUserSelect(true, true, '', 'borrower')"
+                >{{ t('添加') }}</a-button>
+              </div>
+              <div class="content">
+                <template v-if="borrowerEditors.length">
+                  <div
+                    v-for="(item, index) in borrowerEditors"
+                    :key="index"
+                    class="user-item"
+                  >
+                    <vco-user-item :data="item" :main="true"></vco-user-item>
+                    <i class="iconfont" @click="removeItem(index, 1)">&#xe77d;</i>
+                  </div>
+                </template>
+              </div>
             </div>
-            <div class="content">
-              <template v-if="borrowerViewers.length">
-                <div
-                  v-for="(item, index) in borrowerViewers"
-                  :key="index"
-                  class="user-item"
-                >
-                  <vco-user-item :data="item" :main="true"></vco-user-item>
-                  <i class="iconfont" @click="removeItem(index, 2)">&#xe77d;</i>
-                </div>
-              </template>
+            <div class="form-item">
+              <div class="title">
+                <p>{{ t('浏览者') }}</p>
+                <a-button
+                  type="primary"
+                  size="small"
+                  shape="round"
+                  class="uppercase"
+                  @click="openUserSelect(false, true, '', 'borrower')"
+                >{{ t('添加') }}</a-button>
+              </div>
+              <div class="content">
+                <template v-if="borrowerViewers.length">
+                  <div
+                    v-for="(item, index) in borrowerViewers"
+                    :key="index"
+                    class="user-item"
+                  >
+                    <vco-user-item :data="item" :main="true"></vco-user-item>
+                    <i class="iconfont" @click="removeItem(index, 2)">&#xe77d;</i>
+                  </div>
+                </template>
+              </div>
             </div>
-          </div>
+          </template>
         </template>
         <!-- 绑定中介 -->
         <template v-if="type === 3">
           <div class="form-item">
             <div class="title">
-              <p>{{ t('编辑者') }}</p>
+              <p>{{ t('中介信息') }}</p>
               <a-button
                 type="primary"
                 size="small"
                 shape="round"
                 class="uppercase"
-                @click="openUserSelect(true)"
+                @click="openUserSelect(true, false, 'broker')"
               >{{ t('添加') }}</a-button>
             </div>
             <div class="content">
-              <template v-if="brokerEditors.length">
+              <template v-if="brokerPuser.length">
                 <div
-                  v-for="(item, index) in brokerEditors"
+                  v-for="(item, index) in brokerPuser"
                   :key="index"
                   class="user-item"
                 >
                   <vco-user-item :data="item" :main="true"></vco-user-item>
-                  <i class="iconfont" @click="removeItem(index, 3)">&#xe77d;</i>
+                  <i class="iconfont" @click="removeBrokerHandle">&#xe77d;</i>
                 </div>
               </template>
             </div>
           </div>
-          <div class="form-item">
-            <div class="title">
-              <p>{{ t('浏览者') }}</p>
-              <a-button
-                type="primary"
-                size="small"
-                shape="round"
-                class="uppercase"
-                @click="openUserSelect(false)"
-              >{{ t('添加') }}</a-button>
+
+          <template v-if="brokerComUuid && borkerHasLowerUsers">
+            <div class="form-item">
+              <div class="title">
+                <p>{{ t('编辑者') }}</p>
+                <a-button
+                  type="primary"
+                  size="small"
+                  shape="round"
+                  class="uppercase"
+                  @click="openUserSelect(true, true, '', 'broker')"
+                >{{ t('添加') }}</a-button>
+              </div>
+              <div class="content">
+                <template v-if="brokerEditors.length">
+                  <div
+                    v-for="(item, index) in brokerEditors"
+                    :key="index"
+                    class="user-item"
+                  >
+                    <vco-user-item :data="item" :main="true"></vco-user-item>
+                    <i class="iconfont" @click="removeItem(index, 3)">&#xe77d;</i>
+                  </div>
+                </template>
+              </div>
             </div>
-            <div class="content">
-              <template v-if="brokerViewers.length">
-                <div
-                  v-for="(item, index) in brokerViewers"
-                  :key="index"
-                  class="user-item"
-                >
-                  <vco-user-item :data="item" :main="true"></vco-user-item>
-                  <i class="iconfont" @click="removeItem(index, 4)">&#xe77d;</i>
-                </div>
-              </template>
+
+            <div class="form-item">
+              <div class="title">
+                <p>{{ t('浏览者') }}</p>
+                <a-button
+                  type="primary"
+                  size="small"
+                  shape="round"
+                  class="uppercase"
+                  @click="openUserSelect(false, true, '', 'broker')"
+                >{{ t('添加') }}</a-button>
+              </div>
+              <div class="content">
+                <template v-if="brokerViewers.length">
+                  <div
+                    v-for="(item, index) in brokerViewers"
+                    :key="index"
+                    class="user-item"
+                  >
+                    <vco-user-item :data="item" :main="true"></vco-user-item>
+                    <i class="iconfont" @click="removeItem(index, 4)">&#xe77d;</i>
+                  </div>
+                </template>
+              </div>
             </div>
-          </div>
+          </template>
         </template>
       </div>
       <a-button
@@ -159,12 +217,13 @@
 </template>
 
 <script setup>
-  import { ref, watch, computed, toRefs, nextTick} from "vue";
+  import { ref, watch, computed, nextTick} from "vue";
   import { useI18n } from "vue-i18n";
   import { cloneDeep } from "lodash"
   import { message } from "ant-design-vue/es";
   import { removeDuplicates } from "@/utils/tool"
   import { associateAssignUser, associateAssignTeam } from "@/api/process"
+  import { getUserRelation } from "@/api/users"
   import emitter from "@/event"
 
   const { t } = useI18n();
@@ -199,6 +258,10 @@
     }
   });
 
+  const searchUserUrl = ref('')
+
+  const isMultipleSelect = ref(false)
+
   /* 更新visible */
   const updateVisible = (value) => {
     emits('update:visible', value);
@@ -217,10 +280,16 @@
   })
 
   const vcTeamData = ref(null)
+
   const borrowerEditors = ref([])
   const borrowerViewers = ref([])
+  const borrowerPuser = ref([])
+  const borrowerHasLowerUsers = ref(false)
+
   const brokerEditors = ref([])
   const brokerViewers = ref([])
+  const brokerPuser = ref([])
+  const borkerHasLowerUsers = ref(false)
 
   const removeItem = (index, type) => {
     let data = null
@@ -242,10 +311,70 @@
     vcTeamData.value[type].splice(index, 1)
   }
 
+  const removeBrokerHandle = () => {
+    brokerPuser.value = []
+    brokerEditors.value = []
+    brokerViewers.value = []
+  }
+
+  const removeBorrowerHandle = () => {
+    borrowerPuser.value = []
+    borrowerEditors.value = []
+    borrowerViewers.value = []
+  }
+
+  const brokerComUuid = computed(() => {
+    let uuid = ''
+    if (brokerPuser.value.length) {
+      uuid = brokerPuser.value[0].uuid
+    }
+
+    return uuid
+  })
+
+  const borrowerComUuid = computed(() => {
+    let uuid = ''
+    if (borrowerPuser.value.length) {
+      uuid = borrowerPuser.value[0].uuid
+    }
+
+    return uuid
+  })
+
+  const getLowerUsers = (flag = false) => {
+    const uuid = flag ? brokerComUuid.value : borrowerComUuid.value
+    getUserRelation({
+      puuid: uuid,
+      sta__ok: 1
+    }).then(res => {
+      if (flag) {
+        borkerHasLowerUsers.value = Boolean(res.count)
+      } else {
+        borrowerHasLowerUsers.value = Boolean(res.count)
+      }
+      
+    }).catch(() => {
+      if (flag) {
+        borkerHasLowerUsers.value = false
+      } else {
+        borrowerHasLowerUsers.value = false
+      }
+    })
+  }
+
   const itemCode = ref('')
   const isEdit = ref(false)
   const roleCode = ref('')
-  const openUserSelect = (code) => {
+  const otherParams = ref({})
+  const currentPuser = ref('')
+
+  const openUserSelect = (code, isMultiple, puser = '', secType = '') => {
+    searchUserUrl.value = ''
+
+    currentPuser.value = puser
+    otherParams.value = {}
+
+    isMultipleSelect.value = isMultiple
     if (props.type === 1) {
       itemCode.value = code
 
@@ -254,6 +383,25 @@
       isEdit.value = code
 
       roleCode.value = props.type === 2 ? 'user' : 'broker'
+
+      if (puser === 'broker') {
+        otherParams.value = { type: 1, is_broker: 1 }
+      } else {
+        if (puser === 'borrower') {
+          otherParams.value = { is_borrower: 1 }
+        }
+
+        roleCode.value = ''
+        if (secType === 'broker') {
+          searchUserUrl.value = 'user/relation'
+          otherParams.value = {puuid: brokerComUuid.value, sta__ok: 1}
+        }
+
+        if (secType === 'borrower') {
+          searchUserUrl.value = 'user/relation'
+          otherParams.value = {puuid: borrowerComUuid.value, sta__ok: 1}
+        }
+      }
     }
 
     nextTick(() => {
@@ -279,31 +427,46 @@
     }
 
     if (props.type === 2) {
-      const staticData = isEdit.value ? borrowerEditors.value : borrowerViewers.value
+      const isBorrowerCom = currentPuser.value && currentPuser.value === 'borrower'
+      const staticData = isEdit.value ? isBorrowerCom ? borrowerPuser.value : borrowerEditors.value : borrowerViewers.value
       const dataArr = [
         ...staticData,
         ...data
       ]
       if (isEdit.value) {
-        borrowerEditors.value  = removeDuplicates(dataArr, 'uuid')
+        if (currentPuser.value && currentPuser.value === 'borrower') { // 单选
+          borrowerPuser.value = removeDuplicates(data, 'uuid')
+          borrowerEditors.value = []
+          borrowerViewers.value = []
+          getLowerUsers(false)
+        } else {
+          borrowerEditors.value  = removeDuplicates(dataArr, 'uuid')
+        }
       } else {
         borrowerViewers.value  = removeDuplicates(dataArr, 'uuid')
       }
     }
 
     if (props.type === 3) {
-      const staticData = isEdit.value ? brokerEditors.value : brokerViewers.value
+      const isBrokerCom = currentPuser.value && currentPuser.value === 'broker'
+      const staticData = isEdit.value ? isBrokerCom ? brokerPuser.value : brokerEditors.value : brokerViewers.value
       const dataArr = [
         ...staticData,
         ...data
       ]
       if (isEdit.value) {
-        brokerEditors.value  = removeDuplicates(dataArr, 'uuid')
+        if (currentPuser.value && currentPuser.value === 'broker') { // 单选
+          brokerPuser.value = removeDuplicates(data, 'uuid')
+          brokerEditors.value = []
+          brokerViewers.value = []
+          getLowerUsers(true)
+        } else {
+          brokerEditors.value  = removeDuplicates(dataArr, 'uuid')
+        }
       } else {
         brokerViewers.value  = removeDuplicates(dataArr, 'uuid')
       }
     }
-    
   }
 
   const dataInit = () => {
@@ -311,15 +474,25 @@
       vcTeamData.value = cloneDeep(props.data)
     } else if (props.type === 2) {
       if (props.data) {
-        const {edit, view} = props.data
+        const {edit, view, company} = props.data
+        borrowerPuser.value = cloneDeep(company)
         borrowerEditors.value = cloneDeep(edit)
         borrowerViewers.value = cloneDeep(view)
+
+        if (company && company.length) {
+          getLowerUsers(false)
+        }
       }
     } else if (props.type === 3) {
       if (props.data) {
-        const {edit, view} = props.data
+        const {edit, view, company} = props.data
+        brokerPuser.value = cloneDeep(company)
         brokerEditors.value = cloneDeep(edit)
         brokerViewers.value = cloneDeep(view)
+
+        if (company && company.length) {
+          getLowerUsers(true)
+        }
       }
     }
   }
@@ -333,7 +506,6 @@
           const code = props.vcTeam[i].code
           const params = {
             uuid: [props.currentId],
-            // user_uuid: vcTeamData.value[code].map(item => item.uuid).join(','),
             user_uuid: vcTeamData.value[code].map(item => item.uuid),
             role_code: code
           }
@@ -347,7 +519,13 @@
             subLoading.value = false
             return false
           }
-          await associateAssignTeam(params).catch(() => {
+          await associateAssignTeam(params).then(() => {
+            if (i === props.vcTeam.length - 1) {
+              subLoading.value = false
+              emits('done')
+              updateVisible(false)
+            }
+          }).catch(() => {
             subLoading.value = false
           })
         }
@@ -356,56 +534,44 @@
           type: 1,
           data: vcTeamData.value
         })
+
+        updateVisible(false)
       }
     } else {
+      const companyData = props.type === 2 ? cloneDeep(borrowerPuser.value) : cloneDeep(brokerPuser.value)
       const editData = props.type === 2 ? cloneDeep(borrowerEditors.value) : cloneDeep(brokerEditors.value)
       const viewData = props.type === 2 ? cloneDeep(borrowerViewers.value) : cloneDeep(brokerViewers.value)
 
-      const editParams = {
-        uuid: props.currentId,
-        user_uuid: editData.map(item => item.uuid).join(','),
-        role_code: props.type === 2 ? 'user' : 'broker',
-        rule: 2
-      }
-
-      const viewParams = {
-        uuid: props.currentId,
-        user_uuid: viewData.map(item => item.uuid).join(','),
-        role_code: props.type === 2 ? 'user' : 'broker',
-        rule: 1
-      }
-
-      // if (props.type === 2 && editParams.user_uuid === '') {
-      //   message.error(t('编辑者') + t('为必填项'))
-      //   return false
-      // }
-
       if (props.currentId) {
         subLoading.value = true
-        for (let i = 0; i < 2; i++) {
-          const params = i ? viewParams : editParams
-          await associateAssignUser(params).catch(() => {
-            subLoading.value = false
-          })
+
+        const params = {
+          uuid: props.currentId,
+          code: props.type === 2 ? 'user' : 'broker',
+          company: companyData.length ? companyData[0].uuid : '',
+          view: viewData.map(item => item.uuid),
+          edit: editData.map(item => item.uuid)
         }
+
+        await associateAssignUser(params).then(() => {
+          subLoading.value = false
+          emits('done')
+          updateVisible(false)
+        }).catch(() => {
+          subLoading.value = false
+        })
       } else {
         emitter.emit('stepOneBindUser', {
           type: props.type,
           data: {
+            company: companyData,
             view: viewData,
             edit: editData
           }
         })
+        updateVisible(false)
       }
     }
-
-    if (props.currentId || (props.pIds && props.pIds.length)) {
-      subLoading.value = false
-      emits('done')
-    }
-
-    updateVisible(false)
-    
   }
 
   watch(
@@ -415,10 +581,15 @@
         dataInit()
       } else {
         vcTeamData.value = null
+        borrowerPuser.value = []
         borrowerEditors.value = []
         borrowerViewers.value = []
+        brokerPuser.value = []
         brokerEditors.value = []
         brokerViewers.value = []
+
+        borkerHasLowerUsers.value = false
+        borrowerHasLowerUsers.value = false
       }
     }
   );
@@ -428,7 +599,7 @@
 @import '@/styles/variables.less';
 
 .form-content {
-  min-height: 200px;
+  min-height: 120px;
   padding-bottom: 20px;
   .form-item {
     margin-top: 30px;

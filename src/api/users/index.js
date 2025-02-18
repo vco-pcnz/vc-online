@@ -85,3 +85,19 @@ export const relationApply = (data) =>
     method: 'post',
     data
   });
+
+// 获取用户列表数据
+export const getUserSelUser = (params) =>
+  request({
+    url: 'user/selUser',
+    method: 'get',
+    params,
+  });
+
+// 获取用户列表数据 - 下级
+export const getUserRelation = (params) =>
+  request({
+    url: 'user/relation',
+    method: 'get',
+    params,
+  });

@@ -178,6 +178,15 @@
     return arrFlat
   }
 
+  const filterCompany = (company = [], arr = []) => {
+    let res = []
+    if (company.length && arr.length) {
+      const uuid = company[0].uuid
+      res = arr.filter(item => item.uuid !== uuid)
+    }
+    return res
+  }
+
   const configLoading = ref(false)
   const vcTeamData = ref([])
 
@@ -187,7 +196,6 @@
       emitter.emit('refreshRequestsList');
     }
     
-
     configLoading.value = true
     let vcTeamArr = []
 
@@ -201,13 +209,15 @@
         uuid: props.currentId
       }).then(res => {
         res.user = {
-          edit: res.user?.edit || [],
-          view: res.user?.view || []
+          company: res.user?.company || [],
+          edit: filterCompany((res.user?.company || []), (res.user?.edit || [])),
+          view: filterCompany((res.user?.company || []), (res.user?.view || []))
         }
 
         res.broker = {
-          edit: res.broker?.edit || [],
-          view: res.broker?.view || []
+          company: res.broker?.company || [],
+          edit: filterCompany((res.broker?.company || []), (res.broker?.edit || [])),
+          view: filterCompany((res.broker?.company || []), (res.broker?.view || []))
         }
 
         const vcObj = {}
@@ -241,12 +251,14 @@
       vcDataCom.value = userFlatFn(vcData.value)
 
       borrowerData.value = {
+        company: [],
         view: [],
         edit: []
       }
       borrowerDataCom.value = userFlatFn(borrowerData.value)
 
       brokerData.value = {
+        company: [],
         view: [],
         edit: []
       }
@@ -282,31 +294,23 @@
       }
     }
 
-    for (const key in brokerData.value) {
-      if (brokerData.value[key] && brokerData.value[key].length) {
-        const params = {
-          uuid,
-          user_uuid: brokerData.value[key].map(item => item.uuid).join(','),
-          role_code: 'broker',
-          rule: key === 'view' ? 1 : 2
-        }
-
-        await associateAssignUser(params)
-      }
+    const brokerParams = {
+      uuid,
+      code: 'broker',
+      company: brokerData.value.company.length ? brokerData.value.company[0].uuid : '',
+      view: brokerData.value.view.map(item => item.uuid),
+      edit: brokerData.value.edit.map(item => item.uuid)
     }
+    await associateAssignUser(brokerParams)
 
-    for (const key in borrowerData.value) {
-      if (borrowerData.value[key] && borrowerData.value[key].length) {
-        const params = {
-          uuid,
-          user_uuid: borrowerData.value[key].map(item => item.uuid).join(','),
-          role_code: 'user',
-          rule: key === 'view' ? 1 : 2
-        }
-
-        await associateAssignUser(params)
-      }
+    const borrowerParams = {
+      uuid,
+      code: 'user',
+      company: borrowerData.value.company.length ? borrowerData.value.company[0].uuid : '',
+      view: borrowerData.value.view.map(item => item.uuid),
+      edit: borrowerData.value.edit.map(item => item.uuid)
     }
+    await associateAssignUser(borrowerParams)
   }
 
   const handleStepOneBindUser = (data) => {

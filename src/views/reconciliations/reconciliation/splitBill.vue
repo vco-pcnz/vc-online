@@ -163,7 +163,7 @@ const init = () => {
       return {
         amount: item.amount,
         description: item.description,
-        disabled: !!item.transaction
+        disabled: !!item.status
       };
     });
   }

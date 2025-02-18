@@ -5,14 +5,7 @@
         <a-row :gutter="24">
           <a-col :span="24">
             <a-form-item label="">
-              <vco-choose-user
-                ref="vcoChooseUserRef"
-                url="stake/selStake"
-                :params="{ type: 20 }"
-                @change="choiceUserDone"
-                :title="t('搜索利益相关者')"
-                :showRest="Boolean(!formState.id && formState.stake_uuid)"
-              ></vco-choose-user>
+              <vco-choose-user ref="vcoChooseUserRef" url="stake/selStake" :params="{ type: 20 }" @change="choiceUserDone" :title="t('搜索利益相关者')" :showRest="Boolean(!formState.id && formState.stake_uuid)"></vco-choose-user>
             </a-form-item>
           </a-col>
 
@@ -61,7 +54,7 @@
               <a-switch v-model:checked="show_condition_time" @change="change_condition_time" />
               <div class="condition_box" v-if="show_condition_time">
                 <a-form-item :label="t('日期')">
-                  <a-date-picker class="mt-3" v-model:value="formState.condition_time" format="DD-MM-YYYY" valueFormat="YYYY-MM-DD" />
+                  <a-date-picker class="mt-3" v-model:value="formState.condition_time" format="DD-MM-YYYY" valueFormat="YYYY-MM-DD" :disabledDate="disabledDateFormat" />
                 </a-form-item>
                 <a-form-item :label="t('描述')">
                   <a-textarea v-model:value="formState.condition_desc" :auto-size="{ minRows: 4, maxRows: 5 }" :placeholder="t('请输入')" />
@@ -156,6 +149,14 @@ const cateList = ref([
   { title: t('其他'), id: 3 }
 ]);
 
+const disabledDateFormat = (current) => {
+  const endDate = new Date();
+  if (current && current.isBefore(endDate, 'day')) {
+    return true;
+  }
+
+  return false;
+};
 const show_condition_time = ref(false);
 const formRef = ref();
 const formState = ref({

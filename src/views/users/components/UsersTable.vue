@@ -87,9 +87,9 @@
             <template #overlay>
               <div>
                 <a-menu :selectable="false">
-                  <!-- <a-menu-item key="0" @click="toDetail(record)">
+                  <a-menu-item key="0" @click="toDetail(record)">
                     <span>{{ t('查看详情') }}</span>
-                  </a-menu-item> -->
+                  </a-menu-item>
                   <a-menu-item key="1" @click="toEdit(record)">
                     <span>
                       {{ t('编辑') }}

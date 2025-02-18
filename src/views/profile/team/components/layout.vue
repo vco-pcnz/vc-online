@@ -1,14 +1,14 @@
 <template>
   <div class="mb-5 flex justify-between items-end">
     <table-search @search="search"></table-search>
-    <addUser @reload="reload">
+    <addUser @reload="reload" v-if="edit">
       <a-button type="cyan" shape="round">
         {{ t('添加') }}
       </a-button>
     </addUser>
   </div>
   <vco-table-tool>
-    <template #left>
+    <template #left v-if="edit">
       <a-popconfirm :title="t('确定要移除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" :disabled="Boolean(!rowSelection.length)" @confirm="remove">
         <a-button type="danger" :disabled="!rowSelection.length">{{ t('移除') }}</a-button>
       </a-popconfirm>
@@ -21,7 +21,7 @@
   <div class="mt-5">
     <a-spin :spinning="loading" size="large">
       <div class="table-content">
-        <table-block :table-data="tableData" v-model:keys="rowSelection" @loadData="loadData"></table-block>
+        <table-block ref="tableRef" :table-data="tableData" v-model:keys="rowSelection" :edit="edit" @loadData="loadData"></table-block>
       </div>
       <div class="mt-5" v-if="total">
         <a-pagination size="small" :total="total" :pageSize="pagination.limit" :current="pagination.page" show-size-changer show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
@@ -36,17 +36,20 @@ import { useI18n } from 'vue-i18n';
 import addUser from './addUser.vue';
 import TableSearch from './TableSearch.vue';
 import TableBlock from './TableBlock.vue';
-import { navigationTo } from '@/utils/tool';
 import { getRelation,relationDel } from '@/api/users';
 
 const props = defineProps({
   uuid: {
     type: String
+  },
+  edit: {
+    type: Boolean,
+    default: false
   }
 });
 const { t } = useI18n();
 
-const tableRef = ref();
+const tableRef = ref(null);
 const sortType = ref('desc');
 const sortValue = ref('');
 const loading = ref(false);

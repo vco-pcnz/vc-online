@@ -56,7 +56,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { relationDel } from '@/api/users';
@@ -69,23 +69,21 @@ const props = defineProps({
   tableData: {
     type: Array,
     default: () => []
+  },
+  edit: {
+    type: Boolean,
+    default: false
   }
 });
 const { t } = useI18n();
 
-const columns = reactive([
+const columns = ref([
   { title: t('头像'), key: '1', width: 110, align: 'center' },
   { title: t('基础信息'), key: '2', align: 'left' },
   { title: t('ID & 注册时间'), key: '3', width: 150, align: 'left' },
   { title: t('用户角色t'), key: '4', width: 200, align: 'center' },
   { title: t('类型'), key: 'type', width: 100, align: 'center' },
-  { title: t('状态'), key: 'child_sta', width: 100, align: 'center' },
-  {
-    title: t('操作1'),
-    key: 'operation',
-    align: 'center',
-    width: 50
-  }
+  { title: t('状态'), key: 'child_sta', width: 100, align: 'center' }
 ]);
 
 const selectedRowKeys = ref([]); // 存放UUid
@@ -139,6 +137,29 @@ const remove = (uuids) => {
     emits('loadData');
   });
 };
+
+const resetSelect = () => {
+  selectedRows.value = [];
+  selectedRowKeys.value = [];
+  handlePathChange();
+};
+
+// 暴露方法给父组件
+defineExpose({
+  resetSelect
+});
+
+onMounted(() => {
+  if (props.edit) {
+    columns.value.push({
+      title: t('操作1'),
+      key: 'operation',
+      hidden: true,
+      align: 'center',
+      width: 50
+    });
+  }
+});
 </script>
 
 <style scoped lang="less">

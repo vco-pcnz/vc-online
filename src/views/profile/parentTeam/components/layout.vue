@@ -40,7 +40,7 @@ const props = defineProps({
 });
 const { t } = useI18n();
 
-const tableRef = ref();
+const tableRef = ref(null);
 const sortType = ref('desc');
 const sortValue = ref('');
 const loading = ref(false);

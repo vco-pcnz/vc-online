@@ -28,8 +28,9 @@
         <div class="MeterStat-Dot"></div>
       </div>
         <div>
-          <p class="color_grey" style="margin-bottom: 2px">Accrued interest</p>
-          <vco-number :value="data?.accruedInterest" :precision="2"></vco-number>
+          <p class="color_grey" style="margin-bottom: 2px">Total balance</p>
+          <vco-number :value="data?.totalBalance" :precision="2"></vco-number>
+          <p class="color_grey flex"><vco-number :value="data?.accruedInterest" :precision="2" color="#888" size="fs_md" class="mr-2"></vco-number> Accrued interest</p>
         </div>
       </div>
     </div>

@@ -2,9 +2,14 @@
   <div class="vco-user-item" :class="{'main': main}">
     <div class="avatar" :class="{'auto': size !== 28 || size !== 32}">
       <div v-if="tips" class="icon">
-        <i v-if="tips === 'edit'" class="iconfont">&#xe739;</i>
-        <i v-else-if="tips === 'view'" class="iconfont view">&#xe776;</i>
-        <p v-else>{{ tips }}</p>
+        <template v-if="tips === 'company'">
+          <i class="iconfont">&#xe600;</i>
+        </template>
+        <template v-else>
+          <i v-if="tips === 'edit'" class="iconfont">&#xe739;</i>
+          <i v-else-if="tips === 'view'" class="iconfont view">&#xe776;</i>
+          <p v-else>{{ tips }}</p>
+        </template>
       </div>
       <vco-avatar :src="data.avatar" :size="sizeRef || size"></vco-avatar>
     </div>

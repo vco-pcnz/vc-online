@@ -320,12 +320,31 @@
   const confirmTxt = computed(() => {
     let res = ''
     if (!props.isDetails) {
-      const securityTotal = props.dataInfo.security.total_money || 0
-      const totalAmount = Number(formState.value.land_amount) + Number(formState.value.build_amount)
-      if (totalAmount > securityTotal) {
-        const num = tool.minus(totalAmount, securityTotal)
-        res = t('抵押物总价值为{0}，借款总金额为{1}，差{2}，确认通过审核吗？', [securityTotal, totalAmount, num])
+      const {land_amount, build_amount} = props.dataInfo.security
+      const landDiff = tool.minus(Number(formState.value.land_amount), land_amount)
+      const buildDiff = tool.minus(Number(formState.value.build_amount), build_amount)
+
+      let landTxt,buildTxt = ''
+      if (landDiff > 0) {
+        landTxt = t('抵押物土地总额为{0}，土地贷款总额为{1}，差{2}', [land_amount, formState.value.land_amount, landDiff])
       }
+
+      if (buildDiff > 0) {
+        buildTxt = t('抵押物建筑总额为{0}，建筑贷款总额为{1}，差{2}', [build_amount, formState.value.build_amount, buildDiff])
+      }
+
+      const txt = landTxt && buildTxt ? `${landTxt}, ${buildTxt}` : landTxt || buildTxt
+
+      if (txt) {
+        res = `${txt}, ${t('确认通过审核吗？')}`
+      }
+      
+      // const securityTotal = props.dataInfo.security.total_money || 0
+      // const totalAmount = Number(formState.value.land_amount) + Number(formState.value.build_amount)
+      // if (totalAmount > securityTotal) {
+      //   const num = tool.minus(totalAmount, securityTotal)
+      //   res = t('抵押物总价值为{0}，借款总金额为{1}，差{2}，确认通过审核吗？', [securityTotal, totalAmount, num])
+      // }
     }
     return res
   })

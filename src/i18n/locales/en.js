@@ -612,8 +612,13 @@ export default {
   "未解押": "Unreleased",
   "已解押": "Released",
   "解押时间": "Release time",
-  "解押说明": "Release instructions",
+  "解押说明": "Notes",
   "解押标题": "Release Title",
   "解押申请": "Discharge request",
-  "您可以点击下面的按钮来拒绝解押请求。": "You can reject the release request by clicking the button below."
+  "您可以点击下面的按钮来拒绝解押请求。": "You can reject the release request by clicking the button below.",
+  "抵押物土地总额为{0}，土地贷款总额为{1}，差{2}": "The total amount of mortgaged land is <span>{0}</span>, the total amount of land loan is <span>{1}</span>, the difference is <span>{2}</span>",
+  "抵押物建筑总额为{0}，建筑贷款总额为{1}，差{2}": "The total amount of the mortgaged building is <span>{0}</span>, the total amount of the building loan is <span>{1}</span>, and the difference is <span>{2}</span>",
+  "确认通过审核吗？": "Are you sure it passed the review?",
+  "您可以点击下面的按钮来退回解押请求。": "You can click the button below to return your unbonding request.",
+  "退回请求": "Push back request"
 }

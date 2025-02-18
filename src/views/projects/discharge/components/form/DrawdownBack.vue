@@ -1,7 +1,7 @@
 <template>
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="DrawdownBack" class="DrawdownBack">
-    <a-modal :width="486" :open="visible" :title="t('拒绝请求')" :getContainer="() => $refs.DrawdownBack" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
+    <a-modal :width="486" :open="visible" :title="t('退回请求')" :getContainer="() => $refs.DrawdownBack" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <a-form
           ref="formRef"

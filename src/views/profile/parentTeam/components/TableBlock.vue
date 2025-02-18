@@ -26,9 +26,6 @@
         </template>
         <template v-if="column.key === '3'">
           <p class="black bold">ID: {{ record.username }}</p>
-          <p>
-            <span>{{ t('注册于') }} {{ tool.showDate(record.create_time) }}</span>
-          </p>
         </template>
         <template v-if="column.key === '4'">
           <p v-if="record.roles.length">{{ record.roles.join('/') }}</p>
@@ -87,7 +84,7 @@ const { t } = useI18n();
 const columns = reactive([
   { title: t('头像'), key: '1', width: 110, align: 'center' },
   { title: t('基础信息'), key: '2', align: 'left' },
-  { title: t('ID & 注册时间'), key: '3', width: 150, align: 'left' },
+  { title: t('ID'), key: '3', width: 100, align: 'left' },
   { title: t('用户角色t'), key: '4', width: 100, align: 'center' },
   { title: t('类型'), key: 'type', width: 100, align: 'center' },
   {

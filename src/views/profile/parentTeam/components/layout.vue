@@ -51,7 +51,7 @@ const tableData = ref([]);
 const total = ref(0);
 const pagination = ref({
   page: 1,
-  limit: 2
+  limit: 10
 });
 
 const loadData = () => {

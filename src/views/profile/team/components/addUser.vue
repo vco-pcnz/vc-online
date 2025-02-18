@@ -101,7 +101,7 @@ const props = defineProps({
 const visible = ref(false);
 const loading = ref(false);
 const formState = ref({
-  email: '1649824587@qq.com',
+  email: '',
   mobile: ''
 });
 

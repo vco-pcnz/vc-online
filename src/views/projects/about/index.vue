@@ -5,7 +5,9 @@
         <div class="project-container">
           <div class="project-info">
             <base-card :detail="detail"></base-card>
-            <member></member>
+
+            <bind-users :current-id="currentId" :about="true"></bind-users>
+
             <a-collapse expand-icon-position="end" ghost>
               <a-collapse-panel key="History" class="collapse-card history-card">
                 <template #header>
@@ -65,7 +67,6 @@ import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import detailLayout from '../components/detailLayout.vue';
 import BaseCard from './components/base.vue';
-import Member from './components/member.vue';
 import History from './components/history.vue';
 import Conditions from './components/conditions.vue';
 import RequestDetails from './components/requestDetails.vue';
@@ -76,6 +77,7 @@ import Wash from './components/wash.vue';
 import Journal from './components/form/Journal.vue';
 import StartDefault from './components/form/StartDefault.vue';
 import AddVariations from './components/form/AddVariations.vue';
+import BindUsers from '@/views/process/components/BindUsers.vue';
 import { projectDetail } from '@/api/project/project';
 
 const { t } = useI18n();

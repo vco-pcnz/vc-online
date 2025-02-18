@@ -10,7 +10,7 @@
     ></bind-users-dialog>
 
     <a-spin :spinning="configLoading" size="large">
-      <div class="block-item sec mb-5">
+      <div class="block-item sec mb-5" :class="{'about': about}">
         <div v-if="vcTeamData.length && (isDetails || hasPermission('requests:loan:bind:vcTeam'))" class="user-show-item">
           <div class="title-content">
             <p class="uppercase">{{ t('管理者信息') }}</p>
@@ -118,6 +118,10 @@
       default: ''
     },
     isDetails: {
+      type: Boolean,
+      default: false
+    },
+    about: {
       type: Boolean,
       default: false
     },
@@ -362,5 +366,13 @@
         margin-bottom: 0;
       }
     }
+  }
+
+  .block-item.about {
+    box-shadow: none;
+    background-color: transparent;
+    border-top: 1px solid #e2e5e2;
+    border-bottom: 1px solid #e2e5e2;
+    border-radius: 0;
   }
 </style>

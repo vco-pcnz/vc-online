@@ -1,14 +1,6 @@
 <template>
   <div class="sys-table-content">
-    <a-table
-      :columns="columns"
-      :data-source="tableData"
-      :pagination="false"
-      :scroll="{ x: '100%' }"
-      row-key="uuid"
-      :row-selection="{ selectedRowKeys: selectedRowKeys, onSelect: onSelect, onSelectAll: onSelectAll }"
-      :customRow="rowClick"
-    >
+    <a-table :columns="columns" :data-source="tableData" :pagination="false" :scroll="{ x: '100%' }" row-key="uuid" :row-selection="{ selectedRowKeys: selectedRowKeys, onSelect: onSelect, onSelectAll: onSelectAll }">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === '1'">
           <div class="avatarBox cursor">
@@ -42,68 +34,21 @@
           <p v-if="record.roles.length">{{ record.roles.join('/') }}</p>
           <p v-else>--</p>
         </template>
-        <!-- <template v-if="column.key === '5'">
-          <p class="black bold" v-if="record.org_stake_type">
-            {{ record.org_stake_type }}
-          </p>
-          <p v-else>--</p>
-          <p v-if="record.org_stake">
-            <i class="iconfont" :class="{ cer: record.org_stake_ok }">&#xe679;</i>
-            <span>
-              {{ record.org_stake }}
-            </span>
-          </p>
-          <p v-if="record.stake">
-            <i class="iconfont" :class="{ cer: record.stake_ok }">&#xe742;</i>
-            <span>
-              {{ record.stake }}
-            </span>
-          </p>
-        </template> -->
         <template v-else-if="column.key === 'type'">
           <span class="type_text orange" v-if="record.type">{{ t('公司') }}</span>
           <span class="type_text green" v-else>{{ t('个人') }}</span>
         </template>
-        <template v-if="column.key === '6'">
-          <p>
-            <i class="iconfont black">&#xe690;</i>
-            <span class="cer bold"> {{ record.open_count }} {{ t('进行中项目') }} </span>
-          </p>
-          <p style="padding-left: 20px">
-            <span class="bold"> {{ record.close_count }} {{ t('已关闭项目') }} </span>
-          </p>
-        </template>
-        <template v-if="column.key === '7'">
-          <p>
-            <i class="iconfont black">&#xe751;</i>
-            <span class="cer bold"> {{ record.apply_count }} {{ t('请求') }} </span>
-          </p>
+
+        <template v-else-if="column.key === 'child_sta'">
+          <span class="type_text green" v-if="record.child_sta">{{ t('成功') }}</span>
+          <span class="type_text cre" v-else>{{ t('待审核') }}</span>
         </template>
         <template v-if="column.key === 'operation'">
-          <a-dropdown :trigger="['click']">
-            <a class="ant-dropdown-link" @click.stop.prevent>
-              <i class="iconfont cert">&#xe77a;</i>
-            </a>
-            <template #overlay>
-              <div>
-                <a-menu :selectable="false">
-                  <!-- <a-menu-item key="0" @click="toDetail(record)">
-                    <span>{{ t('查看详情') }}</span>
-                  </a-menu-item> -->
-                  <a-menu-item key="1" @click="toEdit(record)">
-                    <span>
-                      {{ t('编辑') }}
-                    </span>
-                  </a-menu-item>
-                  <!-- <a-menu-item key="2" @click="toEdit(record)">
-                    <span>
-                      {{ t('利益相关者') }}
-                    </span>
-                  </a-menu-item> -->
-                </a-menu>
-              </div>
-            </template>
-          </a-dropdown>
+          <a-popconfirm :title="t('确定要移除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.uuid)" :loading="loading">
+            <span style="text-transform: lowercase">
+              <a-button type="danger" shape="round" size="small"> {{ t('移除') }}</a-button>
+            </span>
+          </a-popconfirm>
         </template>
       </template>
     </a-table>
@@ -114,9 +59,11 @@
 import { ref, reactive } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
+import { relationDel } from '@/api/users';
+
 import { navigationTo } from '@/utils/tool';
 
-const emits = defineEmits(['update:data', 'update:keys', 'change']);
+const emits = defineEmits(['update:data', 'update:keys', 'change', 'loadData']);
 
 const props = defineProps({
   tableData: {
@@ -132,12 +79,10 @@ const columns = reactive([
   { title: t('ID & 注册时间'), key: '3', width: 150, align: 'left' },
   { title: t('用户角色t'), key: '4', width: 200, align: 'center' },
   { title: t('类型'), key: 'type', width: 100, align: 'center' },
-  { title: t('项目数据'), key: '6', width: 200, align: 'left' },
-  { title: t('请求数据'), key: '7', width: 150, align: 'center' },
+  { title: t('状态'), key: 'child_sta', width: 100, align: 'center' },
   {
     title: t('操作1'),
     key: 'operation',
-    // fixed: 'right',
     align: 'center',
     width: 50
   }
@@ -181,27 +126,19 @@ const onSelectAll = (selected, Rows, changeRows) => {
   }
   handlePathChange();
 };
+
 const handlePathChange = () => {
   emits('update:data', selectedRows.value);
   emits('update:keys', selectedRowKeys.value);
   emits('change');
 };
 
-const rowClick = (record, index) => {
-  return {
-    onClick: () => {
-      navigationTo(`/users/edit?uuid=${record.uuid}`);
-    }
-  };
+// 移除
+const remove = (uuids) => {
+  relationDel({ uuids: [uuids], type: 0 }).then((r) => {
+    emits('loadData');
+  });
 };
-
-const toDetail = (record) => {
-  navigationTo(`/users/detail?uuid=${record.uuid}`);
-}
-
-const toEdit = (record) => {
-  navigationTo(`/users/edit?uuid=${record.uuid}`);
-}
 </script>
 
 <style scoped lang="less">
@@ -216,6 +153,10 @@ const toEdit = (record) => {
   }
   &.green {
     color: #389e0d;
+  }
+
+  &.cre {
+    color: #f19915;
   }
 }
 </style>

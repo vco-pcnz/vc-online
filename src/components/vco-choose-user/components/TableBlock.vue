@@ -235,7 +235,6 @@ const handlePathChange = () => {
     }
     > p {
       width: 100%;
-      word-break: break-all;
       margin-top: 4px;
       &:first-child {
         margin-top: 0;

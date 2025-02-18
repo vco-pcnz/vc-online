@@ -179,7 +179,7 @@ const { t } = useI18n();
 
 const columns = reactive([
   { title: t('缩略图t'), key: '1', width: 110, align: 'center' },
-  { title: t('利益相关者信息t'), key: '2', align: 'left' },
+  { title: t('利益相关者信息t'), width: 250, key: '2', align: 'left' },
   { title: t('关联用户t'), key: '3', width: 250, align: 'left' },
   // { title: t('用户角色t'), key: '4', width: 200, align: 'center' },
   { title: t('注册时间/创建时间t'), key: '5', width: 200, align: 'center' },
@@ -189,7 +189,7 @@ const columns = reactive([
   {
     title: t('操作1'),
     key: 'operation',
-    // fixed: 'right',
+    fixed: 'right',
     align: 'center',
     width: 50
   }

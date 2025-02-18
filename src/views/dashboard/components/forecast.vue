@@ -56,9 +56,9 @@ const { t } = useI18n();
 const data = ref();
 
 const dates = ref([
-  { name: 'Previous week', code: 'previous_week' },
-  { name: 'Previous month', code: 'previous_month' },
-  { name: 'Previous 2 months', code: 'previous_two_month' }
+  { name: 'Upcoming week', code: 'upcoming_week' },
+  { name: 'Upcoming month', code: 'upcoming_month' },
+  { name: 'Upcoming 2 months', code: 'upcoming_two_month' }
 ]);
 
 const type = ref(2);

@@ -1,37 +1,42 @@
 <template>
-  <a-modal
-    :width="480"
-    :open="open"
-    :title="isEdit ? t('编辑用户') : t('新增用户')"
-    @cancel="closeModal"
-  >
+  <a-modal :width="480" :open="open" :title="isEdit ? t('编辑用户') : t('新增用户')" @cancel="closeModal">
     <div class="sys-form-content mt-5">
       <a-form ref="formRef" :model="form" :rules="rules" layout="vertical">
         <a-form-item name="avatar" class="avatar">
           <vco-upload-image v-model:value="form.avatar" text="头像" :isAvatar="true"></vco-upload-image>
         </a-form-item>
-        <a-form-item name="firstName" :label="t('名')">
-          <a-input v-model:value="form.firstName" :placeholder="t('名')" />
+        <a-form-item :label="t('类型')" name="type">
+          <a-select v-model:value="form.type" :placeholder="t('类型')">
+            <a-select-option :value="0">
+              {{ t('个人') }}
+            </a-select-option>
+            <a-select-option :value="1">
+              {{ t('公司') }}
+            </a-select-option>
+          </a-select>
         </a-form-item>
-        <a-form-item name="middleName" :label="t('中间名')">
-          <a-input v-model:value="form.middleName" :placeholder="t('中间名')" />
-        </a-form-item>
-        <a-form-item name="lastName" :label="t('姓')">
-          <a-input v-model:value="form.lastName" :placeholder="t('姓')" />
-        </a-form-item>
+        <template v-if="form.type">
+          <a-form-item name="user_name" :label="t('名称')">
+            <a-input v-model:value="form.user_name" :placeholder="t('名称')" />
+          </a-form-item>
+        </template>
+        <template v-else>
+          <a-form-item name="firstName" :label="t('名')">
+            <a-input v-model:value="form.firstName" :placeholder="t('名')" />
+          </a-form-item>
+          <a-form-item name="middleName" :label="t('中间名')">
+            <a-input v-model:value="form.middleName" :placeholder="t('中间名')" />
+          </a-form-item>
+          <a-form-item name="lastName" :label="t('姓')">
+            <a-input v-model:value="form.lastName" :placeholder="t('姓')" />
+          </a-form-item>
+        </template>
+
         <a-form-item name="email" :label="t('邮箱')">
-          <a-input
-            v-model:value="form.email"
-            :placeholder="t('邮箱')"
-            :disabled="isEdit && !!email_ok"
-          />
+          <a-input v-model:value="form.email" :placeholder="t('邮箱')" :disabled="isEdit && !!email_ok" />
         </a-form-item>
         <a-form-item :label="t('手机号')" name="mobile">
-          <vco-mobile-input
-            v-model:value="form.mobile"
-            v-model:areaCode="form.pre"
-            :disabled="isEdit && !!mobile_ok"
-          ></vco-mobile-input>
+          <vco-mobile-input v-model:value="form.mobile" v-model:areaCode="form.pre" :disabled="isEdit && !!mobile_ok"></vco-mobile-input>
         </a-form-item>
         <a-form-item name="verifyMode" v-if="!isEdit">
           <a-row>
@@ -55,13 +60,7 @@
     </div>
     <template #footer>
       <div class="modal-footer">
-        <a-button
-          size="large"
-          type="cyan"
-          :loading="loading"
-          class="register-btn big shadow bold"
-          @click="save"
-        >
+        <a-button size="large" type="cyan" :loading="loading" class="register-btn big shadow bold" @click="save">
           {{ t('提交') }}
         </a-button>
       </div>
@@ -97,6 +96,9 @@ const { form, resetFields, assignFields } = useFormData({
   mobile: '',
   sendEmail: false,
   sendSms: false,
+  type: 0,
+  company: '',
+  user_name: ''
 });
 
 const email_ok = ref(0);
@@ -104,33 +106,41 @@ const mobile_ok = ref(0);
 
 // 表单验证规则
 const rules = reactive({
+  user_name: [
+    {
+      required: true,
+      message: t('请输入') + t('名称'),
+      type: 'string',
+      trigger: 'blur'
+    }
+  ],
   firstName: [
     {
       required: true,
       message: t('请输入') + t('名'),
       type: 'string',
-      trigger: 'blur',
-    },
+      trigger: 'blur'
+    }
   ],
   lastName: [
     {
       required: true,
       message: t('请输入') + t('姓'),
       type: 'string',
-      trigger: 'blur',
-    },
+      trigger: 'blur'
+    }
   ],
   email: [
     {
       required: true,
       message: t('请输入') + t('邮箱'),
       type: 'string',
-      trigger: 'blur',
+      trigger: 'blur'
     },
     {
       pattern: EMAIL_RULE,
-      message: t('邮箱格式不正确'),
-    },
+      message: t('邮箱格式不正确')
+    }
   ],
   verifyMode: [
     {
@@ -140,17 +150,17 @@ const rules = reactive({
         }
         return Promise.resolve();
       },
-      trigger: 'blur',
-    },
+      trigger: 'blur'
+    }
   ],
   mobile: [
     {
       required: true,
       message: t('请输入') + t('手机号'),
       type: 'string',
-      trigger: 'blur',
-    },
-  ],
+      trigger: 'blur'
+    }
+  ]
 });
 
 const closeModal = () => {
@@ -160,11 +170,13 @@ const closeModal = () => {
 const edit = () => {
   editUser({
     ...form,
+    company: form.type?form.user_name:'',
+    user_name: form.type?form.user_name:'',
     sendEmail: undefined,
     sendSms: undefined,
     email: !!email_ok ? undefined : form.email,
     pre: !!mobile_ok ? undefined : form.pre,
-    mobile: !!mobile_ok ? undefined : form.mobile,
+    mobile: !!mobile_ok ? undefined : form.mobile
   })
     .then(() => {
       loading.value = false;
@@ -186,8 +198,9 @@ const save = () => {
     }
     addUser({
       ...form,
+
       sendEmail: form.sendEmail ? 1 : 0,
-      sendSms: form.sendSms ? 1 : 0,
+      sendSms: form.sendSms ? 1 : 0
     })
       .then(() => {
         loading.value = false;
@@ -210,7 +223,7 @@ watch(
         isEdit.value = true;
         assignFields({
           ...form,
-          ...userInfo,
+          ...userInfo
         });
         form.uuid = userInfo.uuid;
         email_ok.value = userInfo.email_ok;

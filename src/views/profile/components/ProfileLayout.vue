@@ -26,7 +26,7 @@
           <vco-avatar :size="124" style="margin: auto" :src="avatarSrc" />
         </div>
         <div class="info-detail">
-          <p v-for="info in baseInfo">
+          <p v-for="(info,index) in baseInfo" :key="index">
             <span class="label">
               <i
                 :class="`iconfont ${info.isVerify ? 'iconfont_yellow' : ''}`"
@@ -40,7 +40,7 @@
         </div>
       </div>
       <div class="profile-info-detail">
-        <p v-for="info in extraInfo">
+        <p v-for="(info,index) in extraInfo" :key="index">
           <span class="label">
             <i class="iconfont text-2xl" v-html="info.icon" v-if="info.icon" />
             &nbsp;
@@ -87,6 +87,14 @@ const panes = reactive([
     key: 'notice',
     label: t('通知'),
     extraInfo: 0,
+  },
+  {
+    key: 'parentTeam',
+    label: t('我的组织'),
+  },
+  {
+    key: 'team',
+    label: t('我的团队'),
   },
 ]);
 
@@ -145,6 +153,7 @@ const setUserInfo = (data) => {
 
 onMounted(() => {
   userDetailStore.getUserInfo();
+
 });
 
 watch(

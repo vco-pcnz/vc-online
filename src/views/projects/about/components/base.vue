@@ -1,5 +1,5 @@
 <template>
-  <a-image :src="detail?.base.project_image" height="200px" width="100%" />
+  <a-image v-if="detail?.base.project_image" :src="detail?.base.project_image" height="200px" width="100%" />
   <div class="base-card">
     <p class="id_async">
       <span>ID {{ detail?.base.project_apply_sn }}</span>

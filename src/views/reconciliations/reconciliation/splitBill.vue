@@ -14,6 +14,7 @@
                 :disabled="record.disabled"
                 v-model:value="record.amount"
                 :max="99999999999"
+                :min="0"
                 :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                 :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
               />

@@ -14,7 +14,8 @@ import { reactive, onMounted, ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useUserStore } from '@/store';
 import { useRouter, useRoute } from 'vue-router';
-import { projectDetailApi } from '@/api/process';
+// import { projectDetailApi } from '@/api/process';
+import { projectDetail } from '@/api/project/project';
 import { cloneDeep } from 'lodash';
 
 const { t } = useI18n();
@@ -61,7 +62,8 @@ const getProjectDetail = (userId) => {
   const uuid = userId || route.query.uuid;
   if (uuid) {
     // 发起请求
-    projectDetailApi({ uuid }).then((res) => {
+    projectDetail({ uuid }).then((res) => {
+      res['loan'] = res.date
       detail.value = res;
       emits('getProjectDetail', res);
     });

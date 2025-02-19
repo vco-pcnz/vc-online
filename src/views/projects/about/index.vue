@@ -1,12 +1,12 @@
 <template>
-  <detail-layout active-tab="about">
+  <detail-layout active-tab="about" @getProjectDetail="getProjectDetail">
     <template #content>
       <a-spin :spinning="loading" size="large">
         <div class="project-container">
           <div class="project-info">
             <base-card :detail="detail"></base-card>
 
-            <bind-users :current-id="currentId" :about="true"></bind-users>
+            <bind-users v-if="currentId" :current-id="currentId" :about="true"></bind-users>
 
             <a-collapse expand-icon-position="end" ghost>
               <a-collapse-panel key="History" class="collapse-card history-card">
@@ -62,7 +62,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import detailLayout from '../components/detailLayout.vue';
@@ -83,29 +83,16 @@ import { projectDetail } from '@/api/project/project';
 const { t } = useI18n();
 const route = useRoute();
 
-const loading = ref(false);
+const loading = ref(true);
 const currentId = ref();
 const detail = ref();
 
-const getProjectDetail = (userId) => {
+const getProjectDetail = (val) => {
   const uuid = route.query.uuid;
-  if (uuid) {
-    currentId.value = uuid;
-    // 发起请求
-    loading.value = true;
-    projectDetail({ uuid: uuid })
-      .then((res) => {
-        detail.value = res;
-      })
-      .finally((_) => {
-        loading.value = false;
-      });
-  }
+  currentId.value = uuid;
+  detail.value = val;
+  loading.value = false;
 };
-
-onMounted(() => {
-  getProjectDetail();
-});
 </script>
 
 <style scoped lang="less">

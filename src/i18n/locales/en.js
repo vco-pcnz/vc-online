@@ -468,7 +468,7 @@ export default {
   "分配LM": "Allocate LM",
   "等待分配LM": "Waiting for LM allocation",
   "奖金信息": "Bonus Information",
-  "新增反洗钱信息AML":"New AML Information",
+  "新增反洗钱信息AML":"Initiate AML Process",
   "投资人": "Investors",
   "已完成": "Completed",
   "待反馈": "Awaiting feedback",

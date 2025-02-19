@@ -642,5 +642,6 @@ export default {
   "您确定要与 Xero 同步项目交易吗？": "Are you sure you want to sync the project transactions with Xero?",
   "处理": "Processing",
   "确定已完成吗？": "Are you sure it's done?",
-  "新增成功": "Added successfully"
+  "新增成功": "Added successfully",
+  "增加存蓄费": "Increase savings fees"
 }

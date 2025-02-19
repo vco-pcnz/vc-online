@@ -1,46 +1,44 @@
 <template>
   <div class="sys-table-content">
-    <a-table
-      :columns="columns"
-      :data-source="tableData"
-      :pagination="false"
-      :scroll="{ x: '100%' }"
-      row-key="uuid"
-      :row-selection="{ selectedRowKeys: selectedRowKeys, onSelect: onSelect, onSelectAll: onSelectAll }"
-      :customRow="rowClick"
-    >
+    <a-table :columns="columns" :data-source="tableData" :pagination="false" :scroll="{ x: '100%' }" row-key="uuid" :row-selection="{ selectedRowKeys: selectedRowKeys, onSelect: onSelect, onSelectAll: onSelectAll }">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === '1'">
-          <div class="avatarBox cursor">
+          <div class="avatarBox cursor" @click="toEdit(record)">
             <vco-avatar :src="record.avatar" :radius="true"></vco-avatar>
           </div>
         </template>
         <template v-if="column.key === '2'">
-          <p>
-            <span class="black bold">
-              {{ record.user_name }}
-            </span>
-          </p>
-          <p>
-            <i class="iconfont" :class="{ cer: record.email_ok }">&#xe66f;</i>
-            <span>
-              {{ record.email }}
-            </span>
-          </p>
-          <p>
-            <i class="iconfont" :class="{ cer: record.mobile_ok }">&#xe678;</i>
-            <span>+{{ record.pre }} {{ record.mobile }}</span>
-          </p>
+          <div @click="toEdit(record)">
+            <p>
+              <span class="black bold">
+                {{ record.user_name }}
+              </span>
+            </p>
+            <p>
+              <i class="iconfont" :class="{ cer: record.email_ok }">&#xe66f;</i>
+              <span>
+                {{ record.email }}
+              </span>
+            </p>
+            <p>
+              <i class="iconfont" :class="{ cer: record.mobile_ok }">&#xe678;</i>
+              <span>+{{ record.pre }} {{ record.mobile }}</span>
+            </p>
+          </div>
         </template>
         <template v-if="column.key === '3'">
-          <p class="black bold">ID: {{ record.username }}</p>
-          <p>
-            <span>{{ t('注册于') }} {{ tool.showDate(record.create_time) }}</span>
-          </p>
+          <div @click="toEdit(record)">
+            <p class="black bold">ID: {{ record.username }}</p>
+            <p>
+              <span>{{ t('注册于') }} {{ tool.showDate(record.create_time) }}</span>
+            </p>
+          </div>
         </template>
         <template v-if="column.key === '4'">
-          <p v-if="record.roles.length">{{ record.roles.join('/') }}</p>
-          <p v-else>--</p>
+          <div @click="toEdit(record)">
+            <p v-if="record.roles.length">{{ record.roles.join('/') }}</p>
+            <p v-else>--</p>
+          </div>
         </template>
         <!-- <template v-if="column.key === '5'">
           <p class="black bold" v-if="record.org_stake_type">
@@ -61,8 +59,10 @@
           </p>
         </template> -->
         <template v-else-if="column.key === 'type'">
-          <span class="type_text orange" v-if="record.type">{{ t('公司') }}</span>
-          <span class="type_text green" v-else>{{ t('个人') }}</span>
+          <div @click="toEdit(record)">
+            <span class="type_text orange" v-if="record.type">{{ t('公司') }}</span>
+            <span class="type_text green" v-else>{{ t('个人') }}</span>
+          </div>
         </template>
         <template v-if="column.key === '6'">
           <p>
@@ -187,25 +187,17 @@ const handlePathChange = () => {
   emits('change');
 };
 
-const rowClick = (record, index) => {
-  return {
-    onClick: () => {
-      navigationTo(`/users/edit?uuid=${record.uuid}`);
-    }
-  };
-};
-
 const toDetail = (record) => {
   navigationTo(`/users/detail?uuid=${record.uuid}`);
-}
+};
 
 const toEdit = (record) => {
   navigationTo(`/users/edit?uuid=${record.uuid}`);
-}
+};
 
 const toOrgs = (record) => {
   navigationTo(`/users/orgs?uuid=${record.uuid}`);
-}
+};
 </script>
 
 <style scoped lang="less">

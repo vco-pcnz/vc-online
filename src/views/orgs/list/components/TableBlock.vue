@@ -67,12 +67,14 @@
           </p>
         </template>
         <template v-if="column.key === '5'">
-          <p v-if="record.user_create_time">
-            <span>{{ tool.showDate(record.user_create_time) }}</span>
-          </p>
-          <p v-if="record.create_time">
-            <span>{{ tool.showDate(record.create_time) }}</span>
-          </p>
+          <div @click="toDetail(record)" class="cursor">
+            <p v-if="record.user_create_time">
+              <span>{{ tool.showDate(record.user_create_time) }}</span>
+            </p>
+            <p v-if="record.create_time">
+              <span>{{ tool.showDate(record.create_time) }}</span>
+            </p>
+          </div>
         </template>
         <template v-if="column.key === '6'">
           <p>
@@ -89,14 +91,18 @@
         </template>
 
         <template v-if="column.key === 'address'">
-          <p>ID: {{ record.idcard }}</p>
-          <p :title="record.address" style="text-wrap: auto" v-if="record.address"><i class="iconfont">&#xe814;</i>{{ record.address }}</p>
+          <div @click="toDetail(record)" class="cursor">
+            <p>ID: {{ record.idcard }}</p>
+            <p :title="record.address" style="text-wrap: auto" v-if="record.address"><i class="iconfont">&#xe814;</i>{{ record.address }}</p>
+          </div>
         </template>
         <template v-if="column.key === '7'">
-          <template v-if="record.expire_time && record.expire_time.length">
-            <p class="black">{{ getExpireTimeNum(record.expire_time).valid }} {{ t('有效') }}</p>
-            <p class="err">{{ getExpireTimeNum(record.expire_time).invalid }} {{ t('无效') }}</p>
-          </template>
+          <div @click="toDetail(record)" class="cursor">
+            <template v-if="record.expire_time && record.expire_time.length">
+              <p class="black">{{ getExpireTimeNum(record.expire_time).valid }} {{ t('有效') }}</p>
+              <p class="err">{{ getExpireTimeNum(record.expire_time).invalid }} {{ t('无效') }}</p>
+            </template>
+          </div>
         </template>
         <template v-if="column.key === 'operation'">
           <a-dropdown :trigger="['click']">
@@ -131,7 +137,7 @@
                   </a-menu-item>
                   <a-menu-item key="5" v-if="isDisabled(record) && hasPermission('orgs:delete')">
                     <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.uuid)" :loading="orgsStore.loading">
-                      <span style="text-transform: lowercase;">
+                      <span style="text-transform: lowercase">
                         {{ t('删除') }}
                       </span>
                     </a-popconfirm>
@@ -301,6 +307,6 @@ const isDisabled = (val) => {
 };
 
 const remove = (val) => {
-  orgsStore.remove([val],true);
+  orgsStore.remove([val], true);
 };
 </script>

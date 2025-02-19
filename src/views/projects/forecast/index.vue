@@ -3,8 +3,8 @@
     <template #content>
       <a-spin :spinning="loading" size="large">
         <!-- <Cart :data="data"></Cart> -->
-        <tableHook v-if="uuid" :uuid="uuid" :projectDetail="projectDetail" :data="data" @update="loadData"></tableHook
-      ></a-spin>
+        <tableHook v-if="uuid" :uuid="uuid" :projectDetail="projectDetail" :data="data" @update="loadData"></tableHook>
+      </a-spin>
     </template>
   </detail-layout>
 </template>

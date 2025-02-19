@@ -2,22 +2,24 @@
   <detail-layout active-tab="drawdowns" @getProjectDetail="getProjectDetail">
     <template #content>
       <div class="ProjectDrawdowns">
-        <div :class="{ grid: hasPermission('projects:drawdowns:add') || hasPermission('projects:drawdowns:add:lm') }" class="mb-12">
+        <div :class="{ grid: hasPermission('projects:drawdowns:add') || (hasPermission('projects:drawdowns:add:lm') && !projectDetail?.base?.is_close) }" class="mb-12">
           <MeterStat :uuid="uuid" v-if="Boolean(uuid)" ref="MeterStatRef"></MeterStat>
-          <div class="HelpBorrower" v-if="hasPermission('projects:drawdowns:add:lm')">
-            <div class="flex items-center"><i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">Help borrower</span></div>
-            <p class="color_grey mt-1 mb-3">You can help to create drawdown on their behalf.</p>
-            <drawdownre-quest :uuid="uuid" :projectDetail="projectDetail" @change="update(true)">
-              <a-button type="brown" shape="round" size="small">create drawdown</a-button>
-            </drawdownre-quest>
-          </div>
-          <div v-else-if="hasPermission('projects:drawdowns:add')" class="pt-5" style="padding-top: 65px">
-            <!-- <p class="fs_2xl bold">0 drawdowns received</p>
+          <template v-if="!projectDetail?.base?.is_close">
+            <div class="HelpBorrower" v-if="hasPermission('projects:drawdowns:add:lm')">
+              <div class="flex items-center"><i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">Help borrower</span></div>
+              <p class="color_grey mt-1 mb-3">You can help to create drawdown on their behalf.</p>
+              <drawdownre-quest :uuid="uuid" :projectDetail="projectDetail" @change="update(true)">
+                <a-button type="brown" shape="round" size="small">create drawdown</a-button>
+              </drawdownre-quest>
+            </div>
+            <div v-else-if="hasPermission('projects:drawdowns:add')" class="pt-5" style="padding-top: 65px">
+              <!-- <p class="fs_2xl bold">0 drawdowns received</p>
             <p class="mb-4 bold">1 drawdown pending -0% of loan drawn</p> -->
-            <drawdownre-quest :uuid="uuid" :projectDetail="projectDetail" @change="update(true)">
-              <a-button type="dark" class="big uppercase fs_2xs"> REQUEST DRAWDOWN </a-button>
-            </drawdownre-quest>
-          </div>
+              <drawdownre-quest :uuid="uuid" :projectDetail="projectDetail" @change="update(true)">
+                <a-button type="dark" class="big uppercase fs_2xs"> REQUEST DRAWDOWN </a-button>
+              </drawdownre-quest>
+            </div>
+          </template>
         </div>
         <div :class="{ grid: tableData.length }">
           <a-spin :spinning="loading" size="large">

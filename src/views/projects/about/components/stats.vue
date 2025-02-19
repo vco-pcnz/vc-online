@@ -42,14 +42,14 @@
           <p>Bonus ({{ data?.bonusRate }}%)</p>
           <vco-number :value="data?.bonus" :bold="true" size="fs_2xl" :precision="2"></vco-number>
           <p class="fs_xs color_grey flex gap-2 items-center bonus2">
-            Total bonus
+            Current bonus
             <vco-number :value="data?.bonus2" :bold="true" :precision="2"></vco-number>
           </p>
         </div>
       </div>
     </div>
     <div class="box right">
-      <div class="box-top color_red-error">
+      <div class="box-top" :class="{ 'color_red-error': data?.lvr > data?.lvrMax }">
         <p class="bold">LVR</p>
         <p class="fs_2xl bold">{{ data?.lvr }}%</p>
         <p class="fs_xs">over the max {{ data?.lvrMax }}%</p>
@@ -67,7 +67,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { navigationTo } from "@/utils/tool"
+import { navigationTo } from '@/utils/tool';
 
 const { t } = useI18n();
 

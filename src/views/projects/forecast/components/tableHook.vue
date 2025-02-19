@@ -73,7 +73,7 @@
     </div>
 
     <a-empty v-if="!data?.list" />
-    <div class="flex justify-center pb-8">
+    <div class="flex justify-center pb-8" v-if="!projectDetail?.base?.is_close">
       <Add :uuid="uuid" :projectDetail="projectDetail" @update="update"> <a-button type="brown" shape="round" size="small">add forecast</a-button></Add>
     </div>
     <div class="static-block">

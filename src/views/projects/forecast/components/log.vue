@@ -28,7 +28,7 @@
             <li class="flex items-center justify-end"><span class="dot mr-3"></span> <vco-number :value="itemDate?.amount" :precision="2" size="fs_md"></vco-number></li>
           </ul>
         </template>
-        <div class="pt-5 flex justify-end" v-else>
+        <div class="pt-5 flex justify-end" v-else-if="!projectDetail?.base?.is_close">
           <Add :uuid="uuid" :projectDetail="projectDetail" :itemDate="itemDate" @update="update"> <a-button type="dark" class="big uppercase fs_2xs"> Edit forecast </a-button></Add>
         </div>
       </div>

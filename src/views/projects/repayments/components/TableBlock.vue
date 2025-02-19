@@ -194,11 +194,11 @@ watch(
     }
     &:nth-child(5),
     &:nth-child(6) {
-      width: 140px;
+      width: 100px;
       text-align: center;
     }
     &:nth-child(7) {
-      width: 160px;
+      width: 130px;
       text-align: right;
     }
   }

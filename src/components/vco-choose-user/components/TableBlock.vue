@@ -8,6 +8,7 @@
         <li>{{ t('头像') }}</li>
         <li>{{ t('姓名') }}</li>
         <li v-show="url.includes('stake/selStake')">{{ t('类型') }}</li>
+        <li v-show="url.includes('stake/selStake')">{{ t('机构') }}</li>
         <li>{{ t('邮箱') }}</li>
         <li>{{ t('电话') }}</li>
         <li v-show="!isMultiple">{{ t('操作1') }}</li>
@@ -27,6 +28,10 @@
             </li>
             <li v-show="url.includes('stake/selStake')">
               <p class="bold">{{ item.type_name }}</p>
+            </li>
+            <li v-show="url.includes('stake/selStake')">
+              <p class="bold" v-if="item.pname">{{ item.pname }}</p>
+              <p class="bold" v-else>--</p>
             </li>
             <li>
               <p v-if="item.email">
@@ -216,9 +221,13 @@ const handlePathChange = () => {
     }
     &:nth-child(5) {
       flex: 0 auto;
-      width: 300px;
+      width: 130px;
     }
     &:nth-child(6) {
+      flex: 0 auto;
+      width: 300px;
+    }
+    &:nth-child(7) {
       flex: 0 auto;
       width: 200px;
     }

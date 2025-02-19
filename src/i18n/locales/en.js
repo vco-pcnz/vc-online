@@ -633,6 +633,13 @@ export default {
   "您可以点击下面的按钮来退回解押请求。": "You can click the button below to return your unbonding request.",
   "退回请求": "Push back request",
   "团队": "Team",
-  "确定要对账吗？": "Are you sure you want to reconcile?"
+  "确定要对账吗？": "Are you sure you want to reconcile?",
+  "拆分账单": "Split bill",
+  "撤销拆分": "Revoke split",
+  "确定撤销拆分吗？": "Are you sure you want to cancel the split?",
+  "确定要删除勾选的数据吗？": "Are you sure you want to delete the selected data?",
+  "确定要恢复勾选的数据吗？": "Are you sure you want to restore the selected data?",
+  "您确定要与 Xero 同步项目交易吗？": "Are you sure you want to sync the project transactions with Xero?",
+  "处理": "Processing"
 
 }

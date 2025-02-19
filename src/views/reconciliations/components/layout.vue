@@ -5,17 +5,24 @@
         <img :width="58" :height="14" :src="xeroImg" alt="Xero" />
         <a-statistic-countdown :value="deadline" @finish="onFinish" format="mm:ss" v-if="Boolean(countdown)">
           <template #prefix>
-            <span>Processing (</span>
+            <span>{{ t('处理') }} (</span>
           </template>
           <template #suffix>
             <span>)</span>
           </template>
         </a-statistic-countdown>
-        <a-button class="sync-btn" v-if="Boolean(!countdown)" @click="update">
-          <template #icon>
-            <i class="iconfont">&#xe749;</i>
-          </template>
-        </a-button>
+        <a-spin :spinning="loading">
+          <a-popconfirm :title="t('您确定要与 Xero 同步项目交易吗？')" okText="confirm" v-if="Boolean(!countdown)" @confirm="update">
+            <template #icon>
+              <CheckCircleOutlined :style="{ color: '#a9ad57' }" />
+            </template>
+            <a-button class="sync-btn">
+              <template #icon>
+                <i class="iconfont">&#xe749;</i>
+              </template>
+            </a-button>
+          </a-popconfirm>
+        </a-spin>
       </template>
     </vco-page-nav>
     <div class="page-content">
@@ -29,8 +36,13 @@ import { nextTick, ref, onMounted } from 'vue';
 import xeroImg from '@/assets/images/services-xero.png';
 import { syncBankBill } from '@/api/reconciliations';
 import { message } from 'ant-design-vue';
+import { useI18n } from 'vue-i18n';
+import { CheckCircleOutlined } from '@ant-design/icons-vue';
+const { t } = useI18n();
 
 const emits = defineEmits(['update']);
+
+const loading = ref(false);
 const deadline = ref();
 const countdown = ref(false);
 
@@ -43,12 +55,17 @@ const setNum = (num) => {
 };
 
 const update = (e) => {
-  syncBankBill().then((res) => {
-    message.success('Xero sync started!');
-    deadline.value = Date.now() + 1000 * 60 * 10;
-    countdown.value = true;
-    localStorage.setItem('deadline', deadline.value);
-  });
+  loading.value = true;
+  syncBankBill()
+    .then((res) => {
+      message.success('Xero sync started!');
+      deadline.value = Date.now() + 1000 * 60 * 10;
+      countdown.value = true;
+      localStorage.setItem('deadline', deadline.value);
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 };
 
 const onFinish = () => {
@@ -61,7 +78,7 @@ defineExpose({
 });
 
 onMounted(() => {
-  if (localStorage.getItem('deadline') >  Date.now()) {
+  if (localStorage.getItem('deadline') > Date.now()) {
     deadline.value = Number(localStorage.getItem('deadline'));
     countdown.value = true;
   }

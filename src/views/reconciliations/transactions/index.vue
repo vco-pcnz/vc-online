@@ -2,19 +2,15 @@
   <layout ref="layoutRef">
     <template #content>
       <div class="actions">
-        <a-button @click="onRemove" :disabled="!selectedRowKeys.length">
-          {{ t('删除重做') }}
-        </a-button>
+        <a-popconfirm :title="t('确定要删除勾选的数据吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="onRemove()" :disabled="!selectedRowKeys.length">
+          <a-button :disabled="!selectedRowKeys.length">
+            {{ t('删除重做') }}
+          </a-button>
+        </a-popconfirm>
         <span class="count">{{ t('选中{ 0 }条', [selectedRowKeys.length]) }}</span>
       </div>
       <a-spin :spinning="loading" size="large">
-        <a-table
-          :data-source="dataSource"
-          :columns="columns"
-          :pagination="false"
-          :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }"
-          row-key="sn"
-        >
+        <a-table :data-source="dataSource" :columns="columns" :pagination="false" :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }" row-key="sn">
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'status'">
               <div v-if="record.status == 2" class="status_tag">Reconciled</div>
@@ -24,15 +20,7 @@
         </a-table>
       </a-spin>
       <div class="flex justify-center pb-5">
-        <a-pagination
-          size="small"
-          :total="total"
-          :pageSize="pagination.limit"
-          :current="pagination.page"
-          show-quick-jumper
-          :show-total="(total) => t('共{0}条', [total])"
-          @change="setPaginate"
-        />
+        <a-pagination size="small" :total="total" :pageSize="pagination.limit" :current="pagination.page" show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
       </div>
     </template>
   </layout>
@@ -148,8 +136,8 @@ const onRemove = () => {
   loading.value = true;
   removeTransactions({ sn: selectedRowKeys.value.join() })
     .then((res) => {
-      selectedRowKeys.value = []
-      selectedRows.value = []
+      selectedRowKeys.value = [];
+      selectedRows.value = [];
       pagination.value.page = 1;
       loadData();
     })

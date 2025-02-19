@@ -10,10 +10,18 @@
             <p class="title">...then match with your transactions in VC Online</p>
           </a-col>
         </a-row>
+        <a-row>
+          <a-popconfirm class="mt-5" :title="t('确定要对账吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="checkMatchBills()" :disabled="!selectedRowKeys.length">
+            <a-button :disabled="!selectedRowKeys.length">
+              {{ t('对账') }}
+            </a-button>
+          </a-popconfirm>
+        </a-row>
+
         <div :class="{ cardBorder: true }" v-for="item in rowData" :key="item.id">
           <a-row class="my-5">
             <!-- left -->
-            <bank-card :data="item" :project="item.project" @update="loadData"></bank-card>
+            <bank-card :selectedRowKeys="selectedRowKeys" @check="check" :data="item" :project="item.project" @update="loadData"></bank-card>
             <template v-if="!item.children.length">
               <!-- ok -->
               <ok :item="item" :project="item.project" @update="loadData"></ok>
@@ -26,7 +34,7 @@
             <a-row v-for="sub in item.children" :key="sub.id" class="my-5">
               <template v-if="!sub.status">
                 <!-- left -->
-                <bank-card :data="sub" :project="item.project" @update="loadData"></bank-card>
+                <bank-card :selectedRowKeys="selectedRowKeys" @check="check" :data="sub" :project="item.project" @update="loadData"></bank-card>
                 <!-- ok -->
                 <ok :item="sub" :project="item.project" @update="loadData"></ok>
                 <!-- right -->
@@ -40,15 +48,7 @@
         <a-empty v-if="!rowData || !rowData.length" />
       </a-spin>
       <div class="flex justify-center pb-5">
-        <a-pagination
-          size="small"
-          :total="total"
-          :pageSize="pagination.limit"
-          :current="pagination.page"
-          show-quick-jumper
-          :show-total="(total) => t('共{0}条', [total])"
-          @change="setPaginate"
-        />
+        <a-pagination size="small" :total="total" :pageSize="pagination.limit" :current="pagination.page" show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
       </div>
     </template>
   </layout>
@@ -63,6 +63,7 @@ import BankCard from './reconciliation/BankCard.vue';
 import ReconciliationForm from './reconciliation/ReconciliationForm.vue';
 import Transaction from './reconciliation/Transaction.vue';
 import Ok from './reconciliation/Ok.vue';
+import { checkMatchBill } from '@/api/reconciliations';
 
 const { t } = useI18n();
 
@@ -114,6 +115,38 @@ onMounted((_) => {
   loadData();
 });
 // const rowData = reactive([])
+
+const selectedRowKeys = ref([]); // 存放UUid
+const selectedRows = ref([]); // 存放所有选中的选项的所有内容
+const check = (val) => {
+  console.log(selectedRowKeys.value.includes(val.id));
+  if (selectedRowKeys.value.includes(val.id)) {
+    let index = selectedRowKeys.value.findIndex((it) => {
+      return it === val.id;
+    });
+    selectedRowKeys.value.splice(index, 1);
+    selectedRows.value.splice(index, 1);
+  } else {
+    selectedRowKeys.value.push(val.id);
+    selectedRows.value.push({
+      bank_sn: val.bank_sn,
+      sn: val.transaction.sn
+    });
+  }
+};
+
+const checkMatchBills = () => {
+  loading.value = true;
+  checkMatchBill({data:selectedRows.value})
+    .then((res) => {
+      selectedRows.value = []
+      selectedRowKeys.value = []
+      loadData();
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+};
 </script>
 
 <style scoped lang="less">

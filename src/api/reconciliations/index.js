@@ -91,6 +91,14 @@ export const splitBill = (data) =>
     data
   });
 
+// 撤回拆分
+export const revokeSplit = (data) =>
+  request({
+    url: 'reconciliation/revokeSplit',
+    method: 'post',
+    data
+  });
+
 // 撤回对账
 export const revokeReconciliation = (data) =>
   request({

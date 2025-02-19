@@ -13,7 +13,7 @@
       <div class="mt-10">
         <vco-table-tool>
           <template #left>
-            <a-button type="cyan" :disabled="!rowSelection.length" @click="setOpen(true)">
+            <a-button type="cyan" :disabled="!rowSelection.length" @click="setOpen(true)" v-if="hasPermission('users:distribute')">
               {{ t('分配角色') }}
             </a-button>
           </template>
@@ -41,6 +41,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
+import { hasPermission } from '@/directives/permission/index';
 import { useI18n } from 'vue-i18n';
 import TableSearch from './UsersSearch.vue';
 import TableBlock from './UsersTable.vue';

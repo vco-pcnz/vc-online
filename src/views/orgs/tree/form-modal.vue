@@ -10,7 +10,7 @@
             <div style="display: flex; align-items: center">
               {{ t('选择利益相关者') }}
               <div style="flex: 1" class="ml-2">
-                <vco-choose-user ref="vcoChooseUserRef" url="stake/selStake" :showRest="Boolean(check_user_uuid)" @change="checkUser"></vco-choose-user>
+                <vco-choose-user :title="t('利益相关者')" ref="vcoChooseUserRef" url="stake/selStake" :showRest="Boolean(check_user_uuid)" @change="checkUser"></vco-choose-user>
               </div>
             </div>
           </a-form-item>

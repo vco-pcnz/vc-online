@@ -3,10 +3,18 @@
     <template #content>
       <div class="flex justify-between">
         <div class="actions">
-          <a-button @click="onRemove" :disabled="!selectedRowKeys.length">
-            <template v-if="currentTab == ''">{{ t('删除重做') }}</template>
-            <template v-if="currentTab == '-1'">{{ t('恢复') }}</template>
-          </a-button>
+          <a-popconfirm v-if="currentTab == ''" :title="t('确定要删除勾选的数据吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="onRemove()" :disabled="!selectedRowKeys.length">
+            <a-button :disabled="!selectedRowKeys.length">
+              {{ t('删除重做') }}
+            </a-button>
+          </a-popconfirm>
+
+          <a-popconfirm v-if="currentTab == '-1'" :title="t('确定要恢复勾选的数据吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="restore()" :disabled="!selectedRowKeys.length">
+            <a-button :disabled="!selectedRowKeys.length">
+              {{ t('恢复') }}
+            </a-button>
+          </a-popconfirm>
+
           <span class="count">{{ t('选中{ 0 }条', [selectedRowKeys.length]) }}</span>
         </div>
         <div>
@@ -14,14 +22,7 @@
         </div>
       </div>
       <a-spin :spinning="loading" size="large">
-        <a-table
-          :data-source="dataSource"
-          :columns="columns"
-          :pagination="false"
-          :defaultExpandAllRows="true"
-          :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }"
-          row-key="bank_sn"
-        >
+        <a-table :data-source="dataSource" :columns="columns" :pagination="false" :defaultExpandAllRows="true" :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }" row-key="bank_sn">
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'status'">
               <div v-if="record.status == 1" class="status_tag">Reconciled</div>
@@ -30,14 +31,7 @@
             </template>
 
             <template v-if="column.key === 'operation'">
-              <a-popconfirm
-                :title="t('您确定要撤回该对账吗？')"
-                :cancel-text="t('取消')"
-                :ok-text="t('确定')"
-                @confirm="revoke(record.bank_sn)"
-                :disabled="!record.status"
-                v-if="record.status != -1"
-              >
+              <a-popconfirm :title="t('您确定要撤回该对账吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="revoke(record.bank_sn)" :disabled="!record.status" v-if="record.status != -1">
                 <a-button type="danger" shap="round" :disabled="!record.status"> {{ t('撤回') }}</a-button>
               </a-popconfirm>
               <a-popconfirm :title="t('您确定要恢复该对账吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="restore(record.bank_sn)" v-else>
@@ -48,15 +42,7 @@
         </a-table>
       </a-spin>
       <div class="flex justify-center pb-5">
-        <a-pagination
-          size="small"
-          :total="total"
-          :pageSize="pagination.limit"
-          :current="pagination.page"
-          show-quick-jumper
-          :show-total="(total) => t('共{0}条', [total])"
-          @change="setPaginate"
-        />
+        <a-pagination size="small" :total="total" :pageSize="pagination.limit" :current="pagination.page" show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
       </div>
     </template>
   </layout>
@@ -192,6 +178,8 @@ const reload = () => {
 };
 
 const tabChange = () => {
+  selectedRowKeys.value = [];
+  selectedRows.value = [];
   reload();
 };
 
@@ -239,9 +227,11 @@ const rowSelection = ref({
         return true;
       }
       if (r.children) {
-        return r.children.filter((item) => {
-          return item.status;
-        }).length;
+        return Boolean(
+          r.children.filter((item) => {
+            return item.status;
+          }).length
+        );
       }
       return false;
     })()
@@ -260,14 +250,17 @@ const onRemove = () => {
   cancelReconciliation({ bank_sn: selectedRowKeys.value.join() }).then((res) => {
     selectedRows.value = [];
     selectedRowKeys.value = [];
-    pagination.value.page = 1;
     loadData();
   });
 };
 
 // 恢复对账
 const restore = (bank_sn) => {
-  recoverReconciliation({ bank_sn }).then((res) => {
+  recoverReconciliation({ bank_sn: bank_sn ? bank_sn : selectedRowKeys.value.join() }).then((res) => {
+    if (!bank_sn) {
+      selectedRows.value = [];
+      selectedRowKeys.value = [];
+    }
     loadData();
   });
 };

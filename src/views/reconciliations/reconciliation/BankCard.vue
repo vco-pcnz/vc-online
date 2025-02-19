@@ -1,7 +1,10 @@
 <template>
   <a-col :span="11">
     <a-row :class="['content', { content_match: false }]">
-      <a-col :span="11" class="content_cell">
+      <a-col :span="2" class="content_cell">
+        <a-checkbox :checked="selectedRowKeys.includes(data?.id)" :disabled="!data.transaction" @click="check(data)"></a-checkbox>
+      </a-col>
+      <a-col :span="9" class="content_cell">
         <p class="xs_text">{{ tool.showDate(data.date) }}</p>
         <p v-if="project">{{ project.project_name }}</p>
         <p>{{ data.type }}</p>
@@ -15,7 +18,12 @@
         <p class="xs_text">Received</p>
         <p v-if="data.amount < 0">{{ tool.formatMoney(Math.abs(data.amount), { prefix: '' }) }}</p>
         <div class="splitBillBox" v-if="!data.parent_id">
-          <splitBill :item="data" @update="update"><a-button type="primary" shape="round" size="small">Split bill</a-button></splitBill>
+          <splitBill :item="data" @update="update">
+            <a-button type="primary" shape="round" size="small">{{ t('拆分账单') }}</a-button>
+          </splitBill>
+          <a-popconfirm v-if="data.children.length" :title="t('确定撤销拆分吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="bindRevokeSplit(index)" :disabled="isDisabled">
+            <a-button type="cyan" shape="round" size="small" :loading="loading" :disabled="isDisabled">{{ t('撤销拆分') }}</a-button>
+          </a-popconfirm>
         </div>
       </a-col>
     </a-row>
@@ -23,11 +31,14 @@
 </template>
 
 <script scoped setup>
+import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 import tool from '@/utils/tool';
 import splitBill from './splitBill.vue';
-const emits = defineEmits(['update']);
+import { revokeSplit } from '@/api/reconciliations';
+
+const emits = defineEmits(['update','check']);
 
 const props = defineProps({
   data: {
@@ -35,12 +46,40 @@ const props = defineProps({
   },
   project: {
     type: Object
+  },
+  selectedRowKeys: {
+    type: Array,
+    default: []
   }
 });
 
 const update = () => {
   emits('update');
 };
+
+const isDisabled = computed(() => {
+  return (
+    props.data?.children.filter((item) => {
+      return item.status;
+    }).length > 0
+  );
+});
+
+const loading = ref(false);
+const bindRevokeSplit = () => {
+  loading.value = true;
+  revokeSplit({ bank_sn: props.data?.bank_sn })
+    .then((res) => {
+      update();
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+};
+
+const check = (val) => {
+  emits('check',val)
+}
 </script>
 <style scoped lang="less">
 @import '@/styles/variables.less';
@@ -76,9 +115,13 @@ const update = () => {
   }
 
   .splitBillBox {
+    display: flex;
     position: absolute;
-    top: 10px;
-    right: 10px;
+    bottom: 10px;
+    right: 5px;
+    button {
+      transform: scale(0.8);
+    }
   }
 }
 </style>

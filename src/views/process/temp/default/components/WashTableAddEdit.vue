@@ -57,7 +57,7 @@
                   <a-date-picker class="mt-3" v-model:value="formState.condition_time" format="DD-MM-YYYY" valueFormat="YYYY-MM-DD" :disabledDate="disabledDateFormat" />
                 </a-form-item>
                 <a-form-item :label="t('描述')">
-                  <a-textarea v-model:value="formState.condition_desc" :auto-size="{ minRows: 4, maxRows: 5 }" :placeholder="t('请输入')" />
+                  <a-textarea v-model:value="formState.condition_desc" :placeholder="t('请输入')" style="min-height: 98px;" />
                 </a-form-item>
               </div>
             </a-form-item>

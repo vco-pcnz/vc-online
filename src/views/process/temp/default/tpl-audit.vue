@@ -131,7 +131,7 @@
 
           <conditions-list
             :current-id="currentId"
-            :info-data="currentDataInfo"
+            :end-date="currentDataInfo.loan.end_date"
           ></conditions-list>
         </div>
       </div>

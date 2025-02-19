@@ -1,6 +1,44 @@
 <template>
   <div>
     <a-spin :spinning="pageLoading" size="large">
+      <a-modal
+      :open="visible"
+      :title="t('增加存蓄费')"
+      :width="500"
+      :footer="null"
+      :keyboard="false"
+      :maskClosable="false"
+      @cancel="visible = false"
+    >
+      <div class="sys-form-content mt-5">
+        <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
+          <a-form-item :label="t('日期')" name="date">
+            <a-date-picker
+              v-model:value="formState.date"
+              :disabledDate="disabledDateFormat"
+              placeholder=""
+            />
+          </a-form-item>
+          <a-form-item :label="t('金额')" name="amount">
+            <a-input-number
+              v-model:value="formState.amount"
+              :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+              :parser="value => value.replace(/\$\s?|(,*)/g, '')"
+            />
+          </a-form-item>
+          <a-form-item :label="t('备注')" name="note">
+            <a-textarea v-model:value="formState.note" />
+          </a-form-item>
+        </a-form>
+
+        <a-button
+          type="dark" class="big shadow bold uppercase w-full mb-5 mt-5"
+          :loading="saveLoading"
+          @click="submitHandle"
+        >{{ t('保存') }}</a-button>
+      </div>
+    </a-modal>
+
       <div style="min-height: 200px">
         <div v-if="statisticsData && tabData.length" class="flex header-static">
           <div class="item-content">
@@ -53,29 +91,39 @@
             </div>
           </div>
 
-          <a-dropdown :trigger="['click']">
-            <a-button :loading="downloading" type="dark" class="big shadow bold uppercase flex-button">
-              {{ t('创建报告') }}
-              <DownOutlined />
+          <div class="flex flex-col items-center gap-6">
+            <a-dropdown :trigger="['click']">
+              <a-button :loading="downloading" type="dark" class="big shadow bold uppercase flex-button">
+                {{ t('创建报告') }}
+                <DownOutlined />
+              </a-button>
+              <template #overlay>
+                <a-menu>
+                  <a-menu-item>
+                    <div class="pt-2 pb-2" @click="downLoadExcel(1)">{{ t('预测放款时间表') }}</div>
+                  </a-menu-item>
+                  <a-menu-item>
+                    <div class="pt-2 pb-2" @click="downLoadExcel(2)">{{ t('放款时间表') }}</div>
+                  </a-menu-item>
+                  <a-menu-item>
+                    <div class="pt-2 pb-2" @click="downLoadExcel(0)">{{ t('额度费用计算时间表') }}</div>
+                  </a-menu-item>
+                </a-menu>
+              </template>
+            </a-dropdown>
+            <a-button
+              v-if="hasPermission('projects:about:add:savings') && isAbout"
+              type="brown" shape="round" size="small"
+              @click="visible = true"
+            >
+              {{ t('增加存蓄费') }}
             </a-button>
-            <template #overlay>
-              <a-menu>
-                <a-menu-item>
-                  <div class="pt-2 pb-2" @click="downLoadExcel(1)">{{ t('预测放款时间表') }}</div>
-                </a-menu-item>
-                <a-menu-item>
-                  <div class="pt-2 pb-2" @click="downLoadExcel(2)">{{ t('放款时间表') }}</div>
-                </a-menu-item>
-                <a-menu-item>
-                  <div class="pt-2 pb-2" @click="downLoadExcel(0)">{{ t('额度费用计算时间表') }}</div>
-                </a-menu-item>
-              </a-menu>
-            </template>
-          </a-dropdown>
+          </div>
         </div>
 
         <div v-if="tabData.length" class="table-content">
           <div class="col-item th">
+            <div class="item uppercase" :class="{'about': isAbout}"></div>
             <div class="item uppercase">{{ t('日期') }}</div>
             <div class="item uppercase">{{ t('类型') }}</div>
             <div class="item uppercase">{{ t('说明') }}</div>
@@ -88,6 +136,8 @@
           <div class="col-content">
             <div v-for="(item, index) in tabData" :key="index" class="col-block" :class="{ passed: item.passed }">
               <div v-for="(_item, _index) in item.list" :key="_item.date" class="col-item">
+                <div v-if="isAbout" class="item about flex items-center"><span class="circle" :style="{ background: (_item.status === 2 || (_item.passed && _item.is_fee)) ? '#181818' : '#b4d8d8' }"></span></div>
+                <div v-else class="item"></div>
                 <div class="item">{{ tool.showDate(_item.date) }}</div>
                 <div class="item type">
                   <div v-if="[2, 4].includes(_item.type)">
@@ -205,12 +255,20 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, reactive, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { DownOutlined } from '@ant-design/icons-vue';
 import dayjs from 'dayjs';
 import tool from '@/utils/tool';
-import { projectForecastIndex, projectDetailForecastList, projectForecastExportExcel, projectForecastStatistics, projectDetailStatistics } from '@/api/process';
+import { hasPermission } from "@/directives/permission"
+import {
+  projectForecastIndex,
+  projectDetailForecastList,
+  projectForecastExportExcel,
+  projectForecastStatistics,
+  projectDetailStatistics,
+  projectForecastAddf
+} from '@/api/process';
 
 const props = defineProps({
   currentId: {
@@ -218,6 +276,10 @@ const props = defineProps({
     default: '',
   },
   isDetails: {
+    type: Boolean,
+    default: false
+  },
+  isAbout: {
     type: Boolean,
     default: false
   }
@@ -249,6 +311,9 @@ const getDataInfo = () => {
 
           const itemData = data[key];
           itemData.forEach((item, index) => {
+            const currentTargetDate = dayjs(item.date)
+            item.passed = currentTargetDate.isBefore(currentMonth, 'day') || currentTargetDate.isSame(currentMonth, 'day')
+
             if (item.type === 2) {
               item.drawdown = tool.formatMoney(item.amount);
             } else if (item.type === 4) {
@@ -287,8 +352,12 @@ const getDataInfo = () => {
   staticAjaxFn({
     uuid: props.currentId,
   }).then((res) => {
+    const repayments = res.repayments ? Math.abs(Number(res.repayments)) : 0
     statisticsData.value = res;
-    option.value.series[0].data[0].value = res.repayments || 0;
+    statisticsData.value.repayments = repayments
+    statisticsData.value.now.repaid = res.now.repaid ? Math.abs(Number(res.now.repaid)) : 0
+    statisticsData.value.last.repaid = res.last.repaid ? Math.abs(Number(res.last.repaid)) : 0
+    option.value.series[0].data[0].value = repayments;
     option.value.series[0].data[1].value = res.pendingRepayment || 1;
   });
 };
@@ -339,6 +408,80 @@ const option = ref({
     },
   ],
 });
+
+const disabledDateFormat = (current) => {
+  const startDate = statisticsData.value?.day.sday
+  const endDate = statisticsData.value?.day.eday
+
+  if (current && current.isBefore(startDate, 'day')) {
+    return true;
+  }
+
+  if (current && current.isAfter(endDate, 'day')) {
+    return true;
+  }
+
+  return false;
+}
+
+const visible = ref(false)
+
+const formRef = ref()
+const formState = reactive({
+  date: "",
+  amount: "",
+  note: ""
+})
+
+const formRules = {
+  date: [
+    { required: true, message: t('请选择') + t('日期'), trigger: 'change' }
+  ],
+  amount: [
+    { required: true, message: t('请输入') + t('金额'), trigger: 'blur' }
+  ]
+}
+
+const saveLoading = ref(false)
+const submitHandle = () => {
+  formRef.value
+    .validate()
+    .then(() => {
+      const {date, amount, note} = formState
+      const params = {
+        id: 0,
+        type: 5,
+        date: date.format('YYYY-MM-DD'),
+        amount,
+        note,
+        apply_uuid: props.currentId,
+        change: 2
+      }
+
+      saveLoading.value = true
+
+      projectForecastAddf(params).then(() => {
+        saveLoading.value = false
+        visible.value = false
+        getDataInfo();
+      }).catch(() => {
+        saveLoading.value = false
+      })
+    })
+    .catch(error => {
+      console.log('error', error);
+    });
+}
+
+watch(
+  () => visible.value,
+  (val) => {
+    if (!val) {
+      formRef.value.clearValidate()
+      formRef.value.resetFields()
+    }
+  }
+);
 
 onMounted(() => {
   if (props.currentId) {
@@ -442,22 +585,30 @@ onMounted(() => {
     width: 100%;
     display: flex;
     &.th {
-      font-weight: 500;
+      font-weight: bold;
+      font-size: 10px;
+      color: #888;
     }
     > .item {
       padding: 0 15px;
       &:nth-child(1) {
-        width: 150px;
+        width: 0;
+        &.about {
+          width: 60px;
+        }
       }
       &:nth-child(2) {
-        width: 160px;
+        width: 150px;
       }
       &:nth-child(3) {
+        width: 160px;
+      }
+      &:nth-child(4) {
         width: 280px;
       }
-      &:nth-child(4),
       &:nth-child(5),
-      &:nth-child(6) {
+      &:nth-child(6),
+      &:nth-child(7) {
         width: 170px;
         text-align: center;
       }
@@ -585,5 +736,14 @@ onMounted(() => {
     background-color: hsla(200, 9%, 66%, 0.3);
     margin: 0 8px;
   }
+}
+
+.circle {
+  background-color: #b4d8d8;
+  border: 1px solid;
+  border-radius: 4px;
+  display: inline-block;
+  height: 8px;
+  width: 8px;
 }
 </style>

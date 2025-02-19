@@ -641,5 +641,6 @@ export default {
   "确定要恢复勾选的数据吗？": "Are you sure you want to restore the selected data?",
   "您确定要与 Xero 同步项目交易吗？": "Are you sure you want to sync the project transactions with Xero?",
   "处理": "Processing",
-  "确定已完成吗？": "Are you sure it's done?"
+  "确定已完成吗？": "Are you sure it's done?",
+  "增加存蓄费": "Increase savings fees"
 }

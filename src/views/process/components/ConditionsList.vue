@@ -225,7 +225,7 @@ const submitHandle = () => {
         do_user
       };
 
-      const ajaxFn = props.about ? projectDetailEditCondition : projectAuditEditCondition
+      const ajaxFn = props.isDetails ? projectDetailEditCondition : projectAuditEditCondition
 
       subLoading.value = true;
 
@@ -251,7 +251,7 @@ const checkHandle = async (data) => {
     is_ok: 1
   };
 
-  const ajaxFn = props.about ? projectDetailStatusCondition : projectAuditStatusCondition
+  const ajaxFn = props.isDetails ? projectDetailStatusCondition : projectAuditStatusCondition
 
   data.checkLoading = true;
   await ajaxFn(params)
@@ -271,7 +271,7 @@ const delHandle = async (data) => {
     uuid: props.currentId
   };
 
-  const ajaxFn = props.about ? projectDetailDeleteCondition : projectAuditDeleteCondition
+  const ajaxFn = props.isDetails ? projectDetailDeleteCondition : projectAuditDeleteCondition
   data.delLoading = true;
   await ajaxFn(params)
     .then(() => {
@@ -285,7 +285,7 @@ const delHandle = async (data) => {
 };
 
 const userApiUrl = computed(() => {
-  const apiUrl = props.about ? 'projectDetail/userCondition' : "project/audit/userCondition"
+  const apiUrl = props.isDetails ? 'projectDetail/userCondition' : "project/audit/userCondition"
   return `${apiUrl}?uuid=${props.currentId}`;
 });
 

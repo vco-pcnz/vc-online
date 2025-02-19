@@ -616,3 +616,11 @@ export const projectDetailDeleteCondition = (data) =>
     method: "post",
     data
   });
+
+// 增加存续费 - about
+export const projectForecastAddf = (data) =>
+  request({
+    url: "/project/forecast/addf",
+    method: "post",
+    data
+  });

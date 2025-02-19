@@ -383,6 +383,7 @@ const importStaHandle = () => {
 };
 
 const choiceUserDone = (data) => {
+  console.log('data', data);
   // 个人
   if (data.type === 20) {
     formState.borrower_type = 1;
@@ -404,6 +405,7 @@ const choiceUserDone = (data) => {
   formState.borrower_address_short = data.addr;
   formState.borrower_address = data.address;
   formState.borrower_about = data.note;
+  formState.borrower_suburb = data.suburb
 
   formState.borrower_region_one_id = data.province_code;
   formState.borrower_region_two_id = data.city_code;

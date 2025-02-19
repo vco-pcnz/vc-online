@@ -60,14 +60,14 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { navigationTo } from '@/utils/tool';
 import DrawdownAmount from './form/DrawdownAmount.vue';
 import DrawdownBack from './form/DrawdownBack.vue';
 import DrawdownFCDate from './form/DrawdownFCDate.vue';
-import { forecastDarwdown, loanDsel, loanRdeclinel, loanRsaveStep, loanRrecall } from '@/api/project/loan';
+import { loanRdeclinel, loanRsaveStep, loanRrecall } from '@/api/project/loan';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);
@@ -83,30 +83,8 @@ const props = defineProps({
     type: Object
   }
 });
-const loading = ref(false);
 const accept_loading = ref(false);
-const decline_loading = ref(false);
-const visible = ref(false);
-const forecastList = ref();
 
-const loadData = () => {
-  loading.value = true;
-  forecastDarwdown({ uuid: props.uuid })
-    .then((res) => {
-      forecastList.value = res;
-    })
-    .finally((_) => {
-      loading.value = false;
-    });
-};
-
-// lm选择darwdown
-const chooseforecast = (val) => {
-  loanDsel({ uuid: props.uuid, id: props.detail?.id, forecast_id: val.id }).then((res) => {
-    update();
-    loadData();
-  });
-};
 
 // 拒绝
 const decline = async () => {
@@ -136,9 +114,6 @@ const update = () => {
   emits('update');
 };
 
-onMounted(() => {
-  loadData();
-});
 watch(
   () => props.detail,
   (val) => {
@@ -146,10 +121,6 @@ watch(
     }
   }
 );
-// 暴露方法给父组件
-defineExpose({
-  loadData
-});
 </script>
 
 <style scoped lang="less">

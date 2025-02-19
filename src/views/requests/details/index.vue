@@ -169,7 +169,7 @@
                   v-if="dataInfo.is_audit && statusType === 'primary'"
                   :current-id="currentId"
                   :is-details="true"
-                  :info-data="currentDataInfo"
+                  :end-date="currentDataInfo.loan.end_date"
                 ></conditions-list>
               </template>
             </div>

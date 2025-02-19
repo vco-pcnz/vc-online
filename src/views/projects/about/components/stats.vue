@@ -39,9 +39,12 @@
           <p class="fs_xs color_grey">{{ data?.lineFeeRate }}%</p>
         </div>
         <div>
-          <p>Bonus</p>
+          <p>Bonus ({{ data?.bonusRate }}%)</p>
           <vco-number :value="data?.bonus" :bold="true" size="fs_2xl" :precision="2"></vco-number>
-          <p class="fs_xs color_grey">{{ data?.bonusRate }}%</p>
+          <p class="fs_xs color_grey flex gap-2 items-center bonus2">
+            Total bonus
+            <vco-number :value="data?.bonus2" :bold="true" :precision="2"></vco-number>
+          </p>
         </div>
       </div>
     </div>
@@ -55,7 +58,7 @@
       <div class="box-bottom">
         <p>Security value</p>
         <vco-number :value="data?.security" :bold="true" size="fs_2xl" :precision="2"></vco-number>
-        <p class="fs_xs color_brown-light">security items <i class="iconfont fs_2xs ml-3">&#xe794;</i></p>
+        <a-button type="brown" shape="round" size="small" class="mt-1" @click="navigationTo(`/projects/discharge?uuid=${currentId}`)">security items <i class="iconfont fs_2xs ml-3">&#xe794;</i></a-button>
       </div>
     </div>
   </div>
@@ -64,10 +67,20 @@
 <script setup>
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { navigationTo } from "@/utils/tool"
 
 const { t } = useI18n();
 
-const props = defineProps(['data']);
+const props = defineProps({
+  currentId: {
+    type: String,
+    default: ''
+  },
+  data: {
+    type: Object,
+    default: () => {}
+  }
+});
 </script>
 
 <style scoped lang="less">
@@ -91,6 +104,16 @@ const props = defineProps(['data']);
       display: grid;
       grid-template-columns: 1fr 1fr;
     }
+  }
+}
+
+.bonus2 {
+  :deep(.ant-statistic-content),
+  :deep(.ant-statistic) {
+    font-size: 12px !important;
+    line-height: 18px !important;
+    font-weight: normal !important;
+    color: #888 !important;
   }
 }
 </style>

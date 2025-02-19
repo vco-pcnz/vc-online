@@ -569,7 +569,7 @@ export default {
   "批准": "Approve",
   "添加文件": "add file",
   "总天数": "Total days",
-  "创建还款": "Create a Repayment",
+  "创建还款": "create repayment",
   "您可以帮助他们创建还款请求": "You can help them create repayment request",
   "点击创建": "Click Create",
   "贷款总额": "Amount of loan",
@@ -633,6 +633,6 @@ export default {
   "您可以点击下面的按钮来退回解押请求。": "You can click the button below to return your unbonding request.",
   "退回请求": "Push back request",
   "团队": "Team",
-  "确定要对账吗？": "Are you sure you want to reconcile?"
-
+  "确定要对账吗？": "Are you sure you want to reconcile?",
+  "确定已完成吗？": "Are you sure it's done?"
 }

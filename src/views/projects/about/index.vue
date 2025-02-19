@@ -21,7 +21,12 @@
                   <i class="iconfont">&#xe733;</i>
                   <span class="title">{{ t('条件') }}</span>
                 </template>
-                <conditions :currentId="currentId"></conditions>
+                <conditions-list
+                  :current-id="currentId"
+                  :is-details="true"
+                  :about="true"
+                  :end-date="detail.date.end_date"
+                ></conditions-list>
               </a-collapse-panel>
               <a-collapse-panel key="Request_details" class="collapse-card request-card">
                 <template #header>
@@ -53,7 +58,7 @@
                 <a-button type="brown" shape="round" size="small">{{ t('日志') }}</a-button>
               </Journal>
             </div>
-            <Stats :data="detail?.credit"></Stats>
+            <Stats :data="detail?.credit" :currentId="currentId"></Stats>
           </div>
         </div>
       </a-spin>
@@ -68,7 +73,6 @@ import { useRoute } from 'vue-router';
 import detailLayout from '../components/detailLayout.vue';
 import BaseCard from './components/base.vue';
 import History from './components/history.vue';
-import Conditions from './components/conditions.vue';
 import RequestDetails from './components/requestDetails.vue';
 import Stats from './components/stats.vue';
 import PeriodLine from './components/PeriodLine.vue';
@@ -78,6 +82,7 @@ import Journal from './components/form/Journal.vue';
 import StartDefault from './components/form/StartDefault.vue';
 import AddVariations from './components/form/AddVariations.vue';
 import BindUsers from '@/views/process/components/BindUsers.vue';
+import ConditionsList from "@/views/process/components/ConditionsList.vue";
 import { projectDetail } from '@/api/project/project';
 
 const { t } = useI18n();

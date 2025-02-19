@@ -576,11 +576,27 @@ export const projectAuditEditCondition = (data) =>
     method: "post",
     data
   });
+
+// 添加或修改条件 - about
+export const projectDetailEditCondition = (data) =>
+  request({
+    url: "/projectDetail/editCondition",
+    method: "post",
+    data
+  });
   
 // 修改条件状态
 export const projectAuditStatusCondition = (data) =>
   request({
-    url: "project/audit/statusCondition",
+    url: "/project/audit/statusCondition",
+    method: "post",
+    data
+  });
+
+// 修改条件状态 - about
+export const projectDetailStatusCondition = (data) =>
+  request({
+    url: "/projectDetail/statusCondition",
     method: "post",
     data
   });
@@ -589,6 +605,14 @@ export const projectAuditStatusCondition = (data) =>
 export const projectAuditDeleteCondition = (data) =>
   request({
     url: "project/audit/deleteCondition",
+    method: "post",
+    data
+  });
+
+// 删除条件 - about
+export const projectDetailDeleteCondition = (data) =>
+  request({
+    url: "/projectDetail/deleteCondition",
     method: "post",
     data
   });

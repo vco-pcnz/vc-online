@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-6">
+  <div class="mt-6" :class="{'about-main-content': about}">
     <!-- 人员选择 -->
     <vco-choose-user ref="vcoChooseUserRef" :isMultiple="true" :hide-search="true" :url="userApiUrl" @done="userChoiced">
       <div></div>
@@ -39,10 +39,12 @@
       </div>
     </a-modal>
 
-    <div class="block-item sec">
-      <vco-process-title :title="t('状况')">
+    <div class="block-item sec" :class="{'about': about}">
+      <vco-process-title v-if="!about" :title="t('状况')">
         <a-button v-if="!isDetails" type="primary" shape="round" size="small" class="uppercase" @click="openAddEdit(false)">{{ t('添加') }}</a-button>
       </vco-process-title>
+
+      <a-button v-if="about && hasPermission('projects:about:add:conditions')" type="brown" shape="round" size="small" @click="openAddEdit(false)">{{ t('添加') }}</a-button>
 
       <a-spin :spinning="pageLoading" size="large">
         <div class="tab-content" :class="{ 'no-data': !listData.length }">
@@ -50,14 +52,29 @@
             <div v-for="(item, index) in listData" :key="index" class="item" :class="{ pass: item.pass, done: item.is_ok }">
               <div class="title">
                 <p>{{ tool.showDate(item.date) }}</p>
-                <div v-if="!item.is_ok && item.do && !isDetails" class="flex">
-                  <a-button :loading="item.delLoading" type="link" class="danger" @click="delHandle(item)">
-                    <i v-if="!item.delLoading" class="iconfont">&#xe8c1;</i>
-                  </a-button>
+                <div v-if="!item.is_ok && item.do" class="flex">
+                  <a-popconfirm
+                    :title="t('确定删除吗？')"
+                    :ok-text="t('确定')"
+                    :cancel-text="t('取消')"
+                    @confirm="delHandle(item)"
+                  >
+                    <a-button :loading="item.delLoading" type="link" class="danger">
+                      <i v-if="!item.delLoading" class="iconfont">&#xe8c1;</i>
+                    </a-button>
+                  </a-popconfirm>
                   <a-button type="link" @click="openAddEdit(item)"><i class="iconfont">&#xe8cf;</i></a-button>
-                  <a-button type="link" :loading="item.checkLoading" class="success" @click="checkHandle(item)">
-                    <i v-if="!item.checkLoading" class="iconfont">&#xe647;</i>
-                  </a-button>
+
+                  <a-popconfirm
+                    :title="t('确定已完成吗？')"
+                    :ok-text="t('确定')"
+                    :cancel-text="t('取消')"
+                    @confirm="checkHandle(item)"
+                  >
+                    <a-button type="link" :loading="item.checkLoading" class="success">
+                      <i v-if="!item.checkLoading" class="iconfont">&#xe647;</i>
+                    </a-button>
+                  </a-popconfirm>
                 </div>
               </div>
               <div class="info">{{ item.note }}</div>
@@ -81,20 +98,34 @@
 import { ref, reactive, onMounted, watch, computed, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import dayjs from 'dayjs';
-import { auditConditionList, projectDetailConditionList, projectAuditEditCondition, projectAuditStatusCondition, projectAuditDeleteCondition } from '@/api/process';
+import {
+  auditConditionList,
+  projectDetailConditionList,
+  projectAuditEditCondition,
+  projectDetailEditCondition,
+  projectAuditStatusCondition,
+  projectDetailStatusCondition,
+  projectAuditDeleteCondition,
+  projectDetailDeleteCondition
+} from '@/api/process';
 import tool, { removeDuplicates } from '@/utils/tool';
 import emitter from '@/event';
+import { hasPermission } from "@/directives/permission"
 
 const props = defineProps({
-  infoData: {
-    type: Object,
-    default: () => {}
+  endDate: {
+    type: String,
+    default: ''
   },
   currentId: {
     type: [Number, String],
     default: ''
   },
   isDetails: {
+    type: Boolean,
+    default: false
+  },
+  about: {
     type: Boolean,
     default: false
   }
@@ -145,7 +176,7 @@ const formRules = {
 };
 
 const disabledDateFormat = (current) => {
-  const endDate = props.infoData.loan.end_date;
+  const endDate = props.endDate || dayjs().format('YYYY-MM-DD')
 
   if (current && current < new Date().setHours(0, 0, 0, 0)) {
     return true;
@@ -194,9 +225,11 @@ const submitHandle = () => {
         do_user
       };
 
+      const ajaxFn = props.about ? projectDetailEditCondition : projectAuditEditCondition
+
       subLoading.value = true;
 
-      projectAuditEditCondition(params)
+      ajaxFn(params)
         .then(() => {
           subLoading.value = false;
           visible.value = false;
@@ -211,39 +244,49 @@ const submitHandle = () => {
     });
 };
 
-const checkHandle = (data) => {
+const checkHandle = async (data) => {
   const params = {
     id: data.id,
     uuid: props.currentId,
     is_ok: 1
   };
+
+  const ajaxFn = props.about ? projectDetailStatusCondition : projectAuditStatusCondition
+
   data.checkLoading = true;
-  projectAuditStatusCondition(params)
+  await ajaxFn(params)
     .then(() => {
       getListData();
+      return true
     })
     .catch(() => {
       data.checkLoading = false;
+      return false
     });
 };
 
-const delHandle = (data) => {
+const delHandle = async (data) => {
   const params = {
     id: data.id,
     uuid: props.currentId
   };
+
+  const ajaxFn = props.about ? projectDetailDeleteCondition : projectAuditDeleteCondition
   data.delLoading = true;
-  projectAuditDeleteCondition(params)
+  await ajaxFn(params)
     .then(() => {
       getListData();
+      return true
     })
     .catch(() => {
       data.delLoading = false;
+      return false
     });
 };
 
 const userApiUrl = computed(() => {
-  return `project/audit/userCondition?uuid=${props.currentId}`;
+  const apiUrl = props.about ? 'projectDetail/userCondition' : "project/audit/userCondition"
+  return `${apiUrl}?uuid=${props.currentId}`;
 });
 
 const userChoiced = (data) => {
@@ -402,5 +445,17 @@ onUnmounted(() => {
       }
     }
   }
+}
+
+.about-main-content {
+  margin-top: 0 !important;
+}
+
+.block-item.about {
+  padding: 0;
+  background-color: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  border: none;
 }
 </style>

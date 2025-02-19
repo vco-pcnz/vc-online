@@ -83,7 +83,6 @@ const viewDetail = (val) => {
 watch(
   () => props.tableData,
   (val) => {
-    console.log(val)
     if (val && val.length) {
       let ids = val.map((item) => {
         return item.id;

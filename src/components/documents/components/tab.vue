@@ -31,7 +31,7 @@
             <template v-if="files.show">
               <div class="folderPath">{{ getPath(files.id) }}</div>
               <div v-for="(item, index) in files.attach" :key="index" @click="toTarget(files.id)">
-                <File :file="item" :tree="data" :apply_uuid="apply_uuid" :files="files" :folder="files" :key="index" @update="search"></File>
+                <File :file="item" :tree="data" :apply_uuid="apply_uuid" :files="files" :folder="files" :edit="edit" :key="index" @update="search"></File>
               </div>
             </template>
           </template>
@@ -70,6 +70,10 @@ const props = defineProps({
   },
   annex_id: {
     type: [String,Number]
+  },
+  edit: {
+    type: Boolean,
+    default: true
   }
 });
 

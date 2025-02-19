@@ -1,7 +1,7 @@
 <template>
-  <detail-layout active-tab="documents">
+  <detail-layout active-tab="documents" @getProjectDetail="getProjectDetail">
     <template #content>
-      <Documents v-if="project_id" :project_id="project_id" :annex_id="annex_id"></Documents>
+      <Documents v-if="project_id" :project_id="project_id" :annex_id="annex_id" :edit="!projectDetail?.base?.is_close"></Documents>
     </template>
   </detail-layout>
 </template>
@@ -24,6 +24,11 @@ onMounted(() => {
   project_id.value = route.query.uuid;
   annex_id.value = route.query.annex_id;
 });
+
+const projectDetail = ref();
+const getProjectDetail = (val) => {
+  projectDetail.value = val;
+};
 
 </script>
 

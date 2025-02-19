@@ -8,7 +8,7 @@
       <div class="files-ops">
         <div class="files-ops-item" :class="{ active: showFilter }" @click="setShowFilter"><i class="iconfont">&#xe756;</i></div>
 
-        <vco-upload-modal v-model:value="document" v-model:list="upDocument">
+        <vco-upload-modal v-model:value="document" v-model:list="upDocument" v-if="edit">
           <a-spin :spinning="upLoading" size="large">
             <div class="files-ops-item"><i class="iconfont">&#xe734;</i></div>
           </a-spin>
@@ -67,6 +67,7 @@
                   :folder="folder"
                   v-for="(item, index) in files.attach"
                   :key="index"
+                  :edit="edit"
                   @reload="reload"
                   @update="getFiles"
                 ></File>
@@ -128,6 +129,10 @@ const props = defineProps({
   isTab: {
     type: Boolean,
     default: false
+  },
+  edit: {
+    type: Boolean,
+    default: true
   }
 });
 

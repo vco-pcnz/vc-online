@@ -1,37 +1,31 @@
 <template>
-  <vco-file-item
-    :showClose="showClose"
-    :filter="filter"
-    :file="file"
-    :time="file.create_time"
-    iconColor="#bf9425"
-    :showDownload="true"
-    @remove="remove(file)"
-  >
-    <template #ops v-if="files.show">
-      <a-dropdown trigger="click" @click.stop>
-        <a class="ant-dropdown-link" @click.prevent>
-          <i class="iconfont icon-ops">&#xe77f;</i>
-        </a>
-        <template #overlay>
-          <FoldersDropdown :data="tree" :did="files.id" :apply_uuid="apply_uuid" :uuids="[file.uuid]" @reload="reload">
-            <li class="opFileList-item" @click="updateVisibleRename()">Rename</li>
-            <li class="opFileList-item">Copy to...</li>
-          </FoldersDropdown>
-        </template>
-      </a-dropdown>
-    </template>
-    <template #ops v-else>
-      <a-dropdown trigger="click">
-        <a class="ant-dropdown-link" @click.prevent>
-          <i class="iconfont icon-ops">&#xe77f;</i>
-        </a>
-        <template #overlay>
-          <ul class="opFileList">
-            <li class="opFileList-item" @click="move(files.id, folder.id, [file.uuid])">Unarchive</li>
-          </ul>
-        </template>
-      </a-dropdown>
+  <vco-file-item :showClose="edit ? showClose : false" :filter="filter" :file="file" :time="file.create_time" iconColor="#bf9425" :showDownload="true" @remove="remove(file)">
+    <template #ops v-if="edit">
+      <template v-if="files.show">
+        <a-dropdown trigger="click" @click.stop>
+          <a class="ant-dropdown-link" @click.prevent>
+            <i class="iconfont icon-ops">&#xe77f;</i>
+          </a>
+          <template #overlay>
+            <FoldersDropdown :data="tree" :did="files.id" :apply_uuid="apply_uuid" :uuids="[file.uuid]" @reload="reload">
+              <li class="opFileList-item" @click="updateVisibleRename()">Rename</li>
+              <li class="opFileList-item">Copy to...</li>
+            </FoldersDropdown>
+          </template>
+        </a-dropdown>
+      </template>
+      <template v-else>
+        <a-dropdown trigger="click">
+          <a class="ant-dropdown-link" @click.prevent>
+            <i class="iconfont icon-ops">&#xe77f;</i>
+          </a>
+          <template #overlay>
+            <ul class="opFileList">
+              <li class="opFileList-item" @click="move(files.id, folder.id, [file.uuid])">Unarchive</li>
+            </ul>
+          </template>
+        </a-dropdown>
+      </template>
     </template>
   </vco-file-item>
   <RenameModel @click.stop :formParams="formParams" v-model:visible="visibleRename" @change="update"></RenameModel>
@@ -68,6 +62,10 @@ const props = defineProps({
   },
   files: {
     type: Object
+  },
+  edit: {
+    type: Boolean,
+    default: true
   }
 });
 
@@ -257,5 +255,4 @@ const update = () => {
     }
   }
 }
-
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div class="folder">
-    <a-button class="add uppercase" type="brown" shape="round" size="small" @click="updateAddModel('0')">{{ t('添加') }}</a-button>
+    <a-button class="add uppercase" type="brown" shape="round" size="small" @click="updateAddModel('0')" v-if="edit">{{ t('添加') }}</a-button>
     <a-tree
       :show-line="true"
       show-icon
@@ -15,7 +15,7 @@
             <span class="name">{{ item.name }}</span>
             <span class="num">・{{ item.attach_count }}</span>
           </div>
-          <div class="folder-item-ops">
+          <div class="folder-item-ops" v-if="edit">
             <i class="iconfont mr-2" @click.stop="updateAddModel('0', item)">&#xe790;</i>
             <i class="iconfont mr-2" @click.stop="updateAddModel(item.id, item)">&#xe8cf;</i>
             <a-popconfirm title="Are you sure delete this Folders?" ok-text="Yes" cancel-text="No" @confirm="remove(item.id, index)">
@@ -57,6 +57,10 @@ const props = defineProps({
   },
   pid: {
     type: Number
+  },
+  edit: {
+    type: Boolean,
+    default: true
   }
 });
 

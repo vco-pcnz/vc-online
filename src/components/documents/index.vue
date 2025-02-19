@@ -2,7 +2,7 @@
   <a-spin :spinning="spinning" size="large">
     <div style="min-height: 200px;">
       <template v-if="tree">
-        <Tab v-model:active="tabIndex" v-model:folder="folder" :data="tree" :apply_uuid="project_id" :annex_id="annex_id" v-model:showSearch="showSearch"></Tab>
+        <Tab v-model:active="tabIndex" v-model:folder="folder" :data="tree" :apply_uuid="project_id" :annex_id="annex_id" :edit="edit" v-model:showSearch="showSearch"></Tab>
         <div class="content" :class="{ grid: tree && tree[tabIndex] && tree[tabIndex].children }" v-if="!showSearch">
           <template v-if="tree && tree[tabIndex].children">
             <Folders
@@ -11,6 +11,7 @@
               :apply_uuid="project_id"
               :tabIndex="tabIndex"
               :data="tree[tabIndex].children"
+              :edit="edit"
               @change="(val) => loadData(tabIndex, val)"
             ></Folders>
           </template>
@@ -20,6 +21,7 @@
             :apply_uuid="project_id"
             :folder="tree[tabIndex].children ? folder : tree[tabIndex]"
             :isTab="Boolean(!tree[tabIndex].children)"
+            :edit="edit"
             ref="fileListRef"
             @change="loadData(tabIndex, folder)"
           ></FileList>
@@ -47,6 +49,10 @@ const props = defineProps({
   },
   annex_id: {
     type: [String,Number]
+  },
+  edit: {
+    type: Boolean,
+    default: true
   }
 });
 

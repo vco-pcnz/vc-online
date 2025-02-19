@@ -26,8 +26,8 @@
               <p class="color_grey fs_xs">Statements total</p>
               <vco-number :value="item.amount" :precision="2" size="fs_2xl"></vco-number>
             </div>
-            <a-button class="iconBox ml-5" :disabled="item.disabled">
-              <i class="iconfont" :class="{ disabled: item.disabled }">&#xe773;</i>
+            <a-button class="iconBox ml-5" :disabled="!item.download" @click="report(item.id)">
+              <i class="iconfont" :class="{ disabled: !item.download }">&#xe773;</i>
             </a-button>
           </div>
         </li>
@@ -49,7 +49,7 @@ import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import SelectDate from './SelectDate.vue';
 import tool from '@/utils/tool';
-import { forecast, cashFlowListExport } from '@/api/project/forecast';
+import { forecast, forecastExport } from '@/api/project/forecast';
 
 const { t } = useI18n();
 
@@ -68,10 +68,9 @@ const change = () => {
 };
 
 const downloading = ref(false);
-const report = () => {
-  return
-  downloading.value = true;
-  cashFlowListExport({ search_key: search_key.value, type: type.value })
+const report = (uid) => {
+  downloading.value = !uid;
+  forecastExport({ search_key: search_key.value, type: type.value, uid: uid })
     .then((res) => {
       window.open(res);
     })

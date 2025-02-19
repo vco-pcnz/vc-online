@@ -2,18 +2,29 @@
   <detail-layout active-tab="repayments" @getProjectDetail="getProjectDetail">
     <template #content>
       <div class="ProjectDrawdowns">
-        <div :class="{ grid: hasPermission('projects:repayments:add') }" class="mb-12">
+        <div :class="{ grid: hasPermission('projects:repayments:add') &&  projectDetail && !projectDetail?.base?.is_close}" class="mb-12">
           <MeterStat :uuid="uuid" :projectDetail="projectDetail" v-if="Boolean(uuid)" ref="MeterStatRef"></MeterStat>
-          <template v-if="hasPermission('projects:repayments:add')">
-            <drawdownre-quest v-if="isNormalUser" :uuid="uuid" @change="update">
-              <a-button type="dark" class="big uppercase fs_2xs mt-20">{{ t('还款申请') }}</a-button>
-            </drawdownre-quest>
-            <div v-else class="HelpBorrower">
-              <div class="flex items-center"><i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">{{ t('帮助借款人') }}</span></div>
-              <p class="color_grey mt-1 mb-3">{{ t('您可以帮助他们创建还款请求') }}</p>
-              <drawdownre-quest :uuid="uuid" @change="update">
-                <a-button type="brown" shape="round" size="small">{{ t('创建还款') }}</a-button>
-              </drawdownre-quest>
+          <template v-if="projectDetail && !projectDetail?.base?.is_close && hasPermission('projects:repayments:add')">
+            <div class="HelpBorrower">
+              <calculator :uuid="uuid" :projectDetail="projectDetail">
+                <a-button :title="t('还款计算器')" type="brown" class="calculator-btn">
+                  <i class="iconfont">&#xe643;</i>
+                </a-button>
+              </calculator>
+              <template v-if="isNormalUser">
+                <div class="flex items-center"><i class="iconfont mr-2">&#xe757;</i><span class="weight_demiBold">{{ t('还款申请') }}</span></div>
+                <p class="color_grey mt-1 mb-3">{{ t('点击下方按钮创建还款申请') }}</p>
+                <drawdownre-quest :uuid="uuid" :projectDetail="projectDetail" @change="update">
+                  <a-button type="brown" shape="round" size="small">{{ t('创建还款') }}</a-button>
+                </drawdownre-quest>
+              </template>
+              <template v-else>
+                <div class="flex items-center"><i class="iconfont mr-2">&#xe757;</i><span class="weight_demiBold">{{ t('还款申请') }}</span></div>
+                <p class="color_grey mt-1 mb-3">{{ t('点击下方按钮创建还款申请') }}</p>
+                <drawdownre-quest :uuid="uuid" :projectDetail="projectDetail" @change="update">
+                  <a-button type="brown" shape="round" size="small">{{ t('创建还款') }}</a-button>
+                </drawdownre-quest>
+              </template>
             </div>
           </template>
         </div>
@@ -44,6 +55,7 @@ import MeterStat from './components/MeterStat.vue';
 import TableBlock from './components/TableBlock.vue';
 import Detail from './components/Detail.vue';
 import DrawdownreQuest from './components/form/DrawdownRequest.vue';
+import Calculator from './components/form/Calculator.vue';
 import { hasPermission } from '@/directives/permission/index';
 import { loanRepayment } from '@/api/project/loan';
 import { useRoute } from 'vue-router';
@@ -132,6 +144,23 @@ onMounted(() => {
     background-color: #f0f0f0;
     border: 1px solid #e2e5e2;
     border-radius: 12px;
+    position: relative;
+  }
+}
+
+.calculator-btn {
+  padding: 0 !important;
+  height: 32px;
+  width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  border-radius: 3px;
+  > i {
+    line-height: 1;
   }
 }
 </style>

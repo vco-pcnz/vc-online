@@ -2,9 +2,9 @@
   <detail-layout active-tab="drawdowns" @getProjectDetail="getProjectDetail">
     <template #content>
       <div class="ProjectDrawdowns">
-        <div :class="{ grid: hasPermission('projects:drawdowns:add') || (hasPermission('projects:drawdowns:add:lm') && !projectDetail?.base?.is_close) }" class="mb-12">
+        <div :class="{ grid: hasPermission('projects:drawdowns:add') || (hasPermission('projects:drawdowns:add:lm') && (projectDetail && !projectDetail?.base?.is_close)) }" class="mb-12">
           <MeterStat :uuid="uuid" v-if="Boolean(uuid)" ref="MeterStatRef"></MeterStat>
-          <template v-if="!projectDetail?.base?.is_close">
+          <template v-if="projectDetail && !projectDetail?.base?.is_close">
             <div class="HelpBorrower" v-if="hasPermission('projects:drawdowns:add:lm')">
               <div class="flex items-center"><i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">Help borrower</span></div>
               <p class="color_grey mt-1 mb-3">You can help to create drawdown on their behalf.</p>

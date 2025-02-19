@@ -5,12 +5,16 @@
       <li>{{ t('还款') }}</li>
       <li>{{ t('请求数据') }}</li>
       <li>{{ t('状态t') }}</li>
-      <li>{{ t('创建时间') }}</li>
+      <li>{{ t('创建日期') }}</li>
+      <li>{{ t('还款日期') }}</li>
       <li>{{ t('已批准') }}</li>
     </ul>
     <div v-if="tableData.length" class="table-body">
       <template v-for="item in tableData" :key="item.id">
-        <ul class="table-col tr" :class="{ active: active_id == item.id, declined: item.status_name === 'DECLINED REPAYMENT' }" @click="viewDetail(item)">
+        <ul class="table-col tr"
+          :class="{ active: active_id == item.id, declined: item.status_name === 'DECLINED REPAYMENT', 'all-repayment': item.all_repayment }"
+          @click="viewDetail(item)"
+        >
           <li><div class="circle" :class="{'done': item.status === 2}"></div></li>
           <li>
             <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.name" style="width: 200px">{{ item.name }}</p>
@@ -25,8 +29,12 @@
             <p class="fs_xs color_grey">{{ tool.showDate(item.create_time) }}</p>
           </li>
           <li>
+            <p class="fs_xs color_grey">{{ tool.showDate(item.apply_date) }}</p>
+          </li>
+          <li>
             <vco-number :value="item.amount" :precision="2" size="fs_md" :end="true"></vco-number>
           </li>
+          <div v-if="item.all_repayment" class="tips">{{ t('全额还款') }}</div>
         </ul>
       </template>
     </div>
@@ -127,6 +135,21 @@ watch(
     &.declined {
       opacity: 0.5;
     }
+
+    &.all-repayment {
+      position: relative;
+      overflow: hidden;
+      .tips {
+        position: absolute;
+        background-color: @colorPrimary;
+        font-size: 11px;
+        padding: 2px 20px;
+        top: 0;
+        right: 0;
+        border-bottom-left-radius: 12px;
+      }
+    }
+
     > li {
       &:nth-child(4) {
         color: #272727;
@@ -169,11 +192,12 @@ watch(
       text-align: center;
       width: 210px;
     }
-    &:nth-child(5) {
+    &:nth-child(5),
+    &:nth-child(6) {
       width: 140px;
       text-align: center;
     }
-    &:nth-child(6) {
+    &:nth-child(7) {
       width: 160px;
       text-align: right;
     }

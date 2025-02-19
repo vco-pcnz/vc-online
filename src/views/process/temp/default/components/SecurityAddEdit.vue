@@ -25,7 +25,7 @@
           </a-col>
           <template v-if="formState.type == 1">
             <a-col :span="7">
-              <a-form-item :label="t('土地总额')" name="land_amount">
+              <a-form-item :label="t('土地价值')" name="land_amount">
                 <a-input-number
                   v-model:value="formState.land_amount"
                   :max="99999999999"
@@ -36,7 +36,7 @@
             </a-col>
             <a-col :span="1" class="plus-txt"><i class="iconfont">&#xe889;</i></a-col>
             <a-col :span="7">
-              <a-form-item :label="t('建筑总额')" name="build_amount">
+              <a-form-item :label="t('建筑价值')" name="build_amount">
                 <a-input-number
                   v-model:value="formState.build_amount"
                   :max="99999999999"
@@ -47,7 +47,7 @@
             </a-col>
             <a-col :span="1" class="plus-txt"><i class="iconfont">=</i></a-col>
             <a-col :span="8" class="total-amount-info">
-              <a-form-item :label="t('抵押物价值')">
+              <a-form-item :label="t('总价值')">
                 <vco-number :value="totalAmountRef" :precision="2" :end="true"></vco-number>
               </a-form-item>
             </a-col>

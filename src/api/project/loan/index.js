@@ -215,3 +215,11 @@ export const dischargeGoback = (data) =>
     method: 'post',
     data
   });
+
+// 全额还款金额试算
+export const projectLoanAllRepayment = (params) =>
+  request({
+    url: 'project/loan/allRepayment',
+    method: 'get',
+    params
+  });

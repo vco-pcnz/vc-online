@@ -112,7 +112,7 @@
               </template>
             </a-dropdown>
             <a-button
-              v-if="hasPermission('projects:about:add:savings') && isAbout"
+              v-if="hasPermission('projects:about:add:savings') && isAbout && !isClose"
               type="brown" shape="round" size="small"
               @click="visible = true"
             >
@@ -282,7 +282,11 @@ const props = defineProps({
   isAbout: {
     type: Boolean,
     default: false
-  }
+  },
+  isClose: {
+    type: Boolean,
+    default: false
+  },
 });
 
 const { t } = useI18n();

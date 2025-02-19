@@ -6,7 +6,7 @@
           <div class="project-info">
             <base-card :detail="detail"></base-card>
 
-            <bind-users v-if="currentId" :current-id="currentId" :about="true"></bind-users>
+            <bind-users v-if="currentId" :current-id="currentId" :is-close="detail?.base.is_close" :about="true"></bind-users>
 
             <a-collapse expand-icon-position="end" ghost>
               <a-collapse-panel key="History" class="collapse-card history-card">
@@ -24,6 +24,7 @@
                 <conditions-list
                   :current-id="currentId"
                   :is-details="true"
+                  :is-close="detail?.base.is_close"
                   :about="true"
                   :end-date="detail.date.end_date"
                 ></conditions-list>

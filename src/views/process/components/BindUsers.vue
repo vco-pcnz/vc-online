@@ -15,7 +15,7 @@
           <div class="title-content">
             <p class="uppercase">{{ t('管理者信息') }}</p>
             <a-button
-              v-if="!isDetails && ((hasPermission('requests:loan:bind:vcTeam') && !about) || (hasPermission('projects:about:bind:vcTeam') && about))"
+              v-if="!isClose && !isDetails && ((hasPermission('requests:loan:bind:vcTeam') && !about) || (hasPermission('projects:about:bind:vcTeam') && about))"
               type="primary"
               size="small"
               shape="round"
@@ -37,11 +37,11 @@
           </div>
         </div>
 
-        <div v-if="isDetails || (hasPermission('requests:loan:bind:broker') && !about) || about" class="user-show-item">
+        <div v-if="!isClose && isDetails || (hasPermission('requests:loan:bind:broker') && !about) || about" class="user-show-item">
           <div class="title-content">
             <p class="uppercase">{{ t('中介信息') }}</p>
             <a-button
-              v-if="!isDetails && ((hasPermission('requests:loan:bind:broker') && !about) || (hasPermission('projects:about:bind:broker') && about))"
+              v-if="!isClose && !isDetails && ((hasPermission('requests:loan:bind:broker') && !about) || (hasPermission('projects:about:bind:broker') && about))"
               type="primary"
               size="small"
               shape="round"
@@ -67,7 +67,7 @@
           <div class="title-content">
             <p class="uppercase">{{ t('借款账号信息') }}</p>
             <a-button
-              v-if="!isDetails && ((hasPermission('requests:loan:bind:user') && !about) || (hasPermission('projects:about:bind:user') && about))"
+              v-if="!isClose && !isDetails && ((hasPermission('requests:loan:bind:user') && !about) || (hasPermission('projects:about:bind:user') && about))"
               type="primary"
               size="small"
               shape="round"
@@ -122,6 +122,10 @@
       default: false
     },
     about: {
+      type: Boolean,
+      default: false
+    },
+    isClose: {
       type: Boolean,
       default: false
     },

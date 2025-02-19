@@ -44,7 +44,11 @@
         <a-button v-if="!isDetails" type="primary" shape="round" size="small" class="uppercase" @click="openAddEdit(false)">{{ t('添加') }}</a-button>
       </vco-process-title>
 
-      <a-button v-if="about && hasPermission('projects:about:add:conditions')" type="brown" shape="round" size="small" @click="openAddEdit(false)">{{ t('添加') }}</a-button>
+      <a-button
+        v-if="about && hasPermission('projects:about:add:conditions') && !isClose"
+        type="brown" shape="round" size="small"
+        @click="openAddEdit(false)"
+      >{{ t('添加') }}</a-button>
 
       <a-spin :spinning="pageLoading" size="large">
         <div class="tab-content" :class="{ 'no-data': !listData.length }">
@@ -52,7 +56,7 @@
             <div v-for="(item, index) in listData" :key="index" class="item" :class="{ pass: item.pass, done: item.is_ok }">
               <div class="title">
                 <p>{{ tool.showDate(item.date) }}</p>
-                <div v-if="!item.is_ok && item.do" class="flex">
+                <div v-if="!item.is_ok && item.do && !isClose" class="flex">
                   <a-popconfirm
                     :title="t('确定删除吗？')"
                     :ok-text="t('确定')"
@@ -122,6 +126,10 @@ const props = defineProps({
     default: ''
   },
   isDetails: {
+    type: Boolean,
+    default: false
+  },
+  isClose: {
     type: Boolean,
     default: false
   },

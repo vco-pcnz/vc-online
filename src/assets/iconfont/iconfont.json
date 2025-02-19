@@ -6,6 +6,13 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "6527113",
+      "name": "计算器",
+      "font_class": "jisuanqi",
+      "unicode": "e643",
+      "unicode_decimal": 58947
+    },
+    {
       "icon_id": "9974760",
       "name": "减",
       "font_class": "jian1",

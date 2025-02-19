@@ -79,7 +79,7 @@
       </a-col>
     </a-row>
 
-    <drawdownre-quest v-if="detail.state === 0 && hasPermission('projects:discharge:review')" :detail="detail" :p-uuid="uuid" @change="update">
+    <drawdownre-quest v-if="!projectDetail?.base?.is_close && detail.state === 0 && hasPermission('projects:discharge:review')" :detail="detail" :p-uuid="uuid" @change="update">
       <a-button type="dark" class="big uppercase mt-5" style="width: 100%">{{ t('解押申请') }}</a-button>
     </drawdownre-quest>
 

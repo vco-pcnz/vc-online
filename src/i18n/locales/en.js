@@ -643,5 +643,16 @@ export default {
   "处理": "Processing",
   "确定已完成吗？": "Are you sure it's done?",
   "新增成功": "Added successfully",
-  "增加存蓄费": "Increase savings fees"
+  "增加存蓄费": "Increase savings fees",
+  "点击下方按钮创建还款申请": "Click the button below to create a repayment request",
+  "还款计算器": "Repayment Calculator",
+  "选择还款时间可计算出全额还款所需金额": "Select the repayment date to calculate the amount required for full repayment",
+  "还款日期": "Repayment date",
+  "总价值": "Total Value",
+  "建筑价值": "Build Value",
+  "还款总额": "Total repayment amount",
+  "还款方式": "Repayment type",
+  "部分还款": "Partial repayment",
+  "全额还款": "Full repayment",
+  "创建日期": "Create date"
 }

@@ -108,7 +108,8 @@ const init = () => {
   nextTick(() => {
     formRef.value.clearValidate();
     formRef.value.resetFields();
-    formState.value.date =  dayjs().format('YYYY-MM-DD');
+
+    formState.value.date = props.detail.apply_date ? dayjs(props.detail.apply_date).format('YYYY-MM-DD') :  dayjs().format('YYYY-MM-DD');
   })
 };
 </script>

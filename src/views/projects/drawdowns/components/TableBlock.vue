@@ -144,6 +144,12 @@ watch(
     &.declined {
       opacity: 0.5;
     }
+
+    > li {
+      &:nth-child(4) {
+        color: #272727;
+      }
+    }
   }
   > li {
     line-height: 21px;
@@ -179,7 +185,6 @@ watch(
     }
     &:nth-child(4) {
       text-align: center;
-      color: #272727;
       font-weight: 500;
       text-transform: uppercase;
       width: 200px;

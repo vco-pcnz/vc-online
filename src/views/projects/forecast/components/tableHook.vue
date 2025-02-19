@@ -231,7 +231,7 @@ const update = () => {
     display: flex;
     margin: 5px 0;
     &.th {
-      font-weight: 500;
+      font-weight: bold;
       color: @color_grey;
       font-size: 10px;
     }

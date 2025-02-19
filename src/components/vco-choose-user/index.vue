@@ -11,23 +11,20 @@
           </div>
         </template>
         <template v-else>
-          <vco-type-input
-            v-model="searchForm.keywords"
-            v-model:type="searchForm.key"
-            :type-data="keys"
-            style="flex: 1"
-            :placeholder="t('请输入')"
-          ></vco-type-input>
+          <vco-type-input v-model="searchForm.keywords" v-model:type="searchForm.key" :type-data="keys" style="flex: 1" :placeholder="t('请输入')"></vco-type-input>
           <i class="iconfont" style="cursor: pointer" @click="searchHandle()"> &#xe756; </i>
         </template>
       </slot>
     </div>
 
-    <a-modal :width="900" v-if="open" :open="open" :title="title" @cancel="close">
+    <a-modal :width="1000" v-if="open" :open="open" :title="title" @cancel="close">
       <!-- 搜索 -->
       <div v-if="!hideSearch" class="flex justify-end mb-5">
         <vco-page-search>
-          <vco-page-search-item title="" width="300">
+          <vco-page-search-item :title="t('机构')" width="180" v-if="url == 'stake/selStake'">
+            <a-input v-model:value="searchForm.pname" :placeholder="t('请输入')" />
+          </vco-page-search-item>
+          <vco-page-search-item :title="t('关键字')" width="300">
             <vco-type-input v-model="searchForm.keywords" v-model:type="searchForm.key" :type-data="keys" :placeholder="t('请输入')"></vco-type-input>
           </vco-page-search-item>
           <vco-page-search-item width="100%">
@@ -40,33 +37,14 @@
       </div>
 
       <a-spin :spinning="loading" size="large">
-        <TableBlock
-          :isMultiple="isMultiple"
-          :table-data="tableData"
-          :url="url"
-          v-model:list="checkedList"
-          v-model:ids="checkedIds"
-          v-model:data="checkedData"
-          wrapClassName="vco-choose-user-modal"
-          @change="change"
-        ></TableBlock>
+        <TableBlock :isMultiple="isMultiple" :table-data="tableData" :url="url" v-model:list="checkedList" v-model:ids="checkedIds" v-model:data="checkedData" wrapClassName="vco-choose-user-modal" @change="change"></TableBlock>
       </a-spin>
       <template #footer>
         <div class="modal-footer">
           <div>
             <a-button v-if="isMultiple" type="primary" :disabled="!checkedIds.length" @click="handlePathChange">{{ t('选择') }}</a-button>
           </div>
-          <a-pagination
-            v-if="count"
-            size="small"
-            :total="count"
-            :pageSize="pagination.limit"
-            :showSizeChanger="false"
-            :current="pagination.page"
-            show-quick-jumper
-            :show-total="(total) => t('共{0}条', [total])"
-            @change="setPaginate"
-          />
+          <a-pagination v-if="count" size="small" :total="count" :pageSize="pagination.limit" :showSizeChanger="false" :current="pagination.page" show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
         </div>
       </template>
     </a-modal>
@@ -120,7 +98,7 @@ const props = defineProps({
   params: {
     type: Object,
     default: () => {}
-  },
+  }
 });
 const open = ref(false);
 const loading = ref(false);
@@ -192,11 +170,11 @@ const close = () => {
 const lodaData = () => {
   loading.value = true;
 
-  const url = props.url || 'user/selUser'
+  const url = props.url || 'user/selUser';
   const paramsInfo = {
     url,
     method: 'get',
-    params: { ...searchForm.value, ...pagination.value, ...{ role_code: props.roleCode },...props.params }
+    params: { ...searchForm.value, ...pagination.value, ...{ role_code: props.roleCode }, ...props.params }
   };
 
   if (props.hideSearch) {

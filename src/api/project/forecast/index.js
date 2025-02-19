@@ -79,11 +79,19 @@ export const forecastExport = (params) =>
     method: 'get',
     params
   });
-  
+
 // transactions  Export
 export const transactionsExport = (params) =>
   request({
     url: 'project/forecast/transactionsExport',
+    method: 'get',
+    params
+  });
+
+// Performance
+export const forecastPerformance = (params) =>
+  request({
+    url: 'project/forecast/forecastPerformance',
     method: 'get',
     params
   });

@@ -1,9 +1,7 @@
 <template>
   <div>
     <a-dropdown class="Filter" trigger="click" v-model:open="visible">
-      <a-button type="brown" size="small" :class="['picker-btn', { open: visible }]" shape="round" @click="visible = true">
-        {{ showText }} <DownOutlined class="DropdownIcon" />
-      </a-button>
+      <a-button type="brown" size="small" :class="['picker-btn', { open: visible }]" shape="round" @click="visible = true"> {{ showText }} <DownOutlined class="DropdownIcon" /> </a-button>
       <template #overlay>
         <div class="Overlay" style="width: 700px; padding-right: 16px" :style="{ width: type ? '700px' : 'auto' }">
           <div class="flex items-end">
@@ -36,15 +34,7 @@
 
           <a-empty v-if="!data || !data.length" />
           <div class="flex justify-center pb-5" v-if="type">
-            <a-pagination
-              size="small"
-              :total="total"
-              :pageSize="pagination.limit"
-              :current="pagination.page"
-              show-quick-jumper
-              :show-total="(total) => t('共{0}条', [total])"
-              @change="setPaginate"
-            />
+            <a-pagination size="small" :total="total" :pageSize="pagination.limit" :current="pagination.page" show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
           </div>
         </div>
       </template>
@@ -83,7 +73,7 @@ const props = defineProps({
     type: String
   },
   dataList: {
-    type: [Array,Object]
+    type: [Array, Object]
   }
 });
 
@@ -117,7 +107,8 @@ const loadData = () => {
   if (ajaxFn) {
     loading.value = true;
     let obj = {};
-    obj[props.searchKey] = searchForm.value.keywords;
+    if (props.searchKey) obj[props.searchKey] = searchForm.value.keywords;
+
     ajaxFn({ ...pagination.value, ...obj })
       .then((res) => {
         data.value = res.data;

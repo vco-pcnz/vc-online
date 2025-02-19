@@ -162,7 +162,7 @@ const option = ref({
       show: false
     },
     min: 0,
-    min: 0
+    max: 0
   },
   series: [
     {

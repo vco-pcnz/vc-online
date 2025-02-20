@@ -24,7 +24,7 @@
           <vco-number :value="detail?.amount" :precision="2" :bold="true" size="fs_2xl"></vco-number>
           <span class="unit">nzd</span>
           <DrawdownAmount :uuid="uuid" :detail="detail" @change="update">
-            <i v-if="detail?.has_permission && detail?.mark === 'repayment_lm'" class="iconfont edit">&#xe8cf;</i>
+            <i v-if="detail?.has_permission && detail?.mark === 'repayment_lm' && !detail.all_repayment" class="iconfont edit">&#xe8cf;</i>
           </DrawdownAmount>
         </div>
         <p class="bold color_grey fs_2xs">{{ t('申请金额' )}}: {{ tool.formatMoney(detail?.apply_amount) }}</p>

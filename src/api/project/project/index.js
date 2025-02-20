@@ -23,3 +23,11 @@ export const historyList = (params) =>
     method: 'get',
     params
   });
+
+// open项目详情
+export const projectDetailClose = (params) =>
+  request({
+    url: 'projectDetail/close',
+    method: 'get',
+    params
+  });

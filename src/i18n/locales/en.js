@@ -654,5 +654,7 @@ export default {
   "还款方式": "Repayment type",
   "部分还款": "Partial repayment",
   "全额还款": "Full repayment",
-  "创建日期": "Create date"
+  "创建日期": "Create date",
+  "拟关闭": "to be Closed",
+  "确定关闭这个项目吗?": "Are you sure you want to close this project?"
 }

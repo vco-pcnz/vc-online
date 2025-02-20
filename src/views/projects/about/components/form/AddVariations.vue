@@ -158,7 +158,7 @@ const emits = defineEmits(['change']);
 const props = defineProps({
   formParams: {
     type: Object,
-    default: ''
+    default: {}
   }
 });
 

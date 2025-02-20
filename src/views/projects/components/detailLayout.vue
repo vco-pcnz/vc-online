@@ -73,6 +73,11 @@ const getProjectDetail = (userId) => {
 onMounted(() => {
   getProjectDetail();
 });
+
+// 暴露方法给父组件
+defineExpose({
+  getProjectDetail
+});
 </script>
 
 <style scoped lang="less">

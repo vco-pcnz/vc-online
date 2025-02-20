@@ -1,5 +1,5 @@
 <template>
-  <detail-layout active-tab="about" @getProjectDetail="getProjectDetail">
+  <detail-layout active-tab="about" ref="detailLayoutRef" @getProjectDetail="getProjectDetail">
     <template #content>
       <a-spin :spinning="loading" size="large">
         <div class="project-container">
@@ -21,13 +21,7 @@
                   <i class="iconfont">&#xe733;</i>
                   <span class="title">{{ t('条件') }}</span>
                 </template>
-                <conditions-list
-                  :current-id="currentId"
-                  :is-details="true"
-                  :is-close="detail?.base.is_close"
-                  :about="true"
-                  :end-date="detail.date.end_date"
-                ></conditions-list>
+                <conditions-list :current-id="currentId" :is-details="true" :is-close="detail?.base.is_close" :about="true" :end-date="detail.date.end_date"></conditions-list>
               </a-collapse-panel>
               <a-collapse-panel key="Request_details" class="collapse-card request-card">
                 <template #header>
@@ -49,15 +43,25 @@
             <MeterStat :data="detail?.credit"></MeterStat>
             <PeriodLine :data="detail?.date"></PeriodLine>
             <div class="flex justify-center mt-10 mb-10">
-              <StartDefault>
-                <a-button type="brown" shape="round" size="small">{{ t('默认开始') }}</a-button>
-              </StartDefault>
-              <AddVariations>
-                <a-button type="brown" shape="round" size="small" class="ml-10 mr-10">{{ t('添加变更') }}</a-button>
-              </AddVariations>
-              <Journal>
-                <a-button type="brown" shape="round" size="small">{{ t('日志') }}</a-button>
-              </Journal>
+              <template v-if="!detail?.base.is_close">
+                <StartDefault>
+                  <a-button type="brown" shape="round" size="small">{{ t('默认开始') }}</a-button>
+                </StartDefault>
+                <AddVariations>
+                  <a-button type="brown" shape="round" size="small" class="ml-10 mr-10">{{ t('添加变更') }}</a-button>
+                </AddVariations>
+                <Journal>
+                  <a-button type="brown" shape="round" size="small">{{ t('日志') }}</a-button>
+                </Journal>
+              </template>
+              <!-- lc最终关闭  fc  拟关闭 -->
+              <CloseProject
+                :formParams="{ uuid: currentId, type: hasPermission('projects:about:add:closeFc') ? 2 : 3 }"
+                @update="update"
+                v-if="(hasPermission('projects:about:add:closeFc') && detail?.base?.is_open == 1) || (hasPermission('projects:about:add:closeLc') && detail?.base?.is_open == 2)"
+              >
+                <a-button type="brown" shape="round" size="small" class="ml-10">{{ t('拟关闭') }}</a-button>
+              </CloseProject>
             </div>
             <Stats :data="detail?.credit" :currentId="currentId"></Stats>
           </div>
@@ -82,13 +86,15 @@ import Wash from './components/wash.vue';
 import Journal from './components/form/Journal.vue';
 import StartDefault from './components/form/StartDefault.vue';
 import AddVariations from './components/form/AddVariations.vue';
+import CloseProject from './components/form/CloseProject.vue';
 import BindUsers from '@/views/process/components/BindUsers.vue';
-import ConditionsList from "@/views/process/components/ConditionsList.vue";
-import { projectDetail } from '@/api/project/project';
+import ConditionsList from '@/views/process/components/ConditionsList.vue';
+import { hasPermission } from '@/directives/permission/index';
 
 const { t } = useI18n();
 const route = useRoute();
 
+const detailLayoutRef = ref(null);
 const loading = ref(true);
 const currentId = ref();
 const detail = ref();
@@ -98,6 +104,10 @@ const getProjectDetail = (val) => {
   currentId.value = uuid;
   detail.value = val;
   loading.value = false;
+};
+
+const update = () => {
+  detailLayoutRef.value.getProjectDetail();
 };
 </script>
 

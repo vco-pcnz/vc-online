@@ -1,35 +1,15 @@
 <template>
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="JournalRef" class="Journal">
-    <a-modal
-      :width="550"
-      :open="visible"
-      :title="t('默认开始')"
-      :getContainer="() => $refs.JournalRef"
-      :maskClosable="false"
-      :footer="false"
-      @cancel="updateVisible(false)"
-    >
+    <a-modal :width="550" :open="visible" :title="t('拟关闭')" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <div class="input-item">
-          <div class="label" :class="{ err: !formState.date && validate }">{{ t('开始日期') }}</div>
-          <a-date-picker
-            class="datePicker"
-            inputReadOnly
-            :open="isOpen"
-            v-model:value="formState.date"
-            format="YYYY-MM-DD"
-            valueFormat="YYYY-MM-DD"
-            :showToday="false"
-          />
-        </div>
-        <div class="input-item">
-          <div class="label" :class="{ err: !formState.review && validate }">{{ t('审阅意见') }}</div>
-          <a-textarea v-model:value="formState.review" placeholder="Basic usage" :rows="6" />
+          <div class="label" :class="{ err: !formState.date && validate }">{{ t('日期') }}</div>
+          <a-date-picker class="datePicker" inputReadOnly v-model:value="formState.date" format="DD-MM-YYYY" valueFormat="YYYY-MM-DD" :showToday="false" :disabledDate="disabledDateFormat" />
         </div>
 
         <div class="flex justify-center">
-          <a-button @click="save" type="dark" class="save big uppercase" :loading="loading">
+          <a-button @click="confirm" type="dark" class="save big uppercase" :loading="loading">
             {{ t('确认') }}
           </a-button>
         </div>
@@ -42,10 +22,10 @@
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
-import { frename } from '@/api/project/annex';
+import { projectDetailClose } from '@/api/project/project';
 
 const { t } = useI18n();
-const emits = defineEmits(['change']);
+const emits = defineEmits(['update']);
 
 const props = defineProps({
   formParams: {
@@ -58,33 +38,36 @@ const visible = ref(false);
 const loading = ref(false);
 const validate = ref(false);
 
-
 const formState = ref({
-  date: '',
-  review: ''
+  date: ''
 });
-
 
 const updateVisible = (value) => {
   visible.value = value;
 };
 
-const save = () => {
-  validate.value = true;
-  console.log(formState.value);
+const disabledDateFormat = (current) => {
+  const endDate = new Date();
+  if (current && current.isBefore(endDate, 'day')) {
+    return true;
+  }
 
-  return;
-  if (!rename.value) return message.error(t('请输入') + t('名称'));
+  return false;
+};
+const confirm = () => {
+  validate.value = true;
+  if (!formState.value.date) return message.error(t('请输入') + t('日期'));
   loading.value = true;
   let params = {
-    ...props.formParams,
-    name: rename.value
+    ...formState.value,
+    ...props.formParams
   };
-  frename(params)
+
+  projectDetailClose(params)
     .then((res) => {
-      emits('change');
-      rename.value = '';
-      message.success(t('保存成功'));
+      emits('update');
+      formState.value.date = '';
+      message.success(t('提交成功'));
       updateVisible(false);
     })
     .finally((_) => {

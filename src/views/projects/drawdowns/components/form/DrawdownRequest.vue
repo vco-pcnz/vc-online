@@ -11,7 +11,7 @@
             </div>
             <div class="input-item my-4">
               <div class="label" :class="{ err: !formState.apply_date && validate }">{{ t('日期') }}</div>
-              <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.apply_date" format="YYYY-MM-DD" valueFormat="YYYY-MM-DD" placeholder="" :showToday="false" />
+              <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.apply_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" :showToday="false" />
             </div>
             <div class="input-item">
               <div class="label" :class="{ err: !formState.apply_amount && validate }">Requested amount, $ nzd</div>
@@ -65,6 +65,7 @@ import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import { annexSel } from '@/api/project/annex';
 import { loanDedit } from '@/api/project/loan';
+import { selectDateFormat } from "@/utils/tool"
 import DocumentsUpload from './DocumentsUpload.vue';
 
 const { t } = useI18n();

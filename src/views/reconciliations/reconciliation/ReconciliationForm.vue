@@ -3,7 +3,7 @@
     <a-row :gutter="24">
       <a-col :span="12" class="empty_slip">
         <p class="xs_text">When</p>
-        <a-date-picker :disabled="disabled" valueFormat="YYYY-MM-DD" v-model:value="item['f_date']" placeholder="" />
+        <a-date-picker :disabled="disabled" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" v-model:value="item['f_date']" placeholder="" />
       </a-col>
       <a-col :span="12" class="empty_slip">
         <p class="xs_text">What</p>
@@ -25,6 +25,8 @@
 
 <script scoped setup>
 import { useI18n } from 'vue-i18n';
+import { selectDateFormat } from "@/utils/tool"
+
 const { t } = useI18n();
 const emits = defineEmits(['update']);
 

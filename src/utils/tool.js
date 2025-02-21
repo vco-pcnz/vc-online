@@ -494,4 +494,13 @@ export const removeDuplicates = (arr, key) => {
   }, []);
 };
 
+/**
+ * 日期选择格式化
+ */
+export const selectDateFormat = () => {
+  const locale = i18n.global.locale.value;
+  return locale === 'en' ? `DD/MM/YYYY` : 'YYYY-MM-DD';
+};
+
+
 export default tool;

@@ -28,7 +28,7 @@
             inputReadOnly
             :open="isOpen"
             v-model:value="formState.date"
-            format="YYYY-MM-DD"
+            :format="selectDateFormat()"
             valueFormat="YYYY-MM-DD"
             :showToday="false"
           />
@@ -66,6 +66,7 @@ import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import { frename } from '@/api/project/annex';
+import { selectDateFormat } from "@/utils/tool"
 
 const { t } = useI18n();
 const emits = defineEmits(['change']);

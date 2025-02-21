@@ -383,7 +383,6 @@ const importStaHandle = () => {
 };
 
 const choiceUserDone = (data) => {
-  console.log('data', data);
   // 个人
   if (data.type === 20) {
     formState.borrower_type = 1;
@@ -394,7 +393,7 @@ const choiceUserDone = (data) => {
   } else {
     formState.borrower_type = 2;
     formState.organization_name = data.name;
-    formState.company_number = data.idcard;
+    formState.company_number = data.nzbz;
   }
   formState.borrower_images = [];
   formState.borrower_email = data.email;

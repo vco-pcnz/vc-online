@@ -69,6 +69,7 @@
             <a-date-picker
               v-model:value="formState.date"
               :disabled="disabledDateSelcet"
+              :format="selectDateFormat()"
               :disabledDate="disabledDateFormat"
               placeholder=""
             />
@@ -214,7 +215,7 @@
   import dayjs from "dayjs";
   import { cloneDeep } from "lodash";
   import { projectForecastDarwDownList, projectDetailDarwDownList, projectForecastAdd, projectForecastDelete, projectAuditUpdLoanAmount } from "@/api/process"
-  import tool, { numberStrFormat, navigationTo } from "@/utils/tool"
+  import tool, { numberStrFormat, navigationTo, selectDateFormat } from "@/utils/tool"
   import emitter from "@/event"
   import { message } from "ant-design-vue/es";
 

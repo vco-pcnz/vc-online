@@ -16,7 +16,7 @@
       <a-range-picker
         v-model:value="date"
         :disabled-date="disabledStartDate"
-        format="DD MMM 'YY"
+        :format="selectDateFormat()"
         valueFormat="YYYY-MM-DD"
         :placeholder="[t('开始日期'), t('结束日期')]"
         @change="timeChange"
@@ -35,7 +35,7 @@ import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { DownOutlined } from '@ant-design/icons-vue';
 import dayjs, { Dayjs } from 'dayjs';
-import tool from '@/utils/tool';
+import tool, { selectDateFormat } from '@/utils/tool';
 
 const emits = defineEmits(['change']);
 const { t } = useI18n();

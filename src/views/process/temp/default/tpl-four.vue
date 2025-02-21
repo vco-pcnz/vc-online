@@ -62,6 +62,7 @@
                     <a-form-item :label="t('借款起止日期')" name="time_date">
                       <a-range-picker
                         v-model:value="formState.time_date"
+                        :format="selectDateFormat()"
                         :disabled-date="disabledStartDate"
                         :placeholder="[t('开放日期'), t('到期日期')]"
                         @change="timeChange"
@@ -143,7 +144,7 @@
     projectDraftInfo,
     projectApplyLoanInfo
   } from "@/api/process";
-  import tool from "@/utils/tool";
+  import tool, { selectDateFormat } from "@/utils/tool";
   import { message } from "ant-design-vue/es";
   import TempFooter from "./components/TempFooter.vue";
   import BindUsers from "./../../components/BindUsers.vue";

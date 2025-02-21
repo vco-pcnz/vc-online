@@ -5,7 +5,7 @@
       <div class="content sys-form-content">
         <div class="input-item">
           <div class="label" :class="{ err: !formState.date && validate }">{{ t('日期') }}</div>
-          <a-date-picker class="datePicker" inputReadOnly v-model:value="formState.date" format="DD-MM-YYYY" valueFormat="YYYY-MM-DD" :showToday="false" :disabledDate="disabledDateFormat" />
+          <a-date-picker class="datePicker" inputReadOnly v-model:value="formState.date" format="DD/MM/YYYY" valueFormat="YYYY-MM-DD" :showToday="false" :disabledDate="disabledDateFormat" />
         </div>
 
         <div class="flex justify-center">

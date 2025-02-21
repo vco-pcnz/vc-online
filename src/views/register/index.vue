@@ -7,6 +7,11 @@
     </template>
     <template #content>
       <section class="register-content">
+        <router-link to="/login" class="back-link" tabindex="-1">
+          <div class="back-link-icon">
+            <i class="iconfont">&#xe794;</i>
+          </div>
+        </router-link>
         <h1 class="title">
           {{ t('注册') }}
         </h1>
@@ -196,7 +201,7 @@ const rules = reactive({
   ],
   mobile: [
     {
-      required: true,
+      // required: true,
       message: t('请输入') + t('手机号'),
       type: 'string',
       trigger: 'blur',
@@ -269,7 +274,16 @@ const submit = () => {
 .go_login_btn:hover {
   color: @clr_charcoal;
 }
-
+.back-link {
+    position: absolute;
+    top: 24px;
+    left: 24px;
+    color: @color_brown;
+    &-icon {
+      transform: rotate(-135deg);
+      font-size: 14px;
+    }
+  }
 .register-content {
   border-radius: 24px;
   background-color: @color_white;

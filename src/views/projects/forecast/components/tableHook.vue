@@ -16,7 +16,7 @@
 
       <div class="col-content">
         <template v-for="(_item, key) in data?.list">
-          <div v-for="(item, index) in data?.list[key]" :key="item.id" class="col-item" :class="{ passed: item.status != 0 || item.first }" @click="showLog(item)">
+          <div v-for="(item, index) in data?.list[key]" :key="item.id" class="col-item" :class="{ passed: item.status != 0 || item.first, yellow: item.type == 4 && item.first }" @click="showLog(item)">
             <div class="item flex items-center"><span class="circle" :style="{ background: item.status != 0 || item.first ? '#181818' : '#b4d8d8' }"></span></div>
             <div class="item">
               <template v-if="!index"> {{ tool.monthYear(item.ym) }}</template>
@@ -309,6 +309,10 @@ const update = () => {
           }
         }
       }
+      &.yellow {
+        background-color: #F19915 !important;
+      }
+      
       > .item {
         display: flex;
         flex-direction: column;

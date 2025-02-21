@@ -143,7 +143,7 @@ const setUserInfo = (data) => {
   const _extraInfo = [
     {
       icon: '&#xe8db;',
-      value: roles.join(' '),
+      value: roles.join('/'),
     },
   ];
   baseInfo.value = _baseInfo;

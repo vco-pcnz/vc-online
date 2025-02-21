@@ -1,16 +1,7 @@
 <template>
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="drawdownRequestRef" class="drawdown-request">
-    <a-modal
-      :width="850"
-      :open="visible"
-      v-if="visible"
-      title="Drawdown request"
-      :getContainer="() => $refs.drawdownRequestRef"
-      :maskClosable="false"
-      :footer="false"
-      @cancel="updateVisible(false)"
-    >
+    <a-modal :width="850" :open="visible" v-if="visible" title="Drawdown request" :getContainer="() => $refs.drawdownRequestRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <a-row :gutter="24">
           <a-col :span="12">
@@ -20,25 +11,11 @@
             </div>
             <div class="input-item my-4">
               <div class="label" :class="{ err: !formState.apply_date && validate }">{{ t('日期') }}</div>
-              <a-date-picker
-                class="datePicker"
-                :disabledDate="disabledDateFormat"
-                inputReadOnly
-                v-model:value="formState.apply_date"
-                format="YYYY-MM-DD"
-                valueFormat="YYYY-MM-DD"
-                placeholder=""
-                :showToday="false"
-              />
+              <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.apply_date" format="YYYY-MM-DD" valueFormat="YYYY-MM-DD" placeholder="" :showToday="false" />
             </div>
             <div class="input-item">
               <div class="label" :class="{ err: !formState.apply_amount && validate }">Requested amount, $ nzd</div>
-              <a-input-number
-                v-model:value="formState.apply_amount"
-                :max="99999999999"
-                :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-              />
+              <a-input-number v-model:value="formState.apply_amount" :max="99999999999" :min="0" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
             </div>
           </a-col>
           <a-col :span="12">
@@ -123,19 +100,17 @@ const updateVisible = (value) => {
   visible.value = value;
 };
 
-
 const disabledDateFormat = (current) => {
-  const startDate = props.projectDetail.loan.start_date
-    const endDate = props.projectDetail.loan.end_date
+  const startDate = props.projectDetail.loan.start_date;
+  const endDate = props.projectDetail.loan.end_date;
 
-    if (current && current.isBefore(startDate, 'day')) {
-      return true;
-    }
+  if (current && current.isBefore(startDate, 'day')) {
+    return true;
+  }
 
-    if (current && current.isAfter(endDate, 'day')) {
-      return true;
-    }
-
+  if (current && current.isAfter(endDate, 'day')) {
+    return true;
+  }
 
   return false;
 };

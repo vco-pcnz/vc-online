@@ -5,7 +5,7 @@
       <div class="content sys-form-content">
         <div class="input-item">
           <div class="label" :class="{ err: !amount && validate }">Approved amount (requested {{ tool.formatMoney(detail?.amount) }})</div>
-          <a-input-number v-model:value="amount" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
+          <a-input-number v-model:value="amount" :max="99999999999" :min="0" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
         </div>
 
         <div class="flex justify-center">

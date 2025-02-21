@@ -264,7 +264,7 @@ export default {
   "删除重做": "Remove & Redo",
   "选中{ 0 }条": "{ 0 } selected",
   "账户名称": "account name",
-  "说明": "notes",
+  "说明": "Notes",
   "邀请": "Invite member",
   "借款目的": "Loan purpose",
   "借款起止日期": "Estimated project dates",

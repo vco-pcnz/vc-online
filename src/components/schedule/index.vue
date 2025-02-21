@@ -26,7 +26,7 @@
               :parser="value => value.replace(/\$\s?|(,*)/g, '')"
             />
           </a-form-item>
-          <a-form-item :label="t('备注')" name="note">
+          <a-form-item :label="t('说明')" name="note">
             <a-textarea v-model:value="formState.note" />
           </a-form-item>
         </a-form>

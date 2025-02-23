@@ -12,6 +12,13 @@
     >
       <div class="sys-form-content mt-5">
         <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
+          <a-form-item :label="t('名称')" name="cate">
+            <a-select
+              v-model:value="formState.cate"
+              style="width: 100%"
+              :options="cateData"
+            ></a-select>
+          </a-form-item>
           <a-form-item :label="t('日期')" name="date">
             <a-date-picker
               v-model:value="formState.date"
@@ -270,6 +277,7 @@ import {
   projectDetailStatistics,
   projectForecastAddf
 } from '@/api/process';
+import { systemDictData } from "@/api/system"
 
 const props = defineProps({
   currentId: {
@@ -433,12 +441,16 @@ const visible = ref(false)
 
 const formRef = ref()
 const formState = reactive({
+  cate: "",
   date: "",
   amount: "",
   note: ""
 })
 
 const formRules = {
+  cate: [
+    { required: true, message: t('请选择') + t('名称'), trigger: 'change' }
+  ],
   date: [
     { required: true, message: t('请选择') + t('日期'), trigger: 'change' }
   ],
@@ -452,9 +464,10 @@ const submitHandle = () => {
   formRef.value
     .validate()
     .then(() => {
-      const {date, amount, note} = formState
+      const {date, amount, note, cate} = formState
       const params = {
         id: 0,
+        cate,
         type: 5,
         date: date.format('YYYY-MM-DD'),
         amount,
@@ -478,6 +491,19 @@ const submitHandle = () => {
     });
 }
 
+const cateData = ref([])
+const getDurationType = () => {
+  systemDictData('duration').then(res => {
+    const data = res.map(item => {
+      return {
+        label: item.name.replace('(duration)', ''),
+        value: item.code
+      }
+    })
+    cateData.value = data
+  })
+}
+
 watch(
   () => visible.value,
   (val) => {
@@ -490,6 +516,7 @@ watch(
 
 onMounted(() => {
   if (props.currentId) {
+    getDurationType()
     getDataInfo();
   }
 });

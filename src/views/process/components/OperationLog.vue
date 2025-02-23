@@ -35,13 +35,17 @@
 <script setup>
   import { ref, onMounted, onUnmounted } from "vue";
   import { useI18n } from "vue-i18n";
-  import { auditHistoryList } from "@/api/process";
+  import { auditHistoryList, projectDetailHistoryList } from "@/api/process";
   import emitter from "@/event"
 
   const props = defineProps({
     currentId: {
       type: [Number, String],
       default: ''
+    },
+    isDetails: {
+      type: Boolean,
+      default: false
     }
   })
 
@@ -52,7 +56,8 @@
   const pageLoading = ref(false)
   const getListData = () => {
     pageLoading.value = true
-    auditHistoryList({
+    const ajaxFn = props.isDetails ? projectDetailHistoryList : auditHistoryList
+    ajaxFn({
       uuid: props.currentId
     }).then(res => {
       listData.value = res

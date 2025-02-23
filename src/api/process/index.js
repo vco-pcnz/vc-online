@@ -374,6 +374,14 @@ export const auditHistoryList = (params) =>
     method: "get",
     params
   });
+
+// 审核记录 - 详情用
+export const projectDetailHistoryList = (params) =>
+  request({
+    url: "/projectDetail/historyList",
+    method: "get",
+    params
+  });
   
 // 保存借款金额
 export const projectAuditSaveLoanAmount = (data) =>

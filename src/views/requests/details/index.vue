@@ -149,13 +149,10 @@
               <ads-content></ads-content>
 
               <template v-if="showMoreInfo">
-                <forecast-list
-                  v-if="Number(lendingData.build_amount) || Number(lendingData.land_amount)"
-                  :current-id="currentId"
+                <operation-log
                   :is-details="true"
-                  :show-list="true"
-                  :block-info="{showEdit: false}"
-                ></forecast-list>
+                  :current-id="currentId"
+                ></operation-log>
 
                 <security-list
                   v-if="securityInfoData.count"
@@ -164,6 +161,14 @@
                   :block-info="{showEdit: false}"
                 >
                 </security-list>
+
+                <forecast-list
+                  v-if="Number(lendingData.build_amount) || Number(lendingData.land_amount)"
+                  :current-id="currentId"
+                  :is-details="true"
+                  :show-list="true"
+                  :block-info="{showEdit: false}"
+                ></forecast-list>
 
                 <conditions-list
                   v-if="dataInfo.is_audit && statusType === 'primary'"
@@ -198,6 +203,7 @@
   import OfferForm from "@/views/process/temp/default/components/OfferForm.vue";
   import ConfirmForm from "@/views/process/temp/default/components/ConfirmForm.vue";
 
+  import OperationLog from "@/views/process/components/OperationLog.vue";
   import ForecastList from "@/views/process/components/ForecastList.vue";
   import SecurityList from "@/views/process/components/SecurityList.vue";
   import WashTable from '@/views/process/temp/default/components/WashTable.vue';

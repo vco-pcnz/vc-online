@@ -6,7 +6,7 @@
           <div class="project-info">
             <base-card :detail="detail"></base-card>
 
-            <bind-users v-if="currentId" :current-id="currentId" :is-close="detail?.base.is_close" :about="true"></bind-users>
+            <bind-users v-if="currentId" :current-id="currentId" :is-close="Boolean(detail?.base.is_close)" :about="true"></bind-users>
 
             <a-collapse expand-icon-position="end" ghost>
               <a-collapse-panel key="History" class="collapse-card history-card">
@@ -21,7 +21,7 @@
                   <i class="iconfont">&#xe733;</i>
                   <span class="title">{{ t('条件') }}</span>
                 </template>
-                <conditions-list :current-id="currentId" :is-details="true" :is-close="detail?.base.is_close" :about="true" :end-date="detail.date.end_date"></conditions-list>
+                <conditions-list :current-id="currentId" :is-details="true" :is-close="Boolean(detail?.base.is_close)" :about="true" :end-date="detail.date.end_date"></conditions-list>
               </a-collapse-panel>
               <a-collapse-panel key="Request_details" class="collapse-card request-card">
                 <template #header>
@@ -43,7 +43,7 @@
             <MeterStat :data="detail?.credit"></MeterStat>
             <PeriodLine :data="detail?.date"></PeriodLine>
             <div class="flex justify-center mt-10 mb-10">
-              <template v-if="!detail?.base.is_close">
+              <template v-if="Boolean(!detail?.base.is_close)">
                 <!-- <StartDefault v-if="hasPermission('projects:penalty:sedit')" :currentId="currentId" @update="update">
                   <a-button type="brown" shape="round" size="small">{{ t('默认开始') }}</a-button>
                 </StartDefault> -->

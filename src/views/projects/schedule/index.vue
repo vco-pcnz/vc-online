@@ -1,7 +1,7 @@
 <template>
   <detail-layout active-tab="schedule" @getProjectDetail="getProjectDetail">
     <template #content>
-      <schedule v-if="project_id" :isDetails="true" :isClose="projectDetail?.base?.is_close" :isAbout="true" :currentId="project_id"></schedule>
+      <schedule v-if="project_id" :isDetails="true" :isClose="Boolean(projectDetail?.base?.is_close)" :isAbout="true" :currentId="project_id"></schedule>
     </template>
   </detail-layout>
 </template>

@@ -72,7 +72,7 @@
           </a-col>
           <a-col :span="8">
             <a-form-item :label="t('抵押登记日期')" name="mortgage_registration_date">
-              <a-date-picker v-model:value="formState.mortgage_registration_date" :disabledDate="disabledDateFormatAfter" placeholder="" />
+              <a-date-picker v-model:value="formState.mortgage_registration_date" :format="selectDateFormat()" :disabledDate="disabledDateFormatAfter" placeholder="" />
             </a-form-item>
           </a-col>
           <a-col :span="24">
@@ -91,7 +91,7 @@
           </a-col>
           <a-col :span="12">
             <a-form-item :label="t('保险到期日')" name="insurance_expire_date">
-              <a-date-picker v-model:value="formState.insurance_expire_date" placeholder="" :disabledDate="disabledDateFormatBefore" />
+              <a-date-picker v-model:value="formState.insurance_expire_date" placeholder="" :format="selectDateFormat()" :disabledDate="disabledDateFormatBefore" />
             </a-form-item>
           </a-col>
 
@@ -138,7 +138,7 @@ import dayjs from 'dayjs';
 import { useI18n } from 'vue-i18n';
 import { cloneDeep } from 'lodash';
 import { projectAuditSaveMode } from '@/api/process';
-import tool from '@/utils/tool';
+import tool, { selectDateFormat } from '@/utils/tool';
 import emitter from '@/event';
 import { message } from 'ant-design-vue/es';
 

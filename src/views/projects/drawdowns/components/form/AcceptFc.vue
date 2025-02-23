@@ -5,7 +5,7 @@
       <div class="content sys-form-content">
         <div class="input-item">
           <div class="label" :class="{ err: !date && validate }">{{ t('日期') }}</div>
-          <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="date" format="YYYY-MM-DD" valueFormat="YYYY-MM-DD" :showToday="false" />
+          <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" :showToday="false" />
         </div>
 
         <div class="flex justify-center">
@@ -22,7 +22,7 @@
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
-import tool from '@/utils/tool';
+import { selectDateFormat } from "@/utils/tool"
 import { loanDsaveStep } from '@/api/project/loan';
 import dayjs, { Dayjs } from 'dayjs';
 

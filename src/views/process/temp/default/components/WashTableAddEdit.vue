@@ -54,7 +54,7 @@
               <a-switch v-model:checked="show_condition_time" @change="change_condition_time" />
               <div class="condition_box" v-if="show_condition_time">
                 <a-form-item :label="t('日期')">
-                  <a-date-picker class="mt-3" v-model:value="formState.condition_time" format="DD/MM/YYYY" valueFormat="YYYY-MM-DD" :disabledDate="disabledDateFormat" />
+                  <a-date-picker class="mt-3" v-model:value="formState.condition_time" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" :disabledDate="disabledDateFormat" />
                 </a-form-item>
                 <a-form-item :label="t('描述')">
                   <a-textarea v-model:value="formState.condition_desc" :placeholder="t('请输入')" style="min-height: 98px;" />
@@ -70,7 +70,7 @@
                 <div class="documents" v-for="(item, index) in documentList" :key="index">
                   <vco-file-item :file="item" :showClose="true" @remove="remove(index)"></vco-file-item>
                   <div>
-                    <a-date-picker v-model:value="formState.expire_time[index]" format="DD/MM/YYYY" valueFormat="YYYY-MM-DD" />
+                    <a-date-picker v-model:value="formState.expire_time[index]" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" />
                   </div>
                 </div>
               </div>
@@ -117,6 +117,7 @@ import { watch, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { pick, trim, cloneDeep } from 'lodash';
 import { washAdd } from '@/api/project/wash';
+import { selectDateFormat } from "@/utils/tool"
 import emitter from '@/event';
 
 const emits = defineEmits(['update:visible', 'update']);

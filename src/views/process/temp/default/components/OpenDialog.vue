@@ -13,7 +13,7 @@
         <a-col :span="24">
           <div class="info-content">
             <p class="name mb-2">{{ t('开放日期') }}</p>
-            <a-date-picker v-model:value="openDate" :disabledDate="disabledDate" placeholder="" @change="openDateChange" />
+            <a-date-picker v-model:value="openDate" :format="selectDateFormat()" :disabledDate="disabledDate" placeholder="" @change="openDateChange" />
           </div>
         </a-col>
         <a-col :span="10" class="mt-2">
@@ -69,7 +69,7 @@
 <script setup>
   import { ref, watch, computed } from "vue";
   import { useI18n } from "vue-i18n";
-  import tool from "@/utils/tool"
+  import tool, { selectDateFormat } from "@/utils/tool"
   import dayjs from "dayjs";
   import { message } from 'ant-design-vue';
   import {

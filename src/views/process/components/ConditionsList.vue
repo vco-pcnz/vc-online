@@ -9,7 +9,7 @@
       <div class="sys-form-content mt-5">
         <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
           <a-form-item :label="t('日期')" name="date">
-            <a-date-picker v-model:value="formState.date" :disabledDate="disabledDateFormat" placeholder="" />
+            <a-date-picker v-model:value="formState.date" :format="selectDateFormat()" :disabledDate="disabledDateFormat" placeholder="" />
           </a-form-item>
           <a-form-item :label="t('描述')" name="note">
             <a-textarea v-model:value="formState.note" />
@@ -112,7 +112,7 @@ import {
   projectAuditDeleteCondition,
   projectDetailDeleteCondition
 } from '@/api/process';
-import tool, { removeDuplicates } from '@/utils/tool';
+import tool, { removeDuplicates, selectDateFormat } from '@/utils/tool';
 import emitter from '@/event';
 import { hasPermission } from "@/directives/permission"
 

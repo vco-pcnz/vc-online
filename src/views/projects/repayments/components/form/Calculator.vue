@@ -29,6 +29,7 @@
                 <a-date-picker
                   v-model:value="formState.date"
                   :disabledDate="disabledDateFormat"
+                  :format="selectDateFormat()"
                   placeholder=""
                   @change="dateChange"
                 >
@@ -57,6 +58,7 @@ import { useI18n } from 'vue-i18n';
 import dayjs from 'dayjs';
 import { CalendarOutlined } from '@ant-design/icons-vue';
 import { projectLoanAllRepayment } from '@/api/project/loan';
+import { selectDateFormat } from "@/utils/tool"
 
 const { t } = useI18n();
 const emits = defineEmits(['change']);

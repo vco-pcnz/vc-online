@@ -10,7 +10,7 @@
           :open="isOpen"
           :disabledDate="disabledDateFormat"
           v-model:value="searchForm.date"
-          format="YYYY-MM-DD"
+          :format="selectDateFormat()"
           valueFormat="YYYY-MM-DD"
           :showToday="false"
           @change="loadData()"
@@ -119,7 +119,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import tool from '@/utils/tool';
+import tool, { selectDateFormat } from '@/utils/tool';
 import { DownOutlined } from '@ant-design/icons-vue';
 import dayjs, { Dayjs } from 'dayjs';
 import TableBlock from './TableBlock.vue';

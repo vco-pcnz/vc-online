@@ -10,7 +10,7 @@
           :rules="formRules"
         >
           <a-form-item :label="t('日期')" name="date">
-            <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.date" format="YYYY-MM-DD" valueFormat="YYYY-MM-DD" :showToday="false" />
+            <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" :showToday="false" />
           </a-form-item>
         </a-form>
 
@@ -29,6 +29,7 @@ import { ref, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { loanRsaveStep } from '@/api/project/loan';
 import dayjs from 'dayjs';
+import { selectDateFormat } from "@/utils/tool"
 
 const { t } = useI18n();
 const emits = defineEmits(['change']);

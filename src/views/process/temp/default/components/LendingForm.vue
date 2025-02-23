@@ -600,7 +600,12 @@
   })
 
   const saveDataTxt = computed(() => {
-    return `${saveReturnRea.value}，${t('保存后将退回到上一步审核')}`
+    let txt = '保存后将退回审核'
+    if (props.currentStep?.mark === 'step_lm_check') {
+      txt = '保存后将退回到上一步审核'
+    }
+
+    return `${saveReturnRea.value}，${t(txt)}`
   })
 
   const findCreditName = (key) => {
@@ -608,11 +613,31 @@
     return obj ? obj.credit_name : ''
   }
 
+  const compareBackObj = ref({})
+
   const compareHandle = (obj) => {
+    compareBackObj.value = {}
+
     const backItems = changeBackItems.value
     const arr = []
+    const backArr = []
     for (let i = 0; i < backItems.length; i++) {
-      const backMark = backItems[i].backMark.split(',')
+      const backMarkItems = backItems[i].backMark.split(',')
+      const backObj = {}
+      const backMark = backMarkItems.map(item => {
+        const markInfo = item.split(':')
+        if (!backObj[markInfo[0]]) {
+          backObj[markInfo[0]] = markInfo[1]
+        }
+        
+        return markInfo[0]
+      })
+
+      compareBackObj.value = {
+        ...compareBackObj.value,
+        ...backObj
+      }
+
       if (backMark.includes(props.currentStep.mark)) {
         const key = backItems[i].credit_table
         if (Number(staticFormData.value[key]) !== Number(obj[key])) {
@@ -621,6 +646,8 @@
             before: staticFormData.value[key],
             now: obj[key]
           })
+
+          backArr.push()
         }
       }
     }
@@ -645,6 +672,10 @@
             uuid: props.currentId,
             cancel_reason: saveReturnRea.value,
             again_check: 0
+          }
+
+          if (compareBackObj.value[props.currentStep.mark]) {
+            params.back_step = compareBackObj.value[props.currentStep.mark]
           }
 
           projectAuditGoback(params).then(() => {

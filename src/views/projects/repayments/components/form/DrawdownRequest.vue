@@ -38,6 +38,7 @@
               <a-form-item :label="t('还款日期')" name="apply_date">
                 <a-date-picker
                   v-model:value="formState.apply_date"
+                  :format="selectDateFormat()"
                   :disabledDate="disabledDateFormat"
                   placeholder=""
                   @change="dateChange"
@@ -90,6 +91,7 @@ import { loanRDedit, projectLoanAllRepayment } from '@/api/project/loan';
 import { CalendarOutlined } from '@ant-design/icons-vue';
 import DocumentsUpload from './../../../discharge/components/form/DocumentsUpload.vue';
 import dayjs from 'dayjs';
+import { selectDateFormat } from "@/utils/tool"
 
 const { t } = useI18n();
 const emits = defineEmits(['change']);

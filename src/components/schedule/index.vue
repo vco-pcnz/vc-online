@@ -15,6 +15,7 @@
           <a-form-item :label="t('日期')" name="date">
             <a-date-picker
               v-model:value="formState.date"
+              :format="selectDateFormat()"
               :disabledDate="disabledDateFormat"
               placeholder=""
             />
@@ -26,7 +27,7 @@
               :parser="value => value.replace(/\$\s?|(,*)/g, '')"
             />
           </a-form-item>
-          <a-form-item :label="t('备注')" name="note">
+          <a-form-item :label="t('说明')" name="note">
             <a-textarea v-model:value="formState.note" />
           </a-form-item>
         </a-form>
@@ -259,7 +260,7 @@ import { ref, reactive, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { DownOutlined } from '@ant-design/icons-vue';
 import dayjs from 'dayjs';
-import tool from '@/utils/tool';
+import tool, { selectDateFormat } from '@/utils/tool';
 import { hasPermission } from "@/directives/permission"
 import {
   projectForecastIndex,

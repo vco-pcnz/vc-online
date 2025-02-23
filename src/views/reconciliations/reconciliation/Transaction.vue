@@ -21,7 +21,7 @@
         <template #header>
           <span class="xs_text">Change Record Date</span>
         </template>
-        <a-date-picker valueFormat="YYYY-MM-DD" v-model:value="item['f_date']" placeholder="" />
+        <a-date-picker :format="selectDateFormat()" valueFormat="YYYY-MM-DD" v-model:value="item['f_date']" placeholder="" />
       </a-collapse-panel>
     </a-collapse>
   </a-col>
@@ -30,7 +30,7 @@
 <script scoped setup>
 import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
-import tool from '@/utils/tool.js';
+import tool, { selectDateFormat } from '@/utils/tool.js';
 const emits = defineEmits(['update']);
 
 const props = defineProps({

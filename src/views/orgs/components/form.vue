@@ -181,7 +181,7 @@
               <div class="documents" v-for="(item, index) in documentList" :key="index">
                 <vco-file-item :file="item" :showClose="true" @remove="remove(index)"></vco-file-item>
                 <div>
-                  <a-date-picker v-model:value="form.expire_time[index]" format="DD/MM/YYYY" valueFormat="YYYY-MM-DD" />
+                  <a-date-picker v-model:value="form.expire_time[index]" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" />
                 </div>
               </div>
             </a-form-item>
@@ -242,6 +242,8 @@ import { message } from 'ant-design-vue';
 import { useRouter } from 'vue-router';
 import { useOrgsStore } from '@/store';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue';
+import { selectDateFormat } from "@/utils/tool"
+
 const router = useRouter();
 const orgsStore = useOrgsStore();
 

@@ -21,9 +21,9 @@
 
       <vco-page-search-item :title="t('项目周期')" width="266">
         <div class="flex items-center gap-2">
-          <a-date-picker v-model:value="searchForm.start_date" :placeholder="t('开放日期')" @change="searchForm.end_date = ''" />
+          <a-date-picker v-model:value="searchForm.start_date" :format="selectDateFormat()" :placeholder="t('开放日期')" @change="searchForm.end_date = ''" />
           <p>-</p>
-          <a-date-picker v-model:value="searchForm.end_date" :disabledDate="disabledDateFormatAfter" :placeholder="t('到期日期')" />
+          <a-date-picker v-model:value="searchForm.end_date" :format="selectDateFormat()" :disabledDate="disabledDateFormatAfter" :placeholder="t('到期日期')" />
         </div>
       </vco-page-search-item>
 
@@ -63,11 +63,12 @@
 </template>
 
 <script setup>
-  import { ref } from "vue"
-  import dayjs from "dayjs";
-  import { cloneDeep } from "lodash";
-  import { useI18n } from "vue-i18n";
+import { ref } from "vue"
+import dayjs from "dayjs";
+import { cloneDeep } from "lodash";
+import { useI18n } from "vue-i18n";
 import { useCloseProjectsStore } from '@/store';
+import { selectDateFormat } from "@/utils/tool"
 const pageStore = useCloseProjectsStore();
 
   const emits = defineEmits(['search'])

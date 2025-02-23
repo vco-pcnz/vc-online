@@ -24,6 +24,9 @@
           <a-popconfirm v-if="data.children.length" :title="t('确定撤销拆分吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="bindRevokeSplit(index)" :disabled="isDisabled">
             <a-button type="cyan" shape="round" size="small" :loading="loading" :disabled="isDisabled">{{ t('撤销拆分') }}</a-button>
           </a-popconfirm>
+          <MergeBill :item="data" @update="update">
+            <a-button type="primary" shape="round" size="small">{{ t('合并账单') }}</a-button>
+          </MergeBill>
         </div>
       </a-col>
     </a-row>
@@ -35,7 +38,8 @@ import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 import tool from '@/utils/tool';
-import splitBill from './splitBill.vue';
+import SplitBill from './SplitBill.vue';
+import MergeBill from './MergeBill.vue';
 import { revokeSplit } from '@/api/reconciliations';
 
 const emits = defineEmits(['update','check']);

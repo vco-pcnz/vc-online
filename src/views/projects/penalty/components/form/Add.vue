@@ -30,7 +30,7 @@
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
-import { sedit } from '@/api/project/penalty';
+import { sedit,eedit } from '@/api/project/penalty';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);
@@ -49,7 +49,7 @@ const validate = ref(false);
 const formState = ref({
   uuid: '',
   start_date: '',
-  rate: '',
+  rate: 15,
   note: ''
 });
 

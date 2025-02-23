@@ -114,3 +114,11 @@ export const recoverReconciliation = (data) =>
     method: 'post',
     data
   });
+
+// 合并账单
+export const mergeBill = (data) =>
+  request({
+    url: 'reconciliation/mergeBill',
+    method: 'post',
+    data
+  });

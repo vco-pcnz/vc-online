@@ -44,9 +44,9 @@
             <PeriodLine :data="detail?.date"></PeriodLine>
             <div class="flex justify-center mt-10 mb-10">
               <template v-if="!detail?.base.is_close">
-                <StartDefault>
+                <!-- <StartDefault v-if="hasPermission('projects:penalty:sedit')" :currentId="currentId" @update="update">
                   <a-button type="brown" shape="round" size="small">{{ t('默认开始') }}</a-button>
-                </StartDefault>
+                </StartDefault> -->
                 <AddVariations>
                   <a-button type="brown" shape="round" size="small" class="ml-10 mr-10">{{ t('添加变更') }}</a-button>
                 </AddVariations>

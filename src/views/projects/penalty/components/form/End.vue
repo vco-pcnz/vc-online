@@ -4,16 +4,12 @@
     <a-modal :width="550" :open="visible" :title="t('默认开始')" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <div class="input-item">
-          <div class="label" :class="{ err: !formState.start_date && validate }">{{ t('开始日期') }}</div>
-          <a-date-picker class="datePicker" inputReadOnly v-model:value="formState.start_date" format="DD/MM/YYYY" valueFormat="YYYY-MM-DD" :showToday="false" />
-        </div>
-        <div class="input-item">
-          <div class="label" :class="{ err: !formState.rate && validate }">{{ t('利率') }}</div>
-          <a-input-number v-model:value="formState.rate" :min="0" :max="100" :formatter="(value) => `${value}%`" :parser="(value) => value.replace('%', '')" />
+          <div class="label" :class="{ err: !formState.end_date && validate }">{{ t('开始日期') }}</div>
+          <a-date-picker class="datePicker" inputReadOnly v-model:value="formState.end_date" format="DD/MM/YYYY" valueFormat="YYYY-MM-DD" :showToday="false" />
         </div>
         <div class="input-item">
           <div class="label">{{ t('描述') }}</div>
-          <a-textarea v-model:value="formState.note" placeholder="Basic usage" :rows="6" />
+          <a-textarea v-model:value="formState.note2" placeholder="Basic usage" :rows="6" />
         </div>
 
         <div class="flex justify-center">
@@ -30,13 +26,17 @@
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
-import { sedit } from '@/api/project/penalty';
+import { eedit } from '@/api/project/penalty';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);
 
 const props = defineProps({
-  currentId: {
+  uuid: {
+    type: String,
+    default: ''
+  },
+  id: {
     type: String,
     default: ''
   }
@@ -48,9 +48,9 @@ const validate = ref(false);
 
 const formState = ref({
   uuid: '',
-  start_date: '',
-  rate: '',
-  note: ''
+  id: '',
+  end_date: '',
+  note2: ''
 });
 
 const updateVisible = (value) => {
@@ -58,10 +58,11 @@ const updateVisible = (value) => {
 };
 
 const save = () => {
-  formState.value.uuid = props.currentId;
+  formState.value.uuid = props.uuid;
+  formState.value.id = props.id;
   validate.value = true;
-  if (!formState.value.start_date || !formState.value.rate) return;
-  sedit(formState.value)
+  if (!formState.value.end_date) return;
+  eedit(formState.value)
     .then((res) => {
       emits('update');
       message.success(t('保存成功'));

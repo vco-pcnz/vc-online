@@ -656,5 +656,9 @@ export default {
   "全额还款": "Full repayment",
   "创建日期": "Create date",
   "拟关闭": "to be Closed",
-  "确定关闭这个项目吗?": "Are you sure you want to close this project?"
+  "确定关闭这个项目吗?": "Are you sure you want to close this project?",
+  "合并账单": "Merge bills",
+  "罚息": "penalty",
+  "您可以单击下面的按钮退回上一步。": "You can click the button below to return to the previous step.",
+  "默认结束": "Stop default"
 }

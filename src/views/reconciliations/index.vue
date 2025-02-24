@@ -22,7 +22,7 @@
           <a-row class="my-5">
             <!-- left -->
             <bank-card :selectedRowKeys="selectedRowKeys" @check="check" :data="item" :project="item.project" @update="loadData"></bank-card>
-            <template v-if="!item.children.length">
+            <template v-if="item.way != 'api-split'">
               <!-- ok -->
               <ok :item="item" :project="item.project" @update="loadData"></ok>
               <!-- right -->
@@ -30,7 +30,7 @@
               <reconciliation-form :disabled="!item.project" :fee_type="item.fee_type" v-else :item="item"></reconciliation-form>
             </template>
           </a-row>
-          <template v-if="item.children && item.children.length">
+          <template v-if="item.way == 'api-split' && item.children && item.children.length">
             <a-row v-for="sub in item.children" :key="sub.id" class="my-5">
               <template v-if="!sub.status">
                 <!-- left -->
@@ -137,10 +137,10 @@ const check = (val) => {
 
 const checkMatchBills = () => {
   loading.value = true;
-  checkMatchBill({data:selectedRows.value})
+  checkMatchBill({ data: selectedRows.value })
     .then((res) => {
-      selectedRows.value = []
-      selectedRowKeys.value = []
+      selectedRows.value = [];
+      selectedRowKeys.value = [];
       loadData();
     })
     .finally(() => {

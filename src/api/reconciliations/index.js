@@ -122,3 +122,11 @@ export const mergeBill = (data) =>
     method: 'post',
     data
   });
+
+// 撤回合并
+export const revokeMerge = (data) =>
+  request({
+    url: 'reconciliation/revokeMerge',
+    method: 'post',
+    data
+  });

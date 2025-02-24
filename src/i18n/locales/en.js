@@ -661,5 +661,8 @@ export default {
   "合并账单": "Merge bills",
   "罚息": "penalty",
   "您可以单击下面的按钮退回上一步。": "You can click the button below to return to the previous step.",
-  "默认结束": "Stop default"
+  "默认结束": "Stop default",
+  "撤销合并": "Revoke merger",
+  "确定撤销合并吗？": "Are you sure to cancel the merge?",
+  "合并详情": "Merge Details"
 }

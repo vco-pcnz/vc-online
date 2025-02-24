@@ -1,7 +1,7 @@
 <template>
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="modeRef" class="myMode">
-    <a-modal :width="800" :open="visible" :title="t('合并账单')" :getContainer="() => $refs.modeRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
+    <a-modal :width="900" :open="visible" :title="t('合并账单')" :getContainer="() => $refs.modeRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content">
         <a-table :columns="columns" :data-source="list" :pagination="false" :scroll="{ x: '100%' }" :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }" row-key="bank_sn">
           <template #bodyCell="{ column, record }">
@@ -16,23 +16,26 @@
         <div class="flex justify-center pb-5">
           <a-pagination size="small" :total="total" :pageSize="pagination.limit" :current="pagination.page" show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
         </div>
-        <!-- <div class="flex mt-2 justify-end">
-          <div class="flex items-center"><span class="mr-2 color_grey">total:</span><vco-number :value="item?.amount" prefix=" " :precision="2" size="fs_xl" :bold="true" :end="true"></vco-number></div>
-          <div class="flex items-center ml-5">
-            <template v-if="distributableAmount < 0">
-              <span class="mr-2 color_red-error">available:</span>:
-              <vco-number :value="distributableAmount" :precision="2" size="fs_xl" color="#c1430c" :bold="true" :end="true"></vco-number>
-            </template>
-            <template v-else>
-              <span class="mr-2 color_grey">available:</span>:
-              <vco-number :value="distributableAmount" :precision="2" size="fs_xl" :bold="true" :end="true"></vco-number>
-            </template>
-          </div>
-        </div> -->
-
         <div class="flex justify-center">
-          <a-button @click="save" type="dark" class="save big uppercase" :disabled="!selectedRowKeys.length" :loading="loading">
-            {{ t('保存') }}
+          <a-button @click="visible_save = true" type="dark" class="save big uppercase" :disabled="selectedRowKeys.length < 2"> {{ t('保存') }}</a-button>
+        </div>
+      </div>
+    </a-modal>
+
+    <a-modal :width="486" :open="visible_save" :title="t('合并账单')" :maskClosable="false" :footer="false" @cancel="visible_save = false">
+      <div class="content sys-form-content">
+        <div class="input-item">
+          <div class="label" :class="{ err: !formState.date && validate }">{{ t('日期') }}</div>
+          <a-date-picker class="datePicker" v-model:value="formState.date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" :showToday="false" />
+        </div>
+        <div class="input-item">
+          <div class="label">{{ t('描述') }}</div>
+          <a-textarea v-model:value="formState.description" :rows="4" />
+        </div>
+
+        <div class="flex justify-center pb-5">
+          <a-button @click="save" type="dark" class="save big uppercase" :loading="loading">
+            {{ t('提交') }}
           </a-button>
         </div>
       </div>
@@ -46,7 +49,8 @@ import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import tool from '@/utils/tool';
 import { mergeBill } from '@/api/reconciliations';
-import { reconciliationList } from '@/api/reconciliations';
+import { getStatements } from '@/api/reconciliations';
+import { selectDateFormat } from '@/utils/tool';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);
@@ -62,25 +66,43 @@ const loading = ref(false);
 
 const columns = reactive([
   { title: t('名称'), dataIndex: 'project_name', width: 180, align: 'left', ellipsis: true },
+  {
+    title: t('金额'),
+    dataIndex: 'amount',
+    width: 120,
+    align: 'center',
+    ellipsis: true,
+    customRender: ({ record }) => {
+      return tool.formatMoney(Math.abs(record.amount), { prefix: '' });
+    }
+  },
   { title: t('类型'), dataIndex: 'type', width: 120, align: 'center', ellipsis: true },
   { title: t('备注'), dataIndex: 'description', align: 'left', ellipsis: true },
   { title: t('日期'), dataIndex: 'date', width: 120, align: 'center', ellipsis: true }
 ]);
 
+const visible_save = ref(false);
+const validate = ref(false);
+const formState = ref({
+  date: '',
+  description: ''
+});
+
 const save = () => {
-  loading.value = true;
+  validate.value = true;
+  if (!formState.value.date) return;
   let params = {
     ...formState.value,
     type: props.item?.type,
     client_uuid: props.item?.client_uuid,
-    bank_sn: selectedRowKeys.join()
+    bank_sn: selectedRowKeys.value.join()
   };
-  console.log(params);
-  return;
+  loading.value = true;
   mergeBill(params)
     .then((res) => {
       message.success(t('保存成功'));
       emits('update');
+      visible_save.value = false;
       updateVisible(false);
     })
     .finally((_) => {
@@ -158,13 +180,18 @@ const rowSelection = ref({
   })
 });
 const loadData = () => {
-  reconciliationList().then((res) => {
+  let params = {
+    status: 0,
+    way: 'api',
+    type: props.item?.type,
+    client_uuid: props.item?.client_uuid
+  };
+  getStatements({ ...params, ...pagination.value }).then((res) => {
     total.value = res.count;
     res.data.map((item) => {
       delete item.children;
     });
     list.value = res.data;
-    console.log(list.value)
   });
 };
 
@@ -172,8 +199,15 @@ const updateVisible = (value) => {
   visible.value = value;
 };
 const init = () => {
+  validate.value = false;
+  selectedRowKeys.value = [];
+  selectedRows.value = [];
+  formState.value = {
+    date: '',
+    description: ''
+  };
   loadData();
-  visible.value = true;
+  updateVisible(true);
 };
 </script>
 <style scoped lang="less">
@@ -212,29 +246,27 @@ const init = () => {
           font-weight: bold;
         }
       }
-      .label {
-        color: #888;
-        font-size: 12px;
-        padding: 0 0 8px;
-        &.err {
-          color: #c1430c;
-        }
-      }
-
-      .save {
-        width: 100%;
-        margin-top: 24px;
-      }
     }
-  }
-
-  .input-item {
-    margin-top: 20px;
   }
 
   .iconfont.disabled {
     color: #888;
     cursor: not-allowed !important;
   }
+}
+.label {
+  color: #888;
+  font-size: 12px;
+  padding: 0 0 8px;
+  &.err {
+    color: #c1430c;
+  }
+}
+.input-item {
+  margin-top: 20px;
+}
+.save {
+  width: 100%;
+  margin-top: 24px;
 }
 </style>

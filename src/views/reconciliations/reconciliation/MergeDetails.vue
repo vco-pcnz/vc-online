@@ -6,7 +6,7 @@
         <a-table :columns="columns" :data-source="list" :pagination="false" :scroll="{ x: '100%' }">
           <template #bodyCell="{ column, record }">
             <template v-if="column.dataIndex === 'project_name'">
-              {{ item?.project.project_name }}
+              {{ item?.project ? item?.project.project_name : '--' }}
             </template>
             <template v-if="column.dataIndex === 'date'">
               <p class="xs_text">{{ tool.showDate(record.date) }}</p>
@@ -75,7 +75,7 @@ const bindRevokeMerge = () => {
   loading.value = true;
   revokeMerge({ bank_sn: props.item?.bank_sn })
     .then((res) => {
-      emits('update')
+      emits('update');
     })
     .finally(() => {
       loading.value = false;

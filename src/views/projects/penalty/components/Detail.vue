@@ -53,7 +53,7 @@
     </a-row>
 
     <div v-if="detail?.status && hasPermission('projects:penalty:eedit') && detail?.state2 <= 0" class="mt-3">
-      <End :uuid="uuid" :id="detail?.id" @update="update">
+      <End :uuid="uuid" :id="detail?.id" :detail="detail" @update="update">
         <a-button type="brown" shape="round" size="small">{{ t('默认结束') }}</a-button>
       </End>
     </div>

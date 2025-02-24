@@ -18,8 +18,8 @@
         </a-row>
       </template>
     </a-alert>
-    <div class="title-no">
-      <span>{{ detail.status == 1 && detail.state2 > 0?t('结束'):t('开始') }}</span>
+    <div class="title-no uppercase">
+      <span>{{ detail.status == 1 && detail.state2 > 0?t('结束流程'):t('开始流程') }}</span>
     </div>
     <a-row :gutter="24">
       <a-col :span="12" class="item-txt">

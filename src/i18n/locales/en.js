@@ -664,5 +664,9 @@ export default {
   "默认结束": "Stop default",
   "撤销合并": "Revoke merger",
   "确定撤销合并吗？": "Are you sure to cancel the merge?",
-  "合并详情": "Merge Details"
+  "合并详情": "Merge Details",
+  "未对账": "Not reconciled",
+  "已对账": "completed",
+  "开始流程": "Start process",
+  "结束流程": "End process"
 }

@@ -42,11 +42,11 @@ const typeData = computed(() => {
       value: ''
     },
     {
-      label: t('spend'),
+      label: t('支出'),
       value: 'SPEND'
     },
     {
-      label: t('receive'),
+      label: t('已收到'),
       value: 'RECEIVE'
     }
   ];

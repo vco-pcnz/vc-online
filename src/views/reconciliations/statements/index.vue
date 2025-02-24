@@ -272,7 +272,6 @@ onMounted(() => {
 
 <style scoped lang="less">
 .actions {
-  padding-bottom: 16px;
   display: flex;
   align-items: center;
   gap: 16px;

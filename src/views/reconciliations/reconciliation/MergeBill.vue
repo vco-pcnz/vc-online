@@ -3,22 +3,24 @@
   <div @click.stop ref="modeRef" class="myMode">
     <a-modal :width="900" :open="visible" :title="t('合并账单')" :getContainer="() => $refs.modeRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content">
-        <a-table :columns="columns" :data-source="list" :pagination="false" :scroll="{ x: '100%' }" :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }" row-key="bank_sn">
-          <template #bodyCell="{ column, record }">
-            <template v-if="column.dataIndex === 'project_name'">
-              {{ record.project ? record.project.project_name : '--' }}
+        <a-spin :spinning="loading" size="large">
+          <a-table :columns="columns" :data-source="list" :pagination="false" :scroll="{ x: '100%' }" :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }" row-key="bank_sn">
+            <template #bodyCell="{ column, record }">
+              <template v-if="column.dataIndex === 'project_name'">
+                {{ record.project ? record.project.project_name : '--' }}
+              </template>
+              <template v-if="column.dataIndex === 'date'">
+                <p class="xs_text">{{ tool.showDate(record.date) }}</p>
+              </template>
             </template>
-            <template v-if="column.dataIndex === 'date'">
-              <p class="xs_text">{{ tool.showDate(record.date) }}</p>
-            </template>
-          </template>
-        </a-table>
-        <div class="flex justify-center pb-5">
-          <a-pagination size="small" :total="total" :pageSize="pagination.limit" :current="pagination.page" show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
-        </div>
-        <div class="flex justify-center">
-          <a-button @click="visible_save = true" type="dark" class="save big uppercase" :disabled="selectedRowKeys.length < 2"> {{ t('保存') }}</a-button>
-        </div>
+          </a-table>
+          <div class="flex justify-center pb-5">
+            <a-pagination size="small" :total="total" :pageSize="pagination.limit" :current="pagination.page" show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
+          </div>
+          <div class="flex justify-center">
+            <a-button @click="visible_save = true" type="dark" class="save big uppercase" :disabled="selectedRowKeys.length < 2"> {{ t('保存') }}</a-button>
+          </div>
+        </a-spin>
       </div>
     </a-modal>
 
@@ -34,7 +36,7 @@
         </div>
 
         <div class="flex justify-center pb-5">
-          <a-button @click="save" type="dark" class="save big uppercase" :loading="loading">
+          <a-button @click="save" type="dark" class="save big uppercase" :loading="loading_btn">
             {{ t('提交') }}
           </a-button>
         </div>
@@ -63,6 +65,7 @@ const props = defineProps({
 
 const visible = ref(false);
 const loading = ref(false);
+const loading_btn = ref(false);
 
 const columns = reactive([
   { title: t('名称'), dataIndex: 'project_name', width: 180, align: 'left', ellipsis: true },
@@ -97,7 +100,7 @@ const save = () => {
     client_uuid: props.item?.client_uuid,
     bank_sn: selectedRowKeys.value.join()
   };
-  loading.value = true;
+  loading_btn.value = true;
   mergeBill(params)
     .then((res) => {
       message.success(t('保存成功'));
@@ -106,7 +109,7 @@ const save = () => {
       updateVisible(false);
     })
     .finally((_) => {
-      loading.value = false;
+      loading_btn.value = false;
     });
 };
 
@@ -186,13 +189,18 @@ const loadData = () => {
     type: props.item?.type,
     client_uuid: props.item?.client_uuid
   };
-  getStatements({ ...params, ...pagination.value }).then((res) => {
-    total.value = res.count;
-    res.data.map((item) => {
-      delete item.children;
+  loading.value = true;
+  getStatements({ ...params, ...pagination.value })
+    .then((res) => {
+      total.value = res.count;
+      res.data.map((item) => {
+        delete item.children;
+      });
+      list.value = res.data;
+    })
+    .finally((_) => {
+      loading.value = false;
     });
-    list.value = res.data;
-  });
 };
 
 const updateVisible = (value) => {

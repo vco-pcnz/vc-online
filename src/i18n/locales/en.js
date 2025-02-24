@@ -671,6 +671,9 @@ export default {
   "开始时间": "Start Time",
   "开始状态": "Start state",
   "结束时间": "End Time",
-  "结束状态": "End State"
-
+  "结束状态": "End State",
+  "方法": "Method",
+  "增加": "Debit",
+  "减少": "Credit",
+  "您确定要拒绝该请求吗？": "Are you sure you want to reject this request?"
 }

@@ -51,9 +51,10 @@
                 <AddVariations>
                   <a-button type="brown" shape="round" size="small" class="ml-10 mr-10">{{ t('添加变更') }}</a-button>
                 </AddVariations>
-                <Journal>
+                <Journal v-if="hasPermission('projects:journal:edit') && !detail?.base?.journal" :detail="detail" :currentId="currentId" @update="update">
                   <a-button type="brown" shape="round" size="small">{{ t('日志') }}</a-button>
                 </Journal>
+                <a-button v-if="hasPermission('projects:journal:view') && detail?.base?.journal" type="brown" shape="round" size="small" @click="navigationTo('/projects/journal?uuid=' + currentId)">{{ t('日志') }}</a-button>
               </template>
               <!-- lc最终关闭  fc  拟关闭 -->
               <CloseProject
@@ -84,7 +85,7 @@ import Stats from './components/stats.vue';
 import PeriodLine from './components/PeriodLine.vue';
 import MeterStat from './components/MeterStat.vue';
 import Wash from './components/wash.vue';
-import Journal from './components/form/Journal.vue';
+import Journal from '@/views/projects/journal/components/form/Add.vue';
 import StartDefault from '@/views/projects/penalty/components/form/Add.vue';
 import AddVariations from './components/form/AddVariations.vue';
 import CloseProject from './components/form/CloseProject.vue';

@@ -30,7 +30,8 @@
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
-import { sedit,eedit } from '@/api/project/penalty';
+import { sedit } from '@/api/project/penalty';
+import { systemConfigData } from '@/api/system';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);
@@ -49,7 +50,7 @@ const validate = ref(false);
 const formState = ref({
   uuid: '',
   start_date: '',
-  rate: 15,
+  rate: '',
   note: ''
 });
 
@@ -72,7 +73,14 @@ const save = () => {
     });
 };
 
+const loadRate = () => {
+  // 加载广告
+  systemConfigData({ pcode: 'web_config', code: 'penalty_rate' }).then((res) => {
+    formState.value.rate = res.penalty_rate;
+  });
+};
 const init = () => {
+  loadRate();
   visible.value = true;
 };
 </script>

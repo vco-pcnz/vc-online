@@ -44,9 +44,10 @@
             <PeriodLine :data="detail?.date"></PeriodLine>
             <div class="flex justify-center mt-10 mb-10">
               <template v-if="Boolean(!detail?.base.is_close)">
-                <!-- <StartDefault v-if="hasPermission('projects:penalty:sedit')" :currentId="currentId" @update="update">
+                <StartDefault v-if="hasPermission('projects:penalty:sedit') && !detail?.base?.penalty" :currentId="currentId" @update="update">
                   <a-button type="brown" shape="round" size="small">{{ t('默认开始') }}</a-button>
-                </StartDefault> -->
+                </StartDefault>
+                <a-button v-if="hasPermission('projects:penalty:view') && detail?.base?.penalty" type="brown" shape="round" size="small" @click="navigationTo('/projects/penalty?uuid=' + currentId)">{{ t('默认') }}</a-button>
                 <AddVariations>
                   <a-button type="brown" shape="round" size="small" class="ml-10 mr-10">{{ t('添加变更') }}</a-button>
                 </AddVariations>
@@ -84,12 +85,13 @@ import PeriodLine from './components/PeriodLine.vue';
 import MeterStat from './components/MeterStat.vue';
 import Wash from './components/wash.vue';
 import Journal from './components/form/Journal.vue';
-import StartDefault from './components/form/StartDefault.vue';
+import StartDefault from '@/views/projects/penalty/components/form/Add.vue';
 import AddVariations from './components/form/AddVariations.vue';
 import CloseProject from './components/form/CloseProject.vue';
 import BindUsers from '@/views/process/components/BindUsers.vue';
 import ConditionsList from '@/views/process/components/ConditionsList.vue';
 import { hasPermission } from '@/directives/permission/index';
+import { navigationTo } from '@/utils/tool';
 
 const { t } = useI18n();
 const route = useRoute();

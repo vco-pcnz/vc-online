@@ -352,6 +352,9 @@ onUnmounted(() => {
     padding: 10px 15px;
     border-radius: 8px;
     margin-top: 15px;
+    .info {
+      word-break: break-all;
+    }
     &.pass {
       .info,
       > .title > p {

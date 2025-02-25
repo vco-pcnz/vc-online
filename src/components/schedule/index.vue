@@ -116,6 +116,9 @@
                   <a-menu-item>
                     <div class="pt-2 pb-2" @click="downLoadExcel(0)">{{ t('额度费用计算时间表') }}</div>
                   </a-menu-item>
+                  <a-menu-item>
+                    <div class="pt-2 pb-2" @click="downLoadExcel(3)">{{ t('预测表IRR') }}</div>
+                  </a-menu-item>
                 </a-menu>
               </template>
             </a-dropdown>
@@ -331,6 +334,9 @@ const getDataInfo = () => {
               item.drawdown = tool.formatMoney(item.amount);
             } else if (item.type === 4) {
               item.repayment = tool.formatMoney(item.amount);
+              if (item.first === 1) {
+                item.name = `${item.name}(${t('全额还款')})`
+              }
             } else {
               if (item.is_fee) {
                 item.fee = tool.formatMoney(item.amount);
@@ -633,7 +639,8 @@ onMounted(() => {
         width: 150px;
       }
       &:nth-child(3) {
-        width: 160px;
+        width: 180px;
+        word-break: break-all;
       }
       &:nth-child(4) {
         width: 280px;

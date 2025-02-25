@@ -664,5 +664,7 @@ export default {
   "默认结束": "Stop default",
   "撤销合并": "Revoke merger",
   "确定撤销合并吗？": "Are you sure to cancel the merge?",
-  "合并详情": "Merge Details"
+  "合并详情": "Merge Details",
+  "当前抵押物价值": "Current Security value",
+  "预测表IRR": "Schedule IRR"
 }

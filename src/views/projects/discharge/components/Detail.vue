@@ -33,7 +33,6 @@
           </a-col>
         </a-row>
       </template>
-      
     </a-alert>
     <div class="title-no">
       <span>{{ detail.type_name }}</span>

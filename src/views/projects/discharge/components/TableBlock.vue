@@ -6,6 +6,7 @@
       <li>{{ t('产权编号') }}</li>
       <li>{{ t('类型') }}</li>
       <li>{{ t('抵押物价值') }}</li>
+      <li>{{ t('当前抵押物价值') }}</li>
       <li>{{ t('状态') }}</li>
       <li>{{ t('创建时间') }}</li>
     </ul>
@@ -20,6 +21,10 @@
           <li>{{ item.type_name }}</li>
           <li>
             <vco-number :value="item.amount" :precision="2" size="fs_md" :end="true"></vco-number>
+          </li>
+          <li>
+            <vco-number v-if="item.real_amount" :value="item.real_amount" :precision="2" size="fs_md" :end="true"></vco-number>
+            <span v-else>--</span>
           </li>
           <li :style="{ color: colors[item.status_name] }">{{ item.status_name }}</li>
           <li><p class="fs_xs color_grey">{{ tool.showDate(item.create_time) }}</p></li>
@@ -156,21 +161,26 @@ watch(
       flex: 1;
     }
     &:nth-child(3) {
-      width: 100px;
+      width: 115px;
       text-align: center;
+      word-break: break-all;
     }
     &:nth-child(4) {
       text-align: center;
       width: 90px;
     }
-    &:nth-child(5) {
-      width: 160px;
+    &:nth-child(5),
+    &:nth-child(6) {
+      width: 130px;
       text-align: center;
     }
-    &:nth-child(6),
     &:nth-child(7) {
-      width: 155px;
+      width: 140px;
       text-align: center;
+    }
+    &:nth-child(8) {
+      width: 100px;
+      text-align: right;
     }
   }
 }

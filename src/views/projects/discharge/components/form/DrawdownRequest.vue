@@ -19,8 +19,47 @@
         >
           <a-row :gutter="24">
             <a-col :span="24">
+              <a-alert
+                type="info"
+                class="mb-5"
+              >
+                <template #message>
+                  <a-row :gutter="24">
+                    <a-col :span="7">
+                      <a-form-item :label="t('土地价值')" class="info-item">
+                        <vco-number :value="Number(detail.land_amount)" :precision="2" :end="true"></vco-number>
+                      </a-form-item>
+                    </a-col>
+                    <a-col :span="1" class="plus-txt"><i class="iconfont">&#xe889;</i></a-col>
+                    <a-col :span="7">
+                      <a-form-item :label="t('建筑价值')" class="info-item">
+                        <vco-number :value="Number(detail.build_amount)" :precision="2" :end="true"></vco-number>
+                      </a-form-item>
+                    </a-col>
+                    <a-col :span="1" class="plus-txt"><i class="iconfont">=</i></a-col>
+                    <a-col :span="8" class="total-amount-info">
+                      <a-form-item :label="t('抵押物价值')" class="info-item">
+                        <vco-number :value="Number(detail.land_amount) + Number(detail.build_amount)" :precision="2" :end="true"></vco-number>
+                      </a-form-item>
+                    </a-col>
+                  </a-row>
+                </template>
+              </a-alert>
+            </a-col>
+            <a-col :span="14">
               <a-form-item :label="t('解押标题')" name="dirname">
                 <a-input v-model:value="formState.dirname" :placeholder="t('请输入')" :rows="3"/>
+              </a-form-item>
+            </a-col>
+            <a-col :span="10">
+              <a-form-item :label="t('当前抵押物价值')" name="real_amount">
+                <a-input-number
+                  v-model:value="formState.real_amount"
+                  :max="99999999999"
+                  :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                  :placeholder="t('请输入')"
+                />
               </a-form-item>
             </a-col>
             <a-col :span="24">
@@ -71,6 +110,7 @@ const loading = ref(false);
 
 const formState = ref({
   dirname: '',
+  real_amount: '',
   reason: ''
 });
 const document = ref([])
@@ -80,6 +120,9 @@ const formRef = ref()
 const formRules = ref({
   dirname: [
     { required: true, message: t('请输入') + t('解押标题'), trigger: 'blur' },
+  ],
+  real_amount: [
+    { required: true, message: t('请输入') + t('当前抵押物价值'), trigger: 'blur' },
   ]
 });
 
@@ -113,6 +156,7 @@ const save = () => {
 };
 
 const init = () => {
+  console.log('props', props.detail);
   visible.value = true;
 
   nextTick(() => {
@@ -149,5 +193,21 @@ const init = () => {
       }
     }
   }
+}
+.plus-txt {
+  position: relative;
+  .iconfont {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #282828;
+    font-weight: bold;
+    font-size: 18px;
+  }
+}
+
+.info-item {
+  margin-bottom: 0;
 }
 </style>

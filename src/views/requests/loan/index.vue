@@ -34,7 +34,7 @@
                 ref="tableRef"
                 rowKey="uuid"
                 :columns="columns"
-                :row-selection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange }"
+                :row-selection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange, columnWidth: 50 }"
                 :data-source="tableDataRef"
                 :pagination="false"
                 :scroll="{ x: '100%' }"

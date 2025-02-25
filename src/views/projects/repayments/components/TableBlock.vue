@@ -138,7 +138,6 @@ watch(
 
     &.all-repayment {
       position: relative;
-      overflow: hidden;
       .tips {
         position: absolute;
         background-color: @colorPrimary;
@@ -147,6 +146,7 @@ watch(
         top: 0;
         right: 0;
         border-bottom-left-radius: 12px;
+        border-top-right-radius: 12px;
       }
     }
 

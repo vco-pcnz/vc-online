@@ -2,15 +2,7 @@
   <layout ref="layoutRef" @update="reload">
     <template #content>
       <a-spin :spinning="loading" size="large">
-        <a-row>
-          <a-col :span="11">
-            <p class="title">Review your Xero statement lines...</p>
-          </a-col>
-          <a-col :span="11" :offset="2">
-            <p class="title">...then match with your transactions in VC Online</p>
-          </a-col>
-        </a-row>
-        <a-row class="flex justify-between items-end mb-5">
+        <a-row class="flex justify-between items-end mb-5 pb-5" style="border-bottom: 1px solid #a6a9b0;">
           <a-popconfirm class="mt-5" :title="t('确定要对账吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="checkMatchBills()" :disabled="!selectedRowKeys.length">
             <a-button :disabled="!selectedRowKeys.length">
               {{ t('对账') }}
@@ -19,6 +11,14 @@
           <TableSearch v-model:value="searchParams" @search="search"></TableSearch>
         </a-row>
 
+        <a-row>
+          <a-col :span="11">
+            <p class="title">Review your Xero statement lines...</p>
+          </a-col>
+          <a-col :span="11" :offset="2">
+            <p class="title">...then match with your transactions in VC Online</p>
+          </a-col>
+        </a-row>
         <div :class="{ cardBorder: true }" v-for="item in rowData" :key="item.id">
           <a-row class="my-5">
             <!-- left -->
@@ -157,14 +157,16 @@ const checkMatchBills = () => {
 
 const search = (val) => {
   searchParams.value = cloneDeep(val);
-  reload()
-}
+  reload();
+};
 </script>
 
 <style scoped lang="less">
+.page-search-content {
+  margin-top: 0;
+}
 .title {
   width: 100%;
-  border-bottom: 1px solid #a6a9b0;
   color: #181818;
   font-size: 12px;
   line-height: 18px;

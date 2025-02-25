@@ -223,3 +223,19 @@ export const projectLoanAllRepayment = (params) =>
     method: 'get',
     params
   });
+
+// 获取项目变更财务字段数值
+export const projectCreditVariation = (params) =>
+  request({
+    url: 'project/credit/variation',
+    method: 'get',
+    params
+  });
+
+// 获取项目变更财务字段数值
+export const projectVariationEdit = (data) =>
+  request({
+    url: 'project/variation/edit',
+    method: 'post',
+    data
+  });

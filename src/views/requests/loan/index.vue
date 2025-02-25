@@ -246,8 +246,7 @@ const tableDataRef = computed(() => {
 
     item.imgsArr = imgsArr;
   });
-  return []
-  // return data;
+  return data;
 });
 
 const selectedRowKeys = ref([]);

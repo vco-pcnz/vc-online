@@ -10,7 +10,7 @@
     </ul>
     <div v-if="tableData.length" class="table-body">
       <template v-for="item in tableData" :key="item.id">
-        <ul class="table-col tr" :class="{ active: active_id == item.uuid, declined: item.state === -900 }" @click="viewDetail(item)">
+        <ul class="table-col tr" :class="{ active: active_id == item.id, declined: item.state === -900 }" @click="viewDetail(item)">
           <li><div class="circle" :class="{ done: item.status === 1 }"></div></li>
           <li>{{ item.type_name }}</li>
           <li>{{ item.addsub == 1 ? t('增加') : t('减少') }}</li>
@@ -54,7 +54,7 @@ const colors = ref({
 const active_id = ref('');
 
 const viewDetail = (val) => {
-  active_id.value = val.uuid;
+  active_id.value = val.id;
   emit('change', val);
 };
 

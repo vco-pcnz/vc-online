@@ -5,6 +5,11 @@
         <div class="mb-12">
           <!-- <MeterStat :uuid="uuid" v-if="Boolean(uuid)" ref="MeterStatRef"></MeterStat> -->
         </div>
+        <div class="flex justify-end">
+          <Add v-if="hasPermission('projects:journal:edit')" :currentId="uuid" :detail="projectDetail" @update="reload">
+            <a-button type="brown" shape="round" size="small">{{ t('日志') }}</a-button>
+          </Add>
+        </div>
         <div :class="{ grid: tableData.length }">
           <a-spin :spinning="loading" size="large">
             <div class="table-content">
@@ -30,8 +35,10 @@ import detailLayout from '../components/detailLayout.vue';
 import MeterStat from './components/MeterStat.vue';
 import TableBlock from './components/TableBlock.vue';
 import Detail from './components/Detail.vue';
+import Add from './components/form/Add.vue';
 import { journal } from '@/api/project/journal';
 import { useRoute } from 'vue-router';
+import { hasPermission } from '@/directives/permission/index';
 
 const route = useRoute();
 
@@ -79,6 +86,11 @@ const change = (val) => {
 const projectDetail = ref();
 const getProjectDetail = (val) => {
   projectDetail.value = val;
+};
+
+const reload = () => {
+  pagination.value.page = 1;
+  loadData();
 };
 
 onMounted(() => {

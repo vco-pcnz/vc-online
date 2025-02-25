@@ -675,5 +675,6 @@ export default {
   "方法": "Method",
   "增加": "Debit",
   "减少": "Credit",
-  "您确定要拒绝该请求吗？": "Are you sure you want to reject this request?"
+  "您确定要拒绝该请求吗？": "Are you sure you want to reject this request?",
+  "预测表IRR": "Schedule IRR",
 }

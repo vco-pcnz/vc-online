@@ -52,9 +52,9 @@
                   <a-button type="brown" shape="round" size="small" class="ml-10 mr-10">{{ t('添加变更') }}</a-button>
                 </AddVariations>
                 <Journal v-if="hasPermission('projects:journal:edit') && !detail?.base?.journal" :detail="detail" :currentId="currentId" @update="update">
-                  <a-button type="brown" shape="round" size="small">{{ t('日志') }}</a-button>
+                  <a-button type="brown" shape="round" size="small">{{ t('平账') }}</a-button>
                 </Journal>
-                <a-button v-if="hasPermission('projects:journal:view') && detail?.base?.journal" type="brown" shape="round" size="small" @click="navigationTo('/projects/journal?uuid=' + currentId)">{{ t('日志') }}</a-button>
+                <a-button v-if="hasPermission('projects:journal:view') && detail?.base?.journal" type="brown" shape="round" size="small" @click="navigationTo('/projects/journal?uuid=' + currentId)">{{ t('平账') }}</a-button>
               </template>
               <!-- lc最终关闭  fc  拟关闭 -->
               <CloseProject

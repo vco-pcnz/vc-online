@@ -380,7 +380,7 @@ export default {
   "借款背景": "Borrower background",
   "默认开始": "Start default",
   "添加变更": "Add variations",
-  "日志": "Journal",
+  "平账": "Journal",
   "还款计划": "Schedule",
   "提示": "Tips",
   "不，谢谢": "No, Thanks",

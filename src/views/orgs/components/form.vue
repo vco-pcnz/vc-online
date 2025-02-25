@@ -242,7 +242,7 @@ import { message } from 'ant-design-vue';
 import { useRouter } from 'vue-router';
 import { useOrgsStore } from '@/store';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue';
-import { selectDateFormat } from "@/utils/tool"
+import { selectDateFormat } from '@/utils/tool';
 
 const router = useRouter();
 const orgsStore = useOrgsStore();
@@ -267,6 +267,10 @@ const props = defineProps({
   },
   p_uuid: {
     type: String,
+    default: ''
+  },
+  p_type: {
+    type: [String, Number],
     default: ''
   }
 });
@@ -401,10 +405,10 @@ const dynamicRules = computed(() => {
         }
       ],
       nzbz: [
-        { required: true, message: t('请输入') + t('NZBZ'), trigger: 'blur' },
+        { required: true, message: t('请输入') + 'NZBZ', trigger: 'blur' },
         {
           pattern: /^[a-zA-Z0-9]+$/,
-          message: t('NZBZ') + t('格式不正确'),
+          message: 'NZBZ' + t('格式不正确'),
           trigger: 'blur'
         }
       ],
@@ -472,25 +476,7 @@ const remove = (index) => {
 };
 // 选择用户
 const checkUser = (val) => {
-  let keys = [
-    'avatar',
-    'idcard',
-    'email',
-    'emailCode',
-    'pre',
-    'mobile',
-    'mobileCode',
-    'province_code',
-    'city_code',
-    'district_code',
-    'address',
-    'document',
-    'expire_time',
-    'note',
-    'firstName',
-    'middleName',
-    'lastName'
-  ];
+  let keys = ['avatar', 'idcard', 'email', 'emailCode', 'pre', 'mobile', 'mobileCode', 'province_code', 'city_code', 'district_code', 'address', 'document', 'expire_time', 'note', 'firstName', 'middleName', 'lastName'];
   const newData = pick(val, keys);
 
   check_user_uuid.value = val.uuid;
@@ -511,21 +497,7 @@ const submit = () => {
     if (form.type == 20) {
       keys = keys.concat(['firstName', 'middleName', 'lastName', 'sendEmail', 'sendSms', 'user_uuid', 'idcard']);
     } else {
-      keys = keys.concat([
-        'name',
-        'nzbz',
-        'contactName',
-        'province_code',
-        'city_code',
-        'district_code',
-        'address',
-        'addr',
-        'postal',
-        'idcard',
-        'suburb',
-        'province_code_name',
-        'con_id'
-      ]);
+      keys = keys.concat(['name', 'nzbz', 'contactName', 'province_code', 'city_code', 'district_code', 'address', 'addr', 'postal', 'idcard', 'suburb', 'province_code_name', 'con_id']);
     }
     const newData = pick(form, keys);
     if (form.type == 20) {
@@ -583,29 +555,35 @@ onMounted(() => {
   orgsStore.getStakeholderType();
 });
 
+const initJob = (val) => {
+  switch (val) {
+    case 20:
+      orgsStore.getJob('stakeholder_job2');
+      break;
+    case 1:
+    case 2:
+    case 4:
+      orgsStore.getJob('stakeholder_job');
+      break;
+    case 3:
+      orgsStore.getJob('stakeholder_job1');
+      break;
+  }
+};
 // 监听重置idcard 公用字段  获取job 选项
 watch(
-  () => form.type,
+  () => form.type, // getter 函数返回一个数组
   (val, old) => {
+    if (props.isMember) {
+      return;
+    }
     if (old) {
       if ((old == 20 && val < 20) || (old !== 20 && val == 20)) {
         form.idcard = '';
       }
       form.job = [];
     }
-    switch (val) {
-      case 20:
-        orgsStore.getJob('stakeholder_job2');
-        break;
-      case 1:
-      case 2:
-      case 4:
-        orgsStore.getJob('stakeholder_job');
-        break;
-      case 3:
-        orgsStore.getJob('stakeholder_job1');
-        break;
-    }
+    initJob(val);
 
     if (val != 20) {
       nextTick(() => {
@@ -617,12 +595,23 @@ watch(
   },
   { immediate: true }
 );
+
 // 如果是详情添加 默认type
 watch(
   () => props.isMember,
   (val, old) => {
     if (val) {
       form.type = 20;
+    }
+  },
+  { immediate: true }
+);
+
+watch(
+  () => props.p_type,
+  (val, old) => {
+    if (val) {
+      initJob(val);
     }
   },
   { immediate: true }

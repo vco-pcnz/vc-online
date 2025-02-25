@@ -7,7 +7,7 @@
         </div>
         <div class="flex justify-end">
           <Add v-if="hasPermission('projects:journal:edit')" :currentId="uuid" :detail="projectDetail" @update="reload">
-            <a-button type="brown" shape="round" size="small">{{ t('日志') }}</a-button>
+            <a-button type="brown" shape="round" size="small">{{ t('平账') }}</a-button>
           </Add>
         </div>
         <div :class="{ grid: tableData.length }">

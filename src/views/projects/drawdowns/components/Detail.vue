@@ -25,7 +25,7 @@
             ><i class="iconfont edit">&#xe8cf;</i></DrawdownAmount
           >
         </div>
-        <p class="bold color_grey fs_2xs">Requested amount: {{ tool.formatMoney(detail?.amount) }}</p>
+        <p class="bold color_grey fs_2xs">{{t('申请金额')}}: {{ tool.formatMoney(detail?.amount) }}</p>
       </div>
     </div>
     <div class="flex items-center box frist mt-2">
@@ -59,42 +59,42 @@
           </a-dropdown>
         </div>
         <template v-if="detail?.forecast">
-          <p class="bold color_grey fs_2xs">Estimated amount, {{ tool.showDate(detail?.forecast.date) }}</p>
+          <p class="bold color_grey fs_2xs">{{t('预估金额')}}, {{ tool.showDate(detail?.forecast.date) }}</p>
         </template>
         <template v-else>
-          <p class="bold color_grey fs_2xs">No forecast for thls drawdown</p>
+          <p class="bold color_grey fs_2xs">{{t('这次放款数据没有预测')}}</p>
         </template>
       </div>
     </div>
     <div class="flex justify-center mt-3">
-      <a-popconfirm title="Are you sure you want to recall the request?" okText="recall" @confirm="recall" v-if="detail?.prev_permission">
+      <a-popconfirm :title="t('您确实要撤回该请求吗？')" @confirm="recall" v-if="detail?.prev_permission">
         <template #icon>
           <CheckCircleOutlined :style="{ color: '#a9ad57' }" />
         </template>
-        <a-button type="dark" class="big uppercase" :loading="accept_loading" style="width: 100%"> recall </a-button>
+        <a-button type="dark" class="big uppercase" :loading="accept_loading" style="width: 100%"> {{ t('撤回申请') }} </a-button>
       </a-popconfirm>
       <template v-if="detail?.has_permission && !detail?.prev_permission">
         <AcceptFc v-if="detail?.mark === 'drawdown_fc'" :uuid="uuid" :detail="detail" :projectDetail="projectDetail" @change="update">
-          <a-button type="dark" class="big uppercase" style="width: 100%" :loading="accept_loading"> Approve </a-button>
+          <a-button type="dark" class="big uppercase" style="width: 100%" :loading="accept_loading"> {{t('接受请求')}} </a-button>
         </AcceptFc>
 
-        <a-popconfirm v-else title="Are you sure you want to pass the review?" okText="accept" @confirm="accept">
+        <a-popconfirm v-else :title="t('您确定要接受该请求吗？')" @confirm="accept">
           <template #icon>
             <CheckCircleOutlined :style="{ color: '#a9ad57' }" />
           </template>
-          <a-button type="dark" class="big uppercase" style="width: 100%"> Accept documents </a-button>
+          <a-button type="dark" class="big uppercase" style="width: 100%">{{ t('接受请求') }}</a-button>
         </a-popconfirm>
         <!-- <a-button v-else type="dark" class="big uppercase" style="width: 100%" :loading="accept_loading" @click="accept"> Accept documents </a-button> -->
       </template>
     </div>
     <template v-if="detail?.has_permission">
-      <p class="text-center color_grey fs_xs my-3">You can decline the drawdown request by clicking the button below.</p>
+      <p class="text-center color_grey fs_xs my-3">{{t("您可以点击下面的按钮来拒绝放款请求。")}}</p>
       <div class="flex justify-center">
         <a-popconfirm title="Are you sure you want to decline the request?" okText="decline" @confirm="decline">
           <template #icon>
             <CheckCircleOutlined :style="{ color: '#a9ad57' }" />
           </template>
-          <a-button type="danger" size="small" shape="round" :loading="decline_loading">decline request</a-button>
+          <a-button type="danger" size="small" shape="round" :loading="decline_loading">{{t('拒绝请求')}}</a-button>
         </a-popconfirm>
       </div>
       <DrawdownBack :uuid="uuid" :detail="detail" @change="update" v-if="detail?.has_permission && detail?.mark === 'drawdown_fc'"></DrawdownBack>
@@ -114,7 +114,7 @@
         @change="update"
         v-if="detail?.has_permission && detail?.mark === 'drawdown_fc'"
       >
-        <a-button type="brown" shape="round" size="small">allocate investors</a-button>
+        <a-button type="brown" shape="round" size="small">{{t('分配投资者')}}</a-button>
       </AddStake>
     </div>
   </div>

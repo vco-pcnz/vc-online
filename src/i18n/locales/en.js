@@ -405,7 +405,7 @@ export default {
   "抵押物": "Securities",
   "抵押物信息": "Security items",
   "产权编号": "Title No.",
-  "土地价值": "Land value",
+  "土地价值": "Land Value",
   "改善值": "Improvement value",
   "抵押物价值": "Security value",
   "抵押物数量": "Items",
@@ -677,5 +677,18 @@ export default {
   "减少": "Credit",
   "您确定要拒绝该请求吗？": "Are you sure you want to reject this request?",
   "预测表IRR": "Schedule IRR",
-  "当前抵押物价值": "Current Security value"
+  "当前抵押物价值": "Current Security value",
+  "罚息减免上限": "Maximum amount",
+  "放款申请": "Drawdown request",
+  "点击下方按钮创建放款申请": "Click the button below to create a drawdown request",
+  "创建放款": "create drawdown",
+  "待提款": "Pending drawdown",
+  "贷款提取": "Loan withdrawal",
+  "不包括利息和费用": "Excluding interest & fees",
+  "您可以帮助他们创建提款。": "You can help to create drawdown on their behalf.",
+  "预估金额": "Estimated amount",
+  "这次放款数据没有预测": "No forecast for thls drawdown",
+  "您可以点击下面的按钮来拒绝放款请求。": "You can decline the drawdown request by clicking the button below.",
+  "分配投资者": "Allocate investors",
+  "总额": "Total"
 }

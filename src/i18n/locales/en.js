@@ -657,5 +657,6 @@ export default {
   "全额还款": "Full repayment",
   "创建日期": "Create date",
   "拟关闭": "to be Closed",
-  "确定关闭这个项目吗?": "Are you sure you want to close this project?"
+  "确定关闭这个项目吗?": "Are you sure you want to close this project?",
+  "预测表IRR": "Schedule IRR",
 }

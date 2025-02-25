@@ -1,9 +1,26 @@
 <template>
   <detail-layout active-tab="discharge" @getProjectDetail="getProjectDetail">
     <template #content>
+      <!-- 新增抵押物 -->
+      <security-add-edit
+        v-model:visible="addVisible"
+        :current-id="uuid"
+        :info-data="itemInfo"
+        :project-info="projectDetail?.base"
+        :is-open="true"
+        @refresh="loadData"
+      ></security-add-edit>
+
       <div class="ProjectDrawdowns">
-        <div class="mb-12">
+        <div :class="{ grid: hasPermission('projects:securities:aer') &&  projectDetail && !projectDetail?.base?.is_close}" class="mb-12">
           <MeterStat :uuid="uuid" :projectDetail="projectDetail" v-if="Boolean(uuid)" ref="MeterStatRef"></MeterStat>
+          <template v-if="projectDetail && !projectDetail?.base?.is_close && hasPermission('projects:securities:aer')">
+            <div class="HelpBorrower">
+              <div class="flex items-center"><i class="iconfont mr-2">&#xe614;</i><span class="weight_demiBold">{{ t('抵押物信息') }}</span></div>
+              <p class="color_grey mt-1 mb-3">{{ t('您可以点击下方按钮添加抵押物') }}</p>
+              <a-button type="brown" shape="round" size="small" @click="openAddEdit(null)">{{ t('添加抵押物') }}</a-button>
+            </div>
+          </template>
         </div>
         <div :class="{ grid: tableData.length }">
           <a-spin :spinning="loading" size="large">
@@ -15,7 +32,16 @@
             </div>
           </a-spin>
           <div>
-            <Detail ref="detailRef" :projectDetail="projectDetail" :uuid="uuid" :detail="detail_info" v-if="Boolean(uuid && detail_info && detail_info.uuid)" @update="loadData"></Detail>
+            <Detail
+              v-if="Boolean(uuid && detail_info && detail_info.uuid)"
+              ref="detailRef"
+              :projectDetail="projectDetail"
+              :uuid="uuid"
+              :detail="detail_info"
+              @itemEdit="openAddEdit(detail_info)"
+              @update="loadData"
+            >
+          </Detail>
           </div>
         </div>
       </div>
@@ -30,8 +56,10 @@ import detailLayout from '../components/detailLayout.vue';
 import MeterStat from './components/MeterStat.vue';
 import TableBlock from './components/TableBlock.vue';
 import Detail from './components/Detail.vue';
+import { hasPermission } from '@/directives/permission/index';
 import { dischargeSecurity } from '@/api/project/loan';
 import { useRoute } from 'vue-router';
+import SecurityAddEdit from '@/views/process/temp/default/components/SecurityAddEdit.vue';
 
 const route = useRoute();
 
@@ -81,6 +109,14 @@ const getProjectDetail = (val) => {
   projectDetail.value = val;
 };
 
+const addVisible = ref(false)
+const itemInfo = ref(null)
+
+const openAddEdit = (data) => {
+  itemInfo.value = data
+  addVisible.value = true
+}
+
 onMounted(() => {
   uuid.value = route.query.uuid;
   loadData();
@@ -103,6 +139,9 @@ onMounted(() => {
     background-color: #f0f0f0;
     border: 1px solid #e2e5e2;
     border-radius: 12px;
+    .iconfont {
+      font-size: 18px;
+    }
   }
 }
 </style>

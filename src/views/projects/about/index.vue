@@ -48,9 +48,15 @@
                   <a-button type="brown" shape="round" size="small">{{ t('默认开始') }}</a-button>
                 </StartDefault>
                 <a-button v-if="hasPermission('projects:penalty:view') && detail?.base?.penalty" type="brown" shape="round" size="small" @click="navigationTo('/projects/penalty?uuid=' + currentId)">{{ t('默认') }}</a-button>
-                <AddVariations>
+                
+                <AddVariations
+                  v-if="hasPermission('projects:variations:edit') && !Boolean(detail?.base?.variation)"
+                  :currentId="currentId"
+                  @update="update"
+                >
                   <a-button type="brown" shape="round" size="small">{{ t('添加变更') }}</a-button>
                 </AddVariations>
+
                 <Journal v-if="hasPermission('projects:journal:edit') && !detail?.base?.journal" :detail="detail" :currentId="currentId" @update="update">
                   <a-button type="brown" shape="round" size="small">{{ t('平账') }}</a-button>
                 </Journal>
@@ -87,7 +93,7 @@ import MeterStat from './components/MeterStat.vue';
 import Wash from './components/wash.vue';
 import Journal from '@/views/projects/journal/components/form/Add.vue';
 import StartDefault from '@/views/projects/penalty/components/form/Add.vue';
-import AddVariations from './components/form/AddVariations.vue';
+import AddVariations from '@/views/projects/variations/components/form/AddVariations.vue';
 import CloseProject from './components/form/CloseProject.vue';
 import BindUsers from '@/views/process/components/BindUsers.vue';
 import ConditionsList from '@/views/process/components/ConditionsList.vue';

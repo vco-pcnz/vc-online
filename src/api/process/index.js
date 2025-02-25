@@ -407,11 +407,18 @@ export const projectDetailAuditSecurityList = (params) =>
     params
   });
   
-
 // 添加抵押物
 export const projectAuditAddSecurity = (data) =>
   request({
     url: "/project/audit/addSecurity",
+    method: "post",
+    data
+  });
+
+// 添加抵押物 - 详情用
+export const projectDetailAddSecurity = (data) =>
+  request({
+    url: "/projectDetail/addSecurity",
     method: "post",
     data
   });
@@ -428,6 +435,14 @@ export const projectAuditEditSecurity = (data) =>
 export const projectAuditDeleteSecurity = (data) =>
   request({
     url: "/project/audit/deleteSecurity",
+    method: "post",
+    data
+  });
+
+// 删除抵押物 - 详情用
+export const projectDetailDeleteSecurity = (data) =>
+  request({
+    url: "/projectDetail/deleteSecurity",
     method: "post",
     data
   });

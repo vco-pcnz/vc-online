@@ -505,7 +505,7 @@ export default {
   "变更类型": "Variation type",
   "增加金额": "The amount to be increased",
   "变更开始日期": "Variation start date",
-  "变更到期日": "Variation maturity date",
+  "变更结束日期": "Variation maturity date",
   "初始回撤": "Initial drawdown",
   "利率": "Interest rate",
   "建立速率": "Estab. rate",
@@ -678,6 +678,8 @@ export default {
   "您确定要拒绝该请求吗？": "Are you sure you want to reject this request?",
   "预测表IRR": "Schedule IRR",
   "当前抵押物价值": "Current Security value",
+  "添加抵押物": "Add Security",
+  "您可以点击下方按钮添加抵押物": "You can add security info by clicking the button below",
   "罚息减免上限": "Maximum amount",
   "放款申请": "Drawdown request",
   "点击下方按钮创建放款申请": "Click the button below to create a drawdown request",
@@ -691,5 +693,7 @@ export default {
   "您可以点击下面的按钮来拒绝放款请求。": "You can decline the drawdown request by clicking the button below.",
   "分配投资者": "Allocate investors",
   "总额": "Total",
-  "确定要进行对账吗？": "Are you sure you want to reconcile?"
+  "确定要进行对账吗？": "Are you sure you want to reconcile?",
+  "{0}应小于{1}": "{0} should be less than {1}",
+  "{0}应在{1}之前": "{0} should come before {1}"
 }

@@ -16,7 +16,6 @@
       v-model:visible="addVisible"
       :current-id="currentId"
       :security-status="securityInfo.check_status"
-      :typeData="securityInfo.type"
       :block-info="blockInfo"
       :project-info="projectInfo"
     ></security-add-edit>

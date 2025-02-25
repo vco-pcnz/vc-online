@@ -35,10 +35,20 @@
       </template>
       
     </a-alert>
-    <div class="title-no">
-      <span>{{ detail.type_name }}</span>
-      {{ detail.card_no }}
+
+    <div class="item-header flex justify-between">
+      <p class="flex-1">
+        <span>{{ detail.type_name }}</span
+        >{{ detail.card_no }}
+      </p>
+      <div v-if="!projectDetail?.base?.is_close && detail.state === 0 && hasPermission('projects:securities:aer')" class="flex">
+        <i class="iconfont" @click="editHandle">&#xe8cf;</i>
+        <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="deleteHandle">
+          <i class="iconfont">&#xe8c1;</i>
+        </a-popconfirm>
+      </div>
     </div>
+
     <a-button type="brown" shape="round" size="small" @click="navigationTo('/projects/documents?uuid=' + uuid)">{{ t('查看文件') }}</a-button>
     <a-row :gutter="24">
       <a-col :span="12" class="item-txt">
@@ -114,9 +124,10 @@ import { hasPermission } from '@/directives/permission/index';
 import DrawdownreQuest from './form/DrawdownRequest.vue';
 import DrawdownBack from './form/DrawdownBack.vue';
 import { dischargeSaveStep, dischargeRecall } from '@/api/project/loan';
+import { projectDetailDeleteSecurity } from '@/api/process';
 
 const { t } = useI18n();
-const emits = defineEmits(['update']);
+const emits = defineEmits(['update', 'itemEdit']);
 
 const props = defineProps({
   uuid: {
@@ -160,6 +171,24 @@ const update = () => {
 
 const addressInfo = (data) => {
   return `${data.address_short} ${data.address} ${data.suburb} ${data.region_one_name} ${data.country_name}`
+}
+
+const editHandle = () => {
+  emits('itemEdit')
+}
+
+const deleteHandle = async () => {
+  await projectDetailDeleteSecurity({
+    security_uuid: props.detail.uuid,
+    uuid: props.uuid
+  })
+    .then(() => {
+      update()
+      return true;
+    })
+    .catch(() => {
+      return false;
+    });
 }
 
 watch(
@@ -234,6 +263,32 @@ watch(
   }
   :deep(.ant-statistic-content) {
     font-size: 13px !important;
+  }
+}
+
+.item-header {
+  border-bottom: 1px solid #e2e5e2;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+  p {
+    span {
+      background-color: @colorPrimary;
+      font-size: 10px;
+      padding: 4px 5px;
+      border-radius: 3px;
+      color: #fff;
+      margin-right: 5px;
+    }
+  }
+  > .flex {
+    gap: 10px;
+    > .iconfont {
+      cursor: pointer;
+      color: @colorPrimary;
+      &:hover {
+        opacity: 0.8;
+      }
+    }
   }
 }
 </style>

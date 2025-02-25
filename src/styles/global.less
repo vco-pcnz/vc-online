@@ -638,22 +638,24 @@ a:hover {
         display: inline-block;
         content: '';
         position: absolute;
-        top: 5px;
-        bottom: 5px;
+        top: 4px;
+        bottom: 4px;
         left: 0;
         right: 1px;
         z-index: 0;
         background-color: #f0f0f0;
-        // border: 1px solid #e2e5e2;
+        border: 1px solid #e2e5e2;
         border-left: none;
         border-top-right-radius: 10px;
         border-bottom-right-radius: 10px;
+        transition: all 0.3s ease;
       }
     }
     th.ant-table-cell-fix-right {
       background-color: #fff !important;
       &::before {
         background-color: transparent !important;
+        border: none;
       }
     }
 
@@ -671,34 +673,30 @@ a:hover {
       border-radius: 10px;
       position: relative;
       color: #666;
+      margin: 10px 0;
       & > td {
         border: none;
-      }
-      &:first-child {
-        &::after {
-          display: none;
+        &:first-child {
+          &::after {
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+            border-left: 1px solid #e2e5e2;
+          }
         }
       }
-      margin: 10px 0;
-      &::after {
-        display: inline-block;
-        content: '';
-        position: absolute;
-        inset: 0;
-        top: 4px;
-        bottom: 4px;
-        left: 0;
-        right: 0;
-        z-index: 0;
-        background-color: #f0f0f0;
-        border-radius: 10px;
-        border: 1px solid #e2e5e2;
-        transition: all 0.3s ease;
+      &:first-child {
+        > td {
+          &::after {
+            display: none;
+          }
+        }
       }
 
       &:hover {
-        &::after {
-          border-color: #f19915;
+        > td {
+          &::after {
+            border-color: #f19915;
+          }
         }
         .ant-table-cell-fix-left,
         .ant-table-cell-fix-right {
@@ -711,6 +709,21 @@ a:hover {
         position: relative;
         z-index: 2;
         font-size: 13px;
+        &::after {
+          display: inline-block;
+          content: '';
+          position: absolute;
+          inset: 0;
+          top: 4px;
+          bottom: 4px;
+          left: 0;
+          right: 0;
+          z-index: -1;
+          background-color: #f0f0f0;
+          border-top: 1px solid #e2e5e2;
+          border-bottom: 1px solid #e2e5e2;
+          transition: all 0.3s ease;
+        }
         .iconfont {
           margin-right: 4px;
           color: #999;

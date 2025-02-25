@@ -677,4 +677,5 @@ export default {
   "减少": "Credit",
   "您确定要拒绝该请求吗？": "Are you sure you want to reject this request?",
   "预测表IRR": "Schedule IRR",
+  "当前抵押物价值": "Current Security value"
 }

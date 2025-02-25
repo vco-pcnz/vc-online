@@ -21,11 +21,9 @@
         <div class="flex">
           <vco-number :value="detail?.amount" :precision="2" :bold="true" size="fs_2xl"></vco-number>
           <span class="unit">nzd</span>
-          <DrawdownAmount :uuid="uuid" :detail="detail" @change="update" v-if="detail?.has_permission && detail?.mark === 'drawdown_lm'"
-            ><i class="iconfont edit">&#xe8cf;</i></DrawdownAmount
-          >
+          <DrawdownAmount :uuid="uuid" :detail="detail" @change="update" v-if="detail?.has_permission && detail?.mark === 'drawdown_lm'"><i class="iconfont edit">&#xe8cf;</i></DrawdownAmount>
         </div>
-        <p class="bold color_grey fs_2xs">{{t('申请金额')}}: {{ tool.formatMoney(detail?.amount) }}</p>
+        <p class="bold color_grey fs_2xs">{{ t('申请金额') }}: {{ tool.formatMoney(detail?.amount) }}</p>
       </div>
     </div>
     <div class="flex items-center box frist mt-2">
@@ -59,10 +57,10 @@
           </a-dropdown>
         </div>
         <template v-if="detail?.forecast">
-          <p class="bold color_grey fs_2xs">{{t('预估金额')}}, {{ tool.showDate(detail?.forecast.date) }}</p>
+          <p class="bold color_grey fs_2xs">{{ t('预估金额') }}, {{ tool.showDate(detail?.forecast.date) }}</p>
         </template>
         <template v-else>
-          <p class="bold color_grey fs_2xs">{{t('这次放款数据没有预测')}}</p>
+          <p class="bold color_grey fs_2xs">{{ t('这次放款数据没有预测') }}</p>
         </template>
       </div>
     </div>
@@ -75,7 +73,7 @@
       </a-popconfirm>
       <template v-if="detail?.has_permission && !detail?.prev_permission">
         <AcceptFc v-if="detail?.mark === 'drawdown_fc'" :uuid="uuid" :detail="detail" :projectDetail="projectDetail" @change="update">
-          <a-button type="dark" class="big uppercase" style="width: 100%" :loading="accept_loading"> {{t('接受请求')}} </a-button>
+          <a-button type="dark" class="big uppercase" style="width: 100%" :loading="accept_loading"> {{ t('接受请求') }} </a-button>
         </AcceptFc>
 
         <a-popconfirm v-else :title="t('您确定要接受该请求吗？')" @confirm="accept">
@@ -88,13 +86,13 @@
       </template>
     </div>
     <template v-if="detail?.has_permission">
-      <p class="text-center color_grey fs_xs my-3">{{t("您可以点击下面的按钮来拒绝放款请求。")}}</p>
+      <p class="text-center color_grey fs_xs my-3">{{ t('您可以点击下面的按钮来拒绝放款请求。') }}</p>
       <div class="flex justify-center">
-        <a-popconfirm title="Are you sure you want to decline the request?" okText="decline" @confirm="decline">
+        <a-popconfirm :title="t('确定要拒绝该请求吗？')" okText="decline" @confirm="decline">
           <template #icon>
             <CheckCircleOutlined :style="{ color: '#a9ad57' }" />
           </template>
-          <a-button type="danger" size="small" shape="round" :loading="decline_loading">{{t('拒绝请求')}}</a-button>
+          <a-button type="danger" size="small" shape="round" :loading="decline_loading">{{ t('拒绝请求') }}</a-button>
         </a-popconfirm>
       </div>
       <DrawdownBack :uuid="uuid" :detail="detail" @change="update" v-if="detail?.has_permission && detail?.mark === 'drawdown_fc'"></DrawdownBack>
@@ -106,17 +104,16 @@
       </StakeTable>
     </div> -->
     <div class="flex justify-center mt-3">
-      <AddStake
-        :uuid="uuid"
-        :detail="detail"
-        :projectDetail="projectDetail"
-        :stake="detail?.stake"
-        @change="update"
-        v-if="detail?.has_permission && detail?.mark === 'drawdown_fc'"
-      >
-        <a-button type="brown" shape="round" size="small">{{t('分配投资者')}}</a-button>
+      <AddStake :uuid="uuid" :detail="detail" :projectDetail="projectDetail" :stake="detail?.stake" @change="update" v-if="detail?.has_permission && detail?.mark === 'drawdown_fc'">
+        <a-button type="brown" shape="round" size="small">{{ t('分配投资者') }}</a-button>
       </AddStake>
     </div>
+    <a-popconfirm :title="t('确定要进行对账吗？')" v-if="hasPermission('projects:detail:doReconcile') && detail?.status == 1" @confirm="bindDoReconcile">
+      <template #icon>
+        <CheckCircleOutlined :style="{ color: '#a9ad57' }" />
+      </template>
+      <a-button type="cyan" class="big uppercase" style="width: 100%" :loading="reconcile_loading"> {{ t('对账') }} </a-button>
+    </a-popconfirm>
   </div>
 </template>
 
@@ -127,12 +124,13 @@ import tool from '@/utils/tool';
 import { navigationTo } from '@/utils/tool';
 import { CheckCircleOutlined } from '@ant-design/icons-vue';
 import { hasPermission } from '@/directives/permission/index';
+import { forecastDarwdown, loanDsel, loanDdeclinel, loanDsaveStep, loanDrecall } from '@/api/project/loan';
+import { doReconcile } from '@/api/reconciliations';
 import DrawdownAmount from './form/DrawdownAmount.vue';
 import DrawdownBack from './form/DrawdownBack.vue';
 import AcceptFc from './form/AcceptFc.vue';
 import AddStake from './form/addStake.vue';
 import StakeTable from './form/stakeTable.vue';
-import { forecastDarwdown, loanDsel, loanDdeclinel, loanDsaveStep, loanDrecall } from '@/api/project/loan';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);
@@ -237,6 +235,19 @@ const recall = () => {
     })
     .finally((_) => {
       accept_loading.value = false;
+    });
+};
+
+const reconcile_loading = ref(false);
+// 对账
+const bindDoReconcile = () => {
+  reconcile_loading.value = true;
+  doReconcile({ apply_id: props.detail?.id })
+    .then((res) => {
+      update();
+    })
+    .finally((_) => {
+      reconcile_loading.value = false;
     });
 };
 

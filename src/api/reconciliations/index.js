@@ -130,3 +130,11 @@ export const revokeMerge = (data) =>
     method: 'post',
     data
   });
+
+// project详情页对账
+export const doReconcile = (data) =>
+  request({
+    url: 'reconciliation/doReconcile',
+    method: 'post',
+    data
+  });

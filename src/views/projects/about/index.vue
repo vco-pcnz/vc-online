@@ -42,14 +42,14 @@
           <div class="project-content">
             <MeterStat :data="detail?.credit"></MeterStat>
             <PeriodLine :data="detail?.date"></PeriodLine>
-            <div class="flex justify-center mt-10 mb-10">
+            <div class="flex justify-center mt-10 mb-10 btns">
               <template v-if="Boolean(!detail?.base.is_close)">
                 <StartDefault v-if="hasPermission('projects:penalty:sedit') && !detail?.base?.penalty" :detail="detail" :currentId="currentId" @update="update">
                   <a-button type="brown" shape="round" size="small">{{ t('默认开始') }}</a-button>
                 </StartDefault>
                 <a-button v-if="hasPermission('projects:penalty:view') && detail?.base?.penalty" type="brown" shape="round" size="small" @click="navigationTo('/projects/penalty?uuid=' + currentId)">{{ t('默认') }}</a-button>
                 <AddVariations>
-                  <a-button type="brown" shape="round" size="small" class="ml-10 mr-10">{{ t('添加变更') }}</a-button>
+                  <a-button type="brown" shape="round" size="small">{{ t('添加变更') }}</a-button>
                 </AddVariations>
                 <Journal v-if="hasPermission('projects:journal:edit') && !detail?.base?.journal" :detail="detail" :currentId="currentId" @update="update">
                   <a-button type="brown" shape="round" size="small">{{ t('平账') }}</a-button>
@@ -62,7 +62,7 @@
                 @update="update"
                 v-if="(hasPermission('projects:about:add:closeFc') && detail?.base?.is_open == 1) || (hasPermission('projects:about:add:closeLc') && detail?.base?.is_open == 2)"
               >
-                <a-button type="brown" shape="round" size="small" class="ml-10">{{ t('拟关闭') }}</a-button>
+                <a-button type="brown" shape="round" size="small">{{ t('拟关闭') }}</a-button>
               </CloseProject>
             </div>
             <Stats :data="detail?.credit" :currentId="currentId"></Stats>
@@ -176,6 +176,12 @@ const update = () => {
   .project-content {
     border-radius: 12px;
     padding: 30px;
+  }
+
+  .btns {
+    .ant-btn {
+      margin:  0 10px;
+    }
   }
 }
 </style>

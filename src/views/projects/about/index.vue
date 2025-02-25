@@ -42,17 +42,19 @@
           <div class="project-content">
             <MeterStat :data="detail?.credit"></MeterStat>
             <PeriodLine :data="detail?.date"></PeriodLine>
-            <div class="flex justify-center mt-10 mb-10">
-              <template v-if="!Boolean(detail?.base.is_close)">
-                <StartDefault>
+            <div class="flex justify-center mt-10 mb-10 btns">
+              <template v-if="Boolean(!detail?.base.is_close)">
+                <StartDefault v-if="hasPermission('projects:penalty:sedit') && !detail?.base?.penalty" :detail="detail" :currentId="currentId" @update="update">
                   <a-button type="brown" shape="round" size="small">{{ t('默认开始') }}</a-button>
                 </StartDefault>
+                <a-button v-if="hasPermission('projects:penalty:view') && detail?.base?.penalty" type="brown" shape="round" size="small" @click="navigationTo('/projects/penalty?uuid=' + currentId)">{{ t('默认') }}</a-button>
                 <AddVariations>
-                  <a-button type="brown" shape="round" size="small" class="ml-10 mr-10">{{ t('添加变更') }}</a-button>
+                  <a-button type="brown" shape="round" size="small">{{ t('添加变更') }}</a-button>
                 </AddVariations>
-                <Journal>
-                  <a-button type="brown" shape="round" size="small">{{ t('日志') }}</a-button>
+                <Journal v-if="hasPermission('projects:journal:edit') && !detail?.base?.journal" :detail="detail" :currentId="currentId" @update="update">
+                  <a-button type="brown" shape="round" size="small">{{ t('平账') }}</a-button>
                 </Journal>
+                <a-button v-if="hasPermission('projects:journal:view') && detail?.base?.journal" type="brown" shape="round" size="small" @click="navigationTo('/projects/journal?uuid=' + currentId)">{{ t('平账') }}</a-button>
               </template>
               <!-- lc最终关闭  fc  拟关闭 -->
               <CloseProject
@@ -60,7 +62,7 @@
                 @update="update"
                 v-if="(hasPermission('projects:about:add:closeFc') && detail?.base?.is_open == 1) || (hasPermission('projects:about:add:closeLc') && detail?.base?.is_open == 2)"
               >
-                <a-button type="brown" shape="round" size="small" class="ml-10">{{ t('拟关闭') }}</a-button>
+                <a-button type="brown" shape="round" size="small">{{ t('拟关闭') }}</a-button>
               </CloseProject>
             </div>
             <Stats :data="detail?.credit" :currentId="currentId"></Stats>
@@ -83,13 +85,14 @@ import Stats from './components/stats.vue';
 import PeriodLine from './components/PeriodLine.vue';
 import MeterStat from './components/MeterStat.vue';
 import Wash from './components/wash.vue';
-import Journal from './components/form/Journal.vue';
-import StartDefault from './components/form/StartDefault.vue';
+import Journal from '@/views/projects/journal/components/form/Add.vue';
+import StartDefault from '@/views/projects/penalty/components/form/Add.vue';
 import AddVariations from './components/form/AddVariations.vue';
 import CloseProject from './components/form/CloseProject.vue';
 import BindUsers from '@/views/process/components/BindUsers.vue';
 import ConditionsList from '@/views/process/components/ConditionsList.vue';
 import { hasPermission } from '@/directives/permission/index';
+import { navigationTo } from '@/utils/tool';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -173,6 +176,12 @@ const update = () => {
   .project-content {
     border-radius: 12px;
     padding: 30px;
+  }
+
+  .btns {
+    .ant-btn {
+      margin:  0 10px;
+    }
   }
 }
 </style>

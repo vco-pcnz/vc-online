@@ -2,21 +2,21 @@
   <detail-layout active-tab="drawdowns" @getProjectDetail="getProjectDetail">
     <template #content>
       <div class="ProjectDrawdowns">
-        <div :class="{ grid: hasPermission('projects:drawdowns:add') || (hasPermission('projects:drawdowns:add:lm') && (projectDetail && !projectDetail?.base?.is_close)) }" class="mb-12">
+        <div :class="{ grid: hasPermission('projects:drawdowns:add') || (hasPermission('projects:drawdowns:add:lm') && projectDetail && !projectDetail?.base?.is_close) }" class="mb-12">
           <MeterStat :uuid="uuid" v-if="Boolean(uuid)" ref="MeterStatRef"></MeterStat>
           <template v-if="projectDetail && !projectDetail?.base?.is_close">
             <div class="HelpBorrower" v-if="hasPermission('projects:drawdowns:add:lm')">
-              <div class="flex items-center"><i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">Help borrower</span></div>
-              <p class="color_grey mt-1 mb-3">You can help to create drawdown on their behalf.</p>
+              <div class="flex items-center"><i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">{{t('帮助借款人')}}</span></div>
+              <p class="color_grey mt-1 mb-3">{{t('您可以帮助他们创建提款。')}}</p>
               <drawdownre-quest :uuid="uuid" :projectDetail="projectDetail" @change="update(true)">
-                <a-button type="brown" shape="round" size="small">create drawdown</a-button>
+                <a-button type="brown" shape="round" size="small">{{ t('创建放款') }}</a-button>
               </drawdownre-quest>
             </div>
-            <div v-else-if="hasPermission('projects:drawdowns:add')" class="pt-5" style="padding-top: 65px">
-              <!-- <p class="fs_2xl bold">0 drawdowns received</p>
-            <p class="mb-4 bold">1 drawdown pending -0% of loan drawn</p> -->
+            <div class="HelpBorrower" v-else-if="hasPermission('projects:drawdowns:add')">
+              <div class="flex items-center"><i class="iconfont mr-2">&#xe755;</i><span class="weight_demiBold">{{ t('放款申请') }}</span></div>
+              <p class="color_grey mt-1 mb-3">{{ t('点击下方按钮创建放款申请') }}</p>
               <drawdownre-quest :uuid="uuid" :projectDetail="projectDetail" @change="update(true)">
-                <a-button type="dark" class="big uppercase fs_2xs"> REQUEST DRAWDOWN </a-button>
+                <a-button type="brown" shape="round" size="small">{{ t('创建放款') }}</a-button>
               </drawdownre-quest>
             </div>
           </template>

@@ -1,54 +1,37 @@
 <template>
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="JournalRef" class="Journal">
-    <a-modal
-      :width="550"
-      :open="visible"
-      :title="t('平账')"
-      :getContainer="() => $refs.JournalRef"
-      :maskClosable="false"
-      :footer="false"
-      @cancel="updateVisible(false)"
-    >
+    <a-modal :width="550" :open="visible" :title="t('平账')" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <div class="input-item">
           <div class="label" :class="{ err: !formState.type && validate }">{{ t('类型') }}</div>
-          <a-select
-            style="width: 100%"
-            v-model:value="formState.type"
-            show-search
-            :options="types"
-            :filter-option="customFilter"
-          ></a-select>
+          <a-select :loading="loading_type" style="width: 100%" v-model:value="formState.type" show-search :options="types" :filter-option="customFilter" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
+        </div>
+        <div class="input-item">
+          <div class="label" :class="{ err: !formState.addsub && validate }">{{ t('方法') }}</div>
+          <a-select style="width: 100%" v-model:value="formState.addsub" show-search :options="addsubs"></a-select>
+        </div>
+        <div class="flex justify-between items-center pt-5" v-if="formState.type == 2 && formState.addsub == 2">
+          <a-button type="primary">
+            {{ t('罚息减免上限') }}
+          </a-button>
+          <vco-number :value="detail.amount" :precision="2" size="fs_xl" :end="true"></vco-number>
         </div>
         <div class="input-item">
           <div class="label" :class="{ err: !formState.date && validate }">{{ t('日期') }}</div>
-          <a-date-picker
-            class="datePicker"
-            inputReadOnly
-            :open="isOpen"
-            v-model:value="formState.date"
-            :format="selectDateFormat()"
-            valueFormat="YYYY-MM-DD"
-            :showToday="false"
-          />
+          <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" :showToday="false" />
         </div>
         <div class="input-item">
           <div class="label" :class="{ err: !formState.amount && validate }">{{ t('金额，新西兰元') }}</div>
-          <a-input-number
-            v-model:value="formState.amount"
-            :max="99999999999"
-            :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-            :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-          />
+          <a-input-number v-model:value="formState.amount" min="0" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
         </div>
         <div class="input-item">
           <div class="label" :class="{ err: !formState.note && validate }">{{ t('声明说明') }}</div>
           <a-input v-model:value="formState.note" />
         </div>
         <div class="input-item">
-          <div class="label" :class="{ err: !formState.review && validate }">{{ t('审阅意见') }}</div>
-          <a-textarea v-model:value="formState.review" placeholder="Basic usage" :rows="4" />
+          <div class="label" :class="{ err: !formState.remark && validate }">{{ t('审阅意见') }}</div>
+          <a-textarea v-model:value="formState.remark" placeholder="Basic usage" :rows="4" />
         </div>
 
         <div class="flex justify-center">
@@ -65,16 +48,20 @@
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
-import { frename } from '@/api/project/annex';
-import { selectDateFormat } from "@/utils/tool"
+import { selectDateFormat } from '@/utils/tool';
+import { systemDictData } from '@/api/system';
+import { edit } from '@/api/project/journal';
 
 const { t } = useI18n();
-const emits = defineEmits(['change']);
+const emits = defineEmits(['update']);
 
 const props = defineProps({
-  formParams: {
-    type: Object,
-    default: {}
+  currentId: {
+    type: String,
+    default: ''
+  },
+  detail: {
+    type: Object
   }
 });
 
@@ -83,18 +70,26 @@ const loading = ref(false);
 const validate = ref(false);
 const rename = ref('');
 
-const types = ref([
-  { label: 'Journal Credit', value: 1 },
-  { label: 'Journal Debit', value: 2 },
-  { label: 'Journal Default Interest Credit', value: 3 }
+const types = ref([]);
+const addsubs = ref([
+  {
+    label: t('增加'),
+    value: 1
+  },
+  {
+    label: t('减少'),
+    value: 2
+  }
 ]);
 
 const formState = ref({
+  uuid: '',
   type: '',
+  addsub: '',
   date: '',
   amount: '',
   note: '',
-  review: ''
+  remark: ''
 });
 
 const customFilter = (input, option) => {
@@ -106,20 +101,25 @@ const updateVisible = (value) => {
   visible.value = value;
 };
 
+const disabledDateFormat = (current) => {
+  const startDate = props.detail?.date.start_date;
+  if (current && current.isBefore(startDate, 'day')) {
+    return true;
+  }
+
+  return false;
+};
+
 const save = () => {
   validate.value = true;
-  console.log(formState.value);
-
-  return;
-  if (!rename.value) return message.error(t('请输入') + t('名称'));
+  formState.value.uuid = props.currentId;
+  if (Object.values(formState.value).some((value) => value === '')) {
+    return;
+  }
   loading.value = true;
-  let params = {
-    ...props.formParams,
-    name: rename.value
-  };
-  frename(params)
+  edit(formState.value)
     .then((res) => {
-      emits('change');
+      emits('update');
       rename.value = '';
       message.success(t('保存成功'));
       updateVisible(false);
@@ -129,7 +129,20 @@ const save = () => {
     });
 };
 
+const loading_type = ref(false);
+const loadType = () => {
+  loading_type.value = true;
+  systemDictData('journal_type')
+    .then((res) => {
+      types.value = res;
+    })
+    .finally((_) => {
+      loading_type.value = false;
+    });
+};
+
 const init = () => {
+  loadType();
   visible.value = true;
 };
 </script>

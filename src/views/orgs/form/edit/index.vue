@@ -5,7 +5,7 @@
       <Detail ref="detailRef" :showEdit="false" @getDetail="getDetail"></Detail>
     </div>
     <div class="addOrgsWrapper-right">
-      <FormDom v-if="Boolean(detail)" :detail="detail" :isMember="Boolean(detail.is_pid)" @update="updateDetail"></FormDom>
+      <FormDom v-if="Boolean(detail)" :detail="detail" :isMember="Boolean(detail.is_pid)" @update="updateDetail" :p_type="detail ? detail.ptype : ''"></FormDom>
     </div>
   </div>
 </template>

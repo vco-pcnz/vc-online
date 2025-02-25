@@ -2,6 +2,15 @@
   <layout ref="layoutRef" @update="reload">
     <template #content>
       <a-spin :spinning="loading" size="large">
+        <a-row class="flex justify-between items-end mb-5 pb-5" style="border-bottom: 1px solid #a6a9b0;">
+          <a-popconfirm class="mt-5" :title="t('确定要对账吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="checkMatchBills()" :disabled="!selectedRowKeys.length">
+            <a-button :disabled="!selectedRowKeys.length">
+              {{ t('对账') }}
+            </a-button>
+          </a-popconfirm>
+          <TableSearch v-model:value="searchParams" @search="search"></TableSearch>
+        </a-row>
+
         <a-row>
           <a-col :span="11">
             <p class="title">Review your Xero statement lines...</p>
@@ -10,19 +19,11 @@
             <p class="title">...then match with your transactions in VC Online</p>
           </a-col>
         </a-row>
-        <a-row>
-          <a-popconfirm class="mt-5" :title="t('确定要对账吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="checkMatchBills()" :disabled="!selectedRowKeys.length">
-            <a-button :disabled="!selectedRowKeys.length">
-              {{ t('对账') }}
-            </a-button>
-          </a-popconfirm>
-        </a-row>
-
         <div :class="{ cardBorder: true }" v-for="item in rowData" :key="item.id">
           <a-row class="my-5">
             <!-- left -->
             <bank-card :selectedRowKeys="selectedRowKeys" @check="check" :data="item" :project="item.project" @update="loadData"></bank-card>
-            <template v-if="!item.children.length">
+            <template v-if="item.way != 'api-split'">
               <!-- ok -->
               <ok :item="item" :project="item.project" @update="loadData"></ok>
               <!-- right -->
@@ -30,7 +31,7 @@
               <reconciliation-form :disabled="!item.project" :fee_type="item.fee_type" v-else :item="item"></reconciliation-form>
             </template>
           </a-row>
-          <template v-if="item.children && item.children.length">
+          <template v-if="item.way == 'api-split' && item.children && item.children.length">
             <a-row v-for="sub in item.children" :key="sub.id" class="my-5">
               <template v-if="!sub.status">
                 <!-- left -->
@@ -62,8 +63,10 @@ import Layout from './components/layout.vue';
 import BankCard from './reconciliation/BankCard.vue';
 import ReconciliationForm from './reconciliation/ReconciliationForm.vue';
 import Transaction from './reconciliation/Transaction.vue';
+import TableSearch from './reconciliation/TableSearch.vue';
 import Ok from './reconciliation/Ok.vue';
 import { checkMatchBill } from '@/api/reconciliations';
+import { cloneDeep } from 'lodash';
 
 const { t } = useI18n();
 
@@ -73,6 +76,10 @@ const loading = ref(false);
 const pagination = ref({
   page: 1,
   limit: 10
+});
+const searchParams = ref({
+  type: '',
+  name: ''
 });
 
 const setPaginate = (page, limit) => {
@@ -86,7 +93,7 @@ const rowData = ref([]);
 
 const loadData = () => {
   loading.value = true;
-  reconciliationList(pagination.value)
+  reconciliationList({ ...pagination.value, ...searchParams.value })
     .then((res) => {
       total.value = res.count;
       if (res.data.length) {
@@ -137,22 +144,29 @@ const check = (val) => {
 
 const checkMatchBills = () => {
   loading.value = true;
-  checkMatchBill({data:selectedRows.value})
+  checkMatchBill({ data: selectedRows.value })
     .then((res) => {
-      selectedRows.value = []
-      selectedRowKeys.value = []
+      selectedRows.value = [];
+      selectedRowKeys.value = [];
       loadData();
     })
     .finally(() => {
       loading.value = false;
     });
 };
+
+const search = (val) => {
+  searchParams.value = cloneDeep(val);
+  reload();
+};
 </script>
 
 <style scoped lang="less">
+.page-search-content {
+  margin-top: 0;
+}
 .title {
   width: 100%;
-  border-bottom: 1px solid #a6a9b0;
   color: #181818;
   font-size: 12px;
   line-height: 18px;

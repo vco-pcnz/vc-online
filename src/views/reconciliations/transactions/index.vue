@@ -1,7 +1,7 @@
 <template>
   <layout ref="layoutRef">
     <template #content>
-      <div class="actions">
+      <div class="actions mb-5" style="border-bottom: 1px solid #a6a9b0">
         <a-popconfirm :title="t('确定要删除勾选的数据吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="onRemove()" :disabled="!selectedRowKeys.length">
           <a-button :disabled="!selectedRowKeys.length">
             {{ t('删除重做') }}

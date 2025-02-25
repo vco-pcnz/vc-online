@@ -1,11 +1,11 @@
 <template>
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="JournalRef" class="Journal">
-    <a-modal :width="900" :open="visible" title="Allocate investors" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
+    <a-modal :width="900" :open="visible" :title="t('分配投资者')" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content">
         <div class="flex justify-end">
           <vco-choose-user ref="vcoChooseUserRef" title="orgs search" url="stake/selStake" v-model:list="chooseUsers" :isMultiple="true" @change="checkUser">
-            <a-button type="brown" shape="round" size="small" @click="showChooseUser">Select stakeholders</a-button>
+            <a-button type="brown" shape="round" size="small" @click="showChooseUser">{{t('选择利益相关者')}}</a-button>
           </vco-choose-user>
         </div>
         <a-table :columns="columns" :data-source="orgs" :pagination="false" :scroll="{ x: '100%' }">
@@ -38,15 +38,15 @@
         </a-table>
         <div class="flex mt-2 justify-end">
           <div class="flex items-center">
-            <span class="mr-2 color_grey">total:</span><vco-number :value="detail.amount" :precision="2" size="fs_xl" :bold="true" :end="true"></vco-number>
+            <span class="mr-2 color_grey">{{t('总额')}}:</span><vco-number :value="detail.amount" :precision="2" size="fs_xl" :bold="true" :end="true"></vco-number>
           </div>
           <div class="flex items-center ml-5">
             <template v-if="distributableAmount < 0">
-              <span class="mr-2 color_red-error">available:</span>:
+              <span class="mr-2 color_red-error">{{t('可用余额')}}:</span>:
               <vco-number :value="distributableAmount" :precision="2" size="fs_xl" color="#c1430c" :bold="true" :end="true"></vco-number>
             </template>
             <template v-else>
-              <span class="mr-2 color_grey">available:</span>:
+              <span class="mr-2 color_grey">{{t('可用余额')}}:</span>:
               <vco-number :value="distributableAmount" :precision="2" size="fs_xl" :bold="true" :end="true"></vco-number>
             </template>
           </div>

@@ -4,10 +4,10 @@
     <div class="MeterStat MeterStat_type_charcoal">
       <div class="MeterStat-Meter"></div>
       <div>
-        <p>Loan withdrawal</p>
+        <p>{{t('贷款提取')}}</p>
         <vco-number :bold="true" :value="statistics?.loanWithdrawal" :precision="2" style="margin-bottom: 2px"></vco-number>
         <p class="color_grey flex">
-          <vco-number :value="statistics?.available" :precision="2" size="fs_xs" color="#888" class="mr-2"></vco-number> available</p>
+          <vco-number :value="statistics?.available" :precision="2" size="fs_xs" color="#888" class="mr-2"></vco-number> {{t('可用余额')}}</p>
       </div>
     </div>
     <div class="MeterStat MeterStat_type_dotsBlack">
@@ -18,7 +18,7 @@
         <div class="MeterStat-Dot"></div>
       </div>
       <div>
-        <p class="color_grey" style="margin-bottom: 2px">Pending drawdown</p>
+        <p class="color_grey" style="margin-bottom: 2px">{{t('待提款')}}</p>
         <vco-number :bold="true" :value="statistics?.pendingDrawdown" :precision="2"></vco-number>
         <p style="opacity: 0">.</p>
       </div>
@@ -28,9 +28,9 @@
     </div>
     <div class="MeterStat MeterStat_type_transparent text-right">
       <div>
-        <p>Loan</p>
+        <p>{{t('借款信息')}}</p>
         <vco-number :bold="true" :value="statistics?.loan" :precision="2"></vco-number>
-        <p class="color_grey">excluding interest & fees</p>
+        <p class="color_grey">{{t('不包括利息和费用')}}</p>
       </div>
       <div class="MeterStat-Meter"></div>
     </div>

@@ -1,5 +1,5 @@
 <template>
-  <vco-page-panel :title="uuid ?t('添加人员') : t('添加组织')" :isBack="true"></vco-page-panel>
+  <vco-page-panel :title="uuid ? t('添加人员') : t('添加组织')" :isBack="true"></vco-page-panel>
   <div class="addOrgsWrapper">
     <div class="addOrgsWrapper-left">
       <div style="background-color: #faf9f9" v-if="uuid">
@@ -11,7 +11,7 @@
       </div>
     </div>
     <div class="addOrgsWrapper-right">
-      <FormDom :isMember="Boolean(uuid)" :p_uuid="uuid"></FormDom>
+      <FormDom :isMember="Boolean(uuid)" :p_uuid="uuid" :p_type="detail ? detail.type : ''"></FormDom>
     </div>
   </div>
 </template>
@@ -25,18 +25,17 @@ import { systemConfigData } from '@/api/system';
 import { useRoute } from 'vue-router';
 const route = useRoute();
 
-
 const { t } = useI18n();
 
 const uuid = ref('');
 const advertisement = ref();
-const detail = ref(null)
+const detail = ref(null);
 const getDetail = (val) => {
   detail.value = val;
 };
 
 onMounted(() => {
-  uuid.value = route.query.uuid
+  uuid.value = route.query.uuid;
   if (!uuid.value) {
     // 加载广告
     systemConfigData({ pcode: 'web_config', code: 'adv,advMsg' }).then((res) => {

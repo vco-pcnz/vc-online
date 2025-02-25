@@ -4,7 +4,7 @@
     <a-modal
       :width="550"
       :open="visible"
-      :title="t('日志')"
+      :title="t('平账')"
       :getContainer="() => $refs.JournalRef"
       :maskClosable="false"
       :footer="false"

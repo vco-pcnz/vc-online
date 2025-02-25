@@ -56,6 +56,13 @@
 
       <DrawdownBack v-if="detail?.mark === 'repayment_fc'" :uuid="uuid" :detail="detail" @change="update"></DrawdownBack>
     </div>
+    
+    <a-popconfirm :title="t('确定要进行对账吗？')" v-if="hasPermission('projects:detail:doReconcile') && detail?.status == 1" @confirm="bindDoReconcile">
+      <template #icon>
+        <CheckCircleOutlined :style="{ color: '#a9ad57' }" />
+      </template>
+      <a-button type="cyan" class="big uppercase" style="width: 100%" :loading="reconcile_loading"> {{ t('对账') }} </a-button>
+    </a-popconfirm>
   </div>
 </template>
 
@@ -64,10 +71,12 @@ import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { navigationTo } from '@/utils/tool';
+import { hasPermission } from '@/directives/permission/index';
 import DrawdownAmount from './form/DrawdownAmount.vue';
 import DrawdownBack from './form/DrawdownBack.vue';
 import DrawdownFCDate from './form/DrawdownFCDate.vue';
 import { loanRdeclinel, loanRsaveStep, loanRrecall } from '@/api/project/loan';
+import { doReconcile } from '@/api/reconciliations';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);
@@ -108,6 +117,19 @@ const recall = async () => {
     .then((res) => {
       update();
     })
+};
+
+const reconcile_loading = ref(false);
+// 对账
+const bindDoReconcile = () => {
+  reconcile_loading.value = true;
+  doReconcile({ apply_id: props.detail?.id })
+    .then((res) => {
+      update();
+    })
+    .finally((_) => {
+      reconcile_loading.value = false;
+    });
 };
 
 const update = () => {

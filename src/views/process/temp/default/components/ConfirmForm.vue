@@ -181,6 +181,14 @@
     formRef.value
     .validate()
     .then(async () => {
+      // LM 再次检查
+      if (props.currentStep?.mark === 'step_lm_check') {
+        if (form.value.agreementYes && !props.offerInfo.sign_offer) {
+          message.error(t('请上传') + t('已签订Offer'));
+          return false
+        }
+      }
+
       const params = {
         confirm: JSON.stringify(form.value),
         code: props.blockInfo.code,

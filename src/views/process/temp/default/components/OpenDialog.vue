@@ -114,9 +114,9 @@
 
   const subDisabled = computed(() => {
     if (fonfirmTable.value.length) {
-      return !Boolean(Object.values(confirmForm.value).every(item => item))
+      return !Boolean(Object.values(confirmForm.value).every(item => item)) || !openDate.value
     } else {
-      return false
+      return !openDate.value
     }
   })
 
@@ -158,7 +158,6 @@
       }
 
       if (props.infoData.start_date !== startDate.value) {
-        console.log('fdsafdsa');
         await projectAuditSaveMode(loadParams).then(() => {
           submitRquest()
         }).catch(() => {

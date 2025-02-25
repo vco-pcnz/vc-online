@@ -331,6 +331,7 @@ watch(
   gap: 8px;
   margin: 4px;
   &-item {
+    width: 142px;
     position: relative;
     display: inline-block;
     overflow: hidden;

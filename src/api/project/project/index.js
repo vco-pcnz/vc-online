@@ -28,6 +28,6 @@ export const historyList = (params) =>
 export const projectDetailClose = (params) =>
   request({
     url: 'projectDetail/close',
-    method: 'get',
+    method: 'post',
     params
   });

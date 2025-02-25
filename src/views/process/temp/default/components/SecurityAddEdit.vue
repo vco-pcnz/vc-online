@@ -18,9 +18,7 @@
           </a-col>
           <a-col :span="8">
             <a-form-item :label="t('类型')" name="type">
-              <a-select v-model:value="formState.type">
-                <a-select-option v-for="item in typeData" :key="item.id" :value="item.id">{{ item.title }}</a-select-option>
-              </a-select>
+              <a-select v-model:value="formState.type" :options="typeData"></a-select>
             </a-form-item>
           </a-col>
           <template v-if="formState.type == 1">
@@ -137,12 +135,13 @@ import { watch, computed, ref, nextTick } from 'vue';
 import dayjs from 'dayjs';
 import { useI18n } from 'vue-i18n';
 import { cloneDeep } from 'lodash';
-import { projectAuditSaveMode } from '@/api/process';
+import { projectAuditSaveMode, projectDetailAddSecurity } from '@/api/process';
 import tool, { selectDateFormat } from '@/utils/tool';
 import emitter from '@/event';
 import { message } from 'ant-design-vue/es';
+import { systemDictData } from "@/api/system"
 
-const emits = defineEmits(['update:visible']);
+const emits = defineEmits(['update:visible', 'refresh']);
 
 const props = defineProps({
   visible: {
@@ -165,13 +164,13 @@ const props = defineProps({
     type: Object,
     default: () => {}
   },
-  typeData: {
-    type: Array,
-    default: () => []
-  },
   securityStatus: {
     type: [Number, String],
     default: 407
+  },
+  isOpen: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -181,6 +180,20 @@ const { t } = useI18n();
 const updateVisible = (value) => {
   emits('update:visible', value);
 };
+
+const typeData = ref([])
+
+const getTypeData = () => {
+  systemDictData('security_type').then(res => {
+    const data = res.map(item => {
+      return {
+        label: item.name,
+        value: Number(item.code)
+      }
+    })
+    typeData.value = data
+  })
+}
 
 const totalValue = computed(() => {
   const land = formState.value.insurance_value || 0;
@@ -279,12 +292,13 @@ const submitRquest = () => {
 
     subLoading.value = true;
     const params = {
-      code: props.blockInfo.code,
+      code: props.blockInfo?.code || '',
       uuid: props.currentId,
       security__data: currentParams.value
     }
 
-    projectAuditSaveMode(params)
+    const ajaxFn = props.isOpen ? projectDetailAddSecurity : projectAuditSaveMode
+    ajaxFn(params)
       .then(() => {
         currentParams.value = null
         subLoading.value = false;
@@ -292,11 +306,15 @@ const submitRquest = () => {
         updateVisible(false);
         changeAlertRef.value.changeLoading(false)
 
-        emitter.emit('refreshSecurityInfo');
-        emitter.emit('refreshSecurityList');
-        emitter.emit('refreshAuditHisList');
-        emitter.emit('refreshIRR');
-        emitter.emit('refreshIRR1');
+        if (props.isOpen) {
+          emits('refresh')
+        } else {
+          emitter.emit('refreshSecurityInfo');
+          emitter.emit('refreshSecurityList');
+          emitter.emit('refreshAuditHisList');
+          emitter.emit('refreshIRR');
+          emitter.emit('refreshIRR1');
+        }
       })
       .catch(() => {
         changeAlertRef.value.changeLoading(false)
@@ -377,6 +395,8 @@ watch(
       });
       showCopy.value = false
     } else {
+      getTypeData()
+
       if (props.infoData) {
         for (const key in formState.value) {
           formState.value[key] = props.infoData[key];

@@ -8,7 +8,6 @@
         :info-data="currentData"
         :block-info="blockInfo"
         :project-info="projectInfo"
-        :type-data="securityInfo.type"
       ></security-add-edit>
 
       <div class="block-item sec">
@@ -95,11 +94,10 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { projectAuditSecurityList, projectDetailAuditSecurityList } from '@/api/process';
+import { projectAuditSecurityList, projectDetailAuditSecurityList, projectAuditDeleteMode } from '@/api/process';
 import tool from '@/utils/tool';
 import SecurityAddEdit from '@/views/process/temp/default/components/SecurityAddEdit.vue';
 import emitter from '@/event';
-import { projectAuditDeleteMode } from '@/api/process';
 import { cloneDeep } from "lodash"
 
 const props = defineProps({

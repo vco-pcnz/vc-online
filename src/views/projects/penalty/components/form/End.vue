@@ -5,7 +5,7 @@
       <div class="content sys-form-content">
         <div class="input-item">
           <div class="label" :class="{ err: !formState.end_date && validate }">{{ t('开始日期') }}</div>
-          <a-date-picker class="datePicker" inputReadOnly v-model:value="formState.end_date" format="DD/MM/YYYY" valueFormat="YYYY-MM-DD" :showToday="false" />
+          <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.end_date" format="DD/MM/YYYY" valueFormat="YYYY-MM-DD" :showToday="false" />
         </div>
         <div class="input-item">
           <div class="label">{{ t('描述') }}</div>
@@ -39,6 +39,9 @@ const props = defineProps({
   id: {
     type: String,
     default: ''
+  },
+  detail: {
+    type: Object
   }
 });
 
@@ -71,6 +74,15 @@ const save = () => {
     .finally((_) => {
       loading.value = false;
     });
+};
+
+const disabledDateFormat = (current) => {
+  const startDate = props.detail?.start_date;
+  if (current && current.isBefore(startDate, 'day')) {
+    return true;
+  }
+
+  return false;
 };
 
 const init = () => {

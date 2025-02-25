@@ -6,7 +6,7 @@
         <a-table :columns="columns" :data-source="list" :pagination="false" :scroll="{ x: '100%' }" :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }" row-key="bank_sn">
           <template #bodyCell="{ column, record }">
             <template v-if="column.dataIndex === 'project_name'">
-              {{ record.project.project_name }}
+              {{ record.project ? record.project.project_name : '--' }}
             </template>
             <template v-if="column.dataIndex === 'date'">
               <p class="xs_text">{{ tool.showDate(record.date) }}</p>

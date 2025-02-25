@@ -48,7 +48,7 @@ import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 import tool from '@/utils/tool';
-import SplitBill from './SplitBill.vue';
+import SplitBill from './SplitBillTable.vue';
 import MergeBill from './MergeBill.vue';
 import MergeDetails from './MergeDetails.vue';
 import { revokeSplit, revokeMerge } from '@/api/reconciliations';

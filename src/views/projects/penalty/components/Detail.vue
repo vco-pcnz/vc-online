@@ -18,8 +18,8 @@
         </a-row>
       </template>
     </a-alert>
-    <div class="title-no">
-      <span>{{ detail.status == 1 && detail.state2 > 0?t('结束'):t('开始') }}</span>
+    <div class="title-no uppercase">
+      <span>{{ detail.status == 1 && detail.state2 > 0?t('结束流程'):t('开始流程') }}</span>
     </div>
     <a-row :gutter="24">
       <a-col :span="12" class="item-txt">
@@ -53,7 +53,7 @@
     </a-row>
 
     <div v-if="detail?.status && hasPermission('projects:penalty:eedit') && detail?.state2 <= 0" class="mt-3">
-      <End :uuid="uuid" :id="detail?.id" @update="update">
+      <End :uuid="uuid" :id="detail?.id" :detail="detail" @update="update">
         <a-button type="brown" shape="round" size="small">{{ t('默认结束') }}</a-button>
       </End>
     </div>

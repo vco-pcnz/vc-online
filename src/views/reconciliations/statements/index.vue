@@ -1,15 +1,15 @@
 <template>
   <layout ref="layoutRef" @update="reload">
     <template #content>
-      <div class="flex justify-between">
+      <div class="flex justify-between items-end mb-5">
         <div class="actions">
-          <a-popconfirm v-if="currentTab == ''" :title="t('确定要删除勾选的数据吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="onRemove()" :disabled="!selectedRowKeys.length">
+          <a-popconfirm v-if="searchParams.status != '-1'" :title="t('确定要删除勾选的数据吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="onRemove()" :disabled="!selectedRowKeys.length">
             <a-button :disabled="!selectedRowKeys.length">
               {{ t('删除重做') }}
             </a-button>
           </a-popconfirm>
 
-          <a-popconfirm v-if="currentTab == '-1'" :title="t('确定要恢复勾选的数据吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="restore()" :disabled="!selectedRowKeys.length">
+          <a-popconfirm v-if="searchParams.status == '-1'" :title="t('确定要恢复勾选的数据吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="restore()" :disabled="!selectedRowKeys.length">
             <a-button :disabled="!selectedRowKeys.length">
               {{ t('恢复') }}
             </a-button>
@@ -17,9 +17,7 @@
 
           <span class="count">{{ t('选中{ 0 }条', [selectedRowKeys.length]) }}</span>
         </div>
-        <div>
-          <vco-page-tab :tabData="tabData" v-model:current="currentTab" @change="tabChange"></vco-page-tab>
-        </div>
+        <TableSearch @search="search"></TableSearch>
       </div>
       <a-spin :spinning="loading" size="large">
         <a-table :data-source="dataSource" :columns="columns" :pagination="false" :defaultExpandAllRows="true" :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }" row-key="bank_sn">
@@ -49,10 +47,12 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import layout from '../components/layout.vue';
 import tool from '@/utils/tool.js';
+import TableSearch from './TableSearch.vue';
+import { cloneDeep } from 'lodash';
 import { getStatements, revokeReconciliation, cancelReconciliation, recoverReconciliation } from '@/api/reconciliations';
 
 const { t } = useI18n();
@@ -122,25 +122,16 @@ const columns = reactive([
   }
 ]);
 
-const currentTab = ref('');
-const tabData = ref([
-  {
-    label: t('当前'),
-    value: '',
-    num: 0
-  },
-  {
-    label: t('已取消'),
-    value: '-1',
-    num: 0
-  }
-]);
-
 const dataSource = ref([]);
 const layoutRef = ref();
 const total = ref(0);
 const loading = ref(false);
 
+const searchParams = ref({
+  type: '',
+  name: '',
+  status: ''
+});
 const pagination = ref({
   page: 1,
   limit: 10
@@ -156,7 +147,7 @@ const setPaginate = (page, limit) => {
 
 const loadData = () => {
   loading.value = true;
-  getStatements({ status: currentTab.value, ...pagination.value })
+  getStatements({ ...pagination.value, ...searchParams.value })
     .then((res) => {
       total.value = res.count;
       res.data.map((item) => {
@@ -177,9 +168,8 @@ const reload = () => {
   loadData();
 };
 
-const tabChange = () => {
-  selectedRowKeys.value = [];
-  selectedRows.value = [];
+const search = (val) => {
+  searchParams.value = cloneDeep(val);
   reload();
 };
 
@@ -268,11 +258,20 @@ const restore = (bank_sn) => {
 onMounted(() => {
   loadData();
 });
+
+// watch(
+//   () => searchParams.value.status,
+//   (val) => {
+//     reload();
+//   },
+//   {
+//     immediate: true
+//   }
+// );
 </script>
 
 <style scoped lang="less">
 .actions {
-  padding-bottom: 16px;
   display: flex;
   align-items: center;
   gap: 16px;

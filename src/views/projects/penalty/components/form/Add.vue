@@ -5,7 +5,7 @@
       <div class="content sys-form-content">
         <div class="input-item">
           <div class="label" :class="{ err: !formState.start_date && validate }">{{ t('开始日期') }}</div>
-          <a-date-picker class="datePicker" inputReadOnly v-model:value="formState.start_date" format="DD/MM/YYYY" valueFormat="YYYY-MM-DD" :showToday="false" />
+          <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.start_date" format="DD/MM/YYYY" valueFormat="YYYY-MM-DD" :showToday="false" />
         </div>
         <div class="input-item">
           <div class="label" :class="{ err: !formState.rate && validate }">{{ t('利率') }}</div>
@@ -30,7 +30,8 @@
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
-import { sedit,eedit } from '@/api/project/penalty';
+import { sedit } from '@/api/project/penalty';
+import { systemConfigData } from '@/api/system';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);
@@ -39,6 +40,9 @@ const props = defineProps({
   currentId: {
     type: String,
     default: ''
+  },
+  detail: {
+    type: Object
   }
 });
 
@@ -49,7 +53,7 @@ const validate = ref(false);
 const formState = ref({
   uuid: '',
   start_date: '',
-  rate: 15,
+  rate: '',
   note: ''
 });
 
@@ -72,7 +76,24 @@ const save = () => {
     });
 };
 
+const loadRate = () => {
+  // 加载广告
+  systemConfigData({ pcode: 'web_config', code: 'penalty_rate' }).then((res) => {
+    formState.value.rate = res.penalty_rate;
+  });
+};
+
+const disabledDateFormat = (current) => {
+  const startDate = props.detail?.date.start_date;
+  if (current && current.isBefore(startDate, 'day')) {
+    return true;
+  }
+
+  return false;
+};
+
 const init = () => {
+  loadRate();
   visible.value = true;
 };
 </script>

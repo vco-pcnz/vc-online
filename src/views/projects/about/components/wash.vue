@@ -13,14 +13,14 @@
     </li>
   </ul>
   <div class="mt-5">
-    <washTable :currentId="currentId"><a-button type="brown" shape="round" size="small">More</a-button></washTable>
+    <washTableModal :currentId="currentId"><a-button type="brown" shape="round" size="small">More</a-button></washTableModal>
   </div>
 </template>
 
 <script setup>
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import washTable from './washTable.vue';
+import washTableModal from './washTableModal.vue';
 import { projectDetailGetWash } from '@/api/project/wash';
 
 const { t } = useI18n();

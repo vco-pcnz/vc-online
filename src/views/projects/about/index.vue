@@ -40,8 +40,8 @@
             </a-collapse>
           </div>
           <div class="project-content">
-            <template v-if="hasPermission('projects:about:add:closeFc') && detail?.base?.is_open == 1">
-              <a-alert type="error" :message="t('退回原因')" class="mb-5 cancel-reason">
+            <template v-if="hasPermission('projects:about:add:closeFc') && detail?.base?.is_open == 1 && detail?.base?.closed_cancel_reason">
+              <a-alert type="error" :message="t('退回原因')" class="mb-5 cancel-reason" style="margin-top: -30px">
                 <template #description>
                   {{ detail?.base?.closed_cancel_reason }}
                   <div class="mt-3 flex items-center justify-end">
@@ -54,7 +54,7 @@
             </template>
 
             <template v-if="hasPermission('projects:about:add:closeLc') && detail?.base?.is_open == 2">
-              <a-alert type="info" :message="t('关帐')" class="mb-5">
+              <a-alert type="info" :message="t('关帐')" class="mb-5" style="margin-top: -30px">
                 <template #description>
                   {{ detail?.base?.close_note }}
                   <div class="mt-3 flex items-center justify-end">

@@ -28,14 +28,14 @@ const props = defineProps(['title', 'activeTab']);
 const emits = defineEmits(['getProjectDetail']);
 
 const panes = computed(() => {
-  let arr = []
+  let arr = [];
   const data = userStore.routerInfo || [];
   const dataArr = cloneDeep(data);
 
-  const projectsArr = dataArr.find(item => item.path === '/projects')
-  const childArr = projectsArr.children || []
-  const detailsArr = childArr.find(item => item.path === '/projects/details')
-  const child = detailsArr.children || []
+  const projectsArr = dataArr.find((item) => item.path === '/projects');
+  const childArr = projectsArr.children || [];
+  const detailsArr = childArr.find((item) => item.path === '/projects/details');
+  const child = detailsArr.children || [];
 
   arr = child
     .filter((item) => !item.meta.hide)
@@ -46,15 +46,19 @@ const panes = computed(() => {
         key: item.path.slice(item.path.lastIndexOf('/') + 1)
       };
     });
-  return arr
-})
+  return arr;
+});
 
 const onChange = (key) => {
   router.push(`/projects/${key}?uuid=` + route.query.uuid);
 };
 
 const back = () => {
-  router.push(`/projects/current`);
+  if (detail.value?.base?.is_open === 2 || detail.value?.base?.is_open === 3) {
+    router.push(`/projects/closed`);
+  } else {
+    router.push(`/projects/current`);
+  }
 };
 
 const detail = ref(null);
@@ -63,7 +67,7 @@ const getProjectDetail = (userId) => {
   if (uuid) {
     // 发起请求
     projectDetail({ uuid }).then((res) => {
-      res['loan'] = res.date
+      res['loan'] = res.date;
       detail.value = res;
       emits('getProjectDetail', res);
     });

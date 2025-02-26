@@ -51,7 +51,7 @@ export default {
   "变更": "Change",
   "项目管理": "Projects",
   "当前项目": "Current projects",
-  "已关闭项目": "Closed projects",
+  "已关闭的项目": "Closed projects",
   "请求管理": "Requests",
   "借款请求": "Loan request",
   "提款请求": "Drawdown request",

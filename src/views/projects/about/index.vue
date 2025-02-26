@@ -52,6 +52,7 @@
                 <AddVariations
                   v-if="hasPermission('projects:variations:edit') && !Boolean(detail?.base?.variation)"
                   :currentId="currentId"
+                  :project-detail="detail"
                   @update="update"
                 >
                   <a-button type="brown" shape="round" size="small">{{ t('添加变更') }}</a-button>

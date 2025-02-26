@@ -696,5 +696,9 @@ export default {
   "确定要进行对账吗？": "Are you sure you want to reconcile?",
   "{0}应小于{1}": "{0} should be less than {1}",
   "{0}应在{1}之前": "{0} should come before {1}",
-  "关帐": "Closed"
+  "关帐": "Closed",
+  "变更金额": "Variation amount",
+  "变更后借款总金额": "New total loan amount",
+  "变更后结束日期": "Maturity after variation",
+  "变更后首次放款": "Initial drawdown after variation"
 }

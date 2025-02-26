@@ -80,7 +80,12 @@
                 </StartDefault>
                 <a-button v-if="hasPermission('projects:penalty:view') && detail?.base?.penalty" type="brown" shape="round" size="small" @click="navigationTo('/projects/penalty?uuid=' + currentId)">{{ t('默认') }}</a-button>
 
-                <AddVariations v-if="hasPermission('projects:variations:edit') && !Boolean(detail?.base?.variation)" :currentId="currentId" @update="update">
+                <AddVariations
+                  v-if="hasPermission('projects:variations:edit') && !Boolean(detail?.base?.variation)"
+                  :currentId="currentId"
+                  :project-detail="detail"
+                  @update="update"
+                >
                   <a-button type="brown" shape="round" size="small">{{ t('添加变更') }}</a-button>
                 </AddVariations>
 

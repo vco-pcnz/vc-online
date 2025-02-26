@@ -158,12 +158,12 @@ watch(
       flex: 1;
     }
     &:nth-child(3) {
-      width: 100px;
+      width: 150px;
       text-align: center;
     }
     &:nth-child(4) {
       text-align: center;
-      width: 90px;
+      width: 150px;
     }
     &:nth-child(5) {
       width: 160px;
@@ -171,7 +171,7 @@ watch(
     }
     &:nth-child(6),
     &:nth-child(7) {
-      width: 155px;
+      width: 180px;
       text-align: center;
     }
   }

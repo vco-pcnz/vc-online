@@ -85,7 +85,7 @@
           <p class="black">{{ tool.formatMoney(record.credit.fc2) }}</p>
         </template>
         <template v-if="column.key === '9'">
-          <div class="closed" v-if="record.is_open === 3">{{t('关帐')}}</div>
+          <div class="closed" v-if="record.is_open === 3">{{t('关账')}}</div>
           <p class="count" v-if="record.upd">{{ record.upd }}</p>
         </template>
       </template>

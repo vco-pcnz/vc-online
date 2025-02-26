@@ -54,7 +54,7 @@
             </template>
 
             <template v-if="hasPermission('projects:about:add:closeLc') && detail?.base?.is_open == 2">
-              <a-alert type="info" :message="t('关帐')" class="mb-5" style="margin-top: -30px">
+              <a-alert type="info" :message="t('关账')" class="mb-5" style="margin-top: -30px">
                 <template #description>
                   {{ detail?.base?.close_note }}
                   <div class="mt-3 flex items-center justify-end">

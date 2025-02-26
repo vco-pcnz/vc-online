@@ -108,12 +108,10 @@
         <a-button type="brown" shape="round" size="small">{{ t('分配投资者') }}</a-button>
       </AddStake>
     </div>
-    <a-popconfirm :title="t('确定要进行对账吗？')" v-if="hasPermission('projects:detail:doReconcile') && detail?.status == 1" @confirm="bindDoReconcile">
-      <template #icon>
-        <CheckCircleOutlined :style="{ color: '#a9ad57' }" />
-      </template>
-      <a-button type="cyan" class="big uppercase" style="width: 100%" :loading="reconcile_loading"> {{ t('对账') }} </a-button>
-    </a-popconfirm>
+    <!-- 对账 -->
+    <ReconciliationModal v-if="hasPermission('projects:detail:doReconcile') && detail?.status == 1" :apply_id="detail?.id" @update="update">
+      <a-button type="cyan" class="big uppercase" style="width: 100%"> {{ t('对账') }} </a-button>
+    </ReconciliationModal>
   </div>
 </template>
 
@@ -125,12 +123,12 @@ import { navigationTo } from '@/utils/tool';
 import { CheckCircleOutlined } from '@ant-design/icons-vue';
 import { hasPermission } from '@/directives/permission/index';
 import { forecastDarwdown, loanDsel, loanDdeclinel, loanDsaveStep, loanDrecall } from '@/api/project/loan';
-import { doReconcile } from '@/api/reconciliations';
 import DrawdownAmount from './form/DrawdownAmount.vue';
 import DrawdownBack from './form/DrawdownBack.vue';
 import AcceptFc from './form/AcceptFc.vue';
 import AddStake from './form/addStake.vue';
 import StakeTable from './form/stakeTable.vue';
+import ReconciliationModal from '@/views/projects/components/ReconciliationModal.vue';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);
@@ -235,19 +233,6 @@ const recall = () => {
     })
     .finally((_) => {
       accept_loading.value = false;
-    });
-};
-
-const reconcile_loading = ref(false);
-// 对账
-const bindDoReconcile = () => {
-  reconcile_loading.value = true;
-  doReconcile({ apply_id: props.detail?.id })
-    .then((res) => {
-      update();
-    })
-    .finally((_) => {
-      reconcile_loading.value = false;
     });
 };
 

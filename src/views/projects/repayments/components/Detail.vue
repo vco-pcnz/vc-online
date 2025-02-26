@@ -2,13 +2,7 @@
   <div class="color_grey fs_2xs text-center py-3 text-uppercase uppercase" style="letter-spacing: 1px">{{ t('详情') }}</div>
 
   <div class="detail">
-    <a-alert
-      v-if="Boolean(detail?.cancel_reason)"
-      message="Push back reason"
-      :description="detail?.cancel_reason"
-      type="error"
-      class="cancel-reason"
-    />
+    <a-alert v-if="Boolean(detail?.cancel_reason)" message="Push back reason" :description="detail?.cancel_reason" type="error" class="cancel-reason" />
 
     <div class="my-3" style="padding-left: 5px">
       <div class="bold fs_xl">{{ detail?.name }}</div>
@@ -27,11 +21,11 @@
             <i v-if="detail?.has_permission && detail?.mark === 'repayment_lm' && !detail.all_repayment" class="iconfont edit">&#xe8cf;</i>
           </DrawdownAmount>
         </div>
-        <p class="bold color_grey fs_2xs">{{ t('申请金额' )}}: {{ tool.formatMoney(detail?.apply_amount) }}</p>
+        <p class="bold color_grey fs_2xs">{{ t('申请金额') }}: {{ tool.formatMoney(detail?.apply_amount) }}</p>
       </div>
     </div>
 
-    <div v-if="detail?.prev_permission"  class="mt-10">
+    <div v-if="detail?.prev_permission" class="mt-10">
       <a-popconfirm :title="t('您确实要撤回该请求吗？')" @confirm="recall">
         <a-button type="dark" class="big uppercase" :loading="accept_loading" style="width: 100%">{{ t('撤回申请') }}</a-button>
       </a-popconfirm>
@@ -56,13 +50,11 @@
 
       <DrawdownBack v-if="detail?.mark === 'repayment_fc'" :uuid="uuid" :detail="detail" @change="update"></DrawdownBack>
     </div>
-    
-    <a-popconfirm :title="t('确定要进行对账吗？')" v-if="hasPermission('projects:detail:doReconcile') && detail?.status == 1" @confirm="bindDoReconcile">
-      <template #icon>
-        <CheckCircleOutlined :style="{ color: '#a9ad57' }" />
-      </template>
-      <a-button type="cyan" class="big uppercase" style="width: 100%" :loading="reconcile_loading"> {{ t('对账') }} </a-button>
-    </a-popconfirm>
+
+    <!-- 对账 -->
+    <ReconciliationModal v-if="hasPermission('projects:detail:doReconcile') && detail?.status == 1" :apply_id="detail?.id" @update="update">
+      <a-button type="cyan" class="big uppercase" style="width: 100%"> {{ t('对账') }} </a-button>
+    </ReconciliationModal>
   </div>
 </template>
 
@@ -77,6 +69,7 @@ import DrawdownBack from './form/DrawdownBack.vue';
 import DrawdownFCDate from './form/DrawdownFCDate.vue';
 import { loanRdeclinel, loanRsaveStep, loanRrecall } from '@/api/project/loan';
 import { doReconcile } from '@/api/reconciliations';
+import ReconciliationModal from '@/views/projects/components/ReconciliationModal.vue';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);
@@ -94,42 +87,25 @@ const props = defineProps({
 });
 const accept_loading = ref(false);
 
-
 // 拒绝
 const decline = async () => {
-  await loanRdeclinel({ uuid: props.uuid, id: props.detail?.id })
-    .then(() => {
-      update();
-    })
+  await loanRdeclinel({ uuid: props.uuid, id: props.detail?.id }).then(() => {
+    update();
+  });
 };
 
 // 同意
 const accept = async () => {
-  await loanRsaveStep({ uuid: props.uuid, id: props.detail?.id })
-    .then((res) => {
-      update();
-    })
+  await loanRsaveStep({ uuid: props.uuid, id: props.detail?.id }).then((res) => {
+    update();
+  });
 };
 
 // 召回
 const recall = async () => {
-  await loanRrecall({ uuid: props.uuid, id: props.detail?.id })
-    .then((res) => {
-      update();
-    })
-};
-
-const reconcile_loading = ref(false);
-// 对账
-const bindDoReconcile = () => {
-  reconcile_loading.value = true;
-  doReconcile({ apply_id: props.detail?.id })
-    .then((res) => {
-      update();
-    })
-    .finally((_) => {
-      reconcile_loading.value = false;
-    });
+  await loanRrecall({ uuid: props.uuid, id: props.detail?.id }).then((res) => {
+    update();
+  });
 };
 
 const update = () => {

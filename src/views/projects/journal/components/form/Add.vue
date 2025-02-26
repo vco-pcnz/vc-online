@@ -4,18 +4,17 @@
     <a-modal :width="550" :open="visible" :title="t('平账')" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <div class="input-item">
+          <div class="label" :class="{ err: !formState.cate && validate }"></div>
+          <a-select style="width: 100%" v-model:value="formState.cate" :options="types" @change="loadType"></a-select>
+        </div>
+        <div class="input-item">
           <div class="label" :class="{ err: !formState.type && validate }">{{ t('类型') }}</div>
-          <a-select :loading="loading_type" style="width: 100%" v-model:value="formState.type" show-search :options="types" :filter-option="customFilter" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
+          <a-select v-if="formState.cate == 1" :loading="loading_type" style="width: 100%" v-model:value="formState.type" show-search :options="journal_type" :filter-option="customFilter" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
+          <a-select v-if="formState.cate == 2" :loading="loading_type" style="width: 100%" v-model:value="formState.type" show-search :options="security_type" :filter-option="customFilter" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
         </div>
         <div class="input-item">
           <div class="label" :class="{ err: !formState.addsub && validate }">{{ t('方法') }}</div>
           <a-select style="width: 100%" v-model:value="formState.addsub" show-search :options="addsubs"></a-select>
-        </div>
-        <div class="flex justify-between items-center pt-5" v-if="formState.type == 2 && formState.addsub == 2">
-          <a-button type="primary">
-            {{ t('罚息减免上限') }}
-          </a-button>
-          <vco-number :value="detail.amount" :precision="2" size="fs_xl" :end="true"></vco-number>
         </div>
         <div class="input-item">
           <div class="label" :class="{ err: !formState.date && validate }">{{ t('日期') }}</div>
@@ -70,7 +69,19 @@ const loading = ref(false);
 const validate = ref(false);
 const rename = ref('');
 
-const types = ref([]);
+const journal_type = ref([]);
+const security_type = ref([]);
+const types = ref([
+  {
+    label: t('Journal'),
+    value: 1
+  },
+  {
+    label: t('Variation'),
+    value: 2
+  }
+]);
+
 const addsubs = ref([
   {
     label: t('增加'),
@@ -84,6 +95,7 @@ const addsubs = ref([
 
 const formState = ref({
   uuid: '',
+  cate: 1,
   type: '',
   addsub: '',
   date: '',
@@ -131,10 +143,19 @@ const save = () => {
 
 const loading_type = ref(false);
 const loadType = () => {
+  formState.value.type = '';
+  if ((formState.value.cate == 1 && journal_type.value.length) || (formState.value.cate == 2 && security_type.value.length)) {
+    return;
+  }
   loading_type.value = true;
-  systemDictData('journal_type')
+  systemDictData(formState.value.cate == 1 ? 'journal_type' : 'security_type')
     .then((res) => {
-      types.value = res;
+      if (formState.value.cate == 1) {
+        journal_type.value = res;
+      }
+      if (formState.value.cate == 2) {
+        security_type.value = res;
+      }
     })
     .finally((_) => {
       loading_type.value = false;
@@ -142,6 +163,17 @@ const loadType = () => {
 };
 
 const init = () => {
+  validate.value = false;
+  formState.value = {
+    uuid: '',
+    cate: 1,
+    type: '',
+    addsub: '',
+    date: '',
+    amount: '',
+    note: '',
+    remark: ''
+  };
   loadType();
   visible.value = true;
 };

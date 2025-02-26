@@ -57,7 +57,7 @@ export default {
   "提款请求": "Drawdown request",
   "变更请求": "Variation request",
   "罚息请求": "Default request",
-  "平帐请求": "Journal request",
+  "平账请求": "Journal request",
   "还款请求": "Repayment request",
   "发起借款申请": "Create requests",
   "借款人信息": "Borrower",
@@ -697,5 +697,7 @@ export default {
   "确定要进行对账吗？": "Are you sure you want to reconcile?",
   "{0}应小于{1}": "{0} should be less than {1}",
   "{0}应在{1}之前": "{0} should come before {1}",
-  "关帐": "Closed"
+  "关账": "Closed",
+  "不对账": "Not reconciliation",
+  "单号": "No"
 }

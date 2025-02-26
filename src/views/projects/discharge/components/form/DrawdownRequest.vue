@@ -26,20 +26,20 @@
                 <template #message>
                   <a-row :gutter="24">
                     <a-col :span="7">
-                      <a-form-item :label="t('土地价值')" class="info-item">
-                        <vco-number :value="Number(detail.land_amount)" :precision="2" :end="true"></vco-number>
+                      <a-form-item :label="t('土地价值')" class="info-txt" name="land_amount">
+                        <vco-number :value="detail?.land_amount" :precision="2" :end="true"></vco-number>
                       </a-form-item>
                     </a-col>
                     <a-col :span="1" class="plus-txt"><i class="iconfont">&#xe889;</i></a-col>
                     <a-col :span="7">
-                      <a-form-item :label="t('建筑价值')" class="info-item">
-                        <vco-number :value="Number(detail.build_amount)" :precision="2" :end="true"></vco-number>
+                      <a-form-item :label="t('建筑价值')" class="info-txt" name="build_amount">
+                        <vco-number :value="detail?.build_amount" :precision="2" :end="true"></vco-number>
                       </a-form-item>
                     </a-col>
                     <a-col :span="1" class="plus-txt"><i class="iconfont">=</i></a-col>
                     <a-col :span="8" class="total-amount-info">
-                      <a-form-item :label="t('抵押物价值')" class="info-item">
-                        <vco-number :value="Number(detail.land_amount) + Number(detail.build_amount)" :precision="2" :end="true"></vco-number>
+                      <a-form-item :label="t('抵押物价值')" class="info-txt">
+                        <vco-number :value="detail?.amount" :precision="2" :end="true"></vco-number>
                       </a-form-item>
                     </a-col>
                   </a-row>
@@ -56,9 +56,9 @@
                 <a-input-number
                   v-model:value="formState.real_amount"
                   :max="99999999999"
+                  :placeholder="t('请输入')"
                   :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                   :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                  :placeholder="t('请输入')"
                 />
               </a-form-item>
             </a-col>
@@ -156,7 +156,6 @@ const save = () => {
 };
 
 const init = () => {
-  console.log('props', props.detail);
   visible.value = true;
 
   nextTick(() => {
@@ -194,6 +193,7 @@ const init = () => {
     }
   }
 }
+
 .plus-txt {
   position: relative;
   .iconfont {
@@ -207,7 +207,7 @@ const init = () => {
   }
 }
 
-.info-item {
+.info-txt {
   margin-bottom: 0;
 }
 </style>

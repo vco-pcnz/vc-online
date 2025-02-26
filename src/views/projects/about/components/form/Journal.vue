@@ -1,25 +1,11 @@
 <template>
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="JournalRef" class="Journal">
-    <a-modal
-      :width="550"
-      :open="visible"
-      :title="t('日志')"
-      :getContainer="() => $refs.JournalRef"
-      :maskClosable="false"
-      :footer="false"
-      @cancel="updateVisible(false)"
-    >
+    <a-modal :width="550" :open="visible" :title="t('平账')" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <div class="input-item">
           <div class="label" :class="{ err: !formState.type && validate }">{{ t('类型') }}</div>
-          <a-select
-            style="width: 100%"
-            v-model:value="formState.type"
-            show-search
-            :options="types"
-            :filter-option="customFilter"
-          ></a-select>
+          <a-select style="width: 100%" v-model:value="formState.type" show-search :options="types" :filter-option="customFilter"></a-select>
         </div>
         <div class="input-item">
           <div class="label" :class="{ err: !formState.date && validate }">{{ t('日期') }}</div>
@@ -47,8 +33,8 @@
           <a-input v-model:value="formState.note" />
         </div>
         <div class="input-item">
-          <div class="label" :class="{ err: !formState.review && validate }">{{ t('审阅意见') }}</div>
-          <a-textarea v-model:value="formState.review" placeholder="Basic usage" :rows="4" />
+          <div class="label" :class="{ err: !formState.remark && validate }">{{ t('审阅意见') }}</div>
+          <a-textarea v-model:value="formState.remark" placeholder="Basic usage" :rows="4" />
         </div>
 
         <div class="flex justify-center">
@@ -66,7 +52,7 @@ import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import { frename } from '@/api/project/annex';
-import { selectDateFormat } from "@/utils/tool"
+import { selectDateFormat } from '@/utils/tool';
 
 const { t } = useI18n();
 const emits = defineEmits(['change']);
@@ -74,8 +60,8 @@ const emits = defineEmits(['change']);
 const props = defineProps({
   formParams: {
     type: Object,
-    default: {}
-  }
+    default: {},
+  },
 });
 
 const visible = ref(false);
@@ -86,7 +72,7 @@ const rename = ref('');
 const types = ref([
   { label: 'Journal Credit', value: 1 },
   { label: 'Journal Debit', value: 2 },
-  { label: 'Journal Default Interest Credit', value: 3 }
+  { label: 'Journal Default Interest Credit', value: 3 },
 ]);
 
 const formState = ref({
@@ -94,7 +80,7 @@ const formState = ref({
   date: '',
   amount: '',
   note: '',
-  review: ''
+  remark: '',
 });
 
 const customFilter = (input, option) => {
@@ -115,7 +101,7 @@ const save = () => {
   loading.value = true;
   let params = {
     ...props.formParams,
-    name: rename.value
+    name: rename.value,
   };
   frename(params)
     .then((res) => {

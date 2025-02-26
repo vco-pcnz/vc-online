@@ -1,7 +1,7 @@
 <template>
   <layout ref="layoutRef" @update="reload">
     <template #content>
-      <div class="flex justify-between items-end mb-5">
+      <div class="flex justify-between items-end mb-5 pb-5" style="border-bottom: 1px solid #a6a9b0">
         <div class="actions">
           <a-popconfirm v-if="searchParams.status != '-1'" :title="t('确定要删除勾选的数据吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="onRemove()" :disabled="!selectedRowKeys.length">
             <a-button :disabled="!selectedRowKeys.length">
@@ -284,6 +284,10 @@ onMounted(() => {
   .count {
     padding-left: 20px;
   }
+}
+
+.page-search-content {
+  margin-top: 0;
 }
 
 .status_tag {

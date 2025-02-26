@@ -27,14 +27,13 @@
         <div class="mt-5">
           <a-spin :spinning="tableLoading" size="large">
             <div class="table-content sys-table-content">
-              <!-- :row-selection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange }" -->
               <grid-block v-if="tabLayout"></grid-block>
               <a-table
                 v-else
                 ref="tableRef"
                 rowKey="uuid"
                 :columns="columns"
-                :row-selection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange, columnWidth: 50 }"
+                :row-selection="{ selectedRowKeys: selectedRowKeys, columnWidth: 50, onChange: onSelectChange }"
                 :data-source="tableDataRef"
                 :pagination="false"
                 :scroll="{ x: '100%' }"
@@ -238,12 +237,6 @@ const tableDataRef = computed(() => {
     if (images) {
       imgsArr = images.split(',');
     }
-
-    // if (locale.value === 'en') {
-    //   item.showAddress = `${item.project_address_short} ${item.region_three_name} ${item.region_two_name} ${item.region_one_name}`;
-    // } else {
-    //   item.showAddress = `${item.region_one_name} ${item.region_two_name} ${item.region_three_name} ${item.project_address_short}`;
-    // }
 
     if (item.borrower_type === 1) {
       item.showName = `${item.first_name} ${item.middle_name} ${item.last_name}`;

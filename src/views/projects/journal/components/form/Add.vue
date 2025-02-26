@@ -1,7 +1,7 @@
 <template>
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="JournalRef" class="Journal">
-    <a-modal :width="550" :open="visible" :title="t('日志')" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
+    <a-modal :width="550" :open="visible" :title="t('平账')" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <div class="input-item">
           <div class="label" :class="{ err: !formState.type && validate }">{{ t('类型') }}</div>
@@ -10,6 +10,12 @@
         <div class="input-item">
           <div class="label" :class="{ err: !formState.addsub && validate }">{{ t('方法') }}</div>
           <a-select style="width: 100%" v-model:value="formState.addsub" show-search :options="addsubs"></a-select>
+        </div>
+        <div class="flex justify-between items-center pt-5" v-if="formState.type == 2 && formState.addsub == 2">
+          <a-button type="primary">
+            {{ t('罚息减免上限') }}
+          </a-button>
+          <vco-number :value="detail.amount" :precision="2" size="fs_xl" :end="true"></vco-number>
         </div>
         <div class="input-item">
           <div class="label" :class="{ err: !formState.date && validate }">{{ t('日期') }}</div>
@@ -24,8 +30,8 @@
           <a-input v-model:value="formState.note" />
         </div>
         <div class="input-item">
-          <div class="label" :class="{ err: !formState.mark && validate }">{{ t('审阅意见') }}</div>
-          <a-textarea v-model:value="formState.mark" placeholder="Basic usage" :rows="4" />
+          <div class="label" :class="{ err: !formState.remark && validate }">{{ t('审阅意见') }}</div>
+          <a-textarea v-model:value="formState.remark" placeholder="Basic usage" :rows="4" />
         </div>
 
         <div class="flex justify-center">
@@ -83,7 +89,7 @@ const formState = ref({
   date: '',
   amount: '',
   note: '',
-  mark: ''
+  remark: ''
 });
 
 const customFilter = (input, option) => {

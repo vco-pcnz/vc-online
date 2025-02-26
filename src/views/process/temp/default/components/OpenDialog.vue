@@ -114,9 +114,9 @@
 
   const subDisabled = computed(() => {
     if (fonfirmTable.value.length) {
-      return !Boolean(Object.values(confirmForm.value).every(item => item))
+      return !Boolean(Object.values(confirmForm.value).every(item => item)) || !openDate.value
     } else {
-      return false
+      return !openDate.value
     }
   })
 
@@ -158,7 +158,6 @@
       }
 
       if (props.infoData.start_date !== startDate.value) {
-        console.log('fdsafdsa');
         await projectAuditSaveMode(loadParams).then(() => {
           submitRquest()
         }).catch(() => {
@@ -179,13 +178,11 @@
     if (date) {
       const {start_date, end_date} = props.infoData
       const calcDay = tool.calculateDurationPrecise(start_date, end_date)
+      const gapDay = calcDay.gapDay
 
-      const months = calcDay.months
-      const days = calcDay.days
-
-      if (months || days) {
+      if (gapDay) {
         let statrDate = dayjs(date)
-        const endDateStr = tool.calculateEndDate(statrDate, months, days)
+        const endDateStr = tool.calculateEndDateByDays(statrDate, gapDay)
         
         startDate.value = dayjs(date).format('YYYY-MM-DD')
         endDate.value = endDateStr

@@ -1,6 +1,15 @@
 <template>
   <div class="sys-table-content border-top-none">
-    <a-table :columns="columns" :data-source="tableData" :pagination="false" :scroll="{ x: '100%' }" :customRow="rowClick" row-key="uuid" :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }">
+    <a-table
+      :columns="columns"
+      :data-source="tableData"
+      :row-class-name="(_record, index) => _record.project_apply_sn"
+      :pagination="false"
+      :scroll="{ x: '100%' }"
+      :customRow="rowClick"
+      row-key="uuid"
+      :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }"
+    >
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === '1'">
           <a-space>
@@ -76,6 +85,7 @@
           <p class="black">{{ tool.formatMoney(record.credit.fc2) }}</p>
         </template>
         <template v-if="column.key === '9'">
+          <div class="closed" v-if="record.is_open === 3">{{t('关帐')}}</div>
           <p class="count" v-if="record.upd">{{ record.upd }}</p>
         </template>
       </template>
@@ -88,9 +98,7 @@ import { ref, reactive } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { navigationTo } from '@/utils/tool';
-import { useOrgsStore } from '@/store';
 import { DisconnectOutlined } from '@ant-design/icons-vue';
-const orgsStore = useOrgsStore();
 import dayjs from 'dayjs';
 const emits = defineEmits(['update:data', 'update:keys', 'change']);
 
@@ -222,5 +230,22 @@ const handlePathChange = () => {
       min-width: 30px;
     }
   }
+}
+
+// :deep(.P2502109935) {
+//   td:after {
+//     border-color: #edc4dc !important;
+//   }
+// }
+.closed {
+    position: absolute;
+    background-color: #858585;
+    color: #fff;
+    font-size: 11px;
+    padding: 2px 20px;
+    top: 2px;
+    right: 0;
+    border-top-right-radius: 12px;
+    border-bottom-left-radius: 12px;
 }
 </style>

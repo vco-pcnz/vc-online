@@ -20,9 +20,9 @@
         <p>{{ t('声明说明') }}</p>
         <p>{{ detail.note }}</p>
       </a-col>
-      <a-col v-if="detail.mark" :span="24" class="item-txt">
+      <a-col v-if="detail.remark" :span="24" class="item-txt">
         <p>{{ t('审阅意见') }}</p>
-        <p>{{ detail.mark }}</p>
+        <p>{{ detail.remark }}</p>
       </a-col>
     </a-row>
 

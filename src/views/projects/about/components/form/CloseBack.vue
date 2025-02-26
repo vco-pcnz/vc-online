@@ -1,16 +1,20 @@
 <template>
-  <div class="inline" @click="init"><slot></slot></div>
-  <div @click.stop ref="JournalRef" class="Journal">
-    <a-modal :width="486" :open="visible" :title="t('接受请求')" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
+  <div class="DrawdownBackTitle flex justify-center">
+    <div @click="init">
+      <slot></slot>
+    </div>
+  </div>
+  <div @click.stop ref="DrawdownBack" class="DrawdownBack">
+    <a-modal :width="486" :open="visible" :title="t('退回请求')" :getContainer="() => $refs.DrawdownBack" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <div class="input-item">
-          <div class="label" :class="{ err: !date && validate }">{{ t('日期') }}</div>
-          <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" :showToday="false" />
+          <div class="label" :class="{ err: !description && validate }">Description</div>
+          <a-textarea v-model:value="description" :rows="6" />
         </div>
 
         <div class="flex justify-center">
           <a-button @click="save" type="dark" class="save big uppercase" :loading="loading">
-            {{ t('提交') }}
+            {{ t('保存') }}
           </a-button>
         </div>
       </div>
@@ -22,9 +26,8 @@
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
-import { selectDateFormat } from "@/utils/tool"
-import { loanDsaveStep } from '@/api/project/loan';
-import dayjs, { Dayjs } from 'dayjs';
+import tool from '@/utils/tool';
+import { goBack } from '@/api/project/project';
 
 const { t } = useI18n();
 const emits = defineEmits(['change']);
@@ -35,9 +38,6 @@ const props = defineProps({
   },
   detail: {
     type: Object
-  },
-  projectDetail: {
-    type: Object
   }
 });
 
@@ -45,24 +45,7 @@ const visible = ref(false);
 const loading = ref(false);
 const validate = ref(false);
 
-const date = ref('');
-
-
-const disabledDateFormat = (current) => {
-  const startDate = props.projectDetail.loan.start_date
-    const endDate = props.projectDetail.loan.end_date
-
-    if (current && current.isBefore(startDate, 'day')) {
-      return true;
-    }
-
-    if (current && current.isAfter(endDate, 'day')) {
-      return true;
-    }
-
-
-  return false;
-};
+const description = ref('');
 
 const updateVisible = (value) => {
   visible.value = value;
@@ -70,16 +53,15 @@ const updateVisible = (value) => {
 
 const save = () => {
   validate.value = true;
-  if (!date.value) return message.error(t('请输入') + t('日期'));
+  if (!description.value) return message.error(t('请输入') + 'Description');
   loading.value = true;
   let params = {
     uuid: props.uuid,
-    id: props.detail.id,
-    date: date.value
+    closed_cancel_reason: description.value
   };
-  loanDsaveStep(params)
+  goBack(params)
     .then((res) => {
-      date.value = '';
+      description.value = '';
       message.success(t('保存成功'));
       emits('change');
       updateVisible(false);
@@ -91,14 +73,20 @@ const save = () => {
 };
 
 const init = () => {
-  date.value =  dayjs(props.detail?.apply_date).format('YYYY-MM-DD');
   visible.value = true;
 };
 </script>
 <style scoped lang="less">
 @import '@/styles/variables.less';
-
-.Journal {
+.DrawdownBackTitle {
+  text-align: center;
+  font-size: @fs_xs;
+  .back {
+    color: #df622b;
+    cursor: pointer;
+  }
+}
+.DrawdownBack {
   :deep(.ant-modal-content) {
     .ant-modal-header {
       padding: 72px 84px 0px;

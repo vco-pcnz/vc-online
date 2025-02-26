@@ -25,9 +25,25 @@ export const historyList = (params) =>
   });
 
 // open项目详情
-export const projectDetailClose = (params) =>
+export const projectDetailClose = (data) =>
   request({
     url: 'projectDetail/close',
-    method: 'get',
-    params
+    method: 'post',
+    data
+  });
+
+// 关账审核同意
+export const saveStep = (data) =>
+  request({
+    url: 'projectDetail/saveStep',
+    method: 'post',
+    data
+  });
+
+// 关账退回上一步
+export const goBack = (data) =>
+  request({
+    url: 'projectDetail/goBack',
+    method: 'post',
+    data
   });

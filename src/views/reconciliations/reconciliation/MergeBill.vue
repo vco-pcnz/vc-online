@@ -3,6 +3,9 @@
   <div @click.stop ref="modeRef" class="myMode">
     <a-modal :width="900" :open="visible" :title="t('合并账单')" :getContainer="() => $refs.modeRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content">
+        <div class="flex justify-end pb-5" style="border-bottom: 1px solid #a6a9b0">
+          <MergeBillSearch v-model:value="searchParams" @search="search"></MergeBillSearch>
+        </div>
         <a-spin :spinning="loading" size="large">
           <a-table :columns="columns" :data-source="list" :pagination="false" :scroll="{ x: '100%' }" :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }" row-key="bank_sn">
             <template #bodyCell="{ column, record }">
@@ -53,6 +56,8 @@ import tool from '@/utils/tool';
 import { mergeBill } from '@/api/reconciliations';
 import { getStatements } from '@/api/reconciliations';
 import { selectDateFormat } from '@/utils/tool';
+import MergeBillSearch from './MergeBillSearch.vue';
+import { cloneDeep } from 'lodash';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);
@@ -80,7 +85,7 @@ const columns = reactive([
     }
   },
   { title: t('类型'), dataIndex: 'type', width: 120, align: 'center', ellipsis: true },
-  { title: t('备注'), dataIndex: 'description', align: 'left', ellipsis: true },
+  { title: t('描述'), dataIndex: 'description', align: 'left', ellipsis: true },
   { title: t('日期'), dataIndex: 'date', width: 120, align: 'center', ellipsis: true }
 ]);
 
@@ -88,6 +93,11 @@ const visible_save = ref(false);
 const validate = ref(false);
 const formState = ref({
   date: '',
+  description: ''
+});
+const searchParams = ref({
+  amount: '',
+  name: '',
   description: ''
 });
 
@@ -117,7 +127,7 @@ const total = ref(0);
 const list = ref([]);
 const pagination = ref({
   page: 1,
-  limit: 10
+  limit: 5
 });
 
 const setPaginate = (page, limit) => {
@@ -190,7 +200,7 @@ const loadData = () => {
     client_uuid: props.item?.client_uuid
   };
   loading.value = true;
-  getStatements({ ...params, ...pagination.value })
+  getStatements({ ...params, ...pagination.value, ...searchParams.value })
     .then((res) => {
       total.value = res.count;
       res.data.map((item) => {
@@ -201,6 +211,12 @@ const loadData = () => {
     .finally((_) => {
       loading.value = false;
     });
+};
+
+const search = (val) => {
+  searchParams.value = cloneDeep(val);
+  pagination.value.page = 1;
+  loadData();
 };
 
 const updateVisible = (value) => {
@@ -230,6 +246,9 @@ const init = () => {
         font-size: 20px;
         font-weight: 500;
       }
+    }
+    .ant-empty {
+      min-height: 180px;
     }
     .ant-input-number {
       border-color: #d9d9d9;

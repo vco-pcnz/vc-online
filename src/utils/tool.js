@@ -344,12 +344,22 @@ tool.calculateDurationPrecise = (startDate, endDate) => {
 };
 
 /**
- * 日期天数-倒推得到结束时间
+ * 日期天数-倒推得到结束时间（根据月份和天数）
  */
 tool.calculateEndDate = (startDate, months = 0, days = 0) => {
   const start = dayjs(startDate);
   // 增加月数和天数
   const end = start.add(months, "month").add(days, "day").subtract(1, "day")
+  return end.format('YYYY-MM-DD'); // 返回格式化的日期
+};
+
+/**
+ * 日期天数-倒推得到结束时间（根据总天数）
+ */
+tool.calculateEndDateByDays = (startDate, days = 0) => {
+  const start = dayjs(startDate);
+  // 增加月数和天数
+  const end = start.add(days, "day").subtract(1, "day")
   return end.format('YYYY-MM-DD'); // 返回格式化的日期
 };
 

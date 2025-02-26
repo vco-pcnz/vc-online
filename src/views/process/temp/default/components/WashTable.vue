@@ -10,40 +10,19 @@
               </a-button>
             </a-popconfirm>
 
-            <a-popconfirm
-              :title="t('确定发送邮件吗？')"
-              :ok-text="t('确定')"
-              :cancel-text="t('取消')"
-              :disabled="Boolean(!selectedRowKeys.length)"
-              @confirm="checkHandle(2)"
-              :loading="loading && type === 2"
-            >
+            <a-popconfirm :title="t('确定发送邮件吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" :disabled="Boolean(!selectedRowKeys.length)" @confirm="checkHandle(2)" :loading="loading && type === 2">
               <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase">
                 {{ t('发送邮件') }}
               </a-button>
             </a-popconfirm>
 
-            <a-popconfirm
-              :title="t('确定发送短信吗？')"
-              :ok-text="t('确定')"
-              :cancel-text="t('取消')"
-              :disabled="Boolean(!selectedRowKeys.length)"
-              @confirm="checkHandle(3)"
-              :loading="loading && type === 3"
-            >
+            <a-popconfirm :title="t('确定发送短信吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" :disabled="Boolean(!selectedRowKeys.length)" @confirm="checkHandle(3)" :loading="loading && type === 3">
               <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase">
                 {{ t('发送短信') }}
               </a-button>
             </a-popconfirm>
 
-            <a-popconfirm
-              :title="t('确定删除吗？')"
-              :ok-text="t('确定')"
-              :cancel-text="t('取消')"
-              :disabled="Boolean(!selectedRowKeys.length)"
-              @confirm="checkHandle(4)"
-              :loading="loading && type === 4"
-            >
+            <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" :disabled="Boolean(!selectedRowKeys.length)" @confirm="checkHandle(4)" :loading="loading && type === 4">
               <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase">
                 {{ t('删除') }}
               </a-button>
@@ -92,14 +71,7 @@
               </a-menu>
             </template>
           </a-dropdown>
-          <a-table
-            :columns="columns"
-            :data-source="tableData"
-            :pagination="false"
-            :scroll="{ x: '100%' }"
-            row-key="id"
-            :row-selection="!blockInfo.showEdit ? null : { selectedRowKeys: selectedRowKeys, onSelect: onSelect, hideSelectAll: true }"
-          >
+          <a-table :columns="columns" :data-source="tableData" :pagination="false" :scroll="{ x: '100%' }" row-key="id" :row-selection="!blockInfo.showEdit ? null : { selectedRowKeys: selectedRowKeys, onSelect: onSelect, hideSelectAll: true }">
             <template #bodyCell="{ column, record }">
               <template v-if="column.dataIndex === 'name'">
                 {{ record.name }}
@@ -135,16 +107,7 @@
             </template>
           </a-table>
           <div class="flex justify-end">
-            <a-pagination
-              size="small"
-              :total="total"
-              :pageSize="pagination.limit"
-              :current="pagination.page"
-              show-size-changer
-              show-quick-jumper
-              :show-total="(total) => t('共{0}条', [total])"
-              @change="setPaginate"
-            />
+            <a-pagination size="small" :total="total" :pageSize="pagination.limit" :current="pagination.page" show-size-changer show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
           </div>
         </div>
       </a-spin>
@@ -204,6 +167,9 @@ const props = defineProps({
   isDetails: {
     type: Boolean,
     default: false
+  },
+  target: {
+    type: String
   }
 });
 const { t } = useI18n();
@@ -363,7 +329,7 @@ const updateVisibleFiles = (val) => {
 
 const loadData = () => {
   loading.value = true;
-  const ajaxFn = props.isDetails ? projectDetailGetWash : getWash;
+  const ajaxFn = props.isDetails || props.target === 'about' ? projectDetailGetWash : getWash;
 
   ajaxFn({ uuid: props.currentId, ...pagination.value })
     .then((res) => {

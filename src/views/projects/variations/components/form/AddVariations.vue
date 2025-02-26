@@ -27,41 +27,80 @@
               </a-form-item>
             </a-col>
             <a-col :span="8">
-              <a-form-item :label="t('增加金额')" name="amount">
-                <a-input-number
-                  v-model:value="formState.amount"
-                  :max="99999999999"
-                  :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                />
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
               <a-form-item :label="t('变更开始日期')" name="start_date">
                 <a-date-picker
                   inputReadOnly
                   v-model:value="formState.start_date"
                   :format="selectDateFormat()"
                   valueFormat="YYYY-MM-DD"
+                  :disabledDate="disabledDate"
                   :showToday="false"
                   @change="dateChange('start_date')"
                 />
               </a-form-item>
             </a-col>
-            <a-col :span="8">
-              <a-form-item :label="t('变更结束日期')" name="end_date">
+
+            <template v-if="[1,2,4,5].includes(Number(formState.type))">
+              <a-col :span="7">
+                <a-form-item :label="t('借款总金额')">
+                  <a-input-number
+                    :value="projectDetail?.base?.loan_money"
+                    :disabled="true"
+                    :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                    :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                  />
+                </a-form-item>
+              </a-col>
+              <a-col :span="2" class="icon-txt">
+                <i class="iconfont" v-if="[1,4].includes(Number(formState.type))">&#xe712;</i>
+                <i class="iconfont" v-else>&#xe711;</i>
+              </a-col>
+              <a-col :span="7">
+                <a-form-item :label="t('变更金额')" name="amount">
+                  <a-input-number
+                    v-model:value="formState.amount"
+                    :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                    :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                  />
+                </a-form-item>
+              </a-col>
+              <a-col :span="1" class="icon-txt">
+                <i class="iconfont">=</i>
+              </a-col>
+              <a-col :span="7">
+                <a-form-item :label="t('变更后借款总金额')">
+                  <div class="total-number">
+                    <vco-number :value="newTotalAmount" :precision="2" :end="true"></vco-number>
+                  </div>
+                </a-form-item>
+              </a-col>
+            </template>
+            <a-col v-if="[3].includes(Number(formState.type))" :span="8">
+              <a-form-item :label="t('借款总金额')">
+                <a-input-number
+                  :value="projectDetail?.base?.loan_money"
+                  :disabled="true"
+                  :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                />
+              </a-form-item>
+            </a-col>
+            <a-col v-if="[1,2,3].includes(Number(formState.type))" :span="8">
+              <a-form-item :label="t('变更后结束日期')" name="end_date">
                 <a-date-picker
                   inputReadOnly
                   v-model:value="formState.end_date"
                   :format="selectDateFormat()"
                   valueFormat="YYYY-MM-DD"
                   :showToday="false"
+                  :defaultPickerValue="endDefaultPickerValue"
+                  :disabledDate="endDisabledDate"
                   @change="dateChange('end_date')"
                 />
               </a-form-item>
             </a-col>
-            <a-col :span="8">
-              <a-form-item :label="t('首次放款总金额')" name="initial_amount">
+            <a-col v-if="formState.type" :span="[1,2,3].includes(Number(formState.type)) ? 8 : 16">
+              <a-form-item :label="t('变更后首次放款')" name="initial_amount">
                 <a-input-number
                   v-model:value="formState.initial_amount"
                   :max="99999999999"
@@ -71,61 +110,64 @@
               </a-form-item>
             </a-col>
 
-            <template v-if="percentItems.length">
-              <a-col
-                v-for="item in percentItems"
-                :span="getItemsSpan"
-                :key="item.credit_table"
-              >
-                <a-form-item
-                  :name="item.credit_table"
+            <div v-if="percentItems.length || dollarItems.length" class="w-full flex flex-wrap">
+              <a-col :span="24"><div class="pt-5" style="border-top: 1px dashed #282828;"></div></a-col>
+              <template v-if="percentItems.length">
+                <a-col
+                  v-for="item in percentItems"
+                  :span="getItemsSpan"
+                  :key="item.credit_table"
                 >
-                  <template #label>
-                    {{ item.credit_name }}
-                    <a-tooltip v-if="item.tips" placement="topLeft">
-                      <template #title>
-                        <span>{{ item.tips }}</span>
-                      </template>
-                      <QuestionCircleOutlined class="ml-2" />
-                    </a-tooltip>
-                  </template>
-                  <a-input
-                    v-model:value="formState[item.credit_table]"
-                    :suffix="item.credit_unit"
-                  />
-                </a-form-item>
-              </a-col>
-            </template>
+                  <a-form-item
+                    :name="item.credit_table"
+                  >
+                    <template #label>
+                      {{ item.credit_name }}
+                      <a-tooltip v-if="item.tips" placement="topLeft">
+                        <template #title>
+                          <span>{{ item.tips }}</span>
+                        </template>
+                        <QuestionCircleOutlined class="ml-2" />
+                      </a-tooltip>
+                    </template>
+                    <a-input
+                      v-model:value="formState[item.credit_table]"
+                      :suffix="item.credit_unit"
+                    />
+                  </a-form-item>
+                </a-col>
+              </template>
 
-            <template v-if="dollarItems.length">
-              <a-col
-                v-for="item in dollarItems"
-                :span="getItemsSpan"
-                :key="item.credit_table"
-              >
-                <a-form-item
-                  :name="item.credit_table"
+              <template v-if="dollarItems.length">
+                <a-col
+                  v-for="item in dollarItems"
+                  :span="getItemsSpan"
+                  :key="item.credit_table"
                 >
-                  <template #label>
-                    {{ item.credit_name }}
-                    <a-tooltip v-if="item.tips" placement="topLeft">
-                      <template #title>
-                        <span>{{ item.tips }}</span>
-                      </template>
-                      <QuestionCircleOutlined class="ml-2" />
-                    </a-tooltip>
-                  </template>
-                  <a-input-number
-                    v-model:value="formState[item.credit_table]"
-                    :formatter="
-                      (value) =>
-                        `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-                    "
-                    :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                  />
-                </a-form-item>
-              </a-col>
-            </template>
+                  <a-form-item
+                    :name="item.credit_table"
+                  >
+                    <template #label>
+                      {{ item.credit_name }}
+                      <a-tooltip v-if="item.tips" placement="topLeft">
+                        <template #title>
+                          <span>{{ item.tips }}</span>
+                        </template>
+                        <QuestionCircleOutlined class="ml-2" />
+                      </a-tooltip>
+                    </template>
+                    <a-input-number
+                      v-model:value="formState[item.credit_table]"
+                      :formatter="
+                        (value) =>
+                          `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                      "
+                      :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                    />
+                  </a-form-item>
+                </a-col>
+              </template>
+            </div>
 
             <a-col :span="24">
               <a-form-item :label="t('说明')" name="note">
@@ -155,6 +197,7 @@ import { projectCreditVariation, projectVariationEdit } from '@/api/project/loan
 import { ruleCredit } from '@/api/process';
 import { selectDateFormat } from "@/utils/tool"
 import dayjs from 'dayjs'
+import tool from '@/utils/tool';
 import { cloneDeep } from "lodash"
 
 const { t } = useI18n();
@@ -164,8 +207,39 @@ const props = defineProps({
   currentId: {
     type: String,
     default: ''
+  },
+  projectDetail: {
+    type: Object,
+    default: () => {}
   }
 });
+
+const newTotalAmount = computed(() => {
+  const total = Number(props.projectDetail.base.loan_money)
+  const num = Number(formState.value.amount)
+  const isPlus = [1, 4].includes(Number(formState.value.type))
+
+  let res = 0
+  if (isPlus) {
+    res = tool.plus(total, num)
+  } else {
+    res = tool.minus(total, num)
+  }
+
+  return res
+})
+
+const endDefaultPickerValue = computed(() => {
+  return dayjs(props.projectDetail.date.end_date).add(1, 'day')
+})
+
+const disabledDate = (current) => {
+  return current && current.isBefore(dayjs().startOf('day'));
+};
+
+const endDisabledDate = (current) => {
+  return current && current.isBefore(dayjs(props.projectDetail.date.end_date).add(1, 'day').startOf('day'));
+};
 
 const formRef = ref();
 const visible = ref(false);
@@ -393,5 +467,24 @@ const init = () => {
   .input-item {
     margin-top: 20px;
   }
+}
+
+.icon-txt {
+  position: relative;
+  .iconfont {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #282828;
+    font-weight: bold;
+    font-size: 18px;
+  }
+}
+
+.total-number {
+  height: 48px;
+  display: flex;
+  align-items: center;
 }
 </style>

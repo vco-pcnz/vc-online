@@ -699,5 +699,10 @@ export default {
   "{0}应在{1}之前": "{0} should come before {1}",
   "关账": "Closed",
   "不对账": "Not reconciliation",
-  "单号": "No"
+  "单号": "No",
+  "关帐": "Closed",
+  "变更金额": "Variation amount",
+  "变更后借款总金额": "New total loan amount",
+  "变更后结束日期": "Maturity after variation",
+  "变更后首次放款": "Initial drawdown after variation"
 }

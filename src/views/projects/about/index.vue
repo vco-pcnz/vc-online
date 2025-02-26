@@ -40,6 +40,37 @@
             </a-collapse>
           </div>
           <div class="project-content">
+            <template v-if="hasPermission('projects:about:add:closeFc') && detail?.base?.is_open == 1">
+              <a-alert type="error" :message="t('退回原因')" class="mb-5 cancel-reason">
+                <template #description>
+                  {{ detail?.base?.closed_cancel_reason }}
+                  <div class="mt-3 flex items-center justify-end">
+                    <CloseProject :formParams="{ uuid: currentId }" @update="update">
+                      <a-button type="dark" size="small">{{ t('拟关闭') }}</a-button>
+                    </CloseProject>
+                  </div>
+                </template>
+              </a-alert>
+            </template>
+
+            <template v-if="hasPermission('projects:about:add:closeLc') && detail?.base?.is_open == 2">
+              <a-alert type="info" :message="t('关帐')" class="mb-5">
+                <template #description>
+                  {{ detail?.base?.close_note }}
+                  <div class="mt-3 flex items-center justify-end">
+                    <a-popconfirm :title="t('您确定要接受该请求吗？')" @confirm="accept">
+                      <a-button type="dark" size="small">{{ t('接受请求') }}</a-button>
+                    </a-popconfirm>
+                    <CloseBack :uuid="currentId" :detail="detail" @change="update">
+                      <div class="flex justify-center">
+                        <a-button type="danger" size="small" class="ml-3">{{ t('退回请求') }}</a-button>
+                      </div>
+                    </CloseBack>
+                  </div>
+                </template>
+              </a-alert>
+            </template>
+
             <MeterStat :data="detail?.credit"></MeterStat>
             <PeriodLine :data="detail?.date"></PeriodLine>
             <div class="flex justify-center mt-10 mb-10 btns">
@@ -48,12 +79,8 @@
                   <a-button type="brown" shape="round" size="small">{{ t('默认开始') }}</a-button>
                 </StartDefault>
                 <a-button v-if="hasPermission('projects:penalty:view') && detail?.base?.penalty" type="brown" shape="round" size="small" @click="navigationTo('/projects/penalty?uuid=' + currentId)">{{ t('默认') }}</a-button>
-                
-                <AddVariations
-                  v-if="hasPermission('projects:variations:edit') && !Boolean(detail?.base?.variation)"
-                  :currentId="currentId"
-                  @update="update"
-                >
+
+                <AddVariations v-if="hasPermission('projects:variations:edit') && !Boolean(detail?.base?.variation)" :currentId="currentId" @update="update">
                   <a-button type="brown" shape="round" size="small">{{ t('添加变更') }}</a-button>
                 </AddVariations>
 
@@ -62,12 +89,8 @@
                 </Journal>
                 <a-button v-if="hasPermission('projects:journal:view') && detail?.base?.journal" type="brown" shape="round" size="small" @click="navigationTo('/projects/journal?uuid=' + currentId)">{{ t('平账') }}</a-button>
               </template>
-              <!-- lc最终关闭  fc  拟关闭 -->
-              <CloseProject
-                :formParams="{ uuid: currentId, type: hasPermission('projects:about:add:closeFc') ? 2 : 3 }"
-                @update="update"
-                v-if="(hasPermission('projects:about:add:closeFc') && detail?.base?.is_open == 1) || (hasPermission('projects:about:add:closeLc') && detail?.base?.is_open == 2)"
-              >
+              <!-- fc  关闭申请 -->
+              <CloseProject :formParams="{ uuid: currentId }" @update="update" v-if="hasPermission('projects:about:add:closeFc') && detail?.base?.is_open == 1 && !detail?.base?.closed_cancel_reason">
                 <a-button type="brown" shape="round" size="small">{{ t('拟关闭') }}</a-button>
               </CloseProject>
             </div>
@@ -95,10 +118,12 @@ import Journal from '@/views/projects/journal/components/form/Add.vue';
 import StartDefault from '@/views/projects/penalty/components/form/Add.vue';
 import AddVariations from '@/views/projects/variations/components/form/AddVariations.vue';
 import CloseProject from './components/form/CloseProject.vue';
+import CloseBack from './components/form/CloseBack.vue';
 import BindUsers from '@/views/process/components/BindUsers.vue';
 import ConditionsList from '@/views/process/components/ConditionsList.vue';
 import { hasPermission } from '@/directives/permission/index';
 import { navigationTo } from '@/utils/tool';
+import { saveStep } from '@/api/project/project';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -113,6 +138,18 @@ const getProjectDetail = (val) => {
   currentId.value = uuid;
   detail.value = val;
   loading.value = false;
+};
+
+// 同意
+const accept = async () => {
+  await saveStep({ uuid: currentId.value })
+    .then((res) => {
+      update();
+      return true;
+    })
+    .catch(() => {
+      return false;
+    });
 };
 
 const update = () => {
@@ -186,8 +223,18 @@ const update = () => {
 
   .btns {
     .ant-btn {
-      margin:  0 10px;
+      margin: 0 10px;
     }
   }
+}
+
+.cancel-reason {
+  :deep(.ant-alert-message) {
+    color: #c1430c !important;
+  }
+}
+
+:deep(.ant-alert-description) {
+  font-size: 12px !important;
 }
 </style>

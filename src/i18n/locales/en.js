@@ -695,5 +695,6 @@ export default {
   "总额": "Total",
   "确定要进行对账吗？": "Are you sure you want to reconcile?",
   "{0}应小于{1}": "{0} should be less than {1}",
-  "{0}应在{1}之前": "{0} should come before {1}"
+  "{0}应在{1}之前": "{0} should come before {1}",
+  "关帐": "Closed"
 }

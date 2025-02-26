@@ -10,7 +10,7 @@
         <div class="input-item">
           <div class="label" :class="{ err: !formState.type && validate }">{{ t('类型') }}</div>
           <a-select v-if="formState.cate == 1" :loading="loading_type" style="width: 100%" v-model:value="formState.type" show-search :options="journal_type" :filter-option="customFilter" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
-          <a-select v-if="formState.cate == 2" :loading="loading_type" style="width: 100%" v-model:value="formState.type" show-search :options="security_type" :filter-option="customFilter" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
+          <a-select v-if="formState.cate == 2" :loading="loading_type" style="width: 100%" v-model:value="formState.type" show-search :options="duration_type" :filter-option="customFilter" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
         </div>
         <div class="input-item">
           <div class="label" :class="{ err: !formState.addsub && validate }">{{ t('方法') }}</div>
@@ -70,14 +70,14 @@ const validate = ref(false);
 const rename = ref('');
 
 const journal_type = ref([]);
-const security_type = ref([]);
+const duration_type = ref([]);
 const types = ref([
   {
     label: t('Journal'),
     value: 1
   },
   {
-    label: t('Variation'),
+    label: t('Duration'),
     value: 2
   }
 ]);
@@ -144,17 +144,17 @@ const save = () => {
 const loading_type = ref(false);
 const loadType = () => {
   formState.value.type = '';
-  if ((formState.value.cate == 1 && journal_type.value.length) || (formState.value.cate == 2 && security_type.value.length)) {
+  if ((formState.value.cate == 1 && journal_type.value.length) || (formState.value.cate == 2 && duration_type.value.length)) {
     return;
   }
   loading_type.value = true;
-  systemDictData(formState.value.cate == 1 ? 'journal_type' : 'security_type')
+  systemDictData(formState.value.cate == 1 ? 'journal_type' : 'duration')
     .then((res) => {
       if (formState.value.cate == 1) {
         journal_type.value = res;
       }
       if (formState.value.cate == 2) {
-        security_type.value = res;
+        duration_type.value = res;
       }
     })
     .finally((_) => {

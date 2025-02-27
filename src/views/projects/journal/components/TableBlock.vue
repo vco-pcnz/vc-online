@@ -48,7 +48,8 @@ const props = defineProps({
 const { t } = useI18n();
 const colors = ref({
   'FC REVIEW': '#d3a631',
-  'FC PENDING REVIEW': '#d3a631'
+  'FC PENDING REVIEW': '#d3a631',
+  'DIRECTOR PENDING REVIEW': '#d3a631'
 });
 
 const active_id = ref('');
@@ -166,7 +167,7 @@ watch(
       width: 150px;
     }
     &:nth-child(5) {
-      width: 160px;
+      width: 260px;
       text-align: center;
     }
     &:nth-child(6),

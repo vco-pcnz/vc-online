@@ -84,9 +84,9 @@
             <div class="flex justify-center mt-10 mb-10 btns">
               <template v-if="Boolean(!detail?.base.is_close)">
                 <StartDefault v-if="hasPermission('projects:penalty:sedit') && !detail?.base?.penalty" :detail="detail" :currentId="currentId" @update="update">
-                  <a-button type="brown" shape="round" size="small">{{ t('默认开始') }}</a-button>
+                  <a-button type="brown" shape="round" size="small">{{ t('罚息开始') }}</a-button>
                 </StartDefault>
-                <a-button v-if="hasPermission('projects:penalty:view') && detail?.base?.penalty" type="brown" shape="round" size="small" @click="navigationTo('/projects/penalty?uuid=' + currentId)">{{ t('默认') }}</a-button>
+                <a-button v-if="hasPermission('projects:penalty:view') && detail?.base?.penalty" type="brown" shape="round" size="small" @click="navigationTo('/projects/penalty?uuid=' + currentId)">{{ t('罚息') }}</a-button>
 
                 <AddVariations
                   v-if="hasPermission('projects:variations:edit') && !Boolean(detail?.base?.variation)"

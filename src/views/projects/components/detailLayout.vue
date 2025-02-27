@@ -53,11 +53,27 @@ const onChange = (key) => {
   router.push(`/projects/${key}?uuid=` + route.query.uuid);
 };
 
+const prevBackArr = ['penalty', 'variations', 'journal']
+const backPrev = (link) => {
+  for (let i = 0; i < prevBackArr.length; i++) {
+    if (link.indexOf(prevBackArr[i]) > -1) {
+      return true
+    }
+  }
+  return false
+}
+
 const back = () => {
-  if (detail.value?.base?.is_open === 2 || detail.value?.base?.is_open === 3) {
-    router.push(`/projects/closed`);
+  const previousRoute = router.options.history.state.back;
+
+  if (backPrev(previousRoute)) {
+    router.back()
   } else {
-    router.push(`/projects/current`);
+    if (detail.value?.base?.is_open === 2 || detail.value?.base?.is_open === 3) {
+      router.push(`/projects/closed`);
+    } else {
+      router.push(`/projects/current`);
+    }
   }
 };
 

@@ -417,6 +417,7 @@ export default {
   "首次建筑贷款放款额": "Initial build amount",
   "首次土地贷款放款额": "Initial land amount",
   "首次放款总金额": "Initial drawdown",
+  "首次放款": "Initial drawdown",
   "首次放款总金额不正确": "Initial drawdown is incorrect",
   "借款总额不正确": "Loan amount is incorrect",
   "修改方式": "Modification method",
@@ -707,5 +708,9 @@ export default {
   "变更后首次放款": "Initial drawdown after variation",
   "关联用户": "Associate users",
   "变更1": "Variations",
-  "反洗钱": "Wash"
+  "反洗钱": "Wash",
+  "审核变更请求": "Reviewing Variations Requests",
+  "变更详情": "Variations Details",
+  "关闭": "Close",
+  "您可以点击下面的按钮来拒绝请求。": "You can decline the request by clicking the button below."
 }

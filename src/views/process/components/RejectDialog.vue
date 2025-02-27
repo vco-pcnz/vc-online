@@ -39,10 +39,11 @@
   import { ref, reactive, watch, computed } from "vue";
   import { useI18n } from "vue-i18n";
   import { projectAuditDeclineProject, projectAuditGoback } from "@/api/process"
+  import { projectVariationGoback, projectVariationDecline } from "@/api/project/variation"
   import { navigationTo } from "@/utils/tool"
   import emitter from "@/event"
 
-  const emits = defineEmits(['update:visible'])
+  const emits = defineEmits(['update:visible', 'done'])
 
   const props = defineProps({
     visible: {
@@ -54,8 +55,16 @@
       default: ''
     },
     type: { // 1 直接拒绝；2 退回审核
-      type: Number,
+      type: [Number, String],
       default: 1
+    },
+    id: {
+      type: [Number, String],
+      default: ''
+    },
+    about: {
+      type: Boolean,
+      default: false
     }
   });
 
@@ -63,9 +72,9 @@
 
   const titleTxt = computed(() => {
     let txt = ''
-    if (props.type === 1) {
+    if ([1, 'variationsDecline'].includes(props.type)) {
       txt = '拒绝原因'
-    } else if (props.type === 2) {
+    } else if ([2, 'variationsBack'].includes(props.type)) {
       txt = '退回原因'
     }
     return txt
@@ -102,6 +111,14 @@
       } else if (props.type === 2) {
         ajaxFn = projectAuditGoback
         params.cancel_reason = formState.decline_reason
+      } else if (props.type === 'variationsBack') {
+        ajaxFn = projectVariationGoback
+        params.cancel_reason = formState.decline_reason
+        params.id = props.id
+      } else if (props.type === 'variationsDecline') {
+        ajaxFn = projectVariationDecline
+        params.decline_reason = formState.decline_reason
+        params.id = props.id
       }
 
       if (ajaxFn) {
@@ -111,9 +128,13 @@
           subLoading.value = false
           updateVisible(false)
 
-          // 触发列表数据刷新
-          emitter.emit('refreshRequestsList')
-          navigationTo('/requests/loan')
+          if (props.about) {
+            emits('done')
+          } else {
+            // 触发列表数据刷新
+            emitter.emit('refreshRequestsList')
+            navigationTo('/requests/loan')
+          }
         }).catch(() => {
           subLoading.value = false
         })

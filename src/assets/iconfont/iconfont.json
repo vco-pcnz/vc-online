@@ -6,6 +6,13 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "9798439",
+      "name": "等于",
+      "font_class": "dengyu",
+      "unicode": "e609",
+      "unicode_decimal": 58889
+    },
+    {
       "icon_id": "643798",
       "name": "房屋抵押",
       "font_class": "22",

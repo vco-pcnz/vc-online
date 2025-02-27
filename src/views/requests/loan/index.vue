@@ -126,7 +126,7 @@
                 </template>
               </a-table>
             </div>
-            <div class="mt-5">
+            <div  v-if="tableData.length" class="mt-5">
               <a-pagination
                 size="small"
                 :total="pageObj.total"

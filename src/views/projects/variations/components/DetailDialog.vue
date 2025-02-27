@@ -2,7 +2,7 @@
   <a-modal
     :open="visible"
     :title="t(titleTxt)"
-    :width="800"
+    :width="830"
     :footer="null"
     :keyboard="false"
     :maskClosable="false"
@@ -19,7 +19,7 @@
     >
     </reject-dialog>
 
-    <a-row v-if="detailData && projectDetail" :gutter="24">
+    <a-row v-if="detailData && projectDetail" :gutter="24" class="pl-10 pr-10">
       <a-col v-if="detailData.cancel_reason || detailData.decline_reason" :span="24" class="mt-5">
         <a-alert
           :message="detailData.cancel_reason ? t('退回原因') : t('拒绝原因')"
@@ -38,10 +38,6 @@
         <p>{{ detailData.start_date ? tool.showDate(detailData.start_date) : '--' }}</p>
       </a-col>
       <a-col :span="8" class="item-txt">
-        <p>{{ t('变更后首次放款') }}</p>
-        <vco-number :value="detailData.initial_amount" :precision="2"></vco-number>
-      </a-col>
-      <a-col :span="8" class="item-txt">
         <p>{{ t('变更后结束日期') }}</p>
         <div v-if="detailData.end_date" class="change-content">
           <p>{{ tool.showDate(projectDetail.date.end_date) }}</p>
@@ -52,6 +48,10 @@
           <p>{{ tool.showDate(projectDetail.date.end_date) }}</p>
           <p>({{ t('到期日期') }})</p>
         </div>
+      </a-col>
+      <a-col :span="8" class="item-txt">
+        <p>{{ t('变更后首次放款') }}</p>
+        <vco-number :value="detailData.initial_amount" :precision="2"></vco-number>
       </a-col>
       <a-col :span="16" class="item-txt">
         <p>{{ t('变更后借款总金额') }}</p>

@@ -62,7 +62,7 @@
               <template v-if="column.dataIndex === 'amount'">
                 <div v-if="Number(record.amount)" :class="{'declined-txt': record.declined}">
                   <div class="flex items-center gap-1 justify-center">
-                    <span class="amount-type" :class="{'plus': record.plus}">{{ record.plus ? '+' : '-' }}</span>
+                    <span class="amount-type" :class="{'plus': record.plus, 'declined-txt': record.declined}">{{ record.plus ? '+' : '-' }}</span>
                     <vco-number :value="record.amount" :precision="2" :color="record.plus ? '#eb4b6d' : '#31bd65'"></vco-number>
                   </div>
                   <div class="amout-total">

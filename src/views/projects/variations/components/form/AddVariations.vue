@@ -8,6 +8,7 @@
       :getContainer="() => $refs.JournalRef"
       :maskClosable="false"
       :footer="false"
+      getContainer="body"
       @cancel="updateVisible(false)"
     >
       <div class="content sys-form-content">
@@ -18,6 +19,15 @@
           :rules="formRules"
         >
           <a-row :gutter="24">
+            <a-col v-if="detailData?.id && detailData?.cancel_reason" :span="24" class="mt-5">
+              <a-alert
+                :message="t('退回原因')"
+                :description="detailData?.cancel_reason"
+                type="error"
+                class="cancel-reason"
+              />
+            </a-col>
+
             <a-col :span="16">
               <a-form-item :label="t('变更类型')" name="type">
                 <a-select
@@ -211,6 +221,10 @@ const props = defineProps({
   projectDetail: {
     type: Object,
     default: () => {}
+  },
+  detailData: {
+    type: Object,
+    default: () => {}
   }
 });
 
@@ -291,6 +305,10 @@ const save = () => {
         }
       }
       params.credit = credit
+
+      if (props.detailData?.id) {
+        params.id = props.detailData.id
+      }
       loading.value = true
 
       projectVariationEdit(params).then(() => {
@@ -363,6 +381,21 @@ const getValidateInfo = (data) => {
   }
 }
 
+const dataRefull = () => {
+  const data = props.detailData
+  const { credit } = data
+  for (const key in credit) {
+    formState.value[key] = credit[key]
+  }
+
+  formState.value.type = data.type
+  formState.value.amount = data.amount
+  formState.value.start_date = data.start_date || ''
+  formState.value.end_date = data.end_date || ''
+  formState.value.initial_amount = data.initial_amount
+  formState.value.note = data.note
+}
+
 const creditData = ref([])
 const creditItemsData = ref([])
 const percentItems = ref([])
@@ -404,6 +437,10 @@ const getCreditVal = () => {
     dollarItems.value = dolData;
 
     formRules.value = { ...formRules.value, ...rulesData };
+
+    if (props.detailData?.id) {
+      dataRefull()
+    }
   })
 }
 
@@ -430,6 +467,10 @@ const init = () => {
 
   visible.value = true;
 };
+
+defineExpose({
+  init
+})
 </script>
 <style scoped lang="less">
 @import '@/styles/variables.less';
@@ -486,5 +527,13 @@ const init = () => {
   height: 48px;
   display: flex;
   align-items: center;
+}
+
+.cancel-reason {
+  padding: 10px !important;
+  margin-bottom: 10px;
+  :deep(.ant-alert-description) {
+    font-size: 12px !important;
+  }
 }
 </style>

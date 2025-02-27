@@ -415,8 +415,8 @@ export const projectAuditAddSecurity = (data) =>
     data
   });
 
-// 添加抵押物 - 详情用
-export const projectDetailAddSecurity = (data) =>
+// 添加\修改抵押物 - 详情用
+export const projectDischargeAddEditSecurity = (data) =>
   request({
     url: "/projectDetail/addSecurity",
     method: "post",

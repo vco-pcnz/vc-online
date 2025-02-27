@@ -40,12 +40,12 @@
         <span>{{ detail.type_name }}</span
         >{{ detail.card_no }}
       </p>
-      <div v-if="!projectDetail?.base?.is_close && detail.state === 0 && hasPermission('projects:securities:aer')" class="flex">
+      <!-- <div v-if="!projectDetail?.base?.is_close && detail.state === 0 && hasPermission('projects:securities:aer')" class="flex">
         <i class="iconfont" @click="editHandle">&#xe8cf;</i>
         <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="deleteHandle">
           <i class="iconfont">&#xe8c1;</i>
         </a-popconfirm>
-      </div>
+      </div> -->
     </div>
 
     <a-button type="brown" shape="round" size="small" @click="navigationTo('/projects/documents?uuid=' + uuid)">{{ t('查看文件') }}</a-button>

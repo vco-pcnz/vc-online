@@ -135,7 +135,7 @@ import { watch, computed, ref, nextTick } from 'vue';
 import dayjs from 'dayjs';
 import { useI18n } from 'vue-i18n';
 import { cloneDeep } from 'lodash';
-import { projectAuditSaveMode, projectDetailAddSecurity } from '@/api/process';
+import { projectAuditSaveMode, projectDischargeAddEditSecurity } from '@/api/process';
 import tool, { selectDateFormat } from '@/utils/tool';
 import emitter from '@/event';
 import { message } from 'ant-design-vue/es';
@@ -297,7 +297,7 @@ const submitRquest = () => {
       security__data: currentParams.value
     }
 
-    const ajaxFn = props.isOpen ? projectDetailAddSecurity : projectAuditSaveMode
+    const ajaxFn = props.isOpen ? projectDischargeAddEditSecurity : projectAuditSaveMode
     ajaxFn(params)
       .then(() => {
         currentParams.value = null

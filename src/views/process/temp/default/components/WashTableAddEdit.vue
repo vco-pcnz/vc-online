@@ -188,7 +188,7 @@ const formRules = {
   firstName: [{ required: true, message: t('请输入') + t('名') }],
   lastName: [{ required: true, message: t('请输入') + t('姓') }],
   email: [{ required: true, message: t('请输入') + t('邮箱') }],
-  mobile: [{ required: true, message: t('请输入') + t('电话') }],
+  // mobile: [{ required: true, message: t('请输入') + t('电话') }],
   cate: [{ required: true, message: t('请选择') + t('类型') }]
 };
 

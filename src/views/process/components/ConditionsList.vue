@@ -44,16 +44,10 @@
         <a-button v-if="!isDetails" type="primary" shape="round" size="small" class="uppercase" @click="openAddEdit(false)">{{ t('添加') }}</a-button>
       </vco-process-title>
 
-      <a-button
-        v-if="about && hasPermission('projects:about:add:conditions') && !isClose"
-        type="brown" shape="round" size="small"
-        @click="openAddEdit(false)"
-      >{{ t('添加') }}</a-button>
-
       <a-spin :spinning="pageLoading" size="large">
         <div class="tab-content" :class="{ 'no-data': !listData.length }">
           <template v-if="listData.length">
-            <div v-for="(item, index) in listData" :key="index" class="item" :class="{ pass: item.pass, done: item.is_ok }">
+            <div v-for="(item, index) in listData" :key="index" class="item" :class="{ 'pass': item.pass, 'done': item.is_ok, 'about': about }">
               <div class="title">
                 <p>{{ tool.showDate(item.date) }}</p>
                 <div v-if="!item.is_ok && item.do && !isClose" class="flex">
@@ -94,6 +88,13 @@
           </template>
         </div>
       </a-spin>
+
+      <a-button
+        v-if="about && hasPermission('projects:about:add:conditions') && !isClose"
+        type="brown" shape="round" size="small"
+        class="mt-5"
+        @click="openAddEdit(false)"
+      >{{ t('添加') }}</a-button>
     </div>
   </div>
 </template>
@@ -352,6 +353,14 @@ onUnmounted(() => {
     padding: 10px 15px;
     border-radius: 8px;
     margin-top: 15px;
+    &.about {
+      border-radius: 0;
+      padding: 0;
+      padding-bottom: 15px;
+      border: none;
+      background-color: transparent;
+      border-bottom: 1px solid #ddd;
+    }
     .info {
       word-break: break-all;
     }
@@ -367,8 +376,14 @@ onUnmounted(() => {
       > .title > p {
         color: #282828 !important;
       }
+      .info {
+        text-decoration: line-through;
+      }
       * {
         opacity: 0.8;
+      }
+      &.about {
+        background-color: transparent;
       }
     }
     &:first-child {

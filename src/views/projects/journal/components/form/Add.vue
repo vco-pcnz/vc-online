@@ -4,7 +4,7 @@
     <a-modal :width="550" :open="visible" :title="t('平账')" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <div class="input-item">
-          <div class="label" :class="{ err: !formState.cate && validate }"></div>
+          <div class="label" :class="{ err: !formState.cate && validate }">Journal or Duration</div>
           <a-select style="width: 100%" v-model:value="formState.cate" :options="types" @change="loadType"></a-select>
         </div>
         <div class="input-item">

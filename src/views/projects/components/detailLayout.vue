@@ -1,5 +1,5 @@
 <template>
-  <vco-page-panel :title="(detail && detail.base.project_apply_sn) || ''" @back="back">
+  <vco-page-panel :title="(detail && detail.base.project_apply_sn+(pageTitle?'` '+t(pageTitle) :'')) || ''" @back="back">
     <div class="TabsPanel-Tab">
       <a-button v-for="item in panes" :key="item.key" @click="onChange(item.key)" :class="`tab-button ${item.key === props.activeTab ? 'active-tab' : ''}`">
         {{ item.title }}
@@ -10,7 +10,7 @@
 </template>
 
 <script setup>
-import { reactive, onMounted, ref, computed } from 'vue';
+import { onMounted, ref, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useUserStore } from '@/store';
 import { useRouter, useRoute } from 'vue-router';
@@ -82,6 +82,23 @@ onMounted(() => {
 defineExpose({
   getProjectDetail
 });
+
+const pageTitle = ref('');
+watch(
+  () => route,
+  (val) => {
+    if (val) {
+      if (router.currentRoute._value.meta.hide) {
+        pageTitle.value = router.currentRoute._value.meta.title;
+      } else {
+        pageTitle.value = '';
+      }
+    }
+  },
+  {
+    immediate: true
+  }
+);
 </script>
 
 <style scoped lang="less">

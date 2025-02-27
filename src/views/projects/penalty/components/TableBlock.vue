@@ -11,7 +11,7 @@
     </ul>
     <div v-if="tableData.length" class="table-body">
       <template v-for="item in tableData" :key="item.id">
-        <ul class="table-col tr" :class="{ active: active_id == item.id, declined: item.status === 1 }" @click="viewDetail(item)">
+        <ul class="table-col tr" :class="{ active: active_id == item.id, declined: item.state2 === 1000 }" @click="viewDetail(item)">
           <li><div class="circle" :class="{ done: item.status === 1 }"></div></li>
           <li class="date">
             <span class="fs_xs color_grey" v-if="item.start_date">{{ tool.showDate(item.start_date) }}</span>
@@ -52,7 +52,9 @@ const props = defineProps({
 const { t } = useI18n();
 const colors = ref({
   'FC REVIEW': '#d3a631',
-  'FC PENDING REVIEW': '#d3a631'
+  'FC PENDING REVIEW': '#d3a631',
+  'PENDING APPLY': '#d3a631',
+  'DIRECTOR PENDING REVIEW': '#d3a631'
 });
 
 const active_id = ref('');

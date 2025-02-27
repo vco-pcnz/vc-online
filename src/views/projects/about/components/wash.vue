@@ -13,15 +13,15 @@
     </li>
   </ul>
   <div class="mt-5">
-    <washTableModal :currentId="currentId"><a-button type="brown" shape="round" size="small">More</a-button></washTableModal>
+    <a-button type="brown" shape="round" @click="navigationTo('/projects/orgs?uuid=' + currentId)" size="small">More</a-button>
   </div>
 </template>
 
 <script setup>
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import washTableModal from './washTableModal.vue';
 import { projectDetailGetWash } from '@/api/project/wash';
+import { navigationTo } from '@/utils/tool';
 
 const { t } = useI18n();
 
@@ -33,7 +33,7 @@ watch(
   () => props.currentId,
   (val) => {
     if (val) {
-      projectDetailGetWash({ uuid: props.currentId, page: 1, limit: 10 }).then((res) => {
+      projectDetailGetWash({ uuid: props.currentId, page: 1, limit: 5 }).then((res) => {
         list.value = res.data;
       });
     }

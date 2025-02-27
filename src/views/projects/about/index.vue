@@ -96,6 +96,11 @@
                 >
                   <a-button type="brown" shape="round" size="small">{{ t('添加变更') }}</a-button>
                 </AddVariations>
+                <a-button
+                  v-if="hasPermission('projects:variations:view') && detail?.base?.variation"
+                  type="brown" shape="round" size="small"
+                  @click="navigationTo('/projects/variations?uuid=' + currentId)"
+                >{{ t('变更1') }}</a-button>
 
                 <Journal v-if="hasPermission('projects:journal:edit') && !detail?.base?.journal" :detail="detail" :currentId="currentId" @update="update">
                   <a-button type="brown" shape="round" size="small">{{ t('平账') }}</a-button>

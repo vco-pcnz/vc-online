@@ -704,5 +704,6 @@ export default {
   "变更金额": "Variation amount",
   "变更后借款总金额": "New total loan amount",
   "变更后结束日期": "Maturity after variation",
-  "变更后首次放款": "Initial drawdown after variation"
+  "变更后首次放款": "Initial drawdown after variation",
+  "关联用户": "Associate users"
 }

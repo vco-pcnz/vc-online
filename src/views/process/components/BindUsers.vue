@@ -375,8 +375,7 @@
   .block-item.about {
     box-shadow: none;
     background-color: transparent;
-    border-top: 1px solid #e2e5e2;
-    border-bottom: 1px solid #e2e5e2;
     border-radius: 0;
+    padding: 0 !important;
   }
 </style>

@@ -6,9 +6,17 @@
           <div class="project-info">
             <base-card :detail="detail"></base-card>
 
-            <bind-users v-if="currentId" :current-id="currentId" :is-close="Boolean(detail?.base.is_close)" :about="true"></bind-users>
-
             <a-collapse expand-icon-position="end" ghost>
+              <a-collapse-panel key="Associate" class="collapse-card">
+                <template #header>
+                  <div class="associate-content">
+                    <i class="iconfont" style="font-size: 14px;">&#xe720;</i>
+                    <span class="title">{{ t('关联用户') }}</span>
+                  </div>
+                </template>
+                <bind-users :current-id="currentId" :is-close="Boolean(detail?.base.is_close)" :about="true"></bind-users>
+              </a-collapse-panel>
+
               <a-collapse-panel key="History" class="collapse-card history-card">
                 <template #header>
                   <i class="iconfont">&#xe76c;</i>
@@ -206,12 +214,17 @@ const update = () => {
         font-weight: 600;
       }
 
+      &:nth-child(1) {
+        border-top: 1px solid #e2e5e2;
+      }
+
       &:nth-child(2) {
         border-top: 1px solid #e2e5e2;
         border-bottom: 1px solid #e2e5e2;
       }
 
-      &:nth-child(3) {
+      &:nth-child(3),
+      &:nth-child(4) {
         border-bottom: 1px solid #e2e5e2;
       }
 
@@ -241,5 +254,16 @@ const update = () => {
 
 :deep(.ant-alert-description) {
   font-size: 12px !important;
+}
+
+.associate-content {
+  position: relative;
+  left: -6px;
+  height: 33px;
+  display: flex;
+  align-items: center;
+  .title {
+    margin-left: 10px !important;
+  }
 }
 </style>

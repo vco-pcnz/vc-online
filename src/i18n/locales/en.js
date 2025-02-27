@@ -706,5 +706,6 @@ export default {
   "变更后结束日期": "Maturity after variation",
   "变更后首次放款": "Initial drawdown after variation",
   "关联用户": "Associate users",
-  "变更1": "Variations"
+  "变更1": "Variations",
+  "反洗钱": "Wash"
 }

@@ -40,7 +40,6 @@ export const sendSms = (data) =>
     data
   });
 
-
 // 反洗钱-重命名
 export const sendEmail = (data) =>
   request({
@@ -50,10 +49,41 @@ export const sendEmail = (data) =>
   });
 
 // 反洗钱-删除
-  export const washCheck = (data) =>
-    request({
-      url: 'project/wash/check',
-      method: 'post',
-      data
-    });
-  
+export const washCheck = (data) =>
+  request({
+    url: 'project/wash/check',
+    method: 'post',
+    data
+  });
+
+// 新增编辑
+export const detailAdd = (data) =>
+  request({
+    url: 'project/wash/wedit',
+    method: 'post',
+    data
+  });
+
+// 添加和修改反洗钱
+export const applyWash = (params) =>
+  request({
+    url: 'project/wash/applyWash',
+    method: 'get',
+    params
+  });
+
+// 反洗钱审核同意
+export const wsaveStep = (data) =>
+  request({
+    url: 'project/wash/wsaveStep',
+    method: 'post',
+    data
+  });
+
+// 反洗钱拒绝
+export const wdecline = (data) =>
+  request({
+    url: 'project/wash/wdecline',
+    method: 'post',
+    data
+  });

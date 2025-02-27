@@ -57,7 +57,7 @@
                   <a-date-picker class="mt-3" v-model:value="formState.condition_time" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" :disabledDate="disabledDateFormat" />
                 </a-form-item>
                 <a-form-item :label="t('描述')">
-                  <a-textarea v-model:value="formState.condition_desc" :placeholder="t('请输入')" style="min-height: 98px;" />
+                  <a-textarea v-model:value="formState.condition_desc" :placeholder="t('请输入')" style="min-height: 98px" />
                 </a-form-item>
               </div>
             </a-form-item>
@@ -116,8 +116,8 @@
 import { watch, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { pick, trim, cloneDeep } from 'lodash';
-import { washAdd } from '@/api/project/wash';
-import { selectDateFormat } from "@/utils/tool"
+import { washAdd, detailAdd } from '@/api/project/wash';
+import { selectDateFormat } from '@/utils/tool';
 import emitter from '@/event';
 
 const emits = defineEmits(['update:visible', 'update']);
@@ -134,6 +134,10 @@ const props = defineProps({
   infoData: {
     type: Object,
     default: () => {}
+  },
+  isDetail: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -210,12 +214,21 @@ const submitHandle = () => {
       // }
 
       subLoading.value = true;
-      washAdd(params)
+      let ajaxFn = null;
+      if (props.isDetail) {
+        ajaxFn = detailAdd;
+      } else {
+        ajaxFn = washAdd;
+      }
+
+      ajaxFn(params)
         .then(() => {
           subLoading.value = false;
           emits('update');
           updateVisible(false);
-          emitter.emit('refreshConditionsList');
+          if (!props.isDetail) {
+            emitter.emit('refreshConditionsList');
+          }
         })
         .catch(() => {
           subLoading.value = false;

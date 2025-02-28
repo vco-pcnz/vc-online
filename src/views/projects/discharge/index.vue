@@ -8,7 +8,7 @@
         :info-data="itemInfo"
         :project-info="projectDetail?.base"
         :is-open="true"
-        @refresh="loadData"
+        @refresh="tabChange(true)"
       ></security-add-edit>
 
       <div class="ProjectDrawdowns">
@@ -22,10 +22,13 @@
             </div>
           </template>
         </div>
+
+        <vco-page-tab :tabData="tabData" v-model:current="currentTab" @change="tabChange(false)"></vco-page-tab>
+
         <div :class="{ grid: tableData.length }">
           <a-spin :spinning="loading" size="large">
             <div class="table-content">
-              <TableBlock :tableData="tableData" @change="change"></TableBlock>
+              <TableBlock :tableData="tableData" :is-add="currentTab === 1" @change="change"></TableBlock>
             </div>
             <div class="mt-5" v-if="total">
               <a-pagination size="small" :total="total" :pageSize="pagination.limit" :current="pagination.page" :show-size-changer="false" show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
@@ -37,11 +40,12 @@
               ref="detailRef"
               :projectDetail="projectDetail"
               :uuid="uuid"
+              :is-add="currentTab === 1"
               :detail="detail_info"
               @itemEdit="openAddEdit(detail_info)"
               @update="loadData"
             >
-          </Detail>
+            </Detail>
           </div>
         </div>
       </div>
@@ -57,7 +61,7 @@ import MeterStat from './components/MeterStat.vue';
 import TableBlock from './components/TableBlock.vue';
 import Detail from './components/Detail.vue';
 import { hasPermission } from '@/directives/permission/index';
-import { dischargeSecurity } from '@/api/project/loan';
+import { dischargeSecurity, dischargeApplySecurity } from '@/api/project/loan';
 import { useRoute } from 'vue-router';
 import SecurityAddEdit from '@/views/process/temp/default/components/SecurityAddEdit.vue';
 
@@ -71,6 +75,28 @@ const total = ref(0);
 const loading = ref(true);
 const detailRef = ref();
 const MeterStatRef = ref();
+
+const currentTab = ref(0)
+const tabData = ref([
+  {
+    label: t('解押申请'),
+    value: 0
+  },
+  {
+    label: t('添加申请'),
+    value: 1
+  }
+])
+
+const tabChange = (flag) => {
+  if (flag) {
+    currentTab.value = 1
+  }
+  
+  pagination.value.page = 1
+  loadData()
+};
+
 const pagination = ref({
   page: 1,
   limit: 5
@@ -89,7 +115,8 @@ const tableData = ref([]);
 const loadData = () => {
   loading.value = true;
 
-  dischargeSecurity({ uuid: uuid.value, ...pagination.value })
+  const ajaxFn = currentTab.value ? dischargeApplySecurity : dischargeSecurity
+  ajaxFn({ uuid: uuid.value, ...pagination.value })
     .then((res) => {
       const data = res.data || []
       tableData.value = data;

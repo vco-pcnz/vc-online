@@ -3,9 +3,9 @@
 
   <div class="detail">
     <a-alert
-      v-if="Boolean(detail?.cancel_reason)"
-      :message="t('退回原因')"
-      :description="detail?.cancel_reason"
+      v-if="Boolean(detail?.cancel_reason) || Boolean(detail?.state2_decline_reason)"
+      :message="detail?.state2_decline_reason ? t('拒绝原因') : t('退回原因')"
+      :description="detail?.state2_decline_reason || detail?.cancel_reason"
       type="error"
       class="cancel-reason"
     />
@@ -88,11 +88,14 @@
       </a-col>
     </a-row>
 
-    <drawdownre-quest v-if="!projectDetail?.base?.is_close && detail.state === 0 && hasPermission('projects:discharge:review')" :detail="detail" :p-uuid="uuid" @change="update">
+    <drawdownre-quest 
+      v-if="!projectDetail?.base?.is_close && detail.state === 0 && hasPermission('projects:discharge:review') && !isAdd"
+      :detail="detail" :p-uuid="uuid"
+      @change="update">
       <a-button type="dark" class="big uppercase mt-5" style="width: 100%">{{ t('解押申请') }}</a-button>
     </drawdownre-quest>
 
-    <div v-if="detail?.prev_permission"  class="mt-10">
+    <div v-if="detail?.prev_permission && !isAdd"  class="mt-10">
       <a-popconfirm :title="t('您确实要撤回该请求吗？')" @confirm="recall">
         <a-button type="dark" class="big uppercase" style="width: 100%">{{ t('撤回申请') }}</a-button>
       </a-popconfirm>
@@ -102,11 +105,19 @@
       <a-popconfirm :title="t('您确定要接受该请求吗？')" @confirm="accept">
         <a-button type="dark" class="big uppercase" style="width: 100%">{{ t('接受请求') }}</a-button>
       </a-popconfirm>
-      <div class="mt-4">
+      <div class="mt-4" v-if="!isAdd">
         <p class="text-center color_grey fs_xs my-3">{{ t('您可以点击下面的按钮来退回解押请求。') }}</p>
         <DrawdownBack :uuid="uuid" :detail="detail" @change="update">
           <div class="flex justify-center">
             <a-button type="danger" size="small" shape="round">{{ t('退回请求') }}</a-button>
+          </div>
+        </DrawdownBack>
+      </div>
+      <div class="mt-4" v-else>
+        <p class="text-center color_grey fs_xs my-3">{{ t('您可以点击下面的按钮来拒绝请求。') }}</p>
+        <DrawdownBack :uuid="uuid" :detail="detail" :is-add="isAdd" @change="update">
+          <div class="flex justify-center">
+            <a-button type="danger" size="small" shape="round">{{ t('拒绝请求') }}</a-button>
           </div>
         </DrawdownBack>
       </div>
@@ -122,7 +133,7 @@ import { navigationTo } from '@/utils/tool';
 import { hasPermission } from '@/directives/permission/index';
 import DrawdownreQuest from './form/DrawdownRequest.vue';
 import DrawdownBack from './form/DrawdownBack.vue';
-import { dischargeSaveStep, dischargeRecall } from '@/api/project/loan';
+import { dischargeSaveStep, dischargeSaveDStep, dischargeRecall } from '@/api/project/loan';
 import { projectDetailDeleteSecurity } from '@/api/process';
 
 const { t } = useI18n();
@@ -137,12 +148,17 @@ const props = defineProps({
   },
   projectDetail: {
     type: Object
+  },
+  isAdd: {
+    type: Boolean,
+    default: false
   }
 });
 
 // 同意
 const accept = async () => {
-  await dischargeSaveStep({ p_uuid: props.uuid, uuid: props.detail?.uuid })
+  const ajaxFn = props.isAdd ? dischargeSaveDStep : dischargeSaveStep
+  await ajaxFn({ p_uuid: props.uuid, uuid: props.detail?.uuid })
     .then((res) => {
       update();
       return true

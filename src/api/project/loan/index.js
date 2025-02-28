@@ -184,6 +184,14 @@ export const dischargeSecurity = (params) =>
     params
   });
 
+// 解押添加-列表
+export const dischargeApplySecurity = (params) =>
+  request({
+    url: 'project/discharge/applySecurity',
+    method: 'get',
+    params
+  });
+
 // 解押-申请提交
 export const dischargeEdit = (data) =>
   request({
@@ -200,6 +208,14 @@ export const dischargeSaveStep = (data) =>
     data
   });
 
+// 抵押物添加-同意申请
+export const dischargeSaveDStep = (data) =>
+  request({
+    url: 'project/discharge/dsaveStep',
+    method: 'post',
+    data
+  });
+
 // 解押-召回申请
 export const dischargeRecall = (data) =>
   request({
@@ -212,6 +228,14 @@ export const dischargeRecall = (data) =>
 export const dischargeGoback = (data) =>
   request({
     url: 'project/discharge/goBack',
+    method: 'post',
+    data
+  });
+
+// 解押添加-拒绝
+export const dischargeDdecline = (data) =>
+  request({
+    url: 'project/discharge/ddecline',
     method: 'post',
     data
   });

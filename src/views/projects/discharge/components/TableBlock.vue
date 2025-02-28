@@ -6,7 +6,7 @@
       <li>{{ t('产权编号') }}</li>
       <li>{{ t('类型') }}</li>
       <li>{{ t('抵押物价值') }}</li>
-      <li>{{ t('当前抵押物价值') }}</li>
+      <li v-if="!isAdd">{{ t('当前抵押物价值') }}</li>
       <li>{{ t('状态') }}</li>
       <li>{{ t('创建时间') }}</li>
     </ul>
@@ -22,7 +22,7 @@
           <li>
             <vco-number :value="item.amount" :precision="2" size="fs_md" :end="true"></vco-number>
           </li>
-          <li>
+          <li v-if="!isAdd">
             <vco-number :value="item.real_amount" :precision="2" size="fs_md" :end="true"></vco-number>
           </li>
           <li :style="{ color: colors[item.status_name] }">{{ item.status_name }}</li>
@@ -44,6 +44,10 @@ const props = defineProps({
   tableData: {
     type: Array,
     default: () => []
+  },
+  isAdd: {
+    type: Boolean,
+    default: false
   }
 });
 

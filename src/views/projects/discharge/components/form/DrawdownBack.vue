@@ -1,7 +1,7 @@
 <template>
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="DrawdownBack" class="DrawdownBack">
-    <a-modal :width="486" :open="visible" :title="t('退回请求')" :getContainer="() => $refs.DrawdownBack" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
+    <a-modal :width="486" :open="visible" :title="isAdd ? t('拒绝请求') : t('退回请求')" :getContainer="() => $refs.DrawdownBack" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <a-form
           ref="formRef"
@@ -9,7 +9,7 @@
           :model="formState"
           :rules="formRules"
         >
-          <a-form-item :label="t('退回原因')" name="cancel_reason">
+          <a-form-item :label="isAdd ? t('拒绝原因') : t('退回原因')" name="cancel_reason">
             <a-textarea v-model:value="formState.cancel_reason" :rows="6" />
           </a-form-item>
         </a-form>
@@ -27,7 +27,7 @@
 <script scoped setup>
 import { ref, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { dischargeGoback } from '@/api/project/loan';
+import { dischargeGoback, dischargeDdecline } from '@/api/project/loan';
 
 const { t } = useI18n();
 const emits = defineEmits(['change']);
@@ -38,6 +38,10 @@ const props = defineProps({
   },
   detail: {
     type: Object
+  },
+  isAdd: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -68,9 +72,18 @@ const save = () => {
         p_uuid: props.uuid,
         uuid: props.detail.uuid
       }
+
+      let ajaxFn = dischargeGoback
+
+      if (props.isAdd) {
+        ajaxFn = dischargeDdecline
+        params.state2_decline_reason = params.cancel_reason
+        delete params.cancel_reason
+      }
+      
       loading.value = true
 
-      dischargeGoback(params).then(() => {
+      ajaxFn(params).then(() => {
         loading.value = false
         visible.value = false
         emits('change')

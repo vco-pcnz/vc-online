@@ -46,7 +46,7 @@
           </template>
           <template v-if="column.dataIndex === 'operation'">
             <div class="ops">
-              <a-button type="primary" size="small" @click="showDetail(record)">{{ t('详情') }}</a-button>
+              <a-button type="brown" size="small" shape="round" class="uppercase" @click="showDetail(record)">{{ t('详情') }}</a-button>
             </div>
           </template>
         </template>

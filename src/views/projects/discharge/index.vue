@@ -90,6 +90,7 @@ const tabData = ref([
 
 const tabChange = (flag) => {
   if (flag) {
+    MeterStatRef.value.loadData()
     currentTab.value = 1
   }
   

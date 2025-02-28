@@ -47,7 +47,7 @@
               </a-alert>
             </a-col>
             <a-col :span="14">
-              <a-form-item :label="t('解押标题')" name="dirname">
+              <a-form-item :label="t('文件夹名称')" name="dirname">
                 <a-input v-model:value="formState.dirname" :placeholder="t('请输入')" :rows="3"/>
               </a-form-item>
             </a-col>
@@ -67,7 +67,7 @@
                 <a-textarea v-model:value="formState.reason" :placeholder="t('请输入')" :rows="3"/>
               </a-form-item>
             </a-col>
-            <a-col :span="24">
+            <a-col v-if="visible" :span="24">
               <documents-upload v-model:value="document">
                 <div class="upload-title">{{ t('文件') }}</div>
               </documents-upload>
@@ -119,7 +119,7 @@ const formRef = ref()
 
 const formRules = ref({
   dirname: [
-    { required: true, message: t('请输入') + t('解押标题'), trigger: 'blur' },
+    { required: true, message: t('请输入') + t('文件夹名称'), trigger: 'blur' },
   ],
   real_amount: [
     { required: true, message: t('请输入') + t('当前抵押物价值'), trigger: 'blur' },
@@ -127,6 +127,15 @@ const formRules = ref({
 });
 
 const updateVisible = (value) => {
+  if (!value) {
+    document.value = []
+    formRef.value.clearValidate();
+    formRef.value.resetFields();
+    Object.keys(formState.value).forEach((key) => {
+      formState.value[key] = ''; // 清空每个字段
+    });
+  }
+
   visible.value = value;
 };
 
@@ -144,7 +153,7 @@ const save = () => {
 
       dischargeEdit(params).then(() => {
         loading.value = false
-        visible.value = false
+        updateVisible(false)
         emits('change')
       }).catch(() => {
         loading.value = false
@@ -156,15 +165,9 @@ const save = () => {
 };
 
 const init = () => {
-  visible.value = true;
+  updateVisible(true)
 
   nextTick(() => {
-    formRef.value.clearValidate();
-    formRef.value.resetFields();
-    Object.keys(formState.value).forEach((key) => {
-      formState.value[key] = ''; // 清空每个字段
-    });
-
     formState.value.dirname = props.detail.security_name
   })
 };

@@ -113,7 +113,7 @@ export default {
   "创建时间": "Create date",
   "客户经理": "LM",
   "开始日期": "Open",
-  "结束日期": "Maturuty",
+  "结束日期": "Maturity",
   "{0}天": "{0} days",
   "项目图片": "Images",
   "状态": "Status",
@@ -716,4 +716,5 @@ export default {
   "操作成功": "Operation successful",
   "解押申请": "Discharge Request",
   "添加申请": "Add Request",
+  "文件夹名称": "Folder Name"
 }

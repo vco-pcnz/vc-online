@@ -242,7 +242,9 @@ const handlePathChange = () => {
     background-color: #858585;
     color: #fff;
     font-size: 11px;
-    padding: 2px 20px;
+    padding: 2px 0;
+    width: 100%;
+    text-align: center;
     top: 2px;
     right: 0;
     border-top-right-radius: 12px;

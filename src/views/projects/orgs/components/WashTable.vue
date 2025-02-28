@@ -94,7 +94,7 @@
       </div>
     </div>
   </a-spin>
-  <WashTableAddEdit v-model:visible="visible" :currentId="currentId" :infoData="editData" :isDetail="true" @update="loadData"></WashTableAddEdit>
+  <WashTableAddEdit v-model:visible="visible" :currentId="currentId" :infoData="editData" :isDetail="editData?false:true" @update="loadData"></WashTableAddEdit>
 
   <a-modal :open="visibleFiles" :title="t('详情')" :width="640" :footer="null" :keyboard="false" :maskClosable="false" @update:open="visibleFiles = false">
     <p class="fs_xs color_grey">{{ t('项目文件') }}</p>

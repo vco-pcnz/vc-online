@@ -37,12 +37,12 @@ const tabData = ref([
     label: t('申请中'),
     value: '2',
     num: 0
-  },
-  {
-    label: t('利益相关者'),
-    value: '3',
-    num: 0
   }
+  // {
+  //   label: t('利益相关者'),
+  //   value: '3',
+  //   num: 0
+  // }
 ]);
 
 onMounted(() => {

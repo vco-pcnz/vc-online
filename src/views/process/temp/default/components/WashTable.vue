@@ -99,7 +99,7 @@
                   <!-- <i class="iconfont" :title="t('有条件')" v-if="Boolean(record.status == 3)">&#xe73a;</i> -->
                   <i class="iconfont" :title="t('项目文件')" v-if="Boolean(record.document && record.document.length)" @click="updateVisibleFiles(record)">&#xe690;</i>
                   <template v-if="blockInfo.showEdit">
-                    <i class="iconfont" :title="t('审核')" @click="checkOne(record.id)" v-if="record.status != 4 && record.status != 3 && record.document.length">&#xe647;</i>
+                    <i class="iconfont" :title="t('审核')" @click="checkOne(record.id)" v-if="record.status != 4 && record.status != 3 && record.document && record.document.length">&#xe647;</i>
                     <i class="iconfont" :title="t('编辑')" @click="showForm(record)">&#xe753;</i>
                     <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.id)">
                       <i class="iconfont" :title="t('删除l')">&#xe8c1;</i>

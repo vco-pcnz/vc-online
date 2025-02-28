@@ -31,22 +31,21 @@
             {{ record.data.email }}
           </template>
           <template v-if="column.dataIndex === 'mobile'">
-            {{ record.data.mobile || '--' }}
+            <template v-if="record.data.pre && record.data.mobile"> +{{ record.data.pre + ' ' + record.data.mobile }} </template>
+            <template v-else-if="record.data.mobile">
+              {{ record.data.mobile }}
+            </template>
+            <template v-else> -- </template>
           </template>
           <template v-if="column.dataIndex === 'decline_reason'">
-           {{ record.decline_reason || '--' }}
+            {{ record.decline_reason || '--' }}
           </template>
           <template v-if="column.dataIndex === 'status_name'">
             <p :style="{ color: colors[record.status_name] }">{{ record.status_name || '--' }}</p>
           </template>
           <template v-if="column.dataIndex === 'operation'">
-            <div class="ops" v-if="record.has_permission">
-              <a-popconfirm :title="t('您确定要接受该请求吗？')" @confirm="accept(record)">
-                <a-button type="primary" size="small">{{ t('同意') }}</a-button>
-              </a-popconfirm>
-              <a-button type="danger" size="small" @click="decline(record)">{{ t('拒绝') }}</a-button>
-            </div>
-            <div v-else>--</div>
+            <a-button v-if="record.has_permission" type="primary" size="small" shape="round" class="uppercase" @click="openDetail(record)">{{ t('审核') }}</a-button>
+            <a-button v-else type="brown" size="small" shape="round" class="uppercase" @click="openDetail(record)">{{ t('详情') }}</a-button>
           </template>
         </template>
       </a-table>
@@ -70,17 +69,18 @@
       </div>
     </template>
   </a-modal>
-  <Decline v-model:visible="visibleDecline" :uuid="currentId" :id="itemData ? itemData.id : ''" @update="loadData"></Decline>
+  <WashDetail v-model:visible="visibleDetail" :uuid="currentId" :detailData="itemData?.data" :process="itemData" @update="loadData"></WashDetail>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool.js';
-import { applyWash, wsaveStep } from '@/api/project/wash';
 import { useRoute } from 'vue-router';
 import { hasPermission } from '@/directives/permission/index';
 import Decline from './Decline.vue';
+import WashDetail from './WashDetail.vue';
+import { applyWash } from '@/api/project/wash';
 
 const route = useRoute();
 
@@ -101,15 +101,15 @@ const columns = reactive([
   { title: t('名称'), dataIndex: 'name', width: 120, align: 'center', ellipsis: true },
   { title: t('类型'), dataIndex: 'cate', width: 200, align: 'center', ellipsis: true },
   { title: t('邮箱'), dataIndex: 'email', width: 200, align: 'left', ellipsis: true },
-  { title: t('状态'), dataIndex: 'status_name', width: 200, align: 'center', ellipsis: true },
-  { title: t('电话'), dataIndex: 'mobile', width: 200, align: 'center', ellipsis: true },
+  { title: t('状态'), dataIndex: 'status_name', width: 200, ellipsis: true },
+  { title: t('电话'), dataIndex: 'mobile', width: 200, ellipsis: true },
   { title: t('拒绝原因'), dataIndex: 'decline_reason', ellipsis: true },
   {
     title: t('操作1'),
     dataIndex: 'operation',
     // fixed: 'right',
     align: 'center',
-    width: 150
+    width: 110
   }
 ]);
 
@@ -196,22 +196,16 @@ const setPaginate = (page, limit) => {
   loadData();
 };
 
-// 同意
-const accept = async (item) => {
-  await wsaveStep({ uuid: currentId.value, id: item.id })
-    .then((res) => {
-      loadData();
-      return true;
-    })
-    .catch(() => {
-      return false;
-    });
-};
-
 const visibleDecline = ref(false);
 const decline = (item) => {
   itemData.value = item;
   visibleDecline.value = true;
+};
+
+const visibleDetail = ref(false);
+const openDetail = (item) => {
+  itemData.value = item;
+  visibleDetail.value = true;
 };
 
 onMounted(() => {
@@ -226,7 +220,7 @@ onMounted(() => {
 .ops {
   display: flex;
   gap: 6px;
-  justify-content: flex-center;
+  justify-content: flex-end;
   .iconfont {
     cursor: pointer;
     color: @colorPrimary!important;

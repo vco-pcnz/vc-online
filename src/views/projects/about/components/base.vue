@@ -23,11 +23,11 @@
     </p>
     <p class="text-2xl name">{{ detail?.base.project_name }}</p>
     <p class="purpose">
-      <template v-if="detail && detail?.base.project_about.length > 120 && !isExpand"> {{ detail?.base.project_about.substring(0, 120) }}... </template>
+      <template v-if="detail && detail?.base.project_about.length > 100 && !isExpand"> {{ detail?.base.project_about.substring(0, 100) }}... </template>
       <template v-else>
         {{ detail?.base.project_about }}
       </template>
-      <template v-if="detail && detail?.base.project_about.length > 120">
+      <template v-if="detail && detail?.base.project_about.length > 100">
         <a-button type="grey" style="transform: scale(0.8)" size="small" v-if="!isExpand" @click="isExpand = !isExpand">{{ t('展开') }}</a-button>
         <a-button type="grey" style="transform: scale(0.8)" size="small" v-if="isExpand" @click="isExpand = !isExpand">{{ t('收起') }}</a-button>
       </template>

@@ -27,6 +27,13 @@
             <span class="cer" v-if="record.cate == 2">{{ t('担保人') }}</span>
             <span class="cer" v-if="record.cate == 3">{{ t('投资人') }}</span>
           </template>
+          <template v-if="column.dataIndex === 'mobile'">
+            <template v-if="record.pre && record.mobile"> +{{ record.pre + ' ' + record.mobile }} </template>
+            <template v-else-if="record.mobile">
+              {{ record.mobile }}
+            </template>
+            <template v-else> -- </template>
+          </template>
           <template v-if="column.dataIndex === 'status'">
             <span v-if="record.status == 0" class="cer">{{ t('待通知') }}</span>
             <span v-if="record.status == 1" class="cer">{{ t('待反馈') }}</span>
@@ -37,6 +44,11 @@
             </template>
             <span v-if="record.status == 4" style="color: #0bda8e">{{ t('已完成') }}</span>
           </template>
+          <template v-if="column.dataIndex === 'operation'">
+            <div class="ops">
+              <a-button type="primary" size="small" @click="showDetail(record)">{{ t('详情') }}</a-button>
+            </div>
+          </template>
         </template>
       </a-table>
       <div class="flex justify-center">
@@ -44,6 +56,7 @@
       </div>
     </div>
   </a-spin>
+  <WashDetail v-model:visible="visibleDetail" :detailData="itemData"></WashDetail>
 </template>
 
 <script setup>
@@ -52,6 +65,7 @@ import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool.js';
 import { projectDetailGetWash } from '@/api/project/wash';
 import { useRoute } from 'vue-router';
+import WashDetail from './WashDetail.vue';
 
 const route = useRoute();
 
@@ -72,7 +86,14 @@ const columns = reactive([
   { title: t('名称'), dataIndex: 'name', width: 120, align: 'center', ellipsis: true },
   { title: t('类型'), dataIndex: 'cate', width: 100, align: 'center', ellipsis: true },
   { title: t('邮箱'), dataIndex: 'email', width: 120, align: 'left', ellipsis: true },
-  { title: t('电话'), dataIndex: 'mobile', width: 120, align: 'center', ellipsis: true }
+  { title: t('电话'), dataIndex: 'mobile', width: 120, ellipsis: true },
+  {
+    title: t('详情'),
+    dataIndex: 'operation',
+    // fixed: 'right',
+    align: 'center',
+    width: 110
+  }
 ]);
 
 const tableData = ref([]);
@@ -148,6 +169,13 @@ const setPaginate = (page, limit) => {
   loadData();
 };
 
+const itemData = ref();
+const visibleDetail = ref(false);
+const showDetail = (item) => {
+  itemData.value = item;
+  visibleDetail.value = true;
+};
+
 onMounted(() => {
   currentId.value = route.query.uuid;
   loadData();
@@ -160,7 +188,7 @@ onMounted(() => {
 .ops {
   display: flex;
   gap: 6px;
-  justify-content: flex-end;
+  justify-content: center;
   .iconfont {
     cursor: pointer;
     color: @colorPrimary!important;

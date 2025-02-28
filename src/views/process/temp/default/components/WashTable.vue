@@ -81,6 +81,9 @@
                 <span class="cer" v-if="record.cate == 2">{{ t('担保人') }}</span>
                 <span class="cer" v-if="record.cate == 3">{{ t('投资人') }}</span>
               </template>
+              <template v-if="column.dataIndex === 'mobile'">
+                {{ record.pre && record.mobile ? '+' + record.pre + ' ' + record.mobile : record.mobile }}
+              </template>
               <template v-if="column.dataIndex === 'status'">
                 <span v-if="record.status == 0" class="cer">{{ t('待通知') }}</span>
                 <span v-if="record.status == 1" class="cer">{{ t('待反馈') }}</span>

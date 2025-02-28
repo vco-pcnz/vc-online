@@ -59,6 +59,13 @@
             <span class="cer" v-if="record.cate == 2">{{ t('担保人') }}</span>
             <span class="cer" v-if="record.cate == 3">{{ t('投资人') }}</span>
           </template>
+          <template v-if="column.dataIndex === 'mobile'">
+            <template v-if="record.pre && record.mobile"> +{{ record.pre + ' ' + record.mobile }} </template>
+            <template v-else-if="record.mobile">
+              {{ record.mobile }}
+            </template>
+            <template v-else> -- </template>
+          </template>
           <template v-if="column.dataIndex === 'status'">
             <span v-if="record.status == 0" class="cer">{{ t('待通知') }}</span>
             <span v-if="record.status == 1" class="cer">{{ t('待反馈') }}</span>
@@ -130,10 +137,10 @@ const visibleSlect = ref(false);
 const selectAll = ref('');
 
 const columns = reactive([
-  { title: t('名称'), dataIndex: 'name', width: 120, align: 'center', ellipsis: true },
-  { title: t('类型'), dataIndex: 'cate', width: 100, align: 'center', ellipsis: true },
-  { title: t('邮箱'), dataIndex: 'email', width: 120, align: 'left', ellipsis: true },
-  { title: t('电话'), dataIndex: 'mobile', width: 120, align: 'center', ellipsis: true },
+  { title: t('名称'), dataIndex: 'name', width: 220, align: 'center', ellipsis: true },
+  { title: t('类型'), dataIndex: 'cate', width: 220, align: 'center', ellipsis: true },
+  { title: t('邮箱'), dataIndex: 'email', width: 220, align: 'left', ellipsis: true },
+  { title: t('电话'), dataIndex: 'mobile', width: 220, ellipsis: true },
   { title: t('状态t'), dataIndex: 'status', width: 150, align: 'center' },
   {
     title: t('操作1'),

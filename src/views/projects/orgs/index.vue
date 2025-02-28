@@ -1,10 +1,10 @@
 <template>
   <detail-layout active-tab="journal">
     <template #content>
-      <vco-page-tab :tabData="tabData" v-model:current="currentTab" @change="tabChange" class="mb-5"></vco-page-tab>
-      <WashTable :currentId="currentId" v-if="currentTab == 1"></WashTable>
-      <RequestTable :currentId="currentId"  v-if="currentTab == 2"></RequestTable>
-      <OrgsTable :currentId="currentId"  v-if="currentTab == 3"></OrgsTable>
+      <vco-page-tab :tabData="tabData" v-model:current="currentTab" class="mb-5"></vco-page-tab>
+      <WashTable v-if="currentTab == 1"></WashTable>
+      <RequestTable v-if="currentTab == 2"></RequestTable>
+      <OrgsTable v-if="currentTab == 3"></OrgsTable>
     </template>
   </detail-layout>
 </template>
@@ -25,7 +25,7 @@ const emits = defineEmits(['check', 'refresh']);
 
 const { t } = useI18n();
 
-const currentId = ref('')
+const currentId = ref('');
 const currentTab = ref('1');
 const tabData = ref([
   {
@@ -44,10 +44,6 @@ const tabData = ref([
     num: 0
   }
 ]);
-
-const tabChange = () => {
-  console.log(currentTab.value);
-};
 
 onMounted(() => {
   currentId.value = route.query.uuid;

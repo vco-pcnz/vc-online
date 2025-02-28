@@ -53,7 +53,7 @@
 
     <!-- 对账 -->
     <ReconciliationModal v-if="hasPermission('projects:detail:doReconcile') && detail?.status == 1" :apply_id="detail?.id" @update="update">
-      <a-button type="cyan" class="big uppercase" style="width: 100%"> {{ t('对账') }} </a-button>
+      <a-button type="cyan" class="big uppercase mt-3" style="width: 100%"> {{ t('对账') }} </a-button>
     </ReconciliationModal>
   </div>
 </template>

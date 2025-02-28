@@ -5,11 +5,25 @@
       <div class="content sys-form-content">
         <template v-for="(item, index) in initData" :key="index">
           <div class="input-item">
-            <div class="label" :class="{ err: !formState[item.key] && validate && item.required }">{{ t(item.label) }}</div>
+            <div class="label" :class="{ err: !trim(formState[item.key]) && validate && item.required }">{{ t(item.label) }}</div>
             <template v-if="item.type === 'date'">
               <a-date-picker class="datePicker" inputReadOnly v-model:value="formState[item.key]" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" :showToday="false" :disabledDate="item.disabledDate" />
             </template>
             <template v-if="item.type === 'textarea'"> <a-textarea v-model:value="formState[item.key]" :rows="5" /> </template>
+            <template v-if="item.type === 'upload'">
+              <vco-upload-modal v-model:list="documentList" v-model:value="formState[item.key]">
+                <a-button class="upload_btn" type="brown" shape="round" size="small"> {{ t('上传') }}</a-button>
+              </vco-upload-modal>
+            
+              <div class="file-content">
+                <template v-if="documentList.length">
+                  <div v-for="(item, index) in documentList" :key="index" class="file-item">
+                    <vco-file-item :file="item" :showClose="true" @remove="remove(index)"></vco-file-item>
+                  </div>
+                </template>
+                <p v-if="!documentList.length">{{ t('暂无数据，请上传') }}</p>
+              </div>
+            </template>
           </div>
         </template>
         <div class="flex justify-center">
@@ -23,11 +37,12 @@
 </template>
 
 <script scoped setup>
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import { selectDateFormat } from '@/utils/tool';
 import { request } from '@/utils/request';
+import { trim ,cloneDeep} from 'lodash';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);
@@ -69,6 +84,12 @@ const updateVisible = (value) => {
   visible.value = value;
 };
 
+const documentList = ref([]);
+// 删除文件
+const remove = (index) => {
+  documentList.value.splice(index, 1);
+};
+
 const confirm = () => {
   validate.value = true;
   let keys = props.initData.filter((item) => !item.hide).map((item) => item.key);
@@ -80,16 +101,13 @@ const confirm = () => {
       formState.value[item] = '';
     }
   });
-  loading.value = true;
-  let params = {
-    ...formState.value,
-    ...props.formParams
-  };
   const paramsInfo = {
     url: props.url,
     method: 'post',
-    data: params
+    data: formState.value
   };
+
+  loading.value = true;
   request(paramsInfo)
     .then((res) => {
       emits('update');
@@ -103,6 +121,7 @@ const confirm = () => {
 
 const init = () => {
   formState.value = {};
+  formState.value = cloneDeep(props.formParams)
   visible.value = true;
 };
 </script>
@@ -141,6 +160,25 @@ const init = () => {
 
   .input-item {
     margin-top: 20px;
+    position: relative;
   }
+}
+
+.file-content {
+  border: 1px solid #272727 !important;
+  border-radius: 10px !important;
+  background-color: #f7f9f8;
+  padding: 15px;
+  > p {
+    text-align: center;
+    font-size: 14px;
+    color: #999;
+  }
+}
+
+.upload_btn {
+  position: absolute;
+  top: -4px;
+  right: 0;
 }
 </style>

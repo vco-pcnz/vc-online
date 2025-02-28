@@ -716,5 +716,6 @@ export default {
   "操作成功": "Operation successful",
   "解押申请": "Discharge Request",
   "添加申请": "Add Request",
-  "文件夹名称": "Folder Name"
+  "文件夹名称": "Folder Name",
+  "重新打开": "Re-Open",
 }

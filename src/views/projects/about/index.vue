@@ -48,55 +48,10 @@
             </a-collapse>
           </div>
           <div class="project-content">
-            <template v-if="hasPermission('projects:about:add:closeFc') && detail?.base?.is_open == 1 && detail?.base?.closed_cancel_reason">
-              <a-alert type="error" :message="t('退回原因')" class="mb-5 cancel-reason" style="margin-top: -30px">
-                <template #description>
-                  {{ detail?.base?.closed_cancel_reason }}
-                  <div class="mt-3 flex items-center justify-end">
-                    <vco-form-dialog :title="t('拟关闭')" :initData="toBeClosedFormData" :formParams="{ uuid: currentId }" url="projectDetail/close" @update="update">
-                      <a-button type="dark" size="small">{{ t('拟关闭') }}</a-button>
-                    </vco-form-dialog>
-                  </div>
-                </template>
-              </a-alert>
-            </template>
-
-            <template v-if="detail?.base?.close_permission && detail?.base?.is_open == 2">
-              <a-alert type="info" :message="t('关账')" class="mb-5" style="margin-top: -30px">
-                <template #description>
-                  <div>
-                    <span class="bold"> {{ t('日期') }}</span
-                    >: {{ detail?.base?.close_date }}
-                  </div>
-                  <div v-if="detail?.base?.close_note">
-                    <span class="bold"> {{ t('说明') }}</span
-                    >: {{ detail?.base?.close_note }}
-                  </div>
-                  <div class="mt-3 flex items-center justify-end">
-                    <vco-popconfirm :tip="t('您确定要接受该请求吗？')" @update="update()" :formParams="{ uuid: currentId }" url="projectDetail/saveStep">
-                      <a-button type="dark" size="small">{{ t('接受请求') }}</a-button>
-                    </vco-popconfirm>
-                    <vco-form-dialog
-                      :title="t('退回请求')"
-                      :initData="[
-                        {
-                          type: 'textarea',
-                          label: '原因',
-                          key: 'closed_cancel_reason',
-                          required: true
-                        }
-                      ]"
-                      :formParams="{ uuid: currentId }"
-                      url="projectDetail/goBack"
-                      @update="update"
-                    >
-                      <a-button type="danger" size="small" class="ml-3">{{ t('退回请求') }}</a-button>
-                    </vco-form-dialog>
-                  </div>
-                </template>
-              </a-alert>
-            </template>
-
+            <!-- 关账流程 -->
+            <Close v-if="detail?.base?.is_open != 3" :currentId="currentId" :toBeClosedFormData="toBeClosedFormData" :detail="detail" @update="update"></Close>
+            <!-- 取消关账流程 -->
+            <CloseCancel v-else :currentId="currentId" :toBeClosedFormData="ReOpenFormData" :detail="detail" @update="update"></CloseCancel>
             <MeterStat :data="detail?.credit"></MeterStat>
             <PeriodLine :data="detail?.date"></PeriodLine>
             <div class="flex justify-center mt-10 mb-10 btns">
@@ -120,12 +75,24 @@
               <vco-form-dialog
                 :title="t('拟关闭')"
                 :initData="toBeClosedFormData"
-                :formParams="{ uuid: currentId }"
+                :formParams="{ uuid: currentId, process__id: detail?.close?.process__id }"
                 url="projectDetail/close"
                 @update="update"
-                v-if="hasPermission('projects:about:add:closeFc') && detail?.base?.is_open == 1 && !detail?.base?.closed_cancel_reason"
+                v-if="hasPermission('projects:about:add:closeFc') && detail?.base?.is_open == 1 && detail?.close?.state <= 0"
               >
                 <a-button type="brown" shape="round" size="small">{{ t('拟关闭') }}</a-button>
+              </vco-form-dialog>
+
+              <!-- lc  撤回关闭 -->
+              <vco-form-dialog
+                :title="t('重新打开')"
+                :initData="ReOpenFormData"
+                :formParams="{ uuid: currentId, closeCancel_date: dayjs().format('YYYY-MM-DD'), process__id: detail?.closeCancel?.process__id }"
+                url="projectDetail/closeCancel"
+                @update="update"
+                v-if="hasPermission('projects:about:close:revoke') && detail?.base?.is_open == 3 && detail?.closeCancel?.state <= 0"
+              >
+                <a-button type="brown" shape="round" size="small">{{ t('重新打开') }}</a-button>
               </vco-form-dialog>
             </div>
             <Stats :data="detail?.credit" :currentId="currentId"></Stats>
@@ -155,6 +122,9 @@ import BindUsers from '@/views/process/components/BindUsers.vue';
 import ConditionsList from '@/views/process/components/ConditionsList.vue';
 import { hasPermission } from '@/directives/permission/index';
 import { navigationTo } from '@/utils/tool';
+import dayjs, { Dayjs } from 'dayjs';
+import Close from './components/Close.vue';
+import CloseCancel from './components/CloseCancel.vue';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -184,7 +154,7 @@ const toBeClosedFormData = ref([
   {
     type: 'date',
     label: '日期',
-    key: 'date',
+    key: 'close_date',
     required: true,
     disabledDate: disabledDateFormat
   },
@@ -192,6 +162,28 @@ const toBeClosedFormData = ref([
     type: 'textarea',
     label: '说明',
     key: 'close_note',
+    required: false
+  }
+]);
+
+const ReOpenFormData = ref([
+  {
+    type: 'date',
+    label: '日期',
+    key: 'close_cancel_date',
+    required: true,
+    disabledDate: disabledDateFormat
+  },
+  {
+    type: 'textarea',
+    label: '说明',
+    key: 'close_cancel_note',
+    required: true
+  },
+  {
+    type: 'upload',
+    label: '文件',
+    key: 'close_cancel_document',
     required: false
   }
 ]);

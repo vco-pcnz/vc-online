@@ -3,11 +3,11 @@
   <div @click.stop ref="JournalRef" class="Journal">
     <a-modal :width="550" :open="visible" :title="title" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
-        <template v-for="(item, index) in fieldNames" :key="index">
-          <div class="input-item" v-if="!item.hide">
+        <template v-for="(item, index) in initData" :key="index">
+          <div class="input-item">
             <div class="label" :class="{ err: !formState[item.key] && validate && item.required }">{{ t(item.label) }}</div>
             <template v-if="item.type === 'date'">
-              <a-date-picker class="datePicker" inputReadOnly v-model:value="formState[item.key]" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" :showToday="false" :disabledDate="disabledDateFormat" />
+              <a-date-picker class="datePicker" inputReadOnly v-model:value="formState[item.key]" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" :showToday="false" :disabledDate="item.disabledDate" />
             </template>
             <template v-if="item.type === 'textarea'"> <a-textarea v-model:value="formState[item.key]" :rows="5" /> </template>
           </div>
@@ -44,23 +44,15 @@ const props = defineProps({
     type: Object,
     default: {}
   },
-  fieldNames: {
+  initData: {
     type: Array,
     default: () => {
       return [
         {
-          type: 'date',
-          label: '日期',
-          key: 'date',
-          required: true,
-          hide: true
-        },
-        {
           type: 'textarea',
           label: '原因',
           key: 'decline_reason',
-          required: true,
-          hide: false
+          required: true
         }
       ];
     }
@@ -77,18 +69,10 @@ const updateVisible = (value) => {
   visible.value = value;
 };
 
-const disabledDateFormat = (current) => {
-  const endDate = new Date();
-  if (current && current.isBefore(endDate, 'day')) {
-    return true;
-  }
-
-  return false;
-};
 const confirm = () => {
   validate.value = true;
-  let keys = props.fieldNames.filter((item) => !item.hide).map((item) => item.key);
-  let requiredKeys = props.fieldNames.filter((item) => !item.hide && item.required).map((item) => item.key);
+  let keys = props.initData.filter((item) => !item.hide).map((item) => item.key);
+  let requiredKeys = props.initData.filter((item) => !item.hide && item.required).map((item) => item.key);
   let formRequiredKeys = requiredKeys.filter((item) => formState.value[item]);
   if (requiredKeys.length != formRequiredKeys.length) return;
   keys.map((item) => {
@@ -109,7 +93,6 @@ const confirm = () => {
   request(paramsInfo)
     .then((res) => {
       emits('update');
-      formState.value.date = '';
       message.success(t('操作成功'));
       updateVisible(false);
     })

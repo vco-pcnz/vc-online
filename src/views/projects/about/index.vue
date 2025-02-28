@@ -10,7 +10,7 @@
               <a-collapse-panel key="Associate" class="collapse-card">
                 <template #header>
                   <div class="associate-content">
-                    <i class="iconfont" style="font-size: 14px;">&#xe720;</i>
+                    <i class="iconfont" style="font-size: 14px">&#xe720;</i>
                     <span class="title">{{ t('关联用户') }}</span>
                   </div>
                 </template>
@@ -53,27 +53,45 @@
                 <template #description>
                   {{ detail?.base?.closed_cancel_reason }}
                   <div class="mt-3 flex items-center justify-end">
-                    <CloseProject :formParams="{ uuid: currentId }" @update="update">
+                    <vco-form-dialog :title="t('拟关闭')" :initData="toBeClosedFormData" :formParams="{ uuid: currentId }" url="projectDetail/close" @update="update">
                       <a-button type="dark" size="small">{{ t('拟关闭') }}</a-button>
-                    </CloseProject>
+                    </vco-form-dialog>
                   </div>
                 </template>
               </a-alert>
             </template>
 
-            <template v-if="hasPermission('projects:about:add:closeLc') && detail?.base?.is_open == 2">
+            <template v-if="detail?.base?.close_permission && detail?.base?.is_open == 2">
               <a-alert type="info" :message="t('关账')" class="mb-5" style="margin-top: -30px">
                 <template #description>
-                  {{ detail?.base?.close_note }}
+                  <div>
+                    <span class="bold"> {{ t('日期') }}</span
+                    >: {{ detail?.base?.close_date }}
+                  </div>
+                  <div v-if="detail?.base?.close_note">
+                    <span class="bold"> {{ t('说明') }}</span
+                    >: {{ detail?.base?.close_note }}
+                  </div>
                   <div class="mt-3 flex items-center justify-end">
-                    <a-popconfirm :title="t('您确定要接受该请求吗？')" @confirm="accept">
+                    <vco-popconfirm :tip="t('您确定要接受该请求吗？')" @update="update()" :formParams="{ uuid: currentId }" url="projectDetail/saveStep">
                       <a-button type="dark" size="small">{{ t('接受请求') }}</a-button>
-                    </a-popconfirm>
-                    <CloseBack :uuid="currentId" :detail="detail" @change="update">
-                      <div class="flex justify-center">
-                        <a-button type="danger" size="small" class="ml-3">{{ t('退回请求') }}</a-button>
-                      </div>
-                    </CloseBack>
+                    </vco-popconfirm>
+                    <vco-form-dialog
+                      :title="t('退回请求')"
+                      :initData="[
+                        {
+                          type: 'textarea',
+                          label: '原因',
+                          key: 'closed_cancel_reason',
+                          required: true
+                        }
+                      ]"
+                      :formParams="{ uuid: currentId }"
+                      url="projectDetail/goBack"
+                      @update="update"
+                    >
+                      <a-button type="danger" size="small" class="ml-3">{{ t('退回请求') }}</a-button>
+                    </vco-form-dialog>
                   </div>
                 </template>
               </a-alert>
@@ -88,29 +106,27 @@
                 </StartDefault>
                 <a-button v-if="hasPermission('projects:penalty:view') && detail?.base?.penalty" type="brown" shape="round" size="small" @click="navigationTo('/projects/penalty?uuid=' + currentId)">{{ t('罚息') }}</a-button>
 
-                <AddVariations
-                  v-if="hasPermission('projects:variations:edit') && !Boolean(detail?.base?.variation)"
-                  :currentId="currentId"
-                  :project-detail="detail"
-                  @update="update"
-                >
+                <AddVariations v-if="hasPermission('projects:variations:edit') && !Boolean(detail?.base?.variation)" :currentId="currentId" :project-detail="detail" @update="update">
                   <a-button type="brown" shape="round" size="small">{{ t('添加变更') }}</a-button>
                 </AddVariations>
-                <a-button
-                  v-if="hasPermission('projects:variations:view') && detail?.base?.variation"
-                  type="brown" shape="round" size="small"
-                  @click="navigationTo('/projects/variations?uuid=' + currentId)"
-                >{{ t('变更1') }}</a-button>
+                <a-button v-if="hasPermission('projects:variations:view') && detail?.base?.variation" type="brown" shape="round" size="small" @click="navigationTo('/projects/variations?uuid=' + currentId)">{{ t('变更1') }}</a-button>
 
                 <Journal v-if="hasPermission('projects:journal:edit') && !detail?.base?.journal" :detail="detail" :currentId="currentId" @update="update">
                   <a-button type="brown" shape="round" size="small">{{ t('平账') }}</a-button>
                 </Journal>
                 <a-button v-if="hasPermission('projects:journal:view') && detail?.base?.journal" type="brown" shape="round" size="small" @click="navigationTo('/projects/journal?uuid=' + currentId)">{{ t('平账') }}</a-button>
               </template>
-              <!-- fc  关闭申请 -->
-              <CloseProject :formParams="{ uuid: currentId }" @update="update" v-if="hasPermission('projects:about:add:closeFc') && detail?.base?.is_open == 1 && !detail?.base?.closed_cancel_reason">
+              <!-- fc  关闭拟关闭 -->
+              <vco-form-dialog
+                :title="t('拟关闭')"
+                :initData="toBeClosedFormData"
+                :formParams="{ uuid: currentId }"
+                url="projectDetail/close"
+                @update="update"
+                v-if="hasPermission('projects:about:add:closeFc') && detail?.base?.is_open == 1 && !detail?.base?.closed_cancel_reason"
+              >
                 <a-button type="brown" shape="round" size="small">{{ t('拟关闭') }}</a-button>
-              </CloseProject>
+              </vco-form-dialog>
             </div>
             <Stats :data="detail?.credit" :currentId="currentId"></Stats>
           </div>
@@ -135,13 +151,10 @@ import Wash from './components/wash.vue';
 import Journal from '@/views/projects/journal/components/form/Add.vue';
 import StartDefault from '@/views/projects/penalty/components/form/Add.vue';
 import AddVariations from '@/views/projects/variations/components/form/AddVariations.vue';
-import CloseProject from './components/form/CloseProject.vue';
-import CloseBack from './components/form/CloseBack.vue';
 import BindUsers from '@/views/process/components/BindUsers.vue';
 import ConditionsList from '@/views/process/components/ConditionsList.vue';
 import { hasPermission } from '@/directives/permission/index';
 import { navigationTo } from '@/utils/tool';
-import { saveStep } from '@/api/project/project';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -158,17 +171,30 @@ const getProjectDetail = (val) => {
   loading.value = false;
 };
 
-// 同意
-const accept = async () => {
-  await saveStep({ uuid: currentId.value })
-    .then((res) => {
-      update();
-      return true;
-    })
-    .catch(() => {
-      return false;
-    });
+const disabledDateFormat = (current) => {
+  const endDate = new Date();
+  if (current && current.isBefore(endDate, 'day')) {
+    return true;
+  }
+
+  return false;
 };
+
+const toBeClosedFormData = ref([
+  {
+    type: 'date',
+    label: '日期',
+    key: 'date',
+    required: true,
+    disabledDate: disabledDateFormat
+  },
+  {
+    type: 'textarea',
+    label: '说明',
+    key: 'close_note',
+    required: false
+  }
+]);
 
 const update = () => {
   detailLayoutRef.value.getProjectDetail();

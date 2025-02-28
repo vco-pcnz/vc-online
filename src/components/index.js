@@ -27,7 +27,8 @@ import VcoPagePanel from './vco-page-panel/index.vue'
 import VcoMeter from './vco-meter/index.vue';
 import VcoAddress from './vco-address/index.vue';
 import VcoConfirmAlert from './vco-confirm-alert/index.vue';
-import FormDialog from './process/FormDialog.vue';
+import VcoFormDialog from './vco-form-dialog/index.vue';
+import VcoPopconfirm from './vco-popconfirm/index.vue';
 
 
 export default {
@@ -61,6 +62,7 @@ export default {
     Vue.component('VcoMeter', VcoMeter)
     Vue.component('VcoAddress', VcoAddress)
     Vue.component('VcoConfirmAlert', VcoConfirmAlert)
-    Vue.component('FormDialog', FormDialog)
+    Vue.component('VcoFormDialog', VcoFormDialog)
+    Vue.component('VcoPopconfirm', VcoPopconfirm)
   }
 }

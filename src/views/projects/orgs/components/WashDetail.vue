@@ -77,13 +77,11 @@
             <a-button type="grey" class="big shadow bold uppercase mb-5 mt-5" @click="updateVisible(false)">{{ t('关闭') }}</a-button>
 
             <template v-if="Boolean(process && process.has_permission)">
-              <FormDialog :title="t('拒绝原因')" :formParams="{ uuid: uuid, id: process.id }" url="project/wash/wdecline" @update="update">
+              <vco-form-dialog :title="t('拒绝原因')" :formParams="{ uuid: uuid, id: process.id }" url="project/wash/wdecline" @update="update">
                 <a-button type="brown" class="big shadow bold uppercase mb-5 mt-5">{{ t('拒绝请求') }}</a-button>
-              </FormDialog>
+              </vco-form-dialog>
 
-              <a-popconfirm :title="t('您确定要接受该请求吗？')" @confirm="accept()">
-                <a-button type="dark" class="big shadow bold uppercase mb-5 mt-5">{{ t('接受请求') }}</a-button>
-              </a-popconfirm>
+              <vco-popconfirm :tip="t('您确定要接受该请求吗？')" @update="update()" :formParams="{ uuid: uuid, id: process.id }" url="project/wash/wsaveStep" :btn_text="t('接受请求')"> </vco-popconfirm>
             </template>
           </div>
         </div>
@@ -93,10 +91,7 @@
 </template>
 
 <script scoped setup>
-import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { message } from 'ant-design-vue/es';
-import { wsaveStep } from '@/api/project/wash';
 
 const { t } = useI18n();
 const emits = defineEmits(['update:visible', 'update']);
@@ -117,18 +112,6 @@ const props = defineProps({
     type: Object
   }
 });
-
-// 同意
-const accept = async (item) => {
-  await wsaveStep({ uuid: props.uuid, id: props.process.id })
-    .then((res) => {
-      update();
-      return true;
-    })
-    .catch(() => {
-      return false;
-    });
-};
 
 const update = () => {
   emits('update');

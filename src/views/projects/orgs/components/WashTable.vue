@@ -114,7 +114,7 @@
     </template>
   </a-modal>
 
-  <WashDetail :edit="true" :uuid="currentId" v-model:visible="visibleDetail" :detailData="itemData" @update="update"></WashDetail>
+  <WashDetail :edit="true" :uuid="currentId" v-model:visible="visibleDetail" :detailData="itemData" @update="loadData"></WashDetail>
 </template>
 
 <script setup>

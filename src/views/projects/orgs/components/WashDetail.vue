@@ -161,12 +161,12 @@ const submitHandle = () => {
   params.sendEmail = 0;
   params.sendSms = 0;
   params.change = 0;
-  params.expire_time = params.expire_time || [];
+  params.expire_time = [];
   params.document = params.document.map((item) => {
     return item.uuid;
   });
   params.document.map((item, index) => {
-    params.expire_time[index] = params.expire_time[index] || '';
+    params.expire_time[index] = props.detailData.expire_time ? props.detailData.expire_time[index] || '' : '';
   });
   formState.value.document.map((item, index) => {
     formState.value.expire_time[index] = formState.value.expire_time[index] || '';
@@ -230,7 +230,7 @@ watch(
 }
 
 :deep(.ant-alert-warning) {
-    background-color: #f5f5f5;
-    border: 1px solid #dddddd;
+  background-color: #f5f5f5;
+  border: 1px solid #dddddd;
 }
 </style>

@@ -718,4 +718,6 @@ export default {
   "添加申请": "Add Request",
   "文件夹名称": "Folder Name",
   "重新打开": "Re-Open",
+  "当前步骤": "Current Step",
+  "完整审核步骤": "Complete review steps"
 }

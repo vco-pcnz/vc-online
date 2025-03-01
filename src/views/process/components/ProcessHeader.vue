@@ -9,7 +9,12 @@
       </div>
     </div>
     <div v-if="mainStepData.length" class="process-bar-content">
-      <div v-for="(item, index) in processData" :key="index" class="item" :class="getItemClass(index + 1, currentStatus)">
+      <div
+        v-for="(item, index) in processData"
+        :key="index"
+        class="item"
+        :class="[getItemClass(index + 1, currentStatus), { 'is-check': item.stateCode && item.stateCode.length > 1 && Boolean(currentStep.examine)}]"
+      >
         <div class="check" :class="{'pointer': checkPointer(item), 'current': index + 1 === current}" @click="stepHandle(item)">
           <template v-if="current === index + 1">
             <i v-if="current === index + 1" class="iconfont">{{ currentStatus === processData.length ? '&#xe647;' : '&#xe779;'}}</i>
@@ -20,7 +25,40 @@
             <i v-if="index + 1 === currentStatus" class="iconfont">&#xe790;</i>
           </template>
         </div>
-        <h2 v-if="item.name" class="name uppercase">{{ t(item.name) }}</h2>
+        <h2 v-if="item.name" class="name uppercase">
+          {{ item.stateCode && item.stateCode.length > 1 && Boolean(currentStep.examine) ? t(currentStep.name) : t(item.name) }}
+        </h2>
+
+        <div v-if="item.stateCode && item.stateCode.length > 1 && Boolean(currentStep.examine)" class="check-step-content">
+          <div
+            v-for="(step, index) of item.stateCode"
+            :key="`step${step}`"
+            class="item"
+            :class="getStepClass(item.stateCode, index)"
+          ></div>
+        </div>
+
+        <div v-if="item.stateCode && item.stateCode.length > 1 && Boolean(currentStep.examine) && mainStepData.length" class="child-step-content">
+          <a-popover>
+            <template #content>
+              <div class="child-step-line">
+                <div
+                  v-for="item in completeStepData"
+                  :key="item.id"
+                  class="item"
+                  :class="item.className"
+                >
+                  <div class="icon">
+                    <i v-if="item.done" class="iconfont">&#xe601;</i>
+                    <i v-else class="iconfont">&#xe62d;</i>
+                  </div>
+                  <div class="name">{{ t(item.name) }}</div>
+                </div>
+              </div>
+            </template>
+            <a-button type="link" class="link-hover">{{ t('完整审核步骤') }}?</a-button>
+          </a-popover>
+        </div>
       </div>
     </div>
   </div>
@@ -63,6 +101,51 @@
   })
 
   const currentStatus = ref(0)
+
+  const completeStepData = computed(() => {
+    const stepData = cloneDeep(props.stepData)
+    const mainStepData = cloneDeep(props.mainStepData)
+    const checkStep = mainStepData.find(item => item.stateCode && item.stateCode.length > 1)
+    const checkArr = checkStep ? checkStep.stateCode : []
+
+    const resData = []
+    const currentStepCode = props.currentStep.stateCode
+
+    for (let i = 0; i < checkArr.length; i++) {
+      const step = stepData.find(item => item.stateCode === checkArr[i])
+      if (step) {
+        const stepobj = cloneDeep(step)
+        if (stepobj.stateCode < currentStepCode) {
+          stepobj.className = 'active'
+          stepobj.done = true
+        }
+
+        if (stepobj.stateCode === currentStepCode) {
+          stepobj.className = 'current'
+        }
+        resData.push(stepobj)
+      }
+    }
+
+    return resData
+  })
+
+  const getStepClass = (data, index) => {
+    const stateCode = props.currentStep.stateCode
+    const currentIndex = data.findIndex(item => item === stateCode)
+
+    let className = ''
+
+    if (index < currentIndex) {
+      className = 'active'
+    }
+
+    if (index === currentIndex) {
+      className = 'current'
+    }
+
+    return className
+  }
 
   const processData = computed(() => {
     const data = cloneDeep(props.mainStepData)
@@ -198,6 +281,11 @@
           transform: translateY(-50%);
           z-index: 1;
         }
+        &.is-check {
+          &::after {
+            display: none !important;
+          }
+        }
         > .check {
           width: 30px;
           height: 30px;
@@ -228,6 +316,108 @@
           top: -12px;
           color: #666;
         }
+        > .check-step-content {
+          width: calc(100% - 40px);
+          height: 3px;
+          position: absolute;
+          left: 35px;
+          display: flex;
+          justify-content: space-between;
+          top: 50%;
+          transform: translateY(-50%);
+          gap: 8px;
+          > .item {
+            flex: 1;
+            height: 3px;
+            border-radius: 3px;
+            background-color: rgba(229, 224, 215, 1);
+            &.active {
+              background-color: #0bda8e;
+            }
+            &.current {
+              background-color: #0bda8e;
+              box-shadow: 0 0 5px rgba(6, 197, 127, 0.9);
+            }
+          }
+        }
+        > .child-step-content {
+          position: absolute;
+          left: 35px;
+          width: calc(100% - 40px);
+          top: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          :deep(.link-hover) {
+            padding: 0 !important;
+            line-height: 1 !important;
+            height: auto !important;
+            font-size: 12px !important;
+          }
+        }
+      }
+    }
+  }
+
+  .child-step-line {
+    > .item {
+      display: flex;
+      gap: 10px;
+      height: 40px;
+      align-items: flex-start;
+      position: relative;
+      &::after {
+        content: '';
+        display: block;
+        width: 2px;
+        height: 100%;
+        background-color: rgba(229, 224, 215, 1);
+        position: absolute;
+        top: 5px;
+        left: 9px;
+        z-index: 0;
+      }
+      &.active {
+        &::after,
+        > .icon {
+          background-color: #0bda8e;
+        }
+        > .name {
+          color: #0bda8e;
+        }
+      }
+      &.current {
+        > .icon {
+          background-color: #0bda8e;
+          box-shadow: 0 0 10px rgba(6, 197, 127, 0.9);
+        }
+        > .name {
+          color: #282828;
+        }
+      }
+      &:last-child {
+        &::after {
+          display: none;
+        }
+      }
+      > .icon {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background-color: rgba(229, 224, 215, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        z-index: 1;
+        > .iconfont {
+          font-size: 11px;
+          color: #fff;
+        }
+      }
+      > .name {
+        font-size: 14px;
+        color: #888;
       }
     }
   }

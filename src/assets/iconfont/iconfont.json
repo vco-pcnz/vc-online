@@ -6,6 +6,20 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "5320437",
+      "name": "时间",
+      "font_class": "shijian1",
+      "unicode": "e62d",
+      "unicode_decimal": 58925
+    },
+    {
+      "icon_id": "13606269",
+      "name": "对勾",
+      "font_class": "duigou",
+      "unicode": "e601",
+      "unicode_decimal": 58881
+    },
+    {
       "icon_id": "9798439",
       "name": "等于",
       "font_class": "dengyu",

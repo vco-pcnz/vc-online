@@ -720,5 +720,6 @@ export default {
   "重新打开": "Re-Open",
   "退出团队": "Exit",
   "确定要退出吗？": "Are you sure you want to exit?",
-
+  "当前步骤": "Current Step",
+  "完整审核步骤": "Complete review steps"
 }

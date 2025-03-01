@@ -45,9 +45,9 @@
               </a-popconfirm>
             </template>
             <template v-if="record.parent_sta">
-              <a-popconfirm :title="t('确定要移除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.uuid)">
+              <a-popconfirm :title="t('确定要退出吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.uuid)">
                 <span style="text-transform: lowercase">
-                  <a-button class="ml-3" type="danger" shape="round" size="small"> {{ t('移除') }}</a-button>
+                  <a-button class="ml-3" type="danger" shape="round" size="small"> {{ t('退出团队') }}</a-button>
                 </span>
               </a-popconfirm>
             </template>

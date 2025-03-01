@@ -21,6 +21,9 @@
       <!-- 搜索 -->
       <div v-if="!hideSearch" class="flex justify-end mb-5">
         <vco-page-search>
+          <vco-page-search-item :title="t('组织')" width="180" v-if="url == 'user/selUser'">
+            <a-input v-model:value="searchForm.p__name" :placeholder="t('请输入')" />
+          </vco-page-search-item>
           <vco-page-search-item :title="t('机构')" width="180" v-if="url == 'stake/selStake'">
             <a-input v-model:value="searchForm.pname" :placeholder="t('请输入')" />
           </vco-page-search-item>

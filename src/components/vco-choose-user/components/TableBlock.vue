@@ -8,7 +8,8 @@
         <li>{{ t('头像') }}</li>
         <li>{{ t('姓名') }}</li>
         <li v-show="url.includes('stake/selStake')">{{ t('类型') }}</li>
-        <li v-show="url.includes('stake/selStake')">{{ t('机构') }}</li>
+        <li v-if="url.includes('stake/selStake')">{{ t('机构') }}</li>
+        <li v-if="url.includes('user/selUser')">{{ t('组织') }}</li>
         <li>{{ t('邮箱') }}</li>
         <li>{{ t('电话') }}</li>
         <li v-show="!isMultiple">{{ t('操作1') }}</li>
@@ -29,8 +30,12 @@
             <li v-show="url.includes('stake/selStake')">
               <p class="bold">{{ item.type_name }}</p>
             </li>
-            <li v-show="url.includes('stake/selStake')">
+            <li v-if="url.includes('stake/selStake')">
               <p class="bold" v-if="item.pname">{{ item.pname }}</p>
+              <p class="bold" v-else>--</p>
+            </li>
+            <li v-if="url.includes('user/selUser')">
+              <p class="bold" v-if="item.company">{{ item.company }}</p>
               <p class="bold" v-else>--</p>
             </li>
             <li>

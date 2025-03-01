@@ -71,7 +71,7 @@
             <span v-if="record.status == 1" class="cer">{{ t('待反馈') }}</span>
             <span v-if="record.status == 2" class="cer">{{ t('已反馈') }}</span>
             <template v-if="record.status == 3">
-              <span v-if="record.status == 3" class="cer">{{ t('有条件') }}</span>
+              <span class="cer">{{ t('有条件') }}</span>
               <p class="color_grey ft_xs" v-if="record.condition_time">{{ tool.showDate(record.condition_time) }}</p>
             </template>
             <span v-if="record.status == 4" style="color: #0bda8e">{{ t('已完成') }}</span>
@@ -81,10 +81,13 @@
               <!-- <i class="iconfont" :title="t('有条件')" v-if="Boolean(record.status == 3)">&#xe73a;</i> -->
               <i class="iconfont" :title="t('项目文件')" v-if="Boolean(record.document && record.document.length)" @click="updateVisibleFiles(record)">&#xe690;</i>
               <i class="iconfont" :title="t('审核')" @click="checkOne(record.id)" v-if="record.status != 4 && record.status != 3 && record.document.length">&#xe647;</i>
-              <i class="iconfont" :title="t('编辑')" @click="showForm(record)">&#xe753;</i>
-              <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.id)">
-                <i class="iconfont" :title="t('删除l')">&#xe8c1;</i>
-              </a-popconfirm>
+              <template v-if="record.status != 4">
+                <i class="iconfont" :title="t('编辑')" @click="showForm(record)">&#xe753;</i>
+                <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.id)">
+                  <i class="iconfont" :title="t('删除l')">&#xe8c1;</i>
+                </a-popconfirm>
+              </template>
+              <template v-else><i class="iconfont" :title="t('编辑')" @click="showDetail(record)">&#xe753;</i> </template>
             </div>
           </template>
         </template>
@@ -94,7 +97,7 @@
       </div>
     </div>
   </a-spin>
-  <WashTableAddEdit v-model:visible="visible" :currentId="currentId" :infoData="editData" :isDetail="editData?false:true" @update="loadData"></WashTableAddEdit>
+  <WashTableAddEdit v-model:visible="visible" :currentId="currentId" :infoData="editData" :isDetail="editData ? false : true" @update="loadData"></WashTableAddEdit>
 
   <a-modal :open="visibleFiles" :title="t('详情')" :width="640" :footer="null" :keyboard="false" :maskClosable="false" @update:open="visibleFiles = false">
     <p class="fs_xs color_grey">{{ t('项目文件') }}</p>
@@ -110,6 +113,8 @@
       </div>
     </template>
   </a-modal>
+
+  <WashDetail :edit="true" :uuid="currentId" v-model:visible="visibleDetail" :detailData="itemData" @update="update"></WashDetail>
 </template>
 
 <script setup>
@@ -120,6 +125,7 @@ import { projectDetailGetWash, washCheck, sendEmail, sendSms, washRemove } from 
 import WashTableAddEdit from '@/views/process/temp/default/components/WashTableAddEdit.vue';
 import { useRoute } from 'vue-router';
 import { hasPermission } from '@/directives/permission/index';
+import WashDetail from './WashDetail.vue';
 
 const route = useRoute();
 
@@ -292,6 +298,12 @@ const setPaginate = (page, limit) => {
     limit
   };
   loadData();
+};
+
+const visibleDetail = ref(false);
+const showDetail = (item) => {
+  itemData.value = item;
+  visibleDetail.value = true;
 };
 
 onMounted(() => {

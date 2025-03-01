@@ -718,4 +718,7 @@ export default {
   "添加申请": "Add Request",
   "文件夹名称": "Folder Name",
   "重新打开": "Re-Open",
+  "退出团队": "Exit",
+  "确定要退出吗？": "Are you sure you want to exit?",
+
 }

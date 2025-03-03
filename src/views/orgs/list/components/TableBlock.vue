@@ -107,7 +107,7 @@
         <template v-if="column.key === 'address'">
           <div @click="toDetail(record)" class="cursor">
             <p>ID: {{ record.idcard }}</p>
-            <p :title="record.address" class="line-clamp-2" style="text-wrap: wrap" v-if="record.address"><i class="iconfont">&#xe814;</i>{{ record.address }}</p>
+            <p :title="record.address" class="line-clamp-3" style="text-wrap: wrap" v-if="record.address"><i class="iconfont">&#xe814;</i>{{ record.address }}</p>
           </div>
         </template>
         <template v-if="column.key === '7'">

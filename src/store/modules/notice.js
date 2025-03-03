@@ -63,8 +63,8 @@ const useNoticeStore = defineStore('VcOnlineNoticeDetail', {
     setNoticeCount() {
       getUnreadCount().then((res) => (this.noticeCount = res));
     },
-    startPolling() {
-      this.intervalId = setInterval(this.setNoticeCount, 5000);
+    startPolling(time) {
+      this.intervalId = setInterval(this.setNoticeCount, time);
     },
     stopPolling() {
       if (this.intervalId) {

@@ -2,7 +2,7 @@
   <layout ref="layoutRef" @update="reload">
     <template #content>
       <a-spin :spinning="loading" size="large">
-        <a-row class="flex justify-between items-end mb-5 pb-5" style="border-bottom: 1px solid #a6a9b0;">
+        <a-row class="flex justify-between items-end mb-5 pb-5" style="border-bottom: 1px solid #a6a9b0">
           <a-popconfirm class="mt-5" :title="t('确定要对账吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="checkMatchBills()" :disabled="!selectedRowKeys.length">
             <a-button :disabled="!selectedRowKeys.length">
               {{ t('对账') }}
@@ -28,7 +28,7 @@
               <ok :item="item" :project="item.project" @update="loadData"></ok>
               <!-- right -->
               <transaction :item="item" v-if="!!item.transaction"></transaction>
-              <reconciliation-form :disabled="!item.project" :fee_type="item.fee_type" v-else :item="item"></reconciliation-form>
+              <reconciliation-form :way_options="way_options" :disabled="!item.project" :fee_type="item.fee_type" v-else :item="item"></reconciliation-form>
             </template>
           </a-row>
           <template v-if="item.way == 'api-split' && item.children && item.children.length">
@@ -40,7 +40,7 @@
                 <ok :item="sub" :project="item.project" @update="loadData"></ok>
                 <!-- right -->
                 <transaction :item="sub" v-if="!!sub.transaction"></transaction>
-                <reconciliation-form :disabled="!item.project" :fee_type="item.fee_type" v-else :item="sub"></reconciliation-form>
+                <reconciliation-form :way_options="way_options" :disabled="!item.project" :fee_type="item.fee_type" v-else :item="sub"></reconciliation-form>
               </template>
             </a-row>
           </template>
@@ -67,6 +67,7 @@ import TableSearch from './reconciliation/TableSearch.vue';
 import Ok from './reconciliation/Ok.vue';
 import { checkMatchBill } from '@/api/reconciliations';
 import { cloneDeep } from 'lodash';
+import { systemDictData } from '@/api/system';
 
 const { t } = useI18n();
 
@@ -117,9 +118,12 @@ const reload = () => {
   pagination.value.page = 1;
   loadData();
 };
-
+const way_options = ref([]);
 onMounted((_) => {
   loadData();
+  systemDictData('reconciliation_way').then((res) => {
+    way_options.value = res;
+  });
 });
 // const rowData = reactive([])
 

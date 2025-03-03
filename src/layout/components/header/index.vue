@@ -45,13 +45,14 @@
 </template>
 
 <script setup>
-import { ref, computed,onMounted,onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { cloneDeep } from 'lodash';
 import LanguageSelect from '@/components/language-select/index.vue';
 import { useUserStore, useNoticeStore } from '@/store';
 import { useRouter, useRoute } from 'vue-router';
 import { navigationTo } from '@/utils/tool';
+import { systemConfigData } from '@/api/system';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -118,10 +119,13 @@ const handleLogout = () => {
   userStore.logout();
 };
 
-
 // 组件挂载时启动定时器
 onMounted(() => {
-  noticeStore.startPolling();
+  systemConfigData({ pcode: 'web_config', code: 'notes_interval_time' }).then((res) => {
+    if (res.notes_interval_time) {
+      noticeStore.startPolling(res.notes_interval_time);
+    }
+  });
 });
 
 // 组件卸载时停止定时器

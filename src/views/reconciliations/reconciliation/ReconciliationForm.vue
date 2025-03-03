@@ -14,8 +14,8 @@
       <a-col :span="24" class="empty_slip why_slip">
         <p class="xs_text">Why</p>
         <a-select v-model:value="item['f_note']" :disabled="disabled">
-          <a-select-option v-for="item in WHY_OPTIONS" :key="item.value" :value="item.value">
-            {{ item.value }}
+          <a-select-option v-for="item in way_options" :key="item.code" :value="item.code">
+            {{ item.name }}
           </a-select-option>
         </a-select>
       </a-col>
@@ -39,15 +39,11 @@ const props = defineProps({
   },
   disabled: {
     type: Boolean
+  },
+  way_options: {
+    type: Array
   }
 });
-const WHY_OPTIONS = [
-  { value: 'Commitment payment received on [Date on bank statement]' },
-  { value: 'Equity Injection or Project Contribution' },
-  { value: 'Repayment from sale proceeds of [Address]' },
-  { value: 'Full Repayment' },
-  { value: 'Repayment from GST Refund' }
-];
 </script>
 <style scoped lang="less">
 @import '@/styles/variables.less';

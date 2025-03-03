@@ -220,13 +220,13 @@ const columns = reactive([
   // { title: t('最大费率'), dataIndex: 'lvr', width: 100, align: 'center' },
   { title: t('创建时间'), dataIndex: 'create_time', width: 120, align: 'center' },
   { title: t('状态'), dataIndex: 'status', width: 240, align: 'center' },
-  {
-    title: t('操作1'),
-    dataIndex: 'operation',
-    fixed: 'right',
-    align: 'center',
-    width: 50,
-  },
+  // {
+  //   title: t('操作1'),
+  //   dataIndex: 'operation',
+  //   fixed: 'right',
+  //   align: 'center',
+  //   width: 50,
+  // },
 ]);
 
 const tableDataRef = computed(() => {

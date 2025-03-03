@@ -3,8 +3,17 @@
     <div class="header_title">VC Online</div>
     <div class="header_container">
       <div class="menu_content">
-        <router-link v-for="link in menuData" :key="link.path" :to="link.path" class="link" :class="{ link_active: isActive(link.path) }">
-          {{ t(link.title) }}
+        <router-link
+          v-for="link in menuData"
+          :key="link.path"
+          :to="link.path"
+          class="link"
+          :class="{ 'link_active': isActive(link.path) }"
+        >
+          <a-badge v-if="link.path === '/tasks'" :count="0">
+            <p class="router-name">{{ t(link.title) }}</p>
+          </a-badge>
+          <p class="router-name" v-else>{{ t(link.title) }}</p>
         </router-link>
       </div>
 
@@ -234,5 +243,9 @@ onUnmounted(() => {
   min-width: 100px;
   text-align: center;
   white-space: nowrap;
+}
+
+.router-name {
+  line-height: 2;
 }
 </style>

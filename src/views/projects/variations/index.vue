@@ -1,6 +1,15 @@
 <template>
   <detail-layout active-tab="penalty" @getProjectDetail="getProjectDetail">
     <template #content>
+      <!-- 明细表弹窗 -->
+      <schedule-dialog
+        v-model:visible="scheduleVisible"
+        :uuid="uuid"
+        :detailData="currentData"
+        @done="getTableData(false)"
+      >
+      </schedule-dialog>
+
       <!-- 详情弹窗 -->
       <detail-dialog
         v-model:visible="detailVisible"
@@ -96,6 +105,10 @@
                 <span v-else>--</span>
               </template>
               <template v-if="column.dataIndex === 'operation'">
+                <a-button
+                  type="cyan" size="small" shape="round" class="uppercase mb-2"
+                  @click="openSchedule(record)"
+                >{{ t('明细表') }}</a-button>
                 <template v-if="record.has_permission">
                   <a-button
                     v-if="record.status_name === 'PENDING SUBMIT'"
@@ -146,6 +159,7 @@ import { useRoute } from 'vue-router';
 import { hasPermission } from '@/directives/permission/index';
 import AddVariations from '@/views/projects/variations/components/form/AddVariations.vue';
 import DetailDialog from './components/DetailDialog.vue';
+import ScheduleDialog from './components/ScheduleDialog.vue';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -225,6 +239,12 @@ const openDetail = (data, flag) => {
   } else {
     detailVisible.value = true
   }
+}
+
+const scheduleVisible = ref(false)
+const openSchedule = (data) => {
+  currentData.value = data
+  scheduleVisible.value = true
 }
 
 // 监听 uuid 的变化

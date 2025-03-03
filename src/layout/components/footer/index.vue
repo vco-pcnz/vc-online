@@ -1,7 +1,6 @@
 <template>
   <div class="footer-container">
-    <p>Released under the MIT License. (2d903009)</p>
-    <p>Copyright © 2019-present VoidZero Inc. & Vite Contributors</p>
+    <p>Copyright © 2022-present Vincent Capital</p>
   </div>
 </template>
 

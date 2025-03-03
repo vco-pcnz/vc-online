@@ -68,15 +68,12 @@
         </template>
         <template v-if="column.key === '5'">
           <div @click="toDetail(record)" class="cursor">
-            <p v-if="record.user_create_time">
-              <span>{{ tool.showDate(record.user_create_time) }}</span>
-            </p>
-            <p v-if="record.create_time">
-              <span>{{ tool.showDate(record.create_time) }}</span>
-            </p>
+              <span v-if="record.user_create_time">{{ tool.showDate(record.user_create_time) }}</span>
+              <span v-if="record.user_create_time && record.create_time"> / </span>
+              <span v-if="record.create_time">{{ tool.showDate(record.create_time) }}</span>
           </div>
         </template>
-        <template v-if="column.key === '6'">
+        <!-- <template v-if="column.key === '6'">
           <p>
             <i class="iconfont black">&#xe690;</i>
             <span class="cer bold"> {{ record.open_count }} {{ t('进行中项目') }} </span>
@@ -88,12 +85,29 @@
             <i class="iconfont black">&#xe751;</i>
             <span class="cer bold"> {{ record.apply_count }} {{ t('请求') }} </span>
           </p>
+        </template> -->
+        <template v-if="column.key === 'projects'">
+          <div class="cursor" @click="navigationTo('/projects/current')">
+            <p>
+              <i class="iconfont black">&#xe690;</i>
+              <span class="cer bold"> {{ record.open_count }} {{ t('进行中项目') }} </span>
+            </p>
+            <p style="padding-left: 20px">
+              <span class="bold"> {{ record.close_count }} {{ t('已关闭项目') }} </span>
+            </p>
+          </div>
+        </template>
+        <template v-if="column.key === 'requests'">
+          <p class="cursor" @click="navigationTo('/requests/loan')">
+            <i class="iconfont black">&#xe751;</i>
+            <span class="cer bold"> {{ record.apply_count }} {{ t('请求') }} </span>
+          </p>
         </template>
 
         <template v-if="column.key === 'address'">
           <div @click="toDetail(record)" class="cursor">
             <p>ID: {{ record.idcard }}</p>
-            <p :title="record.address" style="text-wrap: auto" v-if="record.address"><i class="iconfont">&#xe814;</i>{{ record.address }}</p>
+            <p :title="record.address"  class="line-clamp-2" style="text-wrap:wrap;" v-if="record.address"><i class="iconfont">&#xe814;</i>{{ record.address }}</p>
           </div>
         </template>
         <template v-if="column.key === '7'">
@@ -185,12 +199,13 @@ const { t } = useI18n();
 
 const columns = reactive([
   { title: t('缩略图t'), key: '1', width: 110, align: 'center' },
-  { title: t('利益相关者信息t'), width: 250, key: '2', align: 'left' },
-  { title: t('关联用户t'), key: '3', width: 250, align: 'left' },
+  { title: t('利益相关者信息t'), width: 220, key: '2', align: 'left' },
+  { title: t('关联用户t'), key: '3', width: 220, align: 'left' },
   // { title: t('用户角色t'), key: '4', width: 200, align: 'center' },
   { title: t('注册时间/创建时间t'), key: '5', width: 200, align: 'center' },
   { title: 'ID/' + t('地址'), key: 'address', width: 200 },
-  { title: t('项目数据t'), key: '6', width: 200, align: 'left' },
+  { title: t('项目数据'), key: 'projects', width: 150, align: 'left' },
+  { title: t('请求数据'), key: 'requests', width: 150, align: 'center' },
   { title: t('状态t'), key: '7', width: 150, align: 'center' },
   {
     title: t('操作1'),

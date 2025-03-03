@@ -65,16 +65,18 @@
           </div>
         </template>
         <template v-if="column.key === '6'">
-          <p>
-            <i class="iconfont black">&#xe690;</i>
-            <span class="cer bold"> {{ record.open_count }} {{ t('进行中项目') }} </span>
-          </p>
-          <p style="padding-left: 20px">
-            <span class="bold"> {{ record.close_count }} {{ t('已关闭项目') }} </span>
-          </p>
+          <div @click="navigationTo('/projects/current')">
+            <p>
+              <i class="iconfont black">&#xe690;</i>
+              <span class="cer bold"> {{ record.open_count }} {{ t('进行中项目') }} </span>
+            </p>
+            <p style="padding-left: 20px">
+              <span class="bold"> {{ record.close_count }} {{ t('已关闭项目') }} </span>
+            </p>
+          </div>
         </template>
         <template v-if="column.key === '7'">
-          <p>
+          <p @click="navigationTo('/requests/loan')">
             <i class="iconfont black">&#xe751;</i>
             <span class="cer bold"> {{ record.apply_count }} {{ t('请求') }} </span>
           </p>
@@ -132,8 +134,8 @@ const columns = reactive([
   { title: t('ID & 注册时间'), key: '3', width: 150, align: 'left' },
   { title: t('用户角色t'), key: '4', width: 200, align: 'center' },
   { title: t('类型'), key: 'type', width: 100, align: 'center' },
-  { title: t('项目数据'), key: '6', width: 200, align: 'left' },
-  { title: t('请求数据'), key: '7', width: 150, align: 'center' },
+  { title: t('项目数据'), key: '6', width: 180, align: 'left' },
+  { title: t('请求数据'), key: '7', width: 180, align: 'center' },
   {
     title: t('操作1'),
     key: 'operation',

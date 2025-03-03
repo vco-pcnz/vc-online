@@ -3,44 +3,26 @@
     <div class="header_title">VC Online</div>
     <div class="header_container">
       <div class="menu_content">
-        <router-link
-          v-for="link in menuData"
-          :key="link.path"
-          :to="link.path"
-          class="link"
-          :class="{ 'link_active': isActive(link.path) }"
-        >
+        <router-link v-for="link in menuData" :key="link.path" :to="link.path" class="link" :class="{ link_active: isActive(link.path) }">
           {{ t(link.title) }}
         </router-link>
       </div>
-      
+
       <div class="profile_content">
         <div class="profile_info">
           <language-select></language-select>
           <router-link to="/profile/about">
-            <vco-avatar
-              :src="userInfo?.avatar || ''"
-              :size="26"
-            />
+            <vco-avatar :src="userInfo?.avatar || ''" :size="26" />
           </router-link>
-          <router-link
-            to="/profile/about"
-            class="link"
-            :class="{ 'link_active': isUserActive() }"
-          >
+          <div @click="navigationTo('/profile/about')" class="link" :class="{ link_active: isUserActive() }">
             <div class="user_info">
               <a-space>
                 <span class="user_name">{{ userInfo?.user_name || 'UserName' }}</span>
-                <a-badge
-                  class="badge"
-                  size="small"
-                  :count="noticeStore.noticeCount"
-                  v-if="!!noticeStore.noticeCount"
-                />
+                <a-badge @click.stop="navigationTo('/profile/notice')" class="badge" size="small" :count="noticeStore.noticeCount" v-if="!!noticeStore.noticeCount" />
               </a-space>
               <p>{{ userInfo?.roles || 'Vip' }}</p>
             </div>
-          </router-link>
+          </div>
         </div>
         <a-dropdown class="dropdown_menu">
           <a class="ant-dropdown-link" @click.prevent>
@@ -52,7 +34,7 @@
                 <div class="user-hanle-item">{{ item.label }}</div>
               </a-menu-item>
               <a-menu-item>
-                <div class="user-hanle-item" @click="handleLogout">{{ t("退出") }}</div>
+                <div class="user-hanle-item" @click="handleLogout">{{ t('退出') }}</div>
               </a-menu-item>
             </a-menu>
           </template>
@@ -63,12 +45,13 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
-import { useI18n } from "vue-i18n";
-import { cloneDeep } from "lodash"
-import LanguageSelect from "@/components/language-select/index.vue";
-import { useUserStore, useNoticeStore } from "@/store";
-import { useRouter, useRoute } from "vue-router";
+import { ref, computed,onMounted,onUnmounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { cloneDeep } from 'lodash';
+import LanguageSelect from '@/components/language-select/index.vue';
+import { useUserStore, useNoticeStore } from '@/store';
+import { useRouter, useRoute } from 'vue-router';
+import { navigationTo } from '@/utils/tool';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -79,51 +62,53 @@ const userInfo = computed(() => userStore.userInfo);
 const noticeStore = useNoticeStore();
 
 const menuData = computed(() => {
-  const data = userStore.routerInfo || []
-  const dataArr = cloneDeep(data)
-  const resData = dataArr.filter(item => !item.meta.hide).map(item => {
-    return {
-      title: item.meta.title,
-      path: item.path
-    }
-  })
-  return resData
-})
+  const data = userStore.routerInfo || [];
+  const dataArr = cloneDeep(data);
+  const resData = dataArr
+    .filter((item) => !item.meta.hide)
+    .map((item) => {
+      return {
+        title: item.meta.title,
+        path: item.path
+      };
+    });
+  return resData;
+});
 
-const otherRoute = ['/profile']
-const processShowRoute = ['requests']
+const otherRoute = ['/profile'];
+const processShowRoute = ['requests'];
 
 const routeInArr = (path, arr) => {
-  let res = false
+  let res = false;
   for (let i = 0; i < arr.length; i++) {
-    res = path.indexOf(arr[i]) > -1
+    res = path.indexOf(arr[i]) > -1;
     if (res) {
-      return res
+      return res;
     }
   }
-  return res
-}
+  return res;
+};
 
 const routeActive = (path) => {
-  let res = route.path.startsWith(path)
+  let res = route.path.startsWith(path);
   if (route.path.indexOf('process') > -1) {
-    res = routeInArr(path, processShowRoute)
+    res = routeInArr(path, processShowRoute);
   }
-  return res
-}
+  return res;
+};
 
 const isActive = (path) => {
   return routeInArr(route.path, otherRoute) ? false : routeActive(path); // 判断当前路径是否以父级路径开头
 };
 
 const isUserActive = () => {
-  return route.path.startsWith('/profile')
-}
+  return route.path.startsWith('/profile');
+};
 
 const menuItem = [
-  { label: t('编辑详情'), key: "edit-profile", to: "/profile/about" },
-  { label: t('修改密码'), key: "change-pwd", to: "/profile/safe" },
-]
+  { label: t('编辑详情'), key: 'edit-profile', to: '/profile/about' },
+  { label: t('修改密码'), key: 'change-pwd', to: '/profile/safe' }
+];
 
 const goTo = (path) => {
   router.push(path);
@@ -132,10 +117,21 @@ const goTo = (path) => {
 const handleLogout = () => {
   userStore.logout();
 };
+
+
+// 组件挂载时启动定时器
+onMounted(() => {
+  noticeStore.startPolling();
+});
+
+// 组件卸载时停止定时器
+onUnmounted(() => {
+  noticeStore.stopPolling();
+});
 </script>
 
 <style lang="less" scoped>
-@import "@/styles/variables.less";
+@import '@/styles/variables.less';
 
 .layout_header {
   display: flex;
@@ -213,7 +209,10 @@ const handleLogout = () => {
     font-weight: 600;
     color: @clr_charcoal;
     height: 100%;
-
+    cursor: pointer;
+    &:hover :deep(.ant-badge .ant-badge-count) {
+      background: #ff7875;
+    }
     &:hover,
     &:focus {
       &:not(.link_active) {

@@ -1,13 +1,7 @@
-import { defineStore } from "pinia";
-import {
-  getNotices,
-  setNoticeRead,
-  setAllRead,
-  getNoticeDetail,
-  getUnreadCount,
-} from "@/api/notice";
+import { defineStore } from 'pinia';
+import { getNotices, setNoticeRead, setAllRead, getNoticeDetail, getUnreadCount } from '@/api/notice';
 
-const useNoticeStore = defineStore("VcOnlineNoticeDetail", {
+const useNoticeStore = defineStore('VcOnlineNoticeDetail', {
   state: () => ({
     noticeCount: 0,
     noticeList: [],
@@ -16,29 +10,28 @@ const useNoticeStore = defineStore("VcOnlineNoticeDetail", {
     showDetail: false,
     searchParams: {
       sta: 0, // 0All 1System 2Business
-      key: "all", // all，unread，already
+      key: 'all', // all，unread，already
       keywords: undefined,
       sort__asc: undefined,
-      sort__desc: undefined,
+      sort__desc: undefined
     },
     pagination: {
       page: 1,
-      limit: 10,
+      limit: 10
     },
     total: 0,
+    intervalId: null
   }),
   getters: {
     selectedNoticeIds: (state) => {
-      return state.noticeList
-        .filter((item) => item.checked)
-        .map((item) => item.id);
-    },
+      return state.noticeList.filter((item) => item.checked).map((item) => item.id);
+    }
   },
   actions: {
     setNoticeSearchParams(data) {
       this.searchParams = {
         ...this.searchParams,
-        ...data,
+        ...data
       };
     },
     setNoticeList(data) {
@@ -64,11 +57,20 @@ const useNoticeStore = defineStore("VcOnlineNoticeDetail", {
     setPaginate(page, limit) {
       this.pagination = {
         page,
-        limit,
+        limit
       };
     },
     setNoticeCount() {
       getUnreadCount().then((res) => (this.noticeCount = res));
+    },
+    startPolling() {
+      this.intervalId = setInterval(this.setNoticeCount, 5000);
+    },
+    stopPolling() {
+      if (this.intervalId) {
+        clearInterval(this.intervalId); // 清除定时器
+        this.intervalId = null;
+      }
     },
     updateNoticeStatus(data) {
       return new Promise((resolve, reject) => {
@@ -89,7 +91,7 @@ const useNoticeStore = defineStore("VcOnlineNoticeDetail", {
       return new Promise((resolve, reject) => {
         getNotices({
           ...param,
-          ...page,
+          ...page
         })
           .then((res) => {
             this.setNoticeList(res.data);
@@ -109,7 +111,7 @@ const useNoticeStore = defineStore("VcOnlineNoticeDetail", {
           this.updateNoticeStatus({ ids: [id] });
         }
       });
-    },
-  },
+    }
+  }
 });
 export default useNoticeStore;

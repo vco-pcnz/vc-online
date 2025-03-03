@@ -10,7 +10,10 @@
           class="link"
           :class="{ 'link_active': isActive(link.path) }"
         >
-          {{ t(link.title) }}
+          <a-badge v-if="link.path === '/tasks'" :count="0">
+            <p class="router-name">{{ t(link.title) }}</p>
+          </a-badge>
+          <p class="router-name" v-else>{{ t(link.title) }}</p>
         </router-link>
       </div>
       
@@ -231,5 +234,9 @@ const handleLogout = () => {
   min-width: 100px;
   text-align: center;
   white-space: nowrap;
+}
+
+.router-name {
+  line-height: 2;
 }
 </style>

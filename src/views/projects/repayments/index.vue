@@ -90,7 +90,6 @@ const setPaginate = (page, limit) => {
 const update = () => {
   pagination.value.page = 1;
   loadData();
-  detailRef.value.loadData();
   MeterStatRef.value.loadData();
 };
 

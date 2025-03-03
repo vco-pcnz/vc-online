@@ -48,7 +48,7 @@
     </a-modal>
 
       <div style="min-height: 200px">
-        <div v-if="statisticsData && tabData.length" class="flex header-static">
+        <div v-if="statisticsData && tabData.length" class="flex header-static" :class="{'mt-10': itemId}">
           <div class="item-content">
             <div class="item">
               <div class="line one"></div>
@@ -99,7 +99,7 @@
             </div>
           </div>
 
-          <div class="flex flex-col items-center gap-6">
+          <div v-if="!itemId" class="flex flex-col items-center gap-6">
             <a-dropdown :trigger="['click']">
               <a-button :loading="downloading" type="dark" class="big shadow bold uppercase flex-button">
                 {{ t('创建报告') }}
@@ -280,6 +280,7 @@ import {
   projectDetailStatistics,
   projectForecastAddf
 } from '@/api/process';
+import { projectForecastVaiList, projectVariationStatisticsVai } from "@/api/project/variation"
 import { systemDictData } from "@/api/system"
 
 const props = defineProps({
@@ -299,6 +300,10 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
+  itemId: {
+    type: [Number, String],
+    default: ''
+  }
 });
 
 const { t } = useI18n();
@@ -311,12 +316,19 @@ const statisticsData = ref(null);
 const getDataInfo = () => {
   pageLoading.value = true;
 
-  const ajaxFn = props.isDetails ? projectDetailForecastList : projectForecastIndex
-
-  ajaxFn({
+  const params = {
     uuid: props.currentId,
     limit: 5000,
-  })
+  }
+
+  let ajaxFn = props.isDetails ? projectDetailForecastList : projectForecastIndex
+
+  if (props.itemId) {
+    ajaxFn = projectForecastVaiList
+    params.id = props.itemId
+  }
+
+  ajaxFn(params)
     .then((res) => {
       const dataArr = [];
       const data = res.data || {};
@@ -366,11 +378,17 @@ const getDataInfo = () => {
       pageLoading.value = false;
     });
 
-  const staticAjaxFn = props.isDetails ? projectDetailStatistics : projectForecastStatistics
+  let staticAjaxFn = props.isDetails ? projectDetailStatistics : projectForecastStatistics
 
-  staticAjaxFn({
-    uuid: props.currentId,
-  }).then((res) => {
+  const staticParams = {
+    uuid: props.currentId
+  }
+  if (props.itemId) {
+    staticAjaxFn = projectVariationStatisticsVai
+    staticParams.id = props.itemId
+  }
+
+  staticAjaxFn(staticParams).then((res) => {
     const repayments = res.repayments ? Math.abs(Number(res.repayments)) : 0
     statisticsData.value = res;
     statisticsData.value.repayments = repayments
@@ -522,8 +540,10 @@ watch(
 
 onMounted(() => {
   if (props.currentId) {
-    getDurationType()
     getDataInfo();
+    if (!props.itemId) {
+      getDurationType()
+    }
   }
 });
 </script>

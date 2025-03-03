@@ -31,3 +31,19 @@ export const projectVariationSaveStep = (data) =>
     method: 'post',
     data
   });
+
+// 变更-forecast列表
+export const projectForecastVaiList = (params) =>
+  request({
+    url: 'project/variation/forecastVaiList',
+    method: 'get',
+    params
+  });
+
+  // 变更-forecast统计
+export const projectVariationStatisticsVai = (params) =>
+  request({
+    url: 'project/variation/statisticsVai',
+    method: 'get',
+    params
+  });

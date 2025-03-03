@@ -14,13 +14,13 @@
                 {{ record.user_name }}
               </span>
             </p>
-            <p>
+            <p class="flex items-center">
               <i class="iconfont" :class="{ cer: record.email_ok }">&#xe66f;</i>
               <span>
                 {{ record.email }}
               </span>
             </p>
-            <p>
+            <p class="flex items-center">
               <i class="iconfont" :class="{ cer: record.mobile_ok }">&#xe678;</i>
               <span>+{{ record.pre }} {{ record.mobile }}</span>
             </p>

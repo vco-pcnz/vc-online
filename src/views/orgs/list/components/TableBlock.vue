@@ -14,11 +14,11 @@
               <i class="iconfont" :class="{ cer: record.org_name }">&#xe679;</i>
               <span class="text-ellipsis overflow-hidden inline-block text-nowrap" style="width: 200px" :title="record.org_name" :class="{ cer: record.org_name }">{{ record.org_name }}</span>
             </p>
-            <p v-if="record.email">
+            <p v-if="record.email" class="flex items-center">
               <i class="iconfont" :class="{ cer: record.email_ok }">&#xe66f;</i>
               <span :class="{ cer: record.email_ok }">{{ record.email }}</span>
             </p>
-            <p v-if="record.mobile">
+            <p v-if="record.mobile" class="flex items-center">
               <i class="iconfont" :class="{ cer: record.mobile_ok }">&#xe678;</i>
               <span :class="{ cer: record.mobile_ok }">
                 <template v-if="record.mobile && record.pre">+{{ record.pre }} </template>
@@ -68,9 +68,9 @@
         </template>
         <template v-if="column.key === '5'">
           <div @click="toDetail(record)" class="cursor">
-              <span v-if="record.user_create_time">{{ tool.showDate(record.user_create_time) }}</span>
-              <span v-if="record.user_create_time && record.create_time"> / </span>
-              <span v-if="record.create_time">{{ tool.showDate(record.create_time) }}</span>
+            <span>{{ record.user_create_time ? tool.showDate(record.user_create_time) : '--' }}</span>
+            <span> / </span>
+            <span>{{ record.create_time ? tool.showDate(record.create_time) : '--' }}</span>
           </div>
         </template>
         <!-- <template v-if="column.key === '6'">
@@ -107,7 +107,7 @@
         <template v-if="column.key === 'address'">
           <div @click="toDetail(record)" class="cursor">
             <p>ID: {{ record.idcard }}</p>
-            <p :title="record.address"  class="line-clamp-2" style="text-wrap:wrap;" v-if="record.address"><i class="iconfont">&#xe814;</i>{{ record.address }}</p>
+            <p :title="record.address" class="line-clamp-2" style="text-wrap: wrap" v-if="record.address"><i class="iconfont">&#xe814;</i>{{ record.address }}</p>
           </div>
         </template>
         <template v-if="column.key === '7'">

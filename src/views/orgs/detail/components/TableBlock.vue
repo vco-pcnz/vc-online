@@ -1,5 +1,5 @@
 <template>
-  <div class="table-gary sys-table-content" >
+  <div class="table-gary sys-table-content">
     <!-- :class="{ noData: !tableData.length }" -->
     <a-table :columns="columns" :data-source="tableData" :pagination="false" :scroll="{ x: '100%' }">
       <template #bodyCell="{ column, record }">
@@ -15,19 +15,13 @@
             </p>
             <p v-if="record.org_name" class="flex items-center">
               <i class="iconfont" :class="{ cer: record.org_name }">&#xe679;</i>
-              <span
-                class="text-ellipsis overflow-hidden inline-block text-nowrap"
-                style="width: 200px"
-                :title="record.org_name"
-                :class="{ cer: record.org_name }"
-                >{{ record.org_name }}</span
-              >
+              <span class="text-ellipsis overflow-hidden inline-block text-nowrap" style="width: 200px" :title="record.org_name" :class="{ cer: record.org_name }">{{ record.org_name }}</span>
             </p>
-            <p v-if="record.email">
+            <p v-if="record.email" class="flex items-center">
               <i class="iconfont" :class="{ cer: record.email_ok }">&#xe66f;</i>
               <span :class="{ cer: record.email_ok }">{{ record.email }}</span>
             </p>
-            <p v-if="record.mobile">
+            <p v-if="record.mobile" class="flex items-center">
               <i class="iconfont" :class="{ cer: record.mobile_ok }">&#xe678;</i>
               <span :class="{ cer: record.mobile_ok }">
                 <template v-if="record.mobile && record.pre">+{{ record.pre }} </template>
@@ -40,26 +34,21 @@
           <div @click="toUserDetail(record)" class="cursor" v-if="record.has_user">
             <p class="bold black">{{ record.user_name }}</p>
             <div v-if="record.user_username" class="flex items-center">
-              <p>
+              <p class="flex items-center">
                 <i class="iconfont">&#xe632;</i>
                 <span>{{ record.user_username }}</span>
               </p>
               <div @click.stop>
-                <a-popconfirm
-                  :title="'Are you sure ' + t('解绑用户')"
-                  ok-text="Yes"
-                  cancel-text="No"
-                  @confirm="orgsDetailStore.stakeUnbind(record.uuid)"
-                >
+                <a-popconfirm :title="'Are you sure ' + t('解绑用户')" ok-text="Yes" cancel-text="No" @confirm="orgsDetailStore.stakeUnbind(record.uuid)">
                   <span class="cer ml-2"><DisconnectOutlined /></span>
                 </a-popconfirm>
               </div>
             </div>
-            <p v-if="record.user_username">
+            <p v-if="record.user_username" class="flex items-center">
               <i class="iconfont" :class="{ cer: record.user_email_ok }">&#xe66f;</i>
               <span :class="{ cer: record.user_email_ok }">{{ record.user_email }}</span>
             </p>
-            <p v-if="record.user_mobile">
+            <p v-if="record.user_mobile" class="flex items-center">
               <i class="iconfont" :class="{ cer: record.user_mobile_ok }">&#xe678;</i>
               <span :class="{ cer: record.user_mobile_ok }">
                 <template v-if="record.user_mobile && record.user_pre">+{{ record.user_pre }} </template>
@@ -81,22 +70,25 @@
           </p>
         </template>
         <template v-if="column.key === '5'">
-          <p v-if="record.user_create_time">
-            <span>{{ tool.showDate(record.user_create_time) }}</span>
-          </p>
-          <p v-if="record.create_time">
-            <span>{{ tool.showDate(record.create_time) }}</span>
-          </p>
+          <div>
+            <span>{{ record.user_create_time ? tool.showDate(record.user_create_time) : '--' }}</span>
+            <span> / </span>
+            <span>{{ record.create_time ? tool.showDate(record.create_time) : '--' }}</span>
+          </div>
         </template>
-        <template v-if="column.key === '6'">
-          <p>
-            <i class="iconfont black">&#xe690;</i>
-            <span class="cer bold"> {{ record.open_count }} {{ t('进行中项目') }} </span>
-          </p>
-          <p style="padding-left: 20px">
-            <span class="bold"> {{ record.close_count }} {{ t('已关闭项目') }} </span>
-          </p>
-          <p>
+        <template v-if="column.key === 'projects'">
+          <div class="cursor" @click="navigationTo('/projects/current')">
+            <p>
+              <i class="iconfont black">&#xe690;</i>
+              <span class="cer bold"> {{ record.open_count }} {{ t('进行中项目') }} </span>
+            </p>
+            <p style="padding-left: 20px">
+              <span class="bold"> {{ record.close_count }} {{ t('已关闭项目') }} </span>
+            </p>
+          </div>
+        </template>
+        <template v-if="column.key === 'requests'">
+          <p class="cursor" @click="navigationTo('/requests/loan')">
             <i class="iconfont black">&#xe751;</i>
             <span class="cer bold"> {{ record.apply_count }} {{ t('请求') }} </span>
           </p>
@@ -125,13 +117,7 @@
                   <a-menu-item key="1" @click="toEdit(record)">
                     <span>{{ t('编辑') }}</span>
                   </a-menu-item>
-                  <a-popconfirm
-                    v-if="record.has_user"
-                    :title="'Are you sure ' + t('解绑用户')"
-                    ok-text="Yes"
-                    cancel-text="No"
-                    @confirm="orgsDetailStore.stakeUnbind(record.uuid)"
-                  >
+                  <a-popconfirm v-if="record.has_user" :title="'Are you sure ' + t('解绑用户')" ok-text="Yes" cancel-text="No" @confirm="orgsDetailStore.stakeUnbind(record.uuid)">
                     <a-menu-item key="2" @click.stop>
                       <span>{{ t('解绑用户') }}</span>
                     </a-menu-item>
@@ -184,7 +170,8 @@ const columns = reactive([
   { title: t('关联用户t'), key: '3', width: 250, align: 'left' },
   { title: t('用户角色t'), key: '4', width: 150, align: 'center' },
   { title: t('注册时间/创建时间t'), key: '5', width: 230, align: 'center' },
-  { title: t('项目数据t'), key: '6', width: 180, align: 'left' },
+  { title: t('项目数据'), key: 'projects', width: 150, align: 'left' },
+  { title: t('请求数据'), key: 'requests', width: 150, align: 'center' },
   { title: t('状态t'), key: '7', width: 150, align: 'center' },
   {
     title: t('操作1'),
@@ -234,7 +221,7 @@ const toEdit = (item) => {
 // 跳转绑定用户详情
 const toUserDetail = (item) => {
   if (!item.user_uuid) return;
-  navigationTo({ path: '/users/detail', query: { uuid: item.user_uuid } });
+  navigationTo({ path: '/users/edit', query: { uuid: item.user_uuid } });
 };
 
 // watch(

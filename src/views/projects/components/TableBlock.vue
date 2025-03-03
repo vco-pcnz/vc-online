@@ -54,7 +54,7 @@
         </template>
         <template v-if="column.key === '3'">
           <p class="bold black">{{ tool.showDate(record.end_date) }}</p>
-          <span class="replenish_text">{{ diffInDays(record.end_date) }} days left</span>
+          <span class="replenish_text" :class="{ 'color_red-error': diffInDays(record.end_date) < 0 }"> {{ Math.abs(diffInDays(record.end_date)) }} {{ diffInDays(record.end_date) < 0 ? 'days ago' : 'days left' }}</span>
         </template>
         <template v-if="column.key === '4'">
           <p class="bold black">
@@ -85,7 +85,7 @@
           <p class="black">{{ tool.formatMoney(record.credit.fc2) }}</p>
         </template>
         <template v-if="column.key === '9'">
-          <div class="closed" v-if="record.is_open === 3">{{t('关账')}}</div>
+          <div class="closed" v-if="record.is_open === 3">{{ t('关账') }}</div>
           <p class="count" v-if="record.upd">{{ record.upd }}</p>
         </template>
       </template>
@@ -238,16 +238,16 @@ const handlePathChange = () => {
 //   }
 // }
 .closed {
-    position: absolute;
-    background-color: #858585;
-    color: #fff;
-    font-size: 11px;
-    padding: 2px 0;
-    width: 100%;
-    text-align: center;
-    top: 2px;
-    right: 0;
-    border-top-right-radius: 12px;
-    border-bottom-left-radius: 12px;
+  position: absolute;
+  background-color: #858585;
+  color: #fff;
+  font-size: 11px;
+  padding: 2px 0;
+  width: 100%;
+  text-align: center;
+  top: 2px;
+  right: 0;
+  border-top-right-radius: 12px;
+  border-bottom-left-radius: 12px;
 }
 </style>

@@ -263,7 +263,7 @@ const toEdit = (item) => {
 // 跳转绑定用户详情
 const toUserDetail = (item) => {
   if (!item.user_uuid) return;
-  navigationTo({ path: '/users/detail', query: { uuid: item.user_uuid } });
+  navigationTo({ path: '/users/edit', query: { uuid: item.user_uuid } });
 };
 
 const selectedRowKeys = ref([]); // 存放UUid

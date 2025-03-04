@@ -121,7 +121,7 @@
       </div>
     </div>
 
-    <div class="flex justify-end mt-5">
+    <div v-if="isOpen" class="flex justify-end mt-5">
       <a-button
         type="dark" shape="round" class="big shadow bold uppercase"
         @click="saveHandle"

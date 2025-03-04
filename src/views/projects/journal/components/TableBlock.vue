@@ -2,6 +2,7 @@
   <div class="table-block">
     <ul class="table-col header">
       <li></li>
+      <li>Journal / Duration</li>
       <li>{{ t('类型') }}</li>
       <li>{{ t('方法') }}</li>
       <li>{{ t('金额') }}</li>
@@ -12,6 +13,7 @@
       <template v-for="item in tableData" :key="item.id">
         <ul class="table-col tr" :class="{ active: active_id == item.id, declined: item.state === -900 }" @click="viewDetail(item)">
           <li><div class="circle" :class="{ done: item.status === 1 }"></div></li>
+          <li>{{ item.cate == 1 ? 'Journal' : 'Duration' }}</li>
           <li>{{ item.type_name }}</li>
           <li>{{ item.addsub == 1 ? t('增加') : t('减少') }}</li>
           <!-- <li>
@@ -151,28 +153,31 @@ watch(
         background-color: #181818;
       }
     }
-    &:nth-child(1) {
-      text-align: center;
-      width: 40px;
-    }
     &:nth-child(2) {
+      text-align: center;
+      width: 140px;
+    }
+    // &:nth-child(2) {
+    //   text-align: center;
+    //   width: 40px;
+    // }
+    &:nth-child(3) {
       flex: 1;
     }
-    &:nth-child(3) {
-      width: 150px;
-      text-align: center;
-    }
     &:nth-child(4) {
+      width: 80px;
       text-align: center;
-      width: 150px;
     }
     &:nth-child(5) {
+      text-align: center;
+      width: 150px;
+    }
+    &:nth-child(6) {
       width: 260px;
       text-align: center;
     }
-    &:nth-child(6),
     &:nth-child(7) {
-      width: 180px;
+      width: 100px;
       text-align: center;
     }
   }

@@ -5,6 +5,9 @@
     <a-alert v-if="Boolean(detail?.cancel_reason)" :message="t('退回原因')" :description="detail?.cancel_reason" type="error" class="cancel-reason" />
     <a-row :gutter="24">
       <a-col :span="24" class="item-txt">
+        <div class="bold fs_xl">{{ detail.cate == 1 ? 'Journal' : 'Duration' }}</div>
+      </a-col>
+      <a-col :span="24" class="item-txt">
         <p>{{ t('类型') }}</p>
         <div>{{ detail.type_name }}</div>
       </a-col>

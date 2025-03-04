@@ -7,7 +7,7 @@
         </a-button>
       </slot>
     </div>
-    <a-modal :width="800" v-if="open" :open="open" :title="t('上传')" @cancel="open = false">
+    <a-modal :width="830" v-if="open" :open="open" :title="t('上传')" @cancel="open = false">
       <a-tabs v-model:activeKey="activeKey" @change="searchHandle(false)">
         <a-tab-pane :key="1" :tab="t('图片')" v-if="!uploadType || uploadType == 1"> </a-tab-pane>
         <a-tab-pane :key="2" :tab="t('文件')" v-if="!uploadType || uploadType == 2"> </a-tab-pane>

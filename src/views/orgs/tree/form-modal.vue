@@ -3,7 +3,7 @@
     <div @click="open = true">
       <slot></slot>
     </div>
-    <a-modal :width="600" v-if="open" :open="open" @cancel="open = false" :title="t(form.uuid ? '编辑所有权' : '添加所有权')" class="sys-form-content">
+    <a-modal :width="650" v-if="open" :open="open" @cancel="open = false" :title="t(form.uuid ? '编辑所有权' : '添加所有权')" class="sys-form-content">
       <div class="sys-form-content mt-5">
         <a-form ref="formRef" :model="form" :rules="dynamicRules" layout="vertical">
           <a-form-item label=" ">

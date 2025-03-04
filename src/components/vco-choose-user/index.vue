@@ -21,10 +21,10 @@
       <!-- 搜索 -->
       <div v-if="!hideSearch" class="flex justify-end mb-5">
         <vco-page-search>
-          <vco-page-search-item :title="t('组织')" width="180" v-if="url == 'user/selUser'">
+          <vco-page-search-item :title="t('组织')" width="180" v-if="urlValue == 'user/selUser'">
             <a-input v-model:value="searchForm.p__name" :placeholder="t('请输入')" />
           </vco-page-search-item>
-          <vco-page-search-item :title="t('机构')" width="180" v-if="url == 'stake/selStake'">
+          <vco-page-search-item :title="t('机构')" width="180" v-if="urlValue == 'stake/selStake'">
             <a-input v-model:value="searchForm.pname" :placeholder="t('请输入')" />
           </vco-page-search-item>
           <vco-page-search-item :title="t('关键字')" width="300">
@@ -40,7 +40,7 @@
       </div>
 
       <a-spin :spinning="loading" size="large">
-        <TableBlock :isMultiple="isMultiple" :table-data="tableData" :url="url" v-model:list="checkedList" v-model:ids="checkedIds" v-model:data="checkedData" wrapClassName="vco-choose-user-modal" @change="change"></TableBlock>
+        <TableBlock :isMultiple="isMultiple" :table-data="tableData" :url="urlValue" v-model:list="checkedList" v-model:ids="checkedIds" v-model:data="checkedData" wrapClassName="vco-choose-user-modal" @change="change"></TableBlock>
       </a-spin>
       <template #footer>
         <div class="modal-footer">
@@ -103,6 +103,7 @@ const props = defineProps({
     default: () => {}
   }
 });
+const urlValue = ref('');
 const open = ref(false);
 const loading = ref(false);
 const tableData = ref([]);
@@ -174,6 +175,7 @@ const lodaData = () => {
   loading.value = true;
 
   const url = props.url || 'user/selUser';
+  urlValue.value = url;
   const paramsInfo = {
     url,
     method: 'get',

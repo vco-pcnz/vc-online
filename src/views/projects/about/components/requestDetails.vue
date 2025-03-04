@@ -9,6 +9,7 @@
       @update:open="borrowerVisible = false"
     >
       <borrower-info-form
+        v-if="borrowerVisible"
         :check="true"
         :is-open="true"
         :info-data="data?.borrower"
@@ -26,6 +27,7 @@
       @update:open="securityVisible = false"
     >
       <guarantor-info-form
+        v-if="securityVisible"
         :current-id="currentId"
         :is-open="true"
         :guarantor-info="data?.warranty"
@@ -60,6 +62,7 @@
     </div>
 
     <div v-if="hasPermission('projects:detail:editGuarantor')" class="RequestDetails-label flex items-center add">
+      <i v-if="showWarrantyTips" class="iconfont iconfont-tips">&#xe60e;</i>
       <span>{{ t('其他安全信息') }}</span>
       <i class="iconfont" @click="securityVisible = true">&#xe743;</i>
     </div>
@@ -89,7 +92,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import tool from '@/utils/tool';
 import { navigationTo } from '@/utils/tool';
 import { hasPermission } from '@/directives/permission/index';
@@ -101,6 +104,10 @@ const { t } = useI18n();
 
 const props = defineProps(['data', 'currentId']);
 const emits = defineEmits(['update'])
+
+const showWarrantyTips = computed(() => {
+  return hasPermission('projects:detail:editGuarantor') && !props.data?.warranty?.main_contractor && !props.data?.warranty?.security_package.length
+})
 
 const borrowerVisible = ref(false)
 const securityVisible = ref(false)
@@ -164,5 +171,12 @@ const saveDone = () => {
     text-align: center;
     font-size: @fs_4xl;
   }
+}
+
+.iconfont-tips {
+  font-size: 12px !important;
+  margin-right: 5px;
+  margin-left: 0 !important;
+  color: #c1430c !important;
 }
 </style>

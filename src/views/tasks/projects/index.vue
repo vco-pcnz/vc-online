@@ -1,7 +1,6 @@
 <template>
   <div>
     <vco-page-nav sup-path="/tasks"></vco-page-nav>
-
     <div class="mt-5">
       <a-spin :spinning="tableLoading" size="large">
         <div class="table-content sys-table-content no-top-line">
@@ -9,25 +8,36 @@
             ref="tableRef"
             rowKey="uuid"
             :columns="columns"
-            :data-source="tableData"
+            :data-source="tableDataRef"
             :pagination="false"
           >
             <template #bodyCell="{ column, record }">
+              <template v-if="column.dataIndex === 'project_image'">
+                <template v-if="record.imgsArr.length">
+                  <div class="flex justify-center">
+                    <vco-avatar :src="record.imgsArr[0]" :radius="true" :round="false"></vco-avatar>
+                  </div>
+                </template>
+                <p v-else>--</p>
+              </template>
               <template v-if="column.dataIndex === 'project_info'">
-                <span class="cursor-pointer" @click="todoHandle(record.project.uuid)">
-                  <div class="id-info">ID: {{ record.project.project_apply_sn }}</div>
-                  <div :title="record.project.project_name">{{ record.project.project_name || t('项目名称') }}</div>
-                  <div v-if="record.project.project_city && record.project.project_city.length > 3" class="icon-txt mt-1">
+                <span>
+                  <div class="id-info">ID: {{ record.project_apply_sn }}</div>
+                  <div :title="record.project_name">{{ record.project_name || t('项目名称') }}</div>
+                  <div v-if="record.project_city && record.project_city.length > 3" class="icon-txt mt-1">
                     <i class="iconfont cer">&#xe814;</i>
-                    <span :title="record.project.project_city" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-2">{{ record.project.project_city }}</span>
+                    <span :title="record.project_city" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-2">{{ record.project_city }}</span>
                   </div>
                 </span>
               </template>
-              <template v-if="column.dataIndex === 'apply_amount'">
-                <span class="cursor-pointer" @click="todoHandle(record.project.uuid)">
-                  <vco-number v-if="record.apply_amount" :value="record.apply_amount" :precision="2"></vco-number>
+              <template v-if="column.dataIndex === 'loan_money'">
+                <span>
+                  <vco-number v-if="record.loan_money" :value="record.loan_money" :precision="2"></vco-number>
                   <p v-else>--</p>
                 </span>
+              </template>
+              <template v-if="column.dataIndex === 'status'">
+                <span>{{ t(record.status_name) }}</span>
               </template>
               <template v-if="column.dataIndex === 'create_time'">
                 <span v-if="record.create_time">{{ tool.showDate(record.create_time) }}</span>
@@ -36,23 +46,11 @@
               <template v-if="column.dataIndex === 'operation'">
                 <a-button
                   type="primary" size="small" shape="round" class="uppercase"
-                  @click="todoHandle(record.project.uuid)"
-                >{{ t('点击前往') }}</a-button>
+                  @click="todoHandle(record)"
+                >{{ t('点击处理') }}</a-button>
               </template>
             </template>
           </a-table>
-        </div>
-        <div v-if="tableData.length" class="mt-5">
-          <a-pagination
-            size="small"
-            :total="pageObj.total"
-            :current="pageObj.currentPage"
-            :page-size="pageObj.pageSize"
-            show-size-changer
-            show-quick-jumper
-            :show-total="(total) => t('共{0}条', [total])"
-            @change="pageChange"
-          />
         </div>
       </a-spin>
     </div>
@@ -60,22 +58,24 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue';
+import { reactive, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { useTableList } from '@/hooks/useTableList';
 import { navigationTo } from '@/utils/tool';
-import { getTasksList } from '@/api/tasks';
+import { projectBacklogList } from '@/api/tasks';
 
 const { t } = useI18n();
 
-const { tableRef, tableLoading, pageObj, tableData, pageChange } = useTableList(getTasksList, {
-  process_type: 'repayment'
+const { tableRef, tableLoading, tableData, getTableData } = useTableList(projectBacklogList, {
+  limit: 1000
 });
 
 const columns = reactive([
+  { title: t('项目图片'), dataIndex: 'project_image', width: 80, align: 'center' },
   { title: t('项目信息'), dataIndex: 'project_info', width: 300, align: 'left' },
-  { title: t('申请金额'), dataIndex: 'apply_amount', width: 250, align: 'center' },
+  { title: t('借款金额'), dataIndex: 'loan_money', width: 160, align: 'left' },
+  { title: t('状态'), dataIndex: 'status', width: 240, align: 'center' },
   { title: t('创建时间'), dataIndex: 'create_time', width: 200, align: 'center' },
   {
     title: t('操作1'),
@@ -86,8 +86,28 @@ const columns = reactive([
   },
 ]);
 
-const todoHandle = (uuid) => {
-  navigationTo(`/projects/repayments?uuid=${uuid}`)
+const tableDataRef = computed(() => {
+  const data = tableData.value;
+  data.forEach((item) => {
+    const images = item.project_image || '';
+    let imgsArr = [];
+    if (images) {
+      imgsArr = images.split(',');
+    }
+
+    if (item.borrower_type === 1) {
+      item.showName = `${item.first_name} ${item.middle_name} ${item.last_name}`;
+    } else {
+      item.showName = item.organization_name;
+    }
+
+    item.imgsArr = imgsArr;
+  });
+  return data;
+});
+
+const todoHandle = (data) => {
+  navigationTo(`${href}?uuid=${data.uuid}`);
 }
 
 </script>

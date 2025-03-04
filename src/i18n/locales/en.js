@@ -724,5 +724,8 @@ export default {
   "完整审核步骤": "Complete review steps",
   "待办事项": "Tasks",
   "解押请求": "Discharge request",
-  "点击前往": "Click to go"
+  "点击处理": "Click Process",
+  "项目请求": "Projects request",
+  "其他请求": "Others requests",
+  "修改借款人信息": "Edit borrower information"
 }

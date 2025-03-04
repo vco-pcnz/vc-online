@@ -47,3 +47,19 @@ export const goBack = (data) =>
     method: 'post',
     data
   });
+
+// 修改借款人信息 - open 后
+export const projectDetailSaveBorrower = (data) =>
+  request({
+    url: 'projectDetail/saveBorrower',
+    method: 'post',
+    data
+  });
+
+// 修改担保人信息 - open 后
+export const projectDetailSaveGuarantor = (data) =>
+  request({
+    url: 'projectDetail/saveGuarantor',
+    method: 'post',
+    data
+  });

@@ -58,7 +58,7 @@
       <div class="box-bottom">
         <p>Security value</p>
         <vco-number :value="data?.security" :bold="true" size="fs_2xl" :precision="2"></vco-number>
-        <a-button type="brown" shape="round" size="small" class="mt-1" @click="navigationTo(`/projects/discharge?uuid=${currentId}`)">security items <i class="iconfont fs_2xs ml-3">&#xe794;</i></a-button>
+        <a-button v-if="hasPermission('projects:detail:viewSecurity')" type="brown" shape="round" size="small" class="mt-1" @click="navigationTo(`/projects/discharge?uuid=${currentId}`)">security items <i class="iconfont fs_2xs ml-3">&#xe794;</i></a-button>
       </div>
     </div>
   </div>
@@ -68,6 +68,7 @@
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { navigationTo } from '@/utils/tool';
+import { hasPermission } from '@/directives/permission/index';
 
 const { t } = useI18n();
 

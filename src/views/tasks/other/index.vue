@@ -9,22 +9,22 @@
             ref="tableRef"
             rowKey="uuid"
             :columns="columns"
-            :data-source="tableData"
+            :data-source="tableDataRef"
             :pagination="false"
           >
             <template #bodyCell="{ column, record }">
               <template v-if="column.dataIndex === 'project_info'">
-                <span class="cursor-pointer" @click="todoHandle(record.project.uuid)">
-                  <div class="id-info">ID: {{ record.project.project_apply_sn }}</div>
-                  <div :title="record.project.project_name">{{ record.project.project_name || t('项目名称') }}</div>
-                  <div v-if="record.project.project_city && record.project.project_city.length > 3" class="icon-txt mt-1">
+                <span class="cursor-pointer" @click="todoHandle(record.uuid)">
+                  <div class="id-info">ID: {{ record.project_apply_sn }}</div>
+                  <div :title="record.project_name">{{ record.project_name || t('项目名称') }}</div>
+                  <div v-if="record.project_city && record.project_city.length > 3" class="icon-txt mt-1">
                     <i class="iconfont cer">&#xe814;</i>
-                    <span :title="record.project.project_city" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-2">{{ record.project.project_city }}</span>
+                    <span :title="record.project_city" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-2">{{ record.project_city }}</span>
                   </div>
                 </span>
               </template>
               <template v-if="column.dataIndex === 'apply_amount'">
-                <span class="cursor-pointer" @click="todoHandle(record.project.uuid)">
+                <span class="cursor-pointer" @click="todoHandle(record.uuid)">
                   <vco-number v-if="record.apply_amount" :value="record.apply_amount" :precision="2"></vco-number>
                   <p v-else>--</p>
                 </span>
@@ -36,7 +36,7 @@
               <template v-if="column.dataIndex === 'operation'">
                 <a-button
                   type="primary" size="small" shape="round" class="uppercase"
-                  @click="todoHandle(record.project.uuid)"
+                  @click="todoHandle(record.uuid)"
                 >{{ t('点击前往') }}</a-button>
               </template>
             </template>
@@ -60,22 +60,22 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue';
+import { reactive, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { useTableList } from '@/hooks/useTableList';
 import { navigationTo } from '@/utils/tool';
-import { getTasksList } from '@/api/tasks';
+import { requestBacklogList } from '@/api/tasks';
 
 const { t } = useI18n();
 
-const { tableRef, tableLoading, pageObj, tableData, pageChange } = useTableList(getTasksList, {
-  process_type: 'Journal'
+const { tableRef, tableLoading, pageObj, tableData, pageChange } = useTableList(requestBacklogList, {
+  process_type: 'drawdown'
 });
 
 const columns = reactive([
   { title: t('项目信息'), dataIndex: 'project_info', width: 300, align: 'left' },
-  { title: t('申请金额'), dataIndex: 'apply_amount', width: 250, align: 'center' },
+  { title: t('申请金额'), dataIndex: 'apply_amount', width: 200, align: 'center' },
   { title: t('创建时间'), dataIndex: 'create_time', width: 200, align: 'center' },
   {
     title: t('操作1'),
@@ -86,8 +86,20 @@ const columns = reactive([
   },
 ]);
 
+const tableDataRef = computed(() => {
+  const data = tableData.value;
+  data.forEach((item) => {
+    if (item.borrower_type === 1) {
+      item.showName = `${item.first_name} ${item.middle_name} ${item.last_name}`;
+    } else {
+      item.showName = item.organization_name;
+    }
+  });
+  return data;
+});
+
 const todoHandle = (uuid) => {
-  navigationTo(`/projects/repayments?uuid=${uuid}`)
+  navigationTo(`/projects/drawdowns?uuid=${uuid}`)
 }
 
 </script>

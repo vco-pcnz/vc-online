@@ -247,7 +247,10 @@
   const resovleVisible = ref(false);
 
   const submitRquest = (params) => {
+    params.do__mark = currentMark.value
+
     subLoading.value = true
+
     projectAuditSaveStep(params).then((res) => {
       subLoading.value = false
       footerRef.value.nextHandle({

@@ -73,19 +73,21 @@
               </template>
             </a-alert>
 
-            <vco-upload-modal v-model:list="documentList" v-model:value="formState.document" class="mt-5 mb-3"></vco-upload-modal>
-            <a-alert type="warning" v-if="documentList.length">
-              <template #description>
-                <div style="max-height: 250px; overflow-y: auto; padding-right: 10px">
-                  <div class="documents" v-for="(item, index) in documentList" :key="index">
-                    <vco-file-item :file="item" :showClose="true" @remove="remove(index)"></vco-file-item>
-                    <div>
-                      <a-date-picker v-model:value="formState.expire_time[index]" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" />
+            <template v-if="edit">
+              <vco-upload-modal v-model:list="documentList" v-model:value="formState.document" class="mt-5 mb-3"></vco-upload-modal>
+              <a-alert type="warning" v-if="documentList.length">
+                <template #description>
+                  <div style="max-height: 250px; overflow-y: auto; padding-right: 10px">
+                    <div class="documents" v-for="(item, index) in documentList" :key="index">
+                      <vco-file-item :file="item" :showClose="true" @remove="remove(index)"></vco-file-item>
+                      <div>
+                        <a-date-picker v-model:value="formState.expire_time[index]" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" />
+                      </div>
                     </div>
                   </div>
-                </div>
-              </template>
-            </a-alert>
+                </template>
+              </a-alert>
+            </template>
           </a-col>
         </a-row>
 

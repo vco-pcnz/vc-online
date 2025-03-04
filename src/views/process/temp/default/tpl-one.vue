@@ -77,7 +77,7 @@
                       </a-form-item>
                     </a-col>
                   </template>
-                  <a-col :span="isNormalUser ? 24 : 16">
+                  <a-col :span="isNormalUser ? 24 : (isOpen ? 24 : 16)">
                     <a-form-item v-if="formState.borrower_type === 1" :label="t('身份证号码')" name="borrower_id_num">
                       <a-input v-model:value="formState.borrower_id_num" />
                     </a-form-item>
@@ -86,7 +86,7 @@
                       <a-input v-model:value="formState.company_number" />
                     </a-form-item>
                   </a-col>
-                  <a-col v-if="!isNormalUser" :span="8">
+                  <a-col v-if="!isNormalUser && !isOpen" :span="8">
                     <a-form-item :label="t('是否存为利益相关者')">
                       <a-switch v-model:checked="formState.is_temp_borrower" />
                     </a-form-item>
@@ -156,6 +156,7 @@ import { projectApplySaveBorrowerInfo, projectAuditSaveMode, projectSaveSaveDraf
 import tool from '@/utils/tool';
 import { message } from 'ant-design-vue/es';
 import { projectApplyBorrowerInfo, projectDraftInfo, getApproveTemp } from '@/api/process';
+import { projectDetailSaveBorrower } from "@/api/project/project"
 import TempFooter from './components/TempFooter.vue';
 import BindUsers from './../../components/BindUsers.vue';
 import AdsContent from './../../components/AdsContent.vue';
@@ -188,6 +189,10 @@ const props = defineProps({
     default: ''
   },
   check: {
+    type: Boolean,
+    default: false
+  },
+  isOpen: {
     type: Boolean,
     default: false
   },
@@ -449,9 +454,13 @@ const submitHandle = () => {
       let ajaxFn = projectApplySaveBorrowerInfo;
 
       if (props.check) {
-        params.borrower_info_status = props.infoData.check_status;
-        params.code = props.code;
-        ajaxFn = projectAuditSaveMode;
+        if (props.isOpen) {
+          ajaxFn = projectDetailSaveBorrower
+        } else {
+          params.borrower_info_status = props.infoData.check_status;
+          params.code = props.code;
+          ajaxFn = projectAuditSaveMode;
+        }
       } else {
         params.draft_step = markInfo.value;
       }
@@ -464,7 +473,9 @@ const submitHandle = () => {
       ajaxFn(params)
         .then(async (res) => {
           if (props.check) {
-            emitter.emit('refreshAuditHisList');
+            if (!props.isOpen) {
+              emitter.emit('refreshAuditHisList');
+            }
 
             emits('checkDone');
           } else {

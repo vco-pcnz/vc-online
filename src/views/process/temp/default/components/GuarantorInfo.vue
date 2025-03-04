@@ -1,7 +1,7 @@
 <template>
   <div
     class="block-item mb"
-    :class="{ checked: guarantorInfo.is_check && blockInfo.showCheck, 'details': isDetails }"
+    :class="{ checked: guarantorInfo.is_check && blockInfo?.showCheck, 'details': isDetails, 'open': isOpen }"
   >
     <!-- 人员选择 -->
     <vco-choose-add-user
@@ -10,10 +10,10 @@
       @done="userChoiced"
     ></vco-choose-add-user>
 
-    <vco-process-title :title="t('其他安全信息')">
+    <vco-process-title v-if="!isOpen" :title="t('其他安全信息')">
       <div v-if="!isDetails" class="flex gap-5 items-center">
         <a-button
-          v-if="blockInfo.showEdit"
+          v-if="blockInfo?.showEdit"
           type="primary"
           shape="round"
           :loading="subLoading"
@@ -28,7 +28,7 @@
           :title="t('确定通过审核吗？')"
           :ok-text="t('确定')"
           :cancel-text="t('取消')"
-          v-if="blockInfo.showCheck && openShowCheck && !guarantorInfo.is_check && props.guarantorInfo.guarantor_list.length"
+          v-if="blockInfo?.showCheck && openShowCheck && !guarantorInfo.is_check && props.guarantorInfo.guarantor_list.length"
           @confirm="checkHandle"
         >
           <a-button
@@ -61,7 +61,7 @@
             <a-form-item :label="t('承包商')" name="main_contractor">
               <a-input
                 v-model:value="formState.main_contractor"
-                :disabled="!blockInfo.showEdit"
+                :disabled="!blockInfo?.showEdit && !isOpen"
               />
             </a-form-item>
           </a-col>
@@ -71,7 +71,7 @@
                 v-model:value="formState.security_package"
                 mode="multiple"
                 style="width: 100%"
-                :disabled="!blockInfo.showEdit"
+                :disabled="!blockInfo?.showEdit && !isOpen"
                 :options="securityOptions"
               ></a-select>
             </a-form-item>
@@ -81,7 +81,7 @@
               <div class="title-content">
                 <p :class="{'details': isDetails}">{{ t('担保人') }}</p>
                 <a-button
-                  v-if="userData.length && blockInfo.showEdit && !disabledGua"
+                  v-if="userData.length && blockInfo?.showEdit && !disabledGua"
                   type="primary"
                   size="small"
                   shape="round"
@@ -100,7 +100,7 @@
                   >
                     <vco-user-item :data="item" :main="true"></vco-user-item>
                     <i
-                      v-if="blockInfo.showEdit && !disabledGua"
+                      v-if="blockInfo?.showEdit && !disabledGua"
                       class="iconfont"
                       @click="removeItem(index)"
                     >
@@ -120,6 +120,14 @@
         <i class="iconfont">&#xe647;</i>
       </div>
     </div>
+
+    <div class="flex justify-end mt-5">
+      <a-button
+        type="dark" shape="round" class="big shadow bold uppercase"
+        @click="saveHandle"
+        :loading="subLoading"
+      >{{ t('保存') }}</a-button>
+    </div>
   </div>
 </template>
 
@@ -134,6 +142,7 @@ import {
   projectAuditSaveMode,
   projectAuditCheckMode
 } from '@/api/process';
+import { projectDetailSaveGuarantor } from "@/api/project/project"
 import emitter from '@/event';
 
 const emits = defineEmits(['refresh']);
@@ -164,6 +173,10 @@ const props = defineProps({
   isDetails: {
     type: Boolean,
     default: false
+  },
+  isOpen: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -182,14 +195,14 @@ const formRules = ref({
   ],
 });
 
-// if (props.currentStep?.mark === 'step_open') {
-//   formRules.value['security_package'] = [
-//     { required: true, message: t('请选择') + t('履约保函'), trigger: 'change' },
-//   ]
-//   formRules.value['main_contractor'] = [
-//     { required: true, message: t('请输入') + t('承包商'), trigger: 'blur' },
-//   ]
-// }
+if (props.isOpen) {
+  formRules.value['security_package'] = [
+    { required: true, message: t('请选择') + t('履约保函'), trigger: 'change' },
+  ]
+  formRules.value['main_contractor'] = [
+    { required: true, message: t('请输入') + t('承包商'), trigger: 'blur' },
+  ]
+}
 
 const disabledGua = computed(() => props.currentStep?.mark === 'step_open')
 const securityOptions = ref([]);
@@ -211,13 +224,25 @@ const saveHandle = () => {
       const params = cloneDeep(formState);
       params.security_package = params.security_package.join(',');
       params.uuid = props.currentId;
-      params.code = props.blockInfo.code;
+      params.code = props.blockInfo?.code;
+
+      let ajaxFn = projectAuditSaveMode
+
+      if (props.isOpen) {
+        ajaxFn = projectDetailSaveGuarantor
+
+        delete params.code
+      }
 
       subLoading.value = true;
-      projectAuditSaveMode(params)
+      ajaxFn(params)
         .then(() => {
           subLoading.value = false;
-          emitter.emit('refreshAuditHisList');
+
+          if (!props.isOpen) {
+            emitter.emit('refreshAuditHisList');
+          }
+          
           emits('refresh');
         })
         .catch(() => {
@@ -281,7 +306,7 @@ const checkHandle = async () => {
     .then(async () => {
       const params = {
         uuid: props.currentId,
-        code: props.blockInfo.code
+        code: props.blockInfo?.code
       }
 
       await projectAuditCheckMode(params)
@@ -301,7 +326,7 @@ const checkHandle = async () => {
 
   // const params = {
   //   uuid: props.currentId,
-  //   code: props.blockInfo.code
+  //   code: props.blockInfo?.code
   // }
   
   // await projectAuditCheckMode(params)
@@ -318,7 +343,7 @@ const checkHandle = async () => {
   // } else {
   //   const params = {
   //     uuid: props.currentId,
-  //     code: props.blockInfo.code
+  //     code: props.blockInfo?.code
   //   }
     
   //   await projectAuditCheckMode(params)
@@ -421,6 +446,11 @@ onUnmounted(() => {
   :deep(.ant-input[disabled]),
   :deep(.ant-select-disabled .ant-select-selection-item-content) {
     color: #999 !important;
+  }
+  &.open {
+    box-shadow: none;
+    padding: 0 20px;
+    overflow: visible;
   }
 }
 </style>

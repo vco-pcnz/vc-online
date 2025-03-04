@@ -36,7 +36,7 @@
                   <i class="iconfont">&#xe732;</i>
                   <span class="title">{{ t('请求详情') }}</span>
                 </template>
-                <RequestDetails :data="detail" :currentId="currentId"></RequestDetails>
+                <RequestDetails :data="detail" :currentId="currentId" @update="update"></RequestDetails>
               </a-collapse-panel>
               <a-collapse-panel key="orgs" class="collapse-card request-card">
                 <template #header>

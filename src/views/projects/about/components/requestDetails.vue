@@ -1,5 +1,38 @@
 <template>
   <div class="RequestDetails">
+    <a-modal
+      :open="borrowerVisible"
+      :title="t('修改借款人信息')"
+      :width="900"
+      :footer="null"
+      :keyboard="false"
+      @update:open="borrowerVisible = false"
+    >
+      <borrower-info-form
+        :check="true"
+        :is-open="true"
+        :info-data="data?.borrower"
+        :current-id="currentId"
+        @checkDone="saveDone"
+      ></borrower-info-form>
+    </a-modal>
+
+    <a-modal
+      :open="securityVisible"
+      :title="t('其他安全信息')"
+      :width="900"
+      :footer="null"
+      :keyboard="false"
+      @update:open="securityVisible = false"
+    >
+      <guarantor-info-form
+        :current-id="currentId"
+        :is-open="true"
+        :guarantor-info="data?.warranty"
+        @refresh="saveDone"
+      ></guarantor-info-form>
+    </a-modal>
+
     <p class="RequestDetails-amount flex items-center">Requested <vco-number :value="data?.base.loan_money" size="fs_xl" class="ml-3" :bold="true" :precision="2"></vco-number></p>
     <p class="RequestDetails-date">Est. {{ tool.showDate(data?.date.start_date) }} ⇢ Est. {{ tool.showDate(data?.date.end_date) }}</p>
     <p class="RequestDetails-label">Created by</p>
@@ -11,7 +44,10 @@
 
     <div class="flex mb-7">
       <div class="RequestDetails_member-info__jErzI">
-        <p class="RequestDetails-label">{{ t('借款人信息2') }}</p>
+        <div class="RequestDetails-label flex items-center">
+          <span>{{ t('借款人信息2') }}</span>
+          <i v-if="hasPermission('projects:detail:editBorrower')" class="iconfont" @click="openBorrower">&#xe743;</i>
+        </div>
         <div>{{ data?.base.borrower_user_name }}</div>
         <div style=" word-break: break-all;">{{ data?.base.borrower_email }}</div>
         <div>
@@ -21,6 +57,11 @@
       <!-- <div>
         <p class="RequestDetails-label">{{ t('经纪人信息') }}</p>
       </div> -->
+    </div>
+
+    <div v-if="hasPermission('projects:detail:editGuarantor')" class="RequestDetails-label flex items-center add">
+      <span>{{ t('其他安全信息') }}</span>
+      <i class="iconfont" @click="securityVisible = true">&#xe743;</i>
     </div>
 
     <div>
@@ -51,11 +92,28 @@
 import { ref } from 'vue';
 import tool from '@/utils/tool';
 import { navigationTo } from '@/utils/tool';
+import { hasPermission } from '@/directives/permission/index';
 import { useI18n } from 'vue-i18n';
+import BorrowerInfoForm from "@/views/process/temp/default/tpl-one.vue";
+import GuarantorInfoForm from "@/views/process/temp/default/components/GuarantorInfo.vue";
 
 const { t } = useI18n();
 
 const props = defineProps(['data', 'currentId']);
+const emits = defineEmits(['update'])
+
+const borrowerVisible = ref(false)
+const securityVisible = ref(false)
+const openBorrower = () => {
+  borrowerVisible.value = true
+}
+
+const saveDone = () => {
+  securityVisible.value = false
+  borrowerVisible.value = false
+  emits('update')
+}
+
 </script>
 
 <style scoped lang="less">
@@ -71,8 +129,23 @@ const props = defineProps(['data', 'currentId']);
 .RequestDetails {
   font-size: @fs_xs;
   line-height: 1.4;
+  .RequestDetails-label.flex,
   p {
     margin-bottom: 6px;
+  }
+  .RequestDetails-label.flex {
+    &.add {
+      margin-bottom: 1.75rem;
+    }
+    .iconfont {
+      font-size: 12px;
+      margin-left: 10px;
+      color: #bf9425;
+      cursor: pointer;
+      &:hover {
+        color: #e6b53b;
+      }
+    }
   }
   &-amount {
     font-size: @fs_md;

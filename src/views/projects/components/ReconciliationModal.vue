@@ -1,7 +1,7 @@
 <template>
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="JournalRef" class="Journal">
-    <a-modal :width="486" :open="visible" :title="t('接受请求')" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
+    <a-modal :width="486" :open="visible" :title="t('对账')" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <div class="input-item">
           <div class="label" :class="{ err: !formState.type && validate }">{{ t('类型') }}</div>
@@ -112,6 +112,13 @@ const save = () => {
 };
 
 const init = () => {
+  formState.value = {
+    apply_id: '',
+    type: 1,
+    bank_type: '',
+    bank_no: '',
+    remark: ''
+  };
   visible.value = true;
 };
 </script>

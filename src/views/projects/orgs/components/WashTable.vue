@@ -49,7 +49,8 @@
           </a-menu>
         </template>
       </a-dropdown>
-      <a-table :columns="columns" :data-source="tableData" :pagination="false" :scroll="{ x: '100%' }" row-key="id" :row-selection="{ selectedRowKeys: selectedRowKeys, onSelect: onSelect, hideSelectAll: true }">
+
+      <a-table :columns="columns" :data-source="tableData" :pagination="false" :scroll="{ x: '100%' }" row-key="id" :row-selection="{ selectedRowKeys: selectedRowKeys, onSelect: onSelect, hideSelectAll: true, getCheckboxProps: getCheckboxProps }">
         <template #bodyCell="{ column, record }">
           <template v-if="column.dataIndex === 'name'">
             {{ record.name }}
@@ -83,7 +84,7 @@
               <i class="iconfont" :title="t('审核')" @click="checkOne(record.id)" v-if="record.status != 4 && record.status != 3 && record.document.length">&#xe647;</i>
               <template v-if="record.status != 4">
                 <i class="iconfont" :title="t('编辑')" @click="showForm(record)">&#xe753;</i>
-                <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.id)">
+                <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.id)" v-if="record.status != 3">
                   <i class="iconfont" :title="t('删除l')">&#xe8c1;</i>
                 </a-popconfirm>
               </template>
@@ -179,9 +180,11 @@ const onSelectAll = (type) => {
   selectedRows.value = [];
   let selected = selectAll.value !== type;
   selectAll.value = selectAll.value !== type ? type : '';
-  const changeRowId = tableData.value.map((it) => {
-    return it.id;
-  });
+  const changeRowId = tableData.value
+    .filter((item) => item.status != 4)
+    .map((it) => {
+      return it.id;
+    });
   if (selected) {
     let newIds = Array.from(new Set(changeRowId.concat(selectedRowKeys.value)));
     let newRows = Array.from(new Set(tableData.value.concat(selectedRows.value)));
@@ -215,7 +218,6 @@ const checkHandle = async (val) => {
   } else if (val === 4) {
     ajaxFn = washRemove;
   }
-
   if (ajaxFn) {
     loading.value = true;
     await ajaxFn({ id: selectAll.value == 'all' ? 'all' : selectedRowKeys.value, uuid: currentId.value })
@@ -305,6 +307,10 @@ const showDetail = (item) => {
   itemData.value = item;
   visibleDetail.value = true;
 };
+
+const getCheckboxProps = (r) => ({
+  disabled: Boolean(r.status == 4)
+});
 
 onMounted(() => {
   currentId.value = route.query.uuid;

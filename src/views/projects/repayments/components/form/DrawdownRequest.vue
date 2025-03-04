@@ -66,7 +66,7 @@
                 <a-textarea v-model:value="formState.note" :placeholder="t('请输入')" :rows="3" />
               </a-form-item>
             </a-col>
-            <a-col :span="24">
+            <a-col v-if="visible" :span="24">
               <documents-upload v-model:value="document">
                 <div class="upload-title">{{ t('文件') }}</div>
               </documents-upload>

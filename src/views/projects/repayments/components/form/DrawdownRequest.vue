@@ -39,7 +39,6 @@
                 <a-date-picker
                   v-model:value="formState.apply_date"
                   :format="selectDateFormat()"
-                  :disabledDate="disabledDateFormat"
                   placeholder=""
                   @change="dateChange"
                 >

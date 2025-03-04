@@ -47,3 +47,11 @@ export const projectVariationStatisticsVai = (params) =>
     method: 'get',
     params
   });
+
+  // 变更-forecast统计
+  export const projectVariationForecastUpd = (params) =>
+    request({
+      url: 'project/variation/forecastUpd',
+      method: 'get',
+      params
+    });

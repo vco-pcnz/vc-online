@@ -35,6 +35,7 @@
                 <template #header>
                   <i class="iconfont">&#xe732;</i>
                   <span class="title">{{ t('请求详情') }}</span>
+                  <i v-if="showWarrantyTips" class="iconfont iconfont-tips">&#xe60e;</i>
                 </template>
                 <RequestDetails :data="detail" :currentId="currentId" @update="update"></RequestDetails>
               </a-collapse-panel>
@@ -104,7 +105,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, nextTick } from 'vue';
+import { ref, reactive, onMounted, nextTick, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import detailLayout from '../components/detailLayout.vue';
@@ -133,6 +134,10 @@ const detailLayoutRef = ref(null);
 const loading = ref(true);
 const currentId = ref();
 const detail = ref();
+
+const showWarrantyTips = computed(() => {
+  return hasPermission('projects:detail:editGuarantor') && detail.value && !detail.value?.warranty?.main_contractor && !detail.value?.warranty?.security_package.length
+})
 
 const getProjectDetail = (val) => {
   const uuid = route.query.uuid;
@@ -288,5 +293,11 @@ const update = () => {
   .title {
     margin-left: 10px !important;
   }
+}
+
+.iconfont-tips {
+  font-size: 14px !important;
+  margin-left: 8px;
+  color: #c1430c !important;
 }
 </style>

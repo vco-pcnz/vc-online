@@ -35,6 +35,14 @@
                 <span v-if="typeData[record.process_type]" class="status-txt">{{ typeData[record.process_type] }}</span>
                 <p v-else>--</p>
               </template>
+              <template v-if="column.dataIndex === 'amount'">
+                <vco-number v-if="record.amount" :value="record.amount" :precision="2" size="fs_md" :end="true"></vco-number>
+                <p v-else>--</p>
+              </template>
+              <template v-if="column.dataIndex === 'note'">
+                <span v-if="record.note">{{ record.note }}</span>
+                <p v-else>--</p>
+              </template>
               <template v-if="column.dataIndex === 'create_time'">
                 <span v-if="record.create_time">{{ tool.showDate(record.create_time) }}</span>
                 <p v-else>--</p>
@@ -82,9 +90,11 @@ const typeData = reactive({
 
 const columns = reactive([
   { title: t('项目图片'), dataIndex: 'project_image', width: 80, align: 'center' },
-  { title: t('项目信息'), dataIndex: 'project_info', width: 500, align: 'left' },
-  { title: t('类型'), dataIndex: 'process_type', width: 200, align: 'left' },
-  { title: t('创建时间'), dataIndex: 'create_time', width: 200, align: 'center' },
+  { title: t('项目信息'), dataIndex: 'project_info', width: 300, align: 'left' },
+  { title: t('类型'), dataIndex: 'process_type', width: 140, align: 'left' },
+  { title: t('金额'), dataIndex: 'amount', width: 140, align: 'left' },
+  { title: t('说明'), dataIndex: 'note', width: 180, align: 'left' },
+  { title: t('创建时间'), dataIndex: 'create_time', width: 140, align: 'center' },
   {
     title: t('操作1'),
     dataIndex: 'operation',
@@ -126,6 +136,8 @@ const todoHandle = (data) => {
     navigationTo(`/projects/discharge?uuid=${data.project.uuid}&type=1`);
   } else if (data.process_type === 'penalty') {
     navigationTo(`/projects/penalty?uuid=${data.project.uuid}`);
+  } else if (data.process_type === 'variation') {
+    navigationTo(`/projects/variations?uuid=${data.project.uuid}`);
   } else if (data.process_type === 'journal') {
     navigationTo(`/projects/journal?uuid=${data.project.uuid}`);
   } else if (['closed', 'closed-cancel'].includes(data.process_type)) {

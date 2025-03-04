@@ -127,6 +127,12 @@
                   type="brown" size="small" shape="round" class="uppercase"
                   @click="openDetail(record, false)"
                 >{{ t('详情') }}</a-button>
+
+                <a-popconfirm v-if="Boolean(record.is_upd)" :title="t('确定要更新吗？')" @confirm="updateHandle(record)">
+                  <a-button
+                    type="danger" size="small" shape="round" class="uppercase mt-2"
+                  >{{ t('更新') }}</a-button>
+                </a-popconfirm>
               </template>
             </template>
           </a-table>
@@ -154,7 +160,7 @@ import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { QuestionCircleOutlined } from '@ant-design/icons-vue'
 import detailLayout from '../components/detailLayout.vue';
-import { projectVariationList } from '@/api/project/variation';
+import { projectVariationList, projectVariationForecastUpd } from '@/api/project/variation';
 import { useTableList } from '@/hooks/useTableList';
 import { useRoute } from 'vue-router';
 import { hasPermission } from '@/directives/permission/index';
@@ -200,7 +206,7 @@ const tableDataRef = computed(() => {
 })
 
 // 定义表格相关的逻辑
-const { currentParams, tableRef, tableLoading, pageObj, tableData, otherInfo, pageChange, getTableData } = useTableList(
+const { tableRef, tableLoading, pageObj, tableData, pageChange, getTableData } = useTableList(
   projectVariationList,
   { uuid: uuid.value },
   false // 不立即请求，等 uuid 获取到后再请求
@@ -246,6 +252,20 @@ const scheduleVisible = ref(false)
 const openSchedule = (data) => {
   currentData.value = data
   scheduleVisible.value = true
+}
+
+const updateHandle = async (data) => {
+  const params = {
+    uuid: uuid.value,
+    id: data.id
+  }
+
+  await projectVariationForecastUpd(params).then(() => {
+    getTableData()
+    return true
+  }).catch(() => {
+    return false
+  })
 }
 
 // 监听 uuid 的变化

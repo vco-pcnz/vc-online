@@ -128,7 +128,7 @@
                   @click="openDetail(record, false)"
                 >{{ t('详情') }}</a-button>
 
-                <a-popconfirm v-if="Boolean(record.is_upd)" :title="t('确定要更新吗？')" @confirm="updateHandle(record)">
+                <a-popconfirm v-if="!Boolean(record.is_do)" :title="t('确定要更新吗？')" @confirm="updateHandle(record)">
                   <a-button
                     type="danger" size="small" shape="round" class="uppercase mt-2"
                   >{{ t('更新') }}</a-button>

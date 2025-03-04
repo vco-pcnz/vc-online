@@ -120,7 +120,7 @@
         <p class="fs_xs color_grey">{{ t('项目文件') }}</p>
         <div style="max-height: 400px; overflow-y: auto; padding-right: 10px">
           <div class="documents" v-for="(item, index) in itemData.document" :key="index">
-            <vco-file-item :file="item" :showValidity="true" :time="itemData.expire_time[index]"></vco-file-item>
+            <vco-file-item :file="item" :showValidity="true" :time="itemData.expire_time ? itemData.expire_time[index] : ''"></vco-file-item>
           </div>
         </div>
         <template v-if="itemData.remark">

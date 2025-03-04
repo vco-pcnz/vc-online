@@ -701,7 +701,7 @@ export default {
   "关账": "Closed",
   "不对账": "Not reconciliation",
   "单号": "No",
-  "关帐": "Closed",
+  "关账撤销": "Undo Closed",
   "变更金额": "Variation amount",
   "变更后借款总金额": "New total loan amount",
   "变更后结束日期": "Maturity after variation",

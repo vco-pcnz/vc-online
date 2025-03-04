@@ -47,6 +47,10 @@ const tabData = ref([
 
 onMounted(() => {
   currentId.value = route.query.uuid;
+  const type = route.query.type
+  if (type) {
+    currentTab.value = type
+  }
 });
 </script>
 

@@ -51,6 +51,7 @@
             rowKey="id"
             :columns="columns"
             :data-source="tableDataRef"
+            table-layout="fixed"
             :pagination="false"
           >
             <template #bodyCell="{ column, record }">

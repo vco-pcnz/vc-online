@@ -11,6 +11,7 @@
             rowKey="uuid"
             :columns="columns"
             :data-source="tableDataRef"
+            table-layout="fixed"
             :pagination="false"
           >
             <template #bodyCell="{ column, record }">
@@ -79,15 +80,15 @@ const { tableRef, tableLoading, tableData, getTableData } = useTableList(request
 const columns = reactive([
   { title: t('项目图片'), dataIndex: 'project_image', width: 80, align: 'center' },
   { title: t('项目信息'), dataIndex: 'project_info', width: 300, align: 'left' },
-  { title: t('借款金额'), dataIndex: 'loan_money', width: 160, align: 'left' },
-  { title: t('状态'), dataIndex: 'status', width: 240, align: 'center' },
+  { title: t('借款金额'), dataIndex: 'loan_money', width: 200, align: 'left' },
+  { title: t('状态'), dataIndex: 'status', width: 200, align: 'center' },
   { title: t('创建时间'), dataIndex: 'create_time', width: 200, align: 'center' },
   {
     title: t('操作1'),
     dataIndex: 'operation',
     fixed: 'right',
     align: 'center',
-    width: 110,
+    width: 140,
   },
 ]);
 

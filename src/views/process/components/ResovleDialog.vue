@@ -86,8 +86,10 @@
     .validate()
     .then(() => {
       const params = {
-        uuid: props.uuid
+        uuid: props.uuid,
+        do__mark: props.type
       }
+      
       if (props.type === 'step_fc_audit') {
         params.fc_review = formState.reason
       } else if (props.type === 'step_director_audit') {

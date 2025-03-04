@@ -5,7 +5,7 @@
   <vco-table-tool>
     <template #left>
       <a-popconfirm :title="t('确定要移除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" :disabled="Boolean(!rowSelection.length)" @confirm="remove">
-        <a-button type="danger" :disabled="!rowSelection.length">{{ t('移除') }}</a-button>
+        <a-button type="danger" :disabled="!rowSelection.length">{{ t('退出团队') }}</a-button>
       </a-popconfirm>
     </template>
     <template #right>

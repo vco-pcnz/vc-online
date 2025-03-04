@@ -36,6 +36,7 @@
                 :row-selection="{ selectedRowKeys: selectedRowKeys, columnWidth: 50, onChange: onSelectChange }"
                 :data-source="tableDataRef"
                 :pagination="false"
+                table-layout="fixed"
                 :scroll="{ x: '100%' }"
               >
                 <template #bodyCell="{ column, record }">
@@ -212,14 +213,14 @@ const sortTypeData = [
 
 const columns = reactive([
   { title: t('项目图片'), dataIndex: 'project_image', width: 80, align: 'center' },
-  { title: t('项目信息'), dataIndex: 'project_info', width: 180, align: 'left' },
+  { title: t('项目信息'), dataIndex: 'project_info', width: 160, align: 'left' },
   { title: t('借款金额'), dataIndex: 'loan_money', width: 160, align: 'left' },
-  { title: t('借款人信息'), dataIndex: 'borrower_info', width: 180, align: 'left' },
-  { title: t('客户经理'), dataIndex: 'lm', width: 180, align: 'left' },
-  { title: t('期数'), dataIndex: 'term', width: 220, align: 'center' },
+  { title: t('借款人信息'), dataIndex: 'borrower_info', width: 160, align: 'left' },
+  { title: t('客户经理'), dataIndex: 'lm', width: 160, align: 'left' },
+  { title: t('期数'), dataIndex: 'term', width: 210, align: 'center' },
   // { title: t('最大费率'), dataIndex: 'lvr', width: 100, align: 'center' },
   { title: t('创建时间'), dataIndex: 'create_time', width: 120, align: 'center' },
-  { title: t('状态'), dataIndex: 'status', width: 240, align: 'center' },
+  { title: t('状态'), dataIndex: 'status', width: 220, align: 'center' },
   // {
   //   title: t('操作1'),
   //   dataIndex: 'operation',

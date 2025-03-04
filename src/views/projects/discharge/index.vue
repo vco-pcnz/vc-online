@@ -147,6 +147,10 @@ const openAddEdit = (data) => {
 
 onMounted(() => {
   uuid.value = route.query.uuid;
+  const type = route.query.type
+  if (type) {
+    currentTab.value = Number(type)
+  }
   loadData();
 });
 </script>

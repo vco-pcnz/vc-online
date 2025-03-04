@@ -248,7 +248,7 @@ const endDefaultPickerValue = computed(() => {
 })
 
 const disabledDate = (current) => {
-  return current && current.isBefore(dayjs().startOf('day'));
+  return (current && current.isBefore(dayjs().startOf('day'))) || current.isAfter(dayjs(props.projectDetail.date.end_date).startOf('day'));
 };
 
 const endDisabledDate = (current) => {

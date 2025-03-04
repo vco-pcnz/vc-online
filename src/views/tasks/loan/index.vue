@@ -70,6 +70,7 @@ import { navigationTo } from '@/utils/tool';
 import { requestBacklogList } from '@/api/tasks';
 import { associateSystemConfig } from '@/api/process';
 import BindUsersDialog from '@/views/process/components/BindUsersDialog.vue';
+import emitter from '@/event';
 
 const { t } = useI18n();
 
@@ -125,6 +126,8 @@ const bindHandle = (data) => {
 
 const bindDone = () => {
   getTableData(true);
+
+  emitter.emit('refreshRequestsList')
 };
 
 const getVcteamData = () => {

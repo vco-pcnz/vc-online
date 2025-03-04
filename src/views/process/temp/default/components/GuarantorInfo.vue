@@ -301,61 +301,25 @@ const dataInit = () => {
 };
 
 const checkHandle = async () => {
-  formRef.value
-    .validate()
-    .then(async () => {
-      const params = {
-        uuid: props.currentId,
-        code: props.blockInfo?.code
-      }
+  try {
+    await formRef.value.validate();
 
-      await projectAuditCheckMode(params)
-      .then(() => {
-        emits('refresh');
-        emitter.emit('refreshAuditHisList');
-        return true;
-      })
-      .catch(() => {
-        return false;
-      });
+    const params = {
+      uuid: props.currentId,
+      code: props.blockInfo?.code
+    };
 
-    })
-    .catch((error) => {
-      console.log('error', error);
-    });
+    await projectAuditCheckMode(params);
 
-  // const params = {
-  //   uuid: props.currentId,
-  //   code: props.blockInfo?.code
-  // }
-  
-  // await projectAuditCheckMode(params)
-  //   .then(() => {
-  //     emits('refresh');
-  //     emitter.emit('refreshAuditHisList');
-  //     return true;
-  //   })
-  //   .catch(() => {
-  //     return false;
-  //   });
-  // if (props.currentStep.mark === 'step_open' && !props.guarantorInfo.main_contractor) {
-  //   message.error(t('请先设置后保存再审核'));
-  // } else {
-  //   const params = {
-  //     uuid: props.currentId,
-  //     code: props.blockInfo?.code
-  //   }
-    
-  //   await projectAuditCheckMode(params)
-  //     .then(() => {
-  //       emits('refresh');
-  //       emitter.emit('refreshAuditHisList');
-  //       return true;
-  //     })
-  //     .catch(() => {
-  //       return false;
-  //     });
-  // }
+    // 触发刷新事件
+    emits('refresh');
+    emitter.emit('refreshAuditHisList');
+
+    return true; // 操作成功，返回 true
+  } catch (error) {
+    console.error('校验或审核失败:', error);
+    return false; // 操作失败，返回 false
+  }
 };
 
 const guarantorTarget = ref(true)

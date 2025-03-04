@@ -103,6 +103,10 @@
     blockInfo: {
       type: Object,
       default: () => {}
+    },
+    type: {
+      type: String,
+      default: ''
     }
   });
 
@@ -132,7 +136,8 @@
   const subLoading = ref(false)
   const submitRquest = () => {
     const params = {
-      uuid: props.uuid
+      uuid: props.uuid,
+      do__mark: props.type
     }
 
     projectAuditSaveStep(params).then((res) => {

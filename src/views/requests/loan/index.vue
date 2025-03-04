@@ -67,17 +67,17 @@
                   <template v-if="column.dataIndex === 'borrower_info'">
                     <div class="icon-txt">
                       <i class="iconfont cer">{{ record.borrower_type === 1 ? '&#xe632;' : '&#xe683;' }}</i>
-                      <span class="cer text-ellipsis overflow-hidden whitespace-normal line-clamp-1">{{ record.showName || '--' }}</span>
+                      <span :title="record.showName" class="cer text-ellipsis overflow-hidden whitespace-normal line-clamp-1">{{ record.showName || '--' }}</span>
                     </div>
                     <div class="icon-txt mt-1.5">
                       <i class="iconfont" :class="{ cer: record.borrower_ver }">&#xe66f;</i>
-                      <span :class="{ cer: record.borrower_ver }" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-1">
+                      <span :class="{ cer: record.borrower_ver }" :title="record.borrower_email" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-1">
                         {{ record.borrower_email || '--' }}
                       </span>
                     </div>
                     <div class="icon-txt">
                       <i class="iconfont" :class="{ cer: record.borrower_ver }">&#xe678;</i>
-                      <span :class="{ cer: record.borrower_ver }" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-1">
+                      <span :class="{ cer: record.borrower_ver }" :title="record.borrower_phone" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-1">
                         {{ record.borrower_phone || '--' }}
                       </span>
                     </div>

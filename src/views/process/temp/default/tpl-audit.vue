@@ -17,6 +17,7 @@
       :block-info="PageBlockObjRef"
       :info-data="currentDataInfo.loan"
       :lending-info="lendingDataInfo"
+      :type="currentMark"
       v-model:visible="openVisible"
       @done="subDone"
     ></open-dialog>

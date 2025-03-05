@@ -3,9 +3,15 @@
 
   <div class="detail">
     <a-alert v-if="Boolean(detail?.cancel_reason)" :message="t('退回原因')" :description="detail?.cancel_reason" type="error" class="cancel-reason" />
+
     <a-row :gutter="24">
-      <a-col :span="24" class="item-txt">
+      <a-col :span="24" class="item-txt flex justify-between items-center">
         <div class="bold fs_xl">{{ detail.cate == 1 ? 'Journal' : 'Duration' }}</div>
+        <div>
+          <Add v-if="hasPermission('projects:journal:edit') && detail.state == 0 && detail.status == 0" :currentId="uuid" :projectDetail="projectDetail" :detail="detail" @update="update">
+            <a-button type="cyan" shape="round" size="small">{{ t('编辑') }}</a-button>
+          </Add>
+        </div>
       </a-col>
       <a-col :span="24" class="item-txt">
         <p>{{ t('类型') }}</p>
@@ -59,6 +65,7 @@ import tool from '@/utils/tool';
 import { hasPermission } from '@/directives/permission/index';
 import Back from './form/Back.vue';
 import { saveStep, recall, decline } from '@/api/project/journal';
+import Add from './form/Add.vue';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);

@@ -3,8 +3,15 @@
 
   <div class="detail">
     <a-alert v-if="Boolean(detail?.cancel_reason)" :message="t('退回原因')" :description="detail?.cancel_reason" type="error" class="cancel-reason" />
-    <div class="title-no uppercase">
-      <span>{{ detail.status == 1 && detail.state2 > 0?t('结束流程'):t('开始流程') }}</span>
+    <div class="flex justify-between items-center mb-3">
+      <div class="title-no uppercase">
+        <span>{{ detail.status == 1 && detail.state2 > 0 ? t('结束流程') : t('开始流程') }}</span>
+      </div>
+      <div>
+        <Add v-if="hasPermission('projects:penalty:sedit') && detail.state == 0 && detail.status == 0" :currentId="uuid" :projectDetail="projectDetail" :detail="detail" @update="update">
+          <a-button type="cyan" shape="round" size="small">{{ t('编辑') }}</a-button>
+        </Add>
+      </div>
     </div>
     <a-row :gutter="24">
       <a-col :span="12" class="item-txt">
@@ -55,7 +62,8 @@
       <a-popconfirm :title="t('您确定要拒绝该请求吗？')" @confirm="decline" class="mt-3">
         <a-button type="danger" class="big uppercase" style="width: 100%">{{ t('拒绝请求') }}</a-button>
       </a-popconfirm>
-      <div class="mt-4" v-if="detail?.start_mark != 'penaltyStart_fc'">
+      <!--  v-if="detail?.start_mark != 'penaltyStart_fc'" -->
+      <div class="mt-4">
         <p class="text-center color_grey fs_xs my-3">{{ t('您可以单击下面的按钮退回上一步。') }}</p>
         <Back :uuid="uuid" :detail="detail" @change="update">
           <div class="flex justify-center">
@@ -76,6 +84,7 @@ import { hasPermission } from '@/directives/permission/index';
 import Back from './form/Back.vue';
 import End from './form/End.vue';
 import { ssaveStep, srecall, sdecline, esaveStep, erecall, edecline } from '@/api/project/penalty';
+import Add from './form/Add.vue';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);
@@ -176,7 +185,6 @@ watch(
 
   .title-no {
     font-size: 16px;
-    margin-bottom: 10px;
     display: flex;
     align-items: center;
     span {

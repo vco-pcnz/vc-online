@@ -728,5 +728,8 @@ export default {
   "项目请求": "Projects request",
   "其他请求": "Others requests",
   "修改借款人信息": "Edit borrower information",
-  "确定要更新吗？": "Are you sure you want to update?"
+  "确定要更新吗？": "Are you sure you want to update?",
+  "对账报告": "Reconciliation Result Report",
+  "关闭期间": "Close the Books"
 }
+

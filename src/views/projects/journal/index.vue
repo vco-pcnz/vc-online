@@ -6,7 +6,7 @@
           <!-- <MeterStat :uuid="uuid" v-if="Boolean(uuid)" ref="MeterStatRef"></MeterStat> -->
         </div>
         <div class="flex justify-end">
-          <Add v-if="hasPermission('projects:journal:edit')" :currentId="uuid" :detail="projectDetail" @update="reload">
+          <Add v-if="hasPermission('projects:journal:edit')" :currentId="uuid" :projectDetail="projectDetail" @update="reload">
             <a-button type="brown" shape="round" size="small">{{ t('平账') }}</a-button>
           </Add>
         </div>

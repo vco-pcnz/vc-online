@@ -27,6 +27,7 @@ import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import { eedit } from '@/api/project/penalty';
+import { pick } from 'lodash';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);
@@ -39,6 +40,9 @@ const props = defineProps({
   id: {
     type: String,
     default: ''
+  },
+  projectDetail: {
+    type: Object
   },
   detail: {
     type: Object
@@ -77,7 +81,7 @@ const save = () => {
 };
 
 const disabledDateFormat = (current) => {
-  const startDate = props.detail?.start_date;
+  const startDate = props.projectDetail?.start_date;
   if (current && current.isBefore(startDate, 'day')) {
     return true;
   }
@@ -86,6 +90,18 @@ const disabledDateFormat = (current) => {
 };
 
 const init = () => {
+  if (!props.detail) {
+    formState.value = {
+      uuid: '',
+      id: '',
+      end_date: '',
+      note2: ''
+    };
+    loadRate();
+  } else {
+    let keys = ['id', 'end_date', 'note2'];
+    formState.value = pick(props.detail, keys);
+  }
   visible.value = true;
 };
 </script>

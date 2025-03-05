@@ -3,7 +3,7 @@
     <template #content>
       <div class="ProjectDrawdowns">
         <div class="flex justify-end">
-          <Add v-if="hasPermission('projects:penalty:sedit')" :currentId="uuid" :detail="projectDetail" @update="reload">
+          <Add v-if="hasPermission('projects:penalty:sedit')" :currentId="uuid" :projectDetail="projectDetail" @update="reload">
             <a-button type="brown" shape="round" size="small">{{ t('罚息开始') }}</a-button>
           </Add>
         </div>

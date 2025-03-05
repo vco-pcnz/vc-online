@@ -57,7 +57,7 @@
             <PeriodLine :data="detail?.date"></PeriodLine>
             <div class="flex justify-center mt-10 mb-10 btns">
               <template v-if="Boolean(!detail?.base.is_close)">
-                <StartDefault v-if="hasPermission('projects:penalty:sedit') && !detail?.base?.penalty" :detail="detail" :currentId="currentId" @update="update">
+                <StartDefault v-if="hasPermission('projects:penalty:sedit') && !detail?.base?.penalty" :projectDetail="detail" :currentId="currentId" @update="update">
                   <a-button type="brown" shape="round" size="small">{{ t('罚息开始') }}</a-button>
                 </StartDefault>
                 <a-button v-if="hasPermission('projects:penalty:view') && detail?.base?.penalty" type="brown" shape="round" size="small" @click="navigationTo('/projects/penalty?uuid=' + currentId)">{{ t('罚息') }}</a-button>
@@ -67,7 +67,7 @@
                 </AddVariations>
                 <a-button v-if="hasPermission('projects:variations:view') && detail?.base?.variation" type="brown" shape="round" size="small" @click="navigationTo('/projects/variations?uuid=' + currentId)">{{ t('变更1') }}</a-button>
 
-                <Journal v-if="hasPermission('projects:journal:edit') && !detail?.base?.journal" :detail="detail" :currentId="currentId" @update="update">
+                <Journal v-if="hasPermission('projects:journal:edit') && !detail?.base?.journal" :projectDetail="detail" :currentId="currentId" @update="update">
                   <a-button type="brown" shape="round" size="small">{{ t('平账') }}</a-button>
                 </Journal>
                 <a-button v-if="hasPermission('projects:journal:view') && detail?.base?.journal" type="brown" shape="round" size="small" @click="navigationTo('/projects/journal?uuid=' + currentId)">{{ t('平账') }}</a-button>

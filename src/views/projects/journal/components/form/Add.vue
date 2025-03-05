@@ -5,7 +5,7 @@
       <div class="content sys-form-content">
         <div class="input-item">
           <div class="label" :class="{ err: !formState.cate && validate }">Journal or Duration</div>
-          <a-select style="width: 100%" v-model:value="formState.cate" :options="types" @change="loadType"></a-select>
+          <a-select style="width: 100%" v-model:value="formState.cate" :options="types" @change="loadType(true)"></a-select>
         </div>
         <div class="input-item">
           <div class="label" :class="{ err: !formState.type && validate }">{{ t('类型') }}</div>
@@ -50,6 +50,7 @@ import { message } from 'ant-design-vue/es';
 import { selectDateFormat } from '@/utils/tool';
 import { systemDictData } from '@/api/system';
 import { edit } from '@/api/project/journal';
+import { pick } from 'lodash';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);
@@ -58,6 +59,9 @@ const props = defineProps({
   currentId: {
     type: String,
     default: ''
+  },
+  projectDetail: {
+    type: Object
   },
   detail: {
     type: Object
@@ -114,7 +118,7 @@ const updateVisible = (value) => {
 };
 
 const disabledDateFormat = (current) => {
-  const startDate = props.detail?.date.start_date;
+  const startDate = props.projectDetail?.date.start_date;
   if (current && current.isBefore(startDate, 'day')) {
     return true;
   }
@@ -142,8 +146,8 @@ const save = () => {
 };
 
 const loading_type = ref(false);
-const loadType = () => {
-  formState.value.type = '';
+const loadType = (reset) => {
+  if (reset) formState.value.type = '';
   if ((formState.value.cate == 1 && journal_type.value.length) || (formState.value.cate == 2 && duration_type.value.length)) {
     return;
   }
@@ -163,18 +167,23 @@ const loadType = () => {
 };
 
 const init = () => {
-  validate.value = false;
-  formState.value = {
-    uuid: '',
-    cate: 1,
-    type: '',
-    addsub: '',
-    date: '',
-    amount: '',
-    note: '',
-    remark: ''
-  };
-  loadType();
+  if (!props.detail) {
+    formState.value = {
+      uuid: '',
+      cate: 1,
+      type: '',
+      addsub: '',
+      date: '',
+      amount: '',
+      note: '',
+      remark: ''
+    };
+  } else {
+    let keys = ['id', 'cate', 'type', 'addsub', 'date', 'amount', 'note', 'remark'];
+    formState.value = pick(props.detail, keys);
+    formState.value.type += '';
+  }
+  loadType(false);
   visible.value = true;
 };
 </script>

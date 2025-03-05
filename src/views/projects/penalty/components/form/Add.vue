@@ -32,6 +32,7 @@ import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import { sedit } from '@/api/project/penalty';
 import { systemConfigData } from '@/api/system';
+import { pick } from 'lodash';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);
@@ -40,6 +41,9 @@ const props = defineProps({
   currentId: {
     type: String,
     default: ''
+  },
+  projectDetail: {
+    type: Object
   },
   detail: {
     type: Object
@@ -77,14 +81,13 @@ const save = () => {
 };
 
 const loadRate = () => {
-  // 加载广告
-  systemConfigData({ pcode: 'web_config', code: 'penalty_rate' }).then((res) => {
+  systemConfigData({ pcode: 'project_config', code: 'penalty_rate' }).then((res) => {
     formState.value.rate = res.penalty_rate;
   });
 };
 
 const disabledDateFormat = (current) => {
-  const startDate = props.detail?.date.start_date;
+  const startDate = props.projectDetail?.date.start_date;
   if (current && current.isBefore(startDate, 'day')) {
     return true;
   }
@@ -93,7 +96,18 @@ const disabledDateFormat = (current) => {
 };
 
 const init = () => {
-  loadRate();
+  if (!props.detail) {
+    formState.value = {
+      uuid: '',
+      start_date: '',
+      rate: '',
+      note: ''
+    };
+    loadRate();
+  } else {
+    let keys = ['id', 'start_date', 'rate', 'note'];
+    formState.value = pick(props.detail, keys);
+  }
   visible.value = true;
 };
 </script>

@@ -49,7 +49,7 @@
       </div>
     </div>
     <div class="box right">
-      <div class="box-top" :class="{ 'color_red-error': data?.lvr > data?.lvrMax }">
+      <div class="box-top" :class="{ 'color_red-error': Math.abs(data?.lvr) > Math.abs(data?.lvrMax) }">
         <p class="bold">LVR</p>
         <p class="fs_2xl bold">{{ data?.lvr }}%</p>
         <p class="fs_xs">over the max {{ data?.lvrMax }}%</p>
@@ -58,7 +58,9 @@
       <div class="box-bottom">
         <p>Security value</p>
         <vco-number :value="data?.security" :bold="true" size="fs_2xl" :precision="2"></vco-number>
-        <a-button v-if="hasPermission('projects:detail:viewSecurity')" type="brown" shape="round" size="small" class="mt-1" @click="navigationTo(`/projects/discharge?uuid=${currentId}`)">security items <i class="iconfont fs_2xs ml-3">&#xe794;</i></a-button>
+        <a-button v-if="hasPermission('projects:detail:viewSecurity')" type="brown" shape="round" size="small" class="mt-1" @click="navigationTo(`/projects/discharge?uuid=${currentId}`)"
+          >security items <i class="iconfont fs_2xs ml-3">&#xe794;</i></a-button
+        >
       </div>
     </div>
   </div>

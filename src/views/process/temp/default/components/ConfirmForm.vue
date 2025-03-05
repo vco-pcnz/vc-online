@@ -148,7 +148,7 @@
     }
   }
 
-  const checkHandle = async () => {
+const checkHandle = async () => {
   try {
     await formRef.value.validate();
 

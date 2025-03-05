@@ -117,7 +117,7 @@ import { watch, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { pick, trim, cloneDeep } from 'lodash';
 import { washAdd, detailAdd } from '@/api/project/wash';
-import { selectDateFormat } from '@/utils/tool';
+import { selectDateFormat, expireTimeDefault } from '@/utils/tool';
 import emitter from '@/event';
 
 const emits = defineEmits(['update:visible', 'update']);
@@ -303,6 +303,14 @@ watch(
       }
     }
   }
+);
+
+watch(
+  () => documentList.value,
+  (val) => {
+    formState.value.expire_time = expireTimeDefault(documentList.value.length, formState.value.expire_time);
+  },
+  { immediate: true, deep: true }
 );
 </script>
 <style lang="less" scoped>

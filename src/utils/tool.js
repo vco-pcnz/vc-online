@@ -349,7 +349,7 @@ tool.calculateDurationPrecise = (startDate, endDate) => {
 tool.calculateEndDate = (startDate, months = 0, days = 0) => {
   const start = dayjs(startDate);
   // 增加月数和天数
-  const end = start.add(months, "month").add(days, "day").subtract(1, "day")
+  const end = start.add(months, 'month').add(days, 'day').subtract(1, 'day');
   return end.format('YYYY-MM-DD'); // 返回格式化的日期
 };
 
@@ -359,7 +359,7 @@ tool.calculateEndDate = (startDate, months = 0, days = 0) => {
 tool.calculateEndDateByDays = (startDate, days = 0) => {
   const start = dayjs(startDate);
   // 增加月数和天数
-  const end = start.add(days, "day").subtract(1, "day")
+  const end = start.add(days, 'day').subtract(1, 'day');
   return end.format('YYYY-MM-DD'); // 返回格式化的日期
 };
 
@@ -512,5 +512,18 @@ export const selectDateFormat = () => {
   return locale === 'en' ? `DD/MM/YYYY` : 'YYYY-MM-DD';
 };
 
+/**
+ * 文件有效期 默认值
+ */
+export const expireTimeDefault = (len, arr) => {
+  const now = dayjs();
+  const oneYearLater = now.add(1, 'year');
+  const expire_time_default = oneYearLater.format('YYYY-MM-DD');
+  arr = arr || [];
+  for (let index = 0; index < len; index++) {
+    arr[index] = arr[index] || expire_time_default;
+  }
+  return arr;
+};
 
 export default tool;

@@ -113,7 +113,7 @@
 <script scoped setup>
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { selectDateFormat } from '@/utils/tool';
+import { selectDateFormat, expireTimeDefault } from '@/utils/tool';
 import { cloneDeep } from 'lodash';
 import { washAdd } from '@/api/project/wash';
 
@@ -201,6 +201,14 @@ watch(
       };
     }
   }
+);
+
+watch(
+  () => documentList.value,
+  (val) => {
+    formState.value.expire_time = expireTimeDefault(documentList.value.length, formState.value.expire_time);
+  },
+  { immediate: true, deep: true }
 );
 </script>
 <style scoped lang="less">

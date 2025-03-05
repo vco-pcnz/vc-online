@@ -242,7 +242,7 @@ import { message } from 'ant-design-vue';
 import { useRouter } from 'vue-router';
 import { useOrgsStore } from '@/store';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue';
-import { selectDateFormat } from '@/utils/tool';
+import tool, { selectDateFormat, expireTimeDefault } from '@/utils/tool';
 
 const router = useRouter();
 const orgsStore = useOrgsStore();
@@ -647,6 +647,14 @@ watch(
       mobile_ok.value = val.mobile_ok;
       email_ok.value = val.email_ok;
     }
+  },
+  { immediate: true, deep: true }
+);
+
+watch(
+  () => documentList.value,
+  (val) => {
+    form.expire_time = expireTimeDefault(documentList.value.length, form.expire_time);
   },
   { immediate: true, deep: true }
 );

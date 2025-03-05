@@ -149,32 +149,34 @@
   }
 
   const checkHandle = async () => {
-    formRef.value
-    .validate()
-    .then(async () => {
-      // LM 再次检查
-      if (props.currentStep?.mark === 'step_lm_check') {
-        if (form.value.agreementYes && !props.offerInfo.sign_offer) {
-          message.error(t('请上传') + t('已签订Offer'));
-          return false
-        }
-      }
+  try {
+    await formRef.value.validate();
 
-      const params = {
-        uuid: props.currentId,
-        code: props.blockInfo.code
+    // LM 再次检查
+    if (props.currentStep?.mark === 'step_lm_check') {
+      if (form.value.agreementYes && !props.offerInfo.sign_offer) {
+        message.error(t('请上传') + t('已签订Offer'));
+        return false;
       }
-      await projectAuditCheckMode(params)
-        .then(() => {
-          emits('refresh');
-          emitter.emit('refreshAuditHisList');
-          return true;
-        })
-        .catch(() => {
-          return false;
-        });
-    })
+    }
+
+    const params = {
+      uuid: props.currentId,
+      code: props.blockInfo.code
+    };
+
+    await projectAuditCheckMode(params);
+
+    // 触发刷新事件
+    emits('refresh');
+    emitter.emit('refreshAuditHisList');
+
+    return true; // 操作成功
+  } catch (error) {
+    console.error('校验或审核失败:', error);
+    return false; // 操作失败
   }
+};
 
   const subLoading = ref(false);
   const saveHandle = async () => {

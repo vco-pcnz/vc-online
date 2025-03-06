@@ -162,7 +162,9 @@
         do__open: 1
       }
 
-      if (props.infoData.start_date !== startDate.value) {
+      const isRefinancial = props.lendingInfo?.data?.substitution_ids && props.lendingInfo?.data?.substitution_ids.length
+
+      if (props.infoData.start_date !== startDate.value || Boolean(isRefinancial)) {
         await projectAuditSaveMode(loadParams).then(() => {
           submitRquest()
         }).catch(() => {

@@ -462,8 +462,12 @@ tool.monthYearDay = (time) => {
   return `${day} ${formattedMonthName} ‘${formattedYear}`;
 };
 
-export const navigationTo = (path) => {
-  router.push(path);
+export const navigationTo = (path, blank = false) => {
+  if (blank) {
+    window.open(path, '_blank');
+  } else {
+    router.push(path);
+  }
 };
 
 export const goBack = () => {

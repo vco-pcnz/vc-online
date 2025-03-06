@@ -730,6 +730,11 @@ export default {
   "修改借款人信息": "Edit borrower information",
   "确定要更新吗？": "Are you sure you want to update?",
   "对账报告": "Reconciliation Result Report",
-  "关闭期间": "Close the Books"
+  "关闭期间": "Close the Books",
+  "是否需要再融资": "Is refinancing needed?",
+  "再融资金额": "Refinancing amount",
+  "请选择项目": "Please select projects",
+  "再融资项目": "Refinancing Projects",
+  "再融资": "Refinance"
 }
 

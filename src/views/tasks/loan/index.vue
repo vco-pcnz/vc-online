@@ -71,8 +71,11 @@ import { requestBacklogList } from '@/api/tasks';
 import { associateSystemConfig } from '@/api/process';
 import BindUsersDialog from '@/views/process/components/BindUsersDialog.vue';
 import emitter from '@/event';
+import { useUserStore } from '@/store';
 
 const { t } = useI18n();
+
+const userStore = useUserStore();
 
 const { tableRef, tableLoading, tableData, getTableData } = useTableList(requestBacklogList, {
   limit: 1000
@@ -125,6 +128,8 @@ const bindHandle = (data) => {
 };
 
 const bindDone = () => {
+  userStore.getTaskNumInfo()
+  
   getTableData(true);
 
   emitter.emit('refreshRequestsList')

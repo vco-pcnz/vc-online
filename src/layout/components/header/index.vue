@@ -10,7 +10,7 @@
           class="link"
           :class="{ 'link_active': isActive(link.path) }"
         >
-          <a-badge v-if="link.path === '/tasks'" :count="0">
+          <a-badge v-if="link.path === '/tasks'" :count="taskInfo.total">
             <p class="router-name">{{ t(link.title) }}</p>
           </a-badge>
           <p class="router-name" v-else>{{ t(link.title) }}</p>
@@ -69,6 +69,8 @@ const route = useRoute();
 
 const userStore = useUserStore();
 const userInfo = computed(() => userStore.userInfo);
+const taskInfo = computed(() => userStore.taskInfo);
+
 const noticeStore = useNoticeStore();
 
 const menuData = computed(() => {

@@ -51,9 +51,12 @@ import DrawdownreQuest from './components/form/DrawdownRequest.vue';
 import { hasPermission } from '@/directives/permission/index';
 import { loanDrawdown } from '@/api/project/loan';
 import { useRoute } from 'vue-router';
+import { useUserStore } from '@/store';
+
 const route = useRoute();
 
 const { t } = useI18n();
+const userStore = useUserStore();
 
 const uuid = ref('');
 const detail_info = ref(null);
@@ -86,6 +89,8 @@ const update = (val) => {
 const tableData = ref([]);
 
 const loadData = () => {
+  userStore.getTaskNumInfo()
+  
   loading.value = true;
   loanDrawdown({ uuid: uuid.value, ...pagination.value })
     .then((res) => {

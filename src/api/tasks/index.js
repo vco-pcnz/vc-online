@@ -15,3 +15,10 @@ export const projectBacklogList = (params) =>
     method: "get",
     params
   });
+
+// 待办数量
+export const projectBacklogCount = () =>
+  request({
+    url: "/project/project/backlogCount",
+    method: "get"
+  });

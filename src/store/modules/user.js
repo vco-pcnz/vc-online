@@ -3,6 +3,7 @@ import { formatMenus, toTreeData } from "@/router/router-utils";
 import { getUserInfo, getMenuList } from "@/api/user";
 import { getToken, setToken, removeToken } from "@/utils/token-util.js";
 import { login, logout, getSelectUsers } from "@/api/auth";
+import { projectBacklogCount } from "@/api/tasks"
 import router from "@/router";
 
 const useUserStore = defineStore("VcOnlineUserInfo", {
@@ -13,7 +14,12 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
     // 当前登录用户的权限
     authorities: [],
     // 是否为普通用户
-    isNormalUser: false
+    isNormalUser: false,
+    taskInfo: {
+      project: 0,
+      request: 0,
+      total: 0
+    }
   }),
 
   getters: {
@@ -54,6 +60,18 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
 
       // 用户权限
       this.authorities = result.permissionList;
+    },
+
+    getTaskNumInfo() {
+      projectBacklogCount().then(res => {
+        this.taskInfo = {
+          project: res.project_backlog_count || 0,
+          request: res.request_backlog_count || 0,
+          total: res.total_backlog_count || 0
+        }
+
+        console.log('this.taskInfo', this.taskInfo);
+      })
     },
 
     async requestRouterInfo() {

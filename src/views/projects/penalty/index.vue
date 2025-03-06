@@ -35,8 +35,11 @@ import { penalty } from '@/api/project/penalty';
 import { useRoute } from 'vue-router';
 import Add from './components/form/Add.vue';
 import { hasPermission } from '@/directives/permission/index';
+import { useUserStore } from '@/store';
 
 const route = useRoute();
+
+const userStore = useUserStore();
 
 const { t } = useI18n();
 
@@ -61,6 +64,8 @@ const setPaginate = (page, limit) => {
 const tableData = ref([]);
 
 const loadData = () => {
+  userStore.getTaskNumInfo()
+  
   loading.value = true;
 
   penalty({ uuid: uuid.value, ...pagination.value })

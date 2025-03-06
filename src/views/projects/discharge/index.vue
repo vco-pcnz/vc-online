@@ -64,8 +64,10 @@ import { hasPermission } from '@/directives/permission/index';
 import { dischargeSecurity, dischargeApplySecurity } from '@/api/project/loan';
 import { useRoute } from 'vue-router';
 import SecurityAddEdit from '@/views/process/temp/default/components/SecurityAddEdit.vue';
+import { useUserStore } from '@/store';
 
 const route = useRoute();
+const userStore = useUserStore();
 
 const { t } = useI18n();
 
@@ -114,6 +116,8 @@ const setPaginate = (page, limit) => {
 const tableData = ref([]);
 
 const loadData = () => {
+  userStore.getTaskNumInfo()
+
   loading.value = true;
 
   const ajaxFn = currentTab.value ? dischargeApplySecurity : dischargeSecurity

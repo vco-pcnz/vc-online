@@ -27,19 +27,19 @@
                   <a-row :gutter="24">
                     <a-col :span="7">
                       <a-form-item :label="t('土地价值')" class="info-txt" name="land_amount">
-                        <vco-number :value="detail?.land_amount" :precision="2" :end="true"></vco-number>
+                        <vco-number :value="detail?.land_amount" size="fs_xl" :precision="2" :end="true"></vco-number>
                       </a-form-item>
                     </a-col>
                     <a-col :span="1" class="plus-txt"><i class="iconfont">&#xe889;</i></a-col>
                     <a-col :span="7">
                       <a-form-item :label="t('建筑价值')" class="info-txt" name="build_amount">
-                        <vco-number :value="detail?.build_amount" :precision="2" :end="true"></vco-number>
+                        <vco-number :value="detail?.build_amount" size="fs_xl" :precision="2" :end="true"></vco-number>
                       </a-form-item>
                     </a-col>
                     <a-col :span="1" class="plus-txt"><i class="iconfont">=</i></a-col>
                     <a-col :span="8" class="total-amount-info">
                       <a-form-item :label="t('抵押物价值')" class="info-txt">
-                        <vco-number :value="detail?.amount" :precision="2" :end="true"></vco-number>
+                        <vco-number :value="detail?.amount" size="fs_xl" :precision="2" :end="true"></vco-number>
                       </a-form-item>
                     </a-col>
                   </a-row>

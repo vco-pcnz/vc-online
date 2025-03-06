@@ -375,7 +375,6 @@
     ajaxFn({
       uuid: props.currentId
     }).then(res => {
-      console.log('res', res);
       refinancialData.value = res || []
     })
   }

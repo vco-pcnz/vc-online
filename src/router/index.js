@@ -37,6 +37,9 @@ router.beforeEach(async (to, from, next) => {
       noticeStore.setNoticeCount();
     }
 
+    // 待办数据
+    userStore.getTaskNumInfo()
+
     // 注册动态路由
     if (!userStore.routerInit) {
       const { menus, homePath } = await userStore.requestRouterInfo();

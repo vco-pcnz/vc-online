@@ -167,10 +167,12 @@ import { hasPermission } from '@/directives/permission/index';
 import AddVariations from '@/views/projects/variations/components/form/AddVariations.vue';
 import DetailDialog from './components/DetailDialog.vue';
 import ScheduleDialog from './components/ScheduleDialog.vue';
+import { useUserStore } from '@/store';
 
 const { t } = useI18n();
 const route = useRoute();
 const uuid = ref(route.query.uuid);
+const userStore = useUserStore();
 
 const colors = ref({
   'FC REVIEW': '#d3a631',
@@ -255,6 +257,8 @@ const openSchedule = (data) => {
 }
 
 const updateHandle = async (data) => {
+  userStore.getTaskNumInfo()
+  
   const params = {
     uuid: uuid.value,
     id: data.id

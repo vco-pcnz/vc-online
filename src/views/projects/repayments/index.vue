@@ -96,6 +96,8 @@ const update = () => {
 const tableData = ref([]);
 
 const loadData = () => {
+  userStore.getTaskNumInfo()
+  
   loading.value = true;
   loanRepayment({ uuid: uuid.value, ...pagination.value })
     .then((res) => {

@@ -3,7 +3,13 @@
     <div class="nav-content">
       <router-link v-for="link in navData" :key="link.path" :to="link.path" class="nav-link" :class="{ active: isActive(link.path) }">
         {{ t(link.title) }}
-        <span v-if="link.num">({{ link.num }})</span>
+        <template v-if="supPath === '/tasks'">
+          <span v-if="link.path === '/tasks/projects'">({{ taskInfo.project }})</span>
+          <span v-if="link.path === '/tasks/loan'">({{ taskInfo.request }})</span>
+        </template>
+        <template v-else>
+          <span v-if="link.num">({{ link.num }})</span>
+        </template>
       </router-link>
     </div>
     <div class="handle-content">
@@ -13,11 +19,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { cloneDeep } from 'lodash';
 import { useUserStore } from '@/store';
-import { useRouter, useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
 
 const props = defineProps({
   supPath: {
@@ -27,9 +33,11 @@ const props = defineProps({
 });
 
 const { t } = useI18n();
-const router = useRouter();
 const route = useRoute();
 const userStore = useUserStore();
+
+// 这里是待办数量
+const taskInfo = computed(() => userStore.taskInfo);
 
 const navData = ref([]);
 

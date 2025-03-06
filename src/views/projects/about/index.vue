@@ -144,8 +144,10 @@ import { navigationTo } from '@/utils/tool';
 import dayjs, { Dayjs } from 'dayjs';
 import Close from './components/Close.vue';
 import CloseCancel from './components/CloseCancel.vue';
+import { useUserStore } from '@/store';
 
 const { t } = useI18n();
+const userStore = useUserStore();
 const route = useRoute();
 
 const detailLayoutRef = ref(null);
@@ -212,6 +214,8 @@ const ReOpenFormData = ref([
 ]);
 
 const update = () => {
+  userStore.getTaskNumInfo()
+
   detailLayoutRef.value.getProjectDetail();
 };
 </script>

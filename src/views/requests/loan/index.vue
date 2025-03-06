@@ -281,6 +281,7 @@ const bindHandle = (data) => {
 };
 
 const bindDone = () => {
+  userStore.getTaskNumInfo()
   selectedRowKeys.value = [];
   getTableData();
 };

@@ -37,8 +37,10 @@ router.beforeEach(async (to, from, next) => {
       noticeStore.setNoticeCount();
     }
 
-    // 待办数据
-    userStore.getTaskNumInfo()
+    if (!Boolean(userStore.userInfo.ptRole)) {
+      // 待办数据
+      userStore.getTaskNumInfo()
+    }
 
     // 注册动态路由
     if (!userStore.routerInit) {

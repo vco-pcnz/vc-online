@@ -1,40 +1,45 @@
 <template>
-  <a-image v-if="detail?.base.project_image" :src="detail?.base.project_image" height="313.67px" width="100%" />
-  <div class="base-card">
-    <p class="id_async">
-      <span>ID {{ detail?.base.project_apply_sn }}</span>
+  <div class="base-info-content">
+    <div v-if="detail?.base?.substitution && detail?.base?.substitution.length" class="refinance">{{ t('再融资') }}</div>
 
-      <a-statistic-countdown :value="deadline" @finish="onFinish" format="mm:ss" v-if="Boolean(countdown)">
-        <template #prefix>
-          <span>{{ t('处理') }} (</span>
-        </template>
-        <template #suffix>
-          <span>)</span>
-        </template>
-      </a-statistic-countdown>
-      <a-spin :spinning="loading" v-else>
-        <a-popconfirm :title="t('您确定要与 Xero 同步项目交易吗？')" okText="confirm" @confirm="update">
-          <template #icon>
-            <CheckCircleOutlined :style="{ color: '#a9ad57' }" />
+    <a-image v-if="detail?.base.project_image" :src="detail?.base.project_image" height="313.67px" width="100%" />
+    <div class="base-card">
+      <p class="id_async">
+        <span>ID {{ detail?.base.project_apply_sn }}</span>
+
+        <a-statistic-countdown :value="deadline" @finish="onFinish" format="mm:ss" v-if="Boolean(countdown)">
+          <template #prefix>
+            <span>{{ t('处理') }} (</span>
           </template>
-          <img :width="58" :height="14" :src="xeroImg" alt="Xero" />
-        </a-popconfirm>
-      </a-spin>
-    </p>
-    <p class="mb-5">{{t('借款人')}}: {{ detail?.base.borrower_user_name }}</p>
-    <p class="text-2xl name">{{ detail?.base.project_name }}</p>
-    <p class="purpose">
-      <template v-if="detail && detail?.base.project_about.length > 100 && !isExpand"> {{ detail?.base.project_about.substring(0, 100) }}... </template>
-      <template v-else>
-        {{ detail?.base.project_about }}
-      </template>
-      <template v-if="detail && detail?.base.project_about.length > 100">
-        <a-button type="grey" style="transform: scale(0.8)" size="small" v-if="!isExpand" @click="isExpand = !isExpand">{{ t('展开') }}</a-button>
-        <a-button type="grey" style="transform: scale(0.8)" size="small" v-if="isExpand" @click="isExpand = !isExpand">{{ t('收起') }}</a-button>
-      </template>
-    </p>
-    <p class="fs_xs">{{ detail?.base.project_city }}</p>
+          <template #suffix>
+            <span>)</span>
+          </template>
+        </a-statistic-countdown>
+        <a-spin :spinning="loading" v-else>
+          <a-popconfirm :title="t('您确定要与 Xero 同步项目交易吗？')" okText="confirm" @confirm="update">
+            <template #icon>
+              <CheckCircleOutlined :style="{ color: '#a9ad57' }" />
+            </template>
+            <img :width="58" :height="14" :src="xeroImg" alt="Xero" />
+          </a-popconfirm>
+        </a-spin>
+      </p>
+      <p class="mb-5">{{t('借款人')}}: {{ detail?.base.borrower_user_name }}</p>
+      <p class="text-2xl name">{{ detail?.base.project_name }}</p>
+      <p class="purpose">
+        <template v-if="detail && detail?.base.project_about.length > 100 && !isExpand"> {{ detail?.base.project_about.substring(0, 100) }}... </template>
+        <template v-else>
+          {{ detail?.base.project_about }}
+        </template>
+        <template v-if="detail && detail?.base.project_about.length > 100">
+          <a-button type="grey" style="transform: scale(0.8)" size="small" v-if="!isExpand" @click="isExpand = !isExpand">{{ t('展开') }}</a-button>
+          <a-button type="grey" style="transform: scale(0.8)" size="small" v-if="isExpand" @click="isExpand = !isExpand">{{ t('收起') }}</a-button>
+        </template>
+      </p>
+      <p class="fs_xs">{{ detail?.base.project_city }}</p>
+    </div>
   </div>
+  
 </template>
 
 <script setup>
@@ -116,5 +121,23 @@ onMounted(() => {
 :deep(.ant-statistic-content) {
   color: #888;
   font-size: 12px;
+}
+
+.base-info-content {
+  position: relative;
+  overflow: hidden;
+  > .refinance {
+    position: absolute;
+    z-index: 99;
+    background-color: @colorPrimary;
+    width: 100%;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(-45deg);
+    left: -38%;
+    top: 4%;
+  }
 }
 </style>

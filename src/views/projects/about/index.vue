@@ -39,6 +39,23 @@
                 </template>
                 <RequestDetails :data="detail" :currentId="currentId" @update="update"></RequestDetails>
               </a-collapse-panel>
+
+              <a-collapse-panel v-if="detail?.base?.substitution && detail?.base?.substitution.length" key="refinancing" class="collapse-card">
+                <template #header>
+                  <i class="iconfont" style="font-size: 16.5px">&#xe760;</i>
+                  <span class="title">{{ t('再融资项目') }}</span>
+                </template>
+                <div class="refinance-content">
+                  <div v-for="item in detail?.base?.substitution" :key="item.uuid" class="item" @click="navigationTo(`/projects/about?uuid=${item.uuid}`, true)">
+                    <div class="title-info">
+                      <p>{{ item.project_apply_sn }}</p>
+                      <RightOutlined :style="{fontSize: '12px', color: '#bf9425'}" />
+                    </div>
+                    <p>{{ item.project_name }}</p>
+                  </div>
+                </div>
+              </a-collapse-panel>
+
               <a-collapse-panel key="orgs" class="collapse-card request-card">
                 <template #header>
                   <i class="iconfont">&#xe8db;</i>
@@ -106,6 +123,7 @@
 
 <script setup>
 import { ref, reactive, onMounted, nextTick, computed } from 'vue';
+import { RightOutlined } from '@ant-design/icons-vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import detailLayout from '../components/detailLayout.vue';
@@ -252,8 +270,13 @@ const update = () => {
       }
 
       &:nth-child(3),
-      &:nth-child(4) {
+      &:nth-child(4),
+      &:nth-child(5) {
         border-bottom: 1px solid #e2e5e2;
+      }
+
+      &:last-child {
+        border-bottom: none;
       }
 
       :deep(.ant-collapse-expand-icon) {
@@ -299,5 +322,34 @@ const update = () => {
   font-size: 14px !important;
   margin-left: 8px;
   color: #c1430c !important;
+}
+
+.refinance-content {
+  > .item {
+    background: rgba(215, 178, 126, 0.2);
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: all 0.3s ease;
+    &:hover {
+      background: rgba(215, 178, 126, 0.4);
+    }
+    &:first-child {
+      margin-top: 0;
+    }
+    > .title-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #fff;
+      padding-bottom: 10px;
+      color: #bf9425;
+    }
+    > p {
+      padding-top: 10px;
+      font-size: 13px;
+    }
+  }
 }
 </style>

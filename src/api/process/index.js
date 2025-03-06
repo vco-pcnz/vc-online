@@ -647,3 +647,19 @@ export const projectForecastAddf = (data) =>
     method: "post",
     data
   });
+
+// 请求可置换项目
+export const projectAuditSubstitution = (params) =>
+  request({
+    url: "/project/audit/substitution",
+    method: "get",
+    params
+  });
+
+// 请求可置换项目 - 详情用
+export const projectDetailSubstitution = (params) =>
+  request({
+    url: "/projectDetail/substitution",
+    method: "get",
+    params
+  });

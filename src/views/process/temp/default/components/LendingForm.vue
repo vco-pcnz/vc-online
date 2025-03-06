@@ -115,7 +115,35 @@
             </a-form-item>
           </a-col>
           <a-col :span="24"><div class="form-line"></div></a-col>
-          <a-col :span="7">
+          <a-col v-if="(refinancialData.length && blockInfo.showEdit) || isRefinancial" :span="24">
+            <div v-if="!refinancialDisabled" class="flex gap-2 mb-5">
+              <p>{{ t('是否需要再融资') }}</p>
+              <a-switch v-model:checked="isRefinancial"></a-switch>
+            </div>
+            <a-form-item v-if="isRefinancial" :label="refinancialDisabled ? t('再融资项目') : ''" name="substitution_ids">
+              <a-select
+                v-model:value="formState.substitution_ids"
+                mode="multiple"
+                :options="formattedRefinancialData"
+                :placeholder="t('请选择项目')"
+                style="width: 65.5%;"
+                :disabled="refinancialDisabled"
+                @change="(value, option) => refinancialChange(option)"
+              >
+                <template #option="{ label, value, item }">
+                  <p>{{ label }}</p>
+                  <vco-number
+                    :value="Number(item.amount)"
+                    :precision="2"
+                    size="fs_xs"
+                    :end="true"
+                    color="#666666"
+                  ></vco-number>
+                </template>
+              </a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="isRefinancial ? 5 : 7">
             <a-form-item
               :label="t('首次土地贷款放款额')"
               name="initial_land_amount"
@@ -135,7 +163,7 @@
           <a-col :span="1" class="plus-txt">
             <i class="iconfont">&#xe889;</i>
           </a-col>
-          <a-col :span="7">
+          <a-col :span="isRefinancial ? 5 : 7">
             <a-form-item
               :label="t('首次建筑贷款放款额')"
               name="initial_build_amount"
@@ -152,8 +180,22 @@
               />
             </a-form-item>
           </a-col>
+          <template v-if="isRefinancial">
+            <a-col :span="1" class="plus-txt">
+              <i class="iconfont">&#xe889;</i>
+            </a-col>
+            <a-col :span="4" class="financial-amount">
+              <a-form-item :label="t('再融资金额')">
+                <vco-number
+                  :value="refinancialAmount"
+                  :precision="2"
+                  :end="true"
+                ></vco-number>
+              </a-form-item>
+            </a-col>
+          </template>
           <a-col :span="1" class="plus-txt"><i class="iconfont">=</i></a-col>
-          <a-col :span="8" class="total-amount-info">
+          <a-col :span="isRefinancial ? 7 : 8" class="total-amount-info" :class="{'financial': isRefinancial}">
             <a-form-item :label="t('首次放款总金额')">
               <vco-number
                 :value="totalInitialAmountRef"
@@ -276,7 +318,9 @@
     creditInfo,
     projectAuditSaveMode,
     projectAuditCheckMode,
-    projectAuditGoback
+    projectAuditGoback,
+    projectAuditSubstitution,
+    projectDetailSubstitution
   } from '@/api/process';
   import emitter from '@/event';
   import useProcessStore from '@/store/modules/process';
@@ -313,6 +357,47 @@
       default: false
     }
   })
+
+  const isRefinancial = ref(false)
+  const refinancialAmount = ref(0)
+
+  // 请求可以置换的项目
+  const refinancialData = ref([])
+
+  const getRefinancialList = (flag = false) => {
+    if (flag) {
+      refinancialAmount.value = 0
+      formState.value.substitution_ids = []
+      emits('refresh');
+    }
+
+    const ajaxFn = props.isDetails ? projectDetailSubstitution : projectAuditSubstitution
+    ajaxFn({
+      uuid: props.currentId
+    }).then(res => {
+      console.log('res', res);
+      refinancialData.value = res || []
+    })
+  }
+
+  const formattedRefinancialData = computed(() => {
+    const data = refinancialData.value || []
+    return data.map(item => ({
+      label: item.project_name,
+      value: item.uuid,
+      item: item
+    }))
+  })
+
+  const refinancialChange = (data) => {
+    if (data.length) {
+      const dataArr = data.map(item => Number(item.item.amount))
+      const sum = dataArr.reduce((acc, cur) => acc + cur, 0)
+      refinancialAmount.value = sum
+    } else {
+      refinancialAmount.value = 0
+    }
+  }
 
   const staticFormData = ref()
   const staticWriteData = ref()
@@ -353,13 +438,24 @@
     if (props.isDetails) {
       return true
     } else {
-      const mark = props.currentStep.mark
-      if (props.blockInfo.showEdit) {
+      const mark = props?.currentStep?.mark
+      if (props?.blockInfo?.showEdit) {
         return ['step_lm_check'].includes(mark)
       } else {
         return true
       }
     }
+  })
+
+  const refinancialDisabled = computed(() => {
+    return amountDisabled.value
+    // const mark = props?.currentStep?.mark
+
+    // if (props?.blockInfo?.showEdit) {
+    //   return amountDisabled.value || !['step_lm_audit', 'step_fc_audit'].includes(mark)
+    // } else {
+    //   return amountDisabled.value
+    // }
   })
 
   const changeAlertRef = ref()
@@ -422,7 +518,9 @@
     land_amount: '',
     initial_build_amount: '',
     initial_land_amount: '',
+    substitution_ids: []
   });
+
   const formRules = ref({
     build_amount: { validator: validateNum, trigger: 'blur' },
     land_amount: { validator: validateNum, trigger: 'blur' },
@@ -445,7 +543,7 @@
   const totalInitialAmountRef = computed(() => {
     const initial_build_amount = formState.value.initial_build_amount || 0;
     const initial_land_amount = formState.value.initial_land_amount || 0;
-    return tool.plus(initial_build_amount, initial_land_amount);
+    return tool.plus(tool.plus(initial_build_amount, initial_land_amount), refinancialAmount.value);
   });
 
   const colClassName = (num) => {
@@ -536,6 +634,9 @@
       if (res.length || Object.keys(res).length) {
         for (const key in formState.value) {
           formState.value[key] = res[key] || '0';
+          if (key === 'substitution_ids') {
+            formState.value[key] = props.lendingInfo?.substitution_ids || [];
+          }
         }
         for (let i = 0; i < showNumItems.value.length; i++) {
           showNumItems.value[i].value = res[showNumItems.value[i].credit_table];
@@ -744,6 +845,7 @@
         delete credit__data.initial_build_amount
         delete credit__data.initial_land_amount
         delete credit__data.land_amount
+        delete credit__data.substitution_ids
 
         const params = {
           code: props.blockInfo.code,
@@ -752,6 +854,8 @@
           land_amount: formState.value.land_amount || 0,
           initial_build_amount: formState.value.initial_build_amount || 0,
           initial_land_amount: formState.value.initial_land_amount || 0,
+          substitution_ids: formState.value.substitution_ids || [],
+          substitution_amount: refinancialAmount.value || 0,
           credit__data
         };
 
@@ -784,6 +888,9 @@
     () => props.lendingInfo,
     (val) => {
       if (val) {
+        formState.value.substitution_ids = val.substitution_ids || []
+        isRefinancial.value = Boolean(val.substitution_ids && val?.substitution_ids?.length)
+
         if (Number(val.land_amount) !== Number(formState.value.land_amount) ||
           Number(val.build_amount) !== Number(formState.value.build_amount) ||
           Number(val.initial_land_amount) !== Number(formState.value.initial_land_amount) ||
@@ -791,6 +898,21 @@
         ) {
           updateFormData()
         }
+      } else {
+        isRefinancial.value = false
+      }
+    }
+  )
+
+  watch(
+    () => isRefinancial.value,
+    (val) => {
+      if (val) {
+        formRules.value['substitution_ids'] = [{ required: true, message: t('请选择项目') }]
+      } else {
+        delete formRules.value['substitution_ids']
+        formState.value.substitution_ids = []
+        refinancialAmount.value = 0
       }
     }
   )
@@ -807,14 +929,20 @@
   }
 
   onMounted(() => {
+    isRefinancial.value = Boolean(props.lendingInfo.substitution_ids && props.lendingInfo?.substitution_ids?.length)
+    refinancialAmount.value = props.lendingInfo?.substitution_amount || 0
+
+    getRefinancialList()
     getFormItems();
     emitter.on('refreshIRR', handleRefreshIRR);
     emitter.on('blockShowTarget', blockShowTargetHandle)
+    emitter.on('refreshRefinancial', getRefinancialList)
   });
 
   onUnmounted(() => {
     emitter.off('refreshIRR', handleRefreshIRR);
     emitter.off('blockShowTarget', blockShowTargetHandle)
+    emitter.off('refreshRefinancial', getRefinancialList)
   })
 </script>
 
@@ -835,6 +963,18 @@
 .total-amount-info {
   :deep(.ant-statistic-content) {
     font-size: 24px !important;
+    line-height: 48px !important;
+  }
+  &.financial {
+    :deep(.ant-statistic-content) {
+      font-size: 20px !important;
+    }
+  }
+}
+
+.financial-amount {
+  :deep(.ant-statistic-content) {
+    font-size: 16px !important;
     line-height: 48px !important;
   }
 }

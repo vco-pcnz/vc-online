@@ -69,8 +69,6 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
           request: res.request_backlog_count || 0,
           total: res.total_backlog_count || 0
         }
-
-        console.log('this.taskInfo', this.taskInfo);
       })
     },
 

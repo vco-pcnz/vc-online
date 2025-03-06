@@ -625,7 +625,13 @@
     });
   };
 
+  const tableDataRefData = ref()
+
   const updateFormData = async (tableData) => {
+    if (tableData) {
+      tableDataRefData.value = tableData
+    }
+
     await creditInfo({
       apply_uuid: props.currentId,
       type: props.currentStep?.credit_cate,
@@ -662,7 +668,7 @@
 
     staticFormData.value = cloneDeep(formState.value)
     emits('openData', {
-      table: tableData,
+      table: tableDataRefData.value,
       data: formState.value
     })
   };

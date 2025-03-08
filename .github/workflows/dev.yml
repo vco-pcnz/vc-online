@@ -44,7 +44,7 @@ jobs:
         env:
           VITE_APP_ENV: dev
           VITE_APP_OPEN_PROXY: false
-          VITE_APP_BASE_URL: https://dev-admin-api.new.vincentcapital.co.nz/api
+          VITE_APP_BASE_URL: https://vco.new.vincentcapital.co.nz/api
           VITE_APP_TOKEN_PREFIX: vc-online-user-token
 
       # 部署到 AWS S3

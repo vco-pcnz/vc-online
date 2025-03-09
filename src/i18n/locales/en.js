@@ -736,6 +736,7 @@ export default {
   "请选择项目": "Please select projects",
   "再融资项目": "Refinancing Projects",
   "再融资": "Refinance",
-  "结束时间不能大于开始时间": "The end time cannot be greater than the start time"
+  "结束时间不能大于开始时间": "The end time cannot be greater than the start time",
+  "施工进度": "Construction completion",
 }
 

@@ -14,7 +14,11 @@
               <div class="label" :class="{ err: !formState.apply_date && validate }">{{ t('日期') }}</div>
               <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.apply_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" :showToday="false" />
             </div>
-            <div class="input-item">
+            <div class="input-item my-4">
+              <div class="label">{{ t('施工进度') }}</div>
+              <a-input-number v-model:value="formState.progress" :min="0" :max="100" :formatter="(value) => `${value}%`" :parser="(value) => value.replace('%', '')" />
+            </div>
+            <div class="input-item" style="margin-top: 16px;">
               <div class="label" :class="{ err: !formState.apply_amount && validate }">Requested amount, $ nzd</div>
               <a-input-number v-model:value="formState.apply_amount" :max="99999999999" :min="0" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
             </div>
@@ -22,7 +26,7 @@
           <a-col :span="12">
             <div class="input-item">
               <div class="label">Notes</div>
-              <a-textarea v-model:value="formState.note" :rows="10" />
+              <a-textarea v-model:value="formState.note" :rows="14" />
             </div>
           </a-col>
         </a-row>
@@ -93,6 +97,7 @@ const formState = ref({
   name: '',
   note: '',
   apply_date: '',
+  progress:'',
   apply_amount: '',
   p_file: [],
   d_file: []
@@ -162,6 +167,7 @@ const init = () => {
   formState.value.note = '';
   formState.value.apply_date = '';
   formState.value.apply_amount = '';
+  formState.value.progress = '';
   formState.value.d_file = [];
   formState.value.p_file = [];
   annexSel({ apply_uuid: props.uuid, type: 2 }).then((res) => {

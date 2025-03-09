@@ -7,7 +7,8 @@
           <a-col :span="12">
             <div class="input-item">
               <div class="label" :class="{ err: !formState.name && validate }">Drawdown title</div>
-              <a-input v-model:value="formState.name" />
+              <!-- <a-input v-model:value="formState.name" /> -->
+              <a-select :loading="loading_type" style="width: 100%" v-model:value="formState.name" :options="title_type" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
             </div>
             <div class="input-item my-4">
               <div class="label" :class="{ err: !formState.apply_date && validate }">{{ t('日期') }}</div>
@@ -65,8 +66,9 @@ import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import { annexSel } from '@/api/project/annex';
 import { loanDedit } from '@/api/project/loan';
-import { selectDateFormat } from "@/utils/tool"
+import { selectDateFormat } from '@/utils/tool';
 import DocumentsUpload from './DocumentsUpload.vue';
+import { systemDictData } from '@/api/system';
 
 const { t } = useI18n();
 const emits = defineEmits(['change']);
@@ -85,7 +87,6 @@ const loading = ref(false);
 const validate = ref(false);
 const formModal2 = ref([]);
 const formModal3 = ref([]);
-const documents = ref({});
 
 const formState = ref({
   uuid: '',
@@ -140,6 +141,22 @@ const save = () => {
     });
 };
 
+const title_type = ref([]);
+const loading_type = ref(false);
+const loadType = (reset) => {
+  if (title_type.value.length) {
+    return;
+  }
+  loading_type.value = true;
+  systemDictData('drawdown_title_type')
+    .then((res) => {
+      title_type.value = res;
+    })
+    .finally((_) => {
+      loading_type.value = false;
+    });
+};
+
 const init = () => {
   formState.value.name = '';
   formState.value.note = '';
@@ -158,6 +175,7 @@ const init = () => {
     }
     formModal3.value = res;
   });
+  loadType();
   visible.value = true;
 };
 </script>

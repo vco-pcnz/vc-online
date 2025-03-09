@@ -4,9 +4,14 @@
     <a-modal :width="550" :open="visible" :title="t('罚息开始')" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <div class="input-item">
-          <div class="label" :class="{ err: !formState.start_date && validate }">{{ t('开始日期') }}</div>
-          <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.start_date" format="DD/MM/YYYY" valueFormat="YYYY-MM-DD" :showToday="false" />
+          <div class="label" :class="{ err: !formState.start_date && validate }">{{ t('开始时间') }}</div>
+          <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.start_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" :showToday="false" />
         </div>
+        <div class="input-item">
+          <div class="label" :class="{ err: !formState.end_date && validate }">{{ t('结束时间') }}</div>
+          <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.end_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" :showToday="false" />
+        </div>
+
         <div class="input-item">
           <div class="label" :class="{ err: !formState.rate && validate }">{{ t('利率') }}</div>
           <a-input-number v-model:value="formState.rate" :min="0" :max="100" :formatter="(value) => `${value}%`" :parser="(value) => value.replace('%', '')" />
@@ -33,6 +38,7 @@ import { message } from 'ant-design-vue/es';
 import { sedit } from '@/api/project/penalty';
 import { systemConfigData } from '@/api/system';
 import { pick } from 'lodash';
+import { selectDateFormat } from '@/utils/tool';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);
@@ -57,6 +63,7 @@ const validate = ref(false);
 const formState = ref({
   uuid: '',
   start_date: '',
+  end_date: '',
   rate: '',
   note: ''
 });
@@ -69,6 +76,9 @@ const save = () => {
   formState.value.uuid = props.currentId;
   validate.value = true;
   if (!formState.value.start_date || !formState.value.rate) return;
+  if (new Date(formState.value.start_date) >= new Date(formState.value.end_date)) {
+    return message.error(t('结束时间不能大于开始时间'));
+  }
   sedit(formState.value)
     .then((res) => {
       emits('update');
@@ -100,12 +110,13 @@ const init = () => {
     formState.value = {
       uuid: '',
       start_date: '',
+      end_date: '',
       rate: '',
       note: ''
     };
     loadRate();
   } else {
-    let keys = ['id', 'start_date', 'rate', 'note'];
+    let keys = ['id', 'start_date', 'end_date', 'rate', 'note'];
     formState.value = pick(props.detail, keys);
   }
   visible.value = true;

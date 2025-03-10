@@ -8,7 +8,7 @@
           <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.start_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" :showToday="false" />
         </div>
         <div class="input-item">
-          <div class="label" :class="{ err: !formState.end_date && validate }">{{ t('结束时间') }}</div>
+          <div class="label">{{ t('结束时间') }}</div>
           <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.end_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" :showToday="false" />
         </div>
 
@@ -76,7 +76,7 @@ const save = () => {
   formState.value.uuid = props.currentId;
   validate.value = true;
   if (!formState.value.start_date || !formState.value.rate) return;
-  if (new Date(formState.value.start_date) >= new Date(formState.value.end_date)) {
+  if (formState.value.end_date && new Date(formState.value.start_date) >= new Date(formState.value.end_date)) {
     return message.error(t('结束时间不能大于开始时间'));
   }
   sedit(formState.value)

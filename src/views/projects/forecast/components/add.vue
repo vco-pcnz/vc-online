@@ -100,13 +100,7 @@ const formState = ref({
 
 const disabledDateFormat = (current) => {
   const startDate = props.projectDetail.loan.start_date;
-  const endDate = props.projectDetail.loan.end_date;
-
   if (current && current.isBefore(startDate, 'day')) {
-    return true;
-  }
-
-  if (current && current.isAfter(endDate, 'day')) {
     return true;
   }
 

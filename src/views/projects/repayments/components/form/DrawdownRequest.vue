@@ -61,7 +61,7 @@
     </a-modal>
   </div>
 
-  <TipEditForecast @confirm="submit" v-model:visible="visible_tip"></TipEditForecast>
+  <TipEditForecast @confirm="submit" tip2="请释放抵押品" v-model:visible="visible_tip"></TipEditForecast>
 </template>
 
 <script scoped setup>

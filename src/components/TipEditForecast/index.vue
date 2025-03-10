@@ -2,7 +2,8 @@
   <!-- 提示弹窗 -->
   <a-modal :open="visible" :title="t('提示')" :width="460" :footer="null" :keyboard="false" :maskClosable="false" @cancel="updateVisible(false)">
     <div class="tips-content">
-      <p class="tips-txt">{{ t('此操作会影响forecast,是否要继续?') }}</p>
+      <p class="tips-txt" v-if="tip1">{{ t(tip1) }}</p>
+      <p class="tips-txt" v-if="tip2">{{ t(tip2) }}</p>
 
       <div class="mt-5 flex justify-between gap-5">
         <a-button type="grey" class="big shadow bold uppercase w-full mb-5 mt-5" @click="updateVisible(false)">{{ t('取消') }}</a-button>
@@ -24,6 +25,14 @@ const props = defineProps({
   visible: {
     type: Boolean,
     default: false
+  },
+  tip1: {
+    type: String,
+    default: '此操作会影响forecast,是否要继续?'
+  },
+  tip2: {
+    type: String,
+    default: ''
   }
 });
 

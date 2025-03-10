@@ -314,7 +314,7 @@ const update = () => {
       }
       
       &.red {
-        background-color: #f3e8ea !important;
+        background-color: #ffedf1 !important;
       }
 
       > .item {

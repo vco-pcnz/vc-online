@@ -299,7 +299,6 @@
 
   const lendingDataInfo = ref()
   const openDataHandle = (data) => {
-    console.log('data', data);
     lendingDataInfo.value = data
   }
 

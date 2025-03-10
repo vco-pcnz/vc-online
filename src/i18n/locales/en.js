@@ -739,6 +739,6 @@ export default {
   "结束时间不能大于开始时间": "The end time cannot be greater than the start time",
   "施工进度": "Construction completion",
   "此操作会影响forecast,是否要继续?": "This operation will affect the forecast, do you want to continue?",
-
+  "关联抵押品": "Related Securities"
 }
 

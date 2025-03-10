@@ -263,3 +263,11 @@ export const projectVariationEdit = (data) =>
     method: 'post',
     data
   });
+
+// 还款选择抵押物
+export const projectDischargeSelSecurity = (params) =>
+  request({
+    url: 'project/discharge/selSecurity',
+    method: 'get',
+    params
+  });

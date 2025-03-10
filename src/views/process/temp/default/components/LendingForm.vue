@@ -125,6 +125,7 @@
                 v-model:value="formState.substitution_ids"
                 mode="multiple"
                 :options="formattedRefinancialData"
+                :filter-option="filterOption"
                 :placeholder="t('请选择项目')"
                 style="width: 65.5%;"
                 :disabled="refinancialDisabled"
@@ -387,6 +388,10 @@
       item: item
     }))
   })
+
+  const filterOption = (input, option) => {
+    return option.label.toLowerCase().includes(input.toLowerCase());
+  };
 
   const refinancialChange = (data) => {
     if (data.length) {

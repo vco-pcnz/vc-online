@@ -1,7 +1,15 @@
 <template>
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="drawdownRequestRef" class="drawdown-request">
-    <a-modal :width="700" :open="visible" :title="t('还款申请')" :getContainer="() => $refs.drawdownRequestRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
+    <!-- 抵押物选择弹窗 -->
+    <securities-dialog
+      v-model:visible="securitiesVisible"
+      :uuid="uuid"
+      :select-data="relatedData"
+      @done="securitiesDone"
+    ></securities-dialog>
+
+    <a-modal :width="800" :open="visible" :title="t('还款申请')" :getContainer="() => $refs.drawdownRequestRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
           <a-row :gutter="24">
@@ -39,6 +47,43 @@
                 />
               </a-form-item>
             </a-col>
+            <a-col v-if="showRelated" :span="24">
+              <a-form-item class="custom-label">
+                <template #label>
+                  <div class="w-full flex justify-between items-center">
+                    <span>{{ t('关联抵押品') }}</span>
+                    <a-button type="brown" shape="round" size="small" @click="securitiesVisible = true"> {{ t('选择') }}</a-button>
+                  </div>
+                </template>
+                <div class="table-content sys-table-content related-content no-top-line">
+                  <a-table
+                    rowKey="uuid"
+                    :columns="relatedColumns"
+                    :data-source="relatedData"
+                    :pagination="false"
+                    table-layout="fixed"
+                  >
+                    <template #bodyCell="{ column, record, index }">
+                      <template v-if="column.dataIndex === 'amount'">
+                        <vco-number size="fs_md" :value="record.amount" :precision="2"></vco-number>
+                      </template>
+                      <template v-if="column.dataIndex === 'real_amount'">
+                        <a-input-number
+                          v-model:value="record.real_amount"
+                          :max="99999999999"
+                          :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                          :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                          class="mini"
+                        />
+                      </template>
+                      <template v-if="column.dataIndex === 'operation'">
+                        <i class="iconfont remove-icon" @click="removeItems(index)">&#xe8c1;</i>
+                      </template>
+                    </template>
+                  </a-table>
+                </div>
+              </a-form-item>
+            </a-col>
             <a-col :span="24">
               <a-form-item :label="t('还款说明')" name="note">
                 <a-textarea v-model:value="formState.note" :placeholder="t('请输入')" :rows="3" />
@@ -65,16 +110,20 @@
 </template>
 
 <script scoped setup>
-import { ref } from 'vue';
+import { ref, computed, reactive } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { loanRDedit, projectLoanAllRepayment } from '@/api/project/loan';
 import { CalendarOutlined } from '@ant-design/icons-vue';
 import DocumentsUpload from './../../../discharge/components/form/DocumentsUpload.vue';
 import dayjs from 'dayjs';
-import { selectDateFormat } from '@/utils/tool';
+import { useUserStore } from '@/store'
+import { selectDateFormat, removeDuplicates } from '@/utils/tool';
+import SecuritiesDialog from './SecuritiesDialog.vue';
+import { cloneDeep } from "lodash"
 
 const { t } = useI18n();
 const emits = defineEmits(['change']);
+const userStore = useUserStore();
 
 const props = defineProps({
   uuid: {
@@ -85,6 +134,10 @@ const props = defineProps({
     default: () => {}
   }
 });
+
+const showRelated = computed(() => {
+  return !Boolean(userStore.userInfo.ptRole)
+})
 
 const visible = ref(false);
 const loading = ref(false);
@@ -139,6 +192,15 @@ const submit = () => {
     uuid: props.uuid,
     document: document.value
   };
+  if (relatedData.value.length) {
+    const security = relatedData.value.map(item => {
+      return {
+        uuid: item.uuid,
+        real_amount: item.real_amount
+      }
+    })
+    params.security = security
+  }
   loading.value = true;
 
   loanRDedit(params)
@@ -202,6 +264,34 @@ const typeChange = () => {
   }
 };
 
+const securitiesVisible = ref(false)
+
+const relatedColumns = reactive([
+  { title: t('名称'), dataIndex: 'security_name', width: 120 },
+  { title: t('产权编号'), dataIndex: 'card_no', width: 120 },
+  { title: t('类型'), dataIndex: 'type_name', width: 90 },
+  { title: t('抵押物价值'), dataIndex: 'amount', width: 150 },
+  { title: t('当前抵押物价值'), dataIndex: 'real_amount', width: 170 },
+  { title: t('操作1'), dataIndex: 'operation', fixed: 'right', align: 'center', width: 50}
+]);
+
+const relatedData = ref([])
+
+const securitiesDone = (data) => {
+  const arr = cloneDeep(data)
+  const selected = Array.from(new Set([...relatedData.value, ...arr]));
+  const selData = removeDuplicates(selected, 'uuid')
+  selData.forEach(item => {
+    item.real_amount = Number(item.real_amount) ? item.real_amount : item.amount
+  })
+
+  relatedData.value = selData
+}
+
+const removeItems = (index) => {
+  relatedData.value.splice(index, 1)
+}
+
 const init = () => {
   visible.value = true;
 };
@@ -231,6 +321,31 @@ const init = () => {
   }
   :deep(.ant-input-number-disabled) {
     color: #282828 !important;
+  }
+
+  :deep(.custom-label) {
+    .ant-form-item-label {
+      label {
+        width: 100%;
+      }
+    }
+  }
+
+  .related-content {
+    padding: 10px;
+    border: 1px solid #272727 !important;
+    border-radius: 10px !important;
+    :deep(.ant-empty) {
+      min-height: 50px !important;
+      margin: 0 !important;
+    }
+    :deep(.remove-icon) {
+      cursor: pointer;
+      color: #ea3535 !important;
+      &:hover {
+        color: #f24f4f !important;
+      }
+    }
   }
 }
 </style>

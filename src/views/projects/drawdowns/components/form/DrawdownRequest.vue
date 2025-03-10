@@ -18,7 +18,7 @@
               <div class="label">{{ t('施工进度') }}</div>
               <a-input-number v-model:value="formState.progress" :min="0" :max="100" :formatter="(value) => `${value}%`" :parser="(value) => value.replace('%', '')" />
             </div>
-            <div class="input-item" style="margin-top: 16px;">
+            <div class="input-item" style="margin-top: 16px">
               <div class="label" :class="{ err: !formState.apply_amount && validate }">Requested amount, $ nzd</div>
               <a-input-number v-model:value="formState.apply_amount" :max="99999999999" :min="0" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
             </div>
@@ -55,13 +55,14 @@
         </template>
 
         <div class="flex justify-center mt-5">
-          <a-button @click="save" type="dark" class="save big uppercase shadow bold" :loading="loading">
+          <a-button type="dark" @click="save" class="save big uppercase shadow bold" :loading="loading">
             {{ t('提交') }}
           </a-button>
         </div>
       </div>
     </a-modal>
   </div>
+  <TipEditForecast @confirm="submit" v-model:visible="visible_tip"></TipEditForecast>
 </template>
 
 <script scoped setup>
@@ -91,13 +92,14 @@ const loading = ref(false);
 const validate = ref(false);
 const formModal2 = ref([]);
 const formModal3 = ref([]);
+const visible_tip = ref(false);
 
 const formState = ref({
   uuid: '',
   name: '',
   note: '',
   apply_date: '',
-  progress:'',
+  progress: '',
   apply_amount: '',
   p_file: [],
   d_file: []
@@ -133,6 +135,10 @@ const save = () => {
   });
 
   if (!formState.value.name || !formState.value.apply_amount || !formState.value.d_file.length || !formState.value.apply_date) return;
+  visible_tip.value = true
+};
+
+const submit = () => {
   loading.value = true;
   loanDedit(formState.value)
     .then((res) => {

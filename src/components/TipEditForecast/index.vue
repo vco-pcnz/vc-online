@@ -8,14 +8,13 @@
       <div class="mt-5 flex justify-between gap-5">
         <a-button type="grey" class="big shadow bold uppercase w-full mb-5 mt-5" @click="updateVisible(false)">{{ t('取消') }}</a-button>
 
-        <a-button type="dark" class="big shadow bold uppercase w-full mb-5 mt-5" :loading="loading" @click="confirm">{{ t('确认') }}</a-button>
+        <a-button type="dark" class="big shadow bold uppercase w-full mb-5 mt-5" @click="confirm">{{ t('确认') }}</a-button>
       </div>
     </div>
   </a-modal>
 </template>
 
 <script scoped setup>
-import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
@@ -34,7 +33,7 @@ const props = defineProps({
     type: String,
     default: ''
   }
-});
+})
 
 const updateVisible = (value) => {
   emits('update:visible', value);

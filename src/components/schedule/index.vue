@@ -178,7 +178,8 @@
               {{ t('目前总计') }}
               <span>{{ statisticsData.now.day }}</span>
             </p>
-            <h3>{{ t('还有{0}天开放', [statisticsData.now.days]) }}</h3>
+            <h3 v-if="statisticsData.isBegain">{{ t('{0}天', [statisticsData.now.days]) }}</h3>
+            <h3 v-else>{{ t('还有{0}天开放', [statisticsData.now.days]) }}</h3>
           </div>
           <div class="item">
             <p>{{ t('利息及费用') }}</p>
@@ -394,6 +395,12 @@ const getDataInfo = () => {
     statisticsData.value.repayments = repayments
     statisticsData.value.now.repaid = res.now.repaid ? Math.abs(Number(res.now.repaid)) : 0
     statisticsData.value.last.repaid = res.last.repaid ? Math.abs(Number(res.last.repaid)) : 0
+
+    if (res.last.is_overtime) {
+      statisticsData.value.last.days = tool.diffDate(res.day.sday, res.day.eday)
+    }
+    statisticsData.value.isBegain = dayjs().isAfter(dayjs(res.day.sday));
+
     option.value.series[0].data[0].value = repayments;
     option.value.series[0].data[1].value = res.pendingRepayment || 1;
   });

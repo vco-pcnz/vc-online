@@ -25,7 +25,8 @@
           <li v-if="!isAdd">
             <vco-number :value="item.real_amount" :precision="2" size="fs_md" :end="true"></vco-number>
           </li>
-          <li :style="{ color: colors[item.status_name] }">{{ item.status_name }}</li>
+          <li v-if="Number(item.is_repayment)" :style="{ color: '#0bda8e'}">Repayment Discharge</li>
+          <li v-else :style="{ color: colors[item.status_name] }">{{ item.status_name }}</li>
           <li><p class="fs_xs color_grey">{{ tool.showDate(item.create_time) }}</p></li>
         </ul>
       </template>

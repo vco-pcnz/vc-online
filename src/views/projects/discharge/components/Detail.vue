@@ -88,40 +88,42 @@
       </a-col>
     </a-row>
 
-    <drawdownre-quest 
-      v-if="!projectDetail?.base?.is_close && detail.state === 0 && hasPermission('projects:discharge:review') && !isAdd"
-      :detail="detail" :p-uuid="uuid"
-      @change="update">
-      <a-button type="dark" class="big uppercase mt-5" style="width: 100%">{{ t('解押申请') }}</a-button>
-    </drawdownre-quest>
+    <template v-if="!Boolean(detail?.is_repayment)">
+      <drawdownre-quest 
+        v-if="!projectDetail?.base?.is_close && detail.state === 0 && hasPermission('projects:discharge:review') && !isAdd"
+        :detail="detail" :p-uuid="uuid"
+        @change="update">
+        <a-button type="dark" class="big uppercase mt-5" style="width: 100%">{{ t('解押申请') }}</a-button>
+      </drawdownre-quest>
 
-    <div v-if="detail?.prev_permission && !isAdd"  class="mt-10">
-      <a-popconfirm :title="t('您确实要撤回该请求吗？')" @confirm="recall">
-        <a-button type="dark" class="big uppercase" style="width: 100%">{{ t('撤回申请') }}</a-button>
-      </a-popconfirm>
-    </div>
+      <div v-if="detail?.prev_permission && !isAdd"  class="mt-10">
+        <a-popconfirm :title="t('您确实要撤回该请求吗？')" @confirm="recall">
+          <a-button type="dark" class="big uppercase" style="width: 100%">{{ t('撤回申请') }}</a-button>
+        </a-popconfirm>
+      </div>
 
-    <div v-if="detail.has_permission"  class="mt-10">
-      <a-popconfirm :title="t('您确定要接受该请求吗？')" @confirm="accept">
-        <a-button type="dark" class="big uppercase" style="width: 100%">{{ t('接受请求') }}</a-button>
-      </a-popconfirm>
-      <div class="mt-4" v-if="!isAdd">
-        <p class="text-center color_grey fs_xs my-3">{{ t('您可以点击下面的按钮来退回解押请求。') }}</p>
-        <DrawdownBack :uuid="uuid" :detail="detail" @change="update">
-          <div class="flex justify-center">
-            <a-button type="danger" size="small" shape="round">{{ t('退回请求') }}</a-button>
-          </div>
-        </DrawdownBack>
+      <div v-if="detail.has_permission"  class="mt-10">
+        <a-popconfirm :title="t('您确定要接受该请求吗？')" @confirm="accept">
+          <a-button type="dark" class="big uppercase" style="width: 100%">{{ t('接受请求') }}</a-button>
+        </a-popconfirm>
+        <div class="mt-4" v-if="!isAdd">
+          <p class="text-center color_grey fs_xs my-3">{{ t('您可以点击下面的按钮来退回解押请求。') }}</p>
+          <DrawdownBack :uuid="uuid" :detail="detail" @change="update">
+            <div class="flex justify-center">
+              <a-button type="danger" size="small" shape="round">{{ t('退回请求') }}</a-button>
+            </div>
+          </DrawdownBack>
+        </div>
+        <div class="mt-4" v-else>
+          <p class="text-center color_grey fs_xs my-3">{{ t('您可以点击下面的按钮来拒绝请求。') }}</p>
+          <DrawdownBack :uuid="uuid" :detail="detail" :is-add="isAdd" @change="update">
+            <div class="flex justify-center">
+              <a-button type="danger" size="small" shape="round">{{ t('拒绝请求') }}</a-button>
+            </div>
+          </DrawdownBack>
+        </div>
       </div>
-      <div class="mt-4" v-else>
-        <p class="text-center color_grey fs_xs my-3">{{ t('您可以点击下面的按钮来拒绝请求。') }}</p>
-        <DrawdownBack :uuid="uuid" :detail="detail" :is-add="isAdd" @change="update">
-          <div class="flex justify-center">
-            <a-button type="danger" size="small" shape="round">{{ t('拒绝请求') }}</a-button>
-          </div>
-        </DrawdownBack>
-      </div>
-    </div>
+    </template>
   </div>
 </template>
 

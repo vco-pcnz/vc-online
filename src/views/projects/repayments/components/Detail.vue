@@ -1,63 +1,75 @@
 <template>
-  <div class="color_grey fs_2xs text-center py-3 text-uppercase uppercase" style="letter-spacing: 1px">{{ t('详情') }}</div>
+  <div>
+    <!-- 抵押物选择弹窗 -->
+    <securities-dialog
+      v-model:visible="securitiesVisible"
+      :select-data="relatedData"
+      :is-details="true"
+    ></securities-dialog>
 
-  <div class="detail">
-    <a-alert v-if="Boolean(detail?.cancel_reason)" message="Push back reason" :description="detail?.cancel_reason" type="error" class="cancel-reason" />
+    <div class="color_grey fs_2xs text-center py-3 text-uppercase uppercase" style="letter-spacing: 1px">{{ t('详情') }}</div>
 
-    <div class="my-3" style="padding-left: 5px">
-      <div class="bold fs_xl">{{ detail?.name }}</div>
-      <div class="color_grey fs_xs mt-2">{{ detail?.note }}</div>
-    </div>
+    <div class="detail">
+      <a-alert v-if="Boolean(detail?.cancel_reason)" message="Push back reason" :description="detail?.cancel_reason" type="error" class="cancel-reason" />
 
-    <a-button type="brown" shape="round" size="small" @click="navigationTo('/projects/documents?uuid=' + uuid)">{{ t('查看文件') }}</a-button>
-
-    <div class="flex items-center box mt-4">
-      <i class="iconfont left-icon mr-3">&#xe757;</i>
-      <div>
-        <div class="flex">
-          <vco-number :value="detail?.amount" :precision="2" :bold="true" size="fs_2xl"></vco-number>
-          <span class="unit">nzd</span>
-          <DrawdownAmount :uuid="uuid" :detail="detail" @change="update">
-            <i v-if="detail?.has_permission && detail?.mark === 'repayment_lm' && !detail.all_repayment" class="iconfont edit">&#xe8cf;</i>
-          </DrawdownAmount>
-        </div>
-        <p class="bold color_grey fs_2xs">{{ t('申请金额') }}: {{ tool.formatMoney(detail?.apply_amount) }}</p>
+      <div class="my-3" style="padding-left: 5px">
+        <div class="bold fs_xl">{{ detail?.name }}</div>
+        <div class="color_grey fs_xs mt-2">{{ detail?.note }}</div>
       </div>
-    </div>
 
-    <div v-if="detail?.prev_permission" class="mt-10">
-      <a-popconfirm :title="t('您确实要撤回该请求吗？')" @confirm="recall">
-        <a-button type="dark" class="big uppercase" :loading="accept_loading" style="width: 100%">{{ t('撤回申请') }}</a-button>
-      </a-popconfirm>
-    </div>
+      <div class="flex gap-4">
+        <a-button type="brown" shape="round" size="small" @click="navigationTo('/projects/documents?uuid=' + uuid)">{{ t('查看文件') }}</a-button>
+        <a-button v-if="detail?.security && detail?.security?.length" type="brown" shape="round" size="small" @click="openSecurity">{{ t('关联抵押品') }}</a-button>
+      </div>
+      
 
-    <div v-if="detail?.has_permission" class="mt-10">
-      <DrawdownFCDate v-if="detail?.mark === 'repayment_fc'" :uuid="uuid" :detail="detail" :projectDetail="projectDetail" @change="update">
-        <a-button type="dark" class="big uppercase" style="width: 100%">{{ t('接受请求') }}</a-button>
-      </DrawdownFCDate>
-      <a-button v-else-if="detail?.mark === 'repayment_lm'" type="dark" class="big uppercase" style="width: 100%" @click="visible_tip = true">{{ t('接受请求') }}</a-button>
-      <a-popconfirm v-else :title="t('您确定要接受该请求吗？')" @confirm="accept">
-        <a-button type="dark" class="big uppercase" style="width: 100%">{{ t('接受请求') }}</a-button>
-      </a-popconfirm>
-
-      <div class="mt-4">
-        <p class="text-center color_grey fs_xs my-3">{{ t('您可以点击下面的按钮来拒绝还款请求。') }}</p>
-        <div class="flex justify-center">
-          <a-popconfirm :title="t('确定要拒绝该请求吗？')" @confirm="decline">
-            <a-button type="danger" size="small" shape="round">{{ t('拒绝请求') }}</a-button>
-          </a-popconfirm>
+      <div class="flex items-center box mt-4">
+        <i class="iconfont left-icon mr-3">&#xe757;</i>
+        <div>
+          <div class="flex">
+            <vco-number :value="detail?.amount" :precision="2" :bold="true" size="fs_2xl"></vco-number>
+            <span class="unit">nzd</span>
+            <DrawdownAmount :uuid="uuid" :detail="detail" @change="update">
+              <i v-if="detail?.has_permission && detail?.mark === 'repayment_lm' && !detail.all_repayment" class="iconfont edit">&#xe8cf;</i>
+            </DrawdownAmount>
+          </div>
+          <p class="bold color_grey fs_2xs">{{ t('申请金额') }}: {{ tool.formatMoney(detail?.apply_amount) }}</p>
         </div>
       </div>
 
-      <DrawdownBack v-if="detail?.mark === 'repayment_fc'" :uuid="uuid" :detail="detail" @change="update"></DrawdownBack>
-    </div>
+      <div v-if="detail?.prev_permission" class="mt-10">
+        <a-popconfirm :title="t('您确实要撤回该请求吗？')" @confirm="recall">
+          <a-button type="dark" class="big uppercase" :loading="accept_loading" style="width: 100%">{{ t('撤回申请') }}</a-button>
+        </a-popconfirm>
+      </div>
 
-    <!-- 对账 -->
-    <ReconciliationModal v-if="hasPermission('projects:detail:doReconcile') && detail?.status == 1" :apply_id="detail?.id" @update="update">
-      <a-button type="cyan" class="big uppercase mt-3" style="width: 100%"> {{ t('对账') }} </a-button>
-    </ReconciliationModal>
+      <div v-if="detail?.has_permission" class="mt-10">
+        <DrawdownFCDate v-if="detail?.mark === 'repayment_fc'" :uuid="uuid" :detail="detail" :projectDetail="projectDetail" @change="update">
+          <a-button type="dark" class="big uppercase" style="width: 100%">{{ t('接受请求') }}</a-button>
+        </DrawdownFCDate>
+        <a-popconfirm v-else :title="t('您确定要接受该请求吗？')" @confirm="accept">
+          <a-button type="dark" class="big uppercase" style="width: 100%">{{ t('接受请求') }}</a-button>
+        </a-popconfirm>
+
+        <div class="mt-4">
+          <p class="text-center color_grey fs_xs my-3">{{ t('您可以点击下面的按钮来拒绝还款请求。') }}</p>
+          <div class="flex justify-center">
+            <a-popconfirm :title="t('确定要拒绝该请求吗？')" @confirm="decline">
+              <a-button type="danger" size="small" shape="round">{{ t('拒绝请求') }}</a-button>
+            </a-popconfirm>
+          </div>
+        </div>
+
+        <DrawdownBack v-if="detail?.mark === 'repayment_fc'" :uuid="uuid" :detail="detail" @change="update"></DrawdownBack>
+      </div>
+
+      <!-- 对账 -->
+      <ReconciliationModal v-if="hasPermission('projects:detail:doReconcile') && detail?.status == 1" :apply_id="detail?.id" @update="update">
+        <a-button type="cyan" class="big uppercase mt-3" style="width: 100%"> {{ t('对账') }} </a-button>
+      </ReconciliationModal>
+    </div>
   </div>
-  <TipEditForecast @confirm="accept" tip2="请释放抵押品" v-model:visible="visible_tip"></TipEditForecast>
+  
 </template>
 
 <script setup>
@@ -72,6 +84,7 @@ import DrawdownFCDate from './form/DrawdownFCDate.vue';
 import { loanRdeclinel, loanRsaveStep, loanRrecall } from '@/api/project/loan';
 import { doReconcile } from '@/api/reconciliations';
 import ReconciliationModal from '@/views/projects/components/ReconciliationModal.vue';
+import SecuritiesDialog from './form/SecuritiesDialog.vue';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);
@@ -88,7 +101,6 @@ const props = defineProps({
   }
 });
 const accept_loading = ref(false);
-const visible_tip = ref(false);
 
 // 拒绝
 const decline = async () => {
@@ -110,6 +122,14 @@ const recall = async () => {
     update();
   });
 };
+
+const securitiesVisible = ref(false)
+const relatedData = ref([])
+
+const openSecurity = () => {
+  relatedData.value = props.detail?.security
+  securitiesVisible.value = true
+}
 
 const update = () => {
   emits('update');

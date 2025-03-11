@@ -85,7 +85,9 @@
           <p class="black">{{ tool.formatMoney(record.credit.fc2) }}</p>
         </template>
         <template v-if="column.key === '9'">
-          <div class="closed" v-if="record.is_open === 3">{{ t('关账') }}</div>
+          <div class="closed" v-if="record.is_substitution">{{ t('被再融资') }}</div>
+          <div class="closed" v-else-if="record.is_open === 3">{{ t('关账') }}</div>
+          
           <p class="count" v-if="record.upd">{{ record.upd }}</p>
         </template>
       </template>
@@ -118,11 +120,11 @@ const columns = reactive([
   { title: t('借款人•贷款经理'), key: '2', width: 180 },
   { title: t('到期'), key: '3', width: 160 },
   { title: t('IRR预测'), key: '4', width: 140 },
-  { title: t('收入'), key: '5', width: 120 },
+  { title: t('收入'), key: '5', width: 110 },
   { title: t('待提取'), key: '6', width: 100 },
   { title: t('贷款余额'), key: '7', width: 220 },
-  { title: t('FC2'), key: '8', width: 120 },
-  { title: t('UPD'), key: '9', width: 60 }
+  { title: t('FC2'), key: '8', width: 110 },
+  { title: t('UPD'), key: '9', width: 90 }
 ]);
 
 const diffInDays = (val) => {
@@ -242,8 +244,8 @@ const handlePathChange = () => {
   background-color: #858585;
   color: #fff;
   font-size: 11px;
-  padding: 2px 0;
-  width: 100%;
+  padding: 2px 10px;
+  // width: 100%;
   text-align: center;
   top: 2px;
   right: 0;

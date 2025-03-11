@@ -4,8 +4,8 @@
       <a-spin :spinning="loading" size="large">
         <!-- <Cart :data="data"></Cart> -->
         <div class="flex items-center gap-3">
-          <vco-number :value="projectDetail.base.loan_money" size="fs_xl" :precision="2"></vco-number>
-          <vco-form-dialog :title="t('修改')" :initData="FormData" :formParams="{ uuid: uuid, estimated_loan: projectDetail.base.loan_money }" :showTip="true" url="projectDetail/closeCancel1231" @update="loadData">
+          <vco-number :value="projectDetail.base.est_loan_money" size="fs_xl" :precision="2"></vco-number>
+          <vco-form-dialog :title="t('修改')" :initData="FormData" :formParams="{ uuid: uuid, estimated_loan: projectDetail.base.est_loan_money }" :showTip="true" url="projectDetail/closeCancel1231" @update="loadData">
             <a-button type="cyan" size="small" shape="round">{{ t('修改') }}</a-button>
           </vco-form-dialog>
         </div>

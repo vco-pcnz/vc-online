@@ -1,6 +1,7 @@
 <template>
   <div class="base-info-content">
     <div v-if="detail?.base?.substitution && detail?.base?.substitution.length" class="refinance">{{ t('再融资') }}</div>
+    <div class="refinance" v-if="detail?.base?.is_substitution" style="background-color: #d5d5d5;">{{ t('被再融资') }}</div>
 
     <a-image v-if="detail?.base.project_image" :src="detail?.base.project_image" height="313.67px" width="100%" />
     <div class="base-card">

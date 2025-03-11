@@ -21,7 +21,7 @@
               <template v-else>
                 <div class="flex items-center"><i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">{{ t('帮助借款人') }}</span></div>
                 <p class="color_grey mt-1 mb-3">{{ t('您可以帮助他们创建还款请求') }}</p>
-                <drawdownre-quest :uuid="uuid" :projectDetail="projectDetail" @change="update">
+                <drawdownre-quest :uuid="uuid" :projectDetail="projectDetail" :count="tableData.length" @change="update">
                   <a-button type="brown" shape="round" size="small">{{ t('创建还款') }}</a-button>
                 </drawdownre-quest>
               </template>

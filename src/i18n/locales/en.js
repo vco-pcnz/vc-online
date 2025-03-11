@@ -740,6 +740,7 @@ export default {
   "施工进度": "Construction completion",
   "此操作会影响forecast,是否要继续?": "This operation will affect the forecast, do you want to continue?",
   "请释放抵押品": "Please release the collateral",
-  "关联抵押品": "Related Securities"
+  "关联抵押品": "Related Securities",
+  "快捷选择": "Quick Selection"
 }
 

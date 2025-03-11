@@ -79,7 +79,8 @@ const typeData = reactive({
   drawdown: t('提款'),
   repayment: t('还款'),
   discharge: t('解押'),
-  penalty: t('罚息'),
+  'penalty-start': t('罚息开始'),
+  'penalty-end': t('罚息结束'),
   variation: t('变更'),
   journal: t('平账'),
   closed: t('关账'),
@@ -134,7 +135,7 @@ const todoHandle = (data) => {
     navigationTo(`/projects/discharge?uuid=${data.project.uuid}`);
   } else if (data.process_type === 'security') {
     navigationTo(`/projects/discharge?uuid=${data.project.uuid}&type=1`);
-  } else if (data.process_type === 'penalty') {
+  } else if (['penalty-start', 'penalty-end'].includes(data.process_type)) {
     navigationTo(`/projects/penalty?uuid=${data.project.uuid}`);
   } else if (data.process_type === 'variation') {
     navigationTo(`/projects/variations?uuid=${data.project.uuid}`);

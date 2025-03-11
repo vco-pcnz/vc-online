@@ -59,10 +59,11 @@
         <a-row :gutter="24">
           <a-col :span="24">
             <a-form-item :label="t('承包商')" name="main_contractor">
-              <a-input
+              <!-- <a-input
                 v-model:value="formState.main_contractor"
                 :disabled="!blockInfo?.showEdit && !isOpen"
-              />
+              /> -->
+              <vco-company-select v-model:value="formState.main_contractor" :disabled="!blockInfo?.showEdit && !isOpen"></vco-company-select>
             </a-form-item>
           </a-col>
           <a-col :span="24">

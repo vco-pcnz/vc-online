@@ -78,6 +78,7 @@ const search = debounce(() => {
 
 const setValue = (val) => {
   keyword.value = props.is_nzbz ? val.nzbn : val.entityName;
+  list.value = [];
   open.value = false;
   emits('update:nzbz', val.nzbn);
   emits('update:name', val.entityName);

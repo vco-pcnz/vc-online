@@ -63,7 +63,7 @@
                 v-model:value="formState.main_contractor"
                 :disabled="!blockInfo?.showEdit && !isOpen"
               /> -->
-              <vco-company-select v-model:value="formState.main_contractor" :disabled="!blockInfo?.showEdit && !isOpen"></vco-company-select>
+              <vco-company-select v-model:name="formState.main_contractor" :disabled="!blockInfo?.showEdit && !isOpen"></vco-company-select>
             </a-form-item>
           </a-col>
           <a-col :span="24">

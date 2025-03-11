@@ -89,12 +89,14 @@
           <template v-if="form.type !== 20">
             <a-col :span="24">
               <a-form-item :label="t('公司名称f')" name="name">
-                <a-input v-model:value="form.name" :placeholder="t('请输入')" />
+                <!-- <a-input v-model:value="form.name" :placeholder="t('请输入')" /> -->
+                <vco-company-select v-model:name="form.name" :placeholder="t('请输入')" v-model:nzbz="form.nzbz" :show_nzbz="true"></vco-company-select>
               </a-form-item>
             </a-col>
             <a-col :span="24">
               <a-form-item label="NZBZ" name="nzbz">
-                <a-input v-model:value="form.nzbz" :placeholder="t('请输入')" />
+                <!-- <a-input v-model:value="form.nzbz" :placeholder="t('请输入')" /> -->
+                <vco-company-select v-model:name="form.name" :placeholder="t('请输入')" v-model:nzbz="form.nzbz" :show_nzbz="true" :is_nzbz="true"></vco-company-select>
               </a-form-item>
             </a-col>
             <a-col :span="24">

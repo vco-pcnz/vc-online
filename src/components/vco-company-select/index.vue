@@ -1,13 +1,16 @@
 <template>
   <a-dropdown trigger="click" :disabled="disabled" v-model:open="open">
     <div>
-      <a-input style="display: block" v-model:value="keyword" @input="search" @click.prevent :disabled="disabled" />
+      <a-input style="display: block" v-model:value="keyword" :placeholder="placeholder" @input="search" @click.prevent :disabled="disabled" />
       <div class="loading-tips"><a-spin :spinning="searchLoading" size="small"></a-spin></div>
     </div>
     <template #overlay>
       <a-menu v-if="list && list.length">
-        <a-menu-item v-for="item in list" :key="item.pxid" @click="setValue(item.entityName)">
-          <a href="javascript:;" :class="{ active: item.entityName == keyword }">{{ item.entityName }}</a>
+        <a-menu-item v-for="item in list" :key="item.pxid" @click="setValue(item)">
+          <a href="javascript:;" :class="{ active: item.entityName == keyword }">
+            {{ item.entityName }}
+            <span class="fs_xs ml-2" v-if="show_nzbz"> ( NZBZ: {{ item.nzbn }} )</span>
+          </a>
         </a-menu-item>
       </a-menu>
     </template>
@@ -18,15 +21,30 @@
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { getCompanyInfo } from '@/api/project/loan/index';
+import { number } from 'echarts';
 const { t } = useI18n();
 
-const emits = defineEmits(['update:value']);
+const emits = defineEmits(['update:name', 'update:nzbz']);
 const props = defineProps({
-  value: {
+  name: {
+    type: String
+  },
+  nzbz: {
+    type: [String, Number]
+  },
+  placeholder: {
     type: String
   },
   disabled: {
     type: Boolean
+  },
+  show_nzbz: {
+    type: Boolean,
+    default: false
+  },
+  is_nzbz: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -59,15 +77,27 @@ const search = debounce(() => {
 }, 300);
 
 const setValue = (val) => {
-  keyword.value = val;
+  keyword.value = props.is_nzbz ? val.nzbn : val.entityName;
   open.value = false;
-  emits('update:value', val);
+  emits('update:nzbz', val.nzbn);
+  emits('update:name', val.entityName);
 };
 
 watch(
-  () => props.value,
+  () => props.name,
   (val) => {
-    keyword.value = val;
+    if (!props.is_nzbz) {
+      keyword.value = val;
+    }
+  },
+  { deep: true, immediate: true }
+);
+watch(
+  () => props.nzbz,
+  (val) => {
+    if (props.is_nzbz) {
+      keyword.value = val;
+    }
   },
   { deep: true, immediate: true }
 );

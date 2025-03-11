@@ -103,6 +103,14 @@
         </div>
         <!-- <div class="info flex items-center justify-end"><vco-number :value="data?.estimated2 || 0" color="#fff" size="fs_xs" :precision="2" class="mr-3"></vco-number> available</div> -->
       </div>
+      <div class="item sec-item mr-5">
+        <p class="item-title">Estimated Loan drawdowns</p>
+        <div class="flex justify-end items-center gap-1">
+          <!-- <i class="iconfont" style="color: #7dc1c1">&#xe78b;</i> -->
+          <vco-number :value="Math.abs(data?.payment) || 0" color="#fff" size="fs_xl" :precision="2"></vco-number>
+        </div>
+        <!-- <div class="info flex items-center justify-end"><vco-number :value="data?.estimated2 || 0" color="#fff" size="fs_xs" :precision="2" class="mr-3"></vco-number> available</div> -->
+      </div>
       <div class="item sec-item">
         <p class="item-title">actual loan withdrawn</p>
         <vco-number :value="data?.withdrawn1 || 0" color="#ffffff" size="fs_xl" :precision="2"></vco-number>
@@ -346,10 +354,10 @@ const update = () => {
       flex: 1;
     }
     &:nth-child(4),
-    &:nth-child(5) {
-      width: 300px;
+    &:nth-child(5),
+    &:nth-child(6) {
+      width: 200px;
     }
-    &:nth-child(6),
     &:nth-child(7) {
       width: 100px;
     }

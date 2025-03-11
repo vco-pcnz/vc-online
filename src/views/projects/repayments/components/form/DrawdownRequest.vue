@@ -60,8 +60,6 @@
       </div>
     </a-modal>
   </div>
-
-  <TipEditForecast @confirm="submit" tip2="请释放抵押品" v-model:visible="visible_tip"></TipEditForecast>
 </template>
 
 <script scoped setup>
@@ -88,7 +86,6 @@ const props = defineProps({
 
 const visible = ref(false);
 const loading = ref(false);
-const visible_tip = ref(false);
 
 const formState = ref({
   name: '',
@@ -125,7 +122,7 @@ const save = () => {
   formRef.value
     .validate()
     .then(() => {
-      visible_tip.value = true;
+      submit();
     })
     .catch((error) => {
       console.log('error', error);

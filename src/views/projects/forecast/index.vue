@@ -3,6 +3,13 @@
     <template #content>
       <a-spin :spinning="loading" size="large">
         <!-- <Cart :data="data"></Cart> -->
+        <div class="flex items-center gap-3">
+          <vco-number :value="projectDetail.base.loan_money" size="fs_xl" :precision="2"></vco-number>
+          <vco-form-dialog :title="t('修改')" :initData="FormData" :formParams="{ uuid: uuid, estimated_loan: projectDetail.base.loan_money }" :showTip="true" url="projectDetail/closeCancel1231" @update="loadData">
+            <a-button type="cyan" size="small" shape="round">{{ t('修改') }}</a-button>
+          </vco-form-dialog>
+        </div>
+
         <tableHook v-if="uuid" :uuid="uuid" :projectDetail="projectDetail" :data="data" @update="loadData"></tableHook>
       </a-spin>
     </template>
@@ -43,6 +50,15 @@ const projectDetail = ref();
 const getProjectDetail = (val) => {
   projectDetail.value = val;
 };
+
+const FormData = ref([
+  {
+    type: 'amount',
+    label: '预估贷款',
+    key: 'estimated_loan',
+    required: true
+  }
+]);
 
 onMounted(() => {
   uuid.value = route.query.uuid;

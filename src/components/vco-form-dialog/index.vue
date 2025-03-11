@@ -5,16 +5,29 @@
       <div class="content sys-form-content">
         <template v-for="(item, index) in initData" :key="index">
           <div class="input-item">
-            <div class="label" :class="{ err: !trim(formState[item.key]) && validate && item.required }">{{ t(item.label) }}</div>
+            <div class="label" v-if="item.label" :class="{ err: !trim(formState[item.key]) && validate && item.required }">{{ t(item.label) }}</div>
+            <!-- 日期 -->
             <template v-if="item.type === 'date'">
               <a-date-picker class="datePicker" inputReadOnly v-model:value="formState[item.key]" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" :showToday="false" :disabledDate="item.disabledDate" />
             </template>
+            <!-- 文本 -->
             <template v-if="item.type === 'textarea'"> <a-textarea v-model:value="formState[item.key]" :rows="5" /> </template>
+            <!-- 金额 -->
+            <a-input-number
+              v-if="item.type === 'amount'"
+              v-model:value="formState[item.key]"
+              :min="item.min || 0"
+              :max="item.max || 99999999999"
+              :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+              :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+            />
+
+            <!-- 上传 -->
             <template v-if="item.type === 'upload'">
               <vco-upload-modal v-model:list="documentList" v-model:value="formState[item.key]">
                 <a-button class="upload_btn" type="brown" shape="round" size="small"> {{ t('上传') }}</a-button>
               </vco-upload-modal>
-            
+
               <div class="file-content">
                 <template v-if="documentList.length">
                   <div v-for="(item, index) in documentList" :key="index" class="file-item">
@@ -27,13 +40,18 @@
           </div>
         </template>
         <div class="flex justify-center">
-          <a-button @click="confirm" type="dark" class="save big uppercase" :loading="loading">
+          <a-button @click="verification" type="dark" class="save big uppercase" :loading="loading">
             {{ t('确认') }}
           </a-button>
         </div>
       </div>
     </a-modal>
   </div>
+
+  <!-- 提交确认提示弹窗 -->
+  <template v-if="showTip">
+    <TipEditForecast @confirm="submit" v-model:visible="visible_tip"></TipEditForecast>
+  </template>
 </template>
 
 <script scoped setup>
@@ -42,7 +60,7 @@ import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import { selectDateFormat } from '@/utils/tool';
 import { request } from '@/utils/request';
-import { trim ,cloneDeep} from 'lodash';
+import { trim, cloneDeep } from 'lodash';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);
@@ -58,6 +76,10 @@ const props = defineProps({
   formParams: {
     type: Object,
     default: {}
+  },
+  showTip: {
+    type: Boolean,
+    default: false
   },
   initData: {
     type: Array,
@@ -77,6 +99,7 @@ const props = defineProps({
 const visible = ref(false);
 const loading = ref(false);
 const validate = ref(false);
+const visible_tip = ref(false);
 
 const formState = ref({});
 
@@ -90,12 +113,8 @@ const remove = (index) => {
   documentList.value.splice(index, 1);
 };
 
-const confirm = () => {
-  validate.value = true;
+const submit = () => {
   let keys = props.initData.filter((item) => !item.hide).map((item) => item.key);
-  let requiredKeys = props.initData.filter((item) => !item.hide && item.required).map((item) => item.key);
-  let formRequiredKeys = requiredKeys.filter((item) => formState.value[item]);
-  if (requiredKeys.length != formRequiredKeys.length) return;
   keys.map((item) => {
     if (!formState.value[item]) {
       formState.value[item] = '';
@@ -119,9 +138,23 @@ const confirm = () => {
     });
 };
 
+const verification = () => {
+  validate.value = true;
+  let keys = props.initData.filter((item) => !item.hide).map((item) => item.key);
+  let requiredKeys = props.initData.filter((item) => !item.hide && item.required).map((item) => item.key);
+  let formRequiredKeys = requiredKeys.filter((item) => formState.value[item]);
+  if (requiredKeys.length != formRequiredKeys.length) return;
+  if (props.showTip) {
+    visible_tip.value = true;
+  } else {
+    submit();
+  }
+};
+
 const init = () => {
   formState.value = {};
-  formState.value = cloneDeep(props.formParams)
+  formState.value = cloneDeep(props.formParams);
+  validate.value = false;
   visible.value = true;
 };
 </script>

@@ -79,7 +79,7 @@
         <AcceptFc v-if="detail?.mark === 'drawdown_fc'" :uuid="uuid" :detail="detail" :projectDetail="projectDetail" @change="update">
           <a-button type="dark" class="big uppercase" style="width: 100%" :loading="accept_loading"> {{ t('接受请求') }} </a-button>
         </AcceptFc>
-
+        <a-button v-else-if="detail?.mark === 'drawdown_lm'" type="dark" class="big uppercase" style="width: 100%" @click="visible_tip = true">{{ t('接受请求') }}</a-button>
         <a-popconfirm v-else :title="t('您确定要接受该请求吗？')" @confirm="accept">
           <template #icon>
             <CheckCircleOutlined :style="{ color: '#a9ad57' }" />
@@ -117,6 +117,7 @@
       <a-button type="cyan" class="big uppercase" style="width: 100%"> {{ t('对账') }} </a-button>
     </ReconciliationModal>
   </div>
+  <TipEditForecast @confirm="accept" v-model:visible="visible_tip"></TipEditForecast>
 </template>
 
 <script setup>
@@ -153,6 +154,7 @@ const accept_loading = ref(false);
 const decline_loading = ref(false);
 const visible = ref(false);
 const forecastList = ref();
+const visible_tip = ref(false);
 
 const colors = ref({
   'DRAWDOWN CONFIRM': {

@@ -35,6 +35,7 @@
       <DrawdownFCDate v-if="detail?.mark === 'repayment_fc'" :uuid="uuid" :detail="detail" :projectDetail="projectDetail" @change="update">
         <a-button type="dark" class="big uppercase" style="width: 100%">{{ t('接受请求') }}</a-button>
       </DrawdownFCDate>
+      <a-button v-else-if="detail?.mark === 'repayment_lm'" type="dark" class="big uppercase" style="width: 100%" @click="visible_tip = true">{{ t('接受请求') }}</a-button>
       <a-popconfirm v-else :title="t('您确定要接受该请求吗？')" @confirm="accept">
         <a-button type="dark" class="big uppercase" style="width: 100%">{{ t('接受请求') }}</a-button>
       </a-popconfirm>
@@ -56,6 +57,7 @@
       <a-button type="cyan" class="big uppercase mt-3" style="width: 100%"> {{ t('对账') }} </a-button>
     </ReconciliationModal>
   </div>
+  <TipEditForecast @confirm="accept" tip2="请释放抵押品" v-model:visible="visible_tip"></TipEditForecast>
 </template>
 
 <script setup>
@@ -86,6 +88,7 @@ const props = defineProps({
   }
 });
 const accept_loading = ref(false);
+const visible_tip = ref(false);
 
 // 拒绝
 const decline = async () => {

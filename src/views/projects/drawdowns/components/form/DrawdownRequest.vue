@@ -62,7 +62,6 @@
       </div>
     </a-modal>
   </div>
-  <TipEditForecast @confirm="submit" v-model:visible="visible_tip"></TipEditForecast>
 </template>
 
 <script scoped setup>
@@ -92,7 +91,6 @@ const loading = ref(false);
 const validate = ref(false);
 const formModal2 = ref([]);
 const formModal3 = ref([]);
-const visible_tip = ref(false);
 
 const formState = ref({
   uuid: '',
@@ -135,7 +133,7 @@ const save = () => {
   });
 
   if (!formState.value.name || !formState.value.apply_amount || !formState.value.d_file.length || !formState.value.apply_date) return;
-  visible_tip.value = true
+  submit();
 };
 
 const submit = () => {

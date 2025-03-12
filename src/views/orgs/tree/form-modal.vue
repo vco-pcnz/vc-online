@@ -30,7 +30,7 @@
             </a-form-item>
           </template>
           <template v-else>
-            <a-form-item label="NZBZ" name="nzbz">
+            <a-form-item label="NZBN" name="nzbz">
               <a-input v-model:value="form.nzbz" :placeholder="t('请输入')" :disabled="disabled" />
             </a-form-item>
           </template>
@@ -126,7 +126,7 @@ const dynamicRules = computed(() => {
         nzbz: [
           {
             required: true,
-            message: t('请输入') + 'NZBZ'
+            message: t('请输入') + 'NZBN'
           }
         ]
       };

@@ -4,7 +4,8 @@ import { indexPub } from '@/api/system';
 const useAppStore = defineStore('VcOnlineAppInfo', {
   state: () => ({
     appName: 'VC Online',
-    config: null
+    config: null,
+    indexPubLoading: false
   }),
 
   getters: {
@@ -15,9 +16,12 @@ const useAppStore = defineStore('VcOnlineAppInfo', {
 
   actions: {
     requestAppInfo() {
-      if (this.config) return;
+      if (this.config || this.indexPubLoading) return;
+      this.indexPubLoading = true
       indexPub().then((res) => {
         this.config = res;
+      }).finally(() => {
+        this.indexPubLoading = false
       });
     }
   }

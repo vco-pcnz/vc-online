@@ -45,7 +45,7 @@
         <!-- 其他 -->
         <template v-else>
           <p>
-            <span class="label"><i class="iconfont">&#xe65b;</i>NZBZ: </span>
+            <span class="label"><i class="iconfont">&#xe65b;</i>NZBN: </span>
             <span class="value">{{ detail?.nzbz }}</span>
           </p>
           <p v-if="detail?.type !== 2 && detail?.type !== 3">

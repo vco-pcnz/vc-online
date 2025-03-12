@@ -279,3 +279,11 @@ export const getCompanyInfo = (params) =>
     method: 'get',
     params
   });
+
+// 获取公司详细
+export const getCompanyInfoByNzbn = (params) =>
+  request({
+    url: 'project/apply/getCompanyInfoByNzbn',
+    method: 'get',
+    params
+  });

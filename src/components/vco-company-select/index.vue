@@ -9,7 +9,7 @@
         <a-menu-item v-for="item in list" :key="item.pxid" @click="setValue(item)">
           <a href="javascript:;" :class="{ active: item.entityName == keyword }">
             {{ item.entityName }}
-            <span class="fs_xs ml-2" v-if="show_nzbz"> ( NZBZ: {{ item.nzbn }} )</span>
+            <span class="fs_xs ml-2" v-if="show_nzbn"> ( NZBN: {{ item.nzbn }} )</span>
           </a>
         </a-menu-item>
       </a-menu>
@@ -18,13 +18,15 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { getCompanyInfo } from '@/api/project/loan/index';
-import { number } from 'echarts';
+import { getCompanyInfo, getCompanyInfoByNzbn } from '@/api/project/loan/index';
 const { t } = useI18n();
+import { useAppStore } from '@/store';
 
-const emits = defineEmits(['update:name', 'update:nzbz']);
+const appStore = useAppStore();
+
+const emits = defineEmits(['update:name', 'update:nzbz', 'change']);
 const props = defineProps({
   name: {
     type: String
@@ -38,11 +40,11 @@ const props = defineProps({
   disabled: {
     type: Boolean
   },
-  show_nzbz: {
+  show_nzbn: {
     type: Boolean,
     default: false
   },
-  is_nzbz: {
+  is_nzbn: {
     type: Boolean,
     default: false
   }
@@ -63,10 +65,11 @@ const debounce = (func, wait) => {
 };
 
 const search = debounce(() => {
+  if (appStore.config.company_information_mode != 2) return;
   if (keyword.value.length < 2) return;
 
   searchLoading.value = true;
-  getCompanyInfo({ page: 1, limit: 15, name: keyword.value })
+  getCompanyInfo({ page: 1, limit: 15, name: keyword.value, type: props.is_nzbn ? 2 : 1 })
     .then((res) => {
       list.value = res.items;
       open.value = Boolean(res.items && res.items.length);
@@ -76,10 +79,41 @@ const search = debounce(() => {
     });
 }, 300);
 
+const hasData = (data) => {
+  if (data) {
+    if (typeof data === 'string') {
+      return !!data;
+    } else if (data instanceof Array) {
+      return data.length;
+    } else {
+      return Object.keys(data).length;
+    }
+  } else {
+    return false;
+  }
+};
+const getInfo = (val) => {
+  getCompanyInfoByNzbn({ nzbn: val }).then((res) => {
+    let obj = {
+      addr: hasData(res.address) ? res.address.address1 : '',
+      address: '',
+      suburb: hasData(res.address) ? res.address.address2 : '',
+      postal: hasData(res.address) ? res.address.postCode : '',
+      con_id: '',
+      province_code_name: hasData(res.address) ? res.address.address3 : '',
+      email: hasData(res.email_address) ? res.email_address.emailAddress : '',
+      pre: hasData(res.phone_number) ? res.phone_number.phoneCountryCode : '',
+      mobile: hasData(res.phone_number) ? res.phone_number.phoneNumber : ''
+    };
+    emits('change', obj);
+  });
+};
+
 const setValue = (val) => {
-  keyword.value = props.is_nzbz ? val.nzbn : val.entityName;
+  keyword.value = props.is_nzbn ? val.nzbn : val.entityName;
   list.value = [];
   open.value = false;
+  getInfo(val.nzbn);
   emits('update:nzbz', val.nzbn);
   emits('update:name', val.entityName);
 };
@@ -87,7 +121,7 @@ const setValue = (val) => {
 watch(
   () => props.name,
   (val) => {
-    if (!props.is_nzbz) {
+    if (!props.is_nzbn) {
       keyword.value = val;
     }
   },
@@ -96,12 +130,15 @@ watch(
 watch(
   () => props.nzbz,
   (val) => {
-    if (props.is_nzbz) {
+    if (props.is_nzbn) {
       keyword.value = val;
     }
   },
   { deep: true, immediate: true }
 );
+onMounted(() => {
+  appStore.requestAppInfo();
+});
 </script>
 
 <style lang="less" scoped>

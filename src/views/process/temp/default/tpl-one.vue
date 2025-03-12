@@ -60,7 +60,7 @@
                     <a-col :span="24">
                       <a-form-item :label="t('机构名称')" name="organization_name">
                         <!-- <a-input v-model:value="formState.organization_name" /> -->
-                        <vco-company-select v-model:name="formState.organization_name" v-model:nzbz="formState.company_number" :show_nzbz="true"></vco-company-select>
+                        <vco-company-select v-model:name="formState.organization_name" v-model:nzbz="formState.company_number" :show_nzbn="true" @change="getCompanyInfo"></vco-company-select>
                       </a-form-item>
                     </a-col>
                   </template>
@@ -71,7 +71,7 @@
 
                     <a-form-item v-else :label="t('公司编码')" name="company_number">
                       <!-- <a-input v-model:value="formState.company_number" /> -->
-                      <vco-company-select v-model:name="formState.organization_name" :placeholder="t('请输入')" v-model:nzbz="formState.company_number" :show_nzbz="true" :is_nzbz="true"></vco-company-select>
+                      <vco-company-select v-model:name="formState.organization_name" :placeholder="t('请输入')" v-model:nzbz="formState.company_number" :show_nzbn="true" @change="getCompanyInfo" :is_nzbn="true"></vco-company-select>
                     </a-form-item>
                   </a-col>
                   <a-col v-if="!isNormalUser && !isOpen" :span="8">
@@ -577,6 +577,20 @@ const getDataInit = async () => {
   pageLoading.value = false;
 
   dataInit(infoData, draftData);
+};
+
+const getCompanyInfo = (val) => {
+  formState.borrower_address_short = val.addr;
+  formState.borrower_address = val.address;
+  formState.borrower_suburb = val.suburb;
+  formState.borrower_postcode = val.postal;
+  formState.borrower_con_id = val.con_id;
+  formState.borrower_region_one_name = val.province_code_name;
+  formState.borrower_email = val.email;
+  formState.borrower_phone_prefix = val.pre;
+  formState.borrower_phone = val.mobile;
+
+  vcoAddressRef.value.init(formState);
 };
 
 const needBindUser = ref(false);

@@ -91,9 +91,9 @@
         <p class="item-title">estimated drawdowns</p>
         <div class="flex justify-end items-center gap-1">
           <!-- <i class="iconfont" style="color: #7dc1c1">&#xe78b;</i> -->
-          <vco-number :value="data?.estimated1 || 0" color="#7dc1c1" size="fs_xl" :precision="2"></vco-number>
+          <vco-number :value="data?.estimated || 0" color="#7dc1c1" size="fs_xl" :precision="2"></vco-number>
         </div>
-        <div class="info flex items-center justify-end"><vco-number :value="data?.estimated2 || 0" color="#fff" size="fs_xs" :precision="2" class="mr-3"></vco-number> available</div>
+        <!-- <div class="info flex items-center justify-end"><vco-number :value="data?.estimated2 || 0" color="#fff" size="fs_xs" :precision="2" class="mr-3"></vco-number> available</div> -->
       </div>
       <div class="item sec-item mr-5">
         <p class="item-title">estimated repayments</p>
@@ -107,9 +107,8 @@
         <p class="item-title">Estimated Loan drawdowns</p>
         <div class="flex justify-end items-center gap-1">
           <!-- <i class="iconfont" style="color: #7dc1c1">&#xe78b;</i> -->
-          <vco-number :value="Math.abs(data?.payment) || 0" color="#fff" size="fs_xl" :precision="2"></vco-number>
+          <vco-number :value="data?.est || 0" color="#fff" size="fs_xl" :precision="2"></vco-number>
         </div>
-        <!-- <div class="info flex items-center justify-end"><vco-number :value="data?.estimated2 || 0" color="#fff" size="fs_xs" :precision="2" class="mr-3"></vco-number> available</div> -->
       </div>
       <div class="item sec-item">
         <p class="item-title">actual loan withdrawn</p>
@@ -320,7 +319,7 @@ const update = () => {
       &.yellow {
         background-color: #f19915 !important;
       }
-      
+
       &.red {
         background-color: #ffa7a7 !important;
       }

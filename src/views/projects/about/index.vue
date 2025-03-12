@@ -113,7 +113,7 @@
                 <a-button type="brown" shape="round" size="small">{{ t('重新打开') }}</a-button>
               </vco-form-dialog>
             </div>
-            <Stats :data="detail?.credit" :currentId="currentId"></Stats>
+            <Stats :data="detail?.credit" :detail="detail" :currentId="currentId"></Stats>
           </div>
         </div>
       </a-spin>

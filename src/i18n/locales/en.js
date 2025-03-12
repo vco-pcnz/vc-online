@@ -760,6 +760,6 @@ export default {
   "状态1": "State",
   "操作时间": "Operating time",
   "操作人": "Operator",
-  
+  "开发成本": "Development cost $"
 }
 

@@ -81,7 +81,7 @@ const typeData = reactive({
   discharge: t('解押'),
   'penalty-start': t('罚息开始'),
   'penalty-end': t('罚息结束'),
-  variation: t('变更'),
+  variation: t('变更1'),
   journal: t('平账'),
   closed: t('关账'),
   aml: t('反洗钱'),

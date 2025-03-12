@@ -2,7 +2,7 @@
   <a-modal
     :open="visible"
     :title="t('项目Open')"
-    :width="460"
+    :width="500"
     :footer="null"
     :keyboard="false"
     :maskClosable="false"
@@ -10,6 +10,20 @@
   >
     <div class="sys-form-content mt-5">
       <a-row :gutter="24">
+        <a-col :span="24">
+          <div class="info-content">
+            <p class="name mb-2">{{ t('开发成本') }}</p>
+            <a-input-number
+              v-model:value="devCost"
+              :max="99999999999"
+              :formatter="
+                (value) =>
+                  `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+              "
+              :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+            />
+          </div>
+        </a-col>
         <a-col :span="24">
           <div class="info-content">
             <p class="name mb-2">{{ t('开放日期') }}</p>
@@ -116,9 +130,11 @@
     subLoading.value = flag
   }
 
+  const devCost = ref('')
+
   const subDisabled = computed(() => {
     if (fonfirmTable.value.length) {
-      return !Boolean(Object.values(confirmForm.value).every(item => item)) || !openDate.value
+      return !Boolean(Object.values(confirmForm.value).every(item => item)) || !openDate.value || !devCost.value
     } else {
       return !openDate.value
     }
@@ -137,7 +153,8 @@
   const submitRquest = () => {
     const params = {
       uuid: props.uuid,
-      do__mark: props.type
+      do__mark: props.type,
+      devCost: devCost.value
     }
 
     projectAuditSaveStep(params).then((res) => {

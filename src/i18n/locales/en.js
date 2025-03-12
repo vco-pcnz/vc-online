@@ -742,6 +742,7 @@ export default {
   "请释放抵押品": "Please release the collateral",
   "预估贷款": "Estimated Loan",
   "关联抵押品": "Related Securities",
-  "快捷选择": "Quick Selection"
+  "快捷选择": "Quick Selection",
+  "开发成本": "Development cost $"
 }
 

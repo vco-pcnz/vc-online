@@ -33,6 +33,7 @@
                 <a-select
                   v-model:value="formState.type"
                   :options="typeData"
+                  @change="createFormItems"
                 ></a-select>
               </a-form-item>
             </a-col>
@@ -401,46 +402,61 @@ const creditItemsData = ref([])
 const percentItems = ref([])
 const dollarItems = ref([])
 
+const creditVariationinfo = ref({})
+
+const createFormItems = () => {
+  const creditInfo = cloneDeep(creditVariationinfo.value)
+
+  if (formState.value.type === 5) {
+    delete creditInfo.credit_estabFeeRate
+    delete creditInfo.credit_LineFeeRate
+  }
+  
+  const keyArr = []
+  for (const key in creditInfo) {
+    formState.value[key] = creditInfo[key]
+    keyArr.push(key)
+  }
+
+  const colItems = creditData.value.filter(item => keyArr.includes(item.credit_table))
+  const rulesData = {}
+
+  for (let i = 0; i < colItems.length; i++) {
+    rulesData[colItems[i].credit_table] = [
+      { validator: getValidateInfo(colItems[i]), trigger: 'blur' },
+    ];
+    if (colItems[i].is_req) {
+      rulesData[colItems[i].credit_table].push(
+        {
+          required: true,
+          message: t('请输入') + colItems[i].credit_name,
+          trigger: 'blur',
+        }
+      );
+    }
+  }
+
+  creditItemsData.value = colItems.map(item => item.credit_table)
+
+  const perData = colItems.filter((item) => item.is_ratio);
+  const dolData = colItems.filter((item) => !item.is_ratio);
+  percentItems.value = perData;
+  dollarItems.value = dolData;
+
+  formRules.value = { ...formRules.value, ...rulesData };
+
+  if (props.detailData?.id) {
+    dataRefull()
+  }
+}
+
 const getCreditVal = () => {
   projectCreditVariation({
     apply_uuid: props.currentId
   }).then(res => {
-    const keyArr = []
-    for (const key in res) {
-      formState.value[key] = res[key]
-      keyArr.push(key)
-    }
+    creditVariationinfo.value = res
 
-    const colItems = creditData.value.filter(item => keyArr.includes(item.credit_table))
-    const rulesData = {}
-
-    for (let i = 0; i < colItems.length; i++) {
-      rulesData[colItems[i].credit_table] = [
-        { validator: getValidateInfo(colItems[i]), trigger: 'blur' },
-      ];
-      if (colItems[i].is_req) {
-        rulesData[colItems[i].credit_table].push(
-          {
-            required: true,
-            message: t('请输入') + colItems[i].credit_name,
-            trigger: 'blur',
-          }
-        );
-      }
-    }
-
-    creditItemsData.value = colItems.map(item => item.credit_table)
-
-    const perData = colItems.filter((item) => item.is_ratio);
-    const dolData = colItems.filter((item) => !item.is_ratio);
-    percentItems.value = perData;
-    dollarItems.value = dolData;
-
-    formRules.value = { ...formRules.value, ...rulesData };
-
-    if (props.detailData?.id) {
-      dataRefull()
-    }
+    createFormItems()
   })
 }
 
@@ -452,6 +468,7 @@ const getCreditInfo = () => {
 }
 
 const typeData = ref([])
+
 const init = () => {
   getCreditInfo()
 

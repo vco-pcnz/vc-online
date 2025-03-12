@@ -12,6 +12,10 @@
         <vco-number :value="data?.interestFees" :bold="true" size="fs_2xl" :precision="2"></vco-number>
         <p class="fs_xs color_grey">forecasted</p>
       </div>
+      <div v-if="Number(detail?.base?.devCost)" class="box-bottom mt-8">
+        <p class="fs_xs color_grey">{{ t('开发成本') }}</p>
+        <vco-number :value="detail?.base?.devCost" :bold="true" size="fs_2xl" :precision="2"></vco-number>
+      </div>
     </div>
     <div class="box middle">
       <div class="box-top text-center">
@@ -80,6 +84,10 @@ const props = defineProps({
     default: ''
   },
   data: {
+    type: Object,
+    default: () => {}
+  },
+  detail: {
     type: Object,
     default: () => {}
   }

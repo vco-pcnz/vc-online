@@ -1,5 +1,45 @@
 <template>
   <div>
+    <!-- 删除确认弹窗 -->
+    <vco-confirm-alert
+      ref="delAlertRef"
+      :confirmTxt="t('确定删除吗？')"
+      v-model:visible="delVisible"
+      @submit="sureHandle"
+    ></vco-confirm-alert>
+
+    <!-- 提示弹窗 -->
+    <a-modal
+      :open="tipsVisible"
+      :title="t('修改方式')"
+      :width="460"
+      :footer="null"
+      :keyboard="false"
+      :maskClosable="false"
+      @cancel="tipsVisible = false"
+    >
+      <div class="tips-content">
+        <a-radio-group v-model:value="changeType">
+          <a-radio :value="2" class="mt-4"><p class="tips-txt">{{ t('仅修改当前项，其他日期的放款信息不变')}}</p></a-radio>
+          <a-radio :value="1" class="mt-4"><p class="tips-txt">{{ t('{0}以后已手动修改的放款信息，保留已设置的值', [tool.showDate(currentParams.date)])}}</p></a-radio>
+          <a-radio :value="0" class="mt-4"><p class="tips-txt">{{ t('{0}以后已手动修改的放款信息，按照比例均分', [tool.showDate(currentParams.date)])}}</p></a-radio>
+        </a-radio-group>
+
+        <div class="mt-5 flex justify-between gap-5">
+          <a-button
+            type="grey" class="big shadow bold uppercase w-full mb-5 mt-5"
+            @click="tipsVisible = false"
+          >{{ t('取消') }}</a-button>
+
+          <a-button
+            type="dark" class="big shadow bold uppercase w-full mb-5 mt-5"
+            :loading="subLoading"
+            @click="sureHandle"
+          >{{ t('提交') }}</a-button>
+        </div>
+      </div>
+    </a-modal>
+
     <div class="table-content">
       <div class="col-item th">
         <div class="item uppercase"></div>
@@ -9,14 +49,15 @@
         <div class="item uppercase">{{ t('实时预报') }}</div>
         <div class="item uppercase">{{ t('日期') }}</div>
         <div class="item uppercase">{{ t('借记/贷记') }}</div>
-        <div class="item uppercase">{{ t('绩效指标预测') }}</div>
+        <div v-if="!itemId" class="item uppercase">{{ t('绩效指标预测') }}</div>
         <div class="item uppercase">{{ t('说明') }}</div>
-        <div class="item uppercase">{{ t('历史') }}</div>
+        <div v-if="!itemId" class="item uppercase">{{ t('历史') }}</div>
+        <div v-else class="item uppercase opt text-right">{{ t('操作') }}</div>
       </div>
 
       <div class="col-content">
         <template v-for="(_item, key) in data?.list">
-          <div v-for="(item, index) in data?.list[key]" :key="item.id" class="col-item" :class="{ passed: item.status != 0 || item.first, yellow: item.type == 4 && item.first, red: item.is_hide }" @click="showLog(item)">
+          <div v-for="(item, index) in data?.list[key]" :key="item.id" class="col-item" :class="{ passed: item.status != 0 || item.first, yellow: item.type == 4 && item.first, red: item.is_hide, item: itemId }" @click="showLog(item)">
             <div class="item flex items-center"><span class="circle" :style="{ background: item.status != 0 || item.first ? '#181818' : '#b4d8d8' }"></span></div>
             <div class="item">
               <template v-if="!index"> {{ tool.monthYear(item.ym) }}</template>
@@ -24,7 +65,7 @@
             <div class="item">{{ item.name }}</div>
             <div class="item flex items-center"><vco-avatar :size="30"></vco-avatar></div>
             <div class="item">
-              <div class="flex items-center justify-between" v-if="item.forecast_log.length && item.status != 0">
+              <div class="flex items-center justify-between" v-if="item?.forecast_log?.length && item.status != 0">
                 <span class="mr-3 color_grey fs_xs">{{ tool.showDate(item.forecast_log[item.forecast_log.length - 1].create_time, 'DD/MM') }}</span>
                 <vco-number :value="item.forecast_log[item.forecast_log.length - 1].amount" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
               </div>
@@ -57,7 +98,7 @@
             <div class="item">
               <vco-number v-if="item.status != 0 || item.first" :value="item.amount" :bold="true" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
             </div>
-            <div class="item">
+            <div v-if="!itemId" class="item">
               <div class="flex items-center">
                 <!-- <span class="mr-3 color_grey fs_xs">12/12</span>
                 <vco-number :value="76923076.92" :precision="2" size="fs_xs" prefix="" suffix=""></vco-number> -->
@@ -66,7 +107,14 @@
             <div class="item">
               <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.note" style="width: 130px">{{ item.note }}</p>
             </div>
-            <div class="item"><i class="iconfont nav-icon" v-if="!item.first">&#xe794;</i></div>
+            <div v-if="!itemId" class="item"><i class="iconfont nav-icon" v-if="!item.first">&#xe794;</i></div>
+            <div v-else class="item opt">
+              <i v-if="item.first" class="iconfont disabled">&#xe8cf;</i>
+              <Add v-else :uuid="uuid" :item-id="itemId" :projectDetail="projectDetail" :item-date="item" @update="update">
+                <i class="iconfont">&#xe8cf;</i>
+              </Add>
+              <i class="iconfont" :class="{'disabled': item.first}" @click="removeHandle(item)">&#xe8c1;</i>
+            </div>
           </div>
         </template>
       </div>
@@ -74,7 +122,7 @@
 
     <a-empty v-if="!data?.list" />
     <div class="flex justify-center pb-8" v-if="!projectDetail?.base?.is_close">
-      <Add :uuid="uuid" :projectDetail="projectDetail" @update="update"> <a-button type="brown" shape="round" size="small">add forecast</a-button></Add>
+      <Add :uuid="uuid" :item-id="itemId" :projectDetail="projectDetail" @update="update"> <a-button type="brown" shape="round" size="small">add forecast</a-button></Add>
     </div>
     <div class="static-block">
       <div class="item">
@@ -140,6 +188,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { message } from "ant-design-vue/es";
 import { DownOutlined } from '@ant-design/icons-vue';
 import dayjs from 'dayjs';
 import tool from '@/utils/tool';
@@ -149,6 +198,10 @@ import Log from './log.vue';
 
 const props = defineProps({
   uuid: {
+    type: [String, Number],
+    default: ''
+  },
+  itemId: {
     type: [String, Number],
     default: ''
   },
@@ -216,11 +269,48 @@ const logRef = ref();
 const logList = ref([]);
 const itemDate = ref();
 const showLog = (val) => {
-  if (val.first) return;
+  if (val.first || props.itemId) return;
   logList.value = val.forecast_log;
   itemDate.value = val;
   logRef.value.init();
 };
+
+const changeType = ref(undefined)
+const tipsVisible = ref(false)
+const handleType = ref(0)
+const currentParams = ref()
+
+const delAlertRef = ref()
+const delVisible = ref(false)
+
+const removeHandle = (data) => {
+  const {id, date, type} = data
+  const params = {
+    apply_uuid: props.uuid,
+    id: [id],
+    date
+  }
+
+  currentParams.value = params
+  handleType.value = 1
+
+  if (type === 4) {
+    changeType.value = 2
+    delVisible.value = true
+  } else {
+    tipsVisible.value = true
+  }
+}
+
+const subLoading = ref(false)
+const sureHandle = () => {
+  if (changeType.value === undefined) {
+    message.error(t('请选择') + t('修改方式'))
+    return false
+  }
+
+  console.log('currentParams', currentParams.value);
+}
 
 const update = () => {
   emits('update');
@@ -283,6 +373,27 @@ const update = () => {
         font-size: 14px;
         margin-right: 5px;
       }
+      &.opt {
+        flex: 0 0 100px;
+        align-items: center;
+        flex-direction: row !important;
+        justify-content: flex-end !important;
+        i {
+          cursor: pointer;
+          color: @colorPrimary;
+          display: inline-block;
+          &.disabled {
+            pointer-events: none;
+            color: #999 !important;
+          }
+          &:hover {
+            opacity: 0.8;
+          }
+          &:last-child {
+            margin-left: 5px;
+          }
+        }
+      }
     }
   }
   .col-content {
@@ -291,6 +402,9 @@ const update = () => {
       padding: 6px 0;
       border-bottom: 1px solid #e2e5e2;
       cursor: pointer;
+      &.item {
+        cursor: default;
+      }
       .item {
         &:nth-child(6) {
           color: #569695;

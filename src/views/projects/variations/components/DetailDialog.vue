@@ -19,6 +19,33 @@
     >
     </reject-dialog>
 
+    <!-- 确认变更时间弹窗 -->
+    <a-modal
+      v-model:open="showConfirm"
+      :width="500"
+      :title="t('确认变更')"
+      :footer="null"
+    >
+      <div class="sys-form-content mt-5">
+        <a-form
+          ref="formRef"
+          layout="vertical"
+          :model="formState"
+          :rules="formRules"
+        >
+          <a-form-item :label="t('变更开始日期')" name="start_date">
+            <a-date-picker v-model:value="formState.start_date" :format="selectDateFormat()" :disabledDate="disabledDate" placeholder="" />
+          </a-form-item>
+        </a-form>
+      </div>
+      <div class="mt-10 flex justify-end">
+        <a-button
+          type="dark" class="big shadow bold uppercase mb-5 mt-5"
+          :loading="confirmLoading"
+        >{{ t('确认') }}</a-button>
+      </div>
+    </a-modal>
+
     <a-row v-if="detailData && projectDetail" :gutter="24" class="pl-10 pr-10">
       <a-col v-if="detailData.cancel_reason || detailData.decline_reason" :span="24" class="mt-5">
         <a-alert
@@ -104,11 +131,18 @@
           @click="rejectHandle('variationsBack')"
         >{{ t('退回请求') }}</a-button>
 
-        <a-popconfirm v-if="detailData.has_permission" :title="t('您确定要接受该请求吗？')" @confirm="accept">
+        <template v-if="detailData.has_permission">
           <a-button
+            v-if="detailData.status_name === 'LM PENDING REVIEW'"
             type="dark" class="big shadow bold uppercase mb-5 mt-5"
-          >{{ t('接受请求') }}</a-button>
-        </a-popconfirm>
+            @click="showConfirm = true"
+          >{{ t('确认变更') }}</a-button>
+          <a-popconfirm v-else :title="t('您确定要接受该请求吗？')" @confirm="accept">
+            <a-button
+              type="dark" class="big shadow bold uppercase mb-5 mt-5"
+            >{{ t('接受请求') }}</a-button>
+          </a-popconfirm>
+        </template>
       </div>
 
       <div v-if="detailData.has_permission" class="flex flex-col justify-end items-end">
@@ -128,7 +162,8 @@
   import { projectCreditVariation } from '@/api/project/loan';
   import { ruleCredit } from '@/api/process';
   import { projectVariationSaveStep } from "@/api/project/variation"
-  import tool from '@/utils/tool';
+  import tool, { selectDateFormat } from '@/utils/tool';
+  import { cloneDeep } from 'lodash'
   import RejectDialog from "@/views/process/components/RejectDialog.vue";
 
   const emits = defineEmits(['update:visible', 'done'])
@@ -192,8 +227,15 @@
     projectCreditVariation({
       apply_uuid: props.uuid
     }).then(res => {
+      const creditInfo = cloneDeep(res)
+
+      if (props.detailData.type === 5) {
+        delete creditInfo.credit_estabFeeRate
+        delete creditInfo.credit_LineFeeRate
+      }
+
       const keyArr = []
-      for (const key in res) {
+      for (const key in creditInfo) {
         keyArr.push(key)
       }
 
@@ -236,6 +278,22 @@
       return false
     })
   }
+
+  const confirmLoading = ref(false)
+  const showConfirm = ref(false)
+
+  const formRef = ref();
+  const formState = ref({
+    start_date: '',
+  });
+
+  const formRules = ref({
+    start_date: [{ required: true, message: t('请选择') + t('变更开始日期'), trigger: 'change' }],
+  });
+
+  const disabledDate = (currentDate) => {
+    return currentDate && currentDate.valueOf() > Date.now();
+  };
 
   watch(
     () => props.visible,

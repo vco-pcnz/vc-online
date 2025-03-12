@@ -4,7 +4,7 @@
     <a-modal
       :width="900"
       :open="visible"
-      :title="t('变更请求')"
+      :title="dialogTitle"
       :getContainer="() => $refs.JournalRef"
       :maskClosable="false"
       :footer="false"
@@ -228,6 +228,15 @@ const props = defineProps({
     default: () => {}
   }
 });
+
+const dialogTitle = computed(() => {
+  let txt = '添加变更'
+  if (props.detailData?.id) {
+    txt = '编辑变更'
+  }
+
+  return t(txt)
+})
 
 const newTotalAmount = computed(() => {
   const total = Number(props.projectDetail.base.loan_money)

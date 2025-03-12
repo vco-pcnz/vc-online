@@ -380,6 +380,7 @@ export default {
   "借款背景": "Borrower background",
   "罚息开始": "Start default",
   "添加变更": "Add variations",
+  "编辑变更": "Edit variations",
   "平账": "Journal",
   "还款计划": "Schedule",
   "提示": "Tips",
@@ -743,6 +744,7 @@ export default {
   "预估贷款": "Estimated Loan",
   "关联抵押品": "Related Securities",
   "快捷选择": "Quick Selection",
-  "开发成本": "Development cost $"
+  "开发成本": "Development cost $",
+  "确认变更": "Confirm Variations",
+  "更新明细表": "Update schedule"
 }
-

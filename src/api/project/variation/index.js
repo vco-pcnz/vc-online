@@ -8,6 +8,14 @@ export const projectVariationList = (params) =>
     params
   });
 
+// 变更请求-详情
+export const projectVariationInfo = (params) =>
+  request({
+    url: 'project/variation/info',
+    method: 'get',
+    params
+  });
+
 // 变更退回上一步
 export const projectVariationGoback = (data) =>
   request({
@@ -54,4 +62,28 @@ export const projectVariationStatisticsVai = (params) =>
       url: 'project/variation/forecastUpd',
       method: 'get',
       params
+    });
+
+  // 变更-下载
+  export const projectVariationExportExcel = (params) =>
+    request({
+      url: 'project/variation/exportExcel',
+      method: 'get',
+      params
+    });
+
+  // forecast darwDown列表
+  export const projectVariationDarwdownLog = (params) =>
+    request({
+      url: 'project/variation/darwdownLog',
+      method: 'get',
+      params
+    });
+
+  // forecast 新增、编辑
+  export const projectVariationAddf = (data) =>
+    request({
+      url: 'project/variation/addf',
+      method: 'post',
+      data
     });

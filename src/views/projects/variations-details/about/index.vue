@@ -2,7 +2,7 @@
   <detail-layout active-tab="about" ref="detailLayoutRef" @getProjectDetail="getProjectDetail">
     <template #content>
       <a-spin :spinning="pageLoading" size="large">
-        <variations-process></variations-process>
+        <variations-process :uuid="uuid" :id="id" :detail="projectDetail" @update="updateHandle"></variations-process>
         
         <div v-if="projectDetail" class="project-container">
           <div class="project-info">
@@ -12,7 +12,7 @@
           <div class="project-content">
             <variations-info :uuid="uuid" :id="id" :detail="projectDetail" :credit-items-data="creditItemsData" @update="updateHandle"></variations-info>
 
-            <variations-change-info></variations-change-info>
+            <variations-change-info :detail="projectDetail"></variations-change-info>
           </div>
         </div>
       </a-spin>

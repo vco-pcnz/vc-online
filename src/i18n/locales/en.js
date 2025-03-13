@@ -114,6 +114,8 @@ export default {
   "客户经理": "LM",
   "开始日期": "Open",
   "结束日期": "Maturity",
+  "开始日期1": "Open day",
+  "结束日期1": "Maturity day",
   "{0}天": "{0} days",
   "项目图片": "Images",
   "状态": "Status",
@@ -442,8 +444,8 @@ export default {
   "facility limit {0}": "facility limit {0}",
   "到期日": "on maturity day",
   "总内部收益率": "total IRR",
-  "利息": "interest",
-  "费率": "fees",
+  "利息": "Interest",
+  "费率": "Fees",
   "其他安全信息": "Additional Security Information",
   "承包商": "Main Contractor",
   "履约保函": "Security package",
@@ -770,5 +772,11 @@ export default {
   "变更请求详情": "Variation request details",
   "变更前": "Before variation",
   "变更值": "Variation",
-  "变更后": "After variation"
+  "变更后": "After variation",
+  "批准贷款金额": "Approved loan amount",
+  "建立费": "Establishment fee",
+  "额度费": "Line fee",
+  "第二授信额度": "Facility limit 2",
+  "变更总天数": "Variation total days",
+  "提交申请": "Submit request"
 }

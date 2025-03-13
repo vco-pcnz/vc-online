@@ -194,6 +194,7 @@ import tool from '@/utils/tool';
 import { projectDetailForecastList, projectForecastExportExcel, projectForecastStatistics } from '@/api/process';
 import Add from './add.vue';
 import Log from './log.vue';
+import { projectVariationDeletef } from '@/api/project/variation'
 
 const props = defineProps({
   uuid: {
@@ -308,7 +309,28 @@ const sureHandle = () => {
     return false
   }
 
-  console.log('currentParams', currentParams.value);
+  const params = {
+    ...currentParams.value,
+    change: changeType.value,
+    variation_id: props.itemId
+  }
+
+  subLoading.value = true
+  projectVariationDeletef(params).then(() => {
+    subLoading.value = false
+    tipsVisible.value = false
+
+    emits('update');
+    if (delAlertRef.value) {
+      delVisible.value = false
+      delAlertRef.value.changeLoading(false)
+    }
+  }).catch(() => {
+    subLoading.value = false
+    if (delAlertRef.value) {
+      delAlertRef.value.changeLoading(false)
+    }
+  })
 }
 
 const update = () => {

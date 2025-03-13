@@ -87,3 +87,27 @@ export const projectVariationStatisticsVai = (params) =>
       method: 'post',
       data
     });
+
+  // forecast 删除
+  export const projectVariationDeletef = (data) =>
+    request({
+      url: 'project/variation/deletef',
+      method: 'post',
+      data
+    });
+
+  // 变更流程
+  export const projectVariationStep = (params) =>
+    request({
+      url: 'project/variation/step',
+      method: 'get',
+      params
+    });
+
+  // 变更流程 - 提交申请
+  export const projectVariationSave = (data) =>
+    request({
+      url: 'project/variation/save',
+      method: 'post',
+      data
+    });

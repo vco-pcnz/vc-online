@@ -119,7 +119,7 @@ const columns = reactive([
   { title: t('项目•类型'), key: '1', width: 280 },
   { title: t('借款人•贷款经理'), key: '2', width: 180 },
   { title: t('到期'), key: '3', width: 160 },
-  { title: t('IRR预测'), key: '4', width: 140 },
+  { title: t('IRR预测'), key: '4', width: 160 },
   { title: t('收入'), key: '5', width: 110 },
   { title: t('待提取'), key: '6', width: 100 },
   { title: t('贷款余额'), key: '7', width: 220 },

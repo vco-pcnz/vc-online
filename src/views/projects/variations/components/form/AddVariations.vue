@@ -321,8 +321,8 @@ const save = () => {
       }
       loading.value = true
 
-      projectVariationEdit(params).then(() => {
-        emits('update')
+      projectVariationEdit(params).then((res) => {
+        emits('update', res)
         loading.value = false
         message.success(t('提交成功'))
         updateVisible(false)

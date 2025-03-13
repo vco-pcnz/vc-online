@@ -82,7 +82,7 @@
                 </StartDefault>
                 <a-button v-if="hasPermission('projects:penalty:view') && detail?.base?.penalty" type="brown" shape="round" size="small" @click="navigationTo('/projects/penalty?uuid=' + currentId)">{{ t('罚息') }}</a-button>
 
-                <AddVariations v-if="hasPermission('projects:variations:edit') && !Boolean(detail?.base?.variation)" :currentId="currentId" :project-detail="detail" @update="update">
+                <AddVariations v-if="hasPermission('projects:variations:edit') && !Boolean(detail?.base?.variation)" :currentId="currentId" :project-detail="detail" @update="variationsUpdate">
                   <a-button type="brown" shape="round" size="small">{{ t('添加变更') }}</a-button>
                 </AddVariations>
                 <a-button v-if="hasPermission('projects:variations:view') && detail?.base?.variation" type="brown" shape="round" size="small" @click="navigationTo('/projects/variations?uuid=' + currentId)">{{ t('变更1') }}</a-button>
@@ -223,6 +223,13 @@ const update = () => {
 
   detailLayoutRef.value.getProjectDetail();
 };
+
+const variationsUpdate = (data) => {
+  update()
+  if (data && data.id) {
+    navigationTo(`/projects/variations-details/about?uuid=${route.query.uuid}&id=${data.id}`)
+  }
+}
 </script>
 
 <style scoped lang="less">

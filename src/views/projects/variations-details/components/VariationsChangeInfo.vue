@@ -196,11 +196,12 @@ const changeData = computed(() => {
   const lvr = tool.minus(props.detail.variationInfo.project_credit.credit_lvr, props.detail.credit.right.lvr)
   const irr = tool.minus(props.detail.variationInfo.project_credit.credit_irrPreset, props.detail.credit.right.irrPreset)
 
-
+  const amount = props.detail.variationInfo.amount
+  const loan_money = [2, 5].includes(Number(props.detail.variationInfo.type)) ? (amount * -1) : amount
   const obj = {
     start_date: props.detail.variationInfo.start_date || 0,
     end_date: gapDay.gapDay - 1,
-    loan_money: props.detail.variationInfo.amount || 0,
+    loan_money: loan_money || 0,
     estabFee: estabFee || 0,
     lineFee: lineFee || 0,
     credit_fc2: credit_fc2 || 0,
@@ -215,10 +216,10 @@ const afterData = computed(() => {
   const cAmount = props.detail.variationInfo.amount || 0
   const bAmount = props.detail.base.loan_money || 0
   let loan_money = 0
-  if (Number(cAmount) > 0) {
-    loan_money = tool.plus(bAmount, cAmount)
-  } else {
+  if ([2, 5].includes(Number(props.detail.variationInfo.type))) {
     loan_money = tool.minus(bAmount, cAmount)
+  } else {
+    loan_money = tool.plus(bAmount, cAmount)
   }
   const obj = {
     start_date: props.detail.date.start_date || '',

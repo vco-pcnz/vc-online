@@ -1,11 +1,11 @@
 <template>
-  <detail-layout active-tab="forecast" @getProjectDetail="getProjectDetail">
+  <detail-layout ref="detailLayoutRef" active-tab="forecast" @getProjectDetail="getProjectDetail">
     <template #content>
       <a-spin :spinning="loading" size="large">
         <!-- <Cart :data="data"></Cart> -->
         <div class="flex items-center gap-3" v-if="hasPermission('projects:forecast:est_loan_money')">
           {{ t('预估贷款') }}: <vco-number :value="projectDetail?.base?.est_loan_money" size="fs_xl" :precision="2"></vco-number>
-          <vco-form-dialog :title="t('修改')" :initData="FormData" :formParams="{ uuid: uuid, est_loan_money: projectDetail?.base?.est_loan_money }" :showTip="true" url="project/forecast/updLoanAmount" @update="loadData">
+          <vco-form-dialog :title="t('修改')" :initData="FormData" :formParams="{ uuid: uuid, est_loan_money: projectDetail?.base?.est_loan_money }" :showTip="true" url="project/forecast/updLoanAmount" @update="update">
             <a-button type="cyan" size="small" shape="round">{{ t('修改') }}</a-button>
           </vco-form-dialog>
         </div>
@@ -60,6 +60,12 @@ const FormData = ref([
     required: true
   }
 ]);
+
+const detailLayoutRef = ref()
+const update = () => {
+  loadData()
+  detailLayoutRef.value.getProjectDetail()
+}
 
 onMounted(() => {
   uuid.value = route.query.uuid;

@@ -1,47 +1,108 @@
 <template>
-  <detail-layout active-tab="about" @getProjectDetail="getProjectDetail">
+  <detail-layout active-tab="about" ref="detailLayoutRef" @getProjectDetail="getProjectDetail">
     <template #content>
-      fdsafdsa
+      <a-spin :spinning="pageLoading" size="large">
+        <variations-process></variations-process>
+        
+        <div v-if="projectDetail" class="project-container">
+          <div class="project-info">
+            <base-card :variations="true" :detail="projectDetail"></base-card>
+          </div>
+
+          <div class="project-content">
+            <variations-info :uuid="uuid" :id="id" :detail="projectDetail" :credit-items-data="creditItemsData" @update="updateHandle"></variations-info>
+
+            <variations-change-info></variations-change-info>
+          </div>
+        </div>
+      </a-spin>
     </template>
   </detail-layout>
 </template>
 
 <script setup>
-  import { ref, onMounted } from 'vue';
+  import { ref } from 'vue';
   import { useRoute } from 'vue-router';
   import { useI18n } from 'vue-i18n';
+  import { ruleCredit } from '@/api/process';
   import DetailLayout from '../components/DetailLayout.vue';
-  import { projectVariationDarwdownLog } from '@/api/project/variation'
+  import VariationsProcess from '../components/VariationsProcess.vue';
+  import VariationsInfo from '../components/VariationsInfo.vue';
+  import VariationsChangeInfo from '../components/VariationsChangeInfo.vue';
+  import BaseCard from '@/views/projects/about/components/base.vue';
+  import { cloneDeep } from 'lodash'
 
   const route = useRoute();
   const { t } = useI18n();
 
   const uuid = ref(route.query.uuid)
   const id = ref(route.query.id)
+  const pageLoading = ref(true)
 
   const projectDetail = ref();
-  const getProjectDetail = (val) => {
-    console.log('val', val);
+  const getProjectDetail = async (val) => {
     projectDetail.value = val;
+
+    console.log('val', val);
+
+    await getCreditData()
+    pageLoading.value = false
   };
 
-  const data = ref();
-  const loading = ref(false);
+  const creditData = ref([])
+  const creditItemsData = ref([])
 
-  const loadData = () => {
-    loading.value = true;
-    projectVariationDarwdownLog({ uuid: uuid.value, id: id.value })
-      .then((res) => {
-        data.value = res.data;
-      })
-      .finally(() => {
-        loading.value = false;
-      });
-  };
+  const getCreditVal = () => {
+    const variationInfo = projectDetail.value.variationInfo
+    const creditInfo = cloneDeep(variationInfo.credit)
+    const keyArr = []
 
-  onMounted(() => {
-    // loadData();
-  })
+    for (const key in creditInfo) {
+      keyArr.push(key)
+    }
+
+    const colItems = creditData.value.filter(item => keyArr.includes(item.credit_table))
+
+    const perData = colItems.filter((item) => item.is_ratio);
+    const dolData = colItems.filter((item) => !item.is_ratio);
+
+    creditItemsData.value = [...perData, ...dolData]
+  }
+
+  const getCreditData = () => {
+    ruleCredit().then(res => {
+      creditData.value = res || []
+      getCreditVal()
+    })
+  }
+
+  const detailLayoutRef = ref()
+  const updateHandle = () => {
+    detailLayoutRef.value.getProjectDetail();
+  }
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+@import '@/styles/variables.less';
+
+.project-container {
+  color: @color_coal;
+  position: relative;
+  display: grid;
+  grid-template-columns: 315px 1fr;
+  gap: 24px;
+  align-items: flex-start;
+
+  .project-info {
+    overflow: hidden;
+    border-radius: 12px;
+    border: 1px solid @clr_white;
+    background-color: @clr_white;
+    box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, 0.1);
+  }
+
+  .project-content {
+    padding-left: 30px;
+  }
+}
+</style>

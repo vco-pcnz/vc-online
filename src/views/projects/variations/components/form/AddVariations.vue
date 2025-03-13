@@ -391,19 +391,24 @@ const getValidateInfo = (data) => {
   }
 }
 
-const dataRefull = () => {
+const dataRefull = (flag) => {
   const data = props.detailData
   const { credit } = data
   for (const key in credit) {
     formState.value[key] = credit[key]
   }
-
-  formState.value.type = data.type
+  
   formState.value.amount = data.amount
   formState.value.start_date = data.start_date || ''
   formState.value.end_date = data.end_date || ''
   formState.value.initial_amount = data.initial_amount
   formState.value.note = data.note
+
+  if (!flag) {
+    formState.value.type = data.type
+  } else {
+    formState.value.amount = 0
+  }
 }
 
 const creditData = ref([])
@@ -413,7 +418,7 @@ const dollarItems = ref([])
 
 const creditVariationinfo = ref({})
 
-const createFormItems = () => {
+const createFormItems = (flag) => {
   const creditInfo = cloneDeep(creditVariationinfo.value)
 
   if (formState.value.type === 5) {
@@ -455,7 +460,7 @@ const createFormItems = () => {
   formRules.value = { ...formRules.value, ...rulesData };
 
   if (props.detailData?.id) {
-    dataRefull()
+    dataRefull(Boolean(flag))
   }
 }
 

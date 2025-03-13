@@ -8,22 +8,24 @@
       <p class="id_async">
         <span>ID {{ detail?.base.project_apply_sn }}</span>
 
-        <a-statistic-countdown :value="deadline" @finish="onFinish" format="mm:ss" v-if="Boolean(countdown)">
-          <template #prefix>
-            <span>{{ t('处理') }} (</span>
-          </template>
-          <template #suffix>
-            <span>)</span>
-          </template>
-        </a-statistic-countdown>
-        <a-spin :spinning="loading" v-else>
-          <a-popconfirm :title="t('您确定要与 Xero 同步项目交易吗？')" okText="confirm" @confirm="update">
-            <template #icon>
-              <CheckCircleOutlined :style="{ color: '#a9ad57' }" />
+        <template v-if="!variations">
+          <a-statistic-countdown :value="deadline" @finish="onFinish" format="mm:ss" v-if="Boolean(countdown)">
+            <template #prefix>
+              <span>{{ t('处理') }} (</span>
             </template>
-            <img :width="58" :height="14" :src="xeroImg" alt="Xero" />
-          </a-popconfirm>
-        </a-spin>
+            <template #suffix>
+              <span>)</span>
+            </template>
+          </a-statistic-countdown>
+          <a-spin :spinning="loading" v-else>
+            <a-popconfirm :title="t('您确定要与 Xero 同步项目交易吗？')" okText="confirm" @confirm="update">
+              <template #icon>
+                <CheckCircleOutlined :style="{ color: '#a9ad57' }" />
+              </template>
+              <img :width="58" :height="14" :src="xeroImg" alt="Xero" />
+            </a-popconfirm>
+          </a-spin>
+        </template>
       </p>
       <p class="mb-5">{{t('借款人')}}: {{ detail?.base.borrower_user_name }}</p>
       <p class="text-2xl name">{{ detail?.base.project_name }}</p>
@@ -53,7 +55,17 @@ import { syncBankBill } from '@/api/reconciliations';
 import { message } from 'ant-design-vue';
 
 const { t } = useI18n();
-const props = defineProps(['detail']);
+
+const props = defineProps({
+  detail: {
+    type: Object,
+    default: () => {}
+  },
+  variations: {
+    type: Boolean,
+    default: false
+  }
+})
 
 const isExpand = ref(false);
 const loading = ref(false);

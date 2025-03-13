@@ -5,7 +5,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref, computed, watch } from 'vue';
 
 const props = defineProps({
   value: {
@@ -64,6 +64,13 @@ const setNumberColor = () => {
   const content = numberRef.value.querySelectorAll('.ant-statistic-content')[0];
   content.style.color = props.color;
 };
+
+watch(
+  () => props.color,
+  () => {
+    setNumberColor();
+  }
+)
 
 onMounted(() => {
   setNumberColor();

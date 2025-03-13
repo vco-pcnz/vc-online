@@ -142,7 +142,7 @@ const save = () => {
   let params = { ...formState.value, apply_uuid: props.uuid };
   const ajaxFn = props.itemId ? projectVariationAddf : addf
   if (props.itemId) {
-    params.variationsId = props.itemId
+    params.variation_id = props.itemId
   }
 
   loading.value = true;

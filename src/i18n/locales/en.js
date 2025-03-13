@@ -767,5 +767,8 @@ export default {
   "开发成本": "Development cost $",
   "开始备注": "Start remarks",
   "结束备注": "End remarks",
-  
+  "变更请求详情": "Variation request details",
+  "变更前": "Before variation",
+  "变更值": "Variation",
+  "变更后": "After variation"
 }

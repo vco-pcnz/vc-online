@@ -110,6 +110,11 @@
                   >{{ t('审核') }}</a-button>
                 </template>
                 <a-button
+                    v-if="record.status_name === 'PENDING APPLY' && Boolean(record.is_me)"
+                    type="primary" size="small" shape="round" class="uppercase mb-2"
+                    @click="openDetail(record, true)"
+                  >{{ t('编辑') }}</a-button>
+                <a-button
                   type="brown" size="small" shape="round" class="uppercase"
                   @click="goDetail(record)"
                 >{{ t('详情') }}</a-button>
@@ -186,9 +191,6 @@ const tableDataRef = computed(() => {
   data.forEach((item) => {
     item.plus = [1, 4].includes(item.type)
     item.declined = [-900].includes(item.state)
-    if (item.status_name === 'LM PENDING REVIEW') {
-      item.has_permission = true
-    }
   });
   return data;
 })

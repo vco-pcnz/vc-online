@@ -22,7 +22,7 @@
                   </a-col>
                   <a-col :span="12">
                     <a-form-item :label="t('楼栋数')" name="building_num">
-                      <a-input v-model:value="formState.building_num" />
+                      <a-input-number v-model:value="formState.building_num" />
                     </a-form-item>
                   </a-col>
                   <a-col :span="24">

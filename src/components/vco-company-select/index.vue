@@ -65,6 +65,11 @@ const debounce = (func, wait) => {
 };
 
 const search = debounce(() => {
+  if (props.is_nzbn) {
+    emits('update:nzbz', keyword.value);
+  } else {
+    emits('update:name', keyword.value);
+  }
   if (appStore.config.company_information_mode != 2) return;
   if (keyword.value.length < 2) return;
 

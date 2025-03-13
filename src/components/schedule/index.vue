@@ -61,7 +61,7 @@
                 </div>
               </div>
             </div>
-            <div class="item">
+            <div class="item" v-if="!ptRole">
               <div class="line-content">
                 <div class="round"></div>
                 <div class="round"></div>
@@ -110,15 +110,17 @@
                   <a-menu-item>
                     <div class="pt-2 pb-2" @click="downLoadExcel(1)">{{ t('预测放款时间表') }}</div>
                   </a-menu-item>
-                  <a-menu-item>
-                    <div class="pt-2 pb-2" @click="downLoadExcel(2)">{{ t('放款时间表') }}</div>
-                  </a-menu-item>
-                  <a-menu-item>
-                    <div class="pt-2 pb-2" @click="downLoadExcel(0)">{{ t('额度费用计算时间表') }}</div>
-                  </a-menu-item>
-                  <a-menu-item>
-                    <div class="pt-2 pb-2" @click="downLoadExcel(3)">{{ t('预测表IRR') }}</div>
-                  </a-menu-item>
+                  <template v-if="!ptRole">
+                    <a-menu-item>
+                      <div class="pt-2 pb-2" @click="downLoadExcel(2)">{{ t('放款时间表') }}</div>
+                    </a-menu-item>
+                    <a-menu-item>
+                      <div class="pt-2 pb-2" @click="downLoadExcel(0)">{{ t('额度费用计算时间表') }}</div>
+                    </a-menu-item>
+                    <a-menu-item>
+                      <div class="pt-2 pb-2" @click="downLoadExcel(3)">{{ t('预测表IRR') }}</div>
+                    </a-menu-item>
+                  </template>
                 </a-menu>
               </template>
             </a-dropdown>
@@ -209,7 +211,7 @@
           </div>
         </div>
 
-        <div v-if="statisticsData && tabData.length" class="static-block flex">
+        <div v-if="statisticsData && tabData.length && !ptRole" class="static-block flex">
           <div class="item">
             <p>{{ t('估计总数') }}</p>
             <h3>{{ t('{0}天', [statisticsData.last.days]) }}</h3>
@@ -318,7 +320,11 @@ const props = defineProps({
   itemId: {
     type: [Number, String],
     default: ''
-  }
+  },
+  ptRole: {
+    type: Boolean,
+    default: false
+  },
 });
 
 const { t } = useI18n();
@@ -610,6 +616,7 @@ onMounted(() => {
       gap: 15px;
       min-height: 75px;
       min-width: 15%;
+      flex: 1;
       > .line {
         border-radius: 4px;
         width: 6px;

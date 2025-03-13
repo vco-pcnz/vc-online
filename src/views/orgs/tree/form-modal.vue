@@ -35,7 +35,7 @@
             </a-form-item>
           </template>
           <a-form-item :label="t('所有权')" name="weight">
-            <a-input-number v-model:value="form.weight" addon-after="%" :min="0" :max="100"></a-input-number>
+            <a-input-number class="rate" v-model:value="form.weight" addon-after="%" :min="0" :max="100"></a-input-number>
           </a-form-item>
         </a-form>
       </div>

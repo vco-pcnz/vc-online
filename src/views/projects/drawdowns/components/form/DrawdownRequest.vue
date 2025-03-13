@@ -16,7 +16,7 @@
             </div>
             <div class="input-item my-4">
               <div class="label">{{ t('施工进度') }}</div>
-              <a-input-number v-model:value="formState.progress" :min="0" :max="100" :formatter="(value) => `${value}%`" :parser="(value) => value.replace('%', '')" />
+              <a-input-number  class="rate" v-model:value="formState.progress" addon-after="%" :min="0" :max="100" style="width: 100%"></a-input-number>
             </div>
             <div class="input-item" style="margin-top: 16px">
               <div class="label" :class="{ err: !formState.apply_amount && validate }">Requested amount, $ nzd</div>

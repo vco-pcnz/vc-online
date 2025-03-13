@@ -58,7 +58,7 @@ const option = ref({
       type: 'pie',
       center: ['50%', '50%'],
       radius: '100%',
-      color: ['#181818', 'rgba(169, 173, 87, 0.7)', '#f3ede5'],
+      color: ['#181818','#f3ede5'],
       label: {
         show: false
       },
@@ -88,7 +88,7 @@ const loadData = () => {
   loading.value = true
   loanDstatistics({ uuid: props.uuid }).then((res) => {
     statistics.value = res;
-    option.value.series[0].data = [{ value: statistics.value.loanWithdrawal }, { value: statistics.value.pendingDrawdown }, { value: statistics.value.loan }]
+    option.value.series[0].data = [{ value: statistics.value.loanWithdrawal }, { value: statistics.value.available }]
   }).finally(_ => {
     loading.value = false
   });

@@ -1,31 +1,31 @@
 <template>
   <div>
     <a-row :gutter="24">
-      <a-col :span="6">
+      <a-col :span="8">
         <div class="info-content">
           <p class="name">{{ t('项目名称') }}</p>
           <p class="txt">{{ data.project_name }}</p>
         </div>
       </a-col>
-      <a-col :span="4">
+      <a-col :span="8">
         <div class="info-content">
           <p class="name">{{ t('项目类型') }}</p>
           <p class="txt">{{ data.project_type_name }}</p>
         </div>
       </a-col>
-      <a-col :span="4">
-        <div class="info-content">
-          <p class="name">{{ t('邮编') }}</p>
-          <p class="txt">{{ data.project_postcode }}</p>
-        </div>
-      </a-col>
-      <a-col :span="4">
+      <a-col :span="8">
         <div class="info-content">
           <p class="name">{{ t('楼栋数') }}</p>
           <p class="txt">{{ data.building_num }}</p>
         </div>
       </a-col>
-      <a-col :span="6">
+      <a-col :span="8">
+        <div class="info-content">
+          <p class="name">{{ t('邮编') }}</p>
+          <p class="txt">{{ data.project_postcode }}</p>
+        </div>
+      </a-col>
+      <a-col :span="8">
         <div class="info-content">
           <p class="name">{{ t('开发成本') }}</p>
           <p class="txt">{{ tool.formatMoney(data.devCost) }}</p>

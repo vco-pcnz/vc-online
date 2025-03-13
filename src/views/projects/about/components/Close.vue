@@ -33,7 +33,7 @@
                   required: true
                 }
               ]"
-              :formParams="{ uuid: detail?.close?.data?.uuid, id: detail?.close?.process__id }"
+              :formParams="{ uuid: detail?.close?.data?.uuid || currentId, id: detail?.close?.process__id }"
               url="projectDetail/ggoBack"
               @update="update"
             >

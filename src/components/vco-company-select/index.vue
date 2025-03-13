@@ -1,7 +1,7 @@
 <template>
   <a-dropdown trigger="click" :disabled="disabled" v-model:open="open">
     <div>
-      <a-input style="display: block" ref="inputRef" v-model:value="keyword" :placeholder="placeholder" @input="search" @click.prevent :disabled="disabled" />
+      <a-input style="display: block" v-model:value="keyword" :placeholder="placeholder" @input="search" @click.prevent :disabled="disabled" />
       <div class="loading-tips"><a-spin :spinning="searchLoading" size="small"></a-spin></div>
     </div>
     <template #overlay>
@@ -54,7 +54,6 @@ const open = ref(false);
 const keyword = ref('');
 const list = ref([]);
 const searchLoading = ref(false);
-const inputRef = ref();
 
 const debounce = (func, wait) => {
   let timeout;
@@ -122,8 +121,6 @@ const setValue = (val) => {
   getInfo(val.nzbn);
   emits('update:nzbz', val.nzbn);
   emits('update:name', val.entityName);
-  inputRef.value.blur();
-  console.log(inputRef.value);
 };
 
 watch(

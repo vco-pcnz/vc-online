@@ -111,3 +111,11 @@ export const projectVariationStatisticsVai = (params) =>
       method: 'post',
       data
     });
+
+   // 变更流程 - 删除申请
+  export const projectVariationDelete = (data) =>
+    request({
+      url: 'project/variation/delete',
+      method: 'post',
+      data
+    });

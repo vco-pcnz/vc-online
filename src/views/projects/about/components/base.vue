@@ -7,7 +7,7 @@
     <div class="base-card">
       <p class="id_async">
         <span>ID {{ detail?.base.project_apply_sn }}</span>
-        <template v-if="!detail?.base?.ptRole">
+        <template v-if="!variations && !detail?.base?.ptRole">
           <a-statistic-countdown :value="deadline" @finish="onFinish" format="mm:ss" v-if="Boolean(countdown)">
             <template #prefix>
               <span>{{ t('处理') }} (</span>
@@ -43,7 +43,7 @@
   </div>
 </template>
 
-<script setup>å
+<script setup>
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import xeroImg from '@/assets/images/xero.png';

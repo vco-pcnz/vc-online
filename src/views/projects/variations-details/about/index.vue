@@ -2,8 +2,15 @@
   <detail-layout active-tab="about" ref="detailLayoutRef" @getProjectDetail="getProjectDetail">
     <template #content>
       <a-spin :spinning="pageLoading" size="large">
-        <variations-process :uuid="uuid" :id="id" :detail="projectDetail" @update="updateHandle"></variations-process>
-        
+        <variations-process v-if="!projectDetail?.variationInfo?.decline_reason" :uuid="uuid" :id="id" :detail="projectDetail" @update="updateHandle"></variations-process>
+        <a-alert
+          v-if="projectDetail?.variationInfo?.decline_reason"
+          :message="t('拒绝原因')"
+          :description="projectDetail?.variationInfo?.decline_reason"
+          type="error"
+          class="cancel-reason"
+        />
+
         <div v-if="projectDetail" class="project-container">
           <div class="project-info">
             <base-card :variations="true" :detail="projectDetail"></base-card>
@@ -103,6 +110,14 @@
 
   .project-content {
     padding-left: 30px;
+  }
+}
+
+.cancel-reason {
+  padding: 10px !important;
+  margin-bottom: 30px;
+  :deep(.ant-alert-description) {
+    font-size: 12px !important;
   }
 }
 </style>

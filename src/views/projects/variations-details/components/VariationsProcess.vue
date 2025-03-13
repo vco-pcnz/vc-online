@@ -1,6 +1,16 @@
 <template>
   <div v-if="processStep.length" class="process-content">
-    <div class="step-process">
+    <!-- 详情弹窗 -->
+    <detail-dialog
+      v-model:visible="detailVisible"
+      :uuid="uuid"
+      :detailData="variationsInfo"
+      :projectDetail="detail"
+      @done="refreshHandle"
+    >
+    </detail-dialog>
+
+    <div class="step-process" :class="{'no-p': (!variationsInfo.is_me || (variationsInfo.is_me && variationsInfo.state !== 0)) && !variationsInfo.has_permission}">
       <div
         v-for="(item, index) in processStep"
         :key="item.code"
@@ -18,14 +28,23 @@
         <h2 v-if="item.name && index !== processStep.length - 1" class="name uppercase">{{ item.name }}</h2>
       </div>
     </div>
-    <div class="handle-content">
-      <template v-if="variationsInfo.is_me && variationsInfo.status_name === 'PENDING APPLY'">
+    <div v-if="variationsInfo.is_me && variationsInfo.state === 0 || variationsInfo.has_permission" class="handle-content">
+      <template v-if="variationsInfo.is_me && variationsInfo.state === 0">
+        <a-popconfirm :title="t('您确定提交申请吗？')" @confirm="requesetSub">
+          <a-button
+            type="dark" class="big shadow bold uppercase"
+          >{{ t('提交申请') }}</a-button>
+        </a-popconfirm>
+        <a-popconfirm :title="t('您确定删除请求吗？')" @confirm="requesetCancel">
+          <a-button type="danger" size="small" shape="round" class="mt-5">{{ t('删除请求') }}</a-button>
+        </a-popconfirm>
+      </template>
+
+      <template v-if="variationsInfo.has_permission && variationsInfo.state > 0">
         <a-button
           type="dark" class="big shadow bold uppercase"
-          :loading="subLoading"
-          @click="requesetSub"
-        >{{ t('提交申请') }}</a-button>
-        <p></p>
+          @click="detailVisible = true"
+        >{{ variationsInfo.state === 300 ? t('确认变更') : t('审核') }}</a-button>
       </template>
     </div>
   </div>
@@ -35,9 +54,12 @@
   import { ref, computed, onMounted } from 'vue'
   import { useI18n } from 'vue-i18n';
   import { templateStep } from '@/api/process'
-  import { projectVariationStep, projectVariationSave } from '@/api/project/variation'
+  import { projectVariationStep, projectVariationSave, projectVariationDelete } from '@/api/project/variation'
+  import DetailDialog from '@/views/projects/variations/components/DetailDialog.vue';
+  import { useRouter } from 'vue-router';
 
   const { t } = useI18n();
+  const router = useRouter();
 
   const props = defineProps({
     uuid: {
@@ -78,7 +100,7 @@
       id: props.id
     }).then(res => {
       const { step, state } = res
-      let max = 400
+      let max = 300
       if (step && step.length) {
         const stateCode = step.map(item => item.stateCode)
         max = Math.max(...stateCode)
@@ -91,25 +113,42 @@
         })
       }
 
-      currentStep.value = max === state ? state * 100 : state
+      currentStep.value = state > max ? state * 100 : state
       processStep.value = defStep
     })
   }
 
-  const subLoading = ref(false)
-  const requesetSub = () => {
+  const requesetSub = async () => {
     const params = {
       uuid: props.uuid,
       id: props.id
     }
-    subLoading.value = true
-    projectVariationSave(params).then(res => {
-      subLoading.value = false
-      getStepData()
-      emits('update')
+    await projectVariationSave(params).then(res => {
+      refreshHandle()
+      return false
     }).catch(() => {
-      subLoading.value = false
+      return false
     })
+  }
+
+  const requesetCancel = async () => {
+    const params = {
+      uuid: props.uuid,
+      id: props.id
+    }
+    await projectVariationDelete(params).then(res => {
+      router.push(`/projects/variations?uuid=${props.uuid}`);
+      return false
+    }).catch(() => {
+      return false
+    })
+  }
+
+  const detailVisible = ref(false)
+
+  const refreshHandle = () => {
+    getStepData()
+    emits('update')
   }
 
   onMounted(() => {
@@ -133,10 +172,16 @@
     justify-content: space-between;
     > .step-process {
       flex: 1;
-      padding-right: 120px;
+      padding-right: 320px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      &.no-p {
+        padding-right: 0 !important;
+        > .item > .name {
+          font-size: 14px !important;
+        }
+      }
       > .item {
         position: relative;
         flex: 1;
@@ -261,10 +306,10 @@
       }
     }
     > .handle-content {
-      width: 400px;
+      width: 200px;
       display: flex;
       flex-direction: column;
-      align-items: flex-end;
+      align-items: center;
     }
   }
 </style>

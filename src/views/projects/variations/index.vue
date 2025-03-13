@@ -98,22 +98,22 @@
               </template>
               <template v-if="column.dataIndex === 'operation'">
                 <template v-if="record.has_permission">
-                  <a-button
+                  <!-- <a-button
                     v-if="record.status_name === 'PENDING SUBMIT'"
                     type="primary" size="small" shape="round" class="uppercase mb-2"
                     @click="openDetail(record, true)"
-                  >{{ t('编辑') }}</a-button>
+                  >{{ t('编辑') }}</a-button> -->
                   <a-button
-                    v-else
+                    v-if="record.status_name !== 'PENDING SUBMIT'"
                     type="primary" size="small" shape="round" class="uppercase mb-2"
                     @click="openDetail(record, false)"
                   >{{ t('审核') }}</a-button>
                 </template>
-                <a-button
+                <!-- <a-button
                     v-if="record.status_name === 'PENDING APPLY' && Boolean(record.is_me)"
                     type="primary" size="small" shape="round" class="uppercase mb-2"
                     @click="openDetail(record, true)"
-                  >{{ t('编辑') }}</a-button>
+                  >{{ t('编辑') }}</a-button> -->
                 <a-button
                   type="brown" size="small" shape="round" class="uppercase"
                   @click="goDetail(record)"

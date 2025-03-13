@@ -34,14 +34,36 @@
           :rules="formRules"
         >
           <a-form-item :label="t('变更开始日期')" name="start_date">
-            <a-date-picker v-model:value="formState.start_date" :format="selectDateFormat()" :disabledDate="disabledDate" placeholder="" />
+            <a-date-picker v-model:value="formState.start_date" :format="selectDateFormat()" :disabledDate="disabledDate" placeholder="" @change="dateChange" />
           </a-form-item>
         </a-form>
       </div>
+      <a-row v-if="![4, 5].includes(detailData.type)" :gutter="24">
+        <a-col :span="10" class="mt-2">
+          <div class="info-content">
+            <p class="name">{{ t('借款起止日期') }}</p>
+            <p class="txt">{{ tool.showDate(startDate) + ' - ' + tool.showDate(endDate) }}</p>
+          </div>
+        </a-col>
+        <a-col :span="8" class="mt-2">
+          <div class="info-content">
+            <p class="name">{{ t('借款周期') }}</p>
+            <p class="txt">{{ showTerm }}</p>
+          </div>
+        </a-col>
+        <a-col :span="6" class="mt-2">
+          <div class="info-content">
+            <p class="name">{{ t('总天数') }}</p>
+            <p class="txt">{{ showTotalDay }}</p>
+          </div>
+        </a-col>
+      </a-row>
+
       <div class="mt-10 flex justify-end">
         <a-button
-          type="dark" class="big shadow bold uppercase mb-5 mt-5"
+          type="dark" class="big shadow bold uppercase mb-5 mt-5 w-full"
           :loading="confirmLoading"
+          @click="openHandle"
         >{{ t('确认') }}</a-button>
       </div>
     </a-modal>
@@ -133,10 +155,11 @@
 
         <template v-if="detailData.has_permission">
           <a-button
-            v-if="detailData.status_name === 'LM PENDING REVIEW'"
+          v-if="detailData.state === 300"
             type="dark" class="big shadow bold uppercase mb-5 mt-5"
-            @click="showConfirm = true"
+            @click="showOpenDialog"
           >{{ t('确认变更') }}</a-button>
+
           <a-popconfirm v-else :title="t('您确定要接受该请求吗？')" @confirm="accept">
             <a-button
               type="dark" class="big shadow bold uppercase mb-5 mt-5"
@@ -165,6 +188,7 @@
   import tool, { selectDateFormat } from '@/utils/tool';
   import { cloneDeep } from 'lodash'
   import RejectDialog from "@/views/process/components/RejectDialog.vue";
+  import dayjs from "dayjs";
 
   const emits = defineEmits(['update:visible', 'done'])
 
@@ -291,9 +315,86 @@
     start_date: [{ required: true, message: t('请选择') + t('变更开始日期'), trigger: 'change' }],
   });
 
+  const startDate = ref('');
+  const endDate = ref('');
+
+  const showTerm = computed(() => {
+    const data = tool.calculateDurationPrecise(startDate.value, endDate.value);
+    if (data.months && data.days) {
+      return `${data.months} ${t('月')} ${data.days} ${t('天')}`;
+    }
+
+    if (data.months && !data.days) {
+      return `${data.months} ${t('月')}`;
+    }
+
+    if (!data.months && data.days) {
+      return `${data.days} ${t('天')}`;
+    }
+
+    return '--';
+  });
+
+  const showTotalDay = computed(() => {
+    const data = tool.calculateDurationPrecise(startDate.value, endDate.value);
+    return data.gapDay || 0;
+  });
+
+  const showOpenDialog = () => {
+    showConfirm.value = true
+
+    startDate.value = props.detailData.start_date
+    endDate.value = props.detailData.end_date
+  }
+
+  const openHandle = () => {
+    formRef.value
+    .validate()
+    .then(() => {
+      const params = {
+        id: props.detailData.id,
+        uuid: props.uuid,
+        do__open: 1,
+        start_date: startDate.value
+      }
+
+      if (![4, 5].includes(props.detailData.type)) {
+        params.end_date = endDate.value
+      }
+
+      confirmLoading.value = true
+      projectVariationSaveStep(params).then(() => {
+        confirmLoading.value = false
+        showConfirm.value = false
+        doneHandle()
+      }).catch(() => {
+        confirmLoading.value = false
+      })
+    })
+  }
+
   const disabledDate = (currentDate) => {
     return currentDate && currentDate.valueOf() > Date.now();
   };
+
+  const dateChange = (date) => {
+    if (date) {
+      const { start_date, end_date } = props.detailData;
+      const calcDay = tool.calculateDurationPrecise(start_date, end_date);
+      const gapDay = calcDay.gapDay;
+
+      if (gapDay) {
+        let statrDate = dayjs(date);
+        const endDateStr = tool.calculateEndDateByDays(statrDate, gapDay);
+
+        startDate.value = dayjs(date).format('YYYY-MM-DD');
+        endDate.value = endDateStr;
+      }
+    } else {
+      startDate.value = props.detailData.start_date
+      endDate.value = props.detailData.end_date
+    }
+  }
 
   watch(
     () => props.visible,
@@ -302,6 +403,8 @@
         getCreditInfo()
       } else {
         rejectType.value = ''
+        formRef.value?.clearValidate();
+        formState.value.start_date = ''
       }
     }
   )
@@ -387,6 +490,21 @@
   margin-bottom: 10px;
   :deep(.ant-alert-description) {
     font-size: 12px !important;
+  }
+}
+
+.info-content {
+  margin-top: 10px;
+  .name {
+    font-size: 12px;
+    color: #666;
+  }
+  .txt {
+    font-size: 13px;
+    font-weight: 500;
+    :deep(.ant-statistic-content) {
+      font-size: 16px !important;
+    }
   }
 }
 </style>

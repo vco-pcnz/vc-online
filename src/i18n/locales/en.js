@@ -778,5 +778,8 @@ export default {
   "额度费": "Line fee",
   "第二授信额度": "Facility limit 2",
   "变更总天数": "Variation total days",
-  "提交申请": "Submit request"
+  "提交申请": "Submit request",
+  "删除请求": "Delete request",
+  "您确定提交申请吗？": "Are you sure you want to submit request?",
+  "您确定删除请求吗？": "Are you sure you want to delete your request?"
 }

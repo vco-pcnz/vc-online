@@ -50,8 +50,6 @@
   const getProjectDetail = async (val) => {
     projectDetail.value = val;
 
-    console.log('val', val);
-
     await getCreditData()
     pageLoading.value = false
   };

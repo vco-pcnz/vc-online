@@ -61,7 +61,7 @@
       </a-col>
       <template v-if="creditItemsData.length">
         <a-col v-for="item in creditItemsData" :span="6" class="item-txt">
-          <p class="name">{{ item.credit_table }}</p>
+          <p class="name">{{ item.credit_name }}</p>
           <p v-if="item.is_ratio" class="txt">{{ variationsInfo.credit[item.credit_table] }}%</p>
           <vco-number v-else :value=" variationsInfo.credit[item.credit_table]" :precision="2"></vco-number>
         </a-col>

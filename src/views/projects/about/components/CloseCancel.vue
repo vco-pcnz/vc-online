@@ -9,7 +9,7 @@
     </template>
 
     <template v-if="detail?.closeCancel?.has_permission">
-      <a-alert type="info" :message="t('重新打开')" >
+      <a-alert type="info" :message="t('重新打开')">
         <template #description>
           <div>
             <span class="bold"> {{ t('日期') }}</span
@@ -27,11 +27,11 @@
 
           <div class="mt-3 flex items-center justify-end">
             <template v-if="detail?.closeCancel?.prev_permission">
-              <vco-popconfirm :tip="t('您确实要撤回该请求吗？')" @update="update()" :formParams="{ uuid: detail?.closeCancel?.data?.uuid, id: detail?.closeCancel?.process__id }" url="projectDetail/crecall">
+              <vco-popconfirm :tip="t('您确实要撤回该请求吗？')" @update="update()" :formParams="{ uuid: detail?.closeCancel?.data?.uuid || currentId, id: detail?.closeCancel?.process__id }" url="projectDetail/crecall">
                 <a-button type="dark" size="small">{{ t('撤回申请') }}</a-button>
               </vco-popconfirm>
             </template>
-            <vco-popconfirm :tip="t('您确定要接受该请求吗？')" @update="update()" :formParams="{ uuid: detail?.closeCancel?.data?.uuid, id: detail?.closeCancel?.process__id }" url="projectDetail/csaveStep">
+            <vco-popconfirm :tip="t('您确定要接受该请求吗？')" @update="update()" :formParams="{ uuid: detail?.closeCancel?.data?.uuid || currentId, id: detail?.closeCancel?.process__id }" url="projectDetail/csaveStep">
               <a-button type="dark" size="small" class="ml-3">{{ t('接受请求') }}</a-button>
             </vco-popconfirm>
             <vco-form-dialog

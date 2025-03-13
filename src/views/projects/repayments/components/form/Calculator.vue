@@ -82,15 +82,15 @@ const formState = ref({
 
 const disabledDateFormat = (current) => {
   const startDate = dayjs()
-  const endDate = props?.projectDetail?.date?.end_date
+  // const endDate = props?.projectDetail?.date?.end_date
 
   if (current && current.isBefore(startDate, 'day')) {
     return true;
   }
 
-  if (current && current.isAfter(endDate, 'day')) {
-    return true;
-  }
+  // if (current && current.isAfter(endDate, 'day')) {
+  //   return true;
+  // }
 
   return false;
 }

@@ -309,8 +309,11 @@
       view: brokerData.value.view.map(item => item.uuid),
       edit: brokerData.value.edit.map(item => item.uuid)
     }
-    await associateAssignUser(brokerParams)
 
+    if (brokerParams.view.length || brokerParams.edit.length) {
+      await associateAssignUser(brokerParams)
+    }
+    
     const borrowerParams = {
       uuid,
       code: 'user',
@@ -318,7 +321,10 @@
       view: borrowerData.value.view.map(item => item.uuid),
       edit: borrowerData.value.edit.map(item => item.uuid)
     }
-    await associateAssignUser(borrowerParams)
+
+    if (borrowerParams.view.length || borrowerParams.edit.length) {
+      await associateAssignUser(borrowerParams)
+    }
   }
 
   const handleStepOneBindUser = (data) => {

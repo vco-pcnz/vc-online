@@ -172,7 +172,7 @@
     justify-content: space-between;
     > .step-process {
       flex: 1;
-      padding-right: 320px;
+      padding-right: 150px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -262,7 +262,7 @@
           left: 30px;
           top: -12px;
           color: #666;
-          font-size: 11px;
+          font-size: 12px;
         }
         > .check-step-content {
           width: calc(100% - 40px);

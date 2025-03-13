@@ -4,6 +4,13 @@
     <template #content>
       <div class="sys-form-content mt-5">
         <a-form ref="formRef" :model="form" :rules="rules" layout="vertical">
+          <a-row>
+            <a-col :span="6" :offset="9">
+              <a-form-item name="avatar" class="avatar-form-item">
+                <vco-upload-image v-model:value="form.avatar" text="头像" :isAvatar="true"></vco-upload-image>
+              </a-form-item>
+            </a-col>
+          </a-row>
           <a-row :gutter="8">
             <a-col :span="24">
               <a-form-item :label="t('类型')" name="type">
@@ -144,6 +151,7 @@ const verifyMobile = reactive({
 
 // 表单数据
 const { form, assignFields } = useFormData({
+  avatar: '',
   firstName: '',
   middleName: '',
   lastName: '',
@@ -255,8 +263,9 @@ watch(
   () => userDetailStore.userDetail,
   (val) => {
     if (Object.keys(val).length) {
-      const { firstName, middleName, lastName, email, pre, mobile, intro, type, company, user_name } = val;
+      const { avatar, firstName, middleName, lastName, email, pre, mobile, intro, type, company, user_name } = val;
       assignFields({
+        avatar,
         firstName,
         middleName,
         lastName,

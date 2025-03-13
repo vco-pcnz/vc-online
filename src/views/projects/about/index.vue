@@ -17,7 +17,7 @@
                 <bind-users :current-id="currentId" :is-close="Boolean(detail?.base.is_close)" :about="true"></bind-users>
               </a-collapse-panel>
 
-              <a-collapse-panel key="History" class="collapse-card history-card">
+              <a-collapse-panel key="History" class="collapse-card history-card"  v-if="!detail?.base?.ptRole">
                 <template #header>
                   <i class="iconfont">&#xe76c;</i>
                   <span class="title">{{ t('历史') }}</span>
@@ -31,7 +31,7 @@
                 </template>
                 <conditions-list :current-id="currentId" :is-details="true" :is-close="Boolean(detail?.base.is_close)" :about="true" :end-date="detail.date.end_date"></conditions-list>
               </a-collapse-panel>
-              <a-collapse-panel key="Request_details" class="collapse-card request-card">
+              <a-collapse-panel key="Request_details" class="collapse-card request-card" v-if="!detail?.base?.ptRole">
                 <template #header>
                   <i class="iconfont">&#xe732;</i>
                   <span class="title">{{ t('请求详情') }}</span>
@@ -40,7 +40,7 @@
                 <RequestDetails :data="detail" :currentId="currentId" @update="update"></RequestDetails>
               </a-collapse-panel>
 
-              <a-collapse-panel v-if="detail?.base?.substitution && detail?.base?.substitution.length" key="refinancing" class="collapse-card">
+              <a-collapse-panel v-if="detail?.base?.substitution && detail?.base?.substitution.length && !detail?.base?.ptRole" key="refinancing" class="collapse-card">
                 <template #header>
                   <i class="iconfont" style="font-size: 16.5px">&#xe760;</i>
                   <span class="title">{{ t('再融资项目') }}</span>
@@ -56,7 +56,7 @@
                 </div>
               </a-collapse-panel>
 
-              <a-collapse-panel key="orgs" class="collapse-card request-card">
+              <a-collapse-panel key="orgs" class="collapse-card request-card" v-if="!detail?.base?.ptRole">
                 <template #header>
                   <i class="iconfont">&#xe8db;</i>
                   <span class="title">{{ t('利益相关者') }}</span>
@@ -70,7 +70,10 @@
             <Close v-if="detail?.base?.is_open != 3" :currentId="currentId" :toBeClosedFormData="toBeClosedFormData" :detail="detail" @update="update"></Close>
             <!-- 取消关账流程 -->
             <CloseCancel v-else :currentId="currentId" :toBeClosedFormData="ReOpenFormData" :detail="detail" @update="update"></CloseCancel>
-            <MeterStat :data="detail?.credit"></MeterStat>
+
+            <MeterStat :data="detail?.credit" v-if="!detail?.base?.ptRole"></MeterStat>
+            <MeterStatVip :data="detail?.credit" v-if="detail?.base?.ptRole"></MeterStatVip>
+            
             <PeriodLine :data="detail?.date"></PeriodLine>
             <div class="flex justify-center mt-10 mb-10 btns">
               <template v-if="Boolean(!detail?.base.is_close)">
@@ -113,7 +116,8 @@
                 <a-button type="brown" shape="round" size="small">{{ t('重新打开') }}</a-button>
               </vco-form-dialog>
             </div>
-            <Stats :data="detail?.credit" :detail="detail" :currentId="currentId"></Stats>
+
+            <Stats :data="detail?.credit" :detail="detail" :currentId="currentId" v-if="!detail?.base?.ptRole"></Stats>
           </div>
         </div>
       </a-spin>
@@ -133,6 +137,7 @@ import RequestDetails from './components/requestDetails.vue';
 import Stats from './components/stats1.vue';
 import PeriodLine from './components/PeriodLine.vue';
 import MeterStat from './components/MeterStat.vue';
+import MeterStatVip from './components/MeterStatVip.vue';
 import Wash from './components/wash.vue';
 import Journal from '@/views/projects/journal/components/form/Add.vue';
 import StartDefault from '@/views/projects/penalty/components/form/Add.vue';

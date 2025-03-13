@@ -75,7 +75,8 @@
           </a-col>
           <a-col :span="24">
             <a-form-item :label="t('担保公司')" name="insurance_company">
-              <a-input v-model:value="formState.insurance_company" />
+              <!-- <a-input v-model:value="formState.insurance_company" /> -->
+              <vco-company-select v-model:name="formState.insurance_company"></vco-company-select>
             </a-form-item>
           </a-col>
           <a-col :span="12">

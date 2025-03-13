@@ -99,7 +99,7 @@
             </div>
           </div>
 
-          <div v-if="!itemId" class="flex flex-col items-center gap-6">
+          <div class="flex flex-col items-center gap-6">
             <a-dropdown :trigger="['click']">
               <a-button :loading="downloading" type="dark" class="big shadow bold uppercase flex-button">
                 {{ t('创建报告') }}
@@ -124,13 +124,20 @@
                 </a-menu>
               </template>
             </a-dropdown>
+            
             <a-button
-              v-if="hasPermission('projects:about:add:savings') && isAbout && !isClose"
+              v-if="hasPermission('projects:about:add:savings') && isAbout && !isClose && !itemId"
               type="brown" shape="round" size="small"
               @click="visible = true"
             >
               {{ t('增加存蓄费') }}
             </a-button>
+            <a-button
+              v-if="itemId"
+              :loading="updateLoading"
+              @click="updateHandle"
+              type="brown" shape="round" size="small"
+            >{{ t('更新明细表') }}</a-button>
           </div>
         </div>
 
@@ -283,8 +290,15 @@ import {
   projectDetailStatistics,
   projectForecastAddf
 } from '@/api/process';
-import { projectForecastVaiList, projectVariationStatisticsVai } from "@/api/project/variation"
+import {
+  projectForecastVaiList,
+  projectVariationStatisticsVai,
+  projectVariationForecastUpd,
+  projectVariationExportExcel
+} from "@/api/project/variation"
+
 import { systemDictData } from "@/api/system"
+import { useUserStore } from '@/store';
 
 const props = defineProps({
   currentId: {
@@ -314,6 +328,8 @@ const props = defineProps({
 });
 
 const { t } = useI18n();
+
+const userStore = useUserStore();
 
 const pageLoading = ref(false);
 const tabData = ref([]);
@@ -414,12 +430,17 @@ const getDataInfo = () => {
 
 const downloading = ref(false);
 const downLoadExcel = (type) => {
+  const ajaxFn = props.itemId ? projectVariationExportExcel : projectForecastExportExcel
   const params = {
     type,
     uuid: props.currentId,
   };
+  if (props.itemId) {
+    params.id = props.itemId
+  }
+
   downloading.value = true;
-  projectForecastExportExcel(params)
+  ajaxFn(params)
     .then((res) => {
       downloading.value = false;
       window.open(res);
@@ -538,6 +559,23 @@ const getDurationType = () => {
       }
     })
     cateData.value = data
+  })
+}
+
+const updateLoading = ref(false)
+const updateHandle = () => {
+  userStore.getTaskNumInfo()
+  updateLoading.value = true
+  const params = {
+    uuid: props.currentId,
+    id: props.itemId
+  }
+
+  projectVariationForecastUpd(params).then(() => {
+    getDataInfo();
+    updateLoading.value = false
+  }).catch(() => {
+    updateLoading.value = false
   })
 }
 

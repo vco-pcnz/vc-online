@@ -1,5 +1,11 @@
 <template>
-  <vco-page-panel :title="(detail && detail.base.project_apply_sn+(pageTitle?'` '+t(pageTitle) :'')) || ''" @back="back">
+  <vco-page-panel @back="back">
+    <template #title>
+      <div class="page-title-content">
+        <div v-if="detail?.base?.project_apply_sn" class="tag">{{ detail?.base?.project_apply_sn }}</div>
+        <div class="tag uppercase">{{ t('变更1') }}</div>
+      </div>
+    </template>
     <div class="TabsPanel-Tab">
       <a-button v-for="item in panes" :key="item.key" @click="onChange(item.key)" :class="`tab-button ${item.key === props.activeTab ? 'active-tab' : ''}`">
         {{ item.title }}
@@ -14,14 +20,13 @@ import { onMounted, ref, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useUserStore } from '@/store';
 import { useRouter, useRoute } from 'vue-router';
-// import { projectDetailApi } from '@/api/process';
 import { projectDetail } from '@/api/project/project';
+import { projectVariationInfo } from '@/api/project/variation'
 import { cloneDeep } from 'lodash';
 
 const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
-
 const userStore = useUserStore();
 
 const props = defineProps(['title', 'activeTab']);
@@ -37,7 +42,10 @@ const panes = computed(() => {
   const detailsArr = childArr.find((item) => item.path === '/projects/details');
   const child = detailsArr.children || [];
 
-  arr = child
+  const variationsDetails = child.find((item) => item.path === '/projects/variations-details');
+  const variationsChild = variationsDetails.children || [];
+
+  arr = variationsChild
     .filter((item) => !item.meta.hide)
     .map((item) => {
       return {
@@ -50,38 +58,27 @@ const panes = computed(() => {
 });
 
 const onChange = (key) => {
-  router.push(`/projects/${key}?uuid=` + route.query.uuid);
+  router.push(`/projects/variations-details/${key}?uuid=${route.query.uuid}&id=${route.query.id}`);
 };
 
-const prevBackArr = ['penalty', 'variations', 'journal']
-const backPrev = (link) => {
-  for (let i = 0; i < prevBackArr.length; i++) {
-    if (link.indexOf(prevBackArr[i]) > -1) {
-      return true
-    }
-  }
-  return false
-}
-
 const back = () => {
-  if(backPrev(route.path)) {
-    router.push(`/projects/about?uuid=${route.query.uuid}`);
-  } else {
-    if (detail.value?.base?.is_open === 2 || detail.value?.base?.is_open === 3) {
-      router.push(`/projects/closed`);
-    } else {
-      router.push(`/projects/current`);
-    }
-  }
+  router.push(`/projects/variations?uuid=${route.query.uuid}`);
 };
 
 const detail = ref(null);
-const getProjectDetail = (userId) => {
+const getProjectDetail = async (userId) => {
   const uuid = userId || route.query.uuid;
+
+  const variationInfo = await projectVariationInfo({
+    uuid: route.query.uuid,
+    id: route.query.id
+  })
+
   if (uuid) {
     // 发起请求
     projectDetail({ uuid }).then((res) => {
       res['loan'] = res.date;
+      res['variationInfo'] = variationInfo;
       detail.value = res;
       emits('getProjectDetail', res);
     });
@@ -96,23 +93,6 @@ onMounted(() => {
 defineExpose({
   getProjectDetail
 });
-
-const pageTitle = ref('');
-watch(
-  () => route,
-  (val) => {
-    if (val) {
-      if (router.currentRoute._value.meta.hide) {
-        pageTitle.value = router.currentRoute._value.meta.title;
-      } else {
-        pageTitle.value = '';
-      }
-    }
-  },
-  {
-    immediate: true
-  }
-);
 </script>
 
 <style scoped lang="less">
@@ -135,5 +115,33 @@ watch(
 .active-tab {
   color: @clr_yellow;
   border: 1px solid @clr_yellow;
+}
+
+.page-title-content {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  > .tag {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    font-weight: 500;
+    font-size: 14px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    background-color: @clr_charcoal;
+    color: @clr_white;
+    border-radius: 16px;
+    padding: 0 30px;
+    &:first-child {
+      border-radius: 0 16px 16px 0 !important;
+    }
+    &.uppercase {
+      padding: 0 20px;
+      background-color: @colorPrimary;
+    }
+  }
 }
 </style>

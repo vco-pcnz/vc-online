@@ -7,7 +7,7 @@
     <div class="base-card">
       <p class="id_async">
         <span>ID {{ detail?.base.project_apply_sn }}</span>
-        <template v-if="!detail?.base?.ptRole">
+        <template v-if="!variations && !detail?.base?.ptRole">
           <a-statistic-countdown :value="deadline" @finish="onFinish" format="mm:ss" v-if="Boolean(countdown)">
             <template #prefix>
               <span>{{ t('处理') }} (</span>
@@ -53,7 +53,17 @@ import { syncBankBill } from '@/api/reconciliations';
 import { message } from 'ant-design-vue';
 
 const { t } = useI18n();
-const props = defineProps(['detail']);
+
+const props = defineProps({
+  detail: {
+    type: Object,
+    default: () => {}
+  },
+  variations: {
+    type: Boolean,
+    default: false
+  }
+})
 
 const isExpand = ref(false);
 const loading = ref(false);

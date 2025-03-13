@@ -13,7 +13,11 @@
 
         <div class="input-item">
           <div class="label" :class="{ err: !formState.date && validate }">{{ t('日期') }}</div>
-          <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" :showToday="false" />
+          <a-date-picker class="datePicker"
+            :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.date"
+            :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" :showToday="false"
+            :defaultPickerValue="defaultPickerValue"
+          />
         </div>
 
         <div class="input-item">
@@ -60,11 +64,12 @@
 </template>
 
 <script scoped setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import tool, { selectDateFormat } from '@/utils/tool';
 import { addf } from '@/api/project/loan';
+import { projectVariationAddf } from '@/api/project/variation'
 import dayjs, { Dayjs } from 'dayjs';
 import { cloneDeep } from 'lodash';
 
@@ -74,6 +79,9 @@ const emits = defineEmits(['update']);
 const props = defineProps({
   uuid: {
     type: String
+  },
+  itemId: {
+    type: [String, Number]
   },
   projectDetail: {
     type: Object
@@ -98,8 +106,13 @@ const formState = ref({
   note: ''
 });
 
+const defaultPickerValue = computed(() => {
+  const startDate = props.itemId ? props.projectDetail.variationInfo.start_date : props.projectDetail.loan.start_date;
+  return dayjs(startDate).add(1, 'day')
+})
+
 const disabledDateFormat = (current) => {
-  const startDate = props.projectDetail.loan.start_date;
+  const startDate = props.itemId ? props.projectDetail.variationInfo.start_date : props.projectDetail.loan.start_date;
   if (current && current.isBefore(startDate, 'day')) {
     return true;
   }
@@ -125,9 +138,15 @@ const setShowTip = () => {
 const save = () => {
   validate.value = true;
   if (formState.value.amount === '' || !formState.value.date) return;
-  loading.value = true;
+  
   let params = { ...formState.value, apply_uuid: props.uuid };
-  addf(params)
+  const ajaxFn = props.itemId ? projectVariationAddf : addf
+  if (props.itemId) {
+    params.variation_id = props.itemId
+  }
+
+  loading.value = true;
+  ajaxFn(params)
     .then((res) => {
       message.success(t('保存成功'));
       emits('update');
@@ -143,6 +162,7 @@ const save = () => {
 const init = () => {
   formState.value.date = '';
   formState.value.amount = '';
+  formState.value.note = '';
 
   if (props.itemDate) {
     formState.value = cloneDeep({
@@ -150,6 +170,7 @@ const init = () => {
       type: props.itemDate.type,
       id: props.itemDate.id,
       date: props.itemDate.date,
+      note: props.itemDate.note,
       amount: Math.abs(props.itemDate.amount)
     });
   }

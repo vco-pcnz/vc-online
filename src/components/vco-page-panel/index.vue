@@ -3,7 +3,8 @@
     <div class="Panel">
       <h2 class="Panel-Title">
         <i class="iconfont back" @click="back">&#xe794;</i>
-        <a-tag class="Tag">{{ title }}</a-tag>
+        <a-tag v-if="title" class="Tag">{{ title }}</a-tag>
+        <slot name="title"></slot>
       </h2>
     </div>
     <div class="TabsPanel-Tab">

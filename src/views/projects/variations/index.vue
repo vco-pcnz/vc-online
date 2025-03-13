@@ -1,15 +1,6 @@
 <template>
   <detail-layout active-tab="penalty" @getProjectDetail="getProjectDetail">
     <template #content>
-      <!-- 明细表弹窗 -->
-      <schedule-dialog
-        v-model:visible="scheduleVisible"
-        :uuid="uuid"
-        :detailData="currentData"
-        @done="getTableData(false)"
-      >
-      </schedule-dialog>
-
       <!-- 详情弹窗 -->
       <detail-dialog
         v-model:visible="detailVisible"
@@ -106,33 +97,27 @@
                 <span v-else>--</span>
               </template>
               <template v-if="column.dataIndex === 'operation'">
-                <a-button
-                  type="cyan" size="small" shape="round" class="uppercase mb-2"
-                  @click="openSchedule(record)"
-                >{{ t('明细表') }}</a-button>
                 <template v-if="record.has_permission">
-                  <a-button
+                  <!-- <a-button
                     v-if="record.status_name === 'PENDING SUBMIT'"
-                    type="primary" size="small" shape="round" class="uppercase"
+                    type="primary" size="small" shape="round" class="uppercase mb-2"
                     @click="openDetail(record, true)"
-                  >{{ t('编辑') }}</a-button>
+                  >{{ t('编辑') }}</a-button> -->
                   <a-button
-                    v-else
-                    type="primary" size="small" shape="round" class="uppercase"
+                    v-if="record.status_name !== 'PENDING SUBMIT'"
+                    type="primary" size="small" shape="round" class="uppercase mb-2"
                     @click="openDetail(record, false)"
                   >{{ t('审核') }}</a-button>
                 </template>
+                <!-- <a-button
+                    v-if="record.status_name === 'PENDING APPLY' && Boolean(record.is_me)"
+                    type="primary" size="small" shape="round" class="uppercase mb-2"
+                    @click="openDetail(record, true)"
+                  >{{ t('编辑') }}</a-button> -->
                 <a-button
-                  v-else
                   type="brown" size="small" shape="round" class="uppercase"
-                  @click="openDetail(record, false)"
+                  @click="goDetail(record)"
                 >{{ t('详情') }}</a-button>
-
-                <a-popconfirm v-if="!Boolean(record.is_do)" :title="t('确定要更新吗？')" @confirm="updateHandle(record)">
-                  <a-button
-                    type="danger" size="small" shape="round" class="uppercase mt-2"
-                  >{{ t('更新') }}</a-button>
-                </a-popconfirm>
               </template>
             </template>
           </a-table>
@@ -157,7 +142,7 @@
 <script setup>
 import { ref, onMounted, watch, reactive, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import tool from '@/utils/tool';
+import tool, { navigationTo } from '@/utils/tool';
 import { QuestionCircleOutlined } from '@ant-design/icons-vue'
 import detailLayout from '../components/detailLayout.vue';
 import { projectVariationList, projectVariationForecastUpd } from '@/api/project/variation';
@@ -166,7 +151,6 @@ import { useRoute } from 'vue-router';
 import { hasPermission } from '@/directives/permission/index';
 import AddVariations from '@/views/projects/variations/components/form/AddVariations.vue';
 import DetailDialog from './components/DetailDialog.vue';
-import ScheduleDialog from './components/ScheduleDialog.vue';
 import { useUserStore } from '@/store';
 
 const { t } = useI18n();
@@ -177,6 +161,10 @@ const userStore = useUserStore();
 const colors = ref({
   'FC REVIEW': '#d3a631',
   'FC PENDING REVIEW': '#d3a631',
+  'DIRECTOR PENDING REVIEW': '#d3a631',
+  'PENDING APPLY': '#d3a631',
+  'LM PENDING REVIEW': '#0bda8e',
+  'PENDING SUBMIT': '#F19915',
   'DECLINED PENALTY': '#c1430c',
 });
 
@@ -250,10 +238,8 @@ const openDetail = (data, flag) => {
   }
 }
 
-const scheduleVisible = ref(false)
-const openSchedule = (data) => {
-  currentData.value = data
-  scheduleVisible.value = true
+const goDetail = (data) => {
+  navigationTo(`/projects/variations-details/about?uuid=${uuid.value}&id=${data.id}`)
 }
 
 const updateHandle = async (data) => {

@@ -130,7 +130,7 @@ import detailLayout from '../components/detailLayout.vue';
 import BaseCard from './components/base.vue';
 import History from './components/history.vue';
 import RequestDetails from './components/requestDetails.vue';
-import Stats from './components/stats.vue';
+import Stats from './components/stats1.vue';
 import PeriodLine from './components/PeriodLine.vue';
 import MeterStat from './components/MeterStat.vue';
 import Wash from './components/wash.vue';

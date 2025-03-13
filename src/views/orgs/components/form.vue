@@ -89,12 +89,14 @@
           <template v-if="form.type !== 20">
             <a-col :span="24">
               <a-form-item :label="t('公司名称f')" name="name">
-                <a-input v-model:value="form.name" :placeholder="t('请输入')" />
+                <!-- <a-input v-model:value="form.name" :placeholder="t('请输入')" /> -->
+                <vco-company-select v-model:name="form.name" :placeholder="t('请输入')" v-model:nzbz="form.nzbz" :show_nzbn="true" @change="getCompanyInfo"></vco-company-select>
               </a-form-item>
             </a-col>
             <a-col :span="24">
-              <a-form-item label="NZBZ" name="nzbz">
-                <a-input v-model:value="form.nzbz" :placeholder="t('请输入')" />
+              <a-form-item label="NZBN" name="nzbz">
+                <!-- <a-input v-model:value="form.nzbz" :placeholder="t('请输入')" /> -->
+                <vco-company-select v-model:name="form.name" :placeholder="t('请输入')" v-model:nzbz="form.nzbz" :show_nzbn="true" @change="getCompanyInfo" :is_nzbn="true"></vco-company-select>
               </a-form-item>
             </a-col>
             <a-col :span="24">
@@ -405,10 +407,10 @@ const dynamicRules = computed(() => {
         }
       ],
       nzbz: [
-        { required: true, message: t('请输入') + 'NZBZ', trigger: 'blur' },
+        { required: true, message: t('请输入') + 'NZBN', trigger: 'blur' },
         {
           pattern: /^[a-zA-Z0-9]+$/,
-          message: 'NZBZ' + t('格式不正确'),
+          message: 'NZBN' + t('格式不正确'),
           trigger: 'blur'
         }
       ],
@@ -546,6 +548,13 @@ const hasData = (data) => {
   } else {
     return false;
   }
+};
+
+const getCompanyInfo = (val) => {
+  form.email = val.email;
+  form.pre = val.pre;
+  form.mobile = val.mobile;
+  vcoAddressRef.value.init(val);
 };
 
 onMounted(() => {

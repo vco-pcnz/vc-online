@@ -271,3 +271,19 @@ export const projectDischargeSelSecurity = (params) =>
     method: 'get',
     params
   });
+
+// 获取公司信息
+export const getCompanyInfo = (params) =>
+  request({
+    url: 'project/apply/getCompanyInfo',
+    method: 'get',
+    params
+  });
+
+// 获取公司详细
+export const getCompanyInfoByNzbn = (params) =>
+  request({
+    url: 'project/apply/getCompanyInfoByNzbn',
+    method: 'get',
+    params
+  });

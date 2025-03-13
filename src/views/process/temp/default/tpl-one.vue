@@ -10,18 +10,8 @@
         <div class="left-content">
           <div class="block-item" :class="{ check: check }">
             <div v-if="!check" class="flex justify-end gap-5">
-              <a-button v-permission="'process:one:tempImport'" type="primary-line" shape="round" size="small" @click="importStaHandle">{{
-                t('从利益相关者导入')
-              }}</a-button>
-              <a-button
-                v-permission="'process:one:tempData'"
-                type="primary-line"
-                shape="round"
-                size="small"
-                class="flex items-center justify-center"
-                :loading="tempLoading"
-                @click="tempDataHandle"
-              >
+              <a-button v-permission="'process:one:tempImport'" type="primary-line" shape="round" size="small" @click="importStaHandle">{{ t('从利益相关者导入') }}</a-button>
+              <a-button v-permission="'process:one:tempData'" type="primary-line" shape="round" size="small" class="flex items-center justify-center" :loading="tempLoading" @click="tempDataHandle">
                 {{ t('生成临时借款人ID') }}
                 <a-tooltip>
                   <template #title>
@@ -46,11 +36,7 @@
                   <a-col :span="24">
                     <a-form-item :label="t('证件照片')" name="borrower_images">
                       <!-- <vco-upload-image v-model:value="formState.borrower_images" :isMultiple="true" :limit="9"></vco-upload-image> -->
-                      <vco-upload-list
-                        v-model:value="formState.borrower_images"
-                        v-model:list="formState.borrower_images_list"
-                        :limit="9 - formState.borrower_images.length"
-                      ></vco-upload-list>
+                      <vco-upload-list v-model:value="formState.borrower_images" v-model:list="formState.borrower_images_list" :limit="9 - formState.borrower_images.length"></vco-upload-list>
                     </a-form-item>
                   </a-col>
                   <template v-if="formState.borrower_type === 1">
@@ -73,17 +59,19 @@
                   <template v-else>
                     <a-col :span="24">
                       <a-form-item :label="t('机构名称')" name="organization_name">
-                        <a-input v-model:value="formState.organization_name" />
+                        <!-- <a-input v-model:value="formState.organization_name" /> -->
+                        <vco-company-select v-model:name="formState.organization_name" v-model:nzbz="formState.company_number" :show_nzbn="true" @change="getCompanyInfo"></vco-company-select>
                       </a-form-item>
                     </a-col>
                   </template>
-                  <a-col :span="isNormalUser ? 24 : (isOpen ? 24 : 16)">
+                  <a-col :span="isNormalUser ? 24 : isOpen ? 24 : 16">
                     <a-form-item v-if="formState.borrower_type === 1" :label="t('身份证号码')" name="borrower_id_num">
                       <a-input v-model:value="formState.borrower_id_num" />
                     </a-form-item>
 
                     <a-form-item v-else :label="t('公司编码')" name="company_number">
-                      <a-input v-model:value="formState.company_number" />
+                      <!-- <a-input v-model:value="formState.company_number" /> -->
+                      <vco-company-select v-model:name="formState.organization_name" :placeholder="t('请输入')" v-model:nzbz="formState.company_number" :show_nzbn="true" @change="getCompanyInfo" :is_nzbn="true"></vco-company-select>
                     </a-form-item>
                   </a-col>
                   <a-col v-if="!isNormalUser && !isOpen" :span="8">
@@ -98,13 +86,7 @@
                   </a-col>
                   <a-col :span="12">
                     <a-form-item :label="t('手机号')" name="borrower_phone">
-                      <vco-mobile-input
-                        v-model:value="formState.borrower_phone"
-                        v-model:areaCode="formState.borrower_phone_prefix"
-                        :formRef="formRef"
-                        validateField="borrower_phone"
-                      >
-                      </vco-mobile-input>
+                      <vco-mobile-input v-model:value="formState.borrower_phone" v-model:areaCode="formState.borrower_phone_prefix" :formRef="formRef" validateField="borrower_phone"> </vco-mobile-input>
                     </a-form-item>
                   </a-col>
                   <a-col :span="24">
@@ -156,7 +138,7 @@ import { projectApplySaveBorrowerInfo, projectAuditSaveMode, projectSaveSaveDraf
 import tool from '@/utils/tool';
 import { message } from 'ant-design-vue/es';
 import { projectApplyBorrowerInfo, projectDraftInfo, getApproveTemp } from '@/api/process';
-import { projectDetailSaveBorrower } from "@/api/project/project"
+import { projectDetailSaveBorrower } from '@/api/project/project';
 import TempFooter from './components/TempFooter.vue';
 import BindUsers from './../../components/BindUsers.vue';
 import AdsContent from './../../components/AdsContent.vue';
@@ -222,7 +204,7 @@ const bindUsersRef = ref();
 
 const userStore = useUserStore();
 
-const isNormalUser = computed(() => userStore.isNormalUser)
+const isNormalUser = computed(() => userStore.isNormalUser);
 
 const bindUserPermission = computed(() => {
   return hasPermission('requests:loan:bind:vcTeam') || hasPermission('requests:loan:bind:broker') || hasPermission('requests:loan:bind:user');
@@ -409,7 +391,7 @@ const choiceUserDone = (data) => {
   formState.borrower_address_short = data.addr;
   formState.borrower_address = data.address;
   formState.borrower_about = data.note;
-  formState.borrower_suburb = data.suburb
+  formState.borrower_suburb = data.suburb;
 
   formState.borrower_region_one_id = data.province_code;
   formState.borrower_region_two_id = data.city_code;
@@ -434,7 +416,7 @@ const getParams = () => {
     params.borrower_id_num = params.company_number;
   }
 
-  params.is_temp_borrower = params.is_temp_borrower ? 1 : 0
+  params.is_temp_borrower = params.is_temp_borrower ? 1 : 0;
 
   delete params.company_number;
 
@@ -455,7 +437,7 @@ const submitHandle = () => {
 
       if (props.check) {
         if (props.isOpen) {
-          ajaxFn = projectDetailSaveBorrower
+          ajaxFn = projectDetailSaveBorrower;
         } else {
           params.borrower_info_status = props.infoData.check_status;
           params.code = props.code;
@@ -549,8 +531,8 @@ const dataInit = (infoMsg = {}, draftMsg = {}) => {
   for (const key in formState) {
     if (key === 'company_number') {
       formState[key] = useData.borrower_type === 2 ? useData.borrower_id_num : '';
-    } else if(key === 'is_temp_borrower') {
-      formState[key] = useData[key] ? Boolean(Number(useData[key])) : false
+    } else if (key === 'is_temp_borrower') {
+      formState[key] = useData[key] ? Boolean(Number(useData[key])) : false;
     } else {
       formState[key] = useData[key] || formState[key];
     }
@@ -595,6 +577,20 @@ const getDataInit = async () => {
   pageLoading.value = false;
 
   dataInit(infoData, draftData);
+};
+
+const getCompanyInfo = (val) => {
+  formState.borrower_address_short = val.addr;
+  formState.borrower_address = val.address;
+  formState.borrower_suburb = val.suburb;
+  formState.borrower_postcode = val.postal;
+  formState.borrower_con_id = val.con_id;
+  formState.borrower_region_one_name = val.province_code_name;
+  formState.borrower_email = val.email;
+  formState.borrower_phone_prefix = val.pre;
+  formState.borrower_phone = val.mobile;
+
+  vcoAddressRef.value.init(formState);
 };
 
 const needBindUser = ref(false);

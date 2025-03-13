@@ -13,7 +13,7 @@
         <div class="MeterStat-Meter LB"></div>
         <div>
           <p>Repayment</p>
-          <vco-number :value="0" :precision="2"></vco-number>
+          <vco-number :value="data?.real_repayment" :precision="2"></vco-number>
         </div>
       </div>
       <div class="MeterStat">
@@ -26,7 +26,7 @@
               <div class="tips"><p>Full Facility = Facility + Establishment fee + Estimated Line Fee + Estimated Interest</p></div>
             </div>
           </div>
-          <vco-number :value="data?.totalBalance" :precision="2"></vco-number>
+          <vco-number :value="data?.credit_fc1" :precision="2"></vco-number>
         </div>
       </div>
     </div>
@@ -34,7 +34,7 @@
     <div class="chart">
       <!-- <v-chart :option="option" autoresize />
       <v-chart class="chart2" :option="option2" autoresize /> -->
-      <a-progress type="circle" class="progress" :size="180" strokeColor="#c5dfd6" :strokeWidth="9" :percent="75">
+      <a-progress type="circle" class="progress" :size="280" strokeColor="rgba(169, 173, 87, 0.7)" :strokeWidth="6" :percent="data?.fkrate || 0">
         <template #format="percent">
           <div class="progress-value">
             <p>drawn</p>
@@ -42,7 +42,7 @@
           </div>
         </template>
       </a-progress>
-      <a-progress type="circle" class="progress" :size="280" strokeColor="rgba(169, 173, 87, 0.7)" :strokeWidth="6" :showInfo="false" :percent="75" />
+      <a-progress type="circle" class="progress" :size="180" strokeColor="#c5dfd6" :strokeWidth="9" :percent="data?.hkrate || 12" :showInfo="false"> </a-progress>
     </div>
     <div class="MeterStat-row">
       <div class="MeterStat justify-end text-right">
@@ -62,14 +62,14 @@
       </div>
       <div class="MeterStat justify-end text-right">
         <div>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 justify-end">
             <div class="efSGMs">
               <i class="iconfont">&#xe76f;</i>
-              <div class="tips" style="right: 50%;left: auto;"><p>Loan = Approved LoanAmount + Legal fee + Brokerfee</p></div>
+              <div class="tips" style="right: 50%; left: auto"><p>Loan = Approved LoanAmount + Legal fee + Brokerfee + Otherfee</p></div>
             </div>
             Loan
           </div>
-          <vco-number :value="data?.pendingDrawdown" :precision="2"></vco-number>
+          <vco-number :value="data?.credit_fc2" :precision="2"></vco-number>
         </div>
         <div class="MeterStat-Meter RC"></div>
       </div>
@@ -184,8 +184,8 @@ watch(
   border: 1px solid #6d7b1f;
 }
 .LC {
-  background-color: rgba(169, 173, 87, 0.7);
-  border: 1px solid rgba(169, 173, 87, 0.5);
+  background-color: hsla(120, 5%, 89%, 0.5);
+  border: none;
 }
 .RA {
   background-color: #7dc1c1;

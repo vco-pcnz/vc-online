@@ -26,6 +26,19 @@
                     </a-form-item>
                   </a-col>
                   <a-col :span="24">
+                    <a-form-item :label="t('开发成本')" name="devCost">
+                      <a-input-number
+                        v-model:value="formState.devCost"
+                        :max="99999999999"
+                        :formatter="
+                          (value) =>
+                            `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                        "
+                        :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                      />
+                    </a-form-item>
+                  </a-col>
+                  <a-col :span="24">
                     <a-form-item :label="t('项目照片')" name="project_images">
                       <!-- <vco-upload-image v-model:value="formState.project_images" :isMultiple="true" :limit="9"></vco-upload-image> -->
                       <vco-upload-list
@@ -173,7 +186,8 @@
     region_three_id:'',
     region_one_name:'',
     project_suburb:'',
-    project_con_id:'',
+    project_con_id: '',
+    devCost:''
   })
 
 const vcoAddressRef = ref();

@@ -1,96 +1,90 @@
 <template>
   <div class="stats-content">
     <div class="box left">
-      <div class="box-top text-center">
+      <div class="box-top">
         <p class="bold">Projected Total Income</p>
-        <vco-number :value="0" :bold="true" size="fs_3xl" :precision="2"></vco-number>
+        <vco-number :value="data?.left?.income" :bold="true" size="fs_3xl" :precision="2"></vco-number>
       </div>
       <a-divider />
 
-      <a-row :gutter="16">
-        <a-col :span="12">
-          <p class="color_grey fs_xs">Interest</p>
-          <vco-number :value="data?.interest" :bold="true" size="fs_xl" :precision="2"></vco-number>
-          <p class="fs_xs color_grey">{{ data?.interestRate }}%</p>
+      <a-row :gutter="16" class="income">
+        <a-col :span="24">
+          <p class="color_grey fs_xs">Interest ({{ data?.left?.interestRate }}%)</p>
+          <vco-number :value="data?.left?.interest" :bold="true" :precision="2" size="fs_2xl"></vco-number>
         </a-col>
-        <a-col :span="12" class="text-right">
-          <p class="color_grey fs_xs">Establishment fee</p>
-          <vco-number :value="data?.estabFee" :bold="true" size="fs_xl" :precision="2"></vco-number>
-          <p class="fs_xs color_grey">{{ data?.estabFeeRate }}%</p>
+        <a-col :span="24" class="">
+          <p class="color_grey fs_xs">Establishment fee ({{ data?.left?.estabFeeRate }}%)</p>
+          <vco-number :value="data?.left?.estabFee" :bold="true" :precision="2" size="fs_2xl"></vco-number>
         </a-col>
-        <a-col :span="12" class="mt-20">
-          <p class="color_grey fs_xs">Line fee</p>
-          <vco-number :value="data?.lineFee" :bold="true" size="fs_xl" :precision="2"></vco-number>
-          <p class="fs_xs color_grey">{{ data?.lineFeeRate }}%</p>
+        <a-col :span="24">
+          <p class="color_grey fs_xs">Line fee ({{ data?.left?.lineFeeRate }}%)</p>
+          <vco-number :value="data?.left?.lineFee" :bold="true" :precision="2" size="fs_2xl"></vco-number>
         </a-col>
-        <a-col :span="12" class="text-right mt-20">
-          <p class="color_grey fs_xs">Bonus</p>
-          <vco-number :value="data?.bonus" :bold="true" size="fs_xl" :precision="2"></vco-number>
-          <p class="fs_xs color_grey">{{ data?.bonusRate }}%</p>
+        <a-col :span="24">
+          <p class="color_grey fs_xs">Bonus ({{ data?.left?.bonusRate }}%)</p>
+          <vco-number :value="data?.left?.bonus" :bold="true" :precision="2" size="fs_2xl"></vco-number>
         </a-col>
       </a-row>
     </div>
     <div class="box middle">
-      <div class="box-top text-center">
+      <div class="box-top">
         <p class="bold">Current income</p>
-        <vco-number :value="data?.income" :bold="true" size="fs_3xl" :precision="2"></vco-number>
+        <vco-number :value="data?.middle?.income" :bold="true" size="fs_3xl" :precision="2"></vco-number>
       </div>
       <a-divider />
-      <a-row :gutter="16">
-        <a-col :span="12">
+      <a-row :gutter="16" class="income">
+        <a-col :span="24">
           <p class="color_grey fs_xs">Interest</p>
-          <vco-number :value="0" :bold="true" size="fs_xl" :precision="2"></vco-number>
+          <vco-number :value="data?.middle?.interest" :bold="true" :precision="2" size="fs_2xl"></vco-number>
         </a-col>
-        <a-col :span="12" class="text-right">
-          <p class="color_grey fs_xs">Establishment fee</p>
-          <vco-number :value="0" :bold="true" size="fs_xl" :precision="2"></vco-number>
-          <p class="fs_xs color_grey">to 28/02/2025</p>
+        <a-col :span="24">
+          <p class="color_grey fs_xs">Establishment fee (to {{ toDay }})</p>
+          <vco-number :value="data?.middle?.estabFee" :bold="true" :precision="2" size="fs_2xl"></vco-number>
+          <p class="fs_xs color_grey"></p>
         </a-col>
-        <a-col :span="12" class="mt-20">
+        <a-col :span="24">
           <p class="color_grey fs_xs">Line fee</p>
-          <vco-number :value="0" :bold="true" size="fs_xl" :precision="2"></vco-number>
+          <vco-number :value="data?.middle?.lineFee" :bold="true" :precision="2" size="fs_2xl"></vco-number>
         </a-col>
-        <a-col :span="12" class="text-right mt-20">
+        <a-col :span="24">
           <p class="color_grey fs_xs">Bonus</p>
-          <vco-number :value="data?.bonus" :bold="true" size="fs_xl" :precision="2"></vco-number>
+          <vco-number :value="data?.middle?.bonus2" :bold="true" :precision="2" size="fs_2xl"></vco-number>
         </a-col>
       </a-row>
     </div>
     <div class="box right">
-      <p class="bold box-top text-center">Indicator</p>
+      <p class="box-top text-center" style="font-size: 22px; line-height: 60px">Indicator</p>
       <a-divider />
       <a-row :gutter="16">
         <a-col :span="12">
-          <div :class="{ 'color_red-error': Math.abs(data?.lvr) > Math.abs(data?.lvrMax) }">
+          <div :class="{ 'color_red-error': Math.abs(data?.right?.lvr) > Math.abs(data?.right?.lvrMax) }">
             <p class="color_grey fs_xs">LVR</p>
-            <span class="fs_xl bold">{{ data?.lvr }}%</span>
-            <p class="fs_xs">{{ Math.abs(data?.lvr) > Math.abs(data?.lvrMax) ? 'over the ' : '' }}max {{ data?.lvrMax }}%</p>
+            <span class="fs_xl bold">{{ data?.right?.lvr }}%</span>
+            <p class="fs_xs">{{ Math.abs(data?.right?.lvr) > Math.abs(data?.right?.lvrMax) ? 'over the ' : '' }}max {{ data?.right?.lvrMax }}%</p>
           </div>
         </a-col>
         <a-col :span="12" class="text-right">
           <p class="color_grey fs_xs">Security value</p>
-          <vco-number :value="data?.security" :bold="true" size="fs_xl" :precision="2"></vco-number>
-          <a-button v-if="hasPermission('projects:detail:viewSecurity')" type="brown" shape="round" size="small" class="mt-1" @click="navigationTo(`/projects/discharge?uuid=${currentId}`)">
+          <vco-number :value="data?.right?.security" :bold="true" size="fs_xl" :precision="2"></vco-number>
+          <!-- <a-button v-if="hasPermission('projects:detail:viewSecurity')" type="brown" shape="round" size="small" class="mt-1" @click="navigationTo(`/projects/discharge?uuid=${currentId}`)">
             security items <i class="iconfont fs_2xs ml-3">&#xe794;</i>
-          </a-button>
+          </a-button> -->
         </a-col>
-        <a-col :span="24">
+        <a-col :span="24" class="my-4">
           <p class="color_grey fs_xs">IRR</p>
-          <p class="fs_xl bold">{{ data?.irr }}%</p>
-          <p class="fs_xs">baseline 0.00%</p>
+          <p class="fs_xl bold">{{ data?.right?.irr }}%</p>
+          <p class="fs_xs">baseline {{ data?.right?.irrPreset }}%</p>
         </a-col>
-        <a-col :span="12" class="my-2">
+        <a-col :span="10">
           <p class="color_grey fs_xs">LTC</p>
-          <p class="fs_xl bold">{{ 0 }}</p>
-          <p class="fs_xs">baseline 0.00</p>
+          <p class="fs_xl bold">{{ data?.right?.ltc }}</p>
         </a-col>
-        <a-col :span="12" class="my-2 text-right">
+        <a-col :span="14" class="text-right">
           <p class="color_grey fs_xs">Total Development Cost</p>
-          <vco-number :value="0" :bold="true" size="fs_xl" :precision="2"></vco-number>
+          <vco-number :value="data?.right?.devCost" :bold="true" size="fs_xl" :precision="2"></vco-number>
         </a-col>
         <a-col :span="24">
-          <p class="color_grey fs_xs">number of days lapsed/total term days</p>
-          <p class="fs_xl bold">123/123</p>
+          <p class="fs_xs">baseline {{ data?.right?.baseline }}</p>
         </a-col>
       </a-row>
     </div>
@@ -102,6 +96,8 @@ import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { navigationTo } from '@/utils/tool';
 import { hasPermission } from '@/directives/permission/index';
+import { selectDateFormat } from '@/utils/tool';
+import dayjs, { Dayjs } from 'dayjs';
 
 const { t } = useI18n();
 
@@ -113,8 +109,13 @@ const props = defineProps({
   data: {
     type: Object,
     default: () => {}
+  },
+  detail: {
+    type: Object,
+    default: () => {}
   }
 });
+const toDay = ref(dayjs().format(selectDateFormat()));
 </script>
 
 <style scoped lang="less">
@@ -124,12 +125,12 @@ const props = defineProps({
   grid-gap: 12px;
   display: grid;
   gap: 12px;
-  grid-template-columns: 3fr 3fr 3fr;
+  grid-template-columns: 2fr 2fr 2fr;
 
   .box {
     background-color: #f0f0f0;
     border: 1px solid #e2e5e2;
-    padding: 30px 15px 20px;
+    padding: 20px 15px 20px;
     border-radius: 12px;
   }
 }
@@ -143,6 +144,23 @@ const props = defineProps({
     line-height: 18px !important;
     font-weight: normal !important;
     color: #888 !important;
+  }
+}
+:deep(.income) {
+  .ant-col {
+    height: 60px;
+    margin-left: 46px;
+  }
+}
+
+:deep(.ant-divider-horizontal) {
+  margin: 12px 0;
+}
+
+.middle,
+.left {
+  .box-top {
+    padding-left: 46px;
   }
 }
 </style>

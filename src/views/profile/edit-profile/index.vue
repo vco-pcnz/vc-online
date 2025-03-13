@@ -128,7 +128,7 @@ import countdown from '../components/Countdown.vue';
 import { sendUnauthECode, sendUnauthCodeM, modifyUserInfo } from '@/api/profile';
 import changeEmail from './change-email.vue';
 import changeMobile from './change-mobile.vue';
-import { useUserDetailStore } from '@/store';
+import { useUserDetailStore, useUserStore } from '@/store';
 import profileLayout from '../components/ProfileLayout.vue';
 import { message } from 'ant-design-vue';
 
@@ -137,6 +137,7 @@ const formRef = ref();
 const loading = ref(false);
 
 const userDetailStore = useUserDetailStore();
+const userStore = useUserStore();
 
 const verifyEmail = reactive({
   showCode: false,
@@ -251,6 +252,7 @@ const submit = () => {
         loading.value = false;
         message.success(t('修改成功'));
         userDetailStore.getUserInfo();
+        userStore.requestUserInfo();
         reset();
       })
       .catch(() => {

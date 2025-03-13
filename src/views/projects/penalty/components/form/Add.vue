@@ -14,7 +14,7 @@
 
         <div class="input-item">
           <div class="label" :class="{ err: !formState.rate && validate }">{{ t('利率') }}</div>
-          <a-input-number v-model:value="formState.rate" :min="0" :max="100" :formatter="(value) => `${value}%`" :parser="(value) => value.replace('%', '')" />
+          <a-input-number  class="rate" v-model:value="formState.rate" addon-after="%" :min="0" :max="100" style="width: 100%"></a-input-number>
         </div>
         <div class="input-item">
           <div class="label">{{ t('描述') }}</div>

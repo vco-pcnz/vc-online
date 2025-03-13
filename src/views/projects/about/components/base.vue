@@ -1,14 +1,13 @@
 <template>
   <div class="base-info-content">
     <div v-if="detail?.base?.substitution && detail?.base?.substitution.length" class="refinance">{{ t('再融资') }}</div>
-    <div class="refinance" v-if="detail?.base?.is_substitution" style="background-color: #d5d5d5;">{{ t('被再融资') }}</div>
+    <div class="refinance" v-if="detail?.base?.is_substitution" style="background-color: #d5d5d5">{{ t('被再融资') }}</div>
 
     <a-image v-if="detail?.base.project_image" :src="detail?.base.project_image" height="313.67px" width="100%" />
     <div class="base-card">
       <p class="id_async">
         <span>ID {{ detail?.base.project_apply_sn }}</span>
-
-        <template v-if="!variations">
+        <template v-if="!detail?.base?.ptRole">
           <a-statistic-countdown :value="deadline" @finish="onFinish" format="mm:ss" v-if="Boolean(countdown)">
             <template #prefix>
               <span>{{ t('处理') }} (</span>
@@ -27,7 +26,7 @@
           </a-spin>
         </template>
       </p>
-      <p class="mb-5">{{t('借款人')}}: {{ detail?.base.borrower_user_name }}</p>
+      <p class="mb-5">{{ t('借款人') }}: {{ detail?.base.borrower_user_name }}</p>
       <p class="text-2xl name">{{ detail?.base.project_name }}</p>
       <p class="purpose">
         <template v-if="detail && detail?.base.project_about.length > 100 && !isExpand"> {{ detail?.base.project_about.substring(0, 100) }}... </template>
@@ -42,10 +41,9 @@
       <p class="fs_xs">{{ detail?.base.project_city }}</p>
     </div>
   </div>
-  
 </template>
 
-<script setup>
+<script setup>å
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import xeroImg from '@/assets/images/xero.png';

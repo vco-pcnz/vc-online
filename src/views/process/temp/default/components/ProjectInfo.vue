@@ -7,22 +7,28 @@
           <p class="txt">{{ data.project_name }}</p>
         </div>
       </a-col>
-      <a-col :span="6">
+      <a-col :span="4">
         <div class="info-content">
           <p class="name">{{ t('项目类型') }}</p>
           <p class="txt">{{ data.project_type_name }}</p>
         </div>
       </a-col>
-      <a-col :span="6">
+      <a-col :span="4">
         <div class="info-content">
           <p class="name">{{ t('邮编') }}</p>
           <p class="txt">{{ data.project_postcode }}</p>
         </div>
       </a-col>
-      <a-col :span="6">
+      <a-col :span="4">
         <div class="info-content">
           <p class="name">{{ t('楼栋数') }}</p>
           <p class="txt">{{ data.building_num }}</p>
+        </div>
+      </a-col>
+      <a-col :span="6">
+        <div class="info-content">
+          <p class="name">{{ t('开发成本') }}</p>
+          <p class="txt">{{ tool.formatMoney(data.devCost) }}</p>
         </div>
       </a-col>
       <a-col :span="24">
@@ -64,7 +70,9 @@
 </template>
 
 <script setup>
-  import { useI18n } from "vue-i18n";
+import { useI18n } from "vue-i18n";
+import tool from '@/utils/tool';
+  
 
   const props = defineProps({
     data: {

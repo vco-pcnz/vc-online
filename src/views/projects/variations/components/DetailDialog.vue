@@ -128,7 +128,7 @@
       <div v-if="creditItemsData.length" class="flex flex-wrap mt-5">
         <a-col :span="24"><div class="mt-5" style="border-top: 1px dashed #282828;"></div></a-col>
         <a-col v-for="item in creditItemsData" :span="8" class="item-txt">
-          <p>{{ item.credit_table }}</p>
+          <p>{{ item.credit_name }}</p>
           <div class="change-content">
             <p v-if="item.is_ratio">{{ creditOldinfo[item.credit_table] }}%</p>
             <vco-number v-else :value="creditOldinfo[item.credit_table]" color="#888888" :precision="2"></vco-number>

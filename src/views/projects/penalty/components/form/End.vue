@@ -4,8 +4,8 @@
     <a-modal :width="550" :open="visible" :title="t('罚息结束')" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <div class="input-item">
-          <div class="label" :class="{ err: !formState.end_date && validate }">{{ t('开始日期') }}</div>
-          <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.end_date" format="DD/MM/YYYY" valueFormat="YYYY-MM-DD" :showToday="false" />
+          <div class="label" :class="{ err: !formState.apply_end_date && validate }">{{ t('申请结束日期') }}</div>
+          <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.apply_end_date" format="DD/MM/YYYY" valueFormat="YYYY-MM-DD" :showToday="false" />
         </div>
         <div class="input-item">
           <div class="label">{{ t('描述') }}</div>
@@ -56,7 +56,7 @@ const validate = ref(false);
 const formState = ref({
   uuid: '',
   id: '',
-  end_date: '',
+  apply_end_date: '',
   note2: ''
 });
 
@@ -68,7 +68,7 @@ const save = () => {
   formState.value.uuid = props.uuid;
   formState.value.id = props.id;
   validate.value = true;
-  if (!formState.value.end_date) return;
+  if (!formState.value.apply_end_date) return;
   eedit(formState.value)
     .then((res) => {
       emits('update');
@@ -94,12 +94,12 @@ const init = () => {
     formState.value = {
       uuid: '',
       id: '',
-      end_date: '',
+      apply_end_date: '',
       note2: ''
     };
     loadRate();
   } else {
-    let keys = ['id', 'end_date', 'note2'];
+    let keys = ['id', 'apply_end_date', 'note2'];
     formState.value = pick(props.detail, keys);
   }
   visible.value = true;

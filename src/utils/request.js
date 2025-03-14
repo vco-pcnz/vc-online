@@ -56,7 +56,7 @@ function createService() {
         return response;
       } else if (response.data.size) {
         response.data.code = 500;
-        response.data.message = "服务器内部错误";
+        response.data.message = i18n.global.t("服务器内部错误");
         response.data.success = false;
       }
 
@@ -86,7 +86,6 @@ function createService() {
             content: msg,
           });
         }
-
         return Promise.reject({
           code,
           msg,
@@ -105,23 +104,23 @@ function createService() {
       if (error.response && error.response.data) {
         switch (error.response.status) {
           case 404:
-            err("服务器资源不存在");
+            err(i18n.global.t("服务器资源不存在"));
             break;
           case 500:
-            err("服务器内部错误");
+            err(i18n.global.t("服务器内部错误"));
             break;
           case 401:
             const userStore = useUserStore();
             userStore.logout()
             break;
           case 403:
-            err("没有权限访问该资源");
+            err(i18n.global.t("没有权限访问该资源"));
             break;
           default:
-            err("未知错误！");
+            err(i18n.global.t("未知错误！"));
         }
       } else {
-        err("请求超时，服务器无响应！");
+        err(i18n.global.t("请求超时，服务器无响应！"));
       }
       return Promise.reject(
         error.response && error.response.data ? error.response.data : null

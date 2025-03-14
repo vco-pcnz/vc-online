@@ -3,7 +3,8 @@
     <ul class="table-col header">
       <li></li>
       <li class="date">{{ t('开始时间') }}</li>
-      <li>{{ t('开始状态') }}</li>
+      <li class="status">{{ t('开始状态') }}</li>
+      <li class="date">{{ t('申请结束日期') }}</li>
       <li class="date">{{ t('结束时间') }}</li>
       <li>{{ t('结束状态') }}</li>
       <li class="rate">{{ t('利率') }}</li>
@@ -16,8 +17,11 @@
           <li class="date">
             <span class="fs_xs color_grey" v-if="item.start_date">{{ tool.showDate(item.start_date) }}</span>
           </li>
-          <li :style="{ color: colors[item.start_status_name] }">
+          <li class="status" :style="{ color: colors[item.start_status_name] }">
             {{ item.start_status_name }}
+          </li>
+          <li class="date">
+            <span class="fs_xs color_grey" v-if="item.apply_end_date">{{ tool.showDate(item.apply_end_date) }}</span>
           </li>
           <li class="date">
             <span class="fs_xs color_grey" v-if="item.end_date">{{ tool.showDate(item.end_date) }}</span>
@@ -153,13 +157,17 @@ watch(
     &:first-child {
       flex: 0 0 30px;
     }
+    &.status {
+      flex: 0 0 200px;
+      text-align: center;
+    }
     &.date {
-      flex: 0 0 100px;
+      flex: 0 0 80px;
       text-align: center;
     }
 
     &.rate {
-      flex: 0 0 100px;
+      flex: 0 0 80px;
       text-align: center;
     }
   }

@@ -740,7 +740,7 @@ export default {
   "再融资项目": "Refinancing Projects",
   "再融资": "Refinance",
   "被再融资": "Refinanced",
-  "结束时间不能大于开始时间": "The end time cannot be greater than the start time",
+  "申请结束日期不能大于开始时间": "The apply end date cannot be greater than the start time",
   "施工进度": "Construction completion",
   "此操作会影响forecast,是否要继续?": "This operation will affect the forecast, do you want to continue?",
   "请释放抵押品": "Please release the collateral",
@@ -782,5 +782,11 @@ export default {
   "删除请求": "Delete request",
   "您确定提交申请吗？": "Are you sure you want to submit request?",
   "您确定删除请求吗？": "Are you sure you want to delete your request?",
-  "受益人": "Beneficiaries"
+  "受益人": "Beneficiaries",
+  "服务器内部错误": "Internal server error",
+  "服务器资源不存在": "Server resource does not exist",
+  "没有权限访问该资源": "No permission to access the resource",
+  "未知错误！": "Unknown error!",
+  "请求超时，服务器无响应！": "Request timed out, no response from the server!",
+  "申请结束日期": "Apply end date"
 }

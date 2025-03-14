@@ -781,5 +781,6 @@ export default {
   "提交申请": "Submit request",
   "删除请求": "Delete request",
   "您确定提交申请吗？": "Are you sure you want to submit request?",
-  "您确定删除请求吗？": "Are you sure you want to delete your request?"
+  "您确定删除请求吗？": "Are you sure you want to delete your request?",
+  "受益人": "Beneficiaries"
 }

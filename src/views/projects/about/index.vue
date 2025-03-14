@@ -59,7 +59,7 @@
               <a-collapse-panel key="orgs" class="collapse-card request-card" v-if="!detail?.base?.ptRole">
                 <template #header>
                   <i class="iconfont">&#xe8db;</i>
-                  <span class="title">{{ t('利益相关者') }}</span>
+                  <span class="title">{{ t('受益人') }}</span>
                 </template>
                 <Wash :currentId="currentId"></Wash>
               </a-collapse-panel>

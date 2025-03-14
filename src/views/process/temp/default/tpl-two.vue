@@ -12,20 +12,14 @@
                       <a-input v-model:value="formState.project_name" />
                     </a-form-item>
                   </a-col>
-                  <a-col :span="12">
+                  <a-col :span="10">
                     <a-form-item :label="t('项目类型')" name="project_type">
                       <a-select
                         v-model:value="formState.project_type"
                         :options="projectTypeData"
                       ></a-select>
                     </a-form-item>
-                  </a-col>
-                  <a-col :span="12">
-                    <a-form-item :label="t('楼栋数')" name="building_num">
-                      <a-input-number v-model:value="formState.building_num" />
-                    </a-form-item>
-                  </a-col>
-                  <a-col :span="24">
+                  </a-col> <a-col :span="10">
                     <a-form-item :label="t('开发成本')" name="devCost">
                       <a-input-number
                         v-model:value="formState.devCost"
@@ -38,6 +32,12 @@
                       />
                     </a-form-item>
                   </a-col>
+                  <a-col :span="4">
+                    <a-form-item :label="t('楼栋数')" name="building_num">
+                      <a-input-number min="1" v-model:value="formState.building_num" />
+                    </a-form-item>
+                  </a-col>
+                 
                   <a-col :span="24">
                     <a-form-item :label="t('项目照片')" name="project_images">
                       <!-- <vco-upload-image v-model:value="formState.project_images" :isMultiple="true" :limit="9"></vco-upload-image> -->

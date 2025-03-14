@@ -77,14 +77,14 @@
         </a-col>
         <a-col :span="10">
           <p class="color_grey fs_xs">LTC</p>
-          <p class="fs_xl bold">{{ data?.right?.ltc }}</p>
+          <p class="fs_xl bold">{{ data?.right?.ltc }}%</p>
         </a-col>
         <a-col :span="14" class="text-right">
           <p class="color_grey fs_xs">Total Development Cost</p>
           <vco-number :value="data?.right?.devCost" :bold="true" size="fs_xl" :precision="2"></vco-number>
         </a-col>
         <a-col :span="24">
-          <p class="fs_xs">baseline {{ data?.right?.baseline }}</p>
+          <p class="fs_xs">baseline {{ data?.right?.baseline }}%</p>
         </a-col>
       </a-row>
     </div>

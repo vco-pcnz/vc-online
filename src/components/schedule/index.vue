@@ -107,13 +107,15 @@
               </a-button>
               <template #overlay>
                 <a-menu>
-                  <a-menu-item>
-                    <div class="pt-2 pb-2" @click="downLoadExcel(1)">{{ t('预测放款时间表') }}</div>
-                  </a-menu-item>
                   <template v-if="!ptRole">
                     <a-menu-item>
-                      <div class="pt-2 pb-2" @click="downLoadExcel(2)">{{ t('放款时间表') }}</div>
+                      <div class="pt-2 pb-2" @click="downLoadExcel(1)">{{ t('预测放款时间表') }}</div>
                     </a-menu-item>
+                  </template>
+                  <a-menu-item>
+                    <div class="pt-2 pb-2" @click="downLoadExcel(2)">{{ t('放款时间表') }}</div>
+                  </a-menu-item>
+                  <template v-if="!ptRole">
                     <a-menu-item>
                       <div class="pt-2 pb-2" @click="downLoadExcel(0)">{{ t('额度费用计算时间表') }}</div>
                     </a-menu-item>

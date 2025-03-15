@@ -1,6 +1,6 @@
 <template>
   <div class="inline" @click="init"><slot></slot></div>
-  <div @click.stop ref="modeRef" class="myMode" :class="[{ myModeEidt: edit }]">
+  <div @click.stop ref="modeRef" class="myMode text-left" :class="[{ myModeEidt: edit }]">
     <a-modal :width="edit ? 1000 : 900" :open="visible" :title="t('开发成本')" :getContainer="() => $refs.modeRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content">
         <div v-for="(item, p_index) in data.data" :key="item.type" class="mb-5 card">
@@ -18,7 +18,7 @@
                   <template v-if="column.dataIndex === 'loan' || column.dataIndex === 'borrower_equity'">
                     <a-input-number
                       v-model:value="record[column.dataIndex]"
-                      @input="initData"
+                      @change="initData"
                       :max="99999999999"
                       :min="-99999999999"
                       :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
@@ -42,7 +42,7 @@
               </template>
             </a-table>
             <div class="flex items-center total-row" v-if="item.list.length">
-              <div class="title bold">{{ p_index ? t('总财务费用') : t('小计') }}</div>
+              <div class="title bold pl">{{ p_index ? t('总财务费用') : t('小计') }}</div>
               <div class="amount pl">
                 <vco-number :value="item.loan" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
               </div>
@@ -59,12 +59,12 @@
             <div class="title bold bold fs_xl text-left" style="padding: 0">{{ item.type }}</div>
             <template v-if="edit">
               <div class="amount">
-                <a-input-number v-model:value="item.loan" @input="initData" :max="99999999999" :min="-99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
+                <a-input-number v-model:value="item.loan" @change="initData" :max="99999999999" :min="-99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
               </div>
               <div class="amount">
                 <a-input-number
                   v-model:value="item.borrower_equity"
-                  @input="initData"
+                  @change="initData"
                   :max="99999999999"
                   :min="-99999999999"
                   :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
@@ -264,9 +264,8 @@ const init = () => {
         font-weight: 500;
       }
     }
-    .ant-table-wrapper .ant-table {
-      background: transparent !important;
-    }
+    .ant-table-wrapper .ant-table,
+    .ant-table-wrapper .ant-table-tbody > tr.ant-table-placeholder:hover > td,
     .ant-table-wrapper .ant-table-tbody > tr.ant-table-row:hover > td,
     .ant-table-wrapper .ant-table-tbody > tr > td.ant-table-cell-row-hover {
       background: transparent !important;

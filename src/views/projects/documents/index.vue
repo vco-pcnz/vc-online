@@ -1,7 +1,7 @@
 <template>
   <detail-layout active-tab="documents" @getProjectDetail="getProjectDetail">
     <template #content>
-      <Documents v-if="project_id" :project_id="project_id" :annex_id="annex_id" :edit="!projectDetail?.base?.is_close"></Documents>
+      <Documents v-if="project_id" :project_id="project_id" :annex_id="annex_id" :edit="!projectDetail?.base?.is_close && !projectDetail?.base?.ptRole"></Documents>
     </template>
   </detail-layout>
 </template>

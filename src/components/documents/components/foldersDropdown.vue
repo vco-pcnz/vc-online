@@ -2,12 +2,12 @@
   <ul class="opFileList">
     <slot></slot>
     <a-dropdown class="Filter" trigger="hover" v-for="(item, index) in data" :key="item.id" placement="right">
-      <li class="opFileList-item" :class="{ disabled: item.status == 0 }" @click="move(item.id)" :key="item.id">
+      <li class="opFileList-item" :class="{ disabled: item.status == 0 }" @click="move(item.id, item.status == 0)" :key="item.id">
         <span class="index">{{ index + 1 }}</span>
         <span class="name">{{ item.name }}</span>
-        <i class="iconfont" v-if="item.children && item.children.length">&#xe791;</i>
+        <i class="iconfont" v-if="item.children && item.children.length && item.status !== 0">&#xe791;</i>
       </li>
-      <template #overlay v-if="item.children && item.children.length">
+      <template #overlay v-if="item.children && item.children.length && item.status !== 0">
         <FoldersDropdown :did="did" :apply_uuid="apply_uuid" :uuids="uuids" :data="item.children" @reload="reload"></FoldersDropdown>
       </template>
     </a-dropdown>
@@ -40,7 +40,8 @@ const props = defineProps({
   }
 });
 
-const move = (target) => {
+const move = (target, type) => {
+  if (type) return;
   fcopy({
     did: props.did,
     nid: target,
@@ -51,9 +52,9 @@ const move = (target) => {
   });
 };
 
-const reload = ()=>{
-  emits('reload')
-}
+const reload = () => {
+  emits('reload');
+};
 </script>
 <style scoped lang="less">
 @import '@/styles/variables.less';

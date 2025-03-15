@@ -63,3 +63,11 @@ export const projectDetailSaveGuarantor = (data) =>
     method: 'post',
     data
   });
+
+// 修改开发成本
+export const saveDevCost = (data) =>
+  request({
+    url: 'projectDetail/saveDevCost',
+    method: 'post',
+    data
+  });

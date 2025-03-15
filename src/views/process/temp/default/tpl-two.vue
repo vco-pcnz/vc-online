@@ -21,15 +21,18 @@
                     </a-form-item>
                   </a-col> <a-col :span="10">
                     <a-form-item :label="t('开发成本')" name="devCost">
-                      <a-input-number
-                        v-model:value="formState.devCost"
-                        :max="99999999999"
-                        :formatter="
-                          (value) =>
-                            `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-                        "
-                        :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                      />
+                      <DevCostDetail v-model:value="formState.devCost" v-model:dataJson="formState.devCostDetail">
+                        <a-input-number
+                          v-model:value="formState.devCost"
+                          :max="99999999999"
+                          readonly
+                          :formatter="
+                            (value) =>
+                              `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                          "
+                          :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                        />
+                      </DevCostDetail>
                     </a-form-item>
                   </a-col>
                   <a-col :span="4">
@@ -113,6 +116,7 @@
   import AdsContent from "./../../components/AdsContent.vue";
   import emitter from "@/event"
   import { hasPermission } from "@/directives/permission/index"
+  import DevCostDetail from "./components/DevCostDetail.vue";
 
   const emits = defineEmits(['checkDone', 'dataDone'])
 
@@ -187,7 +191,8 @@
     region_one_name:'',
     project_suburb:'',
     project_con_id: '',
-    devCost:''
+    devCost: '',
+    devCostDetail:''
   })
 
 const vcoAddressRef = ref();

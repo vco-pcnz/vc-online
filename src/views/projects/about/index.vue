@@ -17,7 +17,7 @@
                 <bind-users :current-id="currentId" :is-close="Boolean(detail?.base.is_close)" :about="true"></bind-users>
               </a-collapse-panel>
 
-              <a-collapse-panel key="History" class="collapse-card history-card"  v-if="!detail?.base?.ptRole">
+              <a-collapse-panel key="History" class="collapse-card history-card" v-if="!detail?.base?.ptRole">
                 <template #header>
                   <i class="iconfont">&#xe76c;</i>
                   <span class="title">{{ t('历史') }}</span>
@@ -49,7 +49,7 @@
                   <div v-for="item in detail?.base?.substitution" :key="item.uuid" class="item" @click="navigationTo(`/projects/about?uuid=${item.uuid}`, true)">
                     <div class="title-info">
                       <p>{{ item.project_apply_sn }}</p>
-                      <RightOutlined :style="{fontSize: '12px', color: '#bf9425'}" />
+                      <RightOutlined :style="{ fontSize: '12px', color: '#bf9425' }" />
                     </div>
                     <p>{{ item.project_name }}</p>
                   </div>
@@ -73,7 +73,7 @@
 
             <MeterStat :data="detail?.credit" v-if="!detail?.base?.ptRole"></MeterStat>
             <MeterStatVip :data="detail?.credit" v-if="detail?.base?.ptRole"></MeterStatVip>
-            
+
             <PeriodLine :data="detail?.date"></PeriodLine>
             <div class="flex justify-center mt-10 mb-10 btns">
               <template v-if="Boolean(!detail?.base.is_close)">
@@ -117,7 +117,7 @@
               </vco-form-dialog>
             </div>
 
-            <Stats :data="detail?.credit" :detail="detail" :currentId="currentId" v-if="!detail?.base?.ptRole"></Stats>
+            <Stats v-if="!detail?.base?.ptRole" :data="detail?.credit" :detail="detail" :currentId="currentId" @update="update"></Stats>
           </div>
         </div>
       </a-spin>
@@ -161,8 +161,8 @@ const currentId = ref();
 const detail = ref();
 
 const showWarrantyTips = computed(() => {
-  return hasPermission('projects:detail:editGuarantor') && detail.value && !detail.value?.warranty?.main_contractor && !detail.value?.warranty?.security_package.length
-})
+  return hasPermission('projects:detail:editGuarantor') && detail.value && !detail.value?.warranty?.main_contractor && !detail.value?.warranty?.security_package.length;
+});
 
 const getProjectDetail = (val) => {
   const uuid = route.query.uuid;
@@ -219,17 +219,17 @@ const ReOpenFormData = ref([
 ]);
 
 const update = () => {
-  userStore.getTaskNumInfo()
+  userStore.getTaskNumInfo();
 
   detailLayoutRef.value.getProjectDetail();
 };
 
 const variationsUpdate = (data) => {
-  update()
+  update();
   if (data && data.id) {
-    navigationTo(`/projects/variations-details/about?uuid=${route.query.uuid}&id=${data.id}`)
+    navigationTo(`/projects/variations-details/about?uuid=${route.query.uuid}&id=${data.id}`);
   }
-}
+};
 </script>
 
 <style scoped lang="less">

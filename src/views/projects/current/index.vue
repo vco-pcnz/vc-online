@@ -61,6 +61,7 @@ const pageStore = useCloseProjectsStore();
 
 onMounted(() => {
   // 加载数据
+  pageStore.pagination.page = 1;
   pageStore.sta = 1;
   pageStore.getList();
 });

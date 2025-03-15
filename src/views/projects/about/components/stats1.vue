@@ -79,9 +79,11 @@
           <p class="color_grey fs_xs">LTC</p>
           <p class="fs_xl bold">{{ data?.right?.ltc }}%</p>
         </a-col>
-        <a-col :span="14" class="text-right">
-          <p class="color_grey fs_xs">Total Development Cost</p>
-          <vco-number :value="data?.right?.devCost" :bold="true" size="fs_xl" :precision="2"></vco-number>
+        <a-col :span="14" class="text-right cursor-pointer">
+          <DevCostDetail :dataJson="detail?.base?.devCostDetail" @change="editSaveDevCost">
+            <p class="color_grey fs_xs">Total Development Cost <i class="iconfont color_coal">&#xe76f;</i></p>
+            <vco-number :value="data?.right?.devCost" :bold="true" size="fs_xl" :precision="2"></vco-number>
+          </DevCostDetail>
         </a-col>
         <a-col :span="24">
           <p class="fs_xs">baseline {{ data?.right?.baseline }}%</p>
@@ -98,8 +100,12 @@ import { navigationTo } from '@/utils/tool';
 import { hasPermission } from '@/directives/permission/index';
 import { selectDateFormat } from '@/utils/tool';
 import dayjs, { Dayjs } from 'dayjs';
+import DevCostDetail from '@/views/process/temp/default/components/DevCostDetail.vue';
+import { edit } from '@/api/project/annex';
+import { saveDevCost } from '@/api/project/project';
 
 const { t } = useI18n();
+const emits = defineEmits(['update']);
 
 const props = defineProps({
   currentId: {
@@ -116,6 +122,12 @@ const props = defineProps({
   }
 });
 const toDay = ref(dayjs().format(selectDateFormat()));
+
+const editSaveDevCost = (val) => {
+  saveDevCost({ uuid: props.currentId, ...val }).then((res) => {
+    emits('update');
+  });
+};
 </script>
 
 <style scoped lang="less">
@@ -162,5 +174,9 @@ const toDay = ref(dayjs().format(selectDateFormat()));
   .box-top {
     padding-left: 46px;
   }
+}
+.iconfont {
+  color: @colorPrimary;
+  font-size: 14px;
 }
 </style>

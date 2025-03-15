@@ -26,9 +26,11 @@
         </div>
       </a-col>
       <a-col :span="8">
-        <div class="info-content">
-          <p class="name">{{ t('开发成本') }}</p>
-          <p class="txt">{{ tool.formatMoney(data.devCost) }}</p>
+        <div class="info-content cursor-pointer">
+          <DevCostDetail :edit="false" v-model:dataJson="data.devCostDetail">
+            <p class="name">{{ t('开发成本') }} <i class="iconfont color_coal">&#xe76f;</i></p>
+            <p class="txt">{{ tool.formatMoney(data.devCost) }}</p>
+          </DevCostDetail>
         </div>
       </a-col>
       <a-col :span="24">
@@ -37,15 +39,8 @@
           <div v-if="data.project_images && data.project_images.length">
             <a-image-preview-group>
               <div class="images-box-content">
-                <div
-                  v-for="(item, index) in data.project_images"
-                  :key="index"
-                  class="item"
-                >
-                  <a-image
-                    :width="50"
-                    :src="item.value"
-                  />
+                <div v-for="(item, index) in data.project_images" :key="index" class="item">
+                  <a-image :width="50" :src="item.value" />
                 </div>
               </div>
             </a-image-preview-group>
@@ -70,20 +65,25 @@
 </template>
 
 <script setup>
-import { useI18n } from "vue-i18n";
+import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
-  
+import DevCostDetail from './DevCostDetail.vue';
 
-  const props = defineProps({
-    data: {
-      type: Object,
-      default: () => {}
-    }
-  })
+const props = defineProps({
+  data: {
+    type: Object,
+    default: () => {}
+  }
+});
 
-  const { t } = useI18n();
+const { t } = useI18n();
 </script>
 
 <style lang="less" scoped>
-  @import './style.less';
+@import '@/styles/variables.less';
+@import './style.less';
+.iconfont {
+  color: @colorPrimary;
+  font-size: 14px;
+}
 </style>

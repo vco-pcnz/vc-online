@@ -16,7 +16,7 @@
             </div>
             <div class="input-item my-4">
               <div class="label">{{ t('施工进度') }}</div>
-              <a-input-number  class="rate" v-model:value="formState.progress" addon-after="%" :min="0" :max="100" style="width: 100%"></a-input-number>
+              <a-input-number class="rate" v-model:value="formState.progress" addon-after="%" :min="0" :max="100" style="width: 100%"></a-input-number>
             </div>
             <div class="input-item" style="margin-top: 16px">
               <div class="label" :class="{ err: !formState.apply_amount && validate }">Requested amount, $ nzd</div>
@@ -154,12 +154,18 @@ const title_type = ref([]);
 const loading_type = ref(false);
 const loadType = (reset) => {
   if (title_type.value.length) {
+    if (!formState.value.name) {
+      formState.value.name = title_type.value[0].code;
+    }
     return;
   }
   loading_type.value = true;
   systemDictData('drawdown_title_type')
     .then((res) => {
       title_type.value = res;
+      if (!formState.value.name) {
+        formState.value.name = res[0].code;
+      }
     })
     .finally((_) => {
       loading_type.value = false;

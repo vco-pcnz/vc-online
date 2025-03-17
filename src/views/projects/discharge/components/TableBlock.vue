@@ -12,7 +12,7 @@
     </ul>
     <div v-if="tableData.length" class="table-body">
       <template v-for="item in tableData" :key="item.id">
-        <ul class="table-col tr" :class="{ active: active_id == item.uuid, declined: item.status === 1 }" @click="viewDetail(item)">
+        <ul class="table-col tr" :class="{ active: active_id == item.uuid, declined: item.status === 1, 'pre-sale': item.is_sales === 1 }" @click="viewDetail(item)">
           <li><div class="circle" :class="{'done': item.status === 1}"></div></li>
           <li>
             <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.security_name" style="width: 140px">{{ item.security_name }}</p>
@@ -28,6 +28,7 @@
           <li v-if="Number(item.is_repayment)" :style="{ color: '#0bda8e'}">Repayment Discharge</li>
           <li v-else :style="{ color: colors[item.status_name] }">{{ item.status_name }}</li>
           <li><p class="fs_xs color_grey">{{ tool.showDate(item.create_time) }}</p></li>
+          <div v-if="item.is_sales" class="tips">{{ t('包含预售') }}</div>
         </ul>
       </template>
     </div>
@@ -93,6 +94,19 @@ watch(
   font-size: 14px;
   color: @color_coal;
   justify-content: space-between;
+  &.pre-sale {
+    position: relative;
+    .tips {
+      position: absolute;
+      background-color: @colorPrimary;
+      font-size: 11px;
+      padding: 2px 20px;
+      top: 0;
+      right: 0;
+      border-bottom-left-radius: 12px;
+      border-top-right-radius: 12px;
+    }
+  }
 
   &.header {
     font-weight: bold;

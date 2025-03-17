@@ -12,6 +12,16 @@
       ></security-add-edit>
 
       <div class="ProjectDrawdowns">
+        <div class="flex justify-end mb-5">
+          <a-button
+            v-if="hasPermission('projects:discharge:preSale')" type="brown" shape="round" class="pre-sale-enter"
+            @click="navigationTo(`/projects/discharge/pre-sale?uuid=${uuid}`)"
+          >
+            {{ t('预售信息') }}
+            <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px'  }" />
+          </a-button>
+        </div>
+        
         <div :class="{ grid: hasPermission('projects:securities:aer') &&  projectDetail && !projectDetail?.base?.is_close}" class="mb-12">
           <MeterStat :uuid="uuid" :projectDetail="projectDetail" v-if="Boolean(uuid)" ref="MeterStatRef"></MeterStat>
           <template v-if="projectDetail && !projectDetail?.base?.is_close && hasPermission('projects:securities:aer')">
@@ -56,6 +66,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { RightOutlined } from '@ant-design/icons-vue';
 import detailLayout from '../components/detailLayout.vue';
 import MeterStat from './components/MeterStat.vue';
 import TableBlock from './components/TableBlock.vue';
@@ -65,6 +76,7 @@ import { dischargeSecurity, dischargeApplySecurity } from '@/api/project/loan';
 import { useRoute } from 'vue-router';
 import SecurityAddEdit from '@/views/process/temp/default/components/SecurityAddEdit.vue';
 import { useUserStore } from '@/store';
+import { navigationTo } from '@/utils/tool'
 
 const route = useRoute();
 const userStore = useUserStore();
@@ -175,9 +187,16 @@ onMounted(() => {
     background-color: #f0f0f0;
     border: 1px solid #e2e5e2;
     border-radius: 12px;
+    position: relative;
     .iconfont {
       font-size: 18px;
     }
   }
+}
+
+.pre-sale-enter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <a-modal :open="visible" :title="t('抵押物信息')" :width="700" :footer="null" :keyboard="false" :maskClosable="false" @update:open="updateVisible">
+  <a-modal :open="visible" :title="t('抵押物信息')" :width="800" :footer="null" :keyboard="false" :maskClosable="false" @update:open="updateVisible">
     <!-- 确认弹窗 -->
     <vco-confirm-alert
       ref="changeAlertRef"
@@ -62,6 +62,98 @@
               </a-form-item>
             </a-col>
           </template>
+
+          <a-col v-if="Number(formState.amount)" :span="24">
+            <div class="flex gap-2 mb-3 items-center">
+              <p style="font-size: 12px;">{{ t('是否预售') }}</p>
+              <a-switch v-model:checked="formState.is_sales" size="small"></a-switch>
+            </div>
+            <div v-if="formState.is_sales" class="sales-content mb-5">
+              <a-row :gutter="24">
+                <a-col :span="8">
+                  <a-form-item :label="t('抵押物价值')">
+                    <a-input-number
+                      v-model:value="formState.amount"
+                      :max="99999999999"
+                      :disabled="true"
+                      :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                      :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                    />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="8">
+                  <a-form-item name="sales_price">
+                    <template #label>
+                      {{ t('销售价格') }}
+                      <a-form-item-rest>
+                        <div class="gst-check-content">
+                          (<a-checkbox v-model:checked="formState.is_gst" class="gst-check" @change="salesPriceInput">{{ t('含消费税') }}</a-checkbox>)
+                        </div>
+                      </a-form-item-rest>
+                    </template>
+
+                    <a-input-number
+                      v-model:value="formState.sales_price"
+                      :max="99999999999"
+                      :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                      :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                      @input="salesPriceInput"
+                    />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="8">
+                  <a-form-item :label="t('预计收到的偿还 VC')" name="repayment_price">
+                    <a-input-number
+                      v-model:value="formState.repayment_price"
+                      :max="99999999999"
+                      :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                      :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                    />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="8">
+                  <a-form-item :label="t('合同日期（或无条件日期）')" name="contract_date">
+                    <a-date-picker v-model:value="formState.contract_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="8">
+                  <a-form-item :label="t('预计结算日期')" name="settlement_date">
+                    <a-date-picker v-model:value="formState.settlement_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="8">
+                  <a-form-item :label="t('日落日期')" name="sunset_date">
+                    <a-date-picker v-model:value="formState.sunset_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="8">
+                  <a-form-item :label="t('请求：还款日期')" name="repayment_date">
+                    <a-date-picker v-model:value="formState.repayment_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="8">
+                  <a-form-item :label="t('请求：净收益')" name="net_proceeds_price">
+                    <a-input-number
+                      v-model:value="formState.net_proceeds_price"
+                      :max="99999999999"
+                      :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                      :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                      @input="netproceedsPriceInput"
+                    />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="8">
+                  <a-form-item :label="t('变化比例')" name="variance">
+                    <a-input
+                      v-model:value="formState.variance"
+                      :disabled="true"
+                      suffix="%"
+                    />
+                  </a-form-item>
+                </a-col>
+              </a-row>
+            </div>
+          </a-col>
 
           <a-col :span="16">
             <a-form-item :label="t('产权编号')" name="card_no">
@@ -196,6 +288,34 @@ const getTypeData = () => {
   })
 }
 
+const gstRate = ref(1.15)
+const getGstRate = () => {
+  systemDictData('gst_rate').then(res => {
+    const obj = res.find(item => item.name === 'gst_rate_value')
+    gstRate.value = obj ? Number(obj.code) : 1.15
+  })
+}
+
+const salesPriceInput = () => {
+  if (formState.value.sales_price && Boolean(formState.value.is_gst)) {
+    const num = tool.div(formState.value.sales_price, gstRate.value)
+    const resNum = Math.floor(num * 100) / 100
+    formState.value.repayment_price = resNum
+  }
+}
+
+const netproceedsPriceInput = () => {
+  if (formState.value.net_proceeds_price) {
+    const num = tool.minus(formState.value.net_proceeds_price, formState.value.amount)
+    const num1 = tool.div(num, formState.value.amount)
+    const resNum = tool.times(num1, 100)
+    const variance =  Math.ceil(resNum * 100) / 100
+    formState.value.variance = variance
+  } else {
+    formState.value.variance = ''
+  }
+}
+
 const totalValue = computed(() => {
   const land = formState.value.insurance_value || 0;
   const improvement = formState.value.improvement_value || 0;
@@ -225,7 +345,17 @@ const formState = ref({
   build_amount: '',
   land_amount: '',
   amount: '',
-  copy__num: ""
+  copy__num: "",
+  is_sales: false,
+  sales_price: "",
+  is_gst: false,
+  repayment_price: "",
+  contract_date: "",
+  settlement_date: "",
+  sunset_date: "",
+  repayment_date: "",
+  net_proceeds_price: "",
+  variance: ""
 });
 const showCopy = ref(false)
 
@@ -257,7 +387,14 @@ const formRules = {
   security_region: [{ required: true, message: t('请选择') + t('区域'), trigger: 'change' }],
   postcode: [{ required: true, message: t('请输入') + t('邮编'), trigger: 'blur' }],
   region_one_name: [{ required: true, message: t('请输入') + t('城市/州'), trigger: 'blur' }],
-  address_short: [{ required: true, message: t('请输入') + t('地址1'), trigger: 'blur' }]
+  address_short: [{ required: true, message: t('请输入') + t('地址1'), trigger: 'blur' }],
+  sales_price: [{ required: true, message: t('请输入') + t('销售价格'), trigger: 'blur' }],
+  repayment_price: [{ required: true, message: t('请输入') + t('预计收到的偿还 VC'), trigger: 'blur' }],
+  contract_date: [{ required: true, message: t('请选择') + t('合同日期（或无条件日期）'), trigger: 'change' }],
+  settlement_date: [{ required: true, message: t('请选择') + t('预计结算日期'), trigger: 'change' }],
+  sunset_date: [{ required: true, message: t('请选择') + t('日落日期'), trigger: 'change' }],
+  repayment_date: [{ required: true, message: t('请选择') + t('请求：还款日期'), trigger: 'blur' }],
+  net_proceeds_price: [{ required: true, message: t('请输入') + t('请求：净收益'), trigger: 'blur' }]
 };
 
 const totalAmountRef = computed(() => {
@@ -355,6 +492,11 @@ const submitHandle = () => {
         delete params.copy__num
       }
 
+      if (params.is_sales) {
+        params.is_sales = params.is_sales ? 1 : 0
+        params.is_gst = params.is_gst ? 1 : 0
+      }
+
       currentParams.value = params
 
       const {project_address_short, project_address, project_suburb, region_one_id, region_two_id, region_three_id, project_postcode, project_city} = props.projectInfo
@@ -393,16 +535,25 @@ watch(
         if (key === 'type') {
           formState.value[key] = 1
         }
+
+        if (['is_sales', 'is_gst'].includes(key)) {
+          formState.value[key] = false;
+        }
       });
       showCopy.value = false
     } else {
       getTypeData()
+      getGstRate()
 
       if (props.infoData) {
         for (const key in formState.value) {
           formState.value[key] = props.infoData[key];
           if (['insurance_expire_date', 'mortgage_registration_date'].includes(key)) {
             formState.value[key] = props.infoData[key] ? dayjs(props.infoData[key]) : '';
+          }
+
+          if (['is_sales', 'is_gst'].includes(key)) {
+            formState.value[key] = props.infoData[key] ? true : false;
           }
 
           showCopy.value = Boolean(Number(formState.value.copy__num))
@@ -444,6 +595,36 @@ watch(
     color: #282828;
     font-weight: bold;
     font-size: 18px;
+  }
+}
+
+.sales-content {
+  background-color: #f0f0f0;
+  border: 1px solid #f0f0f0;
+  border-radius: 10px;
+  padding: 10px 15px;
+}
+
+.gst-check-content {
+  padding-left: 10px;
+  color: rgba(0, 0, 0, 0.88);;
+}
+.gst-check {
+  font-size: 12px !important;
+  padding-left: 5px;
+  :deep(input[type="checkbox"]) {
+    width: 14px !important;
+    height: 14px !important;
+  }
+  :deep(.ant-checkbox-inner) {
+    width: 14px !important;
+    height: 14px !important;
+  }
+  :deep(.ant-checkbox) {
+    +span {
+      padding-inline-start: 4px !important;
+      padding-inline-end: 4px !important;
+    }
   }
 }
 </style>

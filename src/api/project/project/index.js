@@ -71,3 +71,19 @@ export const saveDevCost = (data) =>
     method: 'post',
     data
   });
+
+// 项目详情 - 预售列表
+export const projectDischargeSales = (params) =>
+  request({
+    url: 'project/discharge/sales',
+    method: 'get',
+    params
+  });
+
+// 项目详情 - 预售 - 编辑
+export const projectDischargeSalesSave = (data) =>
+  request({
+    url: 'project/discharge/salesSave',
+    method: 'post',
+    data
+  });

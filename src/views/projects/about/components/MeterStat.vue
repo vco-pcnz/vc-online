@@ -5,14 +5,14 @@
       <v-chart class="chart2" :option="option2" autoresize />
     </div>
     <div class="MeterStat-row">
-      <div class="MeterStat MeterStat_type_stone3">
+      <div class="MeterStat MeterStat_type_stone3 one">
         <div class="MeterStat-Meter"></div>
         <div>
           <p>Facility limit 2</p>
           <vco-number :value="data?.credit_fc2" :precision="2"></vco-number>
         </div>
       </div>
-      <div class="MeterStat MeterStat_type_charcoal">
+      <div class="MeterStat MeterStat_type_charcoal four">
         <div class="MeterStat-Meter"></div>
         <div>
           <p>Current balance</p>
@@ -20,7 +20,7 @@
           <p class="color_grey flex"><vco-number :value="data?.currentBalanceAvailable" :precision="2" color="#888" size="fs_md" class="mr-2"></vco-number> available</p>
         </div>
       </div>
-      <div class="MeterStat MeterStat_type_dotsYellow">
+      <div class="MeterStat MeterStat_type_dotsYellow four">
       <div class="MeterStat-Dots">
         <div class="MeterStat-Dot"></div>
         <div class="MeterStat-Dot"></div>
@@ -35,14 +35,14 @@
       </div>
     </div>
     <div class="MeterStat-row">
-      <div class="MeterStat MeterStat_type_transparent">
+      <div class="MeterStat MeterStat_type_transparent one">
         <div class="MeterStat-Meter"></div>
         <div>
           <p>Facility limit 1</p>
           <vco-number :value="data?.credit_fc1" :precision="2"></vco-number>
         </div>
       </div>
-      <div class="MeterStat MeterStat_type_cyan">
+      <div class="MeterStat MeterStat_type_cyan four">
         <div class="MeterStat-Meter"></div>
         <div>
           <p>Drawn amount</p>
@@ -50,13 +50,13 @@
           <p class="color_grey flex"><vco-number :value="data?.loanWithdrawalAvailable" :precision="2" color="#888" size="fs_md" class="mr-2"></vco-number> available</p>
         </div>
       </div>
-      <div class="MeterStat MeterStat_type_dotsBlack">
-      <div class="MeterStat-Dots">
-        <div class="MeterStat-Dot"></div>
-        <div class="MeterStat-Dot"></div>
-        <div class="MeterStat-Dot"></div>
-        <div class="MeterStat-Dot"></div>
-      </div>
+      <div class="MeterStat MeterStat_type_dotsBlack four">
+        <div class="MeterStat-Dots">
+          <div class="MeterStat-Dot"></div>
+          <div class="MeterStat-Dot"></div>
+          <div class="MeterStat-Dot"></div>
+          <div class="MeterStat-Dot"></div>
+        </div>
         <div>
           <p class="color_grey" style="margin-bottom: 2px">Pending drawdown</p>
           <vco-number :value="data?.pendingDrawdown" :precision="2"></vco-number>
@@ -160,6 +160,12 @@ watch(
   font-weight: 500;
   gap: 24px;
   flex: 1;
+  &.one {
+    min-height: 60px;
+  }
+  &.four {
+    min-height: 84px;
+  }
 }
 .MeterStat-Meter {
   border: 1px solid;

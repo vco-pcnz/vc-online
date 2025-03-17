@@ -385,7 +385,7 @@
       roleCode.value = props.type === 2 ? 'user' : 'broker'
 
       if (puser === 'broker') {
-        otherParams.value = { type: 1, is_broker: 1 }
+        otherParams.value = { is_broker: 1 }
       } else {
         if (puser === 'borrower') {
           otherParams.value = { is_borrower: 1 }

@@ -39,7 +39,7 @@
                 <a-button
                   v-if="showHeaderTab" shape="round"
                   @click="goHandle('schedule')"
-                >{{ t('放款计划') }}</a-button>
+                >{{ t('明细表') }}</a-button>
                 <a-button
                   shape="round"
                   @click="goHandle('documents')"

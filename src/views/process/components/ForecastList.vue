@@ -133,12 +133,12 @@
       <vco-process-title :title="t('预测列表')">
         <div class="flex gap-3">
           <a-button
-            v-if="tabData.length && (showList || !isDetails)"
+            v-if="tabData.length && !isDetails"
             type="dark" shape="round"
             size="small"
             class="uppercase"
             @click="navigationTo(`/requests/schedule?uuid=${currentId}&isDetails=${isDetails}`)"
-          >{{ t('放款计划') }}</a-button>
+          >{{ t('明细表') }}</a-button>
           <a-button
             v-if="!isDetails && blockInfo.showEdit"
             type="primary" shape="round"

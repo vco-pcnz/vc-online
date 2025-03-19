@@ -663,7 +663,7 @@
       }
     });
 
-    formState.value.land_amount = Number(props.lendingInfo.land_amount)
+    formState.value.land_amount = Number(props.lendingInfo.build_amount) ? props.lendingInfo.land_amount : Number(props.lendingInfo.land_amount)
       ? props.lendingInfo.land_amount
       : props.lendingInfo.loan_money || 0;
 
@@ -838,14 +838,14 @@
           return false;
         }
 
-        if (build_amount + land_amount < 0) {
+        if (build_amount + land_amount < 0 || build_amount + land_amount === 0) {
           message.error(t('借款总额不正确'));
           return false;
         }
 
         // 首次放款金额可以为0
         if (
-          initial_build_amount + initial_land_amount < 0
+          initial_build_amount + initial_land_amount < 0 || initial_build_amount + initial_land_amount === 0
         ) {
           message.error(t('首次放款总金额不正确'));
           return false;

@@ -7,7 +7,7 @@
         <a-button
           shape="round"
           @click="goHandleProcess('schedule')"
-        >{{ t('放款计划') }}</a-button>
+        >{{ t('明细表') }}</a-button>
         <a-button
           shape="round"
           class="active"

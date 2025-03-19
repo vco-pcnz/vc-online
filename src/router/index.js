@@ -13,7 +13,10 @@ const title = import.meta.env.VITE_APP_TITLE
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
+  scrollBehavior(to, from, savedPosition) {
+    return { top: 0 }; // 切换页面后滚动到顶部
+  }
 })
 
 router.beforeEach(async (to, from, next) => {

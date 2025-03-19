@@ -65,7 +65,7 @@
           <p v-else class="txt">--</p>
         </div>
       </a-col> -->
-      <a-col :span="24">
+      <a-col :span="24" v-if="appStore.config?.show_addr === '2'">
         <div class="info-content">
           <p class="name">{{ t('借款人地址') }}</p>
           <p class="txt">{{ data.borrower_city }}</p>
@@ -82,18 +82,21 @@
 </template>
 
 <script setup>
-  import { useI18n } from "vue-i18n";
+import { useI18n } from 'vue-i18n';
+import useAppStore from '@/store/modules/app';
 
-  const props = defineProps({
-    data: {
-      type: Object,
-      default: () => {}
-    }
-  })
+const appStore = useAppStore();
 
-  const { t } = useI18n();
+const props = defineProps({
+  data: {
+    type: Object,
+    default: () => {}
+  }
+});
+
+const { t } = useI18n();
 </script>
 
 <style lang="less" scoped>
-  @import './style.less';
+@import './style.less';
 </style>

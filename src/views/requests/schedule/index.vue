@@ -7,7 +7,7 @@
         <a-button
           shape="round"
           class="active"
-        >{{ t('放款计划') }}</a-button>
+        >{{ t('明细表') }}</a-button>
         <a-button
           shape="round"
           @click="goHandleProcess('documents')"
@@ -34,7 +34,7 @@
   const currentId = ref()
   const details = ref(false)
 
-  const pageTitle = ref(t('放款计划'))
+  const pageTitle = ref(t('明细表'))
   const pageStep = ref('')
 
   const goHandleProcess = (page) => {

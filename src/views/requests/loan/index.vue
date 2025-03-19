@@ -42,14 +42,14 @@
                 <template #bodyCell="{ column, record }">
                   <template v-if="column.dataIndex === 'project_image'">
                     <template v-if="record.imgsArr.length">
-                      <div class="flex justify-center cursor-pointer" @click="navigationTo(`/requests/details?uuid=${record.uuid}`)">
+                      <div class="flex justify-center cursor-pointer" @click="navigationTo(`/requests/details/about?uuid=${record.uuid}`)">
                         <vco-avatar :src="record.imgsArr[0]" :radius="true" :round="false"></vco-avatar>
                       </div>
                     </template>
                     <p v-else>--</p>
                   </template>
                   <template v-if="column.dataIndex === 'project_info'">
-                    <span class="cursor-pointer" @click="navigationTo(`/requests/details?uuid=${record.uuid}`)">
+                    <span class="cursor-pointer" @click="navigationTo(`/requests/details/about?uuid=${record.uuid}`)">
                       <div class="id-info">ID: {{ record.project_apply_sn }}</div>
                       <div :title="record.project_name">{{ record.project_name || t('项目名称') }}</div>
                       <div v-if="record.project_city && record.project_city.length > 3" class="icon-txt mt-1">
@@ -59,7 +59,7 @@
                     </span>
                   </template>
                   <template v-if="column.dataIndex === 'loan_money'">
-                    <span class="cursor-pointer" @click="navigationTo(`/requests/details?uuid=${record.uuid}`)">
+                    <span class="cursor-pointer" @click="navigationTo(`/requests/details/about?uuid=${record.uuid}`)">
                       <vco-number v-if="record.loan_money" :value="record.loan_money" :precision="2"></vco-number>
                       <p v-else>--</p>
                     </span>
@@ -111,19 +111,17 @@
                     </template>
                   </template>
                   <template v-if="column.dataIndex === 'operation'">
-                    <a-dropdown :trigger="['click']" >
+                    <a-dropdown :trigger="['click']">
                       <a class="ant-dropdown-link" @click.stop>
                         <i class="iconfont cert">&#xe77a;</i>
                       </a>
                       <template #overlay>
                         <a-menu :selectable="false">
-                          <a-menu-item key="0" :disabled="record.status < 400">
-                            <vco-popconfirm url="/project/project/copy" :formParams="{ uuid: record.uuid }" :tip="t('确定要复制{0}', [record.project_name])" :disabled="record.status < 400" @update="toCopyDetail" >
-                              {{ t('详情') }}
-                            </vco-popconfirm>
+                          <a-menu-item key="0">
+                            <a @click="navigationTo(`/requests/details/about?uuid=${record.uuid}`)">{{ t('查看详情') }}</a>
                           </a-menu-item>
-                          <a-menu-item key="0" :disabled="record.status < 400">
-                            <vco-popconfirm url="/project/project/copy" :formParams="{ uuid: record.uuid }" :tip="t('确定要复制{0}', [record.project_name])" :disabled="record.status < 400" @update="toCopyDetail" >
+                          <a-menu-item key="1" :disabled="record.status < 400">
+                            <vco-popconfirm url="/project/project/copy" :formParams="{ uuid: record.uuid }" :tip="t('确定要复制{0}', [record.project_name])" :disabled="record.status < 400" @update="toCopyDetail">
                               {{ t('复制') }}
                             </vco-popconfirm>
                           </a-menu-item>
@@ -339,7 +337,7 @@ onMounted(() => {
       dataIndex: 'operation',
       align: 'center',
       width: 50,
-      fixed: 'right',
+      fixed: 'right'
     });
   }
   tabChange();
@@ -351,8 +349,8 @@ onMounted(() => {
 });
 
 const toCopyDetail = (val) => {
-  navigationTo('/process/four?uuid=' + val.uuid)
-}
+  navigationTo('/process/four?uuid=' + val.uuid);
+};
 
 onUnmounted(() => {
   emitter.off('refreshRequestsList', handleRefreshRequestsList);

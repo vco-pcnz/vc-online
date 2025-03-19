@@ -4,121 +4,121 @@
     <a-modal :width="edit ? 1000 : 900" :open="visible" :title="t('开发成本')" :getContainer="() => $refs.modeRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content">
         <a-form-item-rest>
-        <div v-for="(item, p_index) in data.data" :key="item.type" class="mb-5 card">
-          <!-- 建筑成本 -->
-          <template v-if="p_index === 0">
-            <div class="flex justify-between tabel-type">
-              <p class="bold fs_xl">{{ item.type }}</p>
-              <a-button type="brown" shape="round" size="small" @click="add(p_index)" v-if="edit">add</a-button>
-            </div>
-            <a-table :columns="ConstructionColumns" :data-source="item.list" :pagination="false" :scroll="{ x: '100%' }">
-              <template #bodyCell="{ column, record, index }">
-                <template v-if="edit">
-                  <template v-if="column.dataIndex === 'type'">
-                    <a-select :loading="loading_type" style="width: 100%" v-model:value="record.type" :options="types" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
+          <div v-for="(item, p_index) in data.data" :key="item.type" class="mb-5 card">
+            <!-- 建筑成本 -->
+            <template v-if="p_index === 0">
+              <div class="flex justify-between tabel-type">
+                <p class="bold fs_xl">{{ item.type }}</p>
+                <a-button type="brown" shape="round" size="small" @click="add(p_index)" v-if="edit">add</a-button>
+              </div>
+              <a-table :columns="ConstructionColumns" :data-source="item.list" :pagination="false" :scroll="{ x: '100%' }">
+                <template #bodyCell="{ column, record, index }">
+                  <template v-if="edit">
+                    <template v-if="column.dataIndex === 'type'">
+                      <a-select :loading="loading_type" style="width: 100%" v-model:value="record.type" :options="types" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
+                    </template>
+                    <template v-if="column.dataIndex === 'loan' || column.dataIndex === 'borrower_equity'">
+                      <a-input-number
+                        v-model:value="record[column.dataIndex]"
+                        @change="initData"
+                        :max="99999999999"
+                        :min="-99999999999"
+                        :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                        :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                      />
+                    </template>
                   </template>
-                  <template v-if="column.dataIndex === 'loan' || column.dataIndex === 'borrower_equity'">
-                    <a-input-number
-                      v-model:value="record[column.dataIndex]"
-                      @change="initData"
-                      :max="99999999999"
-                      :min="-99999999999"
-                      :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                      :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                    />
+                  <template v-else>
+                    <template v-if="column.dataIndex === 'loan' || column.dataIndex === 'borrower_equity'">
+                      <vco-number :value="record[column.dataIndex]" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
+                    </template>
+                  </template>
+                  <template v-if="column.dataIndex === 'total'">
+                    <vco-number :value="record[column.dataIndex]" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
+                  </template>
+                  <template v-if="column.dataIndex === 'operation'">
+                    <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(p_index, index)">
+                      <i class="iconfont" style="cursor: pointer">&#xe8c1;</i>
+                    </a-popconfirm>
                   </template>
                 </template>
-                <template v-else>
+              </a-table>
+              <div class="flex items-center total-row" :class="[{ myModeEidt: edit }]" v-if="item.list.length">
+                <div class="title bold pl">{{ t('小计') }}</div>
+                <div class="amount pl">
+                  <vco-number :value="item.loan" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
+                </div>
+                <div class="amount pl">
+                  <vco-number :value="item.borrower_equity" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
+                </div>
+                <div class="amount">
+                  <vco-number :value="item.total" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
+                </div>
+                <div class="total" v-if="edit"></div>
+              </div>
+            </template>
+            <!-- 财务成本 -->
+            <template v-if="p_index === 2">
+              <div class="flex justify-between tabel-type">
+                <p class="bold fs_xl">{{ item.type }}</p>
+              </div>
+              <a-table :columns="FinanceColumns" :data-source="item.list" :pagination="false" :scroll="{ x: '100%' }">
+                <template #bodyCell="{ column, record }">
                   <template v-if="column.dataIndex === 'loan' || column.dataIndex === 'borrower_equity'">
                     <vco-number :value="record[column.dataIndex]" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
                   </template>
+                  <template v-if="column.dataIndex === 'total'">
+                    <vco-number :value="record[column.dataIndex]" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
+                  </template>
                 </template>
-                <template v-if="column.dataIndex === 'total'">
-                  <vco-number :value="record[column.dataIndex]" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
-                </template>
-                <template v-if="column.dataIndex === 'operation'">
-                  <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(p_index, index)">
-                    <i class="iconfont" style="cursor: pointer">&#xe8c1;</i>
-                  </a-popconfirm>
-                </template>
+              </a-table>
+              <div class="flex items-center total-row" v-if="item.list.length">
+                <div class="title bold pl">{{ t('总财务费用') }}</div>
+                <div class="amount pl">
+                  <vco-number :value="item.loan" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
+                </div>
+                <div class="amount pl">
+                  <vco-number :value="item.borrower_equity" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
+                </div>
+                <div class="amount">
+                  <vco-number :value="item.total" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
+                </div>
+                <div class="total" v-if="edit"></div>
+              </div>
+            </template>
+            <!-- 净商品与服务税 -->
+            <div v-if="p_index === 1" class="flex items-center total-row">
+              <div class="title bold bold fs_xl text-left" style="padding: 0">{{ item.type }}</div>
+              <template v-if="edit">
+                <div class="amount">
+                  <a-input-number v-model:value="item.loan" @change="initData" :max="99999999999" :min="-99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
+                </div>
+                <div class="amount">
+                  <a-input-number
+                    v-model:value="item.borrower_equity"
+                    @change="initData"
+                    :max="99999999999"
+                    :min="-99999999999"
+                    :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                    :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                  />
+                </div>
               </template>
-            </a-table>
-            <div class="flex items-center total-row" :class="[{ myModeEidt: edit }]" v-if="item.list.length">
-              <div class="title bold pl">{{ t('小计') }}</div>
-              <div class="amount pl">
-                <vco-number :value="item.loan" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
-              </div>
-              <div class="amount pl">
-                <vco-number :value="item.borrower_equity" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
-              </div>
+              <template v-else>
+                <div class="amount">
+                  <vco-number :value="item.loan" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
+                </div>
+                <div class="amount">
+                  <vco-number :value="item.borrower_equity" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
+                </div>
+              </template>
               <div class="amount">
                 <vco-number :value="item.total" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
               </div>
               <div class="total" v-if="edit"></div>
             </div>
-          </template>
-          <!-- 财务成本 -->
-          <template v-if="p_index === 2">
-            <div class="flex justify-between tabel-type">
-              <p class="bold fs_xl">{{ item.type }}</p>
-            </div>
-            <a-table :columns="FinanceColumns" :data-source="item.list" :pagination="false" :scroll="{ x: '100%' }">
-              <template #bodyCell="{ column, record }">
-                <template v-if="column.dataIndex === 'loan' || column.dataIndex === 'borrower_equity'">
-                  <vco-number :value="record[column.dataIndex]" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
-                </template>
-                <template v-if="column.dataIndex === 'total'">
-                  <vco-number :value="record[column.dataIndex]" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
-                </template>
-              </template>
-            </a-table>
-            <div class="flex items-center total-row" v-if="item.list.length">
-              <div class="title bold pl">{{ t('总财务费用') }}</div>
-              <div class="amount pl">
-                <vco-number :value="item.loan" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
-              </div>
-              <div class="amount pl">
-                <vco-number :value="item.borrower_equity" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
-              </div>
-              <div class="amount">
-                <vco-number :value="item.total" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
-              </div>
-              <div class="total" v-if="edit"></div>
-            </div>
-          </template>
-          <!-- 净商品与服务税 -->
-          <div v-if="p_index === 1" class="flex items-center total-row">
-            <div class="title bold bold fs_xl text-left" style="padding: 0">{{ item.type }}</div>
-            <template v-if="edit">
-              <div class="amount">
-                <a-input-number v-model:value="item.loan" @change="initData" :max="99999999999" :min="-99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
-              </div>
-              <div class="amount">
-                <a-input-number
-                  v-model:value="item.borrower_equity"
-                  @change="initData"
-                  :max="99999999999"
-                  :min="-99999999999"
-                  :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                />
-              </div>
-            </template>
-            <template v-else>
-              <div class="amount">
-                <vco-number :value="item.loan" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
-              </div>
-              <div class="amount">
-                <vco-number :value="item.borrower_equity" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
-              </div>
-            </template>
-            <div class="amount">
-              <vco-number :value="item.total" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
-            </div>
-            <div class="total" v-if="edit"></div>
           </div>
-        </div>
-      </a-form-item-rest>
+        </a-form-item-rest>
         <div class="flex items-center total-row" style="border: none; padding: 0 24px">
           <div class="title bold bold fs_xl text-left">{{ t('总计') }}</div>
           <div class="amount pl">
@@ -205,13 +205,7 @@ const data = ref({
       type: t('财务成本'),
       loan: 0,
       borrower_equity: 0,
-      list: [
-        {
-          type: '',
-          loan: 0,
-          borrower_equity: 0
-        }
-      ]
+      list: []
     }
   ]
 });

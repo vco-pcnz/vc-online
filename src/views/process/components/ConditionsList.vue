@@ -1,5 +1,8 @@
 <template>
-  <div class="mt-6" :class="{'about-main-content': about}">
+  <div :class="{'about-main-content': about, 'mt-6': !btnAdd}">
+
+    <span @click="openAddEdit(false)"><slot name="add-btn"></slot></span>
+  
     <!-- 人员选择 -->
     <vco-choose-user ref="vcoChooseUserRef" :isMultiple="true" :hide-search="true" :url="userApiUrl" @done="userChoiced">
       <div></div>
@@ -39,7 +42,7 @@
       </div>
     </a-modal>
 
-    <div class="block-item sec" :class="{'about': about}">
+    <div v-if="!btnAdd" class="block-item sec" :class="{'about': about}">
       <vco-process-title v-if="!about" :title="t('状况')">
         <a-button v-if="!isDetails" type="primary" shape="round" size="small" class="uppercase" @click="openAddEdit(false)">{{ t('添加') }}</a-button>
       </vco-process-title>
@@ -115,6 +118,7 @@ import {
 } from '@/api/process';
 import tool, { removeDuplicates, selectDateFormat } from '@/utils/tool';
 import emitter from '@/event';
+import { message } from 'ant-design-vue/es';
 import { hasPermission } from "@/directives/permission"
 
 const props = defineProps({
@@ -135,6 +139,10 @@ const props = defineProps({
     default: false
   },
   about: {
+    type: Boolean,
+    default: false
+  },
+  btnAdd: {
     type: Boolean,
     default: false
   }
@@ -240,6 +248,7 @@ const submitHandle = () => {
 
       ajaxFn(params)
         .then(() => {
+          message.success(t('提交成功'))
           subLoading.value = false;
           visible.value = false;
           getListData();

@@ -5,6 +5,7 @@
       v-model:visible="resovleVisible"
       :uuid="currentId"
       :type="currentMark"
+      :data-info="dataInfo"
       :required="false"
       @done="subDone"
     ></resovle-dialog>

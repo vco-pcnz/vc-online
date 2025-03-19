@@ -45,12 +45,8 @@
         <!-- 其他 -->
         <template v-else>
           <p>
-            <span class="label"><i class="iconfont">&#xe65b;</i>NZBN: </span>
-            <span class="value">{{ detail?.nzbz }}</span>
-          </p>
-          <p v-if="detail?.type !== 2 && detail?.type !== 3">
-            <span class="label"><i class="iconfont">&#xe6e3;</i>{{ t('组织机构代码f') }}: </span>
-            <span class="value">{{ detail?.idcard }}</span>
+            <span class="label"><i class="iconfont">&#xe6e3;</i>{{t('新西兰商业号码')}}: </span>
+            <span class="value">{{ detail?.nzbn }}</span>
           </p>
           <p>
             <span class="label"><i class="iconfont">&#xe610;</i>{{ t('联系人f') }}: </span>

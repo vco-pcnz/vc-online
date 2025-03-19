@@ -33,12 +33,12 @@
                       </a-radio-group>
                     </a-form-item>
                   </a-col>
-                  <a-col :span="24">
+
+                  <!-- <a-col :span="24">
                     <a-form-item :label="t('证件照片')" name="borrower_images">
-                      <!-- <vco-upload-image v-model:value="formState.borrower_images" :isMultiple="true" :limit="9"></vco-upload-image> -->
                       <vco-upload-list v-model:value="formState.borrower_images" v-model:list="formState.borrower_images_list" :limit="9 - formState.borrower_images.length"></vco-upload-list>
                     </a-form-item>
-                  </a-col>
+                  </a-col> -->
                   <template v-if="formState.borrower_type === 1">
                     <a-col :span="8">
                       <a-form-item :label="t('名')" name="first_name">
@@ -60,23 +60,18 @@
                     <a-col :span="24">
                       <a-form-item :label="t('机构名称')" name="organization_name">
                         <!-- <a-input v-model:value="formState.organization_name" /> -->
-                        <vco-company-select v-model:name="formState.organization_name" v-model:nzbz="formState.company_number" :show_nzbn="true" @change="getCompanyInfo"></vco-company-select>
+                        <vco-company-select v-model:name="formState.organization_name" v-model:nzbn="formState.company_number" :show_nzbn="true" @change="getCompanyInfo"></vco-company-select>
                       </a-form-item>
                     </a-col>
                   </template>
-                  <a-col :span="isNormalUser ? 24 : isOpen ? 24 : 16">
+                  <a-col :span="24" v-show="show_addr">
                     <a-form-item v-if="formState.borrower_type === 1" :label="t('身份证号码')" name="borrower_id_num">
                       <a-input v-model:value="formState.borrower_id_num" />
                     </a-form-item>
 
-                    <a-form-item v-else :label="t('公司编码')" name="company_number">
+                    <a-form-item v-else :label="t('新西兰商业号码')" name="company_number">
                       <!-- <a-input v-model:value="formState.company_number" /> -->
-                      <vco-company-select v-model:name="formState.organization_name" :placeholder="t('请输入')" v-model:nzbz="formState.company_number" :show_nzbn="true" @change="getCompanyInfo" :is_nzbn="true"></vco-company-select>
-                    </a-form-item>
-                  </a-col>
-                  <a-col v-if="!isNormalUser && !isOpen" :span="8">
-                    <a-form-item :label="t('是否存为利益相关者')">
-                      <a-switch v-model:checked="formState.is_temp_borrower" />
+                      <vco-company-select v-model:name="formState.organization_name" :placeholder="t('请输入')" v-model:nzbn="formState.company_number" :show_nzbn="true" @change="getCompanyInfo" :is_nzbn="true"></vco-company-select>
                     </a-form-item>
                   </a-col>
                   <a-col :span="12">
@@ -89,12 +84,17 @@
                       <vco-mobile-input v-model:value="formState.borrower_phone" v-model:areaCode="formState.borrower_phone_prefix" :formRef="formRef" validateField="borrower_phone"> </vco-mobile-input>
                     </a-form-item>
                   </a-col>
-                  <a-col :span="24">
+                  <a-col :span="24" v-show="show_addr || formState.borrower_type === 1">
                     <vco-address :config="addressConfig" ref="vcoAddressRef" @change="setAddressInfo"></vco-address>
                   </a-col>
                   <a-col :span="24">
                     <a-form-item :label="t('借款人背景信息')" name="borrower_about">
                       <a-textarea v-model:value="formState.borrower_about" :auto-size="{ minRows: 4, maxRows: 5 }" />
+                    </a-form-item>
+                  </a-col>
+                  <a-col v-if="!isNormalUser && !isOpen" :span="24">
+                    <a-form-item :label="t('是否存为利益相关者')">
+                      <a-switch v-model:checked="formState.is_temp_borrower" />
                     </a-form-item>
                   </a-col>
                 </a-row>
@@ -145,6 +145,9 @@ import AdsContent from './../../components/AdsContent.vue';
 import emitter from '@/event';
 import { useUserStore } from '@/store';
 import { hasPermission } from '@/directives/permission/index';
+import useAppStore from '@/store/modules/app'
+
+const appStore = useAppStore()
 
 const emits = defineEmits(['checkDone', 'dataDone']);
 
@@ -231,6 +234,7 @@ const setAddressInfo = (e) => {
 };
 
 const markInfo = computed(() => (props.currentStep ? props.currentStep.mark : ''));
+const randomNumber = Math.floor(Math.random() * (10 ** 15 - 10 ** 14) + 10 ** 14);
 
 const formState = reactive({
   borrower_type: 2,
@@ -239,7 +243,7 @@ const formState = reactive({
   middle_name: '',
   last_name: '',
   organization_name: '',
-  borrower_id_num: '',
+  borrower_id_num: `${randomNumber}temp`,
   company_number: '',
   borrower_email: '',
   borrower_phone_prefix: '',
@@ -277,14 +281,14 @@ const formRules = {
       trigger: 'blur'
     }
   ],
-  company_number: [
-    { required: true, message: t('请输入') + t('公司编码'), trigger: 'blur' },
-    {
-      pattern: /^[a-zA-Z0-9]+$/,
-      message: t('公司编码') + t('格式不正确'),
-      trigger: 'blur'
-    }
-  ],
+  // company_number: [
+  //   { required: true, message: t('请输入') + t('新西兰商业号码'), trigger: 'blur' },
+  //   {
+  //     pattern: /^[a-zA-Z0-9]+$/,
+  //     message: t('新西兰商业号码') + t('格式不正确'),
+  //     trigger: 'blur'
+  //   }
+  // ],
   borrower_email: [
     { required: true, message: t('请输入') + t('邮箱'), trigger: 'blur' },
     {
@@ -293,20 +297,17 @@ const formRules = {
       trigger: 'blur'
     }
   ],
-  borrower_postcode: [
-    { required: true, message: t('请输入') + t('邮编'), trigger: 'blur' },
-    {
-      pattern: /^[A-Za-z0-9\s\-]+$/,
-      message: t('邮编') + t('格式不正确'),
-      trigger: 'blur'
-    }
-  ],
-  borrower_region: [{ required: true, message: t('请选择') + t('借款人地址'), trigger: 'change' }],
-  // borrower_address: [
-  //   { required: true, message: t('请输入') + t('详细地址'), trigger: 'blur' }
+  // borrower_postcode: [
+  //   { required: true, message: t('请输入') + t('邮编'), trigger: 'blur' },
+  //   {
+  //     pattern: /^[A-Za-z0-9\s\-]+$/,
+  //     message: t('邮编') + t('格式不正确'),
+  //     trigger: 'blur'
+  //   }
   // ],
-  borrower_address_short: [{ required: true, message: t('请输入') + t('地址1'), trigger: 'blur' }],
-  borrower_region_one_name: [{ required: true, message: t('请输入') + t('城市/州'), trigger: 'blur' }],
+  // borrower_region: [{ required: true, message: t('请选择') + t('借款人地址'), trigger: 'change' }],
+  // borrower_address_short: [{ required: true, message: t('请输入') + t('地址1'), trigger: 'blur' }],
+  // borrower_region_one_name: [{ required: true, message: t('请输入') + t('城市/州'), trigger: 'blur' }],
   borrower_about: [{ required: true, message: t('请输入') + t('借款人背景信息'), trigger: 'blur' }]
 };
 
@@ -380,7 +381,7 @@ const choiceUserDone = (data) => {
   } else {
     formState.borrower_type = 2;
     formState.organization_name = data.name;
-    formState.company_number = data.nzbz;
+    formState.company_number = data.nzbn;
   }
   formState.borrower_images = [];
   formState.borrower_email = data.email;
@@ -594,6 +595,11 @@ const getCompanyInfo = (val) => {
 };
 
 const needBindUser = ref(false);
+
+
+const show_addr = computed(() => {
+  return !props.currentStep || props.currentStep?.mark !=='step_borrower_info' || appStore.config?.show_addr === '2'
+})
 
 watch(
   () => props.infoData,

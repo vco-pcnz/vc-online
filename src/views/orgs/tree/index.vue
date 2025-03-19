@@ -37,7 +37,7 @@
                 >: <span class="value">{{ node.$$data.idcard }}</span>
               </p>
               <p v-else>
-                <span class="label">nzbz</span>: <span class="value">{{ node.$$data.nzbz }}</span>
+                <span class="label">nzbn</span>: <span class="value">{{ node.$$data.nzbn }}</span>
               </p>
               <p v-if="node.$$data.p_uuid">
                 <span class="label">{{ t('所有权l') }}: </span>
@@ -78,7 +78,7 @@ const data = ref({
   uuid: '',
   type: '',
   name: '',
-  nzbz: '',
+  nzbn: '',
   children: []
 });
 
@@ -137,7 +137,7 @@ onMounted(() => {
 const getDetail = (val) => {
   data.value.type = val?.type;
   data.value.name = val?.name;
-  data.value.nzbz = val?.nzbz;
+  data.value.nzbn = val?.nzbn;
   data.value.uuid = val?.uuid;
 };
 

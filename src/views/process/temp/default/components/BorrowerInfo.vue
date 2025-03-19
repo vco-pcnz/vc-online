@@ -21,7 +21,7 @@
       </a-col>
       <a-col :span="8">
         <div class="info-content">
-          <p class="name">{{ Number(data.borrower_type) === 1 ? t('身份证号码') : t('公司编码') }}</p>
+          <p class="name">{{ Number(data.borrower_type) === 1 ? t('身份证号码') : t('新西兰商业号码') }}</p>
           <p class="txt">{{ data.borrower_id_num }}</p>
         </div>
       </a-col>
@@ -43,7 +43,7 @@
           <p class="txt">{{ data.borrower_postcode }}</p>
         </div>
       </a-col>
-      <a-col :span="24">
+      <!-- <a-col :span="24">
         <div class="info-content">
           <p class="name">{{ t('证件照片') }}</p>
           <div v-if="data.borrower_images && data.borrower_images.length">
@@ -64,7 +64,7 @@
           </div>
           <p v-else class="txt">--</p>
         </div>
-      </a-col>
+      </a-col> -->
       <a-col :span="24">
         <div class="info-content">
           <p class="name">{{ t('借款人地址') }}</p>

@@ -215,9 +215,9 @@ const setAddressInfo = (e) => {
   }
 };
   const formRules = {
-    project_name: [
-      { required: true, message: t('请输入') + t('项目名称'), trigger: 'blur' }
-    ],
+    // project_name: [
+    //   { required: true, message: t('请输入') + t('项目名称'), trigger: 'blur' }
+    // ],
     project_type: [
       { required: true, message: t('请选择') + t('项目类型'), trigger: 'change' }
     ],

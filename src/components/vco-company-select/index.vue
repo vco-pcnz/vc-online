@@ -9,7 +9,7 @@
         <a-menu-item v-for="item in list" :key="item.pxid" @click="setValue(item)">
           <a href="javascript:;" :class="{ active: item.entityName == keyword }">
             {{ item.entityName }}
-            <span class="fs_xs ml-2" v-if="show_nzbn"> ( NZBN: {{ item.nzbn }} )</span>
+            <span class="fs_xs ml-2" v-if="show_nzbn"> ( {{t('新西兰商业号码')}}: {{ item.nzbn }} )</span>
           </a>
         </a-menu-item>
       </a-menu>
@@ -26,12 +26,12 @@ import { useAppStore } from '@/store';
 
 const appStore = useAppStore();
 
-const emits = defineEmits(['update:name', 'update:nzbz', 'change']);
+const emits = defineEmits(['update:name', 'update:nzbn', 'change']);
 const props = defineProps({
   name: {
     type: String
   },
-  nzbz: {
+  nzbn: {
     type: [String, Number]
   },
   placeholder: {
@@ -66,7 +66,7 @@ const debounce = (func, wait) => {
 
 const search = debounce(() => {
   if (props.is_nzbn) {
-    emits('update:nzbz', keyword.value);
+    emits('update:nzbn', keyword.value);
   } else {
     emits('update:name', keyword.value);
   }
@@ -119,7 +119,7 @@ const setValue = (val) => {
   list.value = [];
   open.value = false;
   getInfo(val.nzbn);
-  emits('update:nzbz', val.nzbn);
+  emits('update:nzbn', val.nzbn);
   emits('update:name', val.entityName);
 };
 
@@ -133,7 +133,7 @@ watch(
   { deep: true, immediate: true }
 );
 watch(
-  () => props.nzbz,
+  () => props.nzbn,
   (val) => {
     if (props.is_nzbn) {
       keyword.value = val;

@@ -30,8 +30,8 @@
             </a-form-item>
           </template>
           <template v-else>
-            <a-form-item label="NZBN" name="nzbz">
-              <a-input v-model:value="form.nzbz" :placeholder="t('请输入')" :disabled="disabled" />
+            <a-form-item :label="t('新西兰商业号码')" name="nzbn">
+              <a-input v-model:value="form.nzbn" :placeholder="t('请输入')" :disabled="disabled" />
             </a-form-item>
           </template>
           <a-form-item :label="t('所有权')" name="weight">
@@ -81,7 +81,7 @@ const { form, resetFields, assignFields } = useFormData({
   type: '',
   name: '',
   idcard: '',
-  nzbz: '',
+  nzbn: '',
   weight: 0
 });
 
@@ -123,10 +123,10 @@ const dynamicRules = computed(() => {
     } else {
       rules = {
         ...rules,
-        nzbz: [
+        nzbn: [
           {
             required: true,
-            message: t('请输入') + 'NZBN'
+            message: t('请输入') + t('新西兰商业号码')
           }
         ]
       };
@@ -141,7 +141,7 @@ const checkUser = (val) => {
     return message.warning(t('非法选择'));
   }
   disabled.value = !!val.uuid;
-  let keys = ['name', 'type', 'nzbz'];
+  let keys = ['name', 'type', 'nzbn'];
   const newData = pick(val, keys);
   Object.assign(form, newData);
   form.s_uuid = val.uuid;

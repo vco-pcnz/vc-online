@@ -817,5 +817,6 @@ export default {
   "结算日期": "Settlement Date",
   "净收益": "Net income",
   "修改记录": "Change Log",
-  "编辑预售信息": "Edit pre-sale information"
+  "编辑预售信息": "Edit pre-sale information",
+  "新西兰商业号码": "NZBN",
 }

@@ -90,23 +90,18 @@
             <a-col :span="24">
               <a-form-item :label="t('公司名称f')" name="name">
                 <!-- <a-input v-model:value="form.name" :placeholder="t('请输入')" /> -->
-                <vco-company-select v-model:name="form.name" :placeholder="t('请输入')" v-model:nzbz="form.nzbz" :show_nzbn="true" @change="getCompanyInfo"></vco-company-select>
+                <vco-company-select v-model:name="form.name" :placeholder="t('请输入')" v-model:nzbn="form.nzbn" :show_nzbn="true" @change="getCompanyInfo"></vco-company-select>
               </a-form-item>
             </a-col>
             <a-col :span="24">
-              <a-form-item label="NZBN" name="nzbz">
-                <!-- <a-input v-model:value="form.nzbz" :placeholder="t('请输入')" /> -->
-                <vco-company-select v-model:name="form.name" :placeholder="t('请输入')" v-model:nzbz="form.nzbz" :show_nzbn="true" @change="getCompanyInfo" :is_nzbn="true"></vco-company-select>
+              <a-form-item :label="t('新西兰商业号码')" name="nzbn">
+                <!-- <a-input v-model:value="form.nzbn" :placeholder="t('请输入')" /> -->
+                <vco-company-select v-model:name="form.name" :placeholder="t('请输入')" v-model:nzbn="form.nzbn" :show_nzbn="true" @change="getCompanyInfo" :is_nzbn="true"></vco-company-select>
               </a-form-item>
             </a-col>
             <a-col :span="24">
               <a-form-item :label="t('联系人f')" name="contactName">
                 <a-input v-model:value="form.contactName" :placeholder="t('请输入')" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="24" v-if="form.type !== 2 && form.type !== 3">
-              <a-form-item :label="t('组织机构代码f')" name="idcard">
-                <a-input v-model:value="form.idcard" :placeholder="t('请输入')" />
               </a-form-item>
             </a-col>
           </template>
@@ -280,7 +275,7 @@ const props = defineProps({
 const { form, assignFields } = useFormData({
   //公司
   name: '',
-  nzbz: '',
+  nzbn: '',
   contactName: '',
   // 个人
   user_uuid: '',
@@ -322,17 +317,6 @@ const email_ok = ref(0);
 // 表单验证规则
 const rules = reactive({
   // 公共验证
-  idcard: [
-    {
-      required: true,
-      message: t('请输入') + t('组织机构代码f')
-    },
-    {
-      pattern: /^[A-Z0-9]+$/,
-      message: t('组织机构代码f') + t('格式不正确'),
-      trigger: 'blur'
-    }
-  ],
   mobile: [
     {
       pattern: /^\+?[1-9]\d{1,14}$|^\(?\d+\)?[-.\s]?\d+([-.\s]?\d+)*$/,
@@ -406,11 +390,11 @@ const dynamicRules = computed(() => {
           message: t('请输入') + t('公司名称f')
         }
       ],
-      nzbz: [
-        { required: true, message: t('请输入') + 'NZBN', trigger: 'blur' },
+      nzbn: [
+        { required: true, message: t('请输入') + t('新西兰商业号码'), trigger: 'blur' },
         {
           pattern: /^[a-zA-Z0-9]+$/,
-          message: 'NZBN' + t('格式不正确'),
+          message: t('新西兰商业号码') + t('格式不正确'),
           trigger: 'blur'
         }
       ],
@@ -499,7 +483,7 @@ const submit = () => {
     if (form.type == 20) {
       keys = keys.concat(['firstName', 'middleName', 'lastName', 'sendEmail', 'sendSms', 'user_uuid', 'idcard']);
     } else {
-      keys = keys.concat(['name', 'nzbz', 'contactName', 'province_code', 'city_code', 'district_code', 'address', 'addr', 'postal', 'idcard', 'suburb', 'province_code_name', 'con_id']);
+      keys = keys.concat(['name', 'nzbn', 'contactName', 'province_code', 'city_code', 'district_code', 'address', 'addr', 'postal', 'suburb', 'province_code_name', 'con_id']);
     }
     const newData = pick(form, keys);
     if (form.type == 20) {

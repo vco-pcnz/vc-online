@@ -1,19 +1,21 @@
 <template>
   <div class="inline" @click="init"><slot></slot></div>
-  <div @click.stop ref="modeRef" class="myMode text-left" :class="[{ myModeEidt: edit }]">
+  <div @click.stop ref="modeRef" class="myMode text-left">
     <a-modal :width="edit ? 1000 : 900" :open="visible" :title="t('开发成本')" :getContainer="() => $refs.modeRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content">
+        <a-form-item-rest>
         <div v-for="(item, p_index) in data.data" :key="item.type" class="mb-5 card">
-          <template v-if="item.list">
+          <!-- 建筑成本 -->
+          <template v-if="p_index === 0">
             <div class="flex justify-between tabel-type">
               <p class="bold fs_xl">{{ item.type }}</p>
               <a-button type="brown" shape="round" size="small" @click="add(p_index)" v-if="edit">add</a-button>
             </div>
-            <a-table :columns="columns" :data-source="item.list" :pagination="false" :scroll="{ x: '100%' }">
+            <a-table :columns="ConstructionColumns" :data-source="item.list" :pagination="false" :scroll="{ x: '100%' }">
               <template #bodyCell="{ column, record, index }">
                 <template v-if="edit">
                   <template v-if="column.dataIndex === 'type'">
-                    <a-select :loading="loading_type" style="width: 100%" v-model:value="record.type" :options="p_index ? types.devCostTypeFinance : types.devCostTypeConstruction" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
+                    <a-select :loading="loading_type" style="width: 100%" v-model:value="record.type" :options="types" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
                   </template>
                   <template v-if="column.dataIndex === 'loan' || column.dataIndex === 'borrower_equity'">
                     <a-input-number
@@ -41,8 +43,8 @@
                 </template>
               </template>
             </a-table>
-            <div class="flex items-center total-row" v-if="item.list.length">
-              <div class="title bold pl">{{ p_index ? t('总财务费用') : t('小计') }}</div>
+            <div class="flex items-center total-row" :class="[{ myModeEidt: edit }]" v-if="item.list.length">
+              <div class="title bold pl">{{ t('小计') }}</div>
               <div class="amount pl">
                 <vco-number :value="item.loan" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
               </div>
@@ -55,7 +57,37 @@
               <div class="total" v-if="edit"></div>
             </div>
           </template>
-          <div v-else class="flex items-center total-row">
+          <!-- 财务成本 -->
+          <template v-if="p_index === 2">
+            <div class="flex justify-between tabel-type">
+              <p class="bold fs_xl">{{ item.type }}</p>
+            </div>
+            <a-table :columns="FinanceColumns" :data-source="item.list" :pagination="false" :scroll="{ x: '100%' }">
+              <template #bodyCell="{ column, record }">
+                <template v-if="column.dataIndex === 'loan' || column.dataIndex === 'borrower_equity'">
+                  <vco-number :value="record[column.dataIndex]" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
+                </template>
+                <template v-if="column.dataIndex === 'total'">
+                  <vco-number :value="record[column.dataIndex]" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
+                </template>
+              </template>
+            </a-table>
+            <div class="flex items-center total-row" v-if="item.list.length">
+              <div class="title bold pl">{{ t('总财务费用') }}</div>
+              <div class="amount pl">
+                <vco-number :value="item.loan" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
+              </div>
+              <div class="amount pl">
+                <vco-number :value="item.borrower_equity" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
+              </div>
+              <div class="amount">
+                <vco-number :value="item.total" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
+              </div>
+              <div class="total" v-if="edit"></div>
+            </div>
+          </template>
+          <!-- 净商品与服务税 -->
+          <div v-if="p_index === 1" class="flex items-center total-row">
             <div class="title bold bold fs_xl text-left" style="padding: 0">{{ item.type }}</div>
             <template v-if="edit">
               <div class="amount">
@@ -86,6 +118,7 @@
             <div class="total" v-if="edit"></div>
           </div>
         </div>
+      </a-form-item-rest>
         <div class="flex items-center total-row" style="border: none; padding: 0 24px">
           <div class="title bold bold fs_xl text-left">{{ t('总计') }}</div>
           <div class="amount pl">
@@ -135,12 +168,20 @@ const props = defineProps({
 
 const visible = ref(false);
 
-const columns = reactive([
+const ConstructionColumns = reactive([
   { title: t('类型'), dataIndex: 'type', ellipsis: true },
   { title: t('贷款'), dataIndex: 'loan', width: 180, ellipsis: true },
   { title: t('借款人权益'), dataIndex: 'borrower_equity', width: 180, ellipsis: true },
   { title: t('总计'), dataIndex: 'total', width: 180, ellipsis: true },
-  { title: t('操作'), dataIndex: 'operation', width: 120, align: 'center', ellipsis: true }
+  { title: t('操作'), dataIndex: 'operation', width: 110, align: 'center', ellipsis: true }
+]);
+
+const FinanceColumns = reactive([
+  { title: t('类型'), dataIndex: 'type', ellipsis: true },
+  { title: t('贷款'), dataIndex: 'loan', width: 180, ellipsis: true },
+  { title: t('借款人权益'), dataIndex: 'borrower_equity', width: 180, ellipsis: true },
+  { title: t('总计'), dataIndex: 'total', width: 180, ellipsis: true },
+  { title: t(''), dataIndex: 'operation', width: 110, align: 'center', ellipsis: true }
 ]);
 const data = ref({
   loan: 0,
@@ -164,7 +205,13 @@ const data = ref({
       type: t('财务成本'),
       loan: 0,
       borrower_equity: 0,
-      list: []
+      list: [
+        {
+          type: '',
+          loan: 0,
+          borrower_equity: 0
+        }
+      ]
     }
   ]
 });
@@ -193,18 +240,24 @@ const save = () => {
 };
 
 const loading_type = ref(false);
-const types = ref({
-  devCostTypeConstruction: [],
-  devCostTypeFinance: []
-});
+const types = ref([]);
 const loadType = (key) => {
-  if (types.value[key].length) {
+  if (types.value.length) {
     return;
   }
   loading_type.value = true;
-  systemDictData(key)
+  systemDictData('devCostTypeConstruction')
     .then((res) => {
-      types.value[key] = res;
+      types.value = res;
+      if (!data.value.data[0].list.length) {
+        res.map((item) => {
+          data.value.data[0].list.push({
+            type: item.code,
+            loan: 0,
+            borrower_equity: 0
+          });
+        });
+      }
     })
     .finally((_) => {
       loading_type.value = false;
@@ -232,14 +285,14 @@ const initData = () => {
   data.value.total = tool.plus(data.value.loan || 0, data.value.borrower_equity || 0);
 };
 const init = () => {
-  loadType('devCostTypeConstruction');
-  loadType('devCostTypeFinance');
+  loadType();
   if (props.dataJson && props.dataJson.length) {
     data.value = cloneDeep(props.dataJson[0]);
     initData();
   }
   if (!props.edit) {
-    columns.splice(4, 1);
+    ConstructionColumns.splice(4, 1);
+    FinanceColumns.splice(4, 1);
   }
   visible.value = true;
 };
@@ -250,7 +303,7 @@ const init = () => {
 .myMode {
   position: relative;
   z-index: 9999;
-  &.myModeEidt {
+  .myModeEidt {
     .pl {
       padding-left: 28px !important;
     }
@@ -340,7 +393,7 @@ const init = () => {
           padding: 10px 16px;
         }
         .total {
-          flex: 0 0 120px;
+          flex: 0 0 110px;
         }
       }
       .save {

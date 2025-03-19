@@ -1,5 +1,5 @@
 <template>
-  <div class="sys-table-content border-top-none" :class="{'copy':hasPermission('projects:copy')}">
+  <div class="sys-table-content border-top-none" :class="{ copy: hasPermission('projects:copy') }">
     <a-table
       :columns="columns"
       :data-source="tableData"
@@ -85,12 +85,18 @@
           <p class="black">{{ tool.formatMoney(record.credit.fc2) }}</p>
         </template>
         <template v-if="column.key === '9'">
-          <div class="closed" v-if="record.is_substitution">{{ t('被再融资') }}</div>
-          <div class="closed" v-else-if="record.is_open === 3">{{ t('关账') }}</div>
+          <template v-if="!hasPermission('projects:copy')">
+            <div class="closed" v-if="record.is_substitution">{{ t('被再融资') }}</div>
+            <div class="closed" v-else-if="record.is_open === 3">{{ t('关账') }}</div>
+          </template>
 
           <p class="count" v-if="record.upd">{{ record.upd }}</p>
         </template>
         <template v-if="column.key === 'operation'">
+          <template v-if="hasPermission('projects:copy')">
+            <div class="closed" v-if="record.is_substitution">{{ t('被再融资') }}</div>
+            <div class="closed" v-else-if="record.is_open === 3">{{ t('关账') }}</div>
+          </template>
           <div @click.stop>
             <a-dropdown :trigger="['click']">
               <a class="ant-dropdown-link">
@@ -136,9 +142,9 @@ const props = defineProps({
 const { t } = useI18n();
 const columns = reactive([
   { title: t('项目•类型'), key: '1', width: 280 },
-  { title: t('借款人•贷款经理'), key: '2', width: 200 },
+  { title: t('借款人•贷款经理'), key: '2', width: 260 },
   { title: t('到期'), key: '3', width: 120 },
-  { title: t('IRR预测'), key: '4', width: 160 },
+  { title: t('IRR预测'), key: '4', width: 280 },
   { title: t('收入'), key: '5', width: 120 },
   { title: t('待提取'), key: '6', width: 120 },
   { title: t('贷款余额'), key: '7', width: 220 },
@@ -276,22 +282,17 @@ onMounted(() => {
 //   }
 // }
 .closed {
-  position: absolute;
+  position: absolute !important;
   background-color: #858585;
   color: #fff;
   font-size: 11px;
   padding: 2px 10px;
   // width: 100%;
+  white-space: nowrap;
   text-align: center;
   top: 4px;
   right: 0;
   border-top-right-radius: 12px;
   border-bottom-left-radius: 12px;
-}
-.copy {
-  .closed {
-    border-top-right-radius: 0;
-  }
-
 }
 </style>

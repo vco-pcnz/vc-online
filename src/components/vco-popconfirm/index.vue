@@ -1,5 +1,5 @@
 <template>
-  <a-popconfirm class="inline" :title="tip" @confirm="confirm()">
+  <a-popconfirm class="inline" :title="tip" @confirm="confirm()" @click.stop>
     <slot>
       <a-button type="dark" class="big shadow bold uppercase mb-5 mt-5">{{ btn_text }}</a-button>
     </slot>
@@ -42,7 +42,7 @@ const confirm = () => {
   };
   request(paramsInfo)
     .then((res) => {
-      emits('update');
+      emits('update',res);
       message.success(t('操作成功'));
     })
     .finally((_) => {

@@ -819,4 +819,6 @@ export default {
   "修改记录": "Change Log",
   "编辑预售信息": "Edit pre-sale information",
   "新西兰商业号码": "NZBN",
+  "确定要复制{0}": "Confirm to copy {0}",
+  "复制": "Copy",
 }

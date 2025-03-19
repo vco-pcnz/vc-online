@@ -64,7 +64,7 @@
                       </a-form-item>
                     </a-col>
                   </template>
-                  <a-col :span="24" v-show="show_addr">
+                  <a-col :span="!isNormalUser && !isOpen ? 16 : 24">
                     <a-form-item v-if="formState.borrower_type === 1" :label="t('身份证号码')" name="borrower_id_num">
                       <a-input v-model:value="formState.borrower_id_num" />
                     </a-form-item>
@@ -72,6 +72,11 @@
                     <a-form-item v-else :label="t('新西兰商业号码')" name="company_number">
                       <!-- <a-input v-model:value="formState.company_number" /> -->
                       <vco-company-select v-model:name="formState.organization_name" :placeholder="t('请输入')" v-model:nzbn="formState.company_number" :show_nzbn="true" @change="getCompanyInfo" :is_nzbn="true"></vco-company-select>
+                    </a-form-item>
+                  </a-col>
+                  <a-col v-if="!isNormalUser && !isOpen" :span="8">
+                    <a-form-item :label="t('是否存为利益相关者')">
+                      <a-switch v-model:checked="formState.is_temp_borrower" />
                     </a-form-item>
                   </a-col>
                   <a-col :span="12">
@@ -90,11 +95,6 @@
                   <a-col :span="24">
                     <a-form-item :label="t('借款人背景信息')" name="borrower_about">
                       <a-textarea v-model:value="formState.borrower_about" :auto-size="{ minRows: 4, maxRows: 5 }" />
-                    </a-form-item>
-                  </a-col>
-                  <a-col v-if="!isNormalUser && !isOpen" :span="24">
-                    <a-form-item :label="t('是否存为利益相关者')">
-                      <a-switch v-model:checked="formState.is_temp_borrower" />
                     </a-form-item>
                   </a-col>
                 </a-row>
@@ -145,9 +145,9 @@ import AdsContent from './../../components/AdsContent.vue';
 import emitter from '@/event';
 import { useUserStore } from '@/store';
 import { hasPermission } from '@/directives/permission/index';
-import useAppStore from '@/store/modules/app'
+import useAppStore from '@/store/modules/app';
 
-const appStore = useAppStore()
+const appStore = useAppStore();
 
 const emits = defineEmits(['checkDone', 'dataDone']);
 
@@ -281,14 +281,14 @@ const formRules = {
       trigger: 'blur'
     }
   ],
-  // company_number: [
-  //   { required: true, message: t('请输入') + t('新西兰商业号码'), trigger: 'blur' },
-  //   {
-  //     pattern: /^[a-zA-Z0-9]+$/,
-  //     message: t('新西兰商业号码') + t('格式不正确'),
-  //     trigger: 'blur'
-  //   }
-  // ],
+  company_number: [
+    { required: true, message: t('请输入') + t('新西兰商业号码'), trigger: 'blur' },
+    {
+      pattern: /^[a-zA-Z0-9]+$/,
+      message: t('新西兰商业号码') + t('格式不正确'),
+      trigger: 'blur'
+    }
+  ],
   borrower_email: [
     { required: true, message: t('请输入') + t('邮箱'), trigger: 'blur' },
     {
@@ -596,10 +596,9 @@ const getCompanyInfo = (val) => {
 
 const needBindUser = ref(false);
 
-
 const show_addr = computed(() => {
-  return !props.currentStep || props.currentStep?.mark !=='step_borrower_info' || appStore.config?.show_addr === '2'
-})
+  return appStore.config?.show_addr === '2';
+});
 
 watch(
   () => props.infoData,

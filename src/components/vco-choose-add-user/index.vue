@@ -39,7 +39,7 @@
                 </a-form-item>
               </a-col>
 
-              <a-col :span="24" v-if="form.type">
+              <!-- <a-col :span="24" v-if="form.type">
                 <a-form-item :label="t('工作')" name="job">
                   <a-checkbox-group v-model:value="form.job">
                     <a-checkbox :value="item.code" :key="item.code" v-for="item in orgsStore.jobs">
@@ -47,7 +47,7 @@
                     </a-checkbox>
                   </a-checkbox-group>
                 </a-form-item>
-              </a-col>
+              </a-col> -->
 
               <!-- 个人相关信息 -->
               <template v-if="form.type == 20">
@@ -82,11 +82,10 @@
                 </a-col>
                 <a-col :span="24">
                   <a-form-item :label="t('新西兰商业号码')" name="nzbn">
-                    <!-- <a-input v-model:value="form.nzbn" :placeholder="t('请输入')" /> -->
                     <vco-company-select v-model:name="form.name" :placeholder="t('请输入')" v-model:nzbn="form.nzbn" :show_nzbn="true" @change="getCompanyInfo" :is_nzbn="true"></vco-company-select>
                   </a-form-item>
                 </a-col>
-                <a-col :span="24">
+                <!-- <a-col :span="24">
                   <a-form-item :label="t('联系人f')" name="contactName">
                     <a-input v-model:value="form.contactName" :placeholder="t('请输入')" />
                   </a-form-item>
@@ -95,14 +94,14 @@
                   <a-form-item :label="t('组织机构代码f')" name="idcard">
                     <a-input v-model:value="form.idcard" :placeholder="t('请输入')" />
                   </a-form-item>
-                </a-col>
+                </a-col> -->
               </template>
 
               <!-- ####################################### -->
-              <a-col :span="24" v-if="form.type != 20">
+              <a-col :span="24" v-if="form.type != 20" v-show="false">
                 <vco-address ref="vcoAddressRef" @change="setAddressInfo"></vco-address>
               </a-col>
-
+<!-- 
               <a-col :span="12">
                 <a-form-item :label="t('邮箱')" name="email">
                   <a-input v-model:value="form.email" />
@@ -112,13 +111,13 @@
                 <a-form-item :label="t('手机号')" name="mobile">
                   <vco-mobile-input v-model:value="form.mobile" v-model:areaCode="form.pre" :formRef="formRef" validateField="mobile"> </vco-mobile-input>
                 </a-form-item>
-              </a-col>
-
+              </a-col> -->
+<!-- 
               <a-col :span="24">
                 <a-form-item :label="t('背景f')" name="note">
                   <a-textarea v-model:value="form.note" :auto-size="{ minRows: 4, maxRows: 5 }" :placeholder="t('请输入')" />
                 </a-form-item>
-              </a-col>
+              </a-col> -->
             </a-row>
           </a-form>
         </template>
@@ -211,23 +210,10 @@ const { form, assignFields } = useFormData({
 // 表单验证规则
 const rules = reactive({
   // 公共验证
-  idcard: [
-    {
-      required: true,
-      message: t('请输入') + t('组织机构代码f')
-    }
-  ],
   type: [
     {
       required: true,
       message: t('请选择') + t('类型f')
-    }
-  ],
-  addr: [
-    {
-      required: true,
-      message: t('请输入'),
-      trigger: 'blur'
     }
   ]
 });
@@ -278,12 +264,12 @@ const dynamicRules = computed(() => {
           message: t('请输入') + t('新西兰商业号码')
         }
       ],
-      contactName: [
-        {
-          required: true,
-          message: t('请输入') + t('联系人f')
-        }
-      ]
+      // contactName: [
+      //   {
+      //     required: true,
+      //     message: t('请输入') + t('联系人f')
+      //   }
+      // ]
     };
   }
 });

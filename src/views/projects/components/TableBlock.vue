@@ -1,5 +1,5 @@
 <template>
-  <div class="sys-table-content border-top-none">
+  <div class="sys-table-content border-top-none" :class="{'copy':hasPermission('projects:copy')}">
     <a-table
       :columns="columns"
       :data-source="tableData"
@@ -87,8 +87,26 @@
         <template v-if="column.key === '9'">
           <div class="closed" v-if="record.is_substitution">{{ t('被再融资') }}</div>
           <div class="closed" v-else-if="record.is_open === 3">{{ t('关账') }}</div>
-          
+
           <p class="count" v-if="record.upd">{{ record.upd }}</p>
+        </template>
+        <template v-if="column.key === 'operation'">
+          <div @click.stop>
+            <a-dropdown :trigger="['click']">
+              <a class="ant-dropdown-link">
+                <i class="iconfont cert">&#xe77a;</i>
+              </a>
+              <template #overlay>
+                <a-menu :selectable="false">
+                  <a-menu-item key="0">
+                    <vco-popconfirm url="/project/project/copy" :formParams="{ uuid: record.uuid }" :tip="t('确定要复制{0}', [record.project_name])" @update="toCopyDetail">
+                      {{ t('复制') }}
+                    </vco-popconfirm>
+                  </a-menu-item>
+                </a-menu>
+              </template>
+            </a-dropdown>
+          </div>
         </template>
       </template>
     </a-table>
@@ -96,11 +114,12 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { navigationTo } from '@/utils/tool';
 import { DisconnectOutlined } from '@ant-design/icons-vue';
+import { hasPermission } from '@/directives/permission/index';
 import dayjs from 'dayjs';
 const emits = defineEmits(['update:data', 'update:keys', 'change']);
 
@@ -119,12 +138,12 @@ const columns = reactive([
   { title: t('项目•类型'), key: '1', width: 280 },
   { title: t('借款人•贷款经理'), key: '2', width: 200 },
   { title: t('到期'), key: '3', width: 120 },
-  { title: t('IRR预测'), key: '4', width: 220 },
-  { title: t('收入'), key: '5', width: 100 },
-  { title: t('待提取'), key: '6', width: 100 },
+  { title: t('IRR预测'), key: '4', width: 160 },
+  { title: t('收入'), key: '5', width: 120 },
+  { title: t('待提取'), key: '6', width: 120 },
   { title: t('贷款余额'), key: '7', width: 220 },
   { title: t('FC2'), key: '8', width: 110 },
-  { title: t('UPD'), key: '9', width: 90 }
+  { title: t('UPD'), key: '9', width: 90, align: 'center' }
 ]);
 
 const diffInDays = (val) => {
@@ -188,6 +207,22 @@ const handlePathChange = () => {
   emits('update:keys', selectedRowKeys.value);
   emits('change');
 };
+
+const toCopyDetail = (val) => {
+  navigationTo('/process/four?uuid=' + val.uuid);
+};
+
+onMounted(() => {
+  if (hasPermission('projects:copy')) {
+    columns.push({
+      title: t('操作1'),
+      key: 'operation',
+      align: 'center',
+      fixed: 'right',
+      width: 50
+    });
+  }
+});
 </script>
 
 <style lang="less" scoped>
@@ -196,6 +231,8 @@ const handlePathChange = () => {
   cursor: pointer;
 }
 :deep(.ant-table-tbody) > tr td {
+  // position: initial !important;
+
   .relevance_icon {
     font-size: 7px;
     margin: 0 !important;
@@ -206,7 +243,6 @@ const handlePathChange = () => {
   .bold {
     font-size: 14px;
   }
-
   .count {
     display: inline-block;
     width: 24px;
@@ -247,9 +283,15 @@ const handlePathChange = () => {
   padding: 2px 10px;
   // width: 100%;
   text-align: center;
-  top: 2px;
+  top: 4px;
   right: 0;
   border-top-right-radius: 12px;
   border-bottom-left-radius: 12px;
+}
+.copy {
+  .closed {
+    border-top-right-radius: 0;
+  }
+
 }
 </style>

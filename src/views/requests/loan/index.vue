@@ -111,14 +111,21 @@
                     </template>
                   </template>
                   <template v-if="column.dataIndex === 'operation'">
-                    <a-dropdown :trigger="['click']">
-                      <a class="ant-dropdown-link" @click.prevent>
-                        <i class="iconfont">&#xe77a;</i>
+                    <a-dropdown :trigger="['click']" >
+                      <a class="ant-dropdown-link" @click.stop>
+                        <i class="iconfont cert">&#xe77a;</i>
                       </a>
                       <template #overlay>
-                        <a-menu>
-                          <a-menu-item key="0">
-                            <a @click="navigationTo(`/requests/details?uuid=${record.uuid}`)">{{ t('查看详情') }}</a>
+                        <a-menu :selectable="false">
+                          <a-menu-item key="0" :disabled="record.status < 400">
+                            <vco-popconfirm url="/project/project/copy" :formParams="{ uuid: record.uuid }" :tip="t('确定要复制{0}', [record.project_name])" :disabled="record.status < 400" @update="toCopyDetail" >
+                              {{ t('详情') }}
+                            </vco-popconfirm>
+                          </a-menu-item>
+                          <a-menu-item key="0" :disabled="record.status < 400">
+                            <vco-popconfirm url="/project/project/copy" :formParams="{ uuid: record.uuid }" :tip="t('确定要复制{0}', [record.project_name])" :disabled="record.status < 400" @update="toCopyDetail" >
+                              {{ t('复制') }}
+                            </vco-popconfirm>
                           </a-menu-item>
                         </a-menu>
                       </template>
@@ -127,17 +134,8 @@
                 </template>
               </a-table>
             </div>
-            <div  v-if="tableData.length" class="mt-5">
-              <a-pagination
-                size="small"
-                :total="pageObj.total"
-                :current="pageObj.currentPage"
-                :page-size="pageObj.pageSize"
-                show-size-changer
-                show-quick-jumper
-                :show-total="(total) => t('共{0}条', [total])"
-                @change="pageChange"
-              />
+            <div v-if="tableData.length" class="mt-5">
+              <a-pagination size="small" :total="pageObj.total" :current="pageObj.currentPage" :page-size="pageObj.pageSize" show-size-changer show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="pageChange" />
             </div>
           </a-spin>
         </div>
@@ -175,22 +173,22 @@ const tabData = ref([
   {
     label: t('申请中'),
     value: '1',
-    num: 0,
+    num: 0
   },
   {
     label: t('已批准'),
     value: '2',
-    num: 0,
+    num: 0
   },
   {
     label: t('已拒绝'),
     value: '3',
-    num: 0,
+    num: 0
   },
   {
     label: t('已取消'),
     value: '4',
-    num: 0,
+    num: 0
   }
 ]);
 
@@ -199,16 +197,16 @@ const sortValue = ref('');
 const sortTypeData = [
   {
     label: t('默认'),
-    value: '',
+    value: ''
   },
   {
     label: t('创建时间'),
-    value: 'create_time',
+    value: 'create_time'
   },
   {
     label: t('借款金额'),
-    value: 'loan_money',
-  },
+    value: 'loan_money'
+  }
 ];
 
 const columns = reactive([
@@ -220,7 +218,7 @@ const columns = reactive([
   { title: t('期数'), dataIndex: 'term', width: 210, align: 'center' },
   // { title: t('最大费率'), dataIndex: 'lvr', width: 100, align: 'center' },
   { title: t('创建时间'), dataIndex: 'create_time', width: 120, align: 'center' },
-  { title: t('状态'), dataIndex: 'status', width: 220, align: 'center' },
+  { title: t('状态'), dataIndex: 'status', width: 220, align: 'center' }
   // {
   //   title: t('操作1'),
   //   dataIndex: 'operation',
@@ -264,7 +262,7 @@ const tabChange = () => {
 const searchHandle = (data = {}) => {
   const params = {
     ...data,
-    sta: currentTab.value,
+    sta: currentTab.value
   };
   getTableData(params);
 };
@@ -281,7 +279,7 @@ const bindHandle = (data) => {
 };
 
 const bindDone = () => {
-  userStore.getTaskNumInfo()
+  userStore.getTaskNumInfo();
   selectedRowKeys.value = [];
   getTableData();
 };
@@ -316,28 +314,34 @@ watch([sortType, sortValue], ([newSortType, newSortValue]) => {
   getTableData(params);
 });
 
-watch(
-  tableData,
-  () => {
-    if (otherInfo.value && otherInfo.value.num) {
-      const numInfo = otherInfo.value.num
-      tabData.value.forEach(item => {
-        item.num = numInfo[item.value] || 0
-      })
-    }
+watch(tableData, () => {
+  if (otherInfo.value && otherInfo.value.num) {
+    const numInfo = otherInfo.value.num;
+    tabData.value.forEach((item) => {
+      item.num = numInfo[item.value] || 0;
+    });
   }
-)
+});
 
 const handleRefreshRequestsList = () => {
   getTableData();
-}
+};
 
 const handleRefreshRequestsList2 = () => {
   currentTab.value = '2';
   tabChange();
-}
+};
 
 onMounted(() => {
+  if (hasPermission('projects:copy')) {
+    columns.push({
+      title: t('操作1'),
+      dataIndex: 'operation',
+      align: 'center',
+      width: 50,
+      fixed: 'right',
+    });
+  }
   tabChange();
   getVcteamData();
 
@@ -346,11 +350,15 @@ onMounted(() => {
   emitter.on('refreshRequestsList2', handleRefreshRequestsList2);
 });
 
+const toCopyDetail = (val) => {
+  navigationTo('/process/four?uuid=' + val.uuid)
+}
+
 onUnmounted(() => {
   emitter.off('refreshRequestsList', handleRefreshRequestsList);
 
   emitter.off('refreshRequestsList2', handleRefreshRequestsList2);
-})
+});
 </script>
 
 <style lang="less" scoped>

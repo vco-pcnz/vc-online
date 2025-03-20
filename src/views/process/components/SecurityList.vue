@@ -8,6 +8,7 @@
         :info-data="currentData"
         :block-info="blockInfo"
         :project-info="projectInfo"
+        :is-single="isSingleRef"
       ></security-add-edit>
 
       <div class="block-item sec">
@@ -31,8 +32,8 @@
                     >{{ item.card_no }}
                   </p>
                   <div v-if="!isDetails && blockInfo.showEdit" class="flex">
-                    <i class="iconfont" @click="copyHandle(item)">&#xe8a7;</i>
-                    <i class="iconfont" @click="editHandle(item)">&#xe8cf;</i>
+                    <i class="iconfont" @click="copyHandle(item, true)">&#xe8a7;</i>
+                    <i class="iconfont" @click="editHandle(item, true)">&#xe8cf;</i>
                     <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="() => deleteHandle(item)">
                       <i class="iconfont">&#xe8c1;</i>
                     </a-popconfirm>
@@ -151,14 +152,17 @@ const getTableData = () => {
 
 const editVisible = ref(false);
 const currentData = ref(null);
-const editHandle = (data) => {
+const isSingleRef = ref(false)
+const editHandle = (data, isSingle = false) => {
+  isSingleRef.value = isSingle
   currentData.value = data;
   editVisible.value = true;
 };
 
-const copyHandle = (data) => {
+const copyHandle = (data, isSingle = false) => {
   const newData = cloneDeep(data)
   delete newData.uuid
+  isSingleRef.value = isSingle
   currentData.value = newData;
   editVisible.value = true;
 }

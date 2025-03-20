@@ -225,7 +225,6 @@ const checkHandle = async () => {
   onMounted(() => {
     if (props.confirmInfo.confirm) {
       form.value = JSON.parse(props.confirmInfo.confirm)
-      console.log('form.value', form.value);
     }
     emitter.on('blockShowTarget', blockShowTargetHandle)
   })

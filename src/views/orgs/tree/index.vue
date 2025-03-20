@@ -11,47 +11,48 @@
         <a-button type="cyan" shape="round" @click="updateTree">{{ t('更新组织') }}</a-button>
         <a-button type="primary" shape="round" @click="download">{{ t('下载组织') }}</a-button>
       </div>
-
-      <div style="height: 800px" v-if="data.name">
-        <!-- https://sangtian152.github.io/vue3-tree-org/demo/#%E5%9F%BA%E7%A1%80%E7%94%A8%E6%B3%95 -->
-        <vue3-tree-org :data="data" :center="true" :horizontal="false" :node-draggable="false" :disabled="true" :default-expand-level="1" :define-menus="[]">
-          <!-- 自定义节点内容 -->
-          <template v-slot="{ node }">
-            <div class="tree-org-node-info">
-              <div class="ops">
-                <div @click="showForm(node?.$$data, 'add')" v-if="node?.$$data.type !== 20">
-                  <PlusCircleOutlined />
+      <a-spin :spinning="loading" size="large">
+        <div style="height: 800px" v-if="data.name">
+          <!-- https://sangtian152.github.io/vue3-tree-org/demo/#%E5%9F%BA%E7%A1%80%E7%94%A8%E6%B3%95 -->
+          <vue3-tree-org :data="data" :center="true" :horizontal="false" :node-draggable="false" :disabled="true" :default-expand-level="1" :define-menus="[]">
+            <!-- 自定义节点内容 -->
+            <template v-slot="{ node }">
+              <div class="tree-org-node-info">
+                <div class="ops">
+                  <div @click="showForm(node?.$$data, 'add')" v-if="node?.$$data.type !== 20">
+                    <PlusCircleOutlined />
+                  </div>
+                  <FormOutlined v-if="node.$$data.p_uuid" @click="showForm(node?.$$data, 'edit')" />
+                  <a-popconfirm :title="'Are you sure delete this task?'" ok-text="Yes" cancel-text="No" @confirm="remove(node.$$data)" v-if="node.$$data.p_uuid">
+                    <DeleteOutlined />
+                  </a-popconfirm>
                 </div>
-                <FormOutlined v-if="node.$$data.p_uuid" @click="showForm(node?.$$data, 'edit')" />
-                <a-popconfirm :title="'Are you sure delete this task?'" ok-text="Yes" cancel-text="No" @confirm="remove(node.$$data)" v-if="node.$$data.p_uuid">
-                  <DeleteOutlined />
-                </a-popconfirm>
+                <p>
+                  <i class="iconfont cer" v-if="node.$$data.type == 20">&#xe632;</i>
+                  <i class="iconfont cer" v-else>&#xe679;</i>
+                  <span class="value bold"> {{ node.$$data.name }}</span>
+                </p>
+                <p v-if="node.$$data.type == 20">
+                  <span class="label">{{ t('身份证号码') }}</span
+                  >: <span class="value">{{ node.$$data.idcard }}</span>
+                </p>
+                <p v-else>
+                  <span class="label">nzbn</span>: <span class="value">{{ node.$$data.nzbn }}</span>
+                </p>
+                <p v-if="node.$$data.p_uuid">
+                  <span class="label">{{ t('所有权l') }}: </span>
+                  <span class="bold">{{ node.$$data.weight }}</span
+                  >%
+                </p>
               </div>
-              <p>
-                <i class="iconfont cer" v-if="node.$$data.type == 20">&#xe632;</i>
-                <i class="iconfont cer" v-else>&#xe679;</i>
-                <span class="value bold"> {{ node.$$data.name }}</span>
-              </p>
-              <p v-if="node.$$data.type == 20">
-                <span class="label">{{ t('身份证号码') }}</span
-                >: <span class="value">{{ node.$$data.idcard }}</span>
-              </p>
-              <p v-else>
-                <span class="label">nzbn</span>: <span class="value">{{ node.$$data.nzbn }}</span>
-              </p>
-              <p v-if="node.$$data.p_uuid">
-                <span class="label">{{ t('所有权l') }}: </span>
-                <span class="bold">{{ node.$$data.weight }}</span
-                >%
-              </p>
-            </div>
-          </template>
-          <!-- 自定义展开按钮 -->
-          <template v-slot:expand="{ node }">
-            <div>{{ node.children.length }}</div>
-          </template>
-        </vue3-tree-org>
-      </div>
+            </template>
+            <!-- 自定义展开按钮 -->
+            <template v-slot:expand="{ node }">
+              <div>{{ node.children.length }}</div>
+            </template>
+          </vue3-tree-org>
+        </div>
+      </a-spin>
     </div>
   </div>
   <FormModal ref="FormModalRef" @change="loadData"></FormModal>
@@ -64,7 +65,7 @@ import Detail from '../components/detail.vue';
 import FormModal from './form-modal.vue';
 import { useRoute } from 'vue-router';
 import 'vue3-tree-org/lib/vue3-tree-org.css';
-import { stakeOrgList, stakeOrgDel } from '@/api/orgs';
+import { stakeOrgList, stakeOrgDel, updateShareholdingTree } from '@/api/orgs';
 import { PlusCircleOutlined, FormOutlined, DeleteOutlined } from '@ant-design/icons-vue';
 import html2canvas from 'html2canvas';
 
@@ -121,13 +122,26 @@ const remove = (val) => {
 };
 
 const loadData = () => {
-  stakeOrgList({ uuid: route.query.uuid }).then((res) => {
-    data.value['children'] = res;
-  });
+  loading.value = true;
+  stakeOrgList({ uuid: route.query.uuid })
+    .then((res) => {
+      data.value['children'] = res;
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 };
 
+const loading = ref(false);
 const updateTree = () => {
-  loadData();
+  loading.value = true;
+  updateShareholdingTree({ nzbn: data.value.nzbn })
+    .then((res) => {
+      loadData();
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 };
 
 onMounted(() => {

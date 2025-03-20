@@ -1,5 +1,5 @@
 <template>
-  <div class="inline" @click="init"><slot></slot></div>
+  <div class="inline"><slot></slot></div>
   <div @click.stop>
     <a-modal :width="830" :open="visible" :title="t('详情')" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">

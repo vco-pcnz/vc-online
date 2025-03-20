@@ -3,13 +3,7 @@
     <div class="header_title">VC Online</div>
     <div class="header_container">
       <div class="menu_content">
-        <router-link
-          v-for="link in menuData"
-          :key="link.path"
-          :to="link.path"
-          class="link"
-          :class="{ 'link_active': isActive(link.path) }"
-        >
+        <router-link v-for="link in menuData" :key="link.path" :to="link.path" class="link" :class="{ link_active: isActive(link.path) }">
           <a-badge v-if="link.path === '/tasks'" :count="taskInfo.total">
             <p class="router-name">{{ t(link.title) }}</p>
           </a-badge>
@@ -39,6 +33,14 @@
           </a>
           <template #overlay>
             <a-menu>
+              <a-menu-item v-if="hasPermission('profile:apply:broker') && !userInfo?.roles.includes('Broker')">
+                <ApplyBroker :brokerValue="broker_value">
+                  <div class="user-hanle-item">{{ t('申请经纪人') }}</div>
+                </ApplyBroker>
+                <ApplyBrokerDetail>
+                  <div class="user-hanle-item">{{ t('申请经纪人') }}</div>
+                </ApplyBrokerDetail>
+              </a-menu-item>
               <a-menu-item v-for="item in menuItem" :key="item.key" @click="goTo(`${item.to}`)">
                 <div class="user-hanle-item">{{ item.label }}</div>
               </a-menu-item>
@@ -62,6 +64,9 @@ import { useUserStore, useNoticeStore } from '@/store';
 import { useRouter, useRoute } from 'vue-router';
 import { navigationTo } from '@/utils/tool';
 import { systemConfigData } from '@/api/system';
+import { hasPermission } from '@/directives/permission/index';
+import ApplyBroker from '@/views/profile/apply-broker/form.vue';
+import ApplyBrokerDetail from '@/views/profile/apply-broker/detail.vue';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -130,11 +135,13 @@ const handleLogout = () => {
   userStore.logout();
 };
 
+const broker_value = ref();
 // 组件挂载时启动定时器
 onMounted(() => {
-  systemConfigData({ pcode: 'web_config', code: 'notes_interval_time' }).then((res) => {
+  systemConfigData({ pcode: 'web_config', code: 'notes_interval_time,broker_value' }).then((res) => {
     if (res.notes_interval_time) {
       noticeStore.startPolling(res.notes_interval_time);
+      broker_value.value = res.broker_value;
     }
   });
 });

@@ -20,6 +20,7 @@
                     <template v-if="column.dataIndex === 'loan' || column.dataIndex === 'borrower_equity'">
                       <a-input-number
                         v-model:value="record[column.dataIndex]"
+                        :disabled="Boolean(record?.status)"
                         @change="initData"
                         :max="99999999999"
                         :min="-99999999999"
@@ -37,8 +38,8 @@
                     <vco-number :value="record[column.dataIndex]" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
                   </template>
                   <template v-if="column.dataIndex === 'operation'">
-                    <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(p_index, index)">
-                      <i class="iconfont" style="cursor: pointer">&#xe8c1;</i>
+                    <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(p_index, index)" :disabled="Boolean(record?.status)">
+                      <i class="iconfont" style="cursor: pointer" :class="[{ disabled: Boolean(record?.status) }]">&#xe8c1;</i>
                     </a-popconfirm>
                   </template>
                 </template>
@@ -399,6 +400,10 @@ const init = () => {
     background: #f1f1f1;
     padding: 24px;
     border-radius: 8px;
+  }
+  .disabled {
+    cursor: not-allowed!important;
+    opacity: .4;
   }
 }
 </style>

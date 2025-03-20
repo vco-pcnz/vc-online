@@ -821,5 +821,6 @@ export default {
   "新西兰商业号码": "NZBN",
   "确定要复制{0}": "Confirm to copy {0}",
   "复制": "Copy",
-  "当前状态": "Current Status"
+  "当前状态": "Current Status",
+  "申请经纪人": "apply broker"
 }

@@ -15,7 +15,7 @@
                 <template #bodyCell="{ column, record, index }">
                   <template v-if="edit">
                     <template v-if="column.dataIndex === 'type'">
-                      <a-select :loading="loading_type" style="width: 100%" v-model:value="record.type" :options="types" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
+                      <a-select :loading="loading_type" :disabled="Boolean(record?.status)" style="width: 100%" v-model:value="record.type" :options="types" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
                     </template>
                     <template v-if="column.dataIndex === 'loan' || column.dataIndex === 'borrower_equity'">
                       <a-input-number
@@ -23,7 +23,7 @@
                         :disabled="Boolean(record?.status)"
                         @change="initData"
                         :max="99999999999"
-                        :min="-99999999999"
+                        :min="column.dataIndex === 'borrower_equity'?0:-99999999999"
                         :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                         :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                       />
@@ -134,7 +134,7 @@
           <div class="total" v-if="edit"></div>
         </div>
         <div class="flex justify-center" v-if="edit">
-          <a-button @click="save" type="dark" class="save big uppercase">
+          <a-button @click="save" type="dark" class="save big uppercase" :disabled="data?.total < 0">
             {{ t('保存') }}
           </a-button>
         </div>
@@ -296,7 +296,10 @@ const init = () => {
 };
 
 onMounted(() => {
-  save();
+  if (!props.dataJson) {
+    emits('update:value', data.value.total);
+    emits('update:dataJson', [data.value]);
+  }
 });
 </script>
 <style scoped lang="less">
@@ -409,8 +412,8 @@ onMounted(() => {
     border-radius: 8px;
   }
   .disabled {
-    cursor: not-allowed!important;
-    opacity: .4;
+    cursor: not-allowed !important;
+    opacity: 0.4;
   }
 }
 </style>

@@ -33,14 +33,14 @@
           </a>
           <template #overlay>
             <a-menu>
-              <a-menu-item v-if="hasPermission('profile:apply:broker') && !userInfo?.roles.includes('Broker')">
+              <!-- <a-menu-item v-if="hasPermission('profile:apply:broker') && !userInfo?.roles.includes('Broker')">
                 <ApplyBroker :brokerValue="broker_value">
                   <div class="user-hanle-item">{{ t('申请经纪人') }}</div>
                 </ApplyBroker>
                 <ApplyBrokerDetail>
                   <div class="user-hanle-item">{{ t('申请经纪人') }}</div>
                 </ApplyBrokerDetail>
-              </a-menu-item>
+              </a-menu-item> -->
               <a-menu-item v-for="item in menuItem" :key="item.key" @click="goTo(`${item.to}`)">
                 <div class="user-hanle-item">{{ item.label }}</div>
               </a-menu-item>

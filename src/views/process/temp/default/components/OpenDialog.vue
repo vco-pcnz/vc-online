@@ -2,20 +2,6 @@
   <a-modal :open="visible" :title="t('项目Open')" :width="500" :footer="null" :keyboard="false" :maskClosable="false" @cancel="updateVisible(false)">
     <div class="sys-form-content mt-5">
       <a-row :gutter="24">
-        <!-- <a-col :span="24">
-          <div class="info-content">
-            <p class="name mb-2">{{ t('开发成本') }}</p>
-            <a-input-number
-              v-model:value="devCost"
-              :max="99999999999"
-              :formatter="
-                (value) =>
-                  `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-              "
-              :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-            />
-          </div>
-        </a-col> -->
         <a-col :span="24">
           <div class="info-content">
             <p class="name mb-2 required">{{ t('开放日期') }}</p>
@@ -24,7 +10,7 @@
         </a-col>
         <a-col :span="10" class="mt-2">
           <div class="info-content">
-            <p class="name">{{ t('借款起止日期') }}</p>
+            <p class="name">{{ t('确认贷款日期') }}</p>
             <p class="txt">{{ tool.showDate(startDate) + ' - ' + tool.showDate(endDate) }}</p>
           </div>
         </a-col>
@@ -46,8 +32,14 @@
             <div v-for="item in fonfirmTable" :key="item.credit_table" class="item">
               <div>
                 <p>{{ item.credit_name }}</p>
-                <p v-if="item.is_ratio">{{ item.showVal }}{{ item.credit_unit }}</p>
-                <p v-else>{{ item.credit_unit }}{{ item.showVal }}</p>
+                <vco-number
+                  :prefix="item.is_ratio ? '' : item.credit_unit"
+                  :suffix="item.is_ratio ? item.credit_unit : ''"
+                  :value="item.showVal"
+                  :precision="2"
+                  :end="true"
+                  size="fs_md"
+                ></vco-number>
               </div>
               <a-checkbox v-model:checked="confirmForm[item.credit_table]">{{ t('正确') }}</a-checkbox>
             </div>
@@ -111,12 +103,9 @@ const changeLoading = (flag) => {
   subLoading.value = flag;
 };
 
-const devCost = ref('');
-
 const subDisabled = computed(() => {
   if (fonfirmTable.value.length) {
     return !Boolean(Object.values(confirmForm.value).every((item) => item)) || !openDate.value;
-    // return !Boolean(Object.values(confirmForm.value).every(item => item)) || !openDate.value || !devCost.value
   } else {
     return !openDate.value;
   }
@@ -136,7 +125,6 @@ const submitRquest = () => {
   const params = {
     uuid: props.uuid,
     do__mark: props.type
-    // devCost: devCost.value
   };
 
   projectAuditSaveStep(params)
@@ -238,6 +226,17 @@ const configInit = () => {
       fonfirmTable.value.push(obj);
     }
   }
+
+  // 第一项增加首次放款
+  const drawdown = tool.plus(Number(data.initial_land_amount), Number(data.initial_build_amount))
+
+  confirmForm.value['initial_drawdown'] = false
+  fonfirmTable.value.unshift({
+    credit_name: 'Initial drawdown',
+    credit_table: 'initial_drawdown',
+    credit_unit: '$',
+    showVal: drawdown
+  })
 };
 
 watch(

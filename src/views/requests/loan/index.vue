@@ -121,7 +121,7 @@
                             <a @click="navigationTo(`/requests/details/about?uuid=${record.uuid}`)">{{ t('查看详情') }}</a>
                           </a-menu-item>
                           <a-menu-item key="1" :disabled="record.status < 400">
-                            <vco-popconfirm url="/project/project/copy" :formParams="{ uuid: record.uuid }" :tip="t('确定要复制{0}', [record.project_name])" :disabled="record.status < 400" @update="toCopyDetail">
+                            <vco-popconfirm url="/project/project/copyProject" :formParams="{ uuid: record.uuid }" :tip="t('确定要复制{0}', [record.project_name])" :disabled="record.status < 400" @update="toCopyDetail">
                               <a>{{ t('复制') }}</a>
                             </vco-popconfirm>
                           </a-menu-item>

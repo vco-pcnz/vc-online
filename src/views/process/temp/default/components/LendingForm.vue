@@ -845,7 +845,7 @@
 
         // 首次放款金额可以为0
         if (
-          initial_build_amount + initial_land_amount < 0 || initial_build_amount + initial_land_amount === 0
+          initial_build_amount + initial_land_amount < 0
         ) {
           message.error(t('首次放款总金额不正确'));
           return false;

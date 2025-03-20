@@ -821,5 +821,14 @@ export default {
   "新西兰商业号码": "NZBN",
   "确定要复制{0}": "Confirm to copy {0}",
   "复制": "Copy",
-  "当前状态": "Current Status"
+  "当前状态": "Current Status",
+  "单个添加": "Single Add",
+  "批量添加": "Add in batche",
+  "新增抵押物信息": "Add Security information",
+  "编辑抵押物信息": "Edit Security information",
+  "确认贷款日期": "Confirmed loan dates",
+  "物品": "Item",
+  "类型1": "Typology",
+  "担保价值": "Security Value",
+  "每单位债务": "Debt per unit",
 }

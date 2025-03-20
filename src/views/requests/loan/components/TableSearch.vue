@@ -34,9 +34,9 @@
       <div>
         <vco-page-search-item width="250" :title="t('状态')" v-if="current < 3 && hasPermission('requests:search:status')">
           <a-select placeholder="t('请选择')" v-model:value="searchForm.status">
-              <a-select-option value="">
-                {{ t('全部') }}
-              </a-select-option>
+            <a-select-option value="">
+              {{ t('全部') }}
+            </a-select-option>
             <template v-for="item in stepArr">
               <a-select-option :key="item.stateCode" :value="item.stateCode" v-if="key[current].includes(item.mark)">
                 {{ t(item.name) }}
@@ -149,8 +149,8 @@ const searchHandle = (flag) => {
 const stepArr = ref([]);
 
 const key = ref({
-  1: ['step_loan_info', 'step_lm_audit', 'step_fc_audit'],
-  2: ['step_director_audit', 'step_lm_check', 'step_aml_audit','step_open']
+  1: ['step_lm_audit', 'step_fc_audit', 'step_director_audit'],
+  2: ['step_lm_check', 'step_aml_audit', 'step_open']
 });
 
 onMounted(() => {

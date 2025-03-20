@@ -832,4 +832,6 @@ export default {
   "类型1": "Typology",
   "担保价值": "Security Value",
   "每单位债务": "Debt per unit",
+  "物品信息": "Items Info",
+  "全部应用": "All Apply"
 }

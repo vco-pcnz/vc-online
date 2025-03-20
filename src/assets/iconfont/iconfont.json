@@ -6,6 +6,13 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "8039427",
+      "name": "批量控制",
+      "font_class": "piliangkongzhi",
+      "unicode": "e66c",
+      "unicode_decimal": 58988
+    },
+    {
       "icon_id": "936705",
       "name": "感叹号",
       "font_class": "gantanhao",

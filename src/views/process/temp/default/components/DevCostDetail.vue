@@ -144,7 +144,7 @@
 </template>
 
 <script scoped setup>
-import { ref, reactive, computed, watch } from 'vue';
+import { ref, reactive, computed, watch, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import tool from '@/utils/tool';
@@ -156,14 +156,14 @@ const emits = defineEmits(['update:value', 'update:dataJson', 'change']);
 
 const props = defineProps({
   value: {
-    type: Object
+    type: [String, Number]
   },
   edit: {
     type: Boolean,
     default: true
   },
   dataJson: {
-    type: Array
+    type: [Array, String]
   }
 });
 
@@ -252,6 +252,9 @@ const loadType = (key) => {
             borrower_equity: 0
           });
         });
+        emits('update:value', data.value.total);
+        emits('update:dataJson', [data.value]);
+        emits('change', { devCost: data.value.total, devCostDetail: [data.value] });
       }
     })
     .finally((_) => {
@@ -291,6 +294,10 @@ const init = () => {
   }
   visible.value = true;
 };
+
+onMounted(() => {
+  save();
+});
 </script>
 <style scoped lang="less">
 @import '@/styles/variables.less';

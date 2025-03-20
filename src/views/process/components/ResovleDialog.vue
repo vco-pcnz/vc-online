@@ -20,6 +20,20 @@
       </a-form>
     </div>
 
+    <div v-if="type === 'step_director_audit'" class="mt-2">
+      <conditions-list
+        :current-id="uuid"
+        :btn-add="true"
+        :end-date="dataInfo.loan.end_date"
+      >
+        <template #add-btn>
+          <div class="flex justify-end">
+            <a-button type="link">{{ t('添加新状况') }}</a-button>
+          </div>
+        </template>
+      </conditions-list>
+    </div>
+
     <div class="mt-5 flex justify-between gap-5">
       <a-button
         type="grey" class="big shadow bold uppercase w-full mb-5 mt-5"
@@ -40,6 +54,7 @@
   import { useI18n } from "vue-i18n";
   import { projectAuditSaveStep } from "@/api/process"
   import emitter from "@/event"
+  import ConditionsList from "./ConditionsList.vue";
 
   const emits = defineEmits(['update:visible', 'done'])
 
@@ -59,6 +74,10 @@
     required: {
       type: Boolean,
       default: true
+    },
+    dataInfo: {
+      type: Object,
+      default: () => {}
     }
   });
 
@@ -126,3 +145,9 @@
     }
   )
 </script>
+
+<style lang="less" scoped>
+.ant-form-item {
+  margin-bottom: 0 !important;
+}
+</style>

@@ -106,7 +106,7 @@
                 <a-menu :selectable="false">
                   <a-menu-item key="0">
                     <vco-popconfirm url="/project/project/copy" :formParams="{ uuid: record.uuid }" :tip="t('确定要复制{0}', [record.project_name])" @update="toCopyDetail">
-                      {{ t('复制') }}
+                       <a>{{ t('复制') }}</a> 
                     </vco-popconfirm>
                   </a-menu-item>
                 </a-menu>

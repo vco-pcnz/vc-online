@@ -102,3 +102,11 @@ export const stakeDelete = (data) =>
     method: 'post',
     data
   });
+  
+  // 跟新组织树
+  export const updateShareholdingTree = (data) =>
+    request({
+      url: 'stake/updateShareholdingTree',
+      method: 'post',
+      data
+    });

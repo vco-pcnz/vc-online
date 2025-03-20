@@ -10,7 +10,7 @@
 
     <div class="mt-5">
       <vco-page-tab :tabData="tabData" v-model:current="currentTab" @change="tabChange"></vco-page-tab>
-      <table-search @search="searchHandle"></table-search>
+      <table-search @search="searchHandle" :current="currentTab"></table-search>
       <div class="mt-10">
         <vco-table-tool>
           <template #left>
@@ -253,6 +253,7 @@ const onSelectChange = (keys) => {
 
 const tabChange = () => {
   const params = cloneDeep(currentParams.value) || {};
+  params.status = '';
   params.sta = currentTab.value;
   getTableData(params);
 };

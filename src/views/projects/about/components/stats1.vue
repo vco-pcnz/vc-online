@@ -71,13 +71,17 @@
           </a-button> -->
         </a-col>
         <a-col :span="24" class="my-4">
-          <p class="color_grey fs_xs">IRR</p>
-          <p class="fs_xl bold">{{ data?.right?.irr }}%</p>
-          <p class="fs_xs">baseline {{ data?.right?.irrPreset }}%</p>
+          <div :class="{ 'color_red-error': Math.abs(data?.right?.irr) < Math.abs(data?.right?.irrPreset) }">
+            <p class="color_grey fs_xs">IRR</p>
+            <p class="fs_xl bold">{{ data?.right?.irr }}%</p>
+            <p class="fs_xs">baseline {{ data?.right?.irrPreset }}%</p>
+          </div>
         </a-col>
         <a-col :span="10">
-          <p class="color_grey fs_xs">LTC</p>
-          <p class="fs_xl bold">{{ data?.right?.ltc }}%</p>
+          <div :class="{ 'color_red-error': Math.abs(data?.right?.ltc) > Math.abs(data?.right?.baseline) }">
+            <p class="color_grey fs_xs">LTC</p>
+            <p class="fs_xl bold">{{ data?.right?.ltc }}%</p>
+          </div>
         </a-col>
         <a-col :span="14" class="text-right cursor-pointer">
           <DevCostDetail :dataJson="detail?.base?.devCostDetail" @change="editSaveDevCost">
@@ -86,7 +90,7 @@
           </DevCostDetail>
         </a-col>
         <a-col :span="24">
-          <p class="fs_xs">baseline {{ data?.right?.baseline }}%</p>
+          <p class="fs_xs" :class="{ 'color_red-error': Math.abs(data?.right?.ltc) > Math.abs(data?.right?.baseline) }">baseline {{ data?.right?.baseline }}%</p>
         </a-col>
       </a-row>
     </div>

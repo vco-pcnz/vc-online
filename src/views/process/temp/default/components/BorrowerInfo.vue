@@ -34,7 +34,7 @@
       <a-col :span="8">
         <div class="info-content">
           <p class="name">{{ t('手机号') }}</p>
-          <p class="txt">{{ '+' + data.borrower_phone_prefix + ' ' + data.borrower_phone }}</p>
+          <p class="txt">{{data.borrower_phone? '+' + data.borrower_phone_prefix + ' ' + data.borrower_phone :'--'}}</p>
         </div>
       </a-col>
       <a-col :span="8">

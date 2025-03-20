@@ -57,11 +57,13 @@
           <span class="replenish_text" :class="{ 'color_red-error': diffInDays(record.end_date) < 0 }"> {{ Math.abs(diffInDays(record.end_date)) }} {{ diffInDays(record.end_date) < 0 ? 'days ago' : 'days left' }}</span>
         </template>
         <template v-if="column.key === '4'">
-          <p class="bold black">
-            <i class="iconfont" style="color: #67837e">&#xe761;</i>
-            {{ record.credit.irr }}%
-          </p>
-          <span class="replenish_text">{{ record.credit.irrPreset }}% · {{ (record.credit.irrPreset - record.credit.irr).toFixed(2) }}%</span>
+          <div :class="{ 'color_red-error': Math.abs(record.credit?.irr) < Math.abs(record.credit?.irrPreset) }">
+            <p class="bold black">
+              <i class="iconfont" style="color: #67837e">&#xe761;</i>
+              {{ record.credit.irr }}%
+            </p>
+            <span class="replenish_text">{{ record.credit.irrPreset }}% · {{ (record.credit.irr - record.credit.irrPreset).toFixed(2) }}%</span>
+          </div>
         </template>
         <template v-if="column.key === '5'">
           <p class="black">{{ tool.formatMoney(record.credit.income) }}</p>
@@ -106,7 +108,7 @@
                 <a-menu :selectable="false">
                   <a-menu-item key="0">
                     <vco-popconfirm url="/project/project/copy" :formParams="{ uuid: record.uuid }" :tip="t('确定要复制{0}', [record.project_name])" @update="toCopyDetail">
-                      {{ t('复制') }}
+                      <a>{{ t('复制') }}</a>
                     </vco-popconfirm>
                   </a-menu-item>
                 </a-menu>
@@ -294,5 +296,11 @@ onMounted(() => {
   right: 0;
   border-top-right-radius: 12px;
   border-bottom-left-radius: 12px;
+}
+
+.color_red-error {
+  .black {
+    color: #c1430c!important;
+  }
 }
 </style>

@@ -15,14 +15,15 @@
                 <template #bodyCell="{ column, record, index }">
                   <template v-if="edit">
                     <template v-if="column.dataIndex === 'type'">
-                      <a-select :loading="loading_type" style="width: 100%" v-model:value="record.type" :options="types" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
+                      <a-select :loading="loading_type" :disabled="Boolean(record?.status)" style="width: 100%" v-model:value="record.type" :options="types" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
                     </template>
                     <template v-if="column.dataIndex === 'loan' || column.dataIndex === 'borrower_equity'">
                       <a-input-number
                         v-model:value="record[column.dataIndex]"
+                        :disabled="Boolean(record?.status)"
                         @change="initData"
                         :max="99999999999"
-                        :min="-99999999999"
+                        :min="column.dataIndex === 'borrower_equity'?0:-99999999999"
                         :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                         :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                       />
@@ -37,8 +38,8 @@
                     <vco-number :value="record[column.dataIndex]" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
                   </template>
                   <template v-if="column.dataIndex === 'operation'">
-                    <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(p_index, index)">
-                      <i class="iconfont" style="cursor: pointer">&#xe8c1;</i>
+                    <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(p_index, index)" :disabled="Boolean(record?.status)">
+                      <i class="iconfont" style="cursor: pointer" :class="[{ disabled: Boolean(record?.status) }]">&#xe8c1;</i>
                     </a-popconfirm>
                   </template>
                 </template>
@@ -133,7 +134,7 @@
           <div class="total" v-if="edit"></div>
         </div>
         <div class="flex justify-center" v-if="edit">
-          <a-button @click="save" type="dark" class="save big uppercase">
+          <a-button @click="save" type="dark" class="save big uppercase" :disabled="data?.total < 0">
             {{ t('保存') }}
           </a-button>
         </div>
@@ -143,7 +144,7 @@
 </template>
 
 <script scoped setup>
-import { ref, reactive, computed, watch } from 'vue';
+import { ref, reactive, computed, watch, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import tool from '@/utils/tool';
@@ -155,14 +156,14 @@ const emits = defineEmits(['update:value', 'update:dataJson', 'change']);
 
 const props = defineProps({
   value: {
-    type: Object
+    type: [String, Number]
   },
   edit: {
     type: Boolean,
     default: true
   },
   dataJson: {
-    type: Array
+    type: [Array, String]
   }
 });
 
@@ -251,6 +252,9 @@ const loadType = (key) => {
             borrower_equity: 0
           });
         });
+        emits('update:value', data.value.total);
+        emits('update:dataJson', [data.value]);
+        emits('change', { devCost: data.value.total, devCostDetail: [data.value] });
       }
     })
     .finally((_) => {
@@ -290,6 +294,13 @@ const init = () => {
   }
   visible.value = true;
 };
+
+onMounted(() => {
+  if (!props.dataJson) {
+    emits('update:value', data.value.total);
+    emits('update:dataJson', [data.value]);
+  }
+});
 </script>
 <style scoped lang="less">
 @import '@/styles/variables.less';
@@ -399,6 +410,10 @@ const init = () => {
     background: #f1f1f1;
     padding: 24px;
     border-radius: 8px;
+  }
+  .disabled {
+    cursor: not-allowed !important;
+    opacity: 0.4;
   }
 }
 </style>

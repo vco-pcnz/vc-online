@@ -10,7 +10,7 @@
 
     <div class="mt-5">
       <vco-page-tab :tabData="tabData" v-model:current="currentTab" @change="tabChange"></vco-page-tab>
-      <table-search @search="searchHandle"></table-search>
+      <table-search @search="searchHandle" :current="currentTab"></table-search>
       <div class="mt-10">
         <vco-table-tool>
           <template #left>
@@ -122,7 +122,7 @@
                           </a-menu-item>
                           <a-menu-item key="1" :disabled="record.status < 400">
                             <vco-popconfirm url="/project/project/copy" :formParams="{ uuid: record.uuid }" :tip="t('确定要复制{0}', [record.project_name])" :disabled="record.status < 400" @update="toCopyDetail">
-                              {{ t('复制') }}
+                              <a>{{ t('复制') }}</a>
                             </vco-popconfirm>
                           </a-menu-item>
                         </a-menu>
@@ -253,6 +253,7 @@ const onSelectChange = (keys) => {
 
 const tabChange = () => {
   const params = cloneDeep(currentParams.value) || {};
+  params.status = '';
   params.sta = currentTab.value;
   getTableData(params);
 };

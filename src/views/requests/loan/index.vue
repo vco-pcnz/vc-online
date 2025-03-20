@@ -120,8 +120,8 @@
                           <a-menu-item key="0">
                             <a @click="navigationTo(`/requests/details/about?uuid=${record.uuid}`)">{{ t('查看详情') }}</a>
                           </a-menu-item>
-                          <a-menu-item key="1" :disabled="record.status < 400">
-                            <vco-popconfirm url="/project/project/copyProject" :formParams="{ uuid: record.uuid }" :tip="t('确定要复制{0}', [record.project_name])" :disabled="record.status < 400" @update="toCopyDetail">
+                          <a-menu-item key="1" :disabled="key.includes(record.mark)">
+                            <vco-popconfirm url="/project/project/copyProject" :formParams="{ uuid: record.uuid }" :tip="t('确定要复制{0}', [record.project_name])" :disabled="key.includes(record.mark)" @update="toCopyDetail">
                               <a>{{ t('复制') }}</a>
                             </vco-popconfirm>
                           </a-menu-item>
@@ -190,6 +190,7 @@ const tabData = ref([
   }
 ]);
 
+const key = ref(['step_borrower_info','step_project_info','step_project_cert','step_loan_info','CANCELED'])
 const sortType = ref('desc');
 const sortValue = ref('');
 const sortTypeData = [

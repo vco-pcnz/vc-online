@@ -171,6 +171,13 @@ const getProjectDetail = (val) => {
   loading.value = false;
 };
 
+const update = () => {
+  loading.value = true
+  userStore.getTaskNumInfo();
+
+  detailLayoutRef.value.getProjectDetail();
+};
+
 const disabledDateFormat = (current) => {
   const endDate = new Date();
   if (current && current.isBefore(endDate, 'day')) {
@@ -217,12 +224,6 @@ const ReOpenFormData = ref([
     required: false
   }
 ]);
-
-const update = () => {
-  userStore.getTaskNumInfo();
-
-  detailLayoutRef.value.getProjectDetail();
-};
 
 const variationsUpdate = (data) => {
   update();

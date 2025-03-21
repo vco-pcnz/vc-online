@@ -20,10 +20,10 @@
                     <template v-if="column.dataIndex === 'loan' || column.dataIndex === 'borrower_equity'">
                       <a-input-number
                         v-model:value="record[column.dataIndex]"
-                        :disabled="Boolean(record?.status)"
+                        :disabled="Boolean(record?.status) || (disabled && column.dataIndex === 'loan')"
                         @change="initData"
                         :max="99999999999"
-                        :min="column.dataIndex === 'borrower_equity'?0:-99999999999"
+                        :min="column.dataIndex === 'borrower_equity' ? 0 : -99999999999"
                         :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                         :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                       />
@@ -92,16 +92,25 @@
               <div class="title bold bold fs_xl text-left" style="padding: 0">{{ item.type }}</div>
               <template v-if="edit">
                 <div class="amount">
-                  <a-input-number v-model:value="item.loan" @change="initData" :max="99999999999" :min="-99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
-                </div>
-                <div class="amount">
                   <a-input-number
-                    v-model:value="item.borrower_equity"
-                    @change="initData"
+                    v-model:value="item.loan"
+                    :disabled="disabled"
                     :max="99999999999"
                     :min="-99999999999"
                     :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                     :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                    @change="initData"
+                  />
+                </div>
+                <div class="amount">
+                  <a-input-number
+                    v-model:value="item.borrower_equity"
+                    :disabled="disabled"
+                    :max="99999999999"
+                    :min="-99999999999"
+                    :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                    :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                    @change="initData"
                   />
                 </div>
               </template>
@@ -161,6 +170,10 @@ const props = defineProps({
   edit: {
     type: Boolean,
     default: true
+  },
+  disabled: {
+    type: Boolean,
+    default: false
   },
   dataJson: {
     type: [Array, String]

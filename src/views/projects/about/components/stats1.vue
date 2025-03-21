@@ -84,7 +84,7 @@
           </div>
         </a-col>
         <a-col :span="14" class="text-right cursor-pointer">
-          <DevCostDetail :dataJson="detail?.base?.devCostDetail" @change="editSaveDevCost">
+          <DevCostDetail :dataJson="detail?.base?.devCostDetail" :disabled="true" @change="editSaveDevCost">
             <p class="color_grey fs_xs">Total Development Cost <i class="iconfont color_coal">&#xe76f;</i></p>
             <vco-number :value="data?.right?.devCost" :bold="true" size="fs_xl" :precision="2"></vco-number>
           </DevCostDetail>

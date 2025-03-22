@@ -22,15 +22,27 @@
 
     <vco-process-title :title="t('抵押物信息')">
       <div v-if="!isDetails" class="flex gap-5 items-center">
-        <a-button
+        <a-popover
           v-if="blockInfo.showEdit"
-          type="primary"
-          shape="round"
-          class="uppercase"
-          @click="addVisible = true"
+          v-model:open="addSecurityVisible" trigger="click"
         >
-          {{ t('添加') }}
-        </a-button>
+          <template #content>
+            <a-menu :selectable="false" style="border: none !important;">
+              <a-menu-item>
+                <div @click="addHandle(true)" class="text-center">{{ t('批量添加') }}</div>
+              </a-menu-item>
+              <a-menu-item>
+                <div @click="addHandle(false)" class="text-center">{{ t('单个添加') }}</div>
+              </a-menu-item>
+            </a-menu>
+          </template>
+          <a-button
+            type="primary"
+            shape="round"
+            class="uppercase"
+          >{{ t('添加') }}</a-button>
+        </a-popover>
+
         <template v-if="!securityInfo.is_check && securityInfo.count && blockInfo?.showCheck">
           <a-button
             v-if="confirmTxt"
@@ -125,6 +137,8 @@ import { useI18n } from 'vue-i18n';
 import { projectAuditCheckMode } from '@/api/process';
 import SecurityAddEdit from './SecurityAddEdit.vue';
 import emitter from "@/event"
+import { navigationTo } from '@/utils/tool';
+import { useRoute } from 'vue-router'
 
 const emits = defineEmits(['refresh']);
 const props = defineProps({
@@ -154,6 +168,7 @@ const props = defineProps({
 });
 
 const { t } = useI18n();
+const route = useRoute()
 const addVisible = ref(false);
 
 const changeAlertRef = ref()
@@ -200,6 +215,16 @@ const securityTarget = ref(true)
 
 const blockShowTargetHandle = (flag) => {
   securityTarget.value = flag
+}
+
+const addSecurityVisible = ref(false)
+const addHandle = (flag = false) => {
+  if (flag) {
+    navigationTo(`/process/security-batche?uuid=${route.query.uuid}`)
+  } else {
+    addVisible.value = true
+  }
+  addSecurityVisible.value = false
 }
 
 onMounted(() => {

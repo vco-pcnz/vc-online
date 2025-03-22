@@ -371,13 +371,13 @@ const formRules = {
   postcode: [{ required: true, message: t('请输入') + t('邮编'), trigger: 'blur' }],
   region_one_name: [{ required: true, message: t('请输入') + t('城市/州'), trigger: 'blur' }],
   address_short: [{ required: true, message: t('请输入') + t('地址1'), trigger: 'blur' }],
-  sales_price: [{ required: true, message: t('请输入') + t('销售价格'), trigger: 'blur' }],
-  repayment_price: [{ required: true, message: t('请输入') + t('预计收到的偿还 VC'), trigger: 'blur' }],
-  contract_date: [{ required: true, message: t('请选择') + t('合同日期（或无条件日期）'), trigger: 'change' }],
-  settlement_date: [{ required: true, message: t('请选择') + t('预计结算日期'), trigger: 'change' }],
-  sunset_date: [{ required: true, message: t('请选择') + t('日落日期'), trigger: 'change' }],
-  repayment_date: [{ required: true, message: t('请选择') + t('请求：还款日期'), trigger: 'blur' }],
-  net_proceeds_price: [{ required: true, message: t('请输入') + t('请求：净收益'), trigger: 'blur' }]
+  // sales_price: [{ required: true, message: t('请输入') + t('销售价格'), trigger: 'blur' }],
+  // repayment_price: [{ required: true, message: t('请输入') + t('预计收到的偿还 VC'), trigger: 'blur' }],
+  // contract_date: [{ required: true, message: t('请选择') + t('合同日期（或无条件日期）'), trigger: 'change' }],
+  // settlement_date: [{ required: true, message: t('请选择') + t('预计结算日期'), trigger: 'change' }],
+  // sunset_date: [{ required: true, message: t('请选择') + t('日落日期'), trigger: 'change' }],
+  // repayment_date: [{ required: true, message: t('请选择') + t('请求：还款日期'), trigger: 'blur' }],
+  // net_proceeds_price: [{ required: true, message: t('请输入') + t('请求：净收益'), trigger: 'blur' }]
 };
 
 const totalAmountRef = computed(() => {

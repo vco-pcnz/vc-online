@@ -833,5 +833,14 @@ export default {
   "担保价值": "Security Value",
   "每单位债务": "Debt per unit",
   "物品信息": "Items Info",
-  "全部应用": "All Apply"
+  "全部应用": "All Apply",
+  "批量添加抵押物": "Add Securities in batches",
+  "抵押物基础信息": "Basic information of securities",
+  "{0}的抵押物": "{0}'s securities",
+  "批量操作": "Batch Operations",
+  "修改项": "Options",
+  "楼栋号": "Items",
+  "户型": "type",
+  "面积": "SQM",
+  "批量设置": "Batch Settings"
 }

@@ -8,18 +8,30 @@
         :info-data="currentData"
         :block-info="blockInfo"
         :project-info="projectInfo"
-        :is-single="isSingleRef"
       ></security-add-edit>
 
       <div class="block-item sec">
         <vco-process-title :title="t('抵押物信息')">
-          <a-button
-            v-if="tabData.length && !isDetails && blockInfo.showEdit"
-            type="primary" shape="round"
-            size="small"
-            class="uppercase"
-            @click="editHandle(null)"
-          >{{ t('添加') }}</a-button>
+          <a-popover
+            v-if="tabData.length && !isDetails && blockInfo.showEdit"  
+            v-model:open="addSecurityVisible" trigger="click"
+          >
+            <template #content>
+              <a-menu :selectable="false" style="border: none !important;">
+                <a-menu-item>
+                  <div @click="editHandle(null, true)" class="text-center">{{ t('批量添加') }}</div>
+                </a-menu-item>
+                <a-menu-item>
+                  <div @click="editHandle(null, false)" class="text-center">{{ t('单个添加') }}</div>
+                </a-menu-item>
+              </a-menu>
+            </template>
+            <a-button
+              type="primary" shape="round"
+              size="small"
+              class="uppercase"
+            >{{ t('添加') }}</a-button>
+          </a-popover>
         </vco-process-title>
         
         <a-spin :spinning="tabLoading" size="large">
@@ -32,8 +44,8 @@
                     >{{ item.card_no }}
                   </p>
                   <div v-if="!isDetails && blockInfo.showEdit" class="flex">
-                    <i class="iconfont" @click="copyHandle(item, true)">&#xe8a7;</i>
-                    <i class="iconfont" @click="editHandle(item, true)">&#xe8cf;</i>
+                    <i class="iconfont" @click="copyHandle(item)">&#xe8a7;</i>
+                    <i class="iconfont" @click="editHandle(item, false)">&#xe8cf;</i>
                     <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="() => deleteHandle(item)">
                       <i class="iconfont">&#xe8c1;</i>
                     </a-popconfirm>
@@ -96,9 +108,10 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { projectAuditSecurityList, projectDetailAuditSecurityList, projectAuditDeleteMode } from '@/api/process';
-import tool from '@/utils/tool';
+import tool, { navigationTo } from '@/utils/tool';
 import SecurityAddEdit from '@/views/process/temp/default/components/SecurityAddEdit.vue';
 import emitter from '@/event';
+import { useRoute } from 'vue-router'
 import { cloneDeep } from "lodash"
 
 const props = defineProps({
@@ -131,6 +144,7 @@ const props = defineProps({
 });
 
 const { t } = useI18n();
+const route = useRoute()
 
 const tabLoading = ref(false);
 const tabData = ref([]);
@@ -150,19 +164,24 @@ const getTableData = () => {
     });
 };
 
+const addSecurityVisible = ref(false)
 const editVisible = ref(false);
 const currentData = ref(null);
-const isSingleRef = ref(false)
-const editHandle = (data, isSingle = false) => {
-  isSingleRef.value = isSingle
-  currentData.value = data;
-  editVisible.value = true;
+
+const editHandle = (data, flag = false) => {
+  if (flag) {
+    navigationTo(`/process/security-batche?uuid=${route.query.uuid}`)
+  } else {
+    currentData.value = data;
+    editVisible.value = true;
+  }
+  
+  addSecurityVisible.value = false
 };
 
-const copyHandle = (data, isSingle = false) => {
+const copyHandle = (data) => {
   const newData = cloneDeep(data)
   delete newData.uuid
-  isSingleRef.value = isSingle
   currentData.value = newData;
   editVisible.value = true;
 }

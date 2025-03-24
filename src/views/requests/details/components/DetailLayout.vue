@@ -67,7 +67,6 @@ const getProjectDetail = async (userId) => {
   if (uuid) {
     // 发起请求
     projectDetailApi({ uuid }).then((res) => {
-      console.log('res', res);
       detail.value = res;
       emits('getProjectDetail', res);
     });

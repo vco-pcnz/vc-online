@@ -987,7 +987,7 @@ onMounted(async () => {
     margin-top: 0;
   }
   .ant-select {
-    width: 60px !important;
+    width: 65px !important;
   }
 }
 
@@ -1019,6 +1019,7 @@ onMounted(async () => {
     font-size: 12px;
     transition: all 0.3s ease;
     cursor: pointer;
+    margin-bottom: 20px;
     &.checked {
       background-color: #F19915;
       border-color: #F19915;

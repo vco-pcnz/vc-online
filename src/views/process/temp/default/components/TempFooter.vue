@@ -52,6 +52,7 @@
   import { computed, ref } from "vue"
   import { useI18n } from "vue-i18n";
   import RejectDialog from "@/views/process/components/RejectDialog.vue";
+  import { hasPermission } from '@/directives/permission/index';
   import { navigationTo } from "@/utils/tool"
 
   const emits = defineEmits(['draft', 'submit'])
@@ -123,9 +124,11 @@
     } else {
       if (props.currentStep.mark === 'step_open') {
         txt = '批准项目'
-      } else if (props.currentStep.mark === 'step_director_audit') {
+      } else if (['step_director_audit', 'step_aml_check'].includes(props.currentStep.mark)) {
         txt = '批准'
-      } else {
+      } else if (['step_aml_audit'].includes(props.currentStep.mark) && hasPermission('requests:aml:check')) {
+        txt = '批准'
+      }  else {
         if (props.canNext) {
           txt = '下一步'
         } else {

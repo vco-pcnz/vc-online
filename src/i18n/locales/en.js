@@ -853,5 +853,6 @@ export default {
   "点击编辑": "Click Edit",
   "全选": "Select All",
   "请至少选择一条数据进行操作": "Please select at least one piece of data to operate",
-  "请选择类型相同的数据进行操作": "Please select data of the same type to operate"
+  "请选择类型相同的数据进行操作": "Please select data of the same type to operate",
+  "反洗钱审核": "AML Audit"
 }

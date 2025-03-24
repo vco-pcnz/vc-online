@@ -132,7 +132,11 @@
 
   const getStepClass = (data, index) => {
     const stateCode = props.currentStep.stateCode
-    const currentIndex = data.findIndex(item => item === stateCode)
+    let currentIndex = data.findIndex(item => item === stateCode)
+
+    if (currentIndex === -1) {
+      currentIndex = data.reduce((acc, cur, i) => (cur < stateCode ? i : acc), -1);
+    }
 
     let className = ''
 

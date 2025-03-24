@@ -373,9 +373,9 @@
               <template v-if="column.dataIndex === 'variance'">
                 <span>{{ record.variance || 0 }}%</span>
               </template>
-              <template v-if="column.dataIndex === 'dpu'">
+              <template v-if="column.dataIndex === 'dup'">
                 <vco-number
-                  :value="record.dpu"
+                  :value="record.dup"
                   :precision="2"
                   :end="true"
                   size="fs_md"
@@ -592,7 +592,7 @@ const formColumns = reactive([
   { title: t('回款金额'), dataIndex: 'repayment_price', width: 140, align: 'center' },
   { title: t('净收益'), dataIndex: 'net_proceeds_price', width: 140, align: 'center' },
   { title: t('变化比例'), dataIndex: 'variance', width: 100, align: 'center' },
-  { title: t('每单位债务'), dataIndex: 'dpu', width: 140, align: 'center' },
+  { title: t('每单位债务'), dataIndex: 'dup', width: 140, align: 'center' },
   { title: t('操作1'), dataIndex: 'opt', width: 115, align: 'center', fixed: 'right' }
 ])
 
@@ -647,7 +647,7 @@ const batchitem = {
   repayment_date: '',
   net_proceeds_price: 0,
   variance: 0,
-  dpu: ''
+  dup: ''
 }
 
 const oldData = ref([])
@@ -689,6 +689,8 @@ const tableDataInit = () => {
       data.push(item)
     }
   }
+
+  console.log('data', data);
 
   
   formDataSource.value = data

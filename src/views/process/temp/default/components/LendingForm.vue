@@ -32,7 +32,7 @@
           {{ t('保存') }}
         </a-button>
         <template v-if="blockInfo?.showCheck && !lendingInfo.is_check && creditId">
-          <!-- <a-button
+          <a-button
             v-if="confirmTxt"
             type="dark"
             shape="round"
@@ -43,20 +43,6 @@
           </a-button>
           <a-popconfirm
             v-else
-            :title="t('确定通过审核吗？')"
-            :ok-text="t('确定')"
-            :cancel-text="t('取消')"
-            @confirm="checkHandle"
-          >
-            <a-button
-              type="dark"
-              shape="round"
-              class="uppercase"
-            >
-              {{ t('审核') }}
-            </a-button>
-          </a-popconfirm> -->
-          <a-popconfirm
             :title="t('确定通过审核吗？')"
             :ok-text="t('确定')"
             :cancel-text="t('取消')"
@@ -339,7 +325,7 @@
   } from '@/api/process';
   import emitter from '@/event';
   import useProcessStore from '@/store/modules/process';
-  import tool, { navigationTo } from '@/utils/tool';
+  import tool, { navigationTo, numberStrFormat } from '@/utils/tool';
 
   const processStore = useProcessStore();
 
@@ -427,27 +413,28 @@
       const landDiff = tool.minus(Number(formState.value.land_amount), land_amount)
       const buildDiff = tool.minus(Number(formState.value.build_amount), build_amount)
 
-      let landTxt,buildTxt = ''
-      if (landDiff > 0) {
-        landTxt = t('抵押物土地总额为{0}，土地贷款总额为{1}，差{2}', [land_amount, formState.value.land_amount, landDiff])
-      }
-
-      if (buildDiff > 0) {
-        buildTxt = t('抵押物建筑总额为{0}，建筑贷款总额为{1}，差{2}', [build_amount, formState.value.build_amount, buildDiff])
-      }
-
-      const txt = landTxt && buildTxt ? `${landTxt}, ${buildTxt}` : landTxt || buildTxt
-
-      if (txt) {
-        res = `${txt}, ${t('确认通过审核吗？')}`
-      }
-      
-      // const securityTotal = props.dataInfo.security.total_money || 0
-      // const totalAmount = Number(formState.value.land_amount) + Number(formState.value.build_amount)
-      // if (totalAmount > securityTotal) {
-      //   const num = tool.minus(totalAmount, securityTotal)
-      //   res = t('抵押物总价值为{0}，借款总金额为{1}，差{2}，确认通过审核吗？', [securityTotal, totalAmount, num])
+      // let landTxt,buildTxt = ''
+      // if (landDiff > 0) {
+      //   landTxt = t('抵押物土地总额为{0}，土地贷款总额为{1}，差{2}', [land_amount, formState.value.land_amount, landDiff])
       // }
+
+      // if (buildDiff > 0) {
+      //   buildTxt = t('抵押物建筑总额为{0}，建筑贷款总额为{1}，差{2}', [build_amount, formState.value.build_amount, buildDiff])
+      // }
+
+      // const txt = landTxt && buildTxt ? `${landTxt}, ${buildTxt}` : landTxt || buildTxt
+
+      // if (txt) {
+      //   res = `${txt}, ${t('确认通过审核吗？')}`
+      // }
+      
+      const securityTotal = props.dataInfo.security.total_money || 0
+      const totalAmount = Number(formState.value.land_amount) + Number(formState.value.build_amount)
+
+      if (totalAmount > securityTotal) {
+        const num = tool.minus(totalAmount, securityTotal)
+        res = t('抵押物总价值为{0}，借款总金额为{1}，差{2}，确认通过审核吗？', [securityTotal, totalAmount, num])
+      }
     }
     return res
   })
@@ -745,7 +732,6 @@
 
     const backItems = changeBackItems.value
     const arr = []
-    const backArr = []
     for (let i = 0; i < backItems.length; i++) {
       const backMarkItems = backItems[i].backMark.split(',')
       const backObj = {}
@@ -765,14 +751,30 @@
 
       if (backMark.includes(props.currentStep.mark)) {
         const key = backItems[i].credit_table
-        if (Number(staticFormData.value[key]) !== Number(obj[key])) {
-          arr.push({
-            name: findCreditName(key),
-            before: staticFormData.value[key],
-            now: obj[key]
-          })
 
-          backArr.push()
+        const beforeN = numberStrFormat(staticFormData.value[key])
+        const nowN = numberStrFormat(obj[key])
+
+        const beforeNum = backItems[i].is_ratio ? `${beforeN}${backItems[i].credit_unit}` : `${backItems[i].credit_unit}${beforeN}`
+        const nowNum = backItems[i].is_ratio ? `${nowN}${backItems[i].credit_unit}` : `${backItems[i].credit_unit}${nowN}`
+
+        if (Number(staticFormData.value[key]) !== Number(obj[key])) {
+          if (['credit_frontFee', 'credit_brokerFee'].includes(key)) {
+            if (Number(obj[key]) > Number(staticFormData.value[key])) {
+              arr.push({
+                name: findCreditName(key),
+                before: beforeNum,
+                now: nowNum
+              })
+            }
+          } else {
+            arr.push({
+              name: findCreditName(key),
+              before: beforeNum,
+              now: nowNum
+            })
+          }
+          
         }
       }
     }

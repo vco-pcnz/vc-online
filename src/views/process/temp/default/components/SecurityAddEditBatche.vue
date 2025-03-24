@@ -198,7 +198,7 @@
                   </div>
                   <div class="item seven">
                     <vco-number
-                      :value="item.dpu"
+                      :value="item.dup"
                       :precision="2"
                       :end="true"
                       size="fs_md"
@@ -487,7 +487,7 @@ const batchitem = {
   sales_price: '0',
   is_gst: false,
   repayment_price: '0',
-  dpu: '0'
+  dup: '0'
 }
 const thBatch = ref({
   typology: {

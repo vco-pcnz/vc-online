@@ -81,7 +81,7 @@
     <div v-show="securityTarget" class="sys-form-content mt-5">
       <a-form layout="vertical">
         <div class="col-item-content">
-          <div class="col-item">
+          <!-- <div class="col-item">
             <a-form-item :label="t('土地总额')">
               <vco-number
                 :value="securityInfo.land_amount"
@@ -98,7 +98,7 @@
                 :end="true"
               ></vco-number>
             </a-form-item>
-          </div>
+          </div> -->
           <div class="col-item">
             <a-form-item :label="t('抵押物价值')">
               <vco-number
@@ -220,7 +220,7 @@ const blockShowTargetHandle = (flag) => {
 const addSecurityVisible = ref(false)
 const addHandle = (flag = false) => {
   if (flag) {
-    navigationTo(`/process/security-batche?uuid=${route.query.uuid}`)
+    navigationTo(`/process/security-batche?uuid=${route.query.uuid}&code=${props.blockInfo.code}`)
   } else {
     addVisible.value = true
   }
@@ -246,7 +246,7 @@ onUnmounted(() => {
 .col-item-content {
   overflow: hidden;
   > .col-item {
-    width: 20%;
+    width: 33.33333%;
     float: left;
     :deep(.ant-statistic-content) {
       font-size: 18px !important;

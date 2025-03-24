@@ -28,7 +28,23 @@
             <div class="HelpBorrower">
               <div class="flex items-center"><i class="iconfont mr-2">&#xe614;</i><span class="weight_demiBold">{{ t('抵押物信息') }}</span></div>
               <p class="color_grey mt-1 mb-3">{{ t('您可以点击下方按钮添加抵押物') }}</p>
-              <a-button type="brown" shape="round" size="small" @click="openAddEdit(null)">{{ t('添加抵押物') }}</a-button>
+
+
+              <a-popover
+                v-model:open="addSecurityVisible" trigger="click"
+              >
+                <template #content>
+                  <a-menu :selectable="false" style="border: none !important;">
+                    <a-menu-item>
+                      <div @click="openAddEdit(null, true)" class="text-center">{{ t('批量添加') }}</div>
+                    </a-menu-item>
+                    <a-menu-item>
+                      <div @click="openAddEdit(null, false)" class="text-center">{{ t('单个添加') }}</div>
+                    </a-menu-item>
+                  </a-menu>
+                </template>
+                <a-button type="brown" shape="round" size="small">{{ t('添加抵押物') }}</a-button>
+              </a-popover>
             </div>
           </template>
         </div>
@@ -156,9 +172,18 @@ const getProjectDetail = (val) => {
 const addVisible = ref(false)
 const itemInfo = ref(null)
 
-const openAddEdit = (data) => {
-  itemInfo.value = data
-  addVisible.value = true
+const addSecurityVisible = ref(false)
+
+const openAddEdit = (data, flag = false) => {
+
+  if (flag) {
+    navigationTo(`/process/security-batche?uuid=${route.query.uuid}&isOpen=1`)
+  } else {
+    itemInfo.value = data
+    addVisible.value = true
+  }
+  
+  addSecurityVisible.value = false
 }
 
 onMounted(() => {

@@ -842,5 +842,15 @@ export default {
   "楼栋号": "Items",
   "户型": "type",
   "面积": "SQM",
-  "批量设置": "Batch Settings"
+  "批量设置": "Batch Settings",
+  "第{0}行": "Line {0}",
+  "更新基础数据": "Update basic data",
+  "勾选后，下面数据的基础信息将全部更新为上面设置的数据": "After checking, the basic information of the data below will be updated to the data set above",
+  "预计销售价格": "Est sales price",
+  "回款金额": "Amount received",
+  "批量编辑": "Batch Edit",
+  "点击编辑": "Click Edit",
+  "全选": "Select All",
+  "请至少选择一条数据进行操作": "Please select at least one piece of data to operate",
+  "请选择类型相同的数据进行操作": "Please select data of the same type to operate"
 }

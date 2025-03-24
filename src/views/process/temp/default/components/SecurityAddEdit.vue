@@ -95,7 +95,7 @@ const refreshHandle = () => {
 const unitsNum = ref(0)
 
 const isEdit = ref(true)
-const activeKey = ref('single')
+const activeKey = ref('')
 
 const typeData = ref([])
 const getTypeData = () => {

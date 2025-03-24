@@ -71,7 +71,7 @@
             </a-form-item>
           </a-col>
           <a-col :span="8">
-            <a-form-item :label="t('预计收到的偿还 VC')" name="repayment_price">
+            <a-form-item :label="t('回款金额')" name="repayment_price">
               <a-input-number
                 v-model:value="formState.repayment_price"
                 :max="99999999999"
@@ -81,12 +81,12 @@
             </a-form-item>
           </a-col>
           <a-col :span="8">
-            <a-form-item :label="t('合同日期（或无条件日期）')" name="contract_date">
+            <a-form-item :label="t('合同日期')" name="contract_date">
               <a-date-picker v-model:value="formState.contract_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" />
             </a-form-item>
           </a-col>
           <a-col :span="8">
-            <a-form-item :label="t('预计结算日期')" name="settlement_date">
+            <a-form-item :label="t('结算日期')" name="settlement_date">
               <a-date-picker v-model:value="formState.settlement_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" />
             </a-form-item>
           </a-col>
@@ -96,12 +96,12 @@
             </a-form-item>
           </a-col>
           <a-col :span="8">
-            <a-form-item :label="t('请求：还款日期')" name="repayment_date">
+            <a-form-item :label="t('还款日期')" name="repayment_date">
               <a-date-picker v-model:value="formState.repayment_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" />
             </a-form-item>
           </a-col>
           <a-col :span="8">
-            <a-form-item :label="t('请求：净收益')" name="net_proceeds_price">
+            <a-form-item :label="t('净收益')" name="net_proceeds_price">
               <a-input-number
                 v-model:value="formState.net_proceeds_price"
                 :max="99999999999"
@@ -195,12 +195,12 @@
 
   const formRules = {
     sales_price: [{ required: true, message: t('请输入') + t('销售价格'), trigger: 'blur' }],
-    repayment_price: [{ required: true, message: t('请输入') + t('预计收到的偿还 VC'), trigger: 'blur' }],
-    contract_date: [{ required: true, message: t('请选择') + t('合同日期（或无条件日期）'), trigger: 'change' }],
-    settlement_date: [{ required: true, message: t('请选择') + t('预计结算日期'), trigger: 'change' }],
+    repayment_price: [{ required: true, message: t('请输入') + t('回款金额'), trigger: 'blur' }],
+    contract_date: [{ required: true, message: t('请选择') + t('合同日期'), trigger: 'change' }],
+    settlement_date: [{ required: true, message: t('请选择') + t('结算日期'), trigger: 'change' }],
     sunset_date: [{ required: true, message: t('请选择') + t('日落日期'), trigger: 'change' }],
-    repayment_date: [{ required: true, message: t('请选择') + t('请求：还款日期'), trigger: 'blur' }],
-    net_proceeds_price: [{ required: true, message: t('请输入') + t('请求：净收益'), trigger: 'blur' }]
+    repayment_date: [{ required: true, message: t('请选择') + t('还款日期'), trigger: 'blur' }],
+    net_proceeds_price: [{ required: true, message: t('请输入') + t('净收益'), trigger: 'blur' }]
   };
 
   const gstRate = ref(1.15)

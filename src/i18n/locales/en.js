@@ -860,5 +860,6 @@ export default {
   "差值": "Diff",
   "轧差值": "netting amount",
   "参考": "reference",
-  "标题": "Title"
+  "标题": "Title",
+  "反洗钱审核": "AML Audit"
 }

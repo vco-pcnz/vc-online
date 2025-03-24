@@ -224,7 +224,7 @@
   const needInsMark = ['step_fc_audit', 'step_director_audit']
 
   const currentMark = computed(() => props.currentStep.mark)
-  const tempHideWash = computed(() => ['step_aml_audit'].includes(currentMark.value))
+  const tempHideWash = computed(() => ['step_aml_audit', 'step_aml_check'].includes(currentMark.value))
   const isAml = computed(() => (PageBlockArrRef.value.includes('AML') && tempHideWash.value))
 
   const dataLetDisabled = ref(false)

@@ -4,25 +4,53 @@
       <vco-process-title :title="t('新增反洗钱信息AML')">
         <template v-if="!isDetails">
           <div v-if="blockInfo.showEdit" class="flex gap-5 items-center">
-            <a-popconfirm v-if="hasPermission('requests:aml:check')" :title="t('确定通过审核吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" :disabled="Boolean(!selectedRowKeys.length)" @confirm="checkHandle(1)">
+            <a-popconfirm
+              v-if="hasPermission('requests:aml:check')"
+              :title="t('确定通过审核吗？')"
+              :ok-text="t('确定')"
+              :cancel-text="t('取消')"
+              :disabled="Boolean(!selectedRowKeys.length)"
+              @confirm="checkHandle(1)"
+            >
               <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase" :loading="loading && type === 1">
                 {{ t('审核') }}
               </a-button>
             </a-popconfirm>
 
-            <a-popconfirm :title="t('确定发送邮件吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" :disabled="Boolean(!selectedRowKeys.length)" @confirm="checkHandle(2)" :loading="loading && type === 2">
+            <a-popconfirm
+              :title="t('确定发送邮件吗？')"
+              :ok-text="t('确定')"
+              :cancel-text="t('取消')"
+              :disabled="Boolean(!selectedRowKeys.length)"
+              @confirm="checkHandle(2)"
+              :loading="loading && type === 2"
+            >
               <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase">
                 {{ t('发送邮件') }}
               </a-button>
             </a-popconfirm>
 
-            <a-popconfirm :title="t('确定发送短信吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" :disabled="Boolean(!selectedRowKeys.length)" @confirm="checkHandle(3)" :loading="loading && type === 3">
+            <a-popconfirm
+              :title="t('确定发送短信吗？')"
+              :ok-text="t('确定')"
+              :cancel-text="t('取消')"
+              :disabled="Boolean(!selectedRowKeys.length)"
+              @confirm="checkHandle(3)"
+              :loading="loading && type === 3"
+            >
               <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase">
                 {{ t('发送短信') }}
               </a-button>
             </a-popconfirm>
 
-            <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" :disabled="Boolean(!selectedRowKeys.length)" @confirm="checkHandle(4)" :loading="loading && type === 4">
+            <a-popconfirm
+              :title="t('确定删除吗？')"
+              :ok-text="t('确定')"
+              :cancel-text="t('取消')"
+              :disabled="Boolean(!selectedRowKeys.length)"
+              @confirm="checkHandle(4)"
+              :loading="loading && type === 4"
+            >
               <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase">
                 {{ t('删除') }}
               </a-button>
@@ -71,7 +99,14 @@
               </a-menu>
             </template>
           </a-dropdown>
-          <a-table :columns="columns" :data-source="tableData" :pagination="false" :scroll="{ x: '100%' }" row-key="id" :row-selection="!blockInfo.showEdit ? null : { selectedRowKeys: selectedRowKeys, onSelect: onSelect, hideSelectAll: true }">
+          <a-table
+            :columns="columns"
+            :data-source="tableData"
+            :pagination="false"
+            :scroll="{ x: '100%' }"
+            row-key="id"
+            :row-selection="!blockInfo.showEdit ? null : { selectedRowKeys: selectedRowKeys, onSelect: onSelect, hideSelectAll: true }"
+          >
             <template #bodyCell="{ column, record }">
               <template v-if="column.dataIndex === 'name'">
                 {{ record.name }}
@@ -99,7 +134,14 @@
                   <!-- <i class="iconfont" :title="t('有条件')" v-if="Boolean(record.status == 3)">&#xe73a;</i> -->
                   <i class="iconfont" :title="t('项目文件')" v-if="Boolean(record.document && record.document.length)" @click="updateVisibleFiles(record)">&#xe690;</i>
                   <template v-if="blockInfo.showEdit">
-                    <i class="iconfont" :title="t('审核')" @click="checkOne(record.id)" v-if="record.status != 4 && record.status != 3 && record.document && record.document.length && hasPermission('requests:aml:check')">&#xe647;</i>
+                    <i
+                      class="iconfont"
+                      :title="t('审核')"
+                      @click="checkOne(record.id)"
+                      v-if="record.status != 4 && record.status != 3 && record.document && record.document.length && hasPermission('requests:aml:check')"
+                    >
+                      &#xe647;
+                    </i>
                     <i class="iconfont" :title="t('编辑')" @click="showForm(record)">&#xe753;</i>
                     <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.id)">
                       <i class="iconfont" :title="t('删除l')">&#xe8c1;</i>
@@ -110,7 +152,16 @@
             </template>
           </a-table>
           <div class="flex justify-end">
-            <a-pagination size="small" :total="total" :pageSize="pagination.limit" :current="pagination.page" show-size-changer show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
+            <a-pagination
+              size="small"
+              :total="total"
+              :pageSize="pagination.limit"
+              :current="pagination.page"
+              show-size-changer
+              show-quick-jumper
+              :show-total="(total) => t('共{0}条', [total])"
+              @change="setPaginate"
+            />
           </div>
         </div>
       </a-spin>
@@ -147,41 +198,41 @@ import tool from '@/utils/tool.js';
 import { auditLmCheckStatus } from '@/api/process';
 import { getWash, projectDetailGetWash, washCheck, sendEmail, sendSms, washRemove } from '@/api/project/wash';
 import WashTableAddEdit from './WashTableAddEdit.vue';
-import emitter from '@/event';
 import { hasPermission } from '@/directives/permission/index';
+import emitter from '@/event';
 
 const emits = defineEmits(['check', 'refresh']);
 
 const props = defineProps({
   currentId: {
     type: [Number, String],
-    required: true
+    required: true,
   },
   washInfo: {
     type: Object,
-    default: () => {}
+    default: () => {},
   },
   blockInfo: {
     type: Object,
-    default: () => {}
+    default: () => {},
   },
   currentStep: {
-    type: Object
+    type: Object,
   },
   isDetails: {
     type: Boolean,
-    default: false
+    default: false,
   },
   target: {
-    type: String
-  }
+    type: String,
+  },
 });
 const { t } = useI18n();
 
 const total = ref(0);
 const pagination = ref({
   page: 1,
-  limit: 10
+  limit: 10,
 });
 
 const visibleSlect = ref(false);
@@ -198,8 +249,8 @@ const columns = reactive([
     dataIndex: 'operation',
     // fixed: 'right',
     align: 'right',
-    width: 150
-  }
+    width: 150,
+  },
 ]);
 
 const tableData = ref([]);
@@ -303,7 +354,7 @@ const remove = (id) => {
 const washCheckHandle = async () => {
   const params = {
     lm_check_status: props.washInfo.check_status,
-    uuid: props.currentId
+    uuid: props.currentId,
   };
 
   await auditLmCheckStatus(params)
@@ -355,7 +406,7 @@ const loadData = () => {
 const setPaginate = (page, limit) => {
   pagination.value = {
     page,
-    limit
+    limit,
   };
   loadData();
 };

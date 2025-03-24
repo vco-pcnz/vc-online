@@ -14,7 +14,7 @@
         <vco-process-title :title="t('抵押物信息')">
           <div class="flex gap-3">
             <a-button
-              v-if="tabData.length"
+              v-if="tabData.length && !isDetails"
               type="dark" shape="round"
               size="small"
               class="uppercase"
@@ -22,7 +22,7 @@
             >{{ batchEditFlag ? t('点击编辑') : t('批量编辑') }}</a-button>
 
             <a-button
-              v-if="batchEditFlag"
+              v-if="batchEditFlag && !isDetails"
               type="primary" shape="round"
               size="small"
               class="uppercase"
@@ -30,7 +30,7 @@
             >{{ t('全选') }}</a-button>
 
             <a-button
-              v-if="batchEditFlag"
+              v-if="batchEditFlag && !isDetails"
               type="primary" shape="round"
               size="small"
               class="uppercase"

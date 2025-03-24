@@ -529,5 +529,4 @@ export const expireTimeDefault = (len, arr) => {
   }
   return arr;
 };
-
 export default tool;

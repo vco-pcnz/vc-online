@@ -5,7 +5,7 @@
       :data-source="tableData"
       :row-class-name="(_record, index) => _record.project_apply_sn"
       :pagination="false"
-      :scroll="{ x: '100%' }"
+      :scroll="{ x: '1450px' }"
       :customRow="rowClick"
       row-key="uuid"
       :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }"
@@ -72,11 +72,13 @@
           <p class="black">{{ tool.formatMoney(record.credit.undrawn) }}</p>
         </template>
         <template v-if="column.key === '7'">
-          <div class="loan_balance">
-            <p class="bold black">
-              <i class="iconfont" style="color: #a9ad57">&#xe75b;</i>
-              {{ tool.formatMoney(record.credit.loan_balance) }}
-            </p>
+          <p class="bold black">
+            <i class="iconfont" style="color: #a9ad57">&#xe75b;</i>
+            {{ tool.formatMoney(record.credit.loan_balance) }}
+          </p>
+        </template>
+        <template v-if="column.key === 'Progress'">
+          <div class="flex justify-center">
             <div class="meter" v-if="type === 'current'">
               <p :style="{ fontSize: '10px' }">{{ record.credit.bili }}%</p>
               <vco-meter size="small" :value="Number(record.credit.bili)" />
@@ -144,14 +146,15 @@ const props = defineProps({
 const { t } = useI18n();
 const columns = reactive([
   { title: t('项目•类型'), key: '1', width: 280 },
-  { title: t('借款人•贷款经理'), key: '2', width: 180 },
-  { title: t('到期'), key: '3', width: 120 },
-  { title: t('IRR预测'), key: '4', width: 200 },
+  { title: t('借款人•贷款经理'), key: '2', width: 140 },
+  { title: t('到期'), key: '3', width: 110 },
+  { title: t('IRR预测'), key: '4', width: 140 },
   { title: t('收入'), key: '5', width: 120 },
   { title: t('待提取'), key: '6', width: 120 },
-  { title: t('贷款余额'), key: '7', width: 220 },
-  { title: t('FC2'), key: '8', width: 110 },
-  { title: t('UPD'), key: '9', width: 90, align: 'center' }
+  { title: t('贷款余额'), key: '7', width: 150 },
+  { title: t('完成情况'), key: 'Progress', width: 80, align: 'center' },
+  { title: t('FC2'), key: '8', width: 130 },
+  { title: t('条件'), key: '9', align: 'center' }
 ]);
 
 const diffInDays = (val) => {
@@ -264,17 +267,12 @@ onMounted(() => {
     border-radius: 6px;
   }
 
-  .loan_balance {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    .meter {
-      text-align: center;
-      position: relative;
-      top: -4px;
-      min-width: 30px;
-    }
+  .meter {
+    text-align: center;
+    position: relative;
+    top: -4px;
+    min-width: 40px;
+    width: 40px;
   }
 }
 
@@ -300,7 +298,7 @@ onMounted(() => {
 
 .color_red-error {
   .black {
-    color: #c1430c!important;
+    color: #c1430c !important;
   }
 }
 </style>

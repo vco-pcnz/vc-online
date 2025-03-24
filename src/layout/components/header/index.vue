@@ -33,12 +33,12 @@
           </a>
           <template #overlay>
             <a-menu>
-              <a-menu-item v-if="hasPermission('profile:apply:broker') && !userInfo?.roles.includes('Broker')">
+              <a-menu-item v-if="hasPermission('profile:apply:broker') && userInfo?.roles === 'Vip'">
                 <ApplyBroker v-if="!applyBrokerData">
-                  <div class="user-hanle-item">{{ t('申请经纪人') }}</div>
+                  <div class="user-hanle-item">{{ t('申请中介') }}</div>
                 </ApplyBroker>
                 <ApplyBrokerDetail :detailData="applyBrokerData?.data" :process="applyBrokerData" @update="LoadApplyBrokerDetail" v-else>
-                  <div class="user-hanle-item">{{ t('申请经纪人') }}</div>
+                  <div class="user-hanle-item">{{ t('申请中介') }}</div>
                 </ApplyBrokerDetail>
               </a-menu-item>
               <a-menu-item v-for="item in menuItem" :key="item.key" @click="goTo(`${item.to}`)">
@@ -150,7 +150,7 @@ onMounted(() => {
     }
   });
   
-  if (hasPermission('profile:apply:broker') && !userInfo?.roles.includes('Broker')) {
+  if (hasPermission('profile:apply:broker')) {
     LoadApplyBrokerDetail();
   }
 });

@@ -34,13 +34,13 @@
             </a-form-item>
           </a-col>
           <a-col :span="24">
-            <a-form-item :label="t('身份证号码')" name="idcard">
+            <a-form-item :label="t('身份证号码')">
               <a-input v-model:value="formState.idcard" :placeholder="t('请输入')" />
             </a-form-item>
           </a-col>
 
           <a-col :span="24">
-            <a-form-item :label="t('邮箱')" name="email">
+            <a-form-item :label="t('邮箱')">
               <a-input v-model:value="formState.email" />
             </a-form-item>
           </a-col>

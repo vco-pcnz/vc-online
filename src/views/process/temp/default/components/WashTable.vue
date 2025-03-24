@@ -4,7 +4,7 @@
       <vco-process-title :title="t('新增反洗钱信息AML')">
         <template v-if="!isDetails">
           <div v-if="blockInfo.showEdit" class="flex gap-5 items-center">
-            <a-popconfirm :title="t('确定通过审核吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" :disabled="Boolean(!selectedRowKeys.length)" @confirm="checkHandle(1)">
+            <a-popconfirm v-if="hasPermission('requests:aml:check')" :title="t('确定通过审核吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" :disabled="Boolean(!selectedRowKeys.length)" @confirm="checkHandle(1)">
               <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase" :loading="loading && type === 1">
                 {{ t('审核') }}
               </a-button>
@@ -99,7 +99,7 @@
                   <!-- <i class="iconfont" :title="t('有条件')" v-if="Boolean(record.status == 3)">&#xe73a;</i> -->
                   <i class="iconfont" :title="t('项目文件')" v-if="Boolean(record.document && record.document.length)" @click="updateVisibleFiles(record)">&#xe690;</i>
                   <template v-if="blockInfo.showEdit">
-                    <i class="iconfont" :title="t('审核')" @click="checkOne(record.id)" v-if="record.status != 4 && record.status != 3 && record.document && record.document.length">&#xe647;</i>
+                    <i class="iconfont" :title="t('审核')" @click="checkOne(record.id)" v-if="record.status != 4 && record.status != 3 && record.document && record.document.length && hasPermission('requests:aml:check')">&#xe647;</i>
                     <i class="iconfont" :title="t('编辑')" @click="showForm(record)">&#xe753;</i>
                     <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.id)">
                       <i class="iconfont" :title="t('删除l')">&#xe8c1;</i>
@@ -148,6 +148,7 @@ import { auditLmCheckStatus } from '@/api/process';
 import { getWash, projectDetailGetWash, washCheck, sendEmail, sendSms, washRemove } from '@/api/project/wash';
 import WashTableAddEdit from './WashTableAddEdit.vue';
 import emitter from '@/event';
+import { hasPermission } from '@/directives/permission/index';
 
 const emits = defineEmits(['check', 'refresh']);
 

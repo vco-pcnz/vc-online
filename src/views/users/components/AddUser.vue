@@ -1,8 +1,8 @@
 <template>
-  <a-modal :width="480" :open="open" :title="isEdit ? t('编辑用户') : t('新增用户')" @cancel="closeModal">
+  <a-modal :width="550" :open="open" :title="isEdit ? t('编辑用户') : t('新增用户')" @cancel="closeModal">
     <div class="sys-form-content mt-5">
       <a-form ref="formRef" :model="form" :rules="rules" layout="vertical">
-        <a-form-item name="avatar" class="avatar">
+        <a-form-item name="avatar" class="avatar" v-if="!isComponent">
           <vco-upload-image v-model:value="form.avatar" text="头像" :isAvatar="true"></vco-upload-image>
         </a-form-item>
         <a-form-item :label="t('类型')" name="type">
@@ -35,7 +35,7 @@
         <a-form-item name="email" :label="t('邮箱')">
           <a-input v-model:value="form.email" :placeholder="t('邮箱')" :disabled="isEdit && !!email_ok" />
         </a-form-item>
-        <a-form-item :label="t('手机号')" name="mobile">
+        <a-form-item :label="t('手机号')" :name="isComponent ? '' : 'mobile'">
           <vco-mobile-input v-model:value="form.mobile" v-model:areaCode="form.pre" :disabled="isEdit && !!mobile_ok"></vco-mobile-input>
         </a-form-item>
         <a-form-item name="verifyMode" v-if="!isEdit">
@@ -49,7 +49,7 @@
             </a-col>
             <a-col :span="12">
               <a-form-item-rest>
-                <a-checkbox v-model:checked="form.sendSms">
+                <a-checkbox v-model:checked="form.sendSms" :disabled="isComponent ? !form.mobile : false">
                   {{ t('发送邀请短信') }}
                 </a-checkbox>
               </a-form-item-rest>
@@ -59,10 +59,10 @@
       </a-form>
     </div>
     <template #footer>
-      <div class="modal-footer">
-        <a-button size="large" type="cyan" :loading="loading" class="register-btn big shadow bold" @click="save">
-          {{ t('提交') }}
-        </a-button>
+      <div class="mt-5 flex justify-end gap-5">
+        <a-button type="grey" class="big shadow bold uppercase mb-5 mt-5" @click="closeModal()">{{ t('取消') }}</a-button>
+
+        <a-button type="dark" class="big shadow bold uppercase mb-5 mt-5" :loading="loading" @click="save">{{ t('提交') }}</a-button>
       </div>
     </template>
   </a-modal>
@@ -83,8 +83,23 @@ const formRef = ref(null);
 const usersStore = useUsersStore();
 const isEdit = ref(false);
 
-const props = defineProps(['open', 'userData']);
-const emit = defineEmits(['update:open']);
+const props = defineProps({
+  open: {
+    type: Boolean,
+    default: false
+  },
+  userData: {
+    type: Object
+  },
+  isComponent: {
+    type: Boolean,
+    default: false
+  },
+  p__uuid: {
+    type: String
+  }
+});
+const emit = defineEmits(['update:open', 'submit']);
 
 const { form, resetFields, assignFields } = useFormData({
   avatar: '',
@@ -170,8 +185,8 @@ const closeModal = () => {
 const edit = () => {
   editUser({
     ...form,
-    company: form.type?form.user_name:'',
-    user_name: form.type?form.user_name:'',
+    company: form.type ? form.user_name : '',
+    user_name: form.type ? form.user_name : '',
     sendEmail: undefined,
     sendSms: undefined,
     email: !!email_ok ? undefined : form.email,
@@ -196,16 +211,25 @@ const save = () => {
       edit();
       return;
     }
-    addUser({
+    const params = {
       ...form,
 
       sendEmail: form.sendEmail ? 1 : 0,
       sendSms: form.sendSms ? 1 : 0
-    })
-      .then(() => {
+    };
+    if (props.isComponent) {
+      params['do__add'] = 1;
+      params['p__uuid'] = props.p__uuid;
+    }
+    addUser(params)
+      .then((res) => {
         loading.value = false;
         usersStore.getUserList();
         message.success(t('新增成功'));
+
+        if (props.isComponent) {
+          emit('submit', [res]);
+        }
         closeModal();
       })
       .catch(() => {
@@ -219,7 +243,7 @@ watch(
   (val) => {
     if (val) {
       const userInfo = props.userData;
-      if (Object.keys(userInfo).length) {
+      if (userInfo && Object.keys(userInfo).length) {
         isEdit.value = true;
         assignFields({
           ...form,
@@ -231,6 +255,7 @@ watch(
       }
     } else {
       isEdit.value = false;
+      loading.value = false;
       resetFields();
       formRef.value.clearValidate();
     }

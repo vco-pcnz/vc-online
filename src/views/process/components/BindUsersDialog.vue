@@ -5,9 +5,9 @@
       <div></div>
     </vco-choose-user>
     <!-- 人员添加 -->
-    <add-user :p__uuid="borrowerComUuid || borrowerComUuid" :isComponent="true" v-model:open="showAddUser" @submit="userChoiced" />
+    <add-user :p__uuid="borrowerComUuid || brokerComUuid" :isComponent="true" v-model:open="showAddUser" @submit="userChoiced" />
     <!-- borker添加 -->
-    <add-broker v-model:visible="showApplyBroker"></add-broker>
+    <add-broker v-model:visible="showApplyBroker" @update="userChoiced"></add-broker>
 
     <a-modal :width="500" :open="visible" :title="t(title)" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="form-content">
@@ -34,8 +34,8 @@
             <div class="title">
               <p>{{ t('借款账号信息') }}</p>
               <div class="gap-3 flex">
-                <a-button type="primary" size="small" shape="round" class="uppercase" @click="openUserSelect(true, false, 'borrower', true)">{{ t('添加') }}</a-button>
-                <a-button type="primary" size="small" shape="round" class="uppercase" @click="openUserSelect(true, false, 'borrower', false)">{{ t('选择') }}</a-button>
+                <a-button type="primary" size="small" shape="round" class="uppercase" @click="openUserSelect(true, false, 'borrower', '', true)">{{ t('添加') }}</a-button>
+                <a-button type="primary" size="small" shape="round" class="uppercase" @click="openUserSelect(true, false, 'borrower', '', false)">{{ t('选择') }}</a-button>
               </div>
             </div>
             <div class="content">
@@ -92,8 +92,8 @@
               <p>{{ t('中介信息') }}</p>
 
               <div class="gap-3 flex">
-                <a-button type="primary" size="small" shape="round" class="uppercase" @click="showApplyBroker = true">{{ t('添加') }}</a-button>
-                <a-button type="primary" size="small" shape="round" class="uppercase" @click="openUserSelect(true, false, 'broker')">{{ t('选择') }}</a-button>
+                <a-button type="primary" size="small" shape="round" class="uppercase" @click="openUserSelect(true, false, 'broker', '', true)">{{ t('添加') }}</a-button>
+                <a-button type="primary" size="small" shape="round" class="uppercase" @click="openUserSelect(true, false, 'broker', '', false)">{{ t('选择') }}</a-button>
               </div>
             </div>
             <div class="content">
@@ -340,9 +340,12 @@ const openUserSelect = (code, isMultiple, puser = '', secType = '', isAdd) => {
       }
     }
   }
-  console.log(isAdd);
   if (isAdd) {
-    showAddUser.value = true;
+    if (puser === 'broker') {
+      showApplyBroker.value = true;
+    } else {
+      showAddUser.value = true;
+    }
   } else {
     nextTick(() => {
       vcoChooseUserRef.value.init();

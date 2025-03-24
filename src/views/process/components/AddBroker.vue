@@ -70,7 +70,7 @@
 
           <!-- 邮箱 -->
           <a-col :span="24">
-            <a-form-item name="email" :label="t('联系邮箱f')">
+            <a-form-item :label="t('联系邮箱f')" name="email">
               <a-input v-model:value="form.email" :placeholder="t('请输入')" :disabled="!!email_ok" />
             </a-form-item>
           </a-col>
@@ -144,7 +144,7 @@ import tool, { selectDateFormat, expireTimeDefault } from '@/utils/tool';
 import { pick, trim, cloneDeep } from 'lodash';
 import dayjs from 'dayjs';
 import useFormData from '@/utils/use-form-data';
-import { applyBroker } from '@/api/tasks';
+import { stakeAdd } from '@/api/orgs/form';
 import { systemConfigData } from '@/api/system';
 
 const orgsStore = useOrgsStore();
@@ -197,7 +197,8 @@ const { form, assignFields } = useFormData({
   note: '',
   suburb: '',
   province_code_name: '',
-  con_id: ''
+  con_id: '',
+  do__retUser: 1
 });
 
 const mobile_ok = ref(0);
@@ -217,6 +218,14 @@ const rules = reactive({
     {
       required: true,
       message: t('请选择') + t('类型f')
+    }
+  ],
+  email: [
+    {
+      required: true,
+      pattern: /^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$/,
+      message: t('邮箱') + t('格式不正确'),
+      trigger: 'blur'
     }
   ],
   addr: [
@@ -299,7 +308,7 @@ const setAddressInfo = (val) => {
 // 提交
 const submit = () => {
   formRef.value.validate().then(() => {
-    let keys = ['cid', 'type', 'avatar', 'email', 'emailCode', 'pre', 'mobile', 'mobileCode', 'document', 'expire_time', 'note', 'job'];
+    let keys = ['cid', 'type', 'avatar', 'email', 'emailCode', 'pre', 'mobile', 'mobileCode', 'document', 'expire_time', 'note', 'job', 'do__retUser'];
     if (form.type == 20) {
       keys = keys.concat(['firstName', 'middleName', 'lastName', 'sendEmail', 'sendSms', 'user_uuid', 'idcard']);
     } else {
@@ -311,15 +320,13 @@ const submit = () => {
     newData.sendEmail = newData.sendEmail ? 1 : 0;
     newData.sendSms = newData.sendSms ? 1 : 0;
     if (form.type == 2 || form.type == 3) newData.idcard = '';
-    console.log(newData);
-    return;
     loading.value = true;
-    applyBroker(newData)
-      .then(() => {
+    stakeAdd(newData)
+      .then((res) => {
         loading.value = false;
         message.success(t('添加成功'));
-        visible.value = false;
-        emit('update');
+        emit('update', [res]);
+        closeModal();
       })
       .catch(() => {
         loading.value = false;

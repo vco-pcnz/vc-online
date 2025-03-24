@@ -1,7 +1,7 @@
 <template>
   <div class="inline" @click="init"><slot></slot></div>
 
-  <a-modal :open="visible" :title="t('申请经纪人')" :width="1000" :footer="null" :keyboard="false" :maskClosable="false" @cancel="visible = false">
+  <a-modal :open="visible" :title="t('申请经纪人')" :width="800" :footer="null" :keyboard="false" :maskClosable="false" @cancel="visible = false">
     <div class="content sys-form-content" style="padding-top: 20px">
       <a-form ref="formRef" :model="form" :rules="dynamicRules" layout="vertical">
         <a-row :gutter="24">
@@ -92,12 +92,12 @@
           <!-- 公共 -->
 
           <!-- 邮箱 -->
-          <a-col :span="20">
+          <a-col :span="18">
             <a-form-item name="email" :label="t('联系邮箱f')">
               <a-input v-model:value="form.email" :placeholder="t('请输入')" :disabled="!!email_ok" />
             </a-form-item>
           </a-col>
-          <a-col :span="4" v-if="!verifyEmail.showCountdown">
+          <a-col :span="6" v-if="!verifyEmail.showCountdown">
             <a-form-item label=" ">
               <a-button v-if="!email_ok" @click="handleVerify(VERIFY_KEY.EMAIL)" type="dark" class="big verify-btn">
                 {{ t('验证') }}
@@ -110,7 +110,7 @@
               </a-button>
             </a-form-item>
           </a-col>
-          <a-col :span="4" v-else>
+          <a-col :span="6" v-else>
             <a-form-item label=" ">
               <countdown v-model:show="verifyEmail.showCountdown" />
             </a-form-item>
@@ -122,12 +122,12 @@
           </a-col>
           <!-- ####################################### -->
           <!-- 电话 -->
-          <a-col :span="20">
+          <a-col :span="18">
             <a-form-item :label="t('联系电话f')" name="mobile">
               <vco-mobile-input v-model:value="form.mobile" v-model:areaCode="form.pre" :disabled="!!mobile_ok"></vco-mobile-input>
             </a-form-item>
           </a-col>
-          <a-col :span="4" v-if="!verifyMobile.showCountdown">
+          <a-col :span="6" v-if="!verifyMobile.showCountdown">
             <a-form-item label=" ">
               <a-button v-if="!mobile_ok" @click="handleVerify(VERIFY_KEY.MOBILE)" type="dark" class="big verify-btn">
                 {{ t('验证') }}
@@ -140,7 +140,7 @@
               </a-button>
             </a-form-item>
           </a-col>
-          <a-col :span="4" v-else>
+          <a-col :span="6" v-else>
             <a-form-item label=" ">
               <countdown v-model:show="verifyMobile.showCountdown" />
             </a-form-item>
@@ -202,7 +202,8 @@ import countdown from '@/views/orgs/components/countdown.vue';
 import changeEmail from '@/views/orgs/components/change-email.vue';
 import changeMobile from '@/views/orgs/components/change-mobile.vue';
 import { sendUnauthECode, sendUnauthCodeM, stakeAdd, stakeEdit } from '@/api/orgs/form';
-import { getUserCenter } from "@/api/profile";
+import { applyBroker } from '@/api/tasks';
+import { systemConfigData } from '@/api/system';
 
 const router = useRouter();
 const orgsStore = useOrgsStore();
@@ -222,7 +223,7 @@ const props = defineProps({
   detail: {
     type: Object
   },
-  brokerValue: {
+  process__id: {
     type: [Number, String]
   }
 });
@@ -239,8 +240,8 @@ const { form, assignFields } = useFormData({
   lastName: '',
   job: [], //详情添加才会有
   //公共
-  uuid: '', //编辑独有
-  cid: [], //分类ID
+  process__id: '', //编辑独有
+  cid: [3], //分类ID
   type: '', //类型
   avatar: '',
   idcard: '', // 公司组织机构代码  人员 身份证
@@ -276,13 +277,6 @@ const rules = reactive({
       trigger: 'blur'
     }
   ],
-  // email: [
-  //   {
-  //     pattern: /^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$/,
-  //     message: t('邮箱') + t('格式不正确'),
-  //     trigger: 'blur'
-  //   }
-  // ],
   type: [
     {
       required: true,
@@ -309,11 +303,6 @@ const dynamicRules = computed(() => {
           required: true,
           message: t('请输入') + t('身份证号码')
         }
-        // {
-        //   pattern: /^[A-Z0-9]+$/,
-        //   message: t('身份证号码') + t('格式不正确'),
-        //   trigger: 'blur'
-        // }
       ],
       firstName: [
         {
@@ -435,33 +424,18 @@ const submit = () => {
       newData.sendSms = newData.sendSms ? 1 : 0;
     }
     if (form.type == 2 || form.type == 3) newData.idcard = '';
-    form.cid = [props.brokerValue];
-    console.log(form);
-    return;
+    newData.process__id = props.process__id;
     loading.value = true;
-    if (!isEdit.value) {
-      stakeAdd(newData)
-        .then(() => {
-          loading.value = false;
-          message.success(t('添加成功'));
-          router.back();
-        })
-        .catch(() => {
-          loading.value = false;
-        });
-    } else {
-      newData['uuid'] = form.uuid;
-      stakeEdit(newData)
-        .then(() => {
-          // 刷新数据
-          emit('update');
-          loading.value = false;
-          message.success(t('修改成功'));
-        })
-        .catch(() => {
-          loading.value = false;
-        });
-    }
+    applyBroker(newData)
+      .then(() => {
+        loading.value = false;
+        message.success(t('添加成功'));
+        visible.value = false;
+        emit('update');
+      })
+      .catch(() => {
+        loading.value = false;
+      });
   });
 };
 const hasData = (data) => {
@@ -488,6 +462,9 @@ const getCompanyInfo = (val) => {
 onMounted(() => {
   // 加载分类
   orgsStore.getStakeholderType();
+  systemConfigData({ pcode: 'web_config', code: 'broker_value' }).then((res) => {
+    form.cid = res.broker_value ? [res.broker_value] : [3];
+  });
 });
 
 const initJob = (val) => {
@@ -569,7 +546,6 @@ watch(
 );
 
 const init = () => {
-    getUserCenter();
   visible.value = true;
 };
 </script>

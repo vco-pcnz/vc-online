@@ -79,7 +79,7 @@
             </p>
             <div class="meter" v-if="type === 'current'">
               <p :style="{ fontSize: '10px' }">{{ record.credit.bili }}%</p>
-              <vco-meter size="small" :width="Number(record.credit.bili)" :value="0" />
+              <vco-meter size="small" :value="Number(record.credit.bili)" />
             </div>
           </div>
         </template>

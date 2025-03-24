@@ -1,7 +1,7 @@
 <template>
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop>
-    <a-modal :width="830" :open="visible" :title="t('详情')" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
+    <a-modal :width="830" :open="visible" :title="t('申请经纪人') + ' ' + t('详情')" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <a-row :gutter="24" class="pl-10 pr-10">
           <template v-if="Boolean(process)">
@@ -10,6 +10,17 @@
             </a-col>
           </template>
 
+          <a-col :span="24" class="item-txt" v-if="has_permission">
+            <a-alert type="info" :message="t('申请人')" class="mb-5 cancel-reason">
+              <template #description>
+                <div class="flex items-center gap-3 mt-3">
+                  <vco-avatar :src="apply_user?.avatar" :size="30"></vco-avatar>
+                  <p>{{ apply_user?.user_name || '--' }}</p>
+                </div>
+              </template>
+            </a-alert>
+          </a-col>
+
           <a-col :span="8" class="item-txt">
             <p>{{ t('名称') }}</p>
             <p>{{ detailData?.name || '--' }}</p>
@@ -17,9 +28,7 @@
           <a-col :span="8" class="item-txt">
             <p>{{ t('类型f') }}</p>
             <p>
-              <span class="cer" v-if="detailData.cate == 1">{{ t('借款人') }}</span>
-              <span class="cer" v-if="detailData.cate == 2">{{ t('担保人') }}</span>
-              <span class="cer" v-if="detailData.cate == 3">{{ t('投资人') }}</span>
+              <span class="cer">{{ detailData.type_name }}</span>
             </p>
           </a-col>
           <a-col :span="8" class="item-txt">
@@ -110,14 +119,17 @@
 
         <div class="mt-10 mb-5">
           <div class="flex justify-end gap-5">
+            <ApplyBroker :detail="detailData" :process__id="process.id" v-if="process.state < 0" @update="update">
+              <a-button type="brown" class="big shadow bold uppercase mb-5 mt-5">{{ t('编辑') }}</a-button>
+            </ApplyBroker>
             <a-button type="grey" class="big shadow bold uppercase mb-5 mt-5" @click="updateVisible(false)">{{ t('关闭') }}</a-button>
 
-            <template v-if="Boolean(process && process.has_permission)">
-              <vco-form-dialog :title="t('拒绝原因')" :formParams="{ uuid: uuid, id: process.id }" url="project/wash/wdecline" @update="update">
+            <template v-if="Boolean(process && has_permission)">
+              <vco-form-dialog :title="t('拒绝原因')" :formParams="{ id: process.id }" url="stake/vip/applyDecline" @update="update">
                 <a-button type="brown" class="big shadow bold uppercase mb-5 mt-5">{{ t('拒绝请求') }}</a-button>
               </vco-form-dialog>
 
-              <vco-popconfirm :tip="t('您确定要接受该请求吗？')" @update="update()" :formParams="{ uuid: uuid, id: process.id }" url="project/wash/wsaveStep" :btn_text="t('接受请求')"> </vco-popconfirm>
+              <vco-popconfirm :tip="t('您确定要接受该请求吗？')" @update="update()" :formParams="{ id: process.id }" url="stake/vip/applySaveStep" :btn_text="t('接受请求')"> </vco-popconfirm>
             </template>
           </div>
         </div>
@@ -129,67 +141,23 @@
 <script scoped setup>
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { selectDateFormat, expireTimeDefault } from '@/utils/tool';
-import { cloneDeep } from 'lodash';
 import { washAdd } from '@/api/project/wash';
+import ApplyBroker from '@/views/profile/apply-broker/form.vue';
 
 const { t } = useI18n();
 const emits = defineEmits(['update:visible', 'update']);
 
 const props = defineProps({
-  uuid: {
-    type: String,
-    default: ''
-  },
   detailData: {
-    type: Object,
-    default: () => {
-      return {
-        avatar: '',
-        cid: [2, 3],
-        is_pid: 0,
-        uuid: 'e66120bc-42f6-4e3d-908a-48db72510d32',
-        user_uuid: '',
-        type: 4,
-        name: '33 DENIM LIMITED',
-        contactName: '',
-        idcard: '',
-        nzbn: '9429052387562',
-        firstName: '',
-        middleName: '',
-        lastName: '',
-        email: '',
-        email_ok: 0,
-        pre: '',
-        mobile: '',
-        mobile_ok: 0,
-        province_code: 3354,
-        city_code: '',
-        district_code: '',
-        province_code_name: 'Auckland',
-        city_code_name: '',
-        district_code_name: '',
-        addr: '100 Kervil Avenue, Te Atatu Peninsula',
-        address: '',
-        suburb: '',
-        postal: '0610',
-        city: '100 Kervil Avenue, Te Atatu Peninsula, Auckland, New Zealand',
-        job: '',
-        is_expire: 0,
-        expire_time: null,
-        document: '',
-        note: null,
-        ptype: 0,
-        open_count: 0,
-        close_count: 0,
-        apply_count: 1
-      };
-    }
+    type: Object
+  },
+  apply_user: {
+    type: Object
   },
   process: {
     type: Object
   },
-  edit: {
+  has_permission: {
     type: Boolean,
     default: false
   }
@@ -209,6 +177,11 @@ const updateVisible = (value) => {
 const init = () => {
   visible.value = true;
 };
+
+// 暴露方法给父组件
+defineExpose({
+  updateVisible
+});
 </script>
 <style scoped lang="less">
 @import '@/styles/variables.less';

@@ -22,3 +22,30 @@ export const projectBacklogCount = () =>
     url: "/project/project/backlogCount",
     method: "get"
   });
+
+
+// 其他待办列表
+export const backlogOtherList = (params) =>
+  request({
+    url: "/project/project/backlogOtherList",
+    method: "get",
+    params
+  });
+  
+
+// 申请borker
+export const applyBroker = (data) =>
+  request({
+    url: "/stake/vip/applyBroker",
+    method: "post",
+    data
+  });
+
+// 申请borker 详情
+export const applyBrokerDetail = () =>
+  request({
+    url: "/stake/vip/applyBrokerDetail",
+    method: "get"
+  });
+
+  

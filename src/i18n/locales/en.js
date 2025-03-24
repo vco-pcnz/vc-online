@@ -833,5 +833,6 @@ export default {
   "担保价值": "Security Value",
   "每单位债务": "Debt per unit",
   "物品信息": "Items Info",
-  "全部应用": "All Apply"
+  "全部应用": "All Apply",
+  "申请人": "applicant"
 }

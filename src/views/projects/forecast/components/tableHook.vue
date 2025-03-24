@@ -35,9 +35,9 @@
         <div class="item uppercase">{{ t('实时预报') }}</div>
         <div class="item uppercase">{{ t('日期') }}</div>
         <div class="item uppercase">{{ t('借记/贷记') }}</div>
-        <div v-if="!itemId" class="item uppercase">{{ t('绩效指标预测') }}</div>
+        <div v-if="!itemId && false" class="item uppercase">{{ t('绩效指标预测') }}</div>
         <div class="item uppercase">{{ t('说明') }}</div>
-        <div v-if="!itemId" class="item uppercase">{{ t('历史') }}</div>
+        <div v-if="!itemId" class="item uppercase history">{{ t('历史') }}</div>
         <div v-else class="item uppercase opt text-right">{{ t('操作') }}</div>
       </div>
 
@@ -84,13 +84,13 @@
             <div class="item">
               <vco-number v-if="item.status != 0 || item.first" :value="item.amount" :bold="true" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
             </div>
-            <div v-if="!itemId" class="item">
+            <div v-if="!itemId && false" class="item">
               <template v-if="item.kpi !== null">{{ item.kpi }}%</template>
             </div>
             <div class="item">
-              <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.note" style="width: 130px">{{ item.note }}</p>
+              <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.note" style="width: 250px">{{ item.note }}</p>
             </div>
-            <div v-if="!itemId" class="item"><i class="iconfont nav-icon" v-if="!item.first">&#xe794;</i></div>
+            <div v-if="!itemId" class="item history"><i class="iconfont nav-icon" v-if="!item.first">&#xe794;</i></div>
             <div v-else class="item opt">
               <i v-if="item.first" class="iconfont disabled">&#xe8cf;</i>
               <Add v-else :uuid="uuid" :item-id="itemId" :projectDetail="projectDetail" :item-date="item" @update="update">
@@ -361,13 +361,13 @@ const update = () => {
         text-align: center;
       }
       &:nth-child(8) {
-        flex: 0 0 150px;
+        flex: 0 0 250px;
         text-align: center;
       }
       &:nth-child(9) {
         flex: 0 0 150px;
       }
-      &:nth-child(10) {
+      &:nth-child(10),&.history {
         flex: 0 0 100px;
         text-align: right;
       }

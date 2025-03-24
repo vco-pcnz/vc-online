@@ -9,7 +9,11 @@
             <a-button type="cyan" size="small" shape="round">{{ t('修改') }}</a-button>
           </vco-form-dialog>
         </div>
-
+        <div class="apiBox" :style="{top: hasPermission('projects:forecast:est_loan_money')?0: '-20px'}">
+          <KpiList :uuid="uuid">
+            <a-button type="cyan" size="small" shape="round">Kpi</a-button>
+          </KpiList>
+        </div>
         <tableHook v-if="uuid" :uuid="uuid" :projectDetail="projectDetail" :data="data" @update="loadData"></tableHook>
       </a-spin>
     </template>
@@ -26,6 +30,7 @@ import tableHook from './components/tableHook.vue';
 import { useRoute } from 'vue-router';
 import { darwdownLog } from '@/api/project/loan';
 import { hasPermission } from '@/directives/permission/index';
+import KpiList from './components/KpiList.vue';
 
 const route = useRoute();
 
@@ -61,11 +66,11 @@ const FormData = ref([
   }
 ]);
 
-const detailLayoutRef = ref()
+const detailLayoutRef = ref();
 const update = () => {
-  loadData()
-  detailLayoutRef.value.getProjectDetail()
-}
+  loadData();
+  detailLayoutRef.value.getProjectDetail();
+};
 
 onMounted(() => {
   uuid.value = route.query.uuid;
@@ -75,4 +80,9 @@ onMounted(() => {
 
 <style scoped lang="less">
 @import '@/styles/variables.less';
+.apiBox {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
 </style>

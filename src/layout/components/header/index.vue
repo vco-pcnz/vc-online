@@ -33,14 +33,14 @@
           </a>
           <template #overlay>
             <a-menu>
-              <!-- <a-menu-item v-if="hasPermission('profile:apply:broker') && !userInfo?.roles.includes('Broker')">
-                <ApplyBroker :brokerValue="broker_value">
+              <a-menu-item v-if="hasPermission('profile:apply:broker') && !userInfo?.roles.includes('Broker')">
+                <ApplyBroker v-if="!applyBrokerData">
                   <div class="user-hanle-item">{{ t('申请经纪人') }}</div>
                 </ApplyBroker>
-                <ApplyBrokerDetail>
+                <ApplyBrokerDetail :detailData="applyBrokerData?.data" :process="applyBrokerData" @update="LoadApplyBrokerDetail" v-else>
                   <div class="user-hanle-item">{{ t('申请经纪人') }}</div>
                 </ApplyBrokerDetail>
-              </a-menu-item> -->
+              </a-menu-item>
               <a-menu-item v-for="item in menuItem" :key="item.key" @click="goTo(`${item.to}`)">
                 <div class="user-hanle-item">{{ item.label }}</div>
               </a-menu-item>
@@ -67,6 +67,7 @@ import { systemConfigData } from '@/api/system';
 import { hasPermission } from '@/directives/permission/index';
 import ApplyBroker from '@/views/profile/apply-broker/form.vue';
 import ApplyBrokerDetail from '@/views/profile/apply-broker/detail.vue';
+import { applyBrokerDetail } from '@/api/tasks';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -135,15 +136,23 @@ const handleLogout = () => {
   userStore.logout();
 };
 
-const broker_value = ref();
+const applyBrokerData = ref();
+const LoadApplyBrokerDetail = () => {
+  applyBrokerDetail().then((res) => {
+    applyBrokerData.value = res;
+  });
+};
 // 组件挂载时启动定时器
 onMounted(() => {
-  systemConfigData({ pcode: 'web_config', code: 'notes_interval_time,broker_value' }).then((res) => {
+  systemConfigData({ pcode: 'web_config', code: 'notes_interval_time' }).then((res) => {
     if (res.notes_interval_time) {
       noticeStore.startPolling(res.notes_interval_time);
-      broker_value.value = res.broker_value;
     }
   });
+  
+  if (hasPermission('profile:apply:broker') && !userInfo?.roles.includes('Broker')) {
+    LoadApplyBrokerDetail();
+  }
 });
 
 // 组件卸载时停止定时器

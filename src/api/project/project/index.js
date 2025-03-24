@@ -87,3 +87,11 @@ export const projectDischargeSalesSave = (data) =>
     method: 'post',
     data
   });
+
+// 项目详情 - 预售 - 编辑
+export const kpiList = (params) =>
+  request({
+    url: 'projectDetail/kpiList',
+    method: 'get',
+    params
+  });

@@ -1,7 +1,7 @@
 <template>
   <div class="inline" @click="init"><slot></slot></div>
 
-  <a-modal :open="visible" :title="t('申请经纪人')" :width="800" :footer="null" :keyboard="false" :maskClosable="false" @cancel="visible = false">
+  <a-modal :open="visible" :title="t('申请中介')" :width="800" :footer="null" :keyboard="false" :maskClosable="false" @cancel="visible = false">
     <div class="content sys-form-content" style="padding-top: 20px">
       <a-form ref="formRef" :model="form" :rules="dynamicRules" layout="vertical">
         <a-row :gutter="24">
@@ -417,12 +417,10 @@ const submit = () => {
       keys = keys.concat(['name', 'nzbn', 'contactName', 'province_code', 'city_code', 'district_code', 'address', 'addr', 'postal', 'suburb', 'province_code_name', 'con_id']);
     }
     const newData = pick(form, keys);
-    if (form.type == 20) {
-      newData.user_uuid = check_user_uuid.value || form.user_uuid;
+    newData.user_uuid = check_user_uuid.value || form.user_uuid;
 
-      newData.sendEmail = newData.sendEmail ? 1 : 0;
-      newData.sendSms = newData.sendSms ? 1 : 0;
-    }
+    newData.sendEmail = newData.sendEmail ? 1 : 0;
+    newData.sendSms = newData.sendSms ? 1 : 0;
     if (form.type == 2 || form.type == 3) newData.idcard = '';
     newData.process__id = props.process__id;
     loading.value = true;

@@ -2,12 +2,34 @@
   <layout ref="layoutRef">
     <template #content>
       <a-spin :spinning="loading" size="large">
-        <a-table :data-source="dataSource" :columns="columns" :pagination="false" :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }" row-key="sn" :scroll="{ x: '100%' }">
+        <div class="flex justify-end items-end mb-5">
+          <TableSearch @search="search"></TableSearch>
+        </div>
+        <a-table :data-source="dataSource" :columns="columns" :pagination="false" :scroll="{ x: '100%' }" :customRow="rowClick">
           <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'status'">
-              <div v-if="record.status == 2" class="status_tag">Reconciled</div>
-              <div v-else class="status_tag unreconciled_tag">Unreconciled</div>
+            <template v-if="column.dataIndex === 'lm_list'">
+              <div class="flex items-center gap-3" v-for="(item, index) in record?.lm_list" :key="index"><vco-avatar :src="item.avatar" :size="30"></vco-avatar>{{ item.name }}</div>
             </template>
+            <template v-if="column.dataIndex === 'project'">
+              <div class="id-info">ID: {{ record.project_apply_sn }}</div>
+              <div :title="record.project_name">{{ record.project_name || t('项目名称') }}</div>
+            </template>
+            <template v-if="column.dataIndex === 'spend'">
+              <p><span class="label">VCO:</span> {{ tool.formatMoney(Math.abs(record?.vco_spend_money)) }}</p>
+              <p><span class="label">Xero:</span> {{ tool.formatMoney(Math.abs(record?.xero_spend_amount)) }}</p>
+            </template>
+            <template v-if="column.dataIndex === 'received'">
+              <p><span class="label">VCO:</span> {{ tool.formatMoney(Math.abs(record?.vco_received_amount)) }}</p>
+              <p><span class="label">Xero:</span> {{ tool.formatMoney(Math.abs(record?.xero_received_amount)) }}</p>
+            </template>
+            <template v-if="column.dataIndex === 'total'">
+              <p><span class="label">VCO:</span> {{ record?.vco_transaction_count }}</p>
+              <p><span class="label">Xero:</span> {{ record?.xero_bill_count }}</p>
+            </template>
+            <template v-if="column.dataIndex === 'netting_amount'">
+              <p :class="[{'color_red-error':record?.netting_amount != '0.00'}]">{{ tool.formatMoney(Math.abs(record?.netting_amount)) }}</p>
+            </template>
+            <template v-if="column.dataIndex === 'Operation'"><i class="iconfont nav-icon">&#xe794;</i> </template>
           </template>
         </a-table>
       </a-spin>
@@ -23,175 +45,61 @@ import { ref, reactive, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import layout from '../components/layout.vue';
 import tool from '@/utils/tool.js';
-import { getTransactions, removeTransactions } from '@/api/reconciliations';
+import { navigationTo } from '@/utils/tool';
+import { resultReport } from '@/api/reconciliations';
+import TableSearch from './TableSearch.vue';
+import { cloneDeep } from 'lodash';
 
 const { t } = useI18n();
 
-const selectedRowKeys = ref([]); // 存放UUid
-const selectedRows = ref([]); // 存放所有选中的选项的所有内容
-const rowSelection = ref({
-  checkStrictly: false,
-  onSelect: (record, selected) => {
-    if (selected) {
-      selectedRowKeys.value.push(record.sn);
-      selectedRows.value.push(record);
-    } else {
-      let index = selectedRowKeys.value.findIndex((it) => {
-        return it === record.sn;
-      });
-      selectedRowKeys.value.splice(index, 1);
-      selectedRows.value.splice(index, 1);
-    }
-  },
-  onSelectAll: (selected, Rows, changeRows) => {
-    const changeRowId = changeRows.map((it) => {
-      return it.sn;
-    });
-    if (selected) {
-      let newIds = Array.from(new Set(changeRowId.concat(selectedRowKeys.value)));
-      let newRows = Array.from(new Set(changeRows.concat(selectedRows.value)));
-      selectedRowKeys.value = newIds;
-      selectedRows.value = newRows;
-    } else {
-      // 取消选中
-      changeRowId.map((it) => {
-        let index = selectedRowKeys.value.findIndex((item) => {
-          return item == it;
-        });
-        if (index != -1) {
-          selectedRowKeys.value.splice(index, 1);
-          selectedRows.value.splice(index, 1);
-        }
-      });
-    }
-  },
-  getCheckboxProps: (r) => ({
-    disabled: Boolean(r.status == 2)
-  })
-});
-
 const columns = reactive([
   {
-    title: t('项目 ID'),
-    dataIndex: 'date',
-    key: 'name',
-    customRender: ({ text }) => {
-      return tool.showDate(text);
-    }
-  },
-  {
-    title: t('项目名称'),
-    dataIndex: 'account',
-    key: 'account',
-    width: '16%',
-    customRender: ({ record }) => {
-      return record.project?.project_name || '';
-    }
+    title: t('项目信息'),
+    dataIndex: 'project',
+    width: '150px'
   },
   {
     title: t('项目经理'),
-    dataIndex: 'type',
-    key: 'type',
-    width: '12%'
+    dataIndex: 'lm_list',
+    width: '180px'
   },
   {
     title: t('借款人'),
-    dataIndex: 'note',
-    key: 'note',
-    width: '20%'
+    dataIndex: 'borrower',
+    width: '150px',
+    ellipsis: true
   },
   {
-    title: t('xero 日期'),
-    dataIndex: 'spent',
-    key: 'spent',
-    customRender: ({ record }) => {
-      if (record.amount > 0) return tool.formatMoney(Math.abs(record.amount));
-    }
+    title: t('支出'),
+    dataIndex: 'spend'
   },
   {
-    title: t('Xero 参考'),
-    dataIndex: 'received',
-    key: 'received',
-    customRender: ({ record }) => {
-      if (record.amount < 0) return tool.formatMoney(Math.abs(record.amount));
-    }
+    title: t('已收到'),
+    dataIndex: 'received'
   },
   {
-    title: t('Xero 描述'),
-    dataIndex: 'spent',
-    key: 'spent'
+    title: t('数量'),
+    dataIndex: 'total',
+    width: '120px'
   },
   {
-    title: t('Xero 支出金额'),
-    dataIndex: 'spent',
-    key: 'spent',
-    customRender: ({ record }) => {
-      if (record.amount < 0) return tool.formatMoney(Math.abs(record.amount));
-    }
+    title: t('轧差值'),
+    dataIndex: 'netting_amount',
+    width: '170px'
   },
   {
-    title: t('Xero 收到金额'),
-    dataIndex: 'spent',
-    key: 'spent',
-    customRender: ({ record }) => {
-      if (record.amount < 0) return tool.formatMoney(Math.abs(record.amount));
-    }
-  },
-  {
-    title: t('VCO 日期'),
-    dataIndex: 'spent',
-    customRender: ({ record }) => {
-      if (record.amount > 0) return tool.formatMoney(Math.abs(record.amount));
-    }
-  },
-  {
-    title: t('VCO 参考'),
-    dataIndex: 'spent',
-    key: 'spent'
-  },
-  {
-    title: t('VCO 笔记'),
-    dataIndex: 'spent',
-    key: 'spent'
-  },
-  {
-    title: t('VCO 支出金额'),
-    dataIndex: 'spent',
-    key: 'spent',
-    customRender: ({ record }) => {
-      if (record.amount < 0) return tool.formatMoney(Math.abs(record.amount));
-    }
-  },
-  {
-    title: t('VCO 收到金额'),
-    dataIndex: 'spent',
-    key: 'spent',
-    customRender: ({ record }) => {
-      if (record.amount < 0) return tool.formatMoney(Math.abs(record.amount));
-    }
-  },
-  {
-    title: t('对账日期'),
-    dataIndex: 'spent',
-    customRender: ({ text }) => {
-      return tool.showDate(text);
-    }
+    title: t('操作1'),
+    dataIndex: 'Operation',
+    width: '80px'
   }
 ]);
 
-const onRemove = () => {
-  if (!selectedRowKeys.value.length) return;
-  loading.value = true;
-  removeTransactions({ sn: selectedRowKeys.value.join() })
-    .then((res) => {
-      selectedRowKeys.value = [];
-      selectedRows.value = [];
-      pagination.value.page = 1;
-      loadData();
-    })
-    .finally(() => {
-      loading.value = false;
-    });
+const rowClick = (record, index) => {
+  return {
+    onClick: () => {
+      navigationTo(`/reconciliations/resultReport/detail?client_uuid=${record.client_uuid}`);
+    }
+  };
 };
 
 const dataSource = ref([]);
@@ -214,15 +122,31 @@ const setPaginate = (page, limit) => {
 
 const loadData = () => {
   loading.value = true;
-  getTransactions(pagination.value)
+  resultReport({ ...pagination.value, ...searchParams.value })
     .then((res) => {
       total.value = res.count;
-      dataSource.value = [];
+      dataSource.value = res.data;
       layoutRef.value.setNum(total.value);
     })
     .finally(() => {
       loading.value = false;
     });
+};
+
+const searchParams = ref({
+  type: '',
+  name: '',
+  status: ''
+});
+
+const search = (val) => {
+  searchParams.value = cloneDeep(val);
+  reload();
+};
+
+const reload = () => {
+  pagination.value.page = 1;
+  loadData();
 };
 
 onMounted(() => {
@@ -231,39 +155,24 @@ onMounted(() => {
 </script>
 
 <style scoped lang="less">
-.actions {
-  padding-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
+@import '@/styles/variables.less';
 
-  color: #555;
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 16px;
-
-  .count {
-    padding-left: 20px;
-  }
+.id-info {
+  color: @colorPrimary;
+  margin-bottom: 5px;
+}
+.label {
+  color: #888;
+  display: inline-block;
+  width: 33px;
+  text-align: right;
 }
 
-.status_tag {
-  align-items: center;
-  border-radius: 38px;
-  display: inline-flex;
-  font-size: 14px;
-  font-weight: 500;
-  height: 30px;
-  letter-spacing: 1px;
-  line-height: 2;
-  padding: 10px 20px;
-  text-transform: uppercase;
-  background-color: #b4f1db;
-  color: #272727;
-}
-
-.unreconciled_tag {
-  background-color: rgba(234, 197, 57, 0.3);
+.nav-icon {
+  cursor: pointer;
+  display: inline-block;
+  transform: rotate(-45deg);
   color: #bf9425;
+  font-size: 10px !important;
 }
 </style>

@@ -138,3 +138,28 @@ export const doReconcile = (data) =>
     method: 'post',
     data
   });
+
+// 结果报告
+export const resultReport = (params) =>
+  request({
+    url: 'reconciliation/resultReport',
+    method: 'get',
+    params
+  });
+
+// 结果报告明细
+export const resultReportDetail = (params) =>
+  request({
+    url: '/reconciliation/resultReportDetail',
+    method: 'get',
+    params
+  });
+
+
+// 报告明细导出
+export const resultReportExport = (params) =>
+  request({
+    url: '/reconciliation/resultReportExport',
+    method: 'get',
+    params
+  });

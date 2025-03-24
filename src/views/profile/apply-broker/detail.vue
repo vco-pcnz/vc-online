@@ -1,7 +1,7 @@
 <template>
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop>
-    <a-modal :width="830" :open="visible" :title="t('申请经纪人') + ' ' + t('详情')" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
+    <a-modal :width="830" :open="visible" :title="t('申请中介') + ' ' + t('详情')" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <a-row :gutter="24" class="pl-10 pr-10">
           <template v-if="Boolean(process)">

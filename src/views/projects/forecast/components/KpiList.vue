@@ -10,10 +10,7 @@
                 {{ tool.monthYear(record.ym) }}
               </template>
               <template v-if="column.dataIndex === 'lm'">
-                <div class="flex items-center gap-3">
-                  <vco-avatar :src="record.lm_avatar" :size="30"></vco-avatar>{{record.lm_name}}
-
-                </div>
+                <div class="flex items-center gap-3"><vco-avatar :src="record.lm_avatar" :size="30"></vco-avatar>{{ record.lm_name }}</div>
               </template>
               <template v-if="column.dataIndex === 'amount' || column.dataIndex === 'est_amount'">
                 <vco-number :value="record[column.dataIndex]" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>

@@ -3,54 +3,57 @@
     <template #content>
       <a-spin :spinning="loading" size="large">
         <div class="flex justify-between items-center mb-5">
-          <i class="iconfont nav-icon" @click="goBack">&#xe794;</i> 
+          <div class="flex items-center gap-5" style="flex: 1">
+            <i class="iconfont nav-icon" @click="goBack">&#xe794;</i>
+          </div>
           <a-button type="dark" size="large" :loading="downloading" class="" @click="report">Create report</a-button>
         </div>
-        <a-table :data-source="dataSource" :columns="columns" :pagination="false" :scroll="{ x: '100%' }">
+        <div class="card">
+          <a-row :gutter="16">
+            <a-col :span="6">
+              <p class="label">{{ t('项目 ID') }}</p>
+              <div class="id-info">ID: {{ data?.base?.project_apply_sn }}</div>
+            </a-col>
+            <a-col :span="6">
+              <p class="label">{{ t('项目名称') }}</p>
+              <div :title="data?.base?.project_name">{{ data?.base?.project_name }}</div>
+            </a-col>
+            <a-col :span="6">
+              <p class="label">{{ t('项目经理') }}</p>
+              <p>{{ data?.base?.lending_manager }}</p>
+            </a-col>
+            <a-col :span="6">
+              <p class="label">{{ t('借款人') }}</p>
+              <p>{{ data?.base?.borrower }}</p>
+            </a-col>
+          </a-row>
+        </div>
+        <div></div>
+        <a-table :data-source="data?.data" :columns="columns" :pagination="false" :scroll="{ x: '100%' }">
           <template #bodyCell="{ column, record }">
-            <template v-if="column.dataIndex === 'project'">
-              <div class="id-info">ID: {{ record.project_apply_sn }}</div>
-              <div :title="record.project_name">{{ record.project_name || t('项目名称') }}</div>
+            <template v-if="column.dataIndex === 'date'">
+              <p><span class="label">VCO:</span> {{ record?.vco_date ? tool.showDate(record?.vco_date) : '' }}</p>
+              <p><span class="label">Xero:</span> {{ record?.xero_date ? tool.showDate(record?.xero_date) : '' }}</p>
             </template>
-            <template v-if="column.dataIndex === 'xero'">
-              <p>
-                <span class="label">{{ t('日期') }}:</span> {{ tool.showDate(record?.xero_date) }}
-              </p>
-              <p>
-                <span class="label">{{ t('支出') }}:</span> {{ tool.formatMoney(Math.abs(record?.xero_spend_amount)) }}
-              </p>
-              <p>
-                <span class="label">{{ t('已收到') }}:</span> {{ tool.formatMoney(Math.abs(record?.xero_received_amount)) }}
-              </p>
-              <p>
-                <span class="label">{{ t('参考') }}:</span> {{ record?.xero_reference }}
-              </p>
-              <p>
-                <span class="label">{{ t('状态') }}:</span> {{ record?.xero_status == 1 ? t('已对账') : t('未对账') }}
-              </p>
-              <p>
-                <span class="label">{{ t('描述') }}:</span> {{ record?.xero_description }}
-              </p>
+            <template v-if="column.dataIndex === 'spend'">
+              <p><span class="label">VCO:</span> {{ tool.formatMoney(Math.abs(record?.vco_spend_amount)) }}</p>
+              <p><span class="label">Xero:</span> {{ tool.formatMoney(Math.abs(record?.xero_spend_amount)) }}</p>
             </template>
-            <template v-if="column.dataIndex === 'VCO'">
-              <p>
-                <span class="label">{{ t('日期') }}:</span> {{ tool.showDate(record?.vco_date) }}
-              </p>
-              <p>
-                <span class="label">{{ t('支出') }}:</span> {{ tool.formatMoney(Math.abs(record?.vco_spend_amount)) }}
-              </p>
-              <p>
-                <span class="label">{{ t('已收到') }}:</span> {{ tool.formatMoney(Math.abs(record?.vco_spend_amount)) }}
-              </p>
-              <p>
-                <span class="label">{{ t('参考') }}:</span> {{ record?.vco_reference }}
-              </p>
-              <p>
-                <span class="label">{{ t('状态') }}:</span> {{ record?.vco_status == 1 ? t('未对账') : t('已对账') }}
-              </p>
-              <p>
-                <span class="label">{{ t('描述') }}:</span> {{ record?.vco_note }}
-              </p>
+            <template v-if="column.dataIndex === 'received'">
+              <p><span class="label">VCO:</span> {{ tool.formatMoney(Math.abs(record?.vco_received_amount)) }}</p>
+              <p><span class="label">Xero:</span> {{ tool.formatMoney(Math.abs(record?.xero_received_amount)) }}</p>
+            </template>
+            <template v-if="column.dataIndex === 'reference'">
+              <p><span class="label">VCO:</span> {{ record?.vco_reference }}</p>
+              <p><span class="label">Xero:</span> {{ record?.xero_reference }}</p>
+            </template>
+            <template v-if="column.dataIndex === 'description'">
+              <p><span class="label">VCO:</span> {{ record?.vco_note }}</p>
+              <p><span class="label">Xero:</span> {{ record?.xero_description }}</p>
+            </template>
+            <template v-if="column.dataIndex === 'status'">
+              <p><span class="label">VCO:</span> {{ record?.vco_status == 1 ? t('未对账') : t('已对账') }}</p>
+              <p><span class="label">Xero:</span> {{ record?.xero_status == 1 ? t('已对账') : t('未对账') }}</p>
             </template>
           </template>
         </a-table>
@@ -76,28 +79,28 @@ const route = useRoute();
 
 const columns = reactive([
   {
-    title: t('项目信息'),
-    dataIndex: 'project',
-    width: '150px'
+    title: t('日期'),
+    dataIndex: 'date'
   },
   {
-    title: t('项目经理'),
-    dataIndex: 'lending_manager',
-    width: '180px'
+    title: t('支出'),
+    dataIndex: 'spend'
   },
   {
-    title: t('借款人'),
-    dataIndex: 'borrower',
-    width: '150px',
-    ellipsis: true
+    title: t('已收到'),
+    dataIndex: 'received'
   },
   {
-    title: 'VCO',
-    dataIndex: 'VCO'
+    title: t('参考'),
+    dataIndex: 'reference'
   },
   {
-    title: 'Xero',
-    dataIndex: 'Xero'
+    title: t('描述'),
+    dataIndex: 'description'
+  },
+  {
+    title: t('状态'),
+    dataIndex: 'status'
   },
   {
     title: t('对账日期'),
@@ -109,7 +112,7 @@ const columns = reactive([
   }
 ]);
 
-const dataSource = ref([]);
+const data = ref([]);
 const total = ref(0);
 const loading = ref(false);
 
@@ -131,7 +134,7 @@ const loadData = () => {
   resultReportDetail({ client_uuid: route.query.client_uuid, ...pagination.value })
     .then((res) => {
       total.value = res.count;
-      dataSource.value = res.data;
+      data.value = res.data;
     })
     .finally(() => {
       loading.value = false;
@@ -160,7 +163,6 @@ onMounted(() => {
 
 .id-info {
   color: @colorPrimary;
-  margin-bottom: 5px;
 }
 .label {
   color: #888;
@@ -175,5 +177,14 @@ onMounted(() => {
   transform: rotate(-135deg);
   color: #bf9425;
   font-size: 14px !important;
+}
+
+.card {
+  padding: 24px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  background-color: #f5f5f5;
+  border: 1px solid #dddddd;
 }
 </style>

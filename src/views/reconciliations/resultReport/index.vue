@@ -12,7 +12,7 @@
             </template>
             <template v-if="column.dataIndex === 'project'">
               <div class="id-info">ID: {{ record.project_apply_sn }}</div>
-              <div :title="record.project_name">{{ record.project_name || t('项目名称') }}</div>
+              <div :title="record.project_name">{{ record.project_name }}</div>
             </template>
             <template v-if="column.dataIndex === 'spend'">
               <p><span class="label">VCO:</span> {{ tool.formatMoney(Math.abs(record?.vco_spend_money)) }}</p>
@@ -27,7 +27,7 @@
               <p><span class="label">Xero:</span> {{ record?.xero_bill_count }}</p>
             </template>
             <template v-if="column.dataIndex === 'netting_amount'">
-              <p :class="[{'color_red-error':record?.netting_amount != '0.00'}]">{{ tool.formatMoney(Math.abs(record?.netting_amount)) }}</p>
+              <p :class="[{ 'color_red-error': record?.netting_amount != '0.00' }]">{{ tool.formatMoney(Math.abs(record?.netting_amount)) }}</p>
             </template>
             <template v-if="column.dataIndex === 'Operation'"><i class="iconfont nav-icon">&#xe794;</i> </template>
           </template>

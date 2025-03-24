@@ -18,7 +18,8 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
     taskInfo: {
       project: 0,
       request: 0,
-      total: 0
+      total: 0,
+      other: 0
     }
   }),
 
@@ -67,7 +68,8 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
         this.taskInfo = {
           project: res.project_backlog_count || 0,
           request: res.request_backlog_count || 0,
-          total: res.total_backlog_count || 0
+          total: res.total_backlog_count || 0,
+          other: res.other_backlog_count || 0
         }
       })
     },

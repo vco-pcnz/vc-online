@@ -6,6 +6,7 @@
         <template v-if="supPath === '/tasks'">
           <span v-if="link.path === '/tasks/projects'">({{ taskInfo.project }})</span>
           <span v-if="link.path === '/tasks/loan'">({{ taskInfo.request }})</span>
+          <span v-if="link.path === '/tasks/other'">({{ taskInfo.other }})</span>
         </template>
         <template v-else>
           <span v-if="link.num">({{ link.num }})</span>

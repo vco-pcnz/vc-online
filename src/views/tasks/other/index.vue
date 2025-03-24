@@ -11,6 +11,10 @@
                 <span v-if="record.create_time">{{ tool.showDate(record.create_time) }}</span>
                 <p v-else>--</p>
               </template>
+              <template v-if="column.dataIndex === 'note'">
+                <span v-if="record.create_time">{{ record.note || '--'}}</span>
+                <p v-else>--</p>
+              </template>
               <template v-if="column.dataIndex === 'operation'">
                 <a-button type="primary" size="small" shape="round" class="uppercase" @click="todoHandle(record)">{{ t('点击处理') }}</a-button>
               </template>
@@ -40,7 +44,8 @@ const { t } = useI18n();
 const { tableRef, tableLoading, pageObj, tableData, getTableData } = useTableList(backlogOtherList);
 
 const columns = reactive([
-  { title: t('类型'), dataIndex: 'process_type', width: 300, align: 'left' },
+  { title: t('标题'), dataIndex: 'process_type', width: 300, align: 'left' },
+  { title: t('说明'), dataIndex: 'note' },
   { title: t('创建时间'), dataIndex: 'create_time', width: 200, align: 'center' },
   {
     title: t('操作1'),

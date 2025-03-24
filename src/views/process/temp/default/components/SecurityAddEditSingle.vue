@@ -21,7 +21,7 @@
               <a-select v-model:value="formState.type" :options="typeData"></a-select>
             </a-form-item>
           </a-col>
-          <template v-if="formState.type == 1">
+          <!-- <template v-if="formState.type == 1">
             <a-col :span="7">
               <a-form-item :label="t('土地价值')" name="land_amount">
                 <a-input-number
@@ -49,21 +49,19 @@
                 <vco-number :value="totalAmountRef" :precision="2" :end="true"></vco-number>
               </a-form-item>
             </a-col>
-          </template>
-          <template v-else>
-            <a-col :span="24">
-              <a-form-item :label="t('抵押物价值')" name="amount">
-                <a-input-number
-                  v-model:value="formState.amount"
-                  :max="99999999999"
-                  :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                />
-              </a-form-item>
-            </a-col>
-          </template>
+          </template> -->
+          <a-col :span="24">
+            <a-form-item :label="t('抵押物价值')" name="amount">
+              <a-input-number
+                v-model:value="formState.amount"
+                :max="99999999999"
+                :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+              />
+            </a-form-item>
+          </a-col>
 
-          <a-col v-if="Number(formState.amount)" :span="24">
+          <a-col :span="24">
             <div class="flex gap-2 mb-3 items-center">
               <p style="font-size: 12px;">{{ t('是否预售') }}</p>
               <a-switch v-model:checked="formState.is_sales" size="small"></a-switch>
@@ -102,7 +100,7 @@
                   </a-form-item>
                 </a-col>
                 <a-col :span="8">
-                  <a-form-item :label="t('预计收到的偿还 VC')" name="repayment_price">
+                  <a-form-item :label="t('回款金额')" name="repayment_price">
                     <a-input-number
                       v-model:value="formState.repayment_price"
                       :max="99999999999"
@@ -112,12 +110,12 @@
                   </a-form-item>
                 </a-col>
                 <a-col :span="8">
-                  <a-form-item :label="t('合同日期（或无条件日期）')" name="contract_date">
+                  <a-form-item :label="t('合同日期')" name="contract_date">
                     <a-date-picker v-model:value="formState.contract_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" />
                   </a-form-item>
                 </a-col>
                 <a-col :span="8">
-                  <a-form-item :label="t('预计结算日期')" name="settlement_date">
+                  <a-form-item :label="t('结算日期')" name="settlement_date">
                     <a-date-picker v-model:value="formState.settlement_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" />
                   </a-form-item>
                 </a-col>
@@ -127,12 +125,12 @@
                   </a-form-item>
                 </a-col>
                 <a-col :span="8">
-                  <a-form-item :label="t('请求：还款日期')" name="repayment_date">
+                  <a-form-item :label="t('还款日期')" name="repayment_date">
                     <a-date-picker v-model:value="formState.repayment_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" />
                   </a-form-item>
                 </a-col>
                 <a-col :span="8">
-                  <a-form-item :label="t('请求：净收益')" name="net_proceeds_price">
+                  <a-form-item :label="t('净收益')" name="net_proceeds_price">
                     <a-input-number
                       v-model:value="formState.net_proceeds_price"
                       :max="99999999999"
@@ -278,25 +276,33 @@ const updateVisible = (value) => {
   emits('close', value);
 };
 
-const salesPriceInput = () => {
-  const price = formState.value.sales_price || 0
-  if (Boolean(formState.value.is_gst)) {
-    const num = tool.div(price, props.gstRate)
-    const resNum = Math.floor(num * 100) / 100
-    formState.value.repayment_price = resNum
-  }
-}
-
 const netproceedsPriceInput = () => {
-  if (formState.value.net_proceeds_price) {
-    const num = tool.minus(formState.value.net_proceeds_price, formState.value.amount)
-    const num1 = tool.div(num, formState.value.amount)
+  const net_proceeds_price = formState.value.net_proceeds_price || 0
+  const amount = formState.value.amount || 0
+  if (amount) {
+    const num = tool.minus(net_proceeds_price, amount)
+    const num1 = tool.div(num, amount)
     const resNum = tool.times(num1, 100)
     const variance =  Math.ceil(resNum * 100) / 100
     formState.value.variance = variance
   } else {
-    formState.value.variance = ''
+    formState.value.variance = 0
   }
+}
+
+const salesPriceInput = () => {
+  const price = formState.value.sales_price || 0
+
+  formState.value.amount = price
+  if (Boolean(formState.value.is_gst)) {
+    const num = tool.div(price, props.gstRate)
+    const resNum = Math.floor(num * 100) / 100
+    formState.value.repayment_price = resNum
+
+    formState.value.amount = resNum
+  }
+
+  netproceedsPriceInput()
 }
 
 const totalValue = computed(() => {
@@ -371,13 +377,13 @@ const formRules = {
   postcode: [{ required: true, message: t('请输入') + t('邮编'), trigger: 'blur' }],
   region_one_name: [{ required: true, message: t('请输入') + t('城市/州'), trigger: 'blur' }],
   address_short: [{ required: true, message: t('请输入') + t('地址1'), trigger: 'blur' }],
-  sales_price: [{ required: true, message: t('请输入') + t('销售价格'), trigger: 'blur' }],
-  repayment_price: [{ required: true, message: t('请输入') + t('预计收到的偿还 VC'), trigger: 'blur' }],
-  contract_date: [{ required: true, message: t('请选择') + t('合同日期（或无条件日期）'), trigger: 'change' }],
-  settlement_date: [{ required: true, message: t('请选择') + t('预计结算日期'), trigger: 'change' }],
-  sunset_date: [{ required: true, message: t('请选择') + t('日落日期'), trigger: 'change' }],
-  repayment_date: [{ required: true, message: t('请选择') + t('请求：还款日期'), trigger: 'blur' }],
-  net_proceeds_price: [{ required: true, message: t('请输入') + t('请求：净收益'), trigger: 'blur' }]
+  // sales_price: [{ required: true, message: t('请输入') + t('销售价格'), trigger: 'blur' }],
+  // repayment_price: [{ required: true, message: t('请输入') + t('回款金额'), trigger: 'blur' }],
+  // contract_date: [{ required: true, message: t('请选择') + t('合同日期（或无条件日期）'), trigger: 'change' }],
+  // settlement_date: [{ required: true, message: t('请选择') + t('预计结算日期'), trigger: 'change' }],
+  // sunset_date: [{ required: true, message: t('请选择') + t('日落日期'), trigger: 'change' }],
+  // repayment_date: [{ required: true, message: t('请选择') + t('请求：还款日期'), trigger: 'blur' }],
+  // net_proceeds_price: [{ required: true, message: t('请输入') + t('请求：净收益'), trigger: 'blur' }]
 };
 
 const totalAmountRef = computed(() => {
@@ -478,6 +484,16 @@ const submitHandle = () => {
       if (params.is_sales) {
         params.is_sales = params.is_sales ? 1 : 0
         params.is_gst = params.is_gst ? 1 : 0
+      } else {
+        params.sales_price = ""
+        params.is_gst = 0
+        params.repayment_price = ""
+        params.contract_date = ""
+        params.settlement_date = ""
+        params.sunset_date = ""
+        params.repayment_date = ""
+        params.net_proceeds_price = ""
+        params.variance = ""
       }
 
       currentParams.value = params

@@ -1,9 +1,9 @@
 <template>
-  <a-modal :open="visible" :title="isEdit ? t('编辑抵押物信息') : t('新增抵押物信息')" :width="1000" :footer="null" :keyboard="false" :maskClosable="false" @update:open="updateVisible">
-      <a-tabs v-if="!isEdit" v-model:activeKey="activeKey">
+  <a-modal :open="visible" :title="isEdit ? t('编辑抵押物信息') : t('新增抵押物信息')" :width="800" :footer="null" :keyboard="false" :maskClosable="false" @update:open="updateVisible">
+      <!-- <a-tabs v-if="!isEdit" v-model:activeKey="activeKey">
         <a-tab-pane key="batche" :tab="t('批量添加')"></a-tab-pane>
         <a-tab-pane key="single" :tab="t('单个添加')"></a-tab-pane>
-      </a-tabs>
+      </a-tabs> -->
 
       <security-add-edit-single
         v-if="activeKey === 'single'"
@@ -127,7 +127,8 @@ watch(
       getGstRate()
 
       isEdit.value = props.infoData && props.infoData?.uuid
-      activeKey.value = props.isSingle ? 'single' : 'batche'
+      // activeKey.value = props.isSingle ? 'single' : 'batche'
+      activeKey.value = 'single'
     } else {
       activeKey.value = ''
     }

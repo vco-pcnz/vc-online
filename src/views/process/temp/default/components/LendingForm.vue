@@ -32,7 +32,7 @@
           {{ t('保存') }}
         </a-button>
         <template v-if="blockInfo?.showCheck && !lendingInfo.is_check && creditId">
-          <a-button
+          <!-- <a-button
             v-if="confirmTxt"
             type="dark"
             shape="round"
@@ -43,6 +43,20 @@
           </a-button>
           <a-popconfirm
             v-else
+            :title="t('确定通过审核吗？')"
+            :ok-text="t('确定')"
+            :cancel-text="t('取消')"
+            @confirm="checkHandle"
+          >
+            <a-button
+              type="dark"
+              shape="round"
+              class="uppercase"
+            >
+              {{ t('审核') }}
+            </a-button>
+          </a-popconfirm> -->
+          <a-popconfirm
             :title="t('确定通过审核吗？')"
             :ok-text="t('确定')"
             :cancel-text="t('取消')"

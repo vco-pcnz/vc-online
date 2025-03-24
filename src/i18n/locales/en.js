@@ -859,5 +859,6 @@ export default {
   "添加中介": "Add broker",
   "差值": "Diff",
   "轧差值": "netting amount",
-  "参考": "reference"
+  "参考": "reference",
+  "反洗钱审核": "AML Audit"
 }

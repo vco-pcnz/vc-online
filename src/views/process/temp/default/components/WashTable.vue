@@ -147,6 +147,7 @@ import tool from '@/utils/tool.js';
 import { auditLmCheckStatus } from '@/api/process';
 import { getWash, projectDetailGetWash, washCheck, sendEmail, sendSms, washRemove } from '@/api/project/wash';
 import WashTableAddEdit from './WashTableAddEdit.vue';
+import { hasPermission } from '@/directives/permission/index';
 import emitter from '@/event';
 import { hasPermission } from '@/directives/permission/index';
 

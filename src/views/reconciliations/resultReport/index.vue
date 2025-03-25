@@ -26,6 +26,15 @@
               <p><span class="label">VCO:</span> {{ record?.vco_transaction_count }}</p>
               <p><span class="label">Xero:</span> {{ record?.xero_bill_count }}</p>
             </template>
+            <template v-if="column.dataIndex === 'differences'">
+              <p>
+                <span class="label">{{ t('支出') }}:</span> {{ tool.formatMoney(Math.abs(record?.spend_amount_diff)) }}
+              </p>
+              <p>
+                <span class="label">{{ t('已收到') }}:</span> {{ tool.formatMoney(Math.abs(record?.vco_received_amount)) }}
+              </p>
+            </template>
+
             <template v-if="column.dataIndex === 'netting_amount'">
               <p :class="[{ 'color_red-error': record?.netting_amount != '0.00' }]">{{ tool.formatMoney(Math.abs(record?.netting_amount)) }}</p>
             </template>
@@ -83,9 +92,14 @@ const columns = reactive([
     width: '120px'
   },
   {
+    title: t('差额'),
+    dataIndex: 'differences',
+    width: '150px'
+  },
+  {
     title: t('轧差值'),
     dataIndex: 'netting_amount',
-    width: '170px'
+    width: '150px'
   },
   {
     title: t('操作1'),
@@ -134,9 +148,11 @@ const loadData = () => {
 };
 
 const searchParams = ref({
-  type: '',
-  name: '',
-  status: ''
+  lm_name: '',
+  project_name: '',
+  borrower_name: '',
+  start_date: '',
+  end_date: ''
 });
 
 const search = (val) => {
@@ -164,7 +180,7 @@ onMounted(() => {
 .label {
   color: #888;
   display: inline-block;
-  width: 33px;
+  // width: 33px;
   text-align: right;
 }
 

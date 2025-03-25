@@ -1,12 +1,19 @@
 <template>
   <vco-page-search>
-    <vco-page-search-item width="220" :title="t('项目经理')">
+    <vco-page-search-item :title="t('项目周期')" width="266">
+      <div class="flex items-center gap-2">
+        <a-date-picker v-model:value="searchForm.start_date" :format="selectDateFormat()" :placeholder="t('开放日期')" @change="searchForm.end_date = ''" />
+        <p>-</p>
+        <a-date-picker v-model:value="searchForm.end_date" :format="selectDateFormat()" :disabledDate="disabledDateFormatAfter" :placeholder="t('到期日期')" />
+      </div>
+    </vco-page-search-item>
+    <vco-page-search-item width="150" :title="t('项目经理')">
       <a-input v-model:value="searchForm.lm_name" :placeholder="t('请输入')" />
     </vco-page-search-item>
-    <vco-page-search-item width="220" :title="t('项目名称')">
+    <vco-page-search-item width="150" :title="t('项目名称')">
       <a-input v-model:value="searchForm.project_name" :placeholder="t('请输入')" />
     </vco-page-search-item>
-    <vco-page-search-item width="220" :title="t('借款人')">
+    <vco-page-search-item width="150" :title="t('借款人')">
       <a-input v-model:value="searchForm.borrower_name" :placeholder="t('请输入')" />
     </vco-page-search-item>
 
@@ -22,52 +29,24 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { selectDateFormat } from '@/utils/tool';
+import dayjs from "dayjs";
+import { cloneDeep } from "lodash";
 
 const emits = defineEmits(['search']);
 const { t } = useI18n();
 
-const typeData = computed(() => {
-  return [
-    {
-      label: t('全部'),
-      value: ''
-    },
-    {
-      label: t('支出'),
-      value: 'SPEND'
-    },
-    {
-      label: t('已收到'),
-      value: 'RECEIVE'
-    }
-  ];
-});
-
-const statusData = computed(() => {
-  return [
-    {
-      label: t('全部'),
-      value: ''
-    },
-    {
-      label: t('未对账'),
-      value: '0'
-    },
-    {
-      label: t('已对账'),
-      value: '1'
-    },
-    {
-      label: t('已取消'),
-      value: '-1'
-    }
-  ];
-});
+const disabledDateFormatAfter = (current) => {
+  const targetDate = new Date(searchForm.value.start_date).setHours(0, 0, 0, 0);
+  return current && current < targetDate;
+};
 
 const searchForm = ref({
   lm_name: '',
   project_name: '',
-  borrower_name: ''
+  borrower_name: '',
+  start_date: '',
+  end_date: ''
 });
 
 // 搜索
@@ -77,6 +56,13 @@ const searchHandle = (flag) => {
       searchForm.value[key] = '';
     }
   }
-  emits('search', searchForm.value);
+  const data = cloneDeep(searchForm.value);
+  if (data.start_date) {
+    data.start_date = dayjs(data.start_date).format('YYYY-MM-DD');
+  }
+  if (data.end_date) {
+    data.end_date = dayjs(data.end_date).format('YYYY-MM-DD');
+  }
+  emits('search', data);
 };
 </script>

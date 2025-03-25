@@ -2,8 +2,9 @@
   <layout ref="layoutRef">
     <template #content>
       <a-spin :spinning="loading" size="large">
-        <div class="flex justify-end items-end mb-5">
+        <div class="flex justify-between items-end mb-5">
           <TableSearch @search="search"></TableSearch>
+          <a-button type="dark" :loading="downloading" class="" @click="report">Create report</a-button>
         </div>
         <a-table :data-source="dataSource" :columns="columns" :pagination="false" :scroll="{ x: '100%' }">
           <template #bodyCell="{ column, record }">
@@ -16,7 +17,7 @@
             <template v-if="column.dataIndex === 'project'">
               <div class="cursor-pointer" @click="toDetail(record)">
                 <div class="id-info">ID: {{ record.project_apply_sn }}</div>
-                <div class="text-ellipsis overflow-hidden inline-block text-nowrap" style="width: 120px;" :title="record.project_name">{{ record.project_name }}</div>
+                <div class="text-ellipsis overflow-hidden inline-block text-nowrap" style="width: 120px" :title="record.project_name">{{ record.project_name }}</div>
               </div>
             </template>
             <template v-if="column.dataIndex === 'spend'">
@@ -63,7 +64,7 @@ import { useI18n } from 'vue-i18n';
 import layout from '../components/layout.vue';
 import tool from '@/utils/tool.js';
 import { navigationTo } from '@/utils/tool';
-import { resultReport } from '@/api/reconciliations';
+import { resultReport, reportExport } from '@/api/reconciliations';
 import TableSearch from './TableSearch.vue';
 import { cloneDeep } from 'lodash';
 
@@ -162,6 +163,18 @@ const search = (val) => {
 const reload = () => {
   pagination.value.page = 1;
   loadData();
+};
+
+const downloading = ref(false);
+const report = () => {
+  downloading.value = true;
+  reportExport(searchParams.value)
+    .then((res) => {
+      window.open(res);
+    })
+    .finally(() => {
+      downloading.value = false;
+    });
 };
 
 onMounted(() => {

@@ -107,14 +107,14 @@
               <a-row>
                 <a-col :span="12">
                   <a-form-item-rest>
-                    <a-checkbox v-model:checked="form.sendEmail">
+                    <a-checkbox v-model:checked="form.sendEmail" :disabled="!form.email">
                       {{ t('发送邀请邮件') }}
                     </a-checkbox>
                   </a-form-item-rest>
                 </a-col>
                 <a-col :span="12">
                   <a-form-item-rest>
-                    <a-checkbox v-model:checked="form.sendSms">
+                    <a-checkbox v-model:checked="form.sendSms" :disabled="!form.mobile">
                       {{ t('发送邀请短信') }}
                     </a-checkbox>
                   </a-form-item-rest>
@@ -317,8 +317,8 @@ const submit = () => {
     const newData = pick(form, keys);
     newData.user_uuid = check_user_uuid.value || form.user_uuid;
 
-    newData.sendEmail = newData.sendEmail ? 1 : 0;
-    newData.sendSms = newData.sendSms ? 1 : 0;
+    newData.sendEmail = newData.email ? (newData.sendEmail ? 1 : 0) : 0;
+    newData.sendSms = newData.mobile ? (newData.sendSms ? 1 : 0) : 0;
     if (form.type == 2 || form.type == 3) newData.idcard = '';
     loading.value = true;
     stakeAdd(newData)

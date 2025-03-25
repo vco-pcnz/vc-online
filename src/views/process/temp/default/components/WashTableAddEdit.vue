@@ -90,14 +90,14 @@
           </a-col>
           <a-col :span="12" class="mb-10">
             <a-form-item-rest>
-              <a-checkbox v-model:checked="formState.sendEmail">
+              <a-checkbox v-model:checked="formState.sendEmail" :disabled="!formState.email">
                 {{ t('发送邀请邮件') }}
               </a-checkbox>
             </a-form-item-rest>
           </a-col>
           <a-col :span="12">
             <a-form-item-rest>
-              <a-checkbox v-model:checked="formState.sendSms">
+              <a-checkbox v-model:checked="formState.sendSms" :disabled="!formState.mobile">
                 {{ t('发送邀请短信') }}
               </a-checkbox>
             </a-form-item-rest>
@@ -203,8 +203,8 @@ const submitHandle = () => {
     .then(() => {
       const params = cloneDeep(formState.value);
       params.uuid = props.currentId;
-      params.sendEmail = formState.value.sendEmail ? 1 : 0;
-      params.sendSms = formState.value.sendSms ? 1 : 0;
+      params.sendEmail = formState.value.email ? (formState.value.sendEmail ? 1 : 0) : 0;
+      params.sendSms = formState.value.mobile ? (formState.value.sendSms ? 1 : 0) : 0;
       params.change = formState.value.change ? 1 : 0;
       // if (params.stake_uuid) {
       //   params.firstName = undefined;

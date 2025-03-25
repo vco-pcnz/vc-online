@@ -42,14 +42,14 @@
           <a-row>
             <a-col :span="12">
               <a-form-item-rest>
-                <a-checkbox v-model:checked="form.sendEmail">
+                <a-checkbox v-model:checked="form.sendEmail" :disabled="!form.email">
                   {{ t('发送邀请邮件') }}
                 </a-checkbox>
               </a-form-item-rest>
             </a-col>
             <a-col :span="12">
               <a-form-item-rest>
-                <a-checkbox v-model:checked="form.sendSms" :disabled="isComponent ? !form.mobile : false">
+                <a-checkbox v-model:checked="form.sendSms" :disabled="!form.mobile">
                   {{ t('发送邀请短信') }}
                 </a-checkbox>
               </a-form-item-rest>
@@ -214,8 +214,8 @@ const save = () => {
     const params = {
       ...form,
 
-      sendEmail: form.sendEmail ? 1 : 0,
-      sendSms: form.sendSms ? 1 : 0
+      sendEmail: form.email ? (form.sendEmail ? 1 : 0) : 0,
+      sendSms: form.mobile ? (form.sendSms ? 1 : 0) : 0
     };
     if (props.isComponent) {
       params['do__add'] = 1;

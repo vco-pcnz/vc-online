@@ -8,7 +8,9 @@
         <a-table :data-source="dataSource" :columns="columns" :pagination="false" :scroll="{ x: '100%' }" :customRow="rowClick">
           <template #bodyCell="{ column, record }">
             <template v-if="column.dataIndex === 'lm_list'">
-              <div class="flex items-center gap-3" v-for="(item, index) in record?.lm_list" :key="index"><vco-avatar :src="item.avatar" :size="30"></vco-avatar>{{ item.name }}</div>
+              <div class="flex items-center gap-3" v-for="(item, index) in record?.lm_list" :key="index"><vco-avatar :src="item.avatar" :size="30"></vco-avatar>
+               <p :title="item.name">LM</p>
+              </div>
             </template>
             <template v-if="column.dataIndex === 'project'">
               <div class="id-info">ID: {{ record.project_apply_sn }}</div>
@@ -17,23 +19,20 @@
             <template v-if="column.dataIndex === 'spend'">
               <p><span class="label">VCO:</span> {{ tool.formatMoney(Math.abs(record?.vco_spend_money)) }}</p>
               <p><span class="label">Xero:</span> {{ tool.formatMoney(Math.abs(record?.xero_spend_amount)) }}</p>
+              <p><span class="label">{{t('差额')}}:</span> {{ tool.formatMoney(Math.abs(record?.spend_amount_diff)) }}</p>
+
+
             </template>
             <template v-if="column.dataIndex === 'received'">
               <p><span class="label">VCO:</span> {{ tool.formatMoney(Math.abs(record?.vco_received_amount)) }}</p>
               <p><span class="label">Xero:</span> {{ tool.formatMoney(Math.abs(record?.xero_received_amount)) }}</p>
+              <p><span class="label">{{t('差额')}}:</span> {{ tool.formatMoney(Math.abs(record?.vco_received_amount)) }}</p>
             </template>
             <template v-if="column.dataIndex === 'total'">
               <p><span class="label">VCO:</span> {{ record?.vco_transaction_count }}</p>
               <p><span class="label">Xero:</span> {{ record?.xero_bill_count }}</p>
             </template>
-            <template v-if="column.dataIndex === 'differences'">
-              <p>
-                <span class="label">{{ t('支出') }}:</span> {{ tool.formatMoney(Math.abs(record?.spend_amount_diff)) }}
-              </p>
-              <p>
-                <span class="label">{{ t('已收到') }}:</span> {{ tool.formatMoney(Math.abs(record?.vco_received_amount)) }}
-              </p>
-            </template>
+           
 
             <template v-if="column.dataIndex === 'netting_amount'">
               <p :class="[{ 'color_red-error': record?.netting_amount != '0.00' }]">{{ tool.formatMoney(Math.abs(record?.netting_amount)) }}</p>
@@ -68,9 +67,9 @@ const columns = reactive([
     width: '150px'
   },
   {
-    title: t('项目经理'),
+    title: 'LM',
     dataIndex: 'lm_list',
-    width: '180px'
+    width: '100px'
   },
   {
     title: t('借款人'),
@@ -90,11 +89,6 @@ const columns = reactive([
     title: t('数量'),
     dataIndex: 'total',
     width: '120px'
-  },
-  {
-    title: t('差额'),
-    dataIndex: 'differences',
-    width: '150px'
   },
   {
     title: t('轧差值'),
@@ -180,8 +174,8 @@ onMounted(() => {
 .label {
   color: #888;
   display: inline-block;
-  // width: 33px;
-  text-align: right;
+  width: 33px;
+  text-align: left;
 }
 
 .nav-icon {

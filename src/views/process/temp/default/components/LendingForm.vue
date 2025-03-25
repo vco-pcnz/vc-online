@@ -759,8 +759,16 @@
         const nowNum = backItems[i].is_ratio ? `${nowN}${backItems[i].credit_unit}` : `${backItems[i].credit_unit}${nowN}`
 
         if (Number(staticFormData.value[key]) !== Number(obj[key])) {
-          if (['credit_frontFee', 'credit_brokerFee'].includes(key)) {
+          if (key === 'credit_brokerFee') {
             if (Number(obj[key]) > Number(staticFormData.value[key])) {
+              arr.push({
+                name: findCreditName(key),
+                before: beforeNum,
+                now: nowNum
+              })
+            }
+          } else if (key === 'credit_frontFee') {
+            if (Number(obj[key]) < Number(staticFormData.value[key])) {
               arr.push({
                 name: findCreditName(key),
                 before: beforeNum,

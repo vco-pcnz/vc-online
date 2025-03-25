@@ -601,7 +601,7 @@ export default {
   "全部展开": "Expand all",
   "收起": "Collapse",
   "展开": "Expand",
-  "{0}由{1}修改为了{2}": "{0} was changed from {1} to {2}",
+  "{0}由{1}修改为了{2}": "{0} was changed from <span>{1}</span> to <span>{2}</span>",
   "保存后将退回到上一步审核": "After saving, you will return to the previous step for review",
   "保存后将退回审核": "Will be returned for review after saving",
   "有条件": "Conditional",

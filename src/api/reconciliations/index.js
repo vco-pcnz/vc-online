@@ -155,11 +155,18 @@ export const resultReportDetail = (params) =>
     params
   });
 
-
 // 报告明细导出
 export const resultReportExport = (params) =>
   request({
     url: '/reconciliation/resultReportExport',
+    method: 'get',
+    params
+  });
+
+// 报告明细导出
+export const reportExport = (params) =>
+  request({
+    url: '/reconciliation/reportExport',
     method: 'get',
     params
   });

@@ -6,7 +6,7 @@
           <div class="flex items-center gap-5" style="flex: 1">
             <i class="iconfont nav-icon" @click="goBack">&#xe794;</i>
           </div>
-          <a-button type="dark" size="large" :loading="downloading" class="" @click="report">Create report</a-button>
+          <a-button type="dark" :loading="downloading" class="" @click="report">Create report</a-button>
         </div>
         <div class="card">
           <a-row :gutter="16">
@@ -150,8 +150,8 @@ const loadData = () => {
 };
 
 const downloading = ref(false);
-const report = (uid) => {
-  downloading.value = !uid;
+const report = () => {
+  downloading.value = true;
   resultReportExport({ client_uuid: route.query.client_uuid, ...date.value })
     .then((res) => {
       window.open(res);

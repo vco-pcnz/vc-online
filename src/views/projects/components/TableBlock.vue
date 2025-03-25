@@ -94,7 +94,7 @@
             <div class="closed" v-else-if="record.is_open === 3">{{ t('关账') }}</div>
           </template>
 
-          <p class="count" v-if="record.upd">{{ record.upd }}</p>
+          <p class="count" v-if="record.condition_count">{{ record.condition_count }}</p>
         </template>
         <template v-if="column.key === 'operation'">
           <template v-if="hasPermission('projects:copy')">

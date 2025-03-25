@@ -207,6 +207,11 @@
       for (let i = 0; i < props.mainStepData.length; i ++) {
         if (props.mainStepData[i].stateCode.includes(num)) {
           currentStatus.value = i + 1
+        } else {
+          const index = props.mainStepData[i].stateCode.reduce((acc, cur, i) => (cur < num ? i : acc), -1);
+          if (index > 0) {
+            currentStatus.value = index + 1
+          }
         }
       }
     }

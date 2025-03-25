@@ -10,21 +10,25 @@
         </div>
         <div class="card">
           <a-row :gutter="16">
-            <a-col :span="6">
+            <a-col :span="4">
               <p class="label">{{ t('项目 ID') }}</p>
               <div class="id-info">ID: {{ data?.base?.project_apply_sn }}</div>
             </a-col>
-            <a-col :span="6">
+            <a-col :span="4">
               <p class="label">{{ t('项目名称') }}</p>
               <div :title="data?.base?.project_name">{{ data?.base?.project_name }}</div>
             </a-col>
-            <a-col :span="6">
+            <a-col :span="4">
               <p class="label">{{ t('项目经理') }}</p>
               <p>{{ data?.base?.lending_manager }}</p>
             </a-col>
-            <a-col :span="6">
+            <a-col :span="8">
               <p class="label">{{ t('借款人') }}</p>
               <p>{{ data?.base?.borrower }}</p>
+            </a-col>
+            <a-col :span="4">
+              <p class="label">{{ t('日期') }}</p>
+              <div>{{ date.start_date ? tool.showDate(date.start_date) : '' }} - {{ date.end_date ? tool.showDate(date.end_date) : '' }}</div>
             </a-col>
           </a-row>
         </div>
@@ -32,28 +36,28 @@
         <a-table :data-source="data?.data" :columns="columns" :pagination="false" :scroll="{ x: '100%' }">
           <template #bodyCell="{ column, record }">
             <template v-if="column.dataIndex === 'date'">
-              <p><span class="label">VCO:</span> {{ record?.vco_date ? tool.showDate(record?.vco_date) : '' }}</p>
-              <p><span class="label">Xero:</span> {{ record?.xero_date ? tool.showDate(record?.xero_date) : '' }}</p>
+              <p><span class="label">VCO</span>: {{ record?.vco_date ? tool.showDate(record?.vco_date) : '' }}</p>
+              <p><span class="label">Xero</span>: {{ record?.xero_date ? tool.showDate(record?.xero_date) : '' }}</p>
             </template>
             <template v-if="column.dataIndex === 'spend'">
-              <p><span class="label">VCO:</span> {{ tool.formatMoney(Math.abs(record?.vco_spend_amount)) }}</p>
-              <p><span class="label">Xero:</span> {{ tool.formatMoney(Math.abs(record?.xero_spend_amount)) }}</p>
+              <p><span class="label">VCO</span>: {{ tool.formatMoney(Math.abs(record?.vco_spend_amount)) }}</p>
+              <p><span class="label">Xero</span>: {{ tool.formatMoney(Math.abs(record?.xero_spend_amount)) }}</p>
             </template>
             <template v-if="column.dataIndex === 'received'">
-              <p><span class="label">VCO:</span> {{ tool.formatMoney(Math.abs(record?.vco_received_amount)) }}</p>
-              <p><span class="label">Xero:</span> {{ tool.formatMoney(Math.abs(record?.xero_received_amount)) }}</p>
+              <p><span class="label">VCO</span>: {{ tool.formatMoney(Math.abs(record?.vco_received_amount)) }}</p>
+              <p><span class="label">Xero</span>: {{ tool.formatMoney(Math.abs(record?.xero_received_amount)) }}</p>
             </template>
             <template v-if="column.dataIndex === 'reference'">
-              <p><span class="label">VCO:</span> {{ record?.vco_reference }}</p>
-              <p><span class="label">Xero:</span> {{ record?.xero_reference }}</p>
+              <p><span class="label">VCO</span>: {{ record?.vco_reference }}</p>
+              <p><span class="label">Xero</span>: {{ record?.xero_reference }}</p>
             </template>
             <template v-if="column.dataIndex === 'description'">
-              <p><span class="label">VCO:</span> {{ record?.vco_note }}</p>
-              <p><span class="label">Xero:</span> {{ record?.xero_description }}</p>
+              <p><span class="label">VCO</span>: {{ record?.vco_note }}</p>
+              <p><span class="label">Xero</span>: {{ record?.xero_description }}</p>
             </template>
             <template v-if="column.dataIndex === 'status'">
-              <p><span class="label">VCO:</span> {{ record?.vco_status == 1 ? t('未对账') : t('已对账') }}</p>
-              <p><span class="label">Xero:</span> {{ record?.xero_status == 1 ? t('已对账') : t('未对账') }}</p>
+              <p><span class="label">VCO</span>: {{ record?.vco_status == 1 ? t('未对账') : t('已对账') }}</p>
+              <p><span class="label">Xero</span>: {{ record?.xero_status == 1 ? t('已对账') : t('未对账') }}</p>
             </template>
           </template>
         </a-table>
@@ -115,6 +119,10 @@ const columns = reactive([
 const data = ref([]);
 const total = ref(0);
 const loading = ref(false);
+const date = ref({
+  start_date: '',
+  end_date: ''
+});
 
 const pagination = ref({
   page: 1,
@@ -131,7 +139,7 @@ const setPaginate = (page, limit) => {
 
 const loadData = () => {
   loading.value = true;
-  resultReportDetail({ client_uuid: route.query.client_uuid, ...pagination.value })
+  resultReportDetail({ client_uuid: route.query.client_uuid, ...pagination.value, ...date.value })
     .then((res) => {
       total.value = res.count;
       data.value = res.data;
@@ -144,7 +152,7 @@ const loadData = () => {
 const downloading = ref(false);
 const report = (uid) => {
   downloading.value = !uid;
-  resultReportExport({ client_uuid: route.query.client_uuid })
+  resultReportExport({ client_uuid: route.query.client_uuid, ...date.value })
     .then((res) => {
       window.open(res);
     })
@@ -154,6 +162,10 @@ const report = (uid) => {
 };
 
 onMounted(() => {
+  date.value = {
+    start_date: route.query.start_date,
+    end_date: route.query.end_date
+  };
   loadData();
 });
 </script>
@@ -180,7 +192,7 @@ onMounted(() => {
 }
 
 .card {
-  padding: 24px;
+  padding: 15px;
   border-radius: 8px;
   margin-bottom: 15px;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);

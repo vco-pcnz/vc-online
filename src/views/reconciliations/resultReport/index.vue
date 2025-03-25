@@ -5,39 +5,48 @@
         <div class="flex justify-end items-end mb-5">
           <TableSearch @search="search"></TableSearch>
         </div>
-        <a-table :data-source="dataSource" :columns="columns" :pagination="false" :scroll="{ x: '100%' }" :customRow="rowClick">
+        <a-table :data-source="dataSource" :columns="columns" :pagination="false" :scroll="{ x: '100%' }">
           <template #bodyCell="{ column, record }">
             <template v-if="column.dataIndex === 'lm_list'">
-              <div class="flex items-center gap-3" v-for="(item, index) in record?.lm_list" :key="index"><vco-avatar :src="item.avatar" :size="30"></vco-avatar>
-               <p :title="item.name">LM</p>
+              <div class="flex items-center gap-3" v-for="(item, index) in record?.lm_list" :key="index">
+                <vco-avatar :src="item.avatar" :size="30"></vco-avatar>
+                <p :title="item.name">LM</p>
               </div>
             </template>
             <template v-if="column.dataIndex === 'project'">
-              <div class="id-info">ID: {{ record.project_apply_sn }}</div>
-              <div :title="record.project_name">{{ record.project_name }}</div>
+              <div class="cursor-pointer" @click="toDetail(record)">
+                <div class="id-info">ID: {{ record.project_apply_sn }}</div>
+                <div class="text-ellipsis overflow-hidden inline-block text-nowrap" style="width: 120px;" :title="record.project_name">{{ record.project_name }}</div>
+              </div>
             </template>
             <template v-if="column.dataIndex === 'spend'">
-              <p><span class="label">VCO:</span> {{ tool.formatMoney(Math.abs(record?.vco_spend_money)) }}</p>
-              <p><span class="label">Xero:</span> {{ tool.formatMoney(Math.abs(record?.xero_spend_amount)) }}</p>
-              <p><span class="label">{{t('差额')}}:</span> {{ tool.formatMoney(Math.abs(record?.spend_amount_diff)) }}</p>
-
-
+              <p><span class="label">VCO</span>: {{ tool.formatMoney(Math.abs(record?.vco_spend_money)) }}</p>
+              <p><span class="label">Xero</span>: {{ tool.formatMoney(Math.abs(record?.xero_spend_amount)) }}</p>
+              <p>
+                <span class="label">{{ t('差额') }}</span
+                >: {{ tool.formatMoney(Math.abs(record?.spend_amount_diff)) }}
+              </p>
             </template>
             <template v-if="column.dataIndex === 'received'">
-              <p><span class="label">VCO:</span> {{ tool.formatMoney(Math.abs(record?.vco_received_amount)) }}</p>
-              <p><span class="label">Xero:</span> {{ tool.formatMoney(Math.abs(record?.xero_received_amount)) }}</p>
-              <p><span class="label">{{t('差额')}}:</span> {{ tool.formatMoney(Math.abs(record?.vco_received_amount)) }}</p>
+              <p><span class="label">VCO</span>: {{ tool.formatMoney(Math.abs(record?.vco_received_amount)) }}</p>
+              <p><span class="label">Xero</span>: {{ tool.formatMoney(Math.abs(record?.xero_received_amount)) }}</p>
+              <p>
+                <span class="label">{{ t('差额') }}</span
+                >: {{ tool.formatMoney(Math.abs(record?.vco_received_amount)) }}
+              </p>
             </template>
             <template v-if="column.dataIndex === 'total'">
-              <p><span class="label">VCO:</span> {{ record?.vco_transaction_count }}</p>
-              <p><span class="label">Xero:</span> {{ record?.xero_bill_count }}</p>
+              <p><span class="label">VCO</span>: {{ record?.vco_transaction_count }}</p>
+              <p><span class="label">Xero</span>: {{ record?.xero_bill_count }}</p>
             </template>
-           
 
             <template v-if="column.dataIndex === 'netting_amount'">
               <p :class="[{ 'color_red-error': record?.netting_amount != '0.00' }]">{{ tool.formatMoney(Math.abs(record?.netting_amount)) }}</p>
             </template>
-            <template v-if="column.dataIndex === 'Operation'"><i class="iconfont nav-icon">&#xe794;</i> </template>
+            <template v-if="column.dataIndex === 'Operation'">
+              <div @click="toDetail(record)" class="nav_box"></div>
+              <i class="iconfont nav-icon" @click="toDetail(record)">&#xe794;</i>
+            </template>
           </template>
         </a-table>
       </a-spin>
@@ -102,12 +111,8 @@ const columns = reactive([
   }
 ]);
 
-const rowClick = (record, index) => {
-  return {
-    onClick: () => {
-      navigationTo(`/reconciliations/resultReport/detail?client_uuid=${record.client_uuid}`);
-    }
-  };
+const toDetail = (record) => {
+  navigationTo(`/reconciliations/resultReport/detail?client_uuid=${record.client_uuid}&start_date=${searchParams.value.start_date}&end_date=${searchParams.value.end_date}`);
 };
 
 const dataSource = ref([]);
@@ -175,7 +180,6 @@ onMounted(() => {
   color: #888;
   display: inline-block;
   width: 33px;
-  text-align: left;
 }
 
 .nav-icon {
@@ -184,5 +188,13 @@ onMounted(() => {
   transform: rotate(-45deg);
   color: #bf9425;
   font-size: 10px !important;
+}
+
+.nav_box {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
 }
 </style>

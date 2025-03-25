@@ -38,7 +38,7 @@
         <a-form-item :label="t('手机号')" :name="isComponent ? '' : 'mobile'">
           <vco-mobile-input v-model:value="form.mobile" v-model:areaCode="form.pre" :disabled="isEdit && !!mobile_ok"></vco-mobile-input>
         </a-form-item>
-        <a-form-item name="verifyMode" v-if="!isEdit">
+        <a-form-item :name="isComponent ? '' : 'verifyMode'" v-if="!isEdit">
           <a-row>
             <a-col :span="12">
               <a-form-item-rest>

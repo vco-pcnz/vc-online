@@ -98,26 +98,29 @@
                 <div class="stuff-item-content">
                   <div class="stuff-item">
                     <a-select
+                      show-search
                       v-model:value="record.typology.beds"
                     >
-                      <a-select-option v-for="num in 21" :key="`beds_${num - 1}`" :value="num - 1">{{num - 1}}</a-select-option>
+                      <a-select-option v-for="num in 8" :key="`beds_${num - 1}`" :value="num - 1">{{num - 1}}</a-select-option>
                     </a-select>
                     <p>beds</p>
                   </div>
                   <div class="stuff-item">
                     <a-select
+                      show-search
                       v-model:value="record.typology.lounge"
                     >
-                      <a-select-option v-for="num in 21" :key="`lounge_${num - 1}`" :value="num - 1">{{num - 1}}</a-select-option>
+                      <a-select-option v-for="num in 5" :key="`lounge_${num - 1}`" :value="num - 1">{{num - 1}}</a-select-option>
                     </a-select>
                     <p>lounge</p>
                   </div>
                   <div class="stuff-item">
                     <a-select
+                      show-search
                       v-model:value="record.typology.bath"
                     >
                       <a-select-option 
-                        v-for="num in Array.from({ length: 21 }, (_, i) => i * 0.5)" 
+                        v-for="num in Array.from({ length: 15 }, (_, i) => i * 0.5)" 
                         :key="`bath_${num}`" 
                         :value="num"
                       >
@@ -128,19 +131,21 @@
                   </div>
                   <div class="stuff-item">
                     <a-select
+                      show-search
                       v-model:value="record.typology.garage"
                     >
-                      <a-select-option v-for="num in 21" :key="`garage_${num - 1}`" :value="num - 1">{{num - 1}}</a-select-option>
+                      <a-select-option v-for="num in 5" :key="`garage_${num - 1}`" :value="num - 1">{{num - 1}}</a-select-option>
                     </a-select>
                     <p>garage</p>
                   </div>
                   <div class="stuff-item">
                     <a-select
-                      v-model:value="record.typology.leve"
+                      show-search
+                      v-model:value="record.typology.level"
                     >
-                      <a-select-option v-for="num in 21" :key="`leve_${num - 1}`" :value="num - 1">{{num - 1}}</a-select-option>
+                      <a-select-option v-for="num in 4" :key="`level_${num}`" :value="num">{{num}}</a-select-option>
                     </a-select>
-                    <p>leve</p>
+                    <p>level</p>
                   </div>
                   <div class="stuff-item">
                     <a-input v-model:value="record.typology.other" placeholder="Other" />
@@ -248,26 +253,29 @@
                 <div class="stuff-item-content">
                   <div class="stuff-item">
                     <a-select
+                      show-search
                       v-model:value="record.typology.beds"
                     >
-                      <a-select-option v-for="num in 21" :key="`beds_${num - 1}`" :value="num - 1">{{num - 1}}</a-select-option>
+                      <a-select-option v-for="num in 8" :key="`beds_${num - 1}`" :value="num - 1">{{num - 1}}</a-select-option>
                     </a-select>
                     <p>beds</p>
                   </div>
                   <div class="stuff-item">
                     <a-select
+                      show-search
                       v-model:value="record.typology.lounge"
                     >
-                      <a-select-option v-for="num in 21" :key="`lounge_${num - 1}`" :value="num - 1">{{num - 1}}</a-select-option>
+                      <a-select-option v-for="num in 5" :key="`lounge_${num - 1}`" :value="num - 1">{{num - 1}}</a-select-option>
                     </a-select>
                     <p>lounge</p>
                   </div>
                   <div class="stuff-item">
                     <a-select
+                      show-search
                       v-model:value="record.typology.bath"
                     >
                       <a-select-option 
-                        v-for="num in Array.from({ length: 21 }, (_, i) => i * 0.5)" 
+                        v-for="num in Array.from({ length: 15 }, (_, i) => i * 0.5)" 
                         :key="`bath_${num}`" 
                         :value="num"
                       >
@@ -278,19 +286,21 @@
                   </div>
                   <div class="stuff-item">
                     <a-select
+                      show-search
                       v-model:value="record.typology.garage"
                     >
-                      <a-select-option v-for="num in 21" :key="`garage_${num - 1}`" :value="num - 1">{{num - 1}}</a-select-option>
+                      <a-select-option v-for="num in 5" :key="`garage_${num - 1}`" :value="num - 1">{{num - 1}}</a-select-option>
                     </a-select>
                     <p>garage</p>
                   </div>
                   <div class="stuff-item">
                     <a-select
-                      v-model:value="record.typology.leve"
+                      show-search
+                      v-model:value="record.typology.level"
                     >
-                      <a-select-option v-for="num in 21" :key="`leve_${num - 1}`" :value="num - 1">{{num - 1}}</a-select-option>
+                      <a-select-option v-for="num in 4" :key="`level_${num}`" :value="num">{{num}}</a-select-option>
                     </a-select>
-                    <p>leve</p>
+                    <p>level</p>
                   </div>
                   <div class="stuff-item">
                     <a-input v-model:value="record.typology.other" placeholder="Other" />
@@ -559,7 +569,7 @@ const batchDataSource = ref([{
     lounge: 1,
     bath: 2,
     garage: 1,
-    leve: 2,
+    level: 2,
     other: ''
   },
   sqm: '90',
@@ -630,7 +640,7 @@ const batchitem = {
     lounge: 1,
     bath: 2,
     garage: 1,
-    leve: 2,
+    level: 2,
     other: ''
   },
   sqm: '90',
@@ -949,9 +959,25 @@ onMounted(async () => {
     * {
       border-color: #272727 !important;
     }
+    .ant-table-container table>thead>tr:first-child >*:first-child {
+      border-start-start-radius: 0 !important;
+    }
+    .ant-table-ping-right .ant-table-cell-fix-right-first::after {
+      box-shadow: inset -15px 0 8px -8px rgba(5, 5, 5, 0.2);
+    }
+    .ant-table-container {
+      border-radius: 0 !important;
+    }
     .ant-table {
       background-color: transparent;
       border-spacing: 10px;
+      table {
+        border-top: none !important;
+        border-radius: 0 !important;
+      }
+    }
+    .ant-table-cell-fix-right-first {
+      // right: -1px !important;
     }
     .ant-table-thead {
       border: none;
@@ -960,6 +986,8 @@ onMounted(async () => {
         font-size: 10px;
         color: #282828 !important;
         background-color: #f7f9f8 !important;
+        border-top: 1px solid #272727;
+        border-radius: 0 !important;
       }
     }
     .ant-empty {

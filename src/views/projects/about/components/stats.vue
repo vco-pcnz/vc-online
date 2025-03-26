@@ -2,70 +2,97 @@
   <div class="stats-content">
     <div class="box left">
       <div class="box-top">
-        <p class="bold">IRR</p>
-        <p class="fs_2xl bold">{{ data?.irr }}%</p>
-        <p>loan IRR {{ data?.irrPreset }}%</p>
+        <p class="bold">Projected Total Income</p>
+        <vco-number :value="data?.left?.income" :bold="true" size="fs_3xl" :precision="2"></vco-number>
       </div>
       <a-divider />
-      <div class="box-bottom">
-        <p class="fs_xs color_grey">Interest & fees</p>
-        <vco-number :value="data?.interestFees" :bold="true" size="fs_2xl" :precision="2"></vco-number>
-        <p class="fs_xs color_grey">forecasted</p>
-      </div>
-      <div v-if="Number(detail?.base?.devCost)" class="box-bottom mt-8">
-        <p class="fs_xs color_grey">{{ t('开发成本') }}</p>
-        <vco-number :value="detail?.base?.devCost" :bold="true" size="fs_2xl" :precision="2"></vco-number>
-      </div>
+
+      <a-row :gutter="16" class="income">
+        <a-col :span="24">
+          <p class="color_grey fs_xs">Interest ({{ data?.left?.interestRate }}%)</p>
+          <vco-number :value="data?.left?.interest" :bold="true" :precision="2" size="fs_2xl"></vco-number>
+        </a-col>
+        <a-col :span="24" class="">
+          <p class="color_grey fs_xs">Establishment fee ({{ data?.left?.estabFeeRate }}%)</p>
+          <vco-number :value="data?.left?.estabFee" :bold="true" :precision="2" size="fs_2xl"></vco-number>
+        </a-col>
+        <a-col :span="24" v-if="detail?.base?.has_linefee">
+          <p class="color_grey fs_xs">Line fee ({{ data?.left?.lineFeeRate }}%)</p>
+          <vco-number :value="data?.left?.lineFee" :bold="true" :precision="2" size="fs_2xl"></vco-number>
+        </a-col>
+        <a-col :span="24">
+          <p class="color_grey fs_xs">Bonus ({{ data?.left?.bonusRate }}%)</p>
+          <vco-number :value="data?.left?.bonus" :bold="true" :precision="2" size="fs_2xl"></vco-number>
+        </a-col>
+      </a-row>
     </div>
     <div class="box middle">
-      <div class="box-top text-center">
+      <div class="box-top">
         <p class="bold">Current income</p>
-        <vco-number :value="data?.income" :bold="true" size="fs_3xl" :precision="2"></vco-number>
-        <p class="fs_xs color_grey">current interest & fees</p>
+        <vco-number :value="data?.middle?.income" :bold="true" size="fs_3xl" :precision="2"></vco-number>
       </div>
       <a-divider />
-      <div class="box-bottom mb-7">
-        <div>
-          <p>Interest</p>
-          <vco-number :value="data?.interest" :bold="true" size="fs_2xl" :precision="2"></vco-number>
-          <p class="fs_xs color_grey">{{ data?.interestRate }}%</p>
-        </div>
-        <div>
-          <p>Establishment fee</p>
-          <vco-number :value="data?.estabFee" :bold="true" size="fs_2xl" :precision="2"></vco-number>
-          <p class="fs_xs color_grey">{{ data?.estabFeeRate }}%</p>
-        </div>
-      </div>
-      <div class="box-bottom">
-        <div>
-          <p>Line fee</p>
-          <vco-number :value="data?.lineFee" :bold="true" size="fs_2xl" :precision="2"></vco-number>
-          <p class="fs_xs color_grey">{{ data?.lineFeeRate }}%</p>
-        </div>
-        <div>
-          <p>Bonus ({{ data?.bonusRate }}%)</p>
-          <vco-number :value="data?.bonus" :bold="true" size="fs_2xl" :precision="2"></vco-number>
-          <p class="fs_xs color_grey flex gap-2 items-center bonus2">
-            Current bonus
-            <vco-number :value="data?.bonus2" :bold="true" :precision="2"></vco-number>
-          </p>
-        </div>
-      </div>
+      <a-row :gutter="16" class="income">
+        <a-col :span="24">
+          <p class="color_grey fs_xs">Interest</p>
+          <vco-number :value="data?.middle?.interest" :bold="true" :precision="2" size="fs_2xl"></vco-number>
+        </a-col>
+        <a-col :span="24">
+          <p class="color_grey fs_xs">Establishment fee (to {{ toDay }})</p>
+          <vco-number :value="data?.middle?.estabFee" :bold="true" :precision="2" size="fs_2xl"></vco-number>
+          <p class="fs_xs color_grey"></p>
+        </a-col>
+        <a-col :span="24" v-if="detail?.base?.has_linefee">
+          <p class="color_grey fs_xs">Line fee</p>
+          <vco-number :value="data?.middle?.lineFee" :bold="true" :precision="2" size="fs_2xl"></vco-number>
+        </a-col>
+        <a-col :span="24">
+          <p class="color_grey fs_xs">Bonus</p>
+          <vco-number :value="data?.middle?.bonus2" :bold="true" :precision="2" size="fs_2xl"></vco-number>
+        </a-col>
+      </a-row>
     </div>
     <div class="box right">
-      <div class="box-top" :class="{ 'color_red-error': Math.abs(data?.lvr) > Math.abs(data?.lvrMax) }">
-        <p class="bold">LVR</p>
-        <p class="fs_2xl bold">{{ data?.lvr }}%</p>
-        <p class="fs_xs">over the max {{ data?.lvrMax }}%</p>
-      </div>
+      <p class="box-top text-center" style="font-size: 22px; line-height: 60px">Indicator</p>
       <a-divider />
-      <div class="box-bottom">
-        <p>Security value</p>
-        <vco-number :value="data?.security" :bold="true" size="fs_2xl" :precision="2"></vco-number>
-        <a-button v-if="hasPermission('projects:detail:viewSecurity')" type="brown" shape="round" size="small" class="mt-1" @click="navigationTo(`/projects/discharge?uuid=${currentId}`)"
-          >security items <i class="iconfont fs_2xs ml-3">&#xe794;</i></a-button
-        >
-      </div>
+      <a-row :gutter="16">
+        <a-col :span="12">
+          <div :class="{ 'color_red-error': Math.abs(data?.right?.lvr) > Math.abs(data?.right?.lvrMax) }">
+            <p class="color_grey fs_xs">LVR</p>
+            <span class="fs_xl bold">{{ data?.right?.lvr }}%</span>
+            <p class="fs_xs">{{ Math.abs(data?.right?.lvr) > Math.abs(data?.right?.lvrMax) ? 'over the ' : '' }}max {{ data?.right?.lvrMax }}%</p>
+          </div>
+        </a-col>
+        <a-col :span="12" class="text-right">
+          <p class="color_grey fs_xs">Security value</p>
+          <vco-number :value="data?.right?.security" :bold="true" size="fs_xl" :precision="2"></vco-number>
+          <!-- <a-button v-if="hasPermission('projects:detail:viewSecurity')" type="brown" shape="round" size="small" class="mt-1" @click="navigationTo(`/projects/discharge?uuid=${currentId}`)">
+            security items <i class="iconfont fs_2xs ml-3">&#xe794;</i>
+          </a-button> -->
+        </a-col>
+        <a-col :span="24" class="my-4">
+          <div :class="{ 'color_red-error': Math.abs(data?.right?.irr) < Math.abs(data?.right?.irrPreset) }">
+            <p class="color_grey fs_xs">IRR</p>
+            <p class="fs_xl bold">{{ data?.right?.irr }}%</p>
+            <p class="fs_xs">baseline {{ data?.right?.irrPreset }}%</p>
+          </div>
+        </a-col>
+        <a-col :span="10">
+          <div :class="{ 'color_red-error': Math.abs(data?.right?.ltc) > Math.abs(data?.right?.baseline) }">
+            <p class="color_grey fs_xs">LTC</p>
+            <p class="fs_xl bold">{{ data?.right?.ltc }}%</p>
+          </div>
+        </a-col>
+        <a-col :span="14" class="text-right cursor-pointer">
+          <DevCostDetail :dataJson="detail?.base?.devCostDetail" :disabledGST="true" :disabledLoan="true" @change="editSaveDevCost">
+            <p class="color_grey fs_xs">Total Development Cost <i class="iconfont color_coal">&#xe76f;</i></p>
+            <vco-number :value="data?.right?.devCost" :bold="true" size="fs_xl" :precision="2"></vco-number>
+          </DevCostDetail>
+        </a-col>
+        <a-col :span="24">
+          <p class="fs_xs" :class="{ 'color_red-error': Math.abs(data?.right?.ltc) > Math.abs(data?.right?.baseline) }">baseline {{ data?.right?.baseline }}%</p>
+        </a-col>
+      </a-row>
     </div>
   </div>
 </template>
@@ -75,8 +102,14 @@ import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { navigationTo } from '@/utils/tool';
 import { hasPermission } from '@/directives/permission/index';
+import { selectDateFormat } from '@/utils/tool';
+import dayjs, { Dayjs } from 'dayjs';
+import DevCostDetail from '@/views/process/temp/default/components/DevCostDetail.vue';
+import { edit } from '@/api/project/annex';
+import { saveDevCost } from '@/api/project/project';
 
 const { t } = useI18n();
+const emits = defineEmits(['update']);
 
 const props = defineProps({
   currentId: {
@@ -92,6 +125,13 @@ const props = defineProps({
     default: () => {}
   }
 });
+const toDay = ref(dayjs().format(selectDateFormat()));
+
+const editSaveDevCost = (val) => {
+  saveDevCost({ uuid: props.currentId, ...val }).then((res) => {
+    emits('update');
+  });
+};
 </script>
 
 <style scoped lang="less">
@@ -101,23 +141,18 @@ const props = defineProps({
   grid-gap: 12px;
   display: grid;
   gap: 12px;
-  grid-template-columns: 2fr 4fr 2fr;
+  grid-template-columns: 2fr 2fr 2fr;
 
   .box {
     background-color: #f0f0f0;
     border: 1px solid #e2e5e2;
-    padding: 30px;
+    padding: 20px 15px 20px;
     border-radius: 12px;
   }
-
-  .middle {
-    .box-bottom {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-    }
-  }
 }
-
+.box-top {
+  min-height: 60px;
+}
 .bonus2 {
   :deep(.ant-statistic-content),
   :deep(.ant-statistic) {
@@ -126,5 +161,26 @@ const props = defineProps({
     font-weight: normal !important;
     color: #888 !important;
   }
+}
+:deep(.income) {
+  .ant-col {
+    height: 60px;
+    margin-left: 46px;
+  }
+}
+
+:deep(.ant-divider-horizontal) {
+  margin: 12px 0;
+}
+
+.middle,
+.left {
+  .box-top {
+    padding-left: 46px;
+  }
+}
+.iconfont {
+  color: @colorPrimary;
+  font-size: 14px;
 }
 </style>

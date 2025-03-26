@@ -45,17 +45,24 @@
             <p class="txt">{{ tool.showDate(startDate) + ' - ' + tool.showDate(endDate) }}</p>
           </div>
         </a-col>
-        <a-col :span="8" class="mt-2">
+        <a-col :span="9" class="mt-2">
           <div class="info-content">
             <p class="name">{{ t('借款周期') }}</p>
             <p class="txt">{{ showTerm }}</p>
           </div>
         </a-col>
-        <a-col :span="6" class="mt-2">
+        <a-col :span="5" class="mt-2">
           <div class="info-content">
             <p class="name">{{ t('总天数') }}</p>
             <p class="txt">{{ showTotalDay }}</p>
           </div>
+        </a-col>
+        
+        <a-col :span="24" class="mt-2 cursor-pointer">
+          <DevCostDetail :dataJson="DevCostData.devCostDetail || projectDetail?.base?.devCostDetail" :disabledGST="true" @change="saveDevCostData">
+            <p class="color_grey fs_xs">Total Development Cost <i class="iconfont color_coal">&#xe76f;</i></p>
+            <vco-number :value="DevCostData.devCost || projectDetail?.base?.devCost" :bold="true" size="fs_xl" :precision="2"></vco-number>
+          </DevCostDetail>
         </a-col>
       </a-row>
 
@@ -189,6 +196,8 @@
   import { cloneDeep } from 'lodash'
   import RejectDialog from "@/views/process/components/RejectDialog.vue";
   import dayjs from "dayjs";
+  import DevCostDetail from '@/views/process/temp/default/components/DevCostDetail.vue';
+  import { saveDevCost } from '@/api/project/project';
 
   const emits = defineEmits(['update:visible', 'done'])
 
@@ -347,6 +356,21 @@
     endDate.value = props.detailData.end_date
   }
 
+  const DevCostData = ref({
+    devCost: '',
+    devCostDetail: ''
+  })
+  // 保存开发成本
+  const saveDevCostData  = (val) => {
+    DevCostData.value = val;
+  }
+  const editSaveDevCost = (val) => {
+    if(!DevCostData.value.devCostDetail) return
+    saveDevCost({ uuid: props.uuid, ...DevCostData.value }).then((res) => {
+      emits('update');
+    });
+  };
+
   const openHandle = () => {
     formRef.value
     .validate()
@@ -370,6 +394,7 @@
       }).catch(() => {
         confirmLoading.value = false
       })
+      editSaveDevCost()
     })
   }
 
@@ -411,6 +436,7 @@
 </script>
 
 <style lang="less" scoped>
+@import '@/styles/variables.less';
 .item-txt {
   margin-top: 25px;
   &.no {
@@ -506,5 +532,9 @@
       font-size: 16px !important;
     }
   }
+}
+.color_coal {
+  color: @colorPrimary;
+  font-size: 14px;
 }
 </style>

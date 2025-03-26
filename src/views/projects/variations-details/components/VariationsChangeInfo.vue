@@ -19,7 +19,7 @@
           <p class="name">{{ t('建立费') }}</p>
           <vco-number :value="beforeData.estabFee" :precision="2"></vco-number>
         </a-col>
-        <a-col :span="24" class="item-txt">
+        <a-col :span="24" class="item-txt" v-if="detail?.base?.has_linefee">
           <p class="name">{{ t('额度费') }}</p>
           <vco-number :value="beforeData.lineFee" :precision="2"></vco-number>
         </a-col>
@@ -72,7 +72,7 @@
             <vco-number :value="Math.abs(changeData.estabFee)" :precision="2"></vco-number>
           </p>
         </a-col>
-        <a-col :span="24" class="item-txt">
+        <a-col :span="24" class="item-txt" v-if="detail?.base?.has_linefee">
           <p class="name">{{ t('额度费') }}</p>
           <p class="txt" :class="{'plus': Number(changeData.lineFee) > 0, 'reduce': Number(changeData.lineFee) < 0}">
             <i class="iconfont" v-if="Number(changeData.lineFee) > 0" style="color: #eb4b6d;">&#xe712;</i>
@@ -133,7 +133,7 @@
           <p class="name">{{ t('建立费') }}</p>
           <vco-number :value="afterData.estabFee" :precision="2"></vco-number>
         </a-col>
-        <a-col :span="24" class="item-txt">
+        <a-col :span="24" class="item-txt" v-if="detail?.base?.has_linefee">
           <p class="name">{{ t('额度费') }}</p>
           <vco-number :value="afterData.lineFee" :precision="2"></vco-number>
         </a-col>

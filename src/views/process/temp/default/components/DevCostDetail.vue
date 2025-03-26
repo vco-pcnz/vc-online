@@ -20,7 +20,7 @@
                     <template v-if="column.dataIndex === 'loan' || column.dataIndex === 'borrower_equity'">
                       <a-input-number
                         v-model:value="record[column.dataIndex]"
-                        :disabled="Boolean(record?.status) || (disabled && column.dataIndex === 'loan')"
+                        :disabled="Boolean(record?.status) || (disabledLoan && column.dataIndex === 'loan')"
                         @change="initData"
                         :max="99999999999"
                         :min="column.dataIndex === 'borrower_equity' ? 0 : -99999999999"
@@ -94,7 +94,7 @@
                 <div class="amount">
                   <a-input-number
                     v-model:value="item.loan"
-                    :disabled="disabled"
+                    :disabled="disabledGST"
                     :max="99999999999"
                     :min="-99999999999"
                     :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
@@ -105,7 +105,7 @@
                 <div class="amount">
                   <a-input-number
                     v-model:value="item.borrower_equity"
-                    :disabled="disabled"
+                    :disabled="disabledGST"
                     :max="99999999999"
                     :min="-99999999999"
                     :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
@@ -171,13 +171,17 @@ const props = defineProps({
     type: Boolean,
     default: true
   },
-  disabled: {
+  dataJson: {
+    type: [Array, String]
+  },
+  disabledGST: {
     type: Boolean,
     default: false
   },
-  dataJson: {
-    type: [Array, String]
-  }
+  disabledLoan: {
+    type: Boolean,
+    default: false
+  },
 });
 
 const visible = ref(false);

@@ -364,10 +364,9 @@
   const saveDevCostData  = (val) => {
     DevCostData.value = val;
   }
-  const editSaveDevCost = (val) => {
-    if(!DevCostData.value.devCostDetail) return
+  const editSaveDevCost = (params) => {
     saveDevCost({ uuid: props.uuid, ...DevCostData.value }).then((res) => {
-      emits('update');
+      openHandleSubmit(params)
     });
   };
 
@@ -387,15 +386,22 @@
       }
 
       confirmLoading.value = true
-      projectVariationSaveStep(params).then(() => {
+      if(!DevCostData.value.devCostDetail) {
+        openHandleSubmit(params)
+      } else {
+        editSaveDevCost(params)
+      }
+    })
+  }
+
+  const openHandleSubmit = (params)=>{
+    projectVariationSaveStep(params).then(() => {
         confirmLoading.value = false
         showConfirm.value = false
         doneHandle()
       }).catch(() => {
         confirmLoading.value = false
       })
-      editSaveDevCost()
-    })
   }
 
   const disabledDate = (currentDate) => {

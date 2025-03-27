@@ -61,7 +61,6 @@ const loadData = () => {
   kpiList({ uuid: props.uuid })
     .then((res) => {
       data.value = res;
-      data.value[0].note = '21312sfsfds asfsdf sfdsfdsd fsdf sfdsdf sdf sfsdf';
     })
     .finally(() => {
       loading.value = false;

@@ -862,5 +862,7 @@ export default {
   "参考": "reference",
   "标题": "Title",
   "反洗钱审核": "AML Audit",
-  "差额": "Diff"
+  "差额": "Diff",
+  "是否有Linefee": "Is there a Linefee",
+  "是否预算": "Is there a budget",
 }

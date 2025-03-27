@@ -252,7 +252,7 @@
   };
 
   const getFormItems = async () => {
-    await ruleCredit({ type: 2 }).then(async (res) => {
+    await ruleCredit({ type: 2, uuid: props.currentId }).then(async (res) => {
       const data = res || [];
 
       const writeData = data.filter((item) => item.is_write);

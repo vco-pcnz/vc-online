@@ -686,12 +686,6 @@
       if (res.length || Object.keys(res).length) {
         for (const key in formState.value) {
           formState.value[key] = res[key] || '0';
-          if (key === 'substitution_ids') {
-            formState.value[key] = props.lendingInfo?.substitution_ids || [];
-          }
-          if (key === 'has_linefee') {
-            formState.value[key] = props.lendingInfo?.has_linefee;
-          }
         }
         for (let i = 0; i < showNumItemsStore.value.length; i++) {
           showNumItemsStore.value[i].value = res[showNumItemsStore.value[i].credit_table];
@@ -707,6 +701,8 @@
         }
       }
 
+      formState.value.substitution_ids = props.lendingInfo?.substitution_ids || [];
+      formState.value.has_linefee = props.lendingInfo?.has_linefee;
       linefeeFilter()
     });
 

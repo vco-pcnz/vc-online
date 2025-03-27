@@ -53,7 +53,7 @@ const panes = computed(() => {
 });
 
 const onChange = (key) => {
-  router.push(`/requests/details/${key}?uuid=${route.query.uuid}`);
+  router.push(`/requests/details/${key}?type=${route.query.type}&uuid=${route.query.uuid}`);
 };
 
 const back = () => {

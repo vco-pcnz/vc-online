@@ -2,15 +2,28 @@
   <div>
     <bind-users-dialog v-model:visible="showDialog" :type="1" :p-ids="pIds" :data="vcTeamObj" :vc-team="vcTeamData" @done="bindDone"></bind-users-dialog>
 
-    <vco-page-nav sup-path="/requests">
+    <!-- <vco-page-nav sup-path="/requests">
       <template #action>
         <a-button type="cyan" shape="round" @click="navigationTo('/process/one')">{{ t('发起借款申请') }}</a-button>
       </template>
-    </vco-page-nav>
+    </vco-page-nav> -->
+    <div class="page-tab-content">
+      <div class="nav-content">
+        <div v-for="item in productData" :key="item.uuid"
+          class="nav-link" :class="{'active': item.uuid === currentProduct}"
+          @click="productChange(item)"
+        >
+          {{ item.name }}
+        </div>
+      </div>
+      <div class="handle-content">
+        <a-button type="cyan" shape="round" @click="gotoProcess">{{ t('发起借款申请') }}</a-button>
+      </div>
+    </div>
 
     <div class="mt-5">
       <vco-page-tab :tabData="tabData" v-model:current="currentTab" @change="tabChange"></vco-page-tab>
-      <table-search @search="searchHandle" :current="currentTab"></table-search>
+      <table-search ref="tableSearchRef" @search="searchHandle" :current="currentTab"></table-search>
       <div class="mt-10">
         <vco-table-tool>
           <template #left>
@@ -42,14 +55,14 @@
                 <template #bodyCell="{ column, record }">
                   <template v-if="column.dataIndex === 'project_image'">
                     <template v-if="record.imgsArr.length">
-                      <div class="flex justify-center cursor-pointer" @click="navigationTo(`/requests/details/about?uuid=${record.uuid}`)">
+                      <div class="flex justify-center cursor-pointer" @click="navigationTo(`/requests/details/about?type=${currentTypeCode}&uuid=${record.uuid}`)">
                         <vco-avatar :src="record.imgsArr[0]" :radius="true" :round="false"></vco-avatar>
                       </div>
                     </template>
                     <p v-else>--</p>
                   </template>
                   <template v-if="column.dataIndex === 'project_info'">
-                    <span class="cursor-pointer" @click="navigationTo(`/requests/details/about?uuid=${record.uuid}`)">
+                    <span class="cursor-pointer" @click="navigationTo(`/requests/details/about?type=${currentTypeCode}&uuid=${record.uuid}`)">
                       <div class="id-info">ID: {{ record.project_apply_sn }}</div>
                       <div :title="record.project_name">{{ record.project_name || t('项目名称') }}</div>
                       <div v-if="record.project_city && record.project_city.length > 3" class="icon-txt mt-1">
@@ -59,7 +72,7 @@
                     </span>
                   </template>
                   <template v-if="column.dataIndex === 'loan_money'">
-                    <span class="cursor-pointer" @click="navigationTo(`/requests/details/about?uuid=${record.uuid}`)">
+                    <span class="cursor-pointer" @click="navigationTo(`/requests/details/about?type=${currentTypeCode}&uuid=${record.uuid}`)">
                       <vco-number v-if="record.loan_money" :value="record.loan_money" :precision="2"></vco-number>
                       <p v-else>--</p>
                     </span>
@@ -118,7 +131,7 @@
                       <template #overlay>
                         <a-menu :selectable="false">
                           <a-menu-item key="0">
-                            <a @click="navigationTo(`/requests/details/about?uuid=${record.uuid}`)">{{ t('查看详情') }}</a>
+                            <a @click="navigationTo(`/requests/details/about?type=${currentTypeCode}&uuid=${record.uuid}`)">{{ t('查看详情') }}</a>
                           </a-menu-item>
                           <a-menu-item key="1" :disabled="key.includes(record.mark)">
                             <vco-popconfirm url="/project/project/copyProject" :formParams="{ uuid: record.uuid }" :tip="t('确定要复制{0}', [record.project_name])" :disabled="key.includes(record.mark)" @update="toCopyDetail">
@@ -157,13 +170,24 @@ import { processRoutes } from '@/constant';
 import emitter from '@/event';
 import BindUsersDialog from '@/views/process/components/BindUsersDialog.vue';
 import useUserStore from '@/store/modules/user';
+import useProductStore from '@/store/modules/product'
 
-const { t, locale } = useI18n();
+const { t } = useI18n();
+
+const tableSearchRef = ref()
 
 const { currentParams, tableRef, tableLoading, pageObj, tableData, otherInfo, pageChange, getTableData } = useTableList(projectListApi, {}, false);
 
 const userStore = useUserStore();
 const isNormalUser = computed(() => userStore.isNormalUser);
+
+const productStore = useProductStore();
+const productData = computed(() => productStore.productData)
+const currentProduct = ref(productData.value.length ? productData.value[0].uuid : '')
+const currentTypeCode = computed(() => {
+  const obj = productData.value.find(item => item.uuid === currentProduct.value)
+  return obj ? obj.code : ''
+})
 
 const tabLayout = ref(0);
 const currentTab = ref('1');
@@ -253,16 +277,26 @@ const onSelectChange = (keys) => {
 };
 
 const tabChange = () => {
-  const params = cloneDeep(currentParams.value) || {};
-  params.status = '';
-  params.sta = currentTab.value;
-  getTableData(params);
+  if (currentProduct.value) {
+    const params = cloneDeep(currentParams.value) || {};
+    params.status = '';
+    params.sta = currentTab.value;
+    params.product_uuid = currentProduct.value
+    getTableData(params);
+  }
 };
+
+const productChange = (data) => {
+  currentProduct.value = data.uuid
+  currentTab.value = '1'
+  tableSearchRef.value.searchHandle(true)
+}
 
 const searchHandle = (data = {}) => {
   const params = {
     ...data,
-    sta: currentTab.value
+    sta: currentTab.value,
+    product_uuid: currentProduct.value
   };
   getTableData(params);
 };
@@ -299,13 +333,6 @@ const getVcteamData = () => {
   });
 };
 
-const itemHandle = (data) => {
-  const href = processRoutes[data.next_index - 1];
-  if (href) {
-    navigationTo(`${href}?uuid=${data.uuid}`);
-  }
-};
-
 watch([sortType, sortValue], ([newSortType, newSortValue]) => {
   const params = cloneDeep(currentParams.value);
   params.order = newSortType;
@@ -332,6 +359,21 @@ const handleRefreshRequestsList2 = () => {
   tabChange();
 };
 
+const toCopyDetail = (val) => {
+  navigationTo(`/process/four?type=${currentTypeCode.value}&uuid=${val.uuid}`);
+};
+
+const gotoProcess = () => {
+  navigationTo(`/process/one?type=${currentTypeCode.value}`)
+}
+
+const itemHandle = (data) => {
+  const href = processRoutes[data.next_index - 1];
+  if (href) {
+    navigationTo(`${href}?type=${currentTypeCode.value}&uuid=${data.uuid}`);
+  }
+};
+
 onMounted(() => {
   if (hasPermission('projects:copy')) {
     columns.push({
@@ -349,10 +391,6 @@ onMounted(() => {
 
   emitter.on('refreshRequestsList2', handleRefreshRequestsList2);
 });
-
-const toCopyDetail = (val) => {
-  navigationTo('/process/four?uuid=' + val.uuid);
-};
 
 onUnmounted(() => {
   emitter.off('refreshRequestsList', handleRefreshRequestsList);
@@ -404,6 +442,43 @@ onUnmounted(() => {
     &:last-child {
       margin-bottom: 0;
     }
+  }
+}
+
+.page-tab-content {
+  border-bottom: 1px solid #808080;
+  padding-bottom: 20px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  .nav-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    .nav-link {
+      display: block;
+      background-color: #f3ede5;
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #272727;
+      border-radius: 40px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      &.active {
+        background-color: #272727;
+        color: #fff;
+      }
+      &:hover {
+        background-color: #272727;
+        color: #fff;
+      }
+    }
+  }
+  .handle-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
 }
 </style>

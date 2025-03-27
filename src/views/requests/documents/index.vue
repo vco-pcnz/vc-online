@@ -5,6 +5,7 @@
       <div v-if="pageStep" class="flex nav-content">
         <a-button shape="round" @click="goHandleProcess('process')">{{ t('项目详情1') }}</a-button>
         <a-button
+          v-if="showBudget"
           shape="round"
           @click="goHandleProcess('budget')"
         >{{ t('预算信息') }}</a-button>
@@ -23,24 +24,29 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import Documents from '@/components/documents/index.vue';
 import { useRoute } from 'vue-router';
-const route = useRoute();
-import tool, { goBack, navigationTo } from '@/utils/tool';
+import { goBack, navigationTo } from '@/utils/tool';
 import { useI18n } from 'vue-i18n';
+
+const route = useRoute();
 const { t } = useI18n();
 
 const currentId = ref('');
 const pageTitle = ref(t('项目文件'))
 const pageStep = ref('')
 
+const showBudget = computed(() => {
+  return ['default'].includes(route.query.type)
+})
+
 const goHandleProcess = (page) => {
   let href = ''
   if (page === 'process') {
-    href = `/process/${pageStep.value}?uuid=${currentId.value}`
+    href = `/process/${pageStep.value}?type=${route.query.type}&uuid=${currentId.value}`
   } else {
-    href = `/requests/${page}?uuid=${currentId.value}&step=${pageStep.value}&sn=${pageTitle.value}`
+    href = `/requests/${page}?type=${route.query.type}&uuid=${currentId.value}&step=${pageStep.value}&sn=${pageTitle.value}`
   }
 
   navigationTo(href)

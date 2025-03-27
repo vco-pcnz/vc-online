@@ -5,6 +5,7 @@
       <div v-if="pageStep" class="flex nav-content">
         <a-button shape="round" @click="goHandleProcess('process')">{{ t('项目详情1') }}</a-button>
         <a-button
+          v-if="showBudget"
           shape="round"
           @click="goHandleProcess('budget')"
         >{{ t('预算信息') }}</a-button>
@@ -25,7 +26,7 @@
 
 
 <script setup>
-  import { ref, onMounted } from "vue";
+  import { ref, onMounted, computed } from "vue";
   import { useRoute } from "vue-router";
   import { useI18n } from "vue-i18n";
   import { goBack, navigationTo } from "@/utils/tool"
@@ -41,12 +42,16 @@
   const pageTitle = ref(t('明细表'))
   const pageStep = ref('')
 
+  const showBudget = computed(() => {
+    return ['default'].includes(route.query.type)
+  })
+
   const goHandleProcess = (page) => {
     let href = ''
     if (page === 'process') {
-      href = `/process/${pageStep.value}?uuid=${currentId.value}`
+      href = `/process/${pageStep.value}?type=${route.query.type}&uuid=${currentId.value}`
     } else {
-      href = `/requests/${page}?uuid=${currentId.value}&step=${pageStep.value}&sn=${pageTitle.value}`
+      href = `/requests/${page}?type=${route.query.type}&uuid=${currentId.value}&step=${pageStep.value}&sn=${pageTitle.value}`
     }
 
     navigationTo(href)

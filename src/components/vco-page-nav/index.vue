@@ -90,7 +90,7 @@ defineExpose({
   .nav-content {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 20px;
     .nav-link {
       display: block;
       background-color: #f3ede5;

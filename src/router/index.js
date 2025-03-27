@@ -1,5 +1,5 @@
 import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router'
-import { useUserStore, useNoticeStore } from '@/store'
+import { useUserStore, useNoticeStore, useProductStore } from '@/store'
 import i18n from "@/i18n";
 import NProgress from 'nprogress'
 import { getToken } from "@/utils/token-util.js"
@@ -22,10 +22,17 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore();
   const noticeStore = useNoticeStore()
+  const productStore = useProductStore()
+
   NProgress.start()
   let toTitle = to.meta.title || to.name
   document.title = toTitle ? `${i18n.global.t(toTitle)} - ${title}` : title
   const token = getToken()
+
+  // 产品数据
+  if (!productStore.productData.length) {
+    productStore.requestProductInfo()
+  }
 
   // 登录状态下
   if (token) {

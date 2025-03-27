@@ -155,6 +155,7 @@ export function useDynamicModule() {
     previousStep,
     currentStep,
     nextStep,
-    canNext
+    canNext,
+    tempFile
   };
 }

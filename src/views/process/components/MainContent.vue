@@ -37,6 +37,7 @@
               <div v-if="orderSn && currentStep.examine" class="flex nav-content">
                 <a-button class="active" shape="round">{{ t('项目详情1') }}</a-button>
                 <a-button
+                  v-if="showBudget"
                   shape="round"
                   @click="goHandle('budget')"
                 >{{ t('预算信息') }}</a-button>
@@ -73,7 +74,7 @@
 </template>
 
 <script setup>
-  import { ref, onMounted } from "vue"
+  import { ref, onMounted, computed } from "vue"
   import { useDynamicModule } from "@/hooks/useDynamicModule";
   import ProcessHeader from "./ProcessHeader.vue";
   import { useI18n } from "vue-i18n";
@@ -104,8 +105,13 @@
     nextPage,
     nextStep,
     stepData,
-    canNext
+    canNext,
+    tempFile
   } = useDynamicModule();
+
+  const showBudget = computed(() => {
+    return ['default'].includes(tempFile.value)
+  })
 
   const pageDone = ref(false)
   const orderSn = ref('')
@@ -119,7 +125,7 @@
   const goHandle = (page) => {
     const pathname = window.location.pathname
     const step = pathname.slice(pathname.lastIndexOf('/') + 1)
-    const href = `/requests/${page}?uuid=${currentId.value}&step=${step}&sn=${orderSn.value}`
+    const href = `/requests/${page}?type=${tempFile.value}&uuid=${currentId.value}&step=${step}&sn=${orderSn.value}`
 
     navigationTo(href)
   }

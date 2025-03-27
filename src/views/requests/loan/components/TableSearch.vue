@@ -170,4 +170,8 @@ watch(
     deep: true
   }
 );
+
+defineExpose({
+  searchHandle
+})
 </script>

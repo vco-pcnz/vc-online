@@ -688,3 +688,11 @@ export const projectForecastExportExcelEst = (params) =>
     method: "get",
     params
   });
+
+// 产品列表
+export const productSel = (params) =>
+  request({
+    url: "/product/sel",
+    method: "get",
+    params
+  });

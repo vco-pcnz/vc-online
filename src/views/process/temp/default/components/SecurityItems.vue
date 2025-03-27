@@ -22,6 +22,16 @@
 
     <vco-process-title :title="t('抵押物信息')">
       <div v-if="!isDetails" class="flex gap-5 items-center">
+        <a-button
+          v-if="blockInfo.showEdit && Number(securityInfo.count)"
+          type="brown"
+          shape="round"
+          class="uppercase"
+          @click="editHandle"
+        >
+          {{ t('批量编辑') }}
+        </a-button>
+
         <a-popover
           v-if="blockInfo.showEdit"
           v-model:open="addSecurityVisible" trigger="click"
@@ -225,6 +235,10 @@ const addHandle = (flag = false) => {
     addVisible.value = true
   }
   addSecurityVisible.value = false
+}
+
+const editHandle = () => {
+  navigationTo(`/process/security-batche?uuid=${route.query.uuid}&code=${props.blockInfo.code}&e=1`)
 }
 
 onMounted(() => {

@@ -73,6 +73,17 @@
         :rules="formRules"
       >
         <a-row :gutter="24">
+          <a-col :span="12">
+            <a-form-item :label="t('是否有Linefee')" name="has_linefee">
+              <a-switch v-model:checked="formState.has_linefee" :checkedValue="1" :unCheckedValue="0" @change="linefeeFilter" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item :label="t('是否预算')" name="do__est">
+              <a-switch v-model:checked="formState.do__est" :checkedValue="1" :unCheckedValue="0" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="24"><div class="form-line"></div></a-col>
           <a-col :span="7">
             <a-form-item :label="t('土地贷款总额')" name="land_amount">
               <a-input-number
@@ -523,7 +534,9 @@
     land_amount: '',
     initial_build_amount: '',
     initial_land_amount: '',
-    substitution_ids: []
+    substitution_ids: [],
+    has_linefee: 1,
+    do__est: 0
   });
 
   const formRules = ref({
@@ -537,6 +550,12 @@
   const dollarItems = ref([]);
   const changeBackItems = ref([])
   const showNumItems = ref([]);
+
+  const percentItemsStore = ref([]);
+  const dollarItemsStore = ref([]);
+  const changeBackItemsStore = ref([])
+  const showNumItemsStore = ref([]);
+
   const creditId = ref(null);
 
   const totalAmountRef = computed(() => {
@@ -591,10 +610,29 @@
     }
   };
 
+  const linefeeFilter = () => {
+    let percentData = cloneDeep(percentItemsStore.value)
+    let dollarData = cloneDeep(dollarItemsStore.value)
+    let changeBack = cloneDeep(changeBackItemsStore.value)
+    let showNum = cloneDeep(showNumItemsStore.value)
+
+    if (formState.value.has_linefee === 0) {
+      percentData = percentData.filter(item => !item.is_linefee)
+      dollarData = dollarData.filter(item => !item.is_linefee)
+      changeBack = changeBack.filter(item => !item.is_linefee)
+      showNum = showNum.filter(item => !item.is_linefee)
+    }
+
+    percentItems.value = percentData
+    dollarItems.value = dollarData;
+    changeBackItems.value = changeBack
+    showNumItems.value = showNum
+  }
+
   const getFormItems = async () => {
     const creditCate = props.isDetails ? 0 : props.currentStep?.credit_cate;
 
-    await ruleCredit({ type: creditCate }).then(async (res) => {
+    await ruleCredit({ type: creditCate, uuid: props.currentId }).then(async (res) => {
       const data = res || [];
       const writeData = data.filter((item) => item.is_write);
 
@@ -622,11 +660,14 @@
       }
 
       formRules.value = { ...formRules.value, ...rulesData };
-      percentItems.value = perData;
-      dollarItems.value = dolData;
-      changeBackItems.value = backData
 
-      showNumItems.value = props.currentStep?.credit_cate ? data.filter((item) => !item.is_write && item.type === 1) : data.filter((item) => !item.is_write);
+      const showNumItemsData = props.currentStep?.credit_cate ? data.filter((item) => !item.is_write && item.type === 1) : data.filter((item) => !item.is_write);
+
+      percentItemsStore.value = cloneDeep(perData);
+      dollarItemsStore.value = cloneDeep(dolData);
+      changeBackItemsStore.value = cloneDeep(backData);
+      showNumItemsStore.value = cloneDeep(showNumItemsData);
+      
       await updateFormData(res);
     });
   };
@@ -648,9 +689,12 @@
           if (key === 'substitution_ids') {
             formState.value[key] = props.lendingInfo?.substitution_ids || [];
           }
+          if (key === 'has_linefee') {
+            formState.value[key] = props.lendingInfo?.has_linefee;
+          }
         }
-        for (let i = 0; i < showNumItems.value.length; i++) {
-          showNumItems.value[i].value = res[showNumItems.value[i].credit_table];
+        for (let i = 0; i < showNumItemsStore.value.length; i++) {
+          showNumItemsStore.value[i].value = res[showNumItemsStore.value[i].credit_table];
         }
         creditId.value = res.id || null;
 
@@ -662,6 +706,8 @@
           emitter.emit('showHeaderTab');
         }
       }
+
+      linefeeFilter()
     });
 
     formState.value.land_amount = Number(props.lendingInfo.build_amount) ? props.lendingInfo.land_amount : Number(props.lendingInfo.land_amount)
@@ -673,6 +719,7 @@
     formState.value.initial_land_amount = props.lendingInfo.initial_land_amount;
 
     staticFormData.value = cloneDeep(formState.value)
+
     emits('openData', {
       table: tableDataRefData.value,
       data: formState.value
@@ -831,6 +878,8 @@
           emitter.emit('refreshForecastList');
           // 触发奖金刷新
           emitter.emit('refreshBouns')
+          // 出发抵押物刷新
+          emitter.emit('refreshSecurityList')
           updateFormData()
         }
       })
@@ -880,6 +929,8 @@
         delete credit__data.initial_land_amount
         delete credit__data.land_amount
         delete credit__data.substitution_ids
+        delete credit__data.has_linefee
+        delete credit__data.do__est
 
         const params = {
           code: props.blockInfo.code,
@@ -890,6 +941,8 @@
           initial_land_amount: formState.value.initial_land_amount || 0,
           substitution_ids: formState.value.substitution_ids || [],
           substitution_amount: refinancialAmount.value || 0,
+          has_linefee: Number(formState.value.has_linefee),
+          do__est: Number(formState.value.do__est),
           credit__data
         };
 

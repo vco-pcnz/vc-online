@@ -108,15 +108,6 @@
                   <div class="stuff-item">
                     <a-select
                       show-search
-                      v-model:value="record.typology.lounge"
-                    >
-                      <a-select-option v-for="num in 5" :key="`lounge_${num - 1}`" :value="num - 1">{{num - 1}}</a-select-option>
-                    </a-select>
-                    <p>lounge</p>
-                  </div>
-                  <div class="stuff-item">
-                    <a-select
-                      show-search
                       v-model:value="record.typology.bath"
                     >
                       <a-select-option 
@@ -132,11 +123,29 @@
                   <div class="stuff-item">
                     <a-select
                       show-search
+                      v-model:value="record.typology.lounge"
+                    >
+                      <a-select-option v-for="num in 5" :key="`lounge_${num - 1}`" :value="num - 1">{{num - 1}}</a-select-option>
+                    </a-select>
+                    <p>lounge</p>
+                  </div>
+                  <div class="stuff-item">
+                    <a-select
+                      show-search
                       v-model:value="record.typology.garage"
                     >
                       <a-select-option v-for="num in 5" :key="`garage_${num - 1}`" :value="num - 1">{{num - 1}}</a-select-option>
                     </a-select>
                     <p>garage</p>
+                  </div>
+                  <div class="stuff-item">
+                    <a-select
+                      show-search
+                      v-model:value="record.typology.carpark"
+                    >
+                      <a-select-option v-for="num in 5" :key="`carpark_${num - 1}`" :value="num - 1">{{num - 1}}</a-select-option>
+                    </a-select>
+                    <p>carpark</p>
                   </div>
                   <div class="stuff-item">
                     <a-select
@@ -147,7 +156,7 @@
                     </a-select>
                     <p>level</p>
                   </div>
-                  <div class="stuff-item">
+                  <div class="stuff-item line">
                     <a-input v-model:value="record.typology.other" placeholder="Other" />
                   </div>
                 </div>
@@ -263,15 +272,6 @@
                   <div class="stuff-item">
                     <a-select
                       show-search
-                      v-model:value="record.typology.lounge"
-                    >
-                      <a-select-option v-for="num in 5" :key="`lounge_${num - 1}`" :value="num - 1">{{num - 1}}</a-select-option>
-                    </a-select>
-                    <p>lounge</p>
-                  </div>
-                  <div class="stuff-item">
-                    <a-select
-                      show-search
                       v-model:value="record.typology.bath"
                     >
                       <a-select-option 
@@ -287,11 +287,29 @@
                   <div class="stuff-item">
                     <a-select
                       show-search
+                      v-model:value="record.typology.lounge"
+                    >
+                      <a-select-option v-for="num in 5" :key="`lounge_${num - 1}`" :value="num - 1">{{num - 1}}</a-select-option>
+                    </a-select>
+                    <p>lounge</p>
+                  </div>
+                  <div class="stuff-item">
+                    <a-select
+                      show-search
                       v-model:value="record.typology.garage"
                     >
                       <a-select-option v-for="num in 5" :key="`garage_${num - 1}`" :value="num - 1">{{num - 1}}</a-select-option>
                     </a-select>
                     <p>garage</p>
+                  </div>
+                  <div class="stuff-item">
+                    <a-select
+                      show-search
+                      v-model:value="record.typology.carpark"
+                    >
+                      <a-select-option v-for="num in 5" :key="`carpark_${num - 1}`" :value="num - 1">{{num - 1}}</a-select-option>
+                    </a-select>
+                    <p>carpark</p>
                   </div>
                   <div class="stuff-item">
                     <a-select
@@ -302,7 +320,7 @@
                     </a-select>
                     <p>level</p>
                   </div>
-                  <div class="stuff-item">
+                  <div class="stuff-item line">
                     <a-input v-model:value="record.typology.other" placeholder="Other" />
                   </div>
                 </div>
@@ -490,6 +508,7 @@ const setAddressInfo = (e) => {
   }
 };
 
+const baseData = ref(null)
 const getDataInfo = async () => {
   pageLoading.value = true
   await projectDetailApi({
@@ -504,8 +523,22 @@ const getDataInfo = async () => {
 
       formState.value.security_name = t('{0}的抵押物', [nameStr])
 
-      const addressInfo = res.security?.base || res.project
-      const {project_address_short, project_address, project_suburb, region_one_id, region_two_id, region_three_id, project_postcode} = addressInfo
+      let {project_address_short, project_address, project_suburb, region_one_id, region_two_id, region_three_id, project_postcode} = res.project
+      
+      baseData.value = res.security?.base
+
+      if (baseData.value) {
+        formState.value.security_name = baseData.value.security_name
+        formState.value.type = baseData.value.type
+
+        project_address_short = baseData.value.address_short
+        project_address = baseData.value.address
+        project_suburb = baseData.value.suburb
+        region_one_id = baseData.value.region_one_id
+        region_two_id = baseData.value.region_two_id
+        region_three_id = baseData.value.region_three_id
+        project_postcode = baseData.value.postcode
+      }
 
       formState.value.address_short = project_address_short || ''
       formState.value.address = project_address || ''
@@ -545,20 +578,20 @@ const getGstRate = () => {
 
 const batchColumns = reactive([
   { title: t('修改项'), dataIndex: 'rowSelect', width: 140, align: 'center' },
-  { title: t('类型1'), dataIndex: 'typology', width: 260, align: 'center' },
+  { title: t('类型1'), dataIndex: 'typology', width: 280, align: 'center' },
   { title: t('面积'), dataIndex: 'sqm', width: 120, align: 'center' },
   { title: t('预计销售价格'), dataIndex: 'est_sales_price', width: 140, align: 'center' },
   { title: t('含消费税'), dataIndex: 'is_gst', width: 115, align: 'center' },
   { title: t('担保价值'), dataIndex: 'amount', width: 140, align: 'center' },
   { title: t('保险价值'), dataIndex: 'insurance_value', width: 140, align: 'center' },
+  { title: t('销售价格'), dataIndex: 'sales_price', width: 140, align: 'center' },
+  { title: t('回款金额'), dataIndex: 'repayment_price', width: 140, align: 'center' },
+  { title: t('净收益'), dataIndex: 'net_proceeds_price', width: 140, align: 'center' },
   { title: t('保险到期日'), dataIndex: 'insurance_expire_date', width: 155, align: 'center' },
   { title: t('合同日期'), dataIndex: 'contract_date', width: 155, align: 'center' },
   { title: t('结算日期'), dataIndex: 'settlement_date', width: 155, align: 'center' },
   { title: t('日落日期'), dataIndex: 'sunset_date', width: 155, align: 'center' },
   { title: t('还款日期'), dataIndex: 'repayment_date', width: 155, align: 'center' },
-  { title: t('销售价格'), dataIndex: 'sales_price', width: 140, align: 'center' },
-  { title: t('回款金额'), dataIndex: 'repayment_price', width: 140, align: 'center' },
-  { title: t('净收益'), dataIndex: 'net_proceeds_price', width: 140, align: 'center' },
   { title: t('操作1'), dataIndex: 'opt', width: 115, align: 'center', fixed: 'right' }
 ])
 
@@ -570,6 +603,7 @@ const batchDataSource = ref([{
     bath: 2,
     garage: 1,
     level: 2,
+    carpark: 1,
     other: ''
   },
   sqm: '90',
@@ -587,29 +621,29 @@ const batchDataSource = ref([{
 
 const formColumns = reactive([
   { title: t('楼栋号'), dataIndex: 'card_no', width: 140, align: 'center' },
-  { title: t('类型1'), dataIndex: 'typology', width: 260, align: 'center' },
+  { title: t('类型1'), dataIndex: 'typology', width: 280, align: 'center' },
   { title: t('面积'), dataIndex: 'sqm', width: 120, align: 'center' },
   { title: t('预计销售价格'), dataIndex: 'est_sales_price', width: 140, align: 'center' },
   { title: t('含消费税'), dataIndex: 'is_gst', width: 115, align: 'center' },
   { title: t('担保价值'), dataIndex: 'amount', width: 140, align: 'center' },
   { title: t('保险价值'), dataIndex: 'insurance_value', width: 140, align: 'center' },
-  { title: t('保险到期日'), dataIndex: 'insurance_expire_date', width: 155, align: 'center' },
-  { title: t('合同日期'), dataIndex: 'contract_date', width: 155, align: 'center' },
-  { title: t('结算日期'), dataIndex: 'settlement_date', width: 155, align: 'center' },
-  { title: t('日落日期'), dataIndex: 'sunset_date', width: 155, align: 'center' },
-  { title: t('还款日期'), dataIndex: 'repayment_date', width: 155, align: 'center' },
   { title: t('销售价格'), dataIndex: 'sales_price', width: 140, align: 'center' },
   { title: t('回款金额'), dataIndex: 'repayment_price', width: 140, align: 'center' },
   { title: t('净收益'), dataIndex: 'net_proceeds_price', width: 140, align: 'center' },
   { title: t('变化比例'), dataIndex: 'variance', width: 100, align: 'center' },
   { title: t('每单位债务'), dataIndex: 'dup', width: 140, align: 'center' },
+  { title: t('保险到期日'), dataIndex: 'insurance_expire_date', width: 155, align: 'center' },
+  { title: t('合同日期'), dataIndex: 'contract_date', width: 155, align: 'center' },
+  { title: t('结算日期'), dataIndex: 'settlement_date', width: 155, align: 'center' },
+  { title: t('日落日期'), dataIndex: 'sunset_date', width: 155, align: 'center' },
+  { title: t('还款日期'), dataIndex: 'repayment_date', width: 155, align: 'center' },
   { title: t('操作1'), dataIndex: 'opt', width: 115, align: 'center', fixed: 'right' }
 ])
 
 watch(
   () => formState.value.type,
   (val) => {
-    const item = { title: t('类型1'), dataIndex: 'typology', width: 260, align: 'center' }
+    const item = { title: t('类型1'), dataIndex: 'typology', width: 280, align: 'center' }
     const index1 = batchColumns.findIndex(item => item.dataIndex === 'typology')
     const index2 = formColumns.findIndex(item => item.dataIndex === 'typology')
 
@@ -641,6 +675,7 @@ const batchitem = {
     bath: 2,
     garage: 1,
     level: 2,
+    carpark: 1,
     other: ''
   },
   sqm: '90',
@@ -688,6 +723,8 @@ const tableDataInit = () => {
       })
       data = formOldData
     }
+
+    console.log('baseData', baseData.value);
     
   } else { // 新增
     for (let i = 0; i < Number(projectInfo.value.building_num); i++) {
@@ -699,9 +736,6 @@ const tableDataInit = () => {
       data.push(item)
     }
   }
-
-  console.log('data', data);
-
   
   formDataSource.value = data
 }
@@ -834,7 +868,7 @@ const submitRquest = () => {
       base: formVal,
       batch: formData,
       del: delData,
-      upd: formVal.upd ? 1 : 0
+      upd: !baseData.value ? 1 : (formVal.upd ? 1 : 0)
     },
     security__mode: 2
   }
@@ -1006,15 +1040,22 @@ onMounted(async () => {
 }
 
 .stuff-item {
-  width: 110px;
+  width: 120px;
   display: flex;
   align-items: center;
   gap: 5px;
   float: left;
   margin-top: 10px;
+  margin-right: 5px;
+  &.line {
+    width: 240px;
+  }
   &:nth-child(1),
   &:nth-child(2) {
     margin-top: 0;
+  }
+  &:nth-child(even) {
+    margin-right: 0;
   }
   .ant-select {
     width: 65px !important;

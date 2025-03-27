@@ -37,6 +37,10 @@
               <div v-if="orderSn && currentStep.examine" class="flex nav-content">
                 <a-button class="active" shape="round">{{ t('项目详情1') }}</a-button>
                 <a-button
+                  shape="round"
+                  @click="goHandle('budget')"
+                >{{ t('预算信息') }}</a-button>
+                <a-button
                   v-if="showHeaderTab" shape="round"
                   @click="goHandle('schedule')"
                 >{{ t('明细表') }}</a-button>

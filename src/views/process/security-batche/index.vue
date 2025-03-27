@@ -439,7 +439,12 @@
 import { onMounted, ref, nextTick, reactive, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter, useRoute } from 'vue-router';
-import { projectDetailApi, projectAuditSaveMode, projectDischargeAddEditSecurity } from "@/api/process";
+import { 
+  projectAuditSecurityList,
+  projectDetailApi,
+  projectAuditSaveMode,
+  projectDischargeAddEditSecurity
+} from "@/api/process";
 import { systemDictData } from "@/api/system"
 import tool, { selectDateFormat, navigationTo } from '@/utils/tool';
 import { cloneDeep } from 'lodash';
@@ -697,7 +702,7 @@ const batchitem = {
 
 const oldData = ref([])
 
-const tableDataInit = () => {
+const tableDataInit = async () => {
   let data = []
 
   if (route.query.e) { // 编辑
@@ -722,10 +727,30 @@ const tableDataInit = () => {
         return sItem
       })
       data = formOldData
-    }
+    } else {
+      // 请求批量数据
+      const { list } = await projectAuditSecurityList({
+        uuid: route.query.uuid,
+        type: baseData.value.type
+      })
 
-    console.log('baseData', baseData.value);
-    
+      const listData = list || []
+
+      const formOldData = listData.map((item, index) => {
+        const sItem = cloneDeep(batchitem)
+        for (const key in sItem) {
+          if (item[key]) {
+            sItem[key] = item[key]
+          }
+        }
+        sItem.is_gst = sItem.is_gst === 1 ? true : false
+        sItem.checked = true
+        sItem.name = item.card_no || t(`第{0}行`, [index + 1])
+        sItem.security_uuid = item.uuid
+        return sItem
+      })
+      data = formOldData
+    }
   } else { // 新增
     for (let i = 0; i < Number(projectInfo.value.building_num); i++) {
       const item = cloneDeep(batchitem)
@@ -736,7 +761,6 @@ const tableDataInit = () => {
       data.push(item)
     }
   }
-  
   formDataSource.value = data
 }
 

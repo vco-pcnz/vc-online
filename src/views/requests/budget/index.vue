@@ -6,7 +6,7 @@
         <a-button shape="round" @click="goHandleProcess('process')">{{ t('项目详情1') }}</a-button>
         <a-button
           shape="round"
-          @click="goHandleProcess('budget')"
+          class="active"
         >{{ t('预算信息') }}</a-button>
         <a-button
           shape="round"
@@ -14,25 +14,35 @@
         >{{ t('明细表') }}</a-button>
         <a-button
           shape="round"
-          class="active"
+          @click="goHandleProcess('documents')"
         >{{ t('项目文件') }}</a-button>
       </div>
     </vco-page-panel>
-    <Documents :project_id="currentId" v-if="currentId"></Documents>
+    
+    <vco-page-tab :tabData="tabData" v-model:current="currentTab"></vco-page-tab>
+
+    <div v-if="currentId" class="mt-5">
+      <Schedule v-if="currentTab === '1'" :current-id="currentId" :is-details="details" :budget="true" :linefee="1" />
+      <Schedule v-if="currentTab === '2'" :current-id="currentId" :is-details="details" :budget="true" :linefee="0" />
+    </div>
+    
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import Documents from '@/components/documents/index.vue';
 import { useRoute } from 'vue-router';
 const route = useRoute();
 import tool, { goBack, navigationTo } from '@/utils/tool';
 import { useI18n } from 'vue-i18n';
+import Schedule from "@/components/schedule/index.vue"
+
 const { t } = useI18n();
 
 const currentId = ref('');
-const pageTitle = ref(t('项目文件'))
+const details = ref(false)
+
+const pageTitle = ref(t('预算信息'))
 const pageStep = ref('')
 
 const goHandleProcess = (page) => {
@@ -46,8 +56,20 @@ const goHandleProcess = (page) => {
   navigationTo(href)
 }
 
+const currentTab = ref('1');
+const tabData = ref([
+  {
+    label: t('有Linefee'),
+    value: '1'
+  },
+  {
+    label: t('没有Linefee'),
+    value: '2'
+  }
+]);
+
 onMounted(() => {
-  const { uuid, sn, step } = route.query;
+  const { uuid, sn, step, isDetails } = route.query;
   if (uuid) {
     if (sn) {
       pageTitle.value = sn
@@ -58,6 +80,8 @@ onMounted(() => {
     }
 
     currentId.value = uuid
+    
+    details.value = isDetails === 'true'
   }
 });
 </script>

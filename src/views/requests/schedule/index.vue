@@ -6,6 +6,10 @@
         <a-button shape="round" @click="goHandleProcess('process')">{{ t('项目详情1') }}</a-button>
         <a-button
           shape="round"
+          @click="goHandleProcess('budget')"
+        >{{ t('预算信息') }}</a-button>
+        <a-button
+          shape="round"
           class="active"
         >{{ t('明细表') }}</a-button>
         <a-button

@@ -54,9 +54,9 @@
               <div class="line one"></div>
               <div class="info-content">
                 <p>{{ t('当前余额') }}</p>
-                <vco-number class="num" :value="statisticsData.currentBalance" :precision="2" :end="true"></vco-number>
+                <vco-number class="num" :value="statisticsData?.currentBalance" :precision="2" :end="true"></vco-number>
                 <div>
-                  <vco-number :value="statisticsData.available" color="#666666" size="fs_xs" :precision="2" :end="true"></vco-number>
+                  <vco-number :value="statisticsData?.available" color="#666666" size="fs_xs" :precision="2" :end="true"></vco-number>
                   <span>{{ t('可用余额') }}</span>
                 </div>
               </div>
@@ -70,7 +70,7 @@
               </div>
               <div class="info-content">
                 <p>{{ t('应计利息') }}</p>
-                <vco-number class="num" :value="statisticsData.accruedInterest" :precision="2" :end="true"></vco-number>
+                <vco-number class="num" :value="statisticsData?.accruedInterest" :precision="2" :end="true"></vco-number>
               </div>
             </div>
             <div class="chart-content">
@@ -79,7 +79,7 @@
             <div class="item">
               <div class="info-content">
                 <p>{{ 'Facility limit 2' }}</p>
-                <vco-number class="num" :value="statisticsData.forecastFC2" :precision="2" :end="true"></vco-number>
+                <vco-number class="num" :value="statisticsData?.forecastFC2" :precision="2" :end="true"></vco-number>
                 <div>
                   <span>{{ t('包括利息和费用') }}</span>
                 </div>
@@ -89,7 +89,7 @@
             <div class="item">
               <div class="info-content">
                 <p>{{ t('还款') }}</p>
-                <vco-number class="num" :value="statisticsData.repayments" :precision="2" :end="true"></vco-number>
+                <vco-number class="num" :value="statisticsData?.repayments" :precision="2" :end="true"></vco-number>
                 <div>
                   {{ statisticsData.repaid }}%
                   <span>{{ t('已偿还') }}</span>
@@ -100,7 +100,16 @@
           </div>
 
           <div class="flex flex-col items-center gap-6">
-            <a-dropdown :trigger="['click']">
+            <a-button
+              v-if="budget"
+              :loading="downloading"
+              type="dark"
+              class="big shadow bold uppercase flex-button"
+              @click="budgetExport"
+            >
+              {{ t('创建报告') }}
+            </a-button>
+            <a-dropdown v-else :trigger="['click']">
               <a-button :loading="downloading" type="dark" class="big shadow bold uppercase flex-button">
                 {{ t('创建报告') }}
                 <DownOutlined />
@@ -128,7 +137,7 @@
             </a-dropdown>
             
             <a-button
-              v-if="hasPermission('projects:about:add:savings') && isAbout && !isClose && !itemId"
+              v-if="hasPermission('projects:about:add:savings') && isAbout && !isClose && !itemId && !budget"
               type="brown" shape="round" size="small"
               @click="visible = true"
             >
@@ -290,7 +299,10 @@ import {
   projectForecastExportExcel,
   projectForecastStatistics,
   projectDetailStatistics,
-  projectForecastAddf
+  projectForecastAddf,
+  projectForecastEst,
+  projectForecastStatisticsEst,
+  projectForecastExportExcelEst
 } from '@/api/process';
 import {
   projectForecastVaiList,
@@ -327,6 +339,14 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
+  budget: {
+    type: Boolean,
+    default: false
+  },
+  linefee: {
+    type: Number,
+    default: 1
+  }
 });
 
 const { t } = useI18n();
@@ -347,6 +367,11 @@ const getDataInfo = () => {
   }
 
   let ajaxFn = props.isDetails ? projectDetailForecastList : projectForecastIndex
+
+  if (props.budget) {
+    ajaxFn = projectForecastEst
+    params.has_linefee = props.linefee
+  }
 
   if (props.itemId) {
     ajaxFn = projectForecastVaiList
@@ -403,30 +428,38 @@ const getDataInfo = () => {
       pageLoading.value = false;
     });
 
-  let staticAjaxFn = props.isDetails ? projectDetailStatistics : projectForecastStatistics
-
   const staticParams = {
     uuid: props.currentId
   }
+
+  let staticAjaxFn = props.isDetails ? projectDetailStatistics : projectForecastStatistics
+
+  if (props.budget) {
+    staticAjaxFn = projectForecastStatisticsEst
+    staticParams.has_linefee = props.linefee
+  }
+  
   if (props.itemId) {
     staticAjaxFn = projectVariationStatisticsVai
     staticParams.id = props.itemId
   }
 
   staticAjaxFn(staticParams).then((res) => {
-    const repayments = res.repayments ? Math.abs(Number(res.repayments)) : 0
-    statisticsData.value = res;
-    statisticsData.value.repayments = repayments
-    statisticsData.value.now.repaid = res.now.repaid ? Math.abs(Number(res.now.repaid)) : 0
-    statisticsData.value.last.repaid = res.last.repaid ? Math.abs(Number(res.last.repaid)) : 0
+    if (res) {
+      const repayments = res.repayments ? Math.abs(Number(res.repayments)) : 0
+      statisticsData.value = res;
+      statisticsData.value.repayments = repayments
+      statisticsData.value.now.repaid = res.now.repaid ? Math.abs(Number(res.now.repaid)) : 0
+      statisticsData.value.last.repaid = res.last.repaid ? Math.abs(Number(res.last.repaid)) : 0
 
-    if (res.last.is_overtime) {
-      statisticsData.value.last.days = tool.diffDate(res.day.sday, res.day.eday)
+      if (res.last.is_overtime) {
+        statisticsData.value.last.days = tool.diffDate(res.day.sday, res.day.eday)
+      }
+      statisticsData.value.isBegain = dayjs().isAfter(dayjs(res.day.sday));
+
+      option.value.series[0].data[0].value = repayments;
+      option.value.series[0].data[1].value = res.pendingRepayment || 1;
     }
-    statisticsData.value.isBegain = dayjs().isAfter(dayjs(res.day.sday));
-
-    option.value.series[0].data[0].value = repayments;
-    option.value.series[0].data[1].value = res.pendingRepayment || 1;
   });
 };
 
@@ -451,6 +484,19 @@ const downLoadExcel = (type) => {
       downloading.value = false;
     });
 };
+
+const budgetExport = () => {
+  downloading.value = true;
+  projectForecastExportExcelEst({
+    uuid: props.currentId
+  }).then((res) => {
+    downloading.value = false;
+    window.open(res);
+  })
+  .catch(() => {
+    downloading.value = false;
+  });
+}
 
 const option = ref({
   series: [

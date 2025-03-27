@@ -73,14 +73,27 @@
         :rules="formRules"
       >
         <a-row :gutter="24">
-          <a-col :span="12">
+          <a-col :span="8">
             <a-form-item :label="t('是否有Linefee')" name="has_linefee">
               <a-switch v-model:checked="formState.has_linefee" :checkedValue="1" :unCheckedValue="0" @change="linefeeFilter" />
             </a-form-item>
           </a-col>
-          <a-col :span="12">
+          <a-col :span="8">
             <a-form-item :label="t('是否预算')" name="do__est">
               <a-switch v-model:checked="formState.do__est" :checkedValue="1" :unCheckedValue="0" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="8">
+            <a-form-item label=" ">
+              <a-button
+                type="brown"
+                shape="round"
+                size="small"
+                class="uppercase"
+                @click="goHandle('budget')"
+              >
+                {{ t('查看预算信息') }}
+              </a-button>
             </a-form-item>
           </a-col>
           <a-col :span="24"><div class="form-line"></div></a-col>
@@ -1009,6 +1022,14 @@
 
   const blockShowTargetHandle = (flag) => {
     lendingTarget.value = flag
+  }
+
+  const goHandle = (page) => {
+    const pathname = window.location.pathname
+    const step = pathname.slice(pathname.lastIndexOf('/') + 1)
+    const href = `/requests/${page}?uuid=${props.currentId}&step=${step}&sn=${props.dataInfo.base.project_apply_sn}`
+
+    navigationTo(href)
   }
 
   onMounted(() => {

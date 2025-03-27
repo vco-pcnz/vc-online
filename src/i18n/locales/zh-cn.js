@@ -861,4 +861,8 @@ export default {
   "差额": "差额",
   "是否有Linefee": "是否有Linefee",
   "是否预算": "是否预算",
+  "预算信息": "预算信息",
+  "有Linefee": "有Linefee",
+  "没有Linefee": "没有Linefee",
+  "查看预算信息": "查看预算信息"
 }

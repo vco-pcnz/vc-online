@@ -663,3 +663,28 @@ export const projectDetailSubstitution = (params) =>
     method: "get",
     params
   });
+
+
+// 预算-预测表
+export const projectForecastEst = (params) =>
+  request({
+    url: "/project/forecast/forecastEst",
+    method: "get",
+    params
+  });
+
+// 预算-预测表-统计
+export const projectForecastStatisticsEst = (params) =>
+  request({
+    url: "/project/forecast/statisticsEst",
+    method: "get",
+    params
+  });
+  
+// 预算-预测表-导出
+export const projectForecastExportExcelEst = (params) =>
+  request({
+    url: "/project/forecast/exportExcelEst",
+    method: "get",
+    params
+  });

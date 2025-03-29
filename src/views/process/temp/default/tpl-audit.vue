@@ -26,7 +26,7 @@
     <a-spin :spinning="pageLoading" size="large">
       <div v-if="dataInfo && dataInfo.base.cancel_reason" class="block-item details process-fail mt-5">
         <p class="title">{{ t('拒绝原因') }}</p>
-        <p class="info">{{ dataInfo.base.cancel_reason || t('拒绝原因') }}</p>
+        <p class="info">{{ dataInfo.base.cancel_reason ? dataInfo.base.cancel_reason.replace(/<span.*?>|<\/span>/g, '') : t('拒绝原因') }}</p>
       </div>
       
       <div class="block-container">

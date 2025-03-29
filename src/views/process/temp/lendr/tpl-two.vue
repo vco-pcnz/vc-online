@@ -166,6 +166,10 @@
     canNext: {
       type: Boolean,
       default: false
+    },
+    currentRequest: {
+      type: String,
+      default: ''
     }
   })
 
@@ -291,7 +295,7 @@ const setAddressInfo = (e) => {
         params.draft_step = markInfo.value
       }
 
-      const product_uuid = productStore.getProductUuid(route.query.type)
+      const product_uuid = productStore.getProductUuid(props.currentRequest)
 
       if (product_uuid) {
         params.product_uuid = product_uuid

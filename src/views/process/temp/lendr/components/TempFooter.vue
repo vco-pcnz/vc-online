@@ -153,13 +153,13 @@
 
   const previousHandle = () => {
     if (props.previousPage && props.currentId) {
-      navigationTo(`${props.previousPage}?type=${route.query.type}&uuid=${props.currentId}`)
+      navigationTo(`${props.previousPage}?uuid=${props.currentId}`)
     }
   }
 
   const nextHandle = (data) => {
     const page = data.permission ? props.nextPage : '/requests/details'
-    navigationTo(`${page}?type=${route.query.type}&uuid=${data.uuid}`)
+    navigationTo(`${page}?uuid=${data.uuid}`)
   }
 
   defineExpose({

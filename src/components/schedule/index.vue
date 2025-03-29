@@ -116,16 +116,14 @@
               </a-button>
               <template #overlay>
                 <a-menu>
-                  <template v-if="!ptRole">
-                    <a-menu-item>
-                      <div class="pt-2 pb-2" @click="downLoadExcel(1)">{{ t('预测放款时间表') }}</div>
-                    </a-menu-item>
-                  </template>
+                  <a-menu-item v-if="!ptRole && !hideForcast">
+                    <div class="pt-2 pb-2" @click="downLoadExcel(1)">{{ t('预测放款时间表') }}</div>
+                  </a-menu-item>
                   <a-menu-item>
                     <div class="pt-2 pb-2" @click="downLoadExcel(2)">{{ t('放款时间表') }}</div>
                   </a-menu-item>
                   <template v-if="!ptRole">
-                    <a-menu-item>
+                    <a-menu-item v-if="!hideLinefee">
                       <div class="pt-2 pb-2" @click="downLoadExcel(0)">{{ t('额度费用计算时间表') }}</div>
                     </a-menu-item>
                     <a-menu-item>
@@ -136,13 +134,13 @@
               </template>
             </a-dropdown>
             
-            <a-button
+            <!-- <a-button
               v-if="hasPermission('projects:about:add:savings') && isAbout && !isClose && !itemId && !budget"
               type="brown" shape="round" size="small"
               @click="visible = true"
             >
               {{ t('增加存蓄费') }}
-            </a-button>
+            </a-button> -->
             <a-button
               v-if="itemId"
               :loading="updateLoading"
@@ -287,7 +285,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, watch } from 'vue';
+import { ref, reactive, onMounted, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { DownOutlined } from '@ant-design/icons-vue';
 import dayjs from 'dayjs';
@@ -346,12 +344,24 @@ const props = defineProps({
   linefee: {
     type: Number,
     default: 1
+  },
+  currentProduct: {
+    type: String,
+    default: ''
   }
 });
 
 const { t } = useI18n();
 
 const userStore = useUserStore();
+
+const hideForcast = computed(() => {
+  return ['lendr'].includes(props.currentProduct)
+})
+
+const hideLinefee = computed(() => {
+  return ['lendr'].includes(props.currentProduct)
+})
 
 const pageLoading = ref(false);
 const tabData = ref([]);

@@ -3,7 +3,8 @@ import { productSel } from '@/api/process';
 
 const useProductStore = defineStore('VcOnlineProductData', {
   state: () => ({
-    productData: []
+    productData: [],
+    openProductData: [],
   }),
 
   getters: {
@@ -17,6 +18,7 @@ const useProductStore = defineStore('VcOnlineProductData', {
       productSel().then(res => {
         const data = res || []
         this.productData = data
+        this.openProductData = data.filter(item => item.status)
 
         console.log('data', data);
       })

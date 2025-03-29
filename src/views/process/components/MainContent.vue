@@ -12,11 +12,17 @@
             :status-info="currentStatusInfo"
           >
             <template #left>
-              <a-button v-if="current === 1 && !orderSn && pageDone" type="grey" @click="goBack">{{ t('取消请求') }}</a-button>
+              <div v-if="current === 1 && !orderSn && pageDone && currentRequestName" class="Panel">
+                <h2 class="Panel-Title">
+                  <i class="iconfont back" @click="navigationTo(`/requests/loan`)">&#xe794;</i>
+                  <a-tag class="Tag">{{ currentRequestName }}</a-tag>
+                </h2>
+              </div>
+              
               <div v-if="orderSn && pageDone" class="Panel">
                 <h2 class="Panel-Title">
                   <i class="iconfont back" @click="navigationTo(`/requests/loan`)">&#xe794;</i>
-                  <a-tag class="Tag">{{ orderSn }}</a-tag>
+                  <a-tag class="Tag">{{ `${currentRequestName} - ${orderSn}` }}</a-tag>
                 </h2>
               </div>
             </template>
@@ -64,6 +70,7 @@
             :next-page="nextPage"
             :next-step="nextStep"
             :can-next="canNext"
+            :current-request="currentRequest"
             @dataDone="dataDone"
           ></component>
         </div>
@@ -78,7 +85,7 @@
   import { useDynamicModule } from "@/hooks/useDynamicModule";
   import ProcessHeader from "./ProcessHeader.vue";
   import { useI18n } from "vue-i18n";
-  import { goBack, navigationTo } from "@/utils/tool"
+  import { navigationTo } from "@/utils/tool"
   import { applyCancelProject } from "@/api/process";
   import emitter from '@/event';
 
@@ -106,7 +113,9 @@
     nextStep,
     stepData,
     canNext,
-    tempFile
+    tempFile,
+    currentRequest,
+    currentRequestName
   } = useDynamicModule();
 
   const showBudget = computed(() => {
@@ -125,7 +134,7 @@
   const goHandle = (page) => {
     const pathname = window.location.pathname
     const step = pathname.slice(pathname.lastIndexOf('/') + 1)
-    const href = `/requests/${page}?type=${tempFile.value}&uuid=${currentId.value}&step=${step}&sn=${orderSn.value}`
+    const href = `/requests/${page}?uuid=${currentId.value}&step=${step}&sn=${orderSn.value}`
 
     navigationTo(href)
   }
@@ -208,5 +217,10 @@
         border-color: @clr_yellow;
       }
     }
+  }
+
+  .request-title {
+    font-weight: 500;
+    font-size: 16px;
   }
 </style>

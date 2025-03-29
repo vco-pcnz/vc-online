@@ -1,5 +1,5 @@
 <template>
-  <vco-page-panel :title="(detail && detail.base.project_apply_sn+(pageTitle?'` '+t(pageTitle) :'')) || ''" @back="back">
+  <vco-page-panel :title="pageTitleRef" @back="back">
     <div class="TabsPanel-Tab">
       <a-button v-for="item in panes" :key="item.key" @click="onChange(item.key)" :class="`tab-button ${item.key === props.activeTab ? 'active-tab' : ''}`">
         {{ item.title }}
@@ -26,6 +26,13 @@ const userStore = useUserStore();
 
 const props = defineProps(['title', 'activeTab']);
 const emits = defineEmits(['getProjectDetail']);
+
+const pageTitleRef = computed(() => {
+  const sn = detail.value?.base?.project_apply_sn || ''
+  const name = detail.value?.product?.name ? `${detail.value?.product?.name} - ` : ''
+  const type = pageTitle.value ? ` - ${t(pageTitle.value)}` : ''
+  return `${name}${sn}${type}`
+})
 
 const panes = computed(() => {
   let arr = [];

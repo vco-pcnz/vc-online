@@ -868,5 +868,8 @@ export default {
   "预算信息": "Budget",
   "有Linefee": "With Linefee",
   "没有Linefee": "Without Linefee",
-  "查看预算信息": "View budget"
+  "查看预算信息": "View budget",
+  "返回": "Back",
+  "罚息比例": "Penalty interest ratio",
+  "请输入大于{0}的数字": "Please enter a number greater than {0}"
 }

@@ -7,6 +7,7 @@
             v-if="showSch && !pageLoading"
             :currentId="uuid"
             :is-details="true"
+            :current-product="currentProduct"
           ></schedule>
           <a-empty v-if="!showSch && !pageLoading" />
         </div>
@@ -25,10 +26,13 @@
 
   const uuid = ref(route.query.uuid)
 
+  const currentProduct = ref('')
   const pageLoading = ref(true)
 
   const projectDetail = ref();
   const getProjectDetail = async (val) => {
+    currentProduct.value = val.product.code
+
     projectDetail.value = val;
     pageLoading.value = false
   };

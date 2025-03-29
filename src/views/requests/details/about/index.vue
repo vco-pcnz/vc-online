@@ -2,7 +2,7 @@
   <detail-layout active-tab="about" @getProjectDetail="getProjectDetail">
     <template #content>
       <a-spin :spinning="pageLoading" size="large">
-        <div class="main-info-container">
+        <div v-if="currentProduct" class="main-info-container">
           <reject-dialog
             v-model:visible="rejectVisible"
             :uuid="currentId"
@@ -19,68 +19,68 @@
               <template v-if="dataInfo && !pageLoading">
                 <div v-if="borrowerInfoData.borrower_about" class="block-item details">
                   <vco-process-title :title="t('借款人信息')"></vco-process-title>
-                  <borrower-info :data="borrowerInfoData"></borrower-info>
+                  <component :is="BorrowerInfo" :data="borrowerInfoData" />
                 </div>
                 <div v-if="projectInfoData.project_name" class="block-item details">
                   <vco-process-title :title="t('项目信息')"></vco-process-title>
-                  <project-info :data="projectInfoData"></project-info>
+                  <component :is="ProjectInfo" :data="projectInfoData" />
                 </div>
                 <div v-if="showCert" class="block-item details">
                   <vco-process-title :title="t('证件资料')"></vco-process-title>
-                  <document-info :data="documentInfoData"></document-info>
+                  <component :is="DocumentInfo" :data="documentInfoData" />
                 </div>
                 <div v-if="Number(loanInfoData.loan_money)" class="block-item details">
                   <vco-process-title :title="t('借款信息')"></vco-process-title>
-                  <loan-info :data="loanInfoData"></loan-info>
+                  <component :is="LoanInfo" :data="loanInfoData" />
                 </div>
 
                 <template v-if="showMoreInfo">
-                  <security-items
+                  <component :is="SecurityItems"
                     v-if="securityInfoData.count"
                     :is-details="true"
                     :block-info="{showEdit: false}"
                     :security-info="securityInfoData"
-                  ></security-items>
+                  />
 
-                  <lending-form
+                  <component :is="LendingForm"
                     v-if="Number(lendingData.build_amount) || Number(lendingData.land_amount)"
                     :is-details="true"
                     :current-id="currentId"
                     :block-info="{showEdit: false}"
-                    :data-info="dataInfo"
+                    :data-info="currentDataInfo"
                     :lending-info="lendingData"
-                  ></lending-form>
+                  />
 
-                  <guarantor-info
+                  <component :is="GuarantorInfo"
                     v-if="showWarranty"
                     :current-id="currentId"
                     :is-details="true"
                     :block-info="{showEdit: false}"
                     :guarantor-info="warrantyData"
-                  ></guarantor-info>
+                  />
 
-                  <offer-form
+                  <component :is="OfferForm"
                     v-if="showOffer"
                     :is-details="true"
                     :current-id="currentId"
                     :block-info="{showEdit: false}"
                     :offer-info="offerData"
-                  ></offer-form>
+                  />
 
-                  <confirm-form
+                  <component :is="ConfirmForm"
                     v-if="confirmData.confirm"
                     :current-id="currentId"
                     :is-details="true"
                     :block-info="{showEdit: false}"
                     :confirm-info="confirmData"
-                  ></confirm-form>
+                  />
 
-                  <wash-table
+                  <component :is="WashTable"
                     :current-id="currentId"
                     :is-details="true"
                     :block-info="{showEdit: false}"
                     :wash-info="{is_check: false}"
-                  ></wash-table>
+                  />
                 </template>
               </template>
             </div>
@@ -164,7 +164,7 @@
                 </security-list>
 
                 <forecast-list
-                  v-if="Number(lendingData.build_amount) || Number(lendingData.land_amount)"
+                  v-if="(Number(lendingData.build_amount) || Number(lendingData.land_amount)) && showForecast"
                   :current-id="currentId"
                   :is-details="true"
                   :show-list="true"
@@ -181,32 +181,23 @@
             </div>
           </div>
         </div>
+
+        <a-empty v-if="!currentProduct && !pageLoading" />
       </a-spin>
     </template>
   </detail-layout>
 </template>
 
 <script setup>
-  import { ref, computed } from "vue";
+  import { ref, computed, defineAsyncComponent } from "vue";
   import { useRoute } from "vue-router";
   import { useI18n } from "vue-i18n";
-  import { Empty } from 'ant-design-vue';
   import { navigationTo } from "@/utils/tool";
   import { applyCancelProject, recallProject } from "@/api/process";
-  import BorrowerInfo from "@/views/process/temp/default/components/BorrowerInfo.vue";
-  import ProjectInfo from "@/views/process/temp/default/components/ProjectInfo.vue";
-  import DocumentInfo from "@/views/process/temp/default/components/DocumentInfo.vue";
-  import LoanInfo from "@/views/process/temp/default/components/LoanInfo.vue";
-  import SecurityItems from "@/views/process/temp/default/components/SecurityItems.vue";
-  import LendingForm from "@/views/process/temp/default/components/LendingForm.vue";
-  import GuarantorInfo from "@/views/process/temp/default/components/GuarantorInfo.vue";
-  import OfferForm from "@/views/process/temp/default/components/OfferForm.vue";
-  import ConfirmForm from "@/views/process/temp/default/components/ConfirmForm.vue";
 
   import OperationLog from "@/views/process/components/OperationLog.vue";
   import ForecastList from "@/views/process/components/ForecastList.vue";
   import SecurityList from "@/views/process/components/SecurityList.vue";
-  import WashTable from '@/views/process/temp/default/components/WashTable.vue';
   import ConditionsList from "@/views/process/components/ConditionsList.vue";
   import BindUsers from "@/views/process/components/BindUsers.vue";
   import AdsContent from "@/views/process/components/AdsContent.vue";
@@ -226,6 +217,7 @@
   const dataInfo = ref();
   const currentId = ref(route.query.uuid)
   const currentDataInfo = ref(null)
+  const currentProduct = ref('')
 
   const borrowerInfoData = ref()
   const projectInfoData = ref()
@@ -259,7 +251,34 @@
     return dataInfo.value?.ptRole !== 1
   })
 
+  const showForecast = computed(() => {
+    return ['default'].includes(currentProduct.value)
+  })
+
+  const BorrowerInfo = computed(() => getComponent("BorrowerInfo"));
+  const ProjectInfo = computed(() => getComponent("ProjectInfo"));
+  const DocumentInfo = computed(() => getComponent("DocumentInfo"));
+  const LoanInfo = computed(() => getComponent("LoanInfo"));
+  const SecurityItems = computed(() => getComponent("SecurityItems"));
+  const LendingForm = computed(() => getComponent("LendingForm"));
+  const GuarantorInfo = computed(() => getComponent("GuarantorInfo"));
+  const OfferForm = computed(() => getComponent("OfferForm"));
+  const ConfirmForm = computed(() => getComponent("ConfirmForm"));
+  const WashTable = computed(() => getComponent("WashTable"));
+
+  const getComponent = (componentName) => {
+    if (currentProduct.value) {
+      return defineAsyncComponent(() =>
+        import(`./../../../../views/process/temp/${currentProduct.value}/components/${componentName}.vue`)
+      );
+    } else {
+      return ''
+    }
+  };
+  
   const getProjectDetail = async (res) => {
+    currentProduct.value = res.product.code
+
     currentDataInfo.value = res
     dataInfo.value = res.base
 

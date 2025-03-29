@@ -696,3 +696,11 @@ export const productSel = (params) =>
     method: "get",
     params
   });
+
+// 产品模版
+export const productGetCode = (params) =>
+  request({
+    url: "/product/getCode",
+    method: "get",
+    params
+  });

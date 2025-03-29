@@ -16,7 +16,7 @@
           {{ item.name }}
         </div>
       </div>
-      <div class="handle-content">
+      <div v-if="showCreate" class="handle-content">
         <a-button type="cyan" shape="round" @click="gotoProcess">{{ t('发起借款申请') }}</a-button>
       </div>
     </div>
@@ -55,14 +55,14 @@
                 <template #bodyCell="{ column, record }">
                   <template v-if="column.dataIndex === 'project_image'">
                     <template v-if="record.imgsArr.length">
-                      <div class="flex justify-center cursor-pointer" @click="navigationTo(`/requests/details/about?type=${currentTypeCode}&uuid=${record.uuid}`)">
+                      <div class="flex justify-center cursor-pointer" @click="navigationTo(`/requests/details/about?uuid=${record.uuid}`)">
                         <vco-avatar :src="record.imgsArr[0]" :radius="true" :round="false"></vco-avatar>
                       </div>
                     </template>
                     <p v-else>--</p>
                   </template>
                   <template v-if="column.dataIndex === 'project_info'">
-                    <span class="cursor-pointer" @click="navigationTo(`/requests/details/about?type=${currentTypeCode}&uuid=${record.uuid}`)">
+                    <span class="cursor-pointer" @click="navigationTo(`/requests/details/about?uuid=${record.uuid}`)">
                       <div class="id-info">ID: {{ record.project_apply_sn }}</div>
                       <div :title="record.project_name">{{ record.project_name || t('项目名称') }}</div>
                       <div v-if="record.project_city && record.project_city.length > 3" class="icon-txt mt-1">
@@ -72,7 +72,7 @@
                     </span>
                   </template>
                   <template v-if="column.dataIndex === 'loan_money'">
-                    <span class="cursor-pointer" @click="navigationTo(`/requests/details/about?type=${currentTypeCode}&uuid=${record.uuid}`)">
+                    <span class="cursor-pointer" @click="navigationTo(`/requests/details/about?uuid=${record.uuid}`)">
                       <vco-number v-if="record.loan_money" :value="record.loan_money" :precision="2"></vco-number>
                       <p v-else>--</p>
                     </span>
@@ -131,7 +131,7 @@
                       <template #overlay>
                         <a-menu :selectable="false">
                           <a-menu-item key="0">
-                            <a @click="navigationTo(`/requests/details/about?type=${currentTypeCode}&uuid=${record.uuid}`)">{{ t('查看详情') }}</a>
+                            <a @click="navigationTo(`/requests/details/about?uuid=${record.uuid}`)">{{ t('查看详情') }}</a>
                           </a-menu-item>
                           <a-menu-item key="1" :disabled="key.includes(record.mark)">
                             <vco-popconfirm url="/project/project/copyProject" :formParams="{ uuid: record.uuid }" :tip="t('确定要复制{0}', [record.project_name])" :disabled="key.includes(record.mark)" @update="toCopyDetail">
@@ -183,10 +183,18 @@ const isNormalUser = computed(() => userStore.isNormalUser);
 
 const productStore = useProductStore();
 const productData = computed(() => productStore.productData)
+const openProductData = computed(() => productStore.openProductData)
+
 const currentProduct = ref(productData.value.length ? productData.value[0].uuid : '')
-const currentTypeCode = computed(() => {
+
+const currentTypeMark = computed(() => {
   const obj = productData.value.find(item => item.uuid === currentProduct.value)
-  return obj ? obj.code : ''
+  return obj ? obj.mark : ''
+})
+
+const showCreate = computed(() => {
+  const obj = productData.value.find(item => item.uuid === currentProduct.value)
+  return obj ? Boolean(obj.status) : false
 })
 
 const tabLayout = ref(0);
@@ -360,17 +368,22 @@ const handleRefreshRequestsList2 = () => {
 };
 
 const toCopyDetail = (val) => {
-  navigationTo(`/process/four?type=${currentTypeCode.value}&uuid=${val.uuid}`);
+  navigationTo(`/process/four?uuid=${val.uuid}`);
 };
 
 const gotoProcess = () => {
-  navigationTo(`/process/one?type=${currentTypeCode.value}`)
+  if (openProductData.value.length === 1) {
+    navigationTo(`/process/one`)
+  } else {
+    navigationTo(`/process/one?p=${currentTypeMark.value}`)
+  }
+  
 }
 
 const itemHandle = (data) => {
   const href = processRoutes[data.next_index - 1];
   if (href) {
-    navigationTo(`${href}?type=${currentTypeCode.value}&uuid=${data.uuid}`);
+    navigationTo(`${href}?uuid=${data.uuid}`);
   }
 };
 

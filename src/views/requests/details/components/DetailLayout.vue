@@ -2,16 +2,18 @@
   <vco-page-panel @back="back">
     <template #title>
       <div class="page-title-content">
-        <div v-if="detail?.base?.project_apply_sn" class="tag">{{ detail?.base?.project_apply_sn }}</div>
+        <div v-if="detail?.base?.project_apply_sn" class="tag">{{ `${detail?.product?.name} - ${detail?.base?.project_apply_sn}` }}</div>
+        <div v-if="!detail?.base?.project_apply_sn && !pageLoading" class="tag" @click="goBack">{{ t('返回') }}</div>
       </div>
     </template>
-    <div class="TabsPanel-Tab">
+    <div v-if="detail?.base?.project_apply_sn" class="TabsPanel-Tab">
       <a-button v-for="item in panes" :key="item.key" @click="onChange(item.key)" :class="`tab-button ${item.key === props.activeTab ? 'active-tab' : ''}`">
         {{ item.title }}
       </a-button>
     </div>
   </vco-page-panel>
-  <slot name="content"></slot>
+  <slot v-if="detail?.base?.project_apply_sn && !pageLoading" name="content"></slot>
+  <a-empty v-if="!detail?.base?.project_apply_sn && !pageLoading" />
 </template>
 
 <script setup>
@@ -20,12 +22,14 @@ import { useI18n } from 'vue-i18n';
 import { useUserStore } from '@/store';
 import { useRouter, useRoute } from 'vue-router';
 import { projectDetailApi } from "@/api/process";
+import { goBack } from "@/utils/tool"
 import { cloneDeep } from 'lodash';
 
 const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
 const userStore = useUserStore();
+const pageLoading = ref(false)
 
 const props = defineProps(['title', 'activeTab']);
 const emits = defineEmits(['getProjectDetail']);
@@ -53,7 +57,7 @@ const panes = computed(() => {
 });
 
 const onChange = (key) => {
-  router.push(`/requests/details/${key}?type=${route.query.type}&uuid=${route.query.uuid}`);
+  router.push(`/requests/details/${key}?uuid=${route.query.uuid}`);
 };
 
 const back = () => {
@@ -65,10 +69,14 @@ const getProjectDetail = async (userId) => {
   const uuid = userId || route.query.uuid;
 
   if (uuid) {
+    pageLoading.value = true
     // 发起请求
     projectDetailApi({ uuid }).then((res) => {
       detail.value = res;
       emits('getProjectDetail', res);
+      pageLoading.value = false
+    }).catch(() => {
+      pageLoading.value = false
     });
   }
 };

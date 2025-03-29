@@ -227,15 +227,13 @@ const configInit = () => {
     }
   }
 
-  // 第一项增加首次放款
-  const drawdown = tool.plus(Number(data.initial_land_amount), Number(data.initial_build_amount))
-
-  confirmForm.value['initial_drawdown'] = false
+  // 第一项增加放款总金额
+  confirmForm.value['build_amount'] = false
   fonfirmTable.value.unshift({
-    credit_name: 'Initial drawdown',
-    credit_table: 'initial_drawdown',
+    credit_name: 'Loan amount',
+    credit_table: 'build_amount',
     credit_unit: '$',
-    showVal: drawdown
+    showVal: data.build_amount
   })
 };
 

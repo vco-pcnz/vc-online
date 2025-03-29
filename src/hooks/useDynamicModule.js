@@ -2,9 +2,10 @@ import { ref, shallowRef, onMounted } from "vue";
 import i18n from "@/i18n";
 import { useRoute, useRouter } from "vue-router";
 import { Empty } from 'ant-design-vue';
-import { projectApproveStep } from "@/api/process"
+import { projectApproveStep, productGetCode } from "@/api/process"
 import { processRoutes } from "@/constant"
 import { navigationTo } from "@/utils/tool"
+import { useProductStore } from "@/store"
 
 export function useDynamicModule() {
   const route = useRoute();
@@ -30,6 +31,8 @@ export function useDynamicModule() {
   const previousPage = ref('')
   const nextPage = ref('')
   const canNext = ref(false)
+  const currentRequest = ref('')
+  const currentRequestName = ref('')
 
   // 初始化方法
   const pageInit = async () => {
@@ -109,20 +112,63 @@ export function useDynamicModule() {
   };
 
   // 挂载时的逻辑
-  onMounted(() => {
+  onMounted(async () => {
     let pass = true
-    const { type, uuid } = route.query;
+    const { p, uuid } = route.query;
     const path = route.path
 
-    if (type) {
-      tempFile.value = type;
-    }
+    const productStore = useProductStore()
+    const pData = productStore.openProductData
+    const productData = productStore.productData
 
+    tempLoading.value = true
     if (uuid) {
+      const temp = await productGetCode({uuid})
+      if (!temp) {
+        tempLoading.value = false
+        queryError.value = true
+        pass = false
+      } else {
+        tempFile.value = temp
+      }
       currentId.value = uuid;
     } else {
+      
       if (path !== processRoutes[0]) {
+        tempLoading.value = false
         pass = false
+      } else {
+        const len = pData.length
+
+        if (len) {
+          if (len > 1 && !p) {
+            tempLoading.value = false
+            pass = false
+          } else {
+            if (p) {
+              const obj = pData.find(item => item.mark === p)
+              if (obj) {
+                tempFile.value = obj.code
+              } else {
+                tempLoading.value = false
+                pass = false
+              }
+            } else {
+              tempFile.value = pData[0].code
+            }
+          }
+        } else {
+          tempLoading.value = false
+          pass = false
+        }
+      }
+    }
+
+    if (tempFile.value) {
+      const obj = productData.find(item => item.code === tempFile.value)
+      if (obj) {
+        currentRequest.value = obj.code
+        currentRequestName.value = obj.name
       }
     }
 
@@ -156,6 +202,8 @@ export function useDynamicModule() {
     currentStep,
     nextStep,
     canNext,
-    tempFile
+    tempFile,
+    currentRequest,
+    currentRequestName
   };
 }

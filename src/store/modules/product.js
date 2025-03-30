@@ -19,8 +19,6 @@ const useProductStore = defineStore('VcOnlineProductData', {
         const data = res || []
         this.productData = data
         this.openProductData = data.filter(item => item.status)
-
-        console.log('data', data);
       })
     },
     getProductUuid(code) {

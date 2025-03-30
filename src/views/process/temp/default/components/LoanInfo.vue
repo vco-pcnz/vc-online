@@ -1,7 +1,7 @@
 <template>
   <div>
     <a-row :gutter="24">
-      <a-col :span="12">
+      <a-col :span="8">
         <div class="info-content">
           <p class="name">{{ t('借款金额') }}</p>
           <p class="txt">
@@ -9,25 +9,25 @@
           </p>
         </div>
       </a-col>
-      <a-col :span="12">
+      <a-col :span="8">
         <div class="info-content">
           <p class="name">{{ t('借款目的') }}</p>
           <p class="txt">{{ data.loan_type_name }}</p>
         </div>
       </a-col>
-      <a-col :span="12">
+      <a-col :span="8">
         <div class="info-content">
           <p class="name">{{ t('借款起止日期') }}</p>
           <p class="txt">{{ tool.showDate(data.start_date) + ' - ' + tool.showDate(data.end_date) }}</p>
         </div>
       </a-col>
-      <a-col :span="6">
+      <a-col :span="8">
         <div class="info-content">
           <p class="name">{{ t('借款周期') }}</p>
           <p class="txt">{{ showTerm }}</p>
         </div>
       </a-col>
-      <a-col :span="6">
+      <a-col :span="8">
         <div class="info-content">
           <p class="name">{{ t('总天数') }}</p>
           <p class="txt">{{ totalDay }}</p>

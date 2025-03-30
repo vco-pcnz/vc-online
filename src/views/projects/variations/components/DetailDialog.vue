@@ -272,7 +272,11 @@
         keyArr.push(key)
       }
 
-      const colItems = creditData.value.filter(item => keyArr.includes(item.credit_table))
+      let colItems = creditData.value.filter(item => keyArr.includes(item.credit_table))
+      const has_linefee = Boolean(props.projectDetail.base.has_linefee)
+      if (!has_linefee) {
+        colItems = colItems.filter(item => !item.is_linefee)
+      }
 
       const perData = colItems.filter((item) => item.is_ratio);
       const dolData = colItems.filter((item) => !item.is_ratio);

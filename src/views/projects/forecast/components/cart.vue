@@ -11,22 +11,29 @@
     </div>
     <div>
       <div style="height: 200px">
-        <v-chart class="chart2" :option="option" autoresize />
+        <v-chart class="chart2" v-if="option" :option="option" autoresize />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { forIn } from 'lodash';
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import tool from '@/utils/tool';
 
+const props = defineProps({
+  uuid: {
+    type: [String, Number],
+    default: ''
+  },
+  data: {
+    type: Object
+  }
+});
 // 初始化图表
 const option = ref({
-  title: {
-    text: 'Forecast Drawdowns',
-    left: 'center'
-  },
   grid: {
     bottom: 40,
     left: 40,
@@ -38,7 +45,7 @@ const option = ref({
   },
   xAxis: {
     type: 'category',
-    data: ["Jan'25", "Feb'25", "Mar'25", "Apr'25", "May'25", "Jun'25", "Jul'25", "Aug'25", "Sep'25", "Oct'25", "Nov'25", "Dec'25"]
+    data: []
   },
   yAxis: {
     type: 'value',
@@ -62,6 +69,20 @@ const option = ref({
       }
     }
   ]
+});
+
+const init = () => {
+  let date = [];
+  if (props.data?.list) {
+    for (let key in props.data.list) {
+      date.push(tool.monthYear(key));
+    }
+  }
+  option.value.xAxis.data = date;
+};
+
+onMounted(() => {
+  init();
 });
 </script>
 

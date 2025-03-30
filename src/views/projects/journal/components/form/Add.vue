@@ -152,7 +152,7 @@ const loadType = (reset) => {
     return;
   }
   loading_type.value = true;
-  systemDictData(formState.value.cate == 1 ? 'journal_type' : 'duration')
+  systemDictData(formState.value.cate == 1 ? (props.projectDetail?.base?.has_linefee ? 'journal_type' : 'journal_type2') : 'duration')
     .then((res) => {
       if (formState.value.cate == 1) {
         journal_type.value = res;

@@ -464,7 +464,8 @@
   
   const formRules = ref({
     build_amount: { required: true, validator: validateNum, trigger: 'blur' },
-    penalty_rate: { required: true, validator: validateNum, trigger: 'blur' }
+    penalty_rate: { required: true, validator: validateNum, trigger: 'blur' },
+    repay_type: { required: true, message: t('请选择') + t('还款方式'), trigger: 'change' }
   });
 
   const percentItems = ref([]);
@@ -858,7 +859,9 @@
         formState.value.substitution_ids = val.substitution_ids || []
         isRefinancial.value = Boolean(val.substitution_ids && val?.substitution_ids?.length)
 
-        if (Number(val.penalty_rate) !== Number(formState.value.penalty_rate)) {
+        if (Number(val.penalty_rate) !== Number(formState.value.penalty_rate) ||
+          Number(val.repay_type) !== Number(formState.value.repay_type)
+        ) {
           updateFormData()
         }
       } else {

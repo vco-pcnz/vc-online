@@ -28,7 +28,7 @@
     <vco-page-panel @back="back">
       <template #title>
         <div class="page-title-content">
-          <div v-if="dataInfo?.base?.project_apply_sn" class="tag">{{ dataInfo?.base?.project_apply_sn }}</div>
+          <div v-if="dataInfo?.base?.project_apply_sn" class="tag">{{ `${dataInfo?.product?.name} - ${dataInfo?.base?.project_apply_sn}` }}</div>
           <div class="tag uppercase">{{ t('批量添加抵押物') }}</div>
         </div>
       </template>

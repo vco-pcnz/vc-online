@@ -135,6 +135,7 @@ export default {
   "步骤八": "Step 8",
   "步骤九": "Step 9",
   "步骤十": "Step 10",
+  "步骤十一": "Step 11",
   "个人": "Individual",
   "机构": "Organizations",
   "组织": "Company",
@@ -870,6 +871,6 @@ export default {
   "没有Linefee": "Without Linefee",
   "查看预算信息": "View budget",
   "返回": "Back",
-  "罚息比例": "Penalty interest ratio",
+  "罚息比例": "Dafault interest ratio",
   "请输入大于{0}的数字": "Please enter a number greater than {0}"
 }

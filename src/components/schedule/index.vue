@@ -360,7 +360,7 @@ const hideForcast = computed(() => {
 })
 
 const hideLinefee = computed(() => {
-  return ['lendr'].includes(props.currentProduct)
+  return ['lendr', 'vsl'].includes(props.currentProduct)
 })
 
 const pageLoading = ref(false);

@@ -34,6 +34,7 @@
     justify-content: space-between;
     border-bottom: 1px solid #808080;
     padding-bottom: 15px;
+    min-height: 48px;
     > .title {
       display: flex;
       align-items: center;

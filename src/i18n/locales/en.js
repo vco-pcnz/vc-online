@@ -872,5 +872,8 @@ export default {
   "查看预算信息": "View budget",
   "返回": "Back",
   "罚息比例": "Dafault interest ratio",
-  "请输入大于{0}的数字": "Please enter a number greater than {0}"
+  "请输入大于{0}的数字": "Please enter a number greater than {0}",
+  "BOC审核": "BOC Audit",
+  "BOC 是否已经通过了审核？": "Has BOC passed the audit?",
+  "已通过": "Passed"
 }

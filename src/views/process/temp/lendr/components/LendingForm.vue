@@ -379,7 +379,10 @@
 
       if (totalAmount > securityTotal) {
         const num = tool.minus(totalAmount, securityTotal)
-        res = t('抵押物总价值为{0}，借款总金额为{1}，差{2}，确认通过审核吗？', [securityTotal, totalAmount, num])
+        const showSecurity = numberStrFormat(securityTotal)
+        const showAmount = numberStrFormat(totalAmount)
+        const showNum = numberStrFormat(num)
+        res = t('抵押物总价值为{0}，借款总金额为{1}，差{2}，确认通过审核吗？', [`$${showSecurity}`, `$${showAmount}`, `$${showNum}`])
       }
     }
     return res

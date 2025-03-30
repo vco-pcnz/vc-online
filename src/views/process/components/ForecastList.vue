@@ -169,8 +169,8 @@
                   <vco-number :value="_item.amount" :precision="2" :end="true"></vco-number>
                 </div>
                 <div v-if="!isDetails && blockInfo.showEdit" class="item ops">
-                  <i class="iconfont" :class="{'disabled': _item.first}" @click="addEditHandle(_item, index, _index)">&#xe8cf;</i>
-                  <i class="iconfont" :class="{'disabled': _item.first}" @click="removeHandle(_item)">&#xe8c1;</i>
+                  <i class="iconfont" :class="{'disabled': _item.first || Boolean(_item.origin)}" @click="addEditHandle(_item, index, _index)">&#xe8cf;</i>
+                  <i class="iconfont" :class="{'disabled': _item.first || Boolean(_item.origin)}" @click="removeHandle(_item)">&#xe8c1;</i>
                 </div>
                 <div v-else class="empty"></div>
               </div>

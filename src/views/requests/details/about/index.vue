@@ -252,7 +252,7 @@
   })
 
   const showForecast = computed(() => {
-    return ['default'].includes(currentProduct.value)
+    return ['default', 'vsl'].includes(currentProduct.value)
   })
 
   const BorrowerInfo = computed(() => getComponent("BorrowerInfo"));

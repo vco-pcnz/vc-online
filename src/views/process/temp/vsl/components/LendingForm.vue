@@ -73,33 +73,6 @@
         :rules="formRules"
       >
         <a-row :gutter="24">
-          <template v-if="!isDetails">
-            <a-col :span="8">
-              <a-form-item :label="t('是否有Linefee')" name="has_linefee">
-                <a-switch :disabled="amountDisabled || inputADis" v-model:checked="formState.has_linefee" :checkedValue="1" :unCheckedValue="0" @change="linefeeFilter" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item :label="t('是否预算')" name="do__est">
-                <a-switch :disabled="amountDisabled || inputADis" v-model:checked="formState.do__est" :checkedValue="1" :unCheckedValue="0" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item label=" ">
-                <a-button
-                  type="brown"
-                  shape="round"
-                  size="small"
-                  class="uppercase"
-                  @click="goHandle('budget')"
-                >
-                  {{ t('查看预算信息') }}
-                </a-button>
-              </a-form-item>
-            </a-col>
-            <a-col :span="24"><div class="form-line"></div></a-col>
-          </template>
-          
           <a-col :span="7">
             <a-form-item :label="t('土地贷款总额')" name="land_amount">
               <a-input-number

@@ -124,12 +124,12 @@
           >
           </security-list>
 
-          <!-- <forecast-list
+          <forecast-list
             v-if="showForecast && PageBlockObjRef.lending"
             :current-id="currentId"
             :info-data="currentDataInfo"
             :block-info="PageBlockObjRef.lending"
-          ></forecast-list> -->
+          ></forecast-list>
 
           <conditions-list
             :current-id="currentId"

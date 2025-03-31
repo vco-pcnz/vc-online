@@ -74,7 +74,7 @@ const back = () => {
   if (backPrev(route.path)) {
     router.push(`/projects/about?uuid=${route.query.uuid}`);
   } else {
-    router.push(`/projects/current`);
+    router.push(`/projects/list`);
   }
 };
 

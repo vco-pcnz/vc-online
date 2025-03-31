@@ -17,7 +17,7 @@
     <h1>{{ noticeDetail.title }}</h1>
     <div>{{ noticeDetail.create_time }}</div>
   </div>
-  <div class="content" v-html="noticeDetail.content"></div>
+  <div class="content rich-text-content" v-html="noticeDetail.content"></div>
 </template>
 
 <script setup>

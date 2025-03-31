@@ -6,7 +6,7 @@
     :closable="false"
     @ok="save"
   >
-    <div class="modal-content" v-html="termData"></div>
+    <div class="modal-content rich-text-content" v-html="termData"></div>
     <template #footer>
       <div class="modal-footer">
         <a-button

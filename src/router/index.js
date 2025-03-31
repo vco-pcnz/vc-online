@@ -29,13 +29,15 @@ router.beforeEach(async (to, from, next) => {
   document.title = toTitle ? `${i18n.global.t(toTitle)} - ${title}` : title
   const token = getToken()
 
-  // 产品数据
-  if (!productStore.productData.length) {
-    productStore.requestProductInfo()
-  }
 
   // 登录状态下
   if (token) {
+    
+    // 产品数据
+    if (!productStore.productData.length) {
+      productStore.requestProductInfo()
+    }
+    
     if (to.name === 'login') {
       userStore.logout()
       return

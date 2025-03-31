@@ -909,3 +909,24 @@ a:hover {
 .ant-modal-content {
   padding: 30px 40px !important;
 }
+
+
+/* 为富文本容器添加特定类名 */
+.rich-text-content,
+.rich-text-content * {
+  all: revert; /* 将样式重置为浏览器默认值 */
+}
+
+/* 或者更精确地重置 */
+.rich-text-content p,
+.rich-text-content h1,
+.rich-text-content h2,
+.rich-text-content ul,
+.rich-text-content ol,
+.rich-text-content li {
+  margin: revert;
+  padding: revert;
+  font-size: revert;
+  line-height: revert;
+  list-style: revert;
+}

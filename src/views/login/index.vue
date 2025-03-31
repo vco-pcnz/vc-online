@@ -14,15 +14,8 @@
           </h1>
         </div>
         <a-form ref="formRef" :model="form" :rules="rules" class="login_form_container">
-          <a-tabs v-model:activeKey="form.type" class="mb-5">
-            <a-tab-pane :key="item.value" v-for="item in loginTypeOptions">
-              <template #tab>
-                {{ t(item.label) }}
-              </template>
-            </a-tab-pane>
-          </a-tabs>
-          <a-form-item name="mode">
-            <a-radio-group v-model:value="form.mode" class="login_mode_radio">
+          <a-form-item name="type">
+            <a-radio-group v-model:value="form.type" class="login_mode_radio">
               <a-radio v-for="item in loginModeOptions" :key="item.value" :disabled="item.disabled" :value="item.value">
                 {{ item.label }}
               </a-radio>
@@ -58,11 +51,14 @@
               </a-col>
             </a-row>
           </a-form-item>
-          <p class="forgot">
-            <router-link class="forgot_link" to="/forgot-reset">
-              {{ t('忘记密码') }}
-            </router-link>
-          </p>
+          <div class="flex justify-between">
+            <p class="forgot">
+              <router-link class="forgot_link" to="/forgot-reset">
+                {{ t('忘记密码') }}
+              </router-link>
+            </p>
+            <p class="type-text" @click="form.mode = form.mode === 1 ? 2 : 1">{{ form.mode == 2 ? t('密码') : t('验证码') }} <span class="lowercase">{{ t('登录') }}</span></p>
+          </div>
           <a-form-item class="login_submit mt-4">
             <a-button size="large" class="big bold" shape="round" :loading="loading" @click="submit">
               {{ t('登录') }}
@@ -95,7 +91,7 @@ const open = ref(false);
 const accountList = ref(false);
 const showCountdown = ref(false);
 
-const loginTypeOptions = [
+const loginModeOptions = [
   {
     value: 1,
     label: t('邮箱')
@@ -103,17 +99,6 @@ const loginTypeOptions = [
   {
     value: 2,
     label: t('手机')
-  }
-];
-
-const loginModeOptions = [
-  {
-    value: 1,
-    label: t('密码')
-  },
-  {
-    value: 2,
-    label: t('验证码')
   }
 ];
 
@@ -369,7 +354,7 @@ watch(open, (newVal, oldVal) => {
 
     .login_mode_radio {
       display: flex;
-      justify-content: space-between;
+      // justify-content: space-between;
     }
 
     .login_submit {
@@ -415,5 +400,9 @@ watch(open, (newVal, oldVal) => {
   .ant-tabs-tab:hover {
     color: #fff;
   }
+}
+.type-text {
+  color: #fff;
+  cursor: pointer;
 }
 </style>

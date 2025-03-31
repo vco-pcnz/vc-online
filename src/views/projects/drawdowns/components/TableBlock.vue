@@ -10,11 +10,14 @@
       <li>{{ t('已批准') }}</li>
     </ul>
     <div v-if="tableData.length" class="table-body">
-      <template v-for="item in tableData" :key="item.id">
+      <template v-for="(item, index) in tableData" :key="item.id">
         <ul class="table-col tr" :class="{ active: active_id == item.id, declined: item.status_name === 'DECLINED DRAWDOWN' }" @click="viewDetail(item)">
           <li><div class="circle" :class="{ solid: item.status == 2 }"></div></li>
           <li>
-            <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.name" style="width: 200px">{{ item.name }}</p>
+            <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.name" style="width: 200px">
+              <span class="index-num">{{ total - (pagination.page - 1) * pagination.limit - index }}</span
+              >{{ item.name }}
+            </p>
           </li>
           <li>
             <vco-number :value="item.apply_amount" :precision="2" size="fs_xs" :end="true"></vco-number>
@@ -60,6 +63,19 @@ const props = defineProps({
   tableData: {
     type: Array,
     default: () => []
+  },
+  pagination: {
+    type: Object,
+    default: () => {
+      return {
+        page: 1,
+        limit: 5
+      };
+    }
+  },
+  total: {
+    type: Number,
+    default: 0
   }
 });
 
@@ -199,5 +215,11 @@ watch(
       width: 150px;
     }
   }
+}
+
+.index-num {
+  margin-right: 5px;
+  color: #888;
+  font-size: 12px;
 }
 </style>

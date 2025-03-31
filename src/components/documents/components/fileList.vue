@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between">
       <h3 class="files-title">
         <template v-if="isTab"> {{ folder.attach_count }} {{ tabName }}</template>
-        <template v-else> {{ tabName }}/ {{ folder.name }}</template>
+        <template v-else> {{ getPath(folder.id) }} </template>
       </h3>
       <div class="files-ops">
         <div class="files-ops-item" :class="{ active: showFilter }" @click="setShowFilter"><i class="iconfont">&#xe756;</i></div>
@@ -108,6 +108,7 @@ import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { getChild, fadd, fdel, fmove } from '@/api/project/annex';
 import File from './file.vue';
+import { cloneDeep } from 'lodash';
 
 const { t } = useI18n();
 const emits = defineEmits(['update:visible', 'change']);
@@ -186,6 +187,30 @@ const reload = () => {
   emits('change');
 };
 
+// 用于存储结果的对象
+const pathIndex = ref({});
+const getPath = (id) => {
+  let obj = cloneDeep(props.tree);
+  let nameStr = '';
+  if (!pathIndex.value[id]) return '';
+  pathIndex.value[id].map((item,index) => {
+    obj = obj.children ? obj.children[item] : obj[item];
+    nameStr += obj.name + (index < pathIndex.value[id].length -1? '/':'');
+  });
+  return nameStr;
+};
+
+const traverseTree = (nodes, path = []) => {
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i];
+    const currentIndexPath = [...path, i];
+    pathIndex.value[node.id] = currentIndexPath;
+    if (node.children && node.children.length > 0) {
+      traverseTree(node.children, currentIndexPath);
+    }
+  }
+};
+
 watch(
   () => document.value,
   (val) => {
@@ -204,6 +229,18 @@ watch(
         });
     }
   }
+);
+
+watch(
+  () => props.tree,
+  (val) => {
+    if (val) {
+      // 调用函数遍历树形结构
+      pathIndex.value = {};
+      traverseTree(val);
+    }
+  },
+  { immediate: true, deep: true }
 );
 // 暴露方法给父组件
 defineExpose({

@@ -13,75 +13,47 @@
             <span class="online_text">Online</span>
           </h1>
         </div>
-        <a-form
-          ref="formRef"
-          :model="form"
-          :rules="rules"
-          class="login_form_container"
-        >
+        <a-form ref="formRef" :model="form" :rules="rules" class="login_form_container">
+          <a-tabs v-model:activeKey="form.type" class="mb-5">
+            <a-tab-pane :key="item.value" v-for="item in loginTypeOptions">
+              <template #tab>
+                {{ t(item.label) }}
+              </template>
+            </a-tab-pane>
+          </a-tabs>
           <a-form-item name="mode">
             <a-radio-group v-model:value="form.mode" class="login_mode_radio">
-              <a-radio
-                v-for="item in loginModeOptions"
-                :key="item.value"
-                :disabled="item.disabled"
-                :value="item.value"
-              >
+              <a-radio v-for="item in loginModeOptions" :key="item.value" :disabled="item.disabled" :value="item.value">
                 {{ item.label }}
               </a-radio>
             </a-radio-group>
           </a-form-item>
-          <a-form-item name="email" v-if="form.mode === 1">
-            <a-input
-              v-model:value="form.email"
-              :placeholder="t('邮箱')"
-              autoComplete="on"
-              bordered
-            />
+          <a-form-item name="email" v-if="form.type === 1">
+            <a-input v-model:value="form.email" :placeholder="t('邮箱')" autoComplete="on" bordered />
           </a-form-item>
-          <a-form-item name="mobile" v-if="form.mode === 2 || form.mode === 3">
-            <vco-mobile-input
-              v-model:value="form.mobile"
-              v-model:areaCode="form.pre"
-              :disabled="false"
-              class="login_form_button"
-            ></vco-mobile-input>
+          <a-form-item name="mobile" v-if="form.type === 2">
+            <vco-mobile-input v-model:value="form.mobile" v-model:areaCode="form.pre" :disabled="false" class="login_form_button"></vco-mobile-input>
           </a-form-item>
-          <a-form-item
-            name="password"
-            v-if="form.mode === 1 || form.mode === 2"
-          >
-            <a-input
-              type="password"
-              v-model:value="form.password"
-              :placeholder="t('密码')"
-              autoComplete="on"
-              @pressEnter="submit"
-            />
+          <a-form-item name="password" v-if="form.mode === 1">
+            <a-input type="password" v-model:value="form.password" :placeholder="t('密码')" autoComplete="on" @pressEnter="submit" />
           </a-form-item>
-          <a-form-item no-style v-if="form.mode === 3">
+          <a-form-item no-style v-if="form.mode === 2">
             <a-row :gutter="8">
               <a-col :span="18">
                 <a-form-item name="code">
-                  <a-input
-                    v-model:value="form.code"
-                    :placeholder="t('验证码V')"
-                  />
+                  <a-input v-model:value="form.code" :placeholder="t('验证码V')" />
                 </a-form-item>
               </a-col>
               <a-col :span="6" v-if="!showCountdown">
                 <a-form-item class="login_form_button">
-                  <a-button block @click="handleVerify()">
+                  <a-button block @click="handleVerify()" :disabled="(form.type == 1 && !form.email) || (form.type == 2 && !form.mobile)">
                     {{ t('验证') }}
                   </a-button>
                 </a-form-item>
               </a-col>
               <a-col :span="6" v-else>
                 <a-form-item class="login_form_button">
-                  <vco-countdown
-                    v-model:show="showCountdown"
-                    class="login_countdown_button"
-                  />
+                  <vco-countdown v-model:show="showCountdown" class="login_countdown_button" />
                 </a-form-item>
               </a-col>
             </a-row>
@@ -92,13 +64,7 @@
             </router-link>
           </p>
           <a-form-item class="login_submit mt-4">
-            <a-button
-              size="large"
-              class="big bold"
-              shape="round"
-              :loading="loading"
-              @click="submit"
-            >
+            <a-button size="large" class="big bold" shape="round" :loading="loading" @click="submit">
               {{ t('登录') }}
             </a-button>
           </a-form-item>
@@ -106,12 +72,7 @@
       </div>
     </template>
   </auth-template>
-  <select-account
-    v-if="open"
-    v-model:open="open"
-    :accountList="accountList"
-    @loginSuccessCb="loginSuccessCb"
-  />
+  <select-account v-if="open" v-model:open="open" :accountList="accountList" @loginSuccessCb="loginSuccessCb" />
 </template>
 
 <script setup>
@@ -122,7 +83,7 @@ import { useRoute } from 'vue-router';
 import router from '@/router';
 import { useUserStore } from '@/store';
 import SelectAccount from './components/SelectAccount.vue';
-import { getMobileCode } from '@/api/auth';
+import { getMobileCode, getEmailCode } from '@/api/auth';
 import { EMAIL_RULE } from '@/constant';
 
 const { t } = useI18n();
@@ -134,19 +95,26 @@ const open = ref(false);
 const accountList = ref(false);
 const showCountdown = ref(false);
 
-const loginModeOptions = [
+const loginTypeOptions = [
   {
     value: 1,
-    label: t('邮箱'),
+    label: t('邮箱')
   },
   {
     value: 2,
-    label: t('手机'),
+    label: t('手机')
+  }
+];
+
+const loginModeOptions = [
+  {
+    value: 1,
+    label: t('密码')
   },
   {
-    value: 3,
-    label: t('验证码'),
-  },
+    value: 2,
+    label: t('验证码')
+  }
 ];
 
 // 加载状态
@@ -154,11 +122,12 @@ const loading = ref(false);
 
 // 表单数据
 const form = reactive({
+  type: 1,
   mode: 1,
   email: '',
   password: '',
   pre: '64',
-  mobile: '',
+  mobile: ''
 });
 
 // 表单验证规则
@@ -168,37 +137,37 @@ const rules = reactive({
       required: true,
       message: t('请输入') + t('邮箱'),
       type: 'string',
-      trigger: 'blur',
+      trigger: 'blur'
     },
     {
       pattern: EMAIL_RULE,
-      message: t('邮箱格式不正确'),
-    },
+      message: t('邮箱格式不正确')
+    }
   ],
   password: [
     {
       required: true,
       message: t('请输入') + t('密码'),
       type: 'string',
-      trigger: 'blur',
-    },
+      trigger: 'blur'
+    }
   ],
   mobile: [
     {
       required: true,
       message: t('请输入') + t('手机号'),
       type: 'string',
-      trigger: 'blur',
-    },
+      trigger: 'blur'
+    }
   ],
   code: [
     {
       required: true,
       message: t('请输入') + t('验证码V'),
       type: 'string',
-      trigger: 'blur',
-    },
-  ],
+      trigger: 'blur'
+    }
+  ]
 });
 
 function goHomeRoute() {
@@ -207,7 +176,22 @@ function goHomeRoute() {
 }
 
 const handleVerify = () => {
-  getMobileCode({ pre: form.pre, mobile: form.mobile }).then(() => {
+  let ajax = null;
+  let params = {};
+  if (form.type === 1) {
+    params = {
+      email: form.email
+    };
+    ajax = getEmailCode;
+  } else {
+    params = {
+      pre: form.pre,
+      mobile: form.mobile
+    };
+    ajax = getMobileCode;
+  }
+
+  ajax(params).then(() => {
     showCountdown.value = true;
   });
 };
@@ -220,22 +204,27 @@ const loginSuccessCb = () => {
 
 const loginParams = () => {
   const { email, password, mobile, pre, code } = form;
-  if (form.mode === 1) {
+  if (form.type === 1 && form.mode == 1) {
     return {
       email,
-      password,
+      password
     };
-  } else if (form.mode === 2) {
+  } else if (form.type === 2 && form.mode == 1) {
     return {
       pre,
       mobile,
-      password,
+      password
     };
-  } else if (form.mode === 3) {
+  } else if (form.type === 1 && form.mode == 2) {
+    return {
+      email,
+      code
+    };
+  } else if (form.type === 2 && form.mode == 2) {
     return {
       pre,
       mobile,
-      code,
+      code
     };
   }
 };
@@ -330,16 +319,8 @@ watch(open, (newVal, oldVal) => {
       border-inline-end-width: 1px;
     }
 
-    :deep(
-        .ant-input-status-error:not(.ant-input-disabled):not(
-            .ant-input-borderless
-          ).ant-input
-      ),
-    :deep(
-        .ant-input-status-error:not(.ant-input-disabled):not(
-            .ant-input-borderless
-          ).ant-input:hover
-      ) {
+    :deep(.ant-input-status-error:not(.ant-input-disabled):not(.ant-input-borderless).ant-input),
+    :deep(.ant-input-status-error:not(.ant-input-disabled):not(.ant-input-borderless).ant-input:hover) {
       background: transparent;
       border-color: @clr_white;
     }
@@ -418,5 +399,21 @@ watch(open, (newVal, oldVal) => {
 .ant-btn-default:not(:disabled):hover {
   color: @clr_charcoal;
   border-color: transparent;
+}
+
+:deep(.ant-btn-default:disabled) {
+  background: #fff;
+}
+
+:deep(.ant-tabs) {
+  .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+    color: #fff;
+  }
+  .ant-tabs-ink-bar {
+    background: #fff;
+  }
+  .ant-tabs-tab:hover {
+    color: #fff;
+  }
 }
 </style>

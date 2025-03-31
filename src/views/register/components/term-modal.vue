@@ -1,6 +1,6 @@
 <template>
   <a-modal
-    :width="720"
+    :width="750"
     :open="open"
     :title="`VC ONLINE - ` + t('使用条款')"
     :closable="false"
@@ -77,6 +77,7 @@ watch(
 
 .modal-content {
   height: 70vh;
+  padding-right: 20px;
   overflow-y: auto;
 }
 </style>

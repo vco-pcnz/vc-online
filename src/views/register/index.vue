@@ -16,36 +16,39 @@
           {{ t('注册') }}
         </h1>
         <a-form ref="formRef" :model="form" :rules="rules" layout="vertical">
-          <a-form-item name="firstName" :label="t('名')">
-            <a-input
-              v-model:value="form.firstName"
-              class="input_content"
-              :placeholder="t('名')"
-            />
+          <a-form-item :label="t('类型')" name="type">
+            <a-select v-model:value="form.type" class="select_content" :placeholder="t('类型')">
+              <a-select-option :value="0">
+                {{ t('个人') }}
+              </a-select-option>
+              <a-select-option :value="1">
+                {{ t('公司') }}
+              </a-select-option>
+            </a-select>
           </a-form-item>
-          <a-form-item name="middleName" :label="t('中间名')">
-            <a-input
-              v-model:value="form.middleName"
-              class="input_content"
-              :placeholder="t('中间名')"
-            />
-          </a-form-item>
-          <a-form-item name="lastName" :label="t('姓')">
-            <a-input
-              v-model:value="form.lastName"
-              class="input_content"
-              :placeholder="t('姓')"
-            />
-          </a-form-item>
+
+          <template v-if="form.type">
+            <a-form-item name="user_name" :label="t('名称')">
+              <a-input v-model:value="form.user_name" class="input_content" :placeholder="t('名称')" />
+            </a-form-item>
+          </template>
+          <template v-else>
+            <a-form-item name="firstName" :label="t('名')">
+              <a-input v-model:value="form.firstName" class="input_content" :placeholder="t('名')" />
+            </a-form-item>
+            <a-form-item name="middleName" :label="t('中间名')">
+              <a-input v-model:value="form.middleName" class="input_content" :placeholder="t('中间名')" />
+            </a-form-item>
+            <a-form-item name="lastName" :label="t('姓')">
+              <a-input v-model:value="form.lastName" class="input_content" :placeholder="t('姓')" />
+            </a-form-item>
+          </template>
+
           <a-form-item no-style>
             <a-row>
               <a-col :span="17">
                 <a-form-item name="email" :label="t('邮箱')">
-                  <a-input
-                    v-model:value="form.email"
-                    class="input_content"
-                    :placeholder="t('邮箱')"
-                  />
+                  <a-input v-model:value="form.email" class="input_content" :placeholder="t('邮箱')" />
                 </a-form-item>
               </a-col>
               <a-col :span="1" />
@@ -61,39 +64,16 @@
               </a-col>
             </a-row>
           </a-form-item>
-          <a-form-item
-            name="code"
-            :label="t('验证码')"
-            class="verifyCode_input_container"
-            v-if="sentAuthCode || showCode"
-          >
-            <a-input
-              v-model:value="form.code"
-              class="input_content"
-              v-focus="true"
-              :placeholder="t('验证码')"
-            />
+          <a-form-item name="code" :label="t('验证码')" class="verifyCode_input_container" v-if="sentAuthCode || showCode">
+            <a-input v-model:value="form.code" class="input_content" v-focus="true" :placeholder="t('验证码')" />
           </a-form-item>
           <a-form-item :label="t('手机号')" name="mobile">
             <div class="mobile-content">
-              <vco-mobile-input
-                v-model:value="form.mobile"
-                v-model:areaCode="form.pre"
-              ></vco-mobile-input>
+              <vco-mobile-input v-model:value="form.mobile" v-model:areaCode="form.pre"></vco-mobile-input>
             </div>
           </a-form-item>
-          <a-form-item
-            name="password"
-            :label="t('密码')"
-            :help="t('最少8个字符,1个大写字母,字母和数字')"
-            class="psw_input_content"
-          >
-            <a-input-password
-              type="password"
-              v-model:value="form.password"
-              class="input_content"
-              :placeholder="t('密码')"
-            />
+          <a-form-item name="password" :label="t('密码')" :help="t('最少8个字符,1个大写字母,字母和数字')" class="psw_input_content">
+            <a-input-password type="password" v-model:value="form.password" class="input_content" :placeholder="t('密码')" />
           </a-form-item>
           <a-form-item no-style>
             <a-checkbox v-model:checked="isBroker">
@@ -111,13 +91,7 @@
             </a-form-item>
           </a-form-item>
           <a-form-item>
-            <a-button
-              type="dark"
-              shape="round"
-              :loading="loading"
-              class="register-btn big shadow bold"
-              @click="submit"
-            >
+            <a-button type="dark" shape="round" :loading="loading" class="register-btn big shadow bold" @click="submit">
               {{ t('注册') }}
             </a-button>
           </a-form-item>
@@ -151,6 +125,8 @@ const showCode = ref(false);
 
 // 表单数据
 const form = reactive({
+  type: 0,
+  user_name: '',
   firstName: '',
   middleName: '',
   lastName: '',
@@ -158,69 +134,77 @@ const form = reactive({
   pre: '64',
   mobile: '',
   password: '',
-  code: '',
+  code: ''
 });
 
 // 表单验证规则
 const rules = reactive({
+  user_name: [
+    {
+      required: true,
+      message: t('请输入') + t('名称'),
+      type: 'string',
+      trigger: 'blur'
+    }
+  ],
   firstName: [
     {
       required: true,
       message: t('请输入') + t('名'),
       type: 'string',
-      trigger: 'blur',
-    },
+      trigger: 'blur'
+    }
   ],
   lastName: [
     {
       required: true,
       message: t('请输入') + t('姓'),
       type: 'string',
-      trigger: 'blur',
-    },
+      trigger: 'blur'
+    }
   ],
   email: [
     {
       required: true,
       message: t('请输入') + t('邮箱'),
       type: 'string',
-      trigger: 'blur',
+      trigger: 'blur'
     },
     {
       pattern: EMAIL_RULE,
-      message: t('邮箱格式不正确'),
-    },
+      message: t('邮箱格式不正确')
+    }
   ],
   code: [
     {
       required: true,
       message: t('请输入') + t('验证码'),
       type: 'string',
-      trigger: 'blur',
-    },
+      trigger: 'blur'
+    }
   ],
   mobile: [
     {
       // required: true,
       message: t('请输入') + t('手机号'),
       type: 'string',
-      trigger: 'blur',
-    },
+      trigger: 'blur'
+    }
   ],
   password: [
     {
       required: true,
       pattern: PASSWORD_RULE,
       type: 'string',
-      trigger: 'blur',
-    },
-  ],
+      trigger: 'blur'
+    }
+  ]
 });
 
 const sendVerify = () => {
   formRef.value.validateFields('email').then(() => {
     sendAuthCode({
-      email: form.email,
+      email: form.email
     }).then(() => {
       sentAuthCode.value = true;
       showCode.value = true;
@@ -241,7 +225,11 @@ const submit = () => {
         return;
       }
       loading.value = true;
-      register(form)
+      register({
+        ...form,
+        company: form.type ? form.user_name : '',
+        user_name: form.type ? form.user_name : ''
+      })
         .then(() => {
           loading.value = false;
           message.success(t('注册成功'));
@@ -249,8 +237,8 @@ const submit = () => {
             replace({
               name: 'register-broker',
               query: {
-                email: form.email,
-              },
+                email: form.email
+              }
             });
           } else {
             replace('/login');
@@ -275,15 +263,15 @@ const submit = () => {
   color: @clr_charcoal;
 }
 .back-link {
-    position: absolute;
-    top: 24px;
-    left: 24px;
-    color: @color_brown;
-    &-icon {
-      transform: rotate(-135deg);
-      font-size: 14px;
-    }
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  color: @color_brown;
+  &-icon {
+    transform: rotate(-135deg);
+    font-size: 14px;
   }
+}
 .register-content {
   border-radius: 24px;
   background-color: @color_white;
@@ -295,6 +283,15 @@ const submit = () => {
     box-sizing: border-box;
     width: 100%;
     padding: 14px 12px;
+    border-radius: 10px;
+    background-color: transparent;
+    background: transparent;
+  }
+  .select_content :deep(.ant-select-selector) {
+    box-sizing: border-box;
+    width: 100%;
+    height: auto;
+    padding: 10px 12px;
     border-radius: 10px;
     background-color: transparent;
     background: transparent;

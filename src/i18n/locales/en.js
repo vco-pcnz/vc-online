@@ -819,6 +819,7 @@ export default {
   "净收益": "Net income",
   "修改记录": "Change Log",
   "编辑预售信息": "Edit pre-sale information",
+  "添加预售信息": "Add pre-sale information",
   "新西兰商业号码": "NZBN",
   "确定要复制{0}": "Confirm to copy {0}",
   "复制": "Copy",
@@ -878,5 +879,6 @@ export default {
   "已通过": "Passed",
   "更新重复数据": "Update duplicate data",
   "忽略重复数据": "Ignore duplicate data",
-  "固定利息偿还金额": "Fixed interest repayment amount"
+  "固定利息偿还金额": "Fixed interest repayment amount",
+  "添加预售数据": "Add Pre-sale"
 }

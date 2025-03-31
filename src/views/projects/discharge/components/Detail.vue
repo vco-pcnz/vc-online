@@ -5,6 +5,15 @@
       v-model:visible="infoVisible"
       :detail-data="detail"
     ></pre-sale-info>
+
+    <!-- 添加预售数据 -->
+    <edit-dialog
+      v-model:visible="editVisible"
+      :info-data="detail"
+      :uuid="uuid"
+      :is-add="true"
+      @refresh="update()"
+    ></edit-dialog>
     
     <div class="color_grey fs_2xs text-center py-3 text-uppercase uppercase" style="letter-spacing: 1px">{{ t('详情') }}</div>
 
@@ -58,6 +67,7 @@
       <div class="flex gap-4">
         <a-button type="brown" shape="round" size="small" @click="navigationTo('/projects/documents?uuid=' + uuid)">{{ t('查看文件') }}</a-button>
         <a-button v-if="detail.is_sales" type="brown" shape="round" size="small" @click="infoVisible = true">{{ t('预售数据') }}</a-button>
+        <a-button v-else type="primary" shape="round" size="small" @click="editVisible = true">{{ t('添加预售数据') }}</a-button>
       </div>
       
       <a-row :gutter="24">
@@ -150,6 +160,7 @@ import DrawdownBack from './form/DrawdownBack.vue';
 import PreSaleInfo from './PreSaleInfo.vue';
 import { dischargeSaveStep, dischargeSaveDStep, dischargeRecall } from '@/api/project/loan';
 import { projectDetailDeleteSecurity } from '@/api/process';
+import EditDialog from './../pre-sale/components/EditDialog.vue';
 
 const { t } = useI18n();
 const emits = defineEmits(['update', 'itemEdit']);
@@ -222,6 +233,7 @@ const deleteHandle = async () => {
 }
 
 const infoVisible = ref(false)
+const editVisible = ref(false)
 </script>
 
 <style scoped lang="less">

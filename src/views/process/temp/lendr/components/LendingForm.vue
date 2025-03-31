@@ -132,6 +132,24 @@
               <a-select :disabled="amountDisabled || inputADis" v-model:value="formState.repay_type" :options="repaymentTypeData"></a-select>
             </a-form-item>
           </a-col>
+          <template v-if="Number(formState.repay_type) === 3">
+            <a-col :span="8">
+              <a-form-item :label="t('固定利息偿还金额')" name="repay_money">
+                <a-input-number
+                  v-model:value="formState.repay_money"
+                  :max="99999999999"
+                  :disabled="amountDisabled || inputADis"
+                  :formatter="
+                    (value) =>
+                      `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                  "
+                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                />
+              </a-form-item>
+            </a-col>
+            <a-col :span="16"></a-col>
+          </template>
+          
           <template v-if="isRefinancial">
             <a-col :span="8">
               <a-form-item :label="t('借款金额')" name="build_amount">
@@ -460,6 +478,7 @@
     build_amount: '',
     penalty_rate: '',
     repay_type: '',
+    repay_money: '',
     substitution_ids: [],
     has_linefee: 1,
     do__est: 0
@@ -468,7 +487,8 @@
   const formRules = ref({
     build_amount: { required: true, validator: validateNum, trigger: 'blur' },
     penalty_rate: { required: true, validator: validateNum, trigger: 'blur' },
-    repay_type: { required: true, message: t('请选择') + t('还款方式'), trigger: 'change' }
+    repay_type: { required: true, message: t('请选择') + t('还款方式'), trigger: 'change' },
+    repay_money: { required: true, message: t('请输入') + t('固定利息偿还金额'), trigger: 'blur' }
   });
 
   const percentItems = ref([]);
@@ -626,8 +646,10 @@
 
     formState.value.build_amount = props.dataInfo.loan.loan_money
     
-    formState.value.penalty_rate = props.lendingInfo.penalty_rate
+    formState.value.penalty_rate = props.lendingInfo.penalty_rate || 0
+    formState.value.repay_money = props.lendingInfo.repay_money || 0
     formState.value.repay_type = Number(props.lendingInfo.repay_type) ? props.lendingInfo.repay_type : ''
+    
 
     staticFormData.value = cloneDeep(formState.value)
 
@@ -814,6 +836,7 @@
         delete credit__data.build_amount
         delete credit__data.penalty_rate
         delete credit__data.repay_type
+        delete credit__data.repay_money
 
         delete credit__data.substitution_ids
         delete credit__data.has_linefee
@@ -825,6 +848,7 @@
           build_amount: formState.value.build_amount || 0,
           penalty_rate: formState.value.penalty_rate,
           repay_type: formState.value.repay_type,
+          repay_money: formState.value.repay_money,
           substitution_ids: formState.value.substitution_ids || [],
           substitution_amount: refinancialAmount.value || 0,
           credit__data
@@ -863,7 +887,8 @@
         isRefinancial.value = Boolean(val.substitution_ids && val?.substitution_ids?.length)
 
         if (Number(val.penalty_rate) !== Number(formState.value.penalty_rate) ||
-          Number(val.repay_type) !== Number(formState.value.repay_type)
+          Number(val.repay_type) !== Number(formState.value.repay_type) ||
+          Number(val.repay_money) !== Number(formState.value.repay_money)
         ) {
           updateFormData()
         }

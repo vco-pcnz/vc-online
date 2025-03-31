@@ -418,6 +418,20 @@ const dollarItems = ref([])
 
 const creditVariationinfo = ref({})
 
+const passFormInit = (key) => {
+  const edit = props.detailData?.id
+  if (edit) {
+    return false
+  } else {
+    const obj = creditData.value.find(item => item.credit_table === key)
+    if (obj) {
+      return !Boolean(obj.is_ratio)
+    } else {
+      return false
+    }
+  }
+}
+
 const createFormItems = (flag) => {
   const creditInfo = cloneDeep(creditVariationinfo.value)
 
@@ -428,7 +442,7 @@ const createFormItems = (flag) => {
   
   const keyArr = []
   for (const key in creditInfo) {
-    formState.value[key] = creditInfo[key]
+    formState.value[key] = passFormInit(key) ? '' : creditInfo[key]
     keyArr.push(key)
   }
 

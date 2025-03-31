@@ -1,5 +1,6 @@
 <template>
-  <vco-page-nav sup-path="/projects"></vco-page-nav>
+  <product-tab v-model:current="pageStore.product_uuid" @change="tabChange"></product-tab>
+  <vco-page-tab class="mt-5" :tabData="tabData" v-model:current="pageStore.sta" @change="tabChange"></vco-page-tab>
 
   <div class="dDggoj" v-if="false">
     <ChartOne></ChartOne>
@@ -25,12 +26,13 @@
     </div>
     <ChartTwo></ChartTwo>
   </div>
-  <div class="flex justify-between items-center mt-10">
-    <TableSearch type="open"></TableSearch>
+
+  <div class="flex justify-between items-center">
+    <TableSearch ref="tableSearchRef" :type="pageStore.sta == 1 ? 'open' : 'closed'"></TableSearch>
   </div>
   <a-spin :spinning="pageStore.loading" size="large">
     <div class="table-content">
-      <table-block :table-data="pageStore.list" type="current"></table-block>
+      <table-block :table-data="pageStore.list" :type="pageStore.sta == 1 ? 'current' : 'closed'"></table-block>
     </div>
     <div class="mt-5" v-if="pageStore.total">
       <a-pagination
@@ -47,24 +49,44 @@
   </a-spin>
 </template>
 
-<script setup>
+<script setup name="Projects">
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import TableSearch from '../components/TableSearch.vue';
 import TableBlock from '../components/TableBlock.vue';
-import { useCloseProjectsStore } from '@/store';
+import { useProjectsStore } from '@/store';
 import ChartOne from './components/ChartOne.vue';
 import ChartTwo from './components/ChartTwo.vue';
+import ProductTab from '../components/productTab.vue';
 
 const { t } = useI18n();
-const pageStore = useCloseProjectsStore();
+const pageStore = useProjectsStore();
 
-onMounted(() => {
-  // 加载数据
+const tabData = ref([
+  {
+    label: t('当前项目'),
+    value: 1,
+    num: 0
+  },
+  {
+    label: t('已关闭项目'),
+    value: 2,
+    num: 0
+  }
+]);
+
+const tableSearchRef = ref();
+
+const tabChange = () => {
   pageStore.pagination.page = 1;
-  pageStore.sta = 1;
-  pageStore.getList();
-});
+  if (tableSearchRef.value) {
+    tableSearchRef.value.searchHandle(true);
+  } else {
+    pageStore.getList();
+  }
+};
+
+onMounted(() => {});
 </script>
 
 <style lang="less" scoped>

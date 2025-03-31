@@ -5,6 +5,7 @@ const useCloseProjectsStore = defineStore('VcOnlineCloseProjects', {
   state: () => ({
     list: [],
     sta: 1, //类型 1open 2close
+    product_uuid:'',
     loading: false,
     searchParams: {},
     total: 0,
@@ -67,6 +68,7 @@ const useCloseProjectsStore = defineStore('VcOnlineCloseProjects', {
       return new Promise((resolve, reject) => {
         listProject({
           sta: this.sta,
+          product_uuid: this.product_uuid,
           ...param,
           ...page
         })

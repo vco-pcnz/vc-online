@@ -5,7 +5,7 @@
       <a-upload ref="uploadRef" :action="uploadUrl + importUrl" :headers="{ 'Content-Type': 'multipart/form-data' }" :beforeUpload="beforeUpload" :data="{ biz: bizPath, ...params }" name="file" :showUploadList="false" @change="handleChange">
         <a-button type="cyan" :loading="importLoading">Import</a-button>
       </a-upload>
-      <a-button type="cyan" :loading="exportLoading" @click="report">Export</a-button>
+      <a-button type="cyan" :loading="exportLoading" @click="report">template</a-button>
     </div>
   </div>
   <!-- <a v-if="uuid" :href="viewUrl + '?uuid=' + uuid" target="blank">View</a> -->

@@ -28,11 +28,11 @@ const props = defineProps(['title', 'activeTab']);
 const emits = defineEmits(['getProjectDetail']);
 
 const pageTitleRef = computed(() => {
-  const sn = detail.value?.base?.project_apply_sn || ''
-  const name = detail.value?.product?.name ? `${detail.value?.product?.name} - ` : ''
-  const type = pageTitle.value ? ` - ${t(pageTitle.value)}` : ''
-  return `${name}${sn}${type}`
-})
+  const sn = detail.value?.base?.project_apply_sn || '';
+  const name = detail.value?.product?.name ? `${detail.value?.product?.name} - ` : '';
+  const type = pageTitle.value ? ` - ${t(pageTitle.value)}` : '';
+  return `${name}${sn}${type}`;
+});
 
 const panes = computed(() => {
   let arr = [];
@@ -60,25 +60,21 @@ const onChange = (key) => {
   router.push(`/projects/${key}?uuid=` + route.query.uuid);
 };
 
-const prevBackArr = ['penalty', 'variations', 'journal']
+const prevBackArr = ['penalty', 'variations', 'journal'];
 const backPrev = (link) => {
   for (let i = 0; i < prevBackArr.length; i++) {
     if (link.indexOf(prevBackArr[i]) > -1) {
-      return true
+      return true;
     }
   }
-  return false
-}
+  return false;
+};
 
 const back = () => {
-  if(backPrev(route.path)) {
+  if (backPrev(route.path)) {
     router.push(`/projects/about?uuid=${route.query.uuid}`);
   } else {
-    if (detail.value?.base?.is_open === 2 || detail.value?.base?.is_open === 3) {
-      router.push(`/projects/closed`);
-    } else {
-      router.push(`/projects/current`);
-    }
+    router.push(`/projects/current`);
   }
 };
 

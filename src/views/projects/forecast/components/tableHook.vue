@@ -102,8 +102,7 @@
         </template>
       </div>
     </div>
-
-    <a-empty v-if="!data?.list" />
+    <a-empty v-if="data?.list.constructor === Array && !data?.list.length" />
     <div class="flex justify-center pb-8" v-if="!projectDetail?.base?.is_close">
       <Add :uuid="uuid" :item-id="itemId" :projectDetail="projectDetail" @update="update"> <a-button type="brown" shape="round" size="small">add forecast</a-button></Add>
     </div>
@@ -328,7 +327,7 @@ const update = () => {
 
 .table-content {
   margin-bottom: 20px;
-  min-height: 300px;
+  min-height: 150px;
   padding-top: 15px;
   .col-item {
     width: 100%;

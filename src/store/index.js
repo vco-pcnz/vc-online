@@ -7,11 +7,11 @@ import useNoticeStore from "./modules/notice";
 import useUsersStore from "./modules/users";
 import useOrgsStore from "./modules/orgs";
 import useOrgsDetailStore from "./modules/orgsDetail";
-import useCloseProjectsStore from "./modules/closeProjects";
+import useProjectsStore from "./modules/projects";
 import useProductStore from "./modules/product";
 
 const pinia = createPinia();
 pinia.use(createPersistedState())
 
-export { useUserStore, useAppStore, useUserDetailStore, useNoticeStore, useUsersStore, useOrgsStore, useOrgsDetailStore, useCloseProjectsStore, useProductStore };
+export { useUserStore, useAppStore, useUserDetailStore, useNoticeStore, useUsersStore, useOrgsStore, useOrgsDetailStore, useProjectsStore, useProductStore };
 export default pinia;

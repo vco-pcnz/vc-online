@@ -1,6 +1,6 @@
 <template>
   <div class="importBox">
-    <import-export :title="t('用户')" importUrl="/123123" exportUrl="/reconciliation/reportExport"></import-export>
+    <import-export :title="t('用户')" importUrl="/upload/uploadFile" exportUrl="/reconciliation/reportExport"></import-export>
     <import-export :title="t('利益相关者')" importUrl="/123123" exportUrl="/reconciliation/reportExport"></import-export>
   </div>
   <div class="importBox project">

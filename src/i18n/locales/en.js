@@ -875,5 +875,7 @@ export default {
   "请输入大于{0}的数字": "Please enter a number greater than {0}",
   "BOC审核": "BOC Audit",
   "BOC 是否已经通过了审核？": "Has BOC passed the audit?",
-  "已通过": "Passed"
+  "已通过": "Passed",
+  "更新重复数据": "Update duplicate data",
+  "忽略重复数据": "Ignore duplicate data",
 }

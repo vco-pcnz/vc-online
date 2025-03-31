@@ -2,30 +2,25 @@
   <div>
     <div class="title">{{ title }}</div>
     <div class="flex gap-5">
-      <a-upload ref="uploadRef" :action="uploadUrl + importUrl" :headers="{ 'Content-Type': 'multipart/form-data' }" :beforeUpload="beforeUpload" :data="{ biz: bizPath, ...params }" name="file" :showUploadList="false" @change="handleChange">
+      <a-upload ref="uploadRef" :action="uploadUrl + importUrl" :headers="headers" :beforeUpload="beforeUpload" :data="{ ...params }" name="file" :showUploadList="false" @change="handleChange">
         <a-button type="cyan" :loading="importLoading">Import</a-button>
       </a-upload>
       <a-button type="cyan" :loading="exportLoading" @click="report">template</a-button>
     </div>
   </div>
+  <Confirm ref="confirmRef" :url="'1231'" text="Total 17 items"></Confirm>
   <!-- <a v-if="uuid" :href="viewUrl + '?uuid=' + uuid" target="blank">View</a> -->
 </template>
-<!-- 用户转移
-利益相关者转移
-项目基础信息转移
-抵押物转移
-Forecast 转移
-Schedule 转移
-文件转移
-放款数据转移 -->
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue';
 import tool from '@/utils/tool';
+import Confirm from './confirm.vue';
 import { request } from '@/utils/request';
+import { getToken } from '@/utils/token-util';
 
-const uploadUrl = import.meta.env.VITE_APP_OPEN_PROXY === 'true' ? import.meta.env.VITE_APP_PROXY_PREFIX : import.meta.env.VITE_APP_BASE_URL;
+const uploadUrl = ref(import.meta.env.VITE_APP_OPEN_PROXY === 'true' ? import.meta.env.VITE_APP_PROXY_PREFIX : import.meta.env.VITE_APP_BASE_URL);
 
 const { t } = useI18n();
 
@@ -41,9 +36,16 @@ const props = defineProps({
   },
   viewUrl: {
     type: String
+  },
+  // 后端要求携带的其他参数
+  params: {
+    type: Object,
+    required: false,
+    default: () => {
+      return {};
+    }
   }
 });
-const uuid = ref('');
 const fileType = ref(['xls', 'xlsx', 'csv', 'json', 'txt', 'doc', 'docx', 'ppt', 'pptx', 'pdf', 'xmind']);
 const beforeUpload = (file, tips) => {
   const fileExtension = file.name.split('.').pop().toLowerCase();
@@ -56,7 +58,7 @@ const beforeUpload = (file, tips) => {
   }
   return isFileType;
 };
-
+const confirmRef = ref();
 // 上传
 const importLoading = ref(false);
 const handleChange = (info) => {
@@ -66,6 +68,7 @@ const handleChange = (info) => {
   }
   if (info.file.status === 'done') {
     if (info.file.response.success) {
+      confirmRef.value.updateVisible(true);
     } else {
       message.error(`${info.file.response.msg}` || ` ${t('上传失败')}.`);
     }
@@ -94,6 +97,12 @@ const report = () => {
       exportLoading.value = false;
     });
 };
+
+const headers = ref({ 'Content-Type': 'multipart/form-data' });
+onMounted(() => {
+  const token = getToken();
+  headers.value = { Authorization: token };
+});
 </script>
 
 <style scoped lang="less">

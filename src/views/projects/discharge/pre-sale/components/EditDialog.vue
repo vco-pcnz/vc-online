@@ -1,7 +1,7 @@
 <template>
   <a-modal
     :open="visible"
-    :title="t('编辑预售信息')"
+    :title="isAdd ? t('添加预售信息') : t('编辑预售信息')"
     :width="900"
     :footer="null"
     :keyboard="false"
@@ -168,6 +168,10 @@
     infoData: {
       type: Object,
       default: () => {}
+    },
+    isAdd: {
+      type: Boolean,
+      default: false
     }
   });
 
@@ -232,6 +236,9 @@
   }
 
   const subDisabled = computed(() => {
+    if (props.isAdd) {
+      return false
+    }
     const data = cloneDeep(formState.value);
     data.is_gst = data.is_gst ? 1 : 0
     delete data.reason
@@ -254,6 +261,7 @@
     .then(() => {
       const params = cloneDeep(formState.value);
       params.is_gst = params.is_gst ? 1 : 0
+      params.is_sales = 1
       params.p_uuid = props.uuid
       params.uuid = props.infoData.uuid
 

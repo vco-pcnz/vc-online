@@ -56,7 +56,7 @@
       </div>
 
       <div class="flex gap-4">
-        <a-button type="brown" shape="round" size="small" @click="navigationTo('/projects/documents?uuid=' + uuid)">{{ t('查看文件') }}</a-button>
+        <a-button type="brown" shape="round" size="small" @click="navigationTo('/projects/documents?uuid=' + uuid + '&annex_id=' + detail?.annex_id)">{{ t('查看文件') }}</a-button>
         <a-button v-if="detail.is_sales" type="brown" shape="round" size="small" @click="infoVisible = true">{{ t('预售数据') }}</a-button>
       </div>
       

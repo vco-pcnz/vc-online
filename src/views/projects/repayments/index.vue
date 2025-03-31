@@ -31,7 +31,7 @@
         <div :class="{ grid: tableData.length }">
           <a-spin :spinning="loading" size="large">
             <div class="table-content">
-              <TableBlock :tableData="tableData" @change="change"></TableBlock>
+              <TableBlock :tableData="tableData" :pagination="pagination" :total="total" @change="change"></TableBlock>
             </div>
             <div class="mt-5" v-if="total">
               <a-pagination size="small" :total="total" :pageSize="pagination.limit" :current="pagination.page" :show-size-changer="false" show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />

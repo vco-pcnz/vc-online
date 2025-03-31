@@ -1,13 +1,7 @@
 <template>
   <div class="tab flex items-center justify-between">
     <ul class="flex">
-      <li
-        class="tab-item flex items-center"
-        v-for="(item, index) in data"
-        :key="index"
-        :class="{ active: activeIndex === index, disabled: item.status == 0 }"
-        @click="setIndex(index)"
-      >
+      <li class="tab-item flex items-center" v-for="(item, index) in data" :key="index" :class="{ active: activeIndex === index, disabled: item.status == 0 }" @click="setIndex(index)">
         <img class="icon" :src="item.icon" alt="" />
         <img class="icon icon2" :src="item.icon2" alt="" />
         {{ item.name }}
@@ -42,7 +36,7 @@
 </template>
 
 <script scoped setup>
-import { ref, watch,onMounted } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { getChild } from '@/api/project/annex';
 import { cloneDeep } from 'lodash';
@@ -69,7 +63,7 @@ const props = defineProps({
     type: Object
   },
   annex_id: {
-    type: [String,Number]
+    type: [String, Number]
   },
   edit: {
     type: Boolean,
@@ -150,9 +144,9 @@ const getPath = (id) => {
   let obj = cloneDeep(props.data);
   let nameStr = '';
   if (!pathIndex.value[id]) return '';
-  pathIndex.value[id].map((item) => {
+  pathIndex.value[id].map((item, index) => {
     obj = obj.children ? obj.children[item] : obj[item];
-    nameStr += obj.name + '/';
+    nameStr += obj.name + (index < pathIndex.value[id].length - 1 ? '/' : '');
   });
   return nameStr;
 };
@@ -167,8 +161,8 @@ const toTarget = (id) => {
 };
 
 onMounted(() => {
-  toTarget(props.annex_id)
-})
+  toTarget(props.annex_id);
+});
 
 watch(
   () => props.active,
@@ -187,7 +181,6 @@ watch(
   },
   { immediate: true, deep: true }
 );
-
 
 // 暴露方法给父组件
 defineExpose({

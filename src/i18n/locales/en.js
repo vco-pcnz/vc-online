@@ -273,7 +273,7 @@ export default {
   "借款周期": "Loan term",
   "天数": "Days",
   "开放日期": "Open Date",
-  "到期日期": "Maturity date",
+  "到期日期": "Maturity Date",
   "月": "months",
   "天": "days",
   "请输入正整数": "Please enter a positive integer",

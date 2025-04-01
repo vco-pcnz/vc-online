@@ -886,4 +886,6 @@ export default {
   "重复手机{0}条": "Repeat mobile {0} items",
   "插入{0}条": "Insert {0} items",
   "更新{0}条": "Update {0} items",
+  "固定利息偿还金额": "Fixed interest & repayment",
+  "添加预售数据": "Add Pre-sale"
 }

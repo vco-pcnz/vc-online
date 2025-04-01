@@ -69,7 +69,7 @@ const tabData = ref([
     num: 0
   },
   {
-    label: t('已关闭项目'),
+    label: t('已关闭的项目'),
     value: 2,
     num: 0
   }

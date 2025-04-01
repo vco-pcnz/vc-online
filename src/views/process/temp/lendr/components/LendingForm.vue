@@ -80,31 +80,7 @@
             </div>
           </a-col>
 
-          <a-col v-if="isRefinancial" :span="8">
-            <a-form-item :label="t('再融资项目')" name="substitution_ids">
-              <a-select
-                v-model:value="formState.substitution_ids"
-                mode="multiple"
-                :options="formattedRefinancialData"
-                :filter-option="filterOption"
-                :placeholder="t('请选择项目')"
-                :disabled="refinancialDisabled"
-                @change="(value, option) => refinancialChange(option)"
-              >
-                <template #option="{ label, value, item }">
-                  <p>{{ label }}</p>
-                  <vco-number
-                    :value="Number(item.amount)"
-                    :precision="2"
-                    size="fs_xs"
-                    :end="true"
-                    color="#666666"
-                  ></vco-number>
-                </template>
-              </a-select>
-            </a-form-item>
-          </a-col>
-          <a-col v-else :span="8">
+          <a-col :span="Number(formState.repay_type) === 3 ? 5 : 8">
             <a-form-item :label="t('借款金额')" name="build_amount">
               <a-input-number
                 v-model:value="formState.build_amount"
@@ -115,10 +91,11 @@
                     `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                 "
                 :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                @input="calcBrokerFee"
               />
             </a-form-item>
           </a-col>
-          <a-col :span="8">
+          <a-col :span="Number(formState.repay_type) === 3 ? 5 : 8">
             <a-form-item :label="t('罚息比例')" name="penalty_rate">
               <a-input
                 v-model:value="formState.penalty_rate"
@@ -133,7 +110,7 @@
             </a-form-item>
           </a-col>
           <template v-if="Number(formState.repay_type) === 3">
-            <a-col :span="8">
+            <a-col :span="6">
               <a-form-item :label="t('固定利息偿还金额')" name="repay_money">
                 <a-input-number
                   v-model:value="formState.repay_money"
@@ -147,41 +124,38 @@
                 />
               </a-form-item>
             </a-col>
-            <a-col :span="16"></a-col>
           </template>
           
           <template v-if="isRefinancial">
             <a-col :span="8">
-              <a-form-item :label="t('借款金额')" name="build_amount">
-                <a-input-number
-                  v-model:value="formState.build_amount"
-                  :max="99999999999"
-                  :disabled="amountDisabled || inputADis"
-                  :formatter="
-                    (value) =>
-                      `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-                  "
-                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                />
+              <a-form-item :label="t('再融资项目')" name="substitution_ids">
+                <a-select
+                  v-model:value="formState.substitution_ids"
+                  mode="multiple"
+                  :options="formattedRefinancialData"
+                  :filter-option="filterOption"
+                  :placeholder="t('请选择项目')"
+                  :disabled="refinancialDisabled"
+                  @change="(value, option) => refinancialChange(option)"
+                >
+                  <template #option="{ label, value, item }">
+                    <p>{{ label }}</p>
+                    <vco-number
+                      :value="Number(item.amount)"
+                      :precision="2"
+                      size="fs_xs"
+                      :end="true"
+                      color="#666666"
+                    ></vco-number>
+                  </template>
+                </a-select>
               </a-form-item>
             </a-col>
-            <a-col :span="1" class="plus-txt">
-              <i class="iconfont">&#xe889;</i>
-            </a-col>
-            <a-col :span="6" class="financial-amount">
+
+            <a-col :span="8" class="financial-amount">
               <a-form-item :label="t('再融资金额')">
                 <vco-number
                   :value="refinancialAmount"
-                  :precision="2"
-                  :end="true"
-                ></vco-number>
-              </a-form-item>
-            </a-col>
-            <a-col :span="1" class="plus-txt"><i class="iconfont">=</i></a-col>
-            <a-col :span="8" class="financial-amount">
-              <a-form-item :label="t('借款总金额')">
-                <vco-number
-                  :value="totalInitialAmountRef"
                   :precision="2"
                   :end="true"
                 ></vco-number>
@@ -211,8 +185,9 @@
                 </template>
                 <a-input
                   v-model:value="formState[item.credit_table]"
-                  :disabled="inputDisabled(item.editMark)"
+                  :disabled="inputDisabled(item.editMark) || item.disabled"
                   :suffix="item.credit_unit"
+                  @input="() => percentInput(item.credit_table)"
                 />
               </a-form-item>
             </a-col>
@@ -241,7 +216,7 @@
                 </template>
                 <a-input-number
                   v-model:value="formState[item.credit_table]"
-                  :disabled="inputDisabled(item.editMark)"
+                  :disabled="inputDisabled(item.editMark) || item.disabled"
                   :formatter="
                     (value) =>
                       `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -359,7 +334,10 @@
     ajaxFn({
       uuid: props.currentId
     }).then(res => {
-      refinancialData.value = res || []
+      // refinancialData.value = res || []
+
+      // lendr 不能再融资
+      refinancialData.value = []
     })
   }
 
@@ -523,11 +501,6 @@
     }
   };
 
-  const totalInitialAmountRef = computed(() => {
-    const build_amount = formState.value.build_amount || 0;
-    return tool.plus(build_amount, refinancialAmount.value);
-  });
-
   const colClassName1 = (num) => {
     if (num === 1) {
       return 'one';
@@ -567,6 +540,32 @@
     showNumItems.value = showNum
   }
 
+  // 计算中介费
+  const calcBrokerFee = () => {
+    if ('credit_brokeFeeRate' in formState.value && 'credit_brokerFee' in formState.value) {
+      const build_amount = formState.value.build_amount || 0;
+      const land_amount = formState.value.land_amount || 0;
+      const brokeFeeRate = formState.value.credit_brokeFeeRate || 0
+      
+      if (isNaN(Number(brokeFeeRate))) {
+        formState.value.credit_brokerFee = 0
+      } else {
+        const amount = tool.plus(build_amount, land_amount);
+        const per = tool.div(Number(brokeFeeRate), 100)
+        const num = tool.times(amount, per)
+
+        formState.value.credit_brokerFee = num
+      }
+    }
+  }
+
+  const percentInput = (key) => {
+    // 中介费率修改
+    if (key === 'credit_brokeFeeRate') {
+      calcBrokerFee()
+    }
+  }
+
   const getFormItems = async () => {
     const creditCate = props.isDetails ? 0 : props.currentStep?.credit_cate;
 
@@ -579,6 +578,15 @@
       const perData = writeData.filter((item) => item.is_ratio);
       const dolData = writeData.filter((item) => !item.is_ratio);
       const backData = writeData.filter((item) => item.backMark);
+
+      // 如果存在中介费率，则中介费不可输入只是做展示
+      const brokerFeeRate = perData.find(item => item.credit_table === 'credit_brokeFeeRate')
+      if (brokerFeeRate) {
+        const brokerFee = dolData.find(item => item.credit_table === 'credit_brokerFee')
+        if (brokerFee) {
+          brokerFee.disabled = true
+        }
+      }
 
       const rulesData = {};
       for (let i = 0; i < writeData.length; i++) {
@@ -739,7 +747,7 @@
         const nowNum = backItems[i].is_ratio ? `${nowN}${backItems[i].credit_unit}` : `${backItems[i].credit_unit}${nowN}`
 
         if (Number(staticFormData.value[key]) !== Number(obj[key])) {
-          if (key === 'credit_brokerFee') {
+          if (['credit_brokeFeeRate'].includes(key)) {
             if (Number(obj[key]) > Number(staticFormData.value[key])) {
               arr.push({
                 name: findCreditName(key),
@@ -756,11 +764,22 @@
               })
             }
           } else {
-            arr.push({
-              name: findCreditName(key),
-              before: beforeNum,
-              now: nowNum
-            })
+            // 有中介费率
+            if ('credit_brokeFeeRate' in formState.value && 'credit_brokerFee' in formState.value) {
+              if (key !== 'credit_brokerFee') {
+                arr.push({
+                  name: findCreditName(key),
+                  before: beforeNum,
+                  now: nowNum
+                })
+              }
+            } else {
+              arr.push({
+                name: findCreditName(key),
+                before: beforeNum,
+                now: nowNum
+              })
+            }
           }
         }
       }

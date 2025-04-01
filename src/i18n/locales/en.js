@@ -879,6 +879,6 @@ export default {
   "已通过": "Passed",
   "更新重复数据": "Update duplicate data",
   "忽略重复数据": "Ignore duplicate data",
-  "固定利息偿还金额": "Fixed interest repayment amount",
+  "固定利息偿还金额": "Fixed interest & repayment",
   "添加预售数据": "Add Pre-sale"
 }

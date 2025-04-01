@@ -256,8 +256,9 @@
                 </template>
                 <a-input
                   v-model:value="formState[item.credit_table]"
-                  :disabled="inputDisabled(item.editMark)"
+                  :disabled="inputDisabled(item.editMark) || item.disabled"
                   :suffix="item.credit_unit"
+                  @input="() => percentInput(item.credit_table)"
                 />
               </a-form-item>
             </a-col>
@@ -286,7 +287,7 @@
                 </template>
                 <a-input-number
                   v-model:value="formState[item.credit_table]"
-                  :disabled="inputDisabled(item.editMark)"
+                  :disabled="inputDisabled(item.editMark) || item.disabled"
                   :formatter="
                     (value) =>
                       `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -582,6 +583,7 @@
   const totalAmountRef = computed(() => {
     const build_amount = formState.value.build_amount || 0;
     const land_amount = formState.value.land_amount || 0;
+    calcBrokerFee()
     return tool.plus(build_amount, land_amount);
   });
 
@@ -650,6 +652,33 @@
     showNumItems.value = showNum
   }
 
+  // 计算中介费
+  const calcBrokerFee = () => {
+    if ('credit_brokeFeeRate' in formState.value && 'credit_brokerFee' in formState.value) {
+      const build_amount = formState.value.build_amount || 0;
+      const land_amount = formState.value.land_amount || 0;
+      const brokeFeeRate = formState.value.credit_brokeFeeRate || 0
+      
+
+      if (isNaN(Number(brokeFeeRate))) {
+        formState.value.credit_brokerFee = 0
+      } else {
+        const amount = tool.plus(build_amount, land_amount);
+        const per = tool.div(Number(brokeFeeRate), 100)
+        const num = tool.times(amount, per)
+
+        formState.value.credit_brokerFee = num
+      }
+    }
+  }
+
+  const percentInput = (key) => {
+    // 中介费率修改
+    if (key === 'credit_brokeFeeRate') {
+      calcBrokerFee()
+    }
+  }
+
   const getFormItems = async () => {
     const creditCate = props.isDetails ? 0 : props.currentStep?.credit_cate;
 
@@ -662,6 +691,15 @@
       const perData = writeData.filter((item) => item.is_ratio);
       const dolData = writeData.filter((item) => !item.is_ratio);
       const backData = writeData.filter((item) => item.backMark);
+
+      // 如果存在中介费率，则中介费不可输入只是做展示
+      const brokerFeeRate = perData.find(item => item.credit_table === 'credit_brokeFeeRate')
+      if (brokerFeeRate) {
+        const brokerFee = dolData.find(item => item.credit_table === 'credit_brokerFee')
+        if (brokerFee) {
+          brokerFee.disabled = true
+        }
+      }
 
       const rulesData = {};
       for (let i = 0; i < writeData.length; i++) {
@@ -823,7 +861,7 @@
         const nowNum = backItems[i].is_ratio ? `${nowN}${backItems[i].credit_unit}` : `${backItems[i].credit_unit}${nowN}`
 
         if (Number(staticFormData.value[key]) !== Number(obj[key])) {
-          if (key === 'credit_brokerFee') {
+          if (['credit_brokeFeeRate'].includes(key)) {
             if (Number(obj[key]) > Number(staticFormData.value[key])) {
               arr.push({
                 name: findCreditName(key),
@@ -840,13 +878,23 @@
               })
             }
           } else {
-            arr.push({
-              name: findCreditName(key),
-              before: beforeNum,
-              now: nowNum
-            })
+            // 有中介费率
+            if ('credit_brokeFeeRate' in formState.value && 'credit_brokerFee' in formState.value) {
+              if (key !== 'credit_brokerFee') {
+                arr.push({
+                  name: findCreditName(key),
+                  before: beforeNum,
+                  now: nowNum
+                })
+              }
+            } else {
+              arr.push({
+                name: findCreditName(key),
+                before: beforeNum,
+                now: nowNum
+              })
+            }
           }
-          
         }
       }
     }

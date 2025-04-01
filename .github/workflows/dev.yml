@@ -16,6 +16,10 @@ jobs:
       - name: Update system packages
         run: sudo apt-get update
 
+      # node 版本
+      - name: Check Node.js version
+        run: node -v
+
       # 安装 Yarn（如果未安装）
       - name: Install Yarn
         run: |

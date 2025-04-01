@@ -57,7 +57,7 @@ import TableBlock from '../components/TableBlock.vue';
 import { useProjectsStore } from '@/store';
 import ChartOne from './components/ChartOne.vue';
 import ChartTwo from './components/ChartTwo.vue';
-import ProductTab from '../components/productTab.vue';
+import ProductTab from './../components/ProductTab.vue';
 
 const { t } = useI18n();
 const pageStore = useProjectsStore();

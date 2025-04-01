@@ -1,53 +1,23 @@
 <template>
   <div class="importBox">
-    <import-export :title="t('用户')" importUrl="/upload/uploadFile" exportUrl="/reconciliation/reportExport"></import-export>
-    <import-export :title="t('利益相关者')" importUrl="/123123" exportUrl="/reconciliation/reportExport"></import-export>
+    <import-export :title="t('用户')" :params="{ type: 'user' }" exportUrl="/temp/user.xls"></import-export>
+    <import-export :title="t('利益相关者')" :params="{ type: 'org' }" exportUrl="/temp/organisation.xls"></import-export>
   </div>
   <div class="importBox project">
-    <import-export :title="t('项目')" importUrl="/123123" exportUrl="/reconciliation/reportExport"></import-export>
-    <import-export :title="t('抵押物')" importUrl="/123123" exportUrl="/reconciliation/reportExport"></import-export>
-    <import-export :title="t('明细表')" importUrl="/123123" exportUrl="/reconciliation/reportExport"></import-export>
-    <import-export :title="t('预测')" importUrl="/123123" exportUrl="/reconciliation/reportExport"></import-export>
-    <import-export :title="t('放款')" importUrl="/123123" exportUrl="/reconciliation/reportExport"></import-export>
-    <import-export :title="t('文件')" importUrl="/123123" exportUrl="/reconciliation/reportExport"></import-export>
+    <import-export :title="t('项目')" :params="{ type: 'project' }" exportUrl="/temp/project.xls"></import-export>
+    <import-export :title="t('抵押物')" :params="{ type: 'securities' }" exportUrl="/temp/securities.xls"></import-export>
+    <import-export :title="t('明细表')" :params="{ type: 'schedule' }" exportUrl="/temp/schedule.xls"></import-export>
+    <import-export :title="t('预测')" :params="{ type: 'forecast' }" exportUrl="/temp/forecast.xls"></import-export>
+    <import-export :title="t('放款')" :params="{ type: 'drawdown' }" exportUrl="/temp/drawdown.xls"></import-export>
+    <import-export :title="t('文件')" :params="{ type: 'repayment' }" exportUrl="/temp/repayment.xls"></import-export>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { message } from 'ant-design-vue';
-import tool from '@/utils/tool';
-import { wash } from '@/api/wash';
 import ImportExport from './ImportExport.vue';
 
 const { t } = useI18n();
-
-const showTip = ref(true);
-const req = ref(false);
-const code = ref('');
-const remark = ref('');
-const list = ref([]);
-
-const removeItem = (index) => {
-  list.value.splice(index, 1);
-};
-
-const submit = () => {
-  if (!list.value.length) {
-    return message.warning(t('请上传'));
-  }
-
-  let uuids = list.value.map((item) => {
-    return item.uuid;
-  });
-
-  wash({ code: code.value, document: uuids, remark: remark.value }).then((res) => {
-    showTip.value = true;
-  });
-};
-
-onMounted(() => {});
 </script>
 
 <style scoped lang="less">

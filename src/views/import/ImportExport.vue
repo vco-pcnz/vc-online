@@ -2,14 +2,13 @@
   <div>
     <div class="title">{{ title }}</div>
     <div class="flex gap-5">
-      <a-upload ref="uploadRef" :action="uploadUrl + importUrl" :headers="headers" :beforeUpload="beforeUpload" :data="{ ...params }" name="file" :showUploadList="false" @change="handleChange">
+      <a-upload ref="uploadRef" :action="uploadUrl + '/transfer/importData'" :headers="headers" :beforeUpload="beforeUpload" :data="{ ...params }" name="file" :showUploadList="false" @change="handleChange">
         <a-button type="cyan" :loading="importLoading">Import</a-button>
       </a-upload>
       <a-button type="cyan" :loading="exportLoading" @click="report">template</a-button>
     </div>
   </div>
-  <Confirm ref="confirmRef" :url="'1231'" text="Total 17 items"></Confirm>
-  <!-- <a v-if="uuid" :href="viewUrl + '?uuid=' + uuid" target="blank">View</a> -->
+  <Confirm ref="confirmRef" :data="uploadResult"></Confirm>
 </template>
 <script setup>
 import { ref, onMounted } from 'vue';
@@ -28,9 +27,6 @@ const props = defineProps({
   title: {
     type: String
   },
-  importUrl: {
-    type: String
-  },
   exportUrl: {
     type: String
   },
@@ -46,6 +42,7 @@ const props = defineProps({
     }
   }
 });
+const uploadResult = ref({});
 const fileType = ref(['xls', 'xlsx', 'csv', 'json', 'txt', 'doc', 'docx', 'ppt', 'pptx', 'pdf', 'xmind']);
 const beforeUpload = (file, tips) => {
   const fileExtension = file.name.split('.').pop().toLowerCase();
@@ -68,6 +65,7 @@ const handleChange = (info) => {
   }
   if (info.file.status === 'done') {
     if (info.file.response.success) {
+      uploadResult.value = info.file.response.data;
       confirmRef.value.updateVisible(true);
     } else {
       message.error(`${info.file.response.msg}` || ` ${t('上传失败')}.`);
@@ -81,7 +79,10 @@ const handleChange = (info) => {
 
 // 导出模板
 const exportLoading = ref(false);
+
 const report = () => {
+  window.open(props.exportUrl);
+  return;
   exportLoading.value = true;
   const paramsInfo = {
     url: props.exportUrl,

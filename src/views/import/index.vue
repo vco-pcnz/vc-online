@@ -9,7 +9,7 @@
     <import-export :title="t('明细表')" :params="{ type: 'schedule' }" exportUrl="/temp/schedule.xls"></import-export>
     <import-export :title="t('预测')" :params="{ type: 'forecast' }" exportUrl="/temp/forecast.xls"></import-export>
     <import-export :title="t('放款')" :params="{ type: 'drawdown' }" exportUrl="/temp/drawdown.xls"></import-export>
-    <import-export :title="t('文件')" :params="{ type: 'repayment' }" exportUrl="/temp/repayment.xls"></import-export>
+    <import-export :title="t('文件')" :params="{ type: 'document' }" exportUrl="/temp/document.xls"></import-export>
   </div>
 </template>
 

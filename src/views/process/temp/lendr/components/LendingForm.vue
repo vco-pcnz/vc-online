@@ -542,10 +542,10 @@
 
   // 计算中介费
   const calcBrokerFee = () => {
-    if ('credit_brokeFeeRate' in formState.value && 'credit_brokerFee' in formState.value) {
+    if ('credit_brokerFeeRate' in formState.value && 'credit_brokerFee' in formState.value) {
       const build_amount = formState.value.build_amount || 0;
       const land_amount = formState.value.land_amount || 0;
-      const brokeFeeRate = formState.value.credit_brokeFeeRate || 0
+      const brokeFeeRate = formState.value.credit_brokerFeeRate || 0
       
       if (isNaN(Number(brokeFeeRate))) {
         formState.value.credit_brokerFee = 0
@@ -561,7 +561,7 @@
 
   const percentInput = (key) => {
     // 中介费率修改
-    if (key === 'credit_brokeFeeRate') {
+    if (key === 'credit_brokerFeeRate') {
       calcBrokerFee()
     }
   }
@@ -580,7 +580,7 @@
       const backData = writeData.filter((item) => item.backMark);
 
       // 如果存在中介费率，则中介费不可输入只是做展示
-      const brokerFeeRate = perData.find(item => item.credit_table === 'credit_brokeFeeRate')
+      const brokerFeeRate = perData.find(item => item.credit_table === 'credit_brokerFeeRate')
       if (brokerFeeRate) {
         const brokerFee = dolData.find(item => item.credit_table === 'credit_brokerFee')
         if (brokerFee) {
@@ -747,7 +747,7 @@
         const nowNum = backItems[i].is_ratio ? `${nowN}${backItems[i].credit_unit}` : `${backItems[i].credit_unit}${nowN}`
 
         if (Number(staticFormData.value[key]) !== Number(obj[key])) {
-          if (['credit_brokeFeeRate'].includes(key)) {
+          if (['credit_brokerFeeRate'].includes(key)) {
             if (Number(obj[key]) > Number(staticFormData.value[key])) {
               arr.push({
                 name: findCreditName(key),
@@ -765,7 +765,7 @@
             }
           } else {
             // 有中介费率
-            if ('credit_brokeFeeRate' in formState.value && 'credit_brokerFee' in formState.value) {
+            if ('credit_brokerFeeRate' in formState.value && 'credit_brokerFee' in formState.value) {
               if (key !== 'credit_brokerFee') {
                 arr.push({
                   name: findCreditName(key),

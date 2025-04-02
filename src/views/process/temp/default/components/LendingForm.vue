@@ -1046,7 +1046,8 @@
         if (Number(val.land_amount) !== Number(formState.value.land_amount) ||
           Number(val.build_amount) !== Number(formState.value.build_amount) ||
           Number(val.initial_land_amount) !== Number(formState.value.initial_land_amount) ||
-          Number(val.initial_build_amount) !== Number(formState.value.initial_build_amount)
+          Number(val.initial_build_amount) !== Number(formState.value.initial_build_amount) ||
+          Number(val.has_linefee) !== Number(formState.value.has_linefee)
         ) {
           updateFormData()
         }

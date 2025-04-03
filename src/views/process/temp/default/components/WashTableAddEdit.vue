@@ -271,6 +271,7 @@ watch(
         id: '',
         uuid: '',
         stake_uuid: '',
+        idcard: '',
         annex_id: 0,
         cate: '',
         change: 0,

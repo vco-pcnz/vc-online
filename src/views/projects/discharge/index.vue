@@ -12,7 +12,14 @@
       ></security-add-edit>
 
       <div class="ProjectDrawdowns">
-        <div class="flex justify-end mb-5">
+        <div class="flex justify-end mb-5 gap-4">
+          <a-button
+            v-if="hasPermission('process:security-list')" type="brown" shape="round" class="pre-sale-enter"
+            @click="navigationTo(`/projects/discharge/security-list?uuid=${uuid}`)"
+          >
+            {{ t('抵押物统计数据') }}
+            <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px'  }" />
+          </a-button>
           <a-button
             v-if="hasPermission('projects:discharge:preSale')" type="brown" shape="round" class="pre-sale-enter"
             @click="navigationTo(`/projects/discharge/pre-sale?uuid=${uuid}`)"
@@ -177,7 +184,7 @@ const addSecurityVisible = ref(false)
 const openAddEdit = (data, flag = false) => {
 
   if (flag) {
-    navigationTo(`/process/security-batche?uuid=${route.query.uuid}&isOpen=1`)
+    navigationTo(`/projects/discharge/security-batche?uuid=${route.query.uuid}`)
   } else {
     itemInfo.value = data
     addVisible.value = true

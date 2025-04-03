@@ -412,7 +412,6 @@
 
   // 是否显示进度付款
   const showProgressPayment = computed(() => {
-    console.log('props.dataInfo', props.dataInfo);
     return Number(props.dataInfo.security.count) && Number(props.dataInfo.lending.build_amount) && hasPermission('requests:load:progressPayment')
   })
 

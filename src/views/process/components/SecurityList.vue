@@ -61,6 +61,19 @@
         </vco-process-title>
         
         <a-spin :spinning="tabLoading" size="large">
+          <div v-if="tabData.length && hasPermission('process:security-list')" class="mt-5 flex justify-end mb-5">
+            <a-button
+              type="brown"
+              shape="round"
+              size="small"
+              class="flex items-center"
+              @click="gotoSecurityList"
+            >
+              {{ t('抵押物统计数据') }}
+              <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px'  }" />
+            </a-button>
+          </div>
+
           <div class="table-content">
             <template v-if="tabData.length">
               <div v-for="item in tabData" :key="item.uuid" class="table-item" :class="{'batch-edit': batchEditFlag}" @click.stop="checkHandle(item)">
@@ -139,6 +152,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { RightOutlined } from '@ant-design/icons-vue';
 import { projectAuditSecurityList, projectDetailAuditSecurityList, projectAuditDeleteMode } from '@/api/process';
 import tool, { navigationTo } from '@/utils/tool';
 import SecurityAddEdit from '@/views/process/temp/default/components/SecurityAddEdit.vue';
@@ -146,6 +160,7 @@ import emitter from '@/event';
 import { useRoute } from 'vue-router'
 import { cloneDeep } from "lodash"
 import { message } from 'ant-design-vue';
+import { hasPermission } from "@/directives/permission"
 
 const props = defineProps({
   securityInfo: {
@@ -284,6 +299,15 @@ const selectAllHandle = () => {
   })
 }
 
+const gotoSecurityList = () => {
+  const fullPath = route.fullPath
+  let href = `/process/security-list?uuid=${props.currentId}`
+  if (fullPath.indexOf('/requests/details') > -1) {
+    href = `/requests/details/security-list?uuid=${props.currentId}`
+  }
+  navigationTo(href)
+}
+
 onMounted(() => {
   getTableData();
   sessionStorage.removeItem('batchEditSec')
@@ -308,7 +332,7 @@ onUnmounted(() => {
     padding: 10px;
     border: 1px solid #e2e5e2;
     border-radius: 8px;
-    margin-top: 10px;
+    margin-bottom: 10px;
     display: flex;
     align-items: center;
     gap: 15px;

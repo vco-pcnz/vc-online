@@ -81,7 +81,7 @@
               <a-textarea v-model:value="formState.note" :auto-size="{ minRows: 4, maxRows: 5 }" :placeholder="t('请输入')" />
             </a-form-item>
           </a-col>
-          <a-col :span="24" class="mb-10" v-if="formState.stake_uuid">
+          <a-col :span="24" class="mb-10">
             <a-form-item-rest>
               <a-checkbox v-model:checked="formState.change">
                 {{ t('同时更改利益相关者数据') }}
@@ -271,6 +271,7 @@ watch(
         id: '',
         uuid: '',
         stake_uuid: '',
+        idcard: '',
         annex_id: 0,
         cate: '',
         change: 0,

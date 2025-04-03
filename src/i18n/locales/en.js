@@ -273,7 +273,7 @@ export default {
   "借款周期": "Loan term",
   "天数": "Days",
   "开放日期": "Open Date",
-  "到期日期": "Maturity date",
+  "到期日期": "Maturity Date",
   "月": "months",
   "天": "days",
   "请输入正整数": "Please enter a positive integer",
@@ -546,7 +546,7 @@ export default {
   "是否复制以上信息": "Do you want to copy the above information?",
   "复制条数": "Number of copies",
   "需要点击选择已上传的文件进行上传": "You need to click to select the uploaded file to upload",
-  "同时更改利益相关者数据": "Changing stakeholder data simultaneously",
+  "同时更改利益相关者数据": "Update Orgs list simultaneously",
   "人员": "Member",
   "数量不能超过{0}": "The quantity cannot exceed {0}",
   "项目楼栋数为{0}，抵押物数量为{1}，确认通过审核吗？": "The number of buildings in the project is <span>{0}</span>, and the number of Security items is <span>{1}</span>. Are you sure it has passed the review?",
@@ -896,5 +896,7 @@ export default {
   "确定重置吗？": "Are you sure you want to reset?",
   "还原重置": "Restore",
   "更新建筑贷款金额": "Update build amount",
-  "最新均摊值": "Latest amortized value"
+  "最新均摊值": "Latest amortized value",
+  "意见反馈": "Feedback",
+  "待通知": "Awaiting notify"
 }

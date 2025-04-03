@@ -9,6 +9,7 @@
       </router-view>
     </div>
     <layout-footer></layout-footer>
+    <Feedback></Feedback>
   </div>
 </template>
 
@@ -18,6 +19,7 @@
 
   import LayoutHeader from './components/header/index.vue'
   import LayoutFooter from './components/footer/index.vue'
+  import Feedback from './components/Feedback/index.vue'
 
   const route = useRoute();
   const router = useRouter();

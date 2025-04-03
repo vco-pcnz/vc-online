@@ -59,6 +59,9 @@ const props = defineProps({
     type: Object,
     default: () => {}
   },
+  currentId: {
+    type: String
+  },
   variations: {
     type: Boolean,
     default: false
@@ -72,7 +75,7 @@ const countdown = ref(false);
 
 const update = (e) => {
   loading.value = true;
-  syncBankBill()
+  syncBankBill({uuid: props.currentId})
     .then((res) => {
       message.success('Xero sync started!');
       deadline.value = Date.now() + 1000 * 60 * 10;

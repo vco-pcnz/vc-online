@@ -50,65 +50,65 @@
         </a-col>
         <a-col :span="12" class="item-txt">
           <p class="name">{{ t('变更总天数') }}</p>
-          <p class="txt" :class="{'plus': Number(changeData.end_date) > 0, 'reduce': Number(changeData.end_date) < 0}">
-            <i class="iconfont" v-if="Number(changeData.end_date) > 0" style="color: #eb4b6d;">&#xe712;</i>
-            <i class="iconfont" v-if="Number(changeData.end_date) < 0" style="color: #31bd65;">&#xe711;</i>
+          <p class="txt" :class="{ plus: Number(changeData.end_date) > 0, reduce: Number(changeData.end_date) < 0 }">
+            <i class="iconfont" v-if="Number(changeData.end_date) > 0" style="color: #eb4b6d">&#xe712;</i>
+            <i class="iconfont" v-if="Number(changeData.end_date) < 0" style="color: #31bd65">&#xe711;</i>
             <span>{{ changeData.end_date }}</span>
           </p>
         </a-col>
         <a-col :span="24" class="item-txt">
           <p class="name">{{ t('变更金额') }}</p>
-          <p class="txt" :class="{'plus': Number(changeData.loan_money) > 0, 'reduce': Number(changeData.loan_money) < 0}">
-            <i class="iconfont" v-if="Number(changeData.loan_money) > 0" style="color: #eb4b6d;">&#xe712;</i>
-            <i class="iconfont" v-if="Number(changeData.loan_money) < 0" style="color: #31bd65;">&#xe711;</i>
+          <p class="txt" :class="{ plus: Number(changeData.loan_money) > 0, reduce: Number(changeData.loan_money) < 0 }">
+            <i class="iconfont" v-if="Number(changeData.loan_money) > 0" style="color: #eb4b6d">&#xe712;</i>
+            <i class="iconfont" v-if="Number(changeData.loan_money) < 0" style="color: #31bd65">&#xe711;</i>
             <vco-number :value="Math.abs(changeData.loan_money)" :precision="2"></vco-number>
           </p>
         </a-col>
         <a-col :span="24" class="item-txt">
           <p class="name">{{ t('建立费') }}</p>
-          <p class="txt" :class="{'plus': Number(changeData.estabFee) > 0, 'reduce': Number(changeData.estabFee) < 0}">
-            <i class="iconfont" v-if="Number(changeData.estabFee) > 0" style="color: #eb4b6d;">&#xe712;</i>
-            <i class="iconfont" v-if="Number(changeData.estabFee) < 0" style="color: #31bd65;">&#xe711;</i>
+          <p class="txt" :class="{ plus: Number(changeData.estabFee) > 0, reduce: Number(changeData.estabFee) < 0 }">
+            <i class="iconfont" v-if="Number(changeData.estabFee) > 0" style="color: #eb4b6d">&#xe712;</i>
+            <i class="iconfont" v-if="Number(changeData.estabFee) < 0" style="color: #31bd65">&#xe711;</i>
             <vco-number :value="Math.abs(changeData.estabFee)" :precision="2"></vco-number>
           </p>
         </a-col>
         <a-col :span="24" class="item-txt" v-if="detail?.base?.has_linefee">
           <p class="name">{{ t('额度费') }}</p>
-          <p class="txt" :class="{'plus': Number(changeData.lineFee) > 0, 'reduce': Number(changeData.lineFee) < 0}">
-            <i class="iconfont" v-if="Number(changeData.lineFee) > 0" style="color: #eb4b6d;">&#xe712;</i>
-            <i class="iconfont" v-if="Number(changeData.lineFee) < 0" style="color: #31bd65;">&#xe711;</i>
+          <p class="txt" :class="{ plus: Number(changeData.lineFee) > 0, reduce: Number(changeData.lineFee) < 0 }">
+            <i class="iconfont" v-if="Number(changeData.lineFee) > 0" style="color: #eb4b6d">&#xe712;</i>
+            <i class="iconfont" v-if="Number(changeData.lineFee) < 0" style="color: #31bd65">&#xe711;</i>
             <vco-number :value="Math.abs(changeData.lineFee)" :precision="2"></vco-number>
           </p>
         </a-col>
         <a-col :span="24" class="item-txt">
           <p class="name">{{ t('第二授信额度') }}</p>
-          <p class="txt" :class="{'plus': Number(changeData.credit_fc2) > 0, 'reduce': Number(changeData.credit_fc2) < 0}">
-            <i class="iconfont" v-if="Number(changeData.credit_fc2) > 0" style="color: #eb4b6d;">&#xe712;</i>
-            <i class="iconfont" v-if="Number(changeData.credit_fc2) < 0" style="color: #31bd65;">&#xe711;</i>
+          <p class="txt" :class="{ plus: Number(changeData.credit_fc2) > 0, reduce: Number(changeData.credit_fc2) < 0 }">
+            <i class="iconfont" v-if="Number(changeData.credit_fc2) > 0" style="color: #eb4b6d">&#xe712;</i>
+            <i class="iconfont" v-if="Number(changeData.credit_fc2) < 0" style="color: #31bd65">&#xe711;</i>
             <vco-number :value="Math.abs(changeData.credit_fc2)" :precision="2"></vco-number>
           </p>
         </a-col>
         <a-col :span="8" class="item-txt no">
           <p class="name">{{ t('利息') }}</p>
-          <p class="txt" :class="{'plus': Number(changeData.interestRate) > 0, 'reduce': Number(changeData.interestRate) < 0}">
-            <i class="iconfont" v-if="Number(changeData.interestRate) > 0" style="color: #eb4b6d;">&#xe712;</i>
-            <i class="iconfont" v-if="Number(changeData.interestRate) < 0" style="color: #31bd65;">&#xe711;</i>
+          <p class="txt" :class="{ plus: Number(changeData.interestRate) > 0, reduce: Number(changeData.interestRate) < 0 }">
+            <i class="iconfont" v-if="Number(changeData.interestRate) > 0" style="color: #eb4b6d">&#xe712;</i>
+            <i class="iconfont" v-if="Number(changeData.interestRate) < 0" style="color: #31bd65">&#xe711;</i>
             <span>{{ Math.abs(changeData.interestRate) }}%</span>
           </p>
         </a-col>
         <a-col :span="8" class="item-txt no">
           <p class="name">LVR</p>
-          <p class="txt" :class="{'plus': Number(changeData.lvr) > 0, 'reduce': Number(changeData.lvr) < 0}">
-            <i class="iconfont" v-if="Number(changeData.lvr) > 0" style="color: #eb4b6d;">&#xe712;</i>
-            <i class="iconfont" v-if="Number(changeData.lvr) < 0" style="color: #31bd65;">&#xe711;</i>
+          <p class="txt" :class="{ plus: Number(changeData.lvr) > 0, reduce: Number(changeData.lvr) < 0 }">
+            <i class="iconfont" v-if="Number(changeData.lvr) > 0" style="color: #eb4b6d">&#xe712;</i>
+            <i class="iconfont" v-if="Number(changeData.lvr) < 0" style="color: #31bd65">&#xe711;</i>
             <span>{{ Math.abs(changeData.lvr) }}%</span>
           </p>
         </a-col>
         <a-col :span="8" class="item-txt no">
           <p class="name">IRR</p>
-          <p class="txt" :class="{'plus': Number(changeData.irr) > 0, 'reduce': Number(changeData.irr) < 0}">
-            <i class="iconfont" v-if="Number(changeData.irr) > 0" style="color: #eb4b6d;">&#xe712;</i>
-            <i class="iconfont" v-if="Number(changeData.irr) < 0" style="color: #31bd65;">&#xe711;</i>
+          <p class="txt" :class="{ plus: Number(changeData.irr) > 0, reduce: Number(changeData.irr) < 0 }">
+            <i class="iconfont" v-if="Number(changeData.irr) > 0" style="color: #eb4b6d">&#xe712;</i>
+            <i class="iconfont" v-if="Number(changeData.irr) < 0" style="color: #31bd65">&#xe711;</i>
             <span>{{ Math.abs(changeData.irr) }}%</span>
           </p>
         </a-col>
@@ -159,7 +159,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 
@@ -168,9 +168,9 @@ const { t } = useI18n();
 const props = defineProps({
   detail: {
     type: Object,
-    default: () => {}
-  }
-})
+    default: () => {},
+  },
+});
 
 const beforeData = computed(() => {
   const obj = {
@@ -182,22 +182,22 @@ const beforeData = computed(() => {
     credit_fc2: props.detail.credit.credit_fc2 || 0,
     interestRate: props.detail.credit.left.interestRate || 0,
     lvr: props.detail.credit.right.lvr || 0,
-    irr: props.detail.credit.right.irrPreset || 0
-  }
-  return obj
-})
+    irr: props.detail.credit.right.irr || 0,
+  };
+  return obj;
+});
 
 const changeData = computed(() => {
-  const gapDay = tool.calculateDurationPrecise(beforeData.value.end_date, props.detail.variationInfo.end_date)
-  const estabFee = tool.minus(props.detail.variationInfo.project_credit.credit_estabFee, props.detail.credit.left.estabFee)
-  const lineFee = tool.minus(props.detail.variationInfo.all_lineFee, props.detail.credit.left.lineFee)
-  const credit_fc2 = tool.minus(props.detail.variationInfo.project_credit.credit_fc2, props.detail.credit.credit_fc2)
-  const interestRate = tool.minus(props.detail.variationInfo.project_credit.credit_loanInterest, props.detail.credit.left.interestRate)
-  const lvr = tool.minus(props.detail.variationInfo.project_credit.credit_lvr, props.detail.credit.right.lvr)
-  const irr = tool.minus(props.detail.variationInfo.project_credit.credit_irrPreset, props.detail.credit.right.irrPreset)
+  const gapDay = tool.calculateDurationPrecise(beforeData.value.end_date, props.detail.variationInfo.end_date);
+  const estabFee = tool.minus(props.detail.variationInfo.project_credit.credit_estabFee, props.detail.credit.left.estabFee);
+  const lineFee = tool.minus(props.detail.variationInfo.all_lineFee, props.detail.credit.left.lineFee);
+  const credit_fc2 = tool.minus(props.detail.variationInfo.project_credit.credit_fc2, props.detail.credit.credit_fc2);
+  const interestRate = tool.minus(props.detail.variationInfo.project_credit.credit_loanInterest, props.detail.credit.left.interestRate);
+  const lvr = tool.minus(props.detail.variationInfo.project_credit.credit_lvr, props.detail.credit.right.lvr);
+  const irr = tool.minus(props.detail.variationInfo.project_credit.credit_irr, props.detail.credit.right.irr);
 
-  const amount = props.detail.variationInfo.amount
-  const loan_money = [2, 5].includes(Number(props.detail.variationInfo.type)) ? (amount * -1) : amount
+  const amount = props.detail.variationInfo.amount;
+  const loan_money = [2, 5].includes(Number(props.detail.variationInfo.type)) ? amount * -1 : amount;
   const obj = {
     start_date: props.detail.variationInfo.start_date || 0,
     end_date: gapDay.gapDay - 1,
@@ -207,19 +207,19 @@ const changeData = computed(() => {
     credit_fc2: credit_fc2 || 0,
     interestRate: interestRate || 0,
     lvr: lvr || 0,
-    irr: irr || 0
-  }
-  return obj
-})
+    irr: irr || 0,
+  };
+  return obj;
+});
 
 const afterData = computed(() => {
-  const cAmount = props.detail.variationInfo.amount || 0
-  const bAmount = props.detail.base.loan_money || 0
-  let loan_money = 0
+  const cAmount = props.detail.variationInfo.amount || 0;
+  const bAmount = props.detail.base.loan_money || 0;
+  let loan_money = 0;
   if ([2, 5].includes(Number(props.detail.variationInfo.type))) {
-    loan_money = tool.minus(bAmount, cAmount)
+    loan_money = tool.minus(bAmount, cAmount);
   } else {
-    loan_money = tool.plus(bAmount, cAmount)
+    loan_money = tool.plus(bAmount, cAmount);
   }
   const obj = {
     start_date: props.detail.date.start_date || '',
@@ -230,10 +230,10 @@ const afterData = computed(() => {
     credit_fc2: props.detail.variationInfo.project_credit.credit_fc2 || 0,
     interestRate: props.detail.variationInfo.project_credit.credit_loanInterest || 0,
     lvr: props.detail.variationInfo.project_credit.credit_lvr || 0,
-    irr: props.detail.variationInfo.project_credit.credit_irrPreset || 0
-  }
-  return obj
-})
+    irr: props.detail.variationInfo.project_credit.credit_irr || 0,
+  };
+  return obj;
+});
 </script>
 
 <style lang="less" scoped>

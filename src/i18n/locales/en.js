@@ -889,5 +889,6 @@ export default {
   "固定利息偿还金额": "Fixed interest & repayment",
   "添加预售数据": "Add Pre-sale",
   "意见反馈": "Feedback",
-  "待通知": "Awaiting notify"
+  "待通知": "Awaiting notify",
+  "确定更新吗？": "Are you sure to update?"
 }

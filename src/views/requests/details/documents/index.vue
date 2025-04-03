@@ -3,7 +3,7 @@
     <template #content>
       <a-spin :spinning="pageLoading" size="large">
         <div class="container-box">
-          <Documents v-if="showDoc && !pageLoading" :project_id="uuid" :edit="false"></Documents>
+          <Documents v-if="showDoc && !pageLoading" :project_id="uuid" :annex_id="annex_id" :edit="false"></Documents>
           <a-empty v-if="!showDoc && !pageLoading" />
         </div>
       </a-spin>
@@ -20,6 +20,7 @@
   const route = useRoute();
 
   const uuid = ref(route.query.uuid)
+  const annex_id = ref(route.query.annex_id || 0)
 
   const pageLoading = ref(true)
 

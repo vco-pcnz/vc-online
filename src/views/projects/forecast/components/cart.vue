@@ -11,6 +11,12 @@
     </div>
     <div>
       <div style="height: 200px">
+        <div class="flex gap-5 chart-head">
+          <div class="item"><span class="Dot"></span>Est. Drawdown</div>
+          <div class="item"><span class="Dot"></span>Drawdown</div>
+          <div class="item"><span class="Dot"></span>Est. Repayments</div>
+          <div class="item"><span class="Dot"></span>Repayments</div>
+        </div>
         <v-chart class="chart2" v-if="option" :option="option" autoresize />
       </div>
     </div>
@@ -19,9 +25,10 @@
 
 <script setup>
 import { forIn } from 'lodash';
-import { ref, onMounted } from 'vue';
+import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
+import { color } from 'echarts';
 
 const props = defineProps({
   uuid: {
@@ -47,43 +54,85 @@ const option = ref({
     type: 'category',
     data: []
   },
+  color: ['#569695', '#181818', '#181818', '#181818', '#181818', '#181818'],
   yAxis: {
     type: 'value',
     axisLabel: {
       formatter: '{value}k'
     }
   },
-  series: [
-    {
-      name: 'Drawdowns',
-      type: 'bar',
-      data: [0, 6, 12, 6, 0, 0, 0, 0, 0, 0, 0, 0], // 示例数据，根据实际情况调整
-      markPoint: {
-        data: [
-          { type: 'max', name: 'Max' },
-          { type: 'min', name: 'Min' }
-        ]
-      },
-      markLine: {
-        data: [{ type: 'average', name: 'Average' }]
-      }
-    }
-  ]
+  series: []
 });
 
 const init = () => {
   let date = [];
+  let series = [
+    {
+      name: 'Direct',
+      type: 'bar',
+      barWidth: '12px',
+      itemStyle: {
+        borderRadius: 12
+      },
+      data: [320, 332, 301, 334, 390, 330, 320]
+    },
+    {
+      name: 'drawdown',
+      type: 'bar',
+      stack: 'drawdown',
+      barWidth: '12px',
+      itemStyle: {
+        borderRadius: 12
+      },
+      data: [120, 132, 101, 134, 90, 230, 210]
+    },
+    {
+      name: 'drawdown',
+      type: 'bar',
+      stack: 'drawdown',
+      barWidth: '12px',
+      itemStyle: {
+        borderRadius: 12
+      },
+      data: [220, 182, 191, 234, 290, 330, 310]
+    },
+    {
+      name: 'drawdown',
+      type: 'bar',
+      stack: 'drawdown',
+      barWidth: '12px',
+      itemStyle: {
+        borderRadius: 12
+      },
+      data: [120, 232, 201, 124, 190, 330, 410]
+    }
+  ];
+  // let drawdown = []
+  let drawdown = [];
+  // type 2 Drawdown
+  // type 4 Repayments
+  //item?.forecast_log?.length && item.status != 0 => item.forecast_log[item.forecast_log.length - 1].amount
   if (props.data?.list) {
     for (let key in props.data.list) {
       date.push(tool.monthYear(key));
+      props.data.list[key].map((item) => {});
     }
   }
   option.value.xAxis.data = date;
+  option.value.series = series;
 };
 
-onMounted(() => {
-  init();
-});
+watch(
+  () => props.data,
+  (val) => {
+    if (val) {
+      init();
+    }
+  },
+  {
+    immediate: true
+  }
+);
 </script>
 
 <style lang="less" scoped>
@@ -95,6 +144,33 @@ onMounted(() => {
   .iconfont {
     color: #569695;
     font-size: 48px;
+  }
+}
+
+.chart-head {
+  .item {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+
+    .Dot {
+      border-radius: 4px;
+      display: inline-block;
+      height: 8px;
+      width: 8px;
+    }
+    &:nth-child(1) .Dot {
+      background: rgb(24, 24, 24);
+    }
+    &:nth-child(2) .Dot {
+      background: red;
+    }
+    &:nth-child(3) .Dot {
+      background: rgb(214, 169, 31);
+    }
+    &:nth-child(4) .Dot {
+      background: red;
+    }
   }
 }
 </style>

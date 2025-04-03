@@ -28,7 +28,7 @@
             <vco-mobile-input v-model:value="form.mobile" v-model:areaCode="form.pre" :disabled="false" class="login_form_button"></vco-mobile-input>
           </a-form-item>
           <a-form-item name="password" v-if="form.mode === 1">
-            <a-input type="password" v-model:value="form.password" :placeholder="t('密码')" autoComplete="on" @pressEnter="submit" />
+            <a-input type="password" v-model:value="form.password" :placeholder="t('密码')" autoComplete="on" @keyup.enter="submit" />
           </a-form-item>
           <a-form-item no-style v-if="form.mode === 2">
             <a-row :gutter="8">
@@ -57,7 +57,9 @@
                 {{ t('忘记密码') }}
               </router-link>
             </p>
-            <p class="type-text" @click="form.mode = form.mode === 1 ? 2 : 1">{{ form.mode == 2 ? t('密码') : t('验证码') }} <span class="lowercase">{{ t('登录') }}</span></p>
+            <p class="type-text" @click="form.mode = form.mode === 1 ? 2 : 1">
+              {{ form.mode == 2 ? t('密码') : t('验证码') }} <span class="lowercase">{{ t('登录') }}</span>
+            </p>
           </div>
           <a-form-item class="login_submit mt-4">
             <a-button size="large" class="big bold" shape="round" :loading="loading" @click="submit">
@@ -218,6 +220,7 @@ const submit = () => {
   if (!formRef.value) {
     return;
   }
+  if (loading.value) return;
   formRef.value
     .validate()
     .then(() => {

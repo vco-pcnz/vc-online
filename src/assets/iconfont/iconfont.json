@@ -6,6 +6,34 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "25672061",
+      "name": "意见反馈",
+      "font_class": "yijianfankui",
+      "unicode": "feb0",
+      "unicode_decimal": 65200
+    },
+    {
+      "icon_id": "8012125",
+      "name": "帮助反馈",
+      "font_class": "bangzhufankui",
+      "unicode": "e6b3",
+      "unicode_decimal": 59059
+    },
+    {
+      "icon_id": "21644977",
+      "name": "问题反馈",
+      "font_class": "wentifankui",
+      "unicode": "e619",
+      "unicode_decimal": 58905
+    },
+    {
+      "icon_id": "41712516",
+      "name": "exchange-dollar-line",
+      "font_class": "exchange-dollar-line",
+      "unicode": "eda2",
+      "unicode_decimal": 60834
+    },
+    {
       "icon_id": "8039427",
       "name": "批量控制",
       "font_class": "piliangkongzhi",

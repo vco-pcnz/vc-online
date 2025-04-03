@@ -31,7 +31,7 @@
       </div>
     </div>
     <div class="btn" @click="visible = true">
-      <i class="iconfont">&#xe750;</i>
+      <i class="iconfont">&#xe619;</i>
       <p>{{ t('意见反馈') }}</p>
     </div>
   </div>
@@ -67,6 +67,7 @@ const { t } = useI18n();
     color: #888;
     cursor: pointer;
     line-height: 1.2;
+    font-size: 12px;
     .iconfont {
       font-size: 30px;
     }

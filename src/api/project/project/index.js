@@ -95,3 +95,11 @@ export const kpiList = (params) =>
     method: 'get',
     params
   });
+  
+// 同步账单数据
+export const syncProjectBill = (data) =>
+  request({
+    url: 'project/project/syncProjectBill',
+    method: 'post',
+    data
+  });

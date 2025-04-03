@@ -87,3 +87,11 @@ export const wdecline = (data) =>
     method: 'post',
     data
   });
+
+// 跟新反洗钱人员
+export const washUpdate = (params) =>
+  request({
+    url: 'project/wash/update',
+    method: 'get',
+    params
+  });

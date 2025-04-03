@@ -23,7 +23,7 @@
               <a-col :span="24">
                 <a-form-item :label="t('分类f')" name="cid">
                   <a-checkbox-group v-model:value="form.cid">
-                    <a-checkbox v-for="item in orgsStore.category" :key="item.id" :value="item.id">
+                    <a-checkbox v-for="item in category" :key="item.id" :value="item.id">
                       {{ item.name }}
                     </a-checkbox>
                   </a-checkbox-group>
@@ -101,7 +101,7 @@
               <a-col :span="24" v-if="form.type != 20" v-show="false">
                 <vco-address ref="vcoAddressRef" @change="setAddressInfo"></vco-address>
               </a-col>
-<!-- 
+              <!-- 
               <a-col :span="12">
                 <a-form-item :label="t('邮箱')" name="email">
                   <a-input v-model:value="form.email" />
@@ -112,7 +112,7 @@
                   <vco-mobile-input v-model:value="form.mobile" v-model:areaCode="form.pre" :formRef="formRef" validateField="mobile"> </vco-mobile-input>
                 </a-form-item>
               </a-col> -->
-<!-- 
+              <!-- 
               <a-col :span="24">
                 <a-form-item :label="t('背景f')" name="note">
                   <a-textarea v-model:value="form.note" :auto-size="{ minRows: 4, maxRows: 5 }" :placeholder="t('请输入')" />
@@ -133,12 +133,13 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch, nextTick, computed } from 'vue';
+import { ref, reactive, watch, nextTick, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import useFormData from '@/utils/use-form-data';
 import { useOrgsStore } from '@/store';
 import { stakeAdd } from '@/api/orgs/form';
 import emitter from '@/event';
+import { getCategory } from '@/api/orgs';
 
 const emits = defineEmits(['update:visible', 'done']);
 
@@ -263,7 +264,7 @@ const dynamicRules = computed(() => {
           required: true,
           message: t('请输入') + t('新西兰商业号码')
         }
-      ],
+      ]
       // contactName: [
       //   {
       //     required: true,
@@ -325,6 +326,13 @@ const userChoiced = (data) => {
   emits('done', data);
 };
 
+const category = ref([])
+onMounted(() => {
+  getCategory({type:1}).then((res) => {
+    category.value = res;
+  });
+});
+
 // 监听重置idcard 公用字段  获取job 选项
 watch(
   () => form.type,
@@ -376,8 +384,6 @@ watch(
       activeKey.value = 1;
       formRef.value?.clearValidate();
     } else {
-      // 加载分类
-      orgsStore.getCategory();
       // 加载分类
       orgsStore.getStakeholderType();
     }

@@ -1,10 +1,11 @@
 import { request } from '@/utils/request';
 
 // 分类选择
-export const getCategory = () =>
+export const getCategory = (params) =>
   request({
     url: '/stake/category',
-    method: 'get'
+    method: 'get',
+    params
   });
 
 // 列表

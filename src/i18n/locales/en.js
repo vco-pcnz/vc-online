@@ -890,5 +890,6 @@ export default {
   "添加预售数据": "Add Pre-sale",
   "意见反馈": "Feedback",
   "待通知": "Awaiting notify",
-  "确定更新吗？": "Are you sure to update?"
+  "确定更新吗？": "Are you sure to update?",
+  "变更文件": "Variations documents"
 }

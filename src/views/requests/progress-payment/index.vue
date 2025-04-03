@@ -12,11 +12,11 @@
         <a-button
           v-if="showProgressPayment"
           shape="round"
-          @click="goHandleProcess('progress-payment')"
+          class="active"
         >{{ t('进度付款') }}</a-button>
         <a-button
           shape="round"
-          class="active"
+          @click="goHandleProcess('schedule')"
         >{{ t('明细表') }}</a-button>
         <a-button
           shape="round"
@@ -25,7 +25,11 @@
       </div>
     </vco-page-panel>
 
-    <Schedule v-if="currentId && currentTemp" :current-id="currentId" :current-product="currentTemp" :is-details="details" />
+    <template v-if="currentId && currentTemp">
+      <edit-content v-if="hasPermission('requests:load:progressPayment')"></edit-content>
+      <view-content v-else></view-content>
+    </template>
+
     <a-empty v-if="!currentTemp && !pageLoading" />
   </div>
 </template>
@@ -37,8 +41,10 @@
   import { useI18n } from "vue-i18n";
   import { productGetCode } from "@/api/process"
   import { goBack, navigationTo } from "@/utils/tool"
-  import Schedule from "@/components/schedule/index.vue"
   import { useProductStore } from "@/store"
+  import { hasPermission } from "@/directives/permission"
+  import EditContent from "./components/EditContent.vue";
+  import ViewContent from "./components/ViewContent.vue";
   
   const { t } = useI18n();
   const route = useRoute();

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <security-batch-add></security-batch-add>
+    <security-batch-add :is-open="true"></security-batch-add>
   </div>
 </template>
 

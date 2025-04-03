@@ -90,10 +90,11 @@
                   type="brown"
                   shape="round"
                   size="small"
-                  class="uppercase"
+                  class="absolute flex items-center"
                   @click="goHandle('budget')"
                 >
                   {{ t('查看预算信息') }}
+                  <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px'  }" />
                 </a-button>
               </a-form-item>
             </a-col>
@@ -139,6 +140,18 @@
                 :precision="2"
                 :end="true"
               ></vco-number>
+              <a-button
+                type="brown"
+                shape="round"
+                size="small"
+                class="absolute flex items-center"
+                style="bottom: -20px"
+                v-if="showProgressPayment"
+                @click="goHandle('progress-payment')"
+              >
+                {{ t('查看进度付款') }}
+                <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px'  }" />
+              </a-button>
             </a-form-item>
           </a-col>
           <a-col :span="24"><div class="form-line"></div></a-col>
@@ -338,6 +351,7 @@
 
 <script setup>
   import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
+  import { RightOutlined } from '@ant-design/icons-vue';
   import { useI18n } from 'vue-i18n';
   import { useRoute } from 'vue-router';
   import { cloneDeep } from 'lodash';
@@ -355,6 +369,7 @@
   import emitter from '@/event';
   import useProcessStore from '@/store/modules/process';
   import tool, { navigationTo, numberStrFormat } from '@/utils/tool';
+  import { hasPermission } from "@/directives/permission"
 
   const processStore = useProcessStore();
 
@@ -394,6 +409,11 @@
 
   // 请求可以置换的项目
   const refinancialData = ref([])
+
+  // 是否显示进度付款
+  const showProgressPayment = computed(() => {
+    return Number(props.dataInfo.security.count) && Number(props.dataInfo.lending.build_amount) && hasPermission('requests:load:progressPayment')
+  })
 
   const getRefinancialList = (flag = false) => {
     if (flag) {
@@ -765,11 +785,12 @@
       linefeeFilter()
     });
 
-    formState.value.land_amount = Number(props.lendingInfo.build_amount) ? props.lendingInfo.land_amount : Number(props.lendingInfo.land_amount)
-      ? props.lendingInfo.land_amount
+    formState.value.build_amount = Number(props.lendingInfo.land_amount) ? props.lendingInfo.build_amount : Number(props.lendingInfo.build_amount)
+      ? props.lendingInfo.build_amount
       : props.lendingInfo.loan_money || 0;
 
-    formState.value.build_amount = props.lendingInfo.build_amount;
+    formState.value.land_amount = props.lendingInfo.land_amount;
+    
     formState.value.initial_build_amount = props.lendingInfo.initial_build_amount;
     formState.value.initial_land_amount = props.lendingInfo.initial_land_amount;
 

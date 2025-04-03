@@ -10,6 +10,11 @@
           @click="goHandleProcess('budget')"
         >{{ t('预算信息') }}</a-button>
         <a-button
+          v-if="showProgressPayment"
+          shape="round"
+          @click="goHandleProcess('progress-payment')"
+        >{{ t('进度付款') }}</a-button>
+        <a-button
           shape="round"
           @click="goHandleProcess('schedule')"
         >{{ t('明细表') }}</a-button>
@@ -49,6 +54,11 @@ const pageStep = ref('')
 const showBudget = computed(() => {
   return ['default'].includes(currentTemp.value)
 })
+
+  // 是否显示进度付款
+  const showProgressPayment = computed(() => {
+    return ['default', 'vsl'].includes(currentTemp.value)
+  })
 
 const goHandleProcess = (page) => {
   let href = ''

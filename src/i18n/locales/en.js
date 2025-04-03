@@ -888,5 +888,6 @@ export default {
   "更新{0}条": "Update {0} items",
   "固定利息偿还金额": "Fixed interest & repayment",
   "添加预售数据": "Add Pre-sale",
-  "意见反馈": "Feedback"
+  "意见反馈": "Feedback",
+  "待通知": "Awaiting notify"
 }

@@ -887,5 +887,14 @@ export default {
   "插入{0}条": "Insert {0} items",
   "更新{0}条": "Update {0} items",
   "固定利息偿还金额": "Fixed interest & repayment",
-  "添加预售数据": "Add Pre-sale"
+  "添加预售数据": "Add Pre-sale",
+  "进度付款": "Progress Payment",
+  "进度付款阶段": "Progress Payment Stages",
+  "查看进度付款": "View Progress Payment",
+  "重置进度付款": "Reset Progress Payment",
+  "重置后数据会按照最新建筑贷款总额和建筑总面积，重新计算进度付款数据": "After the reset, the data will be recalculated according to the latest build amount and total construction area, and the progress payment data will be recalculated.",
+  "确定重置吗？": "Are you sure you want to reset?",
+  "还原重置": "Restore",
+  "更新建筑贷款金额": "Update build amount",
+  "最新均摊值": "Latest amortized value"
 }

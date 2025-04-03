@@ -181,7 +181,7 @@ const props = defineProps({
   disabledLoan: {
     type: Boolean,
     default: false
-  },
+  }
 });
 
 const visible = ref(false);
@@ -245,9 +245,9 @@ const remove = (p_index, index) => {
 };
 
 const save = () => {
-  emits('update:value', data.value.total);
-  emits('update:dataJson', [data.value]);
-  emits('change', { devCost: data.value.total, devCostDetail: [data.value] });
+  emits('update:value', cloneDeep(data.value.total));
+  emits('update:dataJson', cloneDeep([data.value]));
+  emits('change', cloneDeep({ devCost: data.value.total, devCostDetail: [data.value] }));
   updateVisible(false);
 };
 
@@ -269,9 +269,9 @@ const loadType = (key) => {
             borrower_equity: 0
           });
         });
-        emits('update:value', data.value.total);
-        emits('update:dataJson', [data.value]);
-        emits('change', { devCost: data.value.total, devCostDetail: [data.value] });
+        emits('update:value', cloneDeep(data.value.total));
+        emits('update:dataJson', cloneDeep([data.value]));
+        emits('change', cloneDeep({ devCost: data.value.total, devCostDetail: [data.value] }));
       }
     })
     .finally((_) => {
@@ -314,8 +314,8 @@ const init = () => {
 
 onMounted(() => {
   if (!props.dataJson) {
-    emits('update:value', data.value.total);
-    emits('update:dataJson', [data.value]);
+    emits('update:value', cloneDeep(data.value.total));
+    emits('update:dataJson', cloneDeep([data.value]));
   }
 });
 </script>

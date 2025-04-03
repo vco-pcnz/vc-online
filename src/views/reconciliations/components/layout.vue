@@ -38,6 +38,7 @@ import { syncBankBill } from '@/api/reconciliations';
 import { message } from 'ant-design-vue';
 import { useI18n } from 'vue-i18n';
 import { CheckCircleOutlined } from '@ant-design/icons-vue';
+import { systemConfigData } from '@/api/system';
 const { t } = useI18n();
 
 const emits = defineEmits(['update']);
@@ -45,6 +46,7 @@ const emits = defineEmits(['update']);
 const loading = ref(false);
 const deadline = ref();
 const countdown = ref(false);
+const xero_update_time = ref(0);
 
 const pageNavRef = ref();
 
@@ -59,9 +61,12 @@ const update = (e) => {
   syncBankBill()
     .then((res) => {
       message.success('Xero sync started!');
-      deadline.value = Date.now() + 1000 * 60 * 10;
+      deadline.value = Date.now() + xero_update_time.value * 1000;
       countdown.value = true;
-      localStorage.setItem('deadline', deadline.value);
+
+      if (xero_update_time.value > 0) {
+        localStorage.setItem('deadline', deadline.value);
+      }
     })
     .finally(() => {
       loading.value = false;
@@ -82,6 +87,12 @@ onMounted(() => {
     deadline.value = Number(localStorage.getItem('deadline'));
     countdown.value = true;
   }
+
+  systemConfigData({ pcode: 'web_config', code: 'xero_update' }).then((res) => {
+    if (res.xero_update) {
+      xero_update_time.value = res.xero_update;
+    }
+  });
 });
 </script>
 

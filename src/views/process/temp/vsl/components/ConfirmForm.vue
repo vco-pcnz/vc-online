@@ -42,24 +42,23 @@
     <div v-show="confirmTarget" class="sys-form-content mt-5">
       <a-form ref="formRef" layout="vertical" :model="form" :rules="formRules">
         <div class="col-item">
-          <p>1、{{ t('定金是否已收到？') }}</p>
-          <div class="flex gap-4 mt-3">
-            <a-checkbox v-model:checked="form.depositInfoYes" :disabled="!canEidt" @change="() => checkBoxChange('depositInfo', 'Yes')">{{ t('已收到' )}}</a-checkbox>
-            <a-checkbox v-model:checked="form.depositInfoNo" :disabled="!canEidt" @change="() => checkBoxChange('depositInfo', 'No')">{{ t('未收到' )}}</a-checkbox>
-          </div>
-          <a-form-item v-if="form.depositInfoNo" name="depositInfoRemark"class="mt-4">
-            <a-input v-model:value="form.depositInfoRemark" :disabled="!canEidt" :placeholder="t('请输入') + t('原因')" />
-          </a-form-item>
-        </div>
-
-        <div class="col-item">
-          <p>2、{{ t('合同是否已签订？') }}</p>
+          <p>1、{{ t('合同是否已签订？') }}</p>
           <div class="flex gap-4 mt-3">
             <a-checkbox v-model:checked="form.agreementYes" :disabled="!canEidt" @change="() => checkBoxChange('agreement', 'Yes')">{{ t('已签订' )}}</a-checkbox>
             <a-checkbox v-model:checked="form.agreementNo" :disabled="!canEidt" @change="() => checkBoxChange('agreement', 'No')">{{ t('未签订' )}}</a-checkbox>
           </div>
           <a-form-item v-if="form.agreementNo" name="agreementRemark" class="mt-4">
             <a-input v-model:value="form.agreementRemark" :disabled="!canEidt" :placeholder="t('请输入') + t('原因')" />
+          </a-form-item>
+        </div>
+        <div class="col-item">
+          <p>2、{{ t('定金是否已收到？') }}</p>
+          <div class="flex gap-4 mt-3">
+            <a-checkbox v-model:checked="form.depositInfoYes" :disabled="!canEidt" @change="() => checkBoxChange('depositInfo', 'Yes')">{{ t('已收到' )}}</a-checkbox>
+            <a-checkbox v-model:checked="form.depositInfoNo" :disabled="!canEidt" @change="() => checkBoxChange('depositInfo', 'No')">{{ t('未收到' )}}</a-checkbox>
+          </div>
+          <a-form-item v-if="form.depositInfoNo" name="depositInfoRemark"class="mt-4">
+            <a-input v-model:value="form.depositInfoRemark" :disabled="!canEidt" :placeholder="t('请输入') + t('原因')" />
           </a-form-item>
         </div>
       </a-form>
@@ -148,35 +147,35 @@
     }
   }
 
-  const checkHandle = async () => {
-    try {
-      await formRef.value.validate();
+const checkHandle = async () => {
+  try {
+    await formRef.value.validate();
 
-      // LM 再次检查
-      if (props.currentStep?.mark === 'step_lm_check') {
-        if (form.value.agreementYes && !props.offerInfo.sign_offer) {
-          message.error(t('请上传') + t('已签订Offer'));
-          return false;
-        }
+    // LM 再次检查
+    if (props.currentStep?.mark === 'step_lm_check') {
+      if (form.value.agreementYes && !props.offerInfo.sign_offer) {
+        message.error(t('请上传') + t('已签订Offer'));
+        return false;
       }
-
-      const params = {
-        uuid: props.currentId,
-        code: props.blockInfo.code
-      };
-
-      await projectAuditCheckMode(params);
-
-      // 触发刷新事件
-      emits('refresh');
-      emitter.emit('refreshAuditHisList');
-
-      return true; // 操作成功
-    } catch (error) {
-      console.error('校验或审核失败:', error);
-      return false; // 操作失败
     }
-  };
+
+    const params = {
+      uuid: props.currentId,
+      code: props.blockInfo.code
+    };
+
+    await projectAuditCheckMode(params);
+
+    // 触发刷新事件
+    emits('refresh');
+    emitter.emit('refreshAuditHisList');
+
+    return true; // 操作成功
+  } catch (error) {
+    console.error('校验或审核失败:', error);
+    return false; // 操作失败
+  }
+};
 
   const subLoading = ref(false);
   const saveHandle = async () => {

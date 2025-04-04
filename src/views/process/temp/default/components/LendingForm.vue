@@ -79,25 +79,29 @@
                 <a-switch :disabled="amountDisabled || inputADis" v-model:checked="formState.has_linefee" :checkedValue="1" :unCheckedValue="0" @change="linefeeFilter" />
               </a-form-item>
             </a-col>
-            <a-col :span="8">
-              <a-form-item :label="t('是否预算')" name="do__est">
-                <a-switch :disabled="amountDisabled || inputADis" v-model:checked="formState.do__est" :checkedValue="1" :unCheckedValue="0" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item label=" ">
-                <a-button
-                  type="brown"
-                  shape="round"
-                  size="small"
-                  class="absolute flex items-center"
-                  @click="goHandle('budget')"
-                >
-                  {{ t('查看预算信息') }}
-                  <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px'  }" />
-                </a-button>
-              </a-form-item>
-            </a-col>
+            <template v-if="showCompare">
+              <a-col :span="8">
+                <a-form-item :label="t('是否预算')" name="do__est">
+                  <a-switch :disabled="amountDisabled || inputADis" v-model:checked="formState.do__est" :checkedValue="1" :unCheckedValue="0" />
+                </a-form-item>
+              </a-col>
+              <a-col :span="8">
+                <a-form-item label=" ">
+                  <a-button
+                    type="brown"
+                    shape="round"
+                    size="small"
+                    class="absolute flex items-center"
+                    @click="goHandle('budget')"
+                  >
+                    {{ t('查看预算信息') }}
+                    <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px'  }" />
+                  </a-button>
+                </a-form-item>
+              </a-col>
+            </template>
+            <a-col v-else :span="16"></a-col>
+            
             <a-col :span="24"><div class="form-line"></div></a-col>
           </template>
           
@@ -498,11 +502,16 @@
     } else {
       const mark = props?.currentStep?.mark
       if (props?.blockInfo?.showEdit) {
-        return ['step_lm_check'].includes(mark)
+        return [''].includes(mark)
       } else {
         return true
       }
     }
+  })
+
+  const showCompare = computed(() => {
+    const mark = props?.currentStep?.mark
+    return ['step_lm_audit'].includes(mark)
   })
 
   const refinancialDisabled = computed(() => {
@@ -521,7 +530,7 @@
 
   const inputADis = computed(() => {
     const mark = props.currentStep.mark
-    return ['step_open'].includes(mark)
+    return [].includes(mark)
   })
 
   const inputDisabled = (str = '') => {
@@ -917,6 +926,48 @@
             }
           }
         }
+      }
+    }
+
+    if (Object.keys(compareBackObj.value).includes(props.currentStep.mark)) {
+      if (Number(obj?.initial_build_amount) !== Number(staticFormData.value?.initial_build_amount)) {
+        arr.unshift({
+          name: t('首次建筑贷款放款额'),
+          before: `$${numberStrFormat(Number(staticFormData.value?.initial_build_amount))}`,
+          now: `$${numberStrFormat(Number(obj?.initial_build_amount))}`
+        })
+      }
+
+      if (Number(obj?.initial_land_amount) !== Number(staticFormData.value?.initial_land_amount)) {
+        arr.unshift({
+          name: t('首次土地贷款放款额'),
+          before: `$${numberStrFormat(Number(staticFormData.value?.initial_land_amount))}`,
+          now: `$${numberStrFormat(Number(obj?.initial_land_amount))}`
+        })
+      }
+
+      if (Number(obj?.build_amount) !== Number(staticFormData.value?.build_amount)) {
+        arr.unshift({
+          name: t('建筑贷款总额'),
+          before: `$${numberStrFormat(Number(staticFormData.value?.build_amount))}`,
+          now: `$${numberStrFormat(Number(obj?.build_amount))}`
+        })
+      }
+
+      if (Number(obj?.land_amount) !== Number(staticFormData.value?.land_amount)) {
+        arr.unshift({
+          name: t('土地贷款总额'),
+          before: `$${numberStrFormat(Number(staticFormData.value?.land_amount))}`,
+          now: `$${numberStrFormat(Number(obj?.land_amount))}`
+        })
+      }
+
+      if (Number(obj?.has_linefee) !== Number(staticFormData.value?.has_linefee)) {
+        arr.unshift({
+          name: t('是否有Linefee'),
+          before: Number(staticFormData.value?.has_linefee) ? t('是') : t('否'),
+          now: Number(obj.value?.has_linefee) ? t('是') : t('否')
+        })
       }
     }
 

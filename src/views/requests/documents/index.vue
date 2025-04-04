@@ -52,7 +52,7 @@ const pageTitle = ref(t('项目文件'))
 const pageStep = ref('')
 
 const showBudget = computed(() => {
-  return ['default'].includes(currentTemp.value)
+  return [].includes(currentTemp.value)
 })
 
   // 是否显示进度付款

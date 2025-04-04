@@ -2,7 +2,7 @@
   <div class="main-info-container">
     <vco-page-panel :title="pageTitle" @back="goBack">
       <!-- 流程进行中操作拦 -->
-      <div v-if="pageStep" class="flex nav-content">
+      <!-- <div v-if="pageStep" class="flex nav-content">
         <a-button shape="round" @click="goHandleProcess('process')">{{ t('项目详情1') }}</a-button>
         <a-button
           v-if="showBudget"
@@ -22,7 +22,7 @@
           shape="round"
           @click="goHandleProcess('documents')"
         >{{ t('项目文件') }}</a-button>
-      </div>
+      </div> -->
     </vco-page-panel>
     
     <vco-page-tab v-if="currentTemp" :tabData="tabData" v-model:current="currentTab"></vco-page-tab>

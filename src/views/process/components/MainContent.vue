@@ -124,7 +124,7 @@
   } = useDynamicModule();
 
   const showBudget = computed(() => {
-    return ['default'].includes(tempFile.value)
+    return [].includes(tempFile.value)
   })
 
   // 是否显示进度付款

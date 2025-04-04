@@ -158,8 +158,12 @@
   }
 
   const nextHandle = (data) => {
-    const page = data.permission ? props.nextPage : '/requests/details'
-    navigationTo(`${page}?uuid=${data.uuid}`)
+    if (props.currentStep.mark === 'step_open') {
+      navigationTo(`/projects/about?uuid=${data.uuid}`)
+    } else {
+      const page = data.permission ? props.nextPage : '/requests/details'
+      navigationTo(`${page}?uuid=${data.uuid}`)
+    }
   }
 
   defineExpose({

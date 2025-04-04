@@ -159,7 +159,7 @@
             </a-form-item>
           </a-col>
           <a-col :span="24"><div class="form-line"></div></a-col>
-          <a-col v-if="(refinancialData.length && blockInfo.showEdit) || isRefinancial" :span="24">
+          <a-col v-if="((refinancialData.length && blockInfo.showEdit) || isRefinancial) && refinancialShow" :span="24">
             <div v-if="!refinancialDisabled" class="flex gap-2 mb-5">
               <p>{{ t('是否需要再融资') }}</p>
               <a-switch v-model:checked="isRefinancial"></a-switch>
@@ -505,6 +505,23 @@
         return [''].includes(mark)
       } else {
         return true
+      }
+    }
+  })
+
+  const refinancialShow = computed(() => {
+    if (props.isDetails) {
+      return true
+    } else {
+      const mark = props?.currentStep?.mark
+      if (props?.blockInfo?.showEdit) {
+        if (['step_lm_audit'].includes(mark)) {
+          return true
+        } else {
+          return isRefinancial.value
+        }
+      } else {
+        return isRefinancial.value
       }
     }
   })

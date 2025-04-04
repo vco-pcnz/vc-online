@@ -44,6 +44,7 @@
                     <a-form-item :label="t('借款金额')" name="loan_money">
                       <a-input-number
                         v-model:value="formState.loan_money"
+                        :disabled="changeTimeStep"
                         :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                         :parser="value => value.replace(/\$\s?|(,*)/g, '')"
                       />
@@ -53,48 +54,76 @@
                     <a-form-item :label="t('借款目的')" name="loan_type">
                       <a-select
                         v-model:value="formState.loan_type"
+                        :disabled="changeTimeStep"
                         :options="projectTypeData"
                         mode="multiple"
                       ></a-select>
                     </a-form-item>
                   </a-col>
-                  <a-col :span="12">
-                    <a-form-item :label="t('借款起止日期')" name="time_date">
-                      <a-range-picker
-                        v-model:value="formState.time_date"
-                        :format="selectDateFormat()"
-                        :disabled-date="disabledStartDate"
-                        :placeholder="[t('开放日期'), t('到期日期')]"
-                        @change="timeChange"
-                      />
-                    </a-form-item>
-                  </a-col>
-                  <a-col :span="4">
-                    <a-form-item :label="t('借款周期')" name="term">
-                      <a-input
-                        v-model:value="formState.term"
-                        :suffix="t('月')"
-                        @input="termInput"
-                      />
-                    </a-form-item>
-                  </a-col>
-                  <a-col :span="4">
-                    <a-form-item label=" " name="days">
-                      <a-input
-                        v-model:value="formState.days"
-                        :suffix="t('天')"
-                        @input="termInput"
-                      />
-                    </a-form-item>
-                  </a-col>
-                  <a-col :span="4">
-                    <a-form-item :label="t('总天数')" name="totalDay">
-                      <div class="show-days">
-                        {{ formState.totalDay }}
-                        <span>{{ t('天') }}</span>
+                  <template v-if="!changeTimeStep">
+                    <a-col :span="12">
+                      <a-form-item :label="t('借款起止日期')" name="time_date">
+                        <a-range-picker
+                          v-model:value="formState.time_date"
+                          :format="selectDateFormat()"
+                          :disabled-date="disabledStartDate"
+                          :placeholder="[t('开放日期'), t('到期日期')]"
+                          @change="timeChange"
+                        />
+                      </a-form-item>
+                    </a-col>
+                    <a-col :span="4">
+                      <a-form-item :label="t('借款周期')" name="term">
+                        <a-input
+                          v-model:value="formState.term"
+                          :suffix="t('月')"
+                          @input="termInput"
+                        />
+                      </a-form-item>
+                    </a-col>
+                    <a-col :span="4">
+                      <a-form-item label=" " name="days">
+                        <a-input
+                          v-model:value="formState.days"
+                          :suffix="t('天')"
+                          @input="termInput"
+                        />
+                      </a-form-item>
+                    </a-col>
+                    <a-col :span="4">
+                      <a-form-item :label="t('总天数')" name="totalDay">
+                        <div class="show-days">
+                          {{ formState.totalDay }}
+                          <span>{{ t('天') }}</span>
+                        </div>
+                      </a-form-item>
+                    </a-col>
+                  </template>
+                  <template v-else>
+                    <a-col :span="7">
+                      <a-form-item :label="t('开放日期')" name="startDate">
+                        <a-date-picker v-model:value="formState.startDate" :format="selectDateFormat()" :placeholder="t('开放日期')" @change="openDateChange" />
+                      </a-form-item>
+                    </a-col>
+                    <a-col :span="7">
+                      <div class="info-content">
+                        <p class="name">{{ t('确认贷款日期') }}</p>
+                        <p class="txt">{{ tool.showDate(showStartDate) + ' - ' + tool.showDate(showEndDate) }}</p>
                       </div>
-                    </a-form-item>
-                  </a-col>
+                    </a-col>
+                    <a-col :span="6">
+                      <div class="info-content">
+                        <p class="name">{{ t('借款周期') }}</p>
+                        <p class="txt">{{ showTerm }}</p>
+                      </div>
+                    </a-col>
+                    <a-col :span="4">
+                      <div class="info-content">
+                        <p class="name">{{ t('总天数') }}</p>
+                        <p class="txt">{{ showTotalDay }}</p>
+                      </div>
+                    </a-col>
+                  </template>
                 </a-row>
               </a-form>
             </div>
@@ -222,6 +251,50 @@
 
   const currentInfo = ref(null)
 
+  const changeTimeStep = computed(() => {
+    return props.check && ['step_lm_check', 'step_open'].includes(markInfo.value)
+  })
+
+  const showStartDate = computed(() => {
+    let txt = 'XXXX'
+    if (formState.time_date) {
+      const startDate = formState.time_date[0]
+      txt = dayjs(startDate).format('YYYY-MM-DD');
+    }
+    return txt
+  })
+
+  const showEndDate = computed(() => {
+    let txt = 'XXXX'
+    if (formState.time_date) {
+      const endDate = formState.time_date[1]
+      txt = dayjs(endDate).format('YYYY-MM-DD');
+    }
+    return txt
+  })
+
+  const showTerm = computed(() => {
+    const data = tool.calculateDurationPrecise(showStartDate.value, showEndDate.value);
+    if (data.months && data.days) {
+      return `${data.months} ${t('月')} ${data.days} ${t('天')}`;
+    }
+
+    if (data.months && !data.days) {
+      return `${data.months} ${t('月')}`;
+    }
+
+    if (!data.months && data.days) {
+      return `${data.days} ${t('天')}`;
+    }
+
+    return '--';
+  });
+
+  const showTotalDay = computed(() => {
+    const data = tool.calculateDurationPrecise(showStartDate.value, showEndDate.value);
+    return data.gapDay || 0;
+  });
+
   const formState = reactive({
     loan_money: '',
     loan_type: [],
@@ -261,6 +334,30 @@
       }
     ]
   }
+
+  if (changeTimeStep.value) {
+    formState['startDate'] = ''
+    formRules['startDate'] = [{ required: true, message: t('请选择') + t('开放日期'), trigger: 'change' }]
+  }
+
+  const openDateChange = (date) => {
+    if (date) {
+      const data = cloneDeep(props.infoData)
+
+      if (data && data.start_date && data.end_date) {
+        const { start_date, end_date } = props.infoData;
+        const calcDay = tool.calculateDurationPrecise(start_date, end_date);
+        const gapDay = calcDay.gapDay;
+
+        if (gapDay) {
+          const statrDate = dayjs(date);
+          const endDateStr = tool.calculateEndDateByDays(statrDate, gapDay);
+
+          formState.time_date = [statrDate, dayjs(endDateStr)]
+        }
+      }
+    }
+  };
 
   const currentForParams = ref(null)
   const tipsVisible = ref(false)
@@ -443,6 +540,10 @@
 
     if (data && data.start_date && data.end_date) {
       data.time_date = [data.start_date, data.end_date]
+      // lm 再次检查
+      if (changeTimeStep.value) {
+        formState.startDate = dayjs(data.start_date)
+      }
       timeChange(data.time_date)
     }
 
@@ -549,6 +650,20 @@
     font-size: 18px;
     > span {
       opacity: 0.7;
+    }
+  }
+
+  .info-content {
+    .name {
+      font-size: 12px;
+      color: #666;
+      padding: 0 0 8px;
+      height: 30px;
+    }
+    .txt {
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 50px;
     }
   }
 </style>

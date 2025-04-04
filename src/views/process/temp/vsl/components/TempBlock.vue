@@ -263,6 +263,16 @@
           @refresh="dataRefresh"
         ></confirm-form>
       </template>
+
+      <template v-else-if="item === 'boc'">
+        <boc-form
+          :current-id="currentId"
+          :current-step="currentStep"
+          :block-info="blockInfo.boc"
+          :boc-info="dataInfo.boc"
+          @refresh="dataRefresh"
+        ></boc-form>
+      </template>
     </template>
   </div>
 </template>
@@ -284,6 +294,7 @@ import SecurityItems from "./SecurityItems.vue";
 import GuarantorInfo from "./GuarantorInfo.vue";
 import OfferForm from "./OfferForm.vue";
 import ConfirmForm from "./ConfirmForm.vue";
+import BocForm from "./BocForm.vue";
 
 import { projectAuditCheckMode } from "@/api/process"
 import emitter from '@/event';

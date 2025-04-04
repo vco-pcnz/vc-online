@@ -1072,6 +1072,7 @@ const settingHandle = () => {
         if (key === 'typology') {
           for (const _key in batchSet[key]) {
             if (_key === 'other') {
+              item[key][_key] = []
               for (const otherKey in batchSet[key][_key]) {
                 item[key][_key][otherKey] = batchSet[key][_key][otherKey]
               }

@@ -3,60 +3,40 @@
     <a-spin :spinning="pageLoading" size="large">
       <div class="progress-payment-content">
         <template v-if="(securityData.length || setedData.length) && !pageLoading">
-          <div class="sys-form-content block-item details flex justify-between items-end">
-            <div class="flex items-end gap-10">
-              <div class="input-item">
-                <p>{{ t('建筑贷款总额') }}</p>
-                <a-input-number
-                  v-model:value="buildAmount"
-                  :max="99999999999"
-                  :disabled="!isRequests"
-                  :formatter="
-                    (value) =>
-                      `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-                  "
-                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                />
-              </div>
-              <a-button
-                v-if="isRequests"
-                type="dark"
-                class="big shadow bold uppercase"
-                :loading="amountLoading"
-                @click="saveAmount"
-              >{{ t('更新建筑贷款金额') }}</a-button>
-            </div>
-            
-            <div class="flex gap-5">
-              <a-popconfirm :title="t('确定重置吗？')" @confirm="resetHandle">
+          <div class="sys-form-content block-item details">
+            <div class="flex justify-between items-end">
+              <div class="flex items-end gap-10">
+                <div class="input-item">
+                  <p>{{ t('建筑贷款总额') }}</p>
+                  <a-input-number
+                    v-model:value="buildAmount"
+                    :max="99999999999"
+                    :disabled="!canModifyBamount"
+                    :formatter="
+                      (value) =>
+                        `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                    "
+                    :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                  />
+                </div>
                 <a-button
-                  type="primary"
-                  class="uppercase flex items-center"
-                >
-                  {{ t('重置进度付款') }}
-                  <a-tooltip>
-                    <template #title>
-                      <span>{{ t('重置后数据会按照最新建筑贷款总额和建筑总面积，重新计算进度付款数据') }}</span>
-                    </template>
-                    <QuestionCircleOutlined />
-                  </a-tooltip>
-                </a-button>
-              </a-popconfirm>
-              <a-button
-                v-if="hasReseted"
-                type="dark"
-                class="uppercase"
-                @click="restoreHandle"
-              >
-                {{ t('还原重置') }}
-              </a-button>
+                  v-if="canModifyBamount"
+                  type="dark"
+                  class="big shadow bold uppercase"
+                  :loading="amountLoading"
+                  @click="saveAmount"
+                >{{ t('更新建筑贷款金额') }}</a-button>
+              </div>
+            </div>
+            <div class="mt-2 amount-info">
+              <p>{{ t('土地贷款总额') }}:</p>
+              <p>{{ `$${numberStrFormat(landAmount)}` }}</p>
             </div>
           </div>
-
-          <div class="form-block-content">
+          
+          <div v-if="amortizedHeader.length" class="form-block-content">
             <div class="title">{{ t('最新均摊值') }}</div>
             <a-table
-              v-if="amortizedHeader.length"
               :columns="amortizedHeader"
               :data-source="amortizedData"
               bordered
@@ -68,6 +48,99 @@
             <div class="amortized-text" v-html="amortizedCalc"></div>
           </div>
 
+          <div v-if="tableHeader.length" class="form-block-content">
+            <div class="flex justify-between mb-2">
+              <div class="title">{{ t('进度付款阶段') }}</div>
+              <div class="flex gap-5">
+                <a-popconfirm :title="t('确定初始化吗？')" @confirm="initHandle">
+                  <a-button
+                    type="primary"
+                    class="uppercase flex items-center"
+                  >
+                    {{ t('初始化进度付款') }}
+                    <a-tooltip>
+                      <template #title>
+                        <span>{{ t('操作后数据会按照最新建筑贷款总额和建筑总面积，重新计算进度付款数据') }}</span>
+                      </template>
+                      <QuestionCircleOutlined />
+                    </a-tooltip>
+                  </a-button>
+                </a-popconfirm>
+                <a-button
+                  v-if="hasReseted"
+                  type="dark"
+                  class="uppercase"
+                  @click="restoreHandle"
+                >
+                  {{ t('还原') }}
+                </a-button>
+              </div>
+            </div>
+            <a-table
+              :columns="tableHeader"
+              :data-source="tableData"
+              bordered
+              :pagination="false"
+              table-layout="fixed"
+              :scroll="{ x: '100%', y: 600 }"
+            >
+              <template #bodyCell="{ column, record, index }">
+                <template v-if="column.dataIndex === 'type'">
+                  <p>{{ record[column.dataIndex] }}</p>
+                </template>
+                <template v-else-if="column.dataIndex === 'payment'">
+                  <p>{{ record[column.dataIndex] }}%</p>
+                </template>
+                <template v-else-if="column.dataIndex === 'total'">
+                  <vco-number :value="record[column.dataIndex]" size="fs_md" :precision="2" :end="true"></vco-number>
+                </template>
+                <template v-else>
+                  <a-input-number
+                    v-model:value="record[column.dataIndex].amount"
+                    :max="99999999999"
+                    :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                    :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                    @input="itemInput(record)"
+                  />
+                </template>
+              </template>
+              <template #summary>
+                <a-table-summary fixed>
+                  <a-table-summary-row>
+                    <a-table-summary-cell v-for="(item, index) in summaryCol" :index="index" :key="item.key" class="text-center">
+                      <template v-if="item.key === 'type'">
+                        {{ t('概括') }}
+                      </template>
+                      <template v-else-if="item.key === 'payment'">
+                        <p class="total-percent"
+                          :class="{'plus': summaryHandle(item.key) > 100, 'minus': summaryHandle(item.key) < 100}"
+                        >{{ numberStrFormat(summaryHandle(item.key)) }}%</p>
+                      </template>
+                      <template v-else-if="item.key === 'total'">
+                        <vco-number
+                          :value="summaryHandle(item.key)"
+                          size="fs_md"
+                          :precision="2"
+                          :end="true"
+                          :color="totalColor(summaryHandle(item.key))"
+                        ></vco-number>
+                        
+                      </template>
+                      <template v-else>
+                        <vco-number :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
+                      </template>
+                    </a-table-summary-cell>
+                  </a-table-summary-row>
+                </a-table-summary>
+              </template>
+            </a-table>
+            <div class="mt-5 flex justify-end">
+              <a-button type="dark" class="big shadow bold uppercase" 
+                :loading="subLoading"
+                @click="submitHandle"
+              >{{ t('提交') }}</a-button>
+            </div>
+          </div>
         </template>
 
         <a-empty v-if="!securityData.length && !setedData.length && !pageLoading" />
@@ -81,9 +154,16 @@
   import { useI18n } from "vue-i18n";
   import { QuestionCircleOutlined } from '@ant-design/icons-vue';
   import { useRoute } from "vue-router"
-  import { projectAuditStepDetail, projectAuditSecurityList } from "@/api/process"
-  import { projectDetail } from "@/api/project/project"
+  import {
+    projectAuditStepDetail,
+    projectAuditSecurityList,
+    projectAuditSaveMode,
+    projectGetBuild,
+    projectSaveBuild
+  } from "@/api/process"
+  import { systemDictDataApi } from "@/api/system/index"
   import { cloneDeep } from "lodash"
+  import { message } from 'ant-design-vue/es';
   import tool, { numberStrFormat } from "@/utils/tool"
 
   const { t } = useI18n();
@@ -93,15 +173,181 @@
 
   const pageLoading = ref(false)
 
+  const projectInfo = ref()
+  const canModifyBamount = ref(false)
+
+  // 已设置数据
+  const setedData = ref({
+    row: {},
+    column: {},
+    data: {}
+  })
+
+  /**
+   * 表单数据
+   */
+  const tableHeader = ref([])
+  const tableData = ref([])
+
+  const summaryCol = ref([])
+
+  const summaryHandle = computed(() => {
+    return (key) => {
+      const arr = tableData.value.map(item => item[key])
+      const numArr = isNaN(Number(arr[0])) ? arr.map(item => Number(item.amount)) : arr.map(item => Number(item))
+      const total = numArr.reduce((total, num) => total + num, 0);
+      return total
+    }
+  })
+
+  const totalColor = computed(() => {
+    return (num) => {
+      if (num > buildAmountSta.value) {
+        return '#eb4b6d'
+      } else if (num < buildAmountSta.value) {
+        return '#31bd65'
+      } else {
+        return '#282828'
+      }
+    }
+  })
+
+  const extractAmounts = (obj, keyword) => {
+    const result = [];
+
+    for (const key in obj) {
+      if (key.includes(keyword) && obj[key] && typeof obj[key] === 'object') {
+        if ('amount' in obj[key]) {
+          result.push(obj[key].amount);
+        }
+      }
+    }
+
+    return result;
+  }
+
+  const extractArrData = (obj, keyword) => {
+    const result = [];
+
+    for (const key in obj) {
+      if (key.includes(keyword) && obj[key] && typeof obj[key] === 'object') {
+        if ('amount' in obj[key]) {
+          result.push(key);
+        }
+      }
+    }
+
+    return result;
+  }
+
+  const itemInput = (data) => {
+    const amountArr = extractAmounts(data, '-')
+    if (amountArr.length) {
+      const sum = amountArr.reduce((total, num) => total + num, 0);
+      const payment = tool.div(sum, buildAmountSta.value)
+
+      data.payment = numberStrFormat(Number(payment) * 100)
+      data.total = sum
+    }
+  }
+
+  const setTableData = (headerData) => {
+    const data = cloneDeep(columnsTypeData.value)
+    const hadSetData = cloneDeep(setedData.value.data)
+    const dataArr = []
+    for (let i = 0; i < data.length; i++) {
+      const obj = {
+        type: data[i].name,
+        typeId: data[i].code
+      }
+      for (let j = 0; j < headerData.length; j++) {
+        const amountItem = hadSetData[`${data[i].code}__${headerData[j].dataIndex}`] || null
+        if (amountItem) {
+          amountItem.amount = Number(amountItem.amount)
+        }
+        obj[headerData[j].dataIndex] = amountItem || { amount: 0}
+      }
+
+      const amountArr = extractAmounts(obj, '-')
+      if (amountArr.length) {
+        const sum = amountArr.reduce((total, num) => total + num, 0);
+        const payment = tool.div(sum, buildAmountSta.value)
+        obj.payment = numberStrFormat(payment * 100)
+        obj.total = sum
+      } else {
+        obj.payment = numberStrFormat(data[i].note)
+        obj.total = 0
+      }
+
+      dataArr.push(obj)
+    }
+    tableData.value = dataArr
+  }
+
+  const setTableHeader = () => {
+    const rowData = setedData.value.row
+    const headerData = []
+    if (Object.keys(rowData).length) {
+      for (const key in rowData) {
+        headerData.push({
+          title: rowData[key],
+          dataIndex: key,
+          width: 140,
+          align: 'center'
+        })
+      }
+    }
+    const hadUuidData = headerData.map(item => item.dataIndex)
+
+    for (let i = 0; i < securityData.value.length; i++) {
+      if (!hadUuidData.includes(securityData.value[i].uuid)) {
+        headerData.push({
+          title: securityData.value[i].card_no,
+          dataIndex: securityData.value[i].uuid,
+          width: 150,
+          align: 'center'
+        })
+      }
+    }
+
+    tableHeader.value = [{
+      title: t('类型'),
+      dataIndex: "type",
+      width: 300,
+      align: 'center',
+      fixed: 'left'
+    }, {
+      title: 'Payment',
+      dataIndex: "payment",
+      width: 100,
+      align: 'center',
+      fixed: 'left'
+    }, ...headerData,
+    { title: t('总计'), dataIndex: 'total', width: 160, align: 'center', fixed: 'right' }]
+
+    const summaryColData = []
+    for (let i = 0; i < tableHeader.value.length; i++) {
+      summaryColData.push({
+        key: tableHeader.value[i].dataIndex
+      })
+    }
+
+    summaryCol.value = summaryColData
+
+    setTableData(headerData)
+  }
+
   // 建筑放款额
   const buildAmount = ref(0)
   const buildAmountSta = ref(0)
 
-  // 是否为进件阶段
+  const landAmount = ref(0)
+
   const isRequests = ref(false)
 
   // 请求抵押物信息
   const securityData = ref([])
+  const securitySqmObj = ref()
   const getSecurityData = async () => {
     const params = {
       uuid: uuid.value,
@@ -109,18 +355,35 @@
     }
 
     try {
+      let dataArr = []
       if (isRequests.value) {
         const { list } = await projectAuditSecurityList(params)
-        securityData.value = list
+        dataArr = list || []
       } else {
-        await projectDetail(params).then(res => {
-          console.log('res', res);
-        })
+        console.log('222222');
       }
 
-      setAmortizedTable()
+      securityData.value = dataArr
 
+      setAmortizedTable()
+      setTableHeader()
       pageLoading.value = false
+
+      // 面积比例
+      const sqmArr = dataArr.map(item => Number(item.sqm))
+      const totalSqm = sqmArr.reduce((total, num) => total + num, 0);
+      const sqmObjArr = dataArr.map(item => {
+        return {
+          sqm: Number(item.sqm),
+          uuid: item.uuid
+        }
+      })
+
+      const obj = {}
+      for (let i = 0; i < sqmObjArr.length; i++) {
+        obj[`${sqmObjArr[i].uuid}`] = sqmObjArr[i].sqm / totalSqm
+      }
+      securitySqmObj.value = obj
     } catch (err) {
       pageLoading.value = false
     }
@@ -153,13 +416,13 @@
 
   const setAmortizedTable = () => {
     const data = cloneDeep(securityData.value)
-    const itemData = data.filter(item => item.sqm).reverse()
+    const itemData = data.filter(item => item.sqm)
     const headerData = []
     for (let i = 0; i < itemData.length; i++) {
       headerData.push({
         title: itemData[i].card_no,
         dataIndex: itemData[i].uuid,
-        width: 140,
+        width: 150,
         align: 'center'
       })
     }
@@ -167,16 +430,16 @@
       title: "",
       dataIndex: "name",
       width: 120,
-      align: 'center'
+      align: 'center',
+      fixed: 'left'
     }, ...headerData,
-    { title: t('总计'), dataIndex: 'total', width: 140, align: 'center', fixed: 'right' }]
+    { title: t('总计'), dataIndex: 'total', width: 160, align: 'center', fixed: 'right' }]
 
 
     setAmortizedData(itemData)
   }
 
   // 请求已设置数据
-  const setedData = ref([])
   const getSetedData = async () => {
     const params = {
       uuid: uuid.value
@@ -184,13 +447,11 @@
 
     try {
       if (isRequests.value) {
-        await projectAuditStepDetail(params).then(res => {
-          setedData.value = []
+        await projectGetBuild(params).then(res => {
+          setedData.value = res
         })
       } else {
-        await projectDetail(params).then(res => {
-          console.log('res', res);
-        })
+        console.log('isRequests');
       }
 
       await getSecurityData()
@@ -212,11 +473,14 @@
         await projectAuditStepDetail(params).then(res => {
           buildAmount.value = Number(res.lending.build_amount)
           buildAmountSta.value =  Number(res.lending.build_amount)
+
+          landAmount.value = res.lending.land_amount
+
+          canModifyBamount.value = Boolean(res.base.status === 400)
+          projectInfo.value = res
         })
       } else {
-        await projectDetail(params).then(res => {
-          console.log('res', res);
-        })
+        console.log('1111111');
       }
 
       await getSetedData()
@@ -227,11 +491,52 @@
 
   const amountLoading = ref(false)
   const saveAmount = () => {
-    console.log('fdsadsa');
+    const num = Number(buildAmount.value)
+    const total = num + Number(landAmount.value)
+    if (num < 0 || (total < 0 || total === 0)) {
+      message.error(t('借款总额不正确'))
+    } else {
+      const params = {
+        build_amount: num,
+        code: 'lending',
+        uuid: uuid.value,
+        set__bulid: 1
+      }
+
+      amountLoading.value = true
+
+      projectAuditSaveMode(params).then(() => {
+        amountLoading.value = false
+        restoreHandle()
+      }).catch(() => {
+        amountLoading.value = false
+      })
+    }
   }
 
   const hasReseted = ref(false)
-  const resetHandle = () => {
+  const initHandle = () => {
+    for (let i = 0; i < tableData.value.length; i++) {
+      const payment = columnsTypeObj.value[tableData.value[i].typeId]
+      const itemPer = Number(payment) / 100
+      const itemTotal = tool.times(itemPer, buildAmountSta.value)
+
+      const amountArr = extractArrData(tableData.value[i], '-')
+      let itemAmountTotal = 0
+      for (let j = 0; j < amountArr.length; j++) {
+        if (j === amountArr.length - 1) {
+          tableData.value[i][amountArr[j]].amount = Number(tool.minus(itemTotal, itemAmountTotal))
+        } else {
+          const per = securitySqmObj.value[amountArr[j]] || 0
+          const amount = Number(Number(tool.times(per, itemTotal)).toFixed(2))
+          itemAmountTotal += amount
+          tableData.value[i][amountArr[j]].amount = amount
+        }
+      }
+      tableData.value[i].payment = numberStrFormat(payment)
+      tableData.value[i].total = itemTotal
+    }
+
     hasReseted.value = true
   }
 
@@ -240,12 +545,84 @@
     hasReseted.value = false
   }
 
+  // 项数据
+  const columnsTypeData = ref([])
+  const columnsTypeObj = ref({})
+  const columnsType = () => {
+    systemDictDataApi({
+      code: 'build_type',
+      is_note: 1
+    }).then(res => {
+      const data = res || []
+      columnsTypeData.value = data
+
+      const obj = {}
+      for (let i = 0; i < data.length; i++) {
+        obj[`${data[i].code}`] = data[i].note
+      }
+      columnsTypeObj.value = obj
+    })
+  }
+
+  const subLoading = ref(false)
+  const submitHandle = () => {
+    const security_uuid = []
+    for (let i = 0; i < tableHeader.value.length; i++) {
+      if (tableHeader.value[i].dataIndex.indexOf('-') > -1) {
+        security_uuid.push(tableHeader.value[i].dataIndex)
+      }
+    }
+    const build = []
+    for (let i = 0; i < tableData.value.length; i++) {
+      const item = tableData.value[i]
+      for (const key in item) {
+        if (key.indexOf('-') > -1) {
+          build.push({
+            id: item[key].id || 0,
+            amount: item[key].amount || 0,
+            use_amount: item[key].use_amount || 0,
+            security_uuid: key,
+            type: Number(item.typeId),
+            type_name: item.type
+          })
+        }
+
+        if (key === 'payment') {
+          build.push({
+            id: 0,
+            amount: Number(item[key]),
+            use_amount: 0,
+            security_uuid: '',
+            type: Number(item.typeId),
+            type_name: item.type
+          })
+        }
+      }
+    }
+
+    const params = {
+      security_uuid,
+      build,
+      uuid: uuid.value
+    }
+
+    subLoading.value = true
+
+    projectSaveBuild(params).then(() => {
+      subLoading.value = false
+      restoreHandle()
+    }).catch(() => {
+      subLoading.value = false
+    })
+  }
+
   onMounted(async () => {
     const { fullPath, query } = route
     isRequests.value = fullPath.indexOf('requests') > -1
     uuid.value = query.uuid
 
     if (uuid.value) {
+      columnsType()
       await getProjectData()
     }
   })
@@ -268,7 +645,7 @@
   }
 
   .form-block-content {
-    margin-bottom: 20px;
+    margin-bottom: 30px;
     > .title {
       font-weight: 500;
       color: #666;
@@ -298,8 +675,24 @@
       .ant-table-ping-right .ant-table-cell-fix-right-first::after {
         box-shadow: inset -15px 0 8px -8px rgba(5, 5, 5, 0.2);
       }
+      .ant-table-ping-left .ant-table-cell-fix-left-last::after {
+        box-shadow: inset 15px 0 8px -8px rgba(5, 5, 5, 0.2);
+      }
       .ant-table-container {
         border-radius: 0 !important;
+        .ant-table-header {
+          border-radius: 0 !important;
+        }
+      }
+      .ant-table-fixed-header .ant-table-container {
+        // border-bottom: 1px solid #272727;
+      }
+      .ant-table-summary {
+        background-color: #f7f9f8 !important;
+        .ant-table-cell {
+          border-top: 1px solid #272727;
+          padding: 16px 5px;
+        }
       }
       .ant-table {
         background-color: transparent;
@@ -308,9 +701,6 @@
           border-top: none !important;
           border-radius: 0 !important;
         }
-      }
-      .ant-table-cell-fix-right-first {
-        // right: -1px !important;
       }
       .ant-table-thead {
         border: none;
@@ -325,6 +715,18 @@
       }
       .ant-empty {
         min-height: 50px !important;
+      }
+
+      .type-add {
+        padding: 5px;
+        border: 1px dashed #F19915 !important;
+        cursor: pointer;
+        color: #F19915;
+        margin-top: 15px;
+        &:hover {
+          color: #d38106 !important;
+          border-color: #d38106 !important;
+        }
       }
     }
     :deep(.ant-input-number) {
@@ -341,6 +743,28 @@
     :deep(span) {
       color: @colorPrimary !important;
       font-weight: 500;
+    }
+  }
+
+  .amount-info {
+    font-size: 12px;
+    color: #888;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    > p {
+      &:last-child {
+        color: #333;
+      }
+    }
+  }
+
+  .total-percent {
+    &.plus {
+      color: #eb4b6d;
+    }
+    &.minus {
+      color: #31bd65;
     }
   }
 </style>

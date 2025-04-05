@@ -704,3 +704,20 @@ export const productGetCode = (params) =>
     method: "get",
     params
   });
+
+// 进度还款数据
+export const projectGetBuild = (params) =>
+  request({
+    url: "/project/audit/getBuild",
+    method: "get",
+    params
+  });
+  
+// 进度还款数据 - 提交
+export const projectSaveBuild = (data) =>
+  request({
+    url: "/project/audit/saveBuild",
+    method: "post",
+    data
+  });
+  

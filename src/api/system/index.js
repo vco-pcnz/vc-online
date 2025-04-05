@@ -23,6 +23,14 @@ export const systemDictData = (code) =>
     method: "get"
   });
 
+// 字典
+export const systemDictDataApi = (params) =>
+  request({
+    url: "/system/dictData/getDictByCode",
+    method: "get",
+    params
+  });
+
 // 
 export const systemConfigData = (params) =>
   request({

@@ -55,9 +55,8 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
       result.roles =
         result.roles && result.roles.length ? result.roles.join("/") : "";
       this.userInfo = result;
-
-      const str = String(result.roles).toLocaleLowerCase()
-      this.isNormalUser = str === 'vip'
+      
+      this.isNormalUser = Number(result.ptRole)
 
       // 用户权限
       this.authorities = result.permissionList;

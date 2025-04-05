@@ -6,6 +6,13 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "36183238",
+      "name": "减免滞纳金",
+      "font_class": "jianmianzhinajin",
+      "unicode": "e799",
+      "unicode_decimal": 59289
+    },
+    {
       "icon_id": "25672061",
       "name": "意见反馈",
       "font_class": "yijianfankui",

@@ -983,7 +983,7 @@
         arr.unshift({
           name: t('是否有Linefee'),
           before: Number(staticFormData.value?.has_linefee) ? t('是') : t('否'),
-          now: Number(obj.value?.has_linefee) ? t('是') : t('否')
+          now: Number(obj?.has_linefee) ? t('是') : t('否')
         })
       }
     }

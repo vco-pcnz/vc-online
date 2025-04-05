@@ -7,6 +7,22 @@
       :is-details="true"
     ></securities-dialog>
 
+    <!-- 信息编辑弹窗 -->
+    <drawdown-request
+      ref="editDialogRef"
+      :uuid="uuid"
+      :data-info="detail"
+      @change="update"
+    ></drawdown-request>
+
+    <!-- 详情弹窗 -->
+    <details-dialog
+      v-model:visible="detailsVisible"
+      :uuid="uuid"
+      :detail-data="detail"
+      @done="update"
+    ></details-dialog>
+
     <div class="color_grey fs_2xs text-center py-3 text-uppercase uppercase" style="letter-spacing: 1px">{{ t('详情') }}</div>
 
     <div class="detail">
@@ -28,40 +44,51 @@
         <div>
           <div class="flex">
             <vco-number :value="detail?.amount" :precision="2" :bold="true" size="fs_2xl"></vco-number>
-            <span class="unit">nzd</span>
-            <DrawdownAmount :uuid="uuid" :detail="detail" @change="update">
-              <i v-if="detail?.has_permission && detail?.mark === 'repayment_lm' && !detail.all_repayment" class="iconfont edit">&#xe8cf;</i>
-            </DrawdownAmount>
+            <i v-if="detail?.has_permission && detail?.mark === 'repayment_lm'" @click="openEditHandle" class="iconfont edit">&#xe8cf;</i>
           </div>
           <p class="bold color_grey fs_2xs">{{ t('申请金额') }}: {{ tool.formatMoney(detail?.apply_amount) }}</p>
         </div>
       </div>
 
-      <div v-if="detail?.prev_permission" class="mt-10">
-        <a-popconfirm :title="t('您确实要撤回该请求吗？')" @confirm="recall">
-          <a-button type="dark" class="big uppercase" :loading="accept_loading" style="width: 100%">{{ t('撤回申请') }}</a-button>
-        </a-popconfirm>
+      <div v-if="Number(detail?.reduction_money)" class="flex items-center box mt-4">
+        <i class="iconfont left-icon mr-3">&#xe799;</i>
+        <div>
+          <vco-number :value="detail?.reduction_money" :precision="2" :bold="true" size="fs_xl" color="#31bd65"></vco-number>
+          <p class="bold color_grey fs_2xs">{{ t('罚息减免') }}</p>
+        </div>
       </div>
 
-      <div v-if="detail?.has_permission" class="mt-10">
-        <DrawdownFCDate v-if="detail?.mark === 'repayment_fc'" :uuid="uuid" :detail="detail" :projectDetail="projectDetail" @change="update">
-          <a-button type="dark" class="big uppercase" style="width: 100%">{{ t('接受请求') }}</a-button>
-        </DrawdownFCDate>   
-        <a-button v-else-if="detail?.mark === 'repayment_lm'" type="dark" class="big uppercase" style="width: 100%" @click="visible_tip = true">{{ t('接受请求') }}</a-button>
-        <a-popconfirm v-else :title="t('您确定要接受该请求吗？')" @confirm="accept">
-          <a-button type="dark" class="big uppercase" style="width: 100%">{{ t('接受请求') }}</a-button>
-        </a-popconfirm>
-
-        <div class="mt-4">
-          <p class="text-center color_grey fs_xs my-3">{{ t('您可以点击下面的按钮来拒绝还款请求。') }}</p>
-          <div class="flex justify-center">
-            <a-popconfirm :title="t('确定要拒绝该请求吗？')" @confirm="decline">
-              <a-button type="danger" size="small" shape="round">{{ t('拒绝请求') }}</a-button>
-            </a-popconfirm>
-          </div>
+      <div class="mt-10">
+        <div v-if="detail?.prev_permission" class="mb-5">
+          <a-popconfirm :title="t('您确实要撤回该请求吗？')" @confirm="recall">
+            <a-button type="dark" class="big uppercase" :loading="accept_loading" style="width: 100%">{{ t('撤回申请') }}</a-button>
+          </a-popconfirm>
         </div>
 
-        <DrawdownBack v-if="detail?.mark === 'repayment_fc'" :uuid="uuid" :detail="detail" @change="update"></DrawdownBack>
+        <div v-if="detail?.has_permission || hasPermission('projects:repayments:revoke')">
+          <a-button v-if="detail?.has_permission" type="dark" class="big uppercase w-full" @click="detailsVisible = true">{{ t('接受请求') }}</a-button>
+
+          <a-popconfirm
+            v-if="hasPermission('projects:repayments:revoke') && !detail?.has_permission && detail?.status !== 2"
+            :title="t('您确定撤销还款吗？')"
+            @confirm="revokeHandle"
+          >
+            <a-button
+              type="brown" class="big uppercase w-full"
+            >{{ t('撤销还款') }}</a-button>
+          </a-popconfirm>
+          
+          <div v-if="detail?.has_permission" class="mt-4">
+            <p class="text-center color_grey fs_xs my-3">{{ t('您可以点击下面的按钮来拒绝还款请求。') }}</p>
+            <div class="flex justify-center">
+              <a-popconfirm :title="t('确定要拒绝该请求吗？')" @confirm="decline">
+                <a-button type="danger" size="small" shape="round">{{ t('拒绝请求') }}</a-button>
+              </a-popconfirm>
+            </div>
+          </div>
+
+          <DrawdownBack v-if="detail?.mark === 'repayment_fc' && detail?.has_permission" :uuid="uuid" :detail="detail" @change="update"></DrawdownBack>
+        </div>
       </div>
 
       <!-- 对账 -->
@@ -80,13 +107,12 @@ import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { navigationTo } from '@/utils/tool';
 import { hasPermission } from '@/directives/permission/index';
-import DrawdownAmount from './form/DrawdownAmount.vue';
 import DrawdownBack from './form/DrawdownBack.vue';
-import DrawdownFCDate from './form/DrawdownFCDate.vue';
-import { loanRdeclinel, loanRsaveStep, loanRrecall } from '@/api/project/loan';
-import { doReconcile } from '@/api/reconciliations';
+import { loanRdeclinel, loanRsaveStep, loanRrecall, loanRrevoke } from '@/api/project/loan';
 import ReconciliationModal from '@/views/projects/components/ReconciliationModal.vue';
 import SecuritiesDialog from './form/SecuritiesDialog.vue';
+import DrawdownRequest from './form/DrawdownRequest.vue';
+import DetailsDialog from './form/DetailsDialog.vue';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);
@@ -126,6 +152,15 @@ const recall = async () => {
   });
 };
 
+const revokeHandle = async () => {
+  await loanRrevoke({ uuid: props.uuid, id: props.detail?.id }).then((res) => {
+    update();
+    return true
+  }).catch(() => {
+    return false
+  });
+}
+
 const securitiesVisible = ref(false)
 const relatedData = ref([])
 
@@ -137,6 +172,13 @@ const openSecurity = () => {
 const update = () => {
   emits('update');
 };
+
+const editDialogRef = ref()
+const openEditHandle = () => {
+  editDialogRef.value && editDialogRef.value.init()
+}
+
+const detailsVisible = ref(false)
 
 watch(
   () => props.detail,

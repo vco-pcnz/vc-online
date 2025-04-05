@@ -904,5 +904,11 @@ export default {
   "抵押物统计数据": "Security items statistics",
   "请设置第{0}行的名称": "Please set the name of row {0}",
   "是": "Yes",
-  "否": "No"
+  "否": "No",
+  "罚息减免最大额度": "Max amount of default reduction",
+  "罚息减免": "Default reduction",
+  "最大值为：{0}": "The maximum value is: {0}",
+  "还款详情": "Repayment details",
+  "撤销还款": "Revoke repayment",
+  "您确定撤销还款吗？": "Are you sure you want to revoke the repayment?"
 }

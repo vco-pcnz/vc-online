@@ -2,7 +2,7 @@
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="drawdownRequestRef" class="drawdown-request">
     <a-modal
-      :width="500"
+      :width="550"
       :open="visible"
       :title="t('还款计算器')"
       :getContainer="() => $refs.drawdownRequestRef"
@@ -40,9 +40,14 @@
                 </a-date-picker>
               </a-form-item>
             </a-col>
-            <a-col v-if="totalAmount" :span="24">
+            <a-col v-if="totalAmount" :span="12">
               <a-form-item :label="t('还款总额')">
-                <vco-number :bold="true" :value="totalAmount" :precision="2" :end="true"></vco-number>
+                <vco-number :bold="true" :value="totalAmount" :precision="2" size="fs_xl" :end="true"></vco-number>
+              </a-form-item>
+            </a-col>
+            <a-col v-if="reductionAmount && !isNormalUser" :span="12">
+              <a-form-item :label="t('罚息减免最大额度')">
+                <vco-number :bold="true" :value="reductionAmount" :precision="2" size="fs_xl" :end="true"></vco-number>
               </a-form-item>
             </a-col>
           </a-row>
@@ -53,15 +58,19 @@
 </template>
 
 <script scoped setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import dayjs from 'dayjs';
 import { CalendarOutlined } from '@ant-design/icons-vue';
 import { projectLoanAllRepayment } from '@/api/project/loan';
 import { selectDateFormat } from "@/utils/tool"
+import { useUserStore } from '@/store'
 
 const { t } = useI18n();
 const emits = defineEmits(['change']);
+
+const userStore = useUserStore();
+const isNormalUser = computed(() => userStore.isNormalUser)
 
 const props = defineProps({
   uuid: {
@@ -96,6 +105,7 @@ const disabledDateFormat = (current) => {
 }
 
 const totalAmount = ref(0)
+const reductionAmount = ref(0)
 const getLoading = ref(false)
 const dateChange = (date) => {
   if (date) {
@@ -106,13 +116,15 @@ const dateChange = (date) => {
       uuid: props.uuid,
       date: time
     }).then(res => {
-      totalAmount.value = res ? Number(res) : 0
+      totalAmount.value = Number(res.last_money) ? Number(res.last_money) : 0
+      reductionAmount.value = Number(res.reduction_money) ? Number(res.reduction_money) : 0
       getLoading.value = false
     }).catch(() => {
       getLoading.value = false
     })
   } else {
     totalAmount.value = 0
+    reductionAmount.value = 0
   }
 }
 
@@ -127,6 +139,7 @@ const updateVisible = (value) => {
     });
 
     totalAmount.value = 0
+    reductionAmount.value = 0
   }
 };
 

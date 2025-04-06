@@ -102,7 +102,7 @@
             <vco-number v-else :value="creditOldinfo[item.credit_table]" color="#888888" :precision="2"></vco-number>
             <i class="iconfont">&#xe794;</i>
             <p v-if="item.is_ratio">{{ detailData.credit[item.credit_table] }}%</p>
-            <vco-number v-else :value="detailData.credit[item.credit_table]" :precision="2"></vco-number>
+            <vco-number v-else :value="item.variation_add ? tool.plus(detailData?.credit[item.credit_table], creditOldinfo[item.credit_table]) : detailData?.credit[item.credit_table]" :precision="2"></vco-number>
           </div>
         </a-col>
       </div>
@@ -304,7 +304,7 @@ const showOpenDialog = () => {
   showConfirm.value = true;
 
   startDate.value = props.detailData.start_date;
-  formState.value.start_date =dayjs(props.detailData.start_date) 
+  formState.value.start_date = dayjs(props.detailData.start_date);
   endDate.value = props.detailData.end_date;
 };
 

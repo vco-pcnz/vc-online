@@ -77,24 +77,22 @@
                 <vco-number v-else :value="record[column.dataIndex]" size="fs_md" :precision="2" :end="true"></vco-number>
               </template>
               <template v-else>
-                <template v-if="showProcess">
-                  <div class="select-item" :class="{'hover': isSelect}" @click="itemSetHandle(record[column.dataIndex])">
-                    <vco-number :value="record[column.dataIndex].amount" size="fs_xs" :precision="2" :end="true"></vco-number>
-                    <vco-number :value="record[column.dataIndex].use_amount" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
-                    <div class="process-gap"></div>
-                    <div class="item-process-content">
-                      <a-progress
-                        :stroke-color="{
-                          '0%': '#F19915',
-                          '100%': '#ffb92c',
-                        }"
-                        :size="6"
-                        :percent="record[column.dataIndex].percent"
-                      />
-                    </div>
-                    <div v-if="record[column.dataIndex].checked" class="selected">{{ `$${numberStrFormat(record[column.dataIndex].set_amount)}` }}</div>
+                <div v-if="showProcess" class="select-item" :class="{'hover': isSelect}" @click="itemSetHandle(record[column.dataIndex])">
+                  <vco-number :value="record[column.dataIndex].amount" size="fs_xs" :precision="2" :end="true"></vco-number>
+                  <vco-number :value="record[column.dataIndex].use_amount" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
+                  <div class="process-gap"></div>
+                  <div class="item-process-content">
+                    <a-progress
+                      :stroke-color="{
+                        '0%': '#F19915',
+                        '100%': '#ffb92c',
+                      }"
+                      :size="6"
+                      :percent="record[column.dataIndex].percent"
+                    />
                   </div>
-                </template>
+                  <div v-if="record[column.dataIndex].checked" class="selected">{{ `$${numberStrFormat(record[column.dataIndex].set_amount)}` }}</div>
+                </div>
                 <vco-number v-else :value="record[column.dataIndex].amount" size="fs_md" :precision="2" :end="true"></vco-number>
               </template>
             </template>
@@ -664,10 +662,10 @@
   .select-item {
     position: relative;
     overflow: hidden;
+    margin: -16px;
+    padding: 16px;
     &.hover {
       cursor: pointer;
-      margin: -16px;
-      padding: 16px;
       transition: all 0.2s ease;
       &:hover {
         background-color: rgba(241, 153, 21, .2)

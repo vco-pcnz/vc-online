@@ -52,7 +52,16 @@
             <div class="flex justify-between mb-2">
               <div class="title">{{ t('进度付款阶段') }}</div>
               <div class="flex gap-5">
-                <a-popconfirm :title="t('确定初始化吗？')" @confirm="initHandle">
+                <a-popconfirm :title="t('确定操作吗？')" @confirm="initHandle(true)">
+                  <a-button
+                    type="dark"
+                    class="uppercase flex items-center"
+                  >
+                    {{ t('按比例设置金额') }}
+                  </a-button>
+                </a-popconfirm>
+
+                <a-popconfirm :title="t('确定初始化吗？')" @confirm="initHandle(false)">
                   <a-button
                     type="primary"
                     class="uppercase flex items-center"
@@ -89,7 +98,10 @@
                   <p>{{ record[column.dataIndex] }}</p>
                 </template>
                 <template v-else-if="column.dataIndex === 'payment'">
-                  <p>{{ record[column.dataIndex] }}%</p>
+                  <a-input
+                    v-model:value="record[column.dataIndex]"
+                    suffix="%"
+                  />
                 </template>
                 <template v-else-if="column.dataIndex === 'total'">
                   <vco-number :value="record[column.dataIndex]" size="fs_md" :precision="2" :end="true"></vco-number>
@@ -191,7 +203,6 @@
 
   const pageLoading = ref(false)
 
-  const projectInfo = ref()
   const canModifyBamount = ref(false)
 
   // 已设置数据
@@ -284,7 +295,7 @@
       const sum = amountArr.reduce((total, num) => total + num, 0);
       const payment = tool.div(sum, buildAmountSta.value)
 
-      data.payment = numberStrFormat(Number(payment) * 100)
+      data.payment = Number(tool.times(Number(payment), 100)).toFixed(2)
       data.total = sum
     }
   }
@@ -307,13 +318,13 @@
       }
 
       const amountArr = extractAmounts(obj, '-')
-      if (amountArr.length) {
+      if (amountArr.length && Object.keys(setedData.value.data).length) {
         const sum = amountArr.reduce((total, num) => total + num, 0);
         const payment = tool.div(sum, buildAmountSta.value)
-        obj.payment = numberStrFormat(payment * 100)
+        obj.payment = Number(tool.times(Number(payment), 100)).toFixed(2)
         obj.total = sum
       } else {
-        obj.payment = numberStrFormat(data[i].note)
+        obj.payment = Number(data[i].note).toFixed(2)
         obj.total = 0
       }
 
@@ -357,7 +368,7 @@
     }, {
       title: 'Payment',
       dataIndex: "payment",
-      width: 100,
+      width: 150,
       align: 'center',
       fixed: 'left'
     }, ...headerData,
@@ -523,7 +534,6 @@
           landAmount.value = res.lending.land_amount
 
           canModifyBamount.value = Boolean(res.base.status === 400)
-          projectInfo.value = res
         })
       } else {
         console.log('1111111');
@@ -561,9 +571,13 @@
   }
 
   const hasReseted = ref(false)
-  const initHandle = () => {
+  const initHandle = (flag = false) => {
     for (let i = 0; i < tableData.value.length; i++) {
-      const payment = columnsTypeObj.value[tableData.value[i].typeId]
+      let payment = columnsTypeObj.value[tableData.value[i].typeId]
+      if (flag) {
+        const itemPayment = Number(tableData.value[i].payment)
+        payment = isNaN(itemPayment) ? 0 : itemPayment
+      }
       const itemPer = Number(payment) / 100
       const itemTotal = tool.times(itemPer, buildAmountSta.value)
 
@@ -571,7 +585,7 @@
       let itemAmountTotal = 0
       for (let j = 0; j < amountArr.length; j++) {
         if (j === amountArr.length - 1) {
-          tableData.value[i][amountArr[j]].amount = tool.minus(itemTotal, itemAmountTotal)
+          tableData.value[i][amountArr[j]].amount = Number(tool.minus(itemTotal, itemAmountTotal))
         } else {
           const per = securitySqmObj.value[amountArr[j]] || 0
           const amount = Number(Number(tool.times(per, itemTotal)).toFixed(2))
@@ -579,11 +593,16 @@
           tableData.value[i][amountArr[j]].amount = amount
         }
       }
-      tableData.value[i].payment = numberStrFormat(payment)
+      if (!flag) {
+        tableData.value[i].payment = Number(payment).toFixed(2)
+      }
+      
       tableData.value[i].total = itemTotal
     }
 
-    hasReseted.value = true
+    if (!flag) {
+      hasReseted.value = true
+    }
   }
 
   const restoreHandle = async () => {

@@ -728,4 +728,11 @@ export const projectSaveBuild = (data) =>
     method: "post",
     data
   });
-  
+
+// 进度还款数据 - 提交 - open 后
+export const projectLoanSaveBuild = (data) =>
+  request({
+    url: "/project/loan/saveBuild",
+    method: "post",
+    data
+  });

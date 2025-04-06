@@ -6,11 +6,31 @@ import { login, logout, getSelectUsers } from "@/api/auth";
 import { projectBacklogCount } from "@/api/tasks"
 import router from "@/router";
 
+function extractPaths(routes) {
+  const result = [];
+
+  function traverse(routeList) {
+    routeList.forEach(route => {
+      if (route.path) {
+        result.push(route.path);
+      }
+      if (Array.isArray(route.children)) {
+        traverse(route.children);
+      }
+    });
+  }
+
+  traverse(routes);
+  return result;
+}
+
+
 const useUserStore = defineStore("VcOnlineUserInfo", {
   state: () => ({
     userInfo: undefined,
     routerInit: false,
     routerInfo: undefined,
+    routerPaths: [],
     // 当前登录用户的权限
     authorities: [],
     // 是否为普通用户
@@ -89,8 +109,15 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
         }).concat([])
       );
       this.routerInfo = menus;
+      this.routerPaths = extractPaths(menus)
       this.routerInit = true;
       return { menus, homePath };
+    },
+
+    // 判断有没有某个路由
+    hasRouteInfo(route) {
+      const obj = this.routerPaths.find(item => item === route)
+      return obj ? true : false
     },
 
     login(data) {

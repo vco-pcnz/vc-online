@@ -1,9 +1,48 @@
 <template>
   <div>
+    <a-modal :open="itemVisible" :title="t('进度付款阶段')" :width="500" :footer="null" :keyboard="false" :maskClosable="false" @cancel="itemVisible = false">
+      <a-row :gutter="24" class="mt-10">
+        <a-col :span="8">
+          <div class="info-content">
+            <p class="name">{{ t('总额度') }}</p>
+            <vco-number :value="currentItemInfo.amount" size="fs_md" :precision="2"></vco-number>
+          </div>
+        </a-col>
+        <a-col :span="8">
+          <div class="info-content">
+            <p class="name">{{ t('已用额度') }}</p>
+            <vco-number :value="currentItemInfo.use_amount" size="fs_md" :precision="2"></vco-number>
+          </div>
+        </a-col>
+        <a-col :span="8">
+          <div class="info-content">
+            <p class="name">{{ t('可用额度') }}</p>
+            <vco-number :value="currentItemInfo.can_amount" color="#31bd65" size="fs_md" :precision="2"></vco-number>
+          </div>
+        </a-col>
+        <a-col :span="24">
+          <div class="info-content sys-form-content">
+            <p class="name mb-2">{{ t('可用额度') }}</p>
+            <a-input-number
+              v-model:value="currentItemInfo.set_amount"
+              :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+              :parser="value => value.replace(/\$\s?|(,*)/g, '')"
+            />
+            <p v-if="currentItemInfo.showError" class="input-error">{{ t('取值范围: {0} - {1}', ['$0.00', `$${numberStrFormat(currentItemInfo.can_amount)}`]) }}</p>
+          </div>
+        </a-col>
+      </a-row>
+      <div class="mt-5 flex justify-end">
+        <a-button type="dark" class="big shadow bold uppercase"
+          @click="selectSureHandle"
+        >{{ t('确定') }}</a-button>
+      </div>
+    </a-modal>
+
     <a-spin :spinning="pageLoading" size="large">
       <div class="progress-payment-content">
-        <div v-if="tableHeader.length && hasData && !pageLoading" class="form-block-content">
-          <div class="title">{{ t('进度付款阶段') }}</div>
+        <div v-if="tableHeader.length && hasData && !pageLoading" class="form-block-content" :class="{'mt-10': isSelect}">
+          <div v-if="!isSelect" class="title">{{ t('进度付款阶段') }}</div>
           <a-table
             :columns="tableHeader"
             :data-source="tableData"
@@ -39,18 +78,21 @@
               </template>
               <template v-else>
                 <template v-if="showProcess">
-                  <vco-number :value="record[column.dataIndex].amount" size="fs_xs" :precision="2" :end="true"></vco-number>
-                  <vco-number :value="record[column.dataIndex].use_amount" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
-                  <div class="process-gap"></div>
-                  <div class="item-process-content">
-                    <a-progress
-                      :stroke-color="{
-                        '0%': '#F19915',
-                        '100%': '#ffb92c',
-                      }"
-                      :size="6"
-                      :percent="record[column.dataIndex].percent"
-                    />
+                  <div class="select-item" :class="{'hover': isSelect}" @click="itemSetHandle(record[column.dataIndex])">
+                    <vco-number :value="record[column.dataIndex].amount" size="fs_xs" :precision="2" :end="true"></vco-number>
+                    <vco-number :value="record[column.dataIndex].use_amount" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
+                    <div class="process-gap"></div>
+                    <div class="item-process-content">
+                      <a-progress
+                        :stroke-color="{
+                          '0%': '#F19915',
+                          '100%': '#ffb92c',
+                        }"
+                        :size="6"
+                        :percent="record[column.dataIndex].percent"
+                      />
+                    </div>
+                    <div v-if="record[column.dataIndex].checked" class="selected">{{ `$${numberStrFormat(record[column.dataIndex].set_amount)}` }}</div>
                   </div>
                 </template>
                 <vco-number v-else :value="record[column.dataIndex].amount" size="fs_md" :precision="2" :end="true"></vco-number>
@@ -107,7 +149,7 @@
               </a-table-summary>
             </template>
           </a-table>
-          <div class="other-table-info">
+          <div v-if="!isSelect" class="other-table-info">
             <div v-for="item in otherInfoObj" :key="item.type_name" class="item">
               <p>{{ item.title }}</p>
               <div class="total-item">
@@ -120,6 +162,12 @@
                 <vco-number :value="tableTotal" size="fs_xl" :precision="2" :end="true"></vco-number>
               </div>
             </div>
+          </div>
+          <div v-if="isSelect" class="mt-10 flex justify-between">
+            <vco-number :value="selectTotalAmount" size="fs_3xl" :precision="2" :end="true"></vco-number>
+            <a-button type="dark" class="big shadow bold uppercase"
+              @click="selectConfirm"
+            >{{ t('确定') }}</a-button>
           </div>
         </div>
         <a-empty v-if="!hasData && !pageLoading" />
@@ -144,10 +192,14 @@
     showProcess: {
       type: Boolean,
       default: false
+    },
+    isSelect: {
+      type: Boolean,
+      default: false
     }
   })
 
-  const emits = defineEmits(['done'])
+  const emits = defineEmits(['done', 'selectDone'])
 
   const uuid = ref('')
 
@@ -253,6 +305,8 @@
         const amountItem = hadSetData[`${data[i].code}__${headerData[j].dataIndex}`] || null
         if (amountItem) {
           amountItem.amount = Number(amountItem.amount)
+          amountItem.checked = false
+          amountItem.set_amount = ''
           const use_amount = amountItem.use_amount || 0
           const num = Number(Number(tool.div(Number(use_amount), Number(amountItem.amount))).toFixed(2))
           amountItem.percent = Number(tool.times(num, 100))
@@ -378,6 +432,65 @@
     } catch (err) {
       pageLoading.value = false
     }
+  }
+
+  const selectData = ref([])
+  const selectIdData = computed(() => selectData.value.map(item => item.id))
+  const selectTotalAmount = computed(() => {
+    const data = selectData.value.map(item => item.set_amount)
+    const total = data.reduce((total, num) => {
+      return Number(tool.plus(total, num))
+    }, 0);
+    return total
+  })
+  const itemVisible = ref(false)
+  const currentItemInfo = ref()
+
+  const itemSetHandle = (data) => {
+    if (props.isSelect) {
+      const num = tool.minus(Number(data.amount), Number(data.use_amount))
+      data.can_amount = num
+      data.showError = false
+      currentItemInfo.value = data
+      itemVisible.value = true
+    }
+  }
+
+  const selectSureHandle = () => {
+    if (Number(currentItemInfo.value.set_amount) > Number(currentItemInfo.value.can_amount) || Number(currentItemInfo.value.set_amount) < 0) {
+      currentItemInfo.value.showError = true
+    } else {
+      if (Number(currentItemInfo.value.set_amount) === 0) {
+        currentItemInfo.value.checked = false
+      } else {
+        currentItemInfo.value.checked = true
+        const data = cloneDeep(currentItemInfo.value)
+        if (selectIdData.value.includes(data.id)) {
+          const obj = selectData.value.find(item => item.id === data.id)
+          if (obj) {
+            obj.set_amount = data.set_amount
+          }
+        } else {
+          selectData.value.push(data)
+        }
+      }
+      itemVisible.value = false
+      currentItemInfo.value.showError = false
+    }
+  }
+
+  const selectConfirm = () => {
+    const data = selectData.value.map(item => {
+      return {
+        id: item.id,
+        amount: item.set_amount
+      }
+    })
+    const selectInfo = {
+      build__data: data,
+      total: selectTotalAmount.value
+    }
+    emits('selectDone', selectInfo)
   }
 
   onMounted(async () => {
@@ -546,5 +659,43 @@
     :deep(.ant-progress-text) {
       font-size: 11px !important;
     }
+  }
+
+  .select-item {
+    position: relative;
+    overflow: hidden;
+    &.hover {
+      cursor: pointer;
+      margin: -16px;
+      padding: 16px;
+      transition: all 0.2s ease;
+      &:hover {
+        background-color: rgba(241, 153, 21, .2)
+      }
+    }
+    > .selected {
+      position: absolute;
+      background-color: rgba(49, 189, 101, 0.8);
+      top: 0;
+      right: 0;
+      font-size: 11px;
+      padding: 0 5px;
+    }
+  }
+
+  .info-content {
+    margin-bottom: 22px;
+    .name {
+      font-size: 12px;
+      color: #666;
+    }
+  }
+
+  .input-error {
+    width: 100%;
+    font-size: 12px;
+    color: #eb4b6d;
+    text-align: left;
+    margin-top: 2px;
   }
 </style>

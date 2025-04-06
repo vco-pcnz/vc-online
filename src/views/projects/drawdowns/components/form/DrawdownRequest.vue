@@ -1,4 +1,8 @@
 <template>
+  <a-modal :open="selectVisible" :title="t('进度付款阶段')" :width="1400" :footer="null" :keyboard="false" :maskClosable="false" @cancel="selectVisible = false">
+    <view-content :is-select="true" :show-process="true" @selectDone="selectDoneHandle"></view-content>
+  </a-modal>
+
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="drawdownRequestRef" class="drawdown-request">
     <a-modal :width="850" :open="visible" v-if="visible" title="Drawdown request" :getContainer="() => $refs.drawdownRequestRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
@@ -20,7 +24,10 @@
             </div>
             <div class="input-item" style="margin-top: 16px">
               <div class="label" :class="{ err: !formState.apply_amount && validate }">Requested amount, $ nzd</div>
-              <a-input-number v-model:value="formState.apply_amount" :max="99999999999" :min="0" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
+              <div class="flex gap-2 items-center">
+                <a-input-number v-model:value="formState.apply_amount" :max="99999999999" :min="0" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
+                <a-button type="brown" shape="round" size="small" @click="selectVisible = true">{{ t('选择') }}</a-button>
+              </div>
             </div>
           </a-col>
           <a-col :span="12">
@@ -73,6 +80,7 @@ import { loanDedit } from '@/api/project/loan';
 import { selectDateFormat } from '@/utils/tool';
 import DocumentsUpload from './DocumentsUpload.vue';
 import { systemDictData } from '@/api/system';
+import ViewContent from "@/views/requests/progress-payment/components/ViewContent.vue";
 
 const { t } = useI18n();
 const emits = defineEmits(['change']);
@@ -92,6 +100,8 @@ const validate = ref(false);
 const formModal2 = ref([]);
 const formModal3 = ref([]);
 
+const selectVisible = ref(false)
+
 const formState = ref({
   uuid: '',
   name: '',
@@ -106,6 +116,13 @@ const formState = ref({
 const updateVisible = (value) => {
   visible.value = value;
 };
+
+const selectBuildData = ref([])
+const selectDoneHandle = (data) => {
+  selectVisible.value = false
+  selectBuildData.value = data.build__data
+  formState.value.apply_amount = data.total
+}
 
 const disabledDateFormat = (current) => {
   const startDate = props.projectDetail.loan.start_date;
@@ -138,6 +155,16 @@ const save = () => {
 
 const submit = () => {
   loading.value = true;
+
+  const params = {
+    ...formState.value
+  }
+  if (selectBuildData.value.length) {
+    params.build__data = selectBuildData.value
+  }
+
+  console.log('paras', params);
+  return false
   loanDedit(formState.value)
     .then((res) => {
       visible.value = false;

@@ -74,20 +74,22 @@
             <div v-if="percentItems.length || dollarItems.length" class="w-full flex flex-wrap">
               <a-col :span="24"><div class="pt-5" style="border-top: 1px dashed #282828"></div></a-col>
               <template v-if="percentItems.length">
-                <a-col v-for="item in percentItems" :span="getItemsSpan" :key="item.credit_table">
-                  <a-form-item :name="item.credit_table">
-                    <template #label>
-                      {{ item.credit_name }}
-                      <a-tooltip v-if="item.tips" placement="topLeft">
-                        <template #title>
-                          <span>{{ item.tips }}</span>
-                        </template>
-                        <QuestionCircleOutlined class="ml-2" />
-                      </a-tooltip>
-                    </template>
-                    <a-input v-model:value="formState[item.credit_table]" :suffix="item.credit_unit" />
-                  </a-form-item>
-                </a-col>
+                <template v-for="item in percentItems" :key="item.credit_table">
+                  <a-col :span="getItemsSpan" v-if="!(formState.type == 5 && item.credit_table === 'credit_brokerFeeRate')">
+                    <a-form-item :name="item.credit_table">
+                      <template #label>
+                        {{ item.credit_name }}
+                        <a-tooltip v-if="item.tips" placement="topLeft">
+                          <template #title>
+                            <span>{{ item.tips }}</span>
+                          </template>
+                          <QuestionCircleOutlined class="ml-2" />
+                        </a-tooltip>
+                      </template>
+                      <a-input v-model:value="formState[item.credit_table]" :suffix="item.credit_unit" />
+                    </a-form-item>
+                  </a-col>
+                </template>
               </template>
 
               <template v-if="dollarItems.length">

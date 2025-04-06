@@ -82,7 +82,7 @@
               bordered
               :pagination="false"
               table-layout="fixed"
-              :scroll="{ x: '100%', y: 600 }"
+              :scroll="{ x: '100%', y: 500 }"
             >
               <template #bodyCell="{ column, record, index }">
                 <template v-if="column.dataIndex === 'type'">
@@ -134,6 +134,23 @@
                 </a-table-summary>
               </template>
             </a-table>
+            <div class="other-table-info">
+              <div v-for="item in otherInfoObj" :key="item.type_name" class="item">
+                <p>{{ item.title }}</p>
+                <a-input-number
+                  v-model:value="otherInfo[item.type_name]"
+                  :max="99999999999"
+                  :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                />
+              </div>
+              <div class="item">
+                <p>Total Cost to Complete</p>
+                <div class="total-item">
+                  <vco-number :value="tableTotal" size="fs_xl" :precision="2" :end="true"></vco-number>
+                </div>
+              </div>
+            </div>
             <div class="mt-5 flex justify-end">
               <a-button type="dark" class="big shadow bold uppercase" 
                 :loading="subLoading"
@@ -165,6 +182,7 @@
   import { cloneDeep } from "lodash"
   import { message } from 'ant-design-vue/es';
   import tool, { numberStrFormat } from "@/utils/tool"
+  import { otherInfoObj } from "./../config.js"
 
   const { t } = useI18n();
   const route = useRoute();
@@ -180,7 +198,9 @@
   const setedData = ref({
     row: {},
     column: {},
-    data: {}
+    data: {},
+    payment: {},
+    summary: {}
   })
 
   /**
@@ -211,6 +231,24 @@
       }
     }
   })
+
+  const tableTotal = computed(() => {
+    const tableNum = summaryHandle.value('total')
+    const inputArr = []
+    for (const key in otherInfo.value) {
+      const num = otherInfo.value[key] || 0
+      inputArr.push(num)
+    }
+    const inputNum = inputArr.reduce((total, num) => total + num, 0);
+    return tool.plus(tableNum, inputNum)
+  })
+
+  // 其他数据
+  const otherInfo = ref({})
+  const otherInfoObjSta = cloneDeep(otherInfoObj)
+  for (let i = 0; i < otherInfoObjSta.length; i++) {
+    otherInfo.value[otherInfoObjSta[i].type_name] = 0
+  }
 
   const extractAmounts = (obj, keyword) => {
     const result = [];
@@ -323,7 +361,7 @@
       align: 'center',
       fixed: 'left'
     }, ...headerData,
-    { title: t('总计'), dataIndex: 'total', width: 160, align: 'center', fixed: 'right' }]
+    { title: t('总计'), dataIndex: 'total', width: 180, align: 'center', fixed: 'right' }]
 
     const summaryColData = []
     for (let i = 0; i < tableHeader.value.length; i++) {
@@ -433,8 +471,7 @@
       align: 'center',
       fixed: 'left'
     }, ...headerData,
-    { title: t('总计'), dataIndex: 'total', width: 160, align: 'center', fixed: 'right' }]
-
+    { title: t('总计'), dataIndex: 'total', width: 180, align: 'center', fixed: 'right' }]
 
     setAmortizedData(itemData)
   }
@@ -448,7 +485,16 @@
     try {
       if (isRequests.value) {
         await projectGetBuild(params).then(res => {
-          setedData.value = res
+          const data = res.data || []
+          if (Object.keys(data)) {
+            setedData.value = res
+          }
+
+          if (Object.keys(res.summary)) {
+            for (const key in otherInfo.value) {
+              otherInfo.value[`${key}`] = res.summary[`${key}`] ? Number(res.summary[`${key}`].amount) : 0
+            }
+          }
         })
       } else {
         console.log('isRequests');
@@ -525,11 +571,11 @@
       let itemAmountTotal = 0
       for (let j = 0; j < amountArr.length; j++) {
         if (j === amountArr.length - 1) {
-          tableData.value[i][amountArr[j]].amount = Number(tool.minus(itemTotal, itemAmountTotal))
+          tableData.value[i][amountArr[j]].amount = tool.minus(itemTotal, itemAmountTotal)
         } else {
           const per = securitySqmObj.value[amountArr[j]] || 0
           const amount = Number(Number(tool.times(per, itemTotal)).toFixed(2))
-          itemAmountTotal += amount
+          itemAmountTotal = tool.plus(itemAmountTotal, amount)
           tableData.value[i][amountArr[j]].amount = amount
         }
       }
@@ -572,7 +618,11 @@
         security_uuid.push(tableHeader.value[i].dataIndex)
       }
     }
+    const paymentResData = setedData.value.payment
+    const summaryResData = setedData.value.summary
+
     const build = []
+    const paymentData = []
     for (let i = 0; i < tableData.value.length; i++) {
       const item = tableData.value[i]
       for (const key in item) {
@@ -588,8 +638,8 @@
         }
 
         if (key === 'payment') {
-          build.push({
-            id: 0,
+          paymentData.push({
+            id: paymentResData[`${i + 1}__payment`] ? paymentResData[`${i + 1}__payment`].id : 0,
             amount: Number(item[key]),
             use_amount: 0,
             security_uuid: '',
@@ -600,10 +650,24 @@
       }
     }
 
+    const summaryData = []
+    for (const key in otherInfo.value) {
+      summaryData.push({
+        id: summaryResData[`${key}`] ? summaryResData[`${key}`].id : 0,
+        amount: otherInfo.value[`${key}`] ? Number(otherInfo.value[`${key}`]) : 0,
+        use_amount: 0,
+        security_uuid: '',
+        type: 0,
+        type_name: key
+      })
+    }
+
     const params = {
       security_uuid,
       build,
-      uuid: uuid.value
+      uuid: uuid.value,
+      summary: summaryData,
+      payment: paymentData
     }
 
     subLoading.value = true
@@ -765,6 +829,39 @@
     }
     &.minus {
       color: #31bd65;
+    }
+  }
+
+  .other-table-info {
+    border: 1px solid #272727;
+    border-top: none;
+    background-color: #f8f8f8;
+    > .item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #272727;
+      padding: 10px 15px;
+      height: 60px;
+      &:last-child {
+        border-bottom: none;
+      }
+      :deep(.ant-input-number) {
+        width: 150px;
+        border-color: #272727;
+        .ant-input-number-handler-wrap {
+          display: none !important;
+        }
+        .ant-input-number-input {
+          text-align: center;
+        }
+      }
+      .total-item {
+        min-width: 150px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
     }
   }
 </style>

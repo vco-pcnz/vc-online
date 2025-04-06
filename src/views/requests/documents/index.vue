@@ -10,11 +10,6 @@
           @click="goHandleProcess('budget')"
         >{{ t('预算信息') }}</a-button>
         <a-button
-          v-if="showProgressPayment"
-          shape="round"
-          @click="goHandleProcess('progress-payment')"
-        >{{ t('进度付款') }}</a-button>
-        <a-button
           shape="round"
           @click="goHandleProcess('schedule')"
         >{{ t('明细表') }}</a-button>

@@ -199,6 +199,8 @@
   const { t } = useI18n();
   const route = useRoute();
 
+  const emits = defineEmits(['done'])
+
   const uuid = ref('')
 
   const pageLoading = ref(false)
@@ -219,14 +221,15 @@
    */
   const tableHeader = ref([])
   const tableData = ref([])
-
   const summaryCol = ref([])
 
   const summaryHandle = computed(() => {
     return (key) => {
       const arr = tableData.value.map(item => item[key])
       const numArr = isNaN(Number(arr[0])) ? arr.map(item => Number(item.amount)) : arr.map(item => Number(item))
-      const total = numArr.reduce((total, num) => total + num, 0);
+      const total = numArr.reduce((total, num) => {
+        return Number(tool.plus(total, num))
+      }, 0);
       return total
     }
   })
@@ -250,7 +253,9 @@
       const num = otherInfo.value[key] || 0
       inputArr.push(num)
     }
-    const inputNum = inputArr.reduce((total, num) => total + num, 0);
+    const inputNum = inputArr.reduce((total, num) => {
+      return Number(tool.plus(total, num))
+    }, 0);
     return tool.plus(tableNum, inputNum)
   })
 
@@ -319,7 +324,9 @@
 
       const amountArr = extractAmounts(obj, '-')
       if (amountArr.length && Object.keys(setedData.value.data).length) {
-        const sum = amountArr.reduce((total, num) => total + num, 0);
+        const sum = amountArr.reduce((total, num) => {
+          return Number(tool.plus(total, num))
+        }, 0);
         const payment = tool.div(sum, buildAmountSta.value)
         obj.payment = Number(tool.times(Number(payment), 100)).toFixed(2)
         obj.total = sum
@@ -420,7 +427,9 @@
 
       // 面积比例
       const sqmArr = dataArr.map(item => Number(item.sqm))
-      const totalSqm = sqmArr.reduce((total, num) => total + num, 0);
+      const totalSqm = sqmArr.reduce((total, num) => {
+        return Number(tool.plus(total, num))
+      }, 0);
       const sqmObjArr = dataArr.map(item => {
         return {
           sqm: Number(item.sqm),
@@ -526,8 +535,12 @@
     }
 
     try {
+      let projectInfo = null
+
       if (isRequests.value) {
         await projectAuditStepDetail(params).then(res => {
+          projectInfo = res
+          
           buildAmount.value = Number(res.lending.build_amount)
           buildAmountSta.value =  Number(res.lending.build_amount)
 
@@ -539,6 +552,7 @@
         console.log('1111111');
       }
 
+      emits('done', projectInfo)
       await getSetedData()
     } catch (err) {
       pageLoading.value = false

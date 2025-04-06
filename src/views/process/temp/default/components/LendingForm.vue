@@ -91,7 +91,7 @@
                     type="brown"
                     shape="round"
                     size="small"
-                    class="absolute flex items-center"
+                    class="flex items-center"
                     @click="goHandle('budget')"
                   >
                     {{ t('查看预算信息') }}
@@ -151,7 +151,7 @@
                 class="absolute flex items-center"
                 style="bottom: -20px"
                 v-if="showProgressPayment"
-                @click="goHandle('progress-payment')"
+                @click="goProgressPage"
               >
                 {{ t('查看进度付款') }}
                 <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px'  }" />
@@ -361,6 +361,7 @@
   import { cloneDeep } from 'lodash';
   import { message } from 'ant-design-vue/es';
   import { QuestionCircleOutlined } from '@ant-design/icons-vue'
+  import { useUserStore } from '@/store';
   import {
     ruleCredit,
     creditInfo,
@@ -373,7 +374,6 @@
   import emitter from '@/event';
   import useProcessStore from '@/store/modules/process';
   import tool, { navigationTo, numberStrFormat } from '@/utils/tool';
-  import { hasPermission } from "@/directives/permission"
 
   const processStore = useProcessStore();
 
@@ -381,6 +381,10 @@
 
   const { t } = useI18n();
   const route = useRoute();
+
+  const userStore = useUserStore();
+
+  const isNormalUser = computed(() => userStore.isNormalUser);
 
   const props = defineProps({
     lendingInfo: {
@@ -416,8 +420,22 @@
 
   // 是否显示进度付款
   const showProgressPayment = computed(() => {
-    return Number(props.dataInfo.security.count) && Number(props.dataInfo.lending.build_amount) && hasPermission('requests:load:progressPayment')
+    return Number(props.dataInfo.security.count) && Number(props.dataInfo.lending.build_amount) && !isNormalUser.value
   })
+
+  const goProgressPage = () => {
+    const path = route.path
+    let href = ''
+    if (path === '/requests/details/about') {
+      href = '/requests/details/progress-payment'
+    } else if (path.indexOf('process') > -1) {
+      href = '/requests/progress-payment'
+    }
+
+    if (href) {
+      navigationTo(`${href}?uuid=${props.currentId}`)
+    }
+  }
 
   const getRefinancialList = (flag = false) => {
     if (flag) {

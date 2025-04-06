@@ -712,6 +712,14 @@ export const projectGetBuild = (params) =>
     method: "get",
     params
   });
+
+// 进度还款数据 - 详情
+export const projectLoanGetBuild = (params) =>
+  request({
+    url: "/project/loan/getBuild",
+    method: "get",
+    params
+  });
   
 // 进度还款数据 - 提交
 export const projectSaveBuild = (data) =>

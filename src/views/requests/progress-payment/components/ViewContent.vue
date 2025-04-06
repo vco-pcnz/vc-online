@@ -2,7 +2,127 @@
   <div>
     <a-spin :spinning="pageLoading" size="large">
       <div class="progress-payment-content">
-        fdsafdsa
+        <div v-if="tableHeader.length && hasData && !pageLoading" class="form-block-content">
+          <div class="title">{{ t('进度付款阶段') }}</div>
+          <a-table
+            :columns="tableHeader"
+            :data-source="tableData"
+            bordered
+            :pagination="false"
+            table-layout="fixed"
+            :scroll="{ x: '100%', y: 450 }"
+          >
+            <template #bodyCell="{ column, record, index }">
+              <template v-if="column.dataIndex === 'type'">
+                <p>{{ record[column.dataIndex] }}</p>
+              </template>
+              <template v-else-if="column.dataIndex === 'payment'">
+                <p>{{ numberStrFormat(record[column.dataIndex]) }}%</p>
+              </template>
+              <template v-else-if="column.dataIndex === 'total'">
+                <template v-if="showProcess">
+                  <vco-number :value="record.total" size="fs_md" :precision="2" :end="true"></vco-number>
+                  <vco-number :value="record.useTotal" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
+                  <div class="process-gap"></div>
+                  <div class="item-process-content">
+                    <a-progress
+                      :stroke-color="{
+                        '0%': '#F19915',
+                        '100%': '#ffb92c',
+                      }"
+                      :size="6"
+                      :percent="record.percent"
+                    />
+                  </div>
+                </template>
+                <vco-number v-else :value="record[column.dataIndex]" size="fs_md" :precision="2" :end="true"></vco-number>
+              </template>
+              <template v-else>
+                <template v-if="showProcess">
+                  <vco-number :value="record[column.dataIndex].amount" size="fs_xs" :precision="2" :end="true"></vco-number>
+                  <vco-number :value="record[column.dataIndex].use_amount" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
+                  <div class="process-gap"></div>
+                  <div class="item-process-content">
+                    <a-progress
+                      :stroke-color="{
+                        '0%': '#F19915',
+                        '100%': '#ffb92c',
+                      }"
+                      :size="6"
+                      :percent="record[column.dataIndex].percent"
+                    />
+                  </div>
+                </template>
+                <vco-number v-else :value="record[column.dataIndex].amount" size="fs_md" :precision="2" :end="true"></vco-number>
+              </template>
+            </template>
+            <template #summary>
+              <a-table-summary fixed>
+                <a-table-summary-row>
+                  <a-table-summary-cell v-for="(item, index) in summaryCol" :index="index" :key="item.key" class="text-center">
+                    <template v-if="item.key === 'type'">
+                      {{ t('概括') }}
+                    </template>
+                    <template v-else-if="item.key === 'payment'">
+                      <p class="total-percent">{{ numberStrFormat(summaryHandle(item.key)) }}%</p>
+                    </template>
+                    <template v-else-if="item.key === 'total'">
+                      <template v-if="showProcess">
+                        <vco-number :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
+                        <vco-number :value="tableUseTotal" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
+                        <div class="process-gap"></div>
+                          <div class="item-process-content">
+                            <a-progress
+                              :stroke-color="{
+                                '0%': '#F19915',
+                                '100%': '#ffb92c',
+                              }"
+                              :size="6"
+                              :percent="getTotalPercent(tableUseTotal, summaryHandle(item.key))"
+                            />
+                          </div>
+                      </template>
+                      <vco-number v-else :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
+                    </template>
+                    <template v-else>
+                      <template v-if="showProcess">
+                        <vco-number :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
+                        <vco-number :value="summaryHandle(item.key, 'use_amount')" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
+                        <div class="process-gap"></div>
+                        <div class="item-process-content">
+                          <a-progress
+                            :stroke-color="{
+                              '0%': '#F19915',
+                              '100%': '#ffb92c',
+                            }"
+                            :size="6"
+                            :percent="getTotalPercent(summaryHandle(item.key, 'use_amount'), summaryHandle(item.key))"
+                          />
+                        </div>
+                      </template>
+                      <vco-number v-else :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
+                    </template>
+                  </a-table-summary-cell>
+                </a-table-summary-row>
+              </a-table-summary>
+            </template>
+          </a-table>
+          <div class="other-table-info">
+            <div v-for="item in otherInfoObj" :key="item.type_name" class="item">
+              <p>{{ item.title }}</p>
+              <div class="total-item">
+                <vco-number :value="otherInfo[item.type_name]" size="fs_md" :precision="2" :end="true"></vco-number>
+              </div>
+            </div>
+            <div class="item">
+              <p>Total Cost to Complete</p>
+              <div class="total-item">
+                <vco-number :value="tableTotal" size="fs_xl" :precision="2" :end="true"></vco-number>
+              </div>
+            </div>
+          </div>
+        </div>
+        <a-empty v-if="!hasData && !pageLoading" />
       </div>
     </a-spin>
   </div>
@@ -11,16 +131,23 @@
 <script setup>
   import { computed, onMounted, ref } from "vue"
   import { useI18n } from "vue-i18n";
-  import { QuestionCircleOutlined } from '@ant-design/icons-vue';
   import { useRoute } from "vue-router"
-  import { projectAuditStepDetail, projectAuditSecurityList, projectAuditSaveMode } from "@/api/process"
-  import { projectDetail } from "@/api/project/project"
+  import { projectAuditStepDetail, projectGetBuild, projectLoanGetBuild, projectDetailApi } from "@/api/process"
   import { cloneDeep } from "lodash"
-  import { message } from 'ant-design-vue/es';
   import tool, { numberStrFormat } from "@/utils/tool"
+  import { otherInfoObj } from "./../config.js"
 
   const { t } = useI18n();
   const route = useRoute();
+
+  const props = defineProps({
+    showProcess: {
+      type: Boolean,
+      default: false
+    }
+  })
+
+  const emits = defineEmits(['done'])
 
   const uuid = ref('')
 
@@ -30,6 +157,7 @@
   const buildAmount = ref(0)
   // 是否为进件阶段
   const isRequests = ref(false)
+  const hasData = ref(false)
 
    // 已设置数据
   const setedData = ref({
@@ -39,10 +167,165 @@
     payment: {},
     summary: {}
   })
-  const hasData = ref(false)
+  /**
+   * 表单数据
+   */
+  const tableHeader = ref([])
+  const tableData = ref([])
+  const summaryCol = ref([])
 
-  const setTableData = () => {
-    console.log('fdsafdsa', );
+  const extractAmounts = (obj, keyword, keyValue) => {
+    const result = [];
+
+    for (const key in obj) {
+      if (key.includes(keyword) && obj[key] && typeof obj[key] === 'object') {
+        if (keyValue in obj[key]) {
+          result.push(obj[key][`${keyValue}`]);
+        }
+      }
+    }
+
+    return result;
+  }
+
+  const summaryHandle = (key, keyValue) => {
+    const keyStr = keyValue || 'amount'
+    const arr = tableData.value.map(item => item[key])
+    const numArr = isNaN(Number(arr[0])) ? arr.map(item => Number(item[`${keyStr}`])) : arr.map(item => Number(item))
+    const total = numArr.reduce((total, num) => {
+      return Number(tool.plus(total, num))
+    }, 0);
+    return total
+  }
+
+  const getTotalPercent = (useAmount, amount) => {
+    const num = Number(Number(tool.div(Number(useAmount), Number(amount))).toFixed(2))
+    return Number(tool.times(num, 100))
+  }
+
+  const tableTotal = computed(() => {
+    const tableNum = summaryHandle('total')
+    const inputArr = []
+    for (const key in otherInfo.value) {
+      const num = otherInfo.value[key] || 0
+      inputArr.push(num)
+    }
+    const inputNum = inputArr.reduce((total, num) => {
+      return Number(tool.plus(total, num))
+    }, 0);
+    return tool.plus(tableNum, inputNum)
+  })
+
+  const tableUseTotal = computed(() => {
+    const arr = tableData.value.map(item => item.useTotal)
+    const total = arr.reduce((total, num) => {
+      return Number(tool.plus(total, num))
+    }, 0);
+    return total
+  })
+
+  // 其他数据
+  const otherInfo = ref({})
+  const otherInfoObjSta = cloneDeep(otherInfoObj)
+  for (let i = 0; i < otherInfoObjSta.length; i++) {
+    otherInfo.value[otherInfoObjSta[i].type_name] = 0
+  }
+
+  const setTableData = (headerData) => {
+    const payment = cloneDeep(setedData.value.payment)
+    const column = cloneDeep(setedData.value.column)
+    const data = []
+    for (const key in column) {
+      data.push({
+        name: column[key],
+        code: key
+      })
+    }
+    const hadSetData = cloneDeep(setedData.value.data)
+    const dataArr = []
+    for (let i = 0; i < data.length; i++) {
+      const obj = {
+        type: data[i].name,
+        typeId: data[i].code,
+        payment: payment[`${i + 1}__payment`] ? payment[`${i + 1}__payment`].amount : 0
+      }
+      for (let j = 0; j < headerData.length; j++) {
+        const amountItem = hadSetData[`${data[i].code}__${headerData[j].dataIndex}`] || null
+        if (amountItem) {
+          amountItem.amount = Number(amountItem.amount)
+          const use_amount = amountItem.use_amount || 0
+          const num = Number(Number(tool.div(Number(use_amount), Number(amountItem.amount))).toFixed(2))
+          amountItem.percent = Number(tool.times(num, 100))
+        }
+        obj[headerData[j].dataIndex] = amountItem || { amount: 0}
+      }
+      const amountArr = extractAmounts(obj, '-', 'amount')
+      if (amountArr.length && Object.keys(setedData.value.data).length) {
+        const sum = amountArr.reduce((total, num) => {
+          return Number(tool.plus(total, num))
+        }, 0);
+        obj.total = sum
+      }
+
+      const useAmountArr = extractAmounts(obj, '-', 'use_amount')
+      if (useAmountArr.length && Object.keys(setedData.value.data).length) {
+        const sum = useAmountArr.reduce((total, num) => {
+          return Number(tool.plus(total, num))
+        }, 0);
+        obj.useTotal = sum
+      }
+
+      const total = obj.total || 0
+      const useTotal = obj.useTotal || 0
+      const num = Number(Number(tool.div(Number(useTotal), Number(total))).toFixed(2))
+      obj.percent = Number(tool.times(num, 100))
+
+      dataArr.push(obj)
+    }
+
+    tableData.value = dataArr
+
+    pageLoading.value = false
+  }
+
+  const setTableHeader = () => {
+    const rowData = setedData.value.row
+    const headerData = []
+    if (Object.keys(rowData).length) {
+      for (const key in rowData) {
+        headerData.push({
+          title: rowData[key],
+          dataIndex: key,
+          width: 140,
+          align: 'center'
+        })
+      }
+    }
+
+    tableHeader.value = [{
+      title: t('类型'),
+      dataIndex: "type",
+      width: 300,
+      align: 'center',
+      fixed: 'left'
+    }, {
+      title: 'Payment',
+      dataIndex: "payment",
+      width: 150,
+      align: 'center',
+      fixed: 'left'
+    }, ...headerData,
+    { title: t('总计'), dataIndex: 'total', width: 180, align: 'center', fixed: 'right' }]
+
+    const summaryColData = []
+    for (let i = 0; i < tableHeader.value.length; i++) {
+      summaryColData.push({
+        key: tableHeader.value[i].dataIndex
+      })
+    }
+
+    summaryCol.value = summaryColData
+    setTableData(headerData)
   }
 
   // 请求已设置数据
@@ -52,83 +335,59 @@
     }
 
     try {
-      if (isRequests.value) {
-        await projectAuditStepDetail(params).then(res => {
-          const data = res.data || []
-          if (Object.keys(data)) {
-            setedData.value = res
-            hasData.value = true
-          } else {
-            pageLoading.value = false
+      const ajaxFn = isRequests.value ? projectGetBuild : projectLoanGetBuild
+      await ajaxFn(params).then(res => {
+        const data = res.data || []
+        if (Object.keys(data)) {
+          setedData.value = res
+          hasData.value = true
+
+          if (Object.keys(res.summary)) {
+            for (const key in otherInfo.value) {
+              otherInfo.value[`${key}`] = res.summary[`${key}`] ? Number(res.summary[`${key}`].amount) : 0
+            }
           }
-        })
-      } else {
-        await projectDetail(params).then(res => {
-          console.log('res', res);
-        })
-      }
+        } else {
+          pageLoading.value = false
+        }
+      })
     } catch (err) {
       pageLoading.value = false
     }
 
     if (hasData.value) {
-      setTableData()
+      setTableHeader()
     }
   }
 
   // 请求项目信息
   const getProjectData = async () => {
     pageLoading.value = true
-
     const params = {
       uuid: uuid.value
     }
 
     try {
-      if (isRequests.value) {
-        await projectAuditStepDetail(params).then(res => {
-          buildAmount.value = Number(res.lending.build_amount)
-        })
-      } else {
-        await projectDetail(params).then(res => {
-          console.log('res', res);
-        })
-      }
-
+      const ajaxFn = isRequests.value ? projectAuditStepDetail : projectDetailApi
+      await ajaxFn(params).then(res => {
+        emits('done', res)
+        buildAmount.value = Number(res.lending.build_amount)
+      })
+      
       await getSetedData()
     } catch (err) {
       pageLoading.value = false
     }
   }
 
-  const amountLoading = ref(false)
-  const saveAmount = () => {
-    const num = Number(buildAmount.value)
-    const total = num + Number(landAmount.value)
-    if (num < 0 || (total < 0 || total === 0)) {
-      message.error(t('借款总额不正确'))
-    } else {
-      const params = {
-        build_amount: num,
-        code: 'lending',
-        uuid: uuid.value,
-        set__bulid: 1
-      }
-
-      amountLoading.value = true
-
-      projectAuditSaveMode(params).then(() => {
-        amountLoading.value = false
-        restoreHandle()
-      }).catch(() => {
-        amountLoading.value = false
-      })
-    }
-  }
-
   onMounted(async () => {
-    const { fullPath, query } = route
-    isRequests.value = fullPath.indexOf('requests') > -1
+    const { path, query } = route
+
+    if (path === '/requests/details/progress-payment') {
+      isRequests.value = false
+    } else if (path.indexOf('requests') > -1) {
+      isRequests.value = true
+    }
     uuid.value = query.uuid
 
     if (uuid.value) {
@@ -144,17 +403,8 @@
     min-height: 300px;
   }
 
-  .input-item {
-    width: 220px;
-    > p {
-      font-size: 12px;
-      color: #888;
-      margin-bottom: 8px;
-    }
-  }
-
   .form-block-content {
-    margin-bottom: 20px;
+    margin-bottom: 30px;
     > .title {
       font-weight: 500;
       color: #666;
@@ -184,8 +434,21 @@
       .ant-table-ping-right .ant-table-cell-fix-right-first::after {
         box-shadow: inset -15px 0 8px -8px rgba(5, 5, 5, 0.2);
       }
+      .ant-table-ping-left .ant-table-cell-fix-left-last::after {
+        box-shadow: inset 15px 0 8px -8px rgba(5, 5, 5, 0.2);
+      }
       .ant-table-container {
         border-radius: 0 !important;
+        .ant-table-header {
+          border-radius: 0 !important;
+        }
+      }
+      .ant-table-summary {
+        background-color: #f7f9f8 !important;
+        .ant-table-cell {
+          border-top: 1px solid #272727;
+          padding: 16px 5px;
+        }
       }
       .ant-table {
         background-color: transparent;
@@ -194,9 +457,6 @@
           border-top: none !important;
           border-radius: 0 !important;
         }
-      }
-      .ant-table-cell-fix-right-first {
-        // right: -1px !important;
       }
       .ant-table-thead {
         border: none;
@@ -212,6 +472,18 @@
       .ant-empty {
         min-height: 50px !important;
       }
+
+      .type-add {
+        padding: 5px;
+        border: 1px dashed #F19915 !important;
+        cursor: pointer;
+        color: #F19915;
+        margin-top: 15px;
+        &:hover {
+          color: #d38106 !important;
+          border-color: #d38106 !important;
+        }
+      }
     }
     :deep(.ant-input-number) {
       .ant-input-number-handler-wrap {
@@ -220,26 +492,59 @@
     }
   }
 
-  .amortized-text {
-    text-align: right;
-    margin-top: 10px;
-    font-size: 16px;
-    :deep(span) {
-      color: @colorPrimary !important;
-      font-weight: 500;
+  .total-percent {
+    &.plus {
+      color: #eb4b6d;
+    }
+    &.minus {
+      color: #31bd65;
     }
   }
 
-  .amount-info {
-    font-size: 12px;
-    color: #888;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    > p {
+  .other-table-info {
+    border: 1px solid #272727;
+    border-top: none;
+    background-color: #f8f8f8;
+    > .item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #272727;
+      padding: 10px 15px;
+      height: 60px;
       &:last-child {
-        color: #333;
+        border-bottom: none;
       }
+      :deep(.ant-input-number) {
+        width: 150px;
+        border-color: #272727;
+        .ant-input-number-handler-wrap {
+          display: none !important;
+        }
+        .ant-input-number-input {
+          text-align: center;
+        }
+      }
+      .total-item {
+        min-width: 150px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+  }
+
+  .process-gap {
+    height: 10px;
+  }
+  .item-process-content {
+    width: 100%;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    padding: 0 15px;
+    :deep(.ant-progress-text) {
+      font-size: 11px !important;
     }
   }
 </style>

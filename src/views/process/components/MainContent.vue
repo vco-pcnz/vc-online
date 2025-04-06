@@ -48,11 +48,6 @@
                   @click="goHandle('budget')"
                 >{{ t('预算信息') }}</a-button>
                 <a-button
-                  v-if="showProgressPayment"
-                  shape="round"
-                  @click="goHandle('progress-payment')"
-                >{{ t('进度付款') }}</a-button>
-                <a-button
                   v-if="showHeaderTab" shape="round"
                   @click="goHandle('schedule')"
                 >{{ t('明细表') }}</a-button>

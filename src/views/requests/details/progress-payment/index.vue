@@ -3,8 +3,7 @@
     <vco-page-panel :title="pageTitle" @back="goBack"></vco-page-panel>
 
     <template v-if="currentId && currentTemp">
-      <edit-content v-if="hasPermission('requests:load:progressPayment')" @done="getProjectInfo"></edit-content>
-      <view-content v-else @done="getProjectInfo"></view-content>
+      <view-content @done="getProjectInfo"></view-content>
     </template>
 
     <a-empty v-if="!currentTemp && !pageLoading" />
@@ -19,9 +18,7 @@
   import { productGetCode } from "@/api/process"
   import { goBack } from "@/utils/tool"
   import { useProductStore } from "@/store"
-  import { hasPermission } from "@/directives/permission"
-  import EditContent from "./components/EditContent.vue";
-  import ViewContent from "./components/ViewContent.vue";
+  import ViewContent from "@/views/requests/progress-payment/components/ViewContent.vue";
   
   const { t } = useI18n();
   const route = useRoute();

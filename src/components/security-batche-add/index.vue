@@ -945,6 +945,8 @@ const tableDataInit = async () => {
 
       const listData = list || []
 
+      oldData.value = listData
+
       const formOldData = listData.map((item, index) => {
         const sItem = cloneDeep(batchitem)
         for (const key in sItem) {

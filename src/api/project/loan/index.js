@@ -303,3 +303,11 @@ export const getCompanyInfoByNzbn = (params) =>
     method: 'get',
     params
   });
+
+// 变更自动计算broker fee
+export const borkerFeeCalc = (params) =>
+  request({
+    url: 'project/variation/borkerFeeCalc',
+    method: 'get',
+    params
+  });

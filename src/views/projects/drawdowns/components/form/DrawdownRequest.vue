@@ -1,6 +1,6 @@
 <template>
   <a-modal :open="selectVisible" :title="t('进度付款阶段')" :width="1400" :footer="null" :keyboard="false" :maskClosable="false" @cancel="selectVisible = false">
-    <view-content :is-select="true" :show-process="true" @selectDone="selectDoneHandle"></view-content>
+    <view-content v-if="visible" :is-select="true" :show-process="true" @selectDone="selectDoneHandle"></view-content>
   </a-modal>
 
   <div class="inline" @click="init"><slot></slot></div>
@@ -18,22 +18,22 @@
               <div class="label" :class="{ err: !formState.apply_date && validate }">{{ t('日期') }}</div>
               <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.apply_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" :showToday="false" />
             </div>
-            <div class="input-item my-4">
+            <!-- <div class="input-item my-4">
               <div class="label">{{ t('施工进度') }}</div>
               <a-input-number class="rate" v-model:value="formState.progress" addon-after="%" :min="0" :max="100" style="width: 100%"></a-input-number>
-            </div>
+            </div> -->
             <div class="input-item" style="margin-top: 16px">
               <div class="label" :class="{ err: !formState.apply_amount && validate }">Requested amount, $ nzd</div>
               <div class="flex gap-2 items-center">
                 <a-input-number v-model:value="formState.apply_amount" :max="99999999999" :min="0" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
-                <a-button type="brown" shape="round" size="small" @click="selectVisible = true">{{ t('选择') }}</a-button>
+                <a-button type="brown" style="min-width: 80px;padding: 0;" class="big" size="small" @click="selectVisible = true">{{ t('选择') }}</a-button>
               </div>
             </div>
           </a-col>
           <a-col :span="12">
             <div class="input-item">
               <div class="label">Notes</div>
-              <a-textarea v-model:value="formState.note" :rows="14" />
+              <a-textarea v-model:value="formState.note" :rows="10" />
             </div>
           </a-col>
         </a-row>
@@ -118,10 +118,12 @@ const updateVisible = (value) => {
 };
 
 const selectBuildData = ref([])
+const selectBuildTotal = ref(0)
 const selectDoneHandle = (data) => {
   selectVisible.value = false
   selectBuildData.value = data.build__data
   formState.value.apply_amount = data.total
+  selectBuildTotal.value = data.total
 }
 
 const disabledDateFormat = (current) => {
@@ -159,13 +161,11 @@ const submit = () => {
   const params = {
     ...formState.value
   }
-  if (selectBuildData.value.length) {
+  if (selectBuildData.value.length && selectBuildTotal.value === formState.value.apply_amount) {
     params.build__data = selectBuildData.value
   }
 
-  console.log('paras', params);
-  return false
-  loanDedit(formState.value)
+  loanDedit(params)
     .then((res) => {
       visible.value = false;
       validate.value = false;

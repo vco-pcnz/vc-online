@@ -482,7 +482,7 @@
   const selectConfirm = () => {
     const data = selectData.value.map(item => {
       return {
-        id: item.id,
+        build_id: item.id,
         amount: item.set_amount
       }
     })

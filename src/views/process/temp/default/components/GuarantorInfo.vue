@@ -133,7 +133,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted, onUnmounted, computed } from 'vue';
+import { reactive, ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { removeDuplicates } from '@/utils/tool';
 import { cloneDeep } from 'lodash';
@@ -328,6 +328,15 @@ const guarantorTarget = ref(true)
 const blockShowTargetHandle = (flag) => {
   guarantorTarget.value = flag
 }
+
+watch(
+  () => props.guarantorInfo,
+  (val) => {
+    if (val) {
+      dataInit();
+    }
+  }
+)
 
 onMounted(() => {
   dataInit();

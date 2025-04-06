@@ -51,7 +51,7 @@
           <div v-if="tableHeader.length" class="form-block-content">
             <div class="flex justify-between mb-2">
               <div class="title">{{ t('进度付款阶段') }}</div>
-              <div class="flex gap-5">
+              <div v-if="!isOpen" class="flex gap-5">
                 <a-popconfirm :title="t('确定操作吗？')" @confirm="initHandle(true)">
                   <a-button
                     type="dark"
@@ -84,6 +84,15 @@
                   {{ t('还原') }}
                 </a-button>
               </div>
+              <div v-else>
+                <a-button
+                  type="dark"
+                  class="uppercase"
+                  @click="restoreHandle"
+                >
+                  {{ t('刷新') }}
+                </a-button>
+              </div>
             </div>
             <a-table
               :columns="tableHeader"
@@ -98,7 +107,9 @@
                   <p>{{ record[column.dataIndex] }}</p>
                 </template>
                 <template v-else-if="column.dataIndex === 'payment'">
+                  <p v-if="isOpen">{{ record[column.dataIndex] }}%</p>
                   <a-input
+                    v-else
                     v-model:value="record[column.dataIndex]"
                     suffix="%"
                   />
@@ -112,8 +123,16 @@
                     :max="99999999999"
                     :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                     :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                    @input="itemInput(record)"
+                    :disabled="record[column.dataIndex].disabled"
+                    @input="itemInput(record, record[column.dataIndex])"
+                    @blur="inputBlur(record, record[column.dataIndex])"
                   />
+                  <p v-if="record[column.dataIndex].showError" class="input-error">
+                    {{ t('最小值:{0}', [`$${numberStrFormat(record[column.dataIndex].use_amount)}`]) }}
+                  </p>
+                  <div v-if="isOpen" class="mt-2">
+                    <vco-number :value="record[column.dataIndex].use_amount" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
+                  </div>
                 </template>
               </template>
               <template #summary>
@@ -136,7 +155,6 @@
                           :end="true"
                           :color="totalColor(summaryHandle(item.key))"
                         ></vco-number>
-                        
                       </template>
                       <template v-else>
                         <vco-number :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
@@ -188,8 +206,12 @@
     projectAuditSecurityList,
     projectAuditSaveMode,
     projectGetBuild,
-    projectSaveBuild
+    projectLoanGetBuild,
+    projectSaveBuild,
+    projectLoanSaveBuild,
+    projectDetailApi
   } from "@/api/process"
+  import { dischargeSecurity } from '@/api/project/loan';
   import { systemDictDataApi } from "@/api/system/index"
   import { cloneDeep } from "lodash"
   import { message } from 'ant-design-vue/es';
@@ -199,6 +221,12 @@
   const { t } = useI18n();
   const route = useRoute();
 
+  const props = defineProps({
+    isOpen: {
+      type: Boolean,
+      default: false
+    }
+  })
   const emits = defineEmits(['done'])
 
   const uuid = ref('')
@@ -294,7 +322,7 @@
     return result;
   }
 
-  const itemInput = (data) => {
+  const itemInput = (data, item) => {
     const amountArr = extractAmounts(data, '-')
     if (amountArr.length) {
       const sum = amountArr.reduce((total, num) => total + num, 0);
@@ -302,6 +330,27 @@
 
       data.payment = Number(tool.times(Number(payment), 100)).toFixed(2)
       data.total = sum
+    }
+
+    if (props.isOpen) {
+      const amount = Number(item.amount)
+      const useAmount = Number(item.use_amount)
+      if (amount < useAmount) {
+        item.showError = true
+      }
+    }
+  }
+
+  const inputBlur = (data, item) => {
+    if (props.isOpen) {
+      const amount = Number(item.amount)
+      const useAmount = Number(item.use_amount)
+      if (amount < useAmount) {
+        item.amount = useAmount
+        item.showError = false
+
+        itemInput(data, item)
+      }
     }
   }
 
@@ -318,6 +367,10 @@
         const amountItem = hadSetData[`${data[i].code}__${headerData[j].dataIndex}`] || null
         if (amountItem) {
           amountItem.amount = Number(amountItem.amount)
+          if (props.isOpen) {
+            amountItem.showError = false
+            amountItem.disabled = Boolean(securityDataObj.value[`${headerData[j].dataIndex}`].status)
+          }
         }
         obj[headerData[j].dataIndex] = amountItem || { amount: 0}
       }
@@ -337,6 +390,7 @@
 
       dataArr.push(obj)
     }
+
     tableData.value = dataArr
   }
 
@@ -403,6 +457,7 @@
 
   // 请求抵押物信息
   const securityData = ref([])
+  const securityDataObj = ref()
   const securitySqmObj = ref()
   const getSecurityData = async () => {
     const params = {
@@ -416,7 +471,17 @@
         const { list } = await projectAuditSecurityList(params)
         dataArr = list || []
       } else {
-        console.log('222222');
+        params.page = 1
+        params.limit = 10000
+        const { data } = await dischargeSecurity(params)
+        dataArr = data || []
+
+        const dataObj = {}
+        for (let i = 0; i < dataArr.length; i++) {
+          dataObj[`${dataArr[i].uuid}`] = dataArr[i]
+        }
+
+        securityDataObj.value = dataObj
       }
 
       securityData.value = dataArr
@@ -477,8 +542,12 @@
     const itemData = data.filter(item => item.sqm)
     const headerData = []
     for (let i = 0; i < itemData.length; i++) {
+      let title = itemData[i].card_no
+      if (props.isOpen && Boolean(itemData[i].status)) {
+        title = `${title}${t('已解押')}）`
+      }
       headerData.push({
-        title: itemData[i].card_no,
+        title,
         dataIndex: itemData[i].uuid,
         width: 150,
         align: 'center'
@@ -503,22 +572,21 @@
     }
 
     try {
-      if (isRequests.value) {
-        await projectGetBuild(params).then(res => {
-          const data = res.data || []
-          if (Object.keys(data)) {
-            setedData.value = res
-          }
+      const ajaxFn = isRequests.value ? projectGetBuild : projectLoanGetBuild
+      await ajaxFn(params).then(res => {
+        const data = res.data || []
+        if (Object.keys(data)) {
+          setedData.value = res
 
           if (Object.keys(res.summary)) {
             for (const key in otherInfo.value) {
               otherInfo.value[`${key}`] = res.summary[`${key}`] ? Number(res.summary[`${key}`].amount) : 0
             }
           }
-        })
-      } else {
-        console.log('isRequests');
-      }
+        } else {
+          pageLoading.value = false
+        }
+      })
 
       await getSecurityData()
     } catch (err) {
@@ -535,24 +603,16 @@
     }
 
     try {
-      let projectInfo = null
+      const ajaxFn = isRequests.value ? projectAuditStepDetail : projectDetailApi
+      await ajaxFn(params).then(res => {
+        emits('done', res)
+        buildAmount.value = Number(res.lending.build_amount)
+        buildAmountSta.value =  Number(res.lending.build_amount)
 
-      if (isRequests.value) {
-        await projectAuditStepDetail(params).then(res => {
-          projectInfo = res
-          
-          buildAmount.value = Number(res.lending.build_amount)
-          buildAmountSta.value =  Number(res.lending.build_amount)
+        landAmount.value = res.lending.land_amount
 
-          landAmount.value = res.lending.land_amount
-
-          canModifyBamount.value = Boolean(res.base.status === 400)
-        })
-      } else {
-        console.log('1111111');
-      }
-
-      emits('done', projectInfo)
+        canModifyBamount.value = Boolean(res.base.status === 400)
+      })
       await getSetedData()
     } catch (err) {
       pageLoading.value = false
@@ -705,7 +765,8 @@
 
     subLoading.value = true
 
-    projectSaveBuild(params).then(() => {
+    const ajaxFn = props.isOpen ? projectLoanSaveBuild : projectSaveBuild
+    ajaxFn(params).then(() => {
       subLoading.value = false
       restoreHandle()
     }).catch(() => {
@@ -780,9 +841,6 @@
         .ant-table-header {
           border-radius: 0 !important;
         }
-      }
-      .ant-table-fixed-header .ant-table-container {
-        // border-bottom: 1px solid #272727;
       }
       .ant-table-summary {
         background-color: #f7f9f8 !important;
@@ -896,5 +954,13 @@
         justify-content: center;
       }
     }
+  }
+
+  .input-error {
+    width: 100%;
+    font-size: 12px;
+    color: #eb4b6d;
+    text-align: left;
+    margin-top: 2px;
   }
 </style>

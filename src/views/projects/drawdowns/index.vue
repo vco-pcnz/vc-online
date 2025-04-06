@@ -2,6 +2,25 @@
   <detail-layout active-tab="drawdowns" @getProjectDetail="getProjectDetail">
     <template #content>
       <div class="ProjectDrawdowns">
+        <div class="flex justify-end mb-5 gap-4">
+          <a-button
+            v-if="showProcessEdit"
+            type="brown" shape="round" class="pre-sale-enter"
+            @click="navigationTo(`/projects/progress-payment/edit?uuid=${uuid}`)"
+          >
+            {{ t('编辑进度付款') }}
+            <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px'  }" />
+          </a-button>
+          <a-button
+            v-if="showProcessView"
+            type="brown" shape="round" class="pre-sale-enter"
+            @click="navigationTo(`/projects/progress-payment/view?uuid=${uuid}`)"
+          >
+            {{ t('查看进度付款') }}
+            <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px'  }" />
+          </a-button>
+        </div>
+
         <div :class="{ grid: hasPermission('projects:drawdowns:add') || (hasPermission('projects:drawdowns:add:lm') && projectDetail && !projectDetail?.base?.is_close) }" class="mb-12">
           <MeterStat :uuid="uuid" v-if="Boolean(uuid)" ref="MeterStatRef"></MeterStat>
           <template v-if="projectDetail && !projectDetail?.base?.is_close">
@@ -40,8 +59,9 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { RightOutlined } from '@ant-design/icons-vue';
 import { size, template } from 'lodash';
 import detailLayout from '../components/detailLayout.vue';
 import MeterStat from './components/MeterStat.vue';
@@ -52,11 +72,15 @@ import { hasPermission } from '@/directives/permission/index';
 import { loanDrawdown } from '@/api/project/loan';
 import { useRoute } from 'vue-router';
 import { useUserStore } from '@/store';
+import { navigationTo } from '@/utils/tool'
 
 const route = useRoute();
 
 const { t } = useI18n();
 const userStore = useUserStore();
+
+const showProcessEdit = computed(() => userStore.hasRouteInfo('/projects/progress-payment/edit'))
+const showProcessView = computed(() => userStore.hasRouteInfo('/projects/progress-payment/view'))
 
 const uuid = ref('');
 const detail_info = ref(null);
@@ -134,5 +158,11 @@ onMounted(() => {
     border: 1px solid #e2e5e2;
     border-radius: 12px;
   }
+}
+
+.pre-sale-enter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>

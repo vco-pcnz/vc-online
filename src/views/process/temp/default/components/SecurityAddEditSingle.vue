@@ -65,6 +65,7 @@
             <a-form-item :label="t('面积')" name="sqm">
               <a-input
                 v-model:value="formState.sqm"
+                suffix="m²"
               />
             </a-form-item>
           </a-col>

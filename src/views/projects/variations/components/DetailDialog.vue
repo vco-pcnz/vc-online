@@ -414,7 +414,6 @@ watch(
     &:last-child {
       font-size: 14px;
       margin-top: 5px;
-      word-break: break-all;
     }
   }
   :deep(.ant-statistic-content) {

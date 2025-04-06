@@ -912,5 +912,6 @@ export default {
   "最大值为：{0}": "The maximum value is: {0}",
   "还款详情": "Repayment details",
   "撤销还款": "Revoke repayment",
-  "您确定撤销还款吗？": "Are you sure you want to revoke the repayment?"
+  "您确定撤销还款吗？": "Are you sure you want to revoke the repayment?",
+  "上次变更开始日期": "Last variation start date"
 }

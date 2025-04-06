@@ -30,6 +30,10 @@
         <p class="name">{{ t('变更开始日期') }}</p>
         <p class="txt">{{ variationsInfo.start_date ? tool.showDate(variationsInfo.start_date) : '--' }}</p>
       </a-col>
+      <a-col :span="6" class="item-txt" v-if="variationsInfo.old_start_date">
+        <p class="name">{{ t('上次变更开始日期') }}</p>
+        <p class="txt">{{ variationsInfo.old_start_date ? tool.showDate(variationsInfo.old_start_date) : '--' }}</p>
+      </a-col>
       <a-col :span="6" class="item-txt">
         <p class="name">{{ t('变更后结束日期') }}</p>
         <p v-if="variationsInfo.end_date" class="txt">{{ tool.showDate(variationsInfo.end_date) }}</p>

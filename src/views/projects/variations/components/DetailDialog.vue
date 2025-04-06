@@ -10,8 +10,14 @@
           <a-form-item :label="t('变更开始日期')" name="start_date">
             <a-date-picker v-model:value="formState.start_date" :format="selectDateFormat()" :disabledDate="disabledDate" :disabled="detailData.mark == 'variation_overdue_open'" placeholder="" @change="dateChange" />
           </a-form-item>
+          <a-form-item :label="t('开发成本')" name="devCost">
+            <DevCostDetail :dataJson="DevCostData.devCostDetail || projectDetail?.base?.devCostDetail" :disabledGST="true" @change="saveDevCostData">
+              <a-input-number :value="DevCostData.devCost || projectDetail?.base?.devCost" :max="99999999999" readonly :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
+            </DevCostDetail>
+          </a-form-item>
         </a-form>
       </div>
+
       <a-row v-if="![4, 5].includes(detailData.type)" :gutter="24">
         <a-col :span="10" class="mt-2">
           <div class="info-content">
@@ -32,14 +38,14 @@
           </div>
         </a-col>
       </a-row>
-      <a-row :gutter="24">
+      <!-- <a-row :gutter="24">
         <a-col :span="24" class="mt-2 cursor-pointer">
           <DevCostDetail :dataJson="DevCostData.devCostDetail || projectDetail?.base?.devCostDetail" :disabledGST="true" @change="saveDevCostData">
             <p class="color_grey fs_xs">Total Development Cost <i class="iconfont color_coal">&#xe76f;</i></p>
             <vco-number :value="DevCostData.devCost || projectDetail?.base?.devCost" :bold="true" size="fs_xl" :precision="2"></vco-number>
           </DevCostDetail>
         </a-col>
-      </a-row>
+      </a-row> -->
 
       <div class="mt-10 flex justify-end">
         <a-button type="dark" class="big shadow bold uppercase mb-5 mt-5 w-full" :loading="confirmLoading" @click="openHandle">{{ t('确认') }}</a-button>

@@ -1,40 +1,14 @@
 <template>
-  <a-modal
-    :open="visible"
-    :title="t(titleTxt)"
-    :width="830"
-    :footer="null"
-    :keyboard="false"
-    :maskClosable="false"
-    @cancel="updateVisible(false)"
-  >
+  <a-modal :open="visible" :title="t(titleTxt)" :width="830" :footer="null" :keyboard="false" :maskClosable="false" @cancel="updateVisible(false)">
     <!-- 拒接、退回弹窗 -->
-    <reject-dialog
-      v-model:visible="rejectVisible"
-      :uuid="uuid"
-      :id="detailData.id"
-      :type="rejectType"
-      :about="true"
-      @done="doneHandle"
-    >
-    </reject-dialog>
+    <reject-dialog v-model:visible="rejectVisible" :uuid="uuid" :id="detailData.id" :type="rejectType" :about="true" @done="doneHandle"> </reject-dialog>
 
     <!-- 确认变更时间弹窗 -->
-    <a-modal
-      v-model:open="showConfirm"
-      :width="500"
-      :title="t('确认变更')"
-      :footer="null"
-    >
+    <a-modal v-model:open="showConfirm" :width="500" :title="t('确认变更')" :footer="null">
       <div class="sys-form-content mt-5">
-        <a-form
-          ref="formRef"
-          layout="vertical"
-          :model="formState"
-          :rules="formRules"
-        >
+        <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
           <a-form-item :label="t('变更开始日期')" name="start_date">
-            <a-date-picker v-model:value="formState.start_date" :format="selectDateFormat()" :disabledDate="disabledDate" placeholder="" @change="dateChange" />
+            <a-date-picker v-model:value="formState.start_date" :format="selectDateFormat()" :disabledDate="disabledDate" :disabled="detailData.mark == 'variation_overdue_open'" placeholder="" @change="dateChange" />
           </a-form-item>
         </a-form>
       </div>
@@ -57,7 +31,8 @@
             <p class="txt">{{ showTotalDay }}</p>
           </div>
         </a-col>
-        
+      </a-row>
+      <a-row :gutter="24">
         <a-col :span="24" class="mt-2 cursor-pointer">
           <DevCostDetail :dataJson="DevCostData.devCostDetail || projectDetail?.base?.devCostDetail" :disabledGST="true" @change="saveDevCostData">
             <p class="color_grey fs_xs">Total Development Cost <i class="iconfont color_coal">&#xe76f;</i></p>
@@ -67,22 +42,13 @@
       </a-row>
 
       <div class="mt-10 flex justify-end">
-        <a-button
-          type="dark" class="big shadow bold uppercase mb-5 mt-5 w-full"
-          :loading="confirmLoading"
-          @click="openHandle"
-        >{{ t('确认') }}</a-button>
+        <a-button type="dark" class="big shadow bold uppercase mb-5 mt-5 w-full" :loading="confirmLoading" @click="openHandle">{{ t('确认') }}</a-button>
       </div>
     </a-modal>
 
     <a-row v-if="detailData && projectDetail" :gutter="24" class="pl-10 pr-10">
       <a-col v-if="detailData.cancel_reason || detailData.decline_reason" :span="24" class="mt-5">
-        <a-alert
-          :message="detailData.cancel_reason ? t('退回原因') : t('拒绝原因')"
-          :description="detailData.cancel_reason || detailData.decline_reason"
-          type="error"
-          class="cancel-reason"
-        />
+        <a-alert :message="detailData.cancel_reason ? t('退回原因') : t('拒绝原因')" :description="detailData.cancel_reason || detailData.decline_reason" type="error" class="cancel-reason" />
       </a-col>
 
       <a-col :span="8" class="item-txt">
@@ -113,17 +79,12 @@
         <p>{{ t('变更后借款总金额') }}</p>
         <div class="change-amount">
           <vco-number :value="projectDetail.base.loan_money" color="#888888" :precision="2"></vco-number>
-          <i class="iconfont" v-if="[1,4].includes(Number(detailData.type))">&#xe712;</i>
+          <i class="iconfont" v-if="[1, 4].includes(Number(detailData.type))">&#xe712;</i>
           <i class="iconfont" v-else>&#xe711;</i>
           <vco-number :value="detailData.amount" color="#F19915" :precision="2"></vco-number>
           <i class="iconfont">&#xe609;</i>
           <div class="total-amount">
-            <vco-number
-              v-if="visible"
-              :value="newTotalAmount"
-              :color="Number(detailData.amount) ? ([1,4].includes(Number(detailData.type)) ? '#eb4b6d' : '#31bd65') : '#282828'"
-              :precision="2"
-            ></vco-number>
+            <vco-number v-if="visible" :value="newTotalAmount" :color="Number(detailData.amount) ? ([1, 4].includes(Number(detailData.type)) ? '#eb4b6d' : '#31bd65') : '#282828'" :precision="2"></vco-number>
             <p v-if="!Number(detailData.amount)">{{ t('借款总金额') }}</p>
           </div>
         </div>
@@ -133,15 +94,15 @@
         <p>{{ detailData.note }}</p>
       </a-col>
       <div v-if="creditItemsData.length" class="flex flex-wrap mt-5">
-        <a-col :span="24"><div class="mt-5" style="border-top: 1px dashed #282828;"></div></a-col>
-        <a-col v-for="item in creditItemsData" :span="8" class="item-txt">
+        <a-col :span="24"><div class="mt-5" style="border-top: 1px dashed #282828"></div></a-col>
+        <a-col v-for="(item, index) in creditItemsData" :span="8" class="item-txt" :key="index">
           <p>{{ item.credit_name }}</p>
           <div class="change-content">
             <p v-if="item.is_ratio">{{ creditOldinfo[item.credit_table] }}%</p>
             <vco-number v-else :value="creditOldinfo[item.credit_table]" color="#888888" :precision="2"></vco-number>
             <i class="iconfont">&#xe794;</i>
             <p v-if="item.is_ratio">{{ detailData.credit[item.credit_table] }}%</p>
-            <vco-number v-else :value=" detailData.credit[item.credit_table]" :precision="2"></vco-number>
+            <vco-number v-else :value="item.variation_add ? tool.plus(detailData?.credit[item.credit_table], creditOldinfo[item.credit_table]) : detailData?.credit[item.credit_table]" :precision="2"></vco-number>
           </div>
         </a-col>
       </div>
@@ -149,28 +110,15 @@
 
     <div class="mt-10 mb-5">
       <div class="flex justify-end gap-5">
-        <a-button
-          type="grey" class="big shadow bold uppercase mb-5 mt-5"
-          @click="updateVisible(false)"
-        >{{ t('关闭') }}</a-button>
+        <a-button type="grey" class="big shadow bold uppercase mb-5 mt-5" @click="updateVisible(false)">{{ t('关闭') }}</a-button>
 
-        <a-button
-          v-if="detailData.has_permission"
-          type="brown" class="big shadow bold uppercase mb-5 mt-5"
-          @click="rejectHandle('variationsBack')"
-        >{{ t('退回请求') }}</a-button>
+        <a-button v-if="detailData.has_permission" type="brown" class="big shadow bold uppercase mb-5 mt-5" @click="rejectHandle('variationsBack')">{{ t('退回请求') }}</a-button>
 
         <template v-if="detailData.has_permission">
-          <a-button
-          v-if="detailData.state === 300"
-            type="dark" class="big shadow bold uppercase mb-5 mt-5"
-            @click="showOpenDialog"
-          >{{ t('确认变更') }}</a-button>
+          <a-button v-if="detailData.mark === 'variation_lm' || detailData.mark === 'variation_overdue_open'" type="dark" class="big shadow bold uppercase mb-5 mt-5" @click="showOpenDialog">{{ t('确认变更') }}</a-button>
 
           <a-popconfirm v-else :title="t('您确定要接受该请求吗？')" @confirm="accept">
-            <a-button
-              type="dark" class="big shadow bold uppercase mb-5 mt-5"
-            >{{ t('接受请求') }}</a-button>
+            <a-button type="dark" class="big shadow bold uppercase mb-5 mt-5">{{ t('接受请求') }}</a-button>
           </a-popconfirm>
         </template>
       </div>
@@ -182,267 +130,267 @@
         </div>
       </div>
     </div>
-    
   </a-modal>
 </template>
 
 <script setup>
-  import { ref, watch, computed } from "vue";
-  import { useI18n } from "vue-i18n";
-  import { projectCreditVariation } from '@/api/project/loan';
-  import { ruleCredit } from '@/api/process';
-  import { projectVariationSaveStep } from "@/api/project/variation"
-  import tool, { selectDateFormat } from '@/utils/tool';
-  import { cloneDeep } from 'lodash'
-  import RejectDialog from "@/views/process/components/RejectDialog.vue";
-  import dayjs from "dayjs";
-  import DevCostDetail from '@/views/process/temp/default/components/DevCostDetail.vue';
-  import { saveDevCost } from '@/api/project/project';
+import { ref, watch, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { projectCreditVariation } from '@/api/project/loan';
+import { ruleCredit } from '@/api/process';
+import { projectVariationSaveStep } from '@/api/project/variation';
+import tool, { selectDateFormat } from '@/utils/tool';
+import { cloneDeep } from 'lodash';
+import RejectDialog from '@/views/process/components/RejectDialog.vue';
+import dayjs from 'dayjs';
+import DevCostDetail from '@/views/process/temp/default/components/DevCostDetail.vue';
+import { saveDevCost } from '@/api/project/project';
 
-  const emits = defineEmits(['update:visible', 'done'])
+const emits = defineEmits(['update:visible', 'done']);
 
-  const props = defineProps({
-    visible: {
-      type: Boolean,
-      default: false
-    },
-    uuid: {
-      type: String,
-      default: ''
-    },
-    detailData: {
-      type: Object,
-      default: () => {}
-    },
-    projectDetail: {
-      type: Object,
-      default: () => {}
+const props = defineProps({
+  visible: {
+    type: Boolean,
+    default: false
+  },
+  uuid: {
+    type: String,
+    default: ''
+  },
+  detailData: {
+    type: Object,
+    default: () => {}
+  },
+  projectDetail: {
+    type: Object,
+    default: () => {}
+  }
+});
+
+const { t } = useI18n();
+
+const titleTxt = computed(() => {
+  let txt = '';
+  if (props.detailData?.has_permission) {
+    txt = '审核变更请求';
+  } else {
+    txt = '变更详情';
+  }
+  return txt;
+});
+
+/* 更新visible */
+const updateVisible = (value) => {
+  emits('update:visible', value);
+};
+
+const newTotalAmount = computed(() => {
+  const total = Number(props.projectDetail.base.loan_money);
+  const num = Number(props.detailData.amount);
+  const isPlus = [1, 4].includes(Number(props.detailData.type));
+
+  let res = 0;
+  if (isPlus) {
+    res = tool.plus(total, num);
+  } else {
+    res = tool.minus(total, num);
+  }
+
+  return res;
+});
+
+const creditData = ref([]);
+const creditOldinfo = ref({});
+const creditItemsData = ref([]);
+
+const getCreditVal = () => {
+  projectCreditVariation({
+    apply_uuid: props.uuid
+  }).then((res) => {
+    const creditInfo = cloneDeep(res);
+
+    if (props.detailData.type === 5) {
+      delete creditInfo.credit_estabFeeRate;
+      delete creditInfo.credit_LineFeeRate;
     }
+
+    const keyArr = [];
+    for (const key in creditInfo) {
+      keyArr.push(key);
+    }
+
+    let colItems = creditData.value.filter((item) => keyArr.includes(item.credit_table));
+    const has_linefee = Boolean(props.projectDetail.base.has_linefee);
+    if (!has_linefee) {
+      colItems = colItems.filter((item) => !item.is_linefee);
+    }
+
+    const perData = colItems.filter((item) => item.is_ratio);
+    const dolData = colItems.filter((item) => !item.is_ratio);
+
+    creditOldinfo.value = res;
+    creditItemsData.value = [...perData, ...dolData];
   });
+};
 
-  const { t } = useI18n();
+const getCreditInfo = () => {
+  ruleCredit().then((res) => {
+    creditData.value = res || [];
+    getCreditVal();
+  });
+};
 
-  const titleTxt = computed(() => {
-    let txt = ''
-    if (props.detailData?.has_permission) {
-      txt = '审核变更请求'
-    } else {
-      txt = '变更详情'
-    }
-    return txt
-  })
+const rejectVisible = ref(false);
+const rejectType = ref('');
+const rejectHandle = (type) => {
+  rejectType.value = type;
+  rejectVisible.value = true;
+};
 
-  /* 更新visible */
-  const updateVisible = (value) => {
-    emits('update:visible', value);
-  };
+const doneHandle = () => {
+  updateVisible(false);
+  emits('done');
+};
 
-  const newTotalAmount = computed(() => {
-    const total = Number(props.projectDetail.base.loan_money)
-    const num = Number(props.detailData.amount)
-    const isPlus = [1, 4].includes(Number(props.detailData.type))
-
-    let res = 0
-    if (isPlus) {
-      res = tool.plus(total, num)
-    } else {
-      res = tool.minus(total, num)
-    }
-
-    return res
-  })
-
-  const creditData = ref([])
-  const creditOldinfo = ref({})
-  const creditItemsData = ref([])
-
-  const getCreditVal = () => {
-    projectCreditVariation({
-      apply_uuid: props.uuid
-    }).then(res => {
-      const creditInfo = cloneDeep(res)
-
-      if (props.detailData.type === 5) {
-        delete creditInfo.credit_estabFeeRate
-        delete creditInfo.credit_LineFeeRate
-      }
-
-      const keyArr = []
-      for (const key in creditInfo) {
-        keyArr.push(key)
-      }
-
-      let colItems = creditData.value.filter(item => keyArr.includes(item.credit_table))
-      const has_linefee = Boolean(props.projectDetail.base.has_linefee)
-      if (!has_linefee) {
-        colItems = colItems.filter(item => !item.is_linefee)
-      }
-
-      const perData = colItems.filter((item) => item.is_ratio);
-      const dolData = colItems.filter((item) => !item.is_ratio);
-
-      creditOldinfo.value = res
-      creditItemsData.value = [...perData, ...dolData]
-    })
-  }
-
-  const getCreditInfo = () => {
-    ruleCredit().then(res => {
-      creditData.value = res || []
-      getCreditVal()
-    })
-  }
-
-  const rejectVisible = ref(false)
-  const rejectType = ref('')
-  const rejectHandle = (type) => {
-    rejectType.value = type
-    rejectVisible.value = true
-  }
-
-  const doneHandle = () => {
-    updateVisible(false)
-    emits('done')
-  }
-
-  const accept = async () => {
-    await projectVariationSaveStep({ id: props.detailData?.id, uuid: props.uuid })
+const accept = async () => {
+  await projectVariationSaveStep({ id: props.detailData?.id, uuid: props.uuid })
     .then((res) => {
       doneHandle();
-      return true
+      return true;
     })
     .catch(() => {
-      return false
-    })
-  }
-
-  const confirmLoading = ref(false)
-  const showConfirm = ref(false)
-
-  const formRef = ref();
-  const formState = ref({
-    start_date: '',
-  });
-
-  const formRules = ref({
-    start_date: [{ required: true, message: t('请选择') + t('变更开始日期'), trigger: 'change' }],
-  });
-
-  const startDate = ref('');
-  const endDate = ref('');
-
-  const showTerm = computed(() => {
-    const data = tool.calculateDurationPrecise(startDate.value, endDate.value);
-    if (data.months && data.days) {
-      return `${data.months} ${t('月')} ${data.days} ${t('天')}`;
-    }
-
-    if (data.months && !data.days) {
-      return `${data.months} ${t('月')}`;
-    }
-
-    if (!data.months && data.days) {
-      return `${data.days} ${t('天')}`;
-    }
-
-    return '--';
-  });
-
-  const showTotalDay = computed(() => {
-    const data = tool.calculateDurationPrecise(startDate.value, endDate.value);
-    return data.gapDay || 0;
-  });
-
-  const showOpenDialog = () => {
-    showConfirm.value = true
-
-    startDate.value = props.detailData.start_date
-    endDate.value = props.detailData.end_date
-  }
-
-  const DevCostData = ref({
-    devCost: '',
-    devCostDetail: ''
-  })
-  // 保存开发成本
-  const saveDevCostData  = (val) => {
-    DevCostData.value = val;
-  }
-  const editSaveDevCost = (params) => {
-    saveDevCost({ uuid: props.uuid, ...DevCostData.value }).then((res) => {
-      openHandleSubmit(params)
+      return false;
     });
-  };
+};
 
-  const openHandle = () => {
-    formRef.value
-    .validate()
-    .then(() => {
-      const params = {
-        id: props.detailData.id,
-        uuid: props.uuid,
-        do__open: 1,
-        start_date: startDate.value
-      }
+const confirmLoading = ref(false);
+const showConfirm = ref(false);
 
-      if (![4, 5].includes(props.detailData.type)) {
-        params.end_date = endDate.value
-      }
+const formRef = ref();
+const formState = ref({
+  start_date: ''
+});
 
-      confirmLoading.value = true
-      if(!DevCostData.value.devCostDetail) {
-        openHandleSubmit(params)
-      } else {
-        editSaveDevCost(params)
-      }
-    })
+const formRules = ref({
+  start_date: [{ required: true, message: t('请选择') + t('变更开始日期'), trigger: 'change' }]
+});
+
+const startDate = ref('');
+const endDate = ref('');
+
+const showTerm = computed(() => {
+  const data = tool.calculateDurationPrecise(startDate.value, endDate.value);
+  if (data.months && data.days) {
+    return `${data.months} ${t('月')} ${data.days} ${t('天')}`;
   }
 
-  const openHandleSubmit = (params)=>{
-    projectVariationSaveStep(params).then(() => {
-        confirmLoading.value = false
-        showConfirm.value = false
-        doneHandle()
-      }).catch(() => {
-        confirmLoading.value = false
-      })
+  if (data.months && !data.days) {
+    return `${data.months} ${t('月')}`;
   }
 
-  const disabledDate = (currentDate) => {
-    return currentDate && currentDate.valueOf() > Date.now();
-  };
+  if (!data.months && data.days) {
+    return `${data.days} ${t('天')}`;
+  }
 
-  const dateChange = (date) => {
-    if (date) {
-      const { start_date, end_date } = props.detailData;
-      const calcDay = tool.calculateDurationPrecise(start_date, end_date);
-      const gapDay = calcDay.gapDay;
+  return '--';
+});
 
-      if (gapDay) {
-        let statrDate = dayjs(date);
-        const endDateStr = tool.calculateEndDateByDays(statrDate, gapDay);
+const showTotalDay = computed(() => {
+  const data = tool.calculateDurationPrecise(startDate.value, endDate.value);
+  return data.gapDay || 0;
+});
 
-        startDate.value = dayjs(date).format('YYYY-MM-DD');
-        endDate.value = endDateStr;
-      }
+const showOpenDialog = () => {
+  showConfirm.value = true;
+
+  startDate.value = props.detailData.start_date;
+  formState.value.start_date = dayjs(props.detailData.start_date);
+  endDate.value = props.detailData.end_date;
+};
+
+const DevCostData = ref({
+  devCost: '',
+  devCostDetail: ''
+});
+// 保存开发成本
+const saveDevCostData = (val) => {
+  DevCostData.value = val;
+};
+const editSaveDevCost = (params) => {
+  saveDevCost({ uuid: props.uuid, ...DevCostData.value }).then((res) => {
+    openHandleSubmit(params);
+  });
+};
+
+const openHandle = () => {
+  formRef.value.validate().then(() => {
+    const params = {
+      id: props.detailData.id,
+      uuid: props.uuid,
+      do__open: 1,
+      start_date: startDate.value
+    };
+
+    if (![4, 5].includes(props.detailData.type)) {
+      params.end_date = endDate.value;
+    }
+
+    confirmLoading.value = true;
+    if (!DevCostData.value.devCostDetail) {
+      openHandleSubmit(params);
     } else {
-      startDate.value = props.detailData.start_date
-      endDate.value = props.detailData.end_date
+      editSaveDevCost(params);
+    }
+  });
+};
+
+const openHandleSubmit = (params) => {
+  projectVariationSaveStep(params)
+    .then(() => {
+      confirmLoading.value = false;
+      showConfirm.value = false;
+      doneHandle();
+    })
+    .catch(() => {
+      confirmLoading.value = false;
+    });
+};
+
+const disabledDate = (currentDate) => {
+  return currentDate && currentDate.valueOf() > Date.now();
+};
+
+const dateChange = (date) => {
+  if (date) {
+    const { start_date, end_date } = props.detailData;
+    const calcDay = tool.calculateDurationPrecise(start_date, end_date);
+    const gapDay = calcDay.gapDay;
+
+    if (gapDay) {
+      let statrDate = dayjs(date);
+      const endDateStr = tool.calculateEndDateByDays(statrDate, gapDay);
+
+      startDate.value = dayjs(date).format('YYYY-MM-DD');
+      endDate.value = endDateStr;
+    }
+  } else {
+    startDate.value = props.detailData.start_date;
+    endDate.value = props.detailData.end_date;
+  }
+};
+
+watch(
+  () => props.visible,
+  (val) => {
+    if (val) {
+      getCreditInfo();
+    } else {
+      rejectType.value = '';
+      formRef.value?.clearValidate();
+      formState.value.start_date = '';
     }
   }
-
-  watch(
-    () => props.visible,
-    (val) => {
-      if (val) {
-        getCreditInfo()
-      } else {
-        rejectType.value = ''
-        formRef.value?.clearValidate();
-        formState.value.start_date = ''
-      }
-    }
-  )
+);
 </script>
 
 <style lang="less" scoped>

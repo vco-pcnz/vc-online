@@ -245,10 +245,13 @@ const disabledDateFormat = (current) => {
     return true;
   }
 
-  const dateString = current.format('YYYY-MM-DD');
-  if (disabledDates.value.includes(dateString)) {
-    return true;
+  if (formState.type !== 4) {
+    const dateString = current.format('YYYY-MM-DD');
+    if (disabledDates.value.includes(dateString)) {
+      return true;
+    }
   }
+  
 
   return false;
 };

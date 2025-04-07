@@ -922,5 +922,7 @@ export default {
   "已用额度": "Used amount",
   "可用额度": "Available amount",
   "本次使用额度": "This usage amount",
-  "取值范围: {0} - {1}": "Value range: {0} - {1}"
+  "取值范围: {0} - {1}": "Value range: {0} - {1}",
+  "进度款": "Progress payment",
+  "其他金额": "Other amount"
 }

@@ -74,7 +74,7 @@
           <div :class="{ 'color_red-error': Math.abs(data?.right?.irr) < Math.abs(data?.right?.irrPreset) }">
             <p class="color_grey fs_xs">IRR</p>
             <p class="fs_xl bold">{{ data?.right?.irr }}%</p>
-            <p class="fs_xs">baseline {{ data?.right?.irrPreset }}%</p>
+            <p class="fs_xs">Benchmark {{ data?.right?.irrPreset }}%</p>
           </div>
         </a-col>
         <a-col :span="10">
@@ -90,7 +90,7 @@
           </DevCostDetail>
         </a-col>
         <a-col :span="24">
-          <p class="fs_xs" :class="{ 'color_red-error': Math.abs(data?.right?.ltc) > Math.abs(data?.right?.baseline) }">baseline {{ data?.right?.baseline }}%</p>
+          <p class="fs_xs" :class="{ 'color_red-error': Math.abs(data?.right?.ltc) > Math.abs(data?.right?.baseline) }">Benchmark {{ data?.right?.baseline }}%</p>
         </a-col>
       </a-row>
     </div>

@@ -432,5 +432,11 @@ onMounted(() => {
     cursor: not-allowed !important;
     opacity: 0.4;
   }
+  :deep(.ant-table-wrapper) {
+    .ant-table-thead > tr > th,
+    .ant-table-thead > tr > td {
+      background: transparent !important;
+    }
+  }
 }
 </style>

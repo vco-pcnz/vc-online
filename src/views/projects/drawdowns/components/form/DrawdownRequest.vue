@@ -26,7 +26,7 @@
               <div class="label" :class="{ err: !formState.apply_amount && validate }">Requested amount, $ nzd</div>
               <div class="flex gap-2 items-center">
                 <a-input-number v-model:value="formState.apply_amount" :max="99999999999" :min="0" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
-                <a-button type="brown" style="min-width: 80px;padding: 0;" class="big" size="small" @click="selectVisible = true">{{ t('选择') }}</a-button>
+                <a-button type="brown" style="min-width: 80px; padding: 0; border-radius: 10px" class="big" size="small" @click="selectVisible = true">{{ t('选择') }}</a-button>
               </div>
             </div>
           </a-col>
@@ -80,7 +80,7 @@ import { loanDedit } from '@/api/project/loan';
 import { selectDateFormat } from '@/utils/tool';
 import DocumentsUpload from './DocumentsUpload.vue';
 import { systemDictData } from '@/api/system';
-import ViewContent from "@/views/requests/progress-payment/components/ViewContent.vue";
+import ViewContent from '@/views/requests/progress-payment/components/ViewContent.vue';
 
 const { t } = useI18n();
 const emits = defineEmits(['change']);
@@ -100,7 +100,7 @@ const validate = ref(false);
 const formModal2 = ref([]);
 const formModal3 = ref([]);
 
-const selectVisible = ref(false)
+const selectVisible = ref(false);
 
 const formState = ref({
   uuid: '',
@@ -117,14 +117,14 @@ const updateVisible = (value) => {
   visible.value = value;
 };
 
-const selectBuildData = ref([])
-const selectBuildTotal = ref(0)
+const selectBuildData = ref([]);
+const selectBuildTotal = ref(0);
 const selectDoneHandle = (data) => {
-  selectVisible.value = false
-  selectBuildData.value = data.build__data
-  formState.value.apply_amount = data.total
-  selectBuildTotal.value = data.total
-}
+  selectVisible.value = false;
+  selectBuildData.value = data.build__data;
+  formState.value.apply_amount = data.total;
+  selectBuildTotal.value = data.total;
+};
 
 const disabledDateFormat = (current) => {
   const startDate = props.projectDetail.loan.start_date;
@@ -160,9 +160,9 @@ const submit = () => {
 
   const params = {
     ...formState.value
-  }
+  };
   if (selectBuildData.value.length && selectBuildTotal.value === formState.value.apply_amount) {
-    params.build__data = selectBuildData.value
+    params.build__data = selectBuildData.value;
   }
 
   loanDedit(params)

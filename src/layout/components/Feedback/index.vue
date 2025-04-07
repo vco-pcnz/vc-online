@@ -81,6 +81,7 @@ const reset = () => {
     page: '',
     document: []
   };
+  documentList.value = []
 };
 
 watch(

@@ -28,7 +28,7 @@
           </a-col>
           <a-col :span="12">
             <div class="label">{{ t('说明') }}</div>
-            <a-textarea v-model:value="formState.other_note" @input="change()" :rows="2" />
+            <a-input v-model:value="formState.other_note" />
           </a-col>
         </a-row>
       </template>

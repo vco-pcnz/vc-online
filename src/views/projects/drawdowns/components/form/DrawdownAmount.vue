@@ -1,12 +1,14 @@
 <template>
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="JournalRef" class="Journal">
-    <a-modal :width="486" :open="visible" :title="t('提取金额')" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
+    <a-modal :width="600" :open="visible" :title="t('提取金额')" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
-        <div class="input-item">
+        <!-- <div class="input-item">
           <div class="label" :class="{ err: !amount && validate }">Approved amount (requested {{ tool.formatMoney(detail?.amount) }})</div>
           <a-input-number v-model:value="amount" :max="99999999999" :min="0" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
-        </div>
+        </div> -->
+
+        <ProgressPayment :visible="visible" :validate="validate" @change="updateformState"></ProgressPayment>
 
         <div class="flex justify-center">
           <a-button @click="save" type="dark" class="save big uppercase" :loading="loading">
@@ -24,6 +26,7 @@ import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import tool from '@/utils/tool';
 import { loanDchange } from '@/api/project/loan';
+import ProgressPayment from './ProgressPayment.vue';
 
 const { t } = useI18n();
 const emits = defineEmits(['change']);
@@ -47,6 +50,16 @@ const updateVisible = (value) => {
   visible.value = value;
 };
 
+const formState = ref({
+  build_money: '',
+  other_money: 0,
+  other_note: '',
+  build__data: []
+});
+
+const updateformState = (val) => {
+  formState.value = { ...formState.value, ...val };
+};
 const save = () => {
   validate.value = true;
   if (!amount.value) return message.error(t('请输入') + t('金额'));
@@ -54,7 +67,7 @@ const save = () => {
   let params = {
     uuid: props.uuid,
     id: props.detail.id,
-    amount: amount.value
+    ...formState.value
   };
   loanDchange(params)
     .then((res) => {

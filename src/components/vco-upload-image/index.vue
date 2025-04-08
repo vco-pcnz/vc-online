@@ -364,6 +364,7 @@
 @import '@/styles/variables.less';
 
 .images-uploader {
+  position: relative;
   :deep(.ant-upload) {
     width: 110px !important;
     height: 110px !important;

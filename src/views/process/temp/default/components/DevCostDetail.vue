@@ -181,6 +181,10 @@ const props = defineProps({
   disabledLoan: {
     type: Boolean,
     default: false
+  },
+  disabled: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -300,6 +304,7 @@ const initData = () => {
   data.value.total = tool.plus(data.value.loan || 0, data.value.borrower_equity || 0);
 };
 const init = () => {
+  if (props.disabled) { return }
   loadType();
   if (props.dataJson && props.dataJson.length) {
     data.value = cloneDeep(props.dataJson[0]);

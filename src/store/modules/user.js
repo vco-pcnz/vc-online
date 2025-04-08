@@ -34,13 +34,14 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
     // 当前登录用户的权限
     authorities: [],
     // 是否为普通用户
-    isNormalUser: false,
+    isNormalUser: true,
     taskInfo: {
       project: 0,
       request: 0,
       total: 0,
       other: 0
-    }
+    },
+    loadingCount: false
   }),
 
   getters: {
@@ -83,6 +84,8 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
     },
 
     getTaskNumInfo() {
+      if (this.loadingCount) { return }
+      this.loadingCount = true
       projectBacklogCount().then(res => {
         this.taskInfo = {
           project: res.project_backlog_count || 0,
@@ -90,6 +93,9 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
           total: res.total_backlog_count || 0,
           other: res.other_backlog_count || 0
         }
+        this.loadingCount = false
+      }).catch(() => {
+        this.loadingCount = false
       })
     },
 

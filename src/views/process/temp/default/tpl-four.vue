@@ -11,7 +11,7 @@
       @cancel="tipsVisible = false"
     >
       <div class="tips-content">
-        <p class="tips-txt">{{ t('已存在预测列表，修改借款金额或者贷款周期，将会强制重新生成预测列表，是否提交？') }}</p>
+        <p class="tips-txt">{{ t('已存在预测列表，修改贷款周期，将会强制重新生成预测列表，是否提交？') }}</p>
 
         <div class="mt-5 flex justify-between gap-5">
           <a-button
@@ -40,14 +40,21 @@
             <div class="sys-form-content mt-5">
               <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
                 <a-row :gutter="24">
-                  <a-col :span="24">
-                    <a-form-item :label="t('借款金额')" name="loan_money">
+                  <a-col :span="devCost ? 12 : 24">
+                    <a-form-item :label="t('预计借款金额')" name="old_loan_money">
                       <a-input-number
-                        v-model:value="formState.loan_money"
+                        v-model:value="formState.old_loan_money"
                         :disabled="changeTimeStep"
                         :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                         :parser="value => value.replace(/\$\s?|(,*)/g, '')"
                       />
+                    </a-form-item>
+                  </a-col>
+                  <a-col v-if="devCost" :span="12">
+                    <a-form-item :label="t('开发成本')">
+                      <div class="flex items-center" style="height: 50px;">
+                        <vco-number :bold="true" :value="devCost" :precision="2" :end="true"></vco-number>
+                      </div>
                     </a-form-item>
                   </a-col>
                   <a-col :span="24">
@@ -172,7 +179,8 @@
     projectAuditSaveMode,
     projectSaveSaveDraft,
     projectDraftInfo,
-    projectApplyLoanInfo
+    projectApplyLoanInfo,
+    projectApplyProjectInfo
   } from "@/api/process";
   import tool, { selectDateFormat } from "@/utils/tool";
   import { message } from "ant-design-vue/es";
@@ -296,7 +304,7 @@
   });
 
   const formState = reactive({
-    loan_money: '',
+    old_loan_money: '',
     loan_type: [],
     time_date: [],
     term: '',
@@ -305,7 +313,7 @@
   })
 
   const formRules = {
-    loan_money: [
+    old_loan_money: [
       { required: true, message: t('请输入') + t('借款金额'), trigger: 'blur' },
       {
         pattern: /^[+]?([1-9]\d*)(\.\d+)?$/,
@@ -411,7 +419,7 @@
     .then(async () => {
       const data = cloneDeep(formState)
       const params = {
-        loan_money: data.loan_money,
+        old_loan_money: data.old_loan_money,
         loan_type: data.loan_type.join(','),
         start_date: dayjs(data.time_date[0]).format('YYYY-MM-DD'),
         end_date: dayjs(data.time_date[1]).format('YYYY-MM-DD')
@@ -430,14 +438,14 @@
       if (props.check) {
         params.loan_info_status = props.infoData.check_status
         params.code = props.code
-        if (props.infoData.start_date === params.start_date && props.infoData.end_date === params.end_date && Number(props.infoData.loan_money) === Number(params.loan_money)) {
+        if (props.infoData.start_date === params.start_date && props.infoData.end_date === params.end_date) {
+        // if (props.infoData.start_date === params.start_date && props.infoData.end_date === params.end_date && Number(props.infoData.old_loan_money) === Number(params.old_loan_money)) {
           await normalRequest(params, true)
         } else {
           if (processStore.hasForcast) {
             currentForParams.value = params
             tipsVisible.value = true
           } else {
-
             if (props.infoData.start_date !== params.start_date || props.infoData.end_date !== params.end_date) {
               emitter.emit('refreshRefinancial', true)
             }
@@ -556,8 +564,8 @@
     for (const key in formState) {
       if (key === 'time_date' && useData[key]) {
         formState.time_date = [dayjs(useData[key][0]), dayjs(useData[key][1])]
-      } else if (key === 'loan_money') {
-        formState.loan_money = Number(useData[key]) ? useData[key] : ''
+      } else if (key === 'old_loan_money') {
+        formState.old_loan_money = Number(useData[key]) ? useData[key] : ''
       } else if (key === 'totalDay') {
         formState[key] = formState[key] || 0
       } else {
@@ -605,6 +613,18 @@
     dataInit(infoData, draftData)
   }
 
+  const devCost = ref(0)
+  const getProjectInfo = () => {
+    projectApplyProjectInfo({
+      uuid: props.currentId
+    }).then(res => {
+      const devCostDetail = res.devCostDetail || []
+      if (devCostDetail.length) {
+        devCost.value = devCostDetail[0].data[0].loan
+      }
+    })
+  }
+
   watch(
     () => props.infoData,
     (val) => {
@@ -619,6 +639,9 @@
   onMounted(() => {
     if (!props.check) {
       getDataInit()
+      if (props.currentId) {
+        getProjectInfo()
+      }
     }
 
     emitter.on('stepOneBindUser', () => {

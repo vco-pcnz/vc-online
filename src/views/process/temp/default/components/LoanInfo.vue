@@ -3,9 +3,9 @@
     <a-row :gutter="24">
       <a-col :span="8">
         <div class="info-content">
-          <p class="name">{{ t('借款金额') }}</p>
+          <p class="name">{{ t('预计借款金额') }}</p>
           <p class="txt">
-            <vco-number :value="data.loan_money" :precision="2" :end="true"></vco-number>
+            <vco-number :value="data.old_loan_money" :precision="2" :end="true"></vco-number>
           </p>
         </div>
       </a-col>

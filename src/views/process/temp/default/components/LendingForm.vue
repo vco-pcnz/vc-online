@@ -104,8 +104,21 @@
             
             <a-col :span="24"><div class="form-line"></div></a-col>
           </template>
+
+          <a-col :span="24">
+            <a-form-item :label="t('开发成本')">
+              <DevCostDetail :disabled="amountDisabled || inputADis" v-model:value="formState.devCost" v-model:dataJson="formState.devCostDetail">
+                <div class="inline overflow-hidden">
+                  <vco-number class="float-left" v-model:value="formState.devCost" :precision="2" :end="true"></vco-number>
+                  <a-button class="float-left ml-3" v-if="!amountDisabled && !inputADis" type="link">
+                    <i class="iconfont">&#xe753;</i>
+                  </a-button>
+                </div>
+              </DevCostDetail>
+            </a-form-item>
+          </a-col>
           
-          <a-col :span="7">
+          <a-col :span="5">
             <a-form-item :label="t('土地贷款总额')" name="land_amount">
               <a-input-number
                 v-model:value="formState.land_amount"
@@ -122,8 +135,22 @@
           <a-col :span="1" class="plus-txt">
             <i class="iconfont">&#xe889;</i>
           </a-col>
-          <a-col :span="7">
-            <a-form-item :label="t('建筑贷款总额')" name="build_amount">
+          <a-col :span="5">
+            <a-form-item name="build_amount" class="w-full-label">
+              <template #label>
+                <div class="w-full flex justify-between items-center" style="height: 22px;">
+                  <p>{{ t('建筑贷款总额') }}</p>
+                  <a-button
+                    v-if="showProgressPayment"
+                    type="link"
+                    style="font-size: 12px; height: auto !important;"
+                    @click="goProgressPage"
+                  >
+                    <i class="iconfont">&#xe66b;</i>
+                    <i class="iconfont">&#xe602;</i>
+                  </a-button>
+                </div>
+              </template>
               <a-input-number
                 v-model:value="formState.build_amount"
                 :max="99999999999"
@@ -136,26 +163,32 @@
               />
             </a-form-item>
           </a-col>
+          <a-col :span="1" class="plus-txt">
+            <i class="iconfont">&#xe889;</i>
+          </a-col>
+          <a-col :span="5">
+            <a-form-item :label="t('其他金额')" name="other_amount">
+              <a-input-number
+                v-model:value="formState.other_amount"
+                :max="99999999999"
+                :disabled="amountDisabled || inputADis"
+                :formatter="
+                  (value) =>
+                    `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                "
+                :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+              />
+            </a-form-item>
+          </a-col>
+
           <a-col :span="1" class="plus-txt"><i class="iconfont">=</i></a-col>
-          <a-col :span="8" class="total-amount-info">
+          <a-col :span="6" class="total-amount-info">
             <a-form-item :label="t('借款总金额')">
               <vco-number
                 :value="totalAmountRef"
                 :precision="2"
                 :end="true"
               ></vco-number>
-              <a-button
-                type="brown"
-                shape="round"
-                size="small"
-                class="absolute flex items-center"
-                style="bottom: -20px"
-                v-if="showProgressPayment"
-                @click="goProgressPage"
-              >
-                {{ t('查看进度付款') }}
-                <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px'  }" />
-              </a-button>
             </a-form-item>
           </a-col>
           <a-col :span="24"><div class="form-line"></div></a-col>
@@ -374,6 +407,7 @@
   import emitter from '@/event';
   import useProcessStore from '@/store/modules/process';
   import tool, { navigationTo, numberStrFormat } from '@/utils/tool';
+  import DevCostDetail from './DevCostDetail.vue';
 
   const processStore = useProcessStore();
 
@@ -501,7 +535,8 @@
       // }
       
       const securityTotal = props.dataInfo.security.total_money || 0
-      const totalAmount = tool.plus(Number(formState.value.land_amount), Number(formState.value.build_amount))
+      const totalAmount1 = tool.plus(Number(formState.value.land_amount), Number(formState.value.build_amount))
+      const totalAmount = tool.plus(Number(totalAmount1), Number(formState.value.other_amount))
 
       if (totalAmount > securityTotal) {
         const num = tool.minus(totalAmount, securityTotal)
@@ -618,16 +653,20 @@
   const formState = ref({
     build_amount: '',
     land_amount: '',
+    other_amount: '',
     initial_build_amount: '',
     initial_land_amount: '',
     substitution_ids: [],
     has_linefee: 1,
-    do__est: 0
+    do__est: 0,
+    devCost: '',
+    devCostDetail:''
   });
 
   const formRules = ref({
     build_amount: { validator: validateNum, trigger: 'blur' },
     land_amount: { validator: validateNum, trigger: 'blur' },
+    other_amount: { validator: validateNum, trigger: 'blur' },
     initial_build_amount: { validator: validateNum, trigger: 'blur' },
     initial_land_amount: { validator: validateNum, trigger: 'blur' },
   });
@@ -647,8 +686,10 @@
   const totalAmountRef = computed(() => {
     const build_amount = formState.value.build_amount || 0;
     const land_amount = formState.value.land_amount || 0;
+    const other_amount = formState.value.other_amount || 0;
     calcBrokerFee()
-    return tool.plus(build_amount, land_amount);
+    const num = tool.plus(build_amount, land_amount);
+    return tool.plus(num, other_amount);
   });
 
   const totalInitialAmountRef = computed(() => {
@@ -721,13 +762,15 @@
     if ('credit_brokerFeeRate' in formState.value && 'credit_brokerFee' in formState.value) {
       const build_amount = formState.value.build_amount || 0;
       const land_amount = formState.value.land_amount || 0;
+      const other_amount = formState.value.other_amount || 0;
       const brokeFeeRate = formState.value.credit_brokerFeeRate || 0
       
 
       if (isNaN(Number(brokeFeeRate))) {
         formState.value.credit_brokerFee = 0
       } else {
-        const amount = tool.plus(build_amount, land_amount);
+        const amountNum = tool.plus(build_amount, land_amount);
+        const amount = tool.plus(amountNum, other_amount);
         const per = tool.div(Number(brokeFeeRate), 100)
         const num = tool.times(amount, per)
 
@@ -834,12 +877,15 @@
       : props.lendingInfo.loan_money || 0;
 
     formState.value.land_amount = props.lendingInfo.land_amount;
+    formState.value.other_amount = props.lendingInfo.other_amount;
     
     formState.value.initial_build_amount = props.lendingInfo.initial_build_amount;
     formState.value.initial_land_amount = props.lendingInfo.initial_land_amount;
 
-    staticFormData.value = cloneDeep(formState.value)
+    formState.value.devCost = props.lendingInfo.devCost
+    formState.value.devCostDetail = props.lendingInfo.devCostDetail
 
+    staticFormData.value = cloneDeep(formState.value)
     emits('openData', {
       table: tableDataRefData.value,
       data: formState.value
@@ -981,6 +1027,14 @@
         })
       }
 
+      if (Number(obj?.other_amount) !== Number(staticFormData.value?.other_amount)) {
+        arr.unshift({
+          name: t('其他金额'),
+          before: `$${numberStrFormat(Number(staticFormData.value?.other_amount))}`,
+          now: `$${numberStrFormat(Number(obj?.other_amount))}`
+        })
+      }
+
       if (Number(obj?.build_amount) !== Number(staticFormData.value?.build_amount)) {
         arr.unshift({
           name: t('建筑贷款总额'),
@@ -1065,6 +1119,7 @@
       .validate()
       .then(async () => {
         const build_amount = Number(formState.value.build_amount);
+        const other_amount = Number(formState.value.other_amount);
         const initial_build_amount = Number(formState.value.initial_build_amount);
         const land_amount = Number(formState.value.land_amount);
         const initial_land_amount = Number(formState.value.initial_land_amount);
@@ -1083,7 +1138,8 @@
           return false;
         }
 
-        if (build_amount + land_amount < 0 || build_amount + land_amount === 0) {
+        const totalAmount = build_amount + land_amount + other_amount
+        if (totalAmount < 0 || totalAmount === 0) {
           message.error(t('借款总额不正确'));
           return false;
         }
@@ -1103,15 +1159,20 @@
         delete credit__data.substitution_ids
         delete credit__data.has_linefee
         delete credit__data.do__est
+        delete credit__data.devCost
+        delete credit__data.devCostDetail
 
         const params = {
           code: props.blockInfo.code,
           uuid: props.currentId,
           build_amount: formState.value.build_amount || 0,
           land_amount: formState.value.land_amount || 0,
+          other_amount: formState.value.other_amount || 0,
           initial_build_amount: formState.value.initial_build_amount || 0,
           initial_land_amount: formState.value.initial_land_amount || 0,
           substitution_ids: formState.value.substitution_ids || [],
+          devCost: formState.value.devCost,
+          devCostDetail: formState.value.devCostDetail,
           substitution_amount: refinancialAmount.value || 0,
           has_linefee: Number(formState.value.has_linefee),
           do__est: Number(formState.value.do__est),
@@ -1121,6 +1182,61 @@
         if (creditId.value) {
           params.credit__data.id = creditId.value;
         }
+
+        // 判断是否需要修改 开发成本 - start
+        const p_land_amount = Number(params.land_amount)
+        const s_land_amount = Number(staticFormData.value.land_amount)
+        if (p_land_amount !== s_land_amount) {
+          const devCostList = staticFormData.value.devCostDetail[0].data[0].list
+          const landObj = devCostList.find(item => item.type === 'Land')
+          const c_land_amount = tool.minus(p_land_amount, s_land_amount)
+          if (landObj) {
+            const new_loan = tool.plus(landObj.loan, c_land_amount)
+            const new_total = tool.plus(landObj.borrower_equity, new_loan)
+
+            const obj = params.devCostDetail[0].data[0].list.find(item => item.type === 'Land')
+            obj.loan = Number(new_loan)
+            obj.total = new_total
+          } else {
+            const obj = {
+              loan: Number(p_land_amount),
+              type: 'Land',
+              total: p_land_amount,
+              borrower_equity: 0
+            }
+            params.devCostDetail[0].data[0].list.unshift(obj)
+          }
+
+          params.devCost = tool.plus(params.devCost, c_land_amount)
+        }
+
+        const p_build_amount = Number(params.build_amount)
+        const s_build_amount = Number(staticFormData.value.build_amount)
+        if (p_build_amount !== s_build_amount) {
+          const devCostList = staticFormData.value.devCostDetail[0].data[0].list
+          const buildObj = devCostList.find(item => item.type === 'Construction')
+          const c_build_amount = tool.minus(p_build_amount, s_build_amount)
+          if (buildObj) {
+            const new_loan = tool.plus(buildObj.loan, c_build_amount)
+            const new_total = tool.plus(buildObj.borrower_equity, new_loan)
+
+            const obj = params.devCostDetail[0].data[0].list.find(item => item.type === 'Construction')
+            obj.loan = Number(new_loan)
+            obj.total = new_total
+          } else {
+            const obj = {
+              loan: Number(p_build_amount),
+              type: 'Construction',
+              total: p_build_amount,
+              borrower_equity: 0
+            }
+            params.devCostDetail[0].data[0].list.unshift(obj)
+          }
+
+          params.devCost = tool.plus(params.devCost, c_build_amount)
+        }
+
+        // 判断是否需要修改 开发成本 - end
 
         saveParams.value = params
 
@@ -1152,6 +1268,7 @@
 
         if (Number(val.land_amount) !== Number(formState.value.land_amount) ||
           Number(val.build_amount) !== Number(formState.value.build_amount) ||
+          Number(val.other_amount) !== Number(formState.value.other_amount) ||
           Number(val.initial_land_amount) !== Number(formState.value.initial_land_amount) ||
           Number(val.initial_build_amount) !== Number(formState.value.initial_build_amount) ||
           Number(val.has_linefee) !== Number(formState.value.has_linefee)

@@ -36,8 +36,49 @@
                 </a-date-picker>
               </a-form-item>
             </a-col>
-            <a-col :span="12">
-              <a-form-item :label="t('还款金额')" name="apply_amount">
+            <template v-if="formState.all_repayment === 1 && maxReductionAmount && !isNormalUser">
+              <a-col :span="12">
+                <a-form-item :label="t('罚息减免最大额度')">
+                  <div class="input-number-content">
+                    <vco-number :bold="true" :value="maxReductionAmount" :precision="2" :end="true"></vco-number>
+                  </div>
+                </a-form-item>
+              </a-col>
+              <a-col :span="7">
+                <a-form-item :label="t('还款总额')">
+                  <a-input-number
+                    v-model:value="formState.apply_amount"
+                    disabled
+                    :max="99999999999"
+                    :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                    :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                  />
+                </a-form-item>
+              </a-col>
+              <a-col :span="1" class="plus-txt"><i class="iconfont">&#xe711;</i></a-col>
+              <a-col :span="7">
+                <a-form-item :label="t('罚息减免')" name="reduction_money">
+                  <a-input-number
+                    v-model:value="formState.reduction_money"
+                    :max="99999999999"
+                    :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                    :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                    @input="amountInput"
+                    @blur="amountInput"
+                  />
+                </a-form-item>
+              </a-col>
+              <a-col :span="1" class="plus-txt"><i class="iconfont">&#xe609;</i></a-col>
+              <a-col :span="7">
+                <a-form-item :label="t('还款金额1')">
+                  <div class="input-number-content">
+                    <vco-number :bold="true" :value="repaymentAmount" :precision="2" color="#31bd65" :end="true"></vco-number>
+                  </div>
+                </a-form-item>
+              </a-col>
+            </template>
+            <a-col v-else :span="12">
+              <a-form-item :label="t('还款金额1')" name="apply_amount">
                 <a-input-number
                   v-model:value="formState.apply_amount"
                   :disabled="formState.all_repayment === 1"
@@ -47,29 +88,6 @@
                 />
               </a-form-item>
             </a-col>
-            <template v-if="formState.all_repayment === 1 && reductionAmount && !isNormalUser">
-              <a-col :span="12">
-                <a-form-item :label="t('罚息减免最大额度')">
-                  <a-input-number
-                    v-model:value="reductionAmount"
-                    :max="99999999999"
-                    :disabled="true"
-                    :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                    :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                  />
-                </a-form-item>
-              </a-col>
-              <a-col :span="12">
-                <a-form-item :label="t('罚息减免')" name="reduction_money">
-                  <a-input-number
-                    v-model:value="formState.reduction_money"
-                    :max="99999999999"
-                    :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                    :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                  />
-                </a-form-item>
-              </a-col>
-            </template>
             <a-col :span="24">
               <a-form-item name="note" class="custom-label">
                 <template #label>
@@ -169,7 +187,7 @@ import { CalendarOutlined } from '@ant-design/icons-vue';
 import DocumentsUpload from './../../../discharge/components/form/DocumentsUpload.vue';
 import dayjs from 'dayjs';
 import { useUserStore } from '@/store'
-import { selectDateFormat, removeDuplicates, numberStrFormat } from '@/utils/tool';
+import tool, { selectDateFormat, removeDuplicates, numberStrFormat } from '@/utils/tool';
 import SecuritiesDialog from './SecuritiesDialog.vue';
 import { cloneDeep } from "lodash"
 
@@ -210,16 +228,36 @@ const formState = ref({
   reduction_money: ''
 });
 
-const reductionAmount = ref(0)
+const maxReductionAmount = ref(0)
 
 const document = ref([]);
 
 const formRef = ref();
 
+const repaymentAmount = computed(() => {
+  let reduceNum = 0
+  if (formState.value.reduction_money < 0) {
+    reduceNum = 0
+  } else {
+    reduceNum = formState.value.reduction_money > maxReductionAmount.value ? maxReductionAmount.value : formState.value.reduction_money
+  }
+
+  const res = tool.minus(formState.value.apply_amount, reduceNum)
+  return res
+})
+
+const amountInput = () => {
+  if (formState.value.reduction_money < 0) {
+    formState.value.reduction_money = 0
+  } else {
+    formState.value.reduction_money = formState.value.reduction_money > maxReductionAmount.value ? maxReductionAmount.value : formState.value.reduction_money
+  }
+}
+
 const getValidateInfo = () => {
   return (rule, value) => {
     if (!value) {
-      return Promise.reject(t('请输入') + t('还款金额'));
+      return Promise.reject(t('请输入') + t('还款金额1'));
     } else {
       const num = Number(value)
       if (isNaN(num)) {
@@ -248,8 +286,8 @@ const validateRed = () => {
           return Promise.reject(t('请输入大于0的数字'));
         }
 
-        if (num > reductionAmount.value) {
-          return Promise.reject(t('最大值为：{0}', [`$${numberStrFormat(reductionAmount.value)}`]));
+        if (num > maxReductionAmount.value) {
+          return Promise.reject(t('最大值为：{0}', [`$${numberStrFormat(maxReductionAmount.value)}`]));
         }
 
         return Promise.resolve();
@@ -343,7 +381,7 @@ const calAmount = () => {
   })
     .then((res) => {
       formState.value.apply_amount = Number(res.last_money) ? Number(res.last_money) : 0
-      reductionAmount.value = Number(res.reduction_money) ? Number(res.reduction_money) : 0
+      maxReductionAmount.value = Number(res.reduction_money) ? Number(res.reduction_money) : 0
       getLoading.value = false;
     })
     .catch(() => {
@@ -356,7 +394,7 @@ const dateChange = (date) => {
     calAmount();
   } else {
     formState.value.apply_amount = 0;
-    reductionAmount.value = 0
+    maxReductionAmount.value = 0
   }
 };
 
@@ -365,7 +403,7 @@ const typeChange = () => {
     calAmount();
   } else {
     formState.value.apply_amount = 0;
-    reductionAmount.value = 0
+    maxReductionAmount.value = 0
   }
   formState.value.note = formState.value.all_repayment === 1 ? 'Full Repayment' : ''
 };
@@ -499,9 +537,6 @@ defineExpose({
       }
     }
   }
-  :deep(.ant-input-number-disabled) {
-    color: #282828 !important;
-  }
 
   :deep(.custom-label) {
     .ant-form-item-label {
@@ -540,5 +575,24 @@ defineExpose({
   white-space: nowrap; /* 禁止换行 */
   overflow: hidden; /* 隐藏溢出内容 */
   text-overflow: ellipsis; /* 使用省略号表示溢出内容 */
+}
+
+.input-number-content {
+  height: 50px;
+  display: flex;
+  align-items: center;
+}
+
+.plus-txt {
+  position: relative;
+  .iconfont {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #282828;
+    font-weight: bold;
+    font-size: 18px;
+  }
 }
 </style>

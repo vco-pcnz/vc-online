@@ -38,23 +38,28 @@
         <a-button v-if="detail?.security && detail?.security?.length" type="brown" shape="round" size="small" @click="openSecurity">{{ t('关联抵押品') }}</a-button>
       </div>
       
+      <div v-if="Number(detail?.reduction_money)" class="flex items-center box mt-4">
+        <i class="iconfont left-icon mr-3">&#xe799;</i>
+        <div>
+          <vco-number :value="detail?.reduction_money" :precision="2" :bold="true" size="fs_xl"></vco-number>
+          <p class="bold color_grey fs_2xs">{{ t('罚息减免') }}</p>
+        </div>
+      </div>
 
       <div class="flex items-center box mt-4">
         <i class="iconfont left-icon mr-3">&#xe757;</i>
         <div>
           <div class="flex">
-            <vco-number :value="detail?.amount" :precision="2" :bold="true" size="fs_2xl"></vco-number>
+            <vco-number
+              :value="repaymentAmount"
+              :precision="2"
+              :bold="true"
+              size="fs_2xl"
+              :color="Number(detail?.reduction_money) ? '#31bd65' : '#282828'"
+            ></vco-number>
             <i v-if="detail?.has_permission && detail?.mark === 'repayment_lm'" @click="openEditHandle" class="iconfont edit">&#xe8cf;</i>
           </div>
           <p class="bold color_grey fs_2xs">{{ t('申请金额') }}: {{ tool.formatMoney(detail?.apply_amount) }}</p>
-        </div>
-      </div>
-
-      <div v-if="Number(detail?.reduction_money)" class="flex items-center box mt-4">
-        <i class="iconfont left-icon mr-3">&#xe799;</i>
-        <div>
-          <vco-number :value="detail?.reduction_money" :precision="2" :bold="true" size="fs_xl" color="#31bd65"></vco-number>
-          <p class="bold color_grey fs_2xs">{{ t('罚息减免') }}</p>
         </div>
       </div>
 
@@ -69,7 +74,7 @@
           <a-button v-if="detail?.has_permission" type="dark" class="big uppercase w-full" @click="detailsVisible = true">{{ t('接受请求') }}</a-button>
 
           <a-popconfirm
-            v-if="hasPermission('projects:repayments:revoke') && !detail?.has_permission && detail?.status !== 2"
+            v-if="hasPermission('projects:repayments:revoke') && !detail?.has_permission && detail?.status !== 2 && detail?.status"
             :title="t('您确定撤销还款吗？')"
             @confirm="revokeHandle"
           >
@@ -102,10 +107,9 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import tool from '@/utils/tool';
-import { navigationTo } from '@/utils/tool';
+import tool, { navigationTo } from '@/utils/tool';
 import { hasPermission } from '@/directives/permission/index';
 import DrawdownBack from './form/DrawdownBack.vue';
 import { loanRdeclinel, loanRsaveStep, loanRrecall, loanRrevoke } from '@/api/project/loan';
@@ -130,6 +134,17 @@ const props = defineProps({
 });
 const accept_loading = ref(false);
 const visible_tip = ref(false)
+
+const repaymentAmount = computed(() => {
+  const reduction_money = Number(props.detail?.reduction_money)
+  if (reduction_money) {
+    const apply_amount = Number(props.detail?.apply_amount)
+    const res = tool.minus(apply_amount, reduction_money)
+    return res
+  } else {
+    return props.detail?.apply_amount
+  }
+})
 
 // 拒绝
 const decline = async () => {
@@ -179,14 +194,6 @@ const openEditHandle = () => {
 }
 
 const detailsVisible = ref(false)
-
-watch(
-  () => props.detail,
-  (val) => {
-    if (val) {
-    }
-  }
-);
 </script>
 
 <style scoped lang="less">

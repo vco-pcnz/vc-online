@@ -76,7 +76,7 @@
               :is-add="currentTab === 1"
               :detail="detail_info"
               @itemEdit="openAddEdit(detail_info)"
-              @update="loadData"
+              @update="update"
             >
             </Detail>
           </div>
@@ -135,6 +135,11 @@ const tabChange = (flag) => {
   loadData()
 };
 
+const update = () => {
+  userStore.getTaskNumInfo()
+  loadData()
+}
+
 const pagination = ref({
   page: 1,
   limit: 5
@@ -151,8 +156,6 @@ const setPaginate = (page, limit) => {
 const tableData = ref([]);
 
 const loadData = () => {
-  userStore.getTaskNumInfo()
-
   loading.value = true;
 
   const ajaxFn = currentTab.value ? dischargeApplySecurity : dischargeSecurity

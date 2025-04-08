@@ -8,7 +8,7 @@
           <a-input-number v-model:value="amount" :max="99999999999" :min="0" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
         </div> -->
 
-        <ProgressPayment :visible="visible" :validate="validate" @change="updateformState"></ProgressPayment>
+        <ProgressPayment :visible="visible" :validate="validate" :data="formState" @change="updateformState"></ProgressPayment>
 
         <div class="flex justify-center">
           <a-button @click="save" type="dark" class="save big uppercase" :loading="loading">
@@ -62,7 +62,7 @@ const updateformState = (val) => {
 };
 const save = () => {
   validate.value = true;
-  if (!amount.value) return message.error(t('请输入') + t('金额'));
+  if (tool.plus(formState.value.build_money || 0, formState.value.other_money || 0) == 0) return;
   loading.value = true;
   let params = {
     uuid: props.uuid,
@@ -83,6 +83,9 @@ const save = () => {
 };
 
 const init = () => {
+  Object.keys(formState.value).forEach((key) => {
+    formState.value[key] = props.detail[key];
+  });
   visible.value = true;
 };
 </script>

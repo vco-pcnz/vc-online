@@ -28,7 +28,7 @@
           </a-col>
           <a-col :span="12">
             <div class="label">{{ t('说明') }}</div>
-            <a-input v-model:value="formState.other_note" />
+            <a-input v-model:value="formState.other_note" @input="change()" />
           </a-col>
         </a-row>
       </template>
@@ -57,6 +57,7 @@ import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import ViewContent from '@/views/requests/progress-payment/components/ViewContent.vue';
+import { cloneDeep } from 'lodash';
 const emits = defineEmits(['change']);
 const { t } = useI18n();
 const props = defineProps({
@@ -66,6 +67,9 @@ const props = defineProps({
   validate: {
     type: Boolean,
     default: false
+  },
+  data: {
+    type: Object
   }
 });
 
@@ -94,7 +98,24 @@ const updateShowOther = () => {
     formState.value.other_money = 0;
     formState.value.other_note = '';
   }
+  emits('change', formState.value);
 };
+
+watch(
+  () => props.visible,
+  (val) => {
+    if (val && props.data) {
+      formState.value = cloneDeep(props.data);
+      if (props.data?.other_money) {
+        showOther.value = true;
+      }
+    }
+  },
+  {
+    immediate: true,
+    deep: true
+  }
+);
 </script>
 
 <style scoped lang="less">

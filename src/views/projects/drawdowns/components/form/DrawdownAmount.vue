@@ -86,6 +86,7 @@ const init = () => {
   Object.keys(formState.value).forEach((key) => {
     formState.value[key] = props.detail[key];
   });
+  formState.value.build__data = props.detail?.buildlog;
   visible.value = true;
 };
 </script>

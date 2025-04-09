@@ -924,5 +924,6 @@ export default {
   "本次使用额度": "This usage amount",
   "取值范围: {0} - {1}": "Value range: {0} - {1}",
   "进度款": "Progress payment",
-  "其他金额": "Other amount"
+  "其他金额": "Other amount",
+  "建设成本类型不能为空": "The type of construction cost cannot be empty"
 }

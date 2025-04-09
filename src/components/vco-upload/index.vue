@@ -17,12 +17,13 @@
       @change="handleChange"
     >
       <slot>
-        <div v-if="(isMultiple && fileList.length < limit && !disabled) || (!isMultiple && !picUrl)">
+        <div v-if="(isMultiple && fileList.length < limit && !disabled) || (!isMultiple && !picUrl)" class="upload-slot">
           <loading-outlined v-if="spinning" />
           <plus-outlined v-else />
           <div class="ant-upload-text">{{ t(text || upText) }}</div>
         </div>
       </slot>
+      <div style="position: fixed; inset: 0;" @click.stop></div>
     </a-upload>
     <div class="delete-img" @click="deleteImg" v-if="type == 'image' && picUrl && limit == 1 && !isMultiple">
       <DeleteOutlined />
@@ -456,10 +457,22 @@ defineExpose({
     .anticon-plus {
       font-size: 18px;
     }
+    .upload-slot {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
   }
   :deep(.ant-upload-list-item-container) {
     width: 110px !important;
     height: 110px !important;
+    position: relative;
+    z-index: 2;
     border-radius: 8px;
     overflow: hidden !important;
     .ant-upload-list-item {

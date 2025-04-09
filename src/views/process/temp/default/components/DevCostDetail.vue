@@ -9,13 +9,13 @@
             <template v-if="p_index === 0">
               <div class="flex justify-between tabel-type">
                 <p class="bold fs_xl">{{ item.type }}</p>
-                <a-button type="brown" shape="round" size="small" @click="add(p_index)" v-if="edit">add</a-button>
+                <a-button type="brown" shape="round" size="small" @click="add(p_index)" v-if="edit && showAdd">add</a-button>
               </div>
               <a-table :columns="ConstructionColumns" :data-source="item.list" :pagination="false" :scroll="{ x: '100%' }">
                 <template #bodyCell="{ column, record, index }">
                   <template v-if="edit">
                     <template v-if="column.dataIndex === 'type'">
-                      <a-select :loading="loading_type" :disabled="Boolean(record?.status)" style="width: 100%" v-model:value="record.type" :options="types" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
+                      <a-select :loading="loading_type" :disabled="Boolean(record?.status)" style="width: 100%" v-model:value="record.type" :options="initTypes" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
                     </template>
                     <template v-if="column.dataIndex === 'loan' || column.dataIndex === 'borrower_equity'">
                       <a-input-number
@@ -249,6 +249,10 @@ const remove = (p_index, index) => {
 };
 
 const save = () => {
+  if (data.value.data[0].list.filter((item) => !item.type).length) {
+    message.error(t('建设成本类型不能为空'));
+    return;
+  }
   emits('update:value', cloneDeep(data.value.total));
   emits('update:dataJson', cloneDeep([data.value]));
   emits('change', cloneDeep({ devCost: data.value.total, devCostDetail: [data.value] }));
@@ -304,7 +308,7 @@ const initData = () => {
   data.value.total = tool.plus(data.value.loan || 0, data.value.borrower_equity || 0);
 };
 const init = () => {
-  if (props.disabled) { return }
+  if (props.disabled) return;
   loadType();
   if (props.dataJson && props.dataJson.length) {
     data.value = cloneDeep(props.dataJson[0]);
@@ -316,6 +320,20 @@ const init = () => {
   }
   visible.value = true;
 };
+
+const initTypes = computed(() => {
+  const selectArr = data.value.data[0].list.map((item) => {
+    if (!item.status) return item.type;
+  });
+  types.value.map((item) => {
+    item['disabled'] = selectArr.includes(item.code);
+  });
+  return types.value;
+});
+
+const showAdd = computed(() => {
+  return data.value.data[0].list.filter((item) => item.status !== 1).length != types.value.length;
+});
 
 onMounted(() => {
   if (!props.dataJson) {

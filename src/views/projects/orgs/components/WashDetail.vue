@@ -15,7 +15,8 @@
             <p>
               <span class="cer" v-if="detailData.cate == 1">{{ t('借款人') }}</span>
               <span class="cer" v-if="detailData.cate == 2">{{ t('担保人') }}</span>
-              <span class="cer" v-if="detailData.cate == 3">{{ t('投资人') }}</span>
+              <span class="cer" v-if="detailData.cate == 3">{{ t('受益人') }}</span>
+              <span class="cer" v-if="detailData.cate == 4">{{ t('投资人') }}</span>
             </p>
           </a-col>
           <a-col :span="8" class="item-txt">

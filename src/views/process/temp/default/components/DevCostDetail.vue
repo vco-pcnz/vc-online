@@ -249,18 +249,24 @@ const remove = (p_index, index) => {
 };
 
 const save = () => {
-  if (data.value.data[0].list.filter((item) => !item.type).length) {
+  const doneData = cloneDeep(data.value)
+  doneData.data[0].list.forEach(item => {
+    item.name = typesObj.value[item.type] || ''
+  })
+  
+  if (doneData.data[0].list.filter((item) => !item.type).length) {
     message.error(t('建设成本类型不能为空'));
     return;
   }
-  emits('update:value', cloneDeep(data.value.total));
-  emits('update:dataJson', cloneDeep([data.value]));
-  emits('change', cloneDeep({ devCost: data.value.total, devCostDetail: [data.value] }));
+  emits('update:value', cloneDeep(doneData.total));
+  emits('update:dataJson', cloneDeep([doneData]));
+  emits('change', cloneDeep({ devCost: doneData.total, devCostDetail: [doneData] }));
   updateVisible(false);
 };
 
 const loading_type = ref(false);
 const types = ref([]);
+const typesObj = ref() // 字典名称
 const loadType = (key) => {
   if (types.value.length) {
     return;
@@ -268,7 +274,16 @@ const loadType = (key) => {
   loading_type.value = true;
   systemDictData('devCostTypeConstruction')
     .then((res) => {
-      types.value = res;
+      const resData = res || []
+      types.value = resData;
+
+      // 字典名称记录
+      const obj = {}
+      for (let i = 0; i < resData.length; i++) {
+        obj[resData[i].code] = resData[i].name
+      }
+      typesObj.value = obj
+
       if (!data.value.data[0].list.length) {
         res.map((item) => {
           data.value.data[0].list.push({

@@ -99,14 +99,25 @@
                     :key="item.uuid"
                     class="user-item"
                   >
-                    <vco-user-item :data="item" :main="true"></vco-user-item>
-                    <i
-                      v-if="blockInfo?.showEdit && !disabledGua"
-                      class="iconfont"
-                      @click="removeItem(index)"
-                    >
-                      &#xe77d;
-                    </i>
+                    <vco-user-item :data="item" :main="true" :tips="item.category === 2 ? 'company' : ''"></vco-user-item>
+                    <template v-if="blockInfo?.showEdit && !disabledGua">
+                      <a-popconfirm
+                        :title="t('移除主账号保存后，会移除其下的所有子账号，确定移除吗？')"
+                        :ok-text="t('确定')"
+                        :cancel-text="t('取消')"
+                        v-if="item.category === 2"
+                        @confirm="removeItem(index)"
+                      >
+                        <i class="iconfont">&#xe77d;</i>
+                      </a-popconfirm>
+                      <i
+                        v-else
+                        class="iconfont"
+                        @click="removeItem(index)"
+                      >
+                        &#xe77d;
+                      </i>
+                    </template>
                   </div>
                 </template>
                 <p v-else class="no-data" @click="openDialg">
@@ -187,7 +198,7 @@ const formRef = ref();
 const formState = reactive({
   main_contractor: '',
   security_package: [],
-  guarantor_uuids: '',
+  guarantor_uuids: [],
 });
 
 const formRules = ref({
@@ -226,6 +237,15 @@ const saveHandle = () => {
       params.security_package = params.security_package.join(',');
       params.uuid = props.currentId;
       params.code = props.blockInfo?.code;
+
+      const guarantor_uuids = userData.value.filter(item => (item.category === 2 || !item.category)).map(item => item.uuid)
+      const guarantor_list = props.guarantorInfo.guarantor_list.filter(item => item.category !== 2).map(item => item.id)
+      const userdata_list = userData.value.filter(item => item.category !== 2).map(item => item.id)
+
+      const del_ids = guarantor_list.filter(item => !userdata_list.includes(item))
+
+      params.guarantor_uuids = guarantor_uuids
+      params.del_ids = del_ids
 
       let ajaxFn = projectAuditSaveMode
 
@@ -266,7 +286,7 @@ const userChoiced = (data) => {
   const dataArr = [...userData.value, ...data];
 
   userData.value = removeDuplicates(dataArr, 'uuid');
-  formState.guarantor_uuids = userData.value.map((item) => item.uuid).join(',');
+  formState.guarantor_uuids = userData.value.map((item) => item.uuid)
   formRef.value.validateFields(['guarantor_uuids']);
 
   emitter.emit('changeDataLetDis', true)
@@ -275,9 +295,7 @@ const userChoiced = (data) => {
 const removeItem = (index) => {
   userData.value.splice(index, 1);
 
-  const uuidsArr = formState.guarantor_uuids.split(',')
-  uuidsArr.splice(index, 1);
-  formState.guarantor_uuids = uuidsArr.join(',')
+  formState.guarantor_uuids.splice(index, 1);
   formRef.value.validateFields(['guarantor_uuids']);
 
   emitter.emit('changeDataLetDis', true)
@@ -295,10 +313,11 @@ const getSecurityTypeData = () => {
 };
 
 const dataInit = () => {
+  const guarantor_list = cloneDeep(props.guarantorInfo.guarantor_list)
   formState.main_contractor = props.guarantorInfo.main_contractor;
   formState.security_package = props.guarantorInfo.security_package;
-  userData.value = props.guarantorInfo.guarantor_list;
-  formState.guarantor_uuids = userData.value.map((item) => item.uuid).join(',');
+  userData.value = guarantor_list;
+  formState.guarantor_uuids = userData.value.map((item) => item.uuid)
 };
 
 const checkHandle = async () => {

@@ -1,5 +1,13 @@
 <template>
   <div>
+    <!-- 确认弹窗 -->
+    <vco-confirm-alert
+      ref="changeAlertRef"
+      :confirm-txt="confirmTxt"
+      v-model:visible="changeVisible"
+      @submit="submitRquest"
+    ></vco-confirm-alert>
+
     <a-spin :spinning="pageLoading" size="large">
       <div class="progress-payment-content">
         <template v-if="(securityData.length || setedData.length) && !pageLoading">       
@@ -175,7 +183,10 @@
                 </div>
               </div>
             </div>
-            <div class="mt-5 flex justify-end">
+            <div class="mt-10 flex justify-end gap-10">
+              <a-button type="grey" class="big shadow bold uppercase"
+                @click="goBack"
+              >{{ t('返回') }}</a-button>
               <a-button type="dark" class="big shadow bold uppercase" 
                 :loading="subLoading"
                 @click="submitHandle"
@@ -207,7 +218,7 @@
   import { dischargeSecurity } from '@/api/project/loan';
   import { systemDictDataApi } from "@/api/system/index"
   import { cloneDeep } from "lodash"
-  import tool, { numberStrFormat } from "@/utils/tool"
+  import tool, { numberStrFormat, goBack } from "@/utils/tool"
 
   const { t } = useI18n();
   const route = useRoute();
@@ -732,7 +743,28 @@
     })
   }
 
+  const changeAlertRef = ref()
+  const confirmTxt = ref('')
+  const changeVisible = ref(false)
+
+  const currentParams = ref()
   const subLoading = ref(false)
+
+  const submitRquest = () => {
+    subLoading.value = true
+
+    const ajaxFn = props.isOpen ? projectLoanSaveBuild : projectSaveBuild
+    ajaxFn(currentParams.value).then(() => {
+      subLoading.value = false
+      changeVisible.value = false
+      changeAlertRef.value.changeLoading(false)
+      restoreHandle()
+    }).catch(() => {
+      subLoading.value = false
+      changeAlertRef.value.changeLoading(false)
+    })
+  }
+
   const submitHandle = () => {
     const security_uuid = []
     for (let i = 0; i < tableHeader.value.length; i++) {
@@ -803,24 +835,37 @@
       })
     }
 
+    const construction = Number(summaryHandle.value('total'))
+
     const params = {
       security_uuid,
       build,
       uuid: uuid.value,
       payment: paymentData,
-      summary: summaryData
+      summary: summaryData,
+      construction: construction
     }
 
-    subLoading.value = true
+    currentParams.value = cloneDeep(params)
 
-    const ajaxFn = props.isOpen ? projectLoanSaveBuild : projectSaveBuild
-    ajaxFn(params).then(() => {
-      subLoading.value = false
-      restoreHandle()
-    }).catch(() => {
-      subLoading.value = false
-    })
+    if (construction !== buildAmount.value) {
+      const diffNum = tool.minus(construction, buildAmount.value)
+      if (props.isOpen) {
+        console.log('opened');
+      } else {
+        confirmTxt.value = t(`开发成本中的建造费为：<span>{0}</span>，当前设置值为：<span>{1}</span>，相差：<span>{2}</span>，保存后请重新保存贷款信息，以生成预测列表`, [
+          `$${numberStrFormat(buildAmount.value)}`,
+          `$${numberStrFormat(construction)}`,
+          `$${numberStrFormat(diffNum)}`
+        ])
+
+        changeVisible.value = true
+      }
+    } else {
+      submitRquest()
+    }
   }
+
   onMounted(async () => {
     const { fullPath, query } = route
     isRequests.value = fullPath.indexOf('requests') > -1

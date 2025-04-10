@@ -104,13 +104,31 @@
             
             <a-col :span="24"><div class="form-line"></div></a-col>
           </template>
+
+          <a-col :span="24">
+            <a-form-item :label="t('开发成本')">
+              <DevCostDetail
+                :disabled="amountDisabled || inputADis"
+                v-model:value="formState.devCost"
+                v-model:dataJson="formState.devCostDetail"
+                @change="devCostChange"
+              >
+                <div class="inline overflow-hidden">
+                  <vco-number class="float-left" v-model:value="formState.devCost" :precision="2" :end="true"></vco-number>
+                  <a-button class="float-left ml-3" v-if="!amountDisabled && !inputADis" type="link">
+                    <i class="iconfont">&#xe753;</i>
+                  </a-button>
+                </div>
+              </DevCostDetail>
+            </a-form-item>
+          </a-col>
           
           <a-col :span="7">
             <a-form-item :label="t('土地贷款总额')" name="land_amount">
               <a-input-number
                 v-model:value="formState.land_amount"
                 :max="99999999999"
-                :disabled="amountDisabled || inputADis"
+                :disabled="true"
                 :formatter="
                   (value) =>
                     `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -123,11 +141,26 @@
             <i class="iconfont">&#xe889;</i>
           </a-col>
           <a-col :span="7">
-            <a-form-item :label="t('建筑贷款总额')" name="build_amount">
+            <a-form-item name="build_amount" class="w-full-label">
+              <template #label>
+                <div class="w-full flex justify-between items-center" style="height: 22px;">
+                  <p>{{ t('建筑贷款总额') }}</p>
+                  <a-button
+                    v-if="showProgressPayment"
+                    type="link"
+                    style="font-size: 12px; height: auto !important;"
+                    class="flex items-center"
+                    @click="goProgressPage"
+                  >
+                    <p>{{ t('进度付款') }}</p>
+                    <i class="iconfont">&#xe602;</i>
+                  </a-button>
+                </div>
+              </template>
               <a-input-number
                 v-model:value="formState.build_amount"
                 :max="99999999999"
-                :disabled="amountDisabled || inputADis"
+                :disabled="true"
                 :formatter="
                   (value) =>
                     `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -136,6 +169,7 @@
               />
             </a-form-item>
           </a-col>
+
           <a-col :span="1" class="plus-txt"><i class="iconfont">=</i></a-col>
           <a-col :span="8" class="total-amount-info">
             <a-form-item :label="t('借款总金额')">
@@ -144,18 +178,6 @@
                 :precision="2"
                 :end="true"
               ></vco-number>
-              <a-button
-                type="brown"
-                shape="round"
-                size="small"
-                class="absolute flex items-center"
-                style="bottom: -20px"
-                v-if="showProgressPayment"
-                @click="goProgressPage"
-              >
-                {{ t('查看进度付款') }}
-                <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px'  }" />
-              </a-button>
             </a-form-item>
           </a-col>
           <a-col :span="24"><div class="form-line"></div></a-col>
@@ -171,7 +193,7 @@
                 :options="formattedRefinancialData"
                 :filter-option="filterOption"
                 :placeholder="t('请选择项目')"
-                style="width: 65.5%;"
+                style="width: 52.58%;"
                 :disabled="refinancialDisabled"
                 @change="(value, option) => refinancialChange(option)"
               >
@@ -188,7 +210,7 @@
               </a-select>
             </a-form-item>
           </a-col>
-          <a-col :span="isRefinancial ? 5 : 7">
+          <a-col :span="isRefinancial ? 6 : 7">
             <a-form-item
               :label="t('首次土地贷款放款额')"
               name="initial_land_amount"
@@ -208,7 +230,7 @@
           <a-col :span="1" class="plus-txt">
             <i class="iconfont">&#xe889;</i>
           </a-col>
-          <a-col :span="isRefinancial ? 5 : 7">
+          <a-col :span="isRefinancial ? 6 : 7">
             <a-form-item
               :label="t('首次建筑贷款放款额')"
               name="initial_build_amount"
@@ -240,7 +262,7 @@
             </a-col>
           </template>
           <a-col :span="1" class="plus-txt"><i class="iconfont">=</i></a-col>
-          <a-col :span="isRefinancial ? 7 : 8" class="total-amount-info" :class="{'financial': isRefinancial}">
+          <a-col :span="isRefinancial ? 5 : 8" class="total-amount-info" :class="{'financial': isRefinancial}">
             <a-form-item :label="t('首次放款总金额')">
               <vco-number
                 :value="totalInitialAmountRef"
@@ -374,6 +396,7 @@
   import emitter from '@/event';
   import useProcessStore from '@/store/modules/process';
   import tool, { navigationTo, numberStrFormat } from '@/utils/tool';
+  import DevCostDetail from './DevCostDetail.vue';
 
   const processStore = useProcessStore();
 
@@ -622,7 +645,9 @@
     initial_land_amount: '',
     substitution_ids: [],
     has_linefee: 1,
-    do__est: 0
+    do__est: 0,
+    devCost: '',
+    devCostDetail:''
   });
 
   const formRules = ref({
@@ -838,8 +863,10 @@
     formState.value.initial_build_amount = props.lendingInfo.initial_build_amount;
     formState.value.initial_land_amount = props.lendingInfo.initial_land_amount;
 
-    staticFormData.value = cloneDeep(formState.value)
+    formState.value.devCost = props.lendingInfo.devCost
+    formState.value.devCostDetail = props.lendingInfo.devCostDetail
 
+    staticFormData.value = cloneDeep(formState.value)
     emits('openData', {
       table: tableDataRefData.value,
       data: formState.value
@@ -1083,7 +1110,8 @@
           return false;
         }
 
-        if (build_amount + land_amount < 0 || build_amount + land_amount === 0) {
+        const totalAmount = build_amount + land_amount
+        if (totalAmount < 0 || totalAmount === 0) {
           message.error(t('借款总额不正确'));
           return false;
         }
@@ -1103,6 +1131,8 @@
         delete credit__data.substitution_ids
         delete credit__data.has_linefee
         delete credit__data.do__est
+        delete credit__data.devCost
+        delete credit__data.devCostDetail
 
         const params = {
           code: props.blockInfo.code,
@@ -1112,6 +1142,8 @@
           initial_build_amount: formState.value.initial_build_amount || 0,
           initial_land_amount: formState.value.initial_land_amount || 0,
           substitution_ids: formState.value.substitution_ids || [],
+          devCost: formState.value.devCost,
+          devCostDetail: formState.value.devCostDetail,
           substitution_amount: refinancialAmount.value || 0,
           has_linefee: Number(formState.value.has_linefee),
           do__est: Number(formState.value.do__est),
@@ -1142,6 +1174,19 @@
         console.log('error', error);
       });
   };
+
+  const devCostChange = (data) => {
+    const list = data.devCostDetail[0].data[0].list
+    const landObj = list.find(item => item.type === 'Land')
+    formState.value.land_amount = landObj ? landObj.loan : 0
+
+    const filterType = ['Land', 'Refinance']
+    const buildArr = list.filter(item => !filterType.includes(item.type)).map(item => item.loan)
+    const total = buildArr.reduce((total, num) => {
+      return Number(tool.plus(total, num))
+    }, 0);
+    formState.value.build_amount = total || 0
+  }
 
   watch(
     () => props.lendingInfo,

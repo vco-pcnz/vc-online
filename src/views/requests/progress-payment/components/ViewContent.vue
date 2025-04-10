@@ -20,19 +20,27 @@
             <vco-number :value="currentItemInfo.can_amount" color="#31bd65" size="fs_md" :precision="2"></vco-number>
           </div>
         </a-col>
-        <a-col :span="24">
+        <a-col :span="16">
           <div class="info-content sys-form-content">
             <p class="name mb-2">{{ t('可用额度') }}</p>
             <a-input-number
               v-model:value="currentItemInfo.set_amount"
               :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
               :parser="value => value.replace(/\$\s?|(,*)/g, '')"
+              @input="() => currentItemInput(true)"
             />
             <p v-if="currentItemInfo.showError" class="input-error">{{ t('取值范围: {0} - {1}', ['$0.00', `$${numberStrFormat(currentItemInfo.can_amount)}`]) }}</p>
           </div>
         </a-col>
+        <a-col :span="8">
+          <div class="info-content sys-form-content">
+            <p class="name mb-2">{{ t('可用额度比例') }}</p>
+            <a-input v-model:value="currentItemInfo.set_amount_per" suffix="%" @input="() => currentItemInput(false)" />
+            <p v-if="currentItemInfo.showError" class="input-error">{{ `0.00% - ${numberStrFormat(currentItemInfo.can_amount_per)}%`}}</p>
+          </div>
+        </a-col>
       </a-row>
-      <div class="mt-5 flex justify-end">
+      <div class="mt-5 flex justify-center">
         <a-button type="dark" class="big shadow bold uppercase"
           @click="selectSureHandle"
         >{{ t('确定') }}</a-button>
@@ -52,7 +60,59 @@
             :scroll="{ x: '100%', y: 450 }"
           >
             <template #bodyCell="{ column, record, index }">
-              <template v-if="column.dataIndex === 'type'">
+              <template v-if="record.isFixedRow">
+                <template v-if="column.dataIndex === 'type'">
+                  <p>{{ record.type }}</p>
+                </template>
+                <template v-else-if="column.dataIndex === 'payment'">
+                  <p>{{ numberStrFormat(advancePercent) }}%</p>
+                </template>
+                <template v-else-if="column.dataIndex === 'total'">
+                  <template v-if="showProcess">
+                    <vco-number :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
+                    <vco-number :value="advanceAmount" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
+                    <div class="process-gap"></div>
+                    <div class="item-process-content">
+                      <a-progress
+                        :stroke-color="{
+                          '0%': '#F19915',
+                          '100%': '#ffb92c',
+                        }"
+                        :size="6"
+                        :percent="advanceObj.percent"
+                      />
+                    </div>
+                  </template>
+                  <vco-number v-else :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
+                </template>
+                <template v-else>
+                  <div v-if="showProcess" class="select-item" :class="{'hover': isSelect}" @click="itemSetHandle(advanceObj)">
+                    <vco-number :value="advanceAmount" size="fs_xs" :precision="2" :end="true"></vco-number>
+                    <vco-number :value="advanceAmount" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
+                    <div class="process-gap"></div>
+                    <div class="item-process-content line">
+                      <div class="progress">
+                        <a-progress
+                          :stroke-color="{
+                            '0%': '#F19915',
+                            '100%': '#ffb92c',
+                          }"
+                          :size="6"
+                          :percent="advanceObj.percent"
+                        />
+                      </div>
+                    </div>
+
+                    <div v-if="advanceObj.checked" class="selected">{{ `$${numberStrFormat(advanceObj.set_amount)}` }}</div>
+                  </div>
+
+                  <div v-else class="flex justify-center">
+                    <vco-number :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
+                  </div>
+                </template>
+              </template>
+
+              <template v-else-if="column.dataIndex === 'type'">
                 <p>{{ record[column.dataIndex] }}</p>
               </template>
               <template v-else-if="column.dataIndex === 'payment'">
@@ -100,9 +160,7 @@
               <a-table-summary fixed>
                 <a-table-summary-row>
                   <a-table-summary-cell v-for="(item, index) in summaryCol" :index="index" :key="item.key" class="text-center">
-                    <template v-if="item.key === 'type'">
-                      {{ t('概括') }}
-                    </template>
+                    <template v-if="item.key === 'type'">Construction</template>
                     <template v-else-if="item.key === 'payment'">
                       <p class="total-percent">{{ numberStrFormat(summaryHandle(item.key)) }}%</p>
                     </template>
@@ -147,22 +205,41 @@
               </a-table-summary>
             </template>
           </a-table>
-          <div v-if="!isSelect" class="other-table-info">
-            <div v-for="item in otherInfoObj" :key="item.type_name" class="item">
-              <p>{{ item.title }}</p>
-              <div class="total-item">
-                <vco-number :value="otherInfo[item.type_name]" size="fs_md" :precision="2" :end="true"></vco-number>
-              </div>
-            </div>
-            <div class="item">
-              <p>Total Cost to Complete</p>
-              <div class="total-item">
-                <vco-number :value="tableTotal" size="fs_xl" :precision="2" :end="true"></vco-number>
-              </div>
+          <div class="other-table-info">
+            <div
+              v-for="item in footerDataCol" :key="item.type"
+              class="item"
+              :class="{'hover': isSelect}"
+              @click="itemSetHandle(item)"
+            >
+              <vco-number :value="item.loan" size="fs_md" :precision="2" :end="true"></vco-number>
+              <vco-number v-if="showProcess" :value="item.use_amount" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
+              <a-progress
+                v-if="showProcess"
+                :stroke-color="{
+                  '0%': '#F19915',
+                  '100%': '#ffb92c',
+                }"
+                :size="6"
+                :percent="item.percent"
+              />
+              <p :class="{'mt-2': !showProcess}">{{ item.name }}</p>
+              <div v-if="item.checked" class="selected">{{ `$${numberStrFormat(item.set_amount)}` }}</div>
             </div>
           </div>
+          <div class="table-total-content">
+            <p>Total Cost to Complete</p>
+            <div class="total-item">
+              <vco-number :value="tableTotal" :bold="true" size="fs_xl" :precision="2" :end="true"></vco-number>
+            </div>
+          </div>
+
           <div v-if="isSelect" class="mt-10 flex justify-between">
-            <vco-number :value="selectTotalAmount" size="fs_3xl" :precision="2" :end="true"></vco-number>
+            <div>
+              <vco-number :value="selectTotalAmount" :bold="true" size="fs_3xl" :precision="2" :end="true"></vco-number>
+              <p style="font-size: 12px; color: #888;">{{ t('已选总额') }}</p>
+            </div>
+            
             <a-button type="dark" class="big shadow bold uppercase"
               @click="selectConfirm"
             >{{ t('确定') }}</a-button>
@@ -181,7 +258,6 @@
   import { projectAuditStepDetail, projectGetBuild, projectLoanGetBuild, projectDetailApi } from "@/api/process"
   import { cloneDeep } from "lodash"
   import tool, { numberStrFormat } from "@/utils/tool"
-  import { otherInfoObj } from "./../config.js"
 
   const { t } = useI18n();
   const route = useRoute();
@@ -203,8 +279,6 @@
 
   const pageLoading = ref(false)
 
-  // 建筑放款额
-  const buildAmount = ref(0)
   // 是否为进件阶段
   const isRequests = ref(false)
   const hasData = ref(false)
@@ -223,6 +297,7 @@
   const tableHeader = ref([])
   const tableData = ref([])
   const summaryCol = ref([])
+  const footerDataCol = ref([])
 
   const extractAmounts = (obj, keyword, keyValue) => {
     const result = [];
@@ -240,12 +315,18 @@
 
   const summaryHandle = (key, keyValue) => {
     const keyStr = keyValue || 'amount'
-    const arr = tableData.value.map(item => item[key])
+    const arr = tableData.value.filter(item => !item.isFixedRow).map(item => item[key])
     const numArr = isNaN(Number(arr[0])) ? arr.map(item => Number(item[`${keyStr}`])) : arr.map(item => Number(item))
     const total = numArr.reduce((total, num) => {
       return Number(tool.plus(total, num))
     }, 0);
-    return total
+    if (key === 'payment') {
+      return tool.plus(total, advancePercent.value)
+    } else if (key === 'total') {
+      return tool.plus(total, advanceAmount.value)
+    } else {
+      return total
+    }
   }
 
   const getTotalPercent = (useAmount, amount) => {
@@ -255,11 +336,7 @@
 
   const tableTotal = computed(() => {
     const tableNum = summaryHandle('total')
-    const inputArr = []
-    for (const key in otherInfo.value) {
-      const num = otherInfo.value[key] || 0
-      inputArr.push(num)
-    }
+    const inputArr = footerDataCol.value.map(item => item.loan)
     const inputNum = inputArr.reduce((total, num) => {
       return Number(tool.plus(total, num))
     }, 0);
@@ -267,32 +344,37 @@
   })
 
   const tableUseTotal = computed(() => {
-    const arr = tableData.value.map(item => item.useTotal)
+    const arr = tableData.value.filter(item => !item.isFixedRow).map(item => item.useTotal)
     const total = arr.reduce((total, num) => {
       return Number(tool.plus(total, num))
     }, 0);
     return total
   })
 
-  // 其他数据
-  const otherInfo = ref({})
-  const otherInfoObjSta = cloneDeep(otherInfoObj)
-  for (let i = 0; i < otherInfoObjSta.length; i++) {
-    otherInfo.value[otherInfoObjSta[i].type_name] = 0
-  }
 
   const setTableData = (headerData) => {
     const payment = cloneDeep(setedData.value.payment)
     const column = cloneDeep(setedData.value.column)
+
+    // 去掉第一行
+    const index = column.findIndex(item => item === advanceKey.value)
+    if (index > -1) {
+      column.splice(index, 1)
+    }
+
     const data = []
     for (const key in column) {
       data.push({
         name: column[key],
-        code: key
+        code: Number(key) + 1
       })
     }
     const hadSetData = cloneDeep(setedData.value.data)
-    const dataArr = []
+    const dataArr = [{
+        isFixedRow: true,
+        type: advanceKey.value
+      }
+    ]
     for (let i = 0; i < data.length; i++) {
       const obj = {
         type: data[i].name,
@@ -305,6 +387,7 @@
           amountItem.amount = Number(amountItem.amount)
           amountItem.checked = false
           amountItem.set_amount = ''
+          amountItem.set_amount_per = ''
           const use_amount = amountItem.use_amount || 0
           const num = Number(Number(tool.div(Number(use_amount), Number(amountItem.amount))).toFixed(2))
           amountItem.percent = Number(tool.times(num, 100))
@@ -339,6 +422,12 @@
 
     pageLoading.value = false
   }
+
+  // 请求已设置数据
+  const advanceKey = ref('Initial advance to fund deposit')
+  const advanceObj = ref()
+  const advancePercent = ref(0)
+  const advanceAmount = ref(0)
 
   const setTableHeader = () => {
     const rowData = setedData.value.row
@@ -376,6 +465,29 @@
       })
     }
 
+    // 合并第一行数据
+    tableHeader.value.forEach((item, index) => {
+      item.customCell = (record) => {
+        if (record.isFixedRow) {
+          const mergeStart = 2
+          const mergeEnd = tableHeader.value.length - 2
+
+          if (index === mergeStart) {
+            // 第一个合并单元格的起始位置
+            return {
+              colSpan: mergeEnd - mergeStart + 1 // 要合并多少列
+            }
+          } else if (index > mergeStart && index <= mergeEnd) {
+            // 被合并的列
+            return {
+              colSpan: 0
+            }
+          }
+        }
+        return {}
+      }
+    })
+
     summaryCol.value = summaryColData
     setTableData(headerData)
   }
@@ -394,10 +506,47 @@
           setedData.value = res
           hasData.value = true
 
-          if (Object.keys(res.summary)) {
-            for (const key in otherInfo.value) {
-              otherInfo.value[`${key}`] = res.summary[`${key}`] ? Number(res.summary[`${key}`].amount) : 0
+          // 首次放款数据
+          if (Object.keys(res.payment).length) {
+            if (res.payment[`0__payment`]) {
+              advancePercent.value = res.payment[`0__payment`].amount
             }
+          }
+
+          // footer 数据
+          if (Object.keys(res.summary).length) {
+            if (res.summary[`${advanceKey.value}`]) {
+              advanceAmount.value = res.summary[`${advanceKey.value}`].amount
+
+              const advanceItem = res.summary[`${advanceKey.value}`]
+
+              advanceItem.amount = Number(advanceItem.amount)
+              advanceItem.checked = false
+              advanceItem.set_amount = ''
+              advanceItem.set_amount_per = ''
+              const use_amount = advanceItem.use_amount || 0
+              const num = Number(Number(tool.div(Number(use_amount), Number(advanceItem.amount))).toFixed(2))
+              advanceItem.percent = Number(tool.times(num, 100))
+              
+              advanceObj.value = advanceItem
+            }
+
+            const footerData = footerDataCol.value.map(item => {
+              item.amount = Number(res.summary[`${item.name}`].amount)
+              item.checked = false
+              item.set_amount = ''
+              item.set_amount_per = ''
+              const use_amount = item.use_amount || 0
+              const num = Number(Number(tool.div(Number(use_amount), Number(item.amount))).toFixed(2))
+              item.percent = Number(tool.times(num, 100))
+
+              return {
+                loan: res.summary[`${item.name}`].amount,
+                ...item,
+                ...res.summary[`${item.name}`]
+              }
+            })
+            footerDataCol.value = footerData
           }
         } else {
           pageLoading.value = false
@@ -423,7 +572,12 @@
       const ajaxFn = isRequests.value ? projectAuditStepDetail : projectDetailApi
       await ajaxFn(params).then(res => {
         emits('done', res)
-        buildAmount.value = Number(res.lending.build_amount)
+
+        const list = res.lending.devCostDetail[0].data[0].list
+        const filterType = ['Land', 'Construction', 'Refinance']
+        const footerData = list.filter(item => !filterType.includes(item.type))
+
+        footerDataCol.value = footerData || []
       })
       
       await getSetedData()
@@ -444,10 +598,23 @@
   const itemVisible = ref(false)
   const currentItemInfo = ref()
 
+  const currentItemInput = (flag) => {
+    if (flag) {
+      const per = tool.div(currentItemInfo.value.set_amount, currentItemInfo.value.can_amount)
+      currentItemInfo.value.set_amount_per = Number(tool.times(per, 100)).toFixed(2)
+    } else {
+      if (!isNaN(currentItemInfo.value.set_amount_per)){
+        const per = tool.div(currentItemInfo.value.set_amount_per, 100)
+        currentItemInfo.value.set_amount = Number(tool.times(per, currentItemInfo.value.can_amount)).toFixed(2)
+      }
+    }
+  }
+
   const itemSetHandle = (data) => {
     if (props.isSelect) {
       const num = tool.minus(Number(data.amount), Number(data.use_amount))
       data.can_amount = num
+      data.can_amount_per = tool.times(tool.div(Number(num), Number(data.amount)), 100)
       data.showError = false
       currentItemInfo.value = data
       itemVisible.value = true
@@ -615,32 +782,53 @@
   .other-table-info {
     border: 1px solid #272727;
     border-top: none;
-    background-color: #f8f8f8;
+    background-color: #fff;
+    display: flex;
     > .item {
+      flex: 1;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid #272727;
+      border-right: 1px solid #ddd;
       padding: 10px 15px;
-      height: 60px;
+      position: relative;
       &:last-child {
-        border-bottom: none;
+        border-right: none;
       }
-      :deep(.ant-input-number) {
-        width: 150px;
-        border-color: #272727;
-        .ant-input-number-handler-wrap {
-          display: none !important;
+      &.hover {
+        cursor: pointer;
+        transition: all 0.2s ease;
+        &:hover {
+          background-color: rgba(241, 153, 21, .2)
         }
-        .ant-input-number-input {
-          text-align: center;
-        }
+      }
+      > p {
+        font-size: 12px;
+        color: #282828;
       }
       .total-item {
         min-width: 150px;
         display: flex;
         align-items: center;
+        flex-direction: column;
         justify-content: center;
+      }
+
+      .selected {
+        position: absolute;
+        background-color: rgba(49, 189, 101, 0.8);
+        top: 0;
+        right: 0;
+        font-size: 11px;
+        padding: 0 5px;
+      }
+
+      .ant-progress-line {
+        margin: 0;
+      }
+
+      :deep(.ant-progress-text) {
+        font-size: 11px !important;
       }
     }
   }
@@ -654,6 +842,13 @@
     left: 0;
     bottom: 0;
     padding: 0 15px;
+    &.line {
+      display: flex;
+      justify-content: center;
+      > .progress {
+        width: 200px;
+      }
+    }
     :deep(.ant-progress-text) {
       font-size: 11px !important;
     }
@@ -695,5 +890,21 @@
     color: #eb4b6d;
     text-align: left;
     margin-top: 2px;
+  }
+
+  .table-total-content {
+    background-color: #f8f8f8;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    border: 1px solid #272727;
+    border-top: none;
+    > .total-item {
+      min-width: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
   }
 </style>

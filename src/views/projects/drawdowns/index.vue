@@ -102,6 +102,7 @@ const setPaginate = (page, limit) => {
 };
 
 const update = (val) => {
+  userStore.getTaskNumInfo()
   if (val) {
     pagination.value.page = 1;
   }
@@ -113,8 +114,6 @@ const update = (val) => {
 const tableData = ref([]);
 
 const loadData = () => {
-  userStore.getTaskNumInfo()
-  
   loading.value = true;
   loanDrawdown({ uuid: uuid.value, ...pagination.value })
     .then((res) => {

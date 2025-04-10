@@ -64,8 +64,6 @@ const setPaginate = (page, limit) => {
 const tableData = ref([]);
 
 const loadData = () => {
-  userStore.getTaskNumInfo()
-  
   loading.value = true;
 
   penalty({ uuid: uuid.value, ...pagination.value })
@@ -90,6 +88,7 @@ const getProjectDetail = (val) => {
 
 const reload = () => {
   pagination.value.page = 1;
+  userStore.getTaskNumInfo()
   loadData();
 };
 

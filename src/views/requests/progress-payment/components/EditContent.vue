@@ -1,39 +1,16 @@
 <template>
   <div>
+    <!-- 确认弹窗 -->
+    <vco-confirm-alert
+      ref="changeAlertRef"
+      :confirm-txt="confirmTxt"
+      v-model:visible="changeVisible"
+      @submit="submitRquest"
+    ></vco-confirm-alert>
+
     <a-spin :spinning="pageLoading" size="large">
       <div class="progress-payment-content">
-        <template v-if="(securityData.length || setedData.length) && !pageLoading">
-          <div class="sys-form-content block-item details">
-            <div class="flex justify-between items-end">
-              <div class="flex items-end gap-10">
-                <div class="input-item">
-                  <p>{{ t('建筑贷款总额') }}</p>
-                  <a-input-number
-                    v-model:value="buildAmount"
-                    :max="99999999999"
-                    :disabled="!canModifyBamount"
-                    :formatter="
-                      (value) =>
-                        `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-                    "
-                    :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                  />
-                </div>
-                <a-button
-                  v-if="canModifyBamount"
-                  type="dark"
-                  class="big shadow bold uppercase"
-                  :loading="amountLoading"
-                  @click="saveAmount"
-                >{{ t('更新建筑贷款金额') }}</a-button>
-              </div>
-            </div>
-            <div class="mt-2 amount-info">
-              <p>{{ t('土地贷款总额') }}:</p>
-              <p>{{ `$${numberStrFormat(landAmount)}` }}</p>
-            </div>
-          </div>
-          
+        <template v-if="(securityData.length || setedData.length) && !pageLoading">       
           <div v-if="amortizedHeader.length" class="form-block-content">
             <div class="title">{{ t('最新均摊值') }}</div>
             <a-table
@@ -103,7 +80,37 @@
               :scroll="{ x: '100%', y: 500 }"
             >
               <template #bodyCell="{ column, record, index }">
-                <template v-if="column.dataIndex === 'type'">
+                <template v-if="record.isFixedRow">
+                  <template v-if="column.dataIndex === 'type'">
+                    <p>{{ record.type }}</p>
+                  </template>
+                  <template v-else-if="column.dataIndex === 'payment'">
+                    <p v-if="isOpen">{{ advancePercent }}%</p>
+                    <a-input
+                      v-else
+                      v-model:value="advancePercent"
+                      @input="() => advanceInput(true)"
+                      suffix="%"
+                    />
+                  </template>
+                  <template v-else-if="column.dataIndex === 'total'">
+                    <vco-number :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
+                  </template>
+                  <template v-else>
+                    <div class="flex justify-center">
+                      <a-input-number
+                        v-model:value="advanceAmount"
+                        :max="99999999999"
+                        :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                        :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                        style="width: 200px;"
+                        @input="() => advanceInput(false)"
+                      />
+                    </div>
+                  </template>
+                </template>
+
+                <template v-else-if="column.dataIndex === 'type'">
                   <p>{{ record[column.dataIndex] }}</p>
                 </template>
                 <template v-else-if="column.dataIndex === 'payment'">
@@ -139,9 +146,7 @@
                 <a-table-summary fixed>
                   <a-table-summary-row>
                     <a-table-summary-cell v-for="(item, index) in summaryCol" :index="index" :key="item.key" class="text-center">
-                      <template v-if="item.key === 'type'">
-                        {{ t('概括') }}
-                      </template>
+                      <template v-if="item.key === 'type'">Construction</template>
                       <template v-else-if="item.key === 'payment'">
                         <p class="total-percent"
                           :class="{'plus': summaryHandle(item.key) > 100, 'minus': summaryHandle(item.key) < 100}"
@@ -165,14 +170,11 @@
               </template>
             </a-table>
             <div class="other-table-info">
-              <div v-for="item in otherInfoObj" :key="item.type_name" class="item">
-                <p>{{ item.title }}</p>
-                <a-input-number
-                  v-model:value="otherInfo[item.type_name]"
-                  :max="99999999999"
-                  :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                />
+              <div v-for="item in footerDataCol" :key="item.type" class="item">
+                <p>{{ item.name }}</p>
+                <div class="total-item">
+                  <vco-number :value="item.loan" size="fs_md" :precision="2" :end="true"></vco-number>
+                </div>
               </div>
               <div class="item">
                 <p>Total Cost to Complete</p>
@@ -181,7 +183,10 @@
                 </div>
               </div>
             </div>
-            <div class="mt-5 flex justify-end">
+            <div class="mt-10 flex justify-end gap-10">
+              <a-button type="grey" class="big shadow bold uppercase"
+                @click="goBack"
+              >{{ t('返回') }}</a-button>
               <a-button type="dark" class="big shadow bold uppercase" 
                 :loading="subLoading"
                 @click="submitHandle"
@@ -204,7 +209,6 @@
   import {
     projectAuditStepDetail,
     projectAuditSecurityList,
-    projectAuditSaveMode,
     projectGetBuild,
     projectLoanGetBuild,
     projectSaveBuild,
@@ -214,9 +218,7 @@
   import { dischargeSecurity } from '@/api/project/loan';
   import { systemDictDataApi } from "@/api/system/index"
   import { cloneDeep } from "lodash"
-  import { message } from 'ant-design-vue/es';
-  import tool, { numberStrFormat } from "@/utils/tool"
-  import { otherInfoObj } from "./../config.js"
+  import tool, { numberStrFormat, goBack } from "@/utils/tool"
 
   const { t } = useI18n();
   const route = useRoute();
@@ -233,8 +235,6 @@
 
   const pageLoading = ref(false)
 
-  const canModifyBamount = ref(false)
-
   // 已设置数据
   const setedData = ref({
     row: {},
@@ -250,23 +250,30 @@
   const tableHeader = ref([])
   const tableData = ref([])
   const summaryCol = ref([])
+  const footerDataCol = ref([])
 
   const summaryHandle = computed(() => {
     return (key) => {
-      const arr = tableData.value.map(item => item[key])
+      const arr = tableData.value.filter(item => !item.isFixedRow).map(item => item[key])
       const numArr = isNaN(Number(arr[0])) ? arr.map(item => Number(item.amount)) : arr.map(item => Number(item))
       const total = numArr.reduce((total, num) => {
         return Number(tool.plus(total, num))
       }, 0);
-      return total
+      if (key === 'payment') {
+        return tool.plus(total, advancePercent.value)
+      } else if (key === 'total') {
+        return tool.plus(total, advanceAmount.value)
+      } else {
+        return total
+      }
     }
   })
 
   const totalColor = computed(() => {
     return (num) => {
-      if (num > buildAmountSta.value) {
+      if (num > buildAmount.value) {
         return '#eb4b6d'
-      } else if (num < buildAmountSta.value) {
+      } else if (num < buildAmount.value) {
         return '#31bd65'
       } else {
         return '#282828'
@@ -276,23 +283,12 @@
 
   const tableTotal = computed(() => {
     const tableNum = summaryHandle.value('total')
-    const inputArr = []
-    for (const key in otherInfo.value) {
-      const num = otherInfo.value[key] || 0
-      inputArr.push(num)
-    }
+    const inputArr = footerDataCol.value.map(item => item.loan)
     const inputNum = inputArr.reduce((total, num) => {
       return Number(tool.plus(total, num))
     }, 0);
     return tool.plus(tableNum, inputNum)
   })
-
-  // 其他数据
-  const otherInfo = ref({})
-  const otherInfoObjSta = cloneDeep(otherInfoObj)
-  for (let i = 0; i < otherInfoObjSta.length; i++) {
-    otherInfo.value[otherInfoObjSta[i].type_name] = 0
-  }
 
   const extractAmounts = (obj, keyword) => {
     const result = [];
@@ -326,7 +322,7 @@
     const amountArr = extractAmounts(data, '-')
     if (amountArr.length) {
       const sum = amountArr.reduce((total, num) => total + num, 0);
-      const payment = tool.div(sum, buildAmountSta.value)
+      const payment = tool.div(sum, buildAmount.value)
 
       data.payment = Number(tool.times(Number(payment), 100)).toFixed(2)
       data.total = sum
@@ -357,7 +353,11 @@
   const setTableData = (headerData) => {
     const data = cloneDeep(columnsTypeData.value)
     const hadSetData = cloneDeep(setedData.value.data)
-    const dataArr = []
+    const dataArr = [{
+        isFixedRow: true,
+        type: 'Initial advance to fund deposit'
+      }
+    ]
     for (let i = 0; i < data.length; i++) {
       const obj = {
         type: data[i].name,
@@ -380,7 +380,7 @@
         const sum = amountArr.reduce((total, num) => {
           return Number(tool.plus(total, num))
         }, 0);
-        const payment = tool.div(sum, buildAmountSta.value)
+        const payment = tool.div(sum, buildAmount.value)
         obj.payment = Number(tool.times(Number(payment), 100)).toFixed(2)
         obj.total = sum
       } else {
@@ -410,7 +410,7 @@
     const hadUuidData = headerData.map(item => item.dataIndex)
 
     for (let i = 0; i < securityData.value.length; i++) {
-      if (!hadUuidData.includes(securityData.value[i].uuid)) {
+    if (!hadUuidData.includes(securityData.value[i].uuid)) {
         headerData.push({
           title: securityData.value[i].card_no,
           dataIndex: securityData.value[i].uuid,
@@ -435,6 +435,29 @@
     }, ...headerData,
     { title: t('总计'), dataIndex: 'total', width: 180, align: 'center', fixed: 'right' }]
 
+    // 合并第一行数据
+    tableHeader.value.forEach((item, index) => {
+      item.customCell = (record) => {
+        if (record.isFixedRow) {
+          const mergeStart = 2
+          const mergeEnd = tableHeader.value.length - 2
+
+          if (index === mergeStart) {
+            // 第一个合并单元格的起始位置
+            return {
+              colSpan: mergeEnd - mergeStart + 1 // 要合并多少列
+            }
+          } else if (index > mergeStart && index <= mergeEnd) {
+            // 被合并的列
+            return {
+              colSpan: 0
+            }
+          }
+        }
+        return {}
+      }
+    })
+
     const summaryColData = []
     for (let i = 0; i < tableHeader.value.length; i++) {
       summaryColData.push({
@@ -449,9 +472,6 @@
 
   // 建筑放款额
   const buildAmount = ref(0)
-  const buildAmountSta = ref(0)
-
-  const landAmount = ref(0)
 
   const isRequests = ref(false)
 
@@ -532,8 +552,8 @@
 
     dataArr.push(obj)
 
-    const calcNum = tool.div(buildAmountSta.value, totalSqm)
-    amortizedCalc.value = `$${numberStrFormat(buildAmountSta.value)} ÷ ${obj.total} ≈ <span>$${numberStrFormat(calcNum)}</span>/m²`
+    const calcNum = tool.div(buildAmount.value, totalSqm)
+    amortizedCalc.value = `$${numberStrFormat(buildAmount.value)} ÷ ${obj.total} ≈ <span>$${numberStrFormat(calcNum)}</span>/m²`
     amortizedData.value = dataArr
   }
 
@@ -566,6 +586,21 @@
   }
 
   // 请求已设置数据
+  const advanceKey = ref('Initial advance to fund deposit')
+  const advanceObj = ref()
+  const advancePercent = ref(0)
+  const advanceAmount = ref(0)
+
+  const advanceInput = (flag) => {
+    if (flag) {
+      const percent = Number(advancePercent.value) / 100
+      advanceAmount.value = tool.times(percent, buildAmount.value)
+    } else {
+      const amount = Number(advanceAmount.value)
+      advancePercent.value = tool.times(Number(tool.div(amount, buildAmount.value)), 100)
+    }
+  }
+
   const getSetedData = async () => {
     const params = {
       uuid: uuid.value
@@ -578,10 +613,29 @@
         if (Object.keys(data)) {
           setedData.value = res
 
-          if (Object.keys(res.summary)) {
-            for (const key in otherInfo.value) {
-              otherInfo.value[`${key}`] = res.summary[`${key}`] ? Number(res.summary[`${key}`].amount) : 0
+          // 首次放款数据
+          if (Object.keys(res.payment).length) {
+            if (res.payment[`0__payment`]) {
+              advancePercent.value = res.payment[`0__payment`].amount
             }
+          }
+
+          // footer 数据
+          if (Object.keys(res.summary).length) {
+            if (res.summary[`${advanceKey.value}`]) {
+              advanceAmount.value = res.summary[`${advanceKey.value}`].amount
+
+              advanceObj.value = res.summary[`${advanceKey.value}`]
+            }
+
+            const footerData = footerDataCol.value.map(item => {
+              return {
+                loan: res.summary[`${item.name}`].amount,
+                ...item,
+                ...res.summary[`${item.name}`]
+              }
+            })
+            footerDataCol.value = footerData
           }
         } else {
           pageLoading.value = false
@@ -606,12 +660,15 @@
       const ajaxFn = isRequests.value ? projectAuditStepDetail : projectDetailApi
       await ajaxFn(params).then(res => {
         emits('done', res)
-        buildAmount.value = Number(res.lending.build_amount)
-        buildAmountSta.value =  Number(res.lending.build_amount)
 
-        landAmount.value = res.lending.land_amount
+        const list = res.lending.devCostDetail[0].data[0].list
+        const filterType = ['Land', 'Construction', 'Refinance']
+        const footerData = list.filter(item => !filterType.includes(item.type))
 
-        canModifyBamount.value = Boolean(res.base.status === 400)
+        footerDataCol.value = footerData || []
+        
+        const Construction = list.find(item => item.type === 'Construction')
+        buildAmount.value = Construction ? Construction.loan : 0
       })
       await getSetedData()
     } catch (err) {
@@ -619,33 +676,16 @@
     }
   }
 
-  const amountLoading = ref(false)
-  const saveAmount = () => {
-    const num = Number(buildAmount.value)
-    const total = num + Number(landAmount.value)
-    if (num < 0 || (total < 0 || total === 0)) {
-      message.error(t('借款总额不正确'))
-    } else {
-      const params = {
-        build_amount: num,
-        code: 'lending',
-        uuid: uuid.value,
-        set__bulid: 1
-      }
-
-      amountLoading.value = true
-
-      projectAuditSaveMode(params).then(() => {
-        amountLoading.value = false
-        restoreHandle()
-      }).catch(() => {
-        amountLoading.value = false
-      })
-    }
-  }
-
   const hasReseted = ref(false)
   const initHandle = (flag = false) => {
+    // 设置首项
+    if (flag) {
+      advanceAmount.value = tool.times((advancePercent.value / 100), buildAmount.value)
+    } else {
+      advancePercent.value = 0
+      advanceAmount.value = 0
+    }
+
     for (let i = 0; i < tableData.value.length; i++) {
       let payment = columnsTypeObj.value[tableData.value[i].typeId]
       if (flag) {
@@ -653,7 +693,7 @@
         payment = isNaN(itemPayment) ? 0 : itemPayment
       }
       const itemPer = Number(payment) / 100
-      const itemTotal = tool.times(itemPer, buildAmountSta.value)
+      const itemTotal = tool.times(itemPer, buildAmount.value)
 
       const amountArr = extractArrData(tableData.value[i], '-')
       let itemAmountTotal = 0
@@ -703,7 +743,28 @@
     })
   }
 
+  const changeAlertRef = ref()
+  const confirmTxt = ref('')
+  const changeVisible = ref(false)
+
+  const currentParams = ref()
   const subLoading = ref(false)
+
+  const submitRquest = () => {
+    subLoading.value = true
+
+    const ajaxFn = props.isOpen ? projectLoanSaveBuild : projectSaveBuild
+    ajaxFn(currentParams.value).then(() => {
+      subLoading.value = false
+      changeVisible.value = false
+      changeAlertRef.value.changeLoading(false)
+      restoreHandle()
+    }).catch(() => {
+      subLoading.value = false
+      changeAlertRef.value.changeLoading(false)
+    })
+  }
+
   const submitHandle = () => {
     const security_uuid = []
     for (let i = 0; i < tableHeader.value.length; i++) {
@@ -730,9 +791,9 @@
           })
         }
 
-        if (key === 'payment') {
+        if (key === 'payment' && i) {
           paymentData.push({
-            id: paymentResData[`${i + 1}__payment`] ? paymentResData[`${i + 1}__payment`].id : 0,
+            id: paymentResData[`${i}__payment`] ? paymentResData[`${i}__payment`].id : 0,
             amount: Number(item[key]),
             use_amount: 0,
             security_uuid: '',
@@ -743,35 +804,66 @@
       }
     }
 
-    const summaryData = []
-    for (const key in otherInfo.value) {
+    // 首次放款百分比
+    paymentData.unshift({
+      id: paymentResData[`0__payment`] ? paymentResData[`0__payment`].id : 0,
+      amount: advancePercent.value,
+      use_amount: 0,
+      security_uuid: '',
+      type: 0,
+      type_name: advanceKey.value,
+    })
+
+    // 首次放款值
+    const summaryData = [{
+      id: summaryResData[`${advanceKey.value}`] ? summaryResData[`${advanceKey.value}`].id : 0,
+      amount: advanceAmount.value,
+      use_amount: 0,
+      type_name: advanceKey.value,
+      security_uuid: '',
+      type: 0
+    }]
+
+    for (let i = 0; i < footerDataCol.value.length; i++) {
       summaryData.push({
-        id: summaryResData[`${key}`] ? summaryResData[`${key}`].id : 0,
-        amount: otherInfo.value[`${key}`] ? Number(otherInfo.value[`${key}`]) : 0,
+        id: summaryResData[`${footerDataCol.value[i].name}`] ? summaryResData[`${footerDataCol.value[i].name}`].id : 0,
+        amount: footerDataCol.value[i].loan,
         use_amount: 0,
+        type_name: footerDataCol.value[i].name,
         security_uuid: '',
-        type: 0,
-        type_name: key
+        type: 0
       })
     }
+
+    const construction = Number(summaryHandle.value('total'))
 
     const params = {
       security_uuid,
       build,
       uuid: uuid.value,
+      payment: paymentData,
       summary: summaryData,
-      payment: paymentData
+      construction: construction
     }
 
-    subLoading.value = true
+    currentParams.value = cloneDeep(params)
 
-    const ajaxFn = props.isOpen ? projectLoanSaveBuild : projectSaveBuild
-    ajaxFn(params).then(() => {
-      subLoading.value = false
-      restoreHandle()
-    }).catch(() => {
-      subLoading.value = false
-    })
+    if (construction !== buildAmount.value) {
+      const diffNum = tool.minus(construction, buildAmount.value)
+      if (props.isOpen) {
+        console.log('opened');
+      } else {
+        confirmTxt.value = t(`开发成本中的建造费为：<span>{0}</span>，当前设置值为：<span>{1}</span>，相差：<span>{2}</span>，保存后请重新保存贷款信息，以生成预测列表`, [
+          `$${numberStrFormat(buildAmount.value)}`,
+          `$${numberStrFormat(construction)}`,
+          `$${numberStrFormat(diffNum)}`
+        ])
+
+        changeVisible.value = true
+      }
+    } else {
+      submitRquest()
+    }
   }
 
   onMounted(async () => {
@@ -933,7 +1025,7 @@
       justify-content: space-between;
       border-bottom: 1px solid #272727;
       padding: 10px 15px;
-      height: 60px;
+      height: 45px;
       &:last-child {
         border-bottom: none;
       }

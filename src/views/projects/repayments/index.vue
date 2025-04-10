@@ -88,6 +88,7 @@ const setPaginate = (page, limit) => {
 };
 
 const update = () => {
+  userStore.getTaskNumInfo()
   pagination.value.page = 1;
   loadData();
   MeterStatRef.value.loadData();
@@ -96,8 +97,6 @@ const update = () => {
 const tableData = ref([]);
 
 const loadData = () => {
-  userStore.getTaskNumInfo()
-  
   loading.value = true;
   loanRepayment({ uuid: uuid.value, ...pagination.value })
     .then((res) => {

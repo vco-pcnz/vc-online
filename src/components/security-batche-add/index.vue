@@ -775,8 +775,8 @@ const getGstRate = () => {
 }
 
 const batchColumns = reactive([
-  { title: t('修改项'), dataIndex: 'rowSelect', width: 150, align: 'center', fixed: 'left' },
-  { title: t('类型1'), dataIndex: 'typology', width: 280, align: 'center' },
+  { title: t('修改项'), dataIndex: 'rowSelect', width: 120, align: 'center', fixed: 'left' },
+  { title: t('类型1'), dataIndex: 'typology', width: 260, align: 'center' },
   { title: t('面积'), dataIndex: 'sqm', width: 120, align: 'center' },
   { title: t('预计销售价格'), dataIndex: 'est_sales_price', width: 150, align: 'center' },
   { title: t('含消费税'), dataIndex: 'is_gst', width: 115, align: 'center' },
@@ -818,8 +818,8 @@ const batchDataSource = ref([{
 }])
 
 const formColumns = reactive([
-  { title: t('楼栋号'), dataIndex: 'card_no', width: 150, align: 'center', fixed: 'left' },
-  { title: t('类型1'), dataIndex: 'typology', width: 280, align: 'center' },
+  { title: t('楼栋号'), dataIndex: 'card_no', width: 120, align: 'center', fixed: 'left' },
+  { title: t('类型1'), dataIndex: 'typology', width: 260, align: 'center' },
   { title: t('面积'), dataIndex: 'sqm', width: 120, align: 'center' },
   { title: t('预计销售价格'), dataIndex: 'est_sales_price', width: 150, align: 'center' },
   { title: t('含消费税'), dataIndex: 'is_gst', width: 115, align: 'center' },
@@ -1325,14 +1325,24 @@ onMounted(async () => {
     }
 
     .type-add {
-      padding: 5px;
+      width: 22px;
+      height: 20px;
       border: 1px dashed #F19915 !important;
       cursor: pointer;
       color: #F19915;
-      margin-top: 15px;
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       &:hover {
-        color: #d38106 !important;
-        border-color: #d38106 !important;
+        color: #fff;
+        background-color: #F19915;
+      }
+      > .iconfont {
+        font-size: 12px;
+        font-weight: bold;
       }
     }
   }
@@ -1348,7 +1358,7 @@ onMounted(async () => {
 }
 
 .stuff-item {
-  width: 120px;
+  width: 110px;
   display: flex;
   align-items: center;
   gap: 5px;
@@ -1366,10 +1376,13 @@ onMounted(async () => {
     margin-right: 0;
   }
   .ant-select {
-    width: 65px !important;
+    width: 56px !important;
+  }
+  :deep(.ant-select-selector) {
+    padding: 0 5px !important;
   }
   &.other {
-    width: 240px !important;
+    width: 220px !important;
     .ant-select.type-key {
       flex: 1;
     }

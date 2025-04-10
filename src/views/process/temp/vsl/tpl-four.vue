@@ -11,7 +11,7 @@
       @cancel="tipsVisible = false"
     >
       <div class="tips-content">
-        <p class="tips-txt">{{ t('已存在预测列表，修改借款金额或者贷款周期，将会强制重新生成预测列表，是否提交？') }}</p>
+        <p class="tips-txt">{{ t('已存在预测列表，修改贷款周期，将会强制重新生成预测列表，是否提交？') }}</p>
 
         <div class="mt-5 flex justify-between gap-5">
           <a-button

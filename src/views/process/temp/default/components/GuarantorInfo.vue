@@ -17,9 +17,8 @@
           type="primary"
           shape="round"
           :loading="subLoading"
-          :disabled="!formState.guarantor_uuids.length"
           class="uppercase"
-          @click="saveHandle()"
+          @click="saveHandle"
         >
           {{ t('保存') }}
         </a-button>

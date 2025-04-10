@@ -86,6 +86,7 @@ const selectDoneHandle = (data) => {
   selectVisible.value = false;
   formState.value.build__data = data.build__data;
   formState.value.build_money = data.total;
+  selectedData.value = data.build__data;
   change();
 };
 
@@ -110,9 +111,11 @@ watch(
   (val) => {
     if (val && props.data) {
       formState.value = cloneDeep(props.data);
-      selectedData.value = cloneDeep(props.data?.buildlog);
-      buildLogData.value = cloneDeep(props.data?.buildlog);
-      if (props.data?.other_money) {
+      if (props.data?.build__data) {
+        selectedData.value = cloneDeep(props.data?.build__data);
+        buildLogData.value = cloneDeep(props.data?.build__data);
+      }
+      if (props.data?.other_money > 0) {
         showOther.value = true;
       }
     }

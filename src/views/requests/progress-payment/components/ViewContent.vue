@@ -59,7 +59,7 @@
             table-layout="fixed"
             :scroll="{ x: '100%', y: isSelect ? 380 : 450 }"
           >
-            <template #bodyCell="{ column, record, index }">
+            <template #bodyCell="{ column, record }">
               <template v-if="record.isFixedRow">
                 <template v-if="column.dataIndex === 'type'">
                   <p>{{ record.type }}</p>

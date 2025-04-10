@@ -8,7 +8,7 @@
           <a-input-number v-model:value="amount" :max="99999999999" :min="0" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
         </div> -->
 
-        <ProgressPayment :visible="visible" :selectData="selectData" :buildLogData="buildLogData" :validate="validate" :data="formState" @change="updateformState"></ProgressPayment>
+        <ProgressPayment :visible="visible" :validate="validate" :data="formState" @change="updateformState"></ProgressPayment>
 
         <div class="flex justify-center">
           <a-button @click="save" type="dark" class="save big uppercase" :loading="loading">
@@ -83,8 +83,6 @@ const save = () => {
     });
 };
 
-const selectData = ref({});
-const buildLogData = ref({});
 
 const init = () => {
   Object.keys(formState.value).forEach((key) => {
@@ -92,8 +90,6 @@ const init = () => {
   });
   if (props.detail?.buildlog) {
     formState.value.build__data = props.detail?.buildlog;
-    selectData.value = cloneDeep(props.detail?.buildlog);
-    buildLogData.value = cloneDeep(props.detail?.buildlog);
   }
   visible.value = true;
 };

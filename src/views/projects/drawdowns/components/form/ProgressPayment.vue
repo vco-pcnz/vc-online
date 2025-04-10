@@ -1,11 +1,6 @@
 <template>
   <a-modal :open="selectVisible" :title="t('进度付款阶段')" :width="1400" :footer="null" :keyboard="false" :maskClosable="false" class="middle-position" @cancel="selectVisible = false">
-    <view-content
-      v-if="selectVisible"
-      :is-select="true"
-      :show-process="true"
-      @selectDone="selectDoneHandle"
-    ></view-content>
+    <view-content v-if="selectVisible" :selectedData="selectedData" :buildLogData="buildLogData" :is-select="true" :show-process="true" @selectDone="selectDoneHandle"></view-content>
   </a-modal>
 
   <div class="input-item" style="margin-top: 16px">
@@ -98,6 +93,9 @@ const change = () => {
   emits('change', formState.value);
 };
 
+const selectedData = ref([]);
+const buildLogData = ref([]);
+
 const updateShowOther = () => {
   showOther.value = !showOther.value;
   if (!showOther.value) {
@@ -112,6 +110,8 @@ watch(
   (val) => {
     if (val && props.data) {
       formState.value = cloneDeep(props.data);
+      selectedData.value = cloneDeep(props.data?.buildlog);
+      buildLogData.value = cloneDeep(props.data?.buildlog);
       if (props.data?.other_money) {
         showOther.value = true;
       }

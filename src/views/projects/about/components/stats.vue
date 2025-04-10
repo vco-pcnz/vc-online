@@ -83,13 +83,13 @@
             <p class="fs_xl bold">{{ data?.right?.ltc }}%</p>
           </div>
         </a-col>
-        <a-col :span="14" class="text-right">
-          <!-- <DevCostDetail :dataJson="detail?.base?.devCostDetail" :disabled="true" :disabledGST="true" :disabledLoan="true" @change="editSaveDevCost"> -->
+        <a-col :span="14" class="text-right cursor-pointer">
+          <DevCostDetail :dataJson="detail?.base?.devCostDetail" :disabledGST="true" :disabledLoan="true" @change="editSaveDevCost">
             <p class="color_grey fs_xs">Total Development Cost</p>
             <div class="flex justify-end items-center gap-2"><vco-number :value="data?.right?.devCost" :bold="true" size="fs_xl" :precision="2"></vco-number>
-              <!-- <i class="iconfont color_coal">&#xe743;</i> -->
+              <i class="iconfont color_coal">&#xe743;</i>
             </div>
-          <!-- </DevCostDetail> -->
+          </DevCostDetail>
         </a-col>
         <a-col :span="24">
           <p class="fs_xs" :class="{ 'color_red-error': Math.abs(data?.right?.ltc) > Math.abs(data?.right?.baseline) }">Benchmark {{ data?.right?.baseline }}%</p>

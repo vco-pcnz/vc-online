@@ -436,27 +436,30 @@
     { title: t('总计'), dataIndex: 'total', width: 180, align: 'center', fixed: 'right' }]
 
     // 合并第一行数据
-    tableHeader.value.forEach((item, index) => {
-      item.customCell = (record) => {
-        if (record.isFixedRow) {
-          const mergeStart = 2
-          const mergeEnd = tableHeader.value.length - 2
+    if (tableHeader.value.length > 3) {
+      tableHeader.value.forEach((item, index) => {
+        item.customCell = (record) => {
+          if (record.isFixedRow) {
+            const mergeStart = 2
+            const mergeEnd = tableHeader.value.length - 2
 
-          if (index === mergeStart) {
-            // 第一个合并单元格的起始位置
-            return {
-              colSpan: mergeEnd - mergeStart + 1 // 要合并多少列
-            }
-          } else if (index > mergeStart && index <= mergeEnd) {
-            // 被合并的列
-            return {
-              colSpan: 0
+            if (index === mergeStart) {
+              // 第一个合并单元格的起始位置
+              return {
+                colSpan: mergeEnd - mergeStart + 1 // 要合并多少列
+              }
+            } else if (index > mergeStart && index <= mergeEnd) {
+              // 被合并的列
+              return {
+                colSpan: 0
+              }
             }
           }
+          return {}
         }
-        return {}
-      }
-    })
+      })
+    }
+    
 
     const summaryColData = []
     for (let i = 0; i < tableHeader.value.length; i++) {
@@ -917,6 +920,9 @@
     :deep(.ant-table-wrapper) {
       .ant-table-cell-fix-right-first::after,
       * {
+        border-color: #272727 !important;
+      }
+      .ant-table-expanded-row-fixed::after {
         border-color: #272727 !important;
       }
       .ant-table-container table>thead>tr:first-child >*:first-child {

@@ -21,10 +21,11 @@
                     </a-form-item>
                   </a-col> <a-col :span="10">
                     <a-form-item :label="t('开发成本')" name="devCost">
-                      <DevCostDetail v-model:value="formState.devCost" v-model:dataJson="formState.devCostDetail">
+                      <DevCostDetail v-model:value="formState.devCost" :disabled="check" v-model:dataJson="formState.devCostDetail">
                         <a-input-number
                           v-model:value="formState.devCost"
                           :max="99999999999"
+                          :disabled="check"
                           readonly
                           :formatter="
                             (value) =>

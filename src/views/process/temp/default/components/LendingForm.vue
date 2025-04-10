@@ -256,7 +256,7 @@
                 <div class="w-full flex justify-between items-center" style="height: 22px;">
                   <p>{{ t('首次建筑贷款放款额') }}</p>
                   <a-button
-                    v-if="!amountDisabled"
+                    v-if="!amountDisabled && showProgressPayment"
                     type="link"
                     style="font-size: 12px; height: auto !important;"
                     class="flex items-center"

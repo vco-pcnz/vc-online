@@ -79,7 +79,7 @@
                           '100%': '#ffb92c',
                         }"
                         :size="6"
-                        :percent="advanceObj.percent"
+                        :percent="advanceObj ? advanceObj.percent : 0"
                       />
                     </div>
                   </template>
@@ -350,8 +350,12 @@
   }
 
   const getTotalPercent = (useAmount, amount) => {
-    const num = Number(Number(tool.div(Number(useAmount), Number(amount))).toFixed(2))
-    return Number(tool.times(num, 100))
+    if (Number(amount)) {
+      const num = Number(Number(tool.div(Number(useAmount), Number(amount))).toFixed(2))
+      return Number(tool.times(num, 100))
+    } else {
+      return 0
+    }
   }
 
   const tableTotal = computed(() => {

@@ -402,8 +402,8 @@
         payment: payment[`${i + 1}__payment`] ? payment[`${i + 1}__payment`].amount : 0
       }
       for (let j = 0; j < headerData.length; j++) {
-        const amountItem = hadSetData[`${data[i].code}__${headerData[j].dataIndex}`] || null
-        if (amountItem) {
+        const amountItem = hadSetData[`${data[i].code}__${headerData[j].dataIndex}`] || {}
+        if (Object.keys(amountItem).length) {
           amountItem.amount = Number(amountItem.amount)
           amountItem.checked = false
           amountItem.set_amount = ''
@@ -441,7 +441,7 @@
             }
           }
         }
-        obj[headerData[j].dataIndex] = amountItem || { amount: 0}
+        obj[headerData[j].dataIndex] = Object.keys(amountItem).length ? amountItem : { amount: 0}
       }
       const amountArr = extractAmounts(obj, '-', 'amount')
       if (amountArr.length && Object.keys(setedData.value.data).length) {
@@ -542,7 +542,6 @@
         }
       })
     }
-    
 
     summaryCol.value = summaryColData
     setTableData(headerData)
@@ -616,7 +615,7 @@
 
             const footerData = footerDataCol.value.map(item => {
               const summaryItem = res.summary[`${item.name}`] || {}
-              item.amount = summaryItem ? Number(summaryItem.amount) : 0
+              item.amount = Object.keys(summaryItem).length ? Number(summaryItem.amount) : 0
               item.checked = false
               item.set_amount = ''
               item.set_amount_per = ''

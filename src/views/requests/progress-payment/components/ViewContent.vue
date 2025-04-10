@@ -57,7 +57,7 @@
             bordered
             :pagination="false"
             table-layout="fixed"
-            :scroll="{ x: '100%', y: 450 }"
+            :scroll="{ x: '100%', y: isSelect ? 300 : 450 }"
           >
             <template #bodyCell="{ column, record, index }">
               <template v-if="record.isFixedRow">
@@ -103,7 +103,7 @@
                       </div>
                     </div>
 
-                    <div v-if="advanceObj.checked" class="selected">{{ `$${numberStrFormat(advanceObj.set_amount)}` }}</div>
+                    <div v-if="advanceObj.checked" class="selected adv">{{ `$${numberStrFormat(advanceObj.set_amount)}` }}</div>
                   </div>
 
                   <div v-else class="flex justify-center">
@@ -270,6 +270,14 @@
     isSelect: {
       type: Boolean,
       default: false
+    },
+    selectedData: {
+      type: Array,
+      default: () => []
+    },
+    buildLogData: { // 历史数据
+      type: Array,
+      default: () => []
     }
   })
 
@@ -278,6 +286,18 @@
   const uuid = ref('')
 
   const pageLoading = ref(false)
+
+  // 历史数据item的id集合
+  const buildLogDataIds = computed(() => {
+    const data = props.buildLogData.map(item => item.build_id) || []
+    return data
+  })
+
+  // 已选择item的id集合
+  const selectedDataIds = computed(() => {
+    const data = props.selectedData.map(item => item.build_id) || []
+    return data
+  })
 
   // 是否为进件阶段
   const isRequests = ref(false)
@@ -388,9 +408,38 @@
           amountItem.checked = false
           amountItem.set_amount = ''
           amountItem.set_amount_per = ''
-          const use_amount = amountItem.use_amount || 0
-          const num = Number(Number(tool.div(Number(use_amount), Number(amountItem.amount))).toFixed(2))
-          amountItem.percent = Number(tool.times(num, 100))
+
+          if (amountItem.amount) {
+            const use_amount = amountItem.use_amount || 0
+            const num = Number(Number(tool.div(Number(use_amount), Number(amountItem.amount))).toFixed(2))
+            amountItem.percent = Number(tool.times(num, 100))
+          } else {
+            amountItem.percent = 0
+          }
+
+          // 处理编辑额度
+          if (buildLogDataIds.value.includes(amountItem.id)) {
+            const logItem = props.buildLogData.find(item => item.build_id === amountItem.id)
+            if (logItem) {
+              amountItem.use_amount = tool.minus(amountItem.use_amount, logItem.amount)
+              if (amountItem.amount) {
+                const num = Number(Number(tool.div(Number(amountItem.use_amount), Number(amountItem.amount))).toFixed(2))
+                amountItem.percent = Number(tool.times(num, 100))
+              } else {
+                amountItem.percent = 0
+              }
+            }
+          }
+          // 编辑回显数据
+          if (selectedDataIds.value.includes(amountItem.id)) {
+            const selItem = props.selectedData.find(item => item.build_id === amountItem.id)
+            if (selItem) {
+
+              amountItem.checked = true
+              amountItem.set_amount = selItem.amount
+              selectData.value.push(amountItem)
+            }
+          }
         }
         obj[headerData[j].dataIndex] = amountItem || { amount: 0}
       }
@@ -421,6 +470,10 @@
     tableData.value = dataArr
 
     pageLoading.value = false
+
+    if (props.selectedData.length) {
+      selectSureHandle()
+    }
   }
 
   // 请求已设置数据
@@ -466,27 +519,30 @@
     }
 
     // 合并第一行数据
-    tableHeader.value.forEach((item, index) => {
-      item.customCell = (record) => {
-        if (record.isFixedRow) {
-          const mergeStart = 2
-          const mergeEnd = tableHeader.value.length - 2
+    if (tableHeader.value.length > 3) {
+      tableHeader.value.forEach((item, index) => {
+        item.customCell = (record) => {
+          if (record.isFixedRow) {
+            const mergeStart = 2
+            const mergeEnd = tableHeader.value.length - 2
 
-          if (index === mergeStart) {
-            // 第一个合并单元格的起始位置
-            return {
-              colSpan: mergeEnd - mergeStart + 1 // 要合并多少列
-            }
-          } else if (index > mergeStart && index <= mergeEnd) {
-            // 被合并的列
-            return {
-              colSpan: 0
+            if (index === mergeStart) {
+              // 第一个合并单元格的起始位置
+              return {
+                colSpan: mergeEnd - mergeStart + 1 // 要合并多少列
+              }
+            } else if (index > mergeStart && index <= mergeEnd) {
+              // 被合并的列
+              return {
+                colSpan: 0
+              }
             }
           }
+          return {}
         }
-        return {}
-      }
-    })
+      })
+    }
+    
 
     summaryCol.value = summaryColData
     setTableData(headerData)
@@ -519,32 +575,91 @@
               advanceAmount.value = res.summary[`${advanceKey.value}`].amount
 
               const advanceItem = res.summary[`${advanceKey.value}`]
-
               advanceItem.amount = Number(advanceItem.amount)
               advanceItem.checked = false
               advanceItem.set_amount = ''
               advanceItem.set_amount_per = ''
-              const use_amount = advanceItem.use_amount || 0
-              const num = Number(Number(tool.div(Number(use_amount), Number(advanceItem.amount))).toFixed(2))
-              advanceItem.percent = Number(tool.times(num, 100))
+              if (advanceItem.amount) {
+                const use_amount = advanceItem.use_amount || 0
+                const num = Number(Number(tool.div(Number(use_amount), Number(advanceItem.amount))).toFixed(2))
+                advanceItem.percent = Number(tool.times(num, 100))
+              } else {
+                advanceItem.percent = 0
+              }
               
+              // 处理编辑额度
+              if (buildLogDataIds.value.includes(advanceItem.id)) {
+                const logItem = props.buildLogData.find(item => item.build_id === advanceItem.id)
+                if (logItem) {
+                  advanceItem.use_amount = tool.minus(advanceItem.use_amount, logItem.amount)
+                  if (advanceItem.amount) {
+                    const num = Number(Number(tool.div(Number(advanceItem.use_amount), Number(advanceItem.amount))).toFixed(2))
+                    advanceItem.percent = Number(tool.times(num, 100))
+                  } else {
+                    advanceItem.percent = 0
+                  }
+                }
+              }
+
+              // 编辑回显数据
+              if (selectedDataIds.value.includes(advanceItem.id)) {
+                const selItem = props.selectedData.find(item => item.build_id === advanceItem.id)
+                if (selItem) {
+                  advanceItem.checked = true
+                  advanceItem.set_amount = selItem.amount
+                  selectData.value.push(advanceItem)
+                }
+              }
+
               advanceObj.value = advanceItem
             }
 
             const footerData = footerDataCol.value.map(item => {
-              item.amount = Number(res.summary[`${item.name}`].amount)
+              const summaryItem = res.summary[`${item.name}`] || {}
+              item.amount = summaryItem ? Number(summaryItem.amount) : 0
               item.checked = false
               item.set_amount = ''
               item.set_amount_per = ''
-              const use_amount = item.use_amount || 0
-              const num = Number(Number(tool.div(Number(use_amount), Number(item.amount))).toFixed(2))
-              item.percent = Number(tool.times(num, 100))
 
-              return {
-                loan: res.summary[`${item.name}`].amount,
+              const mergItem = {
+                loan: item.amount,
                 ...item,
-                ...res.summary[`${item.name}`]
+                ...summaryItem
               }
+
+              if (mergItem.amount) {
+                const use_amount = mergItem.use_amount || 0
+                const num = Number(Number(tool.div(Number(use_amount), Number(mergItem.amount))).toFixed(2))
+                mergItem.percent = Number(tool.times(num, 100))
+              } else {
+                mergItem.percent = 0
+              }
+
+              // 处理编辑额度
+              if (buildLogDataIds.value.includes(mergItem.id)) {
+                const logItem = props.buildLogData.find(item => item.build_id === mergItem.id)
+                if (logItem) {
+                  mergItem.use_amount = tool.minus(mergItem.use_amount, logItem.amount)
+                  if (mergItem.amount) {
+                    const num = Number(Number(tool.div(Number(mergItem.use_amount), Number(mergItem.amount))).toFixed(2))
+                    mergItem.percent = Number(tool.times(num, 100))
+                  } else {
+                    mergItem.percent = 0
+                  }
+                }
+              }
+
+              // 编辑回显数据
+              if (selectedDataIds.value.includes(mergItem.id)) {
+                const selItem = props.selectedData.find(item => item.build_id === mergItem.id)
+                if (selItem) {
+                  mergItem.checked = true
+                  mergItem.set_amount = selItem.amount
+                  selectData.value.push(mergItem)
+                }
+              }
+
+              return mergItem
             })
             footerDataCol.value = footerData
           }
@@ -611,8 +726,12 @@
   }
 
   const itemSetHandle = (data) => {
-    if (props.isSelect) {
+    if (props.isSelect && Number(data.amount)) {
       const num = tool.minus(Number(data.amount), Number(data.use_amount))
+      if (data.set_amount && !data.set_amount_per) {
+        const per = tool.div(data.set_amount, num)
+        data.set_amount_per = Number(tool.times(per, 100)).toFixed(2)
+      }
       data.can_amount = num
       data.can_amount_per = tool.times(tool.div(Number(num), Number(data.amount)), 100)
       data.showError = false
@@ -704,6 +823,9 @@
     :deep(.ant-table-wrapper) {
       .ant-table-cell-fix-right-first::after,
       * {
+        border-color: #272727 !important;
+      }
+      .ant-table-expanded-row-fixed::after {
         border-color: #272727 !important;
       }
       .ant-table-container table>thead>tr:first-child >*:first-child {
@@ -805,6 +927,8 @@
       > p {
         font-size: 12px;
         color: #282828;
+        word-break: break-all;
+        text-align: center;
       }
       .total-item {
         min-width: 150px;
@@ -873,6 +997,10 @@
       right: 0;
       font-size: 11px;
       padding: 0 5px;
+      &.adv {
+        right: 50%;
+        transform: translateX(50%);
+      }
     }
   }
 

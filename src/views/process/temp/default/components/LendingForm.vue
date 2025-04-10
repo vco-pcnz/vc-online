@@ -3,6 +3,25 @@
     class="block-item mb"
     :class="{ checked: lendingInfo.is_check && blockInfo?.showCheck, 'details': isDetails }"
   >
+    <!-- 首次放款选择弹窗 -->
+    <a-modal
+      :open="selectVisible"
+      :title="t('进度付款阶段')"
+      :width="1400"
+      :footer="null"
+      :keyboard="false"
+      :maskClosable="false"
+      @cancel="selectVisible = false"
+    >
+      <view-content
+        v-if="selectVisible"
+        :is-select="true"
+        :show-process="true"
+        :selected-data="selectedData"
+        @selectDone="selectDoneHandle"
+      ></view-content>
+    </a-modal>
+    
     <!-- 确认弹窗 -->
     <vco-confirm-alert
       ref="changeAlertRef"
@@ -231,13 +250,25 @@
             <i class="iconfont">&#xe889;</i>
           </a-col>
           <a-col :span="isRefinancial ? 6 : 7">
-            <a-form-item
-              :label="t('首次建筑贷款放款额')"
-              name="initial_build_amount"
-            >
+            <a-form-item name="initial_build_amount" class="w-full-label">
+              <template #label>
+                <div class="w-full flex justify-between items-center" style="height: 22px;">
+                  <p>{{ t('首次建筑贷款放款额') }}</p>
+                  <a-button
+                    v-if="!amountDisabled"
+                    type="link"
+                    style="font-size: 12px; height: auto !important;"
+                    class="flex items-center"
+                    @click="selectVisible = true"
+                  >
+                    <p>{{ t('选择') }}</p>
+                    <i class="iconfont">&#xe602;</i>
+                  </a-button>
+                </div>
+              </template>
               <a-input-number
                 :max="99999999999"
-                :disabled="amountDisabled"
+                :disabled="true"
                 v-model:value="formState.initial_build_amount"
                 :formatter="
                   (value) =>
@@ -397,6 +428,7 @@
   import useProcessStore from '@/store/modules/process';
   import tool, { navigationTo, numberStrFormat } from '@/utils/tool';
   import DevCostDetail from './DevCostDetail.vue';
+  import ViewContent from '@/views/requests/progress-payment/components/ViewContent.vue';
 
   const processStore = useProcessStore();
 
@@ -866,6 +898,11 @@
     formState.value.devCost = props.lendingInfo.devCost
     formState.value.devCostDetail = props.lendingInfo.devCostDetail
 
+    // 首次放款建筑费用
+    if (props.lendingInfo.buildlog && props.lendingInfo.buildlog.length) {
+      selectedData.value = props.lendingInfo.buildlog
+    }
+
     staticFormData.value = cloneDeep(formState.value)
     emits('openData', {
       table: tableDataRefData.value,
@@ -1046,7 +1083,12 @@
   const saveRequeset = async () => {
     subLoading.value = true;
 
-    await projectAuditSaveMode(saveParams.value)
+    const formParams = cloneDeep(saveParams.value)
+    if (selectedData.value) {
+      formParams.build__data = selectedData.value
+    }
+
+    await projectAuditSaveMode(formParams)
       .then(async () => {
         if (saveDataChange.value) {
           const params = {
@@ -1231,6 +1273,16 @@
 
   const blockShowTargetHandle = (flag) => {
     lendingTarget.value = flag
+  }
+
+  // 首次建筑放款数据
+  const selectedData = ref([])
+
+  const selectVisible = ref(false)
+  const selectDoneHandle = (data) => {
+    selectedData.value = cloneDeep(data.build__data)
+    formState.value.initial_build_amount = data.total
+    selectVisible.value = false
   }
 
   const goHandle = (page) => {

@@ -8,7 +8,7 @@
           <a-input-number v-model:value="amount" :max="99999999999" :min="0" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
         </div> -->
 
-        <ProgressPayment :visible="visible" :validate="validate" :data="formState" @change="updateformState"></ProgressPayment>
+        <ProgressPayment :visible="visible" :selectData="selectData" :buildLogData="buildLogData" :validate="validate" :data="formState" @change="updateformState"></ProgressPayment>
 
         <div class="flex justify-center">
           <a-button @click="save" type="dark" class="save big uppercase" :loading="loading">
@@ -27,6 +27,7 @@ import { message } from 'ant-design-vue/es';
 import tool from '@/utils/tool';
 import { loanDchange } from '@/api/project/loan';
 import ProgressPayment from './ProgressPayment.vue';
+import { cloneDeep } from 'lodash';
 
 const { t } = useI18n();
 const emits = defineEmits(['change']);
@@ -82,11 +83,18 @@ const save = () => {
     });
 };
 
+const selectData = ref({});
+const buildLogData = ref({});
+
 const init = () => {
   Object.keys(formState.value).forEach((key) => {
     formState.value[key] = props.detail[key];
   });
-  formState.value.build__data = props.detail?.buildlog;
+  if (props.detail?.buildlog) {
+    formState.value.build__data = props.detail?.buildlog;
+    selectData.value = cloneDeep(props.detail?.buildlog);
+    buildLogData.value = cloneDeep(props.detail?.buildlog);
+  }
   visible.value = true;
 };
 </script>

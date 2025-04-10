@@ -11,6 +11,7 @@
       :footer="null"
       :keyboard="false"
       :maskClosable="false"
+      class="middle-position"
       @cancel="selectVisible = false"
     >
       <view-content

@@ -57,7 +57,7 @@
             bordered
             :pagination="false"
             table-layout="fixed"
-            :scroll="{ x: '100%', y: isSelect ? 300 : 450 }"
+            :scroll="{ x: '100%', y: isSelect ? 380 : 450 }"
           >
             <template #bodyCell="{ column, record, index }">
               <template v-if="record.isFixedRow">

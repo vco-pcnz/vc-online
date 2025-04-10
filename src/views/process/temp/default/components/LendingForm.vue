@@ -602,7 +602,7 @@
 
   const showCompare = computed(() => {
     const mark = props?.currentStep?.mark
-    return ['step_lm_audit'].includes(mark)
+    return ['step_lm_audit', 'step_lm_review'].includes(mark)
   })
 
   const refinancialDisabled = computed(() => {

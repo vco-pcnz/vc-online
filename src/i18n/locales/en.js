@@ -931,5 +931,6 @@ export default {
   "受益人": "Beneficiary",
   "已选总额": "Selected total",
   "移除主账号保存后，会移除其下的所有子账号，确定移除吗？": "After removing the main account and saving, all sub-accounts under it will be removed. Are you sure you want to remove them?",
-  "开发成本中的建造费为：<span>{0}</span>，当前设置值为：<span>{1}</span>，相差：<span>{2}</span>，保存后请重新保存贷款信息，以生成预测列表": "The construction cost in the development cost is: <span>{0}</span>, the current setting value is: <span>{1}</span>, the difference is: <span>{2}</span>, please save the loan information again after saving to generate a forecast list"
+  "开发成本中的建造费为：<span>{0}</span>，当前设置值为：<span>{1}</span>，相差：<span>{2}</span>，保存后请重新保存贷款信息，以生成预测列表": "The construction cost in the development cost is: <span>{0}</span>, the current setting value is: <span>{1}</span>, the difference is: <span>{2}</span>, please save the loan information again after saving to generate a forecast list",
+  "LM提交": "LM Submit"
 }

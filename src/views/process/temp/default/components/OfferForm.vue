@@ -60,7 +60,7 @@
         </div>
       </div>
 
-      <div v-if="!['step_lm_audit', 'step_fc_audit'].includes(props.currentStep?.mark)" class="form-item-col mt-5">
+      <div v-if="!['step_lm_audit', 'step_lm_review', 'step_fc_audit'].includes(props.currentStep?.mark)" class="form-item-col mt-5">
         <div class="title">
           <p>{{ t('已签订Offer') }}</p>
           <vco-upload-modal v-if="blockInfo.showEdit" v-model:list="offerSignedList" @change="fileChange">

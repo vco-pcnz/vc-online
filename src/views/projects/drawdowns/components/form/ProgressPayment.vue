@@ -1,7 +1,13 @@
 <template>
-  <a-modal :open="selectVisible" :title="t('进度付款阶段')" :width="1400" :footer="null" :keyboard="false" :maskClosable="false" @cancel="selectVisible = false">
-    <view-content v-if="visible" :is-select="true" :show-process="true" @selectDone="selectDoneHandle"></view-content>
+  <a-modal :open="selectVisible" :title="t('进度付款阶段')" :width="1400" :footer="null" :keyboard="false" :maskClosable="false" class="middle-position" @cancel="selectVisible = false">
+    <view-content
+      v-if="selectVisible"
+      :is-select="true"
+      :show-process="true"
+      @selectDone="selectDoneHandle"
+    ></view-content>
   </a-modal>
+
   <div class="input-item" style="margin-top: 16px">
     <div class="label" :class="{ err: !formState.build_money && validate && !showOther }">{{ t('进度款') }}</div>
     <div class="flex gap-2 items-center">

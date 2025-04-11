@@ -310,9 +310,25 @@ onMounted(() => {
     color: #c1430c !important;
   }
 }
+:deep(.ant-table-tbody) > tr.red td {
+  overflow: hidden;
+}
 
 :deep(.ant-table-tbody) > tr.red td::after {
   background-color: #ffeae0 !important;
   border-color: rgba(193, 67, 12, 0.2) !important;
+}
+
+:deep(.ant-table-tbody) > tr.red td.ant-table-cell-fix-right::before {
+  background-color: #ffeae0 !important;
+  border-color: rgba(193, 67, 12, 0.2) !important;
+}
+
+:deep(.ant-table-tbody) > tr.red td.ant-table-cell-fix-right::after {
+  background: transparent!important;
+}
+
+:deep(.ant-table-tbody) .ant-table-cell-fix-left, :deep(.ant-table-tbody) .ant-table-cell-fix-right {
+  background: #fff!important;
 }
 </style>

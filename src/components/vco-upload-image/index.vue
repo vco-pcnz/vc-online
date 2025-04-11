@@ -99,7 +99,7 @@
     maxSize: {
       type: Number,
       required: false,
-      default: 5 // 100 MB
+      default: 100 // 100 MB
     }
   });
 

@@ -101,7 +101,7 @@ const props = defineProps({
   maxSize: {
     type: Number,
     required: false,
-    default: 50 // 100 MB
+    default: 100 // 100 MB
   },
   controller: {
     type: String,

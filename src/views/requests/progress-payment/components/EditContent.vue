@@ -870,7 +870,8 @@
     if (construction !== buildAmount.value) {
       const diffNum = tool.minus(construction, buildAmount.value)
       if (props.isOpen) {
-        console.log('opened');
+        // open 后处理 暂定
+        submitRquest()
       } else {
         confirmTxt.value = t(`开发成本中的建造费为：<span>{0}</span>，当前设置值为：<span>{1}</span>，相差：<span>{2}</span>，保存后会更新相关值并重置首次建筑贷款放款额`, [
           `$${numberStrFormat(buildAmount.value)}`,

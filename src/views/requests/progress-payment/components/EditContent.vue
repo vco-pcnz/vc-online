@@ -29,14 +29,14 @@
             <div class="flex justify-between mb-2">
               <div class="title">{{ t('进度付款阶段') }}</div>
               <div v-if="!isOpen" class="flex gap-5">
-                <a-popconfirm :title="t('确定操作吗？')" @confirm="initHandle(true)">
+                <!-- <a-popconfirm :title="t('确定操作吗？')" @confirm="initHandle(true)">
                   <a-button
                     type="dark"
                     class="uppercase flex items-center"
                   >
                     {{ t('按比例设置金额') }}
                   </a-button>
-                </a-popconfirm>
+                </a-popconfirm> -->
 
                 <a-popconfirm :title="t('确定初始化吗？')" @confirm="initHandle(false)">
                   <a-button
@@ -118,6 +118,7 @@
                   <a-input
                     v-else
                     v-model:value="record[column.dataIndex]"
+                    @input="() => initHandle(true)"
                     suffix="%"
                   />
                 </template>
@@ -772,6 +773,16 @@
     })
   }
 
+  // 数据是否有变化
+  const dataHasChanged = (arr1, arr2) => {
+    for (let i = 0; i < arr1.length; i++) {
+      if (Number(arr1[i]) !== Number(arr2[i])) {
+        return true
+      }
+    }
+    return false
+  }
+
   const submitHandle = () => {
     const security_uuid = []
     for (let i = 0; i < tableHeader.value.length; i++) {
@@ -882,7 +893,22 @@
           currentParams.value.clear = 1
           changeVisible.value = true
         } else {
-          submitRquest()
+          const arr1 = paymentData.map(item => item.amount)
+          const arr2 = []
+          if (Object.keys(setedData.value.payment).length) {
+            for (const key in setedData.value.payment) {
+              arr2.push(setedData.value.payment[key].amount)
+            }
+          }
+          if (rLen) {
+            if (dataHasChanged(arr1, arr2)) {
+              confirmTxt.value = t(`数据设置有变动，保存后会重置首次建筑贷款放款额`)
+              currentParams.value.clear = 1
+              changeVisible.value = true
+            }
+          } else {
+            submitRquest()
+          }
         }
       }
     }

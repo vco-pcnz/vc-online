@@ -937,5 +937,6 @@ export default {
   "抵押物数量有变动，保存后会重置首次建筑贷款放款额": "the number of securities has changed, the initial build amount will be reset after saving",
   "LM提交": "LM Submit",
   "LM 提交": "LM Submit",
-  "LM 待提交": "LM To Be Submitted"
+  "LM 待提交": "LM To Be Submitted",
+  "数据设置有变动，保存后会重置首次建筑贷款放款额": "The data settings have changed. After saving, the first construction loan amount will be reset"
 }

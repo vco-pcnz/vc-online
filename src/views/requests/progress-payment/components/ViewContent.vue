@@ -407,6 +407,7 @@
       }
       for (let j = 0; j < headerData.length; j++) {
         const amountItem = hadSetData[`${data[i].code}__${headerData[j].dataIndex}`] || {}
+        
         if (Object.keys(amountItem).length) {
           amountItem.amount = Number(amountItem.amount)
           amountItem.checked = false
@@ -420,7 +421,7 @@
           } else {
             amountItem.percent = 0
           }
-
+          
           // 处理编辑额度
           if (buildLogDataIds.value.includes(amountItem.id)) {
             const logItem = props.buildLogData.find(item => item.build_id === amountItem.id)
@@ -438,7 +439,6 @@
           if (selectedDataIds.value.includes(amountItem.id)) {
             const selItem = props.selectedData.find(item => item.build_id === amountItem.id)
             if (selItem) {
-
               amountItem.checked = true
               amountItem.set_amount = selItem.amount
               selectData.value.push(amountItem)

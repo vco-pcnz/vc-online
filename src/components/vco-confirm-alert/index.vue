@@ -26,7 +26,7 @@
         type="dark" class="big shadow bold uppercase w-full mb-5 mt-5"
         :loading="subLoading"
         @click="submitHandle"
-      >{{ t('确定') }}</a-button>
+      >{{ showClose ? t('关闭') : t('确定') }}</a-button>
     </div>
   </a-modal>
 </template>
@@ -43,6 +43,10 @@
       default: false
     },
     check: {
+      type: Boolean,
+      default: false
+    },
+    showClose: {
       type: Boolean,
       default: false
     },
@@ -65,8 +69,12 @@
 
   const subLoading = ref(false)
   const submitHandle = () => {
-    changeLoading(true)
-    emits('submit')
+    if (props.showClose) {
+      updateVisible(false)
+    } else {
+      changeLoading(true)
+      emits('submit')
+    }
   }
 
   watch(

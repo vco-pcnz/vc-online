@@ -4,6 +4,7 @@
     <vco-confirm-alert
       ref="changeAlertRef"
       :confirm-txt="confirmTxt"
+      :show-close="changeColseBtn"
       v-model:visible="changeVisible"
       @submit="submitRquest"
     ></vco-confirm-alert>
@@ -97,7 +98,7 @@
                     <vco-number :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
                   </template>
                   <template v-else>
-                    <div class="flex justify-center">
+                    <div class="flex justify-center flex-col items-center">
                       <a-input-number
                         v-model:value="advanceAmount"
                         :max="99999999999"
@@ -106,6 +107,12 @@
                         style="width: 200px;"
                         @input="() => advanceInput(false)"
                       />
+                      <p v-if="advanceObj.showError" class="input-error text-center">
+                        {{ t('最小值:{0}', [`$${numberStrFormat(advanceObj.use_amount)}`]) }}
+                      </p>
+                      <div v-if="isOpen" class="mt-2">
+                        <vco-number :value="advanceObj.use_amount" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
+                      </div>
                     </div>
                   </template>
                 </template>
@@ -602,6 +609,13 @@
     } else {
       const amount = Number(advanceAmount.value)
       advancePercent.value = tool.times(Number(tool.div(amount, buildAmount.value)), 100)
+
+      if (props.isOpen) {
+        const useAmount = Number(advanceObj.value.use_amount)
+        if (amount < useAmount) {
+          advanceObj.value.showError = true
+        }
+      }
     }
   }
 
@@ -630,6 +644,7 @@
               advanceAmount.value = res.summary[`${advanceKey.value}`].amount
 
               advanceObj.value = res.summary[`${advanceKey.value}`]
+              advanceObj.value.showError = false
             }
 
             const footerData = footerDataCol.value.map(item => {
@@ -750,6 +765,7 @@
   const changeAlertRef = ref()
   const confirmTxt = ref('')
   const changeVisible = ref(false)
+  const changeColseBtn = ref(false)
 
   const currentParams = ref()
   const subLoading = ref(false)
@@ -763,6 +779,7 @@
     ajaxFn(params).then(() => {
       subLoading.value = false
       changeVisible.value = false
+      changeColseBtn.value = false
       changeAlertRef.value.changeLoading(false)
       restoreHandle()
 
@@ -866,11 +883,23 @@
     }
 
     currentParams.value = cloneDeep(params)
+    changeColseBtn.value = false
 
     if (construction !== buildAmount.value) {
       const diffNum = tool.minus(construction, buildAmount.value)
       if (props.isOpen) {
-        console.log('opened');
+        // open 后处理 暂定
+        if (construction > buildAmount.value) {
+          confirmTxt.value = t(`开发成本中的建造费为：<span>{0}</span>，当前设置值为：<span>{1}</span>，超出了：<span>{2}</span>`, [
+            `$${numberStrFormat(buildAmount.value)}`,
+            `$${numberStrFormat(construction)}`,
+            `$${numberStrFormat(diffNum)}`
+          ])
+          changeVisible.value = true
+          changeColseBtn.value = true
+        } else {
+          submitRquest()
+        }
       } else {
         confirmTxt.value = t(`开发成本中的建造费为：<span>{0}</span>，当前设置值为：<span>{1}</span>，相差：<span>{2}</span>，保存后会更新相关值并重置首次建筑贷款放款额`, [
           `$${numberStrFormat(buildAmount.value)}`,
@@ -1107,5 +1136,8 @@
     color: #eb4b6d;
     text-align: left;
     margin-top: 2px;
+    &.text-center {
+      text-align: center !important;
+    }
   }
 </style>

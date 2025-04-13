@@ -21,7 +21,7 @@
       <a-row v-if="![4, 5].includes(detailData.type)" :gutter="24">
         <a-col :span="10" class="mt-2">
           <div class="info-content">
-            <p class="name">{{ t('借款起止日期') }}</p>
+            <p class="name">{{ t('预计项目周期') }}</p>
             <p class="txt">{{ tool.showDate(startDate) + ' - ' + tool.showDate(endDate) }}</p>
           </div>
         </a-col>

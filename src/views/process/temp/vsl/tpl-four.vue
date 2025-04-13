@@ -62,7 +62,7 @@
                   </a-col>
                   <template v-if="!changeTimeStep">
                     <a-col :span="12">
-                      <a-form-item :label="t('借款起止日期')" name="time_date">
+                      <a-form-item :label="t('预计项目周期')" name="time_date">
                         <a-range-picker
                           v-model:value="formState.time_date"
                           :format="selectDateFormat()"
@@ -317,7 +317,7 @@
       { required: true, message: t('请选择') + t('借款目的'), trigger: 'change' }
     ],
     time_date: [
-      { required: true, message: t('请选择') + t('借款起止日期'), trigger: 'change' }
+      { required: true, message: t('请选择') + t('预计项目周期'), trigger: 'change' }
     ],
     term: [
       {

@@ -754,14 +754,18 @@
   const subLoading = ref(false)
 
   const submitRquest = () => {
+    const params = cloneDeep(currentParams.value)
+    const ajaxFn = props.isOpen ? projectLoanSaveBuild : projectSaveBuild
+
     subLoading.value = true
 
-    const ajaxFn = props.isOpen ? projectLoanSaveBuild : projectSaveBuild
-    ajaxFn(currentParams.value).then(() => {
+    ajaxFn(params).then(() => {
       subLoading.value = false
       changeVisible.value = false
       changeAlertRef.value.changeLoading(false)
       restoreHandle()
+
+      goBack()
     }).catch(() => {
       subLoading.value = false
       changeAlertRef.value.changeLoading(false)
@@ -846,7 +850,8 @@
       uuid: uuid.value,
       payment: paymentData,
       summary: summaryData,
-      construction: construction
+      construction: construction,
+      clear: 0
     }
 
     currentParams.value = cloneDeep(params)
@@ -856,16 +861,28 @@
       if (props.isOpen) {
         console.log('opened');
       } else {
-        confirmTxt.value = t(`开发成本中的建造费为：<span>{0}</span>，当前设置值为：<span>{1}</span>，相差：<span>{2}</span>，保存后请重新保存贷款信息，以生成预测列表`, [
+        confirmTxt.value = t(`开发成本中的建造费为：<span>{0}</span>，当前设置值为：<span>{1}</span>，相差：<span>{2}</span>，保存后会更新相关值并重置首次建筑贷款放款额`, [
           `$${numberStrFormat(buildAmount.value)}`,
           `$${numberStrFormat(construction)}`,
           `$${numberStrFormat(diffNum)}`
         ])
+        currentParams.value.clear = 1
 
         changeVisible.value = true
       }
     } else {
-      submitRquest()
+      if (props.isOpen) {
+        // open 后处理 暂定
+        submitRquest()
+      } else {
+        const sLen = securityData.value.length
+        const rLen = Object.keys(setedData.value.row).length
+        if (sLen !== rLen) {
+          confirmTxt.value = t(`抵押物数量有变动，保存后会重置首次建筑贷款放款额`)
+          currentParams.value.clear = 1
+          changeVisible.value = true
+        }
+      }
     }
   }
 

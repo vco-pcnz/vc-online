@@ -1325,7 +1325,7 @@ onMounted(async () => {
     }
 
     .type-add {
-      width: 22px;
+      width: 20px;
       height: 20px;
       border: 1px dashed #F19915 !important;
       cursor: pointer;
@@ -1343,6 +1343,7 @@ onMounted(async () => {
       > .iconfont {
         font-size: 12px;
         font-weight: bold;
+        line-height: 12px;
       }
     }
   }

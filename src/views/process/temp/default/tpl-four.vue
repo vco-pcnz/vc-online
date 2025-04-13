@@ -69,7 +69,7 @@
                   </a-col>
                   <template v-if="!changeTimeStep">
                     <a-col :span="12">
-                      <a-form-item :label="t('借款起止日期')" name="time_date">
+                      <a-form-item :label="t('预计项目周期')" name="time_date">
                         <a-range-picker
                           v-model:value="formState.time_date"
                           :format="selectDateFormat()"
@@ -325,7 +325,7 @@
       { required: true, message: t('请选择') + t('借款目的'), trigger: 'change' }
     ],
     time_date: [
-      { required: true, message: t('请选择') + t('借款起止日期'), trigger: 'change' }
+      { required: true, message: t('请选择') + t('预计项目周期'), trigger: 'change' }
     ],
     term: [
       {
@@ -352,9 +352,9 @@
     if (date) {
       const data = cloneDeep(props.infoData)
 
-      if (data && data.start_date && data.end_date) {
-        const { start_date, end_date } = props.infoData;
-        const calcDay = tool.calculateDurationPrecise(start_date, end_date);
+      if (data && data.apply_start_date && data.apply_end_date) {
+        const { apply_start_date, apply_end_date } = props.infoData;
+        const calcDay = tool.calculateDurationPrecise(apply_start_date, apply_end_date);
         const gapDay = calcDay.gapDay;
 
         if (gapDay) {
@@ -421,8 +421,8 @@
       const params = {
         old_loan_money: data.old_loan_money,
         loan_type: data.loan_type.join(','),
-        start_date: dayjs(data.time_date[0]).format('YYYY-MM-DD'),
-        end_date: dayjs(data.time_date[1]).format('YYYY-MM-DD')
+        apply_start_date: dayjs(data.time_date[0]).format('YYYY-MM-DD'),
+        apply_end_date: dayjs(data.time_date[1]).format('YYYY-MM-DD')
       }
 
       if ((props.infoData && props.infoData.uuid) || props.currentId) {
@@ -438,20 +438,21 @@
       if (props.check) {
         params.loan_info_status = props.infoData.check_status
         params.code = props.code
-        if (props.infoData.start_date === params.start_date && props.infoData.end_date === params.end_date) {
-        // if (props.infoData.start_date === params.start_date && props.infoData.end_date === params.end_date && Number(props.infoData.old_loan_money) === Number(params.old_loan_money)) {
+        if (props.infoData.apply_start_date === params.apply_start_date && props.infoData.apply_end_date === params.apply_end_date) {
+        // if (props.infoData.apply_start_date === params.apply_start_date && props.infoData.apply_end_date === params.apply_end_date && Number(props.infoData.old_loan_money) === Number(params.old_loan_money)) {
           await normalRequest(params, true)
         } else {
-          if (processStore.hasForcast) {
-            currentForParams.value = params
-            tipsVisible.value = true
-          } else {
-            if (props.infoData.start_date !== params.start_date || props.infoData.end_date !== params.end_date) {
-              emitter.emit('refreshRefinancial', true)
-            }
+          // if (processStore.hasForcast) {
+          //   currentForParams.value = params
+          //   tipsVisible.value = true
+          // } else {
+          //   if (props.infoData.apply_start_date !== params.apply_start_date || props.infoData.apply_end_date !== params.apply_end_date) {
+          //     emitter.emit('refreshRefinancial', true)
+          //   }
 
-            await normalRequest(params, true)
-          }
+          //   await normalRequest(params, true)
+          // }
+          await normalRequest(params, true)
         }
       } else {
         params.draft_step = markInfo.value
@@ -546,11 +547,11 @@
     const data = cloneDeep({...infoMsg, ...props.infoData})
     const draftData = cloneDeep({...draftMsg, ...props.draftData})
 
-    if (data && data.start_date && data.end_date) {
-      data.time_date = [data.start_date, data.end_date]
+    if (data && data.apply_start_date && data.apply_end_date) {
+      data.time_date = [data.apply_start_date, data.apply_end_date]
       // lm 再次检查
       if (changeTimeStep.value) {
-        formState.startDate = dayjs(data.start_date)
+        formState.startDate = dayjs(data.apply_start_date)
       }
       timeChange(data.time_date)
     }

@@ -938,5 +938,6 @@ export default {
   "LM提交": "LM Submit",
   "LM 提交": "LM Submit",
   "LM 待提交": "LM To Be Submitted",
-  "数据设置有变动，保存后会重置首次建筑贷款放款额": "The data settings have changed. After saving, the first construction loan amount will be reset"
+  "数据设置有变动，保存后会重置首次建筑贷款放款额": "The data settings have changed. After saving, the first construction loan amount will be reset",
+  "开发成本中的建造费为：<span>{0}</span>，当前设置值为：<span>{1}</span>，超出了：<span>{2}</span>": "The construction cost in the development cost is: <span>{0}</span>, the current setting value is: <span>{1}</span>, which exceeds: <span>{2}</span>"
 }

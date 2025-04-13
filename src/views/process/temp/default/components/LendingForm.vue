@@ -125,7 +125,7 @@
             <a-col :span="24"><div class="form-line"></div></a-col>
           </template>
 
-          <a-col :span="24">
+          <a-col :span="7">
             <a-form-item :label="t('开发成本')">
               <DevCostDetail
                 :disabled="amountDisabled || inputADis"
@@ -133,13 +133,50 @@
                 v-model:dataJson="formState.devCostDetail"
                 @change="devCostChange"
               >
-                <div class="inline overflow-hidden">
-                  <vco-number class="float-left" v-model:value="formState.devCost" :precision="2" :end="true"></vco-number>
+                <div class="flex items-center" style="height: 50px;">
+                  <vco-number class="float-left" v-model:value="formState.devCost" size="fs_xl" :precision="2" :end="true"></vco-number>
                   <a-button class="float-left ml-3" v-if="!amountDisabled && !inputADis" type="link">
                     <i class="iconfont">&#xe753;</i>
                   </a-button>
                 </div>
               </DevCostDetail>
+            </a-form-item>
+          </a-col>
+
+          <a-col :span="7">
+            <a-form-item :label="t('项目周期')" name="time_date">
+              <a-range-picker
+                v-model:value="formState.time_date"
+                :format="selectDateFormat()"
+                :placeholder="[t('开放日期'), t('到期日期')]"
+                @change="timeChange"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="4">
+            <a-form-item :label="t('借款周期')" name="term">
+              <a-input
+                v-model:value="formState.term"
+                :suffix="t('月')"
+                @input="termInput"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="3">
+            <a-form-item label=" " name="days">
+              <a-input
+                v-model:value="formState.days"
+                :suffix="t('天')"
+                @input="termInput"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="3">
+            <a-form-item :label="t('总天数')" name="totalDay">
+              <div class="show-days">
+                {{ formState.totalDay }}
+                <span>{{ t('天') }}</span>
+              </div>
             </a-form-item>
           </a-col>
           
@@ -427,9 +464,10 @@
   } from '@/api/process';
   import emitter from '@/event';
   import useProcessStore from '@/store/modules/process';
-  import tool, { navigationTo, numberStrFormat } from '@/utils/tool';
+  import tool, { navigationTo, numberStrFormat, selectDateFormat } from '@/utils/tool';
   import DevCostDetail from './DevCostDetail.vue';
   import ViewContent from '@/views/requests/progress-payment/components/ViewContent.vue';
+  import dayjs from 'dayjs';
 
   const processStore = useProcessStore();
 
@@ -680,7 +718,11 @@
     has_linefee: 1,
     do__est: 0,
     devCost: '',
-    devCostDetail:''
+    devCostDetail:'',
+    time_date: [],
+    term: '',
+    days: '',
+    totalDay: 0
   });
 
   const formRules = ref({
@@ -688,6 +730,9 @@
     land_amount: { validator: validateNum, trigger: 'blur' },
     initial_build_amount: { validator: validateNum, trigger: 'blur' },
     initial_land_amount: { validator: validateNum, trigger: 'blur' },
+    time_date: [
+      { required: true, message: t('请选择') + t('项目周期'), trigger: 'change' }
+    ]
   });
 
   const percentItems = ref([]);
@@ -853,6 +898,41 @@
     });
   };
 
+  const timeChange = (date) => {
+    if (date) {
+      const startDate = typeof date[0] === 'string' ? date[0] : date[0].format('YYYY-MM-DD')
+      const endDate = typeof date[1] === 'string' ? date[1] : date[1].format('YYYY-MM-DD')
+      const calcDay = tool.calculateDurationPrecise(startDate, endDate)
+      formState.value.term = calcDay.months
+      formState.value.days = calcDay.days
+      formState.value.totalDay = calcDay.gapDay
+    } else {
+      formState.value.term = ''
+      formState.value.days = ''
+      formState.value.totalDay = 0
+    }
+  }
+
+  const termInput = () => {
+    const months = Number(formState.value.term)
+    const days = Number(formState.value.days)
+    if (!isNaN(months) && !isNaN(days)) {
+      if (months || days) {
+        let startDate = dayjs(new Date())
+        if (formState.value.time_date) {
+          startDate = formState.value.time_date[0]
+        }
+        const endDate = tool.calculateEndDate(startDate, months, days)
+        formState.value.time_date = [dayjs(startDate), dayjs(endDate)]
+        const calcDay = tool.calculateDurationPrecise(dayjs(startDate).format('YYYY-MM-DD'), dayjs(endDate).format('YYYY-MM-DD'))
+        formState.value.totalDay = calcDay.gapDay
+      } else {
+        formState.value.time_date = []
+        formState.value.totalDay = 0
+      }
+    }
+  }
+
   const tableDataRefData = ref()
 
   const updateFormData = async (tableData) => {
@@ -866,7 +946,9 @@
     }).then((res) => {
       if (res.length || Object.keys(res).length) {
         for (const key in formState.value) {
-          formState.value[key] = res[key] || '0';
+          if (key !== 'time_date') {
+            formState.value[key] = res[key] || '0';
+          }
         }
         for (let i = 0; i < showNumItemsStore.value.length; i++) {
           showNumItemsStore.value[i].value = res[showNumItemsStore.value[i].credit_table];
@@ -899,12 +981,20 @@
     formState.value.devCost = props.lendingInfo.devCost
     formState.value.devCostDetail = props.lendingInfo.devCostDetail
 
+    // 项目周期
+    formState.value.time_date = [dayjs(props.lendingInfo.start_date), dayjs(props.lendingInfo.end_date)]
+    timeChange(formState.value.time_date)
+
     // 首次放款建筑费用
     if (props.lendingInfo.buildlog && props.lendingInfo.buildlog.length) {
       selectedData.value = props.lendingInfo.buildlog
     }
 
-    staticFormData.value = cloneDeep(formState.value)
+    staticFormData.value = cloneDeep({
+      ...formState.value,
+      start_date: props.lendingInfo.start_date,
+      end_date: props.lendingInfo.end_date
+    })
     emits('openData', {
       table: tableDataRefData.value,
       data: formState.value
@@ -1030,6 +1120,22 @@
     }
 
     if (Object.keys(compareBackObj.value).includes(props.currentStep.mark)) {
+      if (obj?.start_date !== staticFormData.value.start_date) {
+        arr.unshift({
+          name: t('开放日期'),
+          before: staticFormData.value.start_date,
+          now: obj?.start_date
+        })
+      }
+
+      if (obj?.end_date !== staticFormData.value.end_date) {
+        arr.unshift({
+          name: t('到期日期'),
+          before: staticFormData.value.end_date,
+          now: obj?.end_date
+        })
+      }
+
       if (Number(obj?.initial_build_amount) !== Number(staticFormData.value?.initial_build_amount)) {
         arr.unshift({
           name: t('首次建筑贷款放款额'),
@@ -1176,6 +1282,10 @@
         delete credit__data.do__est
         delete credit__data.devCost
         delete credit__data.devCostDetail
+        delete credit__data.time_date
+        delete credit__data.term
+        delete credit__data.days
+        delete credit__data.totalDay
 
         const params = {
           code: props.blockInfo.code,
@@ -1185,11 +1295,11 @@
           initial_build_amount: formState.value.initial_build_amount || 0,
           initial_land_amount: formState.value.initial_land_amount || 0,
           substitution_ids: formState.value.substitution_ids || [],
-          devCost: formState.value.devCost,
-          devCostDetail: formState.value.devCostDetail,
           substitution_amount: refinancialAmount.value || 0,
           has_linefee: Number(formState.value.has_linefee),
           do__est: Number(formState.value.do__est),
+          start_date: dayjs(formState.value.time_date[0]).format('YYYY-MM-DD'),
+          end_date: dayjs(formState.value.time_date[1]).format('YYYY-MM-DD'),
           credit__data
         };
 
@@ -1218,17 +1328,23 @@
       });
   };
 
-  const devCostChange = (data) => {
-    const list = data.devCostDetail[0].data[0].list
-    const landObj = list.find(item => item.type === 'Land')
-    formState.value.land_amount = landObj ? landObj.loan : 0
+  const setSingleFormData = (params) => {
+    projectAuditSaveMode(params).then(() => {
+      emits('refresh')
 
-    const filterType = ['Land', 'Refinance']
-    const buildArr = list.filter(item => !filterType.includes(item.type)).map(item => item.loan)
-    const total = buildArr.reduce((total, num) => {
-      return Number(tool.plus(total, num))
-    }, 0);
-    formState.value.build_amount = total || 0
+      // 操作记录
+      emitter.emit('refreshAuditHisList');
+    })
+  }
+
+  const devCostChange = () => {
+    setSingleFormData({
+      code: props.blockInfo.code,
+      uuid: props.currentId,
+      devCost: formState.value.devCost,
+      devCostDetail: formState.value.devCostDetail,
+      set__devCost: 1
+    })
   }
 
   watch(
@@ -1242,7 +1358,9 @@
           Number(val.build_amount) !== Number(formState.value.build_amount) ||
           Number(val.initial_land_amount) !== Number(formState.value.initial_land_amount) ||
           Number(val.initial_build_amount) !== Number(formState.value.initial_build_amount) ||
-          Number(val.has_linefee) !== Number(formState.value.has_linefee)
+          Number(val.has_linefee) !== Number(formState.value.has_linefee) ||
+          val.start_date !== staticFormData.value.start_date ||
+          val.end_date !== staticFormData.value.end_date
         ) {
           updateFormData()
         }
@@ -1281,9 +1399,20 @@
 
   const selectVisible = ref(false)
   const selectDoneHandle = (data) => {
-    selectedData.value = cloneDeep(data.build__data)
+    const build__data = cloneDeep(data.build__data)
+    selectedData.value = build__data
     formState.value.initial_build_amount = data.total
     selectVisible.value = false
+
+    setSingleFormData({
+      code: props.blockInfo.code,
+      uuid: props.currentId,
+      build__data,
+      initial_build_amount: data.total,
+      initial_land_amount: formState.value.initial_land_amount,
+      substitution_amount: refinancialAmount.value || 0,
+      set__initial: 1
+    })
   }
 
   const goHandle = (page) => {
@@ -1323,6 +1452,9 @@
 .sys-form-content {
   :deep(.ant-statistic-content) {
     font-size: 21px !important;
+  }
+  :deep(.ant-picker-range-separator) {
+    padding: 0 !important;
   }
 }
 
@@ -1404,6 +1536,14 @@
   :deep(.ant-input[disabled]),
   :deep(.ant-input-number-disabled) {
     color: #999 !important;
+  }
+}
+
+.show-days {
+  line-height: 50px;
+  font-size: 16px;
+  > span {
+    opacity: 0.7;
   }
 }
 </style>

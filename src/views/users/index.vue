@@ -10,7 +10,7 @@ import UsersLayout from './components/UsersLayout.vue';
 const usersStore = useUsersStore();
 
 onMounted(() => {
-  usersStore.setSearchParams({ sta: 0 });
+  // usersStore.setSearchParams({ sta: 0 });
 });
 </script>
 

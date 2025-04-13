@@ -1,14 +1,20 @@
 <template>
   <div>
-    <vco-page-nav sup-path="/users">
+    <!-- <vco-page-nav sup-path="/users">
       <template #action>
         <a-button type="cyan" shape="round" @click="showUserModal()">
           {{ t('新增用户') }}
         </a-button>
       </template>
-    </vco-page-nav>
+    </vco-page-nav> -->
+    <GroupTab>
+      <a-button type="cyan" shape="round" @click="showUserModal()">
+        {{ t('新增用户') }}
+      </a-button>
+    </GroupTab>
 
     <div class="mt-5">
+      <vco-page-tab :tabData="tabData" v-model:current="currentTab" @change="tabChange"></vco-page-tab>
       <table-search></table-search>
       <div class="mt-10">
         <vco-table-tool>
@@ -36,7 +42,7 @@
     </div>
   </div>
   <add-user v-model:open="showAdd" :userData="userData" />
-  <assign-roles v-model:open="open" :title="t('分配角色')" :uuids="rowSelection" :selectedData="rowSelectionData"/>
+  <assign-roles v-model:open="open" :title="t('分配角色')" :uuids="rowSelection" :selectedData="rowSelectionData" />
 </template>
 
 <script setup>
@@ -47,6 +53,7 @@ import TableSearch from './UsersSearch.vue';
 import TableBlock from './UsersTable.vue';
 import { useUsersStore } from '@/store';
 import AssignRoles from './AssignRoles.vue';
+import GroupTab from './../components/GroupTab.vue';
 import AddUser from './AddUser.vue';
 
 const { t } = useI18n();
@@ -58,8 +65,8 @@ const userData = ref({});
 const sortType = ref('desc');
 const sortValue = ref('');
 
-const rowSelection = ref([])
-const rowSelectionData = ref([])
+const rowSelection = ref([]);
+const rowSelectionData = ref([]);
 
 const tableData = computed(() => usersStore.userList);
 
@@ -112,6 +119,27 @@ watch([sortType, sortValue], ([newSortType, newSortValue]) => {
   }
   usersStore.setSearchParams(params);
 });
+
+const currentTab = ref(undefined);
+const tabData = ref([
+  {
+    label: t('列表'),
+    value: ''
+  },
+  {
+    label: t('个人'),
+    value: '0'
+  },
+  {
+    label: t('公司'),
+    value: '1'
+  }
+]);
+
+const tabChange = () => {
+  usersStore.setSearchParams({ type: currentTab.value?currentTab.value: undefined });
+};
+
 </script>
 
 <style lang="less" scoped>

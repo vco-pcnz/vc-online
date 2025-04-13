@@ -905,6 +905,8 @@
               confirmTxt.value = t(`数据设置有变动，保存后会重置首次建筑贷款放款额`)
               currentParams.value.clear = 1
               changeVisible.value = true
+            } else {
+              submitRquest()
             }
           } else {
             submitRquest()

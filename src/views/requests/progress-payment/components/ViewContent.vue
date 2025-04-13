@@ -465,7 +465,7 @@
 
       const total = obj.total || 0
       const useTotal = obj.useTotal || 0
-      const num = Number(Number(tool.div(Number(useTotal), Number(total))).toFixed(2))
+      const num = Number(total) ? Number(Number(tool.div(Number(useTotal), Number(total))).toFixed(2)) : 0
       obj.percent = Number(tool.times(num, 100))
 
       dataArr.push(obj)
@@ -718,7 +718,7 @@
 
   const currentItemInput = (flag) => {
     if (flag) {
-      const per = tool.div(currentItemInfo.value.set_amount, currentItemInfo.value.can_amount)
+      const per = Number(currentItemInfo.value.can_amount) ? tool.div(currentItemInfo.value.set_amount, currentItemInfo.value.can_amount) : 0
       currentItemInfo.value.set_amount_per = Number(tool.times(per, 100)).toFixed(2)
     } else {
       if (!isNaN(currentItemInfo.value.set_amount_per)){
@@ -732,11 +732,11 @@
     if (props.isSelect && Number(data.amount)) {
       const num = tool.minus(Number(data.amount), Number(data.use_amount))
       if (data.set_amount && !data.set_amount_per) {
-        const per = tool.div(data.set_amount, num)
+        const per = Number(num) ? tool.div(data.set_amount, num) : 0
         data.set_amount_per = Number(tool.times(per, 100)).toFixed(2)
       }
       data.can_amount = num
-      data.can_amount_per = tool.times(tool.div(Number(num), Number(data.amount)), 100)
+      data.can_amount_per = Number(data.amount) ? tool.times(tool.div(Number(num), Number(data.amount)), 100) : 0
       data.showError = false
       currentItemInfo.value = data
       itemVisible.value = true

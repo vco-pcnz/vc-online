@@ -148,6 +148,7 @@
               <a-range-picker
                 v-model:value="formState.time_date"
                 :format="selectDateFormat()"
+                :disabled="amountDisabled || inputADis"
                 :placeholder="[t('开放日期'), t('到期日期')]"
                 @change="timeChange"
               />
@@ -158,6 +159,7 @@
               <a-input
                 v-model:value="formState.term"
                 :suffix="t('月')"
+                :disabled="amountDisabled || inputADis"
                 @input="termInput"
               />
             </a-form-item>
@@ -167,6 +169,7 @@
               <a-input
                 v-model:value="formState.days"
                 :suffix="t('天')"
+                :disabled="amountDisabled || inputADis"
                 @input="termInput"
               />
             </a-form-item>
@@ -401,6 +404,7 @@
                       `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                   "
                   :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                  @input="() => dollarInput(item.credit_table)"
                 />
               </a-form-item>
             </a-col>
@@ -750,7 +754,6 @@
   const totalAmountRef = computed(() => {
     const build_amount = formState.value.build_amount || 0;
     const land_amount = formState.value.land_amount || 0;
-    calcBrokerFee()
     return tool.plus(build_amount, land_amount);
   });
 
@@ -839,10 +842,36 @@
     }
   }
 
+  // 计算中介费率
+  const calcBrokerFeeRate = () => {
+    if ('credit_brokerFeeRate' in formState.value && 'credit_brokerFee' in formState.value) {
+      const build_amount = formState.value.build_amount || 0;
+      const land_amount = formState.value.land_amount || 0;
+      const brokeFee = formState.value.credit_brokerFee || 0
+
+      if (isNaN(Number(brokeFee))) {
+        formState.value.credit_brokerFeeRate = 0
+      } else {
+        const amount = tool.plus(build_amount, land_amount);
+        const per = tool.div(brokeFee, amount)
+        const num = tool.times(per, 100)
+
+        formState.value.credit_brokerFeeRate = Number(Number(num).toFixed(6))
+      }
+    }
+  }
+
   const percentInput = (key) => {
     // 中介费率修改
     if (key === 'credit_brokerFeeRate') {
       calcBrokerFee()
+    }
+  }
+
+  const dollarInput = (key) => {
+    // 中介费修改
+    if (key === 'credit_brokerFee') {
+      calcBrokerFeeRate()
     }
   }
 
@@ -864,7 +893,7 @@
       if (brokerFeeRate) {
         const brokerFee = dolData.find(item => item.credit_table === 'credit_brokerFee')
         if (brokerFee) {
-          brokerFee.disabled = true
+          // brokerFee.disabled = true
         }
       }
 

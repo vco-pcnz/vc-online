@@ -260,7 +260,8 @@
   const currentInfo = ref(null)
 
   const changeTimeStep = computed(() => {
-    return props.check && ['step_lm_check', 'step_open'].includes(markInfo.value)
+    // return props.check && ['step_lm_check', 'step_open'].includes(markInfo.value)
+    return false
   })
 
   const showStartDate = computed(() => {

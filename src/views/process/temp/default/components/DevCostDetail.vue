@@ -9,24 +9,35 @@
             <template v-if="p_index === 0">
               <div class="flex justify-between tabel-type">
                 <p class="bold fs_xl">{{ item.type }}</p>
-                <a-button type="brown" shape="round" size="small" @click="add(p_index)" v-if="edit">add</a-button>
+                <a-button type="brown" shape="round" size="small" @click="add(p_index)" v-if="edit && showAdd">add</a-button>
               </div>
               <a-table :columns="ConstructionColumns" :data-source="item.list" :pagination="false" :scroll="{ x: '100%' }">
                 <template #bodyCell="{ column, record, index }">
                   <template v-if="edit">
                     <template v-if="column.dataIndex === 'type'">
-                      <a-select :loading="loading_type" :disabled="Boolean(record?.status)" style="width: 100%" v-model:value="record.type" :options="types" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
+                      <a-select :loading="loading_type" :disabled="Boolean(record?.status)" style="width: 100%" v-model:value="record.type" :options="initTypes" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
                     </template>
                     <template v-if="column.dataIndex === 'loan' || column.dataIndex === 'borrower_equity'">
                       <a-input-number
+                        v-if="(record.type !== 'Land_gst' && record.type !== 'Build_gst') || column.dataIndex === 'loan'"
                         v-model:value="record[column.dataIndex]"
                         :disabled="Boolean(record?.status) || (disabledLoan && column.dataIndex === 'loan')"
                         @change="initData"
                         :max="99999999999"
-                        :min="column.dataIndex === 'borrower_equity' ? 0 : -99999999999"
+                        :min="0"
                         :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                         :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                       />
+                      <a-input-number
+                        v-if="(record.type == 'Land_gst' || record.type == 'Build_gst') && column.dataIndex === 'borrower_equity'"
+                        v-model:value="record[column.dataIndex]"
+                        :disabled="true"
+                        :max="99999999999"
+                        :min="-99999999999"
+                        :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                        :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                      />
+                      <!--  :min="column.dataIndex === 'borrower_equity' ? 0 : -99999999999" -->
                     </template>
                   </template>
                   <template v-else>
@@ -181,6 +192,10 @@ const props = defineProps({
   disabledLoan: {
     type: Boolean,
     default: false
+  },
+  disabled: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -245,14 +260,24 @@ const remove = (p_index, index) => {
 };
 
 const save = () => {
-  emits('update:value', cloneDeep(data.value.total));
-  emits('update:dataJson', cloneDeep([data.value]));
-  emits('change', cloneDeep({ devCost: data.value.total, devCostDetail: [data.value] }));
+  const doneData = cloneDeep(data.value);
+  doneData.data[0].list.forEach((item) => {
+    item.name = typesObj.value[item.type] || '';
+  });
+
+  if (doneData.data[0].list.filter((item) => !item.type).length) {
+    message.error(t('建设成本类型不能为空'));
+    return;
+  }
+  emits('update:value', cloneDeep(doneData.total));
+  emits('update:dataJson', cloneDeep([doneData]));
+  emits('change', cloneDeep({ devCost: doneData.total, devCostDetail: [doneData] }));
   updateVisible(false);
 };
 
 const loading_type = ref(false);
 const types = ref([]);
+const typesObj = ref(); // 字典名称
 const loadType = (key) => {
   if (types.value.length) {
     return;
@@ -260,7 +285,16 @@ const loadType = (key) => {
   loading_type.value = true;
   systemDictData('devCostTypeConstruction')
     .then((res) => {
-      types.value = res;
+      const resData = res || [];
+      types.value = resData;
+
+      // 字典名称记录
+      const obj = {};
+      for (let i = 0; i < resData.length; i++) {
+        obj[resData[i].code] = resData[i].name;
+      }
+      typesObj.value = obj;
+
       if (!data.value.data[0].list.length) {
         res.map((item) => {
           data.value.data[0].list.push({
@@ -288,6 +322,9 @@ const initData = () => {
       item.loan = 0;
       item.borrower_equity = 0;
       item.list.map((sub) => {
+        if (sub.type === 'Land_gst' || sub.type === 'Build_gst') {
+          sub.borrower_equity = tool.minus(0, sub.loan);
+        }
         sub.total = tool.plus(sub.loan || 0, sub.borrower_equity || 0);
         item.loan = tool.plus(item.loan || 0, sub.loan || 0);
         item.borrower_equity = tool.plus(item.borrower_equity || 0, sub.borrower_equity || 0);
@@ -300,6 +337,7 @@ const initData = () => {
   data.value.total = tool.plus(data.value.loan || 0, data.value.borrower_equity || 0);
 };
 const init = () => {
+  if (props.disabled) return;
   loadType();
   if (props.dataJson && props.dataJson.length) {
     data.value = cloneDeep(props.dataJson[0]);
@@ -311,6 +349,20 @@ const init = () => {
   }
   visible.value = true;
 };
+
+const initTypes = computed(() => {
+  const selectArr = data.value.data[0].list.map((item) => {
+    if (!item.status) return item.type;
+  });
+  types.value.map((item) => {
+    item['disabled'] = selectArr.includes(item.code);
+  });
+  return types.value;
+});
+
+const showAdd = computed(() => {
+  return data.value.data[0].list.filter((item) => item.status !== 1).length != types.value.length;
+});
 
 onMounted(() => {
   if (!props.dataJson) {
@@ -431,6 +483,12 @@ onMounted(() => {
   .disabled {
     cursor: not-allowed !important;
     opacity: 0.4;
+  }
+  :deep(.ant-table-wrapper) {
+    .ant-table-thead > tr > th,
+    .ant-table-thead > tr > td {
+      background: transparent !important;
+    }
   }
 }
 </style>

@@ -16,7 +16,7 @@
       :uuid="currentId"
       :open-config="openConfig"
       :block-info="PageBlockObjRef"
-      :info-data="currentDataInfo.loan"
+      :info-data="currentDataInfo"
       :lending-info="lendingDataInfo"
       :type="currentMark"
       v-model:visible="openVisible"

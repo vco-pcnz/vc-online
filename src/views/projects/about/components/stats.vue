@@ -74,23 +74,38 @@
           <div :class="{ 'color_red-error': Math.abs(data?.right?.irr) < Math.abs(data?.right?.irrPreset) }">
             <p class="color_grey fs_xs">IRR</p>
             <p class="fs_xl bold">{{ data?.right?.irr }}%</p>
-            <p class="fs_xs">baseline {{ data?.right?.irrPreset }}%</p>
+            <p class="fs_xs">Benchmark {{ data?.right?.irrPreset }}%</p>
           </div>
         </a-col>
         <a-col :span="10">
           <div :class="{ 'color_red-error': Math.abs(data?.right?.ltc) > Math.abs(data?.right?.baseline) }">
-            <p class="color_grey fs_xs">LTC</p>
+            <div class="color_grey fs_xs flex items-center gap-2">
+              LTC
+              <div class="efSGMs">
+                <i class="iconfont">&#xe6b3;</i>
+                <div class="tips"><p>LTC = Projected FC2 / Total Development Cost </p></div>
+              </div>
+            </div>
             <p class="fs_xl bold">{{ data?.right?.ltc }}%</p>
           </div>
         </a-col>
         <a-col :span="14" class="text-right cursor-pointer">
           <DevCostDetail :dataJson="detail?.base?.devCostDetail" :disabledGST="true" :disabledLoan="true" @change="editSaveDevCost">
-            <p class="color_grey fs_xs">Total Development Cost <i class="iconfont color_coal">&#xe76f;</i></p>
-            <vco-number :value="data?.right?.devCost" :bold="true" size="fs_xl" :precision="2"></vco-number>
+            <div class="color_grey fs_xs">Total Development Cost</div>
+            <div class="flex justify-end items-center gap-2">
+              <vco-number :value="data?.right?.devCost" :bold="true" size="fs_xl" :precision="2"></vco-number>
+              <i class="iconfont color_coal">&#xe743;</i>
+            </div>
           </DevCostDetail>
         </a-col>
         <a-col :span="24">
-          <p class="fs_xs" :class="{ 'color_red-error': Math.abs(data?.right?.ltc) > Math.abs(data?.right?.baseline) }">baseline {{ data?.right?.baseline }}%</p>
+          <div class="fs_xs flex items-center gap-2" :class="{ 'color_red-error': Math.abs(data?.right?.ltc) > Math.abs(data?.right?.baseline) }">
+            Benchmark {{ data?.right?.baseline }}%
+            <div class="efSGMs">
+              <i class="iconfont">&#xe6b3;</i>
+              <div class="tips" style="width: 230px;"><p>Benchmark = FC2 / Development Cost </p></div>
+            </div>
+          </div>
         </a-col>
       </a-row>
     </div>
@@ -182,5 +197,35 @@ const editSaveDevCost = (val) => {
 .iconfont {
   color: @colorPrimary;
   font-size: 14px;
+}
+
+.efSGMs {
+  position: relative;
+  cursor: pointer;
+  color: rgba(24, 24, 24, 0.5);
+  .tips {
+    position: absolute;
+    top: 0px;
+    left: 50%;
+    right: auto;
+    transform: translateY(calc(-100% - 4px));
+    width: 280px;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(24, 24, 24, 0.2);
+    background: rgb(255, 255, 255);
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 4px 4px 0px;
+    color: rgba(24, 24, 24, 0.5);
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 1.5;
+    display: none;
+  }
+  &:hover {
+    .tips {
+      display: block;
+    }
+  }
 }
 </style>

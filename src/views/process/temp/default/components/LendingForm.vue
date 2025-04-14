@@ -3,6 +3,26 @@
     class="block-item mb"
     :class="{ checked: lendingInfo.is_check && blockInfo?.showCheck, 'details': isDetails }"
   >
+    <!-- 首次放款选择弹窗 -->
+    <a-modal
+      :open="selectVisible"
+      :title="t('进度付款阶段')"
+      :width="1400"
+      :footer="null"
+      :keyboard="false"
+      :maskClosable="false"
+      class="middle-position"
+      @cancel="selectVisible = false"
+    >
+      <view-content
+        v-if="selectVisible"
+        :is-select="true"
+        :show-process="true"
+        :selected-data="selectedData"
+        @selectDone="selectDoneHandle"
+      ></view-content>
+    </a-modal>
+    
     <!-- 确认弹窗 -->
     <vco-confirm-alert
       ref="changeAlertRef"
@@ -79,33 +99,96 @@
                 <a-switch :disabled="amountDisabled || inputADis" v-model:checked="formState.has_linefee" :checkedValue="1" :unCheckedValue="0" @change="linefeeFilter" />
               </a-form-item>
             </a-col>
-            <a-col :span="8">
-              <a-form-item :label="t('是否预算')" name="do__est">
-                <a-switch :disabled="amountDisabled || inputADis" v-model:checked="formState.do__est" :checkedValue="1" :unCheckedValue="0" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item label=" ">
-                <a-button
-                  type="brown"
-                  shape="round"
-                  size="small"
-                  class="uppercase"
-                  @click="goHandle('budget')"
-                >
-                  {{ t('查看预算信息') }}
-                </a-button>
-              </a-form-item>
-            </a-col>
+            <template v-if="showCompare">
+              <a-col :span="8">
+                <a-form-item :label="t('是否预算')" name="do__est">
+                  <a-switch :disabled="amountDisabled || inputADis" v-model:checked="formState.do__est" :checkedValue="1" :unCheckedValue="0" />
+                </a-form-item>
+              </a-col>
+              <a-col :span="8">
+                <a-form-item label=" ">
+                  <a-button
+                    type="brown"
+                    shape="round"
+                    size="small"
+                    class="flex items-center"
+                    @click="goHandle('budget')"
+                  >
+                    {{ t('查看预算信息') }}
+                    <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px'  }" />
+                  </a-button>
+                </a-form-item>
+              </a-col>
+            </template>
+            <a-col v-else :span="16"></a-col>
+            
             <a-col :span="24"><div class="form-line"></div></a-col>
           </template>
+
+          <a-col :span="7">
+            <a-form-item :label="t('开发成本')">
+              <DevCostDetail
+                :disabled="amountDisabled || inputADis"
+                v-model:value="formState.devCost"
+                v-model:dataJson="formState.devCostDetail"
+                @change="devCostChange"
+              >
+                <div class="flex items-center" style="height: 50px;">
+                  <vco-number class="float-left" v-model:value="formState.devCost" size="fs_xl" :precision="2" :end="true"></vco-number>
+                  <a-button class="float-left ml-3" v-if="!amountDisabled && !inputADis" type="link">
+                    <i class="iconfont">&#xe753;</i>
+                  </a-button>
+                </div>
+              </DevCostDetail>
+            </a-form-item>
+          </a-col>
+
+          <a-col :span="7">
+            <a-form-item :label="t('项目周期')" name="time_date">
+              <a-range-picker
+                v-model:value="formState.time_date"
+                :format="selectDateFormat()"
+                :disabled="amountDisabled || inputADis"
+                :placeholder="[t('开放日期'), t('到期日期')]"
+                @change="timeChange"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="4">
+            <a-form-item :label="t('借款周期')" name="term">
+              <a-input
+                v-model:value="formState.term"
+                :suffix="t('月')"
+                :disabled="amountDisabled || inputADis"
+                @input="termInput"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="3">
+            <a-form-item label=" " name="days">
+              <a-input
+                v-model:value="formState.days"
+                :suffix="t('天')"
+                :disabled="amountDisabled || inputADis"
+                @input="termInput"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="3">
+            <a-form-item :label="t('总天数')" name="totalDay">
+              <div class="show-days">
+                {{ formState.totalDay }}
+                <span>{{ t('天') }}</span>
+              </div>
+            </a-form-item>
+          </a-col>
           
           <a-col :span="7">
             <a-form-item :label="t('土地贷款总额')" name="land_amount">
               <a-input-number
                 v-model:value="formState.land_amount"
                 :max="99999999999"
-                :disabled="amountDisabled || inputADis"
+                :disabled="true"
                 :formatter="
                   (value) =>
                     `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -118,11 +201,26 @@
             <i class="iconfont">&#xe889;</i>
           </a-col>
           <a-col :span="7">
-            <a-form-item :label="t('建筑贷款总额')" name="build_amount">
+            <a-form-item name="build_amount" class="w-full-label">
+              <template #label>
+                <div class="w-full flex justify-between items-center" style="height: 22px;">
+                  <p>{{ t('建筑贷款总额') }}</p>
+                  <a-button
+                    v-if="showProgressPayment"
+                    type="link"
+                    style="font-size: 12px; height: auto !important;"
+                    class="flex items-center"
+                    @click="goProgressPage"
+                  >
+                    <p>{{ t('进度付款') }}</p>
+                    <i class="iconfont">&#xe602;</i>
+                  </a-button>
+                </div>
+              </template>
               <a-input-number
                 v-model:value="formState.build_amount"
                 :max="99999999999"
-                :disabled="amountDisabled || inputADis"
+                :disabled="true"
                 :formatter="
                   (value) =>
                     `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -131,6 +229,7 @@
               />
             </a-form-item>
           </a-col>
+
           <a-col :span="1" class="plus-txt"><i class="iconfont">=</i></a-col>
           <a-col :span="8" class="total-amount-info">
             <a-form-item :label="t('借款总金额')">
@@ -142,7 +241,7 @@
             </a-form-item>
           </a-col>
           <a-col :span="24"><div class="form-line"></div></a-col>
-          <a-col v-if="(refinancialData.length && blockInfo.showEdit) || isRefinancial" :span="24">
+          <a-col v-if="((refinancialData.length && blockInfo.showEdit) || isRefinancial) && refinancialShow" :span="24">
             <div v-if="!refinancialDisabled" class="flex gap-2 mb-5">
               <p>{{ t('是否需要再融资') }}</p>
               <a-switch v-model:checked="isRefinancial"></a-switch>
@@ -154,7 +253,7 @@
                 :options="formattedRefinancialData"
                 :filter-option="filterOption"
                 :placeholder="t('请选择项目')"
-                style="width: 65.5%;"
+                style="width: 52.58%;"
                 :disabled="refinancialDisabled"
                 @change="(value, option) => refinancialChange(option)"
               >
@@ -171,7 +270,7 @@
               </a-select>
             </a-form-item>
           </a-col>
-          <a-col :span="isRefinancial ? 5 : 7">
+          <a-col :span="isRefinancial ? 6 : 7">
             <a-form-item
               :label="t('首次土地贷款放款额')"
               name="initial_land_amount"
@@ -191,14 +290,26 @@
           <a-col :span="1" class="plus-txt">
             <i class="iconfont">&#xe889;</i>
           </a-col>
-          <a-col :span="isRefinancial ? 5 : 7">
-            <a-form-item
-              :label="t('首次建筑贷款放款额')"
-              name="initial_build_amount"
-            >
+          <a-col :span="isRefinancial ? 6 : 7">
+            <a-form-item name="initial_build_amount" class="w-full-label">
+              <template #label>
+                <div class="w-full flex justify-between items-center" style="height: 22px;">
+                  <p>{{ t('首次建筑贷款放款额') }}</p>
+                  <a-button
+                    v-if="!amountDisabled && showProgressPayment"
+                    type="link"
+                    style="font-size: 12px; height: auto !important;"
+                    class="flex items-center"
+                    @click="selectVisible = true"
+                  >
+                    <p>{{ t('选择') }}</p>
+                    <i class="iconfont">&#xe602;</i>
+                  </a-button>
+                </div>
+              </template>
               <a-input-number
                 :max="99999999999"
-                :disabled="amountDisabled"
+                :disabled="true"
                 v-model:value="formState.initial_build_amount"
                 :formatter="
                   (value) =>
@@ -223,7 +334,7 @@
             </a-col>
           </template>
           <a-col :span="1" class="plus-txt"><i class="iconfont">=</i></a-col>
-          <a-col :span="isRefinancial ? 7 : 8" class="total-amount-info" :class="{'financial': isRefinancial}">
+          <a-col :span="isRefinancial ? 5 : 8" class="total-amount-info" :class="{'financial': isRefinancial}">
             <a-form-item :label="t('首次放款总金额')">
               <vco-number
                 :value="totalInitialAmountRef"
@@ -293,6 +404,7 @@
                       `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                   "
                   :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                  @input="() => dollarInput(item.credit_table)"
                 />
               </a-form-item>
             </a-col>
@@ -338,11 +450,13 @@
 
 <script setup>
   import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
+  import { RightOutlined } from '@ant-design/icons-vue';
   import { useI18n } from 'vue-i18n';
   import { useRoute } from 'vue-router';
   import { cloneDeep } from 'lodash';
   import { message } from 'ant-design-vue/es';
   import { QuestionCircleOutlined } from '@ant-design/icons-vue'
+  import { useUserStore } from '@/store';
   import {
     ruleCredit,
     creditInfo,
@@ -354,7 +468,10 @@
   } from '@/api/process';
   import emitter from '@/event';
   import useProcessStore from '@/store/modules/process';
-  import tool, { navigationTo, numberStrFormat } from '@/utils/tool';
+  import tool, { navigationTo, numberStrFormat, selectDateFormat } from '@/utils/tool';
+  import DevCostDetail from './DevCostDetail.vue';
+  import ViewContent from '@/views/requests/progress-payment/components/ViewContent.vue';
+  import dayjs from 'dayjs';
 
   const processStore = useProcessStore();
 
@@ -362,6 +479,10 @@
 
   const { t } = useI18n();
   const route = useRoute();
+
+  const userStore = useUserStore();
+
+  const isNormalUser = computed(() => userStore.isNormalUser);
 
   const props = defineProps({
     lendingInfo: {
@@ -394,6 +515,25 @@
 
   // 请求可以置换的项目
   const refinancialData = ref([])
+
+  // 是否显示进度付款
+  const showProgressPayment = computed(() => {
+    return Number(props.dataInfo.security.count) && Number(props.dataInfo.lending.build_amount) && !isNormalUser.value
+  })
+
+  const goProgressPage = () => {
+    const path = route.path
+    let href = ''
+    if (path === '/requests/details/about') {
+      href = '/requests/details/progress-payment'
+    } else if (path.indexOf('process') > -1) {
+      href = '/requests/progress-payment'
+    }
+
+    if (href) {
+      navigationTo(`${href}?uuid=${props.currentId}`)
+    }
+  }
 
   const getRefinancialList = (flag = false) => {
     if (flag) {
@@ -478,11 +618,33 @@
     } else {
       const mark = props?.currentStep?.mark
       if (props?.blockInfo?.showEdit) {
-        return ['step_lm_check'].includes(mark)
+        return [''].includes(mark)
       } else {
         return true
       }
     }
+  })
+
+  const refinancialShow = computed(() => {
+    if (props.isDetails) {
+      return true
+    } else {
+      const mark = props?.currentStep?.mark
+      if (props?.blockInfo?.showEdit) {
+        if (['step_lm_audit'].includes(mark)) {
+          return true
+        } else {
+          return isRefinancial.value
+        }
+      } else {
+        return isRefinancial.value
+      }
+    }
+  })
+
+  const showCompare = computed(() => {
+    const mark = props?.currentStep?.mark
+    return ['step_lm_audit', 'step_lm_review'].includes(mark)
   })
 
   const refinancialDisabled = computed(() => {
@@ -501,7 +663,7 @@
 
   const inputADis = computed(() => {
     const mark = props.currentStep.mark
-    return ['step_open'].includes(mark)
+    return [].includes(mark)
   })
 
   const inputDisabled = (str = '') => {
@@ -558,7 +720,13 @@
     initial_land_amount: '',
     substitution_ids: [],
     has_linefee: 1,
-    do__est: 0
+    do__est: 0,
+    devCost: '',
+    devCostDetail:'',
+    time_date: [],
+    term: '',
+    days: '',
+    totalDay: 0
   });
 
   const formRules = ref({
@@ -566,6 +734,9 @@
     land_amount: { validator: validateNum, trigger: 'blur' },
     initial_build_amount: { validator: validateNum, trigger: 'blur' },
     initial_land_amount: { validator: validateNum, trigger: 'blur' },
+    time_date: [
+      { required: true, message: t('请选择') + t('项目周期'), trigger: 'change' }
+    ]
   });
 
   const percentItems = ref([]);
@@ -583,7 +754,6 @@
   const totalAmountRef = computed(() => {
     const build_amount = formState.value.build_amount || 0;
     const land_amount = formState.value.land_amount || 0;
-    calcBrokerFee()
     return tool.plus(build_amount, land_amount);
   });
 
@@ -672,10 +842,36 @@
     }
   }
 
+  // 计算中介费率
+  const calcBrokerFeeRate = () => {
+    if ('credit_brokerFeeRate' in formState.value && 'credit_brokerFee' in formState.value) {
+      const build_amount = formState.value.build_amount || 0;
+      const land_amount = formState.value.land_amount || 0;
+      const brokeFee = formState.value.credit_brokerFee || 0
+
+      if (isNaN(Number(brokeFee))) {
+        formState.value.credit_brokerFeeRate = 0
+      } else {
+        const amount = tool.plus(build_amount, land_amount);
+        const per = tool.div(brokeFee, amount)
+        const num = tool.times(per, 100)
+
+        formState.value.credit_brokerFeeRate = Number(Number(num).toFixed(6))
+      }
+    }
+  }
+
   const percentInput = (key) => {
     // 中介费率修改
     if (key === 'credit_brokerFeeRate') {
       calcBrokerFee()
+    }
+  }
+
+  const dollarInput = (key) => {
+    // 中介费修改
+    if (key === 'credit_brokerFee') {
+      calcBrokerFeeRate()
     }
   }
 
@@ -697,7 +893,7 @@
       if (brokerFeeRate) {
         const brokerFee = dolData.find(item => item.credit_table === 'credit_brokerFee')
         if (brokerFee) {
-          brokerFee.disabled = true
+          // brokerFee.disabled = true
         }
       }
 
@@ -731,6 +927,41 @@
     });
   };
 
+  const timeChange = (date) => {
+    if (date) {
+      const startDate = typeof date[0] === 'string' ? date[0] : date[0].format('YYYY-MM-DD')
+      const endDate = typeof date[1] === 'string' ? date[1] : date[1].format('YYYY-MM-DD')
+      const calcDay = tool.calculateDurationPrecise(startDate, endDate)
+      formState.value.term = calcDay.months
+      formState.value.days = calcDay.days
+      formState.value.totalDay = calcDay.gapDay
+    } else {
+      formState.value.term = ''
+      formState.value.days = ''
+      formState.value.totalDay = 0
+    }
+  }
+
+  const termInput = () => {
+    const months = Number(formState.value.term)
+    const days = Number(formState.value.days)
+    if (!isNaN(months) && !isNaN(days)) {
+      if (months || days) {
+        let startDate = dayjs(new Date())
+        if (formState.value.time_date) {
+          startDate = formState.value.time_date[0]
+        }
+        const endDate = tool.calculateEndDate(startDate, months, days)
+        formState.value.time_date = [dayjs(startDate), dayjs(endDate)]
+        const calcDay = tool.calculateDurationPrecise(dayjs(startDate).format('YYYY-MM-DD'), dayjs(endDate).format('YYYY-MM-DD'))
+        formState.value.totalDay = calcDay.gapDay
+      } else {
+        formState.value.time_date = []
+        formState.value.totalDay = 0
+      }
+    }
+  }
+
   const tableDataRefData = ref()
 
   const updateFormData = async (tableData) => {
@@ -744,7 +975,9 @@
     }).then((res) => {
       if (res.length || Object.keys(res).length) {
         for (const key in formState.value) {
-          formState.value[key] = res[key] || '0';
+          if (key !== 'time_date') {
+            formState.value[key] = res[key] || '0';
+          }
         }
         for (let i = 0; i < showNumItemsStore.value.length; i++) {
           showNumItemsStore.value[i].value = res[showNumItemsStore.value[i].credit_table];
@@ -765,16 +998,32 @@
       linefeeFilter()
     });
 
-    formState.value.land_amount = Number(props.lendingInfo.build_amount) ? props.lendingInfo.land_amount : Number(props.lendingInfo.land_amount)
-      ? props.lendingInfo.land_amount
+    formState.value.build_amount = Number(props.lendingInfo.land_amount) ? props.lendingInfo.build_amount : Number(props.lendingInfo.build_amount)
+      ? props.lendingInfo.build_amount
       : props.lendingInfo.loan_money || 0;
 
-    formState.value.build_amount = props.lendingInfo.build_amount;
+    formState.value.land_amount = props.lendingInfo.land_amount;
+    
     formState.value.initial_build_amount = props.lendingInfo.initial_build_amount;
     formState.value.initial_land_amount = props.lendingInfo.initial_land_amount;
 
-    staticFormData.value = cloneDeep(formState.value)
+    formState.value.devCost = props.lendingInfo.devCost
+    formState.value.devCostDetail = props.lendingInfo.devCostDetail
 
+    // 项目周期
+    formState.value.time_date = [dayjs(props.lendingInfo.start_date), dayjs(props.lendingInfo.end_date)]
+    timeChange(formState.value.time_date)
+
+    // 首次放款建筑费用
+    if (props.lendingInfo.buildlog && props.lendingInfo.buildlog.length) {
+      selectedData.value = props.lendingInfo.buildlog
+    }
+
+    staticFormData.value = cloneDeep({
+      ...formState.value,
+      start_date: props.lendingInfo.start_date,
+      end_date: props.lendingInfo.end_date
+    })
     emits('openData', {
       table: tableDataRefData.value,
       data: formState.value
@@ -899,6 +1148,64 @@
       }
     }
 
+    if (Object.keys(compareBackObj.value).includes(props.currentStep.mark)) {
+      if (obj?.start_date !== staticFormData.value.start_date) {
+        arr.unshift({
+          name: t('开放日期'),
+          before: staticFormData.value.start_date,
+          now: obj?.start_date
+        })
+      }
+
+      if (obj?.end_date !== staticFormData.value.end_date) {
+        arr.unshift({
+          name: t('到期日期'),
+          before: staticFormData.value.end_date,
+          now: obj?.end_date
+        })
+      }
+
+      if (Number(obj?.initial_build_amount) !== Number(staticFormData.value?.initial_build_amount)) {
+        arr.unshift({
+          name: t('首次建筑贷款放款额'),
+          before: `$${numberStrFormat(Number(staticFormData.value?.initial_build_amount))}`,
+          now: `$${numberStrFormat(Number(obj?.initial_build_amount))}`
+        })
+      }
+
+      if (Number(obj?.initial_land_amount) !== Number(staticFormData.value?.initial_land_amount)) {
+        arr.unshift({
+          name: t('首次土地贷款放款额'),
+          before: `$${numberStrFormat(Number(staticFormData.value?.initial_land_amount))}`,
+          now: `$${numberStrFormat(Number(obj?.initial_land_amount))}`
+        })
+      }
+
+      if (Number(obj?.build_amount) !== Number(staticFormData.value?.build_amount)) {
+        arr.unshift({
+          name: t('建筑贷款总额'),
+          before: `$${numberStrFormat(Number(staticFormData.value?.build_amount))}`,
+          now: `$${numberStrFormat(Number(obj?.build_amount))}`
+        })
+      }
+
+      if (Number(obj?.land_amount) !== Number(staticFormData.value?.land_amount)) {
+        arr.unshift({
+          name: t('土地贷款总额'),
+          before: `$${numberStrFormat(Number(staticFormData.value?.land_amount))}`,
+          now: `$${numberStrFormat(Number(obj?.land_amount))}`
+        })
+      }
+
+      if (Number(obj?.has_linefee) !== Number(staticFormData.value?.has_linefee)) {
+        arr.unshift({
+          name: t('是否有Linefee'),
+          before: Number(staticFormData.value?.has_linefee) ? t('是') : t('否'),
+          now: Number(obj?.has_linefee) ? t('是') : t('否')
+        })
+      }
+    }
+
     saveDataTxtArr.value = arr
     return Boolean(arr.length)
   }
@@ -912,7 +1219,12 @@
   const saveRequeset = async () => {
     subLoading.value = true;
 
-    await projectAuditSaveMode(saveParams.value)
+    const formParams = cloneDeep(saveParams.value)
+    if (selectedData.value) {
+      formParams.build__data = selectedData.value
+    }
+
+    await projectAuditSaveMode(formParams)
       .then(async () => {
         if (saveDataChange.value) {
           const params = {
@@ -976,7 +1288,8 @@
           return false;
         }
 
-        if (build_amount + land_amount < 0 || build_amount + land_amount === 0) {
+        const totalAmount = build_amount + land_amount
+        if (totalAmount < 0 || totalAmount === 0) {
           message.error(t('借款总额不正确'));
           return false;
         }
@@ -996,6 +1309,12 @@
         delete credit__data.substitution_ids
         delete credit__data.has_linefee
         delete credit__data.do__est
+        delete credit__data.devCost
+        delete credit__data.devCostDetail
+        delete credit__data.time_date
+        delete credit__data.term
+        delete credit__data.days
+        delete credit__data.totalDay
 
         const params = {
           code: props.blockInfo.code,
@@ -1008,6 +1327,8 @@
           substitution_amount: refinancialAmount.value || 0,
           has_linefee: Number(formState.value.has_linefee),
           do__est: Number(formState.value.do__est),
+          start_date: dayjs(formState.value.time_date[0]).format('YYYY-MM-DD'),
+          end_date: dayjs(formState.value.time_date[1]).format('YYYY-MM-DD'),
           credit__data
         };
 
@@ -1036,6 +1357,25 @@
       });
   };
 
+  const setSingleFormData = (params) => {
+    projectAuditSaveMode(params).then(() => {
+      emits('refresh')
+
+      // 操作记录
+      emitter.emit('refreshAuditHisList');
+    })
+  }
+
+  const devCostChange = () => {
+    setSingleFormData({
+      code: props.blockInfo.code,
+      uuid: props.currentId,
+      devCost: formState.value.devCost,
+      devCostDetail: formState.value.devCostDetail,
+      set__devCost: 1
+    })
+  }
+
   watch(
     () => props.lendingInfo,
     (val) => {
@@ -1047,7 +1387,9 @@
           Number(val.build_amount) !== Number(formState.value.build_amount) ||
           Number(val.initial_land_amount) !== Number(formState.value.initial_land_amount) ||
           Number(val.initial_build_amount) !== Number(formState.value.initial_build_amount) ||
-          Number(val.has_linefee) !== Number(formState.value.has_linefee)
+          Number(val.has_linefee) !== Number(formState.value.has_linefee) ||
+          val.start_date !== staticFormData.value.start_date ||
+          val.end_date !== staticFormData.value.end_date
         ) {
           updateFormData()
         }
@@ -1079,6 +1421,27 @@
 
   const blockShowTargetHandle = (flag) => {
     lendingTarget.value = flag
+  }
+
+  // 首次建筑放款数据
+  const selectedData = ref([])
+
+  const selectVisible = ref(false)
+  const selectDoneHandle = (data) => {
+    const build__data = cloneDeep(data.build__data)
+    selectedData.value = build__data
+    formState.value.initial_build_amount = data.total
+    selectVisible.value = false
+
+    setSingleFormData({
+      code: props.blockInfo.code,
+      uuid: props.currentId,
+      build__data,
+      initial_build_amount: data.total,
+      initial_land_amount: formState.value.initial_land_amount,
+      substitution_amount: refinancialAmount.value || 0,
+      set__initial: 1
+    })
   }
 
   const goHandle = (page) => {
@@ -1118,6 +1481,9 @@
 .sys-form-content {
   :deep(.ant-statistic-content) {
     font-size: 21px !important;
+  }
+  :deep(.ant-picker-range-separator) {
+    padding: 0 !important;
   }
 }
 
@@ -1199,6 +1565,14 @@
   :deep(.ant-input[disabled]),
   :deep(.ant-input-number-disabled) {
     color: #999 !important;
+  }
+}
+
+.show-days {
+  line-height: 50px;
+  font-size: 16px;
+  > span {
+    opacity: 0.7;
   }
 }
 </style>

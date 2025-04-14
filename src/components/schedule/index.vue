@@ -622,7 +622,7 @@ const getDurationType = () => {
 
 const updateLoading = ref(false)
 const updateHandle = () => {
-  userStore.getTaskNumInfo()
+  // userStore.getTaskNumInfo()
   updateLoading.value = true
   const params = {
     uuid: props.currentId,

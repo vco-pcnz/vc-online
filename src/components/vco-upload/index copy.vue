@@ -1,28 +1,28 @@
 <template>
-  <div class="images-uploader">
+  <div :class="[{ 'images-uploader': listType === 'picture-card' }]">
     <a-upload
       ref="uploadRef"
       :action="uploadAction"
-      list-type="picture-card"
+      :list-type="listType"
       :disabled="disabled"
       :headers="headers"
       :file-list="fileList"
       :beforeUpload="beforeUpload"
-      :data="{ biz: bizPath,...params }"
+      :data="{ biz: bizPath, ...params }"
       :name="fileName"
       :multiple="isMultiple"
-      :showUploadList="type !== 'image' || isMultiple"
+      :showUploadList="showUploadList"
       :accept="accept"
       @preview="handlePreview"
       @change="handleChange"
     >
-    
-      <img v-if="type == 'image' && !isMultiple && picUrl" :src="getAvatarView()" />
-      <div v-else-if="(isMultiple && fileList.length < limit && !disabled) || (!isMultiple && !picUrl)">
-        <loading-outlined v-if="loading" />
-        <plus-outlined v-else />
-        <div class="ant-upload-text">{{ t(text || upText) }}</div>
-      </div>
+      <slot>
+        <div v-if="(isMultiple && fileList.length < limit && !disabled) || (!isMultiple && !picUrl)">
+          <loading-outlined v-if="spinning" />
+          <plus-outlined v-else />
+          <div class="ant-upload-text">{{ t(text || upText) }}</div>
+        </div>
+      </slot>
     </a-upload>
     <div class="delete-img" @click="deleteImg" v-if="type == 'image' && picUrl && limit == 1 && !isMultiple">
       <DeleteOutlined />
@@ -49,7 +49,7 @@ const uploadUrl = import.meta.env.VITE_APP_OPEN_PROXY === 'true' ? import.meta.e
 
 const { t } = useI18n();
 
-const emits = defineEmits(['update:value', 'change', 'update:list']);
+const emits = defineEmits(['update:value', 'change', 'update:list', 'update:loading']);
 
 const props = defineProps({
   text: {
@@ -77,7 +77,7 @@ const props = defineProps({
     type: Object,
     required: false,
     default: () => {
-      return {}
+      return {};
     }
   },
   // 只能查看不可上传和删除时开启该属性
@@ -101,11 +101,20 @@ const props = defineProps({
   maxSize: {
     type: Number,
     required: false,
-    default: 50 // 100 MB
+    default: 100 // 100 MB
   },
   controller: {
     type: String,
     default: '/upload'
+  },
+  showUploadList: {
+    type: Boolean,
+    required: false,
+    default: true
+  },
+  listType: {
+    type: String,
+    default: 'picture-card'
   }
 });
 
@@ -127,6 +136,7 @@ watch(
         uploadAction.value = uploadUrl + props.controller + '/uploadImage';
         fileType.value = ['jpg', 'jpeg', 'png', 'gif', 'bmp'];
         errTip.value = t('上传图片的格式不正确，不是JPG、JPEG、GIF、PNG、BMP');
+        fileName.value = 'file';
         upText.value = '上传图片';
         break;
       case 'video':
@@ -142,6 +152,7 @@ watch(
         uploadAction.value = uploadUrl + props.controller + '/uploadFile';
         fileType.value = ['xls', 'xlsx', 'csv', 'json', 'txt', 'doc', 'docx', 'ppt', 'pptx', 'pdf', 'xmind'];
         errTip.value = t('上传文件的格式不正确，不是XLS、XLSX、CSV、JSON、TXT、DOC、DOCX、PPT、PPTX、PDF、Xmind');
+        fileName.value = 'file';
         upText.value = '上传文件';
         break;
     }
@@ -157,7 +168,7 @@ const previewSrc = ref('');
 const previewVisible = ref(false);
 const picUrl = ref(false);
 const canClick = ref(true);
-const loading = ref(false);
+const spinning = ref(false);
 
 const getFileAccessHttpUrl = (avatar, subStr = '') => {
   if (!subStr) subStr = 'http';
@@ -283,14 +294,14 @@ const handlePathChange = () => {
         uploadFiles[i].response.status === 'history'
           ? {
               name: uploadFiles[i].name,
-              type: types[props.type],
+              type: uploadFiles[i].fileType || types[props.type],
               uuid: uploadFiles[i].uid,
               size: uploadFiles[i].size,
               value: uploadFiles[i].url
             }
           : {
               name: uploadFiles[i].name,
-              type: types[props.type],
+              type: uploadFiles[i].fileType || types[props.type],
               uuid: uploadFiles[i].url,
               size: uploadFiles[i].size,
               value: uploadFiles[i].url
@@ -302,18 +313,28 @@ const handlePathChange = () => {
   emits('update:value', item);
   emits('update:list', list);
   emits('change', item);
+  updateUploading(false);
+};
+
+const updateUploading = (val) => {
+  spinning.value = val;
+  emits('update:loading', val);
 };
 
 // 上传
 const handleChange = (info) => {
   picUrl.value = false;
   let list = info.fileList.filter((item) => !!item.status);
+  if (list.filter((item) => item.status == 'uploading').length) {
+    updateUploading(true);
+  }
   if (info.file.status === 'done') {
     if (info.file.response.success) {
       picUrl.value = true;
       list = list.map((file) => {
         if (file.response) {
           file.url = getFileAccessHttpUrl(file.response.data);
+          file.fileType = file.fileType || types[props.type];
         }
         return file;
       });
@@ -327,7 +348,6 @@ const handleChange = (info) => {
   }
 
   fileList.value = list;
-
   if (info.file.status === 'done') {
     if (list.length === 1) {
       handlePathChange();
@@ -409,6 +429,16 @@ watch(
     deep: true
   }
 );
+
+const reset = () => {
+  fileList.value = [];
+  picUrl.value = false;
+};
+
+// 暴露方法给父组件
+defineExpose({
+  reset
+});
 </script>
 
 <style lang="less" scoped>

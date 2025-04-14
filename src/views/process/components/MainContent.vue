@@ -119,7 +119,12 @@
   } = useDynamicModule();
 
   const showBudget = computed(() => {
-    return ['default'].includes(tempFile.value)
+    return [].includes(tempFile.value)
+  })
+
+  // 是否显示进度付款
+  const showProgressPayment = computed(() => {
+    return ['default', 'vsl'].includes(tempFile.value)
   })
 
   const pageDone = ref(false)

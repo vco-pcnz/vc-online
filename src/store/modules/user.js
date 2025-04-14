@@ -6,21 +6,42 @@ import { login, logout, getSelectUsers } from "@/api/auth";
 import { projectBacklogCount } from "@/api/tasks"
 import router from "@/router";
 
+function extractPaths(routes) {
+  const result = [];
+
+  function traverse(routeList) {
+    routeList.forEach(route => {
+      if (route.path) {
+        result.push(route.path);
+      }
+      if (Array.isArray(route.children)) {
+        traverse(route.children);
+      }
+    });
+  }
+
+  traverse(routes);
+  return result;
+}
+
+
 const useUserStore = defineStore("VcOnlineUserInfo", {
   state: () => ({
     userInfo: undefined,
     routerInit: false,
     routerInfo: undefined,
+    routerPaths: [],
     // 当前登录用户的权限
     authorities: [],
     // 是否为普通用户
-    isNormalUser: false,
+    isNormalUser: true,
     taskInfo: {
       project: 0,
       request: 0,
       total: 0,
       other: 0
-    }
+    },
+    loadingCount: false
   }),
 
   getters: {
@@ -55,15 +76,16 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
       result.roles =
         result.roles && result.roles.length ? result.roles.join("/") : "";
       this.userInfo = result;
-
-      const str = String(result.roles).toLocaleLowerCase()
-      this.isNormalUser = str === 'vip'
+      
+      this.isNormalUser = Number(result.ptRole)
 
       // 用户权限
       this.authorities = result.permissionList;
     },
 
     getTaskNumInfo() {
+      if (this.loadingCount) { return }
+      this.loadingCount = true
       projectBacklogCount().then(res => {
         this.taskInfo = {
           project: res.project_backlog_count || 0,
@@ -71,6 +93,9 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
           total: res.total_backlog_count || 0,
           other: res.other_backlog_count || 0
         }
+        this.loadingCount = false
+      }).catch(() => {
+        this.loadingCount = false
       })
     },
 
@@ -90,8 +115,15 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
         }).concat([])
       );
       this.routerInfo = menus;
+      this.routerPaths = extractPaths(menus)
       this.routerInit = true;
       return { menus, homePath };
+    },
+
+    // 判断有没有某个路由
+    hasRouteInfo(route) {
+      const obj = this.routerPaths.find(item => item === route)
+      return obj ? true : false
     },
 
     login(data) {

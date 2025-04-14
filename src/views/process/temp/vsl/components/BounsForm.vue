@@ -16,7 +16,7 @@
           {{ t('保存') }}
         </a-button>
         <a-popconfirm
-          v-if="blockInfo.showCheck && !bonusInfo.is_check"
+          v-if="blockInfo.showCheck && !bonusInfo.is_check && bonusInfo.set_bonus"
           :title="t('确定通过审核吗？')"
           :ok-text="t('确定')"
           :cancel-text="t('取消')"
@@ -293,7 +293,13 @@
     }).then((res) => {
       if (res.length || Object.keys(res).length) {
         for (const key in formState.value) {
-          formState.value[key] = res[key] || '0';
+          if (key === 'credit_BonusRate') {
+            if (props.bonusInfo.set_bonus) {
+              formState.value[key] = res[key] || '0';
+            }
+          } else {
+            formState.value[key] = res[key] || '0';
+          }
         }
         for (let i = 0; i < showNumItems.value.length; i++) {
           showNumItems.value[i].value = res[showNumItems.value[i].credit_table];

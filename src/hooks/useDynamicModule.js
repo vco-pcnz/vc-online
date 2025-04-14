@@ -43,6 +43,10 @@ export function useDynamicModule() {
       if (!res.step || !res.step.lenght) {
         currentStatus.value = res.status
         currentStatusInfo.value = res.step.find(item => Number(item.stateCode) === Number(res.status))
+
+        if (!currentStatusInfo.value) {
+          queryError.value = true
+        }
         mainStepData.value = res.main_step
         stepData.value = res.step
         previousStep.value = res.step[currentPageIndex.value - 1] || null
@@ -63,7 +67,6 @@ export function useDynamicModule() {
 
     if (!queryError.value) {
       const currentStepStatus = currentStep.value.stateCode
-
       if (currentStatusInfo.value.examine) {
         if (currentStatus.value !== currentStepStatus) {
           if (currentId.value) {

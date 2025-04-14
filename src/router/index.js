@@ -32,26 +32,9 @@ router.beforeEach(async (to, from, next) => {
 
   // 登录状态下
   if (token) {
-    
-    // 产品数据
-    if (!productStore.productData.length) {
-      productStore.requestProductInfo()
-    }
-    
     if (to.name === 'login') {
       userStore.logout()
       return
-    }
-
-    if (!userStore.userInfo) {
-      // 用户信息
-      await userStore.requestUserInfo();
-      noticeStore.setNoticeCount();
-    }
-
-    if (!Boolean(userStore.userInfo.ptRole)) {
-      // 待办数据
-      userStore.getTaskNumInfo()
     }
 
     // 注册动态路由
@@ -61,6 +44,22 @@ router.beforeEach(async (to, from, next) => {
         router.addRoute(getMenuRoutes(menus, homePath));
         next({ ...to, replace: true });
         return
+      }
+    } else { // 动态路由已注册完成
+      // 产品数据
+      if (!productStore.productData.length) {
+        productStore.requestProductInfo()
+      }
+
+      if (!userStore.userInfo) {
+        // 用户信息
+        await userStore.requestUserInfo();
+        noticeStore.setNoticeCount();
+      }
+  
+      if (!Boolean(userStore.userInfo.isNormalUser)) {
+        // 待办数据
+        userStore.getTaskNumInfo()
       }
     }
     next()

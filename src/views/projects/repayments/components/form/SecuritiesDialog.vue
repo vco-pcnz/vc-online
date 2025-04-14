@@ -155,6 +155,9 @@
           if (props.selectData.length) {
           const arr = props.selectData.map(item => item.uuid)
             selectedRowKeys.value = arr
+          } else {
+            selectedRows.value = []
+            selectedRowKeys.value = []
           }
           getTableData(true)
         } else {

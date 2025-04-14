@@ -2,7 +2,7 @@
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="drawdownRequestRef" class="drawdown-request">
     <a-modal
-      :width="500"
+      :width="600"
       :open="visible"
       :title="t('还款计算器')"
       :getContainer="() => $refs.drawdownRequestRef"
@@ -40,9 +40,38 @@
                 </a-date-picker>
               </a-form-item>
             </a-col>
-            <a-col v-if="totalAmount" :span="24">
+            <a-col v-if="totalAmount" :span="7">
               <a-form-item :label="t('还款总额')">
-                <vco-number :bold="true" :value="totalAmount" :precision="2" :end="true"></vco-number>
+                <vco-number :bold="true" :value="totalAmount" :precision="2" size="fs_xl" :end="true"></vco-number>
+              </a-form-item>
+            </a-col>
+            <template v-if="maxReductionAmount && !isNormalUser">
+              <a-col :span="1" class="plus-txt"><i class="iconfont">&#xe711;</i></a-col>
+              <a-col :span="7">
+                  <a-form-item :label="t('罚息减免')">
+                    <a-input-number
+                      :max="99999999999"
+                      v-model:value="reductionAmount"
+                      :formatter="
+                        (value) =>
+                          `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                      "
+                      :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                      @input="amountInput"
+                      @blur="amountInput"
+                    />
+                  </a-form-item>
+                </a-col>
+                <a-col :span="1" class="plus-txt"><i class="iconfont">&#xe609;</i></a-col>
+                <a-col :span="7">
+                  <a-form-item :label="t('还款金额1')">
+                    <vco-number :bold="true" :value="repaymentAmount" :precision="2" color="#31bd65" size="fs_xl" :end="true"></vco-number>
+                  </a-form-item>
+                </a-col>
+            </template>
+            <a-col v-if="maxReductionAmount && !isNormalUser" :span="24">
+              <a-form-item :label="t('罚息减免最大额度')">
+                <vco-number :bold="true" :value="maxReductionAmount" :precision="2" size="fs_xl" :end="true"></vco-number>
               </a-form-item>
             </a-col>
           </a-row>
@@ -53,15 +82,19 @@
 </template>
 
 <script scoped setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import dayjs from 'dayjs';
 import { CalendarOutlined } from '@ant-design/icons-vue';
 import { projectLoanAllRepayment } from '@/api/project/loan';
-import { selectDateFormat } from "@/utils/tool"
+import tool, { selectDateFormat } from "@/utils/tool"
+import { useUserStore } from '@/store'
 
 const { t } = useI18n();
 const emits = defineEmits(['change']);
+
+const userStore = useUserStore();
+const isNormalUser = computed(() => userStore.isNormalUser)
 
 const props = defineProps({
   uuid: {
@@ -96,6 +129,8 @@ const disabledDateFormat = (current) => {
 }
 
 const totalAmount = ref(0)
+const maxReductionAmount = ref(0)
+const reductionAmount = ref(0)
 const getLoading = ref(false)
 const dateChange = (date) => {
   if (date) {
@@ -106,13 +141,35 @@ const dateChange = (date) => {
       uuid: props.uuid,
       date: time
     }).then(res => {
-      totalAmount.value = res ? Number(res) : 0
+      totalAmount.value = Number(res.last_money) ? Number(res.last_money) : 0
+      maxReductionAmount.value = Number(res.reduction_money) ? Number(res.reduction_money) : 0
       getLoading.value = false
     }).catch(() => {
       getLoading.value = false
     })
   } else {
     totalAmount.value = 0
+    maxReductionAmount.value = 0
+  }
+}
+
+const repaymentAmount = computed(() => {
+  let reduceNum = 0
+  if (reductionAmount.value < 0) {
+    reduceNum = 0
+  } else {
+    reduceNum = reductionAmount.value > maxReductionAmount.value ? maxReductionAmount.value : reductionAmount.value
+  }
+
+  const res = tool.minus(totalAmount.value, reduceNum)
+  return res
+})
+
+const amountInput = () => {
+  if (reductionAmount.value < 0) {
+    reductionAmount.value = 0
+  } else {
+    reductionAmount.value = reductionAmount.value > maxReductionAmount.value ? maxReductionAmount.value : reductionAmount.value
   }
 }
 
@@ -127,6 +184,8 @@ const updateVisible = (value) => {
     });
 
     totalAmount.value = 0
+    reductionAmount.value = 0
+    maxReductionAmount.value = 0
   }
 };
 
@@ -160,8 +219,40 @@ const init = () => {
 }
 
 .sys-form-content {
-  :deep(.textarea) {
-    height: 154px !important;
+  :deep(.ant-input-number) {
+    height: 36px !important;
+    .ant-input-number-input {
+      height: 34px !important;
+    }
+    
+  }
+}
+
+.plus-txt {
+  position: relative;
+  .iconfont {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #282828;
+    font-weight: bold;
+    font-size: 18px;
+  }
+}
+
+.reduction-content {
+  padding: 0 15px;
+  position: relative;
+  top: -10px;
+  > .info-content {
+    padding: 15px 0;
+    border-radius: 10px;
+    display: flex;
+    background-color: #f0f0f0;
+    .ant-form-item {
+      margin-bottom: 0 !important;
+    }
   }
 }
 </style>

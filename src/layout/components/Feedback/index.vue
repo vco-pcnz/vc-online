@@ -3,9 +3,9 @@
     <div class="sys-form-content" v-if="visible">
       <div class="title">{{ t('意见反馈') }}</div>
       <i class="close iconfont" @click="visible = false">&#xe77b;</i>
-      <div class="label">{{ t('标题') }}</div>
-      <a-input v-model:value="formState.name" />
-      <div class="label">{{ t('描述') }}</div>
+      <div class="label" :class="{ err: !formState.title && validate }">{{ t('标题') }}</div>
+      <a-input v-model:value="formState.title" />
+      <div class="label" :class="{ err: !formState.note && validate }">{{ t('描述') }}</div>
       <a-textarea v-model:value="formState.note" :rows="4" />
       <div class="label">
         {{ t('文件') }}
@@ -38,24 +38,65 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue';
-import { wash, washCode } from '@/api/wash';
+import { feedback } from '@/api/system';
+import { useRoute } from 'vue-router';
+const route = useRoute();
 
+const { t } = useI18n();
 const visible = ref(false);
+const validate = ref(false);
 const loading = ref(false);
 const documentList = ref([]);
 const formState = ref({
   title: '',
   note: '',
-  path: '',
+  page: '',
   document: []
 });
 
-const submit = () => {};
+const submit = () => {
+  validate.value = true;
+  if (!formState.value.title || !formState.value.note) {
+    return;
+  }
+  loading.value = true;
+  feedback(formState.value)
+    .then((res) => {
+      visible.value = false;
+      message.success(t('保存成功'));
+    })
+    .finally((_) => {
+      loading.value = false;
+    });
+};
 
-const { t } = useI18n();
+const reset = () => {
+  validate.value = false;
+  formState.value = {
+    title: '',
+    note: '',
+    page: '',
+    document: []
+  };
+  documentList.value = []
+};
+
+watch(
+  () => visible.value,
+  (val) => {
+    if (!val) {
+      reset();
+    } else {
+      formState.value.page = route.fullPath
+    }
+  },
+  {
+    immediate: true
+  }
+);
 </script>
 <style lang="less" scoped>
 .Feedback {

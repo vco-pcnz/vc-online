@@ -144,7 +144,7 @@
           </a-col>
 
           <a-col :span="7">
-            <a-form-item :label="t('项目周期')" name="time_date">
+            <a-form-item :label="t('项目借款周期')" name="time_date">
               <a-range-picker
                 v-model:value="formState.time_date"
                 :format="selectDateFormat()"
@@ -321,7 +321,7 @@
           </a-col>
           <template v-if="isRefinancial">
             <a-col :span="1" class="plus-txt">
-              <i class="iconfont">&#xe889;</i>
+              <i class="iconfont">&#xe711;</i>
             </a-col>
             <a-col :span="4" class="financial-amount">
               <a-form-item :label="t('再融资金额')">
@@ -329,6 +329,7 @@
                   :value="refinancialAmount"
                   :precision="2"
                   :end="true"
+                  color="#31bd65"
                 ></vco-number>
               </a-form-item>
             </a-col>
@@ -340,6 +341,7 @@
                 :value="totalInitialAmountRef"
                 :precision="2"
                 :end="true"
+                :color="Number(totalInitialAmountRef) < 0 ? '#eb4b6d' : '#282828'"
               ></vco-number>
             </a-form-item>
           </a-col>
@@ -760,7 +762,7 @@
   const totalInitialAmountRef = computed(() => {
     const initial_build_amount = formState.value.initial_build_amount || 0;
     const initial_land_amount = formState.value.initial_land_amount || 0;
-    return tool.plus(tool.plus(initial_build_amount, initial_land_amount), refinancialAmount.value);
+    return tool.minus(tool.plus(initial_build_amount, initial_land_amount), refinancialAmount.value);
   });
 
   const colClassName = (num) => {
@@ -1295,9 +1297,13 @@
         }
 
         // 首次放款金额可以为0
-        if (
-          initial_build_amount + initial_land_amount < 0
-        ) {
+        if (initial_build_amount + initial_land_amount < 0) {
+          message.error(t('首次放款总金额不正确'));
+          return false;
+        }
+
+        // 置换项目首次放款额度不能为负数
+        if (isRefinancial.value && totalInitialAmountRef.value < 0) {
           message.error(t('首次放款总金额不正确'));
           return false;
         }

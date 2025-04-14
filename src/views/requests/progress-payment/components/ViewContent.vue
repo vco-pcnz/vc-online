@@ -49,6 +49,41 @@
 
     <a-spin :spinning="pageLoading" size="large">
       <div class="progress-payment-content">
+        <div v-if="!isRequests && !isSelect && !pageLoading" class="form-block-content">
+          <div class="title">{{ t('放款统计') }}</div>
+          <a-table
+            :columns="statTableHeader"
+            :data-source="statTableData"
+            bordered
+            :pagination="false"
+          >
+            <template #bodyCell="{ column, record }">
+              <template v-if="column.dataIndex === 'totalAmount'">
+                <vco-number :value="tableTotal" size="fs_xl" :precision="2" :end="true"></vco-number>
+              </template>
+              <template v-if="column.dataIndex === 'useAmount'">
+                <vco-number :value="statUseAmount" color="#31bd65" size="fs_xl" :precision="2" :end="true"></vco-number>
+              </template>
+              <template v-if="column.dataIndex === 'userPercent'">
+                <div style="padding: 0 20px;">
+                  <a-progress
+                    :stroke-color="{
+                      '0%': '#F19915',
+                      '100%': '#ffb92c',
+                    }"
+                    :size="6"
+                    :percent="statUserPercent"
+                  />
+                </div>
+                
+              </template>
+              <template v-if="column.dataIndex === 'remainingAmount'">
+                <vco-number :value="statRemainAmount" :bold="true" size="fs_xl" :precision="2" :end="true"></vco-number>
+              </template>
+            </template>
+          </a-table>
+        </div>
+
         <div v-if="tableHeader.length && hasData && !pageLoading" class="form-block-content" :class="{'mt-10': isSelect}">
           <div v-if="!isSelect" class="title">{{ t('进度付款阶段') }}</div>
           <a-table
@@ -57,7 +92,7 @@
             bordered
             :pagination="false"
             table-layout="fixed"
-            :scroll="{ x: '100%', y: isSelect ? 380 : 450 }"
+            :scroll="{ x: '100%', y: isSelect ? 380 : 600 }"
           >
             <template #bodyCell="{ column, record }">
               <template v-if="record.isFixedRow">
@@ -69,18 +104,20 @@
                 </template>
                 <template v-else-if="column.dataIndex === 'total'">
                   <template v-if="showProcess">
-                    <vco-number :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
-                    <vco-number :value="advanceAmount" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
-                    <div class="process-gap"></div>
-                    <div class="item-process-content">
-                      <a-progress
-                        :stroke-color="{
-                          '0%': '#F19915',
-                          '100%': '#ffb92c',
-                        }"
-                        :size="6"
-                        :percent="advanceObj ? advanceObj.percent : 0"
-                      />
+                    <div class="select-item disabled">
+                      <vco-number :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
+                      <vco-number :value="advanceObj?.use_amount || 0" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
+                      <div class="process-gap"></div>
+                      <div class="item-process-content">
+                        <a-progress
+                          :stroke-color="{
+                            '0%': '#F19915',
+                            '100%': '#ffb92c',
+                          }"
+                          :size="6"
+                          :percent="advanceObj ? advanceObj.percent : 0"
+                        />
+                      </div>
                     </div>
                   </template>
                   <vco-number v-else :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
@@ -88,7 +125,7 @@
                 <template v-else>
                   <div v-if="showProcess" class="select-item" :class="{'hover': isSelect}" @click="itemSetHandle(advanceObj)">
                     <vco-number :value="advanceAmount" size="fs_xs" :precision="2" :end="true"></vco-number>
-                    <vco-number :value="advanceAmount" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
+                    <vco-number :value="advanceObj?.use_amount || 0" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
                     <div class="process-gap"></div>
                     <div class="item-process-content line">
                       <div class="progress">
@@ -120,19 +157,22 @@
               </template>
               <template v-else-if="column.dataIndex === 'total'">
                 <template v-if="showProcess">
-                  <vco-number :value="record.total" size="fs_md" :precision="2" :end="true"></vco-number>
-                  <vco-number :value="record.useTotal" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
-                  <div class="process-gap"></div>
-                  <div class="item-process-content">
-                    <a-progress
-                      :stroke-color="{
-                        '0%': '#F19915',
-                        '100%': '#ffb92c',
-                      }"
-                      :size="6"
-                      :percent="record.percent"
-                    />
+                  <div class="select-item disabled">
+                    <vco-number :value="record.total" size="fs_md" :precision="2" :end="true"></vco-number>
+                    <vco-number :value="record.useTotal" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
+                    <div class="process-gap"></div>
+                    <div class="item-process-content">
+                      <a-progress
+                        :stroke-color="{
+                          '0%': '#F19915',
+                          '100%': '#ffb92c',
+                        }"
+                        :size="6"
+                        :percent="record.percent"
+                      />
+                    </div>
                   </div>
+                  
                 </template>
                 <vco-number v-else :value="record[column.dataIndex]" size="fs_md" :precision="2" :end="true"></vco-number>
               </template>
@@ -166,9 +206,10 @@
                     </template>
                     <template v-else-if="item.key === 'total'">
                       <template v-if="showProcess">
-                        <vco-number :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
-                        <vco-number :value="tableUseTotal" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
-                        <div class="process-gap"></div>
+                        <div class="select-item footer disabled">
+                          <vco-number :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
+                          <vco-number :value="tableUseTotal" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
+                          <div class="process-gap"></div>
                           <div class="item-process-content">
                             <a-progress
                               :stroke-color="{
@@ -179,24 +220,28 @@
                               :percent="getTotalPercent(tableUseTotal, summaryHandle(item.key))"
                             />
                           </div>
+                        </div>
                       </template>
                       <vco-number v-else :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
                     </template>
                     <template v-else>
                       <template v-if="showProcess">
-                        <vco-number :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
-                        <vco-number :value="summaryHandle(item.key, 'use_amount')" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
-                        <div class="process-gap"></div>
-                        <div class="item-process-content">
-                          <a-progress
-                            :stroke-color="{
-                              '0%': '#F19915',
-                              '100%': '#ffb92c',
-                            }"
-                            :size="6"
-                            :percent="getTotalPercent(summaryHandle(item.key, 'use_amount'), summaryHandle(item.key))"
-                          />
+                        <div class="select-item footer disabled">
+                          <vco-number :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
+                          <vco-number :value="summaryHandle(item.key, 'use_amount')" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
+                          <div class="process-gap"></div>
+                          <div class="item-process-content">
+                            <a-progress
+                              :stroke-color="{
+                                '0%': '#F19915',
+                                '100%': '#ffb92c',
+                              }"
+                              :size="6"
+                              :percent="getTotalPercent(summaryHandle(item.key, 'use_amount'), summaryHandle(item.key))"
+                            />
+                          </div>
                         </div>
+                        
                       </template>
                       <vco-number v-else :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
                     </template>
@@ -252,7 +297,7 @@
 </template>
 
 <script setup>
-  import { computed, onMounted, ref } from "vue"
+  import { computed, onMounted, reactive, ref } from "vue"
   import { useI18n } from "vue-i18n";
   import { useRoute } from "vue-router"
   import { projectAuditStepDetail, projectGetBuild, projectLoanGetBuild, projectDetailApi } from "@/api/process"
@@ -372,7 +417,8 @@
     const total = arr.reduce((total, num) => {
       return Number(tool.plus(total, num))
     }, 0);
-    return total
+    const totalAll = tool.plus(Number(total), advanceObj.value.use_amount)
+    return totalAll
   })
 
 
@@ -503,13 +549,13 @@
     tableHeader.value = [{
       title: t('类型'),
       dataIndex: "type",
-      width: 300,
+      width: 200,
       align: 'center',
       fixed: 'left'
     }, {
       title: 'Payment',
       dataIndex: "payment",
-      width: 150,
+      width: 90,
       align: 'center',
       fixed: 'left'
     }, ...headerData,
@@ -666,6 +712,9 @@
             })
             footerDataCol.value = footerData
           }
+
+          // 统计数据
+          statUseAmount.value = res.use_amount || 0
         } else {
           pageLoading.value = false
         }
@@ -780,6 +829,51 @@
     emits('selectDone', selectInfo)
   }
 
+  const statTableHeader = reactive([
+    {
+      title: t('借款金额'),
+      dataIndex: "totalAmount",
+      width: '25%',
+      align: 'center'
+    },
+    {
+      title: t('已放款额度'),
+      dataIndex: "useAmount",
+      width: '25%',
+      align: 'center'
+    },
+    {
+      title: t('放款比例'),
+      dataIndex: "userPercent",
+      width: '25%',
+      align: 'center'
+    },
+    {
+      title: t('待放款额度'),
+      dataIndex: "remainingAmount",
+      width: '25%',
+      align: 'center'
+    }
+  ])
+
+  const statTableData = ref([{totalAmount: 0, useAmount: 0, userPercent: 0, remainingAmount: 0}])
+  const statUseAmount = ref(0)
+  const statUserPercent = computed(() => {
+    let res = 0
+    if (Number(tableTotal.value)) {
+      const perNum = tool.div(statUseAmount.value, tableTotal.value)
+      res = Number(tool.times(Number(perNum), 100)).toFixed(4)
+    }
+    return Number(res)
+  })
+  const statRemainAmount = computed(() => {
+    let res = 0
+    if (Number(tableTotal.value)) {
+      res = Number(tool.minus(tableTotal.value, statUseAmount.value)).toFixed(2)
+    }
+    return res
+  })
+
   onMounted(async () => {
     const { path, query } = route
 
@@ -801,6 +895,10 @@
 
   .progress-payment-content {
     min-height: 300px;
+    &.stat {
+      min-height: auto;
+      margin-bottom: 20px;
+    }
   }
 
   .form-block-content {
@@ -986,6 +1084,9 @@
     overflow: hidden;
     margin: -16px;
     padding: 16px;
+    &.footer {
+      margin: -16px -5px;
+    }
     &.hover {
       cursor: pointer;
       transition: all 0.2s ease;
@@ -1004,6 +1105,9 @@
         right: 50%;
         transform: translateX(50%);
       }
+    }
+    &.disabled {
+      background-color: #f2f2f2;
     }
   }
 

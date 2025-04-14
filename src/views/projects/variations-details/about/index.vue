@@ -3,13 +3,7 @@
     <template #content>
       <a-spin :spinning="pageLoading" size="large">
         <variations-process v-if="!projectDetail?.variationInfo?.decline_reason" :uuid="uuid" :id="id" :detail="projectDetail" @update="updateHandle"></variations-process>
-        <a-alert
-          v-if="projectDetail?.variationInfo?.decline_reason"
-          :message="t('拒绝原因')"
-          :description="projectDetail?.variationInfo?.decline_reason"
-          type="error"
-          class="cancel-reason"
-        />
+        <a-alert v-if="projectDetail?.variationInfo?.decline_reason" :message="t('拒绝原因')" :description="projectDetail?.variationInfo?.decline_reason" type="error" class="cancel-reason" />
 
         <div v-if="projectDetail" class="project-container">
           <div class="project-info">
@@ -18,7 +12,13 @@
 
           <div class="project-content">
             <variations-info :uuid="uuid" :id="id" :detail="projectDetail" :credit-items-data="creditItemsData" @update="updateHandle"></variations-info>
-
+            <variation-documents
+              :uuid="uuid"
+              :id="id"
+              :detail="projectDetail?.variationInfo?.document"
+              v-if="(projectDetail?.variationInfo?.mark === 'variation_lm' || projectDetail?.variationInfo?.mark === 'variation_overdue_open') && projectDetail?.variationInfo?.has_permission && projectDetail?.variationInfo?.state > 0"
+              @update="updateHandle"
+            ></variation-documents>
             <variations-change-info :detail="projectDetail"></variations-change-info>
           </div>
         </div>
@@ -28,63 +28,64 @@
 </template>
 
 <script setup>
-  import { ref } from 'vue';
-  import { useRoute } from 'vue-router';
-  import { useI18n } from 'vue-i18n';
-  import { ruleCredit } from '@/api/process';
-  import DetailLayout from '../components/DetailLayout.vue';
-  import VariationsProcess from '../components/VariationsProcess.vue';
-  import VariationsInfo from '../components/VariationsInfo.vue';
-  import VariationsChangeInfo from '../components/VariationsChangeInfo.vue';
-  import BaseCard from '@/views/projects/about/components/base.vue';
-  import { cloneDeep } from 'lodash'
+import { ref } from 'vue';
+import { useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+import { ruleCredit } from '@/api/process';
+import DetailLayout from '../components/DetailLayout.vue';
+import VariationsProcess from '../components/VariationsProcess.vue';
+import VariationsInfo from '../components/VariationsInfo.vue';
+import VariationsChangeInfo from '../components/VariationsChangeInfo.vue';
+import VariationDocuments from '../components/VariationDocuments.vue';
+import BaseCard from '@/views/projects/about/components/base.vue';
+import { cloneDeep } from 'lodash';
 
-  const route = useRoute();
-  const { t } = useI18n();
+const route = useRoute();
+const { t } = useI18n();
 
-  const uuid = ref(route.query.uuid)
-  const id = ref(route.query.id)
-  const pageLoading = ref(true)
+const uuid = ref(route.query.uuid);
+const id = ref(route.query.id);
+const pageLoading = ref(true);
 
-  const projectDetail = ref();
-  const getProjectDetail = async (val) => {
-    projectDetail.value = val;
+const projectDetail = ref();
+const getProjectDetail = async (val) => {
+  projectDetail.value = val;
 
-    await getCreditData()
-    pageLoading.value = false
-  };
+  await getCreditData();
+  pageLoading.value = false;
+};
 
-  const creditData = ref([])
-  const creditItemsData = ref([])
+const creditData = ref([]);
+const creditItemsData = ref([]);
 
-  const getCreditVal = () => {
-    const variationInfo = projectDetail.value.variationInfo
-    const creditInfo = cloneDeep(variationInfo.credit)
-    const keyArr = []
+const getCreditVal = () => {
+  const variationInfo = projectDetail.value.variationInfo;
+  const creditInfo = cloneDeep(variationInfo.credit);
+  const keyArr = [];
 
-    for (const key in creditInfo) {
-      keyArr.push(key)
-    }
-
-    const colItems = creditData.value.filter(item => keyArr.includes(item.credit_table))
-
-    const perData = colItems.filter((item) => item.is_ratio);
-    const dolData = colItems.filter((item) => !item.is_ratio);
-
-    creditItemsData.value = [...perData, ...dolData]
+  for (const key in creditInfo) {
+    keyArr.push(key);
   }
 
-  const getCreditData = () => {
-    ruleCredit().then(res => {
-      creditData.value = res || []
-      getCreditVal()
-    })
-  }
+  const colItems = creditData.value.filter((item) => keyArr.includes(item.credit_table));
 
-  const detailLayoutRef = ref()
-  const updateHandle = () => {
-    detailLayoutRef.value.getProjectDetail();
-  }
+  const perData = colItems.filter((item) => item.is_ratio);
+  const dolData = colItems.filter((item) => !item.is_ratio);
+
+  creditItemsData.value = [...perData, ...dolData];
+};
+
+const getCreditData = () => {
+  ruleCredit().then((res) => {
+    creditData.value = res || [];
+    getCreditVal();
+  });
+};
+
+const detailLayoutRef = ref();
+const updateHandle = () => {
+  detailLayoutRef.value.getProjectDetail();
+};
 </script>
 
 <style lang="less" scoped>

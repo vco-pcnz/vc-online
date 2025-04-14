@@ -4,26 +4,9 @@
       <a-form ref="formRef" :model="form" :rules="dynamicRules" layout="vertical">
         <a-row :gutter="24">
           <a-col :span="24" class="avatar-box">
-            <div class="flex justify-center pb-3" style="font-size: 0">
-              <!-- <vco-upload-image v-model:value="form.avatar" text="上传头像"></vco-upload-image> -->
-              <vco-upload-modal v-model:value="form.avatar" :isAvatar="true" :uploadType="1" :limit="1">
-                <div class="avatarBox">
-                  <template v-if="form.avatar">
-                    <vco-avatar :src="form.avatar" :size="128"></vco-avatar>
-                    <div class="delete-img" @click="deleteImg" @click.stop="form.avatar = ''">
-                      <DeleteOutlined />
-                      <p>{{ t('删除') }}</p>
-                    </div>
-                  </template>
-                  <template v-else>
-                    <div class="default">
-                      <plus-outlined />
-                      <div class="ant-upload-text">{{ t('头像') }}</div>
-                    </div>
-                  </template>
-                </div>
-              </vco-upload-modal>
-            </div>
+           <div class="flex justify-center py-3">
+            <vco-upload-image v-model:value="form.avatar" text="头像" :isAvatar="true"></vco-upload-image>
+           </div>
           </a-col>
           <template v-if="!isMember">
             <a-col :span="24">

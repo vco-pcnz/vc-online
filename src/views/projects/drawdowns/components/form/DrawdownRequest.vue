@@ -7,27 +7,21 @@
           <a-col :span="12">
             <div class="input-item">
               <div class="label" :class="{ err: !formState.name && validate }">Drawdown title</div>
-              <!-- <a-input v-model:value="formState.name" /> -->
               <a-select :loading="loading_type" style="width: 100%" v-model:value="formState.name" :options="title_type" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
             </div>
             <div class="input-item my-4">
               <div class="label" :class="{ err: !formState.apply_date && validate }">{{ t('日期') }}</div>
               <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.apply_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" :showToday="false" />
             </div>
-            <div class="input-item my-4">
-              <div class="label">{{ t('施工进度') }}</div>
-              <a-input-number class="rate" v-model:value="formState.progress" addon-after="%" :min="0" :max="100" style="width: 100%"></a-input-number>
-            </div>
-            <div class="input-item" style="margin-top: 16px">
-              <div class="label" :class="{ err: !formState.apply_amount && validate }">Requested amount, $ nzd</div>
-              <a-input-number v-model:value="formState.apply_amount" :max="99999999999" :min="0" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
-            </div>
           </a-col>
           <a-col :span="12">
             <div class="input-item">
-              <div class="label">Notes</div>
-              <a-textarea v-model:value="formState.note" :rows="14" />
+              <div class="label">{{ t('说明') }}</div>
+              <a-textarea v-model:value="formState.note" :rows="6" />
             </div>
+          </a-col>
+          <a-col :span="24">
+            <ProgressPayment :visible="visible" :validate="validate" @change="updateformState"></ProgressPayment>
           </a-col>
         </a-row>
         <p class="my-5 bold fs_xl">Documents</p>
@@ -73,7 +67,8 @@ import { loanDedit } from '@/api/project/loan';
 import { selectDateFormat } from '@/utils/tool';
 import DocumentsUpload from './DocumentsUpload.vue';
 import { systemDictData } from '@/api/system';
-
+import ProgressPayment from './ProgressPayment.vue';
+import tool from '@/utils/tool';
 const { t } = useI18n();
 const emits = defineEmits(['change']);
 
@@ -97,8 +92,10 @@ const formState = ref({
   name: '',
   note: '',
   apply_date: '',
-  progress: '',
-  apply_amount: '',
+  build_money: '',
+  other_money: 0,
+  other_note: '',
+  build__data: [],
   p_file: [],
   d_file: []
 });
@@ -132,12 +129,13 @@ const save = () => {
     return item.files && item.files.length;
   });
 
-  if (!formState.value.name || !formState.value.apply_amount || !formState.value.d_file.length || !formState.value.apply_date) return;
+  if (!formState.value.name || !formState.value.d_file.length || !formState.value.apply_date || tool.plus(formState.value.build_money || 0, formState.value.other_money || 0) == 0) return;
   submit();
 };
 
 const submit = () => {
   loading.value = true;
+
   loanDedit(formState.value)
     .then((res) => {
       visible.value = false;
@@ -176,8 +174,6 @@ const init = () => {
   formState.value.name = '';
   formState.value.note = '';
   formState.value.apply_date = '';
-  formState.value.apply_amount = '';
-  formState.value.progress = '';
   formState.value.d_file = [];
   formState.value.p_file = [];
   annexSel({ apply_uuid: props.uuid, type: 2 }).then((res) => {
@@ -193,6 +189,10 @@ const init = () => {
   });
   loadType();
   visible.value = true;
+};
+
+const updateformState = (val) => {
+  formState.value = { ...formState.value, ...val };
 };
 </script>
 <style scoped lang="less">

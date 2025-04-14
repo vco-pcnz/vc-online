@@ -11,6 +11,7 @@
       v-if="currentComponent"
       :is="currentComponent"
       :info-data="infoData"
+      :current-step="currentStep"
       :code="code"
       :check="true"
       @checkDone="doneHandle"
@@ -44,6 +45,9 @@
     code: {
       type: String,
       default: ''
+    },
+    currentStep: {
+      type: Object
     }
   })
 

@@ -50,7 +50,12 @@
   const pageStep = ref('')
 
   const showBudget = computed(() => {
-    return ['default'].includes(currentTemp.value)
+    return [].includes(currentTemp.value)
+  })
+
+  // 是否显示进度付款
+  const showProgressPayment = computed(() => {
+    return ['default', 'vsl'].includes(currentTemp.value)
   })
 
   const goHandleProcess = (page) => {

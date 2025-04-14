@@ -80,7 +80,8 @@ export const importBankBill = (data) =>
 export const syncBankBill = (data) =>
   request({
     url: 'reconciliation/syncBankBill',
-    method: 'post'
+    method: 'post',
+    data
   });
 
 // 银行账单拆分

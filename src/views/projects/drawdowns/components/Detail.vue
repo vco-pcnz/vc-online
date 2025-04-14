@@ -10,14 +10,14 @@
     <div class="my-3" style="padding-left: 5px">
       <div class="bold fs_xl">{{ detail?.name }}</div>
       <div class="color_grey fs_2xs">{{ detail?.note }}</div>
-      <div>
+      <!-- <div>
         <span class="fs_xs color_grey">{{ t('施工进度') }}</span
         >: {{ detail.progress }}%
-      </div>
+      </div> -->
     </div>
     <!-- <div class="flex items-center"><i class="iconfont mr-2">&#xe774;</i><span class="weight_demiBold">Documents & photos</span></div>
       <p class="color_grey mt-1 mb-3">1 file had been provided: drawdown notice</p> -->
-    <a-button type="brown" shape="round" size="small" @click="navigationTo('/projects/documents?uuid=' + uuid + '&annex_id=' + detail?.annex_id)">{{ t('查看文件') }}</a-button>
+    <a-button type="brown" v-if="detail?.annex_id" shape="round" size="small" @click="navigationTo('/projects/documents?uuid=' + uuid + '&annex_id=' + detail?.annex_id)">{{ t('查看文件') }}</a-button>
 
     <div class="flex items-center box mt-5">
       <i class="iconfont left-icon mr-3">&#xe755;</i>

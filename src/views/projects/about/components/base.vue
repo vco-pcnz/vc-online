@@ -21,7 +21,7 @@
               <template #icon>
                 <CheckCircleOutlined :style="{ color: '#a9ad57' }" />
               </template>
-              <img :width="58" :height="14" :src="xeroImg" alt="Xero" />
+              <img :width="58" :height="14" class="cursor-pointer" :src="xeroImg" alt="Xero" />
             </a-popconfirm>
           </a-spin>
         </template>
@@ -44,13 +44,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import xeroImg from '@/assets/images/xero.png';
-import zw from '@/assets/images/zw.jpg';
 import { CheckCircleOutlined } from '@ant-design/icons-vue';
-import { syncBankBill } from '@/api/reconciliations';
+import { syncProjectBill } from '@/api/project/project';
 import { message } from 'ant-design-vue';
+import { systemConfigData } from '@/api/system';
 
 const { t } = useI18n();
 
@@ -62,22 +62,34 @@ const props = defineProps({
   variations: {
     type: Boolean,
     default: false
+  },
+  currentId: {
+    type: String
   }
-})
+});
 
 const isExpand = ref(false);
 const loading = ref(false);
 const deadline = ref();
 const countdown = ref(false);
+const xero_update_time = ref(0);
 
 const update = (e) => {
   loading.value = true;
-  syncBankBill()
+  syncProjectBill({ uuid: props.currentId })
     .then((res) => {
       message.success('Xero sync started!');
-      deadline.value = Date.now() + 1000 * 60 * 10;
+      deadline.value = Date.now() + xero_update_time.value * 1000;
       countdown.value = true;
-      localStorage.setItem('deadline', deadline.value);
+      if (xero_update_time.value > 0) {
+        localStorage.setItem(
+          'aboutDeadline',
+          JSON.stringify({
+            uuid: props.currentId,
+            time: deadline.value
+          })
+        );
+      }
     })
     .finally(() => {
       loading.value = false;
@@ -88,12 +100,24 @@ const onFinish = () => {
   countdown.value = false;
 };
 
-onMounted(() => {
-  if (localStorage.getItem('deadline') > Date.now()) {
-    deadline.value = Number(localStorage.getItem('deadline'));
-    countdown.value = true;
-  }
-});
+watch(
+  () => props.currentId,
+  (val) => {
+    if (val && !props.variations) {
+      let aboutDeadline = localStorage.getItem('aboutDeadline') ? JSON.parse(localStorage.getItem('aboutDeadline')) : null;
+      if (aboutDeadline && aboutDeadline.uuid == props.currentId && aboutDeadline.time > Date.now()) {
+        deadline.value = Number(aboutDeadline.time);
+        countdown.value = true;
+      }
+      systemConfigData({ pcode: 'project_config', code: 'xero_update' }).then((res) => {
+        if (res.xero_update) {
+          xero_update_time.value = res.xero_update;
+        }
+      });
+    }
+  },
+  { immediate: true, deep: true }
+);
 </script>
 
 <style scoped lang="less">

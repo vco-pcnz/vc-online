@@ -22,7 +22,7 @@
           <div class="flex items-center gap-2">
             Full facility
             <div class="efSGMs">
-              <i class="iconfont">&#xe76f;</i>
+              <i class="iconfont">&#xe6b3;</i>
               <div class="tips"><p>Full Facility = Facility + Establishment fee + Estimated Line Fee + Estimated Interest</p></div>
             </div>
           </div>
@@ -64,7 +64,7 @@
         <div>
           <div class="flex items-center gap-2 justify-end">
             <div class="efSGMs">
-              <i class="iconfont">&#xe76f;</i>
+              <i class="iconfont">&#xe6b3;</i>
               <div class="tips" style="right: 50%; left: auto"><p>Loan = Approved LoanAmount + Legal fee + Brokerfee + Otherfee</p></div>
             </div>
             Loan

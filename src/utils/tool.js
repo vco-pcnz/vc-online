@@ -478,6 +478,7 @@ export const goBack = () => {
 export const numberStrFormat = (number, decimal = 2, flag = false) => {
   let resStr = decimal === 0 ? 0 : '0.00';
   const amount = Number(number);
+
   if (!isNaN(amount)) {
     const options = {
       minimumFractionDigits: decimal

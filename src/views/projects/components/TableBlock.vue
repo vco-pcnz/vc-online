@@ -8,6 +8,7 @@
       :scroll="{ x: '1450px' }"
       :customRow="rowClick"
       row-key="uuid"
+      :rowClassName="setRowClass"
       :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }"
     >
       <template #bodyCell="{ column, record }">
@@ -222,6 +223,14 @@ const handlePathChange = () => {
 const toCopyDetail = (val) => {
   navigationTo('/process/four?uuid=' + val.uuid);
 };
+const setRowClass = (record, index) => {
+  const targetDate = new Date(record.end_date);
+  const currentDate = new Date();
+  if (targetDate < currentDate && props.type === 'current') {
+    return 'red';
+  }
+  return '';
+};
 
 onMounted(() => {
   if (hasPermission('projects:copy')) {
@@ -300,5 +309,26 @@ onMounted(() => {
   .black {
     color: #c1430c !important;
   }
+}
+:deep(.ant-table-tbody) > tr.red td {
+  overflow: hidden;
+}
+
+:deep(.ant-table-tbody) > tr.red td::after {
+  background-color: #ffeae0 !important;
+  border-color: rgba(193, 67, 12, 0.2) !important;
+}
+
+:deep(.ant-table-tbody) > tr.red td.ant-table-cell-fix-right::before {
+  background-color: #ffeae0 !important;
+  border-color: rgba(193, 67, 12, 0.2) !important;
+}
+
+:deep(.ant-table-tbody) > tr.red td.ant-table-cell-fix-right::after {
+  background: transparent!important;
+}
+
+:deep(.ant-table-tbody) .ant-table-cell-fix-left, :deep(.ant-table-tbody) .ant-table-cell-fix-right {
+  background: #fff!important;
 }
 </style>

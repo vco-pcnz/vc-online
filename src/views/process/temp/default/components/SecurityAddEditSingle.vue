@@ -50,13 +50,22 @@
               </a-form-item>
             </a-col>
           </template> -->
-          <a-col :span="24">
+          <a-col :span="Number(formState.type) === 2 ? 12 : 24">
             <a-form-item :label="t('抵押物价值')" name="amount">
               <a-input-number
                 v-model:value="formState.amount"
                 :max="99999999999"
                 :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                 :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+              />
+            </a-form-item>
+          </a-col>
+
+          <a-col v-if="Number(formState.type) === 2" :span="12">
+            <a-form-item :label="t('面积')" name="sqm">
+              <a-input
+                v-model:value="formState.sqm"
+                suffix="m²"
               />
             </a-form-item>
           </a-col>
@@ -344,7 +353,8 @@ const formState = ref({
   sunset_date: "",
   repayment_date: "",
   net_proceeds_price: "",
-  variance: ""
+  variance: "",
+  sqm: ""
 });
 const showCopy = ref(false)
 
@@ -377,6 +387,7 @@ const formRules = {
   postcode: [{ required: true, message: t('请输入') + t('邮编'), trigger: 'blur' }],
   region_one_name: [{ required: true, message: t('请输入') + t('城市/州'), trigger: 'blur' }],
   address_short: [{ required: true, message: t('请输入') + t('地址1'), trigger: 'blur' }],
+  sqm: [{ required: true, message: t('请输入') + t('面积'), trigger: 'blur' }],
   // sales_price: [{ required: true, message: t('请输入') + t('销售价格'), trigger: 'blur' }],
   // repayment_price: [{ required: true, message: t('请输入') + t('回款金额'), trigger: 'blur' }],
   // contract_date: [{ required: true, message: t('请选择') + t('合同日期（或无条件日期）'), trigger: 'change' }],

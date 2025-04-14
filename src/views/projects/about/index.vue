@@ -4,7 +4,7 @@
       <a-spin :spinning="loading" size="large">
         <div class="project-container">
           <div class="project-info">
-            <base-card :detail="detail"></base-card>
+            <base-card :detail="detail" :currentId="currentId"></base-card>
 
             <a-collapse expand-icon-position="end" ghost>
               <a-collapse-panel key="Associate" class="collapse-card">
@@ -99,7 +99,7 @@
                 :formParams="{ uuid: currentId, process__id: detail?.close?.process__id }"
                 url="projectDetail/close"
                 @update="update"
-                v-if="hasPermission('projects:about:add:closeFc') && detail?.base?.is_open == 1 && detail?.close?.state <= 0"
+                v-if="hasPermission('projects:about:add:closeFc') && detail?.base?.is_open == 1 && detail?.close?.state <= 0 && detail?.close?.do_close == 1"
               >
                 <a-button type="brown" shape="round" size="small">{{ t('拟关闭') }}</a-button>
               </vco-form-dialog>

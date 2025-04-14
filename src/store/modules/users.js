@@ -7,8 +7,9 @@ const useUsersStore = defineStore('VcOnlineUsers', {
     roleList: [],
     loading: false,
     searchParams: {
-      sta: 0, // 0全部 1机构 2个人
+      type: undefined, // 0全部 1机构 2个人
       role_id: undefined,
+      role_cid: undefined,
       key: 'all', // all，id，name，email，mobile，code
       keywords: undefined,
       org__name: '',

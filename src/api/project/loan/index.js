@@ -112,6 +112,22 @@ export const loanRrecall = (data) =>
     data
   });
 
+// 还款撤销
+export const loanRrevoke = (data) =>
+  request({
+    url: 'project/loan/rrevoke',
+    method: 'post',
+    data
+  });
+
+// 还款申请--删除抵押物
+export const loanDelSecurity = (data) =>
+  request({
+    url: 'project/discharge/delSecurity',
+    method: 'post',
+    data
+  });
+
 // 放款拒绝
 export const loanDdeclinel = (data) =>
   request({
@@ -284,6 +300,14 @@ export const getCompanyInfo = (params) =>
 export const getCompanyInfoByNzbn = (params) =>
   request({
     url: 'project/apply/getCompanyInfoByNzbn',
+    method: 'get',
+    params
+  });
+
+// 变更自动计算broker fee
+export const borkerFeeCalc = (params) =>
+  request({
+    url: 'project/variation/borkerFeeCalc',
     method: 'get',
     params
   });

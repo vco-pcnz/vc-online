@@ -73,7 +73,7 @@
         :rules="formRules"
       >
         <a-row :gutter="24">
-          <a-col v-if="(refinancialData.length && blockInfo.showEdit) || isRefinancial" :span="24">
+          <a-col v-if="((refinancialData.length && blockInfo.showEdit) || isRefinancial) && refinancialShow" :span="24">
             <div v-if="!refinancialDisabled" class="flex gap-2 mb-5">
               <p>{{ t('是否需要再融资') }}</p>
               <a-switch v-model:checked="isRefinancial"></a-switch>
@@ -390,9 +390,26 @@
     } else {
       const mark = props?.currentStep?.mark
       if (props?.blockInfo?.showEdit) {
-        return ['step_lm_check'].includes(mark)
+        return [''].includes(mark)
       } else {
         return true
+      }
+    }
+  })
+
+  const refinancialShow = computed(() => {
+    if (props.isDetails) {
+      return true
+    } else {
+      const mark = props?.currentStep?.mark
+      if (props?.blockInfo?.showEdit) {
+        if (['step_lm_audit'].includes(mark)) {
+          return true
+        } else {
+          return isRefinancial.value
+        }
+      } else {
+        return isRefinancial.value
       }
     }
   })
@@ -406,7 +423,7 @@
 
   const inputADis = computed(() => {
     const mark = props.currentStep.mark
-    return ['step_open'].includes(mark)
+    return [''].includes(mark)
   })
 
   const inputDisabled = (str = '') => {
@@ -785,6 +802,40 @@
       }
     }
 
+    if (Object.keys(compareBackObj.value).includes(props.currentStep.mark)) {
+      if (obj?.repay_type === 3 && (Number(obj?.repay_money) !== Number(staticFormData.value?.repay_money))) {
+        arr.unshift({
+          name: t('固定利息偿还金额'),
+          before: `$${numberStrFormat(Number(staticFormData.value?.repay_money))}`,
+          now: `$${numberStrFormat(Number(obj?.repay_money))}`
+        })
+      }
+
+      if (Number(obj?.repay_type) !== Number(staticFormData.value?.repay_type)) {
+        arr.unshift({
+          name: t('还款方式'),
+          before: getTypeLable(staticFormData.value?.repay_type),
+          now: getTypeLable(obj?.repay_type)
+        })
+      }
+
+      if (Number(obj?.penalty_rate) !== Number(staticFormData.value?.penalty_rate)) {
+        arr.unshift({
+          name: t('罚息比例'),
+          before: `${numberStrFormat(Number(staticFormData.value?.penalty_rate))}%`,
+          now: `${numberStrFormat(Number(obj?.penalty_rate))}%`
+        })
+      }
+
+      if (Number(obj?.build_amount) !== Number(staticFormData.value?.build_amount)) {
+        arr.unshift({
+          name: t('借款金额'),
+          before: `$${numberStrFormat(Number(staticFormData.value?.build_amount))}`,
+          now: `$${numberStrFormat(Number(obj?.build_amount))}`
+        })
+      }
+    }
+
     saveDataTxtArr.value = arr
     return Boolean(arr.length)
   }
@@ -907,7 +958,8 @@
 
         if (Number(val.penalty_rate) !== Number(formState.value.penalty_rate) ||
           Number(val.repay_type) !== Number(formState.value.repay_type) ||
-          Number(val.repay_money) !== Number(formState.value.repay_money)
+          Number(val.repay_money) !== Number(formState.value.repay_money) ||
+          Number(val.build_amount) !== Number(formState.value.build_amount)
         ) {
           updateFormData()
         }
@@ -954,6 +1006,11 @@
       })
       repaymentTypeData.value = dataArr
     })
+  }
+
+  const getTypeLable = (value) => {
+    const obj = repaymentTypeData.value.find(item => item.value === value)
+    return obj ? obj.label : ''
   }
 
   onMounted(() => {

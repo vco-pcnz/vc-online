@@ -4,6 +4,7 @@
     <check-edit-dialog
       v-model:visible="showCheckDialog"
       :info-data="currentInfoData"
+      :current-step="currentStep"
       :type="currentType"
       :code="currentCode"
       @done="dataRefresh"

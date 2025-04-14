@@ -6,6 +6,69 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "15852687",
+      "name": "箭头 左 小",
+      "font_class": "jiantou2",
+      "unicode": "e602",
+      "unicode_decimal": 58882
+    },
+    {
+      "icon_id": "19315938",
+      "name": "长箭头",
+      "font_class": "arrow-right",
+      "unicode": "e603",
+      "unicode_decimal": 58883
+    },
+    {
+      "icon_id": "43453706",
+      "name": "箭头right",
+      "font_class": "jiantouright",
+      "unicode": "e7fb",
+      "unicode_decimal": 59387
+    },
+    {
+      "icon_id": "10949563",
+      "name": "进度条",
+      "font_class": "jindutiao",
+      "unicode": "e66b",
+      "unicode_decimal": 58987
+    },
+    {
+      "icon_id": "36183238",
+      "name": "减免滞纳金",
+      "font_class": "jianmianzhinajin",
+      "unicode": "e799",
+      "unicode_decimal": 59289
+    },
+    {
+      "icon_id": "25672061",
+      "name": "意见反馈",
+      "font_class": "yijianfankui",
+      "unicode": "feb0",
+      "unicode_decimal": 65200
+    },
+    {
+      "icon_id": "8012125",
+      "name": "帮助反馈",
+      "font_class": "bangzhufankui",
+      "unicode": "e6b3",
+      "unicode_decimal": 59059
+    },
+    {
+      "icon_id": "21644977",
+      "name": "问题反馈",
+      "font_class": "wentifankui",
+      "unicode": "e619",
+      "unicode_decimal": 58905
+    },
+    {
+      "icon_id": "41712516",
+      "name": "exchange-dollar-line",
+      "font_class": "exchange-dollar-line",
+      "unicode": "eda2",
+      "unicode_decimal": 60834
+    },
+    {
       "icon_id": "8039427",
       "name": "批量控制",
       "font_class": "piliangkongzhi",

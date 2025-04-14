@@ -17,7 +17,7 @@
       </a-col>
       <a-col :span="8">
         <div class="info-content">
-          <p class="name">{{ t('借款起止日期') }}</p>
+          <p class="name">{{ t('预计项目周期') }}</p>
           <p class="txt">{{ tool.showDate(data.start_date) + ' - ' + tool.showDate(data.end_date) }}</p>
         </div>
       </a-col>

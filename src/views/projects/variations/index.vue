@@ -7,7 +7,7 @@
         :uuid="uuid"
         :detailData="currentData"
         :projectDetail="projectDetail"
-        @done="getTableData(false)"
+        @done="updateHandle(false)"
       >
       </detail-dialog>
 
@@ -17,7 +17,7 @@
         :currentId="uuid"
         :project-detail="projectDetail"
         :detailData="currentData"
-        @update="getTableData(false)"
+        @update="updateHandle(false)"
       ></AddVariations>
 
       <vco-table-tool>
@@ -27,7 +27,7 @@
               v-if="hasPermission('projects:variations:edit')"
               :currentId="uuid"
               :project-detail="projectDetail"
-              @update="getTableData(true)"
+              @update="updateHandle(true)"
             >
               <a-button type="dark" class="uppercase">{{ t('添加变更') }}</a-button>
             </AddVariations>
@@ -242,20 +242,9 @@ const goDetail = (data) => {
   navigationTo(`/projects/variations-details/about?uuid=${uuid.value}&id=${data.id}`)
 }
 
-const updateHandle = async (data) => {
+const updateHandle = (flag) => {
   userStore.getTaskNumInfo()
-  
-  const params = {
-    uuid: uuid.value,
-    id: data.id
-  }
-
-  await projectVariationForecastUpd(params).then(() => {
-    getTableData()
-    return true
-  }).catch(() => {
-    return false
-  })
+  getTableData(flag)
 }
 
 // 监听 uuid 的变化

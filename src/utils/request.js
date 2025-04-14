@@ -173,7 +173,7 @@ function createRequest(service, externalService) {
         config.headers
       ),
 
-      timeout: 10000,
+      timeout: 60000,
       data: {},
     };
 

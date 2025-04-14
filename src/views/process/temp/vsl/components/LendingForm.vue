@@ -112,10 +112,22 @@
                 :precision="2"
                 :end="true"
               ></vco-number>
+              <a-button
+                type="brown"
+                shape="round"
+                size="small"
+                class="absolute flex items-center"
+                style="bottom: -20px"
+                v-if="showProgressPayment"
+                @click="goHandle('progress-payment')"
+              >
+                {{ t('查看进度付款') }}
+                <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px'  }" />
+              </a-button>
             </a-form-item>
           </a-col>
           <a-col :span="24"><div class="form-line"></div></a-col>
-          <a-col v-if="(refinancialData.length && blockInfo.showEdit) || isRefinancial" :span="24">
+          <a-col v-if="((refinancialData.length && blockInfo.showEdit) || isRefinancial) && refinancialShow" :span="24">
             <div v-if="!refinancialDisabled" class="flex gap-2 mb-5">
               <p>{{ t('是否需要再融资') }}</p>
               <a-switch v-model:checked="isRefinancial"></a-switch>
@@ -311,6 +323,7 @@
 
 <script setup>
   import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
+  import { RightOutlined } from '@ant-design/icons-vue';
   import { useI18n } from 'vue-i18n';
   import { useRoute } from 'vue-router';
   import { cloneDeep } from 'lodash';
@@ -328,6 +341,7 @@
   import emitter from '@/event';
   import useProcessStore from '@/store/modules/process';
   import tool, { navigationTo, numberStrFormat } from '@/utils/tool';
+  import { hasPermission } from "@/directives/permission"
 
   const processStore = useProcessStore();
 
@@ -367,6 +381,11 @@
 
   // 请求可以置换的项目
   const refinancialData = ref([])
+
+  // 是否显示进度付款
+  const showProgressPayment = computed(() => {
+    return Number(props.dataInfo.security.count) && Number(props.dataInfo.lending.build_amount) && hasPermission('requests:load:progressPayment')
+  })
 
   const getRefinancialList = (flag = false) => {
     if (flag) {
@@ -451,9 +470,26 @@
     } else {
       const mark = props?.currentStep?.mark
       if (props?.blockInfo?.showEdit) {
-        return ['step_lm_check'].includes(mark)
+        return [''].includes(mark)
       } else {
         return true
+      }
+    }
+  })
+
+  const refinancialShow = computed(() => {
+    if (props.isDetails) {
+      return true
+    } else {
+      const mark = props?.currentStep?.mark
+      if (props?.blockInfo?.showEdit) {
+        if (['step_lm_audit'].includes(mark)) {
+          return true
+        } else {
+          return isRefinancial.value
+        }
+      } else {
+        return isRefinancial.value
       }
     }
   })
@@ -474,7 +510,7 @@
 
   const inputADis = computed(() => {
     const mark = props.currentStep.mark
-    return ['step_open'].includes(mark)
+    return [''].includes(mark)
   })
 
   const inputDisabled = (str = '') => {
@@ -738,11 +774,11 @@
       linefeeFilter()
     });
 
-    formState.value.land_amount = Number(props.lendingInfo.build_amount) ? props.lendingInfo.land_amount : Number(props.lendingInfo.land_amount)
-      ? props.lendingInfo.land_amount
+    formState.value.build_amount = Number(props.lendingInfo.land_amount) ? props.lendingInfo.build_amount : Number(props.lendingInfo.build_amount)
+      ? props.lendingInfo.build_amount
       : props.lendingInfo.loan_money || 0;
 
-    formState.value.build_amount = props.lendingInfo.build_amount;
+    formState.value.land_amount = props.lendingInfo.land_amount;
     formState.value.initial_build_amount = props.lendingInfo.initial_build_amount;
     formState.value.initial_land_amount = props.lendingInfo.initial_land_amount;
 
@@ -869,6 +905,40 @@
             }
           }
         }
+      }
+    }
+
+    if (Object.keys(compareBackObj.value).includes(props.currentStep.mark)) {
+      if (Number(obj?.initial_build_amount) !== Number(staticFormData.value?.initial_build_amount)) {
+        arr.unshift({
+          name: t('首次建筑贷款放款额'),
+          before: `$${numberStrFormat(Number(staticFormData.value?.initial_build_amount))}`,
+          now: `$${numberStrFormat(Number(obj?.initial_build_amount))}`
+        })
+      }
+
+      if (Number(obj?.initial_land_amount) !== Number(staticFormData.value?.initial_land_amount)) {
+        arr.unshift({
+          name: t('首次土地贷款放款额'),
+          before: `$${numberStrFormat(Number(staticFormData.value?.initial_land_amount))}`,
+          now: `$${numberStrFormat(Number(obj?.initial_land_amount))}`
+        })
+      }
+
+      if (Number(obj?.build_amount) !== Number(staticFormData.value?.build_amount)) {
+        arr.unshift({
+          name: t('建筑贷款总额'),
+          before: `$${numberStrFormat(Number(staticFormData.value?.build_amount))}`,
+          now: `$${numberStrFormat(Number(obj?.build_amount))}`
+        })
+      }
+
+      if (Number(obj?.land_amount) !== Number(staticFormData.value?.land_amount)) {
+        arr.unshift({
+          name: t('土地贷款总额'),
+          before: `$${numberStrFormat(Number(staticFormData.value?.land_amount))}`,
+          now: `$${numberStrFormat(Number(obj?.land_amount))}`
+        })
       }
     }
 

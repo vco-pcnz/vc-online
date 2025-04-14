@@ -77,7 +77,7 @@
           </div>
         </template>
         <template v-if="column.key === 'projects'">
-          <div class="cursor" @click="navigationTo('/projects/current')">
+          <div class="cursor" @click="navigationTo('/projects/list')">
             <p>
               <i class="iconfont black">&#xe690;</i>
               <span class="cer bold"> {{ record.open_count }} {{ t('进行中项目') }} </span>

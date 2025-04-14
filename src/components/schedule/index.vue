@@ -607,22 +607,23 @@ const submitHandle = () => {
     });
 }
 
+// 存续费字典
 const cateData = ref([])
 const getDurationType = () => {
-  systemDictData('duration').then(res => {
-    const data = res.map(item => {
-      return {
-        label: item.name.replace('(duration)', ''),
-        value: item.code
-      }
-    })
-    cateData.value = data
-  })
+  // systemDictData('duration').then(res => {
+  //   const data = res.map(item => {
+  //     return {
+  //       label: item.name.replace('(duration)', ''),
+  //       value: item.code
+  //     }
+  //   })
+  //   cateData.value = data
+  // })
 }
 
 const updateLoading = ref(false)
 const updateHandle = () => {
-  userStore.getTaskNumInfo()
+  // userStore.getTaskNumInfo()
   updateLoading.value = true
   const params = {
     uuid: props.currentId,

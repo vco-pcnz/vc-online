@@ -48,7 +48,7 @@ export const projectForecastVaiList = (params) =>
     params
   });
 
-  // 变更-forecast统计
+// 变更-forecast统计
 export const projectVariationStatisticsVai = (params) =>
   request({
     url: 'project/variation/statisticsVai',
@@ -56,66 +56,74 @@ export const projectVariationStatisticsVai = (params) =>
     params
   });
 
-  // 变更-forecast统计
-  export const projectVariationForecastUpd = (params) =>
-    request({
-      url: 'project/variation/forecastUpd',
-      method: 'get',
-      params
-    });
+// 变更-forecast统计
+export const projectVariationForecastUpd = (params) =>
+  request({
+    url: 'project/variation/forecastUpd',
+    method: 'get',
+    params
+  });
 
-  // 变更-下载
-  export const projectVariationExportExcel = (params) =>
-    request({
-      url: 'project/variation/exportExcel',
-      method: 'get',
-      params
-    });
+// 变更-下载
+export const projectVariationExportExcel = (params) =>
+  request({
+    url: 'project/variation/exportExcel',
+    method: 'get',
+    params
+  });
 
-  // forecast darwDown列表
-  export const projectVariationDarwdownLog = (params) =>
-    request({
-      url: 'project/variation/darwdownLog',
-      method: 'get',
-      params
-    });
+// forecast darwDown列表
+export const projectVariationDarwdownLog = (params) =>
+  request({
+    url: 'project/variation/darwdownLog',
+    method: 'get',
+    params
+  });
 
-  // forecast 新增、编辑
-  export const projectVariationAddf = (data) =>
-    request({
-      url: 'project/variation/addf',
-      method: 'post',
-      data
-    });
+// forecast 新增、编辑
+export const projectVariationAddf = (data) =>
+  request({
+    url: 'project/variation/addf',
+    method: 'post',
+    data
+  });
 
-  // forecast 删除
-  export const projectVariationDeletef = (data) =>
-    request({
-      url: 'project/variation/deletef',
-      method: 'post',
-      data
-    });
+// forecast 删除
+export const projectVariationDeletef = (data) =>
+  request({
+    url: 'project/variation/deletef',
+    method: 'post',
+    data
+  });
 
-  // 变更流程
-  export const projectVariationStep = (params) =>
-    request({
-      url: 'project/variation/step',
-      method: 'get',
-      params
-    });
+// 变更流程
+export const projectVariationStep = (params) =>
+  request({
+    url: 'project/variation/step',
+    method: 'get',
+    params
+  });
 
-  // 变更流程 - 提交申请
-  export const projectVariationSave = (data) =>
-    request({
-      url: 'project/variation/save',
-      method: 'post',
-      data
-    });
+// 变更流程 - 提交申请
+export const projectVariationSave = (data) =>
+  request({
+    url: 'project/variation/save',
+    method: 'post',
+    data
+  });
 
-   // 变更流程 - 删除申请
-  export const projectVariationDelete = (data) =>
-    request({
-      url: 'project/variation/delete',
-      method: 'post',
-      data
-    });
+// 变更流程 - 删除申请
+export const projectVariationDelete = (data) =>
+  request({
+    url: 'project/variation/delete',
+    method: 'post',
+    data
+  });
+
+// 上传文件
+export const variationUpdFile = (data) =>
+  request({
+    url: 'project/variation/updFile',
+    method: 'post',
+    data
+  });

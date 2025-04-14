@@ -6,6 +6,13 @@
     <!-- 删除确认弹窗 -->
     <vco-confirm-alert ref="delAlertRef" :confirmTxt="t('确定删除吗？')" v-model:visible="delVisible" @submit="sureHandle"></vco-confirm-alert>
 
+    <!-- 错误提示弹窗 -->
+    <vco-confirm-alert
+      :confirm-txt="errorTxt"
+      :show-close="true"
+      v-model:visible="errorVisible"
+    ></vco-confirm-alert>
+
     <!-- 提示弹窗 -->
     <a-modal :open="tipsVisible" :title="t('修改方式')" :width="460" :footer="null" :keyboard="false" :maskClosable="false" @cancel="tipsVisible = false">
       <div class="tips-content">
@@ -209,9 +216,14 @@ const sMoney = ref(0);
 const loanMoney = ref(0);
 const errorColor = ref(false);
 
+const tabFlatData = ref([])
+
 const visible = ref(false);
 const dialogTitle = ref('');
 const disabledDateSelcet = ref(false);
+
+const errorTxt = ref('')
+const errorVisible = ref(false)
 
 const showTips = computed(() => {
   let txt = '';
@@ -234,8 +246,8 @@ const disabledDates = computed(() => {
 });
 
 const disabledDateFormat = (current) => {
-  const startDate = props.infoData.loan.start_date;
-  const endDate = props.infoData.loan.end_date;
+  const startDate = props.infoData.lending.start_date;
+  const endDate = props.infoData.lending.end_date;
 
   if (current && current.isBefore(startDate, 'day')) {
     return true;
@@ -245,10 +257,13 @@ const disabledDateFormat = (current) => {
     return true;
   }
 
-  const dateString = current.format('YYYY-MM-DD');
-  if (disabledDates.value.includes(dateString)) {
-    return true;
+  if (formState.type !== 4) {
+    const dateString = current.format('YYYY-MM-DD');
+    if (disabledDates.value.includes(dateString)) {
+      return true;
+    }
   }
+  
 
   return false;
 };
@@ -298,6 +313,7 @@ const getTableData = () => {
 
       loanMoney.value = Number(res.data.loanMoney);
 
+      tabFlatData.value = dataArr.flat(Infinity).filter(item => item.type === 2)
       tabData.value = dataArr;
       tabLoading.value = false;
     })
@@ -444,8 +460,41 @@ const submitHandle = () => {
         apply_uuid: props.currentId,
       };
 
-      if (id) {
+      if (id) { // 编辑
         params.first = first;
+        
+        // 判断总额是否超出
+        if (type === 2) {
+          const dataArr = tabFlatData.value.filter(item => item.id !== id).map(item => Number(item.amount))
+          const num = dataArr.reduce((total, num) => {
+            return Number(tool.plus(total, num))
+          }, 0);
+          const total = Number(tool.plus(num, amount))
+          if (total > loanMoney.value) {
+            const diffNum = Number(tool.minus(total, loanMoney.value))
+            errorTxt.value = t(`借款总金额为：<span>{0}</span>，当前放款总金额为：<span>{1}</span>，超出了：<span>{2}</span>`, [
+              `$${numberStrFormat(loanMoney.value)}`,
+              `$${numberStrFormat(total)}`,
+              `$${numberStrFormat(diffNum)}`
+            ])
+            errorVisible.value = true
+            return false
+          }
+        }
+      } else { // 新增
+        if (type === 2) {
+          const total = Number(tool.plus(cMoney.value, amount))
+          if (total > loanMoney.value) {
+            const diffNum = Number(tool.minus(total, loanMoney.value))
+            errorTxt.value = t(`借款总金额为：<span>{0}</span>，当前放款总金额为：<span>{1}</span>，超出了：<span>{2}</span>`, [
+              `$${numberStrFormat(loanMoney.value)}`,
+              `$${numberStrFormat(total)}`,
+              `$${numberStrFormat(diffNum)}`
+            ])
+            errorVisible.value = true
+            return false
+          }
+        }
       }
 
       currentParams.value = params;

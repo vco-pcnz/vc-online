@@ -86,7 +86,7 @@
             </div>
             <div v-if="dataInfo && !pageLoading" class="right-content">
               <div class="block-item sec mb-5">
-                <div class="flex justify-between items-center">
+                <div class="flex justify-between items-center mb-5">
                   <p>{{ t('当前状态') }}</p>
                   <vco-status
                     :title="t(dataInfo.status_name)"
@@ -95,7 +95,7 @@
                   ></vco-status>
                 </div>
                 
-                <div class="flex gap-5 justify-end">
+                <div class="flex gap-5 justify-end flex-wrap">
                   <a-popconfirm
                     v-if="dataInfo.has_permission && !dataInfo.is_audit"
                     :title="t('确定取消项目吗？')"
@@ -104,7 +104,7 @@
                     @confirm="() => cancelHandle()"
                   >
                     <a-button
-                      type="grey" class="bold uppercase mt-5"
+                      type="grey" class="bold uppercase"
                     >{{ t('取消项目') }}</a-button>
                   </a-popconfirm>
 
@@ -116,26 +116,26 @@
                     @confirm="() => recallHandle()"
                   >
                     <a-button
-                      type="grey" class="bold uppercase mt-5"
+                      type="grey" class="bold uppercase"
                     >{{ t('召回项目') }}</a-button>
                   </a-popconfirm>
 
                   <a-button
                     v-if="dataInfo.has_permission && dataInfo.is_audit && dataInfo.next_index === 5"
-                    type="grey" class="bold uppercase mt-5"
+                    type="grey" class="bold uppercase"
                     @click="rejectHandle(1)"
                   >{{ t('拒绝申请') }}</a-button>
 
                   <a-button
                     v-if="dataInfo.has_permission && dataInfo.is_audit && dataInfo.next_index !== 5"
-                    type="grey" class="bold uppercase mt-5"
+                    type="grey" class="bold uppercase"
                     @click="rejectHandle(2)"
                   >{{ t('退回重新修改') }}</a-button>
 
                   <a-button
                     v-if="dataInfo.has_permission"
                     type="primary"
-                    class="bold uppercase mt-5"
+                    class="bold uppercase"
                     @click="nextHandle"
                   >{{ t(dataInfo.status_name) }}</a-button>
                 </div>

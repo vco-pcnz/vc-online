@@ -19,14 +19,25 @@
                     </template>
                     <template v-if="column.dataIndex === 'loan' || column.dataIndex === 'borrower_equity'">
                       <a-input-number
+                        v-if="(record.type !== 'Land_gst' && record.type !== 'Build_gst') || column.dataIndex === 'loan'"
                         v-model:value="record[column.dataIndex]"
                         :disabled="Boolean(record?.status) || (disabledLoan && column.dataIndex === 'loan')"
                         @change="initData"
                         :max="99999999999"
-                        :min="column.dataIndex === 'borrower_equity' ? 0 : -99999999999"
+                        :min="0"
                         :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                         :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                       />
+                      <a-input-number
+                        v-if="(record.type == 'Land_gst' || record.type == 'Build_gst') && column.dataIndex === 'borrower_equity'"
+                        v-model:value="record[column.dataIndex]"
+                        :disabled="true"
+                        :max="99999999999"
+                        :min="-99999999999"
+                        :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                        :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                      />
+                      <!--  :min="column.dataIndex === 'borrower_equity' ? 0 : -99999999999" -->
                     </template>
                   </template>
                   <template v-else>
@@ -249,11 +260,11 @@ const remove = (p_index, index) => {
 };
 
 const save = () => {
-  const doneData = cloneDeep(data.value)
-  doneData.data[0].list.forEach(item => {
-    item.name = typesObj.value[item.type] || ''
-  })
-  
+  const doneData = cloneDeep(data.value);
+  doneData.data[0].list.forEach((item) => {
+    item.name = typesObj.value[item.type] || '';
+  });
+
   if (doneData.data[0].list.filter((item) => !item.type).length) {
     message.error(t('建设成本类型不能为空'));
     return;
@@ -266,7 +277,7 @@ const save = () => {
 
 const loading_type = ref(false);
 const types = ref([]);
-const typesObj = ref() // 字典名称
+const typesObj = ref(); // 字典名称
 const loadType = (key) => {
   if (types.value.length) {
     return;
@@ -274,15 +285,15 @@ const loadType = (key) => {
   loading_type.value = true;
   systemDictData('devCostTypeConstruction')
     .then((res) => {
-      const resData = res || []
+      const resData = res || [];
       types.value = resData;
 
       // 字典名称记录
-      const obj = {}
+      const obj = {};
       for (let i = 0; i < resData.length; i++) {
-        obj[resData[i].code] = resData[i].name
+        obj[resData[i].code] = resData[i].name;
       }
-      typesObj.value = obj
+      typesObj.value = obj;
 
       if (!data.value.data[0].list.length) {
         res.map((item) => {
@@ -311,6 +322,9 @@ const initData = () => {
       item.loan = 0;
       item.borrower_equity = 0;
       item.list.map((sub) => {
+        if (sub.type === 'Land_gst' || sub.type === 'Build_gst') {
+          sub.borrower_equity = tool.minus(0, sub.loan);
+        }
         sub.total = tool.plus(sub.loan || 0, sub.borrower_equity || 0);
         item.loan = tool.plus(item.loan || 0, sub.loan || 0);
         item.borrower_equity = tool.plus(item.borrower_equity || 0, sub.borrower_equity || 0);

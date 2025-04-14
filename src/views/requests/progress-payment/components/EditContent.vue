@@ -107,7 +107,7 @@
                         style="width: 200px;"
                         @input="() => advanceInput(false)"
                       />
-                      <p v-if="advanceObj.showError" class="input-error text-center">
+                      <p v-if="advanceObj?.showError" class="input-error text-center">
                         {{ t('最小值:{0}', [`$${numberStrFormat(advanceObj.use_amount)}`]) }}
                       </p>
                       <div v-if="isOpen" class="mt-2">
@@ -431,13 +431,13 @@
     tableHeader.value = [{
       title: t('类型'),
       dataIndex: "type",
-      width: 300,
+      width: 190,
       align: 'center',
       fixed: 'left'
     }, {
       title: 'Payment',
       dataIndex: "payment",
-      width: 150,
+      width: 110,
       align: 'center',
       fixed: 'left'
     }, ...headerData,

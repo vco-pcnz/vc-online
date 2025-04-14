@@ -272,7 +272,7 @@ export default {
   "邀请": "Invite user",
   "借款目的": "Loan purpose",
   "预计项目周期": "Estimated project dates",
-  "项目周期": "Project dates",
+  "项目借款周期": "Loan dates",
   "借款周期": "Loan term",
   "天数": "Days",
   "开放日期": "Open Date",
@@ -939,5 +939,10 @@ export default {
   "LM 提交": "LM Submit",
   "LM 待提交": "LM To Be Submitted",
   "数据设置有变动，保存后会重置首次建筑贷款放款额": "The data settings have changed. After saving, the first construction loan amount will be reset",
-  "开发成本中的建造费为：<span>{0}</span>，当前设置值为：<span>{1}</span>，超出了：<span>{2}</span>": "The construction cost in the development cost is: <span>{0}</span>, the current setting value is: <span>{1}</span>, which exceeds: <span>{2}</span>"
+  "开发成本中的建造费为：<span>{0}</span>，当前设置值为：<span>{1}</span>，超出了：<span>{2}</span>": "The construction cost in the development cost is: <span>{0}</span>, the current setting value is: <span>{1}</span>, which exceeds: <span>{2}</span>",
+  "借款总金额为：<span>{0}</span>，当前放款总金额为：<span>{1}</span>，超出了：<span>{2}</span>": "The total amount of loans is: <span>{0}</span>, the current total amount of drawdown is: <span>{1}</span>, which exceeds: <span>{2}</span>",
+  "放款统计": "Drawdown statistics",
+  "已放款额度": "Drawdown amount",
+  "放款比例": "Drawdown Ratio",
+  "待放款额度": "Amount of loan to be drawdown"
 }

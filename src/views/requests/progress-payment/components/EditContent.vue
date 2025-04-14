@@ -681,7 +681,7 @@
         emits('done', res)
 
         const list = res.lending.devCostDetail[0].data[0].list
-        const filterType = ['Land', 'Construction', 'Refinance']
+        const filterType = ['Land', 'Construction', 'Refinance', 'Land_gst']
         const footerData = list.filter(item => !filterType.includes(item.type))
 
         footerDataCol.value = footerData || []

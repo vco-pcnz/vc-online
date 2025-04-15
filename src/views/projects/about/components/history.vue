@@ -1,12 +1,15 @@
 <template>
   <a-spin :spinning="loading" size="large">
     <ul class="step" style="max-height: 300px; overflow: auto; padding-right: 10px">
-      <li class="step-item flex justify-between items-center" v-for="item in list" :key="item">
-        <div class="content flex items-center">
-          <i class="iconfont">&#xe725;</i>
-          <span>{{ item.message }}</span>
+      <li class="step-item" v-for="item in list" :key="item">
+        <div class="flex justify-between items-center">
+          <div class="content flex items-center">
+            <i class="iconfont">&#xe725;</i>
+            <span>{{ item.message }}</span>
+          </div>
+          <span class="date">{{ tool.showDate(item.create_time, 'DD/MM/YY') }}</span>
         </div>
-        <span class="date">{{ tool.showDate(item.create_time, 'DD/MM/YY') }}</span>
+        <span class="create_user_name">{{ item.create_user_name }}</span>
       </li>
     </ul>
   </a-spin>
@@ -82,6 +85,14 @@ watch(
       top: 2px;
       width: 1px;
     }
+  }
+  .create_user_name {
+    color:#888;
+    font-size: 10px;
+    position: relative;
+    top: -10px;
+    left: 19px;
+    text-align: right;
   }
 }
 </style>

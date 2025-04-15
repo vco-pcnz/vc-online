@@ -4,6 +4,9 @@
       <a-button v-for="item in panes" :key="item.key" @click="onChange(item.key)" :class="`tab-button ${item.key === props.activeTab ? 'active-tab' : ''}`">
         {{ item.title }}
       </a-button>
+      <a-button type="cyan"  v-if="hasImportAndPerfect" @click="onChange('ImportAndPerfect')">
+        {{t('导入完善')}}
+      </a-button>
     </div>
   </vco-page-panel>
   <slot name="content"></slot>
@@ -26,6 +29,7 @@ const userStore = useUserStore();
 
 const props = defineProps(['title', 'activeTab']);
 const emits = defineEmits(['getProjectDetail']);
+const hasImportAndPerfect = ref(false);
 
 const pageTitleRef = computed(() => {
   const sn = detail.value?.base?.project_apply_sn || '';
@@ -53,6 +57,8 @@ const panes = computed(() => {
         key: item.path.slice(item.path.lastIndexOf('/') + 1)
       };
     });
+  hasImportAndPerfect.value = child.find((item) => item.path === '/projects/ImportAndPerfect') ? true : false;
+
   return arr;
 });
 

@@ -944,5 +944,6 @@ export default {
   "放款统计": "Drawdown statistics",
   "已放款额度": "Drawdown amount",
   "放款比例": "Drawdown Ratio",
-  "待放款额度": "Amount of loan to be drawdown"
+  "待放款额度": "Amount of loan to be drawdown",
+  "导入完善": "Import and perfect"
 }

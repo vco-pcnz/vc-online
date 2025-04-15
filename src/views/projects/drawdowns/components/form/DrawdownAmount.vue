@@ -93,6 +93,11 @@ const init = () => {
   }
   visible.value = true;
 };
+
+// 暴露方法给父组件
+defineExpose({
+  init
+});
 </script>
 <style scoped lang="less">
 @import '@/styles/variables.less';

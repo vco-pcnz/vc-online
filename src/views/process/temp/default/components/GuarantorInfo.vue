@@ -119,7 +119,7 @@
                     </template>
                   </div>
                 </template>
-                <p v-else class="no-data" @click="openDialg">
+                <p v-else class="no-data" :class="{'disabled': !blockInfo?.showEdit || disabledGua}" @click="openDialg">
                   {{ t('请选择') }}
                 </p>
               </div>
@@ -432,6 +432,10 @@ onUnmounted(() => {
   display: block;
   width: 100%;
   cursor: pointer;
+  &.disabled {
+    cursor: default;
+    pointer-events: none;
+  }
 }
 
 .block-item {

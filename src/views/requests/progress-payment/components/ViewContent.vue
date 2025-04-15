@@ -426,18 +426,14 @@
     const payment = cloneDeep(setedData.value.payment)
     const column = cloneDeep(setedData.value.column)
 
-    // 去掉第一行
-    const index = column.findIndex(item => item === advanceKey.value)
-    if (index > -1) {
-      column.splice(index, 1)
-    }
-
     const data = []
     for (const key in column) {
-      data.push({
-        name: column[key],
-        code: Number(key) + 1
-      })
+      if (column[key] !== advanceKey.value) {
+        data.push({
+          name: column[key],
+          code: Number(key) + 1
+        })
+      }
     }
     const hadSetData = cloneDeep(setedData.value.data)
     const dataArr = [{
@@ -453,7 +449,6 @@
       }
       for (let j = 0; j < headerData.length; j++) {
         const amountItem = hadSetData[`${data[i].code}__${headerData[j].dataIndex}`] || {}
-        
         if (Object.keys(amountItem).length) {
           amountItem.amount = Number(amountItem.amount)
           amountItem.checked = false

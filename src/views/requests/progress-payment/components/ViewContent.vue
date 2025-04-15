@@ -381,7 +381,7 @@
   const summaryHandle = (key, keyValue) => {
     const keyStr = keyValue || 'amount'
     const arr = tableData.value.filter(item => !item.isFixedRow).map(item => item[key])
-    const numArr = isNaN(Number(arr[0])) ? arr.map(item => Number(item[`${keyStr}`])) : arr.map(item => Number(item))
+    const numArr = isNaN(Number(arr[0])) ? arr.filter(item => item.id).map(item => Number(item[`${keyStr}`])) : arr.map(item => Number(item))
     const total = numArr.reduce((total, num) => {
       return Number(tool.plus(total, num))
     }, 0);
@@ -431,7 +431,7 @@
       if (column[key] !== advanceKey.value) {
         data.push({
           name: column[key],
-          code: Number(key) + 1
+          code: Number(key)
         })
       }
     }

@@ -35,7 +35,7 @@ watch(
   (val) => {
     usersStore.setSearchParams({ role_cid: current.value });
   },
-  { immediate: true, deep: true }
+  { deep: true }
 );
 </script>
 

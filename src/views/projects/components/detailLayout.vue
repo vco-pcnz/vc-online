@@ -4,7 +4,7 @@
       <a-button v-for="item in panes" :key="item.key" @click="onChange(item.key)" :class="`tab-button ${item.key === props.activeTab ? 'active-tab' : ''}`">
         {{ item.title }}
       </a-button>
-      <a-button type="cyan"  v-if="hasImportAndPerfect && false" @click="onChange('ImportAndPerfect')">
+      <a-button type="cyan"  v-if="hasImportAndPerfect && true" @click="onChange('import-and-perfect')">
         {{t('导入完善')}}
       </a-button>
     </div>
@@ -57,7 +57,7 @@ const panes = computed(() => {
         key: item.path.slice(item.path.lastIndexOf('/') + 1)
       };
     });
-  hasImportAndPerfect.value = child.find((item) => item.path === '/projects/ImportAndPerfect') ? true : false;
+  hasImportAndPerfect.value = child.find((item) => item.path === '/projects/import-and-perfect') ? true : false;
 
   return arr;
 });

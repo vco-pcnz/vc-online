@@ -945,5 +945,7 @@ export default {
   "已放款额度": "Drawdown amount",
   "放款比例": "Drawdown Ratio",
   "待放款额度": "Amount of loan to be drawdown",
-  "导入完善": "Import and perfect"
+  "导入完善": "Import and perfect",
+  "借款": "Loan",
+  "借款金额为：<span>{0}</span>，设置的开发成为为：<span>{1}</span>，相差：<span>{2}</span>": "The loan amount is: <span>{0}</span>, the development cost is: <span>{1}</span>, the difference is: <span>{2}</span>"
 }

@@ -31,14 +31,6 @@
       @submit="submitRquest"
     ></vco-confirm-alert>
 
-    <!-- 费改动后弹窗 -->
-    <vco-confirm-alert
-      ref="changeFeeRef"
-      :confirm-txt="saveDataTxt"
-      v-model:visible="saveTipsVisible"
-      @submit="saveRequeset"
-    ></vco-confirm-alert>
-
     <vco-process-title :title="t('放款信息')">
       <div v-if="!isDetails" class="flex gap-5 items-center">
         <a-button
@@ -477,7 +469,7 @@
 
   const processStore = useProcessStore();
 
-  const emits = defineEmits(['done', 'refresh', 'openData']);
+  const emits = defineEmits(['done', 'refresh', 'openData', 'compareDone']);
 
   const { t } = useI18n();
   const route = useRoute();
@@ -1026,9 +1018,26 @@
       start_date: props.lendingInfo.start_date,
       end_date: props.lendingInfo.end_date
     })
+
     emits('openData', {
       table: tableDataRefData.value,
       data: formState.value
+    })
+
+    // 需要退回的对比数据
+    const nowChangeData = cloneDeep(formState.value)
+    const changeBack = cloneDeep(changeBackItems.value)
+    const creditTableInfo = cloneDeep(staticWriteData.value)
+
+    if (nowChangeData.time_date && nowChangeData.time_date.length) {
+      nowChangeData.start_date = dayjs(nowChangeData.time_date[0]).format('YYYY-MM-DD')
+      nowChangeData.end_date = dayjs(nowChangeData.time_date[1]).format('YYYY-MM-DD')
+    }
+    
+    emits('compareDone', {
+      changeBack,
+      nowChangeData,
+      creditTableInfo
     })
   };
 
@@ -1073,149 +1082,7 @@
     return `${saveReturnRea.value}，${t(txt)}`
   })
 
-  const findCreditName = (key) => {
-    const obj = staticWriteData.value.find(item => item.credit_table === key)
-    return obj ? obj.credit_name : ''
-  }
-
-  const compareBackObj = ref({})
-
-  const compareHandle = (obj) => {
-    compareBackObj.value = {}
-
-    const backItems = changeBackItems.value
-    const arr = []
-    for (let i = 0; i < backItems.length; i++) {
-      const backMarkItems = backItems[i].backMark.split(',')
-      const backObj = {}
-      const backMark = backMarkItems.map(item => {
-        const markInfo = item.split(':')
-        if (!backObj[markInfo[0]]) {
-          backObj[markInfo[0]] = markInfo[1]
-        }
-        
-        return markInfo[0]
-      })
-
-      compareBackObj.value = {
-        ...compareBackObj.value,
-        ...backObj
-      }
-
-      if (backMark.includes(props.currentStep.mark)) {
-        const key = backItems[i].credit_table
-
-        const beforeN = numberStrFormat(staticFormData.value[key])
-        const nowN = numberStrFormat(obj[key])
-
-        const beforeNum = backItems[i].is_ratio ? `${beforeN}${backItems[i].credit_unit}` : `${backItems[i].credit_unit}${beforeN}`
-        const nowNum = backItems[i].is_ratio ? `${nowN}${backItems[i].credit_unit}` : `${backItems[i].credit_unit}${nowN}`
-
-        if (Number(staticFormData.value[key]) !== Number(obj[key])) {
-          if (['credit_brokerFeeRate'].includes(key)) {
-            if (Number(obj[key]) > Number(staticFormData.value[key])) {
-              arr.push({
-                name: findCreditName(key),
-                before: beforeNum,
-                now: nowNum
-              })
-            }
-          } else if (key === 'credit_frontFee') {
-            if (Number(obj[key]) < Number(staticFormData.value[key])) {
-              arr.push({
-                name: findCreditName(key),
-                before: beforeNum,
-                now: nowNum
-              })
-            }
-          } else {
-            // 有中介费率
-            if ('credit_brokerFeeRate' in formState.value && 'credit_brokerFee' in formState.value) {
-              if (key !== 'credit_brokerFee') {
-                arr.push({
-                  name: findCreditName(key),
-                  before: beforeNum,
-                  now: nowNum
-                })
-              }
-            } else {
-              arr.push({
-                name: findCreditName(key),
-                before: beforeNum,
-                now: nowNum
-              })
-            }
-          }
-        }
-      }
-    }
-
-    if (Object.keys(compareBackObj.value).includes(props.currentStep.mark)) {
-      if (obj?.start_date !== staticFormData.value.start_date) {
-        arr.unshift({
-          name: t('开放日期'),
-          before: staticFormData.value.start_date,
-          now: obj?.start_date
-        })
-      }
-
-      if (obj?.end_date !== staticFormData.value.end_date) {
-        arr.unshift({
-          name: t('到期日期'),
-          before: staticFormData.value.end_date,
-          now: obj?.end_date
-        })
-      }
-
-      if (Number(obj?.initial_build_amount) !== Number(staticFormData.value?.initial_build_amount)) {
-        arr.unshift({
-          name: t('首次建筑贷款放款额'),
-          before: `$${numberStrFormat(Number(staticFormData.value?.initial_build_amount))}`,
-          now: `$${numberStrFormat(Number(obj?.initial_build_amount))}`
-        })
-      }
-
-      if (Number(obj?.initial_land_amount) !== Number(staticFormData.value?.initial_land_amount)) {
-        arr.unshift({
-          name: t('首次土地贷款放款额'),
-          before: `$${numberStrFormat(Number(staticFormData.value?.initial_land_amount))}`,
-          now: `$${numberStrFormat(Number(obj?.initial_land_amount))}`
-        })
-      }
-
-      if (Number(obj?.build_amount) !== Number(staticFormData.value?.build_amount)) {
-        arr.unshift({
-          name: t('建筑贷款总额'),
-          before: `$${numberStrFormat(Number(staticFormData.value?.build_amount))}`,
-          now: `$${numberStrFormat(Number(obj?.build_amount))}`
-        })
-      }
-
-      if (Number(obj?.land_amount) !== Number(staticFormData.value?.land_amount)) {
-        arr.unshift({
-          name: t('土地贷款总额'),
-          before: `$${numberStrFormat(Number(staticFormData.value?.land_amount))}`,
-          now: `$${numberStrFormat(Number(obj?.land_amount))}`
-        })
-      }
-
-      if (Number(obj?.has_linefee) !== Number(staticFormData.value?.has_linefee)) {
-        arr.unshift({
-          name: t('是否有Linefee'),
-          before: Number(staticFormData.value?.has_linefee) ? t('是') : t('否'),
-          now: Number(obj?.has_linefee) ? t('是') : t('否')
-        })
-      }
-    }
-
-    saveDataTxtArr.value = arr
-    return Boolean(arr.length)
-  }
-
-  const changeFeeRef = ref()
   const saveParams = ref()
-  const saveDataChange = ref(false)
-  const saveTipsVisible = ref(false)
   const subLoading = ref(false);
 
   const saveRequeset = async () => {
@@ -1227,40 +1094,19 @@
     }
 
     await projectAuditSaveMode(formParams)
-      .then(async () => {
-        if (saveDataChange.value) {
-          const params = {
-            uuid: props.currentId,
-            cancel_reason: saveReturnRea.value,
-            again_check: 0
-          }
+      .then(() => {
+        subLoading.value = false;
 
-          if (compareBackObj.value[props.currentStep.mark]) {
-            params.back_step = compareBackObj.value[props.currentStep.mark]
-          }
-
-          projectAuditGoback(params).then(() => {
-            subLoading.value = false
-            changeFeeRef.value.changeLoading(false)
-
-            navigationTo(`/requests/details?uuid=${props.currentId}`)
-          }).catch(() => {
-            changeFeeRef.value.changeLoading(false)
-          })
-        } else {
-          subLoading.value = false;
-
-          emits('refresh');
-          // 操作记录
-          emitter.emit('refreshAuditHisList');
-          // 触发预测数据刷新
-          emitter.emit('refreshForecastList');
-          // 触发奖金刷新
-          emitter.emit('refreshBouns')
-          // 出发抵押物刷新
-          emitter.emit('refreshSecurityList')
-          updateFormData()
-        }
+        emits('refresh');
+        // 操作记录
+        emitter.emit('refreshAuditHisList');
+        // 触发预测数据刷新
+        emitter.emit('refreshForecastList');
+        // 触发奖金刷新
+        emitter.emit('refreshBouns')
+        // 出发抵押物刷新
+        emitter.emit('refreshSecurityList')
+        updateFormData()
       })
       .catch(() => {
         subLoading.value = false;
@@ -1344,19 +1190,7 @@
 
         saveParams.value = params
 
-        const compareData = {
-          ...cloneDeep(params),
-          ...cloneDeep(params.credit__data)
-        }
-
-        // 费改变需退回判断
-        if (compareHandle(compareData)) {
-          saveDataChange.value = true
-          saveTipsVisible.value = true
-        } else {
-          saveDataChange.value = false
-          await saveRequeset()
-        }
+        await saveRequeset()
       })
       .catch((error) => {
         console.log('error', error);

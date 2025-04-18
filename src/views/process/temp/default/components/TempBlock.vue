@@ -205,6 +205,7 @@
           @refresh="dataRefresh"
           @done="doneHandle('lendingDone')"
           @openData="openDataHanle"
+          @compareDone="compareDoneHandle"
         ></lending-form>
       </template>
 
@@ -289,7 +290,7 @@ import { projectAuditCheckMode } from "@/api/process"
 import emitter from '@/event';
 
 const { t } = useI18n();
-const emits = defineEmits(['refresh', 'lendingDone', 'openData']);
+const emits = defineEmits(['refresh', 'lendingDone', 'openData', 'compareDone']);
 
 const props = defineProps({
   blockArr: {
@@ -388,6 +389,10 @@ const doneHandle = (type) => {
 
 const openDataHanle = (data) => {
   emits('openData', data)
+}
+
+const compareDoneHandle = (data) => {
+  emits('compareDone', data)
 }
 
 const blockShowTargetHandle = (flag) => {

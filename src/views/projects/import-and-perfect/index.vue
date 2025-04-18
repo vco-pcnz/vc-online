@@ -9,7 +9,7 @@
       </a-button>
     </div>
   </vco-page-panel>
-  <Securities v-if="activeTab === '1'" :currentId="projectDetail?.base?.uuid" :projectDetail="projectDetail"></Securities>
+  <LoanPage v-if="activeTab === '1'" :currentId="projectDetail?.base?.uuid" :projectDetail="projectDetail"></LoanPage>
   <Forecast v-if="activeTab === '2'" :currentId="projectDetail?.base?.uuid" :projectDetail="projectDetail"></Forecast>
 </template>
 
@@ -17,7 +17,7 @@
 import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import DetailLayout from '../components/detailLayout.vue';
-import Securities from './components/Securities.vue';
+import LoanPage from './components/LoanPage.vue';
 import Forecast from './components/Forecast.vue';
 
 const { t } = useI18n();
@@ -36,7 +36,7 @@ const pageTitleRef = computed(() => {
 const activeTab = ref('1');
 const panes = ref([
   {
-    title: t('抵押物'),
+    title: t('借款'),
     key: '1'
   },
   {

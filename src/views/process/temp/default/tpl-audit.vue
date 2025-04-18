@@ -10,6 +10,14 @@
       @done="subDone"
     ></resovle-dialog>
 
+    <!-- 费改动后弹窗 -->
+    <vco-confirm-alert
+      ref="changeFeeRef"
+      :confirm-txt="saveDataTxt"
+      v-model:visible="saveTipsVisible"
+      @submit="backStepHandle"
+    ></vco-confirm-alert>
+
     <!-- 项目open -->
     <open-dialog
       v-if="currentDataInfo"
@@ -78,6 +86,7 @@
             @refresh="getDataInit"
             @lendingDone="showForecast = true"
             @openData="openDataHandle"
+            @compareDone="compareDoneHandle"
           ></temp-block>
 
           <div v-if="dataInfo.base.fc_review" class="block-item mb">
@@ -148,7 +157,8 @@
   import { cloneDeep } from "lodash";
   import {
     projectAuditStepDetail,
-    projectAuditSaveStep
+    projectAuditSaveStep,
+    projectAuditGoback
   } from "@/api/process";
   import TempBlock from "./components/TempBlock.vue";
   import TempFooter from "./components/TempFooter.vue";
@@ -162,6 +172,7 @@
   import useProcessStore from "@/store/modules/process"
   import OpenDialog from "./components/OpenDialog.vue";
   import ResovleDialog from '@/views/process/components/ResovleDialog.vue';
+  import { numberStrFormat, navigationTo } from '@/utils/tool'
 
   // 初始化当前项目的forcastList 状态
   const processStore = useProcessStore()
@@ -248,6 +259,193 @@
   const subLoading = ref(false)
   const resovleVisible = ref(false);
 
+  const findCreditName = (key) => {
+    const obj = creditTableInfo.value.find(item => item.credit_table === key)
+    return obj ? obj.credit_name : ''
+  }
+
+  const compareBackObj = ref({})
+  const saveDataTxtArr = ref([])
+  const changeFeeRef = ref()
+  const saveTipsVisible = ref(false)
+
+  const saveReturnRea = computed(() => {
+    const txtArr = []
+    for (let i = 0; i < saveDataTxtArr.value.length; i++) {
+      txtArr.push(t('{0}由{1}修改为了{2}', [saveDataTxtArr.value[i].name, saveDataTxtArr.value[i].before, saveDataTxtArr.value[i].now]))
+    }
+    return txtArr.join(', ')
+  })
+
+  const saveReturnRea1 = computed(() => {
+    const txtArr = []
+    for (let i = 0; i < saveDataTxtArr.value.length; i++) {
+      txtArr.push(t('{0}由{1}修改为了{2}1', [saveDataTxtArr.value[i].name, saveDataTxtArr.value[i].before, saveDataTxtArr.value[i].now]))
+    }
+    return txtArr.join('---')
+  })
+
+  const saveDataTxt = computed(() => {
+    let txt = '需要退回重新审核后，才能进行下一步操作'
+    return `${saveReturnRea.value}，${t(txt)}`
+  })
+
+  const compareHandle = () => {
+    const obj = nowChangeData.value
+    const data = cloneDeep(dataInfo.value.base.old)
+    const staticFormData = {
+      ...data.credit,
+      ...data.project
+    }
+
+    let compareBack = {}
+    const compareBackObjData = {}
+
+    const backItems = changeBackItems.value
+    const arr = []
+    for (let i = 0; i < backItems.length; i++) {
+      const backMarkItems = backItems[i].backMark.split(',')
+      const backObj = {}
+      const backMark = backMarkItems.map(item => {
+        const markInfo = item.split(':')
+
+        if (!backObj[markInfo[0]]) {
+          backObj[markInfo[0]] = markInfo[1]
+        }
+
+        if (!compareBackObjData[markInfo[0]]) {
+          compareBackObjData[markInfo[0]] = [markInfo[1]]
+        } else {
+          compareBackObjData[markInfo[0]].push(markInfo[1])
+        }
+        
+        return markInfo[0]
+      })
+
+      compareBack = {
+        ...compareBack,
+        ...backObj
+      }
+
+      if (backMark.includes(props.currentStep.mark)) {
+        const key = backItems[i].credit_table
+
+        const beforeN = numberStrFormat(staticFormData[key])
+        const nowN = numberStrFormat(obj[key])
+
+        const beforeNum = backItems[i].is_ratio ? `${beforeN}${backItems[i].credit_unit}` : `${backItems[i].credit_unit}${beforeN}`
+        const nowNum = backItems[i].is_ratio ? `${nowN}${backItems[i].credit_unit}` : `${backItems[i].credit_unit}${nowN}`
+
+        if (Number(staticFormData[key]) !== Number(obj[key])) {
+          if (['credit_brokerFeeRate'].includes(key)) {
+            if (Number(obj[key]) > Number(staticFormData[key])) {
+              arr.push({
+                name: findCreditName(key),
+                before: beforeNum,
+                now: nowNum
+              })
+            }
+          } else if (key === 'credit_frontFee') {
+            if (Number(obj[key]) < Number(staticFormData[key])) {
+              arr.push({
+                name: findCreditName(key),
+                before: beforeNum,
+                now: nowNum
+              })
+            }
+          } else {
+            // 有中介费率
+            if ('credit_brokerFeeRate' in obj && 'credit_brokerFee' in obj) {
+              if (key !== 'credit_brokerFee') {
+                arr.push({
+                  name: findCreditName(key),
+                  before: beforeNum,
+                  now: nowNum
+                })
+              }
+            } else {
+              arr.push({
+                name: findCreditName(key),
+                before: beforeNum,
+                now: nowNum
+              })
+            }
+          }
+        }
+      }
+    }
+
+    // 去重每个数组
+    for (const key in compareBackObjData) {
+      if (Array.isArray(compareBackObjData[key])) {
+        compareBackObjData[key] = [...new Set(compareBackObjData[key])];
+      }
+    }
+
+    compareBackObj.value = compareBackObjData
+
+    if (Object.keys(compareBack).includes(props.currentStep.mark)) {
+      if (obj?.start_date !== staticFormData.start_date) {
+        arr.unshift({
+          name: t('开放日期'),
+          before: staticFormData.start_date,
+          now: obj?.start_date
+        })
+      }
+
+      if (obj?.end_date !== staticFormData.end_date) {
+        arr.unshift({
+          name: t('到期日期'),
+          before: staticFormData.end_date,
+          now: obj?.end_date
+        })
+      }
+
+      if (Number(obj?.initial_build_amount) !== Number(staticFormData?.initial_build_amount)) {
+        arr.unshift({
+          name: t('首次建筑贷款放款额'),
+          before: `$${numberStrFormat(Number(staticFormData?.initial_build_amount))}`,
+          now: `$${numberStrFormat(Number(obj?.initial_build_amount))}`
+        })
+      }
+
+      if (Number(obj?.initial_land_amount) !== Number(staticFormData?.initial_land_amount)) {
+        arr.unshift({
+          name: t('首次土地贷款放款额'),
+          before: `$${numberStrFormat(Number(staticFormData?.initial_land_amount))}`,
+          now: `$${numberStrFormat(Number(obj?.initial_land_amount))}`
+        })
+      }
+
+      if (Number(obj?.build_amount) !== Number(staticFormData?.build_amount)) {
+        arr.unshift({
+          name: t('建筑贷款总额'),
+          before: `$${numberStrFormat(Number(staticFormData?.build_amount))}`,
+          now: `$${numberStrFormat(Number(obj?.build_amount))}`
+        })
+      }
+
+      if (Number(obj?.land_amount) !== Number(staticFormData?.land_amount)) {
+        arr.unshift({
+          name: t('土地贷款总额'),
+          before: `$${numberStrFormat(Number(staticFormData?.land_amount))}`,
+          now: `$${numberStrFormat(Number(obj?.land_amount))}`
+        })
+      }
+
+      if (Number(obj?.has_linefee) !== Number(staticFormData?.has_linefee)) {
+        arr.unshift({
+          name: t('是否有Linefee'),
+          before: Number(staticFormData?.has_linefee) ? t('是') : t('否'),
+          now: Number(obj?.has_linefee) ? t('是') : t('否')
+        })
+      }
+    }
+
+    saveDataTxtArr.value = arr
+    return Boolean(arr.length)
+  }
+
   const submitRquest = (params) => {
     params.do__mark = currentMark.value
 
@@ -277,6 +475,13 @@
     } else {
       const params = {
         uuid: props.currentId
+      }
+
+      if (changeBackItems.value.length && Object.keys(nowChangeData.value).length) {
+        if (compareHandle()) {
+          saveTipsVisible.value = true
+          return false
+        }
       }
 
       if (currentMark.value === 'step_open') {
@@ -365,6 +570,39 @@
   const targetChange = () => {
     openBlock.value = !openBlock.value
     emitter.emit('blockShowTarget', openBlock.value);
+  }
+
+  const changeBackItems = ref([])
+  const nowChangeData = ref({})
+  const creditTableInfo = ref([])
+  const compareDoneHandle = (data) => {
+    changeBackItems.value = data.changeBack || []
+    nowChangeData.value = data.nowChangeData || {}
+    creditTableInfo.value = data.creditTableInfo || []
+  }
+
+  // 退回操作
+  const backStepHandle = () => {
+    const backStepArr = ['step_lm_audit', 'step_fc_audit', 'step_director_audit', 'step_lm_check', 'step_aml_audit']
+    const params = {
+      uuid: props.currentId,
+      cancel_reason: saveReturnRea.value,
+      back_reason: saveReturnRea1.value,
+      again_check: 0
+    }
+
+    const backArr = compareBackObj.value[props.currentStep.mark] || []
+    if (backArr.length) {
+      const back_step = backStepArr.find(val => backArr.includes(val));
+      params.back_step = back_step || ''
+    }
+
+    projectAuditGoback(params).then(() => {
+      changeFeeRef.value.changeLoading(false)
+      navigationTo(`/requests/details?uuid=${props.currentId}`)
+    }).catch(() => {
+      changeFeeRef.value.changeLoading(false)
+    })
   }
 
   watch(

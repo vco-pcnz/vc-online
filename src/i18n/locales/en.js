@@ -606,6 +606,7 @@ export default {
   "收起": "Collapse",
   "展开": "Expand",
   "{0}由{1}修改为了{2}": "{0} was changed from <span>{1}</span> to <span>{2}</span>",
+  "{0}由{1}修改为了{2}1": "{0} was changed from {1} to {2}",
   "保存后将退回到上一步审核": "After saving, you will return to the previous step for review",
   "保存后将退回审核": "Will be returned for review after saving",
   "有条件": "Conditional",
@@ -947,5 +948,6 @@ export default {
   "待放款额度": "Amount of loan to be drawdown",
   "导入完善": "Import and perfect",
   "借款": "Loan",
-  "借款金额为：<span>{0}</span>，设置的开发成为为：<span>{1}</span>，相差：<span>{2}</span>": "The loan amount is: <span>{0}</span>, the development cost is: <span>{1}</span>, the difference is: <span>{2}</span>"
+  "借款金额为：<span>{0}</span>，设置的开发成为为：<span>{1}</span>，相差：<span>{2}</span>": "The loan amount is: <span>{0}</span>, the development cost is: <span>{1}</span>, the difference is: <span>{2}</span>",
+  "需要退回重新审核后，才能进行下一步操作": "Need to return for re-review before proceeding to the next step"
 }

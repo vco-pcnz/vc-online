@@ -477,7 +477,7 @@
         uuid: props.currentId
       }
 
-      if (changeBackItems.value.length && Object.keys(nowChangeData.value).length) {
+      if (changeBackItems.value.length && Object.keys(nowChangeData.value).length && dataInfo.value.base?.old) {
         if (compareHandle()) {
           saveTipsVisible.value = true
           return false

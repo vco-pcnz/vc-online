@@ -272,6 +272,7 @@ const add = (index) => {
 
 const remove = (p_index, index) => {
   data.value.data[p_index].list.splice(index, 1);
+  initData()
 };
 
 const errorTxt = ref('')

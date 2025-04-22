@@ -1,5 +1,5 @@
 <template>
-  <DrawdownAmount ref="DrawdownAmountRef" :uuid="currentId" :detail="itemData" @change="update"></DrawdownAmount>
+  <DrawdownAmount ref="DrawdownAmountRef" :uuid="currentId" :detail="itemData" @change="loadData"></DrawdownAmount>
   <div class="table-content">
     <div class="col-item th">
       <div class="item uppercase"></div>
@@ -10,71 +10,69 @@
       <div class="item uppercase">{{ t('日期') }}</div>
       <div class="item uppercase">{{ t('借记/贷记') }}</div>
       <div class="item uppercase">{{ t('说明') }}</div>
-      <div class="item uppercase history">{{ t('历史') }}</div>
+      <div class="item uppercase history">{{ t('编辑') }}</div>
     </div>
 
     <div class="col-content">
-      <template v-for="(_item, key) in data?.list">
-        <div v-for="(item, index) in data?.list[key]" :key="item.id" class="col-item" :class="{ passed: item.status != 0 || item.first, yellow: item.type == 4 && item.first, red: item.is_hide }" @click="showEdit(item)">
-          <div class="item flex items-center"><span class="circle" :style="{ background: item.status != 0 || item.first ? '#181818' : '#b4d8d8' }"></span></div>
-          <div class="item">
-            <template v-if="!index"> {{ tool.monthYear(item.ym) }}</template>
+      <div v-for="item in data" :key="item.id" class="col-item" :class="{ passed: item.status != 0 || item.first, yellow: item.type == 4 && item.first, red: item.is_hide }" @click="showEdit(item)">
+        <div class="item flex items-center"><span class="circle" :style="{ background: item.status != 0 || item.first ? '#181818' : '#b4d8d8' }"></span></div>
+        <div class="item">
+          {{ tool.monthYear(item.ym) }}
+        </div>
+        <div class="item">{{ item.name }}</div>
+        <div class="item flex items-center" v-show="false"><vco-avatar :size="30"></vco-avatar></div>
+        <div class="item">
+          <div class="flex items-center justify-between" v-if="item?.forecast_log?.length && item.status != 0">
+            <span class="mr-3 color_grey fs_xs">{{ tool.showDate(item.forecast_log[item.forecast_log.length - 1].create_time, 'DD/MM') }}</span>
+            <vco-number :value="item.forecast_log[item.forecast_log.length - 1].amount" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
           </div>
-          <div class="item">{{ item.name }}</div>
-          <div class="item flex items-center" v-show="false"><vco-avatar :size="30"></vco-avatar></div>
-          <div class="item">
-            <div class="flex items-center justify-between" v-if="item?.forecast_log?.length && item.status != 0">
-              <span class="mr-3 color_grey fs_xs">{{ tool.showDate(item.forecast_log[item.forecast_log.length - 1].create_time, 'DD/MM') }}</span>
-              <vco-number :value="item.forecast_log[item.forecast_log.length - 1].amount" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
-            </div>
 
-            <div class="flex items-center justify-between" v-else>
-              <span class="mr-3 color_grey fs_xs">{{ tool.showDate(item.date, 'DD/MM') }}</span>
-              <template v-if="item.status != 0 || item.first">
-                <vco-number :value="item.amount" color="#181818" :bold="false" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
-              </template>
-              <template v-else-if="item.type == 2">
-                <vco-number :value="item.amount" color="#569695" :bold="true" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
-              </template>
-              <template v-else>
-                <vco-number :value="item.amount" color="#d6a91f" :bold="true" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
-              </template>
-              <!-- <vco-number :value="item.amount" :color="item.status != 0 || item.first ? '#181818' : '#569695'" :bold="item.status != 0 || item.first ? false : true" :precision="2" size="fs_md" prefix="" suffix=""></vco-number> -->
-            </div>
-          </div>
-          <div class="item">
-            <div v-if="item.status != 0 || item.first" style="color: #181818">
-              {{ tool.showDate(item.date) }}
-            </div>
-            <div v-else-if="item.type == 2" style="color: #569695">
-              {{ tool.showDate(item.date) }}
-            </div>
-            <div v-else style="color: #d6a91f">
-              {{ tool.showDate(item.date) }}
-            </div>
-          </div>
-          <div class="item">
-            <vco-number v-if="item.status != 0 || item.first" :value="item.amount" :bold="true" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
-          </div>
-          <div class="item">
-            <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.note" style="width: 250px">{{ item.note }}</p>
-          </div>
-          <div class="item history">
-            <i class="iconfont color_coal">&#xe8cf;</i>
+          <div class="flex items-center justify-between" v-else>
+            <span class="mr-3 color_grey fs_xs">{{ tool.showDate(item.date, 'DD/MM') }}</span>
+            <template v-if="item.status != 0 || item.first">
+              <vco-number :value="item.amount" color="#181818" :bold="false" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
+            </template>
+            <template v-else-if="item.type == 2">
+              <vco-number :value="item.amount" color="#569695" :bold="true" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
+            </template>
+            <template v-else>
+              <vco-number :value="item.amount" color="#d6a91f" :bold="true" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
+            </template>
+            <!-- <vco-number :value="item.amount" :color="item.status != 0 || item.first ? '#181818' : '#569695'" :bold="item.status != 0 || item.first ? false : true" :precision="2" size="fs_md" prefix="" suffix=""></vco-number> -->
           </div>
         </div>
-      </template>
+        <div class="item">
+          <div v-if="item.status != 0 || item.first" style="color: #181818">
+            {{ tool.showDate(item.date) }}
+          </div>
+          <div v-else-if="item.type == 2" style="color: #569695">
+            {{ tool.showDate(item.date) }}
+          </div>
+          <div v-else style="color: #d6a91f">
+            {{ tool.showDate(item.date) }}
+          </div>
+        </div>
+        <div class="item">
+          <vco-number v-if="item.status != 0 || item.first" :value="item.amount" :bold="true" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
+        </div>
+        <div class="item">
+          <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.note" style="width: 250px">{{ item.note }}</p>
+        </div>
+        <div class="item history">
+          <i class="iconfont color_coal" v-if="item.status != 0 || item.first">&#xe8cf;</i>
+        </div>
+      </div>
     </div>
   </div>
-  <a-empty v-if="data?.list.constructor === Array && !data?.list.length" />
+  <a-empty v-if="data === Array && !data.length" />
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
-import { darwdownLog } from '@/api/project/loan';
-import DrawdownAmount from '../../drawdowns/components/form/DrawdownAmount.vue';
+import { darwdownLog } from '@/api/project/tools';
+import DrawdownAmount from '../drawdownAmount/index.vue';
 const { t } = useI18n();
 const props = defineProps({
   currentId: {
@@ -92,7 +90,7 @@ const loadData = () => {
   loading.value = true;
   darwdownLog({ uuid: props.currentId })
     .then((res) => {
-      data.value = res.data;
+      data.value = res;
     })
     .finally(() => {
       loading.value = false;
@@ -103,22 +101,20 @@ onMounted(() => {
   loadData();
 });
 
-const update = (val) => {
-  console.log(val);
-};
-
 const DrawdownAmountRef = ref();
 const itemData = ref();
 const showEdit = (val) => {
-  itemData.value = {
-    build_money: '',
-    other_money: 0,
-    other_note: '',
-    build__data: [],
-    amount: val.amount
-  };
-  DrawdownAmountRef.value.init()
-  console.log(val);
+  if (val.status != 0 || val.first) {
+    itemData.value = {
+      id: val.id,
+      build_money: '',
+      other_money: 0,
+      other_note: '',
+      build__data: [],
+      amount: val.amount
+    };
+    DrawdownAmountRef.value.init();
+  }
 };
 </script>
 

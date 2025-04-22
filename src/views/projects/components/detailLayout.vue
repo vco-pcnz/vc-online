@@ -4,8 +4,8 @@
       <a-button v-for="item in panes" :key="item.key" @click="onChange(item.key)" :class="`tab-button ${item.key === props.activeTab ? 'active-tab' : ''}`">
         {{ item.title }}
       </a-button>
-      <a-button type="cyan"  v-if="hasImportAndPerfect && true" @click="onChange('import-and-perfect')">
-        {{t('导入完善')}}
+      <a-button type="cyan" v-if="hasImportAndPerfect && detail?.base?.old" @click="onChange('import-and-perfect')">
+        {{ t('导入完善') }}
       </a-button>
     </div>
   </vco-page-panel>

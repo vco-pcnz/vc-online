@@ -17,7 +17,7 @@
             <vco-avatar :src="record.project_image" :radius="true" :round="false" :size="48" />
             <div class="ml-3">
               <p class="cer">ID: {{ record.project_apply_sn }}</p>
-              <p class="bold black">{{ record.project_name }}</p>
+              <p :title="record.project_name" class="bold black text-ellipsis overflow-hidden text-nowrap" style="width: 200px">{{ record.project_name }}</p>
               <span class="replenish_text">
                 {{ record.loan_type_name }}
                 <template v-if="record.loan_type_name && record.project_type_name"> • </template>
@@ -325,10 +325,11 @@ onMounted(() => {
 }
 
 :deep(.ant-table-tbody) > tr.red td.ant-table-cell-fix-right::after {
-  background: transparent!important;
+  background: transparent !important;
 }
 
-:deep(.ant-table-tbody) .ant-table-cell-fix-left, :deep(.ant-table-tbody) .ant-table-cell-fix-right {
-  background: #fff!important;
+:deep(.ant-table-tbody) .ant-table-cell-fix-left,
+:deep(.ant-table-tbody) .ant-table-cell-fix-right {
+  background: #fff !important;
 }
 </style>

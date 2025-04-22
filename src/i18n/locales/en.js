@@ -949,5 +949,6 @@ export default {
   "导入完善": "Import and perfect",
   "借款": "Loan",
   "借款金额为：<span>{0}</span>，设置的开发成为为：<span>{1}</span>，相差：<span>{2}</span>": "The loan amount is: <span>{0}</span>, the development cost is: <span>{1}</span>, the difference is: <span>{2}</span>",
-  "需要退回重新审核后，才能进行下一步操作": "Need to return for re-review before proceeding to the next step"
+  "需要退回重新审核后，才能进行下一步操作": "Need to return for re-review before proceeding to the next step",
+  "金额不匹配": "Amount does not match"
 }

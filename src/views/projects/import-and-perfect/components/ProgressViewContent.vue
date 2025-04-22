@@ -694,7 +694,7 @@
 
   // 请求项目信息
   const getProjectData = async () => {
-    if (Object.keys(props.projectDetail).length) {
+    if (props.projectDetail && Object.keys(props.projectDetail).length) {
       pageLoading.value = true
       
       const list = props.projectDetail.devCostDetail[0].data[0].list

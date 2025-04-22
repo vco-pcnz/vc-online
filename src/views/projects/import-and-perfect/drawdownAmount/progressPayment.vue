@@ -57,7 +57,7 @@
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
-import ViewContent from '@/views/requests/progress-payment/components/ViewContent.vue';
+import ViewContent from './../components/ProgressViewContent.vue';
 import { cloneDeep } from 'lodash';
 const emits = defineEmits(['change']);
 const { t } = useI18n();

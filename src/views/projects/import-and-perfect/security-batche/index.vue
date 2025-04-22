@@ -2,9 +2,9 @@
   <div>
     <!-- 确认弹窗 -->
     <vco-confirm-alert
-      ref="changeAlertRef"
-      :confirm-txt="confirmTxt"
-      v-model:visible="changeVisible"
+      ref="sureAlertRef"
+      :confirm-txt="t('提交后，数据将无法再次修改，确定提交吗?')"
+      v-model:visible="sureVisible"
       @submit="submitRquest"
     ></vco-confirm-alert>
 
@@ -25,7 +25,7 @@
         </div>
       </div>
     </a-modal>
-    <vco-page-panel @back="back">
+    <vco-page-panel @back="goBack">
       <template #title>
         <div class="page-title-content">
           <div class="tag">{{ t('批量添加抵押物') }}</div>
@@ -478,15 +478,15 @@
 <script setup>
 import { onMounted, ref, reactive, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRouter, useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { 
-  projectAuditSecurityList,
-  projectAuditSaveMode,
-  projectDischargeAddEditSecurity
+  projectDetailAuditSecurityList
 } from "@/api/process";
+import { toolsAddSecurity } from '@/api/import'
 import { systemDictData } from "@/api/system"
-import tool, { selectDateFormat, numberStrFormat, navigationTo } from '@/utils/tool';
+import tool, { selectDateFormat, numberStrFormat, goBack } from '@/utils/tool';
 import { cloneDeep } from 'lodash';
+import { toolsDetail } from '@/api/import'
 import { message } from 'ant-design-vue/es';
 
 const props = defineProps({
@@ -497,17 +497,9 @@ const props = defineProps({
 })
 
 const { t } = useI18n();
-const router = useRouter();
 const route = useRoute();
-const uuid = ref(route.query.uuid)
-
-const back = () => {
-  router.back()
-}
 
 const pageLoading = ref(false)
-const dataInfo = ref()
-const projectInfo = ref()
 
 // 户型统计
 const totalTypology = computed(() => {
@@ -727,39 +719,49 @@ const batchitem = {
 const oldData = ref([])
 
 const tableDataInit = async () => {
+  pageLoading.value = true
+  const projectInfo = await toolsDetail({uuid: route.query.uuid})
+  if (projectInfo.old.upd_sec) {
+    goBack()
+  }
+  const defaultBuildNum = projectInfo.building_num || 0
+
+  const { list } = await projectDetailAuditSecurityList({uuid: route.query.uuid})
+
+  const listData = list || []
+  oldData.value = listData
+
   let data = []
 
-  if (route.query.e) { // 编辑
-    // 请求批量数据
-    // const { list } = await projectAuditSecurityList({
-    //   uuid: route.query.uuid,
-    //   type: 2
-    // })
-
-    // const listData = list || []
-
-    // oldData.value = listData
-
-    // const formOldData = listData.map((item, index) => {
-    //   const sItem = cloneDeep(batchitem)
-    //   for (const key in sItem) {
-    //     if (item[key]) {
-    //       sItem[key] = item[key]
-    //     }
-    //   }
-    //   sItem.is_gst = sItem.is_gst === 1 ? true : false
-    //   sItem.checked = true
-    //   sItem.name = item.card_no || t(`第{0}行`, [index + 1])
-    //   sItem.security_uuid = item.uuid
-    //   sItem.typology.other = sItem.typology.other || []
-    //   return sItem
-    // })
-    // data = formOldData
-    
+  if (listData.length) { // 编辑
+    const formOldData = listData.map((item, index) => {
+      const sItem = cloneDeep(batchitem)
+      for (const key in sItem) {
+        if (item[key]) {
+          sItem[key] = item[key]
+        }
+      }
+      sItem.is_gst = sItem.is_gst === 1 ? true : false
+      sItem.checked = true
+      sItem.name = item.card_no || t(`第{0}行`, [index + 1])
+      sItem.security_uuid = item.uuid
+      sItem.typology.other = sItem.typology.other || []
+      return sItem
+    })
+    data = formOldData
   } else { // 新增
-    console.log('fdsafsd');
+    for (let i = 0; i < defaultBuildNum; i++) {
+      const item = cloneDeep(batchitem)
+      item.card_no = `Lot ${i + 1}`
+      item.checked = true
+      item.name = item.card_no || t(`第{0}行`, [index + 1])
+      item.typology.other = []
+      data.push(item)
+    }
   }
   formDataSource.value = data
+
+  pageLoading.value = false
 }
 
 const addHandle = () => {
@@ -867,18 +869,43 @@ const checkHandle = (data) => {
   }
 }
 
-const changeAlertRef = ref()
-const changeVisible = ref(false)
-const confirmTxt = ref('')
 
 const subLoading = ref(false)
+
+const sureAlertRef = ref()
+const sureVisible = ref(false)
+const currentParams = ref()
+
 const submitRquest = () => {
-  const formVal = cloneDeep(formState.value);
+  subLoading.value = true;
+  sureAlertRef.value.changeLoading(true)
+
+  toolsAddSecurity(currentParams.value).then(() => {
+    subLoading.value = false;
+    sureVisible.value = false
+    sureAlertRef.value.changeLoading(false)
+    goBack()
+  }).catch(() => {
+    subLoading.value = false;
+    sureVisible.value = false
+    sureAlertRef.value.changeLoading(false)
+  });
+}
+
+const subHandle = () => {
   const formData = cloneDeep(formDataSource.value);
+  for (let i = 0; i < formData.length; i++) {
+    if (!formData[i].card_no) {
+      message.error(t('请设置第{0}行的名称', [i + 1]))
+      return false
+    }
+  }
+
   formData.forEach(item => {
     item.is_gst = item.is_gst ? 1 : 0
     item.is_sales = item.sales_price ? 1 : 0
-    item.type = formVal.type
+    item.type = 2
+    item.security_name = item.name
   })
 
   let delData = []
@@ -891,71 +918,16 @@ const submitRquest = () => {
   }
 
   const params = {
-    code: route.query.code || '',
     uuid: route.query.uuid,
     security__data: {
-      base: formVal,
       batch: formData,
-      del: delData,
-      upd: !baseData.value ? 1 : (formVal.upd ? 1 : 0)
-    },
-    security__mode: 2
+      del: delData
+    }
   }
-  delete formVal.upd
 
-  subLoading.value = true
+  currentParams.value = params
 
-  const ajaxFn = props.isOpen ? projectDischargeAddEditSecurity : projectAuditSaveMode
-  ajaxFn(params)
-    .then(() => {
-      subLoading.value = false;
-      changeVisible.value = false
-      changeAlertRef.value.changeLoading(false)
-
-      sessionStorage.removeItem('batchEditSec')
-      back()
-    })
-    .catch(() => {
-      changeAlertRef.value.changeLoading(false)
-      subLoading.value = false;
-    });
-}
-const subHandle = () => {
-  console.log('fdsafdsa');
-  // formRef.value
-  //   .validate()
-  //   .then(() => {
-  //     const {project_address_short, project_address, project_suburb, region_one_id, region_two_id, region_three_id, project_postcode, project_city} = projectInfo.value
-  //     const {address_short, address, suburb, postcode} = formState.value
-  //     const region_one_id1 = formState.value.region_one_id
-  //     const region_two_id1 = formState.value.region_two_id
-  //     const region_three_id1 = formState.value.region_three_id
-
-  //     if (project_address_short !== address_short ||
-  //       project_address !== address || 
-  //       project_suburb !== suburb || 
-  //       project_postcode !== postcode || 
-  //       Number(region_one_id) !== Number(region_one_id1) || 
-  //       Number(region_two_id) !== Number(region_two_id1) || 
-  //       Number(region_three_id) !== Number(region_three_id1)
-  //     ) {
-  //       confirmTxt.value = t('当前项目地址为：{0}，抵押物地址与项目地址不一致，确定提交吗？', [project_city])
-  //       changeVisible.value = true
-  //     } else {
-  //       const formData = cloneDeep(formDataSource.value);
-
-  //       for (let i = 0; i < formData.length; i++) {
-  //         if (!formData[i].card_no) {
-  //           message.error(t('请设置第{0}行的名称', [i + 1]))
-  //           return false
-  //         }
-  //       }
-  //       submitRquest()
-  //     }
-  //   })
-  //   .catch((error) => {
-  //     console.log('error', error);
-  //   });
+  sureVisible.value = true
 }
 
 const otherItem = {
@@ -973,7 +945,9 @@ const typologyRemove = (data, index) => {
 onMounted(async () => {
   getGstRate()
   getOtherTypeData()
-  tableDataInit()
+  if (route.query.uuid) {
+    tableDataInit()
+  }
 })
 </script>
 

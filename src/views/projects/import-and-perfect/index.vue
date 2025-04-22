@@ -1,36 +1,53 @@
 <template>
-  <div v-show="false">
-    <detail-layout @getProjectDetail="getProjectDetail"> </detail-layout>
+  <div>
+    <vco-page-panel :title="pageTitleRef" :isBack="true">
+      <div class="TabsPanel-Tab">
+        <a-button v-for="item in panes" :key="item.key" @click="activeTab = item.key" :class="`tab-button ${item.key === activeTab ? 'active-tab' : ''}`">
+          {{ item.title }}
+        </a-button>
+      </div>
+    </vco-page-panel>
+    <a-spin :spinning="pageLoading" size="large">
+      <template v-if="uuid">
+        <LoanPage v-if="activeTab === '1'" :currentId="uuid" :projectDetail="projectDetail" @reload="getProjectDetail"></LoanPage>
+        <Forecast v-if="activeTab === '2'" :currentId="uuid" :projectDetail="projectDetail"></Forecast>
+      </template>
+      <a-empty v-else />
+    </a-spin>
   </div>
-  <vco-page-panel :title="pageTitleRef" :isBack="true">
-    <div class="TabsPanel-Tab">
-      <a-button v-for="item in panes" :key="item.key" @click="activeTab = item.key" :class="`tab-button ${item.key === activeTab ? 'active-tab' : ''}`">
-        {{ item.title }}
-      </a-button>
-    </div>
-  </vco-page-panel>
-  <LoanPage v-if="activeTab === '1'" :currentId="projectDetail?.base?.uuid" :projectDetail="projectDetail"></LoanPage>
-  <Forecast v-if="activeTab === '2'" :currentId="projectDetail?.base?.uuid" :projectDetail="projectDetail"></Forecast>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import DetailLayout from '../components/detailLayout.vue';
 import LoanPage from './components/LoanPage.vue';
 import Forecast from './components/Forecast.vue';
+import { useRoute } from 'vue-router'
+import { toolsDetail } from '@/api/import'
 
 const { t } = useI18n();
+const route = useRoute()
 
+const uuid = ref(route.query.uuid)
+
+const pageLoading = ref(false)
 const projectDetail = ref();
-const getProjectDetail = (val) => {
-  projectDetail.value = val;
+const getProjectDetail = () => {
+  pageLoading.value = true
+  toolsDetail({
+    uuid: uuid.value
+  }).then(res => {
+    projectDetail.value = res
+    pageLoading.value = false
+  }).catch(() => {
+    pageLoading.value = false
+  })
 };
 
 const pageTitleRef = computed(() => {
-  const sn = projectDetail.value?.base?.project_apply_sn || '';
+  const sn = projectDetail.value?.project_apply_sn || '';
   const type = t('导入完善');
-  return `${sn} - ${type}`;
+  return sn ? `${sn} - ${type}` : type
 });
 
 const activeTab = ref('1');
@@ -44,6 +61,12 @@ const panes = ref([
     key: '2'
   }
 ]);
+
+onMounted(() => {
+  if (uuid) {
+    getProjectDetail()
+  }
+})
 </script>
 
 <style scoped lang="less">

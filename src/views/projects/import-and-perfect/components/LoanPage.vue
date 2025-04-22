@@ -1,19 +1,22 @@
 <template>
   <div class="block-container">
-    <basic-info></basic-info>
+    <basic-info :projectDetail="projectDetail"></basic-info>
 
     <div class="block-item mt-10">
       <vco-process-title :title="t('开发成本')"></vco-process-title>
       <DevCostDetail
         v-model:value="devCost"
         v-model:dataJson="devCostDetail"
-        :loan-amount="5000000"
+        :current-id="currentId"
+        :loan-amount="loanMoney"
+        :edit="!Boolean(projectDetail?.old.upd_dev)"
         @change="devCostChange"
       >
         <div class="dev-cost">
           <vco-number class="float-left" v-model:value="devCost" :precision="2" :end="true"></vco-number>
           <a-button class="float-left" type="link">
-            <i class="iconfont">&#xe753;</i>
+            <i v-if="Boolean(projectDetail?.old.upd_dev)" class="iconfont" style="font-size: 18px;">&#xe63e;</i>
+            <i v-else class="iconfont">&#xe753;</i>
           </a-button>
         </div>
       </DevCostDetail>
@@ -23,21 +26,15 @@
       <vco-process-title :title="t('抵押物信息')">
         <div class="flex gap-5 items-center">
           <a-button
-            v-if="Number(securityInfo.units)"
-            type="brown"
-            shape="round"
-            class="uppercase"
-            @click="securityBatcheHandle(true)"
-          >
-            {{ t('批量编辑') }}
-          </a-button>
-          <a-button
-            v-else
+            v-if="!Boolean(projectDetail?.old.upd_sec)"
             type="primary"
             shape="round"
             class="uppercase"
-            @click="securityBatcheHandle(false)"
-          >{{ t('批量添加') }}</a-button>
+            :disabled="!Boolean(projectDetail?.old.upd_dev)"
+            @click="navigationTo(`/projects/import-and-perfect/security-batche?uuid=${currentId}`)"
+          >
+            {{ t('批量编辑') }}
+          </a-button>
         </div>
       </vco-process-title>
       <a-row :gutter="24">
@@ -45,7 +42,7 @@
           <div class="info-content">
             <p class="name">{{ t('抵押物价值') }}</p>
             <p class="txt">
-              <vco-number :value="securityInfo.securityValue" :precision="2" :end="true"></vco-number>
+              <vco-number :value="securityInfo.total_money" :precision="2" :end="true"></vco-number>
             </p>
           </div>
         </a-col>
@@ -53,42 +50,52 @@
           <div class="info-content">
             <p class="name">{{ t('保险价值') }}</p>
             <p class="txt">
-              <vco-number :value="securityInfo.insuranceValue" :precision="2" :end="true"></vco-number>
+              <vco-number :value="securityInfo.total_value" :precision="2" :end="true"></vco-number>
             </p>
           </div>
         </a-col>
         <a-col :span="8">
           <div class="info-content">
-            <p class="name">{{ t('楼栋数') }}</p>
-            <p class="txt">{{ securityInfo.units }}</p>
+            <p class="name">{{ t('抵押物数量') }}</p>
+            <p class="txt">{{ securityInfo.count }}</p>
           </div>
         </a-col>
       </a-row>
+
+      <security-view v-if="Boolean(projectDetail?.old.upd_sec)" class="mt-10"></security-view>
     </div>
 
     <div class="block-item mt-10">
       <vco-process-title :title="t('进度付款')">
         <a-button
+          v-if="!Boolean(projectDetail?.old.upd_build)"
           type="primary"
           shape="round"
           class="uppercase"
+          :disabled="!Boolean(projectDetail?.old.upd_sec)"
           @click="navigationTo(`/projects/import-and-perfect/progress-payment?uuid=${currentId}`)"
         >
           {{ t('编辑') }}
         </a-button>
       </vco-process-title>
-      <progress-view-content :is-block="true" class="mt-10"></progress-view-content>
+      <progress-view-content
+        v-if="projectDetail?.loan_money"
+        :is-block="true"
+        :projectDetail="projectDetail" class="mt-10"
+      ></progress-view-content>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import BasicInfo from './BasicInfo.vue';
 import DevCostDetail from './DevCostDetail.vue'
 import ProgressViewContent from './ProgressViewContent.vue';
+import SecurityView from './SecurityView.vue';
 import { navigationTo } from '@/utils/tool'
+import { cloneDeep } from 'lodash'
 
 const { t } = useI18n();
 const props = defineProps({
@@ -96,29 +103,43 @@ const props = defineProps({
     type: [String, Number]
   },
   projectDetail: {
-    type: Object
+    type: Object,
+    default: () => {}
   }
 });
 
+const emits = defineEmits(['reload'])
+
 const devCost = ref(0)
-const devCostDetail = ''
-const devCostChange = (data) => {
-  console.log('data', data);
+const devCostDetail = ref([])
+const loanMoney = ref(0)
+const devCostChange = () => {
+  emits('reload')
 }
 
 const securityInfo = ref({
-  securityValue: 0,
-  insuranceValue: 0,
-  units: 0,
+  total_money: 0,
+  total_value: 0,
+  count: 0,
 })
 
-const securityBatcheHandle = (flag) => {
-  let query = `?uuid=${props.currentId}`
-  if (flag) {
-    query = `${query}&e=1`
-  }
-  navigationTo(`/projects/import-and-perfect/security-batche${query}`)
+const dataInit = () => {
+  devCost.value = props.projectDetail.devCost
+  devCostDetail.value = props.projectDetail.devCostDetail || []
+  loanMoney.value = Number(props.projectDetail.loan_money)
+
+  securityInfo.value = cloneDeep(props.projectDetail.security)
 }
+
+watch(
+  () => props.projectDetail,
+  (val) => {
+    if (val) {
+      dataInit()
+    }
+  },
+  { deep: true, immediate: true }
+);
 </script>
 
 <style scoped lang="less">

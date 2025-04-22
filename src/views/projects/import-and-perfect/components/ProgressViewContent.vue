@@ -265,7 +265,7 @@
   import { computed, onMounted, ref } from "vue"
   import { useI18n } from "vue-i18n";
   import { useRoute } from "vue-router"
-  import { projectLoanGetBuild, projectDetailApi } from "@/api/process"
+  import { toolsDetail, toolsGetBuild } from '@/api/import'
   import { cloneDeep } from "lodash"
   import tool, { numberStrFormat } from "@/utils/tool"
 
@@ -292,10 +292,14 @@
     buildLogData: { // 历史数据
       type: Array,
       default: () => []
+    },
+    projectDetail: {
+      type: Object,
+      default: () => {}
     }
   })
 
-  const emits = defineEmits(['done', 'selectDone'])
+  const emits = defineEmits(['selectDone'])
 
   const uuid = ref('')
 
@@ -568,7 +572,7 @@
     }
 
     try {
-      await projectLoanGetBuild(params).then(res => {
+      await toolsGetBuild(params).then(res => {
         const data = res.data || []
         if (Object.keys(data)) {
           setedData.value = res
@@ -690,25 +694,34 @@
 
   // 请求项目信息
   const getProjectData = async () => {
-    pageLoading.value = true
-    const params = {
-      uuid: uuid.value
-    }
-
-    try {
-      await projectDetailApi(params).then(res => {
-        emits('done', res)
-
-        const list = res.lending.devCostDetail[0].data[0].list
-        const filterType = ['Land', 'Construction', 'Refinance', 'Land_gst']
-        const footerData = list.filter(item => !filterType.includes(item.type))
-
-        footerDataCol.value = footerData || []
-      })
+    if (Object.keys(props.projectDetail).length) {
+      pageLoading.value = true
       
+      const list = props.projectDetail.devCostDetail[0].data[0].list
+      const filterType = ['Land', 'Construction', 'Refinance', 'Land_gst']
+      const footerData = list.filter(item => !filterType.includes(item.type))
+
+      footerDataCol.value = footerData || []
       await getSetedData()
-    } catch (err) {
-      pageLoading.value = false
+    } else {
+      pageLoading.value = true
+      const params = {
+        uuid: uuid.value
+      }
+
+      try {
+        await toolsDetail(params).then(res => {
+          const list = res.devCostDetail[0].data[0].list
+          const filterType = ['Land', 'Construction', 'Refinance', 'Land_gst']
+          const footerData = list.filter(item => !filterType.includes(item.type))
+
+          footerDataCol.value = footerData || []
+        })
+        
+        await getSetedData()
+      } catch (err) {
+        pageLoading.value = false
+      }
     }
   }
 

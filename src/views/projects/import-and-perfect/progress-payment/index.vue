@@ -214,15 +214,9 @@
   import { QuestionCircleOutlined } from '@ant-design/icons-vue';
   import { useRoute } from "vue-router"
   import {
-    projectAuditStepDetail,
-    projectAuditSecurityList,
-    projectGetBuild,
-    projectLoanGetBuild,
-    projectSaveBuild,
-    projectLoanSaveBuild,
-    projectDetailApi
+    projectDetailAuditSecurityList
   } from "@/api/process"
-  import { dischargeSecurity } from '@/api/project/loan';
+  import { toolsDetail, toolsGetBuild, toolsSaveBuild } from '@/api/import'
   import { systemDictDataApi } from "@/api/system/index"
   import { cloneDeep } from "lodash"
   import tool, { numberStrFormat, goBack } from "@/utils/tool"
@@ -490,16 +484,9 @@
   const securityDataObj = ref()
   const securitySqmObj = ref()
   const getSecurityData = async () => {
-    const params = {
-      uuid: uuid.value,
-      type: 2
-    }
-
     try {
-      params.page = 1
-      params.limit = 10000
-      const { data } = await dischargeSecurity(params)
-      const dataArr = data || []
+      const { list } = await projectDetailAuditSecurityList({ uuid: uuid.value})
+      const dataArr = list || []
 
       const dataObj = {}
       for (let i = 0; i < dataArr.length; i++) {
@@ -618,7 +605,7 @@
     }
 
     try {
-      await projectLoanGetBuild(params).then(res => {
+      await toolsGetBuild(params).then(res => {
         const data = res.data || []
         if (Object.keys(data)) {
           setedData.value = res
@@ -668,10 +655,12 @@
     }
 
     try {
-      await projectDetailApi(params).then(res => {
-        emits('done', res)
+      await toolsDetail(params).then(res => {
+        if (res.old.upd_build) {
+          goBack()
+        }
 
-        const list = res.lending.devCostDetail[0].data[0].list
+        const list = res.devCostDetail[0].data[0].list
         const filterType = ['Land', 'Construction', 'Refinance', 'Land_gst']
         const footerData = list.filter(item => !filterType.includes(item.type))
 
@@ -763,32 +752,19 @@
 
   const submitRquest = () => {
     const params = cloneDeep(currentParams.value)
-    const ajaxFn = props.isOpen ? projectLoanSaveBuild : projectSaveBuild
-
     subLoading.value = true
 
-    ajaxFn(params).then(() => {
+    toolsSaveBuild(params).then(() => {
       subLoading.value = false
       changeVisible.value = false
       changeColseBtn.value = false
       changeAlertRef.value.changeLoading(false)
-      restoreHandle()
 
       goBack()
     }).catch(() => {
       subLoading.value = false
       changeAlertRef.value.changeLoading(false)
     })
-  }
-
-  // 数据是否有变化
-  const dataHasChanged = (arr1, arr2) => {
-    for (let i = 0; i < arr1.length; i++) {
-      if (Number(arr1[i]) !== Number(arr2[i])) {
-        return true
-      }
-    }
-    return false
   }
 
   const submitHandle = () => {
@@ -878,61 +854,18 @@
 
     if (construction !== buildAmount.value) {
       const diffNum = tool.minus(construction, buildAmount.value)
-      if (props.isOpen) {
-        // open 后处理 暂定
-        if (construction > buildAmount.value) {
-          confirmTxt.value = t(`开发成本中的建造费为：<span>{0}</span>，当前设置值为：<span>{1}</span>，超出了：<span>{2}</span>`, [
-            `$${numberStrFormat(buildAmount.value)}`,
-            `$${numberStrFormat(construction)}`,
-            `$${numberStrFormat(diffNum)}`
-          ])
-          changeVisible.value = true
-          changeColseBtn.value = true
-        } else {
-          submitRquest()
-        }
-      } else {
-        confirmTxt.value = t(`开发成本中的建造费为：<span>{0}</span>，当前设置值为：<span>{1}</span>，相差：<span>{2}</span>，保存后会更新相关值并重置首次建筑贷款放款额`, [
-          `$${numberStrFormat(buildAmount.value)}`,
-          `$${numberStrFormat(construction)}`,
-          `$${numberStrFormat(diffNum)}`
-        ])
-        currentParams.value.clear = 1
+      confirmTxt.value = t(`开发成本中的建造费为：<span>{0}</span>，当前设置值为：<span>{1}</span>，相差：<span>{2}</span>`, [
+        `$${numberStrFormat(buildAmount.value)}`,
+        `$${numberStrFormat(construction)}`,
+        `$${numberStrFormat(diffNum)}`
+      ])
 
-        changeVisible.value = true
-      }
+      changeColseBtn.value = true
+      changeVisible.value = true
     } else {
-      if (props.isOpen) {
-        // open 后处理 暂定
-        submitRquest()
-      } else {
-        const sLen = securityData.value.length
-        const rLen = Object.keys(setedData.value.row).length
-        if (rLen && sLen !== rLen) {
-          confirmTxt.value = t(`抵押物数量有变动，保存后会重置首次建筑贷款放款额`)
-          currentParams.value.clear = 1
-          changeVisible.value = true
-        } else {
-          const arr1 = paymentData.map(item => item.amount)
-          const arr2 = []
-          if (Object.keys(setedData.value.payment).length) {
-            for (const key in setedData.value.payment) {
-              arr2.push(setedData.value.payment[key].amount)
-            }
-          }
-          if (rLen) {
-            if (dataHasChanged(arr1, arr2)) {
-              confirmTxt.value = t(`数据设置有变动，保存后会重置首次建筑贷款放款额`)
-              currentParams.value.clear = 1
-              changeVisible.value = true
-            } else {
-              submitRquest()
-            }
-          } else {
-            submitRquest()
-          }
-        }
-      }
+      confirmTxt.value = t('提交后，数据将无法再次修改，确定提交吗?')
+      changeColseBtn.value = false
+      changeVisible.value = true
     }
   }
 

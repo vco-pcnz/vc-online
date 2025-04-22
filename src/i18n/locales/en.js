@@ -935,6 +935,7 @@ export default {
   "已选总额": "Selected total",
   "移除主账号保存后，会移除其下的所有子账号，确定移除吗？": "After removing the main account and saving, all sub-accounts under it will be removed. Are you sure you want to remove them?",
   "开发成本中的建造费为：<span>{0}</span>，当前设置值为：<span>{1}</span>，相差：<span>{2}</span>，保存后会更新相关值并重置首次建筑贷款放款额": "The construction cost in the development cost is: <span>{0}</span>, the current setting value is: <span>{1}</span>, the difference is: <span>{2}</span>, after saving, the relevant values ​​will be updated and the initial build amount will be reset",
+  "开发成本中的建造费为：<span>{0}</span>，当前设置值为：<span>{1}</span>，相差：<span>{2}</span>": "The construction cost in the development cost is: <span>{0}</span>, the current setting value is: <span>{1}</span>, the difference is: <span>{2}</span>",
   "抵押物数量有变动，保存后会重置首次建筑贷款放款额": "the number of securities has changed, the initial build amount will be reset after saving",
   "LM提交": "LM Submit",
   "LM 提交": "LM Submit",
@@ -948,7 +949,8 @@ export default {
   "待放款额度": "Amount of loan to be drawdown",
   "导入完善": "Import and perfect",
   "借款": "Loan",
-  "借款金额为：<span>{0}</span>，设置的开发成为为：<span>{1}</span>，相差：<span>{2}</span>": "The loan amount is: <span>{0}</span>, the development cost is: <span>{1}</span>, the difference is: <span>{2}</span>",
+  "金额不匹配": "Amount does not match",
+  "借款金额为：<span>{0}</span>，设置的建筑成本为：<span>{1}</span>，相差：<span>{2}</span>": "The loan amount is: <span>{0}</span>, the construction cost is: <span>{1}</span>, the difference is: <span>{2}</span>",
   "需要退回重新审核后，才能进行下一步操作": "Need to return for re-review before proceeding to the next step",
-  "金额不匹配": "Amount does not match"
+  "提交后，数据将无法再次修改，确定提交吗?": "After submission, the data cannot be modified again. Are you sure you want to submit?"
 }

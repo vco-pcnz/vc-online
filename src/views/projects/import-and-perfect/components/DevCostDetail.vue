@@ -7,12 +7,27 @@
     v-model:visible="errorVisible"
   ></vco-confirm-alert>
 
+  <!-- 确认弹窗 -->
+  <vco-confirm-alert
+    ref="sureAlertRef"
+    :confirm-txt="t('提交后，数据将无法再次修改，确定提交吗?')"
+    v-model:visible="sureVisible"
+    @submit="saveRequest"
+  ></vco-confirm-alert>
+
   <div @click.stop ref="modeRef" class="myMode text-left">
     <a-modal :width="edit ? 1000 : 900" :open="visible" :title="t('开发成本')" :getContainer="() => $refs.modeRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content">
         <div class="flex items-center justify-end gap-4 mb-2">
           <p>{{ t('借款金额') }}</p>
-          <vco-number :value="loanAmount" size="fs_xl" :precision="2" :end="true"></vco-number>
+          <vco-number
+            :value="loanAmount"
+            size="fs_xl"
+            :precision="2"
+            :end="true"
+            :bold="true"
+            color="#F19915"
+          ></vco-number>
         </div>
         <a-form-item-rest>
           <div v-for="(item, p_index) in data.data" :key="item.type" class="mb-5 card">
@@ -52,6 +67,9 @@
                     </template>
                   </template>
                   <template v-else>
+                    <template v-if="column.dataIndex === 'type'">
+                      {{ getTypeName(record.type) }}
+                    </template>
                     <template v-if="column.dataIndex === 'loan' || column.dataIndex === 'borrower_equity'">
                       <vco-number :value="record[column.dataIndex]" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
                     </template>
@@ -165,7 +183,7 @@
           <div class="total" v-if="edit"></div>
         </div>
         <div class="flex justify-center" v-if="edit">
-          <a-button @click="save" type="dark" class="save big uppercase" :disabled="data?.total < 0">
+          <a-button @click="save" type="dark" class="save big uppercase" :loading="saveLoading" :disabled="data?.total < 0">
             {{ t('保存') }}
           </a-button>
         </div>
@@ -175,12 +193,13 @@
 </template>
 
 <script scoped setup>
-import { ref, reactive, computed, watch, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import tool, { numberStrFormat } from '@/utils/tool';
 import { systemDictData } from '@/api/system';
 import { cloneDeep } from 'lodash';
+import { toolsSaveDevCost } from '@/api/import'
 
 const { t } = useI18n();
 const emits = defineEmits(['update:value', 'update:dataJson', 'change']);
@@ -211,6 +230,9 @@ const props = defineProps({
   loanAmount: {
     type: Number,
     default: 0
+  },
+  currentId: {
+    type: [String, Number]
   }
 });
 
@@ -278,6 +300,11 @@ const remove = (p_index, index) => {
 const errorTxt = ref('')
 const errorVisible = ref(false)
 
+const sureAlertRef = ref()
+const sureVisible = ref(false)
+const currentParams = ref()
+
+const saveLoading = ref(false)
 const save = () => {
   const doneData = cloneDeep(data.value);
   doneData.data[0].list.forEach((item) => {
@@ -289,22 +316,54 @@ const save = () => {
     return;
   }
 
-  if (Number(props.loanAmount) !== Number(doneData.total)) {
-    const diffNum = tool.minus(props.loanAmount, doneData.total)
+  const conTotal = Number(doneData.data[0].total)
 
-    errorTxt.value = t(`借款金额为：<span>{0}</span>，设置的开发成为为：<span>{1}</span>，相差：<span>{2}</span>`, [
+  if (Number(props.loanAmount) !== conTotal) {
+    const diffNum = tool.minus(props.loanAmount, conTotal)
+
+    errorTxt.value = t(`借款金额为：<span>{0}</span>，设置的建筑成本为：<span>{1}</span>，相差：<span>{2}</span>`, [
       `$${numberStrFormat(props.loanAmount)}`,
-      `$${numberStrFormat(doneData.total)}`,
+      `$${numberStrFormat(conTotal)}`,
       `$${numberStrFormat(diffNum)}`
     ])
     errorVisible.value = true
   } else {
-    emits('update:value', cloneDeep(doneData.total));
-    emits('update:dataJson', cloneDeep([doneData]));
-    emits('change', cloneDeep({ devCost: doneData.total, devCostDetail: [doneData] }));
-    updateVisible(false);
+
+    const params = {
+      uuid: props.currentId,
+      devCost: doneData.total,
+      devCostDetail: [doneData]
+    }
+
+    currentParams.value = params
+    sureVisible.value = true
   }
 };
+
+const saveRequest = () => {
+  saveLoading.value = true
+  sureAlertRef.value.changeLoading(true)
+
+  toolsSaveDevCost(currentParams.value).then(() => {
+    saveLoading.value = false
+    sureVisible.value = false
+    sureAlertRef.value.changeLoading(false)
+
+    emits('update:value', cloneDeep(currentParams.value.devCost));
+    emits('update:dataJson', cloneDeep(currentParams.value.devCostDetail));
+    emits('change', cloneDeep(currentParams.value));
+    updateVisible(false);
+  }).catch(() => {
+    saveLoading.value = false
+    sureVisible.value = false
+    sureAlertRef.value.changeLoading(false)
+  })
+}
+
+const getTypeName = (type) => {
+  const obj = types.value.find(item => item.code === type)
+  return obj ? obj.name : ''
+}
 
 const loading_type = ref(false);
 const types = ref([]);

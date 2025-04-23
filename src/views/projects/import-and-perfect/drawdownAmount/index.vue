@@ -23,7 +23,7 @@ import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import tool, { numberStrFormat } from '@/utils/tool';
-import { darwdownLogSave } from '@/api/project/tools';
+import { darwdownLogSave, darwdownLogChange } from '@/api/project/tools';
 import ProgressPayment from './progressPayment.vue';
 import { cloneDeep } from 'lodash';
 
@@ -77,7 +77,9 @@ const save = () => {
     id: detail.value.id,
     ...formState.value
   };
-  darwdownLogSave(params)
+
+  let ajaxFn = isEdit.value ? darwdownLogChange : darwdownLogSave;
+  ajaxFn(params)
     .then((res) => {
       message.success(t('保存成功'));
       emits('change');
@@ -90,8 +92,10 @@ const save = () => {
 };
 
 const detail = ref({});
+const isEdit = ref(false);
 const init = (val) => {
   detail.value = val;
+  isEdit.value = tool.plus(val.build_money || 0, val.other_money || 0) > 0;
   Object.keys(formState.value).forEach((key) => {
     formState.value[key] = detail.value[key] || formState.value[key];
   });

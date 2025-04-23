@@ -1,6 +1,6 @@
 import { request } from '@/utils/request';
 
-//forecast列表 - open
+//forecast列表
 export const darwdownLog = (params) =>
   request({
     url: 'tools/darwdownLog',
@@ -8,10 +8,18 @@ export const darwdownLog = (params) =>
     params
   });
 
-// 项目列表 - open
+// 新增
 export const darwdownLogSave = (data) =>
   request({
     url: 'tools/darwdownLogSave',
+    method: 'post',
+    data
+  });
+
+// 编辑
+export const darwdownLogChange = (data) =>
+  request({
+    url: 'tools/darwdownLogChange',
     method: 'post',
     data
   });

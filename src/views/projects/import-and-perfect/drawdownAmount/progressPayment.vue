@@ -47,7 +47,7 @@
       <div class="operator">=</div>
       <div :class="{ err: tool.plus(formState.build_money || 0, formState.other_money || 0) != tool.plus(total || 0, 0) }">
         <div class="label">{{ t('总计') }}</div>
-        <div class="fs_2xl">${{ tool.plus(formState.build_money || 0, formState.other_money || 0) }}</div>
+        <div class="fs_2xl">{{ tool.formatMoney(tool.plus(formState.build_money || 0, formState.other_money || 0)) }}</div>
       </div>
     </div>
   </template>

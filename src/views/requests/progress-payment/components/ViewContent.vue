@@ -602,8 +602,9 @@
     try {
       const ajaxFn = isRequests.value ? projectGetBuild : projectLoanGetBuild
       await ajaxFn(params).then(res => {
-        const data = res.data || []
-        if (Object.keys(data)) {
+        const data = res.data || {}
+
+        if (Object.keys(data).length) {
           setedData.value = res
           hasData.value = true
 

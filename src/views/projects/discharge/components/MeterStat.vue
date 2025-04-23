@@ -9,7 +9,7 @@
           <span>({{ statistics.unreleased_total }})</span>
         </p>
         <vco-number :bold="true" :value="statistics.unreleased_money" :precision="2" style="margin-bottom: 2px"></vco-number>
-        <div class="info-txt">
+        <!-- <div class="info-txt">
           <p class="flex items-center gap-2">
             <span>{{ t('土地总额') }}</span>
             <vco-number :value="statistics.unreleased_land_amount" :precision="2" :end="true"></vco-number>
@@ -18,7 +18,7 @@
             <span>{{ t('建筑总额') }}</span>
             <vco-number :value="statistics.unreleased_build_amount" :precision="2" :end="true"></vco-number>
           </p>
-        </div>
+        </div> -->
       </div>
     </div>
 
@@ -35,7 +35,7 @@
           <span>({{ statistics.released_total }})</span>
         </p>
         <vco-number :bold="true" :value="statistics.released_money" :precision="2" style="margin-bottom: 2px"></vco-number>
-        <div class="info-txt">
+        <!-- <div class="info-txt">
           <p class="flex items-center gap-2">
             <span>{{ t('土地总额') }}</span>
             <vco-number :value="statistics.released_land_amount" :precision="2" :end="true"></vco-number>
@@ -44,7 +44,7 @@
             <span>{{ t('建筑总额') }}</span>
             <vco-number :value="statistics.released_build_amount" :precision="2" :end="true"></vco-number>
           </p>
-        </div>
+        </div> -->
       </div>
     </div>
 
@@ -59,7 +59,7 @@
           <span>({{ statistics.all_total }})</span>
         </p>
         <vco-number :bold="true" :value="statistics.all_money" :precision="2" style="margin-bottom: 2px"></vco-number>
-        <div class="info-txt">
+        <!-- <div class="info-txt">
           <p class="flex items-center gap-2 justify-end">
             <vco-number :value="statistics.all_land_amount" :precision="2" :end="true"></vco-number>
             <span>{{ t('土地总额') }}</span>
@@ -69,7 +69,7 @@
             <vco-number :value="statistics.all_build_amount" :precision="2" :end="true"></vco-number>
             <span>{{ t('建筑总额') }}</span>
           </p>
-        </div>
+        </div> -->
       </div>
       <div class="MeterStat-Meter"></div>
     </div>

@@ -1,33 +1,17 @@
 <template>
   <div class="inline" @click="init"><slot></slot></div>
   <!-- 错误弹窗 -->
-  <vco-confirm-alert
-    :confirm-txt="errorTxt"
-    :show-close="true"
-    v-model:visible="errorVisible"
-  ></vco-confirm-alert>
+  <vco-confirm-alert :confirm-txt="errorTxt" :show-close="true" v-model:visible="errorVisible"></vco-confirm-alert>
 
   <!-- 确认弹窗 -->
-  <vco-confirm-alert
-    ref="sureAlertRef"
-    :confirm-txt="t('已设置过进度还款数据，保存后请再次设置进度还款以更新为最新数据')"
-    v-model:visible="sureVisible"
-    @submit="saveRequest"
-  ></vco-confirm-alert>
+  <vco-confirm-alert ref="sureAlertRef" :confirm-txt="t('已设置过进度还款数据，保存后请再次设置进度还款以更新为最新数据')" v-model:visible="sureVisible" @submit="saveRequest"></vco-confirm-alert>
 
-  <div @click.stop ref="modeRef" class="myMode text-left">
+  <div @click.stop ref="modeRef" class="myMode text-left sys-form-content">
     <a-modal :width="edit ? 1000 : 900" :open="visible" :title="t('开发成本')" :getContainer="() => $refs.modeRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content">
         <div class="flex items-center justify-end gap-4 mb-2">
           <p>{{ t('借款金额') }}</p>
-          <vco-number
-            :value="loanAmount"
-            size="fs_xl"
-            :precision="2"
-            :end="true"
-            :bold="true"
-            color="#F19915"
-          ></vco-number>
+          <vco-number :value="loanAmount" size="fs_xl" :precision="2" :end="true" :bold="true" color="#F19915"></vco-number>
         </div>
         <a-form-item-rest>
           <div v-for="(item, p_index) in data.data" :key="item.type" class="mb-5 card">
@@ -41,13 +25,28 @@
                 <template #bodyCell="{ column, record, index }">
                   <template v-if="edit">
                     <template v-if="column.dataIndex === 'type'">
-                      <a-select :loading="loading_type" :disabled="Boolean(record?.status)" style="width: 100%" v-model:value="record.type" :options="initTypes" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
+                      <div class="flex items-center">
+                        <PlusCircleOutlined class="addChid" @click="addChid(index)" v-if="!Boolean(record?.status)" />
+                        <div style="flex: 1; width: 0px">
+                          <a-select :loading="loading_type" style="width: 100%" :disabled="Boolean(record?.status)" v-model:value="record.type" :options="initTypes" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
+                        </div>
+                      </div>
+                      <template v-if="record?.list">
+                        <div v-for="(sub, subIndex) in record?.list" :key="subIndex" class="flex items-center mt-2" style="padding-left: 30px">
+                          <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="removeChid(index, subIndex)" :disabled="Boolean(record?.status)" v-if="!Boolean(record?.status)">
+                            <MinusCircleOutlined class="addChid removeChid" />
+                          </a-popconfirm>
+                          <div style="flex: 1">
+                            <a-input v-model:value="sub.type" :disabled="Boolean(record?.status)" />
+                          </div>
+                        </div>
+                      </template>
                     </template>
                     <template v-if="column.dataIndex === 'loan' || column.dataIndex === 'borrower_equity'">
                       <a-input-number
                         v-if="(record.type !== 'Land_gst' && record.type !== 'Build_gst') || column.dataIndex === 'loan'"
                         v-model:value="record[column.dataIndex]"
-                        :disabled="Boolean(record?.status) || (disabledLoan && column.dataIndex === 'loan')"
+                        :disabled="Boolean(record?.status) || (disabledLoan && column.dataIndex === 'loan') || Boolean(record?.list && record?.list.length)"
                         @change="initData"
                         :max="99999999999"
                         :min="0"
@@ -63,7 +62,29 @@
                         :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                         :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                       />
-                      <!--  :min="column.dataIndex === 'borrower_equity' ? 0 : -99999999999" -->
+                      <template v-if="record?.list">
+                        <div v-for="(sub, subIndex) in record?.list" :key="subIndex" class="mt-2">
+                          <a-input-number
+                            v-if="(record.type !== 'Land_gst' && record.type !== 'Build_gst') || column.dataIndex === 'loan'"
+                            v-model:value="sub[column.dataIndex]"
+                            :disabled="Boolean(record?.status) || (disabledLoan && column.dataIndex === 'loan')"
+                            @change="initItemData(index)"
+                            :max="99999999999"
+                            :min="0"
+                            :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                            :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                          />
+                          <a-input-number
+                            v-if="(record.type == 'Land_gst' || record.type == 'Build_gst') && column.dataIndex === 'borrower_equity'"
+                            v-model:value="sub[column.dataIndex]"
+                            :disabled="true"
+                            :max="99999999999"
+                            :min="-99999999999"
+                            :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                            :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                          />
+                        </div>
+                      </template>
                     </template>
                   </template>
                   <template v-else>
@@ -75,7 +96,9 @@
                     </template>
                   </template>
                   <template v-if="column.dataIndex === 'total'">
-                    <vco-number :value="record[column.dataIndex]" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
+                    <div style="position: absolute; top: 13px">
+                      <vco-number :value="record[column.dataIndex]" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
+                    </div>
                   </template>
                   <template v-if="column.dataIndex === 'operation'">
                     <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(p_index, index)" :disabled="Boolean(record?.status)">
@@ -102,6 +125,13 @@
             <template v-if="p_index === 2">
               <div class="flex justify-between tabel-type">
                 <p class="bold fs_xl">{{ item.type }}</p>
+                <template v-if="record?.list">
+                  <div v-for="(sub, subIndex) in record?.list" :key="subIndex" class="flex items-center mt-2" style="padding-left: 30px">
+                    <div style="flex: 1">
+                      {{ sub.type }}
+                    </div>
+                  </div>
+                </template>
               </div>
               <a-table :columns="FinanceColumns" :data-source="item.list" :pagination="false" :scroll="{ x: '100%' }">
                 <template #bodyCell="{ column, record }">
@@ -197,9 +227,10 @@ import { ref, reactive, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import tool, { numberStrFormat } from '@/utils/tool';
+import Icon, { PlusCircleOutlined, MinusCircleOutlined } from '@ant-design/icons-vue';
 import { systemDictData } from '@/api/system';
 import { cloneDeep } from 'lodash';
-import { toolsSaveDevCost } from '@/api/import'
+import { toolsSaveDevCost } from '@/api/import';
 
 const { t } = useI18n();
 const emits = defineEmits(['update:value', 'update:dataJson', 'change']);
@@ -298,91 +329,105 @@ const add = (index) => {
 
 const remove = (p_index, index) => {
   data.value.data[p_index].list.splice(index, 1);
-  initData()
+  initData();
 };
 
-const errorTxt = ref('')
-const errorVisible = ref(false)
+const errorTxt = ref('');
+const errorVisible = ref(false);
 
-const sureAlertRef = ref()
-const sureVisible = ref(false)
-const currentParams = ref()
+const sureAlertRef = ref();
+const sureVisible = ref(false);
+const currentParams = ref();
 
 const dataHasChanged = (arr) => {
-  const list = props.dataJson[0].data[0].list
+  const list = props.dataJson[0].data[0].list;
   for (let i = 0; i < list.length; i++) {
     if (list[i].loan !== arr[i].loan) {
-      return true
+      return true;
     }
   }
-  return false
-}
+  return false;
+};
 
-const saveLoading = ref(false)
+const validateTypes = (obj) => {
+  // 检查当前对象的type
+  if (obj.type === undefined || obj.type === null || obj.type === '') {
+    return false;
+  }
+
+  // 如果存在list数组，递归检查每个元素
+  if (Array.isArray(obj.list)) {
+    for (const item of obj.list) {
+      if (!validateTypes(item)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+};
+
+const saveLoading = ref(false);
 const save = () => {
   const doneData = cloneDeep(data.value);
   doneData.data[0].list.forEach((item) => {
     item.name = typesObj.value[item.type] || '';
   });
 
-  if (doneData.data[0].list.filter((item) => !item.type).length) {
+  if (!validateTypes(doneData.data[0])) {
     message.error(t('建设成本类型不能为空'));
     return;
   }
-
-  const conLoan = Number(doneData.data[0].loan)
+  const conLoan = Number(doneData.data[0].loan);
 
   if (Number(props.loanAmount) !== conLoan) {
-    const diffNum = tool.minus(props.loanAmount, conLoan)
+    const diffNum = tool.minus(props.loanAmount, conLoan);
 
-    errorTxt.value = t(`借款金额为：<span>{0}</span>，设置的建筑成本为：<span>{1}</span>，相差：<span>{2}</span>`, [
-      `$${numberStrFormat(props.loanAmount)}`,
-      `$${numberStrFormat(conLoan)}`,
-      `$${numberStrFormat(diffNum)}`
-    ])
-    errorVisible.value = true
+    errorTxt.value = t(`借款金额为：<span>{0}</span>，设置的建筑成本为：<span>{1}</span>，相差：<span>{2}</span>`, [`$${numberStrFormat(props.loanAmount)}`, `$${numberStrFormat(conLoan)}`, `$${numberStrFormat(diffNum)}`]);
+    errorVisible.value = true;
   } else {
-
     const params = {
       uuid: props.currentId,
       devCost: doneData.total,
       devCostDetail: [doneData]
-    }
+    };
 
-    currentParams.value = params
+    currentParams.value = params;
 
     if (props.hasBuildData && dataHasChanged(doneData.data[0].list)) {
-      sureVisible.value = true
+      sureVisible.value = true;
     } else {
-      saveRequest()
+      saveRequest();
     }
   }
 };
 
 const saveRequest = () => {
-  saveLoading.value = true
-  sureAlertRef.value.changeLoading(true)
+  saveLoading.value = true;
+  sureAlertRef.value.changeLoading(true);
 
-  toolsSaveDevCost(currentParams.value).then(() => {
-    saveLoading.value = false
-    sureVisible.value = false
-    sureAlertRef.value.changeLoading(false)
+  toolsSaveDevCost(currentParams.value)
+    .then(() => {
+      saveLoading.value = false;
+      sureVisible.value = false;
+      sureAlertRef.value.changeLoading(false);
 
-    emits('update:value', cloneDeep(currentParams.value.devCost));
-    emits('update:dataJson', cloneDeep(currentParams.value.devCostDetail));
-    emits('change', cloneDeep(currentParams.value));
-    updateVisible(false);
-  }).catch(() => {
-    saveLoading.value = false
-    sureVisible.value = false
-    sureAlertRef.value.changeLoading(false)
-  })
-}
+      emits('update:value', cloneDeep(currentParams.value.devCost));
+      emits('update:dataJson', cloneDeep(currentParams.value.devCostDetail));
+      emits('change', cloneDeep(currentParams.value));
+      updateVisible(false);
+    })
+    .catch(() => {
+      saveLoading.value = false;
+      sureVisible.value = false;
+      sureAlertRef.value.changeLoading(false);
+    });
+};
 
 const getTypeName = (type) => {
-  const obj = types.value.find(item => item.code === type)
-  return obj ? obj.name : ''
-}
+  const obj = types.value.find((item) => item.code === type);
+  return obj ? obj.name : '';
+};
 
 const loading_type = ref(false);
 const types = ref([]);
@@ -473,6 +518,42 @@ const showAdd = computed(() => {
   return data.value.data[0].list.filter((item) => item.status !== 1).length != types.value.length;
 });
 
+const addChid = (index) => {
+  if (!data.value.data[0].list[index]['list']) {
+    data.value.data[0].list[index]['list'] = [];
+    data.value.data[0].list[index].loan = 0;
+    data.value.data[0].list[index].borrower_equity = 0;
+  }
+  data.value.data[0].list[index]['list'].push({
+    type: '',
+    loan: 0,
+    borrower_equity: 0
+  });
+  initData();
+};
+
+const removeChid = (p_index, index) => {
+  data.value.data[0].list[p_index].list.splice(index, 1);
+  initItemData(p_index);
+};
+
+const initItemData = (index) => {
+  let item = data.value.data[0].list[index];
+  if (item.list) {
+    item.loan = 0;
+    item.borrower_equity = 0;
+    item.list.map((sub) => {
+      if (item.type === 'Land_gst' || item.type === 'Build_gst') {
+        sub.borrower_equity = tool.minus(0, sub.loan);
+      }
+      sub.total = tool.plus(sub.loan || 0, sub.borrower_equity || 0);
+      item.loan = tool.plus(item.loan || 0, sub.loan || 0);
+      item.borrower_equity = tool.plus(item.borrower_equity || 0, sub.borrower_equity || 0);
+    });
+  }
+  initData();
+};
+
 onMounted(() => {
   if (!props.dataJson) {
     emits('update:value', cloneDeep(data.value.total));
@@ -507,6 +588,7 @@ onMounted(() => {
       background: transparent !important;
     }
     .ant-input-number,
+    .ant-input,
     .ant-select-selector {
       border-color: #d9d9d9 !important;
       height: 30px !important;
@@ -598,6 +680,16 @@ onMounted(() => {
     .ant-table-thead > tr > td {
       background: transparent !important;
     }
+  }
+}
+
+.addChid {
+  display: inline-block;
+  color: @colorPrimary;
+  cursor: pointer;
+  margin-right: 10px;
+  &.removeChid {
+    color: @color_red-half;
   }
 }
 </style>

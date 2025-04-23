@@ -4,7 +4,7 @@
 
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="JournalRef" class="Journal">
-    <a-modal :width="600" :open="visible" :title="t('提取金额') + ' ($' + detail?.amount + ')'" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
+    <a-modal :width="600" :open="visible" :title="t('提取金额') + ' (' + tool.formatMoney(detail?.amount) + ')'" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <ProgressPayment :visible="visible" :validate="validate" :data="formState" :total="detail?.amount" @change="updateformState"></ProgressPayment>
 

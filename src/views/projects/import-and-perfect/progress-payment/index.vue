@@ -656,10 +656,6 @@
 
     try {
       await toolsDetail(params).then(res => {
-        if (res.old.upd_build) {
-          goBack()
-        }
-
         const list = res.devCostDetail[0].data[0].list
         const filterType = ['Land', 'Construction', 'Refinance', 'Land_gst']
         const footerData = list.filter(item => !filterType.includes(item.type))
@@ -863,9 +859,10 @@
       changeColseBtn.value = true
       changeVisible.value = true
     } else {
-      confirmTxt.value = t('提交后，数据将无法再次修改，确定提交吗?')
       changeColseBtn.value = false
-      changeVisible.value = true
+      submitRquest()
+      // confirmTxt.value = t('提交后，数据将无法再次修改，确定提交吗?')
+      // changeVisible.value = true
     }
   }
 

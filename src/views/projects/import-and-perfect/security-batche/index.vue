@@ -721,9 +721,6 @@ const oldData = ref([])
 const tableDataInit = async () => {
   pageLoading.value = true
   const projectInfo = await toolsDetail({uuid: route.query.uuid})
-  if (projectInfo.old.upd_sec) {
-    goBack()
-  }
   const defaultBuildNum = projectInfo.building_num || 0
 
   const { list } = await projectDetailAuditSecurityList({uuid: route.query.uuid})
@@ -927,7 +924,8 @@ const subHandle = () => {
 
   currentParams.value = params
 
-  sureVisible.value = true
+  submitRquest()
+  // sureVisible.value = true
 }
 
 const otherItem = {

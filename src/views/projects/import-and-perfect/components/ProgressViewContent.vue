@@ -222,7 +222,7 @@
               :class="{'hover': isSelect}"
               @click="itemSetHandle(item)"
             >
-              <vco-number :value="item.loan" size="fs_md" :precision="2" :end="true"></vco-number>
+              <vco-number :value="item.amount" size="fs_md" :precision="2" :end="true"></vco-number>
               <vco-number v-if="showProcess" :value="item.use_amount" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
               <a-progress
                 v-if="showProcess"
@@ -409,11 +409,12 @@
       }
     }
     const hadSetData = cloneDeep(setedData.value.data)
-    const dataArr = [{
+
+    const dataArr = Number(advancePercent.value) ? [{
         isFixedRow: true,
         type: advanceKey.value
       }
-    ]
+    ] : []
     for (let i = 0; i < data.length; i++) {
       const obj = {
         type: data[i].name,
@@ -482,7 +483,9 @@
       const num = Number(total) ? Number(Number(tool.div(Number(useTotal), Number(total))).toFixed(2)) : 0
       obj.percent = Number(tool.times(num, 100))
 
-      dataArr.push(obj)
+      if (Number(obj.payment)) {
+        dataArr.push(obj)
+      }
     }
 
     tableData.value = dataArr
@@ -639,11 +642,11 @@
 
               const mergItem = {
                 loan: item.amount,
-                ...item,
-                ...summaryItem
+                ...summaryItem,
+                ...item
               }
 
-              if (mergItem.amount) {
+              if (Number(mergItem.amount)) {
                 const use_amount = mergItem.use_amount || 0
                 const num = Number(Number(tool.div(Number(use_amount), Number(mergItem.amount))).toFixed(2))
                 mergItem.percent = Number(tool.times(num, 100))
@@ -674,10 +677,9 @@
                   selectData.value.push(mergItem)
                 }
               }
-
               return mergItem
             })
-            footerDataCol.value = footerData
+            footerDataCol.value = footerData.filter(item => Number(item.amount))
           }
         } else {
           pageLoading.value = false
@@ -693,15 +695,15 @@
   }
 
   // 请求项目信息
-  const getProjectData = async () => {
-    if (props.projectDetail && Object.keys(props.projectDetail).length) {
+  const getProjectData = async (flag = false) => {
+    if (props.projectDetail && Object.keys(props.projectDetail).length && !flag) {
       pageLoading.value = true
       
       const list = props.projectDetail.devCostDetail[0].data[0].list
       const filterType = ['Land', 'Construction', 'Refinance', 'Land_gst']
-      const footerData = list.filter(item => !filterType.includes(item.type))
+      const footerData = list.filter(item => !filterType.includes(item.type)) || []
 
-      footerDataCol.value = footerData || []
+      footerDataCol.value = footerData.filter(item => item.loan)
       await getSetedData()
     } else {
       pageLoading.value = true
@@ -713,9 +715,9 @@
         await toolsDetail(params).then(res => {
           const list = res.devCostDetail[0].data[0].list
           const filterType = ['Land', 'Construction', 'Refinance', 'Land_gst']
-          const footerData = list.filter(item => !filterType.includes(item.type))
+          const footerData = list.filter(item => !filterType.includes(item.type)) || []
 
-          footerDataCol.value = footerData || []
+          footerDataCol.value = footerData.filter(item => item.loan)
         })
         
         await getSetedData()
@@ -808,6 +810,10 @@
     if (uuid.value) {
       await getProjectData()
     }
+  })
+
+  defineExpose({
+    getProjectData
   })
 </script>
 

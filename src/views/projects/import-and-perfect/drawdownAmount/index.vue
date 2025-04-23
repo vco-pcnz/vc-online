@@ -1,13 +1,11 @@
 <template>
+  <!-- 错误弹窗 -->
+  <vco-confirm-alert :confirm-txt="errorTxt" :show-close="true" v-model:visible="errorVisible"></vco-confirm-alert>
+
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="JournalRef" class="Journal">
     <a-modal :width="600" :open="visible" :title="t('提取金额') + ' (' + detail?.amount + ')'" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
-        <!-- <div class="input-item">
-          <div class="label" :class="{ err: !amount && validate }">Approved amount (requested {{ tool.formatMoney(detail?.amount) }})</div>
-          <a-input-number v-model:value="amount" :max="99999999999" :min="0" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
-        </div> -->
-
         <ProgressPayment :visible="visible" :validate="validate" :data="formState" :total="detail?.amount" @change="updateformState"></ProgressPayment>
 
         <div class="flex justify-center">
@@ -24,8 +22,8 @@
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
-import tool from '@/utils/tool';
-import { darwdownLogSave } from '@/api/project/tools';
+import tool, { numberStrFormat } from '@/utils/tool';
+import { darwdownLogSave, darwdownLogChange } from '@/api/project/tools';
 import ProgressPayment from './progressPayment.vue';
 import { cloneDeep } from 'lodash';
 
@@ -45,7 +43,8 @@ const visible = ref(false);
 const loading = ref(false);
 const validate = ref(false);
 
-const amount = ref('');
+const errorTxt = ref('');
+const errorVisible = ref(false);
 
 const updateVisible = (value) => {
   visible.value = value;
@@ -63,17 +62,24 @@ const updateformState = (val) => {
 };
 const save = () => {
   validate.value = true;
-  if (tool.plus(formState.value.build_money || 0, formState.value.other_money || 0) != tool.plus(props.detail.amount || 0, 0)) {
-    message.error(t('金额不匹配'));
+  const conTotal = tool.plus(formState.value.build_money || 0, formState.value.other_money || 0);
+  if (conTotal != tool.plus(detail.value.amount || 0, 0)) {
+    // message.error(t('金额不匹配'));
+    const diffNum = tool.minus(detail.value.amount, conTotal);
+    errorTxt.value = t(`放款金额为：<span>{0}</span>，设置金额为：<span>{1}</span>，相差：<span>{2}</span>`, [`$${numberStrFormat(detail.value.amount)}`, `$${numberStrFormat(conTotal)}`, `$${numberStrFormat(diffNum)}`]);
+    errorVisible.value = true;
+
     return;
   }
   loading.value = true;
   let params = {
     uuid: props.uuid,
-    apply_id: props.detail.id,
+    id: detail.value.id,
     ...formState.value
   };
-  darwdownLogSave(params)
+
+  let ajaxFn = isEdit.value ? darwdownLogChange : darwdownLogSave;
+  ajaxFn(params)
     .then((res) => {
       message.success(t('保存成功'));
       emits('change');
@@ -85,19 +91,23 @@ const save = () => {
     });
 };
 
-const init = () => {
-  // Object.keys(formState.value).forEach((key) => {
-  //   formState.value[key] = props.detail[key] || formState.value[key];
-  // });
-  // if (props.detail?.buildlog) {
-  //   formState.value.build__data = props.detail?.buildlog;
-  // }
-  formState.value = {
-    build_money: '',
-    other_money: 0,
-    other_note: '',
-    build__data: []
-  };
+const detail = ref({});
+const isEdit = ref(false);
+const init = (val) => {
+  detail.value = val;
+  isEdit.value = tool.plus(val.build_money || 0, val.other_money || 0) > 0;
+  Object.keys(formState.value).forEach((key) => {
+    formState.value[key] = detail.value[key] || formState.value[key];
+  });
+  if (detail.value?.buildlog) {
+    formState.value.build__data = detail.value?.buildlog;
+  }
+  // formState.value = {
+  //   build_money: '',
+  //   other_money: 0,
+  //   other_note: '',
+  //   build__data: []
+  // };
   visible.value = true;
 };
 

@@ -57,7 +57,7 @@ const panes = ref([
     key: '1'
   },
   {
-    title: t('预测'),
+    title: t('放款'),
     key: '2'
   }
 ]);

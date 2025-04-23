@@ -10,7 +10,7 @@
   <!-- 确认弹窗 -->
   <vco-confirm-alert
     ref="sureAlertRef"
-    :confirm-txt="t('提交后，数据将无法再次修改，确定提交吗?')"
+    :confirm-txt="t('已设置过进度还款数据，保存后请再次设置进度还款以更新为最新数据')"
     v-model:visible="sureVisible"
     @submit="saveRequest"
   ></vco-confirm-alert>
@@ -233,6 +233,10 @@ const props = defineProps({
   },
   currentId: {
     type: [String, Number]
+  },
+  hasBuildData: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -304,6 +308,16 @@ const sureAlertRef = ref()
 const sureVisible = ref(false)
 const currentParams = ref()
 
+const dataHasChanged = (arr) => {
+  const list = props.dataJson[0].data[0].list
+  for (let i = 0; i < list.length; i++) {
+    if (list[i].loan !== arr[i].loan) {
+      return true
+    }
+  }
+  return false
+}
+
 const saveLoading = ref(false)
 const save = () => {
   const doneData = cloneDeep(data.value);
@@ -316,14 +330,14 @@ const save = () => {
     return;
   }
 
-  const conTotal = Number(doneData.data[0].total)
+  const conLoan = Number(doneData.data[0].loan)
 
-  if (Number(props.loanAmount) !== conTotal) {
-    const diffNum = tool.minus(props.loanAmount, conTotal)
+  if (Number(props.loanAmount) !== conLoan) {
+    const diffNum = tool.minus(props.loanAmount, conLoan)
 
     errorTxt.value = t(`借款金额为：<span>{0}</span>，设置的建筑成本为：<span>{1}</span>，相差：<span>{2}</span>`, [
       `$${numberStrFormat(props.loanAmount)}`,
-      `$${numberStrFormat(conTotal)}`,
+      `$${numberStrFormat(conLoan)}`,
       `$${numberStrFormat(diffNum)}`
     ])
     errorVisible.value = true
@@ -336,7 +350,12 @@ const save = () => {
     }
 
     currentParams.value = params
-    sureVisible.value = true
+
+    if (props.hasBuildData && dataHasChanged(doneData.data[0].list)) {
+      sureVisible.value = true
+    } else {
+      saveRequest()
+    }
   }
 };
 

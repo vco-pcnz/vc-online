@@ -18,7 +18,7 @@
           :rules="formRules"
         >
           <a-row :gutter="24">
-            <a-col :span="24">
+            <!-- <a-col :span="24">
               <a-alert
                 type="info"
                 class="mb-5"
@@ -43,6 +43,18 @@
                       </a-form-item>
                     </a-col>
                   </a-row>
+                </template>
+              </a-alert>
+            </a-col> -->
+            <a-col :span="24">
+              <a-alert
+                type="info"
+                class="mb-5"
+              >
+                <template #message>
+                  <a-form-item :label="t('抵押物价值')" class="info-txt">
+                    <vco-number :value="detail?.amount" size="fs_xl" :precision="2" :end="true"></vco-number>
+                  </a-form-item>
                 </template>
               </a-alert>
             </a-col>

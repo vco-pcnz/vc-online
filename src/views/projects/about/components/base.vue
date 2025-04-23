@@ -28,7 +28,8 @@
       </p>
       <p class="mb-5">{{ t('借款人') }}: {{ detail?.base.borrower_user_name }}</p>
       <p class="text-2xl name">{{ detail?.base.project_name }}</p>
-      <p class="purpose">
+      <p class="fs_xs">{{ detail?.base.project_city }}</p>
+      <p class="purpose mt-3">
         <template v-if="detail && detail?.base.project_about.length > 100 && !isExpand"> {{ detail?.base.project_about.substring(0, 100) }}... </template>
         <template v-else>
           {{ detail?.base.project_about }}
@@ -38,7 +39,6 @@
           <a-button type="grey" style="transform: scale(0.8)" size="small" v-if="isExpand" @click="isExpand = !isExpand">{{ t('收起') }}</a-button>
         </template>
       </p>
-      <p class="fs_xs">{{ detail?.base.project_city }}</p>
     </div>
   </div>
 </template>
@@ -146,10 +146,6 @@ watch(
     line-height: 1.2;
     margin-bottom: 12px;
     color: @clr_charcoal;
-  }
-
-  .purpose {
-    margin-bottom: 6px;
   }
 }
 

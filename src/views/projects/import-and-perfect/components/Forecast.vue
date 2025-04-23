@@ -1,5 +1,5 @@
 <template>
-  <DrawdownAmount ref="DrawdownAmountRef" :uuid="currentId" :detail="itemData" @change="loadData"></DrawdownAmount>
+  <DrawdownAmount ref="DrawdownAmountRef" :uuid="currentId" @change="loadData"></DrawdownAmount>
   <div class="table-content">
     <div class="col-item th">
       <div class="item uppercase"></div>
@@ -58,7 +58,7 @@
         <div class="item">
           <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.note" style="width: 250px">{{ item.note }}</p>
         </div>
-        <div class="item history">
+        <div class="item history cursor-pointer">
           <i class="iconfont color_coal" v-if="item.status != 0 || item.first">&#xe8cf;</i>
         </div>
       </div>
@@ -102,18 +102,9 @@ onMounted(() => {
 });
 
 const DrawdownAmountRef = ref();
-const itemData = ref();
 const showEdit = (val) => {
   if (val.status != 0 || val.first) {
-    itemData.value = {
-      id: val.id,
-      build_money: '',
-      other_money: 0,
-      other_note: '',
-      build__data: [],
-      amount: val.amount
-    };
-    DrawdownAmountRef.value.init();
+    DrawdownAmountRef.value.init(val);
   }
 };
 </script>

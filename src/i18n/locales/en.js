@@ -952,5 +952,7 @@ export default {
   "金额不匹配": "Amount does not match",
   "借款金额为：<span>{0}</span>，设置的建筑成本为：<span>{1}</span>，相差：<span>{2}</span>": "The loan amount is: <span>{0}</span>, the construction cost is: <span>{1}</span>, the difference is: <span>{2}</span>",
   "需要退回重新审核后，才能进行下一步操作": "Need to return for re-review before proceeding to the next step",
-  "提交后，数据将无法再次修改，确定提交吗?": "After submission, the data cannot be modified again. Are you sure you want to submit?"
+  "提交后，数据将无法再次修改，确定提交吗?": "After submission, the data cannot be modified again. Are you sure you want to submit?",
+  "放款金额为：<span>{0}</span>，设置金额为：<span>{1}</span>，相差：<span>{2}</span>": "The drawdown amount is: <span>{0}</span>, set amount is: <span>{1}</span>, the difference is: <span>{2}</span>",
+ 
 }

@@ -1,3 +1,4 @@
+
 <template>
   <div class="block-container">
     <basic-info :projectDetail="projectDetail"></basic-info>
@@ -9,12 +10,15 @@
         v-model:dataJson="devCostDetail"
         :current-id="currentId"
         :loan-amount="loanMoney"
+        :edit="!Boolean(projectDetail?.old.upd_dev)"
+        :has-build-data="projectDetail?.has_build_data"
         @change="devCostChange"
       >
         <div class="dev-cost">
           <vco-number class="float-left" v-model:value="devCost" :precision="2" :end="true"></vco-number>
           <a-button class="float-left" type="link">
-            <i class="iconfont">&#xe753;</i>
+            <i v-if="Boolean(projectDetail?.old.upd_dev)" class="iconfont" style="font-size: 18px;">&#xe63e;</i>
+            <i v-else class="iconfont">&#xe753;</i>
           </a-button>
         </div>
       </DevCostDetail>
@@ -27,7 +31,7 @@
             type="primary"
             shape="round"
             class="uppercase"
-            @click="navigationTo(`/projects/import-and-perfect/security-batche?uuid=${currentId}`)"
+            @click="openSecurity(Boolean(projectDetail?.old.upd_sec))"
           >
             {{ t('批量编辑') }}
           </a-button>
@@ -57,6 +61,8 @@
           </div>
         </a-col>
       </a-row>
+
+      <security-view v-if="Boolean(projectDetail?.old.upd_sec)" class="mt-10"></security-view>
     </div>
 
     <div class="block-item mt-10">
@@ -65,12 +71,13 @@
           type="primary"
           shape="round"
           class="uppercase"
-          @click="navigationTo(`/projects/import-and-perfect/progress-payment?uuid=${currentId}`)"
+          @click="openProgress(Boolean(projectDetail?.old.upd_build))"
         >
           {{ t('编辑') }}
         </a-button>
       </vco-process-title>
       <progress-view-content
+        ref="progressViewRef"
         v-if="projectDetail?.loan_money"
         :is-block="true"
         :projectDetail="projectDetail" class="mt-10"
@@ -83,8 +90,10 @@
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import BasicInfo from './BasicInfo.vue';
+import { message } from 'ant-design-vue/es';
 import DevCostDetail from './DevCostDetail.vue'
 import ProgressViewContent from './ProgressViewContent.vue';
+import SecurityView from './SecurityView.vue';
 import { navigationTo } from '@/utils/tool'
 import { cloneDeep } from 'lodash'
 
@@ -104,8 +113,11 @@ const emits = defineEmits(['reload'])
 const devCost = ref(0)
 const devCostDetail = ref([])
 const loanMoney = ref(0)
+
+const progressViewRef = ref()
 const devCostChange = () => {
   emits('reload')
+  progressViewRef.value.getProjectData(true)
 }
 
 const securityInfo = ref({
@@ -113,6 +125,32 @@ const securityInfo = ref({
   total_value: 0,
   count: 0,
 })
+
+const openSecurity = (flag) => {
+  if (flag) {
+    message.error(t('已超过编辑次数限制'))
+  } else {
+    const loan = props.projectDetail.devCostDetail[0].data[0].loan
+    if (loan) {
+      navigationTo(`/projects/import-and-perfect/security-batche?uuid=${props.currentId}`)
+    } else {
+      message.error(t('请先设置开发成本'))
+    }
+  }
+}
+
+const openProgress = (flag = false) => {
+  if (flag) {
+    message.error(t('已超过编辑次数限制'))
+  } else {
+    const count = props.projectDetail.security.count
+    if (count) {
+      navigationTo(`/projects/import-and-perfect/progress-payment?uuid=${props.currentId}`)
+    } else {
+      message.error(t('请先设置抵押物信息'))
+    }
+  }
+}
 
 const dataInit = () => {
   devCost.value = props.projectDetail.devCost

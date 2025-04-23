@@ -954,5 +954,8 @@ export default {
   "需要退回重新审核后，才能进行下一步操作": "Need to return for re-review before proceeding to the next step",
   "提交后，数据将无法再次修改，确定提交吗?": "After submission, the data cannot be modified again. Are you sure you want to submit?",
   "放款金额为：<span>{0}</span>，设置金额为：<span>{1}</span>，相差：<span>{2}</span>": "The drawdown amount is: <span>{0}</span>, set amount is: <span>{1}</span>, the difference is: <span>{2}</span>",
- 
+  "已超过编辑次数限制": "Exceeded the edit limit",
+  "已设置过进度还款数据，保存后请再次设置进度还款以更新为最新数据": "The progress repayment data has been set. Please set the progress repayment again after saving to update to the latest data.",
+  "请先设置开发成本": "Please set the development cost first",
+  "请先设置抵押物信息": "Please set the security items first"
 }

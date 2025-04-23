@@ -656,10 +656,6 @@
 
     try {
       await toolsDetail(params).then(res => {
-        if (res.old.upd_build) {
-          goBack()
-        }
-
         const list = res.devCostDetail[0].data[0].list
         const filterType = ['Land', 'Construction', 'Refinance', 'Land_gst']
         const footerData = list.filter(item => !filterType.includes(item.type))

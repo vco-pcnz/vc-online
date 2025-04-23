@@ -96,7 +96,9 @@
                     </template>
                   </template>
                   <template v-if="column.dataIndex === 'total'">
-                    <vco-number :value="record[column.dataIndex]" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
+                    <div style="position: absolute; top: 13px">
+                      <vco-number :value="record[column.dataIndex]" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
+                    </div>
                   </template>
                   <template v-if="column.dataIndex === 'operation'">
                     <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(p_index, index)" :disabled="Boolean(record?.status)">

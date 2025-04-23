@@ -957,5 +957,6 @@ export default {
   "已超过编辑次数限制": "Exceeded the edit limit",
   "已设置过进度还款数据，保存后请再次设置进度还款以更新为最新数据": "The progress repayment data has been set. Please set the progress repayment again after saving to update to the latest data.",
   "请先设置开发成本": "Please set the development cost first",
-  "请先设置抵押物信息": "Please set the security items first"
+  "请先设置抵押物信息": "Please set the security items first",
+  "进入补充信息": "Enter Supplementary Info"
 }

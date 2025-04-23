@@ -576,8 +576,8 @@
 
     try {
       await toolsGetBuild(params).then(res => {
-        const data = res.data || []
-        if (Object.keys(data)) {
+        const data = res.data || {}
+        if (Object.keys(data).length) {
           setedData.value = res
           hasData.value = true
 

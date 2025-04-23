@@ -1,6 +1,6 @@
 <template>
   <div class="inline" @click="init"><slot></slot></div>
-  <div @click.stop ref="modeRef" class="myMode text-left">
+  <div @click.stop ref="modeRef" class="myMode text-left sys-form-content">
     <a-modal :width="edit ? 1000 : 900" :open="visible" :title="t('开发成本')" :getContainer="() => $refs.modeRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content">
         <a-form-item-rest>
@@ -15,13 +15,28 @@
                 <template #bodyCell="{ column, record, index }">
                   <template v-if="edit">
                     <template v-if="column.dataIndex === 'type'">
-                      <a-select :loading="loading_type" :disabled="Boolean(record?.status)" style="width: 100%" v-model:value="record.type" :options="initTypes" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
+                      <div class="flex items-center">
+                        <PlusCircleOutlined class="addChid" @click="addChid(index)" v-if="!Boolean(record?.status)" />
+                        <div style="flex: 1; width: 0px">
+                          <a-select :loading="loading_type" style="width: 100%;" :disabled="Boolean(record?.status)" v-model:value="record.type" :options="initTypes" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
+                        </div>
+                      </div>
+                      <template v-if="record?.list">
+                        <div v-for="(sub, subIndex) in record?.list" :key="subIndex" class="flex items-center mt-2" style="padding-left: 30px">
+                          <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="removeChid(index, subIndex)" :disabled="Boolean(record?.status)" v-if="!Boolean(record?.status)">
+                            <MinusCircleOutlined class="addChid removeChid" />
+                          </a-popconfirm>
+                          <div style="flex: 1">
+                            <a-input v-model:value="sub.type" :disabled="Boolean(record?.status)" />
+                          </div>
+                        </div>
+                      </template>
                     </template>
                     <template v-if="column.dataIndex === 'loan' || column.dataIndex === 'borrower_equity'">
                       <a-input-number
                         v-if="(record.type !== 'Land_gst' && record.type !== 'Build_gst') || column.dataIndex === 'loan'"
                         v-model:value="record[column.dataIndex]"
-                        :disabled="Boolean(record?.status) || (disabledLoan && column.dataIndex === 'loan')"
+                        :disabled="Boolean(record?.status) || (disabledLoan && column.dataIndex === 'loan') || Boolean(record?.list && record?.list.length)"
                         @change="initData"
                         :max="99999999999"
                         :min="0"
@@ -37,21 +52,64 @@
                         :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                         :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                       />
-                      <!--  :min="column.dataIndex === 'borrower_equity' ? 0 : -99999999999" -->
+                      <template v-if="record?.list">
+                        <div v-for="(sub, subIndex) in record?.list" :key="subIndex" class="mt-2">
+                          <a-input-number
+                            v-if="(record.type !== 'Land_gst' && record.type !== 'Build_gst') || column.dataIndex === 'loan'"
+                            v-model:value="sub[column.dataIndex]"
+                            :disabled="Boolean(record?.status) || (disabledLoan && column.dataIndex === 'loan')"
+                            @change="initItemData(index)"
+                            :max="99999999999"
+                            :min="0"
+                            :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                            :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                          />
+                          <a-input-number
+                            v-if="(record.type == 'Land_gst' || record.type == 'Build_gst') && column.dataIndex === 'borrower_equity'"
+                            v-model:value="sub[column.dataIndex]"
+                            :disabled="true"
+                            :max="99999999999"
+                            :min="-99999999999"
+                            :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                            :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                          />
+                        </div>
+                      </template>
                     </template>
                   </template>
                   <template v-else>
+                    <template v-if="column.dataIndex === 'type'">
+                      {{ record.name }}
+                      <template v-if="record?.list">
+                        <div v-for="(sub, subIndex) in record?.list" :key="subIndex" class="flex items-center mt-2" style="padding-left: 30px">
+                          <div style="flex: 1">
+                            {{ sub.type }}
+                          </div>
+                        </div>
+                      </template>
+                    </template>
                     <template v-if="column.dataIndex === 'loan' || column.dataIndex === 'borrower_equity'">
                       <vco-number :value="record[column.dataIndex]" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
+                      <template v-if="record?.list">
+                        <div v-for="(sub, subIndex) in record?.list" :key="subIndex" class="flex items-center mt-2" >
+                          <div style="flex: 1">
+                            <vco-number :value="sub[column.dataIndex]" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
+                          </div>
+                        </div>
+                      </template>
                     </template>
                   </template>
                   <template v-if="column.dataIndex === 'total'">
-                    <vco-number :value="record[column.dataIndex]" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
+                    <div style="position: absolute; top: 13px">
+                      <vco-number :value="record[column.dataIndex]" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
+                    </div>
                   </template>
                   <template v-if="column.dataIndex === 'operation'">
-                    <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(p_index, index)" :disabled="Boolean(record?.status)">
-                      <i class="iconfont" style="cursor: pointer" :class="[{ disabled: Boolean(record?.status) }]">&#xe8c1;</i>
-                    </a-popconfirm>
+                    <div style="position: absolute; top: 13px; left: 0px; right: 0">
+                      <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(p_index, index)" :disabled="Boolean(record?.status)">
+                        <i class="iconfont" style="cursor: pointer" :class="[{ disabled: Boolean(record?.status) }]">&#xe8c1;</i>
+                      </a-popconfirm>
+                    </div>
                   </template>
                 </template>
               </a-table>
@@ -170,6 +228,7 @@ import { message } from 'ant-design-vue/es';
 import tool from '@/utils/tool';
 import { systemDictData } from '@/api/system';
 import { cloneDeep } from 'lodash';
+import Icon, { PlusCircleOutlined, MinusCircleOutlined } from '@ant-design/icons-vue';
 
 const { t } = useI18n();
 const emits = defineEmits(['update:value', 'update:dataJson', 'change']);
@@ -257,7 +316,25 @@ const add = (index) => {
 
 const remove = (p_index, index) => {
   data.value.data[p_index].list.splice(index, 1);
-  initData()
+  initData();
+};
+
+const validateTypes = (obj) => {
+  // 检查当前对象的type
+  if (obj.type === undefined || obj.type === null || obj.type === '') {
+    return false;
+  }
+
+  // 如果存在list数组，递归检查每个元素
+  if (Array.isArray(obj.list)) {
+    for (const item of obj.list) {
+      if (!validateTypes(item)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
 };
 
 const save = () => {
@@ -266,7 +343,7 @@ const save = () => {
     item.name = typesObj.value[item.type] || '';
   });
 
-  if (doneData.data[0].list.filter((item) => !item.type).length) {
+  if (!validateTypes(doneData.data[0])) {
     message.error(t('建设成本类型不能为空'));
     return;
   }
@@ -365,6 +442,42 @@ const showAdd = computed(() => {
   return data.value.data[0].list.filter((item) => item.status !== 1).length != types.value.length;
 });
 
+const addChid = (index) => {
+  if (!data.value.data[0].list[index]['list']) {
+    data.value.data[0].list[index]['list'] = [];
+    data.value.data[0].list[index].loan = 0;
+    data.value.data[0].list[index].borrower_equity = 0;
+  }
+  data.value.data[0].list[index]['list'].push({
+    type: '',
+    loan: 0,
+    borrower_equity: 0
+  });
+  initData();
+};
+
+const removeChid = (p_index, index) => {
+  data.value.data[0].list[p_index].list.splice(index, 1);
+  initItemData(p_index);
+};
+
+const initItemData = (index) => {
+  let item = data.value.data[0].list[index];
+  if (item.list) {
+    item.loan = 0;
+    item.borrower_equity = 0;
+    item.list.map((sub) => {
+      if (item.type === 'Land_gst' || item.type === 'Build_gst') {
+        sub.borrower_equity = tool.minus(0, sub.loan);
+      }
+      sub.total = tool.plus(sub.loan || 0, sub.borrower_equity || 0);
+      item.loan = tool.plus(item.loan || 0, sub.loan || 0);
+      item.borrower_equity = tool.plus(item.borrower_equity || 0, sub.borrower_equity || 0);
+    });
+  }
+  initData();
+};
+
 onMounted(() => {
   if (!props.dataJson) {
     emits('update:value', cloneDeep(data.value.total));
@@ -399,6 +512,7 @@ onMounted(() => {
       background: transparent !important;
     }
     .ant-input-number,
+    .ant-input,
     .ant-select-selector {
       border-color: #d9d9d9 !important;
       height: 30px !important;
@@ -406,6 +520,7 @@ onMounted(() => {
       .ant-select-selection-placeholder,
       .ant-select-selection-search-input,
       .ant-select-selection-item,
+      .ant-input-number-input,
       .ant-input-number-input,
       .ant-select-selection-item {
         line-height: 28px !important;
@@ -490,6 +605,16 @@ onMounted(() => {
     .ant-table-thead > tr > td {
       background: transparent !important;
     }
+  }
+}
+
+.addChid {
+  display: inline-block;
+  color: @colorPrimary;
+  cursor: pointer;
+  margin-right: 10px;
+  &.removeChid {
+    color: @color_red-half;
   }
 }
 </style>

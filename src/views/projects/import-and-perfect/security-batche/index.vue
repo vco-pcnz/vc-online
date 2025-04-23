@@ -927,7 +927,8 @@ const subHandle = () => {
 
   currentParams.value = params
 
-  sureVisible.value = true
+  submitRquest()
+  // sureVisible.value = true
 }
 
 const otherItem = {

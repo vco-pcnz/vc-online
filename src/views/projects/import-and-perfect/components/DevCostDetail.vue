@@ -336,7 +336,9 @@ const save = () => {
     }
 
     currentParams.value = params
-    sureVisible.value = true
+    // sureVisible.value = true
+
+    saveRequest()
   }
 };
 

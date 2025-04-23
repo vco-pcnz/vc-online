@@ -9,14 +9,12 @@
         v-model:dataJson="devCostDetail"
         :current-id="currentId"
         :loan-amount="loanMoney"
-        :edit="!Boolean(projectDetail?.old.upd_dev)"
         @change="devCostChange"
       >
         <div class="dev-cost">
           <vco-number class="float-left" v-model:value="devCost" :precision="2" :end="true"></vco-number>
           <a-button class="float-left" type="link">
-            <i v-if="Boolean(projectDetail?.old.upd_dev)" class="iconfont" style="font-size: 18px;">&#xe63e;</i>
-            <i v-else class="iconfont">&#xe753;</i>
+            <i class="iconfont">&#xe753;</i>
           </a-button>
         </div>
       </DevCostDetail>
@@ -26,11 +24,9 @@
       <vco-process-title :title="t('抵押物信息')">
         <div class="flex gap-5 items-center">
           <a-button
-            v-if="!Boolean(projectDetail?.old.upd_sec)"
             type="primary"
             shape="round"
             class="uppercase"
-            :disabled="!Boolean(projectDetail?.old.upd_dev)"
             @click="navigationTo(`/projects/import-and-perfect/security-batche?uuid=${currentId}`)"
           >
             {{ t('批量编辑') }}
@@ -61,18 +57,14 @@
           </div>
         </a-col>
       </a-row>
-
-      <security-view v-if="Boolean(projectDetail?.old.upd_sec)" class="mt-10"></security-view>
     </div>
 
     <div class="block-item mt-10">
       <vco-process-title :title="t('进度付款')">
         <a-button
-          v-if="!Boolean(projectDetail?.old.upd_build)"
           type="primary"
           shape="round"
           class="uppercase"
-          :disabled="!Boolean(projectDetail?.old.upd_sec)"
           @click="navigationTo(`/projects/import-and-perfect/progress-payment?uuid=${currentId}`)"
         >
           {{ t('编辑') }}
@@ -93,7 +85,6 @@ import { useI18n } from 'vue-i18n';
 import BasicInfo from './BasicInfo.vue';
 import DevCostDetail from './DevCostDetail.vue'
 import ProgressViewContent from './ProgressViewContent.vue';
-import SecurityView from './SecurityView.vue';
 import { navigationTo } from '@/utils/tool'
 import { cloneDeep } from 'lodash'
 

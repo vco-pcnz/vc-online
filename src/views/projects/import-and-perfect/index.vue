@@ -46,7 +46,7 @@ const getProjectDetail = () => {
 
 const pageTitleRef = computed(() => {
   const sn = projectDetail.value?.project_apply_sn || '';
-  const type = t('导入完善');
+  const type = t('进入补充信息');
   return sn ? `${sn} - ${type}` : type
 });
 

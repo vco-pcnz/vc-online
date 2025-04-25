@@ -1,7 +1,7 @@
 
 <template>
   <div class="block-container">
-    <basic-info :projectDetail="projectDetail"></basic-info>
+    <basic-info :projectDetail="projectDetail" :current-id="currentId" @reload="reload"></basic-info>
 
     <div class="block-item mt-10">
       <vco-process-title :title="t('开发成本')"></vco-process-title>
@@ -118,6 +118,10 @@ const progressViewRef = ref()
 const devCostChange = () => {
   emits('reload')
   progressViewRef.value.getProjectData(true)
+}
+
+const reload = () => {
+  emits('reload')
 }
 
 const securityInfo = ref({

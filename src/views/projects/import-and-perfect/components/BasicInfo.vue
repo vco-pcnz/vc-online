@@ -45,7 +45,10 @@
         </a-col>
         <a-col :span="15">
           <div class="info-content">
-            <p class="name">{{ t('项目地址') }}</p>
+            <p class="name">
+              {{ t('项目地址') }}
+              <EditAddr :data="projectDetail" :current-id="currentId" @reload="reload"> <i class="iconfont ml-2 edit cursor-pointer">&#xe753;</i></EditAddr>
+            </p>
             <p class="txt">{{ projectAddress || '--' }}</p>
           </div>
         </a-col>
@@ -55,69 +58,80 @@
 </template>
 
 <script setup>
-  import { ref, computed, watch } from 'vue';
-  import { useI18n } from 'vue-i18n';
-  import tool from '@/utils/tool'
+import { ref, computed, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+import tool from '@/utils/tool';
+import EditAddr from './EditAddr.vue';
 
-  const { t } = useI18n();
+const emits = defineEmits(['reload']);
 
-  const props = defineProps({
-    projectDetail: {
-      type: Object
-    }
-  });
+const { t } = useI18n();
 
-  const startDate = ref('')
-  const endDate = ref('')
+const props = defineProps({
+  currentId: {
+    type: [String, Number]
+  },
+  projectDetail: {
+    type: Object
+  }
+});
 
-  const showTerm = computed(() => {
-    const data = tool.calculateDurationPrecise(startDate.value, endDate.value);
-    if (data.months && data.days) {
-      return `${data.months} ${t('月')} ${data.days} ${t('天')}`;
-    }
+const startDate = ref('');
+const endDate = ref('');
 
-    if (data.months && !data.days) {
-      return `${data.months} ${t('月')}`;
-    }
-
-    if (!data.months && data.days) {
-      return `${data.days} ${t('天')}`;
-    }
-
-    return '--';
-  });
-
-  const showTotalDay = computed(() => {
-    const data = tool.calculateDurationPrecise(startDate.value, endDate.value);
-    return data.gapDay || 0;
-  });
-
-  const projectName = ref('')
-  const loanMoney = ref(0)
-  const buildingNum = ref(0)
-  const projectAddress = ref('')
-  const dataInit = () => {
-    projectName.value = props.projectDetail.project_name
-    loanMoney.value = Number(props.projectDetail.loan_money)
-    buildingNum.value = props.projectDetail.building_num
-    projectAddress.value = props.projectDetail.project_address
-
-    startDate.value = props.projectDetail.start_date
-    endDate.value = props.projectDetail.end_date
+const showTerm = computed(() => {
+  const data = tool.calculateDurationPrecise(startDate.value, endDate.value);
+  if (data.months && data.days) {
+    return `${data.months} ${t('月')} ${data.days} ${t('天')}`;
   }
 
-  watch(
-    () => props.projectDetail,
-    (val) => {
-      if (val) {
-        dataInit()
-      }
-    },
-    { deep: true, immediate: true }
-  );
+  if (data.months && !data.days) {
+    return `${data.months} ${t('月')}`;
+  }
+
+  if (!data.months && data.days) {
+    return `${data.days} ${t('天')}`;
+  }
+
+  return '--';
+});
+
+const showTotalDay = computed(() => {
+  const data = tool.calculateDurationPrecise(startDate.value, endDate.value);
+  return data.gapDay || 0;
+});
+
+const projectName = ref('');
+const loanMoney = ref(0);
+const buildingNum = ref(0);
+const projectAddress = ref('');
+const dataInit = () => {
+  projectName.value = props.projectDetail.project_name;
+  loanMoney.value = Number(props.projectDetail.loan_money);
+  buildingNum.value = props.projectDetail.building_num;
+  projectAddress.value = props.projectDetail.project_city;
+
+  startDate.value = props.projectDetail.start_date;
+  endDate.value = props.projectDetail.end_date;
+};
+
+const reload = () => {
+  emits('reload');
+};
+
+watch(
+  () => props.projectDetail,
+  (val) => {
+    if (val) {
+      dataInit();
+    }
+  },
+  { deep: true, immediate: true }
+);
 </script>
 
 <style lang="less" scoped>
+@import '@/styles/variables.less';
 .info-content {
   margin-top: 15px;
   .name {
@@ -132,5 +146,8 @@
       font-size: 14px !important;
     }
   }
+}
+.edit {
+  color: @colorPrimary;
 }
 </style>

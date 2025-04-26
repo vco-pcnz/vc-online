@@ -83,9 +83,6 @@ const init = () => {
   visible.value = true;
   for (const key in formState.value) {
     formState.value[key] = props.data[key] || formState.value[key] || '';
-    if (key === 'project_type') {
-      formState.value[key] = props.data[key] || undefined;
-    }
   }
   nextTick(() => {
     vcoAddressRef.value.init(formState.value);

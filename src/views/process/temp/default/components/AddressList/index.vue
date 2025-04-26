@@ -2,7 +2,7 @@
   <div>
     <template v-for="(item, index) in list" :key="index">
       <div :class="[{ other: list.length > 1 }]">
-        <div style="position: absolute; top: 15px; right: 15px">
+        <div style="position: absolute; top: 15px; right: 15px;z-index: 2;">
           <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(index)" v-if="list.length > 1">
             <i class="iconfont" style="cursor: pointer" :class="[{ disabled: Boolean(record?.status) }]">&#xe8c1;</i>
           </a-popconfirm>

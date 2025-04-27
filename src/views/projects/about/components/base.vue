@@ -28,12 +28,17 @@
       </p>
       <p class="mb-5">{{ t('借款人') }}: {{ detail?.base.borrower_user_name }}</p>
       <p class="text-2xl name">{{ detail?.base.project_name }}</p>
-      <template v-for="(item, index) in detail?.base?.project_address_other" :key="index">
-        <p class="fs_xs mt-2" v-if="moreAddr ? true : index < 1">{{ item.project_city }}</p>
+      <template v-if="detail?.base?.project_address_other">
+        <template v-for="(item, index) in detail?.base?.project_address_other" :key="index">
+          <p class="fs_xs mt-2" v-if="moreAddr ? true : index < 1">{{ item.project_city }}</p>
+        </template>
+        <a-button type="grey" style="transform: scale(0.8); margin-left: -13px" size="small" v-if="detail?.base?.project_address_other.length > 1" @click="moreAddr = !moreAddr">
+          {{ moreAddr ? t('收起') : t('更多地址') }}
+        </a-button>
       </template>
-      <div class="flex">
-        <a-button type="grey" style="transform: scale(0.8); margin-left: -13px" size="small" v-if="detail?.base?.project_address_other.length > 1" @click="moreAddr = !moreAddr">{{ moreAddr ? t('收起') : t('更多地址') }}</a-button>
-      </div>
+      <template v-else>
+        <p class="fs_xs mt-2">{{ detail?.base?.project_city }}</p>
+      </template>
 
       <p class="purpose mt-3">
         <template v-if="detail && detail?.base.project_about.length > 100 && !isExpand"> {{ detail?.base.project_about.substring(0, 100) }}... </template>

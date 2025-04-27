@@ -1,16 +1,6 @@
 <template>
   <div class="sys-table-content border-top-none" :class="{ copy: hasPermission('projects:copy') }">
-    <a-table
-      :columns="columns"
-      :data-source="tableData"
-      :row-class-name="(_record, index) => _record.project_apply_sn"
-      :pagination="false"
-      :scroll="{ x: '1450px' }"
-      :customRow="rowClick"
-      row-key="uuid"
-      :rowClassName="setRowClass"
-      :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }"
-    >
+    <a-table :columns="columns" :data-source="tableData" :pagination="false" :scroll="{ x: '1450px' }" :customRow="rowClick" row-key="uuid" :rowClassName="setRowClass" :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === '1'">
           <a-space>

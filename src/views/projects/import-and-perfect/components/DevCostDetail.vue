@@ -26,18 +26,18 @@
                   <template v-if="edit">
                     <template v-if="column.dataIndex === 'type'">
                       <div class="flex items-center">
-                        <PlusCircleOutlined class="addChid" @click="addChid(index)" v-if="!Boolean(record?.status)" />
+                        <PlusCircleOutlined class="addChid" @click="addChid(index)" />
                         <div style="flex: 1; width: 0px">
-                          <a-select :loading="loading_type" style="width: 100%" :disabled="Boolean(record?.status)" v-model:value="record.type" :options="initTypes" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
+                          <a-select :loading="loading_type" style="width: 100%" v-model:value="record.type" :options="initTypes" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
                         </div>
                       </div>
                       <template v-if="record?.list">
                         <div v-for="(sub, subIndex) in record?.list" :key="subIndex" class="flex items-center mt-2" style="padding-left: 30px">
-                          <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="removeChid(index, subIndex)" :disabled="Boolean(record?.status)" v-if="!Boolean(record?.status)">
+                          <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="removeChid(index, subIndex)" >
                             <MinusCircleOutlined class="addChid removeChid" />
                           </a-popconfirm>
                           <div style="flex: 1">
-                            <a-input v-model:value="sub.type" :disabled="Boolean(record?.status)" />
+                            <a-input v-model:value="sub.type" />
                           </div>
                         </div>
                       </template>
@@ -46,7 +46,7 @@
                       <a-input-number
                         v-if="(record.type !== 'Land_gst' && record.type !== 'Build_gst') || column.dataIndex === 'loan'"
                         v-model:value="record[column.dataIndex]"
-                        :disabled="Boolean(record?.status) || (disabledLoan && column.dataIndex === 'loan') || Boolean(record?.list && record?.list.length)"
+                        :disabled="(disabledLoan && column.dataIndex === 'loan') || Boolean(record?.list && record?.list.length)"
                         @change="initData"
                         :max="99999999999"
                         :min="0"
@@ -67,7 +67,7 @@
                           <a-input-number
                             v-if="(record.type !== 'Land_gst' && record.type !== 'Build_gst') || column.dataIndex === 'loan'"
                             v-model:value="sub[column.dataIndex]"
-                            :disabled="Boolean(record?.status) || (disabledLoan && column.dataIndex === 'loan')"
+                            :disabled="disabledLoan && column.dataIndex === 'loan'"
                             @change="initItemData(index)"
                             :max="99999999999"
                             :min="0"
@@ -101,8 +101,8 @@
                     </div>
                   </template>
                   <template v-if="column.dataIndex === 'operation'">
-                    <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(p_index, index)" :disabled="Boolean(record?.status)">
-                      <i class="iconfont" style="cursor: pointer" :class="[{ disabled: Boolean(record?.status) }]">&#xe8c1;</i>
+                    <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(p_index, index)" >
+                      <i class="iconfont" style="cursor: pointer" >&#xe8c1;</i>
                     </a-popconfirm>
                   </template>
                 </template>

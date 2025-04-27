@@ -775,21 +775,21 @@ const getGstRate = () => {
 }
 
 const batchColumns = reactive([
-  { title: t('修改项'), dataIndex: 'rowSelect', width: 120, align: 'center', fixed: 'left' },
-  { title: t('类型1'), dataIndex: 'typology', width: 260, align: 'center' },
-  { title: t('面积'), dataIndex: 'sqm', width: 120, align: 'center' },
-  { title: t('预计销售价格'), dataIndex: 'est_sales_price', width: 150, align: 'center' },
-  { title: t('含消费税'), dataIndex: 'is_gst', width: 115, align: 'center' },
-  { title: t('担保价值'), dataIndex: 'amount', width: 150, align: 'center' },
-  { title: t('保险价值'), dataIndex: 'insurance_value', width: 150, align: 'center' },
-  { title: t('销售价格'), dataIndex: 'sales_price', width: 150, align: 'center' },
-  { title: t('回款金额'), dataIndex: 'repayment_price', width: 150, align: 'center' },
-  { title: t('净收益'), dataIndex: 'net_proceeds_price', width: 150, align: 'center' },
-  { title: t('保险到期日'), dataIndex: 'insurance_expire_date', width: 155, align: 'center' },
-  { title: t('合同日期'), dataIndex: 'contract_date', width: 155, align: 'center' },
-  { title: t('结算日期'), dataIndex: 'settlement_date', width: 155, align: 'center' },
-  { title: t('日落日期'), dataIndex: 'sunset_date', width: 155, align: 'center' },
-  { title: t('还款日期'), dataIndex: 'repayment_date', width: 155, align: 'center' },
+  { title: t('修改项'), dataIndex: 'rowSelect', width: 100, align: 'center', fixed: 'left' },
+  { title: t('类型1'), dataIndex: 'typology', width: 250, align: 'center' },
+  { title: t('面积'), dataIndex: 'sqm', width: 105, align: 'center' },
+  { title: t('预计销售价格'), dataIndex: 'est_sales_price', width: 130, align: 'center' },
+  { title: t('含消费税'), dataIndex: 'is_gst', width: 100, align: 'center' },
+  { title: t('担保价值'), dataIndex: 'amount', width: 130, align: 'center' },
+  { title: t('保险价值'), dataIndex: 'insurance_value', width: 130, align: 'center' },
+  { title: t('销售价格'), dataIndex: 'sales_price', width: 130, align: 'center' },
+  { title: t('回款金额'), dataIndex: 'repayment_price', width: 130, align: 'center' },
+  { title: t('净收益'), dataIndex: 'net_proceeds_price', width: 130, align: 'center' },
+  { title: t('保险到期日'), dataIndex: 'insurance_expire_date', width: 145, align: 'center' },
+  { title: t('合同日期'), dataIndex: 'contract_date', width: 145, align: 'center' },
+  { title: t('结算日期'), dataIndex: 'settlement_date', width: 145, align: 'center' },
+  { title: t('日落日期'), dataIndex: 'sunset_date', width: 145, align: 'center' },
+  { title: t('还款日期'), dataIndex: 'repayment_date', width: 145, align: 'center' },
   { title: t('操作1'), dataIndex: 'opt', width: 115, align: 'center', fixed: 'right' }
 ])
 
@@ -818,23 +818,23 @@ const batchDataSource = ref([{
 }])
 
 const formColumns = reactive([
-  { title: t('楼栋号'), dataIndex: 'card_no', width: 120, align: 'center', fixed: 'left' },
-  { title: t('类型1'), dataIndex: 'typology', width: 260, align: 'center' },
-  { title: t('面积'), dataIndex: 'sqm', width: 120, align: 'center' },
-  { title: t('预计销售价格'), dataIndex: 'est_sales_price', width: 150, align: 'center' },
-  { title: t('含消费税'), dataIndex: 'is_gst', width: 115, align: 'center' },
-  { title: t('担保价值'), dataIndex: 'amount', width: 150, align: 'center' },
-  { title: t('保险价值'), dataIndex: 'insurance_value', width: 150, align: 'center' },
-  { title: t('销售价格'), dataIndex: 'sales_price', width: 150, align: 'center' },
-  { title: t('回款金额'), dataIndex: 'repayment_price', width: 150, align: 'center' },
-  { title: t('净收益'), dataIndex: 'net_proceeds_price', width: 150, align: 'center' },
+  { title: t('楼栋号'), dataIndex: 'card_no', width: 100, align: 'center', fixed: 'left' },
+  { title: t('类型1'), dataIndex: 'typology', width: 250, align: 'center' },
+  { title: t('面积'), dataIndex: 'sqm', width: 105, align: 'center' },
+  { title: t('预计销售价格'), dataIndex: 'est_sales_price', width: 130, align: 'center' },
+  { title: t('含消费税'), dataIndex: 'is_gst', width: 100, align: 'center' },
+  { title: t('担保价值'), dataIndex: 'amount', width: 130, align: 'center' },
+  { title: t('保险价值'), dataIndex: 'insurance_value', width: 130, align: 'center' },
+  { title: t('销售价格'), dataIndex: 'sales_price', width: 130, align: 'center' },
+  { title: t('回款金额'), dataIndex: 'repayment_price', width: 130, align: 'center' },
+  { title: t('净收益'), dataIndex: 'net_proceeds_price', width: 130, align: 'center' },
   { title: t('变化比例'), dataIndex: 'variance', width: 100, align: 'center' },
-  { title: t('每单位债务'), dataIndex: 'dup', width: 150, align: 'center' },
-  { title: t('保险到期日'), dataIndex: 'insurance_expire_date', width: 155, align: 'center' },
-  { title: t('合同日期'), dataIndex: 'contract_date', width: 155, align: 'center' },
-  { title: t('结算日期'), dataIndex: 'settlement_date', width: 155, align: 'center' },
-  { title: t('日落日期'), dataIndex: 'sunset_date', width: 155, align: 'center' },
-  { title: t('还款日期'), dataIndex: 'repayment_date', width: 155, align: 'center' },
+  { title: t('每单位债务'), dataIndex: 'dup', width: 110, align: 'center' },
+  { title: t('保险到期日'), dataIndex: 'insurance_expire_date', width: 145, align: 'center' },
+  { title: t('合同日期'), dataIndex: 'contract_date', width: 145, align: 'center' },
+  { title: t('结算日期'), dataIndex: 'settlement_date', width: 145, align: 'center' },
+  { title: t('日落日期'), dataIndex: 'sunset_date', width: 145, align: 'center' },
+  { title: t('还款日期'), dataIndex: 'repayment_date', width: 145, align: 'center' },
   { title: t('操作1'), dataIndex: 'opt', width: 115, align: 'center', fixed: 'right' }
 ])
 
@@ -1272,6 +1272,10 @@ onMounted(async () => {
   }
 
   :deep(.ant-table-wrapper) {
+    .ant-table-tbody>tr>td {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
     .ant-table-cell-fix-right-first::after,
     * {
       border-color: #272727 !important;

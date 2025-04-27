@@ -3,7 +3,6 @@
     <a-table
       :columns="columns"
       :data-source="tableData"
-      :row-class-name="(_record, index) => _record.project_apply_sn"
       :pagination="false"
       :scroll="{ x: '1450px' }"
       :customRow="rowClick"
@@ -226,6 +225,7 @@ const toCopyDetail = (val) => {
 const setRowClass = (record, index) => {
   const targetDate = new Date(record.end_date);
   const currentDate = new Date();
+  console.log(targetDate < currentDate && props.type === 'current')
   if (targetDate < currentDate && props.type === 'current') {
     return 'red';
   }

@@ -1,7 +1,7 @@
 <template>
-  <a-spin :spinning="loading" size="large">
-    <ul class="step" style="max-height: 300px; overflow: auto; padding-right: 10px">
-      <li class="step-item" v-for="item in list" :key="item">
+  <a-spin :spinning="pageLoading" size="large">
+    <ul class="step list-content" @scroll="scrollHandle">
+      <li class="step-item" v-for="item in listData" :key="item">
         <div class="flex justify-between items-center">
           <div class="content flex items-center">
             <i class="iconfont">&#xe725;</i>
@@ -11,34 +11,80 @@
         </div>
         <span class="create_user_name">{{ item.create_user_name }}</span>
       </li>
+      <vco-more-loading v-if="listData.length" :has-more="hasMore" :loading="loading"></vco-more-loading>
     </ul>
   </a-spin>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { ref, reactive, watch } from 'vue';
 import tool from '@/utils/tool';
 import { historyList } from '@/api/project/project';
 
-const { t } = useI18n();
-
 const props = defineProps(['currentId']);
+const pageLoading = ref(false);
 
-const loading = ref(false);
-const list = ref([]);
+const pageInfo = reactive({
+  page: 1,
+  limit: 5
+})
+const listData = ref([])
+const loading = ref(false)
+const hasMore = ref(true)
+
+const getListData = (flag) => {
+  if (flag) {
+    pageInfo.page = 1
+    listData.value = []
+    hasMore.value = true
+  }
+
+  if (loading.value || !hasMore.value) { return }
+
+  if (pageInfo.page === 1) {
+    pageLoading.value = true
+  }
+
+  loading.value = true
+
+  historyList({
+    uuid: props.currentId,
+    ...pageInfo
+  }).then(res => {
+    const total = res.count || 0
+    const data = res.data || []
+    pageLoading.value = false
+    loading.value = false
+
+    listData.value = pageInfo.page === 1 ? data : [...listData.value, ...data]
+    pageInfo.page += 1
+    hasMore.value = total > listData.value.length
+
+  }).catch(() => {
+    pageLoading.value = false
+    loading.value = false
+  })
+}
+
+const scrollHandle = (event) => {
+  const el = event.target;
+  const scrollTop = el.scrollTop;
+  const scrollHeight = el.scrollHeight;
+  const clientHeight = el.clientHeight;
+
+  // 距离底部距离
+  const distanceToBottom = scrollHeight - scrollTop - clientHeight;
+
+  if (distanceToBottom <= 5) {
+    getListData()
+  }
+}
+
 watch(
   () => props.currentId,
   (val) => {
     if (val) {
-      loading.value = false;
-      historyList({ uuid: props.currentId })
-        .then((res) => {
-          list.value = res;
-        })
-        .finally((_) => {
-          loading.value = false;
-        });
+      getListData(true)
     }
   },
   {
@@ -51,6 +97,12 @@ watch(
 @import '@/styles/variables.less';
 
 .step {
+  padding-right: 10px;
+  &.list-content {
+    height: 300px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+  }
   .step-item {
     margin-bottom: 12px;
     gap: 6px;

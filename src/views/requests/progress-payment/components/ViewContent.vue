@@ -536,7 +536,7 @@
         headerData.push({
           title: rowData[key],
           dataIndex: key,
-          width: 140,
+          width: 130,
           align: 'center'
         })
       }
@@ -555,7 +555,7 @@
       align: 'center',
       fixed: 'left'
     }, ...headerData,
-    { title: t('总计'), dataIndex: 'total', width: 180, align: 'center', fixed: 'right' }]
+    { title: t('总计'), dataIndex: 'total', width: 150, align: 'center', fixed: 'right' }]
 
     const summaryColData = []
     for (let i = 0; i < tableHeader.value.length; i++) {
@@ -923,6 +923,10 @@
       * {
         border-color: #272727 !important;
       }
+      .ant-table-tbody>tr>td {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
       .ant-table-expanded-row-fixed::after {
         border-color: #272727 !important;
       }
@@ -1046,7 +1050,7 @@
       }
 
       .ant-progress-line {
-        margin: 0;
+        margin: -5px;
       }
 
       :deep(.ant-progress-text) {
@@ -1079,8 +1083,8 @@
   .select-item {
     position: relative;
     overflow: hidden;
-    margin: -16px;
-    padding: 16px;
+    margin: -16px -10px;
+    padding: 10px;
     &.footer {
       margin: -16px -5px;
     }

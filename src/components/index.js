@@ -31,6 +31,7 @@ import VcoFormDialog from './vco-form-dialog/index.vue';
 import VcoPopconfirm from './vco-popconfirm/index.vue';
 import TipEditForecast from './TipEditForecast/index.vue';
 import VcoCompanySelect from './vco-company-select/index.vue';
+import VcoMoreLoading from './vco-more-loading/index.vue';
 
 export default {
   install(Vue) {
@@ -67,5 +68,6 @@ export default {
     Vue.component('VcoPopconfirm', VcoPopconfirm);
     Vue.component('TipEditForecast', TipEditForecast);
     Vue.component('VcoCompanySelect', VcoCompanySelect);
+    Vue.component('VcoMoreLoading', VcoMoreLoading);
   }
 };

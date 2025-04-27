@@ -3,14 +3,12 @@
   <div ref="modeRef" class="myMode">
     <a-modal :width="700" :open="visible" :title="t('项目地址')" :getContainer="() => $refs.modeRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="sys-form-content">
-        <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
-          <vco-address :config="addressConfig" ref="vcoAddressRef" @change="setAddressInfo"></vco-address>
-          <div class="flex justify-center">
-            <a-button @click="submitHandle" type="dark" class="save big uppercase mt-3" :loading="subLoading">
-              {{ t('保存') }}
-            </a-button>
-          </div>
-        </a-form>
+        <AddressList ref="addressListRef" :config="addressConfig" v-model:value="formState.project_address_other"></AddressList>
+        <div class="flex justify-center">
+          <a-button @click="submitHandle" type="dark" class="save big uppercase mt-3" :loading="subLoading">
+            {{ t('保存') }}
+          </a-button>
+        </div>
       </div>
     </a-modal>
   </div>
@@ -21,6 +19,7 @@ import { ref, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { saveAddr } from '@/api/import';
+import AddressList from './AddressList/index.vue';
 
 const { t } = useI18n();
 const emits = defineEmits(['reload']);
@@ -50,10 +49,24 @@ const formState = ref({
   region_three_id: '',
   region_one_name: '',
   project_suburb: '',
-  project_con_id: ''
+  project_con_id: '',
+  project_address_other: [
+    {
+      project_region: '',
+      project_address_short: '',
+      project_address: '',
+      project_postcode: '',
+      region_one_id: '',
+      region_two_id: '',
+      region_three_id: '',
+      region_one_name: '',
+      project_suburb: '',
+      project_con_id: ''
+    }
+  ]
 });
 
-const vcoAddressRef = ref();
+const addressListRef = ref(null);
 const addressConfig = ref({
   addr: 'project_address_short',
   address: 'project_address',
@@ -66,55 +79,31 @@ const addressConfig = ref({
   city_code: 'region_two_id',
   district_code: 'region_three_id'
 });
-const formRules = {
-  project_region: [{ required: true, message: t('请选择') + t('项目地址'), trigger: 'change' }],
-  project_address_short: [{ required: true, message: t('请输入') + t('地址1'), trigger: 'blur' }],
-  region_one_name: [{ required: true, message: t('请输入') + t('城市/州'), trigger: 'blur' }],
-  project_postcode: [
-    { required: true, message: t('请输入') + t('邮编'), trigger: 'blur' },
-    {
-      pattern: /^[A-Za-z0-9\s\-]+$/,
-      message: t('邮编') + t('格式不正确'),
-      trigger: 'blur'
-    }
-  ]
-};
 const init = () => {
   visible.value = true;
   for (const key in formState.value) {
     formState.value[key] = props.data[key] || formState.value[key] || '';
   }
-  nextTick(() => {
-    vcoAddressRef.value.init(formState.value);
-  });
-};
-
-const setAddressInfo = (e) => {
-  for (const key in e) {
-    formState.value[key] = e[key] || '';
-  }
 };
 
 const formRef = ref(null);
 const subLoading = ref(false);
-const submitHandle = () => {
-  formRef.value
-    .validate()
-    .then(async () => {
-      subLoading.value = true;
+const submitHandle = async () => {
+  for (const key in formState.value.project_address_other[0]) {
+    formState.value[key] = formState.value.project_address_other[0][key] || '';
+  }
+  const validate = await addressListRef.value.validate();
+  if (!validate) return;
 
-      saveAddr({ uuid: props.currentId, ...formState.value })
-        .then(async (res) => {
-          subLoading.value = false;
-          emits('reload');
-          updateVisible(false);
-        })
-        .catch(() => {
-          subLoading.value = false;
-        });
+  subLoading.value = true;
+  saveAddr({ uuid: props.currentId, ...formState.value })
+    .then(async (res) => {
+      subLoading.value = false;
+      emits('reload');
+      updateVisible(false);
     })
-    .catch((error) => {
-      console.log('error', error);
+    .catch(() => {
+      subLoading.value = false;
     });
 };
 </script>

@@ -33,7 +33,6 @@ const uuid = ref(route.query.uuid)
 const pageLoading = ref(false)
 const projectDetail = ref();
 const getProjectDetail = () => {
-  console.log(123123)
   pageLoading.value = true
   toolsDetail({
     uuid: uuid.value

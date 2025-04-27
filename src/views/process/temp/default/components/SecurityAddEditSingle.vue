@@ -1,12 +1,7 @@
 <template>
   <div>
     <!-- 确认弹窗 -->
-    <vco-confirm-alert
-      ref="changeAlertRef"
-      :confirm-txt="confirmTxt"
-      v-model:visible="changeVisible"
-      @submit="submitRquest"
-    ></vco-confirm-alert>
+    <vco-confirm-alert ref="changeAlertRef" :confirm-txt="confirmTxt" v-model:visible="changeVisible" @submit="submitRquest"></vco-confirm-alert>
 
     <div class="sys-form-content mt-5">
       <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
@@ -52,40 +47,26 @@
           </template> -->
           <a-col :span="Number(formState.type) === 2 ? 12 : 24">
             <a-form-item :label="t('抵押物价值')" name="amount">
-              <a-input-number
-                v-model:value="formState.amount"
-                :max="99999999999"
-                :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-              />
+              <a-input-number v-model:value="formState.amount" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
             </a-form-item>
           </a-col>
 
           <a-col v-if="Number(formState.type) === 2" :span="12">
             <a-form-item :label="t('面积')" name="sqm">
-              <a-input
-                v-model:value="formState.sqm"
-                suffix="m²"
-              />
+              <a-input v-model:value="formState.sqm" suffix="m²" />
             </a-form-item>
           </a-col>
 
           <a-col :span="24">
             <div class="flex gap-2 mb-3 items-center">
-              <p style="font-size: 12px;">{{ t('是否预售') }}</p>
+              <p style="font-size: 12px">{{ t('是否预售') }}</p>
               <a-switch v-model:checked="formState.is_sales" size="small"></a-switch>
             </div>
             <div v-if="formState.is_sales" class="sales-content mb-5">
               <a-row :gutter="24">
                 <a-col :span="8">
                   <a-form-item :label="t('抵押物价值')">
-                    <a-input-number
-                      v-model:value="formState.amount"
-                      :max="99999999999"
-                      :disabled="true"
-                      :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                      :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                    />
+                    <a-input-number v-model:value="formState.amount" :max="99999999999" :disabled="true" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
                   </a-form-item>
                 </a-col>
                 <a-col :span="8">
@@ -94,28 +75,18 @@
                       {{ t('销售价格') }}
                       <a-form-item-rest>
                         <div class="gst-check-content">
-                          (<a-checkbox v-model:checked="formState.is_gst" class="gst-check" @change="salesPriceInput">{{ t('含消费税') }}</a-checkbox>)
+                          (<a-checkbox v-model:checked="formState.is_gst" class="gst-check" @change="salesPriceInput">{{ t('含消费税') }}</a-checkbox
+                          >)
                         </div>
                       </a-form-item-rest>
                     </template>
 
-                    <a-input-number
-                      v-model:value="formState.sales_price"
-                      :max="99999999999"
-                      :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                      :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                      @input="salesPriceInput"
-                    />
+                    <a-input-number v-model:value="formState.sales_price" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" @input="salesPriceInput" />
                   </a-form-item>
                 </a-col>
                 <a-col :span="8">
                   <a-form-item :label="t('回款金额')" name="repayment_price">
-                    <a-input-number
-                      v-model:value="formState.repayment_price"
-                      :max="99999999999"
-                      :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                      :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                    />
+                    <a-input-number v-model:value="formState.repayment_price" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
                   </a-form-item>
                 </a-col>
                 <a-col :span="8">
@@ -151,11 +122,7 @@
                 </a-col>
                 <a-col :span="8">
                   <a-form-item :label="t('变化比例')" name="variance">
-                    <a-input
-                      v-model:value="formState.variance"
-                      :disabled="true"
-                      suffix="%"
-                    />
+                    <a-input v-model:value="formState.variance" :disabled="true" suffix="%" />
                   </a-form-item>
                 </a-col>
               </a-row>
@@ -180,11 +147,7 @@
           </a-col>
           <a-col :span="12">
             <a-form-item :label="t('保险价值')" name="insurance_value">
-              <a-input-number
-                v-model:value="formState.insurance_value"
-                :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-              />
+              <a-input-number v-model:value="formState.insurance_value" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
             </a-form-item>
           </a-col>
           <a-col :span="12">
@@ -193,6 +156,13 @@
             </a-form-item>
           </a-col>
 
+          <a-col :span="24" v-if="projectInfo.project_address_other && projectInfo.project_address_other.length > 1">
+            <a-form-item :label="t('选择地址')">
+              <a-select v-model:value="setAddressVal" @change="setAddress">
+                <a-select-option :value="item.project_city" v-for="(item, index) in projectInfo.project_address_other" :key="index">{{ item.project_city }}</a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
           <a-col :span="24">
             <vco-address :config="addressConfig" ref="vcoAddressRef" @change="setAddressInfo"></vco-address>
           </a-col>
@@ -210,7 +180,7 @@
 
                   <template v-if="showCopy">
                     <p class="ml-5">{{ t('复制条数') }}</p>
-                    <a-input-number v-model:value="formState.copy__num" :min="1" style="width: 100px;" />
+                    <a-input-number v-model:value="formState.copy__num" :min="1" style="width: 100px" />
                   </template>
                 </div>
               </a-form-item-rest>
@@ -220,10 +190,7 @@
       </a-form>
 
       <div class="flex gap-4 mb-5 mt-5 justify-end">
-        <a-button
-          type="grey" class="big shadow bold uppercase"
-          @click="updateVisible(false)"
-        >{{ t('取消') }}</a-button>
+        <a-button type="grey" class="big shadow bold uppercase" @click="updateVisible(false)">{{ t('取消') }}</a-button>
         <a-button type="dark" class="big shadow bold uppercase" :loading="subLoading" @click="submitHandle">{{ t('保存') }}</a-button>
       </div>
     </div>
@@ -239,7 +206,7 @@ import { projectAuditSaveMode, projectDischargeAddEditSecurity } from '@/api/pro
 import tool, { selectDateFormat } from '@/utils/tool';
 import emitter from '@/event';
 import { message } from 'ant-design-vue/es';
-import { systemDictData } from "@/api/system"
+import { systemDictData } from '@/api/system';
 
 const emits = defineEmits(['close', 'refresh']);
 
@@ -286,33 +253,33 @@ const updateVisible = (value) => {
 };
 
 const netproceedsPriceInput = () => {
-  const net_proceeds_price = formState.value.net_proceeds_price || 0
-  const amount = formState.value.amount || 0
+  const net_proceeds_price = formState.value.net_proceeds_price || 0;
+  const amount = formState.value.amount || 0;
   if (amount) {
-    const num = tool.minus(net_proceeds_price, amount)
-    const num1 = tool.div(num, amount)
-    const resNum = tool.times(num1, 100)
-    const variance =  Math.ceil(resNum * 100) / 100
-    formState.value.variance = variance
+    const num = tool.minus(net_proceeds_price, amount);
+    const num1 = tool.div(num, amount);
+    const resNum = tool.times(num1, 100);
+    const variance = Math.ceil(resNum * 100) / 100;
+    formState.value.variance = variance;
   } else {
-    formState.value.variance = 0
+    formState.value.variance = 0;
   }
-}
+};
 
 const salesPriceInput = () => {
-  const price = formState.value.sales_price || 0
+  const price = formState.value.sales_price || 0;
 
-  formState.value.amount = price
+  formState.value.amount = price;
   if (Boolean(formState.value.is_gst)) {
-    const num = tool.div(price, props.gstRate)
-    const resNum = Math.floor(num * 100) / 100
-    formState.value.repayment_price = resNum
+    const num = tool.div(price, props.gstRate);
+    const resNum = Math.floor(num * 100) / 100;
+    formState.value.repayment_price = resNum;
 
-    formState.value.amount = resNum
+    formState.value.amount = resNum;
   }
 
-  netproceedsPriceInput()
-}
+  netproceedsPriceInput();
+};
 
 const totalValue = computed(() => {
   const land = formState.value.insurance_value || 0;
@@ -343,20 +310,20 @@ const formState = ref({
   build_amount: '',
   land_amount: '',
   amount: '',
-  copy__num: "",
+  copy__num: '',
   is_sales: false,
-  sales_price: "",
+  sales_price: '',
   is_gst: false,
-  repayment_price: "",
-  contract_date: "",
-  settlement_date: "",
-  sunset_date: "",
-  repayment_date: "",
-  net_proceeds_price: "",
-  variance: "",
-  sqm: ""
+  repayment_price: '',
+  contract_date: '',
+  settlement_date: '',
+  sunset_date: '',
+  repayment_date: '',
+  net_proceeds_price: '',
+  variance: '',
+  sqm: ''
 });
-const showCopy = ref(false)
+const showCopy = ref(false);
 
 const vcoAddressRef = ref();
 const addressConfig = ref({
@@ -377,6 +344,23 @@ const setAddressInfo = (e) => {
   }
 };
 
+const setAddressVal = ref({});
+const setAddress = (val) => {
+  const result = props.projectInfo.project_address_other.find((obj) => obj.project_city === val);
+
+  vcoAddressRef.value.init({
+    address_short: result.project_address_short,
+    address: result.project_address,
+    suburb: result.project_postcode,
+    postal: result.postal,
+    con_id: result.project_con_id,
+    region: result.project_region,
+    region_one_id: result.region_one_id,
+    region_two_id: result.region_two_id,
+    region_three_id: result.region_three_id
+  });
+};
+
 const formRules = {
   security_name: [{ required: true, message: t('请输入') + t('名称'), trigger: 'blur' }],
   type: [{ required: true, message: t('请选择') + t('类型'), trigger: 'change' }],
@@ -387,7 +371,7 @@ const formRules = {
   postcode: [{ required: true, message: t('请输入') + t('邮编'), trigger: 'blur' }],
   region_one_name: [{ required: true, message: t('请输入') + t('城市/州'), trigger: 'blur' }],
   address_short: [{ required: true, message: t('请输入') + t('地址1'), trigger: 'blur' }],
-  sqm: [{ required: true, message: t('请输入') + t('面积'), trigger: 'blur' }],
+  sqm: [{ required: true, message: t('请输入') + t('面积'), trigger: 'blur' }]
   // sales_price: [{ required: true, message: t('请输入') + t('销售价格'), trigger: 'blur' }],
   // repayment_price: [{ required: true, message: t('请输入') + t('回款金额'), trigger: 'blur' }],
   // contract_date: [{ required: true, message: t('请选择') + t('合同日期（或无条件日期）'), trigger: 'change' }],
@@ -422,30 +406,29 @@ const disabledDateFormatAfter = (current) => {
   return false;
 };
 
-const currentParams = ref(null)
+const currentParams = ref(null);
 const subLoading = ref(false);
 
 const submitRquest = () => {
   if (currentParams.value) {
-
     subLoading.value = true;
     const params = {
       code: props.blockInfo?.code || '',
       uuid: props.currentId,
       security__data: currentParams.value
-    }
+    };
 
-    const ajaxFn = props.isOpen ? projectDischargeAddEditSecurity : projectAuditSaveMode
+    const ajaxFn = props.isOpen ? projectDischargeAddEditSecurity : projectAuditSaveMode;
     ajaxFn(params)
       .then(() => {
-        currentParams.value = null
+        currentParams.value = null;
         subLoading.value = false;
-        changeVisible.value = false
+        changeVisible.value = false;
         updateVisible(false);
-        changeAlertRef.value.changeLoading(false)
+        changeAlertRef.value.changeLoading(false);
 
         if (props.isOpen) {
-          emits('refresh')
+          emits('refresh');
         } else {
           emitter.emit('refreshSecurityInfo');
           emitter.emit('refreshSecurityList');
@@ -455,15 +438,15 @@ const submitRquest = () => {
         }
       })
       .catch(() => {
-        changeAlertRef.value.changeLoading(false)
+        changeAlertRef.value.changeLoading(false);
         subLoading.value = false;
       });
   }
-}
+};
 
-const changeAlertRef = ref()
-const changeVisible = ref(false)
-const confirmTxt = ref('')
+const changeAlertRef = ref();
+const changeVisible = ref(false);
+const confirmTxt = ref('');
 
 const submitHandle = () => {
   formRef.value
@@ -489,44 +472,45 @@ const submitHandle = () => {
       }
 
       if (!showCopy.value) {
-        delete params.copy__num
+        delete params.copy__num;
       }
 
       if (params.is_sales) {
-        params.is_sales = params.is_sales ? 1 : 0
-        params.is_gst = params.is_gst ? 1 : 0
+        params.is_sales = params.is_sales ? 1 : 0;
+        params.is_gst = params.is_gst ? 1 : 0;
       } else {
-        params.sales_price = ""
-        params.is_gst = 0
-        params.repayment_price = ""
-        params.contract_date = ""
-        params.settlement_date = ""
-        params.sunset_date = ""
-        params.repayment_date = ""
-        params.net_proceeds_price = ""
-        params.variance = ""
+        params.sales_price = '';
+        params.is_gst = 0;
+        params.repayment_price = '';
+        params.contract_date = '';
+        params.settlement_date = '';
+        params.sunset_date = '';
+        params.repayment_date = '';
+        params.net_proceeds_price = '';
+        params.variance = '';
       }
 
-      currentParams.value = params
+      currentParams.value = params;
 
-      const {project_address_short, project_address, project_suburb, region_one_id, region_two_id, region_three_id, project_postcode, project_city} = props.projectInfo
-      const {address_short, address, suburb, postcode} = formState.value
-      const region_one_id1 = formState.value.region_one_id
-      const region_two_id1 = formState.value.region_two_id
-      const region_three_id1 = formState.value.region_three_id
+      const { project_address_short, project_address, project_suburb, region_one_id, region_two_id, region_three_id, project_postcode, project_city } = props.projectInfo;
+      const { address_short, address, suburb, postcode } = formState.value;
+      const region_one_id1 = formState.value.region_one_id;
+      const region_two_id1 = formState.value.region_two_id;
+      const region_three_id1 = formState.value.region_three_id;
 
-      if (project_address_short !== address_short ||
-        project_address !== address || 
-        project_suburb !== suburb || 
-        project_postcode !== postcode || 
-        Number(region_one_id) !== Number(region_one_id1) || 
-        Number(region_two_id) !== Number(region_two_id1) || 
+      if (
+        project_address_short !== address_short ||
+        project_address !== address ||
+        project_suburb !== suburb ||
+        project_postcode !== postcode ||
+        Number(region_one_id) !== Number(region_one_id1) ||
+        Number(region_two_id) !== Number(region_two_id1) ||
         Number(region_three_id) !== Number(region_three_id1)
       ) {
-        confirmTxt.value = t('当前项目地址为：{0}，抵押物地址与项目地址不一致，确定提交吗？', [project_city])
-        changeVisible.value = true
+        confirmTxt.value = t('当前项目地址为：{0}，抵押物地址与项目地址不一致，确定提交吗？', [project_city]);
+        changeVisible.value = true;
       } else {
-        submitRquest()
+        submitRquest();
       }
     })
     .catch((error) => {
@@ -546,26 +530,27 @@ onMounted(() => {
         formState.value[key] = props.infoData[key] ? true : false;
       }
 
-      showCopy.value = Boolean(Number(formState.value.copy__num))
+      showCopy.value = Boolean(Number(formState.value.copy__num));
     }
+    setAddressVal.value = props.infoData.city;
   } else {
     if (props.projectInfo) {
-      const {project_address_short, project_address, project_suburb, region_one_id, region_two_id, region_three_id, project_postcode} = props.projectInfo
-      formState.value.address_short = project_address_short || ''
-      formState.value.address = project_address || ''
-      formState.value.suburb = project_suburb || ''
-      formState.value.region_one_id = region_one_id || 0
-      formState.value.region_two_id = region_two_id || 0
-      formState.value.region_three_id = region_three_id || 0
-      formState.value.postcode = project_postcode || ''
+      const { project_address_short, project_address, project_suburb, region_one_id, region_two_id, region_three_id, project_postcode, project_city } = props.projectInfo;
+      formState.value.address_short = project_address_short || '';
+      formState.value.address = project_address || '';
+      formState.value.suburb = project_suburb || '';
+      formState.value.region_one_id = region_one_id || 0;
+      formState.value.region_two_id = region_two_id || 0;
+      formState.value.region_three_id = region_three_id || 0;
+      formState.value.postcode = project_postcode || '';
+      setAddressVal.value = project_city;
     }
   }
 
   nextTick(() => {
     vcoAddressRef.value.init(formState.value);
   });
-})
-
+});
 </script>
 <style lang="less" scoped>
 .total-amount-info {
@@ -596,12 +581,12 @@ onMounted(() => {
 
 .gst-check-content {
   padding-left: 10px;
-  color: rgba(0, 0, 0, 0.88);;
+  color: rgba(0, 0, 0, 0.88);
 }
 .gst-check {
   font-size: 12px !important;
   padding-left: 5px;
-  :deep(input[type="checkbox"]) {
+  :deep(input[type='checkbox']) {
     width: 14px !important;
     height: 14px !important;
   }
@@ -610,7 +595,7 @@ onMounted(() => {
     height: 14px !important;
   }
   :deep(.ant-checkbox) {
-    +span {
+    + span {
       padding-inline-start: 4px !important;
       padding-inline-end: 4px !important;
     }

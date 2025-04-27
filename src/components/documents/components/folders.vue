@@ -137,6 +137,11 @@ watch(
         background-color: hsla(35, 53%, 67%, 0.2);
         border-radius: 6px;
       }
+      .folder-item-name {
+        .name {
+          max-width: calc(100% - 100px);
+        }
+      }
       .folder-item-ops {
         display: block!important;
       }

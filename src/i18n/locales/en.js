@@ -960,5 +960,8 @@ export default {
   "请先设置抵押物信息": "Please set the security items first",
   "进入补充信息": "Enter Supplementary Info",
   "其他地址": "Other Addresses",
-  "选择地址": "Select address"
+  "选择地址": "Select address",
+  "加载中...": "Loading...",
+  "上拉加载更多": "Pull up to load more",
+  "没有更多了": "No more"
 }

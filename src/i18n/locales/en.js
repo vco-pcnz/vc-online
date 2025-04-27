@@ -959,5 +959,6 @@ export default {
   "请先设置开发成本": "Please set the development cost first",
   "请先设置抵押物信息": "Please set the security items first",
   "进入补充信息": "Enter Supplementary Info",
-  "其他地址": "Other Addresses"
+  "其他地址": "Other Addresses",
+  "选择地址": "Select address"
 }

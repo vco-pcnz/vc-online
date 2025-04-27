@@ -12,6 +12,7 @@
         <span class="create_user_name">{{ item.create_user_name }}</span>
       </li>
       <vco-more-loading v-if="listData.length" :has-more="hasMore" :loading="loading"></vco-more-loading>
+      <a-empty v-if="!loading && !listData.length && !pageLoading" />
     </ul>
   </a-spin>
 </template>

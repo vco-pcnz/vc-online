@@ -88,10 +88,11 @@ const setPaginate = (page, limit) => {
     page,
     limit
   };
-  loadData();
+  // loadData();
+  getCurrentData();
 };
 const rowData = ref([]);
-
+const dataList = ref([]);
 const loadData = () => {
   loading.value = true;
   reconciliationList({ ...pagination.value, ...searchParams.value })
@@ -106,12 +107,19 @@ const loadData = () => {
           }
         });
       }
-      rowData.value = res.data;
+      dataList.value = res.data;
+      // rowData.value = res.data;
+      getCurrentData();
       layoutRef.value.setNum(total.value);
     })
     .finally(() => {
       loading.value = false;
     });
+};
+
+const getCurrentData = () => {
+  let star = (pagination.value.page - 1) * pagination.value.limit;
+  rowData.value = dataList.value.slice(star, star + pagination.value.limit).concat([]);
 };
 
 const reload = () => {

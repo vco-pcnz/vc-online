@@ -6,6 +6,7 @@ import { isEmpty } from "lodash";
 import { useUserStore } from "@/store";
 import router from "@/router";
 import qs from "qs";
+import { acquire, release } from './request-limiter.js'
 
 function createExternalService() {
   // 创建一个外部网络 axios 实例
@@ -13,14 +14,21 @@ function createExternalService() {
 
   // HTTP request 拦截器
   service.interceptors.request.use(
-    (config) => config,
+    async (config) => {
+      await acquire(); // 发请求前排队
+      return config;
+    },
     (error) => Promise.reject(error)
   );
 
   // HTTP response 拦截器
   service.interceptors.response.use(
-    (response) => response,
+    (response) => {
+      release(); // 请求完成释放
+      return response;
+    },
     (error) => {
+      release(); // 请求出错也要释放
       Promise.reject(error.response ?? null);
     }
   );
@@ -33,7 +41,10 @@ function createService() {
 
   // HTTP request 拦截器
   service.interceptors.request.use(
-    (config) => config,
+    async (config) => {
+      await acquire(); // 加这行
+      return config;
+    },
     (error) => {
       console.log(error);
       // 失败
@@ -44,6 +55,8 @@ function createService() {
   // HTTP response 拦截器
   service.interceptors.response.use(
     (response) => {
+      release();
+
       const disposition =
         response.headers["content-disposition"] ||
         response.headers["Content-Disposition"] ||
@@ -93,6 +106,7 @@ function createService() {
       }
     },
     (error) => {
+      release();
       const err = (text) => {
         message.error({
           content:

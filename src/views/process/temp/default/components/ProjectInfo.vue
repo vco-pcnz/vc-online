@@ -51,7 +51,10 @@
       <a-col :span="24">
         <div class="info-content">
           <p class="name">{{ t('项目地址') }}</p>
-          <p class="txt">{{ data.project_city }}</p>
+          <p class="txt" v-if="!data.project_address_other || data.project_address_other.length <= 1">{{ data.project_city }}</p>
+          <template v-else>
+            <p class="txt" v-for="(item, index) in data.project_address_other" :key="index">{{ item.project_city }}</p>
+          </template>
         </div>
       </a-col>
       <a-col :span="24">

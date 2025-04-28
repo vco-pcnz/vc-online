@@ -147,11 +147,11 @@ import { reactive, ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { removeDuplicates } from '@/utils/tool';
 import { cloneDeep } from 'lodash';
-import { message } from 'ant-design-vue/es';
 import { systemDictData } from '@/api/system';
 import {
   projectAuditSaveMode,
-  projectAuditCheckMode
+  projectAuditCheckMode,
+  projectAuditStepDetail
 } from '@/api/process';
 import { projectDetailSaveGuarantor } from "@/api/project/project"
 import emitter from '@/event';
@@ -358,9 +358,16 @@ watch(
 
 onMounted(() => {
   dataInit();
+  
+  projectAuditStepDetail({
+    uuid: props.currentId
+  }).then(res => {
+    console.log('res', res);
+  })
+
   setTimeout(() => {
     getSecurityTypeData();
-  }, 10000)
+  }, 6000)
   
   emitter.on('blockShowTarget', blockShowTargetHandle)
 });

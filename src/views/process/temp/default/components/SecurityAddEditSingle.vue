@@ -352,7 +352,7 @@ const setAddress = (val) => {
     address_short: result.project_address_short,
     address: result.project_address,
     suburb: result.project_postcode,
-    postal: result.postal,
+    postcode: result.project_postcode,
     con_id: result.project_con_id,
     region: result.project_region,
     region_one_id: result.region_one_id,

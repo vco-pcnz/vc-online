@@ -358,7 +358,10 @@ watch(
 
 onMounted(() => {
   dataInit();
-  getSecurityTypeData();
+  setTimeout(() => {
+    getSecurityTypeData();
+  }, 10000)
+  
   emitter.on('blockShowTarget', blockShowTargetHandle)
 });
 

@@ -3,7 +3,7 @@
     <div class="Panel">
       <h2 class="Panel-Title">
         <i class="iconfont back" @click="back">&#xe794;</i>
-        <a-tag v-if="title" class="Tag">{{ title }}</a-tag>
+        <a-tag class="Tag" v-if="title"><p :title="w?title:''" :style="{maxWidth: w || 'auto'}">{{ title }}</p></a-tag>
         <slot name="title"></slot>
       </h2>
     </div>
@@ -17,26 +17,26 @@
 import { goBack } from '@/utils/tool';
 const props = defineProps({
   title: {
-    type: String,
+    type: String
+  },
+  w: {
+    type: String
   },
   isBack: {
     type: Boolean,
     default: false
-  },
+  }
 });
 
-const emits = defineEmits([
-  'back',
-]);
+const emits = defineEmits(['back']);
 
 const back = () => {
   if (props.isBack) {
-    goBack()
+    goBack();
   } else {
     emits('back');
   }
-}
-
+};
 </script>
 
 <style scoped lang="less">
@@ -92,6 +92,12 @@ const back = () => {
 
       border-radius: 0 16px 16px 0;
       overflow: hidden;
+
+      p {
+        white-space: nowrap; /* 禁止换行 */
+        overflow: hidden; /* 隐藏溢出内容 */
+        text-overflow: ellipsis; /* 显示省略号 */
+      }
     }
   }
 

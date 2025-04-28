@@ -1,6 +1,6 @@
 <template>
   <div>
-    <vco-page-panel :title="pageTitleRef" :isBack="true">
+    <vco-page-panel :title="pageTitleRef" w="400px" :isBack="true">
       <div class="TabsPanel-Tab">
         <a-button v-for="item in panes" :key="item.key" @click="activeTab = item.key" :class="`tab-button ${item.key === activeTab ? 'active-tab' : ''}`">
           {{ item.title }}
@@ -22,32 +22,34 @@ import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import LoanPage from './components/LoanPage.vue';
 import Forecast from './components/Forecast.vue';
-import { useRoute } from 'vue-router'
-import { toolsDetail } from '@/api/import'
+import { useRoute } from 'vue-router';
+import { toolsDetail } from '@/api/import';
 
 const { t } = useI18n();
-const route = useRoute()
+const route = useRoute();
 
-const uuid = ref(route.query.uuid)
+const uuid = ref(route.query.uuid);
 
-const pageLoading = ref(false)
+const pageLoading = ref(false);
 const projectDetail = ref();
 const getProjectDetail = () => {
-  pageLoading.value = true
+  pageLoading.value = true;
   toolsDetail({
     uuid: uuid.value
-  }).then(res => {
-    projectDetail.value = res
-    pageLoading.value = false
-  }).catch(() => {
-    pageLoading.value = false
   })
+    .then((res) => {
+      projectDetail.value = res;
+      pageLoading.value = false;
+    })
+    .catch(() => {
+      pageLoading.value = false;
+    });
 };
 
 const pageTitleRef = computed(() => {
-  const sn = projectDetail.value?.project_apply_sn || '';
-  const type = t('进入补充信息');
-  return sn ? `${sn} - ${type}` : type
+  const pageName = t('进入补充信息');
+  const name = projectDetail.value?.borrower_type == 2 ? projectDetail.value?.organization_name : projectDetail.value?.user_name;
+  return pageName ? `${pageName} - ${name}` : name;
 });
 
 const activeTab = ref('1');
@@ -64,9 +66,9 @@ const panes = ref([
 
 onMounted(() => {
   if (uuid) {
-    getProjectDetail()
+    getProjectDetail();
   }
-})
+});
 </script>
 
 <style scoped lang="less">

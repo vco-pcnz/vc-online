@@ -150,8 +150,7 @@ import { cloneDeep } from 'lodash';
 import { systemDictData } from '@/api/system';
 import {
   projectAuditSaveMode,
-  projectAuditCheckMode,
-  projectAuditStepDetail
+  projectAuditCheckMode
 } from '@/api/process';
 import { projectDetailSaveGuarantor } from "@/api/project/project"
 import emitter from '@/event';
@@ -359,15 +358,7 @@ watch(
 onMounted(() => {
   dataInit();
   
-  projectAuditStepDetail({
-    uuid: props.currentId
-  }).then(res => {
-    console.log('res', res);
-  })
-
-  setTimeout(() => {
-    getSecurityTypeData();
-  }, 6000)
+  getSecurityTypeData();
   
   emitter.on('blockShowTarget', blockShowTargetHandle)
 });

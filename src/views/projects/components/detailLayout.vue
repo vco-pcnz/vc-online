@@ -1,17 +1,12 @@
 <template>
-  <vco-page-panel :title="pageTitleRef" @back="back">
+  <vco-page-panel :title="pageTitleRef" w="200px" @back="back">
     <div class="TabsPanel-Tab">
       <a-button v-for="item in panes" :key="item.key" @click="onChange(item.key)" :class="`tab-button ${item.key === props.activeTab ? 'active-tab' : ''}`">
         {{ item.title }}
       </a-button>
-      <a-button
-        type="brown" shape="round"
-        v-if="hasImportAndPerfect && detail?.base?.old"
-        @click="onChange('import-and-perfect')"
-        class="flex items-center"
-      >
+      <a-button type="brown" shape="round" v-if="hasImportAndPerfect && detail?.base?.old" @click="onChange('import-and-perfect')" class="flex items-center">
         {{ t('进入补充信息') }}
-        <i class="iconfont" style="line-height: 1;">&#xe602;</i>
+        <i class="iconfont" style="line-height: 1">&#xe602;</i>
       </a-button>
     </div>
   </vco-page-panel>
@@ -38,10 +33,10 @@ const emits = defineEmits(['getProjectDetail']);
 const hasImportAndPerfect = ref(false);
 
 const pageTitleRef = computed(() => {
-  const sn = detail.value?.base?.project_apply_sn || '';
   const name = detail.value?.product?.name ? `${detail.value?.product?.name} - ` : '';
-  const type = pageTitle.value ? ` - ${t(pageTitle.value)}` : '';
-  return `${name}${sn}${type}`;
+  const type = pageTitle.value ? ` ${t(pageTitle.value)}` : '';
+  const borrower_user_name = (pageTitle.value ? ' - ' : '') + detail.value?.base?.borrower_user_name;
+  return `${name}${type}${borrower_user_name}`;
 });
 
 const panes = computed(() => {

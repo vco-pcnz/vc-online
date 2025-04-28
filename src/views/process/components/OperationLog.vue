@@ -5,7 +5,7 @@
         <vco-process-title :title="t('操作记录')"></vco-process-title>
 
         <a-spin :spinning="pageLoading" size="large">
-          <div class="log-content" :class="{'no-data': !listData.length}">
+          <div class="log-content" :class="{'no-data': !listData.length}" @scroll="scrollHandle">
             <template v-if="listData.length">
               <div v-for="(item, index) in listData" :key="index" class="log-item">
                 <div class="icon">
@@ -21,9 +21,7 @@
                 </div>
               </div>
             </template>
-            <template v-if="!pageLoading && !listData.length">
-              <div class="no-data-content log-content no-data">{{ t('暂无操作记录') }}</div>
-            </template>
+            <vco-more-loading v-if="listData.length" :has-more="hasMore" :loading="loading"></vco-more-loading>
           </div>
         </a-spin>
       </div>
@@ -33,7 +31,7 @@
 </template>
 
 <script setup>
-  import { ref, onMounted, onUnmounted } from "vue";
+  import { ref, reactive, onMounted, onUnmounted } from "vue";
   import { useI18n } from "vue-i18n";
   import { auditHistoryList, projectDetailHistoryList } from "@/api/process";
   import emitter from "@/event"
@@ -51,29 +49,71 @@
 
   const { t } = useI18n();
 
+  const pageInfo = reactive({
+    page: 1,
+    limit: 10
+  })
   const listData = ref([])
-
+  const loading = ref(false)
+  const hasMore = ref(true)
   const pageLoading = ref(false)
-  const getListData = () => {
-    pageLoading.value = true
+
+  const getListData = (flag) => {
+    if (flag) {
+      pageInfo.page = 1
+      listData.value = []
+      hasMore.value = true
+    }
+
+    if (loading.value || !hasMore.value) { return }
+
+    if (pageInfo.page === 1) {
+      pageLoading.value = true
+    }
+
+    loading.value = true
+
     const ajaxFn = props.isDetails ? projectDetailHistoryList : auditHistoryList
     ajaxFn({
-      uuid: props.currentId
+      uuid: props.currentId,
+      ...pageInfo
     }).then(res => {
-      listData.value = res
+      const total = res.count || 0
+      const data = res.data || []
       pageLoading.value = false
+      loading.value = false
+
+      listData.value = pageInfo.page === 1 ? data : [...listData.value, ...data]
+      pageInfo.page += 1
+      hasMore.value = total > listData.value.length
+
     }).catch(() => {
       pageLoading.value = false
+      loading.value = false
     })
   }
 
   // 绑定事件
   const handleRefresh = () => {
-    getListData();
+    getListData(true);
   };
 
+  const scrollHandle = (event) => {
+    const el = event.target;
+    const scrollTop = el.scrollTop;
+    const scrollHeight = el.scrollHeight;
+    const clientHeight = el.clientHeight;
+
+    // 距离底部距离
+    const distanceToBottom = scrollHeight - scrollTop - clientHeight;
+
+    if (distanceToBottom <= 5) {
+      getListData()
+    }
+  }
+
   onMounted(() => {
-    getListData()
+    getListData(true)
     emitter.on('refreshAuditHisList', handleRefresh)
   })
 

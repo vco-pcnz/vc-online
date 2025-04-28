@@ -203,7 +203,7 @@
           </div>
         </template>
 
-        <a-empty v-if="!securityData.length && !setedData.length && !pageLoading" />
+        <a-empty v-if="!securityData.length && !Object.keys(setedData.data).length && !pageLoading" />
       </div>
     </a-spin>
   </div>
@@ -422,7 +422,7 @@
         headerData.push({
           title: securityData.value[i].card_no,
           dataIndex: securityData.value[i].uuid,
-          width: 150,
+          width: 130,
           align: 'center'
         })
       }
@@ -437,11 +437,11 @@
     }, {
       title: 'Payment',
       dataIndex: "payment",
-      width: 110,
+      width: 100,
       align: 'center',
       fixed: 'left'
     }, ...headerData,
-    { title: t('总计'), dataIndex: 'total', width: 180, align: 'center', fixed: 'right' }]
+    { title: t('总计'), dataIndex: 'total', width: 150, align: 'center', fixed: 'right' }]
 
     // 合并第一行数据
     if (tableHeader.value.length > 3) {
@@ -564,10 +564,11 @@
     dataArr.push(obj)
 
     const calcNum = tool.div(buildAmount.value, totalSqm)
-    amortizedCalc.value = `$${numberStrFormat(buildAmount.value)} ÷ ${obj.total} ≈ <span>$${numberStrFormat(calcNum)}</span>/m²`
+    amortizedCalc.value = `<em>${t('总条数')}：${amLen.value}</em>$${numberStrFormat(buildAmount.value)} ÷ ${obj.total} ≈ <span>$${numberStrFormat(calcNum)}</span>/m²`
     amortizedData.value = dataArr
   }
 
+  const amLen = ref(0)
   const setAmortizedTable = () => {
     const data = cloneDeep(securityData.value)
     const itemData = data.filter(item => item.sqm)
@@ -580,7 +581,7 @@
       headerData.push({
         title,
         dataIndex: itemData[i].uuid,
-        width: 150,
+        width: 120,
         align: 'center'
       })
     }
@@ -593,6 +594,7 @@
     }, ...headerData,
     { title: t('总计'), dataIndex: 'total', width: 180, align: 'center', fixed: 'right' }]
 
+    amLen.value = headerData.length
     setAmortizedData(itemData)
   }
 
@@ -656,8 +658,6 @@
             })
             footerDataCol.value = footerData
           }
-        } else {
-          pageLoading.value = false
         }
       })
 
@@ -962,6 +962,12 @@
 
   .progress-payment-content {
     min-height: 300px;
+    :deep(.ant-table-wrapper) {
+      .ant-table-tbody>tr>td {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+    }
   }
 
   .input-item {
@@ -997,6 +1003,10 @@
       .ant-table-cell-fix-right-first::after,
       * {
         border-color: #272727 !important;
+      }
+      .ant-table-tbody>tr>td {
+        padding-left: 10px;
+        padding-right: 10px;
       }
       .ant-table-expanded-row-fixed::after {
         border-color: #272727 !important;
@@ -1069,6 +1079,12 @@
     text-align: right;
     margin-top: 10px;
     font-size: 16px;
+    :deep(em) {
+      padding-right: 20px;
+      font-style: normal;
+      font-size: 14px;
+      color: #333;
+    }
     :deep(span) {
       color: @colorPrimary !important;
       font-weight: 500;

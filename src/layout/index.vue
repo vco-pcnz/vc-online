@@ -43,7 +43,7 @@
 <style lang="less" scoped>
   .app-layout {
     width: 80vw;
-    min-width: 1200px;
+    min-width: 1440px;
     min-height: 100vh;
     margin: 0 auto;
     padding: 0 25px 25px 25px;

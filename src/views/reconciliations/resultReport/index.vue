@@ -33,7 +33,7 @@
               <p><span class="label">Xero</span>: {{ tool.formatMoney(Math.abs(record?.xero_received_amount)) }}</p>
               <p>
                 <span class="label">{{ t('差额') }}</span
-                >: {{ tool.formatMoney(Math.abs(record?.vco_received_amount)) }}
+                >: {{ tool.formatMoney(Math.abs(record?.received_amount_diff)) }}
               </p>
             </template>
             <template v-if="column.dataIndex === 'total'">

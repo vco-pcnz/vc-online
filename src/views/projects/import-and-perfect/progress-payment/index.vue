@@ -635,8 +635,6 @@
             })
             footerDataCol.value = footerData
           }
-        } else {
-          pageLoading.value = false
         }
       })
 

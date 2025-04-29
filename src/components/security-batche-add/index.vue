@@ -1186,6 +1186,10 @@ const subHandle = () => {
       }
     })
     .catch((error) => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth' // 平滑滚动
+      });
       console.log('error', error);
     });
 }

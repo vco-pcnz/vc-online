@@ -49,7 +49,10 @@
               {{ t('项目地址') }}
               <EditAddr :data="projectDetail" :current-id="currentId" @reload="reload"> <i class="iconfont ml-2 edit cursor-pointer">&#xe753;</i></EditAddr>
             </p>
-            <p class="txt">{{ projectAddress || '--' }}</p>
+            <p class="txt" v-if="!projectDetail?.project_address_other || projectDetail?.project_address_other.length <= 1">{{ projectAddress || '--' }}</p>
+            <template v-else>
+              <p class="txt" v-for="(item, index) in projectDetail?.project_address_other" :key="index">{{ item.project_city }}</p>
+            </template>
           </div>
         </a-col>
       </a-row>

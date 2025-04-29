@@ -2,7 +2,7 @@
   <div>
     <div class="unauth_container">
       <div class="language">
-        <language-select :show-img="true"></language-select>
+        <!-- <language-select :show-img="true"></language-select> -->
       </div>
       
       <div class="animation">

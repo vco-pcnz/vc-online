@@ -8,7 +8,7 @@
     <h1 class="mt-5 mb-2">语言切换组件</h1>
     <div class="flex gap-5 items-center">
       <div>占位</div>
-      <language-select></language-select>
+      <!-- <language-select></language-select> -->
     </div>
     <p>-------------------------------------------------------------------------------------</p>
 

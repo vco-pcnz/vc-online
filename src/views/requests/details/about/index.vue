@@ -29,7 +29,7 @@
                   <vco-process-title :title="t('证件资料')"></vco-process-title>
                   <component :is="DocumentInfo" :data="documentInfoData" />
                 </div>
-                <div v-if="Number(loanInfoData.loan_money)" class="block-item details">
+                <div v-if="Number(loanInfoData.old_loan_money)" class="block-item details">
                   <vco-process-title :title="t('借款信息')"></vco-process-title>
                   <component :is="LoanInfo" :data="loanInfoData" />
                 </div>
@@ -43,7 +43,7 @@
                   />
 
                   <component :is="LendingForm"
-                    v-if="Number(lendingData.build_amount) || Number(lendingData.land_amount)"
+                    v-if="lendingData.start_date && lendingData.end_date && Number(lendingData.build_amount)"
                     :is-details="true"
                     :current-id="currentId"
                     :block-info="{showEdit: false}"

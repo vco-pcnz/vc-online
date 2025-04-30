@@ -567,7 +567,7 @@
       if (key === 'time_date' && useData[key]) {
         formState.time_date = [dayjs(useData[key][0]), dayjs(useData[key][1])]
       } else if (key === 'old_loan_money') {
-        formState.old_loan_money = Number(useData[key]) ? useData[key] : ''
+        formState.old_loan_money = Number(useData[key]) ? useData[key] : formState.old_loan_money || ''
       } else if (key === 'totalDay') {
         formState[key] = formState[key] || 0
       } else {
@@ -623,6 +623,7 @@
       const devCostDetail = res.devCostDetail || []
       if (devCostDetail.length) {
         devCost.value = devCostDetail[0].data[0].loan
+        formState.old_loan_money = devCost.value
       }
     })
   }

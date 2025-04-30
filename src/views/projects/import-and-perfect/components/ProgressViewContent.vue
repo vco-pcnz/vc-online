@@ -65,7 +65,7 @@
                   <p>{{ record.type }}</p>
                 </template>
                 <template v-else-if="column.dataIndex === 'payment'">
-                  <p>{{ numberStrFormat(advancePercent) }}%</p>
+                  <p>--</p>
                 </template>
                 <template v-else-if="column.dataIndex === 'total'">
                   <template v-if="showProcess">
@@ -89,11 +89,11 @@
                 </template>
                 <template v-else>
                   <div v-if="showProcess" class="select-item" :class="{'hover': isSelect}" @click="itemSetHandle(advanceObj)">
-                    <vco-number :value="advanceAmount" size="fs_xs" :precision="2" :end="true"></vco-number>
-                    <vco-number :value="advanceObj?.use_amount || 0" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
-                    <div class="process-gap"></div>
-                    <div class="item-process-content line">
-                      <div class="progress">
+                    <div class="flex justify-center flex-col items-center" style="width: 660px;">
+                      <vco-number :value="advanceAmount" size="fs_xs" :precision="2" :end="true"></vco-number>
+                      <vco-number :value="advanceObj?.use_amount || 0" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
+                      <div class="process-gap"></div>
+                      <div class="init-progress">
                         <a-progress
                           :stroke-color="{
                             '0%': '#F19915',
@@ -104,11 +104,10 @@
                         />
                       </div>
                     </div>
-
                     <div v-if="advanceObj.checked" class="selected adv">{{ `$${numberStrFormat(advanceObj.set_amount)}` }}</div>
                   </div>
 
-                  <div v-else class="flex justify-center">
+                  <div v-else class="flex justify-center" style="width: 660px;">
                     <vco-number :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
                   </div>
                 </template>
@@ -410,7 +409,7 @@
     }
     const hadSetData = cloneDeep(setedData.value.data)
 
-    const dataArr = Number(advancePercent.value) ? [{
+    const dataArr = Number(advanceAmount.value) ? [{
         isFixedRow: true,
         type: advanceKey.value
       }
@@ -988,6 +987,14 @@
   .process-gap {
     height: 10px;
   }
+  .init-progress {
+    width: 160px;
+    position: absolute;
+    bottom: 5px;
+    :deep(.ant-progress-line) {
+      margin: 0 !important;
+    }
+  }
   .item-process-content {
     width: 100%;
     position: absolute;
@@ -1025,13 +1032,9 @@
       position: absolute;
       background-color: rgba(49, 189, 101, 0.8);
       top: 0;
-      right: 0;
+      left: 0;
       font-size: 11px;
       padding: 0 5px;
-      &.adv {
-        right: 50%;
-        transform: translateX(50%);
-      }
     }
     &.disabled {
       background-color: #f2f2f2;

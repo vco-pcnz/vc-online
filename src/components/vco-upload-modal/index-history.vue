@@ -46,7 +46,7 @@
             >{{ t('已选择') }} {{ checkedIds.length }} <i class="iconfont close" @click="resetCheck">&#xe77b;</i></a-tag
           >
         </div>
-        <vco-page-search>
+        <vco-page-search @keyup.enter="searchHandle(false)">
           <vco-page-search-item :title="t('名称')" width="266">
             <a-input v-model:value="searchForm.name" :placeholder="t('请输入')" />
           </vco-page-search-item>

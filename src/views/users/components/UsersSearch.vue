@@ -1,5 +1,5 @@
 <template>
-  <vco-page-search>
+  <vco-page-search @keyup.enter="searchHandle(false)">
     <vco-page-search-item width="100" :title="t('类型')">
       <a-select :placeholder="t('请选择')" v-model:value="searchForm.role_id">
         <a-select-option v-for="item in typeData" :key="item.value" :value="item.value">
@@ -17,10 +17,10 @@
     </vco-page-search-item> -->
 
     <vco-page-search-item width="100%">
-      <a-button type="dark-line" @click="searchHandle">
-        <i class="iconfont">&#xe756;</i>
-        {{ t('搜索') }}
-      </a-button>
+      <div class="flex items-center gap-2">
+        <a-button type="dark" @click="searchHandle(false)"><i class="iconfont">&#xe756;</i>{{ t('搜索') }}</a-button>
+        <a-button type="dark-line" @click="searchHandle(true)"><i class="iconfont">&#xe757;</i>{{ t('重置') }}</a-button>
+      </div>
     </vco-page-search-item>
   </vco-page-search>
 </template>
@@ -104,7 +104,13 @@ const searchForm = ref({
   org__name: ''
 });
 
-const searchHandle = () => {
+const searchHandle = (flag) => {
+  if (flag) {
+    for (const key in searchForm.value) {
+      searchForm.value[key] = '';
+    }
+    searchForm.value.key = 'all';
+  }
   usersStore.setSearchParams(searchForm.value);
 };
 

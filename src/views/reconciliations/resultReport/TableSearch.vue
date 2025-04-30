@@ -1,5 +1,5 @@
 <template>
-  <vco-page-search>
+  <vco-page-search @keyup.enter="searchHandle(false)">
     <vco-page-search-item :title="t('项目周期')" width="266">
       <div class="flex items-center gap-2">
         <a-date-picker v-model:value="searchForm.start_date" :format="selectDateFormat()" :placeholder="t('开放日期')" @change="searchForm.end_date = ''" />

@@ -85,26 +85,20 @@
                     <p>{{ record.type }}</p>
                   </template>
                   <template v-else-if="column.dataIndex === 'payment'">
-                    <p v-if="isOpen">{{ advancePercent }}%</p>
-                    <a-input
-                      v-else
-                      v-model:value="advancePercent"
-                      @input="() => advanceInput(true)"
-                      suffix="%"
-                    />
+                    <p>--</p>
                   </template>
                   <template v-else-if="column.dataIndex === 'total'">
                     <vco-number :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
                   </template>
                   <template v-else>
-                    <div class="flex justify-center flex-col items-center">
+                    <div class="flex justify-center flex-col items-center" style="width: 710px;">
                       <a-input-number
                         v-model:value="advanceAmount"
                         :max="99999999999"
                         :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                         :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                         style="width: 200px;"
-                        @input="() => advanceInput(false)"
+                        @input="() => initHandle(true)"
                       />
                       <p v-if="advanceObj?.showError" class="input-error text-center">
                         {{ t('最小值:{0}', [`$${numberStrFormat(advanceObj.use_amount)}`]) }}
@@ -261,7 +255,8 @@
         return Number(tool.plus(total, num))
       }, 0);
       if (key === 'payment') {
-        return tool.plus(total, advancePercent.value)
+        // return tool.plus(total, advancePercent.value)
+        return total
       } else if (key === 'total') {
         return tool.plus(total, advanceAmount.value)
       } else {
@@ -323,7 +318,7 @@
     const amountArr = extractAmounts(data, '-')
     if (amountArr.length) {
       const sum = amountArr.reduce((total, num) => total + num, 0);
-      const payment = tool.div(sum, buildAmount.value)
+      const payment = tool.div(sum, calcBuildAmount.value)
 
       data.payment = Number(tool.times(Number(payment), 100)).toFixed(2)
       data.total = sum
@@ -381,7 +376,7 @@
         const sum = amountArr.reduce((total, num) => {
           return Number(tool.plus(total, num))
         }, 0);
-        const payment = tool.div(sum, buildAmount.value)
+        const payment = tool.div(sum, calcBuildAmount.value)
         obj.payment = Number(tool.times(Number(payment), 100)).toFixed(2)
         obj.total = sum
       } else {
@@ -477,7 +472,13 @@
   // 建筑放款额
   const buildAmount = ref(0)
 
-  const isRequests = ref(false)
+  // 参与百分比计算金额
+  const calcBuildAmount = computed(() => {
+    const total = Number(buildAmount.value)
+    const initAd = Number(advanceAmount.value)
+    const num = tool.minus(total, initAd)
+    return Number(num)
+  })
 
   // 请求抵押物信息
   const securityData = ref([])
@@ -582,7 +583,7 @@
   const advancePercent = ref(0)
   const advanceAmount = ref(0)
 
-  const advanceInput = (flag) => {
+  const advanceInput = () => {
     if (flag) {
       const percent = Number(advancePercent.value) / 100
       advanceAmount.value = tool.times(percent, buildAmount.value)
@@ -600,6 +601,8 @@
   }
 
   const getSetedData = async () => {
+    advanceAmount.value = 0
+
     const params = {
       uuid: uuid.value
     }
@@ -671,14 +674,6 @@
 
   const hasReseted = ref(false)
   const initHandle = (flag = false) => {
-    // 设置首项
-    if (flag) {
-      advanceAmount.value = tool.times((advancePercent.value / 100), buildAmount.value)
-    } else {
-      advancePercent.value = 0
-      advanceAmount.value = 0
-    }
-
     for (let i = 0; i < tableData.value.length; i++) {
       let payment = columnsTypeObj.value[tableData.value[i].typeId]
       if (flag) {
@@ -686,7 +681,7 @@
         payment = isNaN(itemPayment) ? 0 : itemPayment
       }
       const itemPer = Number(payment) / 100
-      const itemTotal = tool.times(itemPer, buildAmount.value)
+      const itemTotal = tool.times(itemPer, calcBuildAmount.value)
 
       const amountArr = extractArrData(tableData.value[i], '-')
       let itemAmountTotal = 0

@@ -9,7 +9,7 @@
         <a-menu-item v-for="item in list" :key="item.pxid" @click="setValue(item)">
           <a href="javascript:;" :class="{ active: item.entityName == keyword }">
             {{ item.entityName }}
-            <span class="fs_xs ml-2" v-if="show_nzbn"> ( {{t('新西兰商业号码')}}: {{ item.nzbn }} )</span>
+            <span class="fs_xs ml-2" v-if="show_nzbn"> ( {{ t('新西兰商业号码') }}: {{ item.nzbn }} )</span>
           </a>
         </a-menu-item>
       </a-menu>
@@ -108,7 +108,7 @@ const getInfo = (val) => {
       province_code_name: hasData(res.address) ? res.address.address3 : '',
       email: hasData(res.email_address) ? res.email_address.emailAddress : '',
       pre: hasData(res.phone_number) ? res.phone_number.phoneCountryCode : '',
-      mobile: hasData(res.phone_number) ? res.phone_number.phoneNumber : ''
+      mobile: hasData(res.phone_number) ? (hasData(res.phone_number.phoneAreaCode) ? res.phone_number.phoneAreaCode : '') + (hasData(res.phone_number.phoneNumber) ? res.phone_number.phoneNumber : '') : ''
     };
     emits('change', obj);
   });

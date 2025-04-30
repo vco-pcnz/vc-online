@@ -1,5 +1,5 @@
 <template>
-  <vco-page-search>
+  <vco-page-search @keyup.enter="searchHandle">
     <vco-page-search-item width="100" :title="t('类型')">
       <a-select :placeholder="t('请选择')" v-model:value="searchForm.role_id">
         <a-select-option v-for="item in typeData" :key="item.value" :value="item.value">

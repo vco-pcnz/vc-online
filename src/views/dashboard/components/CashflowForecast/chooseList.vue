@@ -6,7 +6,7 @@
         <div class="Overlay" style="width: 700px; padding-right: 16px" :style="{ width: type ? '700px' : 'auto' }">
           <div class="flex items-end">
             <a-checkbox v-model:checked="checkedAll" :disabled="checkedAll" class="Filter-Check"> All {{ label }} excluded </a-checkbox>
-            <vco-page-search v-if="type">
+            <vco-page-search @keyup.enter="searchHandle(false)" v-if="type">
               <vco-page-search-item :title="t('名称')">
                 <a-input v-model:value="searchForm.keywords" :placeholder="t('请输入')" />
               </vco-page-search-item>

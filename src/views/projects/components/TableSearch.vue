@@ -1,6 +1,6 @@
 <template>
   <div>
-    <vco-page-search>
+    <vco-page-search @keyup.enter="searchHandle(false)">
       <vco-page-search-item :title="t('项目信息')" width="250">
         <vco-type-input v-model="searchForm.project_keyword" v-model:type="searchForm.project_search_type" :type-data="projectsTypeData" :placeholder="t('请输入')"></vco-type-input>
       </vco-page-search-item>

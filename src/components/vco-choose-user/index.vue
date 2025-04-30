@@ -20,7 +20,7 @@
     <a-modal :width="1000" v-if="open" :open="open" :title="title" @cancel="close">
       <!-- 搜索 -->
       <div v-if="!hideSearch" class="flex justify-end mb-5">
-        <vco-page-search>
+        <vco-page-search @keyup.enter="searchHandle(false)">
           <vco-page-search-item :title="t('组织')" width="180" v-if="urlValue == 'user/selUser'">
             <a-input v-model:value="searchForm.p__name" :placeholder="t('请输入')" />
           </vco-page-search-item>

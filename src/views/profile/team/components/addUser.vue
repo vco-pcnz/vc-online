@@ -5,7 +5,7 @@
       <a-modal :width="800" :open="visible" :title="t('添加')" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
         <div class="content">
           <div class="mb-5 flex justify-end">
-            <vco-page-search>
+            <vco-page-search @keyup.enter="searchHandle">
               <vco-page-search-item width="220" :title="t('邮箱')">
                 <a-input v-model:value="formState.email" :placeholder="t('请输入')" />
               </vco-page-search-item>

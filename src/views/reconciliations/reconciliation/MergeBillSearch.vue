@@ -1,5 +1,5 @@
 <template>
-  <vco-page-search>
+  <vco-page-search @keyup.enter="searchHandle(false)">
     <vco-page-search-item width="120" :title="t('金额')">
       <a-input-number v-model:value="searchForm.amount" :max="99999999999" :min="0" :placeholder="t('请输入')" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
     </vco-page-search-item>

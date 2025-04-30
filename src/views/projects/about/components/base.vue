@@ -27,7 +27,7 @@
         </template>
       </p>
       <p class="mb-5">{{ t('借款人') }}: {{ detail?.base.borrower_user_name }}</p>
-      <p class="text-2xl name">{{ detail?.base.project_name }}</p>
+      <p class="text-2xl name">{{ detail?.base.project_name || detail?.base.borrower_user_name }}</p>
       <template v-if="detail?.base?.project_address_other">
         <template v-for="(item, index) in detail?.base?.project_address_other" :key="index">
           <p class="fs_xs mt-2" v-if="moreAddr ? true : index < 1">{{ item.project_city }}</p>

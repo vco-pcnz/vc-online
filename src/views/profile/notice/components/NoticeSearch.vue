@@ -1,5 +1,5 @@
 <template>
-  <vco-page-search class="search-container">
+  <vco-page-search @keyup.enter="searchHandle" class="search-container">
     <vco-page-search-item>
       <a-select :placeholder="t('请选择')" v-model:value="searchForm.key">
         <a-select-option

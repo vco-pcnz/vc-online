@@ -595,8 +595,8 @@
       const securityTotal = props.dataInfo.security.total_money || 0
       const totalAmount = tool.plus(Number(formState.value.land_amount), Number(formState.value.build_amount))
 
-      if (totalAmount > securityTotal) {
-        const num = tool.minus(totalAmount, securityTotal)
+      if (Number(totalAmount) > Number(securityTotal)) {
+        const num = tool.minus(securityTotal, totalAmount)
         const showSecurity = numberStrFormat(securityTotal)
         const showAmount = numberStrFormat(totalAmount)
         const showNum = numberStrFormat(num)

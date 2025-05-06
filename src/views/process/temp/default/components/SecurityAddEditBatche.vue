@@ -379,7 +379,6 @@ const currentParams = ref(null)
 const subLoading = ref(false);
 
 const submitRquest = () => {
-  return false
   if (currentParams.value) {
 
     subLoading.value = true;

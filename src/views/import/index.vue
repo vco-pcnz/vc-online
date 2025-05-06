@@ -2,6 +2,7 @@
   <div class="importBox">
     <import-export :title="t('用户')" :params="{ type: 'user' }" exportUrl="/temp/user.xls"></import-export>
     <import-export :title="t('利益相关者')" :params="{ type: 'org' }" exportUrl="/temp/organisation.xls"></import-export>
+    <import-export :title="t('orgCate')" :params="{ type: 'orgCate' }" exportUrl="/temp/orgCate.xls"></import-export>
   </div>
   <div class="importBox project">
     <import-export :title="t('项目')" :params="{ type: 'project' }" exportUrl="/temp/project.xls"></import-export>

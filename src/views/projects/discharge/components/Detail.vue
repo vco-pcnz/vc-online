@@ -101,7 +101,7 @@
         </a-col>
         <a-col :span="24" class="item-txt">
           <p>{{ t('地址') }}</p>
-          <p>{{ addressInfo(detail) }}</p>
+          <p>{{ detail.city || '--' }}</p>
         </a-col>
         <a-col v-if="detail.remark" :span="24" class="item-txt">
           <p>{{ t('备注') }}</p>
@@ -210,9 +210,6 @@ const update = () => {
   emits('update');
 };
 
-const addressInfo = (data) => {
-  return `${data.address_short} ${data.address} ${data.suburb} ${data.region_one_name} ${data.country_name}`
-}
 
 const editHandle = () => {
   emits('itemEdit')

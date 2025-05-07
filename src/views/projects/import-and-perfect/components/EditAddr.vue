@@ -81,6 +81,7 @@ const addressConfig = ref({
 });
 const init = () => {
   visible.value = true;
+  formState.value.project_address_other[0]['project_address'] = props.data['project_address'] || formState.value['project_address'] || '';
   for (const key in formState.value) {
     formState.value[key] = props.data[key] || formState.value[key] || '';
   }

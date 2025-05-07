@@ -819,7 +819,7 @@ export default {
   "预计收款": "Estimated Receipt",
   "合同日期": "Contract Date",
   "结算日期": "Settlement Date",
-  "净收益": "Net income",
+  "净收益": "Net proceeds",
   "修改记录": "Change Log",
   "编辑预售信息": "Edit pre-sale information",
   "添加预售信息": "Add pre-sale information",
@@ -853,7 +853,7 @@ export default {
   "更新基础数据": "Update basic data",
   "勾选后，下面数据的基础信息将全部更新为上面设置的数据": "After checking, the basic information of the data below will be updated to the data set above",
   "预计销售价格": "Est sales price",
-  "回款金额": "Amount received",
+  "回款金额": "Expected amount to be received",
   "批量编辑": "Batch Edit",
   "点击编辑": "Click Edit",
   "全选": "Select All",
@@ -964,5 +964,8 @@ export default {
   "更多地址": "More addresses",
   "加载中...": "Loading...",
   "上拉加载更多": "Pull up to load more",
-  "没有更多了": "No more"
+  "没有更多了": "No more",
+  "截图": "Screenshot",
+  "下载": "Download",
+  "下载为Excel表格，编辑后再点击右侧“上传”按钮上传编辑后的数据，以更新设置数据": "Download as an Excel spreadsheet, edit it, and then click the 'Upload' button on the right to upload the edited data to update the setting data"
 }

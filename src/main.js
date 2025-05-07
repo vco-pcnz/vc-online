@@ -9,6 +9,7 @@ import directives from "./directives";
 import vue3TreeOrg from 'vue3-tree-org';
 import Echarts from 'vue-echarts';
 import * as echarts from 'echarts';
+import screenShort from "vue-web-screen-shot";
 
 import globalComponents from "@/components";
 
@@ -27,6 +28,7 @@ app.use(i18n);
 app.use(directives);
 app.use(globalComponents);
 app.use(vue3TreeOrg)
+app.use(screenShort, { enableWebRtc: true })
 
 // 使用vue-echarts组件
 app.component('v-chart', Echarts);

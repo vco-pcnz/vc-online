@@ -965,5 +965,7 @@ export default {
   "加载中...": "Loading...",
   "上拉加载更多": "Pull up to load more",
   "没有更多了": "No more",
-  "截图": "Screenshot"
+  "截图": "Screenshot",
+  "下载": "Download",
+  "下载为Excel表格，编辑后再点击右侧“上传”按钮上传编辑后的数据，以更新设置数据": "Download as an Excel spreadsheet, edit it, and then click the 'Upload' button on the right to upload the edited data to update the setting data"
 }

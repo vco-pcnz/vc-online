@@ -39,6 +39,27 @@
                   </a-button>
                 </a-popconfirm> -->
 
+                <a-button type="dark" class="uppercase flex items-center" @click="exportHandle">
+                  {{ t('下载') }}
+                  <a-tooltip>
+                    <template #title>
+                      <span>{{ t(`下载为Excel表格，编辑后再点击右侧“上传”按钮上传编辑后的数据，以更新设置数据`) }}</span>
+                    </template>
+                    <QuestionCircleOutlined />
+                  </a-tooltip>
+                </a-button>
+                
+                <a-button type="primary" class="uppercase relative">
+                  {{ t('上传') }}
+                  <input
+                    type="file"
+                    id="excelFile"
+                    class="excel-upload"
+                    accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    @change="importHandle"
+                  />
+                </a-button>
+
                 <a-popconfirm :title="t('确定初始化吗？')" @confirm="initHandle(false)">
                   <a-button
                     type="primary"
@@ -86,26 +107,20 @@
                     <p>{{ record.type }}</p>
                   </template>
                   <template v-else-if="column.dataIndex === 'payment'">
-                    <p v-if="isOpen">{{ advancePercent }}%</p>
-                    <a-input
-                      v-else
-                      v-model:value="advancePercent"
-                      @input="() => advanceInput(true)"
-                      suffix="%"
-                    />
+                    <p>--</p>
                   </template>
                   <template v-else-if="column.dataIndex === 'total'">
                     <vco-number :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
                   </template>
                   <template v-else>
-                    <div class="flex justify-center flex-col items-center">
+                    <div class="flex justify-center flex-col items-center" style="width: 710px;">
                       <a-input-number
                         v-model:value="advanceAmount"
                         :max="99999999999"
                         :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                         :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                         style="width: 200px;"
-                        @input="() => advanceInput(false)"
+                        @input="() => initHandle(true)"
                       />
                       <p v-if="advanceObj?.showError" class="input-error text-center">
                         {{ t('最小值:{0}', [`$${numberStrFormat(advanceObj.use_amount)}`]) }}
@@ -227,6 +242,8 @@
   import { systemDictDataApi } from "@/api/system/index"
   import { cloneDeep } from "lodash"
   import tool, { numberStrFormat, goBack } from "@/utils/tool"
+  import { exportTableToExcel } from "@/utils/export-excel"
+  import * as XLSX from 'xlsx'
 
   const { t } = useI18n();
   const route = useRoute();
@@ -268,7 +285,8 @@
         return Number(tool.plus(total, num))
       }, 0);
       if (key === 'payment') {
-        return tool.plus(total, advancePercent.value)
+        return total
+        // return tool.plus(total, advancePercent.value)
       } else if (key === 'total') {
         return tool.plus(total, advanceAmount.value)
       } else {
@@ -330,7 +348,7 @@
     const amountArr = extractAmounts(data, '-')
     if (amountArr.length) {
       const sum = amountArr.reduce((total, num) => total + num, 0);
-      const payment = tool.div(sum, buildAmount.value)
+      const payment = tool.div(sum, calcBuildAmount.value)
 
       data.payment = Number(tool.times(Number(payment), 100)).toFixed(2)
       data.total = sum
@@ -388,7 +406,7 @@
         const sum = amountArr.reduce((total, num) => {
           return Number(tool.plus(total, num))
         }, 0);
-        const payment = tool.div(sum, buildAmount.value)
+        const payment = tool.div(sum, calcBuildAmount.value)
         obj.payment = Number(tool.times(Number(payment), 100)).toFixed(2)
         obj.total = sum
       } else {
@@ -483,6 +501,14 @@
 
   // 建筑放款额
   const buildAmount = ref(0)
+
+  // 参与百分比计算金额
+  const calcBuildAmount = computed(() => {
+    const total = Number(buildAmount.value)
+    const initAd = Number(advanceAmount.value)
+    const num = tool.minus(total, initAd)
+    return Number(num)
+  })
 
   const isRequests = ref(false)
 
@@ -604,24 +630,9 @@
   const advancePercent = ref(0)
   const advanceAmount = ref(0)
 
-  const advanceInput = (flag) => {
-    if (flag) {
-      const percent = Number(advancePercent.value) / 100
-      advanceAmount.value = tool.times(percent, buildAmount.value)
-    } else {
-      const amount = Number(advanceAmount.value)
-      advancePercent.value = tool.times(Number(tool.div(amount, buildAmount.value)), 100)
-
-      if (props.isOpen) {
-        const useAmount = Number(advanceObj.value.use_amount)
-        if (amount < useAmount) {
-          advanceObj.value.showError = true
-        }
-      }
-    }
-  }
-
   const getSetedData = async () => {
+    advanceAmount.value = 0
+    
     const params = {
       uuid: uuid.value
     }
@@ -668,6 +679,7 @@
   }
 
   // 请求项目信息
+  const projectDetail = ref()
   const getProjectData = async () => {
     pageLoading.value = true
 
@@ -678,6 +690,8 @@
     try {
       const ajaxFn = isRequests.value ? projectAuditStepDetail : projectDetailApi
       await ajaxFn(params).then(res => {
+        projectDetail.value = res
+
         emits('done', res)
 
         const list = res.lending.devCostDetail[0].data[0].list
@@ -696,15 +710,7 @@
   }
 
   const hasReseted = ref(false)
-  const initHandle = (flag = false) => {
-    // 设置首项
-    if (flag) {
-      advanceAmount.value = tool.times((advancePercent.value / 100), buildAmount.value)
-    } else {
-      advancePercent.value = 0
-      advanceAmount.value = 0
-    }
-
+  const initHandle = (flag = false, tableTotal = false) => {
     for (let i = 0; i < tableData.value.length; i++) {
       let payment = columnsTypeObj.value[tableData.value[i].typeId]
       if (flag) {
@@ -712,25 +718,38 @@
         payment = isNaN(itemPayment) ? 0 : itemPayment
       }
       const itemPer = Number(payment) / 100
-      const itemTotal = tool.times(itemPer, buildAmount.value)
+      const itemTotal = tool.times(itemPer, calcBuildAmount.value)
 
       const amountArr = extractArrData(tableData.value[i], '-')
       let itemAmountTotal = 0
       for (let j = 0; j < amountArr.length; j++) {
+        if (tableTotal) {
+          const itemAmount = tableData.value[i][amountArr[j]].amount
+          itemAmountTotal = tool.plus(itemAmountTotal, itemAmount)
+        }
         if (j === amountArr.length - 1) {
-          tableData.value[i][amountArr[j]].amount = Number(tool.minus(itemTotal, itemAmountTotal))
+          if (!tableTotal) {
+            tableData.value[i][amountArr[j]].amount = Number(tool.minus(itemTotal, itemAmountTotal))
+          }
         } else {
           const per = securitySqmObj.value[amountArr[j]] || 0
           const amount = Number(Number(tool.times(per, itemTotal)).toFixed(2))
-          itemAmountTotal = tool.plus(itemAmountTotal, amount)
-          tableData.value[i][amountArr[j]].amount = amount
+          if (!tableTotal) {
+            itemAmountTotal = tool.plus(itemAmountTotal, amount)
+            tableData.value[i][amountArr[j]].amount = amount
+          }
         }
       }
       if (!flag) {
         tableData.value[i].payment = Number(payment).toFixed(2)
       }
+
+      if (tableTotal) {
+        const paymentStr = tool.div(itemAmountTotal, calcBuildAmount.value)
+        tableData.value[i].payment = Number(tool.times(Number(paymentStr), 100)).toFixed(2)
+      }
       
-      tableData.value[i].total = itemTotal
+      tableData.value[i].total = tableTotal ? itemAmountTotal : itemTotal
     }
 
     if (!flag) {
@@ -945,6 +964,73 @@
     }
   }
 
+  const exportHandle = () => {
+    const headerData = cloneDeep(tableHeader.value)
+    headerData.splice(1, 1)
+    headerData.splice(headerData.length - 1, 1)
+
+    const data = cloneDeep(tableData.value)
+    const tableNumData = data.filter(item => !item.isFixedRow)
+    tableNumData.forEach(item => {
+      for (const key in item) {
+        if (key.indexOf('-') > -1) {
+          item[key] = item[key].amount
+        }
+      }
+    })
+    const nameStr = `${projectDetail.value.base.project_apply_sn}`
+    exportTableToExcel(tableNumData, headerData, nameStr)
+  }
+
+  const importHandle = (event) => {
+    const fileInput = event.target;
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+
+      // 读取第一个 sheet
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+
+      // 转换为 JSON
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+      const numData = jsonData.filter(item => !['Type', 'Initial advance to fund deposit', '类型'].includes(item[0]))
+      tableDataFill(numData)
+
+      // 主动清除 input 内容
+      fileInput.value = ''
+    };
+
+    reader.readAsArrayBuffer(file);
+  }
+
+  const tableDataFill = (data) => {
+    const headerData = cloneDeep(tableHeader.value)
+    headerData.splice(1, 1)
+
+    data.forEach(row => {
+      const type = row[0]
+      const targetRow = tableData.value.find(item => !item.isFixedRow && item.type === type)
+
+      if (targetRow) {
+        for (let j = 1; j < row.length; j++) {
+          const header = headerData[j]
+          if (!header) continue
+
+          const dataIndex = header.dataIndex
+          if (targetRow[dataIndex]) {
+            targetRow[dataIndex].amount = row[j]
+          }
+        }
+      }
+    })
+    initHandle(true, true)
+  }
+
   onMounted(async () => {
     const { fullPath, query } = route
     isRequests.value = fullPath.indexOf('requests') > -1
@@ -1155,5 +1241,15 @@
     &.text-center {
       text-align: center !important;
     }
+  }
+
+  .excel-upload {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    cursor: pointer;
   }
 </style>

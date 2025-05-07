@@ -11,8 +11,9 @@
         {{ t('文件') }}
 
         <vco-upload-modal v-model:list="documentList" v-model:value="formState.document">
-          <a-button class="upload_btn" type="brown" shape="round" size="small"> {{ t('上传') }}</a-button>
+          <a-button class="upload_btn" style="right: 90px;" type="brown" shape="round" size="small"> {{ t('上传') }}</a-button>
         </vco-upload-modal>
+        <ScreenShot v-model:list="documentList" v-model:value="formState.document"><a-button class="upload_btn" type="brown" shape="round" size="small"> {{ t('截图') }}</a-button></ScreenShot>
       </div>
 
       <div class="file-content">
@@ -43,6 +44,7 @@ import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue';
 import { feedback } from '@/api/system';
 import { useRoute } from 'vue-router';
+import ScreenShot from './components/ScreenShot.vue'
 const route = useRoute();
 
 const { t } = useI18n();

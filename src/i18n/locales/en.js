@@ -964,5 +964,6 @@ export default {
   "更多地址": "More addresses",
   "加载中...": "Loading...",
   "上拉加载更多": "Pull up to load more",
-  "没有更多了": "No more"
+  "没有更多了": "No more",
+  "截图": "Screenshot"
 }

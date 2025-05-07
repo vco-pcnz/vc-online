@@ -272,7 +272,7 @@ const rules = reactive({
   // 公共验证
   mobile: [
     {
-      pattern: /^\+?[1-9]\d{1,14}$|^\(?\d+\)?[-.\s]?\d+([-.\s]?\d+)*$/,
+      pattern: /^\+?\d{1,15}$|^\(?\d+\)?[-.\s]?\d+([-.\s]?\d+)*$/,
       message: t('手机号') + t('格式不正确'),
       trigger: 'blur'
     }

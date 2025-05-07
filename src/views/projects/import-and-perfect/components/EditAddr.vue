@@ -83,6 +83,7 @@ const init = () => {
   visible.value = true;
   for (const key in formState.value) {
     formState.value[key] = props.data[key] || formState.value[key] || '';
+    formState.value.project_address_other[0][key] = props.data[key] || formState.value[key] || '';
   }
 };
 

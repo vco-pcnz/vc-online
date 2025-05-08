@@ -32,7 +32,7 @@
     <a-modal v-model:open="previewVisible" :footer="null" @cancel="previewHandleCancel">
       <div style="padding-top: 30px">
         <img alt="example" v-if="getType(previewSrc) === 1" style="width: 100%" :src="previewSrc" />
-        <video v-if="getType(previewSrc) === 3" style="width: 100%" :src="previewSrc"></video>
+        <video v-if="getType(previewSrc) === 3" style="width: 100%" :src="previewSrc" controls></video>
       </div>
     </a-modal>
   </div>

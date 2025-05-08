@@ -149,7 +149,7 @@
   }
 
   const pageTitle = computed(() => {
-    return projectInfo.value?.base?.project_apply_sn
+    return projectInfo.value?.base?.borrower_user_name
   })
 
   const back = () => {

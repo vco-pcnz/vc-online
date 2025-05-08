@@ -1,26 +1,13 @@
 <template>
   <div>
     <!-- 确认弹窗 -->
-    <vco-confirm-alert
-      ref="changeAlertRef"
-      :confirm-txt="confirmTxt"
-      v-model:visible="changeVisible"
-      @submit="submitRquest"
-    ></vco-confirm-alert>
+    <vco-confirm-alert ref="changeAlertRef" :confirm-txt="confirmTxt" v-model:visible="changeVisible" @submit="submitRquest"></vco-confirm-alert>
 
     <!-- 选择弹窗 -->
-    <a-modal
-      :open="selectVisible"
-      :title="t('批量设置')"
-      :width="540"
-      :footer="null"
-      :keyboard="false"
-      :maskClosable="false"
-      @cancel="selectVisible = false"
-    >
+    <a-modal :open="selectVisible" :title="t('批量设置')" :width="540" :footer="null" :keyboard="false" :maskClosable="false" @cancel="selectVisible = false">
       <div class="batch-select-content">
-        <div class="item" :class="{'checked': batchAll}" @click="checkHandle(false)">{{ t('全部') }}</div>
-        <div v-for="(item, index) in formDataSource" :key="index" class="item" :class="{'checked': item.checked}" @click="checkHandle(item)">
+        <div class="item" :class="{ checked: batchAll }" @click="checkHandle(false)">{{ t('全部') }}</div>
+        <div v-for="(item, index) in formDataSource" :key="index" class="item" :class="{ checked: item.checked }" @click="checkHandle(item)">
           {{ item.name }}
         </div>
       </div>
@@ -59,7 +46,7 @@
                   <a-form-item name="upd">
                     <template #label>
                       {{ t('更新基础数据') }}
-                      <a-tooltip  placement="topLeft">
+                      <a-tooltip placement="topLeft">
                         <template #title>
                           <span>{{ t('勾选后，下面数据的基础信息将全部更新为上面设置的数据') }}</span>
                         </template>
@@ -76,14 +63,7 @@
 
         <div class="form-block-content">
           <div class="title">{{ t('批量操作') }}</div>
-          <a-table
-            :columns="batchColumns"
-            :data-source="batchDataSource"
-            bordered
-            :pagination="false"
-            table-layout="fixed"
-            :scroll="{ x: '100%' }"
-          >
+          <a-table :columns="batchColumns" :data-source="batchDataSource" bordered :pagination="false" table-layout="fixed" :scroll="{ x: '100%' }">
             <template #bodyCell="{ column, record }">
               <template v-if="column.dataIndex === 'rowSelect'">
                 <p @click="selectVisible = true" class="select-btn">
@@ -94,79 +74,50 @@
               <template v-if="column.dataIndex === 'typology'">
                 <div class="stuff-item-content">
                   <div class="stuff-item">
-                    <a-select
-                      show-search
-                      v-model:value="record.typology.beds"
-                    >
-                      <a-select-option v-for="num in 8" :key="`beds_${num - 1}`" :value="num - 1">{{num - 1}}</a-select-option>
+                    <a-select show-search v-model:value="record.typology.beds">
+                      <a-select-option v-for="num in 8" :key="`beds_${num - 1}`" :value="num - 1">{{ num - 1 }}</a-select-option>
                     </a-select>
                     <p>beds</p>
                   </div>
                   <div class="stuff-item">
-                    <a-select
-                      show-search
-                      v-model:value="record.typology.bath"
-                    >
-                      <a-select-option 
-                        v-for="num in Array.from({ length: 15 }, (_, i) => i * 0.5)" 
-                        :key="`bath_${num}`" 
-                        :value="num"
-                      >
+                    <a-select show-search v-model:value="record.typology.bath">
+                      <a-select-option v-for="num in Array.from({ length: 15 }, (_, i) => i * 0.5)" :key="`bath_${num}`" :value="num">
                         {{ num }}
                       </a-select-option>
                     </a-select>
                     <p>bath</p>
                   </div>
                   <div class="stuff-item">
-                    <a-select
-                      show-search
-                      v-model:value="record.typology.lounge"
-                    >
-                      <a-select-option v-for="num in 5" :key="`lounge_${num - 1}`" :value="num - 1">{{num - 1}}</a-select-option>
+                    <a-select show-search v-model:value="record.typology.lounge">
+                      <a-select-option v-for="num in 5" :key="`lounge_${num - 1}`" :value="num - 1">{{ num - 1 }}</a-select-option>
                     </a-select>
                     <p>lounge</p>
                   </div>
                   <div class="stuff-item">
-                    <a-select
-                      show-search
-                      v-model:value="record.typology.garage"
-                    >
-                      <a-select-option v-for="num in 5" :key="`garage_${num - 1}`" :value="num - 1">{{num - 1}}</a-select-option>
+                    <a-select show-search v-model:value="record.typology.garage">
+                      <a-select-option v-for="num in 5" :key="`garage_${num - 1}`" :value="num - 1">{{ num - 1 }}</a-select-option>
                     </a-select>
                     <p>garage</p>
                   </div>
                   <div class="stuff-item">
-                    <a-select
-                      show-search
-                      v-model:value="record.typology.carpark"
-                    >
-                      <a-select-option v-for="num in 5" :key="`carpark_${num - 1}`" :value="num - 1">{{num - 1}}</a-select-option>
+                    <a-select show-search v-model:value="record.typology.carpark">
+                      <a-select-option v-for="num in 5" :key="`carpark_${num - 1}`" :value="num - 1">{{ num - 1 }}</a-select-option>
                     </a-select>
                     <p>carpark</p>
                   </div>
                   <div class="stuff-item">
-                    <a-select
-                      show-search
-                      v-model:value="record.typology.level"
-                    >
-                      <a-select-option v-for="num in 4" :key="`level_${num}`" :value="num">{{num}}</a-select-option>
+                    <a-select show-search v-model:value="record.typology.level">
+                      <a-select-option v-for="num in 4" :key="`level_${num}`" :value="num">{{ num }}</a-select-option>
                     </a-select>
                     <p>level</p>
                   </div>
                   <template v-if="record.typology.other.length">
                     <div v-for="(item, index) in record.typology.other" :key="index" class="stuff-item other">
-                      <a-select
-                        show-search
-                        v-model:value="item.value"
-                      >
-                        <a-select-option v-for="num in 5" :key="`other_${index}_${num}`" :value="num">{{num}}</a-select-option>
+                      <a-select show-search v-model:value="item.value">
+                        <a-select-option v-for="num in 5" :key="`other_${index}_${num}`" :value="num">{{ num }}</a-select-option>
                       </a-select>
-                      <a-select
-                        show-search
-                        v-model:value="item.key"
-                        class="type-key"
-                      >
-                        <a-select-option v-for="_item in otherTypeData" :key="_item.value" :value="_item.label">{{_item.label}}</a-select-option>
+                      <a-select show-search v-model:value="item.key" class="type-key">
+                        <a-select-option v-for="_item in otherTypeData" :key="_item.value" :value="_item.label">{{ _item.label }}</a-select-option>
                       </a-select>
                       <div class="delete-btn" @click="typologyRemove(record, index)">
                         <i class="iconfont">&#xe711;</i>
@@ -193,6 +144,9 @@
               <template v-if="column.dataIndex === 'is_gst'">
                 <a-switch v-model:checked="record.is_gst" @change="salesPriceInput(record)" />
               </template>
+              <template v-if="column.dataIndex === 'is_calc'">
+                <a-switch v-model:checked="record.is_calc" />
+              </template>
               <template v-if="column.dataIndex === 'amount'">
                 <a-input-number
                   v-model:value="record.amount"
@@ -203,12 +157,7 @@
                 />
               </template>
               <template v-if="column.dataIndex === 'insurance_value'">
-                <a-input-number
-                  v-model:value="record.insurance_value"
-                  :max="99999999999"
-                  :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                />
+                <a-input-number v-model:value="record.insurance_value" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
               </template>
               <template v-if="column.dataIndex === 'insurance_expire_date'">
                 <a-date-picker v-model:value="record.insurance_expire_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" />
@@ -235,12 +184,7 @@
                 />
               </template>
               <template v-if="column.dataIndex === 'repayment_price'">
-                <a-input-number
-                  v-model:value="record.repayment_price"
-                  :max="99999999999"
-                  :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                />
+                <a-input-number v-model:value="record.repayment_price" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
               </template>
               <template v-if="column.dataIndex === 'net_proceeds_price'">
                 <a-input-number
@@ -252,7 +196,7 @@
                 />
               </template>
               <template v-if="column.dataIndex === 'opt'">
-                <a-button type="link" @click="settingHandle" class="uppercase">{{ t('批量设置')}} </a-button>
+                <a-button type="link" @click="settingHandle" class="uppercase">{{ t('批量设置') }} </a-button>
               </template>
             </template>
           </a-table>
@@ -263,14 +207,7 @@
             <p>{{ t('物品信息') }}</p>
             <a-button type="primary" size="small" shape="round" @click="addHandle">{{ t('添加') }}</a-button>
           </div>
-          <a-table
-            :columns="formColumns"
-            :data-source="formDataSource"
-            bordered
-            :pagination="false"
-            table-layout="fixed"
-            :scroll="{ x: '100%', y: 600 }"
-          >
+          <a-table :columns="formColumns" :data-source="formDataSource" bordered :pagination="false" table-layout="fixed" :scroll="{ x: '100%', y: 600 }">
             <template #bodyCell="{ column, record, index }">
               <template v-if="column.dataIndex === 'card_no'">
                 <a-input v-model:value="record.card_no" />
@@ -278,79 +215,50 @@
               <template v-if="column.dataIndex === 'typology'">
                 <div class="stuff-item-content">
                   <div class="stuff-item">
-                    <a-select
-                      show-search
-                      v-model:value="record.typology.beds"
-                    >
-                      <a-select-option v-for="num in 8" :key="`beds_${num - 1}`" :value="num - 1">{{num - 1}}</a-select-option>
+                    <a-select show-search v-model:value="record.typology.beds">
+                      <a-select-option v-for="num in 8" :key="`beds_${num - 1}`" :value="num - 1">{{ num - 1 }}</a-select-option>
                     </a-select>
                     <p>beds</p>
                   </div>
                   <div class="stuff-item">
-                    <a-select
-                      show-search
-                      v-model:value="record.typology.bath"
-                    >
-                      <a-select-option 
-                        v-for="num in Array.from({ length: 15 }, (_, i) => i * 0.5)" 
-                        :key="`bath_${num}`" 
-                        :value="num"
-                      >
+                    <a-select show-search v-model:value="record.typology.bath">
+                      <a-select-option v-for="num in Array.from({ length: 15 }, (_, i) => i * 0.5)" :key="`bath_${num}`" :value="num">
                         {{ num }}
                       </a-select-option>
                     </a-select>
                     <p>bath</p>
                   </div>
                   <div class="stuff-item">
-                    <a-select
-                      show-search
-                      v-model:value="record.typology.lounge"
-                    >
-                      <a-select-option v-for="num in 5" :key="`lounge_${num - 1}`" :value="num - 1">{{num - 1}}</a-select-option>
+                    <a-select show-search v-model:value="record.typology.lounge">
+                      <a-select-option v-for="num in 5" :key="`lounge_${num - 1}`" :value="num - 1">{{ num - 1 }}</a-select-option>
                     </a-select>
                     <p>lounge</p>
                   </div>
                   <div class="stuff-item">
-                    <a-select
-                      show-search
-                      v-model:value="record.typology.garage"
-                    >
-                      <a-select-option v-for="num in 5" :key="`garage_${num - 1}`" :value="num - 1">{{num - 1}}</a-select-option>
+                    <a-select show-search v-model:value="record.typology.garage">
+                      <a-select-option v-for="num in 5" :key="`garage_${num - 1}`" :value="num - 1">{{ num - 1 }}</a-select-option>
                     </a-select>
                     <p>garage</p>
                   </div>
                   <div class="stuff-item">
-                    <a-select
-                      show-search
-                      v-model:value="record.typology.carpark"
-                    >
-                      <a-select-option v-for="num in 5" :key="`carpark_${num - 1}`" :value="num - 1">{{num - 1}}</a-select-option>
+                    <a-select show-search v-model:value="record.typology.carpark">
+                      <a-select-option v-for="num in 5" :key="`carpark_${num - 1}`" :value="num - 1">{{ num - 1 }}</a-select-option>
                     </a-select>
                     <p>carpark</p>
                   </div>
                   <div class="stuff-item">
-                    <a-select
-                      show-search
-                      v-model:value="record.typology.level"
-                    >
-                      <a-select-option v-for="num in 4" :key="`level_${num}`" :value="num">{{num}}</a-select-option>
+                    <a-select show-search v-model:value="record.typology.level">
+                      <a-select-option v-for="num in 4" :key="`level_${num}`" :value="num">{{ num }}</a-select-option>
                     </a-select>
                     <p>level</p>
                   </div>
                   <template v-if="record.typology.other.length">
                     <div v-for="(item, index) in record.typology.other" :key="index" class="stuff-item other">
-                      <a-select
-                        show-search
-                        v-model:value="item.value"
-                      >
-                        <a-select-option v-for="num in 5" :key="`other_${index}_${num}`" :value="num">{{num}}</a-select-option>
+                      <a-select show-search v-model:value="item.value">
+                        <a-select-option v-for="num in 5" :key="`other_${index}_${num}`" :value="num">{{ num }}</a-select-option>
                       </a-select>
-                      <a-select
-                        show-search
-                        v-model:value="item.key"
-                        class="type-key"
-                      >
-                        <a-select-option v-for="_item in otherTypeData" :key="_item.value" :value="_item.label">{{_item.label}}</a-select-option>
+                      <a-select show-search v-model:value="item.key" class="type-key">
+                        <a-select-option v-for="_item in otherTypeData" :key="_item.value" :value="_item.label">{{ _item.label }}</a-select-option>
                       </a-select>
                       <div class="delete-btn" @click="typologyRemove(record, index)">
                         <i class="iconfont">&#xe711;</i>
@@ -384,15 +292,13 @@
                 />
               </template>
               <template v-if="column.dataIndex === 'repayment_price'">
-                <a-input-number
-                  v-model:value="record.repayment_price"
-                  :max="99999999999"
-                  :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                />
+                <a-input-number v-model:value="record.repayment_price" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
               </template>
               <template v-if="column.dataIndex === 'is_gst'">
                 <a-switch v-model:checked="record.is_gst" @change="salesPriceInput(record)" />
+              </template>
+              <template v-if="column.dataIndex === 'is_calc'">
+                <a-switch v-model:checked="record.is_calc" />
               </template>
               <template v-if="column.dataIndex === 'amount'">
                 <a-input-number
@@ -404,12 +310,7 @@
                 />
               </template>
               <template v-if="column.dataIndex === 'insurance_value'">
-                <a-input-number
-                  v-model:value="record.insurance_value"
-                  :max="99999999999"
-                  :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                />
+                <a-input-number v-model:value="record.insurance_value" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
               </template>
               <template v-if="column.dataIndex === 'insurance_expire_date'">
                 <a-date-picker v-model:value="record.insurance_expire_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" />
@@ -439,23 +340,11 @@
                 <span>{{ record.variance || 0 }}%</span>
               </template>
               <template v-if="column.dataIndex === 'dup'">
-                <vco-number
-                  :value="record.dup"
-                  :precision="2"
-                  :end="true"
-                  size="fs_md"
-                  class="text-center"
-                  style="font-weight: 500;"
-                ></vco-number>
+                <vco-number :value="record.dup" :precision="2" :end="true" size="fs_md" class="text-center" style="font-weight: 500"></vco-number>
               </template>
               <template v-if="column.dataIndex === 'opt'">
-                <a-popconfirm
-                  :title="t('确定删除吗？')"
-                  :ok-text="t('确定')"
-                  :cancel-text="t('取消')"
-                  @confirm="itemDelete(index)"
-                >
-                  <a-button type="link">{{ t('删除')}} </a-button>
+                <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="itemDelete(index)">
+                  <a-button type="link">{{ t('删除') }} </a-button>
                 </a-popconfirm>
               </template>
             </template>
@@ -518,16 +407,11 @@
 import { onMounted, ref, nextTick, reactive, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter, useRoute } from 'vue-router';
-import { 
-  projectAuditSecurityList,
-  projectDetailApi,
-  projectAuditSaveMode,
-  projectDischargeAddEditSecurity
-} from "@/api/process";
-import { systemDictData } from "@/api/system"
+import { projectAuditSecurityList, projectDetailApi, projectAuditSaveMode, projectDischargeAddEditSecurity } from '@/api/process';
+import { systemDictData } from '@/api/system';
 import tool, { selectDateFormat, numberStrFormat, navigationTo } from '@/utils/tool';
 import { cloneDeep } from 'lodash';
-import { QuestionCircleOutlined } from '@ant-design/icons-vue'
+import { QuestionCircleOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue/es';
 
 const props = defineProps({
@@ -535,24 +419,24 @@ const props = defineProps({
     type: Boolean,
     default: false
   }
-})
+});
 
 const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
-const uuid = ref(route.query.uuid)
+const uuid = ref(route.query.uuid);
 
 const back = () => {
   if (props.isOpen) {
-    navigationTo(`/projects/discharge?uuid=${route.query.uuid}&type=1`)
+    navigationTo(`/projects/discharge?uuid=${route.query.uuid}&type=1`);
   } else {
-    router.back()
+    router.back();
   }
-}
+};
 
-const pageLoading = ref(false)
-const dataInfo = ref()
-const projectInfo = ref()
+const pageLoading = ref(false);
+const dataInfo = ref();
+const projectInfo = ref();
 
 const formRef = ref();
 const formState = ref({
@@ -602,177 +486,179 @@ const setAddressInfo = (e) => {
 
 // 户型统计
 const totalTypology = computed(() => {
-  const data = cloneDeep(formDataSource.value)
-  const typologyArr = data.map(item => item.typology)
+  const data = cloneDeep(formDataSource.value);
+  const typologyArr = data.map((item) => item.typology);
 
   const calc = typologyArr.reduce((acc, item) => {
     // 累加固定字段
-    ['beds', 'lounge', 'bath', 'garage', 'level', 'carpark'].forEach(key => {
+    ['beds', 'lounge', 'bath', 'garage', 'level', 'carpark'].forEach((key) => {
       acc[key] = (acc[key] || 0) + item[key];
     });
 
     // 统计 other 里的动态字段，过滤掉没有 key 的数据
     if (Array.isArray(item.other)) {
       item.other
-      .filter(entry => entry.key) // 过滤 key 为空的项
-      .forEach(({ key, value }) => {
+        .filter((entry) => entry.key) // 过滤 key 为空的项
+        .forEach(({ key, value }) => {
           acc[key] = (acc[key] || 0) + value;
-      });
+        });
     }
 
     return acc;
   }, {});
 
   const txt = Object.entries(calc)
-        .map(([key, value]) => `${value} ${key}`)
-        .join(', ');
-  return txt
-})
+    .map(([key, value]) => `${value} ${key}`)
+    .join(', ');
+  return txt;
+});
 
 // 总面积
 const totalSqm = computed(() => {
-  const data = cloneDeep(formDataSource.value)
-  const sqmArr = data.map(item => item.sqm)
+  const data = cloneDeep(formDataSource.value);
+  const sqmArr = data.map((item) => item.sqm);
   const sum = sqmArr.reduce((acc, cur) => Number(acc) + Number(cur), 0);
-  return `${numberStrFormat(sum)} m²`
-})
+  return `${numberStrFormat(sum)} m²`;
+});
 
 // 总预测销售价
 const totalEstSprice = computed(() => {
-  const data = cloneDeep(formDataSource.value)
-  const sqmArr = data.map(item => item.est_sales_price)
+  const data = cloneDeep(formDataSource.value);
+  const sqmArr = data.map((item) => item.est_sales_price);
   const sum = sqmArr.reduce((acc, cur) => Number(acc) + Number(cur), 0);
-  return `$${numberStrFormat(sum)}`
-})
+  return `$${numberStrFormat(sum)}`;
+});
 
 // 总担保价值
 const totalSecurityValue = computed(() => {
-  const data = cloneDeep(formDataSource.value)
-  const sqmArr = data.map(item => item.amount)
+  const data = cloneDeep(formDataSource.value);
+  const sqmArr = data.map((item) => item.amount);
   const sum = sqmArr.reduce((acc, cur) => Number(acc) + Number(cur), 0);
-  return `$${numberStrFormat(sum)}`
-})
+  return `$${numberStrFormat(sum)}`;
+});
 
 // 总保险价值
 const totalInsuranceValue = computed(() => {
-  const data = cloneDeep(formDataSource.value)
-  const sqmArr = data.map(item => item.insurance_value)
+  const data = cloneDeep(formDataSource.value);
+  const sqmArr = data.map((item) => item.insurance_value);
   const sum = sqmArr.reduce((acc, cur) => Number(acc) + Number(cur), 0);
-  return `$${numberStrFormat(sum)}`
-})
+  return `$${numberStrFormat(sum)}`;
+});
 
 // 总销售价格
 const totalSalesPrice = computed(() => {
-  const data = cloneDeep(formDataSource.value)
-  const sqmArr = data.map(item => item.sales_price)
+  const data = cloneDeep(formDataSource.value);
+  const sqmArr = data.map((item) => item.sales_price);
   const sum = sqmArr.reduce((acc, cur) => Number(acc) + Number(cur), 0);
-  return `$${numberStrFormat(sum)}`
-})
+  return `$${numberStrFormat(sum)}`;
+});
 
 // 总回款金额
 const totalAmountReceived = computed(() => {
-  const data = cloneDeep(formDataSource.value)
-  const sqmArr = data.map(item => item.repayment_price)
+  const data = cloneDeep(formDataSource.value);
+  const sqmArr = data.map((item) => item.repayment_price);
   const sum = sqmArr.reduce((acc, cur) => Number(acc) + Number(cur), 0);
-  return `$${numberStrFormat(sum)}`
-})
+  return `$${numberStrFormat(sum)}`;
+});
 
 // 总净收益
 const totalNetIncome = computed(() => {
-  const data = cloneDeep(formDataSource.value)
-  const sqmArr = data.map(item => item.net_proceeds_price)
+  const data = cloneDeep(formDataSource.value);
+  const sqmArr = data.map((item) => item.net_proceeds_price);
   const sum = sqmArr.reduce((acc, cur) => Number(acc) + Number(cur), 0);
-  return `$${numberStrFormat(sum)}`
-})
+  return `$${numberStrFormat(sum)}`;
+});
 
 // 总每单位债务
 const totalDup = computed(() => {
-  const data = cloneDeep(formDataSource.value)
-  const sqmArr = data.map(item => item.dup)
+  const data = cloneDeep(formDataSource.value);
+  const sqmArr = data.map((item) => item.dup);
   const sum = sqmArr.reduce((acc, cur) => Number(acc) + Number(cur), 0);
-  return `$${numberStrFormat(sum)}`
-})
+  return `$${numberStrFormat(sum)}`;
+});
 
-const baseData = ref(null)
+const baseData = ref(null);
 const getDataInfo = async () => {
-  pageLoading.value = true
+  pageLoading.value = true;
   await projectDetailApi({
     uuid: uuid.value
-  }).then(res => {
-    if (res) {
-      dataInfo.value = res
-      projectInfo.value = res.project
+  })
+    .then((res) => {
+      if (res) {
+        dataInfo.value = res;
+        projectInfo.value = res.project;
 
-      const borrowerName = res.borrower.borrower_type === 1 ? `${res.borrower.first_name} ${res.borrower.middle_name} ${res.borrower.last_name}` : res.borrower.organization_name
-      const nameStr = borrowerName || res.project.project_name || res.base.project_apply_sn
+        const borrowerName = res.borrower.borrower_type === 1 ? `${res.borrower.first_name} ${res.borrower.middle_name} ${res.borrower.last_name}` : res.borrower.organization_name;
+        const nameStr = borrowerName || res.project.project_name || res.base.project_apply_sn;
 
-      formState.value.security_name = t('{0}的抵押物', [nameStr])
+        formState.value.security_name = t('{0}的抵押物', [nameStr]);
 
-      let {project_address_short, project_address, project_suburb, region_one_id, region_two_id, region_three_id, project_postcode} = res.project
-      
-      baseData.value = res.security?.base
+        let { project_address_short, project_address, project_suburb, region_one_id, region_two_id, region_three_id, project_postcode } = res.project;
 
-      if (baseData.value) {
-        formState.value.security_name = baseData.value.security_name
-        formState.value.type = baseData.value.type
+        baseData.value = res.security?.base;
 
-        project_address_short = baseData.value.address_short
-        project_address = baseData.value.address
-        project_suburb = baseData.value.suburb
-        region_one_id = baseData.value.region_one_id
-        region_two_id = baseData.value.region_two_id
-        region_three_id = baseData.value.region_three_id
-        project_postcode = baseData.value.postcode
+        if (baseData.value) {
+          formState.value.security_name = baseData.value.security_name;
+          formState.value.type = baseData.value.type;
+
+          project_address_short = baseData.value.address_short;
+          project_address = baseData.value.address;
+          project_suburb = baseData.value.suburb;
+          region_one_id = baseData.value.region_one_id;
+          region_two_id = baseData.value.region_two_id;
+          region_three_id = baseData.value.region_three_id;
+          project_postcode = baseData.value.postcode;
+        }
+
+        formState.value.address_short = project_address_short || '';
+        formState.value.address = project_address || '';
+        formState.value.suburb = project_suburb || '';
+        formState.value.region_one_id = region_one_id || 0;
+        formState.value.region_two_id = region_two_id || 0;
+        formState.value.region_three_id = region_three_id || 0;
+        formState.value.postcode = project_postcode || '';
       }
 
-      formState.value.address_short = project_address_short || ''
-      formState.value.address = project_address || ''
-      formState.value.suburb = project_suburb || ''
-      formState.value.region_one_id = region_one_id || 0
-      formState.value.region_two_id = region_two_id || 0
-      formState.value.region_three_id = region_three_id || 0
-      formState.value.postcode = project_postcode || ''
-    }
-    
-    pageLoading.value = false
-  }).catch(() => {
-    pageLoading.value = false
-  })
-}
+      pageLoading.value = false;
+    })
+    .catch(() => {
+      pageLoading.value = false;
+    });
+};
 
-const typeData = ref([])
+const typeData = ref([]);
 const getTypeData = () => {
-  systemDictData('security_type').then(res => {
-    const data = res.map(item => {
+  systemDictData('security_type').then((res) => {
+    const data = res.map((item) => {
       return {
         label: item.name,
         value: Number(item.code)
-      }
-    })
-    typeData.value = data
-  })
-}
+      };
+    });
+    typeData.value = data;
+  });
+};
 
-const otherTypeData = ref([])
+const otherTypeData = ref([]);
 const getOtherTypeData = () => {
-  systemDictData('security_other_type').then(res => {
-    const data = res.map(item => {
+  systemDictData('security_other_type').then((res) => {
+    const data = res.map((item) => {
       return {
         label: item.name,
         value: item.code
-      }
-    })
-    otherTypeData.value = data
-  })
-}
+      };
+    });
+    otherTypeData.value = data;
+  });
+};
 
-const gstRate = ref(1.15)
+const gstRate = ref(1.15);
 const getGstRate = () => {
-  systemDictData('gst_rate').then(res => {
-    const obj = res.find(item => item.name === 'gst_rate_value')
-    gstRate.value = obj ? Number(obj.code) : 1.15
-  })
-}
+  systemDictData('gst_rate').then((res) => {
+    const obj = res.find((item) => item.name === 'gst_rate_value');
+    gstRate.value = obj ? Number(obj.code) : 1.15;
+  });
+};
 
 const batchColumns = reactive([
   { title: t('修改项'), dataIndex: 'rowSelect', width: 100, align: 'center', fixed: 'left' },
@@ -780,6 +666,7 @@ const batchColumns = reactive([
   { title: t('面积'), dataIndex: 'sqm', width: 105, align: 'center' },
   { title: t('预计销售价格'), dataIndex: 'est_sales_price', width: 130, align: 'center' },
   { title: t('含消费税'), dataIndex: 'is_gst', width: 100, align: 'center' },
+  { title: t('拆分'), dataIndex: 'is_calc', width: 100, align: 'center' },
   { title: t('担保价值'), dataIndex: 'amount', width: 130, align: 'center' },
   { title: t('保险价值'), dataIndex: 'insurance_value', width: 130, align: 'center' },
   { title: t('销售价格'), dataIndex: 'sales_price', width: 130, align: 'center' },
@@ -791,31 +678,34 @@ const batchColumns = reactive([
   { title: t('日落日期'), dataIndex: 'sunset_date', width: 145, align: 'center' },
   { title: t('还款日期'), dataIndex: 'repayment_date', width: 145, align: 'center' },
   { title: t('操作1'), dataIndex: 'opt', width: 115, align: 'center', fixed: 'right' }
-])
+]);
 
-const batchDataSource = ref([{
-  rowSelect: [],
-  typology: {
-    beds: 3,
-    lounge: 1,
-    bath: 2,
-    garage: 1,
-    level: 2,
-    carpark: 1,
-    other: []
-  },
-  sqm: '90',
-  est_sales_price: 0,
-  sales_price: 0,
-  repayment_price: 0,
-  is_gst: false,
-  insurance_value: 0,
-  contract_date: '',
-  settlement_date: '',
-  sunset_date: '',
-  repayment_date: '',
-  net_proceeds_price: 0
-}])
+const batchDataSource = ref([
+  {
+    rowSelect: [],
+    typology: {
+      beds: 3,
+      lounge: 1,
+      bath: 2,
+      garage: 1,
+      level: 2,
+      carpark: 1,
+      other: []
+    },
+    sqm: '90',
+    est_sales_price: 0,
+    sales_price: 0,
+    repayment_price: 0,
+    is_gst: false,
+    is_calc: false,
+    insurance_value: 0,
+    contract_date: '',
+    settlement_date: '',
+    sunset_date: '',
+    repayment_date: '',
+    net_proceeds_price: 0
+  }
+]);
 
 const formColumns = reactive([
   { title: t('楼栋号'), dataIndex: 'card_no', width: 100, align: 'center', fixed: 'left' },
@@ -823,6 +713,7 @@ const formColumns = reactive([
   { title: t('面积'), dataIndex: 'sqm', width: 105, align: 'center' },
   { title: t('预计销售价格'), dataIndex: 'est_sales_price', width: 130, align: 'center' },
   { title: t('含消费税'), dataIndex: 'is_gst', width: 100, align: 'center' },
+  { title: t('拆分'), dataIndex: 'is_calc', width: 100, align: 'center' },
   { title: t('担保价值'), dataIndex: 'amount', width: 130, align: 'center' },
   { title: t('保险价值'), dataIndex: 'insurance_value', width: 130, align: 'center' },
   { title: t('销售价格'), dataIndex: 'sales_price', width: 130, align: 'center' },
@@ -836,49 +727,49 @@ const formColumns = reactive([
   { title: t('日落日期'), dataIndex: 'sunset_date', width: 145, align: 'center' },
   { title: t('还款日期'), dataIndex: 'repayment_date', width: 145, align: 'center' },
   { title: t('操作1'), dataIndex: 'opt', width: 115, align: 'center', fixed: 'right' }
-])
+]);
 
-const summaryCol = ref([])
+const summaryCol = ref([]);
 for (let i = 0; i < formColumns.length; i++) {
   summaryCol.value.push({
     key: formColumns[i].dataIndex
-  })
+  });
 }
 
 watch(
   () => formState.value.type,
   (val) => {
-    const item = { title: t('类型1'), dataIndex: 'typology', width: 280, align: 'center' }
-    const item1 = { key: 'typology' }
-    const index1 = batchColumns.findIndex(item => item.dataIndex === 'typology')
-    const index2 = formColumns.findIndex(item => item.dataIndex === 'typology')
-    const index3 = summaryCol.value.findIndex(item => item.key === 'typology')
+    const item = { title: t('类型1'), dataIndex: 'typology', width: 280, align: 'center' };
+    const item1 = { key: 'typology' };
+    const index1 = batchColumns.findIndex((item) => item.dataIndex === 'typology');
+    const index2 = formColumns.findIndex((item) => item.dataIndex === 'typology');
+    const index3 = summaryCol.value.findIndex((item) => item.key === 'typology');
 
     if (val === 2) {
       if (index1 < 0) {
-        batchColumns.splice(1, 0, item)
+        batchColumns.splice(1, 0, item);
       }
       if (index2 < 0) {
-        formColumns.splice(1, 0, item)
+        formColumns.splice(1, 0, item);
       }
       if (index3 < 0) {
-        summaryCol.value.splice(1, 0, item1)
+        summaryCol.value.splice(1, 0, item1);
       }
     } else {
       if (index1 > -1) {
-        batchColumns.splice(index1, 1)
+        batchColumns.splice(index1, 1);
       }
       if (index2 > -1) {
-        formColumns.splice(index2, 1)
+        formColumns.splice(index2, 1);
       }
       if (index3 > -1) {
-        summaryCol.value.splice(index3, 1)
+        summaryCol.value.splice(index3, 1);
       }
     }
   }
-)
+);
 
-const formDataSource = ref([])
+const formDataSource = ref([]);
 
 const batchitem = {
   card_no: '',
@@ -896,6 +787,7 @@ const batchitem = {
   sales_price: 0,
   repayment_price: 0,
   is_gst: false,
+  is_calc: false,
   amount: 0,
   insurance_value: 0,
   insurance_expire_date: '',
@@ -906,221 +798,227 @@ const batchitem = {
   net_proceeds_price: 0,
   variance: 0,
   dup: ''
-}
+};
 
-const oldData = ref([])
+const oldData = ref([]);
 
 const tableDataInit = async () => {
-  let data = []
+  let data = [];
 
-  if (route.query.e) { // 编辑
-    const batchEditSec = sessionStorage.getItem('batchEditSec')
+  if (route.query.e) {
+    // 编辑
+    const batchEditSec = sessionStorage.getItem('batchEditSec');
     if (batchEditSec) {
-      const dataJson = JSON.parse(batchEditSec)
-      formState.value.type = dataJson[0].type
+      const dataJson = JSON.parse(batchEditSec);
+      formState.value.type = dataJson[0].type;
 
-      oldData.value = cloneDeep(dataJson)
+      oldData.value = cloneDeep(dataJson);
 
       const formOldData = dataJson.map((item, index) => {
-        const sItem = cloneDeep(batchitem)
+        const sItem = cloneDeep(batchitem);
         for (const key in sItem) {
           if (item[key]) {
-            sItem[key] = item[key]
+            sItem[key] = item[key];
           }
         }
-        sItem.is_gst = sItem.is_gst === 1 ? true : false
-        sItem.checked = true
-        sItem.name = item.card_no || t(`第{0}行`, [index + 1])
-        sItem.security_uuid = item.uuid
-        sItem.typology.other = sItem.typology.other || []
-        return sItem
-      })
-      data = formOldData
+        sItem.is_gst = sItem.is_gst === 1 ? true : false;
+        sItem.is_calc = sItem.is_calc === 1 ? true : false;
+        sItem.checked = true;
+        sItem.name = item.card_no || t(`第{0}行`, [index + 1]);
+        sItem.security_uuid = item.uuid;
+        sItem.typology.other = sItem.typology.other || [];
+        return sItem;
+      });
+      data = formOldData;
     } else {
       // 请求批量数据
       const { list } = await projectAuditSecurityList({
         uuid: route.query.uuid,
         type: baseData.value.type
-      })
+      });
 
-      const listData = list || []
+      const listData = list || [];
 
-      oldData.value = listData
+      oldData.value = listData;
 
       const formOldData = listData.map((item, index) => {
-        const sItem = cloneDeep(batchitem)
+        const sItem = cloneDeep(batchitem);
         for (const key in sItem) {
           if (item[key]) {
-            sItem[key] = item[key]
+            sItem[key] = item[key];
           }
         }
-        sItem.is_gst = sItem.is_gst === 1 ? true : false
-        sItem.checked = true
-        sItem.name = item.card_no || t(`第{0}行`, [index + 1])
-        sItem.security_uuid = item.uuid
-        sItem.typology.other = sItem.typology.other || []
-        return sItem
-      })
-      data = formOldData
+        sItem.is_gst = sItem.is_gst === 1 ? true : false;
+        sItem.is_calc = sItem.is_calc === 1 ? true : false;
+        sItem.checked = true;
+        sItem.name = item.card_no || t(`第{0}行`, [index + 1]);
+        sItem.security_uuid = item.uuid;
+        sItem.typology.other = sItem.typology.other || [];
+        return sItem;
+      });
+      data = formOldData;
     }
-  } else { // 新增
-    let listData = []
+  } else {
+    // 新增
+    let listData = [];
     if (!props.isOpen) {
       // 请求批量数据
       const { list } = await projectAuditSecurityList({
         uuid: route.query.uuid,
         type: baseData.value?.type || 2
-      })
-      listData = list
+      });
+      listData = list;
     }
-    
-    if (listData.length || props.isOpen) { // 已经批量添加过了
-      const item = cloneDeep(batchitem)
-      item.card_no = props.isOpen ? '' : `Lot ${listData.length + 1}`
-      item.checked = true
-      item.name = props.isOpen ? '' : item.card_no || t(`第{0}行`, [index + 1])
-      item.typology.other = []
-      data.push(item)
+
+    if (listData.length || props.isOpen) {
+      // 已经批量添加过了
+      const item = cloneDeep(batchitem);
+      item.card_no = props.isOpen ? '' : `Lot ${listData.length + 1}`;
+      item.checked = true;
+      item.name = props.isOpen ? '' : item.card_no || t(`第{0}行`, [index + 1]);
+      item.typology.other = [];
+      data.push(item);
     } else {
       for (let i = 0; i < Number(projectInfo.value.building_num); i++) {
-        const item = cloneDeep(batchitem)
-        item.card_no = `Lot ${i + 1}`
-        item.checked = true
-        item.name = item.card_no || t(`第{0}行`, [index + 1])
-        item.typology.other = []
-        data.push(item)
+        const item = cloneDeep(batchitem);
+        item.card_no = `Lot ${i + 1}`;
+        item.checked = true;
+        item.name = item.card_no || t(`第{0}行`, [index + 1]);
+        item.typology.other = [];
+        data.push(item);
       }
     }
   }
-  formDataSource.value = data
-}
+  formDataSource.value = data;
+};
 
 const addHandle = () => {
-  const item = cloneDeep(batchitem)
-  item.checked = true
-  item.name = item.card_no || t(`第{0}行`, [formDataSource.value.length + 1])
-  formDataSource.value.push(item)
-}
+  const item = cloneDeep(batchitem);
+  item.checked = true;
+  item.name = item.card_no || t(`第{0}行`, [formDataSource.value.length + 1]);
+  formDataSource.value.push(item);
+};
 
 const itemDelete = (index) => {
-  formDataSource.value.splice(index, 1)
-}
+  formDataSource.value.splice(index, 1);
+};
 
 const batchAll = computed(() => {
-  const cAll = formDataSource.value.every(item => item.checked)
-  return cAll
-})
+  const cAll = formDataSource.value.every((item) => item.checked);
+  return cAll;
+});
 
-const selectVisible = ref(false)
+const selectVisible = ref(false);
 const selectBatchTxt = computed(() => {
-  const cAll = formDataSource.value.every(item => item.checked)
-  const nAll = formDataSource.value.every(item => !item.checked)
+  const cAll = formDataSource.value.every((item) => item.checked);
+  const nAll = formDataSource.value.every((item) => !item.checked);
 
-  let txt = ''
+  let txt = '';
   if (cAll) {
-    txt = t('全部')
+    txt = t('全部');
   } else {
     if (nAll) {
-      txt = t('未选择')
+      txt = t('未选择');
     } else {
-      const nameArr = formDataSource.value.filter(item => item.checked).map(item => item.name)
-      txt = nameArr.join('; ')
+      const nameArr = formDataSource.value.filter((item) => item.checked).map((item) => item.name);
+      txt = nameArr.join('; ');
     }
   }
-  return txt
-})
+  return txt;
+});
 
 const netproceedsPriceInput = (data) => {
-  const net_proceeds_price = data.net_proceeds_price || 0
-  const amount = data.amount || 0
+  const net_proceeds_price = data.net_proceeds_price || 0;
+  const amount = data.amount || 0;
   if (amount) {
-    const num = tool.minus(net_proceeds_price, amount)
-    const num1 = tool.div(num, amount)
-    const resNum = tool.times(num1, 100)
-    const variance =  Math.ceil(resNum * 100) / 100
-    data.variance = variance
+    const num = tool.minus(net_proceeds_price, amount);
+    const num1 = tool.div(num, amount);
+    const resNum = tool.times(num1, 100);
+    const variance = Math.ceil(resNum * 100) / 100;
+    data.variance = variance;
   } else {
-    data.variance = 0
+    data.variance = 0;
   }
-}
+};
 
 const salesPriceInput = (data, flag) => {
-  let price = data.est_sales_price || 0
+  let price = data.est_sales_price || 0;
   if (flag) {
-    price = data.sales_price || 0
-    data.est_sales_price = price
+    price = data.sales_price || 0;
+    data.est_sales_price = price;
   }
 
   if (Boolean(data.is_gst)) {
-    const num = tool.div(price, gstRate.value)
-    const resNum = Math.floor(num * 100) / 100
-    data.amount = resNum
+    const num = tool.div(price, gstRate.value);
+    const resNum = Math.floor(num * 100) / 100;
+    data.amount = resNum;
 
     if (Number(data.sales_price)) {
-      data.repayment_price = resNum
+      data.repayment_price = resNum;
     }
 
-    netproceedsPriceInput(data)
+    netproceedsPriceInput(data);
   }
-}
+};
 
 const settingHandle = () => {
-  const data = cloneDeep(batchDataSource.value)
-  const batchSet = data[0]
-  delete batchSet.rowSelect
-  formDataSource.value.forEach(item => {
+  const data = cloneDeep(batchDataSource.value);
+  const batchSet = data[0];
+  delete batchSet.rowSelect;
+  formDataSource.value.forEach((item) => {
     if (item.checked) {
       for (const key in batchSet) {
         if (key === 'typology') {
           for (const _key in batchSet[key]) {
             if (_key === 'other') {
-              item[key][_key] = []
+              item[key][_key] = [];
               for (const otherKey in batchSet[key][_key]) {
-                item[key][_key][otherKey] = batchSet[key][_key][otherKey]
+                item[key][_key][otherKey] = batchSet[key][_key][otherKey];
               }
             } else {
-              item[key][_key] = batchSet[key][_key]
+              item[key][_key] = batchSet[key][_key];
             }
           }
         } else {
-          item[key] = batchSet[key]
+          item[key] = batchSet[key];
         }
       }
     }
-  })
-}
+  });
+};
 
 const checkHandle = (data) => {
   if (data) {
-    data.checked = !data.checked
+    data.checked = !data.checked;
   } else {
-    formDataSource.value.forEach(item => {
-      item.checked = true
-    })
+    formDataSource.value.forEach((item) => {
+      item.checked = true;
+    });
   }
-}
+};
 
-const changeAlertRef = ref()
-const changeVisible = ref(false)
-const confirmTxt = ref('')
+const changeAlertRef = ref();
+const changeVisible = ref(false);
+const confirmTxt = ref('');
 
-const subLoading = ref(false)
+const subLoading = ref(false);
 const submitRquest = () => {
   const formVal = cloneDeep(formState.value);
   const formData = cloneDeep(formDataSource.value);
-  formData.forEach(item => {
-    item.is_gst = item.is_gst ? 1 : 0
-    item.is_sales = item.sales_price ? 1 : 0
-    item.type = formVal.type
-  })
+  formData.forEach((item) => {
+    item.is_gst = item.is_gst ? 1 : 0;
+    item.is_calc = item.is_calc ? 1 : 0;
+    item.is_sales = item.sales_price ? 1 : 0;
+    item.type = formVal.type;
+  });
 
-  let delData = []
-  const oldUuid = oldData.value.map(item => item.uuid)
-  const nowUuid = formData.map(item => item.security_uuid)
+  let delData = [];
+  const oldUuid = oldData.value.map((item) => item.uuid);
+  const nowUuid = formData.map((item) => item.security_uuid);
 
   if (oldUuid && oldUuid.length) {
     const set2 = new Set(nowUuid);
-    delData = oldUuid.filter(item => !set2.has(item));
+    delData = oldUuid.filter((item) => !set2.has(item));
   }
 
   const params = {
@@ -1130,59 +1028,60 @@ const submitRquest = () => {
       base: formVal,
       batch: formData,
       del: delData,
-      upd: !baseData.value ? 1 : (formVal.upd ? 1 : 0)
+      upd: !baseData.value ? 1 : formVal.upd ? 1 : 0
     },
     security__mode: 2
-  }
-  delete formVal.upd
+  };
+  delete formVal.upd;
 
-  subLoading.value = true
+  subLoading.value = true;
 
-  const ajaxFn = props.isOpen ? projectDischargeAddEditSecurity : projectAuditSaveMode
+  const ajaxFn = props.isOpen ? projectDischargeAddEditSecurity : projectAuditSaveMode;
   ajaxFn(params)
     .then(() => {
       subLoading.value = false;
-      changeVisible.value = false
-      changeAlertRef.value.changeLoading(false)
+      changeVisible.value = false;
+      changeAlertRef.value.changeLoading(false);
 
-      sessionStorage.removeItem('batchEditSec')
-      back()
+      sessionStorage.removeItem('batchEditSec');
+      back();
     })
     .catch(() => {
-      changeAlertRef.value.changeLoading(false)
+      changeAlertRef.value.changeLoading(false);
       subLoading.value = false;
     });
-}
+};
 const subHandle = () => {
   formRef.value
     .validate()
     .then(() => {
-      const {project_address_short, project_address, project_suburb, region_one_id, region_two_id, region_three_id, project_postcode, project_city} = projectInfo.value
-      const {address_short, address, suburb, postcode} = formState.value
-      const region_one_id1 = formState.value.region_one_id
-      const region_two_id1 = formState.value.region_two_id
-      const region_three_id1 = formState.value.region_three_id
+      const { project_address_short, project_address, project_suburb, region_one_id, region_two_id, region_three_id, project_postcode, project_city } = projectInfo.value;
+      const { address_short, address, suburb, postcode } = formState.value;
+      const region_one_id1 = formState.value.region_one_id;
+      const region_two_id1 = formState.value.region_two_id;
+      const region_three_id1 = formState.value.region_three_id;
 
-      if (project_address_short !== address_short ||
-        project_address !== address || 
-        project_suburb !== suburb || 
-        project_postcode !== postcode || 
-        Number(region_one_id) !== Number(region_one_id1) || 
-        Number(region_two_id) !== Number(region_two_id1) || 
+      if (
+        project_address_short !== address_short ||
+        project_address !== address ||
+        project_suburb !== suburb ||
+        project_postcode !== postcode ||
+        Number(region_one_id) !== Number(region_one_id1) ||
+        Number(region_two_id) !== Number(region_two_id1) ||
         Number(region_three_id) !== Number(region_three_id1)
       ) {
-        confirmTxt.value = t('当前项目地址为：{0}，抵押物地址与项目地址不一致，确定提交吗？', [project_city])
-        changeVisible.value = true
+        confirmTxt.value = t('当前项目地址为：{0}，抵押物地址与项目地址不一致，确定提交吗？', [project_city]);
+        changeVisible.value = true;
       } else {
         const formData = cloneDeep(formDataSource.value);
 
         for (let i = 0; i < formData.length; i++) {
           if (!formData[i].card_no) {
-            message.error(t('请设置第{0}行的名称', [i + 1]))
-            return false
+            message.error(t('请设置第{0}行的名称', [i + 1]));
+            return false;
           }
         }
-        submitRquest()
+        submitRquest();
       }
     })
     .catch((error) => {
@@ -1192,32 +1091,32 @@ const subHandle = () => {
       });
       console.log('error', error);
     });
-}
+};
 
 const otherItem = {
   value: 1,
   key: ''
-}
+};
 const typologyAdd = (data) => {
-  const item = cloneDeep(otherItem)
-  data.typology.other.push(item)
-}
+  const item = cloneDeep(otherItem);
+  data.typology.other.push(item);
+};
 const typologyRemove = (data, index) => {
-  data.typology.other.splice(index, 1)
-}
+  data.typology.other.splice(index, 1);
+};
 
 onMounted(async () => {
-  getTypeData()
-  getGstRate()
-  getOtherTypeData()
-  await getDataInfo()
+  getTypeData();
+  getGstRate();
+  getOtherTypeData();
+  await getDataInfo();
 
-  tableDataInit()
+  tableDataInit();
 
   nextTick(() => {
     vcoAddressRef.value.init(formState.value);
   });
-})
+});
 </script>
 
 <style lang="less" scoped>
@@ -1276,7 +1175,7 @@ onMounted(async () => {
   }
 
   :deep(.ant-table-wrapper) {
-    .ant-table-tbody>tr>td {
+    .ant-table-tbody > tr > td {
       padding-left: 10px;
       padding-right: 10px;
     }
@@ -1284,7 +1183,7 @@ onMounted(async () => {
     * {
       border-color: #272727 !important;
     }
-    .ant-table-container table>thead>tr:first-child >*:first-child {
+    .ant-table-container table > thead > tr:first-child > *:first-child {
       border-start-start-radius: 0 !important;
     }
     .ant-table-ping-right .ant-table-cell-fix-right-first::after {
@@ -1335,9 +1234,9 @@ onMounted(async () => {
     .type-add {
       width: 20px;
       height: 20px;
-      border: 1px dashed #F19915 !important;
+      border: 1px dashed #f19915 !important;
       cursor: pointer;
-      color: #F19915;
+      color: #f19915;
       position: absolute;
       top: 5px;
       right: 5px;
@@ -1346,7 +1245,7 @@ onMounted(async () => {
       justify-content: center;
       &:hover {
         color: #fff;
-        background-color: #F19915;
+        background-color: #f19915;
       }
       > .iconfont {
         font-size: 12px;
@@ -1400,7 +1299,7 @@ onMounted(async () => {
 
 .select-btn {
   cursor: pointer;
-  color: #F19915;
+  color: #f19915;
   &:hover {
     color: #ef9f28;
   }
@@ -1416,7 +1315,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #F19915;
+  background-color: #f19915;
   color: #fff;
   cursor: pointer;
   > .iconfont {
@@ -1446,8 +1345,8 @@ onMounted(async () => {
     cursor: pointer;
     margin-bottom: 20px;
     &.checked {
-      background-color: #F19915;
-      border-color: #F19915;
+      background-color: #f19915;
+      border-color: #f19915;
       color: #fff;
     }
   }

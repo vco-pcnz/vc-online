@@ -199,12 +199,12 @@
 
   const formRules = {
     sales_price: [{ required: true, message: t('请输入') + t('销售价格'), trigger: 'blur' }],
-    repayment_price: [{ required: true, message: t('请输入') + t('回款金额'), trigger: 'blur' }],
-    contract_date: [{ required: true, message: t('请选择') + t('合同日期'), trigger: 'change' }],
+    // repayment_price: [{ required: true, message: t('请输入') + t('回款金额'), trigger: 'blur' }],
+    // contract_date: [{ required: true, message: t('请选择') + t('合同日期'), trigger: 'change' }],
     settlement_date: [{ required: true, message: t('请选择') + t('结算日期'), trigger: 'change' }],
-    sunset_date: [{ required: true, message: t('请选择') + t('日落日期'), trigger: 'change' }],
-    repayment_date: [{ required: true, message: t('请选择') + t('还款日期'), trigger: 'blur' }],
-    net_proceeds_price: [{ required: true, message: t('请输入') + t('净收益'), trigger: 'blur' }]
+    // sunset_date: [{ required: true, message: t('请选择') + t('日落日期'), trigger: 'change' }],
+    // repayment_date: [{ required: true, message: t('请选择') + t('还款日期'), trigger: 'blur' }],
+    // net_proceeds_price: [{ required: true, message: t('请输入') + t('净收益'), trigger: 'blur' }]
   };
 
   const gstRate = ref(1.15)

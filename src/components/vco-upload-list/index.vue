@@ -7,7 +7,7 @@
         <span @click.stop="handlePreview(item)"><EyeOutlined class="icon" /></span>
       </div>
     </div>
-    <vco-upload-modal :uploadType="uploadType" v-model:list="documentList" :limit="limit" @change="update" v-if="limit>0">
+    <vco-upload-modal :type="type" v-model:list="documentList" :limit="limit" @change="update" v-if="limit>0">
       <div class="default">
         <plus-outlined />
         <div class="ant-upload-text">{{ t(text) }}</div>
@@ -46,9 +46,9 @@ const props = defineProps({
     required: false,
     default: []
   },
-  uploadType: {
-    type: Number, //1 image,2 file,3 video
-    default: 1
+  type: {
+    type: String, //1 image,2 file,3 video
+    default: 'image'
   },
   // 多图情况下限制图片张数
   limit: {

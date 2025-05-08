@@ -519,7 +519,8 @@
   const getSecurityData = async () => {
     const params = {
       uuid: uuid.value,
-      type: 2
+      type: 2,
+      is_calc: 1
     }
 
     try {

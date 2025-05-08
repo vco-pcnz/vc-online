@@ -1,10 +1,9 @@
 <template>
-  <div :class="{'about-main-content': about, 'mt-6': !btnAdd}">
-
+  <div :class="{ 'about-main-content': about, 'mt-6': !btnAdd }">
     <span @click="openAddEdit(false)"><slot name="add-btn"></slot></span>
-  
+
     <!-- 人员选择 -->
-    <vco-choose-user ref="vcoChooseUserRef" :isMultiple="true" :hide-search="true" :url="userApiUrl" @done="userChoiced">
+    <vco-choose-user ref="vcoChooseUserRef" :isMultiple="true" :hide-search="true" :url="userApiUrl" :params="{ uuid: currentId }" @done="userChoiced">
       <div></div>
     </vco-choose-user>
 
@@ -42,7 +41,7 @@
       </div>
     </a-modal>
 
-    <div v-if="!btnAdd" class="block-item sec" :class="{'about': about}">
+    <div v-if="!btnAdd" class="block-item sec" :class="{ about: about }">
       <vco-process-title v-if="!about" :title="t('状况')">
         <a-button v-if="!isDetails" type="primary" shape="round" size="small" class="uppercase" @click="openAddEdit(false)">{{ t('添加') }}</a-button>
       </vco-process-title>
@@ -50,28 +49,18 @@
       <a-spin :spinning="pageLoading" size="large">
         <div class="tab-content" :class="{ 'no-data': !listData.length }">
           <template v-if="listData.length">
-            <div v-for="(item, index) in listData" :key="index" class="item" :class="{ 'pass': item.pass, 'done': item.is_ok, 'about': about }">
+            <div v-for="(item, index) in listData" :key="index" class="item" :class="{ pass: item.pass, done: item.is_ok, about: about }">
               <div class="title">
                 <p>{{ tool.showDate(item.date) }}</p>
                 <div v-if="!item.is_ok && item.do && !isClose" class="flex">
-                  <a-popconfirm
-                    :title="t('确定删除吗？')"
-                    :ok-text="t('确定')"
-                    :cancel-text="t('取消')"
-                    @confirm="delHandle(item)"
-                  >
+                  <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="delHandle(item)">
                     <a-button :loading="item.delLoading" type="link" class="danger">
                       <i v-if="!item.delLoading" class="iconfont">&#xe8c1;</i>
                     </a-button>
                   </a-popconfirm>
                   <a-button type="link" @click="openAddEdit(item)"><i class="iconfont">&#xe8cf;</i></a-button>
 
-                  <a-popconfirm
-                    :title="t('确定已完成吗？')"
-                    :ok-text="t('确定')"
-                    :cancel-text="t('取消')"
-                    @confirm="checkHandle(item)"
-                  >
+                  <a-popconfirm :title="t('确定已完成吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="checkHandle(item)">
                     <a-button type="link" :loading="item.checkLoading" class="success">
                       <i v-if="!item.checkLoading" class="iconfont">&#xe647;</i>
                     </a-button>
@@ -92,12 +81,7 @@
         </div>
       </a-spin>
 
-      <a-button
-        v-if="about && hasPermission('projects:about:add:conditions') && !isClose"
-        type="brown" shape="round" size="small"
-        class="mt-5"
-        @click="openAddEdit(false)"
-      >{{ t('添加') }}</a-button>
+      <a-button v-if="about && hasPermission('projects:about:add:conditions') && !isClose" type="brown" shape="round" size="small" class="mt-5" @click="openAddEdit(false)">{{ t('添加') }}</a-button>
     </div>
   </div>
 </template>
@@ -119,7 +103,7 @@ import {
 import tool, { removeDuplicates, selectDateFormat } from '@/utils/tool';
 import emitter from '@/event';
 import { message } from 'ant-design-vue/es';
-import { hasPermission } from "@/directives/permission"
+import { hasPermission } from '@/directives/permission';
 
 const props = defineProps({
   endDate: {
@@ -193,7 +177,7 @@ const formRules = {
 };
 
 const disabledDateFormat = (current) => {
-  const endDate = props.endDate || dayjs().format('YYYY-MM-DD')
+  const endDate = props.endDate || dayjs().format('YYYY-MM-DD');
 
   if (current && current < new Date().setHours(0, 0, 0, 0)) {
     return true;
@@ -242,13 +226,13 @@ const submitHandle = () => {
         do_user
       };
 
-      const ajaxFn = props.isDetails ? projectDetailEditCondition : projectAuditEditCondition
+      const ajaxFn = props.isDetails ? projectDetailEditCondition : projectAuditEditCondition;
 
       subLoading.value = true;
 
       ajaxFn(params)
         .then(() => {
-          message.success(t('提交成功'))
+          message.success(t('提交成功'));
           subLoading.value = false;
           visible.value = false;
           getListData();
@@ -269,17 +253,17 @@ const checkHandle = async (data) => {
     is_ok: 1
   };
 
-  const ajaxFn = props.isDetails ? projectDetailStatusCondition : projectAuditStatusCondition
+  const ajaxFn = props.isDetails ? projectDetailStatusCondition : projectAuditStatusCondition;
 
   data.checkLoading = true;
   await ajaxFn(params)
     .then(() => {
       getListData();
-      return true
+      return true;
     })
     .catch(() => {
       data.checkLoading = false;
-      return false
+      return false;
     });
 };
 
@@ -289,22 +273,22 @@ const delHandle = async (data) => {
     uuid: props.currentId
   };
 
-  const ajaxFn = props.isDetails ? projectDetailDeleteCondition : projectAuditDeleteCondition
+  const ajaxFn = props.isDetails ? projectDetailDeleteCondition : projectAuditDeleteCondition;
   data.delLoading = true;
   await ajaxFn(params)
     .then(() => {
       getListData();
-      return true
+      return true;
     })
     .catch(() => {
       data.delLoading = false;
-      return false
+      return false;
     });
 };
 
 const userApiUrl = computed(() => {
-  const apiUrl = props.isDetails ? 'projectDetail/userCondition' : "project/audit/userCondition"
-  return `${apiUrl}?uuid=${props.currentId}`;
+  const apiUrl = props.isDetails ? 'projectDetail/userCondition' : 'project/audit/userCondition';
+  return `${apiUrl}`;
 });
 
 const userChoiced = (data) => {

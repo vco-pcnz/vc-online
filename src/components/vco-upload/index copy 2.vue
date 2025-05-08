@@ -23,7 +23,7 @@
           <div class="ant-upload-text">{{ t(text || upText) }}</div>
         </div>
       </slot>
-      <div style="position: fixed; inset: 0" @click.stop></div>
+      <div style="position: fixed; inset: 0;" @click.stop></div>
     </a-upload>
     <div class="delete-img" @click="deleteImg" v-if="type == 'image' && picUrl && limit == 1 && !isMultiple">
       <DeleteOutlined />
@@ -31,8 +31,8 @@
     </div>
     <a-modal v-model:open="previewVisible" :footer="null" @cancel="previewHandleCancel">
       <div style="padding-top: 30px">
-        <img alt="example" v-if="getType(previewSrc) === 1" style="width: 100%" :src="previewSrc" />
-        <video v-if="getType(previewSrc) === 3" style="width: 100%" :src="previewSrc" controls></video>
+        <img alt="example" v-if="props.type == 'image'" style="width: 100%" :src="previewSrc" />
+        <video v-if="props.type == 'video'" style="width: 100%" :src="previewSrc"></video>
       </div>
     </a-modal>
   </div>
@@ -65,7 +65,7 @@ const props = defineProps({
   type: {
     type: String,
     required: false,
-    default: 'all'
+    default: 'image'
   },
   // 后端要求携带的其他参数
   bizPath: {
@@ -126,11 +126,6 @@ const errTip = ref('');
 const accept = ref('');
 const fileName = ref('file');
 const upText = ref('');
-
-const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp'];
-const fileExtensions = ['xls', 'xlsx', 'csv', 'json', 'txt', 'doc', 'docx', 'ppt', 'pptx', 'pdf', 'xmind'];
-const videoExtensions = ['mp4', 'rmvb', 'wmv', 'avi', 'mpeg', 'mpg', 'mov', '3gp', 'flv', 'mkv', 'm4v'];
-
 // 上传文件类型
 watch(
   () => props.type,
@@ -140,32 +135,24 @@ watch(
       case 'image':
         accept.value = 'image/*';
         uploadAction.value = uploadUrl + props.controller + '/uploadImage';
-        fileType.value = imageExtensions;
-        errTip.value = t('上传格式不正确，不是{0}', [imageExtensions]);
+        fileType.value = ['jpg', 'jpeg', 'png', 'gif', 'bmp'];
+        errTip.value = t('上传图片的格式不正确，不是JPG、JPEG、GIF、PNG、BMP');
         fileName.value = 'file';
         upText.value = '上传图片';
         break;
       case 'video':
         accept.value = 'video/*';
         uploadAction.value = uploadUrl + props.controller + '/uploadVideo';
-        fileType.value = videoExtensions;
-        errTip.value = t('上传格式不正确，不是{0}', [videoExtensions]);
+        fileType.value = ['mp4', 'rmvb', 'wmv', 'avi', 'mpeg', 'mpg', 'mov', '3gp', 'flv', 'mkv', 'm4v'];
+        errTip.value = t('上传视频的格式不正确，不是MP4、RMVB、WMV、AVI、MPEG、MPG、MOV、3GP、FLV、MKV、M4V');
         fileName.value = 'video';
         upText.value = '上传视频';
         break;
       case 'file':
         accept.value = '';
         uploadAction.value = uploadUrl + props.controller + '/uploadFile';
-        fileType.value = fileExtensions;
-        errTip.value = t('上传格式不正确，不是{0}', [fileExtensions]);
-        fileName.value = 'file';
-        upText.value = '上传文件';
-        break;
-      case 'all':
-        accept.value = '';
-        uploadAction.value = uploadUrl + props.controller + '/upload';
-        fileType.value = [...imageExtensions, ...videoExtensions, ...fileExtensions];
-        errTip.value = t('上传格式不正确，不是{0}', [[...imageExtensions, ...videoExtensions, ...fileExtensions]]);
+        fileType.value = ['xls', 'xlsx', 'csv', 'json', 'txt', 'doc', 'docx', 'ppt', 'pptx', 'pdf', 'xmind'];
+        errTip.value = t('上传文件的格式不正确，不是XLS、XLSX、CSV、JSON、TXT、DOC、DOCX、PPT、PPTX、PDF、Xmind');
         fileName.value = 'file';
         upText.value = '上传文件';
         break;
@@ -175,19 +162,6 @@ watch(
     immediate: true
   }
 );
-
-const getType = (filename) => {
-  const extension = filename.split('.').pop().toLowerCase();
-  if (imageExtensions.includes(extension)) {
-    return 1;
-  }
-  if (fileExtensions.includes(extension)) {
-    return 2;
-  }
-  if (videoExtensions.includes(extension)) {
-    return 3;
-  }
-};
 
 const fileList = ref([]);
 
@@ -294,7 +268,7 @@ const previewHandleCancel = () => {
 };
 // 预览
 const handlePreview = (file) => {
-  if (getType(file.url) === 2) {
+  if (props.type == 'file') {
     window.open(file.url);
   } else {
     previewSrc.value = file.url || file.preview;
@@ -302,6 +276,11 @@ const handlePreview = (file) => {
   }
 };
 
+const types = {
+  image: 1,
+  file: 2,
+  video: 3
+};
 // 回传父组件
 const handlePathChange = () => {
   const uploadFiles = cloneDeep(fileList.value);
@@ -316,14 +295,14 @@ const handlePathChange = () => {
         uploadFiles[i].response.status === 'history'
           ? {
               name: uploadFiles[i].name,
-              type: uploadFiles[i].fileType || getType(uploadFiles[i].url),
+              type: uploadFiles[i].fileType || types[props.type],
               uuid: uploadFiles[i].uid,
               size: uploadFiles[i].size,
               value: uploadFiles[i].url
             }
           : {
               name: uploadFiles[i].name,
-              type: uploadFiles[i].fileType || getType(uploadFiles[i].url),
+              type: uploadFiles[i].fileType || types[props.type],
               uuid: uploadFiles[i].url,
               size: uploadFiles[i].size,
               value: uploadFiles[i].url
@@ -356,7 +335,7 @@ const handleChange = (info) => {
       list = list.map((file) => {
         if (file.response) {
           file.url = getFileAccessHttpUrl(file.response.data);
-          file.fileType = file.fileType || getType(file.url);
+          file.fileType = file.fileType || types[props.type];
         }
         return file;
       });

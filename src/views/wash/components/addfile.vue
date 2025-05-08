@@ -1,8 +1,8 @@
 <template>
   <div class="my-3">
-    <UploadBtn v-model:list="list" :defaultUploadType="2" controller="/wash" :params="{ code: code }" @change="update">
+    <vco-upload-modal v-model:list="list" controller="/wash" :params="{ code: code }" @change="update">
       <a-button size="small" shape="round" type="brown">{{ t('添加文件') }}</a-button>
-    </UploadBtn>
+    </vco-upload-modal>
     <template v-if="list.length">
       <div v-for="(item, index) in list" :key="index" class="file-item">
         <vco-file-item :file="item" :showClose="true" @remove="removeItem(index)"></vco-file-item>
@@ -13,7 +13,6 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import UploadBtn from '@/components/vco-upload-modal/upload-btn.vue';
 const emits = defineEmits(['update:value', 'update:document', 'change']);
 
 const props = defineProps({

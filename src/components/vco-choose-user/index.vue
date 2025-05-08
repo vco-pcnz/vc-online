@@ -182,20 +182,10 @@ const lodaData = () => {
     params: { ...searchForm.value, ...pagination.value, ...{ role_code: props.roleCode }, ...props.params }
   };
 
-  if (props.hideSearch) {
-    delete paramsInfo.params;
-  }
-
   request(paramsInfo)
     .then((res) => {
       tableData.value = res.data;
       count.value = res.count;
-
-      if (props.hideSearch) {
-        tableData.value = res || [];
-        count.value = res.length || 0;
-      }
-
       loading.value = false;
     })
     .catch((e) => {

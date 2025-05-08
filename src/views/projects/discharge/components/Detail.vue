@@ -88,6 +88,14 @@
           <vco-number :value="detail.build_amount" :precision="2" :end="true"></vco-number>
         </a-col>
         <a-col :span="12" class="item-txt">
+          <p>{{ t('还款日期') }}</p>
+          <p>{{ detail.repayment_date ? tool.showDate(detail.repayment_date) : '--' }}</p>
+        </a-col>
+        <a-col :span="12" class="item-txt">
+          <p>{{ t('净收益') }}</p>
+          <vco-number :value="detail.net_proceeds_price" :precision="2" :end="true"></vco-number>
+        </a-col>
+        <a-col :span="12" class="item-txt">
           <p>{{ t('抵押登记日期') }}</p>
           <p>{{ detail.mortgage_registration_date ? tool.showDate(detail.mortgage_registration_date) : '--' }}</p>
         </a-col>
@@ -101,7 +109,7 @@
         </a-col>
         <a-col :span="24" class="item-txt">
           <p>{{ t('地址') }}</p>
-          <p>{{ addressInfo(detail) }}</p>
+          <p>{{ detail.card_no +', ' + detail.city }}</p>
         </a-col>
         <a-col v-if="detail.remark" :span="24" class="item-txt">
           <p>{{ t('备注') }}</p>
@@ -210,9 +218,6 @@ const update = () => {
   emits('update');
 };
 
-const addressInfo = (data) => {
-  return `${data.address_short} ${data.address} ${data.suburb} ${data.region_one_name} ${data.country_name}`
-}
 
 const editHandle = () => {
   emits('itemEdit')

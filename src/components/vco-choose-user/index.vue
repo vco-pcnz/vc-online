@@ -47,7 +47,7 @@
           <div>
             <a-button v-if="isMultiple" type="primary" :disabled="!checkedIds.length" @click="handlePathChange">{{ t('选择') }}</a-button>
           </div>
-          <a-pagination v-if="count" size="small" :total="count" :pageSize="pagination.limit" :showSizeChanger="false" :current="pagination.page" show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
+          <a-pagination v-if="count && !hideSearch" size="small" :total="count" :pageSize="pagination.limit" :showSizeChanger="false" :current="pagination.page" show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
         </div>
       </template>
     </a-modal>

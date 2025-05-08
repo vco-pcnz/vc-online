@@ -36,7 +36,6 @@
           </template>
         </template>
       </a-table>
-      <!-- <vco-upload-modal></vco-upload-modal> -->
     </div></a-spin
   >
 </template>

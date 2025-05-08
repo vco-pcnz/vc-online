@@ -145,7 +145,7 @@
       <p>document:提交的数据</p>
       <p>documentList:展示的数据</p>
       <p>{{ vcoUploadModalStr }}</p>
-      <vco-upload-modal :uploadType="1" :limit="1"></vco-upload-modal>
+      <vco-upload-modal :limit="1"></vco-upload-modal>
   </div>
 </template>
 

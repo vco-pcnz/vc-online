@@ -47,7 +47,7 @@
           <div>
             <a-button v-if="isMultiple" type="primary" :disabled="!checkedIds.length" @click="handlePathChange">{{ t('选择') }}</a-button>
           </div>
-          <a-pagination v-if="count && !hideSearch" size="small" :total="count" :pageSize="pagination.limit" :showSizeChanger="false" :current="pagination.page" show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
+          <a-pagination v-if="count" size="small" :total="count" :pageSize="pagination.limit" :showSizeChanger="false" :current="pagination.page" show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
         </div>
       </template>
     </a-modal>
@@ -182,20 +182,10 @@ const lodaData = () => {
     params: { ...searchForm.value, ...pagination.value, ...{ role_code: props.roleCode }, ...props.params }
   };
 
-  if (props.hideSearch) {
-    delete paramsInfo.params;
-  }
-
   request(paramsInfo)
     .then((res) => {
       tableData.value = res.data;
       count.value = res.count;
-
-      if (props.hideSearch) {
-        tableData.value = res || [];
-        count.value = res.length || 0;
-      }
-
       loading.value = false;
     })
     .catch((e) => {

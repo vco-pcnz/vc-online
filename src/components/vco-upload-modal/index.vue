@@ -28,10 +28,6 @@ import { message } from 'ant-design-vue';
 
 const { t } = useI18n();
 
-const imageExtensions = ref(['jpg', 'jpeg', 'png', 'gif', 'bmp']);
-const fileExtensions = ref(['xls', 'xlsx', 'csv', 'json', 'txt', 'doc', 'docx', 'ppt', 'pptx', 'pdf', 'xmind']);
-const videoExtensions = ref(['mp4', 'rmvb', 'wmv', 'avi', 'mpeg', 'mpg', 'mov', '3gp', 'flv', 'mkv', 'm4v']);
-
 const props = defineProps({
   value: {
     type: Array,

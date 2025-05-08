@@ -967,6 +967,7 @@ export default {
   "下载为Excel表格，编辑后再点击右侧“上传”按钮上传编辑后的数据，以更新设置数据": "Download as an Excel spreadsheet, edit it, and then click the 'Upload' button on the right to upload the edited data to update the setting data",
   "单击或将文件拖到当前页面进行上传": "Click or drag the file to the current page to upload",
   "上传格式不正确，不是{0}": "The upload format is incorrect, not {0}",
-  "拆分": "in allocation"
-
+  "拆分": "in allocation",
+  "批量选择": "Batch selection",
+  "设置": "Set"
 }

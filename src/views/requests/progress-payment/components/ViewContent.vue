@@ -17,7 +17,7 @@
         <a-col :span="8">
           <div class="info-content">
             <p class="name">{{ t('可用额度') }}</p>
-            <vco-number :value="currentItemInfo.can_amount" color="#31bd65" size="fs_md" :precision="2"></vco-number>
+            <vco-number :value="currentItemInfo.can_amount" color="#ea3535" size="fs_md" :precision="2"></vco-number>
           </div>
         </a-col>
         <a-col :span="16">
@@ -86,6 +86,10 @@
 
         <div v-if="tableHeader.length && hasData && !pageLoading" class="form-block-content" :class="{'mt-10': isSelect}">
           <div v-if="!isSelect" class="title">{{ t('进度付款阶段') }}</div>
+          <div v-if="isSelect" class="mt-2 mb-2 flex justify-end gap-4">
+            <a-button type="primary" class="bold uppercase" @click="batchSelectHandle">{{ batchSelect ? t('取消') : t('批量选择') }}</a-button>
+            <a-button v-if="batchSelectData.length" type="dark" class="bold uppercase" @click="batchSelectSet">{{ t('设置') }} ({{ batchSelectData.length }})</a-button>
+          </div>
           <a-table
             :columns="tableHeader"
             :data-source="tableData"
@@ -106,7 +110,8 @@
                   <template v-if="showProcess">
                     <div class="select-item disabled">
                       <vco-number :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
-                      <vco-number :value="advanceObj?.use_amount || 0" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
+                      <vco-number :value="tableRemainTotal(advanceAmount, advanceObj?.use_amount || 0)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
+                      <vco-number :value="advanceObj?.use_amount || 0" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
                       <div class="process-gap"></div>
                       <div class="item-process-content">
                         <a-progress
@@ -123,10 +128,11 @@
                   <vco-number v-else :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
                 </template>
                 <template v-else>
-                  <div v-if="showProcess" class="select-item" :class="{'hover': isSelect}" @click="itemSetHandle(advanceObj)">
+                  <div v-if="showProcess" class="select-item adv" :class="{'hover': isSelect}" @click="itemSetHandle(advanceObj)">
                     <div class="flex justify-center flex-col items-center" style="width: 660px;">
                       <vco-number :value="advanceAmount" size="fs_xs" :precision="2" :end="true"></vco-number>
-                      <vco-number :value="advanceObj?.use_amount || 0" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
+                      <vco-number :value="tableRemainTotal(advanceAmount, advanceObj?.use_amount || 0)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
+                      <vco-number :value="advanceObj?.use_amount || 0" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
                       <div class="process-gap"></div>
                       <div class="init-progress">
                         <a-progress
@@ -140,35 +146,15 @@
                       </div>
                     </div>
                     <div v-if="advanceObj.checked" class="selected">{{ `$${numberStrFormat(advanceObj.set_amount)}` }}</div>
+                    <template v-if="advanceObj.selected">
+                      <div class="selected-bg"></div>
+                      <i class="iconfont selected-icon">&#xe601;</i>
+                    </template>
                   </div>
 
                   <div v-else class="flex justify-center" style="width: 660px;">
                     <vco-number :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
                   </div>
-
-                  <!-- <div v-if="showProcess" class="select-item" :class="{'hover': isSelect}" @click="itemSetHandle(advanceObj)">
-                    <vco-number :value="advanceAmount" size="fs_xs" :precision="2" :end="true"></vco-number>
-                    <vco-number :value="advanceObj?.use_amount || 0" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
-                    <div class="process-gap"></div>
-                    <div class="item-process-content line">
-                      <div class="progress">
-                        <a-progress
-                          :stroke-color="{
-                            '0%': '#F19915',
-                            '100%': '#ffb92c',
-                          }"
-                          :size="6"
-                          :percent="advanceObj.percent"
-                        />
-                      </div>
-                    </div>
-
-                    <div v-if="advanceObj.checked" class="selected adv">{{ `$${numberStrFormat(advanceObj.set_amount)}` }}</div>
-                  </div>
-
-                  <div v-else class="flex justify-center">
-                    <vco-number :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
-                  </div> -->
                 </template>
               </template>
 
@@ -182,7 +168,8 @@
                 <template v-if="showProcess">
                   <div class="select-item disabled">
                     <vco-number :value="record.total" size="fs_md" :precision="2" :end="true"></vco-number>
-                    <vco-number :value="record.useTotal" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
+                    <vco-number :value="tableRemainTotal(record.total, record.useTotal)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
+                    <vco-number :value="record.useTotal" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
                     <div class="process-gap"></div>
                     <div class="item-process-content">
                       <a-progress
@@ -200,9 +187,10 @@
                 <vco-number v-else :value="record[column.dataIndex]" size="fs_md" :precision="2" :end="true"></vco-number>
               </template>
               <template v-else>
-                <div v-if="showProcess" class="select-item" :class="{'hover': isSelect}" @click="itemSetHandle(record[column.dataIndex])">
+                <div v-if="showProcess" class="select-item col" :class="{'hover': isSelect}" @click="itemSetHandle(record[column.dataIndex])">
                   <vco-number :value="record[column.dataIndex].amount" size="fs_xs" :precision="2" :end="true"></vco-number>
-                  <vco-number :value="record[column.dataIndex].use_amount" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
+                  <vco-number :value="tableRemainTotal(record[column.dataIndex].amount, record[column.dataIndex].use_amount)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
+                  <vco-number :value="record[column.dataIndex].use_amount" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
                   <div class="process-gap"></div>
                   <div class="item-process-content">
                     <a-progress
@@ -215,6 +203,10 @@
                     />
                   </div>
                   <div v-if="record[column.dataIndex].checked" class="selected">{{ `$${numberStrFormat(record[column.dataIndex].set_amount)}` }}</div>
+                  <template v-if="record[column.dataIndex].selected">
+                    <div class="selected-bg"></div>
+                    <i class="iconfont selected-icon">&#xe601;</i>
+                  </template>
                 </div>
                 <vco-number v-else :value="record[column.dataIndex].amount" size="fs_md" :precision="2" :end="true"></vco-number>
               </template>
@@ -231,7 +223,8 @@
                       <template v-if="showProcess">
                         <div class="select-item footer disabled">
                           <vco-number :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
-                          <vco-number :value="tableUseTotal" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
+                          <vco-number :value="tableRemainTotal(summaryHandle(item.key), tableUseTotal)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
+                          <vco-number :value="tableUseTotal" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
                           <div class="process-gap"></div>
                           <div class="item-process-content">
                             <a-progress
@@ -251,7 +244,8 @@
                       <template v-if="showProcess">
                         <div class="select-item footer disabled">
                           <vco-number :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
-                          <vco-number :value="summaryHandle(item.key, 'use_amount')" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
+                          <vco-number :value="tableRemainTotal(summaryHandle(item.key), summaryHandle(item.key, 'use_amount'))" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
+                          <vco-number :value="summaryHandle(item.key, 'use_amount')" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
                           <div class="process-gap"></div>
                           <div class="item-process-content">
                             <a-progress
@@ -281,7 +275,8 @@
               @click="itemSetHandle(item)"
             >
               <vco-number :value="item.amount" size="fs_md" :precision="2" :end="true"></vco-number>
-              <vco-number v-if="showProcess" :value="item.use_amount" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
+              <vco-number v-if="showProcess" :value="tableRemainTotal(item.amount, item.use_amount)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
+              <vco-number v-if="showProcess" :value="item.use_amount" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
               <a-progress
                 v-if="showProcess"
                 :stroke-color="{
@@ -293,6 +288,10 @@
               />
               <p :class="{'mt-2': !showProcess}">{{ item.name }}</p>
               <div v-if="item.checked" class="selected">{{ `$${numberStrFormat(item.set_amount)}` }}</div>
+              <template v-if="item.selected">
+                <div class="selected-bg"></div>
+                <i class="iconfont selected-icon">&#xe601;</i>
+              </template>
             </div>
           </div>
           <div class="table-total-content">
@@ -444,6 +443,9 @@
     return totalAll
   })
 
+  const tableRemainTotal = (total, useTotal) => {
+    return tool.minus(total, useTotal)
+  }
 
   const setTableData = (headerData) => {
     const payment = cloneDeep(setedData.value.payment)
@@ -476,6 +478,7 @@
         if (Object.keys(amountItem).length) {
           amountItem.amount = Number(amountItem.amount)
           amountItem.checked = false
+          amountItem.selected = false
           amountItem.set_amount = ''
           amountItem.set_amount_per = ''
 
@@ -646,6 +649,7 @@
               const advanceItem = res.summary[`${advanceKey.value}`]
               advanceItem.amount = Number(advanceItem.amount)
               advanceItem.checked = false
+              advanceItem.selected = false
               advanceItem.set_amount = ''
               advanceItem.set_amount_per = ''
               if (advanceItem.amount) {
@@ -687,6 +691,7 @@
               const summaryItem = res.summary[`${item.name}`] || {}
               item.amount = Object.keys(summaryItem).length ? Number(summaryItem.amount) : 0
               item.checked = false
+              item.selected = false
               item.set_amount = ''
               item.set_amount_per = ''
 
@@ -798,40 +803,81 @@
   }
 
   const itemSetHandle = (data) => {
-    if (props.isSelect && Number(data.amount)) {
-      const num = tool.minus(Number(data.amount), Number(data.use_amount))
-      if (data.set_amount && !data.set_amount_per) {
-        const per = Number(num) ? tool.div(data.set_amount, num) : 0
-        data.set_amount_per = Number(tool.times(per, 100)).toFixed(2)
+    if (batchSelect.value) {
+      data.selected = !data.selected
+      const id = data.id
+      const index = batchSelectData.value.findIndex(item => item.id === id)
+      if (data.selected) {
+        if (index === -1) {
+          batchSelectData.value.push(data)
+        }
+      } else {
+        if (index > -1) {
+          batchSelectData.value.splice(index, 1)
+        }
       }
-      data.can_amount = num
-      data.can_amount_per = Number(data.amount) ? tool.times(tool.div(Number(num), Number(data.amount)), 100) : 0
-      data.showError = false
-      currentItemInfo.value = data
-      itemVisible.value = true
+    } else {
+      if (props.isSelect && Number(data.amount)) {
+        const num = tool.minus(Number(data.amount), Number(data.use_amount))
+        if (data.set_amount && !data.set_amount_per) {
+          const per = Number(num) ? tool.div(data.set_amount, num) : 0
+          data.set_amount_per = Number(tool.times(per, 100)).toFixed(2)
+        }
+        data.can_amount = num
+        data.can_amount_per = Number(data.amount) ? tool.times(tool.div(Number(num), Number(data.amount)), 100) : 0
+        data.showError = false
+        currentItemInfo.value = data
+        itemVisible.value = true
+      }
     }
   }
 
   const selectSureHandle = () => {
-    if (Number(currentItemInfo.value.set_amount) > Number(currentItemInfo.value.can_amount) || Number(currentItemInfo.value.set_amount) < 0) {
-      currentItemInfo.value.showError = true
-    } else {
-      if (Number(currentItemInfo.value.set_amount) === 0) {
-        currentItemInfo.value.checked = false
+    if (batchSelect.value) {
+      if (Number(currentItemInfo.value.set_amount) > Number(currentItemInfo.value.can_amount) || Number(currentItemInfo.value.set_amount) < 0) {
+        currentItemInfo.value.showError = true
       } else {
-        currentItemInfo.value.checked = true
-        const data = cloneDeep(currentItemInfo.value)
-        if (selectIdData.value.includes(data.id)) {
-          const obj = selectData.value.find(item => item.id === data.id)
+        const setPercent = tool.div(Number(currentItemInfo.value.set_amount_per), 100)
+        currentItemInfo.value.showError = false
+
+        batchSelectData.value.forEach(item => {
+          const canAmount = Number(tool.minus(Number(item.amount), Number(item.use_amount))).toFixed(2)
+          const setAmount = Number(tool.times(Number(canAmount), Number(setPercent))).toFixed(2)
+
+          item.set_amount = setAmount
+          item.checked = true
+
+          const obj = selectData.value.find(_item => _item.id === item.id)
           if (obj) {
-            obj.set_amount = data.set_amount
+            obj.set_amount = item.set_amount
+            obj.set_amount_per = ''
+          } else {
+            selectData.value.push(item)
           }
-        } else {
-          selectData.value.push(data)
-        }
+        })
+        itemVisible.value = false
       }
-      itemVisible.value = false
-      currentItemInfo.value.showError = false
+    } else {
+      if (Number(currentItemInfo.value.set_amount) > Number(currentItemInfo.value.can_amount) || Number(currentItemInfo.value.set_amount) < 0) {
+        currentItemInfo.value.showError = true
+      } else {
+        if (Number(currentItemInfo.value.set_amount) === 0) {
+          currentItemInfo.value.checked = false
+        } else {
+          currentItemInfo.value.checked = true
+          const data = cloneDeep(currentItemInfo.value)
+          if (selectIdData.value.includes(data.id)) {
+            const obj = selectData.value.find(item => item.id === data.id)
+            if (obj) {
+              obj.set_amount = data.set_amount
+            }
+          } else {
+            selectData.value.push(data)
+          }
+        }
+        itemVisible.value = false
+        currentItemInfo.value.showError = false
+      }
     }
   }
 
@@ -894,6 +940,51 @@
     return res
   })
 
+  const batchSelect = ref(false)
+  const batchSelectData = ref([])
+
+  const batchSelectHandle = () => {
+    batchSelect.value = !batchSelect.value
+    if (!batchSelect.value) {
+      batchSelectData.value.forEach(item => {
+        item.selected = false
+      })
+      batchSelectData.value = []
+    }
+  }
+
+  const batchSelectSet = () => {
+    const amountArr = batchSelectData.value.map(item => Number(item.amount || 0))
+    const totalAmount = amountArr.reduce((total, num) => {
+      return Number(tool.plus(total, num))
+    }, 0);
+
+    const useAmountArr = batchSelectData.value.map(item => Number(item.use_amount || 0))
+    const useTotalAmount = useAmountArr.reduce((total, num) => {
+      return Number(tool.plus(total, num))
+    }, 0);
+
+    const setAmountArr = batchSelectData.value.map(item => Number(item.set_amount || 0))
+    const setTotalAmount = setAmountArr.reduce((total, num) => {
+      return Number(tool.plus(total, num))
+    }, 0);
+
+    const num = tool.minus(totalAmount, useTotalAmount)
+
+    const data = {
+      amount: totalAmount,
+      use_amount: useTotalAmount,
+      can_amount: num,
+      set_amount: setTotalAmount,
+      set_amount_per: Number(tool.times(tool.div(setTotalAmount, num), 100)).toFixed(2),
+      can_amount_per: Number(tool.times(tool.div(Number(num), Number(totalAmount)), 100)).toFixed(2),
+      showError: false
+    }
+
+    currentItemInfo.value = data
+    itemVisible.value = true
+  }
+
   onMounted(async () => {
     const { path, query } = route
 
@@ -939,6 +1030,10 @@
       border-radius: 10px;
       box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.1);
       padding: 30px;
+    }
+
+    :deep(.ant-statistic) {
+      line-height: 1.2;
     }
 
     :deep(.ant-table-wrapper) {
@@ -1039,6 +1134,7 @@
       border-right: 1px solid #ddd;
       padding: 10px 15px;
       position: relative;
+      overflow: hidden;
       &:last-child {
         border-right: none;
       }
@@ -1070,6 +1166,26 @@
         right: 0;
         font-size: 11px;
         padding: 0 5px;
+      }
+
+      .selected-bg {
+        position: absolute;
+        background-color: rgba(49, 189, 101, 1);
+        width: 40px;
+        height: 40px;
+        right: -20px;
+        bottom: -20px;
+        transform: rotate(-45deg);
+        z-index: 1;
+      }
+
+      .selected-icon {
+        position: absolute;
+        right: 2px;
+        bottom: 2px;
+        color: #fff;
+        font-size: 11px;
+        z-index: 2;
       }
 
       .ant-progress-line {
@@ -1115,7 +1231,7 @@
     position: relative;
     overflow: hidden;
     margin: -16px -10px;
-    padding: 10px;
+    padding: 16px 10px;
     &.footer {
       margin: -16px -5px;
     }
@@ -1126,6 +1242,26 @@
         background-color: rgba(241, 153, 21, .2)
       }
     }
+    &.adv {
+      .selected-bg {
+        left: -20px;
+        bottom: -20px;
+      }
+      .selected-icon {
+        left: 2px;
+        bottom: 2px;
+      }
+    }
+    &.col {
+      .selected-bg {
+        right: -20px;
+        bottom: -20px;
+      }
+      .selected-icon {
+        right: 2px;
+        bottom: 2px;
+      }
+    }
     > .selected {
       position: absolute;
       background-color: rgba(49, 189, 101, 0.8);
@@ -1133,6 +1269,20 @@
       left: 0;
       font-size: 11px;
       padding: 0 5px;
+    }
+    .selected-bg {
+      position: absolute;
+      background-color: rgba(49, 189, 101, 1);
+      width: 40px;
+      height: 40px;
+      transform: rotate(-45deg);
+      z-index: 1;
+    }
+    .selected-icon {
+      position: absolute;
+      color: #fff;
+      font-size: 11px;
+      z-index: 2;
     }
     &.disabled {
       background-color: #f2f2f2;

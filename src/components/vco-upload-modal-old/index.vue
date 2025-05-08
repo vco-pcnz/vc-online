@@ -8,11 +8,20 @@
       </slot>
     </div>
     <a-modal :width="600" v-if="open" :open="open" :title="t('上传')" @cancel="open = false" class="sys-form-content">
-      <p class="fs_xs color_grey mt-5 mb-6 pb-1" style="border-bottom: 1px solid #ababab">{{ t('单击或将文件拖到当前页面进行上传') }}</p>
-      <vco-upload :controller="controller" :params="params" :type="type" :limit="20" isMultiple v-model:list="files" v-model:loading="uploading"></vco-upload>
+      <a-tabs v-model:activeKey="activeKey">
+        <a-tab-pane :key="1" :tab="t('图片')" v-if="!uploadType || uploadType == 1">
+          <vco-upload ref="vcoUpload1" :controller="controller" :params="params" type="image" :limit="20" isMultiple v-model:list="images"></vco-upload>
+        </a-tab-pane>
+        <a-tab-pane :key="2" :tab="t('文件')" v-if="!uploadType || uploadType == 2">
+          <vco-upload ref="vcoUpload2" :controller="controller" :params="params" type="file" :limit="20" isMultiple v-model:list="files"></vco-upload>
+        </a-tab-pane>
+        <a-tab-pane :key="3" :tab="t('视频')" v-if="!uploadType || uploadType == 3">
+          <vco-upload ref="vcoUpload3" :controller="controller" :params="params" type="video" :limit="20" isMultiple v-model:list="videos"></vco-upload>
+        </a-tab-pane>
+      </a-tabs>
       <template #footer>
         <div class="modal-footer">
-          <a-button @click="confirm" :disabled="uploading" size="large" type="primary" style="width: 40%">
+          <a-button @click="confirm" size="large" type="primary" style="width: 40%">
             {{ t('确认') }}
           </a-button>
         </div>
@@ -49,22 +58,32 @@ const props = defineProps({
       return {};
     }
   },
-  type: {
-    type: String
+  defaultUploadType: {
+    type: Number,
+    default: 1
+  },
+  uploadType: {
+    type: Number //1 image,2 file,3 video
   }
 });
 const emits = defineEmits(['update:value', 'update:list', 'change']);
-const uploading = ref(false);
 const open = ref(false);
+const activeKey = ref(1);
+const images = ref([]);
 const files = ref([]);
+const videos = ref([]);
 
 const show = () => {
+  activeKey.value = props.defaultUploadType;
+  if (props.uploadType) activeKey.value = props.uploadType;
+  images.value = [];
   files.value = [];
+  videos.value = [];
   open.value = true;
 };
 
 const confirm = () => {
-  const list = [...props.list, ...files.value];
+  const list = [...props.list, ...images.value, ...files.value, ...videos.value];
   emits('update:list', list);
   emits('change', list);
   open.value = false;

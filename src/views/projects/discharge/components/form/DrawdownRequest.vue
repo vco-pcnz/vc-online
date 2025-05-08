@@ -1,22 +1,9 @@
 <template>
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="drawdownRequestRef" class="drawdown-request">
-    <a-modal
-      :width="700"
-      :open="visible"
-      :title="t('解押申请')"
-      :getContainer="() => $refs.drawdownRequestRef"
-      :maskClosable="false"
-      :footer="false"
-      @cancel="updateVisible(false)"
-    >
+    <a-modal :width="700" :open="visible" :title="t('解押申请')" :getContainer="() => $refs.drawdownRequestRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
-        <a-form
-          ref="formRef"
-          layout="vertical"
-          :model="formState"
-          :rules="formRules"
-        >
+        <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
           <a-row :gutter="24">
             <!-- <a-col :span="24">
               <a-alert
@@ -47,26 +34,36 @@
               </a-alert>
             </a-col> -->
             <a-col :span="24">
-              <a-alert
-                type="info"
-                class="mb-5"
-              >
+              <a-alert type="info" class="mb-5">
                 <template #message>
                   <a-form-item :label="t('抵押物价值')" class="info-txt">
                     <vco-number :value="detail?.amount" size="fs_xl" :precision="2" :end="true"></vco-number>
+                  </a-form-item>
+                  <a-form-item :label="t('地址')" class="info-txt">
+                    <p>{{ detail.card_no + ', ' + detail.city }}</p>
                   </a-form-item>
                 </template>
               </a-alert>
             </a-col>
             <a-col :span="14">
               <a-form-item :label="t('文件夹名称')" name="dirname">
-                <a-input v-model:value="formState.dirname" :placeholder="t('请输入')" :rows="3"/>
+                <a-input v-model:value="formState.dirname" :placeholder="t('请输入')" :rows="3" />
               </a-form-item>
             </a-col>
             <a-col :span="10">
               <a-form-item :label="t('当前抵押物价值')" name="real_amount">
+                <a-input-number v-model:value="formState.real_amount" :max="99999999999" :placeholder="t('请输入')" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="14">
+              <a-form-item :label="t('还款日期')">
+                <a-date-picker class="datePicker" inputReadOnly v-model:value="formState.repayment_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" :showToday="false" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="10">
+              <a-form-item :label="t('净收益')">
                 <a-input-number
-                  v-model:value="formState.real_amount"
+                  v-model:value="formState.net_proceeds_price"
                   :max="99999999999"
                   :placeholder="t('请输入')"
                   :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
@@ -76,7 +73,7 @@
             </a-col>
             <a-col :span="24">
               <a-form-item :label="t('解押说明')" name="reason">
-                <a-textarea v-model:value="formState.reason" :placeholder="t('请输入')" :rows="3"/>
+                <a-textarea v-model:value="formState.reason" :placeholder="t('请输入')" :rows="3" />
               </a-form-item>
             </a-col>
             <a-col v-if="visible" :span="24">
@@ -86,7 +83,6 @@
             </a-col>
           </a-row>
         </a-form>
-        
 
         <div class="flex justify-center mt-5">
           <a-button @click="save" type="dark" class="save big uppercase shadow bold" :loading="loading">
@@ -103,6 +99,7 @@ import { nextTick, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { dischargeEdit } from '@/api/project/loan';
 import DocumentsUpload from './DocumentsUpload.vue';
+import { selectDateFormat } from '@/utils/tool';
 
 const { t } = useI18n();
 const emits = defineEmits(['change']);
@@ -123,24 +120,22 @@ const loading = ref(false);
 const formState = ref({
   dirname: '',
   real_amount: '',
-  reason: ''
+  reason: '',
+  repayment_date: '',
+  net_proceeds_price: ''
 });
-const document = ref([])
+const document = ref([]);
 
-const formRef = ref()
+const formRef = ref();
 
 const formRules = ref({
-  dirname: [
-    { required: true, message: t('请输入') + t('文件夹名称'), trigger: 'blur' },
-  ],
-  real_amount: [
-    { required: true, message: t('请输入') + t('当前抵押物价值'), trigger: 'blur' },
-  ]
+  dirname: [{ required: true, message: t('请输入') + t('文件夹名称'), trigger: 'blur' }],
+  real_amount: [{ required: true, message: t('请输入') + t('当前抵押物价值'), trigger: 'blur' }]
 });
 
 const updateVisible = (value) => {
   if (!value) {
-    document.value = []
+    document.value = [];
     formRef.value.clearValidate();
     formRef.value.resetFields();
     Object.keys(formState.value).forEach((key) => {
@@ -160,16 +155,18 @@ const save = () => {
         uuid: props.detail.uuid,
         p_uuid: props.pUuid,
         document: document.value
-      }
-      loading.value = true
+      };
+      loading.value = true;
 
-      dischargeEdit(params).then(() => {
-        loading.value = false
-        updateVisible(false)
-        emits('change')
-      }).catch(() => {
-        loading.value = false
-      })
+      dischargeEdit(params)
+        .then(() => {
+          loading.value = false;
+          updateVisible(false);
+          emits('change');
+        })
+        .catch(() => {
+          loading.value = false;
+        });
     })
     .catch((error) => {
       console.log('error', error);
@@ -177,11 +174,11 @@ const save = () => {
 };
 
 const init = () => {
-  updateVisible(true)
+  updateVisible(true);
 
   nextTick(() => {
-    formState.value.dirname = props.detail.security_name
-  })
+    formState.value.dirname = props.detail.security_name;
+  });
 };
 </script>
 <style scoped lang="less">

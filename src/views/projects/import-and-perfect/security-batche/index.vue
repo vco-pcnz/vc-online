@@ -154,6 +154,9 @@
               <template v-if="column.dataIndex === 'is_gst'">
                 <a-switch v-model:checked="record.is_gst" @change="salesPriceInput(record)" />
               </template>
+              <template v-if="column.dataIndex === 'is_calc'">
+                <a-switch v-model:checked="record.is_calc" />
+              </template>
               <template v-if="column.dataIndex === 'amount'">
                 <a-input-number
                   v-model:value="record.amount"
@@ -354,6 +357,9 @@
               </template>
               <template v-if="column.dataIndex === 'is_gst'">
                 <a-switch v-model:checked="record.is_gst" @change="salesPriceInput(record)" />
+              </template>
+              <template v-if="column.dataIndex === 'is_calc'">
+                <a-switch v-model:checked="record.is_calc" />
               </template>
               <template v-if="column.dataIndex === 'amount'">
                 <a-input-number
@@ -621,6 +627,7 @@ const batchColumns = reactive([
   { title: t('面积'), dataIndex: 'sqm', width: 120, align: 'center' },
   { title: t('预计销售价格'), dataIndex: 'est_sales_price', width: 150, align: 'center' },
   { title: t('含消费税'), dataIndex: 'is_gst', width: 115, align: 'center' },
+  { title: t('拆分'), dataIndex: 'is_calc', width: 100, align: 'center' },
   { title: t('担保价值'), dataIndex: 'amount', width: 150, align: 'center' },
   { title: t('保险价值'), dataIndex: 'insurance_value', width: 150, align: 'center' },
   { title: t('销售价格'), dataIndex: 'sales_price', width: 150, align: 'center' },
@@ -650,6 +657,7 @@ const batchDataSource = ref([{
   sales_price: 0,
   repayment_price: 0,
   is_gst: false,
+  is_calc: false,
   insurance_value: 0,
   contract_date: '',
   settlement_date: '',
@@ -664,6 +672,7 @@ const formColumns = reactive([
   { title: t('面积'), dataIndex: 'sqm', width: 120, align: 'center' },
   { title: t('预计销售价格'), dataIndex: 'est_sales_price', width: 150, align: 'center' },
   { title: t('含消费税'), dataIndex: 'is_gst', width: 115, align: 'center' },
+  { title: t('拆分'), dataIndex: 'is_calc', width: 100, align: 'center' },
   { title: t('担保价值'), dataIndex: 'amount', width: 150, align: 'center' },
   { title: t('保险价值'), dataIndex: 'insurance_value', width: 150, align: 'center' },
   { title: t('销售价格'), dataIndex: 'sales_price', width: 150, align: 'center' },
@@ -704,6 +713,7 @@ const batchitem = {
   sales_price: 0,
   repayment_price: 0,
   is_gst: false,
+  is_calc: false,
   amount: 0,
   insurance_value: 0,
   insurance_expire_date: '',
@@ -739,6 +749,7 @@ const tableDataInit = async () => {
         }
       }
       sItem.is_gst = sItem.is_gst === 1 ? true : false
+      sItem.is_calc = sItem.is_calc === 1 ? true : false
       sItem.checked = true
       sItem.name = item.card_no || t(`第{0}行`, [index + 1])
       sItem.security_uuid = item.uuid
@@ -900,6 +911,7 @@ const subHandle = () => {
 
   formData.forEach(item => {
     item.is_gst = item.is_gst ? 1 : 0
+    item.is_calc = item.is_calc ? 1 : 0
     item.is_sales = item.sales_price ? 1 : 0
     item.type = 2
     item.security_name = item.name

@@ -508,7 +508,7 @@
   const securitySqmObj = ref()
   const getSecurityData = async () => {
     try {
-      const { list } = await projectDetailAuditSecurityList({ uuid: uuid.value})
+      const { list } = await projectDetailAuditSecurityList({ uuid: uuid.value, type: 2, is_calc: 1})
       const dataArr = list || []
 
       const dataObj = {}

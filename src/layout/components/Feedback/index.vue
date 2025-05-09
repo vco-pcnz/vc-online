@@ -86,6 +86,12 @@ const reset = () => {
   documentList.value = []
 };
 
+
+// 删除文件
+const remove = (index) => {
+  documentList.value.splice(index, 1);
+};
+
 watch(
   () => visible.value,
   (val) => {

@@ -146,7 +146,13 @@
                   />
                 </template>
                 <template v-else-if="column.dataIndex === 'loan_payment'">
-                  {{ record[column.dataIndex] }}%
+                  <p v-if="isOpen">{{ record[column.dataIndex] }}%</p>
+                  <a-input
+                    v-else
+                    v-model:value="record[column.dataIndex]"
+                    @input="() => initHandle(true)"
+                    suffix="%"
+                  />
                 </template>
                 <template v-else-if="column.dataIndex === 'total'">
                   <div class="total-info-txt">Loan<vco-number :value="record[column.dataIndex]" size="fs_xs" :precision="2" :end="true" color="#eb4b6d"></vco-number></div>

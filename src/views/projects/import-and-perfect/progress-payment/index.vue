@@ -107,6 +107,9 @@
                   <template v-else-if="column.dataIndex === 'payment'">
                     <p>--</p>
                   </template>
+                  <template v-else-if="column.dataIndex === 'loan_payment'">
+                    <p>--</p>
+                  </template>
                   <template v-else-if="column.dataIndex === 'total'">
                     <vco-number :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
                   </template>
@@ -142,8 +145,21 @@
                     suffix="%"
                   />
                 </template>
+                <template v-else-if="column.dataIndex === 'loan_payment'">
+                  <p v-if="isOpen">{{ record[column.dataIndex] }}%</p>
+                  <a-input
+                    v-else
+                    v-model:value="record[column.dataIndex]"
+                    @input="() => initHandle(true)"
+                    suffix="%"
+                  />
+                </template>
                 <template v-else-if="column.dataIndex === 'total'">
-                  <vco-number :value="record[column.dataIndex]" size="fs_md" :precision="2" :end="true"></vco-number>
+                  <div class="total-info-txt">Loan<vco-number :value="record[column.dataIndex]" size="fs_xs" :precision="2" :end="true" color="#eb4b6d"></vco-number></div>
+                  <div class="total-info-txt">Borrower Equity<vco-number :value="0" size="fs_xs" :precision="2" :end="true" color="#31bd65"></vco-number></div>
+                  <div class="flex justify-end">
+                    <vco-number :value="record[column.dataIndex]" size="fs_md" :precision="2" :end="true"></vco-number>
+                  </div>
                 </template>
                 <template v-else>
                   <a-input-number
@@ -169,6 +185,11 @@
                     <a-table-summary-cell v-for="(item, index) in summaryCol" :index="index" :key="item.key" class="text-center">
                       <template v-if="item.key === 'type'">Construction</template>
                       <template v-else-if="item.key === 'payment'">
+                        <p class="total-percent"
+                          :class="{'plus': summaryHandle(item.key) > 100, 'minus': summaryHandle(item.key) < 100}"
+                        >{{ numberStrFormat(summaryHandle(item.key)) }}%</p>
+                      </template>
+                      <template v-else-if="item.key === 'loan_payment'">
                         <p class="total-percent"
                           :class="{'plus': summaryHandle(item.key) > 100, 'minus': summaryHandle(item.key) < 100}"
                         >{{ numberStrFormat(summaryHandle(item.key)) }}%</p>
@@ -289,9 +310,9 @@
 
   const totalColor = computed(() => {
     return (num) => {
-      if (num > buildAmount.value) {
+      if (num > totalLoanAmount.value) {
         return '#eb4b6d'
-      } else if (num < buildAmount.value) {
+      } else if (num < totalLoanAmount.value) {
         return '#31bd65'
       } else {
         return '#282828'
@@ -401,14 +422,17 @@
         const payment = tool.div(sum, calcBuildAmount.value)
         obj.payment = Number(tool.times(Number(payment), 100)).toFixed(2)
         obj.total = sum
+
+        // TODO: 贷款支付金额
+        obj.loan_payment = 0
       } else {
         obj.payment = Number(data[i].note).toFixed(2)
         obj.total = 0
+        obj.loan_payment = 0
       }
 
       dataArr.push(obj)
     }
-
     tableData.value = dataArr
   }
 
@@ -450,21 +474,27 @@
       width: 110,
       align: 'center',
       fixed: 'left'
+    }, {
+      title: 'Loan Payment',
+      dataIndex: "loan_payment",
+      width: 110,
+      align: 'center',
+      fixed: 'left'
     }, ...headerData,
     { title: t('总计'), dataIndex: 'total', width: 180, align: 'center', fixed: 'right' }]
 
     // 合并第一行数据
-    if (tableHeader.value.length > 3) {
+    if (tableHeader.value.length > 4) {
       tableHeader.value.forEach((item, index) => {
         item.customCell = (record) => {
           if (record.isFixedRow) {
-            const mergeStart = 2
-            const mergeEnd = tableHeader.value.length - 2
+            const mergeStart = 3
+            const mergeEnd = tableHeader.value.length - 3
 
             if (index === mergeStart) {
               // 第一个合并单元格的起始位置
               return {
-                colSpan: mergeEnd - mergeStart + 1 // 要合并多少列
+                colSpan: mergeEnd - mergeStart + 2 // 要合并多少列
               }
             } else if (index > mergeStart && index <= mergeEnd) {
               // 被合并的列
@@ -493,10 +523,17 @@
 
   // 建筑放款额
   const buildAmount = ref(0)
+  // 建筑贷款自出部分
+  const borrowerEquity  = ref(0)
+
+  // 总贷款金额
+  const totalLoanAmount = computed(() => {
+    return Number(tool.plus(buildAmount.value, borrowerEquity.value))
+  })
 
   // 参与百分比计算金额
   const calcBuildAmount = computed(() => {
-    const total = Number(buildAmount.value)
+    const total = Number(totalLoanAmount.value)
     const initAd = Number(advanceAmount.value)
     const num = tool.minus(total, initAd)
     return Number(num)
@@ -566,8 +603,8 @@
 
     dataArr.push(obj)
 
-    const calcNum = tool.div(buildAmount.value, totalSqm)
-    amortizedCalc.value = `$${numberStrFormat(buildAmount.value)} ÷ ${obj.total} ≈ <span>$${numberStrFormat(calcNum)}</span>/m²`
+    const calcNum = tool.div(totalLoanAmount.value, totalSqm)
+    amortizedCalc.value = `($${numberStrFormat(buildAmount.value)}<i>[Loan]</i> + $${numberStrFormat(borrowerEquity.value)}<i>[Borrower Equity]</i>) ÷ ${obj.total} ≈ <span>$${numberStrFormat(calcNum)}</span>/m²`
     amortizedData.value = dataArr
   }
 
@@ -689,7 +726,9 @@
         footerDataCol.value = footerData || []
         
         const Construction = list.find(item => item.type === 'Construction')
+
         buildAmount.value = Construction ? Construction.loan : 0
+        borrowerEquity.value = Construction ? Construction.borrower_equity : 0
       })
       await getSetedData()
     } catch (err) {
@@ -1042,11 +1081,17 @@
       box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.1);
       padding: 30px;
     }
+    :deep(.ant-statistic) {
+      line-height: 1.5;
+    }
 
     :deep(.ant-table-wrapper) {
       .ant-table-cell-fix-right-first::after,
       * {
         border-color: #272727 !important;
+      }
+      .ant-table-tbody>tr>td {
+        padding: 10px;
       }
       .ant-table-expanded-row-fixed::after {
         border-color: #272727 !important;
@@ -1122,6 +1167,11 @@
     :deep(span) {
       color: @colorPrimary !important;
       font-weight: 500;
+    }
+    :deep(i) {
+      font-size: 12px;
+      padding-left: 2px;
+      color: #ea3535;
     }
   }
 
@@ -1199,5 +1249,13 @@
     left: 0;
     opacity: 0;
     cursor: pointer;
+  }
+
+  .total-info-txt {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    font-size: 10px;
   }
 </style>

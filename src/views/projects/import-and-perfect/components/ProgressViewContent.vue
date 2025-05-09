@@ -1,6 +1,6 @@
 <template>
   <div>
-    <a-modal :open="itemVisible" :title="t('进度付款阶段')" :width="500" :footer="null" :keyboard="false" :maskClosable="false" @cancel="itemVisible = false">
+    <a-modal :open="itemVisible" :title="t('进度付款阶段')" :width="500" :footer="null" :keyboard="false" :closable="false" :maskClosable="false" @cancel="itemVisible = false">
       <a-row :gutter="24" class="mt-10">
         <a-col :span="8">
           <div class="info-content">

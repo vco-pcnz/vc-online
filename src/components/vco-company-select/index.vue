@@ -1,7 +1,7 @@
 <template>
   <a-dropdown trigger="click" :disabled="disabled" v-model:open="open">
     <div>
-      <a-input style="display: block" v-model:value="keyword" :placeholder="placeholder" @input="search" @click.prevent :disabled="disabled" />
+      <a-input style="display: block" v-model:value="keyword" :placeholder="placeholder" @input="search" @change="search" @click.prevent :disabled="disabled" />
       <div class="loading-tips"><a-spin :spinning="searchLoading" size="small"></a-spin></div>
     </div>
     <template #overlay>
@@ -29,6 +29,9 @@ const appStore = useAppStore();
 const emits = defineEmits(['update:name', 'update:nzbn', 'change']);
 const props = defineProps({
   name: {
+    type: String
+  },
+  email: {
     type: String
   },
   nzbn: {
@@ -98,7 +101,9 @@ const hasData = (data) => {
   }
 };
 const getInfo = (val) => {
+  let updateEmail = !props.nzbn || !props.name;
   getCompanyInfoByNzbn({ nzbn: val }).then((res) => {
+    const resEmail = hasData(res.email_address) ? res.email_address.emailAddress : '';
     let obj = {
       addr: hasData(res.address) ? res.address.address1 : '',
       address: '',
@@ -106,7 +111,7 @@ const getInfo = (val) => {
       postal: hasData(res.address) ? res.address.postCode : '',
       con_id: '',
       province_code_name: hasData(res.address) ? res.address.address3 : '',
-      email: hasData(res.email_address) ? res.email_address.emailAddress : '',
+      email: updateEmail ? props.email || resEmail : resEmail,
       pre: hasData(res.phone_number) ? res.phone_number.phoneCountryCode : '',
       mobile: hasData(res.phone_number) ? (hasData(res.phone_number.phoneAreaCode) ? res.phone_number.phoneAreaCode : '') + (hasData(res.phone_number.phoneNumber) ? res.phone_number.phoneNumber : '') : ''
     };

@@ -575,7 +575,7 @@
       }
     }
 
-    emits('dataDone', data.project_apply_sn)
+    emits('dataDone', data)
     getTypeData(data.project_type)
   }
 

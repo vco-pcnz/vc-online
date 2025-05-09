@@ -441,7 +441,7 @@ const dataInit = (infoMsg = {}, draftMsg = {}) => {
     }
   }
 
-  emits('dataDone', data.project_apply_sn);
+  emits('dataDone', data);
 };
 
 const pageLoading = ref(false);

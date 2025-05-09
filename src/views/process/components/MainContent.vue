@@ -15,14 +15,14 @@
               <div v-if="current === 1 && !orderSn && pageDone && currentRequestName" class="Panel">
                 <h2 class="Panel-Title">
                   <i class="iconfont back" @click="navigationTo(`/requests/loan`)">&#xe794;</i>
-                  <a-tag class="Tag">{{ currentRequestName }}</a-tag>
+                  <a-tag class="Tag"><p :title="currentRequestName">{{ currentRequestName }}</p></a-tag>
                 </h2>
               </div>
               
               <div v-if="orderSn && pageDone" class="Panel">
                 <h2 class="Panel-Title">
                   <i class="iconfont back" @click="navigationTo(`/requests/loan`)">&#xe794;</i>
-                  <a-tag class="Tag">{{ `${currentRequestName} - ${orderSn}` }}</a-tag>
+                  <a-tag class="Tag"><p :title="`${currentRequestName} - ${orderSn}`">{{ `${currentRequestName} - ${orderSn}` }}</p></a-tag>
                 </h2>
               </div>
             </template>
@@ -131,7 +131,9 @@
   const orderSn = ref('')
   const dataDone = (res) => {
     pageDone.value = true
-    orderSn.value = res
+    console.log(res)
+    orderSn.value = res?.borrower?.organization_name || res?.project_name || res?.base?.project_apply_sn || res?.project_apply_sn || ''
+    console.log(orderSn.value)
   }
 
   const showHeaderTab = ref(false)
@@ -208,6 +210,12 @@
 
       border-radius: 0 16px 16px 0;
       overflow: hidden;
+      p {
+        white-space: nowrap;
+        overflow: hidden;
+        max-width: 800px;
+        text-overflow: ellipsis;
+      }
     }
   }
 

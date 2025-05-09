@@ -364,7 +364,7 @@ const dataInit = (infoMsg = {}, draftMsg = {}) => {
   const areaStr = areaArr.filter((item) => item).join(',');
   formState.project_region = areaStr || '';
 
-  emits('dataDone', data.project_apply_sn);
+  emits('dataDone', data);
 };
 
 const pageLoading = ref(false);

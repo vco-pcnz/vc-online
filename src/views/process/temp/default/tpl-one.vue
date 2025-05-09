@@ -558,7 +558,7 @@ const dataInit = (infoMsg = {}, draftMsg = {}) => {
   nextTick(() => {
     vcoAddressRef.value.init(formState);
   });
-  emits('dataDone', data.project_apply_sn || '');
+  emits('dataDone', data );
 };
 
 const pageLoading = ref(false);

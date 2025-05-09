@@ -42,7 +42,7 @@
                   {{ t('下载') }}
                   <a-tooltip>
                     <template #title>
-                      <span>{{ t(`下载为Excel表格，编辑后再点击右侧“上传”按钮上传编辑后的数据，以更新设置数据`) }}</span>
+                      <span>{{ t(`下载为Excel表格，编辑后再点击右侧"上传"按钮上传编辑后的数据，以更新设置数据`) }}</span>
                     </template>
                     <QuestionCircleOutlined />
                   </a-tooltip>
@@ -91,6 +91,7 @@
                 </a-button>
               </div>
             </div>
+
             <a-table
               :columns="tableHeader"
               :data-source="tableData"
@@ -105,9 +106,6 @@
                     <p>{{ record.type }}</p>
                   </template>
                   <template v-else-if="column.dataIndex === 'payment'">
-                    <p>--</p>
-                  </template>
-                  <template v-else-if="column.dataIndex === 'loan_payment'">
                     <p>--</p>
                   </template>
                   <template v-else-if="column.dataIndex === 'total'">
@@ -137,15 +135,6 @@
                   <p>{{ record[column.dataIndex] }}</p>
                 </template>
                 <template v-else-if="column.dataIndex === 'payment'">
-                  <p v-if="isOpen">{{ record[column.dataIndex] }}%</p>
-                  <a-input
-                    v-else
-                    v-model:value="record[column.dataIndex]"
-                    @input="() => initHandle(true)"
-                    suffix="%"
-                  />
-                </template>
-                <template v-else-if="column.dataIndex === 'loan_payment'">
                   <p v-if="isOpen">{{ record[column.dataIndex] }}%</p>
                   <a-input
                     v-else
@@ -185,11 +174,6 @@
                     <a-table-summary-cell v-for="(item, index) in summaryCol" :index="index" :key="item.key" class="text-center">
                       <template v-if="item.key === 'type'">Construction</template>
                       <template v-else-if="item.key === 'payment'">
-                        <p class="total-percent"
-                          :class="{'plus': summaryHandle(item.key) > 100, 'minus': summaryHandle(item.key) < 100}"
-                        >{{ numberStrFormat(summaryHandle(item.key)) }}%</p>
-                      </template>
-                      <template v-else-if="item.key === 'loan_payment'">
                         <p class="total-percent"
                           :class="{'plus': summaryHandle(item.key) > 100, 'minus': summaryHandle(item.key) < 100}"
                         >{{ numberStrFormat(summaryHandle(item.key)) }}%</p>
@@ -400,7 +384,8 @@
     for (let i = 0; i < data.length; i++) {
       const obj = {
         type: data[i].name,
-        typeId: data[i].code
+        typeId: Number(data[i].code.split('$')[0]),
+        category: Number(data[i].code.split('$')[1])
       }
       for (let j = 0; j < headerData.length; j++) {
         const amountItem = hadSetData[`${data[i].code}__${headerData[j].dataIndex}`] || null
@@ -422,17 +407,14 @@
         const payment = tool.div(sum, calcBuildAmount.value)
         obj.payment = Number(tool.times(Number(payment), 100)).toFixed(2)
         obj.total = sum
-
-        // TODO: 贷款支付金额
-        obj.loan_payment = 0
       } else {
         obj.payment = Number(data[i].note).toFixed(2)
         obj.total = 0
-        obj.loan_payment = 0
       }
 
       dataArr.push(obj)
     }
+    
     tableData.value = dataArr
   }
 
@@ -452,7 +434,7 @@
     const hadUuidData = headerData.map(item => item.dataIndex)
 
     for (let i = 0; i < securityData.value.length; i++) {
-    if (!hadUuidData.includes(securityData.value[i].uuid)) {
+      if (!hadUuidData.includes(securityData.value[i].uuid)) {
         headerData.push({
           title: securityData.value[i].card_no,
           dataIndex: securityData.value[i].uuid,
@@ -480,28 +462,57 @@
     // 合并第一行数据
     if (tableHeader.value.length > 4) {
       tableHeader.value.forEach((item, index) => {
-        item.customCell = (record) => {
-          if (record.isFixedRow) {
-            const mergeStart = 2
-            const mergeEnd = tableHeader.value.length - 2
-
-            if (index === mergeStart) {
-              // 第一个合并单元格的起始位置
-              return {
-                colSpan: mergeEnd - mergeStart + 1 // 要合并多少列
-              }
-            } else if (index > mergeStart && index <= mergeEnd) {
-              // 被合并的列
-              return {
-                colSpan: 0
+        item.customCell = (record, _index) => {
+          if (['type', 'total'].includes(item.dataIndex)) {
+            // 跳过第一行（isFixedRow）
+            if (record.isFixedRow) {
+              return {}
+            }
+            
+            // 获取当前行的 type
+            const currentType = record.type
+            
+            // 查找相同 type 的行数
+            let rowSpan = 1
+            for (let i = _index + 1; i < tableData.value.length; i++) {
+              if (tableData.value[i].type === currentType) {
+                rowSpan++
+              } else {
+                break
               }
             }
+            
+            // 如果是第一行相同 type 的行，返回 rowSpan
+            if (rowSpan > 1) {
+              return { rowSpan }
+            }
+            
+            // 如果是后续相同 type 的行，隐藏单元格
+            if (_index > 0 && tableData.value[_index - 1].type === currentType) {
+              return { rowSpan: 0 }
+            }
+            
+            return {}
+          } else {
+            if (record.isFixedRow) {
+              const mergeStart = 2
+              const mergeEnd = tableHeader.value.length - 2
+
+              if (index === mergeStart) {
+                return {
+                  colSpan: mergeEnd - mergeStart + 1
+                }
+              } else if (index > mergeStart && index <= mergeEnd) {
+                return {
+                  colSpan: 0
+                }
+              }
+            }
+            return {}
           }
-          return {}
         }
       })
     }
-    
 
     const summaryColData = []
     for (let i = 0; i < tableHeader.value.length; i++) {
@@ -511,7 +522,6 @@
     }
 
     summaryCol.value = summaryColData
-
     setTableData(headerData)
   }
 
@@ -668,8 +678,8 @@
 
           // 首次放款数据
           if (Object.keys(res.payment).length) {
-            if (res.payment[`0__payment`]) {
-              advancePercent.value = res.payment[`0__payment`].amount
+            if (res.payment[`0$1__payment`]) {
+              advancePercent.value = res.payment[`0$1__payment`].amount
             }
           }
 
@@ -733,7 +743,7 @@
   const hasReseted = ref(false)
   const initHandle = (flag = false, tableTotal = false) => {
     for (let i = 0; i < tableData.value.length; i++) {
-      let payment = columnsTypeObj.value[tableData.value[i].typeId]
+      let payment = columnsTypeObj.value[`${tableData.value[i].typeId}$${tableData.value[i].category}`]
       if (flag) {
         const itemPayment = Number(tableData.value[i].payment)
         payment = isNaN(itemPayment) ? 0 : itemPayment
@@ -793,11 +803,23 @@
       is_note: 1
     }).then(res => {
       const data = res || []
-      columnsTypeData.value = data
+      // 在每一项后面添加复制数据
+      const newData = []
+      data.forEach(item => {
+        const code = item.code
+        item.code = code + '$1'
+        newData.push(item)
+        newData.push({
+          ...item,
+          code: code + '$2',
+          note: 0
+        })
+      })
+      columnsTypeData.value = newData
 
       const obj = {}
-      for (let i = 0; i < data.length; i++) {
-        obj[`${data[i].code}`] = data[i].note
+      for (let i = 0; i < columnsTypeData.value.length; i++) {
+        obj[`${columnsTypeData.value[i].code}`] = columnsTypeData.value[i].note
       }
       columnsTypeObj.value = obj
     })
@@ -849,8 +871,10 @@
             amount: item[key].amount || 0,
             use_amount: item[key].use_amount || 0,
             security_uuid: key,
-            type: Number(item.typeId),
-            type_name: item.type
+            type: item.typeId,
+            category: item.category,
+            type_name: item.type,
+            category: item.category
           })
         }
 
@@ -860,7 +884,8 @@
             amount: Number(item[key]),
             use_amount: 0,
             security_uuid: '',
-            type: Number(item.typeId),
+            type: item.typeId,
+            category: item.category,
             type_name: item.type
           })
         }
@@ -869,12 +894,13 @@
 
     // 首次放款百分比
     paymentData.unshift({
-      id: paymentResData[`0__payment`] ? paymentResData[`0__payment`].id : 0,
+      id: paymentResData[`0$1__payment`] ? paymentResData[`0$1__payment`].id : 0,
       amount: advancePercent.value,
       use_amount: 0,
       security_uuid: '',
       type: 0,
       type_name: advanceKey.value,
+      category: 1
     })
 
     // 首次放款值
@@ -884,7 +910,8 @@
       use_amount: 0,
       type_name: advanceKey.value,
       security_uuid: '',
-      type: 0
+      type: 0,
+      category: 1
     }]
 
     for (let i = 0; i < footerDataCol.value.length; i++) {
@@ -894,7 +921,8 @@
         use_amount: 0,
         type_name: footerDataCol.value[i].name,
         security_uuid: '',
-        type: 0
+        type: 0,
+        category: 1
       })
     }
 
@@ -913,10 +941,10 @@
     currentParams.value = cloneDeep(params)
     changeColseBtn.value = false
 
-    if (construction !== buildAmount.value) {
-      const diffNum = tool.minus(construction, buildAmount.value)
+    if (construction !== totalLoanAmount.value) {
+      const diffNum = tool.minus(construction, totalLoanAmount.value)
       confirmTxt.value = t(`开发成本中的建造费为：<span>{0}</span>，当前设置值为：<span>{1}</span>，相差：<span>{2}</span>`, [
-        `$${numberStrFormat(buildAmount.value)}`,
+        `$${numberStrFormat(totalLoanAmount.value)}`,
         `$${numberStrFormat(construction)}`,
         `$${numberStrFormat(diffNum)}`
       ])

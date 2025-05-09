@@ -90,6 +90,7 @@
             <a-button type="primary" class="bold uppercase" @click="batchSelectHandle">{{ batchSelect ? t('取消') : t('批量选择') }}</a-button>
             <a-button v-if="batchSelectData.length" type="dark" class="bold uppercase" @click="batchSelectSet">{{ t('设置') }} ({{ batchSelectData.length }})</a-button>
           </div>
+          <p v-if="batchSelect" class="text-right mb-2">{{ t('点击下方表格，选择需要批量操作的数据')}}</p>
           <a-table
             :columns="tableHeader"
             :data-source="tableData"

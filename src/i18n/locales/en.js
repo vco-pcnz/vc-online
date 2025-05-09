@@ -969,5 +969,6 @@ export default {
   "上传格式不正确，不是{0}": "The upload format is incorrect, not {0}",
   "拆分": "in allocation",
   "批量选择": "Batch selection",
-  "设置": "Set"
+  "设置": "Set",
+  "点击下方表格，选择需要批量操作的数据": "Click the table below to select the data to be operated in batch"
 }

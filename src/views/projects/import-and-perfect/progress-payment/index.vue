@@ -474,12 +474,6 @@
       width: 110,
       align: 'center',
       fixed: 'left'
-    }, {
-      title: 'Loan Payment',
-      dataIndex: "loan_payment",
-      width: 110,
-      align: 'center',
-      fixed: 'left'
     }, ...headerData,
     { title: t('总计'), dataIndex: 'total', width: 180, align: 'center', fixed: 'right' }]
 
@@ -488,13 +482,13 @@
       tableHeader.value.forEach((item, index) => {
         item.customCell = (record) => {
           if (record.isFixedRow) {
-            const mergeStart = 3
-            const mergeEnd = tableHeader.value.length - 3
+            const mergeStart = 2
+            const mergeEnd = tableHeader.value.length - 2
 
             if (index === mergeStart) {
               // 第一个合并单元格的起始位置
               return {
-                colSpan: mergeEnd - mergeStart + 2 // 要合并多少列
+                colSpan: mergeEnd - mergeStart + 1 // 要合并多少列
               }
             } else if (index > mergeStart && index <= mergeEnd) {
               // 被合并的列

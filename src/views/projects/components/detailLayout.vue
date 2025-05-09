@@ -35,7 +35,7 @@ const hasImportAndPerfect = ref(false);
 const pageTitleRef = computed(() => {
   const name = detail.value?.product?.name ? `${detail.value?.product?.name} - ` : '';
   const type = pageTitle.value ? ` ${t(pageTitle.value)}` : '';
-  const borrower_user_name = (pageTitle.value ? ' - ' : '') + detail.value?.base?.borrower_user_name;
+  const borrower_user_name = (pageTitle.value ? ' - ' : '') + (detail.value?.base?.borrower_user_name || detail.value?.base?.project_name);
   return `${name}${type}${borrower_user_name}`;
 });
 

@@ -20,7 +20,7 @@
         </a-collapse>
       </a-timeline-item>
     </a-timeline>
-    <div class="mt-5" style="padding-right: 115px" v-if="total">
+    <div class="mt-5" style="padding-right: 115px" v-if="total && total>10">
       <a-pagination size="small" :total="total" :pageSize="pagination.limit" :current="pagination.page" :show-size-changer="false" show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
     </div>
   </div>

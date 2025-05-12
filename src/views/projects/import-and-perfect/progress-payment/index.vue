@@ -42,7 +42,7 @@
                   {{ t('下载') }}
                   <a-tooltip>
                     <template #title>
-                      <span>{{ t(`下载为Excel表格，编辑后再点击右侧"上传"按钮上传编辑后的数据，以更新设置数据`) }}</span>
+                      <span>{{ t(`下载为Excel表格，编辑后再点击右侧'上传'按钮上传编辑后的数据，以更新设置数据`) }}</span>
                     </template>
                     <QuestionCircleOutlined />
                   </a-tooltip>

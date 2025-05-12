@@ -109,6 +109,7 @@ const update = () => {
 <style lang="less">
 #screenShotPanel {
   z-index: 30000;
+  position: fixed !important;
   #toolPanel {
     height: auto !important;
   }

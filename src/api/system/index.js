@@ -78,3 +78,11 @@ export const feedback = (data) =>
     method: 'post',
     data
   });
+
+// 意见反馈
+export const versionList = (params) =>
+  request({
+    url: 'index/versionList',
+    method: 'get',
+    params
+  });

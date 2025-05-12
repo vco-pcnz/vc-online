@@ -128,7 +128,7 @@ const fileName = ref('file');
 const upText = ref('');
 
 const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp'];
-const fileExtensions = ['xls', 'xlsx', 'csv', 'json', 'txt', 'doc', 'docx', 'ppt', 'pptx', 'pdf', 'xmind'];
+const fileExtensions = ['xls', 'xlsx', 'csv', 'json', 'txt', 'doc', 'docx', 'ppt', 'pptx', 'pdf', 'xmind', 'msg', 'eml'];
 const videoExtensions = ['mp4', 'rmvb', 'wmv', 'avi', 'mpeg', 'mpg', 'mov', '3gp', 'flv', 'mkv', 'm4v'];
 
 // 上传文件类型

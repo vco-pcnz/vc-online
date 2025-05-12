@@ -86,7 +86,13 @@
                           <QuestionCircleOutlined class="ml-2" />
                         </a-tooltip>
                       </template>
-                      <a-input v-model:value="formState[item.credit_table]" :suffix="item.credit_unit" />
+                      <a-input
+                        v-model:value="formState[item.credit_table]"
+                        :suffix="item.credit_unit"
+                        :disabled="item.credit_table === 'credit_brokerFeeRate' && !borkerFeeCalcAmount"
+                        :loading="item.credit_table === 'credit_brokerFeeRate' && loadingBorkerFeeCalcAmount"
+                        @input="handInput(item.credit_table)"
+                      />
                     </a-form-item>
                   </a-col>
                 </template>
@@ -106,7 +112,9 @@
                         </a-tooltip>
                       </template>
                       <a-input-number
-                        :disabled="item.credit_table === 'credit_brokerFee'"
+                        @input="handInput(item.credit_table)"
+                        :disabled="item.credit_table === 'credit_brokerFee' && !borkerFeeCalcAmount"
+                        :loading="item.credit_table === 'credit_brokerFee' && loadingBorkerFeeCalcAmount"
                         v-model:value="formState[item.credit_table]"
                         :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                         :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
@@ -195,11 +203,11 @@ const endDefaultPickerValue = computed(() => {
 });
 
 const disabledDate = (current) => {
-  const startDate = dayjs(props.projectDetail.date.var_start_date)
-  const nowDate = dayjs(new Date())
+  const startDate = dayjs(props.projectDetail.date.var_start_date);
+  const nowDate = dayjs(new Date());
 
-  const isAfter = nowDate.isAfter(startDate)
-  const cDate = isAfter ? nowDate : startDate
+  const isAfter = nowDate.isAfter(startDate);
+  const cDate = isAfter ? nowDate : startDate;
 
   return (current && current.isBefore(cDate.startOf('day'))) || current.isAfter(dayjs(props.projectDetail.date.end_date).startOf('day'));
 };
@@ -444,7 +452,6 @@ const typeData = ref([]);
 
 const init = () => {
   getCreditInfo();
-
   systemDictData('variation_type').then((res) => {
     const data = res.map((item) => {
       return {
@@ -463,33 +470,37 @@ const type_startDate = computed(() => ({
   start_date: formState.value.start_date
 }));
 
+const loadingBorkerFeeCalcAmount = ref(false);
 watch(
   type_startDate,
   (val) => {
     // 变更自动计算broker fee
     if ([1, 2, 3].includes(val.type) && val.start_date) {
       borkerFeeCalcAmount.value = 0;
-      borkerFeeCalc({ uuid: props.currentId, start_date: val.start_date }).then((res) => {
-        borkerFeeCalcAmount.value = res;
-      });
+      loadingBorkerFeeCalcAmount.value = true;
+      borkerFeeCalc({ uuid: props.currentId, start_date: val.start_date })
+        .then((res) => {
+          borkerFeeCalcAmount.value = res;
+          handInput('credit_brokerFeeRate');
+        })
+        .finally(() => {
+          loadingBorkerFeeCalcAmount.value = false;
+        });
     }
   },
   { deep: true }
 );
 
 const borkerFeeCalcAmount = ref(0);
-const brokerFeeParams = computed(() => ({
-  credit_brokerFeeRate: formState.value.credit_brokerFeeRate,
-  BorkerFeeCalcAmount: borkerFeeCalcAmount.value
-}));
 
-watch(
-  brokerFeeParams,
-  (val) => {
-    formState.value.credit_brokerFee = (((val.credit_brokerFeeRate || 0) * (val.BorkerFeeCalcAmount || 0)) / 100).toFixed(2);
-  },
-  { deep: true }
-);
+const handInput = (key) => {
+  if (key == 'credit_brokerFeeRate' && formState.value.type != 4) {
+    formState.value.credit_brokerFee = (((formState.value.credit_brokerFeeRate || 0) * (borkerFeeCalcAmount.value || 0)) / 100).toFixed(2);
+  }
+  if (key == 'credit_brokerFee') {
+    formState.value.credit_brokerFeeRate = (((formState.value.credit_brokerFee || 0) / (borkerFeeCalcAmount.value || 0)) * 100).toFixed(2);
+  }
+};
 
 const type_amount_creditBrokerFeeRate = computed(() => ({
   type: formState.value.type,
@@ -502,11 +513,12 @@ watch(
   (val) => {
     // 变更自动计算broker fee
     if (val.type == 4) {
-      formState.value.credit_brokerFee = (((formState.value.amount || 0) * (formState.value.credit_brokerFeeRate || 0)) / 100).toFixed(2);
+      formState.value.credit_brokerFee = (((val.amount || 0) * (val.credit_brokerFeeRate || 0)) / 100).toFixed(2);
     }
   },
   { deep: true }
 );
+
 defineExpose({
   init
 });

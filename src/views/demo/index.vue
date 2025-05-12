@@ -8,7 +8,7 @@
     <h1 class="mt-5 mb-2">语言切换组件</h1>
     <div class="flex gap-5 items-center">
       <div>占位</div>
-      <!-- <language-select></language-select> -->
+      <language-select></language-select>
     </div>
     <p>-------------------------------------------------------------------------------------</p>
 
@@ -133,7 +133,7 @@
       <i class="iconfont text-5xl">&#xe744;</i>
       <i class="iconfont text-9xl">&#xe74b;</i>
     </a-space>
-    <h1 class="mt-5 mb-2">上传组件</h1>
+    <!-- <h1 class="mt-5 mb-2">上传组件</h1>
     
       <p>type：image / file / video</p>
       <p>{{ vcoUploadStr }}</p>
@@ -145,7 +145,7 @@
       <p>document:提交的数据</p>
       <p>documentList:展示的数据</p>
       <p>{{ vcoUploadModalStr }}</p>
-      <vco-upload-modal :limit="1"></vco-upload-modal>
+      <vco-upload-modal :limit="1"></vco-upload-modal> -->
   </div>
 </template>
 

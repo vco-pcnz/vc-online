@@ -969,5 +969,6 @@ export default {
   "上传格式不正确，不是{0}": "The upload format is incorrect, not {0}",
   "拆分": "in allocation",
   "批量选择": "Batch selection",
-  "设置": "Set"
+  "设置": "Set",
+  "版本记录": "Version record"
 }

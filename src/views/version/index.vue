@@ -8,13 +8,18 @@
           <template #expandIcon="{ isActive }">
             <RightOutlined style="position: absolute; right: 10px" :rotate="isActive ? 90 : 0" />
           </template>
-          <a-collapse-panel key="3" :header="`${item.version} ${item.title}`">
+          <a-collapse-panel key="3" >
+            <template #header>
+              <p>
+                <span style="font-weight: bold;margin-right: 10px;font-size: 16px;">{{ item.version }}</span><span>{{ item.title }}</span>
+              </p>
+          </template>
             <div class="rich-text-content" v-html="item.content || ''"></div>
           </a-collapse-panel>
         </a-collapse>
       </a-timeline-item>
     </a-timeline>
-    <div class="mt-5" style="padding-right: 115px;" v-if="total">
+    <div class="mt-5" style="padding-right: 115px" v-if="total">
       <a-pagination size="small" :total="total" :pageSize="pagination.limit" :current="pagination.page" :show-size-changer="false" show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
     </div>
   </div>
@@ -135,6 +140,13 @@ onMounted(() => {
   }
   .ant-timeline .ant-timeline-item-content {
     inset-block-start: -18px !important;
+  }
+  .ant-collapse > .ant-collapse-item:last-child,
+  :where(.css-dev-only-do-not-override-4tb0ys).ant-collapse > .ant-collapse-item:last-child > .ant-collapse-header {
+    border-radius: 8px;
+  }
+  .rich-text-content {
+    padding:  0 10px;
   }
 }
 </style>

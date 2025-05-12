@@ -498,7 +498,7 @@ const handInput = (key) => {
     formState.value.credit_brokerFee = (((formState.value.credit_brokerFeeRate || 0) * (borkerFeeCalcAmount.value || 0)) / 100).toFixed(2);
   }
   if (key == 'credit_brokerFee') {
-    formState.value.credit_brokerFeeRate = (((formState.value.credit_brokerFee || 0) / (borkerFeeCalcAmount.value || 0)) * 100).toFixed(2);
+    formState.value.credit_brokerFeeRate = (((formState.value.credit_brokerFee || 0) / (borkerFeeCalcAmount.value || 0)) * 100).toFixed(6);
   }
 };
 

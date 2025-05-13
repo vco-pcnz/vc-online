@@ -493,7 +493,7 @@ export default {
   "批准项目": "Open",
   "LM 待审核": "LM pending review",
   "FC 待审核": "Awaiting FC's Review",
-  "总负责人待审核": "Awaiting Director’s Review",
+  "总负责人待审核": "Awaiting Director's Review",
   "LM 检查": "LM Check",
   "LM 待检查": "LM to be checked",
   "待反洗钱": "Pending Anti-Money Laundering",
@@ -964,11 +964,17 @@ export default {
   "没有更多了": "No more",
   "截图": "Screenshot",
   "下载": "Download",
-  "下载为Excel表格，编辑后再点击右侧“上传”按钮上传编辑后的数据，以更新设置数据": "Download as an Excel spreadsheet, edit it, and then click the 'Upload' button on the right to upload the edited data to update the setting data",
+  "下载为Excel表格，编辑后再点击右侧'上传'按钮上传编辑后的数据，以更新设置数据": "Download as an Excel spreadsheet, edit it, and then click the 'Upload' button on the right to upload the edited data to update the setting data",
   "单击或将文件拖到当前页面进行上传": "Click or drag the file to the current page to upload",
   "上传格式不正确，不是{0}": "The upload format is incorrect, not {0}",
   "拆分": "in allocation",
   "批量选择": "Batch selection",
   "设置": "Set",
-  "版本记录": "Version record"
+  "点击下方表格，选择需要批量操作的数据": "Click the table below to select the data to be operated in batch",
+  "版本记录": "Version record",
+  "开发成本中的借款人出资为：<span>{0}</span>，当前设置值为：<span>{1}</span>，相差：<span>{2}</span>": "The borrower's contribution in the development cost is: <span>{0}</span>, the current setting value is: <span>{1}</span>, the difference is: <span>{2}</span>",
+  "取消批量模式": "Cancel batch mode",
+  "批量设置1": "Batch set",
+  "取消已选择": "Cancel selected",
+  "取消所有设置": "Cancel all settings"
 }

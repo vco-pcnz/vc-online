@@ -1,4 +1,3 @@
-
 <template>
   <div class="block-container">
     <basic-info :projectDetail="projectDetail" :current-id="currentId" @reload="reload"></basic-info>

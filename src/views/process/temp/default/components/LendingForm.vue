@@ -1284,10 +1284,10 @@
     })
   }
 
-  const goHandle = (page) => {
+const goHandle = (page) => {
     const pathname = window.location.pathname
     const step = pathname.slice(pathname.lastIndexOf('/') + 1)
-    const href = `/requests/${page}?uuid=${props.currentId}&step=${step}&sn=${props.dataInfo.base.project_apply_sn}`
+    const href = `/requests/${page}?uuid=${props.currentId}&step=${step}&sn=${props.dataInfo.base.project_apply_sn}&name=${props.dataInfo.borrower.organization_name}`
 
     navigationTo(href)
   }

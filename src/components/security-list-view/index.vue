@@ -3,7 +3,7 @@
     <vco-page-panel @back="goBack">
       <template #title>
         <div class="page-title-content">
-          <div v-if="dataInfo?.base?.project_apply_sn" class="tag">{{ `${dataInfo?.product?.name} - ${dataInfo?.base?.project_apply_sn}` }}</div>
+          <div v-if="dataInfo?.base?.project_apply_sn" class="tag">{{ `${dataInfo?.product?.name} - ${(dataInfo?.borrower?.organization_name || dataInfo?.base?.project_apply_sn)}` }}</div>
           <div class="tag uppercase">{{ t('抵押物统计数据') }}</div>
         </div>
       </template>

@@ -9,7 +9,7 @@
         <span>{{ t('变更请求详情') }}</span>
       </div>
       <a-button
-        v-if="(variationsInfo.is_me && ['PENDING APPLY'].includes(variationsInfo.status_name)) || (variationsInfo.has_permission && ['PENDING SUBMIT'].includes(variationsInfo.status_name))"
+        v-if="variationsInfo.state === 0 && hasPermission('projects:variations:request')"
         type="primary"
         size="small"
         shape="round"
@@ -71,6 +71,7 @@
 import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
+import { hasPermission } from '@/directives/permission/index';
 import AddVariations from '@/views/projects/variations/components/form/AddVariations.vue';
 
 const { t } = useI18n();

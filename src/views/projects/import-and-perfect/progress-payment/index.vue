@@ -32,6 +32,10 @@
             >
             </a-table>
             <div class="amortized-text" v-html="amortizedCalc"></div>
+            <div class="flex justify-end items-center mt-2">
+              {{ t('贷款总额') }}：
+              <vco-number :value="Number(tool.plus(buildAmount, borrowerEquity))" size="fs_xl" :precision="2" :end="true"></vco-number>
+            </div>
           </div>
 
           <div v-if="tableHeader.length" class="form-block-content">
@@ -141,13 +145,17 @@
                     v-model:value="record[column.dataIndex]"
                     @input="() => initHandle(true)"
                     suffix="%"
+                    :class="{'loan-input': Number(record.category) === 1,'borrower-input': Number(record.category) === 2}"
                   />
                 </template>
                 <template v-else-if="column.dataIndex === 'total'">
                   <div class="total-info-txt">Loan<vco-number :value="record[column.dataIndex]" size="fs_xs" :precision="2" :end="true" color="#eb4b6d"></vco-number></div>
-                  <div class="total-info-txt">Borrower Equity<vco-number :value="0" size="fs_xs" :precision="2" :end="true" color="#31bd65"></vco-number></div>
+                  <div v-if="record.type === tableData[index + 1]?.type" class="total-info-txt">Borrower Equity
+                    <vco-number :value="tableData[index + 1][column.dataIndex]" size="fs_xs" :precision="2" :end="true" color="#31bd65"></vco-number>
+                  </div>
                   <div class="flex justify-end">
-                    <vco-number :value="record[column.dataIndex]" size="fs_md" :precision="2" :end="true"></vco-number>
+                    <vco-number v-if="record.type === tableData[index + 1]?.type" :value="Number(tool.plus(record[column.dataIndex], tableData[index + 1][column.dataIndex]))" size="fs_md" :precision="2" :end="true"></vco-number>
+                    <vco-number v-else :value="record[column.dataIndex]" size="fs_md" :precision="2" :end="true"></vco-number>
                   </div>
                 </template>
                 <template v-else>
@@ -157,6 +165,7 @@
                     :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                     :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                     :disabled="record[column.dataIndex].disabled"
+                    :class="{'loan-input': Number(record.category) === 1,'borrower-input': Number(record.category) === 2}"
                     @input="itemInput(record, record[column.dataIndex])"
                     @blur="inputBlur(record, record[column.dataIndex])"
                   />
@@ -179,13 +188,23 @@
                         >{{ numberStrFormat(summaryHandle(item.key)) }}%</p>
                       </template>
                       <template v-else-if="item.key === 'total'">
-                        <vco-number
-                          :value="summaryHandle(item.key)"
-                          size="fs_md"
-                          :precision="2"
-                          :end="true"
-                          :color="totalColor(summaryHandle(item.key))"
-                        ></vco-number>
+                        <div class="total-info-txt">
+                          Loan
+                          <vco-number :value="TableLoanTotal(1)" size="fs_xs" :precision="2" :end="true" color="#eb4b6d"></vco-number>
+                        </div>
+                        <div class="total-info-txt">
+                          Borrower Equity
+                          <vco-number :value="TableLoanTotal(2)" size="fs_xs" :precision="2" :end="true" color="#31bd65"></vco-number>
+                        </div>
+                        <div class="flex justify-end">
+                          <vco-number
+                            :value="summaryHandle(item.key)"
+                            size="fs_md"
+                            :precision="2"
+                            :end="true"
+                            :color="totalColor(summaryHandle(item.key))"
+                          ></vco-number>
+                        </div>
                       </template>
                       <template v-else>
                         <vco-number :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
@@ -289,6 +308,16 @@
       } else {
         return total
       }
+    }
+  })
+
+  const TableLoanTotal = computed(() => {
+    return (type) => {
+      const arr = tableData.value.filter(item => !item.isFixedRow && item.category === type).map(item => item.total)
+      const total = arr.reduce((total, num) => {
+        return Number(tool.plus(total, num))
+      }, 0);
+      return type === 1 ? Number(tool.plus(total, advanceAmount.value)) : total
     }
   })
 
@@ -608,10 +637,11 @@
     dataArr.push(obj)
 
     const calcNum = tool.div(totalLoanAmount.value, totalSqm)
-    amortizedCalc.value = `($${numberStrFormat(buildAmount.value)}<i>[Loan]</i> + $${numberStrFormat(borrowerEquity.value)}<i>[Borrower Equity]</i>) ÷ ${obj.total} ≈ <span>$${numberStrFormat(calcNum)}</span>/m²`
+    amortizedCalc.value = `<em>${t('总条数')}：${amLen.value}</em>($${numberStrFormat(buildAmount.value)}<i>[Loan]</i> + $${numberStrFormat(borrowerEquity.value)}<i class="borrower">[Borrower Equity]</i>) ÷ ${obj.total} ≈ <span>$${numberStrFormat(calcNum)}</span>/m²`
     amortizedData.value = dataArr
   }
 
+  const amLen = ref(0)
   const setAmortizedTable = () => {
     const data = cloneDeep(securityData.value)
     const itemData = data.filter(item => item.sqm)
@@ -637,6 +667,7 @@
     }, ...headerData,
     { title: t('总计'), dataIndex: 'total', width: 180, align: 'center', fixed: 'right' }]
 
+    amLen.value = headerData.length
     setAmortizedData(itemData)
   }
 
@@ -645,23 +676,6 @@
   const advanceObj = ref()
   const advancePercent = ref(0)
   const advanceAmount = ref(0)
-
-  const advanceInput = () => {
-    if (flag) {
-      const percent = Number(advancePercent.value) / 100
-      advanceAmount.value = tool.times(percent, buildAmount.value)
-    } else {
-      const amount = Number(advanceAmount.value)
-      advancePercent.value = tool.times(Number(tool.div(amount, buildAmount.value)), 100)
-
-      if (props.isOpen) {
-        const useAmount = Number(advanceObj.value.use_amount)
-        if (amount < useAmount) {
-          advanceObj.value.showError = true
-        }
-      }
-    }
-  }
 
   const getSetedData = async () => {
     advanceAmount.value = 0
@@ -704,6 +718,8 @@
         }
       })
 
+      columnsType()
+
       await getSecurityData()
     } catch (err) {
       pageLoading.value = false
@@ -734,6 +750,7 @@
         buildAmount.value = Construction ? Construction.loan : 0
         borrowerEquity.value = Construction ? Construction.borrower_equity : 0
       })
+
       await getSetedData()
     } catch (err) {
       pageLoading.value = false
@@ -742,6 +759,49 @@
 
   const hasReseted = ref(false)
   const initHandle = (flag = false, tableTotal = false) => {
+    if (!flag) { // 重新计算payment数据
+      const paymentData = cloneDeep(columnsTypeData.value)
+      
+      // 计算borrowerEquity占比
+      const borrowerEquityPercent = tool.times(tool.div(borrowerEquity.value, calcBuildAmount.value), 100)
+      let remainingPercent = borrowerEquityPercent
+
+      // 遍历paymentData，处理相同name的情况
+      for (let i = 0; i < paymentData.length; i++) {
+        // 检查当前项是否有前一项
+        if (i > 0 && paymentData[i].name === paymentData[i-1].name) {
+          // 获取前一项的defaultNote
+          const prevDefaultNote = Number(paymentData[i-1].defaultNote)
+          
+          if (remainingPercent > 0) {
+            if (tool.gte(prevDefaultNote, remainingPercent)) {
+              // 如果defaultNote大于等于剩余占比
+              paymentData[i].note = Number(Number(remainingPercent).toFixed(30))
+              paymentData[i-1].note = Number(Number(tool.minus(prevDefaultNote, remainingPercent)).toFixed(30))
+              remainingPercent = 0
+            } else {
+              // 如果defaultNote小于剩余占比，则第二项note为defaultNote，第一项note为0
+              paymentData[i].note = Number(Number(prevDefaultNote).toFixed(30))
+              paymentData[i-1].note = 0
+              // 更新剩余占比
+              remainingPercent = Number(Number(tool.minus(remainingPercent, prevDefaultNote)).toFixed(30))
+            }
+          } else {
+            paymentData[i-1].note = Number(Number(prevDefaultNote).toFixed(30))
+            paymentData[i].note = 0
+          }
+        }
+      }
+
+      // 更新columnsTypeObj
+      const obj = {}
+      for (let i = 0; i < paymentData.length; i++) {
+        obj[`${paymentData[i].code}`] = paymentData[i].note
+      }
+      columnsTypeObj.value = obj
+      columnsTypeData.value = paymentData
+    }
+
     for (let i = 0; i < tableData.value.length; i++) {
       let payment = columnsTypeObj.value[`${tableData.value[i].typeId}$${tableData.value[i].category}`]
       if (flag) {
@@ -749,7 +809,7 @@
         payment = isNaN(itemPayment) ? 0 : itemPayment
       }
       const itemPer = Number(payment) / 100
-      const itemTotal = tool.times(itemPer, calcBuildAmount.value)
+      const itemTotal = Number(Number(tool.times(itemPer, calcBuildAmount.value)).toFixed(2))
 
       const amountArr = extractArrData(tableData.value[i], '-')
       let itemAmountTotal = 0
@@ -760,7 +820,7 @@
         }
         if (j === amountArr.length - 1) {
           if (!tableTotal) {
-            tableData.value[i][amountArr[j]].amount = Number(tool.minus(itemTotal, itemAmountTotal))
+            tableData.value[i][amountArr[j]].amount = Number(Number(tool.minus(itemTotal, itemAmountTotal)).toFixed(2))
           }
         } else {
           const per = securitySqmObj.value[amountArr[j]] || 0
@@ -798,6 +858,10 @@
   const columnsTypeData = ref([])
   const columnsTypeObj = ref({})
   const columnsType = () => {
+    // 计算borrowerEquity占比
+    const borrowerEquityPercent = tool.times(tool.div(borrowerEquity.value, calcBuildAmount.value), 100)
+    let remainingPercent = borrowerEquityPercent
+
     systemDictDataApi({
       code: 'build_type',
       is_note: 1
@@ -808,12 +872,39 @@
       data.forEach(item => {
         const code = item.code
         item.code = code + '$1'
-        newData.push(item)
+        item.defaultNote = item.note
+        item.note = item.note ? Number(item.note) : 0
+        
+        // 计算当前item的borrowerEquity部分
+        let borrowerNote = 0
+        if (remainingPercent > 0) {
+          // 如果borrowerEquity还有剩余百分比
+          if (tool.gte(item.note, remainingPercent)) {
+            // 如果当前item的note大于等于剩余百分比，直接使用剩余百分比
+            borrowerNote = Number(Number(remainingPercent).toFixed(30))
+            remainingPercent = 0
+          } else {
+            // 如果当前item的note小于剩余百分比，使用item.note
+            borrowerNote = Number(Number(item.note).toFixed(30))
+            remainingPercent = Number(Number(tool.minus(remainingPercent, item.note)).toFixed(30))
+          }
+        }
+
+        // 创建Loan部分的数据
         newData.push({
           ...item,
-          code: code + '$2',
-          note: 0
+          note: Number(Number(tool.minus(item.note, borrowerNote)).toFixed(30)) // 减去borrowerEquity部分
         })
+
+        const newItem = {
+          ...item,
+          code: code + '$2',
+          note: borrowerNote // 使用计算出的borrowerEquity部分
+        }
+        delete newItem.defaultNote
+
+        // 创建Borrower Equity部分的数据
+        newData.push(newItem)
       })
       columnsTypeData.value = newData
 
@@ -873,14 +964,13 @@
             security_uuid: key,
             type: item.typeId,
             category: item.category,
-            type_name: item.type,
-            category: item.category
+            type_name: item.type
           })
         }
 
-        if (key === 'payment' && i) {
+        if (key === 'payment' && item.typeId) {
           paymentData.push({
-            id: paymentResData[`${i}__payment`] ? paymentResData[`${i}__payment`].id : 0,
+            id: paymentResData[`${item.typeId}$${item.category}__payment`] ? paymentResData[`${item.typeId}$${item.category}__payment`].id : 0,
             amount: Number(item[key]),
             use_amount: 0,
             security_uuid: '',
@@ -926,7 +1016,7 @@
       })
     }
 
-    const construction = Number(summaryHandle.value('total'))
+    const construction = Number(TableLoanTotal.value(1))
 
     const params = {
       security_uuid,
@@ -941,22 +1031,42 @@
     currentParams.value = cloneDeep(params)
     changeColseBtn.value = false
 
-    if (construction !== totalLoanAmount.value) {
-      const diffNum = tool.minus(construction, totalLoanAmount.value)
+
+    const setLoanTotal = Number(Math.floor(TableLoanTotal.value(1)))
+    const setBeTotal = Number(Math.floor(TableLoanTotal.value(2)))
+
+    if (setLoanTotal !== buildAmount.value) {
+      const diffNum = tool.minus(buildAmount.value, setLoanTotal)
+
       confirmTxt.value = t(`开发成本中的建造费为：<span>{0}</span>，当前设置值为：<span>{1}</span>，相差：<span>{2}</span>`, [
-        `$${numberStrFormat(totalLoanAmount.value)}`,
-        `$${numberStrFormat(construction)}`,
+        `$${numberStrFormat(buildAmount.value)}`,
+        `$${numberStrFormat(setLoanTotal)}`,
         `$${numberStrFormat(diffNum)}`
       ])
 
       changeColseBtn.value = true
       changeVisible.value = true
-    } else {
-      changeColseBtn.value = false
-      submitRquest()
-      // confirmTxt.value = t('提交后，数据将无法再次修改，确定提交吗?')
-      // changeVisible.value = true
+
+      return
     }
+
+    if (setBeTotal !== borrowerEquity.value) {
+      const diffNum = tool.minus(borrowerEquity.value, setBeTotal)
+
+      confirmTxt.value = t(`开发成本中的借款人出资为：<span>{0}</span>，当前设置值为：<span>{1}</span>，相差：<span>{2}</span>`, [
+        `$${numberStrFormat(borrowerEquity.value)}`,
+        `$${numberStrFormat(setBeTotal)}`,
+        `$${numberStrFormat(diffNum)}`
+      ])
+
+      changeColseBtn.value = true
+      changeVisible.value = true
+
+      return
+    }
+
+    changeColseBtn.value = false
+    submitRquest()
   }
 
   const exportHandle = () => {
@@ -1008,14 +1118,25 @@
     const headerData = cloneDeep(tableHeader.value)
     headerData.splice(1, 1)
 
+    const typeOneStrData = []
+    const typeOneData = []
+    const typeTwoData = []
+
     data.forEach(row => {
       const type = row[0]
+      if (typeOneStrData.includes(type)) {
+        typeTwoData.push(row)
+      } else {
+        typeOneStrData.push(type)
+        typeOneData.push(row)
+      }
+    })
 
+    typeOneData.forEach(row => {
+      const type = row[0]
       const targetRow = tableData.value.find(item => !item.isFixedRow && item.type === type)
 
       if (targetRow) {
-        targetRow.payment = row[1]
-
         for (let j = 1; j < row.length; j++) {
           const header = headerData[j]
           if (!header) continue
@@ -1027,6 +1148,24 @@
         }
       }
     })
+
+    typeTwoData.forEach(row => {
+      const type = row[0]
+      const targetRow = tableData.value.findLast(item => !item.isFixedRow && item.type === type)
+
+      if (targetRow) {
+        for (let j = 1; j < row.length; j++) {
+          const header = headerData[j]
+          if (!header) continue
+
+          const dataIndex = header.dataIndex
+          if (targetRow[dataIndex]) {
+            targetRow[dataIndex].amount = row[j]
+          }
+        }
+      }
+    })
+
     initHandle(true, true)
   }
 
@@ -1035,7 +1174,6 @@
     uuid.value = query.uuid
 
     if (uuid.value) {
-      columnsType()
       await getProjectData()
     }
   })
@@ -1186,6 +1324,12 @@
     text-align: right;
     margin-top: 10px;
     font-size: 16px;
+    :deep(em) {
+      padding-right: 20px;
+      font-style: normal;
+      font-size: 14px;
+      color: #333;
+    }
     :deep(span) {
       color: @colorPrimary !important;
       font-weight: 500;
@@ -1193,7 +1337,10 @@
     :deep(i) {
       font-size: 12px;
       padding-left: 2px;
-      color: #ea3535;
+      color: #eb4b6d;
+      &.borrower {
+        color: #31bd65;
+      }
     }
   }
 

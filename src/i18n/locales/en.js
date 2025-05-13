@@ -971,5 +971,10 @@ export default {
   "批量选择": "Batch selection",
   "设置": "Set",
   "点击下方表格，选择需要批量操作的数据": "Click the table below to select the data to be operated in batch",
-  "版本记录": "Version record"
+  "版本记录": "Version record",
+  "开发成本中的借款人出资为：<span>{0}</span>，当前设置值为：<span>{1}</span>，相差：<span>{2}</span>": "The borrower's contribution in the development cost is: <span>{0}</span>, the current setting value is: <span>{1}</span>, the difference is: <span>{2}</span>",
+  "取消批量模式": "Cancel batch mode",
+  "批量设置1": "Batch set",
+  "取消已选择": "Cancel selected",
+  "取消所有设置": "Cancel all settings"
 }

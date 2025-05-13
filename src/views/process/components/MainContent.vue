@@ -131,9 +131,7 @@
   const orderSn = ref('')
   const dataDone = (res) => {
     pageDone.value = true
-    console.log(res)
     orderSn.value = res?.borrower?.organization_name || res?.project_name || res?.base?.project_apply_sn || res?.project_apply_sn || ''
-    console.log(orderSn.value)
   }
 
   const showHeaderTab = ref(false)

@@ -297,6 +297,16 @@ tool.div = (num1, num2) => {
 };
 
 /**
+ * 判断第一个数是否大于等于第二个数
+ */
+tool.gte = (num1, num2) => {
+  if (isNaN(num1) || isNaN(num2)) {
+    return false;
+  }
+  return Big(Number(num1)).gte(Big(Number(num2)));
+};
+
+/**
  * 日期格式本地化
  */
 tool.showDate = (time, myformat) => {

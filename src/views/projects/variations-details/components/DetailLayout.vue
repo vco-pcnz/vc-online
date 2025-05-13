@@ -2,7 +2,7 @@
   <vco-page-panel @back="back">
     <template #title>
       <div class="page-title-content">
-        <div v-if="detail?.base?.project_apply_sn" class="tag">{{ detail?.base?.project_apply_sn }}</div>
+        <div v-if="detail?.base?.project_apply_sn" class="tag">{{ (detail?.product?.name ? detail?.product?.name + ' - ' : '') + detail?.borrower?.organization_name || detail?.base?.project_apply_sn }}</div>
         <div class="tag uppercase">{{ t('变更1') }}</div>
       </div>
     </template>
@@ -21,7 +21,7 @@ import { useI18n } from 'vue-i18n';
 import { useUserStore } from '@/store';
 import { useRouter, useRoute } from 'vue-router';
 import { projectDetail } from '@/api/project/project';
-import { projectVariationInfo } from '@/api/project/variation'
+import { projectVariationInfo } from '@/api/project/variation';
 import { cloneDeep } from 'lodash';
 
 const { t } = useI18n();
@@ -72,7 +72,7 @@ const getProjectDetail = async (userId) => {
   const variationInfo = await projectVariationInfo({
     uuid: route.query.uuid,
     id: route.query.id
-  })
+  });
 
   if (uuid) {
     // 发起请求

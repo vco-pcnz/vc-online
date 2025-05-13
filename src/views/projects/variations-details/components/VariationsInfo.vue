@@ -9,7 +9,7 @@
         <span>{{ t('变更请求详情') }}</span>
       </div>
       <a-button
-        v-if="variationsInfo.state === 0 && hasPermission('projects:variations:request')"
+        v-if="variationsInfo.state === 0 && hasPermission('projects:variations:edit')"
         type="primary"
         size="small"
         shape="round"

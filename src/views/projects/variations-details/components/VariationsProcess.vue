@@ -18,8 +18,8 @@
         </div>
       </template>
     </div>
-    <div v-if="((variationsInfo.is_me && variationsInfo.state === 0) || variationsInfo.has_permission) && hasPermission('projects:variations:check')" class="handle-content">
-      <template v-if="variationsInfo.is_me && variationsInfo.state === 0">
+    <div v-if="((variationsInfo.state === 0) || variationsInfo.has_permission)" class="handle-content">
+      <template v-if="variationsInfo.state === 0 && hasPermission('projects:variations:request')">
         <a-popconfirm :title="t('您确定提交申请吗？')" @confirm="requesetSub">
           <a-button type="dark" class="big shadow bold uppercase">{{ t('提交申请') }}</a-button>
         </a-popconfirm>

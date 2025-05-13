@@ -18,7 +18,7 @@
         </div>
       </template>
     </div>
-    <div v-if="(variationsInfo.is_me && variationsInfo.state === 0) || variationsInfo.has_permission" class="handle-content">
+    <div v-if="((variationsInfo.is_me && variationsInfo.state === 0) || variationsInfo.has_permission) && hasPermission('projects:variations:check')" class="handle-content">
       <template v-if="variationsInfo.is_me && variationsInfo.state === 0">
         <a-popconfirm :title="t('您确定提交申请吗？')" @confirm="requesetSub">
           <a-button type="dark" class="big shadow bold uppercase">{{ t('提交申请') }}</a-button>
@@ -41,6 +41,7 @@ import { useI18n } from 'vue-i18n';
 import { templateStep } from '@/api/process';
 import { projectVariationStep, projectVariationSave, projectVariationDelete } from '@/api/project/variation';
 import DetailDialog from '@/views/projects/variations/components/DetailDialog.vue';
+import { hasPermission } from '@/directives/permission/index';
 import { useRouter } from 'vue-router';
 
 const { t } = useI18n();

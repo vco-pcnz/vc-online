@@ -892,7 +892,7 @@ export default {
   "进度付款阶段": "Progress payment stages",
   "查看进度付款": "View progress payment",
   "编辑进度付款": "Edit progress payment",
-  "初始化进度付款": "Init progress payment",
+  "初始化进度付款": "Apply Default Percentage",
   "操作后数据会按照最新建筑贷款总额和建筑总面积，重新计算进度付款数据": "After the operation, the data will be recalculated according to the latest total construction loan amount and total construction area, and the progress payment data will be recalculated.",
   "确定初始化吗？": "Are you sure you want to initialize?",
   "还原": "Restore",

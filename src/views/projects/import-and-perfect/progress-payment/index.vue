@@ -747,8 +747,8 @@
         
         const Construction = list.find(item => item.type === 'Construction')
 
-        buildAmount.value = Construction ? Construction.loan : 0
-        borrowerEquity.value = Construction ? Construction.borrower_equity : 0
+        buildAmount.value = Construction ? (Construction.loan || 0) : 0
+        borrowerEquity.value = Construction ? (Construction.borrower_equity || 0) : 0
       })
 
       await getSetedData()

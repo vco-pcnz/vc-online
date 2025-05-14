@@ -60,7 +60,7 @@
                     <a-col :span="24">
                       <a-form-item :label="t('机构名称')" name="organization_name">
                         <!-- <a-input v-model:value="formState.organization_name" /> -->
-                        <vco-company-select v-model:name="formState.organization_name" v-model:nzbn="formState.company_number" :show_nzbn="true" @change="getCompanyInfo"></vco-company-select>
+                        <vco-company-select :email="formState.borrower_email" v-model:name="formState.organization_name" v-model:nzbn="formState.company_number" :show_nzbn="true" @change="getCompanyInfo"></vco-company-select>
                       </a-form-item>
                     </a-col>
                   </template>
@@ -71,7 +71,7 @@
 
                     <a-form-item v-else :label="t('新西兰商业号码')" name="company_number">
                       <!-- <a-input v-model:value="formState.company_number" /> -->
-                      <vco-company-select v-model:name="formState.organization_name" :placeholder="t('请输入')" v-model:nzbn="formState.company_number" :show_nzbn="true" @change="getCompanyInfo" :is_nzbn="true"></vco-company-select>
+                      <vco-company-select :email="formState.borrower_email" v-model:name="formState.organization_name" :placeholder="t('请输入')" v-model:nzbn="formState.company_number" :show_nzbn="true" @change="getCompanyInfo" :is_nzbn="true"></vco-company-select>
                     </a-form-item>
                   </a-col>
                   <a-col v-if="!isNormalUser && !isOpen" :span="8">
@@ -558,7 +558,7 @@ const dataInit = (infoMsg = {}, draftMsg = {}) => {
   nextTick(() => {
     vcoAddressRef.value.init(formState);
   });
-  emits('dataDone', data.project_apply_sn || '');
+  emits('dataDone', data);
 };
 
 const pageLoading = ref(false);

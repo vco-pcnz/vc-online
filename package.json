@@ -1,6 +1,7 @@
 {
   "name": "vc-online",
-  "version": "1.0.0",
+  "version": "v1.0.3",
+  "version_code": "1003",
   "type": "module",
   "license": "MIT",
   "scripts": {

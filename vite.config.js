@@ -3,6 +3,7 @@ import vue from '@vitejs/plugin-vue'
 import VueSetupExtend from "vite-plugin-vue-setup-extend"
 import { resolve } from 'path'
 import vueJsx from '@vitejs/plugin-vue-jsx'
+import packageJson from './package.json'
 export default ({ mode }) => {
   const env = loadEnv(mode, process.cwd())
   const proxyPrefix = env.VITE_APP_PROXY_PREFIX
@@ -15,6 +16,9 @@ export default ({ mode }) => {
       VueSetupExtend(),
       vueJsx()
     ],
+    define: {
+      '__APP_VERSION__': JSON.stringify(packageJson.version)
+    },
     resolve: {
       alias: {
         '@': resolve(__dirname, 'src'),

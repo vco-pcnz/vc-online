@@ -15,7 +15,7 @@
     <vco-page-panel @back="back">
       <template #title>
         <div class="page-title-content">
-          <div v-if="dataInfo?.base?.project_apply_sn" class="tag">{{ `${dataInfo?.product?.name} - ${dataInfo?.base?.project_apply_sn}` }}</div>
+          <div v-if="dataInfo?.base?.project_apply_sn" class="tag">{{ `${dataInfo?.product?.name} - ${dataInfo?.borrower?.organization_name || dataInfo?.base?.project_apply_sn}` }}</div>
           <div class="tag uppercase">{{ t('批量添加抵押物') }}</div>
         </div>
       </template>
@@ -665,8 +665,8 @@ const batchColumns = reactive([
   { title: t('类型1'), dataIndex: 'typology', width: 250, align: 'center' },
   { title: t('面积'), dataIndex: 'sqm', width: 105, align: 'center' },
   { title: t('预计销售价格'), dataIndex: 'est_sales_price', width: 130, align: 'center' },
-  { title: t('含消费税'), dataIndex: 'is_gst', width: 100, align: 'center' },
-  { title: t('拆分'), dataIndex: 'is_calc', width: 100, align: 'center' },
+  { title: t('含消费税'), dataIndex: 'is_gst', width: 110, align: 'center' },
+  { title: t('拆分'), dataIndex: 'is_calc', width: 120, align: 'center' },
   { title: t('担保价值'), dataIndex: 'amount', width: 130, align: 'center' },
   { title: t('保险价值'), dataIndex: 'insurance_value', width: 130, align: 'center' },
   { title: t('销售价格'), dataIndex: 'sales_price', width: 130, align: 'center' },
@@ -712,8 +712,8 @@ const formColumns = reactive([
   { title: t('类型1'), dataIndex: 'typology', width: 250, align: 'center' },
   { title: t('面积'), dataIndex: 'sqm', width: 105, align: 'center' },
   { title: t('预计销售价格'), dataIndex: 'est_sales_price', width: 130, align: 'center' },
-  { title: t('含消费税'), dataIndex: 'is_gst', width: 100, align: 'center' },
-  { title: t('拆分'), dataIndex: 'is_calc', width: 100, align: 'center' },
+  { title: t('含消费税'), dataIndex: 'is_gst', width: 110, align: 'center' },
+  { title: t('拆分'), dataIndex: 'is_calc', width: 120, align: 'center' },
   { title: t('担保价值'), dataIndex: 'amount', width: 130, align: 'center' },
   { title: t('保险价值'), dataIndex: 'insurance_value', width: 130, align: 'center' },
   { title: t('销售价格'), dataIndex: 'sales_price', width: 130, align: 'center' },

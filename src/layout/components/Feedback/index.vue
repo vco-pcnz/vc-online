@@ -9,11 +9,10 @@
       <a-textarea v-model:value="formState.note" :rows="4" />
       <div class="label">
         {{ t('文件') }}
-
         <vco-upload-modal v-model:list="documentList" v-model:value="formState.document">
           <a-button class="upload_btn" style="right: 90px;" type="brown" shape="round" size="small"> {{ t('上传') }}</a-button>
         </vco-upload-modal>
-        <ScreenShot v-model:list="documentList" v-model:value="formState.document"><a-button class="upload_btn" type="brown" shape="round" size="small"> {{ t('截图') }}</a-button></ScreenShot>
+        <ScreenShot v-model:list="documentList" v-model:show="showScreenShot" v-model:value="formState.document"><a-button class="upload_btn" type="brown" shape="round" size="small"> {{ t('截图') }}</a-button></ScreenShot>
       </div>
 
       <div class="file-content">
@@ -52,6 +51,7 @@ const visible = ref(false);
 const validate = ref(false);
 const loading = ref(false);
 const documentList = ref([]);
+const showScreenShot = ref(false)
 const formState = ref({
   title: '',
   note: '',
@@ -86,6 +86,12 @@ const reset = () => {
   documentList.value = []
 };
 
+
+// 删除文件
+const remove = (index) => {
+  documentList.value.splice(index, 1);
+};
+
 watch(
   () => visible.value,
   (val) => {
@@ -105,9 +111,14 @@ watch(
   position: fixed;
   right: 40px;
   bottom: 70px;
+  z-index: 20000;
+  // background: #fff;
+  // box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  // padding: 10px;
+  // border-radius: 50%;
   .btn {
     text-align: center;
-    color: #888;
+    color: #f19915;
     cursor: pointer;
     line-height: 1.2;
     font-size: 12px;

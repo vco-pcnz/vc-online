@@ -24,7 +24,7 @@
         <template #right>
           <span>
             <AddVariations
-              v-if="hasPermission('projects:variations:edit')"
+              v-if="hasPermission('projects:variations:add')"
               :currentId="uuid"
               :project-detail="projectDetail"
               @update="updateHandle(true)"

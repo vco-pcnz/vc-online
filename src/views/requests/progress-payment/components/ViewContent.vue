@@ -1,6 +1,6 @@
 <template>
   <div>
-    <a-modal :open="itemVisible" :title="t('进度付款阶段')" :width="500" :footer="null" :keyboard="false" :maskClosable="false" @cancel="itemVisible = false">
+    <a-modal :open="itemVisible" :title="t('进度付款阶段')" :width="500" :footer="null" :keyboard="false" :maskClosable="false" @cancel="setDialogCancel">
       <a-row :gutter="24" class="mt-10">
         <a-col :span="8">
           <div class="info-content">
@@ -48,7 +48,7 @@
     </a-modal>
 
     <a-spin :spinning="pageLoading" size="large">
-      <div class="progress-payment-content">
+      <div class="progress-payment-content" :class="{'preview-table': !isSelect}">
         <div v-if="!isRequests && !isSelect && !pageLoading" class="form-block-content">
           <div class="title">{{ t('放款统计') }}</div>
           <a-table
@@ -68,8 +68,8 @@
                 <div style="padding: 0 20px;">
                   <a-progress
                     :stroke-color="{
-                      '0%': '#F19915',
-                      '100%': '#ffb92c',
+                      '0%': '#64ec22',
+                      '100%': '#31bd65'
                     }"
                     :size="6"
                     :percent="statUserPercent"
@@ -87,18 +87,21 @@
         <div v-if="tableHeader.length && hasData && !pageLoading" class="form-block-content" :class="{'mt-10': isSelect}">
           <div v-if="!isSelect" class="title">{{ t('进度付款阶段') }}</div>
           <div v-if="isSelect" class="mt-2 mb-2 flex justify-end gap-4">
-            <a-button type="primary" class="bold uppercase" @click="batchSelectHandle">{{ batchSelect ? t('取消') : t('批量选择') }}</a-button>
-            <a-button v-if="batchSelectData.length" type="dark" class="bold uppercase" @click="batchSelectSet">{{ t('设置') }} ({{ batchSelectData.length }})</a-button>
+            <a-button v-if="selectDataHasNum" type="cyan" class="bold uppercase" @click="selectCancelAll">{{ t('取消所有设置') }}</a-button>
+            <a-button type="primary" class="bold uppercase" @click="batchSelectHandle">{{ batchSelect ? t('取消批量模式') : t('批量选择') }}</a-button>
+            <a-button v-if="batchSelectData.length" type="grey" class="bold uppercase" @click="batchSelectCancel">{{ t('取消已选择')}}</a-button>
+            <a-button v-if="batchSelect" type="dark" :disabled="!batchSelectData.length" class="bold uppercase" @click="batchSelectSet">{{ t('批量设置1') }} ({{ batchSelectData.length }})</a-button>
           </div>
+          <p v-if="batchSelect" class="text-right mb-2">{{ t('点击下方表格，选择需要批量操作的数据')}}</p>
           <a-table
             :columns="tableHeader"
             :data-source="tableData"
             bordered
             :pagination="false"
             table-layout="fixed"
-            :scroll="{ x: '100%', y: isSelect ? 380 : 600 }"
+            :scroll="{ x: '100%', y: isSelect ? 350 : 600 }"
           >
-            <template #bodyCell="{ column, record }">
+            <template #bodyCell="{ column, record, index }">
               <template v-if="record.isFixedRow">
                 <template v-if="column.dataIndex === 'type'">
                   <p>{{ record.type }}</p>
@@ -116,8 +119,8 @@
                       <div class="item-process-content">
                         <a-progress
                           :stroke-color="{
-                            '0%': '#F19915',
-                            '100%': '#ffb92c',
+                            '0%': '#64ec22',
+                            '100%': '#31bd65'
                           }"
                           :size="6"
                           :percent="advanceObj ? advanceObj.percent : 0"
@@ -137,8 +140,8 @@
                       <div class="init-progress">
                         <a-progress
                           :stroke-color="{
-                            '0%': '#F19915',
-                            '100%': '#ffb92c',
+                            '0%': '#64ec22',
+                            '100%': '#31bd65'
                           }"
                           :size="6"
                           :percent="advanceObj.percent"
@@ -174,17 +177,30 @@
                     <div class="item-process-content">
                       <a-progress
                         :stroke-color="{
-                          '0%': '#F19915',
-                          '100%': '#ffb92c',
+                          '0%': '#64ec22',
+                          '100%': '#31bd65'
                         }"
                         :size="6"
                         :percent="record.percent"
                       />
                     </div>
                   </div>
-                  
                 </template>
-                <vco-number v-else :value="record[column.dataIndex]" size="fs_md" :precision="2" :end="true"></vco-number>
+                <template v-else>
+                  <template v-if="isSelect"> 
+                    <vco-number :value="record[column.dataIndex]" size="fs_md" :precision="2" :end="true"></vco-number>
+                  </template>
+                  <template v-else>
+                    <div class="total-info-txt">Loan<vco-number :value="record[column.dataIndex]" size="fs_xs" :precision="2" :end="true" color="#eb4b6d"></vco-number></div>
+                    <div v-if="record.type === tableData[index + 1]?.type" class="total-info-txt">Borrower Equity
+                      <vco-number :value="tableData[index + 1][column.dataIndex]" size="fs_xs" :precision="2" :end="true" color="#31bd65"></vco-number>
+                    </div>
+                    <div class="flex justify-end">
+                      <vco-number v-if="record.type === tableData[index + 1]?.type" :value="Number(tool.plus(record[column.dataIndex], tableData[index + 1][column.dataIndex]))" size="fs_md" :precision="2" :end="true"></vco-number>
+                      <vco-number v-else :value="record[column.dataIndex]" size="fs_md" :precision="2" :end="true"></vco-number>
+                    </div>
+                  </template>
+                </template>
               </template>
               <template v-else>
                 <div v-if="showProcess" class="select-item col" :class="{'hover': isSelect}" @click="itemSetHandle(record[column.dataIndex])">
@@ -195,8 +211,8 @@
                   <div class="item-process-content">
                     <a-progress
                       :stroke-color="{
-                        '0%': '#F19915',
-                        '100%': '#ffb92c',
+                        '0%': '#64ec22',
+                        '100%': '#31bd65'
                       }"
                       :size="6"
                       :percent="record[column.dataIndex].percent"
@@ -229,8 +245,8 @@
                           <div class="item-process-content">
                             <a-progress
                               :stroke-color="{
-                                '0%': '#F19915',
-                                '100%': '#ffb92c',
+                                '0%': '#64ec22',
+                                '100%': '#31bd65'
                               }"
                               :size="6"
                               :percent="getTotalPercent(tableUseTotal, summaryHandle(item.key))"
@@ -238,7 +254,29 @@
                           </div>
                         </div>
                       </template>
-                      <vco-number v-else :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
+                      <template v-else>
+                        <template v-if="isSelect">
+                          <vco-number :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
+                        </template>
+                        <template v-else>
+                          <div class="total-info-txt">
+                            Loan
+                            <vco-number :value="TableLoanTotal(1)" size="fs_xs" :precision="2" :end="true" color="#eb4b6d"></vco-number>
+                          </div>
+                          <div class="total-info-txt">
+                            Borrower Equity
+                            <vco-number :value="TableLoanTotal(2)" size="fs_xs" :precision="2" :end="true" color="#31bd65"></vco-number>
+                          </div>
+                          <div class="flex justify-end">
+                            <vco-number
+                              :value="summaryHandle(item.key)"
+                              size="fs_md"
+                              :precision="2"
+                              :end="true"
+                            ></vco-number>
+                          </div>
+                        </template>
+                      </template>
                     </template>
                     <template v-else>
                       <template v-if="showProcess">
@@ -250,8 +288,8 @@
                           <div class="item-process-content">
                             <a-progress
                               :stroke-color="{
-                                '0%': '#F19915',
-                                '100%': '#ffb92c',
+                                '0%': '#64ec22',
+                                '100%': '#31bd65'
                               }"
                               :size="6"
                               :percent="getTotalPercent(summaryHandle(item.key, 'use_amount'), summaryHandle(item.key))"
@@ -280,8 +318,8 @@
               <a-progress
                 v-if="showProcess"
                 :stroke-color="{
-                  '0%': '#F19915',
-                  '100%': '#ffb92c',
+                  '0%': '#64ec22',
+                  '100%': '#31bd65'
                 }"
                 :size="6"
                 :percent="item.percent"
@@ -443,6 +481,20 @@
     return totalAll
   })
 
+  const TableLoanTotal = computed(() => {
+    return (type) => {
+      const arr = tableData.value.filter(item => !item.isFixedRow && item.category === type).map(item => item.total)
+      const total = arr.reduce((total, num) => {
+        return Number(tool.plus(total, num))
+      }, 0);
+      return type === 1 ? Number(tool.plus(total, advanceAmount.value)) : total
+    }
+  })
+
+  const selectDataHasNum = computed(() => {
+    return selectData.value.filter(item => Number(item.set_amount)).length
+  })
+
   const tableRemainTotal = (total, useTotal) => {
     return tool.minus(total, useTotal)
   }
@@ -451,30 +503,41 @@
     const payment = cloneDeep(setedData.value.payment)
     const column = cloneDeep(setedData.value.column)
 
-    const data = []
-    for (const key in column) {
-      if (column[key] !== advanceKey.value) {
-        data.push({
-          name: column[key],
-          code: Number(key)
-        })
+    for (const key in payment) {
+      if (key === '0$1__payment') {
+        delete payment[key]
+      }
+
+      if (props.isSelect) {
+        if (key.indexOf('$2') > -1) {
+          delete payment[key]
+        }
       }
     }
+
+    const data = []
+    for (const key in payment) {
+      data.push({
+        ...payment[key]
+      })
+    }
+
     const hadSetData = cloneDeep(setedData.value.data)
+
     const dataArr = Number(advanceAmount.value) ? [{
         isFixedRow: true,
         type: advanceKey.value
       }
     ] : []
-
     for (let i = 0; i < data.length; i++) {
       const obj = {
-        type: data[i].name,
-        typeId: data[i].code,
-        payment: payment[`${i + 1}__payment`] ? payment[`${i + 1}__payment`].amount : 0
+        type: data[i].type_name,
+        typeId: data[i].type,
+        payment: payment[`${data[i].type}$${data[i].category}__payment`] ? payment[`${data[i].type}$${data[i].category}__payment`].amount : 0,
+        category: data[i].category
       }
       for (let j = 0; j < headerData.length; j++) {
-        const amountItem = hadSetData[`${data[i].code}__${headerData[j].dataIndex}`] || {}
+        const amountItem = hadSetData[`${data[i].type}$${data[i].category}__${headerData[j].dataIndex}`] || {}
         if (Object.keys(amountItem).length) {
           amountItem.amount = Number(amountItem.amount)
           amountItem.checked = false
@@ -536,7 +599,9 @@
       const num = Number(total) ? Number(Number(tool.div(Number(useTotal), Number(total))).toFixed(2)) : 0
       obj.percent = Number(tool.times(num, 100))
 
-      dataArr.push(obj)
+      if (Number(obj.payment)) {
+        dataArr.push(obj)
+      }
     }
 
     tableData.value = dataArr
@@ -581,7 +646,7 @@
       align: 'center',
       fixed: 'left'
     }, ...headerData,
-    { title: t('总计'), dataIndex: 'total', width: 150, align: 'center', fixed: 'right' }]
+    { title: t('总计'), dataIndex: 'total', width: 180, align: 'center', fixed: 'right' }]
 
     const summaryColData = []
     for (let i = 0; i < tableHeader.value.length; i++) {
@@ -593,24 +658,76 @@
     // 合并第一行数据
     if (tableHeader.value.length > 3) {
       tableHeader.value.forEach((item, index) => {
-        item.customCell = (record) => {
-          if (record.isFixedRow) {
-            const mergeStart = 2
-            const mergeEnd = tableHeader.value.length - 2
+        if (!props.isSelect) {
+          item.customCell = (record, _index) => {
+            if (['type', 'total'].includes(item.dataIndex)) {
+              // 跳过第一行（isFixedRow）
+              if (record.isFixedRow) {
+                return {}
+              }
+              
+              // 获取当前行的 type
+              const currentType = record.type
+              
+              // 查找相同 type 的行数
+              let rowSpan = 1
+              for (let i = _index + 1; i < tableData.value.length; i++) {
+                if (tableData.value[i].type === currentType) {
+                  rowSpan++
+                } else {
+                  break
+                }
+              }
+              
+              // 如果是第一行相同 type 的行，返回 rowSpan
+              if (rowSpan > 1) {
+                return { rowSpan }
+              }
+              
+              // 如果是后续相同 type 的行，隐藏单元格
+              if (_index > 0 && tableData.value[_index - 1].type === currentType) {
+                return { rowSpan: 0 }
+              }
+              
+              return {}
+            } else {
+              if (record.isFixedRow) {
+                const mergeStart = 2
+                const mergeEnd = tableHeader.value.length - 2
 
-            if (index === mergeStart) {
-              // 第一个合并单元格的起始位置
-              return {
-                colSpan: mergeEnd - mergeStart + 1 // 要合并多少列
+                if (index === mergeStart) {
+                  return {
+                    colSpan: mergeEnd - mergeStart + 1
+                  }
+                } else if (index > mergeStart && index <= mergeEnd) {
+                  return {
+                    colSpan: 0
+                  }
+                }
               }
-            } else if (index > mergeStart && index <= mergeEnd) {
-              // 被合并的列
-              return {
-                colSpan: 0
-              }
+              return {}
             }
           }
-          return {}
+        } else {
+          item.customCell = (record) => {
+            if (record.isFixedRow) {
+              const mergeStart = 2
+              const mergeEnd = tableHeader.value.length - 2
+
+              if (index === mergeStart) {
+                // 第一个合并单元格的起始位置
+                return {
+                  colSpan: mergeEnd - mergeStart + 1 // 要合并多少列
+                }
+              } else if (index > mergeStart && index <= mergeEnd) {
+                // 被合并的列
+                return {
+                  colSpan: 0
+                }
+              }
+            }
+            return {}
+          }
         }
       })
     }
@@ -628,7 +745,17 @@
     try {
       const ajaxFn = isRequests.value ? projectGetBuild : projectLoanGetBuild
       await ajaxFn(params).then(res => {
-        const data = res.data || {}
+        const dataRes = res.data || {}
+        let data = {}
+        if (props.isSelect) {
+          for (const key in dataRes) {
+            if (key.indexOf('$1') > -1) {
+              data[key] = dataRes[key]
+            }
+          }
+        } else {
+          data = dataRes
+        }
 
         if (Object.keys(data).length) {
           setedData.value = res
@@ -636,8 +763,8 @@
 
           // 首次放款数据
           if (Object.keys(res.payment).length) {
-            if (res.payment[`0__payment`]) {
-              advancePercent.value = res.payment[`0__payment`].amount
+            if (res.payment[`0$1__payment`]) {
+              advancePercent.value = res.payment[`0$1__payment`].amount
             }
           }
 
@@ -802,6 +929,7 @@
     }
   }
 
+  const currentSingleItem = ref()
   const itemSetHandle = (data) => {
     if (batchSelect.value) {
       data.selected = !data.selected
@@ -826,7 +954,8 @@
         data.can_amount = num
         data.can_amount_per = Number(data.amount) ? tool.times(tool.div(Number(num), Number(data.amount)), 100) : 0
         data.showError = false
-        currentItemInfo.value = data
+        currentSingleItem.value = data
+        currentItemInfo.value = cloneDeep(data)
         itemVisible.value = true
       }
     }
@@ -845,7 +974,8 @@
           const setAmount = Number(tool.times(Number(canAmount), Number(setPercent))).toFixed(2)
 
           item.set_amount = setAmount
-          item.checked = true
+          item.checked = Boolean(Number(setAmount))
+          item.selected = false
 
           const obj = selectData.value.find(_item => _item.id === item.id)
           if (obj) {
@@ -856,29 +986,39 @@
           }
         })
         itemVisible.value = false
+        batchSelect.value = false
+        batchSelectData.value = []
       }
     } else {
       if (Number(currentItemInfo.value.set_amount) > Number(currentItemInfo.value.can_amount) || Number(currentItemInfo.value.set_amount) < 0) {
         currentItemInfo.value.showError = true
       } else {
-        if (Number(currentItemInfo.value.set_amount) === 0) {
-          currentItemInfo.value.checked = false
-        } else {
-          currentItemInfo.value.checked = true
-          const data = cloneDeep(currentItemInfo.value)
-          if (selectIdData.value.includes(data.id)) {
-            const obj = selectData.value.find(item => item.id === data.id)
-            if (obj) {
-              obj.set_amount = data.set_amount
-            }
-          } else {
-            selectData.value.push(data)
+        currentItemInfo.value.checked = Boolean(Number(currentItemInfo.value.set_amount))
+        const data = cloneDeep(currentItemInfo.value)
+        if (selectIdData.value.includes(data.id)) {
+          const obj = selectData.value.find(item => item.id === data.id)
+          if (obj) {
+            obj.set_amount = data.set_amount
           }
+        } else {
+          selectData.value.push(data)
         }
+
         itemVisible.value = false
         currentItemInfo.value.showError = false
+        const { checked, set_amount, set_amount_per } = currentItemInfo.value
+        
+        currentSingleItem.value.checked = checked
+        currentSingleItem.value.set_amount = set_amount
+        currentSingleItem.value.set_amount_per = set_amount_per
+
+        currentItemInfo.value = {}
+        currentSingleItem.value = {}
       }
     }
+
+    // 删除没有设置金额的数据
+    selectData.value = selectData.value.filter(item => Number(item.set_amount))
   }
 
   const selectConfirm = () => {
@@ -953,6 +1093,13 @@
     }
   }
 
+  const batchSelectCancel = () => {
+    batchSelectData.value.forEach(item => {
+      item.selected = false
+    })
+    batchSelectData.value = []
+  }
+
   const batchSelectSet = () => {
     const amountArr = batchSelectData.value.map(item => Number(item.amount || 0))
     const totalAmount = amountArr.reduce((total, num) => {
@@ -983,6 +1130,29 @@
 
     currentItemInfo.value = data
     itemVisible.value = true
+  }
+
+  const setDialogCancel = () => {
+    itemVisible.value = false
+    currentItemInfo.value = {}
+    currentSingleItem.value = {}
+  }
+
+  const selectCancelAll = () => {
+    for (let i = 0; i < tableData.value.length; i++) {
+      for (const key in tableData.value[i]) {
+        if (key.indexOf('-') > -1) {
+          tableData.value[i][key].set_amount = ''
+          tableData.value[i][key].checked = false
+        }
+      }
+    }
+
+    for (let i = 0; i < footerDataCol.value.length; i++) {
+      footerDataCol.value[i].set_amount = ''
+      footerDataCol.value[i].checked = false
+    }
+    selectData.value = []
   }
 
   onMounted(async () => {
@@ -1318,6 +1488,28 @@
       display: flex;
       align-items: center;
       justify-content: center;
+    }
+  }
+
+  .total-info-txt {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    font-size: 10px;
+  }
+
+  .borrowr-amount {
+    :deep(.ant-statistic-content) {
+      color: rgb(49, 189, 101) !important;
+    }
+  }
+
+  .preview-table {
+    :deep(.ant-table-wrapper) {
+      .ant-table-tbody>tr>td {
+        padding: 10px;
+      }
     }
   }
 </style>

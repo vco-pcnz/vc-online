@@ -321,7 +321,7 @@
 
     dataInfo.value = data
     currentDataInfo.value = data
-    emits('dataDone', data.base.project_apply_sn)
+    emits('dataDone', data)
   }
 
   const pageLoading = ref(false)

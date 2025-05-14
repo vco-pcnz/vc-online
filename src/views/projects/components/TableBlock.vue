@@ -6,8 +6,8 @@
           <a-space>
             <vco-avatar :src="record.project_image" :radius="true" :round="false" :size="48" />
             <div class="ml-3">
-              <p class="cer">ID: {{ record.project_apply_sn }}</p>
-              <p :title="record.project_name" class="bold black text-ellipsis overflow-hidden text-nowrap" style="width: 200px">{{ record.project_name }}</p>
+              <p :title="record.project_name" class="bold black text-ellipsis overflow-hidden text-nowrap" style="width: 200px;font-size: 16px;">{{ record.project_name }}</p>
+              <p class="replenish_text mt-1" style="line-height: 1;">ID: {{ record.project_apply_sn }}</p>
               <span class="replenish_text">
                 {{ record.loan_type_name }}
                 <template v-if="record.loan_type_name && record.project_type_name"> • </template>

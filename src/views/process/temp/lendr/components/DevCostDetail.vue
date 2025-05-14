@@ -342,6 +342,9 @@ const init = () => {
   loadType();
   if (props.dataJson && props.dataJson.length) {
     data.value = cloneDeep(props.dataJson[0]);
+    data.value.data[0].type = t('建筑成本')
+    data.value.data[1].type = t('净商品与服务税')
+    data.value.data[2].type = t('财务成本')
     initData();
   }
   if (!props.edit) {

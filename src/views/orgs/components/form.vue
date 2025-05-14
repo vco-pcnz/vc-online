@@ -73,13 +73,13 @@
             <a-col :span="24">
               <a-form-item :label="t('公司名称f')" name="name">
                 <!-- <a-input v-model:value="form.name" :placeholder="t('请输入')" /> -->
-                <vco-company-select v-model:name="form.name" :placeholder="t('请输入')" v-model:nzbn="form.nzbn" :show_nzbn="true" @change="getCompanyInfo"></vco-company-select>
+                <vco-company-select :email="form.email" v-model:name="form.name" :placeholder="t('请输入')" v-model:nzbn="form.nzbn" :show_nzbn="true" @change="getCompanyInfo"></vco-company-select>
               </a-form-item>
             </a-col>
             <a-col :span="24">
               <a-form-item :label="t('新西兰商业号码')" name="nzbn">
                 <!-- <a-input v-model:value="form.nzbn" :placeholder="t('请输入')" /> -->
-                <vco-company-select v-model:name="form.name" :placeholder="t('请输入')" v-model:nzbn="form.nzbn" :show_nzbn="true" @change="getCompanyInfo" :is_nzbn="true"></vco-company-select>
+                <vco-company-select :email="form.email" v-model:name="form.name" :placeholder="t('请输入')" v-model:nzbn="form.nzbn" :show_nzbn="true" @change="getCompanyInfo" :is_nzbn="true"></vco-company-select>
               </a-form-item>
             </a-col>
             <a-col :span="24">

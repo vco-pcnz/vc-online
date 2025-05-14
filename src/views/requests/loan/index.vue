@@ -63,8 +63,8 @@
                   </template>
                   <template v-if="column.dataIndex === 'project_info'">
                     <span class="cursor-pointer" @click="navigationTo(`/requests/details/about?uuid=${record.uuid}`)">
-                      <div class="id-info">ID: {{ record.project_apply_sn }}</div>
-                      <div :title="record.project_name">{{ record.project_name || t('项目名称') }}</div>
+                      <div :title="record.project_name" class="black bold">{{ record.project_name || t('项目名称') }}</div>
+                      <div>ID: {{ record.project_apply_sn }}</div>
                       <div v-if="record.project_city && record.project_city.length > 3" class="icon-txt mt-1">
                         <i class="iconfont cer">&#xe814;</i>
                         <span :title="record.project_city" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-2">{{ record.project_city }}</span>

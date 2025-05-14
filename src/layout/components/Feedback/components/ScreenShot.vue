@@ -18,7 +18,7 @@ const props = defineProps({
     required: false
   }
 });
-const emits = defineEmits(['update:value', 'update:list', 'change']);
+const emits = defineEmits(['update:value', 'update:list', 'change', 'update:show']);
 
 const screenshotStatus = ref(false);
 const screenshotData = ref('');
@@ -91,6 +91,7 @@ const getImg = async (base64) => {
 };
 const handleScreenshot = () => {
   screenshotStatus.value = true;
+  // emits('update:show',true)
 };
 
 const update = () => {
@@ -99,6 +100,7 @@ const update = () => {
   const value = fileList.map((item) => {
     return item.uuid;
   });
+  emits('update:show', false);
   emits('update:value', value);
   emits('update:list', fileList);
   emits('change', fileInfo);
@@ -106,6 +108,8 @@ const update = () => {
 </script>
 <style lang="less">
 #screenShotPanel {
+  z-index: 30000;
+  position: fixed !important;
   #toolPanel {
     height: auto !important;
   }

@@ -766,8 +766,8 @@
         footerDataCol.value = footerData || []
         
         const Construction = list.find(item => item.type === 'Construction')
-        buildAmount.value = Construction ? Construction.loan : 0
-        borrowerEquity.value = Construction ? Construction.borrower_equity : 0
+        buildAmount.value = Construction ? (Construction.loan || 0) : 0
+        borrowerEquity.value = Construction ? (Construction.borrower_equity || 0) : 0
       })
       await getSetedData()
     } catch (err) {
@@ -1126,65 +1126,6 @@
         }
       }
     }
-
-    // if (construction !== buildAmount.value) {
-    //   const diffNum = tool.minus(construction, buildAmount.value)
-    //   if (props.isOpen) {
-    //     // open 后处理 暂定
-    //     if (construction > buildAmount.value) {
-    //       confirmTxt.value = t(`开发成本中的建造费为：<span>{0}</span>，当前设置值为：<span>{1}</span>，超出了：<span>{2}</span>`, [
-    //         `$${numberStrFormat(buildAmount.value)}`,
-    //         `$${numberStrFormat(construction)}`,
-    //         `$${numberStrFormat(diffNum)}`
-    //       ])
-    //       changeVisible.value = true
-    //       changeColseBtn.value = true
-    //     } else {
-    //       submitRquest()
-    //     }
-    //   } else {
-    //     confirmTxt.value = t(`开发成本中的建造费为：<span>{0}</span>，当前设置值为：<span>{1}</span>，相差：<span>{2}</span>，保存后会更新相关值并重置首次建筑贷款放款额`, [
-    //       `$${numberStrFormat(buildAmount.value)}`,
-    //       `$${numberStrFormat(construction)}`,
-    //       `$${numberStrFormat(diffNum)}`
-    //     ])
-    //     currentParams.value.clear = 1
-
-    //     changeVisible.value = true
-    //   }
-    // } else {
-    //   if (props.isOpen) {
-    //     // open 后处理 暂定
-    //     submitRquest()
-    //   } else {
-    //     const sLen = securityData.value.length
-    //     const rLen = Object.keys(setedData.value.row).length
-    //     if (rLen && sLen !== rLen) {
-    //       confirmTxt.value = t(`抵押物数量有变动，保存后会重置首次建筑贷款放款额`)
-    //       currentParams.value.clear = 1
-    //       changeVisible.value = true
-    //     } else {
-    //       const arr1 = paymentData.map(item => item.amount)
-    //       const arr2 = []
-    //       if (Object.keys(setedData.value.payment).length) {
-    //         for (const key in setedData.value.payment) {
-    //           arr2.push(setedData.value.payment[key].amount)
-    //         }
-    //       }
-    //       if (rLen) {
-    //         if (dataHasChanged(arr1, arr2)) {
-    //           confirmTxt.value = t(`数据设置有变动，保存后会重置首次建筑贷款放款额`)
-    //           currentParams.value.clear = 1
-    //           changeVisible.value = true
-    //         } else {
-    //           submitRquest()
-    //         }
-    //       } else {
-    //         submitRquest()
-    //       }
-    //     }
-    //   }
-    // }
   }
 
   const exportHandle = () => {

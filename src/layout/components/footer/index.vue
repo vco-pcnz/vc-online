@@ -25,6 +25,7 @@ const version = __APP_VERSION__
     margin-left: 10px;
     color: #d8b480;
     font-weight: normal;
+    font-weight: bold;
   }
 }
 </style>

@@ -8,8 +8,25 @@
             <!-- 建筑成本 -->
             <template v-if="p_index === 0">
               <div class="flex justify-between tabel-type">
-                <p class="bold fs_xl">{{ item.type }}</p>
-                <a-button type="brown" shape="round" size="small" @click="add(p_index)" v-if="edit && showAdd">add</a-button>
+                <div class="flex gap-2">
+                  <p class="bold fs_xl">{{ item.type }}</p>
+                  <a-button v-if="!disabledModel" type="brown" size="small" shape="round" @click="data.model = data.model ? 0 : 1">for {{ data.model ? t('QS报告') : t('进度放款') }}</a-button>
+                  <a-button v-else type="brown" size="small" shape="round"> {{ data.model ? t('QS报告') : t('进度放款') }}</a-button>
+                </div>
+                <a-popover trigger="click" v-if="edit">
+                  <template #content>
+                    <a-menu :selectable="false" style="border: none !important">
+                      <a-menu-item>
+                        <div v-if="!showAdd" :class="[{ disabled: !showAdd }]" class="text-center">{{ t('选择') }}</div>
+                        <div v-else @click="add(p_index, 0)" class="text-center">{{ t('选择') }}</div>
+                      </a-menu-item>
+                      <a-menu-item>
+                        <div @click="add(p_index, 1)" class="text-center">{{ t('自定义') }}</div>
+                      </a-menu-item>
+                    </a-menu>
+                  </template>
+                  <a-button type="primary" shape="round" size="small" class="uppercase">{{ t('添加') }}</a-button>
+                </a-popover>
               </div>
               <a-table :columns="ConstructionColumns" :data-source="item.list" :pagination="false" :scroll="{ x: '100%' }">
                 <template #bodyCell="{ column, record, index }">
@@ -18,7 +35,8 @@
                       <div class="flex items-center">
                         <PlusCircleOutlined class="addChid" @click="addChid(index)" v-if="!Boolean(record?.status)" />
                         <div style="flex: 1; width: 0px">
-                          <a-select :loading="loading_type" style="width: 100%;" :disabled="Boolean(record?.status)" v-model:value="record.type" :options="initTypes" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
+                          <a-select v-if="!record.model" :loading="loading_type" style="width: 100%" :disabled="Boolean(record?.status)" v-model:value="record.type" :options="initTypes" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
+                          <a-input v-if="record.model" style="width: 100%" :disabled="Boolean(record?.status)" v-model:value="record.type"></a-input>
                         </div>
                       </div>
                       <template v-if="record?.list">
@@ -91,7 +109,7 @@
                     <template v-if="column.dataIndex === 'loan' || column.dataIndex === 'borrower_equity'">
                       <vco-number :value="record[column.dataIndex]" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
                       <template v-if="record?.list">
-                        <div v-for="(sub, subIndex) in record?.list" :key="subIndex" class="flex items-center mt-2" >
+                        <div v-for="(sub, subIndex) in record?.list" :key="subIndex" class="flex items-center mt-2">
                           <div style="flex: 1">
                             <vco-number :value="sub[column.dataIndex]" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
                           </div>
@@ -128,7 +146,7 @@
               </div>
             </template>
             <!-- 财务成本 -->
-            <template v-if="p_index === 2">
+            <template v-if="p_index === 3">
               <div class="flex justify-between tabel-type">
                 <p class="bold fs_xl">{{ item.type }}</p>
               </div>
@@ -157,7 +175,7 @@
               </div>
             </template>
             <!-- 净商品与服务税 -->
-            <div v-if="p_index === 1" class="flex items-center total-row">
+            <div v-if="p_index === 1 || p_index === 2" class="flex items-center total-row">
               <div class="title bold bold fs_xl text-left" style="padding: 0">{{ item.type }}</div>
               <template v-if="edit">
                 <div class="amount">
@@ -252,6 +270,10 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
+  disabledModel: {
+    type: Boolean,
+    default: false
+  },
   disabled: {
     type: Boolean,
     default: false
@@ -279,6 +301,7 @@ const data = ref({
   loan: 0,
   borrower_equity: 0,
   total: 0,
+  model: 0,
   data: [
     {
       type: t('建筑成本'),
@@ -286,6 +309,12 @@ const data = ref({
       borrower_equity: 0,
       total: 0,
       list: []
+    },
+    {
+      type: t('补充股权'),
+      loan: 0,
+      borrower_equity: 0,
+      total: 0
     },
     {
       type: t('净商品与服务税'),
@@ -306,10 +335,11 @@ const updateVisible = (value) => {
   visible.value = value;
 };
 
-const add = (index) => {
+const add = (index, model) => {
   data.value.data[index].list.push({
     type: '',
     loan: 0,
+    model: model,
     borrower_equity: 0
   });
 };
@@ -340,7 +370,7 @@ const validateTypes = (obj) => {
 const save = () => {
   const doneData = cloneDeep(data.value);
   doneData.data[0].list.forEach((item) => {
-    item.name = typesObj.value[item.type] || '';
+    item.name = item.model ? item.type : typesObj.value[item.type] || '';
   });
 
   if (!validateTypes(doneData.data[0])) {
@@ -419,9 +449,18 @@ const init = () => {
   loadType();
   if (props.dataJson && props.dataJson.length) {
     data.value = cloneDeep(props.dataJson[0]);
-    data.value.data[0].type = t('建筑成本')
-    data.value.data[1].type = t('净商品与服务税')
-    data.value.data[2].type = t('财务成本')
+    if (data.value.data.length == 3) {
+      data.value.data.splice(1, 0, {
+        type: t('补充股权'),
+        loan: 0,
+        borrower_equity: 0,
+        total: 0
+      });
+    }
+    data.value.data[0].type = t('建筑成本');
+    data.value.data[1].type = t('补充股权');
+    data.value.data[2].type = t('净商品与服务税');
+    data.value.data[3].type = t('财务成本');
     initData();
   }
   if (!props.edit) {
@@ -442,7 +481,7 @@ const initTypes = computed(() => {
 });
 
 const showAdd = computed(() => {
-  return data.value.data[0].list.filter((item) => item.status !== 1).length != types.value.length;
+  return data.value.data[0].list.filter((item) => item.status !== 1 && !item.model).length != types.value.length;
 });
 
 const addChid = (index) => {
@@ -619,5 +658,10 @@ onMounted(() => {
   &.removeChid {
     color: @color_red-half;
   }
+}
+
+.disabled {
+  color: #999;
+  cursor: not-allowed;
 }
 </style>

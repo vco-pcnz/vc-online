@@ -23,7 +23,7 @@
         <p class="fs_xs color_grey" v-else>Maturity</p>
       </div>
     </div>
-    <p class="fs_xs color_grey text-center" style="margin-top: -16px">{{ data?.sdaysDiff + data?.edaysDiff }} days</p>
+    <p class="fs_xs color_grey text-center" style="margin-top: -16px">{{ data?.sdaysDiff + data?.edaysDiff + 1 }} days</p>
   </div>
 </template>
 

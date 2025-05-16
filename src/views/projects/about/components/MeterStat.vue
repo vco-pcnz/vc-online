@@ -35,7 +35,9 @@
             Accrued interest
             <div class="efSGMs">
               <i class="iconfont">&#xe6b3;</i>
-              <div class="tips"><p>Estimated covering {{tool.showDate(data.s_day)}} - {{tool.showDate(data.e_day)}}</p></div>
+              <div class="tips">
+                <p>Estimated covering {{ dayjs(data.s_day).format(selectDateFormat()) }} - {{ dayjs(data.e_day).format(selectDateFormat()) }}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -76,7 +78,8 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import tool from '@/utils/tool';
+import { selectDateFormat } from '@/utils/tool';
+import dayjs, { Dayjs } from 'dayjs';
 
 const { t } = useI18n();
 

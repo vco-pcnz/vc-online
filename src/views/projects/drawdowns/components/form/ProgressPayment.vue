@@ -117,6 +117,8 @@ watch(
       }
       if (props.data?.other_money > 0) {
         showOther.value = true;
+      } else {
+        showOther.value = false;
       }
     }
   },

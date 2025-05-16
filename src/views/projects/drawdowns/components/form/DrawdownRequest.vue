@@ -112,9 +112,9 @@ const disabledDateFormat = (current) => {
     return true;
   }
 
-  if (current && current.isAfter(endDate, 'day')) {
-    return true;
-  }
+  // if (current && current.isAfter(endDate, 'day')) {
+  //   return true;
+  // }
 
   return false;
 };

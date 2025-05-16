@@ -21,16 +21,23 @@
         </div>
       </div>
       <div class="MeterStat MeterStat_type_dotsYellow four">
-      <div class="MeterStat-Dots">
-        <div class="MeterStat-Dot"></div>
-        <div class="MeterStat-Dot"></div>
-        <div class="MeterStat-Dot"></div>
-        <div class="MeterStat-Dot"></div>
-      </div>
+        <div class="MeterStat-Dots">
+          <div class="MeterStat-Dot"></div>
+          <div class="MeterStat-Dot"></div>
+          <div class="MeterStat-Dot"></div>
+          <div class="MeterStat-Dot"></div>
+        </div>
         <div>
           <p class="color_grey" style="margin-bottom: 2px">Total balance</p>
           <vco-number :value="data?.totalBalance" :precision="2"></vco-number>
-          <p class="color_grey flex"><vco-number :value="data?.accruedInterest" :precision="2" color="#888" size="fs_md" class="mr-2"></vco-number> Accrued interest</p>
+          <div class="color_grey flex items-center gap-2">
+            <vco-number :value="data?.accruedInterest" :precision="2" color="#888" size="fs_md" class="mr-2"></vco-number>
+            Accrued interest
+            <div class="efSGMs">
+              <i class="iconfont">&#xe6b3;</i>
+              <div class="tips"><p>Estimated covering {{tool.showDate(data.s_day)}} - {{tool.showDate(data.e_day)}}</p></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -69,6 +76,7 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import tool from '@/utils/tool';
 
 const { t } = useI18n();
 
@@ -211,5 +219,35 @@ watch(
 .MeterStat_type_dotsYellow .MeterStat-Dot {
   background-color: #f19915;
   border-color: #f19915;
+}
+.efSGMs {
+  position: relative;
+  cursor: pointer;
+  color: rgba(24, 24, 24, 0.5);
+  .tips {
+    z-index: 10;
+    position: absolute;
+    top: 0px;
+    left: 50%;
+    right: auto;
+    transform: translateY(calc(-100% - 4px));
+    width: 280px;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(24, 24, 24, 0.2);
+    background: rgb(255, 255, 255);
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 4px 4px 0px;
+    color: rgba(24, 24, 24, 0.5);
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 1.5;
+    display: none;
+  }
+  &:hover {
+    .tips {
+      display: block;
+    }
+  }
 }
 </style>

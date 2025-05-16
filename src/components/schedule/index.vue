@@ -238,7 +238,7 @@
             <p>{{ t('余额') }}</p>
             <div class="flex justify-end items-center gap-1">
               <i class="iconfont" style="color: #a9ad57">&#xe767;</i>
-              <vco-number :value="statisticsData.last.balance || 0" color="#ffffff" size="fs_xl" :precision="2" :end="true"></vco-number>
+              <vco-number :value="statisticsData.last.balance || 0" :color="(statisticsData.last.balance || 0) > (statisticsData.last.FC2 || 0) ? '#c1430c' : '#ffffff'" size="fs_xl" :precision="2" :end="true"></vco-number>
             </div>
             <div class="tips">
               <p>{{ t('facility limit {0}', [2]) }}</p>

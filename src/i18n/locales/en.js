@@ -976,5 +976,10 @@ export default {
   "取消批量模式": "Cancel batch mode",
   "批量设置1": "Batch set",
   "取消已选择": "Cancel selected",
-  "取消所有设置": "Cancel all settings"
+  "取消所有设置": "Cancel all settings",
+  "进度放款": "Progress drawdown",
+  "QS报告": "QS Report",
+  "自定义": "Custom",
+  "补充股权": "Top up equity"
+
 }

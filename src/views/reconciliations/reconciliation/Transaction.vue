@@ -1,10 +1,10 @@
 <template>
   <a-col :span="11" v-if="!!item.transaction">
-    <a-row :class="['content', { content_match: true }]">
+    <a-row :class="['content', { content_match: item.transaction.date ===item.date }, { content_match: item.transaction.date!==item.date }]">
       <a-col :span="12" class="content_cell">
         <p class="xs_text">{{ tool.showDate(item.transaction.date) }}</p>
         <p v-if="item.project">{{ item.project.project_name }}</p>
-        <p>{{ item.transaction.type || '' }}</p>
+        <p>{{ item.transaction.type_name || '' }}</p>
         <p>{{ item.transaction.note || '' }}</p>
       </a-col>
       <a-col :span="6" class="content_cell content_middle">
@@ -51,6 +51,12 @@ const props = defineProps({
     border: 1px solid #50dcaa;
     border-radius: 4px 4px 0 0;
     background-color: #a8eed5;
+  }
+
+  &_date_inconsistency {
+    border: 1px solid #4ec399;
+    border-radius: 4px 4px 0 0;
+    background-color: #a8dbc9;
   }
 
   &_cell {

@@ -13,11 +13,27 @@
     <a-row>
       <a-col :span="24" class="empty_slip why_slip">
         <p class="xs_text">Why</p>
-        <a-select v-model:value="item['f_note']" :disabled="disabled">
+        <div>
+          <a-dropdown trigger="click">
+            <div class="mb-2 flex justify-end">
+              <a-button type="brown" shape="round" size="small"> {{ t('快捷选择') }}</a-button>
+            </div>
+            <template #overlay>
+              <a-menu>
+                <a-menu-item v-for="sub in way_options" :key="sub.code" @click="item['f_note'] = sub.name">
+                  {{ sub.name }}
+                </a-menu-item>
+              </a-menu>
+            </template>
+          </a-dropdown>
+
+          <a-textarea v-model:value="item['f_note']" :placeholder="t('请输入')" :rows="2" />
+        </div>
+        <!-- <a-select v-model:value="item['f_note']" :disabled="disabled">
           <a-select-option v-for="item in way_options" :key="item.code" :value="item.code">
             {{ item.name }}
           </a-select-option>
-        </a-select>
+        </a-select> -->
       </a-col>
     </a-row>
   </a-col>
@@ -25,7 +41,7 @@
 
 <script scoped setup>
 import { useI18n } from 'vue-i18n';
-import { selectDateFormat } from "@/utils/tool"
+import { selectDateFormat } from '@/utils/tool';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);

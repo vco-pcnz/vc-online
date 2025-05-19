@@ -7,6 +7,13 @@
         </a-select-option>
       </a-select>
     </vco-page-search-item>
+    <!-- <vco-page-search-item width="100" :title="t('匹配')">
+      <a-select :placeholder="t('请选择')" v-model:value="searchForm.type">
+        <a-select-option v-for="item in pipei" :key="item.value" :value="item.value">
+          {{ item.label }}
+        </a-select-option>
+      </a-select>
+    </vco-page-search-item> -->
 
     <vco-page-search-item width="220" :title="t('名称')">
       <a-input v-model:value="searchForm.name" :placeholder="t('请输入')" />
@@ -44,6 +51,22 @@ const typeData = computed(() => {
     }
   ];
 });
+const pipei = computed(() => {
+  return [
+    {
+      label: t('全部'),
+      value: ''
+    },
+    {
+      label: t('日期相同'),
+      value: 'SPEND'
+    },
+    {
+      label: t('日期不同'),
+      value: 'RECEIVE'
+    }
+  ];
+});
 
 const searchForm = ref({
   type: '',
@@ -60,5 +83,4 @@ const searchHandle = (flag) => {
   emits('update:value', searchForm.value);
   emits('search', searchForm.value);
 };
-
 </script>

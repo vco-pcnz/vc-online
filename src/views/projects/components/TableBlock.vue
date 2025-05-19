@@ -1,13 +1,63 @@
 <template>
   <div class="sys-table-content border-top-none" :class="{ copy: hasPermission('projects:copy') }">
-    <a-table :columns="columns" :data-source="tableData" :pagination="false" :scroll="{ x: '1450px' }" :customRow="rowClick" row-key="uuid" :rowClassName="setRowClass" :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }">
+    <a-table :columns="columns" :data-source="tableData" :pagination="false" :scroll="{ x: '1560px' }" :customRow="rowClick" row-key="uuid" :rowClassName="setRowClass" :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }">
+      <template #headerCell="{ column }">
+        <template v-if="column.key === 'open'">
+          <span class="headSortItem" :class="{ active: sort.sort == 'start_date' }" @click="sortChange('start_date')">
+            <i class="iconfont" :class="{ asc: sort.order == 'asc' && sort.sort == 'start_date' }">&#xe74d;</i>
+            {{ column.title }}
+          </span>
+        </template>
+        <template v-if="column.key === 'end_date'">
+          <span class="headSortItem" :class="{ active: sort.sort == 'end_date' }" @click="sortChange('end_date')">
+            <i class="iconfont" :class="{ asc: sort.order == 'asc' && sort.sort == 'end_date' }">&#xe74d;</i>
+            {{ column.title }}
+          </span>
+        </template>
+        <template v-if="column.key === 'irr'">
+          <span class="headSortItem" :class="{ active: sort.sort == 'credit_irr' }" @click="sortChange('credit_irr',true)">
+            <i class="iconfont" :class="{ asc: sort.order == 'asc' && sort.sort == 'credit_irr' }">&#xe74d;</i>
+            {{ column.title }}
+          </span>
+        </template>
+        <!-- <template v-if="column.key === 'income'">
+          <span class="headSortItem" :class="{ active: sort.sort == 'income' }" @click="sortChange('income')">
+            <i class="iconfont" :class="{ asc: sort.order == 'asc' && sort.sort == 'income' }">&#xe74d;</i>
+            {{ column.title }}
+          </span>
+        </template> -->
+        <!-- <template v-if="column.key === 'undrawn'">
+          <span class="headSortItem" :class="{ active: sort.sort == 'undrawn' }" @click="sortChange('undrawn')">
+            <i class="iconfont" :class="{ asc: sort.order == 'asc' && sort.sort == 'undrawn' }">&#xe74d;</i>
+            {{ column.title }}
+          </span>
+        </template> -->
+        <!-- <template v-if="column.key === 'loan_balance'">
+          <span class="headSortItem" :class="{ active: sort.sort == 'credit.loan_balance' }" @click="sortChange('credit.loan_balance')">
+            <i class="iconfont" :class="{ asc: sort.order == 'asc' && sort.sort == 'credit.loan_balance' }">&#xe74d;</i>
+            {{ column.title }}
+          </span>
+        </template> -->
+        <!-- <template v-if="column.key === 'bili'">
+          <span class="headSortItem" :class="{ active: sort.sort == 'bili' }" @click="sortChange('bili')">
+            <i class="iconfont" :class="{ asc: sort.order == 'asc' && sort.sort == 'bili' }">&#xe74d;</i>
+            {{ column.title }}
+          </span>
+        </template> -->
+        <template v-if="column.key === 'fc2'">
+          <span class="headSortItem" :class="{ active: sort.sort == 'credit_fc2' }" @click="sortChange('credit_fc2', true)">
+            <i class="iconfont" :class="{ asc: sort.order == 'asc' && sort.sort == 'credit_fc2' }">&#xe74d;</i>
+            {{ column.title }}
+          </span>
+        </template>
+      </template>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === '1'">
           <a-space>
             <vco-avatar :src="record.project_image" :radius="true" :round="false" :size="48" />
             <div class="ml-3">
-              <p :title="record.project_name" class="bold black text-ellipsis overflow-hidden text-nowrap" style="width: 200px;font-size: 16px;">{{ record.project_name }}</p>
-              <p class="replenish_text mt-1" style="line-height: 1;">ID: {{ record.project_apply_sn }}</p>
+              <p :title="record.project_name" class="bold black text-ellipsis overflow-hidden text-nowrap" style="width: 200px; font-size: 16px">{{ record.project_name }}</p>
+              <p class="replenish_text mt-1" style="line-height: 1">ID: {{ record.project_apply_sn }}</p>
               <span class="replenish_text">
                 {{ record.loan_type_name }}
                 <template v-if="record.loan_type_name && record.project_type_name"> • </template>
@@ -43,11 +93,14 @@
             </div>
           </a-space>
         </template>
-        <template v-if="column.key === '3'">
+        <template v-if="column.key === 'open'">
+          <p class="bold black">{{ tool.showDate(record.start_date) }}</p>
+        </template>
+        <template v-if="column.key === 'end_date'">
           <p class="bold black">{{ tool.showDate(record.end_date) }}</p>
           <span class="replenish_text" :class="{ 'color_red-error': diffInDays(record.end_date) < 0 }"> {{ Math.abs(diffInDays(record.end_date)) }} {{ diffInDays(record.end_date) < 0 ? 'days ago' : 'days left' }}</span>
         </template>
-        <template v-if="column.key === '4'">
+        <template v-if="column.key === 'irr'">
           <div :class="{ 'color_red-error': Math.abs(record.credit?.irr) < Math.abs(record.credit?.irrPreset) }">
             <p class="bold black">
               <i class="iconfont" style="color: #67837e">&#xe761;</i>
@@ -56,19 +109,19 @@
             <span class="replenish_text">{{ record.credit.irrPreset }}% · {{ (record.credit.irr - record.credit.irrPreset).toFixed(2) }}%</span>
           </div>
         </template>
-        <template v-if="column.key === '5'">
+        <template v-if="column.key === 'income'">
           <p class="black">{{ tool.formatMoney(record.credit.income) }}</p>
         </template>
-        <template v-if="column.key === '6'">
+        <template v-if="column.key === 'undrawn'">
           <p class="black">{{ tool.formatMoney(record.credit.undrawn) }}</p>
         </template>
-        <template v-if="column.key === '7'">
+        <template v-if="column.key === 'loan_balance'">
           <p class="bold black">
             <i class="iconfont" style="color: #a9ad57">&#xe75b;</i>
             {{ tool.formatMoney(record.credit.loan_balance) }}
           </p>
         </template>
-        <template v-if="column.key === 'Progress'">
+        <template v-if="column.key === 'bili'">
           <div class="flex justify-center">
             <div class="meter" v-if="type === 'current'">
               <p :style="{ fontSize: '10px' }">{{ record.credit.bili }}%</p>
@@ -76,7 +129,7 @@
             </div>
           </div>
         </template>
-        <template v-if="column.key === '8'">
+        <template v-if="column.key === 'fc2'">
           <p class="black">{{ tool.formatMoney(record.credit.fc2) }}</p>
         </template>
         <template v-if="column.key === '9'">
@@ -122,6 +175,8 @@ import { navigationTo } from '@/utils/tool';
 import { DisconnectOutlined } from '@ant-design/icons-vue';
 import { hasPermission } from '@/directives/permission/index';
 import dayjs from 'dayjs';
+import { useProjectsStore } from '@/store';
+const pageStore = useProjectsStore();
 const emits = defineEmits(['update:data', 'update:keys', 'change']);
 
 const props = defineProps({
@@ -138,13 +193,14 @@ const { t } = useI18n();
 const columns = reactive([
   { title: t('项目•类型'), key: '1', width: 280 },
   { title: t('借款人•贷款经理'), key: '2', width: 140 },
-  { title: t('到期'), key: '3', width: 110 },
-  { title: t('IRR预测'), key: '4', width: 140 },
-  { title: t('收入'), key: '5', width: 120 },
-  { title: t('待提取'), key: '6', width: 120 },
-  { title: t('贷款余额'), key: '7', width: 150 },
-  { title: t('完成情况'), key: 'Progress', width: 80, align: 'center' },
-  { title: t('FC2'), key: '8', width: 130 },
+  { title: t('开始日期'), key: 'open', width: 110 },
+  { title: t('到期'), key: 'end_date', width: 110 },
+  { title: t('IRR预测'), key: 'irr', width: 140 },
+  { title: t('收入'), key: 'income', width: 120 },
+  { title: t('待提取'), key: 'undrawn', width: 120 },
+  { title: t('贷款余额'), key: 'loan_balance', width: 150 },
+  { title: t('完成情况'), key: 'bili', width: 80, align: 'center' },
+  { title: t('FC2'), key: 'fc2', width: 130 },
   { title: t('条件'), key: '9', align: 'center' }
 ]);
 
@@ -233,6 +289,31 @@ onMounted(() => {
     });
   }
 });
+
+const sort = ref({
+  sort: '',
+  order: 'desc' //排序：asc升序，desc降序
+});
+
+const sortChange = (e, type) => {
+  if (e == sort.value.sort) {
+    sort.value.order = sort.value.order == 'desc' ? 'asc' : 'desc';
+  } else {
+    sort.value.sort = e;
+    sort.value.order = 'desc';
+  }
+  if (type) {
+    // 需要连表搜索
+    pageStore.setSearchParams({
+      sort: undefined,
+      order: undefined,
+      __sort__asc: sort.value.order == 'asc' ? e : undefined,
+      __sort__desc: sort.value.order == 'desc' ? e : undefined
+    });
+    return;
+  }
+  pageStore.setSearchParams(sort.value);
+};
 </script>
 
 <style lang="less" scoped>
@@ -321,5 +402,27 @@ onMounted(() => {
 :deep(.ant-table-tbody) .ant-table-cell-fix-left,
 :deep(.ant-table-tbody) .ant-table-cell-fix-right {
   background: #fff !important;
+}
+
+.headSortItem {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  &.active {
+    color: #000;
+  }
+  > .iconfont {
+    cursor: pointer;
+    font-size: 10px;
+    user-select: none;
+    transition: all 0.3s ease;
+    &:hover {
+      color: @colorPrimary;
+    }
+    &.asc {
+      transform: rotateX(180deg);
+    }
+  }
 }
 </style>

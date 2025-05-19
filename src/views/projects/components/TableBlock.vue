@@ -15,7 +15,7 @@
           </span>
         </template>
         <template v-if="column.key === 'irr'">
-          <span class="headSortItem" :class="{ active: sort.sort == 'credit_irr' }" @click="sortChange('credit_irr',true)">
+          <span class="headSortItem" :class="{ active: sort.sort == 'credit_irr' }" @click="sortChange('credit_irr')">
             <i class="iconfont" :class="{ asc: sort.order == 'asc' && sort.sort == 'credit_irr' }">&#xe74d;</i>
             {{ column.title }}
           </span>
@@ -45,8 +45,8 @@
           </span>
         </template> -->
         <template v-if="column.key === 'fc2'">
-          <span class="headSortItem" :class="{ active: sort.sort == 'credit_fc2' }" @click="sortChange('credit_fc2', true)">
-            <i class="iconfont" :class="{ asc: sort.order == 'asc' && sort.sort == 'credit_fc2' }">&#xe74d;</i>
+          <span class="headSortItem" :class="{ active: sort.sort == 'credit_forecastFc2' }" @click="sortChange('credit_forecastFc2', true)">
+            <i class="iconfont" :class="{ asc: sort.order == 'asc' && sort.sort == 'credit_forecastFc2' }">&#xe74d;</i>
             {{ column.title }}
           </span>
         </template>
@@ -168,7 +168,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { navigationTo } from '@/utils/tool';
@@ -295,25 +295,28 @@ const sort = ref({
   order: 'desc' //排序：asc升序，desc降序
 });
 
-const sortChange = (e, type) => {
+const sortChange = (e) => {
   if (e == sort.value.sort) {
     sort.value.order = sort.value.order == 'desc' ? 'asc' : 'desc';
   } else {
     sort.value.sort = e;
     sort.value.order = 'desc';
   }
-  if (type) {
-    // 需要连表搜索
-    pageStore.setSearchParams({
-      sort: undefined,
-      order: undefined,
-      __sort__asc: sort.value.order == 'asc' ? e : undefined,
-      __sort__desc: sort.value.order == 'desc' ? e : undefined
-    });
-    return;
-  }
   pageStore.setSearchParams(sort.value);
 };
+
+watch(
+  () => props.type,
+  (val) => {
+    sort.value = {
+      order: '',
+      sort: 'desc'
+    };
+  },
+  {
+    immediate: true
+  }
+);
 </script>
 
 <style lang="less" scoped>

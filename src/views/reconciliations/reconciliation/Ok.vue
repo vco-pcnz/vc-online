@@ -1,6 +1,6 @@
 <template>
   <a-col :span="2" class="content_btn">
-    <a-popconfirm :title="t('确定要对账吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="showTip(item)">
+    <a-popconfirm :title="t('确定要对账吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="showTip(item)" :disabled="(!item.transaction && (!item['f_date'] || !item['f_fee'] || !item['f_note'])) || !project">
       <a-button
         :loading="ok_loading && formState.id == item.id"
         :class="{ active: (!item.transaction && item['f_date'] && item['f_fee'] && item['f_note'] && project) || item.transaction }"

@@ -3,11 +3,14 @@
     <template #content>
       <a-spin :spinning="loading" size="large">
         <a-row class="flex justify-between items-end mb-5 pb-5" style="border-bottom: 1px solid #a6a9b0">
-          <a-popconfirm class="mt-5" :title="t('确定要对账吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="checkMatchBills()" :disabled="!selectedRowKeys.length">
-            <a-button :disabled="!selectedRowKeys.length">
-              {{ t('对账') }}
-            </a-button>
-          </a-popconfirm>
+          <div>
+            <a-checkbox v-model:checked="state.checkAll" :indeterminate="state.indeterminate" @change="onCheckAllChange" class="mr-4"></a-checkbox>
+            <a-popconfirm class="mt-5" :title="t('确定要对账吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="checkMatchBills()" :disabled="!selectedRowKeys.length">
+              <a-button :disabled="!selectedRowKeys.length">
+                {{ t('对账') }}
+              </a-button>
+            </a-popconfirm>
+          </div>
           <TableSearch v-model:value="searchParams" @search="search"></TableSearch>
         </a-row>
 
@@ -138,7 +141,8 @@ onMounted((_) => {
 const selectedRowKeys = ref([]); // 存放UUid
 const selectedRows = ref([]); // 存放所有选中的选项的所有内容
 const check = (val) => {
-  console.log(selectedRowKeys.value.includes(val.id));
+  // console.log(selectedRowKeys.value.includes(val.id));
+  // console.log(selectedRowKeys);
   if (selectedRowKeys.value.includes(val.id)) {
     let index = selectedRowKeys.value.findIndex((it) => {
       return it === val.id;
@@ -171,6 +175,17 @@ const search = (val) => {
   searchParams.value = cloneDeep(val);
   reload();
 };
+
+const state = ref({
+  indeterminate: false,
+  checkAll: false,
+});
+
+const onCheckAllChange = (e) => {
+  console.log(rowData.value)
+  // rowData.value.
+};
+
 </script>
 
 <style scoped lang="less">

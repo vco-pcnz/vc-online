@@ -37,7 +37,7 @@ const showTip = (val) => {
   formState.value = val;
   if (val.f_date && val.f_date !== val.date) {
     visible.value = true;
-  } else if (val.transaction && val.date !== val.transaction.date) {
+  } else if (val.transaction && val.date !== val.transaction.date &&  val.date !== val.f_date) {
     visible.value = true;
   } else {
     submit();

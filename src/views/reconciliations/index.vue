@@ -4,7 +4,7 @@
       <a-spin :spinning="loading" size="large">
         <a-row class="flex justify-between items-end mb-5 pb-5" style="border-bottom: 1px solid #a6a9b0">
           <div>
-            <a-checkbox v-model:checked="state.checkAll" :indeterminate="state.indeterminate" @change="onCheckAllChange" class="mr-4"></a-checkbox>
+            <!-- <a-checkbox v-model:checked="state.checkAll" :indeterminate="state.indeterminate" @change="onCheckAllChange" class="mr-4"></a-checkbox> -->
             <a-popconfirm class="mt-5" :title="t('确定要对账吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="checkMatchBills()" :disabled="!selectedRowKeys.length">
               <a-button :disabled="!selectedRowKeys.length">
                 {{ t('对账') }}

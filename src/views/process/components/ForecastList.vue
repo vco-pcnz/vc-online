@@ -390,6 +390,44 @@ const sureHandle = () => {
     return false;
   }
 
+  if (changeType.value === 2) {
+    if (currentParams.value.id) { // 编辑
+      // 判断总额是否超出
+      if (currentParams.value.type === 2) {
+        const dataArr = tabFlatData.value.filter(item => item.id !== currentParams.value.id).map(item => Number(item.amount))
+        const num = dataArr.reduce((total, num) => {
+          return Number(tool.plus(total, num))
+        }, 0);
+        const total = Number(tool.plus(num, currentParams.value.amount))
+        if (total > loanMoney.value) {
+          const diffNum = Number(tool.minus(total, loanMoney.value))
+          errorTxt.value = t(`借款总金额为：<span>{0}</span>，当前放款总金额为：<span>{1}</span>，超出了：<span>{2}</span>`, [
+            `$${numberStrFormat(loanMoney.value)}`,
+            `$${numberStrFormat(total)}`,
+            `$${numberStrFormat(diffNum)}`
+          ])
+          errorVisible.value = true
+          return false
+        }
+      }
+    } else { // 新增
+      if (currentParams.value.type === 2) {
+        const total = Number(tool.plus(cMoney.value, currentParams.value.amount))
+        if (total > loanMoney.value) {
+          const diffNum = Number(tool.minus(total, loanMoney.value))
+          errorTxt.value = t(`借款总金额为：<span>{0}</span>，当前放款总金额为：<span>{1}</span>，超出了：<span>{2}</span>`, [
+            `$${numberStrFormat(loanMoney.value)}`,
+            `$${numberStrFormat(total)}`,
+            `$${numberStrFormat(diffNum)}`
+          ])
+          errorVisible.value = true
+          return false
+        }
+      }
+    }
+  }
+
+
   const ajaxFn = handleType.value ? projectForecastDelete : projectForecastAdd;
 
   const params = {
@@ -459,43 +497,6 @@ const submitHandle = () => {
         initial_build_amount,
         apply_uuid: props.currentId,
       };
-
-      if (id) { // 编辑
-        params.first = first;
-        
-        // 判断总额是否超出
-        if (type === 2) {
-          const dataArr = tabFlatData.value.filter(item => item.id !== id).map(item => Number(item.amount))
-          const num = dataArr.reduce((total, num) => {
-            return Number(tool.plus(total, num))
-          }, 0);
-          const total = Number(tool.plus(num, amount))
-          if (total > loanMoney.value) {
-            const diffNum = Number(tool.minus(total, loanMoney.value))
-            errorTxt.value = t(`借款总金额为：<span>{0}</span>，当前放款总金额为：<span>{1}</span>，超出了：<span>{2}</span>`, [
-              `$${numberStrFormat(loanMoney.value)}`,
-              `$${numberStrFormat(total)}`,
-              `$${numberStrFormat(diffNum)}`
-            ])
-            errorVisible.value = true
-            return false
-          }
-        }
-      } else { // 新增
-        if (type === 2) {
-          const total = Number(tool.plus(cMoney.value, amount))
-          if (total > loanMoney.value) {
-            const diffNum = Number(tool.minus(total, loanMoney.value))
-            errorTxt.value = t(`借款总金额为：<span>{0}</span>，当前放款总金额为：<span>{1}</span>，超出了：<span>{2}</span>`, [
-              `$${numberStrFormat(loanMoney.value)}`,
-              `$${numberStrFormat(total)}`,
-              `$${numberStrFormat(diffNum)}`
-            ])
-            errorVisible.value = true
-            return false
-          }
-        }
-      }
 
       currentParams.value = params;
 

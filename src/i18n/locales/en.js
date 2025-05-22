@@ -980,6 +980,7 @@ export default {
   "进度放款": "Progress drawdown",
   "QS报告": "QS Report",
   "自定义": "Custom",
-  "补充股权": "Top up equity"
+  "补充股权": "Top up equity",
+  "初始补充股权": "Initial top up equity"
 
 }

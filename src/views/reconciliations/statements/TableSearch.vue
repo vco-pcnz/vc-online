@@ -16,7 +16,7 @@
     </vco-page-search-item>
 
     <vco-page-search-item width="220" :title="t('名称')">
-      <a-input v-model:value="searchForm.name" :placeholder="t('请输入')" />
+      <a-input v-model:value="searchForm.project_name" :placeholder="t('请输入')" />
     </vco-page-search-item>
 
     <vco-page-search-item width="100%">
@@ -75,7 +75,7 @@ const statusData = computed(() => {
 
 const searchForm = ref({
   type: '',
-  name: '',
+  project_name: '',
   status: ''
 });
 

@@ -42,6 +42,7 @@
 <script scoped setup>
 import { useI18n } from 'vue-i18n';
 import { selectDateFormat } from '@/utils/tool';
+import { update } from 'lodash';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);
@@ -60,6 +61,7 @@ const props = defineProps({
     type: Array
   }
 });
+
 </script>
 <style scoped lang="less">
 @import '@/styles/variables.less';

@@ -1,6 +1,6 @@
 <template>
   <a-col :span="11" v-if="!!item.transaction">
-    <a-row :class="['content', { content_match: item.transaction.date ===item.date }, { content_match: item.transaction.date!==item.date }]">
+    <a-row :class="['content', { content_match: item.transaction.date === item.date }, { content_match: item.transaction.date !== item.date }]">
       <a-col :span="12" class="content_cell">
         <p class="xs_text">{{ tool.showDate(item.transaction.date) }}</p>
         <p v-if="item.project">{{ item.project.project_name }}</p>
@@ -21,7 +21,7 @@
         <template #header>
           <span class="xs_text">Change Record Date</span>
         </template>
-        <a-date-picker :format="selectDateFormat()" valueFormat="YYYY-MM-DD" v-model:value="item['f_date']" placeholder="" />
+        <a-date-picker :format="selectDateFormat()" valueFormat="YYYY-MM-DD" v-model:value="item['f_date']" placeholder="" @change="handleChange" />
       </a-collapse-panel>
     </a-collapse>
   </a-col>
@@ -38,6 +38,10 @@ const props = defineProps({
     type: Object
   }
 });
+
+const handleChange = () => {
+  emits('update', props.item);
+};
 </script>
 <style scoped lang="less">
 @import '@/styles/variables.less';

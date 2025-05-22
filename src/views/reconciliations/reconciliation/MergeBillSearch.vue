@@ -3,9 +3,9 @@
     <vco-page-search-item width="120" :title="t('金额')">
       <a-input-number v-model:value="searchForm.amount" :max="99999999999" :min="0" :placeholder="t('请输入')" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
     </vco-page-search-item>
-    <vco-page-search-item width="120" :title="t('名称')">
-      <a-input v-model:value="searchForm.name" :placeholder="t('请输入')" />
-    </vco-page-search-item>
+    <!-- <vco-page-search-item width="120" :title="t('名称')">
+      <a-input v-model:value="searchForm.project_name" :placeholder="t('请输入')" />
+    </vco-page-search-item> -->
     <vco-page-search-item width="120" :title="t('描述')">
       <a-input v-model:value="searchForm.description" :placeholder="t('请输入')" />
     </vco-page-search-item>
@@ -28,7 +28,7 @@ const { t } = useI18n();
 
 const searchForm = ref({
   amount: '',
-  name: '',
+  // project_name: '',
   description: ''
 });
 

@@ -980,6 +980,9 @@ export default {
   "进度放款": "Progress drawdown",
   "QS报告": "QS Report",
   "自定义": "Custom",
-  "补充股权": "Top up equity"
-
+  "补充股权": "Top up equity",
+  "精确金额": "Exadt Amount",
+  "精确日期": "Exact Date",
+  "匹配": "Relate",
+  "精确匹配": "Exact Relate"
 }

@@ -47,3 +47,11 @@ export const saveAddr = (data) =>
     method: 'post',
     data
   });
+
+// 地址
+export const addGuarantor = (data) =>
+  request({
+    url: 'tools/addGuarantor',
+    method: 'post',
+    data
+  });

@@ -4,34 +4,24 @@
 
     <div class="block-item mt-10">
       <vco-process-title :title="t('开发成本')"></vco-process-title>
-      <DevCostDetail
-        v-model:value="devCost"
-        v-model:dataJson="devCostDetail"
-        :current-id="currentId"
-        :loan-amount="loanMoney"
-        :edit="!Boolean(projectDetail?.old.upd_dev)"
-        :has-build-data="projectDetail?.has_build_data"
-        @change="devCostChange"
-      >
+      <DevCostDetail v-model:value="devCost" v-model:dataJson="devCostDetail" :current-id="currentId" :loan-amount="loanMoney" :edit="!Boolean(projectDetail?.old.upd_dev)" :has-build-data="projectDetail?.has_build_data" @change="devCostChange">
         <div class="dev-cost">
           <vco-number class="float-left" v-model:value="devCost" :precision="2" :end="true"></vco-number>
           <a-button class="float-left" type="link">
-            <i v-if="Boolean(projectDetail?.old.upd_dev)" class="iconfont" style="font-size: 18px;">&#xe63e;</i>
+            <i v-if="Boolean(projectDetail?.old.upd_dev)" class="iconfont" style="font-size: 18px">&#xe63e;</i>
             <i v-else class="iconfont">&#xe753;</i>
           </a-button>
         </div>
       </DevCostDetail>
     </div>
+    <div class="block-item mt-10">
+      <GuarantorInfo :currentId="currentId" :guarantorInfo="guarantorInfo" @reload="reload"></GuarantorInfo>
+    </div>
 
     <div class="block-item mt-10">
       <vco-process-title :title="t('抵押物信息')">
         <div class="flex gap-5 items-center">
-          <a-button
-            type="primary"
-            shape="round"
-            class="uppercase"
-            @click="openSecurity(Boolean(projectDetail?.old.upd_sec))"
-          >
+          <a-button type="primary" shape="round" class="uppercase" @click="openSecurity(Boolean(projectDetail?.old.upd_sec))">
             {{ t('批量编辑') }}
           </a-button>
         </div>
@@ -66,21 +56,11 @@
 
     <div class="block-item mt-10">
       <vco-process-title :title="t('进度付款')">
-        <a-button
-          type="primary"
-          shape="round"
-          class="uppercase"
-          @click="openProgress(Boolean(projectDetail?.old.upd_build))"
-        >
+        <a-button type="primary" shape="round" class="uppercase" @click="openProgress(Boolean(projectDetail?.old.upd_build))">
           {{ t('编辑') }}
         </a-button>
       </vco-process-title>
-      <progress-view-content
-        ref="progressViewRef"
-        v-if="projectDetail?.loan_money"
-        :is-block="true"
-        :projectDetail="projectDetail" class="mt-10"
-      ></progress-view-content>
+      <progress-view-content ref="progressViewRef" v-if="projectDetail?.loan_money" :is-block="true" :projectDetail="projectDetail" class="mt-10"></progress-view-content>
     </div>
   </div>
 </template>
@@ -89,12 +69,13 @@
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import BasicInfo from './BasicInfo.vue';
+import GuarantorInfo from './GuarantorInfo.vue';
 import { message } from 'ant-design-vue/es';
-import DevCostDetail from './DevCostDetail.vue'
+import DevCostDetail from './DevCostDetail.vue';
 import ProgressViewContent from './ProgressViewContent.vue';
 import SecurityView from './SecurityView.vue';
-import { navigationTo } from '@/utils/tool'
-import { cloneDeep } from 'lodash'
+import { navigationTo } from '@/utils/tool';
+import { cloneDeep } from 'lodash';
 
 const { t } = useI18n();
 const props = defineProps({
@@ -107,67 +88,73 @@ const props = defineProps({
   }
 });
 
-const emits = defineEmits(['reload'])
+const emits = defineEmits(['reload']);
 
-const devCost = ref(0)
-const devCostDetail = ref([])
-const loanMoney = ref(0)
+const devCost = ref(0);
+const devCostDetail = ref([]);
+const loanMoney = ref(0);
+const guarantorInfo = ref(null);
 
-const progressViewRef = ref()
+const progressViewRef = ref();
 const devCostChange = () => {
-  emits('reload')
-  progressViewRef.value.getProjectData(true)
-}
+  emits('reload');
+  progressViewRef.value.getProjectData(true);
+};
 
 const reload = () => {
-  emits('reload')
-}
+  emits('reload');
+};
 
 const securityInfo = ref({
   total_money: 0,
   total_value: 0,
-  count: 0,
-})
+  count: 0
+});
 
 const openSecurity = (flag) => {
   if (flag) {
-    message.error(t('已超过编辑次数限制'))
+    message.error(t('已超过编辑次数限制'));
   } else {
-    const loan = props.projectDetail.devCostDetail[0].data[0].loan
+    const loan = props.projectDetail.devCostDetail[0].data[0].loan;
     if (loan) {
-      navigationTo(`/projects/import-and-perfect/security-batche?uuid=${props.currentId}`)
+      navigationTo(`/projects/import-and-perfect/security-batche?uuid=${props.currentId}`);
     } else {
-      message.error(t('请先设置开发成本'))
+      message.error(t('请先设置开发成本'));
     }
   }
-}
+};
 
 const openProgress = (flag = false) => {
   if (flag) {
-    message.error(t('已超过编辑次数限制'))
+    message.error(t('已超过编辑次数限制'));
   } else {
-    const count = props.projectDetail.security.count
+    const count = props.projectDetail.security.count;
     if (count) {
-      navigationTo(`/projects/import-and-perfect/progress-payment?uuid=${props.currentId}`)
+      navigationTo(`/projects/import-and-perfect/progress-payment?uuid=${props.currentId}`);
     } else {
-      message.error(t('请先设置抵押物信息'))
+      message.error(t('请先设置抵押物信息'));
     }
   }
-}
+};
 
 const dataInit = () => {
-  devCost.value = props.projectDetail.devCost
-  devCostDetail.value = props.projectDetail.devCostDetail || []
-  loanMoney.value = Number(props.projectDetail.loan_money)
+  devCost.value = props.projectDetail.devCost;
+  devCostDetail.value = props.projectDetail.devCostDetail || [];
+  loanMoney.value = Number(props.projectDetail.loan_money);
+  guarantorInfo.value = {
+    guarantor_list: props.projectDetail.warranty.guarantor_list,
+    main_contractor: props.projectDetail.main_contractor,
+    security_package: props.projectDetail.security_package || []
+  };
 
-  securityInfo.value = cloneDeep(props.projectDetail.security)
-}
+  securityInfo.value = cloneDeep(props.projectDetail.security);
+};
 
 watch(
   () => props.projectDetail,
   (val) => {
     if (val) {
-      dataInit()
+      dataInit();
     }
   },
   { deep: true, immediate: true }

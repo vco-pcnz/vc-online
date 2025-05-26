@@ -13,7 +13,7 @@
 
       <div class="profile_content">
         <div class="profile_info">
-          <!-- <language-select></language-select> -->
+          <language-select></language-select>
           <router-link to="/profile/about">
             <vco-avatar :src="userInfo?.avatar || ''" :size="26" />
           </router-link>

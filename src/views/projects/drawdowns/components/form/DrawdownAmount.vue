@@ -1,14 +1,14 @@
 <template>
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="JournalRef" class="Journal">
-    <a-modal :width="600" :open="visible" :title="t('提取金额')" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
+    <a-modal :width="800" :open="visible" :title="t('提取金额')" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <!-- <div class="input-item">
           <div class="label" :class="{ err: !amount && validate }">Approved amount (requested {{ tool.formatMoney(detail?.amount) }})</div>
           <a-input-number v-model:value="amount" :max="99999999999" :min="0" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
         </div> -->
 
-        <ProgressPayment :visible="visible" :validate="validate" :data="formState" @change="updateformState"></ProgressPayment>
+        <ProgressPayment :visible="visible" :validate="validate" :data="formState" :projectDetail="projectDetail" @change="updateformState"></ProgressPayment>
 
         <div class="flex justify-center">
           <a-button @click="save" type="dark" class="save big uppercase" :loading="loading">
@@ -38,6 +38,9 @@ const props = defineProps({
   },
   detail: {
     type: Object
+  },
+  projectDetail: {
+    type: Object
   }
 });
 
@@ -55,6 +58,7 @@ const formState = ref({
   build_money: '',
   other_money: 0,
   other_note: '',
+  other_type: '',
   build__data: []
 });
 

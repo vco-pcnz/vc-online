@@ -1,5 +1,5 @@
 <template>
-  <detail-layout active-tab="drawdowns" @getProjectDetail="getProjectDetail">
+  <detail-layout ref="detailLayoutRef" active-tab="drawdowns" @getProjectDetail="getProjectDetail">
     <template #content>
       <div class="ProjectDrawdowns">
         <div class="flex justify-end mb-5 gap-4">
@@ -101,6 +101,8 @@ const setPaginate = (page, limit) => {
   loadData();
 };
 
+const detailLayoutRef = ref(null)
+
 const update = (val) => {
   userStore.getTaskNumInfo()
   if (val) {
@@ -109,6 +111,7 @@ const update = (val) => {
   loadData();
   detailRef.value.loadData();
   MeterStatRef.value.loadData();
+  detailLayoutRef.value.getProjectDetail()
 };
 
 const tableData = ref([]);

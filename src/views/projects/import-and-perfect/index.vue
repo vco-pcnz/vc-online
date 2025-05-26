@@ -10,7 +10,7 @@
     <a-spin :spinning="pageLoading" size="large">
       <template v-if="uuid">
         <LoanPage v-if="activeTab === '1'" :currentId="uuid" :projectDetail="projectDetail" @reload="getProjectDetail"></LoanPage>
-        <Forecast v-if="activeTab === '2'" :currentId="uuid" :projectDetail="projectDetail"></Forecast>
+        <Forecast v-if="activeTab === '2'" :currentId="uuid" :projectDetail="projectDetail" @reload="getProjectDetail"></Forecast>
       </template>
       <a-empty v-else />
     </a-spin>

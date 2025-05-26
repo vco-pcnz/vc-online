@@ -192,7 +192,7 @@
                 <div class="amount">
                   <a-input-number
                     v-model:value="item.borrower_equity"
-                    :disabled="disabledGST"
+                    :disabled="disabledGST || p_index == 1"
                     :max="99999999999"
                     :min="-99999999999"
                     :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"

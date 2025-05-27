@@ -10,8 +10,8 @@
               <div class="flex justify-between tabel-type">
                 <div class="flex gap-2">
                   <p class="bold fs_xl">{{ item.type }}</p>
-                  <a-button v-if="!disabledModel" type="brown" size="small" shape="round" @click="data.model = data.model ? 0 : 1">for {{ data.model ? t('QS报告') : t('进度放款') }}</a-button>
-                  <a-button v-else type="brown" size="small" shape="round"> {{ data.model ? t('QS报告') : t('进度放款') }}</a-button>
+                  <!-- <a-button v-if="!disabledModel" type="brown" size="small" shape="round" @click="data.model = data.model ? 0 : 1">for {{ data.model ? t('QS报告') : t('进度放款') }}</a-button>
+                  <a-button v-else type="brown" size="small" shape="round"> {{ data.model ? t('QS报告') : t('进度放款') }}</a-button> -->
                 </div>
                 <a-popover trigger="click" v-if="edit">
                   <template #content>

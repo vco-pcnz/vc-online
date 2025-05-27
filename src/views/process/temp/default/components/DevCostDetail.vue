@@ -1,4 +1,13 @@
 <template>
+
+  <!-- 确认弹窗 -->
+  <vco-confirm-alert
+    ref="changeAlertRef"
+    :confirm-txt="confirmTxt"
+    v-model:visible="changeVisible"
+    @submit="saveDone"
+  ></vco-confirm-alert>
+
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="modeRef" class="myMode text-left sys-form-content">
     <a-modal :width="edit ? 1000 : 900" :open="visible" :title="t('开发成本')" :getContainer="() => $refs.modeRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
@@ -243,7 +252,7 @@
 import { ref, reactive, computed, watch, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
-import tool from '@/utils/tool';
+import tool, { isArrayEqual } from '@/utils/tool';
 import { systemDictData } from '@/api/system';
 import { cloneDeep } from 'lodash';
 import Icon, { PlusCircleOutlined, MinusCircleOutlined } from '@ant-design/icons-vue';
@@ -275,6 +284,10 @@ const props = defineProps({
     default: false
   },
   disabled: {
+    type: Boolean,
+    default: false
+  },
+  hasBuild: {
     type: Boolean,
     default: false
   }
@@ -367,6 +380,26 @@ const validateTypes = (obj) => {
   return true;
 };
 
+
+const changeAlertRef = ref()
+const changeVisible = ref(false)
+const confirmTxt = ref('')
+
+const saveDone = () => {
+  const doneData = cloneDeep(data.value);
+  doneData.data[0].list.forEach((item) => {
+    item.name = item.model ? item.type : typesObj.value[item.type] || '';
+  });
+
+  emits('update:value', cloneDeep(doneData.total));
+  emits('update:dataJson', cloneDeep([doneData]));
+  emits('change', cloneDeep({ devCost: doneData.total, devCostDetail: [doneData] }));
+  updateVisible(false);
+
+  changeAlertRef.value.changeLoading(false)
+  changeVisible.value = false
+}
+
 const save = () => {
   const doneData = cloneDeep(data.value);
   doneData.data[0].list.forEach((item) => {
@@ -377,10 +410,20 @@ const save = () => {
     message.error(t('建设成本类型不能为空'));
     return;
   }
-  emits('update:value', cloneDeep(doneData.total));
-  emits('update:dataJson', cloneDeep([doneData]));
-  emits('change', cloneDeep({ devCost: doneData.total, devCostDetail: [doneData] }));
-  updateVisible(false);
+
+  if (props.hasBuild) {
+    const hasDataList = cloneDeep(hasSetData.value.data[0].list)
+    const setDataList = doneData.data[0].list
+    const hasChange = isArrayEqual(hasDataList, setDataList)
+    if (!hasChange) {
+      confirmTxt.value = t('建设成本数据有改动，保存后将重置进度还款设置及首次建筑放款')
+      changeVisible.value = true
+    } else {
+      saveDone()
+    }
+  } else {
+    saveDone()
+  }
 };
 
 const loading_type = ref(false);
@@ -421,6 +464,8 @@ const loadType = (key) => {
     });
 };
 
+const hasSetData = ref()
+
 const initData = () => {
   data.value.loan = 0;
   data.value.borrower_equity = 0;
@@ -443,6 +488,8 @@ const initData = () => {
     data.value.borrower_equity = tool.plus(data.value.borrower_equity || 0, item.borrower_equity || 0);
   });
   data.value.total = tool.plus(data.value.loan || 0, data.value.borrower_equity || 0);
+
+  hasSetData.value = cloneDeep(props.dataJson[0])
 };
 const init = () => {
   if (props.disabled) return;

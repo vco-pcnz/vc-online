@@ -64,7 +64,7 @@
             bordered
             :pagination="false"
             table-layout="fixed"
-            :scroll="{ x: '100%', y: isSelect ? 350 : 600 }"
+            :scroll="{ x: '100%', y: isSelect ? 300 : 600 }"
           >
             <template #bodyCell="{ column, record, index }">
               <template v-if="record.isFixedRow">
@@ -270,7 +270,7 @@
               </a-table-summary>
             </template>
           </a-table>
-          <div class="other-table-info">
+          <div v-if="footerDataCol.length" class="other-table-info" :class="{'page': isPage}">
             <div
               v-for="item in footerDataCol" :key="item.type"
               class="item"
@@ -356,6 +356,10 @@
     projectDetail: {
       type: Object,
       default: () => {}
+    },
+    isPage: {
+      type: Boolean,
+      default: false
     }
   })
 
@@ -848,16 +852,41 @@
     }
   }
 
+  // 处理footer 数据
+  const handleFooterData = (list) => {
+    const filterType = ['Land', 'Construction', 'Refinance', 'Land_gst']
+    const footerData = list.filter(item => !filterType.includes(item.type)) || []
+
+    const dataArr = []
+    for (let i = 0; i < footerData.length; i++) {
+      const item = footerData[i]
+
+      // 把大项也添加到数据中，兼容之前已经存在放款的情况
+      if (item.loan) {
+        dataArr.push(item)
+      }
+
+      if (item.list && item.list.length) {
+        for (let j = 0; j < item.list.length; j++) {
+          const listItem = item.list[j]
+          if (listItem.loan) {
+            listItem.name = `${item.name} [${listItem.type}]`
+            dataArr.push(listItem)
+          }
+        }
+      }
+    }
+
+    footerDataCol.value = dataArr
+  }
+
   // 请求项目信息
   const getProjectData = async (flag = false) => {
     if (props.projectDetail && Object.keys(props.projectDetail).length && !flag) {
       pageLoading.value = true
       
       const list = props.projectDetail.devCostDetail[0].data[0].list
-      const filterType = ['Land', 'Construction', 'Refinance', 'Land_gst']
-      const footerData = list.filter(item => !filterType.includes(item.type)) || []
-
-      footerDataCol.value = footerData.filter(item => item.loan)
+      handleFooterData(list)
       await getSetedData()
     } else {
       pageLoading.value = true
@@ -868,10 +897,7 @@
       try {
         await toolsDetail(params).then(res => {
           const list = res.devCostDetail[0].data[0].list
-          const filterType = ['Land', 'Construction', 'Refinance', 'Land_gst']
-          const footerData = list.filter(item => !filterType.includes(item.type)) || []
-
-          footerDataCol.value = footerData.filter(item => item.loan)
+          handleFooterData(list)
         })
         
         await getSetedData()
@@ -1225,15 +1251,27 @@
     border-top: none;
     background-color: #fff;
     display: flex;
+    flex-wrap: wrap;
+    height: 130px;
+    overflow-y: scroll;
+    &.page {
+      overflow: hidden;
+      height: auto;
+    }
     > .item {
       flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
       border-right: 1px solid #ddd;
+      border-top: 1px solid #ddd;
       padding: 10px 15px;
       position: relative;
       overflow: hidden;
+      min-width: 220px;
+      &:nth-child(-n+5) {
+        border-top: none;
+      }
       &:last-child {
         border-right: none;
       }

@@ -1254,6 +1254,13 @@
 
       // 操作记录
       emitter.emit('refreshAuditHisList');
+
+      // 更新补充股权
+      const tueLoan = formState.value.devCostDetail[0].data[1].loan
+      if (tueLoan !== formState.value.equity_amount) {
+        formState.value.equity_amount = tueLoan
+        formState.value.initial_equity_amount = 0
+      }
     })
   }
 

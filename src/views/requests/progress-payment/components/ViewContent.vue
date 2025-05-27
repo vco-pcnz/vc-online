@@ -65,7 +65,7 @@
                 <vco-number :value="statUseAmount" color="#31bd65" size="fs_xl" :precision="2" :end="true"></vco-number>
               </template>
               <template v-if="column.dataIndex === 'userPercent'">
-                <div style="padding: 0 20px;">
+                <div style="padding: 0 40px;">
                   <a-progress
                     :stroke-color="{
                       '0%': '#64ec22',
@@ -99,7 +99,7 @@
             bordered
             :pagination="false"
             table-layout="fixed"
-            :scroll="{ x: '100%', y: isSelect ? 350 : 600 }"
+            :scroll="{ x: '100%', y: isSelect ? 300 : 600 }"
           >
             <template #bodyCell="{ column, record, index }">
               <template v-if="record.isFixedRow">
@@ -305,7 +305,7 @@
               </a-table-summary>
             </template>
           </a-table>
-          <div class="other-table-info">
+          <div v-if="footerDataCol.length" class="other-table-info" :class="{'page': isPage}">
             <div
               v-for="item in footerDataCol" :key="item.type"
               class="item"
@@ -383,6 +383,10 @@
     buildLogData: { // 历史数据
       type: Array,
       default: () => []
+    },
+    isPage: {
+      type: Boolean,
+      default: false
     }
   })
 
@@ -896,7 +900,27 @@
         const filterType = ['Land', 'Construction', 'Refinance', 'Land_gst']
         const footerData = list.filter(item => !filterType.includes(item.type)) || []
 
-        footerDataCol.value = footerData.filter(item => item.loan)
+        const dataArr = []
+        for (let i = 0; i < footerData.length; i++) {
+          const item = footerData[i]
+
+          // 把大项也添加到数据中，兼容之前已经存在放款的情况
+          if (item.loan) {
+            dataArr.push(item)
+          }
+
+          if (item.list && item.list.length) {
+            for (let j = 0; j < item.list.length; j++) {
+              const listItem = item.list[j]
+              if (listItem.loan) {
+                listItem.name = `${item.name} [${listItem.type}]`
+                dataArr.push(listItem)
+              }
+            }
+          }
+        }
+
+        footerDataCol.value = dataArr
       })
       
       await getSetedData()
@@ -969,9 +993,33 @@
         const setPercent = tool.div(Number(currentItemInfo.value.set_amount_per), 100)
         currentItemInfo.value.showError = false
 
-        batchSelectData.value.forEach(item => {
+        // 批量设置的使用额度
+        const setTotalAmount = currentItemInfo.value.set_amount
+
+        // 计算每个项目的基础金额
+        const baseAmounts = batchSelectData.value.map(item => {
           const canAmount = Number(tool.minus(Number(item.amount), Number(item.use_amount))).toFixed(2)
-          const setAmount = Number(tool.times(Number(canAmount), Number(setPercent))).toFixed(2)
+          return {
+            id: item.id,
+            canAmount: Number(canAmount),
+            baseAmount: Number(tool.times(Number(canAmount), Number(setPercent))).toFixed(2)
+          }
+        })
+
+        // 计算基础金额总和
+        const baseTotal = baseAmounts.reduce((sum, item) => Number(tool.plus(sum, Number(item.baseAmount))), 0)
+
+        // 计算差额
+        const diff = Number(tool.minus(setTotalAmount, baseTotal))
+
+        // 设置每个项目的金额，最后一个项目补偿差额
+        batchSelectData.value.forEach((item, index) => {
+          let setAmount = baseAmounts[index].baseAmount
+          
+          // 对最后一个项目进行补偿
+          if (index === batchSelectData.value.length - 1) {
+            setAmount = Number(tool.plus(Number(setAmount), diff)).toFixed(2)
+          }
 
           item.set_amount = setAmount
           item.checked = Boolean(Number(setAmount))
@@ -1068,7 +1116,7 @@
     let res = 0
     if (Number(tableTotal.value)) {
       const perNum = tool.div(statUseAmount.value, tableTotal.value)
-      res = Number(tool.times(Number(perNum), 100)).toFixed(4)
+      res = Number(tool.times(Number(perNum), 100)).toFixed(2)
     }
     return Number(res)
   })
@@ -1296,15 +1344,27 @@
     border-top: none;
     background-color: #fff;
     display: flex;
+    flex-wrap: wrap;
+    height: 130px;
+    overflow-y: scroll;
+    &.page {
+      overflow: hidden;
+      height: auto;
+    }
     > .item {
       flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
       border-right: 1px solid #ddd;
+      border-top: 1px solid #ddd;
       padding: 10px 15px;
       position: relative;
       overflow: hidden;
+      min-width: 220px;
+      &:nth-child(-n+5) {
+        border-top: none;
+      }
       &:last-child {
         border-right: none;
       }

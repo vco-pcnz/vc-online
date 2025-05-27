@@ -1,5 +1,5 @@
 <template>
-  <DrawdownAmount ref="DrawdownAmountRef" :uuid="currentId" @change="loadData"></DrawdownAmount>
+  <DrawdownAmount ref="DrawdownAmountRef" :uuid="currentId" :projectDetail="projectDetail" @change="update"></DrawdownAmount>
   <div class="table-content">
     <div class="col-item th">
       <div class="item uppercase"></div>
@@ -73,6 +73,7 @@ import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { darwdownLog } from '@/api/project/tools';
 import DrawdownAmount from '../drawdownAmount/index.vue';
+const emits = defineEmits(['reload']);
 const { t } = useI18n();
 const props = defineProps({
   currentId: {
@@ -95,6 +96,11 @@ const loadData = () => {
     .finally(() => {
       loading.value = false;
     });
+};
+
+const update = () => {
+  emits('reload');
+  loadData();
 };
 
 onMounted(() => {

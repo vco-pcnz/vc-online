@@ -2,10 +2,10 @@
   <layout ref="layoutRef" @update="reload">
     <template #content>
       <a-spin :spinning="loading" size="large">
-        <a-row class="flex justify-between items-end mb-5 pb-5" style="border-bottom: 1px solid #a6a9b0">
-          <div>
-            <!-- <a-checkbox v-model:checked="state.checkAll" :indeterminate="state.indeterminate" @change="onCheckAllChange" class="mr-4"></a-checkbox> -->
-            <a-popconfirm class="mt-5" :title="t('确定要对账吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="checkMatchBills()" :disabled="!selectedRowKeys.length">
+        <a-row class="flex justify-between mb-5 pb-5" style="border-bottom: 1px solid #a6a9b0">
+          <div style="margin-top: 25px">
+            <a-checkbox :checked="state.checkAll" :indeterminate="state.indeterminate" @change="onCheckAllChange" class="mr-3"></a-checkbox>
+            <a-popconfirm :title="t('确定要对账吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="checkMatchBills()" :disabled="!selectedRowKeys.length">
               <a-button :disabled="!selectedRowKeys.length">
                 {{ t('对账') }}
               </a-button>
@@ -30,7 +30,7 @@
               <!-- ok -->
               <ok :item="item" :project="item.project" @update="loadData"></ok>
               <!-- right -->
-              <transaction :item="item" v-if="!!item.transaction"></transaction>
+              <transaction :item="item" @update="changeItemForm" v-if="!!item.transaction"></transaction>
               <reconciliation-form :way_options="way_options" :disabled="!item.project" :fee_type="item.fee_type" v-else :item="item"></reconciliation-form>
             </template>
           </a-row>
@@ -42,7 +42,7 @@
                 <!-- ok -->
                 <ok :item="sub" :project="item.project" @update="loadData"></ok>
                 <!-- right -->
-                <transaction :item="sub" v-if="!!sub.transaction"></transaction>
+                <transaction :item="sub" @update="changeItemForm" v-if="!!sub.transaction"></transaction>
                 <reconciliation-form :way_options="way_options" :disabled="!item.project" :fee_type="item.fee_type" v-else :item="sub"></reconciliation-form>
               </template>
             </a-row>
@@ -56,10 +56,11 @@
       </div>
     </template>
   </layout>
+  <TipModal v-model:visible="visible" @submit="submit"></TipModal>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { reconciliationList } from '@/api/reconciliations';
 import Layout from './components/layout.vue';
@@ -68,10 +69,10 @@ import ReconciliationForm from './reconciliation/ReconciliationForm.vue';
 import Transaction from './reconciliation/Transaction.vue';
 import TableSearch from './reconciliation/TableSearch.vue';
 import Ok from './reconciliation/Ok.vue';
+import TipModal from './reconciliation/TipModal.vue';
 import { checkMatchBill } from '@/api/reconciliations';
 import { cloneDeep } from 'lodash';
 import { systemDictData } from '@/api/system';
-
 const { t } = useI18n();
 
 const layoutRef = ref();
@@ -136,21 +137,22 @@ onMounted((_) => {
     way_options.value = res;
   });
 });
-// const rowData = reactive([])
 
 const selectedRowKeys = ref([]); // 存放UUid
 const selectedRows = ref([]); // 存放所有选中的选项的所有内容
+const selectedRowsDate = ref([]); // 存放所有选中的选项的日期有不有不一致的
+
 const check = (val) => {
-  // console.log(selectedRowKeys.value.includes(val.id));
-  // console.log(selectedRowKeys);
   if (selectedRowKeys.value.includes(val.id)) {
     let index = selectedRowKeys.value.findIndex((it) => {
       return it === val.id;
     });
     selectedRowKeys.value.splice(index, 1);
     selectedRows.value.splice(index, 1);
+    selectedRowsDate.value.splice(index, 1);
   } else {
     selectedRowKeys.value.push(val.id);
+    selectedRowsDate.value.push(val.date !== val.transaction.date && val.date !== val.f_date);
     selectedRows.value.push({
       bank_sn: val.bank_sn,
       sn: val.transaction.sn
@@ -158,7 +160,17 @@ const check = (val) => {
   }
 };
 
+const visible = ref(false);
+
 const checkMatchBills = () => {
+  if (selectedRowsDate.value.includes(true)) {
+    visible.value = true;
+  } else {
+    submit();
+  }
+};
+
+const submit = () => {
   loading.value = true;
   checkMatchBill({ data: selectedRows.value })
     .then((res) => {
@@ -178,14 +190,94 @@ const search = (val) => {
 
 const state = ref({
   indeterminate: false,
-  checkAll: false,
+  checkAll: false
 });
 
 const onCheckAllChange = (e) => {
-  console.log(rowData.value)
-  // rowData.value.
+  currentSelectData.value.map((val) => {
+    if (state.value.checkAll) {
+      // 取消当前页面所有选中
+      if (selectedRowKeys.value.includes(val.id)) {
+        let index = selectedRowKeys.value.findIndex((it) => {
+          return it === val.id;
+        });
+        selectedRowKeys.value.splice(index, 1);
+        selectedRows.value.splice(index, 1);
+        selectedRowsDate.value.splice(index, 1);
+      }
+    } else {
+      // 选中当前页面所有
+      if (!selectedRowKeys.value.includes(val.id)) {
+        selectedRowKeys.value.push(val.id);
+        selectedRowsDate.value.push(val.date !== val.transaction.date && val.date !== val.f_date);
+        selectedRows.value.push({
+          bank_sn: val.bank_sn,
+          sn: val.transaction.sn
+        });
+      }
+    }
+  });
 };
 
+// 当前页面可选中的数据
+const currentSelectData = ref([]);
+watch(
+  () => rowData.value,
+  (val) => {
+    currentSelectData.value = [];
+    rowData.value.map((item) => {
+      if (item.transaction) {
+        currentSelectData.value.push(item);
+      }
+      if (item.children && item.children.length) {
+        item.children.map((sub) => {
+          if (sub.transaction) {
+            currentSelectData.value.push(sub);
+          }
+        });
+      }
+    });
+  }
+);
+
+const currentSelectData_selectedRowKeys = computed(() => ({
+  currentSelectData: currentSelectData.value,
+  selectedRowKeys: selectedRowKeys.value
+}));
+
+watch(
+  () => currentSelectData_selectedRowKeys,
+  (val) => {
+    const allIncluded = currentSelectData.value.every((item) => selectedRowKeys.value.includes(item.id));
+    const someIncluded = currentSelectData.value.some((item) => selectedRowKeys.value.includes(item.id));
+    if (allIncluded) {
+      state.value = {
+        indeterminate: false,
+        checkAll: true
+      };
+    } else if (someIncluded) {
+      state.value = {
+        indeterminate: true,
+        checkAll: false
+      };
+    } else {
+      state.value = {
+        indeterminate: false,
+        checkAll: false
+      };
+    }
+  },
+  { deep: true }
+);
+
+const changeItemForm = (val) => {
+  if (selectedRowKeys.value.includes(val.id)) {
+    let index = selectedRowKeys.value.findIndex((it) => {
+      return it === val.id;
+    });
+    selectedRowsDate.value[index] = val.date !== val.transaction.date && val.date !== val.f_date;
+  }
+};
 </script>
 
 <style scoped lang="less">

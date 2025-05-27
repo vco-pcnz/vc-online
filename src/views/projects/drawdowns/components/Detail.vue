@@ -9,7 +9,8 @@
     <a-alert v-if="Boolean(detail?.cancel_reason)" message="Push back reason" :description="detail?.cancel_reason" type="error" class="cancel-reason" />
     <div class="my-3" style="padding-left: 5px">
       <div class="bold fs_xl">{{ detail?.name }}</div>
-      <div class="color_grey fs_2xs">{{ detail?.note }}</div>
+      <div class="color_grey fs_xs" v-if="detail?.note">{{ t('说明') }}: {{ detail?.note }}</div>
+      <div class="color_grey fs_xs" v-if="detail?.remark">{{ t('备注') }}: {{ detail?.remark }}</div>
       <!-- <div>
         <span class="fs_xs color_grey">{{ t('施工进度') }}</span
         >: {{ detail.progress }}%
@@ -25,7 +26,7 @@
         <div class="flex">
           <vco-number :value="detail?.amount" :precision="2" :bold="true" size="fs_2xl"></vco-number>
           <span class="unit">nzd</span>
-          <DrawdownAmount :uuid="uuid" :detail="detail" @change="update" v-if="detail?.mark === 'drawdown_lm' && hasPermission('projects:drawdowns:edit')"><i class="iconfont edit">&#xe8cf;</i></DrawdownAmount>
+          <DrawdownAmount :uuid="uuid" :detail="detail" :projectDetail="projectDetail" @change="update" v-if="detail?.mark === 'drawdown_lm' && hasPermission('projects:drawdowns:edit')"><i class="iconfont edit">&#xe8cf;</i></DrawdownAmount>
         </div>
         <p class="bold color_grey fs_2xs">{{ t('申请金额') }}: {{ tool.formatMoney(detail?.amount) }}</p>
       </div>

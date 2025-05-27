@@ -1,12 +1,12 @@
 <template>
   <div
     class="block-item mb"
-    :class="{ checked: offerInfo.is_check && blockInfo.showCheck, 'details': isDetails}"
+    :class="{ checked: offerInfo.is_check && blockInfo.showCheck && stactCheck, 'details': isDetails}"
   >
     <vco-process-title :title="t('凭证信息')">
       <div v-if="!isDetails" class="flex gap-5 items-center">
         <a-button
-          v-if="blockInfo.showEdit"
+          v-if="blockInfo.showEdit && showSaveBtn"
           type="primary"
           shape="round"
           :loading="subLoading"
@@ -16,7 +16,7 @@
           {{ t('保存') }}
         </a-button>
         <a-popconfirm
-          v-if="blockInfo.showCheck && !offerInfo.is_check"
+          v-if="blockInfo.showCheck && !offerInfo.is_check && showCheckBtn"
           :title="t('确定通过审核吗？')"
           :ok-text="t('确定')"
           :cancel-text="t('取消')"
@@ -88,7 +88,7 @@
 </template>
 
 <script setup>
-  import { ref, onMounted, onUnmounted, watch } from 'vue';
+  import { ref, onMounted, onUnmounted, computed } from 'vue';
   import { useI18n } from 'vue-i18n';
   import {
     projectAuditSaveMode,
@@ -122,10 +122,24 @@
     }
   })
 
+  const stactCheck = ref(true)
+
   const offerList = ref([])
   const offerSignedList = ref([])
 
+  const hasTemp = ref(false)
+
+  const showSaveBtn = computed(() => {
+    return (offerList.value.length || offerSignedList.value.length) && hasTemp.value
+  })
+
+  const showCheckBtn = computed(() => {
+    return (offerList.value.length || offerSignedList.value.length) && !hasTemp.value
+  })
+
   const fileChange = () => {
+    hasTemp.value = true
+    stactCheck.value = false
     emitter.emit('changeDataLetDis', true)
   }
 
@@ -136,6 +150,7 @@
       offerSignedList.value.splice(index, 1);
     }
 
+    stactCheck.value = false
     emitter.emit('changeDataLetDis', true)
   };
 
@@ -170,6 +185,9 @@
     .then(async () => {
       subLoading.value = false;
       emits('refresh');
+
+      stactCheck.value = true
+      hasTemp.value = false
       
       // 操作记录
       emitter.emit('refreshAuditHisList');

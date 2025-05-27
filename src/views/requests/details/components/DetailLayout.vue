@@ -2,7 +2,7 @@
   <vco-page-panel @back="back">
     <template #title>
       <div class="page-title-content">
-        <div v-if="detail?.base?.project_apply_sn" class="tag">{{ `${detail?.product?.name} - ${detail?.base?.project_apply_sn}` }}</div>
+        <div v-if="detail?.base?.project_apply_sn" class="tag">{{ `${detail?.product?.name} - ${(detail?.borrower?.organization_name || detail?.base?.project_apply_sn)}` }}</div>
         <div v-if="!detail?.base?.project_apply_sn && !pageLoading" class="tag" @click="goBack">{{ t('返回') }}</div>
       </div>
     </template>

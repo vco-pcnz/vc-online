@@ -121,6 +121,7 @@
             <a-form-item :label="t('开发成本')">
               <DevCostDetail
                 :disabled="amountDisabled || inputADis"
+                :has-build="Boolean(lendingInfo.has_build)"
                 v-model:value="formState.devCost"
                 v-model:dataJson="formState.devCostDetail"
                 @change="devCostChange"
@@ -175,7 +176,7 @@
             </a-form-item>
           </a-col>
           
-          <a-col :span="7">
+          <a-col :span="formState.equity_amount ? 5 : 7">
             <a-form-item :label="t('土地贷款总额')" name="land_amount">
               <a-input-number
                 v-model:value="formState.land_amount"
@@ -192,7 +193,7 @@
           <a-col :span="1" class="plus-txt">
             <i class="iconfont">&#xe889;</i>
           </a-col>
-          <a-col :span="7">
+          <a-col :span="formState.equity_amount ? 5 : 7">
             <a-form-item name="build_amount" class="w-full-label">
               <template #label>
                 <div class="w-full flex justify-between items-center" style="height: 22px;">
@@ -204,8 +205,8 @@
                     class="flex items-center"
                     @click="goProgressPage"
                   >
-                    <p>{{ t('进度付款') }}</p>
-                    <i class="iconfont">&#xe602;</i>
+                    <p>{{ formState.equity_amount ? t('设置') : t('进度付款') }}</p>
+                    <i class="iconfont" style="font-size: 12px;">&#xe602;</i>
                   </a-button>
                 </div>
               </template>
@@ -222,8 +223,28 @@
             </a-form-item>
           </a-col>
 
+          <template v-if="formState.equity_amount">
+            <a-col :span="1" class="plus-txt">
+              <i class="iconfont">&#xe889;</i>
+            </a-col>
+            <a-col :span="5">
+              <a-form-item :label="t('补充股权')" name="equity_amount">
+                <a-input-number
+                  v-model:value="formState.equity_amount"
+                  :max="99999999999"
+                  :disabled="true"
+                  :formatter="
+                    (value) =>
+                      `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                  "
+                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                />
+              </a-form-item>
+            </a-col>
+          </template>
+
           <a-col :span="1" class="plus-txt"><i class="iconfont">=</i></a-col>
-          <a-col :span="8" class="total-amount-info">
+          <a-col :span="formState.equity_amount ? 6 : 8" class="total-amount-info">
             <a-form-item :label="t('借款总金额')">
               <vco-number
                 :value="totalAmountRef"
@@ -262,7 +283,7 @@
               </a-select>
             </a-form-item>
           </a-col>
-          <a-col :span="isRefinancial ? 6 : 7">
+          <a-col :span="isRefinancial ? (formState.equity_amount ? 5 : 6) : (formState.equity_amount ? 5 : 7)">
             <a-form-item
               :label="t('首次土地贷款放款额')"
               name="initial_land_amount"
@@ -282,11 +303,11 @@
           <a-col :span="1" class="plus-txt">
             <i class="iconfont">&#xe889;</i>
           </a-col>
-          <a-col :span="isRefinancial ? 6 : 7">
+          <a-col :span="isRefinancial ? (formState.equity_amount ? 5 : 6) : (formState.equity_amount ? 5 : 7)">
             <a-form-item name="initial_build_amount" class="w-full-label">
               <template #label>
                 <div class="w-full flex justify-between items-center" style="height: 22px;">
-                  <p>{{ t('首次建筑贷款放款额') }}</p>
+                  <p style="word-wrap: nowrap;">{{ t('首次建筑贷款放款额') }}</p>
                   <a-button
                     v-if="!amountDisabled && showProgressPayment"
                     type="link"
@@ -295,7 +316,7 @@
                     @click="selectVisible = true"
                   >
                     <p>{{ t('选择') }}</p>
-                    <i class="iconfont">&#xe602;</i>
+                    <i class="iconfont" style="font-size: 12px;">&#xe602;</i>
                   </a-button>
                 </div>
               </template>
@@ -311,11 +332,29 @@
               />
             </a-form-item>
           </a-col>
+          <template v-if="formState.equity_amount">
+            <a-col :span="1" class="plus-txt">
+              <i class="iconfont">&#xe889;</i>
+            </a-col>
+            <a-col :span="5">
+              <a-form-item :label="t('初始补充股权')" name="initial_equity_amount">
+                <a-input-number
+                  v-model:value="formState.initial_equity_amount"
+                  :max="Number(formState.equity_amount)"
+                  :formatter="
+                    (value) =>
+                      `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                  "
+                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                />
+              </a-form-item>
+            </a-col>
+          </template>
           <template v-if="isRefinancial">
             <a-col :span="1" class="plus-txt">
               <i class="iconfont">&#xe711;</i>
             </a-col>
-            <a-col :span="4" class="financial-amount">
+            <a-col :span="6" class="financial-amount">
               <a-form-item :label="t('再融资金额')">
                 <vco-number
                   :value="refinancialAmount"
@@ -327,7 +366,7 @@
             </a-col>
           </template>
           <a-col :span="1" class="plus-txt"><i class="iconfont">=</i></a-col>
-          <a-col :span="isRefinancial ? 5 : 8" class="total-amount-info" :class="{'financial': isRefinancial}">
+          <a-col :span="isRefinancial ? 8 : (formState.equity_amount ? 6 : 8)" class="total-amount-info" :class="{'financial': isRefinancial}">
             <a-form-item :label="t('首次放款总金额')">
               <vco-number
                 :value="totalInitialAmountRef"
@@ -720,7 +759,9 @@
     time_date: [],
     term: '',
     days: '',
-    totalDay: 0
+    totalDay: 0,
+    equity_amount: '',
+    initial_equity_amount: ''
   });
 
   const formRules = ref({
@@ -728,6 +769,7 @@
     land_amount: { validator: validateNum, trigger: 'blur' },
     initial_build_amount: { validator: validateNum, trigger: 'blur' },
     initial_land_amount: { validator: validateNum, trigger: 'blur' },
+    initial_equity_amount: { validator: validateNum, trigger: 'blur' },
     time_date: [
       { required: true, message: t('请选择') + t('项目周期'), trigger: 'change' }
     ]
@@ -748,13 +790,16 @@
   const totalAmountRef = computed(() => {
     const build_amount = formState.value.build_amount || 0;
     const land_amount = formState.value.land_amount || 0;
-    return tool.plus(build_amount, land_amount);
+    const equity_amount = formState.value.equity_amount || 0;
+    return tool.plus(tool.plus(build_amount, land_amount), equity_amount);
   });
 
   const totalInitialAmountRef = computed(() => {
     const initial_build_amount = formState.value.initial_build_amount || 0;
     const initial_land_amount = formState.value.initial_land_amount || 0;
-    return tool.minus(tool.plus(initial_build_amount, initial_land_amount), refinancialAmount.value);
+    const initial_equity_amount = formState.value.initial_equity_amount || 0;
+    const initial_total_amount = tool.plus(tool.plus(initial_build_amount, initial_land_amount), initial_equity_amount);
+    return tool.minus(initial_total_amount, refinancialAmount.value);
   });
 
   const colClassName = (num) => {
@@ -992,6 +1037,12 @@
       linefeeFilter()
     });
 
+    // top up equity 值
+    const devCostData = props.lendingInfo.devCostDetail[0].data[1] || null
+    if (devCostData) {
+      formState.value.equity_amount = devCostData.loan
+    }
+
     formState.value.build_amount = Number(props.lendingInfo.land_amount) ? props.lendingInfo.build_amount : Number(props.lendingInfo.build_amount)
       ? props.lendingInfo.build_amount
       : props.lendingInfo.loan_money || 0;
@@ -1000,6 +1051,7 @@
     
     formState.value.initial_build_amount = props.lendingInfo.initial_build_amount;
     formState.value.initial_land_amount = props.lendingInfo.initial_land_amount;
+    formState.value.initial_equity_amount = props.lendingInfo.initial_equity_amount;
 
     formState.value.devCost = props.lendingInfo.devCost
     formState.value.devCostDetail = props.lendingInfo.devCostDetail
@@ -1175,6 +1227,7 @@
           land_amount: formState.value.land_amount || 0,
           initial_build_amount: formState.value.initial_build_amount || 0,
           initial_land_amount: formState.value.initial_land_amount || 0,
+          initial_equity_amount: formState.value.initial_equity_amount || 0,
           substitution_ids: formState.value.substitution_ids || [],
           substitution_amount: refinancialAmount.value || 0,
           has_linefee: Number(formState.value.has_linefee),
@@ -1203,6 +1256,13 @@
 
       // 操作记录
       emitter.emit('refreshAuditHisList');
+
+      // 更新补充股权
+      const tueLoan = formState.value.devCostDetail[0].data[1].loan
+      if (tueLoan !== formState.value.equity_amount) {
+        formState.value.equity_amount = tueLoan
+        formState.value.initial_equity_amount = 0
+      }
     })
   }
 
@@ -1227,6 +1287,7 @@
           Number(val.build_amount) !== Number(formState.value.build_amount) ||
           Number(val.initial_land_amount) !== Number(formState.value.initial_land_amount) ||
           Number(val.initial_build_amount) !== Number(formState.value.initial_build_amount) ||
+          Number(val.initial_equity_amount) !== Number(formState.value.initial_equity_amount) ||
           Number(val.has_linefee) !== Number(formState.value.has_linefee) ||
           val.start_date !== staticFormData.value.start_date ||
           val.end_date !== staticFormData.value.end_date
@@ -1277,8 +1338,9 @@
       code: props.blockInfo.code,
       uuid: props.currentId,
       build__data,
-      initial_build_amount: data.total,
-      initial_land_amount: formState.value.initial_land_amount,
+      initial_build_amount: data.total || 0,
+      initial_land_amount: formState.value.initial_land_amount || 0,
+      initial_equity_amount: formState.value.initial_equity_amount || 0,
       substitution_amount: refinancialAmount.value || 0,
       set__initial: 1
     })

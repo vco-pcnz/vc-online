@@ -116,12 +116,13 @@
                         :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                         style="width: 200px;"
                         @input="() => initHandle(true)"
+                        @blur="advanceBlur"
                       />
                       <p v-if="advanceObj?.showError" class="input-error text-center">
                         {{ t('最小值:{0}', [`$${numberStrFormat(advanceObj.use_amount)}`]) }}
                       </p>
-                      <div v-if="isOpen" class="mt-2">
-                        <vco-number :value="advanceObj.use_amount" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
+                      <div v-if="isOpen" class="mt-1">
+                        <vco-number :value="advanceObj.use_amount" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
                       </div>
                     </div>
                   </template>
@@ -164,8 +165,8 @@
                   <p v-if="record[column.dataIndex].showError" class="input-error">
                     {{ t('最小值:{0}', [`$${numberStrFormat(record[column.dataIndex].use_amount)}`]) }}
                   </p>
-                  <div v-if="isOpen" class="mt-2">
-                    <vco-number :value="record[column.dataIndex].use_amount" size="fs_md" color="#31bd65" :precision="2" :end="true"></vco-number>
+                  <div v-if="isOpen" class="mt-1">
+                    <vco-number :value="record[column.dataIndex].use_amount" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
                   </div>
                 </template>
               </template>
@@ -208,15 +209,33 @@
             </a-table>
             <div class="other-table-info">
               <div v-for="item in footerDataCol" :key="item.type" class="item">
-                <p>{{ item.name }}</p>
-                <div class="total-item">
-                  <vco-number :value="item.loan" size="fs_md" :precision="2" :end="true"></vco-number>
+                <div v-if="item.list && item.list.length" class="child-content">
+                  <div class="child-item" v-for="childItem in item.list" :key="childItem.type">
+                    <p>{{ childItem.type }}</p>
+                    <div class="flex justify-end items-center gap-2 flex-1">
+                    <vco-number :value="childItem.loan" size="fs_xs" :precision="2" :end="true" color="#eb4b6d"></vco-number>
+                      <span>{{ Number(childItem.borrower_equity) < 0 ? '-' : '+' }}</span>
+                      <vco-number :value="Math.abs(childItem.borrower_equity)" size="fs_xs" :precision="2" :end="true" color="#31bd65"></vco-number>
+                      <span>=</span>
+                      <vco-number :value="childItem.total" size="fs_xs" :precision="2" :end="true"></vco-number>
+                    </div>
+                  </div>
+                </div>
+                <div class="item-info">
+                  <p>{{ item.name }}</p>
+                  <div class="total-item flex justify-end items-center gap-2">
+                    <vco-number :value="item.loan" size="fs_md" :precision="2" :end="true" color="#eb4b6d"></vco-number>
+                    <span>{{ Number(item.borrower_equity) < 0 ? '-' : '+' }}</span>
+                    <vco-number :value="Math.abs(item.borrower_equity)" size="fs_md" :precision="2" :end="true" color="#31bd65"></vco-number>
+                    <span>=</span>
+                    <vco-number :value="item.total" size="fs_md" :precision="2" :end="true" :bold="true"></vco-number>
+                  </div>
                 </div>
               </div>
-              <div class="item">
+              <div class="item total">
                 <p>Total Cost to Complete</p>
                 <div class="total-item">
-                  <vco-number :value="tableTotal" size="fs_xl" :precision="2" :end="true"></vco-number>
+                  <vco-number :value="tableTotal" size="fs_xl" :precision="2" :end="true" :bold="true"></vco-number>
                 </div>
               </div>
             </div>
@@ -333,7 +352,7 @@
 
   const tableTotal = computed(() => {
     const tableNum = summaryHandle.value('total')
-    const inputArr = footerDataCol.value.map(item => item.loan)
+    const inputArr = footerDataCol.value.map(item => item.total)
     const inputNum = inputArr.reduce((total, num) => {
       return Number(tool.plus(total, num))
     }, 0);
@@ -775,95 +794,115 @@
     }
   }
 
+  const advanceBlur = () => {
+    if (props.isOpen) {
+      const amount = Number(advanceAmount.value)
+      const useAmount = Number(advanceObj.value.use_amount)
+      if (amount < useAmount) {
+        advanceAmount.value = useAmount
+        advanceObj.value.showError = false
+      }
+    }
+  }
+
   const hasReseted = ref(false)
   const initHandle = (flag = false, tableTotal = false) => {
-    if (!flag) { // 重新计算payment数据
-      const paymentData = cloneDeep(columnsTypeData.value)
-      
-      // 计算borrowerEquity占比
-      const borrowerEquityPercent = tool.times(tool.div(borrowerEquity.value, calcBuildAmount.value), 100)
-      let remainingPercent = borrowerEquityPercent
+    // 如果为open后修改， 这里其实只有第一项触发这个事件
+    if (props.isOpen) {
+      const amount = Number(advanceAmount.value)
+      const useAmount = Number(advanceObj.value.use_amount)
+      if (amount < useAmount) {
+        advanceObj.value.showError = true
+      }
+    } else {
+      if (!flag) { // 重新计算payment数据
+        const paymentData = cloneDeep(columnsTypeData.value)
+        
+        // 计算borrowerEquity占比
+        const borrowerEquityPercent = tool.times(tool.div(borrowerEquity.value, calcBuildAmount.value), 100)
+        let remainingPercent = borrowerEquityPercent
 
-      // 遍历paymentData，处理相同name的情况
-      for (let i = 0; i < paymentData.length; i++) {
-        // 检查当前项是否有前一项
-        if (i > 0 && paymentData[i].name === paymentData[i-1].name) {
-          // 获取前一项的defaultNote
-          const prevDefaultNote = Number(paymentData[i-1].defaultNote)
-          
-          if (remainingPercent > 0) {
-            if (tool.gte(prevDefaultNote, remainingPercent)) {
-              // 如果defaultNote大于等于剩余占比
-              paymentData[i].note = Number(Number(remainingPercent).toFixed(30))
-              paymentData[i-1].note = Number(Number(tool.minus(prevDefaultNote, remainingPercent)).toFixed(30))
-              remainingPercent = 0
+        // 遍历paymentData，处理相同name的情况
+        for (let i = 0; i < paymentData.length; i++) {
+          // 检查当前项是否有前一项
+          if (i > 0 && paymentData[i].name === paymentData[i-1].name) {
+            // 获取前一项的defaultNote
+            const prevDefaultNote = Number(paymentData[i-1].defaultNote)
+            
+            if (remainingPercent > 0) {
+              if (tool.gte(prevDefaultNote, remainingPercent)) {
+                // 如果defaultNote大于等于剩余占比
+                paymentData[i].note = Number(Number(remainingPercent).toFixed(30))
+                paymentData[i-1].note = Number(Number(tool.minus(prevDefaultNote, remainingPercent)).toFixed(30))
+                remainingPercent = 0
+              } else {
+                // 如果defaultNote小于剩余占比，则第二项note为defaultNote，第一项note为0
+                paymentData[i].note = Number(Number(prevDefaultNote).toFixed(30))
+                paymentData[i-1].note = 0
+                // 更新剩余占比
+                remainingPercent = Number(Number(tool.minus(remainingPercent, prevDefaultNote)).toFixed(30))
+              }
             } else {
-              // 如果defaultNote小于剩余占比，则第二项note为defaultNote，第一项note为0
-              paymentData[i].note = Number(Number(prevDefaultNote).toFixed(30))
-              paymentData[i-1].note = 0
-              // 更新剩余占比
-              remainingPercent = Number(Number(tool.minus(remainingPercent, prevDefaultNote)).toFixed(30))
+              paymentData[i-1].note = Number(Number(prevDefaultNote).toFixed(30))
+              paymentData[i].note = 0
+            }
+          }
+        }
+
+        // 更新columnsTypeObj
+        const obj = {}
+        for (let i = 0; i < paymentData.length; i++) {
+          obj[`${paymentData[i].code}`] = paymentData[i].note
+        }
+        columnsTypeObj.value = obj
+        columnsTypeData.value = paymentData
+      }
+
+      for (let i = 0; i < tableData.value.length; i++) {
+        let payment = columnsTypeObj.value[`${tableData.value[i].typeId}$${tableData.value[i].category}`]
+        if (flag) {
+          const itemPayment = Number(tableData.value[i].payment)
+          payment = isNaN(itemPayment) ? 0 : itemPayment
+        }
+        const itemPer = Number(payment) / 100
+        const itemTotal = Number(Number(tool.times(itemPer, calcBuildAmount.value)).toFixed(2))
+
+        const amountArr = extractArrData(tableData.value[i], '-')
+        let itemAmountTotal = 0
+        for (let j = 0; j < amountArr.length; j++) {
+          if (tableTotal) {
+            const itemAmount = tableData.value[i][amountArr[j]].amount
+            itemAmountTotal = tool.plus(itemAmountTotal, itemAmount)
+          }
+          if (j === amountArr.length - 1) {
+            if (!tableTotal) {
+              tableData.value[i][amountArr[j]].amount = Number(Number(tool.minus(itemTotal, itemAmountTotal)).toFixed(2))
             }
           } else {
-            paymentData[i-1].note = Number(Number(prevDefaultNote).toFixed(30))
-            paymentData[i].note = 0
+            const per = securitySqmObj.value[amountArr[j]] || 0
+            const amount = Number(Number(tool.times(per, itemTotal)).toFixed(2))
+
+            if (!tableTotal) {
+              itemAmountTotal = tool.plus(itemAmountTotal, amount)
+              tableData.value[i][amountArr[j]].amount = amount
+            }
           }
         }
-      }
+        if (!flag) {
+          tableData.value[i].payment = Number(payment).toFixed(2)
+        }
 
-      // 更新columnsTypeObj
-      const obj = {}
-      for (let i = 0; i < paymentData.length; i++) {
-        obj[`${paymentData[i].code}`] = paymentData[i].note
-      }
-      columnsTypeObj.value = obj
-      columnsTypeData.value = paymentData
-    }
-
-    for (let i = 0; i < tableData.value.length; i++) {
-      let payment = columnsTypeObj.value[`${tableData.value[i].typeId}$${tableData.value[i].category}`]
-      if (flag) {
-        const itemPayment = Number(tableData.value[i].payment)
-        payment = isNaN(itemPayment) ? 0 : itemPayment
-      }
-      const itemPer = Number(payment) / 100
-      const itemTotal = Number(Number(tool.times(itemPer, calcBuildAmount.value)).toFixed(2))
-
-      const amountArr = extractArrData(tableData.value[i], '-')
-      let itemAmountTotal = 0
-      for (let j = 0; j < amountArr.length; j++) {
         if (tableTotal) {
-          const itemAmount = tableData.value[i][amountArr[j]].amount
-          itemAmountTotal = tool.plus(itemAmountTotal, itemAmount)
+          const paymentStr = tool.div(itemAmountTotal, calcBuildAmount.value)
+          tableData.value[i].payment = Number(tool.times(Number(paymentStr), 100)).toFixed(2)
         }
-        if (j === amountArr.length - 1) {
-          if (!tableTotal) {
-            tableData.value[i][amountArr[j]].amount = Number(Number(tool.minus(itemTotal, itemAmountTotal)).toFixed(2))
-          }
-        } else {
-          const per = securitySqmObj.value[amountArr[j]] || 0
-          const amount = Number(Number(tool.times(per, itemTotal)).toFixed(2))
-
-          if (!tableTotal) {
-            itemAmountTotal = tool.plus(itemAmountTotal, amount)
-            tableData.value[i][amountArr[j]].amount = amount
-          }
-        }
+        
+        tableData.value[i].total = tableTotal ? itemAmountTotal : itemTotal
       }
+
       if (!flag) {
-        tableData.value[i].payment = Number(payment).toFixed(2)
+        hasReseted.value = true
       }
-
-      if (tableTotal) {
-        const paymentStr = tool.div(itemAmountTotal, calcBuildAmount.value)
-        tableData.value[i].payment = Number(tool.times(Number(paymentStr), 100)).toFixed(2)
-      }
-      
-      tableData.value[i].total = tableTotal ? itemAmountTotal : itemTotal
-    }
-
-    if (!flag) {
-      hasReseted.value = true
     }
   }
 
@@ -1036,15 +1075,32 @@
     }]
 
     for (let i = 0; i < footerDataCol.value.length; i++) {
+      const item = footerDataCol.value[i]
       summaryData.push({
-        id: summaryResData[`${footerDataCol.value[i].name}`] ? summaryResData[`${footerDataCol.value[i].name}`].id : 0,
-        amount: footerDataCol.value[i].loan,
+        id: summaryResData[`${item.name}`] ? summaryResData[`${item.name}`].id : 0,
+        amount: item.loan,
         use_amount: 0,
-        type_name: footerDataCol.value[i].name,
+        type_name: item.name,
         security_uuid: '',
         type: 0,
         category: 1
       })
+
+      // 子集数据
+      if (item.list && item.list.length) {
+        for (let j = 0; j < item.list.length; j++) {
+          const listItem = item.list[j]
+          summaryData.push({
+            id: summaryResData[`${item.name} [${listItem.type}]`] ? summaryResData[`${item.name} [${listItem.type}]`].id : 0,
+            amount: listItem.loan,
+            use_amount: 0,
+            type_name: `${item.name} [${listItem.type}]`,
+            security_uuid: '',
+            type: 0,
+            category: 1
+          })
+        }
+      }
     }
 
     const construction = Number(TableLoanTotal.value(1))
@@ -1407,17 +1463,18 @@
     border-top: none;
     background-color: #f8f8f8;
     > .item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
       border-bottom: 1px solid #272727;
       padding: 10px 15px;
-      height: 45px;
+      min-height: 45px;
+      &.total {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
       &:last-child {
         border-bottom: none;
       }
       :deep(.ant-input-number) {
-        width: 150px;
         border-color: #272727;
         .ant-input-number-handler-wrap {
           display: none !important;
@@ -1426,11 +1483,35 @@
           text-align: center;
         }
       }
+      > .child-content {
+        background-color: #f0f0f0;
+        padding: 0 10px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        > .child-item {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border-bottom: 1px solid #ddd;
+          padding: 10px 0;
+          &:last-child {
+            border-bottom: none;
+          }
+          > p {
+            color: #444;
+          }
+        }
+      }
+      > .item-info {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
       .total-item {
-        min-width: 150px;
         display: flex;
         align-items: center;
         justify-content: center;
+        padding-right: 10px;
       }
     }
   }

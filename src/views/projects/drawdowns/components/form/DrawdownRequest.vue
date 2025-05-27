@@ -9,19 +9,23 @@
               <div class="label" :class="{ err: !formState.name && validate }">Drawdown title</div>
               <a-select :loading="loading_type" style="width: 100%" v-model:value="formState.name" :options="title_type" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
             </div>
-            <div class="input-item my-4">
+            <div class="input-item" style="margin: 15.5px 0">
               <div class="label" :class="{ err: !formState.apply_date && validate }">{{ t('日期') }}</div>
               <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.apply_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" :showToday="false" />
+            </div>
+            <div class="input-item">
+              <div class="label">{{ t('说明') }}</div>
+              <a-input v-model:value="formState.note" />
             </div>
           </a-col>
           <a-col :span="12">
             <div class="input-item">
-              <div class="label">{{ t('说明') }}</div>
-              <a-textarea v-model:value="formState.note" :rows="6" />
+              <div class="label">{{ t('备注') }}</div>
+              <a-textarea v-model:value="formState.remark" :rows="10" />
             </div>
           </a-col>
           <a-col :span="24">
-            <ProgressPayment :visible="visible" :validate="validate" @change="updateformState"></ProgressPayment>
+            <ProgressPayment :visible="visible" :validate="validate" @change="updateformState" :projectDetail="projectDetail"></ProgressPayment>
           </a-col>
         </a-row>
         <p class="my-5 bold fs_xl">Documents</p>
@@ -91,6 +95,7 @@ const formState = ref({
   uuid: '',
   name: '',
   note: '',
+  remark: '',
   apply_date: '',
   build_money: '',
   other_money: 0,
@@ -112,9 +117,9 @@ const disabledDateFormat = (current) => {
     return true;
   }
 
-  if (current && current.isAfter(endDate, 'day')) {
-    return true;
-  }
+  // if (current && current.isAfter(endDate, 'day')) {
+  //   return true;
+  // }
 
   return false;
 };
@@ -173,6 +178,7 @@ const loadType = (reset) => {
 const init = () => {
   formState.value.name = '';
   formState.value.note = '';
+  formState.value.remark = '';
   formState.value.apply_date = '';
   formState.value.d_file = [];
   formState.value.p_file = [];

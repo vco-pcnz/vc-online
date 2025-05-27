@@ -19,6 +19,7 @@
     <import-export :title="t('projectHistory')" :params="{ type: 'projectHistory' }" exportUrl="/temp/projectHistory.xls"></import-export>
     <import-export :title="t('Aml')" :params="{ type: 'aml' }" exportUrl="/temp/aml.xls"></import-export>
     <import-export :title="t('statement')" :params="{ type: 'statement' }" exportUrl="/temp/statement.xls"></import-export>
+    <import-export :title="t('drawdownDo')" :params="{ type: 'drawdownDo' }" exportUrl="/temp/drawdownDo.xls"></import-export>
   </div>
 </template>
 

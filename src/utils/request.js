@@ -1,12 +1,12 @@
-import axios from "axios";
-import i18n from "@/i18n";
-import { message } from "ant-design-vue/es";
-import { getToken, removeToken } from "@/utils/token-util.js";
-import { isEmpty } from "lodash";
-import { useUserStore } from "@/store";
-import router from "@/router";
-import qs from "qs";
-import { acquire, release } from './request-limiter.js'
+import axios from 'axios';
+import i18n from '@/i18n';
+import { message } from 'ant-design-vue/es';
+import { getToken, removeToken } from '@/utils/token-util.js';
+import { isEmpty } from 'lodash';
+import { useUserStore } from '@/store';
+import router from '@/router';
+import qs from 'qs';
+import { acquire, release } from './request-limiter.js';
 
 function createExternalService() {
   // 创建一个外部网络 axios 实例
@@ -57,19 +57,12 @@ function createService() {
     (response) => {
       release();
 
-      const disposition =
-        response.headers["content-disposition"] ||
-        response.headers["Content-Disposition"] ||
-        null;
-      if (
-        (disposition ||
-          !/^application\/json/.test(response.headers["content-type"])) &&
-        response.status === 200
-      ) {
+      const disposition = response.headers['content-disposition'] || response.headers['Content-Disposition'] || null;
+      if ((disposition || !/^application\/json/.test(response.headers['content-type'])) && response.status === 200) {
         return response;
       } else if (response.data.size) {
         response.data.code = 500;
-        response.data.message = i18n.global.t("服务器内部错误");
+        response.data.message = i18n.global.t('服务器内部错误');
         response.data.success = false;
       }
 
@@ -79,21 +72,21 @@ function createService() {
           return Promise.resolve({
             count,
             data,
-            otherInfo
+            otherInfo,
           });
         } else {
           return Promise.resolve(data);
         }
       } else if (code === 401) {
         const userStore = useUserStore();
-        userStore.logout()
+        userStore.logout();
       } else if (code === 403) {
-        router.push('/403')
+        router.push('/403');
         return Promise.reject({
           code,
           msg,
         });
-      }  else {
+      } else {
         if (!response.config.diyError) {
           message.error({
             content: msg,
@@ -109,36 +102,31 @@ function createService() {
       release();
       const err = (text) => {
         message.error({
-          content:
-            error.response && error.response.data && error.response.data.message
-              ? error.response.data.message
-              : text,
+          content: error.response && error.response.data && error.response.data.message ? error.response.data.message : text,
         });
       };
       if (error.response && error.response.data) {
         switch (error.response.status) {
           case 404:
-            err(i18n.global.t("服务器资源不存在"));
+            err(i18n.global.t('服务器资源不存在'));
             break;
           case 500:
-            err(i18n.global.t("服务器内部错误"));
+            err(i18n.global.t('服务器内部错误'));
             break;
           case 401:
             const userStore = useUserStore();
-            userStore.logout()
+            userStore.logout();
             break;
           case 403:
-            err(i18n.global.t("没有权限访问该资源"));
+            err(i18n.global.t('没有权限访问该资源'));
             break;
           default:
-            err(i18n.global.t("未知错误！"));
+            err(i18n.global.t('未知错误！'));
         }
       } else {
-        err(i18n.global.t("请求超时，服务器无响应！"));
+        err(i18n.global.t('请求超时，服务器无响应！'));
       }
-      return Promise.reject(
-        error.response && error.response.data ? error.response.data : null
-      );
+      return Promise.reject(error.response && error.response.data ? error.response.data : null);
     }
   );
   return service;
@@ -172,11 +160,11 @@ function createRequest(service, externalService) {
     const token = getToken();
 
     const headerConfig = {
-      Lang: i18n.global.locale.value === 'zh-cn' ? "zh_CN" : i18n.global.locale.value,
+      Lang: i18n.global.locale.value === 'zh-cn' ? 'zh_CN' : i18n.global.locale.value,
     };
 
     if (token) {
-      headerConfig["Authorization"] = token;
+      headerConfig['Authorization'] = token;
       // headerConfig["Authorizations"] = token;
     }
     const configDefault = {
@@ -187,7 +175,7 @@ function createRequest(service, externalService) {
         config.headers
       ),
 
-      timeout: 60000,
+      timeout: 600000,
       data: {},
     };
 
@@ -196,13 +184,13 @@ function createRequest(service, externalService) {
 
     // json
     if (!isEmpty(option.params)) {
-      option.url = option.url + "?" + stringify(option.params);
+      option.url = option.url + '?' + stringify(option.params);
       option.params = {};
     }
 
     if (!/^(http|https)/g.test(option.url)) {
-      option.baseURL = env.VITE_APP_OPEN_PROXY === "true" ? env.VITE_APP_PROXY_PREFIX : env.VITE_APP_BASE_URL;
-      
+      option.baseURL = env.VITE_APP_OPEN_PROXY === 'true' ? env.VITE_APP_PROXY_PREFIX : env.VITE_APP_BASE_URL;
+
       return service(option);
     } else {
       return externalService(option);

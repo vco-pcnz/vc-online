@@ -1,10 +1,10 @@
 <template>
   <a-col :span="11" v-if="!!item.transaction">
-    <a-row :class="['content', { content_match: true }]">
+    <a-row :class="['content', { content_match: item.transaction.date === item.date }, { content_match: item.transaction.date !== item.date }]">
       <a-col :span="12" class="content_cell">
         <p class="xs_text">{{ tool.showDate(item.transaction.date) }}</p>
         <p v-if="item.project">{{ item.project.project_name }}</p>
-        <p>{{ item.transaction.type || '' }}</p>
+        <p>{{ item.transaction.type_name || '' }}</p>
         <p>{{ item.transaction.note || '' }}</p>
       </a-col>
       <a-col :span="6" class="content_cell content_middle">
@@ -21,7 +21,7 @@
         <template #header>
           <span class="xs_text">Change Record Date</span>
         </template>
-        <a-date-picker :format="selectDateFormat()" valueFormat="YYYY-MM-DD" v-model:value="item['f_date']" placeholder="" />
+        <a-date-picker :format="selectDateFormat()" valueFormat="YYYY-MM-DD" v-model:value="item['f_date']" placeholder="" @change="handleChange" />
       </a-collapse-panel>
     </a-collapse>
   </a-col>
@@ -38,6 +38,10 @@ const props = defineProps({
     type: Object
   }
 });
+
+const handleChange = () => {
+  emits('update', props.item);
+};
 </script>
 <style scoped lang="less">
 @import '@/styles/variables.less';
@@ -51,6 +55,12 @@ const props = defineProps({
     border: 1px solid #50dcaa;
     border-radius: 4px 4px 0 0;
     background-color: #a8eed5;
+  }
+
+  &_date_inconsistency {
+    border: 1px solid #4ec399;
+    border-radius: 4px 4px 0 0;
+    background-color: #a8dbc9;
   }
 
   &_cell {

@@ -11,7 +11,7 @@
             <a-date-picker v-model:value="formState.start_date" :format="selectDateFormat()" :disabledDate="disabledDate" :disabled="detailData.mark == 'variation_overdue_open'" placeholder="" @change="dateChange" />
           </a-form-item>
           <a-form-item :label="t('开发成本')" name="devCost">
-            <DevCostDetail :dataJson="DevCostData.devCostDetail || projectDetail?.base?.devCostDetail" :disabledGST="true" @change="saveDevCostData">
+            <DevCostDetail :dataJson="DevCostData.devCostDetail || projectDetail?.base?.devCostDetail" :disabledGST="true" :DevCostDetail="true" @change="saveDevCostData">
               <a-input-number :value="DevCostData.devCost || projectDetail?.base?.devCost" :max="99999999999" readonly :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
             </DevCostDetail>
           </a-form-item>

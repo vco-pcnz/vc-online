@@ -9,7 +9,8 @@
     <a-alert v-if="Boolean(detail?.cancel_reason)" message="Push back reason" :description="detail?.cancel_reason" type="error" class="cancel-reason" />
     <div class="my-3" style="padding-left: 5px">
       <div class="bold fs_xl">{{ detail?.name }}</div>
-      <div class="color_grey fs_2xs">{{ detail?.note }}</div>
+      <div class="color_grey fs_xs" v-if="detail?.note">{{ t('说明') }}: {{ detail?.note }}</div>
+      <div class="color_grey fs_xs" v-if="detail?.remark">{{ t('备注') }}: {{ detail?.remark }}</div>
       <!-- <div>
         <span class="fs_xs color_grey">{{ t('施工进度') }}</span
         >: {{ detail.progress }}%

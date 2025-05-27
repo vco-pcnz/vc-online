@@ -28,7 +28,7 @@
             <a-select :loading="loading_type" style="width: 100%" v-model:value="formState.other_type" :options="types" :fieldNames="{ label: 'name', value: 'code' }" @change="changeOtherType"></a-select>
           </a-col>
           <a-col :span="7">
-            <div class="label">{{ t('其他金额') }}</div>
+            <div class="label">{{ t('金额') }}</div>
             <a-input-number v-model:value="formState.other_money" @input="change()" :max="max_other_money" :min="0" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
           </a-col>
           <a-col :span="12">
@@ -148,17 +148,17 @@ const changeOtherType = () => {
   if (formState.value.other_type == 1) {
     let max = tool.plus(props.projectDetail?.remain_land_amount || 0, editData.value && editData.value?.other_type == 1 ? editData.value?.other_money : 0);
     max_other_money.value = max;
-    if (formState.value.other_money > max) {
+    if (Number(formState.value.other_money) > Number(max)) {
       formState.value.other_money = max;
     }
   } else if (formState.value.other_type == 2) {
     let max = tool.plus(props.projectDetail?.remain_equity_amount || 0, editData.value && editData.value?.other_type == 2 ? editData.value?.other_money : 0);
     max_other_money.value = max;
-    if (formState.value.other_money > max) {
+    if (Number(formState.value.other_money) > Number(max)) {
       formState.value.other_money = max;
     }
   } else {
-    formState.value.other_type = '3'
+    formState.value.other_type = '3';
     max_other_money.value = 99999999999;
   }
   emits('change', formState.value);

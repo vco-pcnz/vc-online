@@ -540,4 +540,76 @@ export const expireTimeDefault = (len, arr) => {
   }
   return arr;
 };
+
+
+// 判断两个数组是否相同
+function normalize(val) {
+  if (typeof val === 'string' && !isNaN(val)) {
+    return Number(val);
+  }
+  return val;
+}
+
+function deepEqual(a, b, path = '') {
+  a = normalize(a);
+  b = normalize(b);
+
+  if (a === b) return true;
+  if (typeof a !== typeof b) {
+    console.warn('[类型不同]', path, a, '!==', b);
+    return false;
+  }
+
+  if (typeof a !== 'object' || a === null || b === null) {
+    if (a !== b) {
+      console.warn('[值不同]', path, a, '!==', b);
+      return false;
+    }
+    return true;
+  }
+
+  if (Array.isArray(a)) {
+    if (!Array.isArray(b) || a.length !== b.length) {
+      console.warn('[数组不同]', path + ' 长度不一致');
+      return false;
+    }
+    for (let i = 0; i < a.length; i++) {
+      if (!deepEqual(a[i], b[i], path + `[${i}]`)) return false;
+    }
+    return true;
+  }
+
+  const keysA = Object.keys(a);
+  const keysB = Object.keys(b);
+  if (keysA.length !== keysB.length) {
+    console.warn('[字段数量不同]', path, keysA, 'vs', keysB);
+    return false;
+  }
+
+  for (const key of keysA) {
+    if (!(key in b)) {
+      console.warn('[缺少字段]', path + '.' + key + ' 在 b 中不存在');
+      return false;
+    }
+    if (!deepEqual(a[key], b[key], path + '.' + key)) return false;
+  }
+
+  return true;
+}
+
+export const isArrayEqual = (arr1, arr2) => {
+  if (!Array.isArray(arr1) || !Array.isArray(arr2)) return false;
+  if (arr1.length !== arr2.length) {
+    console.warn('数组长度不同:', arr1.length, arr2.length);
+    return false;
+  }
+
+  for (let i = 0; i < arr1.length; i++) {
+    const equal = deepEqual(arr1[i], arr2[i], `root[${i}]`);
+    if (!equal) return false;
+  }
+
+  return true;
+}
+
 export default tool;

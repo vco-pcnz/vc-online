@@ -985,5 +985,6 @@ export default {
   "精确金额": "Exadt Amount",
   "精确日期": "Exact Date",
   "匹配": "Relate",
-  "精确匹配": "Exact Relate"
+  "精确匹配": "Exact Relate",
+  "建设成本数据有改动，保存后将重置进度还款设置及首次建筑放款": "The construction cost data has been modified. After saving, the progress repayment settings and the first construction loan will be reset"
 }

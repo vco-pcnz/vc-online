@@ -768,6 +768,7 @@
     land_amount: { validator: validateNum, trigger: 'blur' },
     initial_build_amount: { validator: validateNum, trigger: 'blur' },
     initial_land_amount: { validator: validateNum, trigger: 'blur' },
+    initial_equity_amount: { validator: validateNum, trigger: 'blur' },
     time_date: [
       { required: true, message: t('请选择') + t('项目周期'), trigger: 'change' }
     ]

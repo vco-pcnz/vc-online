@@ -3,7 +3,7 @@
     <vco-page-panel :title="pageTitle" @back="goBack"></vco-page-panel>
 
     <template v-if="currentId && currentTemp">
-      <view-content @done="getProjectInfo"></view-content>
+      <view-content :is-page="true" @done="getProjectInfo"></view-content>
     </template>
 
     <a-empty v-if="!currentTemp && !pageLoading" />

@@ -20,7 +20,7 @@
               <div class="flex justify-between tabel-type">
                 <div class="flex gap-2">
                   <p class="bold fs_xl">{{ item.type }}</p>
-                  <a-button type="brown" size="small" shape="round" @click="data.model = data.model ? 0 : 1">for {{ data.model ? t('QS报告') : t('进度放款') }}</a-button>
+                  <!-- <a-button type="brown" size="small" shape="round" @click="data.model = data.model ? 0 : 1">for {{ data.model ? t('QS报告') : t('进度放款') }}</a-button> -->
                 </div>
                 <a-popover trigger="click" v-if="edit">
                   <template #content>
@@ -192,7 +192,7 @@
                 <div class="amount">
                   <a-input-number
                     v-model:value="item.borrower_equity"
-                    :disabled="disabledGST"
+                    :disabled="disabledGST || p_index == 1"
                     :max="99999999999"
                     :min="-99999999999"
                     :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"

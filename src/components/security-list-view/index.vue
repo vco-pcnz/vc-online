@@ -32,6 +32,9 @@
             <template v-if="column.dataIndex === 'is_gst'">
               {{ Number(record.is_gst) ? t('是') : t('否') }}
             </template>
+            <template v-if="column.dataIndex === 'is_calc'">
+              {{ Number(record.is_calc) ? t('是') : t('否') }}
+            </template>
             <template v-if="column.dataIndex === 'variance'">
               {{ `${record.variance}%` }}
             </template>
@@ -231,6 +234,7 @@
     { title: t('面积'), dataIndex: 'sqm', width: 120, align: 'center' },
     { title: t('预计销售价格'), dataIndex: 'est_sales_price', width: 150, align: 'center' },
     { title: t('含消费税'), dataIndex: 'is_gst', width: 115, align: 'center' },
+    { title: t('拆分'), dataIndex: 'is_calc', width: 130, align: 'center' },
     { title: t('担保价值'), dataIndex: 'amount', width: 150, align: 'center' },
     { title: t('保险价值'), dataIndex: 'insurance_value', width: 150, align: 'center' },
     { title: t('销售价格'), dataIndex: 'sales_price', width: 150, align: 'center' },

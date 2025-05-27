@@ -4,9 +4,9 @@
 
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="JournalRef" class="Journal">
-    <a-modal :width="600" :open="visible" :title="t('提取金额') + ' (' + tool.formatMoney(detail?.amount) + ')'" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
+    <a-modal :width="800" :open="visible" :title="t('提取金额') + ' (' + tool.formatMoney(detail?.amount) + ')'" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
-        <ProgressPayment :visible="visible" :validate="validate" :data="formState" :total="detail?.amount" @change="updateformState"></ProgressPayment>
+        <ProgressPayment :visible="visible" :validate="validate" :data="formState" :projectDetail="projectDetail" :total="detail?.amount" @change="updateformState"></ProgressPayment>
 
         <div class="flex justify-center">
           <a-button @click="save" type="dark" class="save big uppercase" :loading="loading">
@@ -36,6 +36,9 @@ const props = defineProps({
   },
   detail: {
     type: Object
+  },
+  projectDetail: {
+    type: Object
   }
 });
 
@@ -54,6 +57,7 @@ const formState = ref({
   build_money: '',
   other_money: 0,
   other_note: '',
+  other_type: '',
   build__data: []
 });
 

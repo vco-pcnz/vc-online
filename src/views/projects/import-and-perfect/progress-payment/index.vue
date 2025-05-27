@@ -51,6 +51,7 @@
                     <QuestionCircleOutlined />
                   </a-tooltip>
                 </a-button>
+                
                 <a-button type="primary" class="uppercase relative">
                   {{ t('上传') }}
                   <input
@@ -95,7 +96,6 @@
                 </a-button>
               </div>
             </div>
-
             <a-table
               :columns="tableHeader"
               :data-source="tableData"
@@ -165,9 +165,9 @@
                     :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                     :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                     :disabled="record[column.dataIndex].disabled"
-                    :class="{'loan-input': Number(record.category) === 1,'borrower-input': Number(record.category) === 2}"
                     @input="itemInput(record, record[column.dataIndex])"
                     @blur="inputBlur(record, record[column.dataIndex])"
+                    :class="{'loan-input': Number(record.category) === 1,'borrower-input': Number(record.category) === 2}"
                   />
                   <p v-if="record[column.dataIndex].showError" class="input-error">
                     {{ t('最小值:{0}', [`$${numberStrFormat(record[column.dataIndex].use_amount)}`]) }}
@@ -216,15 +216,33 @@
             </a-table>
             <div class="other-table-info">
               <div v-for="item in footerDataCol" :key="item.type" class="item">
-                <p>{{ item.name }}</p>
-                <div class="total-item">
-                  <vco-number :value="item.loan" size="fs_md" :precision="2" :end="true"></vco-number>
+                <div v-if="item.list && item.list.length" class="child-content">
+                  <div class="child-item" v-for="childItem in item.list" :key="childItem.type">
+                    <p>{{ childItem.type }}</p>
+                    <div class="flex justify-end items-center gap-2 flex-1">
+                    <vco-number :value="childItem.loan" size="fs_xs" :precision="2" :end="true" color="#eb4b6d"></vco-number>
+                      <span>{{ Number(childItem.borrower_equity) < 0 ? '-' : '+' }}</span>
+                      <vco-number :value="Math.abs(childItem.borrower_equity)" size="fs_xs" :precision="2" :end="true" color="#31bd65"></vco-number>
+                      <span>=</span>
+                      <vco-number :value="childItem.total" size="fs_xs" :precision="2" :end="true"></vco-number>
+                    </div>
+                  </div>
+                </div>
+                <div class="item-info">
+                  <p>{{ item.name }}</p>
+                  <div class="total-item flex justify-end items-center gap-2">
+                    <vco-number :value="item.loan" size="fs_md" :precision="2" :end="true" color="#eb4b6d"></vco-number>
+                    <span>{{ Number(item.borrower_equity) < 0 ? '-' : '+' }}</span>
+                    <vco-number :value="Math.abs(item.borrower_equity)" size="fs_md" :precision="2" :end="true" color="#31bd65"></vco-number>
+                    <span>=</span>
+                    <vco-number :value="item.total" size="fs_md" :precision="2" :end="true" :bold="true"></vco-number>
+                  </div>
                 </div>
               </div>
-              <div class="item">
+              <div class="item total">
                 <p>Total Cost to Complete</p>
                 <div class="total-item">
-                  <vco-number :value="tableTotal" size="fs_xl" :precision="2" :end="true"></vco-number>
+                  <vco-number :value="tableTotal" size="fs_xl" :precision="2" :end="true" :bold="true"></vco-number>
                 </div>
               </div>
             </div>
@@ -240,7 +258,7 @@
           </div>
         </template>
 
-        <a-empty v-if="!securityData.length && !setedData.length && !pageLoading" />
+        <a-empty v-if="!securityData.length && !Object.keys(setedData.data).length && !pageLoading" />
       </div>
     </a-spin>
   </div>
@@ -1005,15 +1023,32 @@
     }]
 
     for (let i = 0; i < footerDataCol.value.length; i++) {
+      const item = footerDataCol.value[i]
       summaryData.push({
-        id: summaryResData[`${footerDataCol.value[i].name}`] ? summaryResData[`${footerDataCol.value[i].name}`].id : 0,
-        amount: footerDataCol.value[i].loan,
+        id: summaryResData[`${item.name}`] ? summaryResData[`${item.name}`].id : 0,
+        amount: item.loan,
         use_amount: 0,
-        type_name: footerDataCol.value[i].name,
+        type_name: item.name,
         security_uuid: '',
         type: 0,
         category: 1
       })
+
+      // 子集数据
+      if (item.list && item.list.length) {
+        for (let j = 0; j < item.list.length; j++) {
+          const listItem = item.list[j]
+          summaryData.push({
+            id: summaryResData[`${item.name} [${listItem.type}]`] ? summaryResData[`${item.name} [${listItem.type}]`].id : 0,
+            amount: listItem.loan,
+            use_amount: 0,
+            type_name: `${item.name} [${listItem.type}]`,
+            security_uuid: '',
+            type: 0,
+            category: 1
+          })
+        }
+      }
     }
 
     const construction = Number(TableLoanTotal.value(1))
@@ -1211,6 +1246,12 @@
 
   .progress-payment-content {
     min-height: 300px;
+    :deep(.ant-table-wrapper) {
+      .ant-table-tbody>tr>td {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+    }
   }
 
   .input-item {
@@ -1241,9 +1282,6 @@
       box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.1);
       padding: 30px;
     }
-    :deep(.ant-statistic) {
-      line-height: 1.5;
-    }
 
     :deep(.ant-table-wrapper) {
       .ant-table-cell-fix-right-first::after,
@@ -1251,7 +1289,8 @@
         border-color: #272727 !important;
       }
       .ant-table-tbody>tr>td {
-        padding: 10px;
+        padding-left: 10px;
+        padding-right: 10px;
       }
       .ant-table-expanded-row-fixed::after {
         border-color: #272727 !important;
@@ -1371,17 +1410,18 @@
     border-top: none;
     background-color: #f8f8f8;
     > .item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
       border-bottom: 1px solid #272727;
       padding: 10px 15px;
-      height: 45px;
+      min-height: 45px;
+      &.total {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
       &:last-child {
         border-bottom: none;
       }
       :deep(.ant-input-number) {
-        width: 150px;
         border-color: #272727;
         .ant-input-number-handler-wrap {
           display: none !important;
@@ -1390,11 +1430,35 @@
           text-align: center;
         }
       }
+      > .child-content {
+        background-color: #f0f0f0;
+        padding: 0 10px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        > .child-item {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border-bottom: 1px solid #ddd;
+          padding: 10px 0;
+          &:last-child {
+            border-bottom: none;
+          }
+          > p {
+            color: #444;
+          }
+        }
+      }
+      > .item-info {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
       .total-item {
-        min-width: 150px;
         display: flex;
         align-items: center;
         justify-content: center;
+        padding-right: 10px;
       }
     }
   }

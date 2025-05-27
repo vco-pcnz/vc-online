@@ -123,7 +123,7 @@ const pIds = ref([]);
 
 const bindHandle = (data) => {
   pIds.value = data ? [data.uuid] : selectedRowKeys.value;
-  vcTeamObj.value['alm'] = data ? data.alm_list : [];
+  vcTeamObj.value['alm'] = data?.alm_list || []
   showDialog.value = true;
 };
 

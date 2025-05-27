@@ -985,5 +985,12 @@ export default {
   "精确金额": "Exadt Amount",
   "精确日期": "Exact Date",
   "匹配": "Relate",
-  "精确匹配": "Exact Relate"
+  "精确匹配": "Exact Relate",
+  "土地余额": "Land",
+  "项目仪表板": "Project Dashboard",
+  "数据更新时间": "Data update time",
+  "待办事项1": "Backlog",
+  "快捷入口": "Quick Access",
+  "设置1": "Setting",
+  "更多": "More"
 }

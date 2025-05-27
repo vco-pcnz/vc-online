@@ -60,7 +60,7 @@
           {{ t('编辑') }}
         </a-button>
       </vco-process-title>
-      <progress-view-content ref="progressViewRef" v-if="projectDetail?.loan_money" :is-block="true" :projectDetail="projectDetail" class="mt-10"></progress-view-content>
+      <progress-view-content ref="progressViewRef" v-if="projectDetail?.loan_money" :is-block="true" :is-page="true" :projectDetail="projectDetail" class="mt-10"></progress-view-content>
     </div>
   </div>
 </template>

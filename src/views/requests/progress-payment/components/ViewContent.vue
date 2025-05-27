@@ -65,7 +65,7 @@
                 <vco-number :value="statUseAmount" color="#31bd65" size="fs_xl" :precision="2" :end="true"></vco-number>
               </template>
               <template v-if="column.dataIndex === 'userPercent'">
-                <div style="padding: 0 20px;">
+                <div style="padding: 0 40px;">
                   <a-progress
                     :stroke-color="{
                       '0%': '#64ec22',
@@ -305,7 +305,7 @@
               </a-table-summary>
             </template>
           </a-table>
-          <div class="other-table-info">
+          <div v-if="footerDataCol.length" class="other-table-info" :class="{'page': isPage}">
             <div
               v-for="item in footerDataCol" :key="item.type"
               class="item"
@@ -383,6 +383,10 @@
     buildLogData: { // 历史数据
       type: Array,
       default: () => []
+    },
+    isPage: {
+      type: Boolean,
+      default: false
     }
   })
 
@@ -899,6 +903,12 @@
         const dataArr = []
         for (let i = 0; i < footerData.length; i++) {
           const item = footerData[i]
+
+          // 把大项也添加到数据中，兼容之前已经存在放款的情况
+          if (item.loan) {
+            dataArr.push(item)
+          }
+
           if (item.list && item.list.length) {
             for (let j = 0; j < item.list.length; j++) {
               const listItem = item.list[j]
@@ -906,10 +916,6 @@
                 listItem.name = `${item.name} [${listItem.type}]`
                 dataArr.push(listItem)
               }
-            }
-          } else {
-            if (item.loan) {
-              dataArr.push(item)
             }
           }
         }
@@ -1110,7 +1116,7 @@
     let res = 0
     if (Number(tableTotal.value)) {
       const perNum = tool.div(statUseAmount.value, tableTotal.value)
-      res = Number(tool.times(Number(perNum), 100)).toFixed(4)
+      res = Number(tool.times(Number(perNum), 100)).toFixed(2)
     }
     return Number(res)
   })
@@ -1341,6 +1347,10 @@
     flex-wrap: wrap;
     height: 130px;
     overflow-y: scroll;
+    &.page {
+      overflow: hidden;
+      height: auto;
+    }
     > .item {
       flex: 1;
       display: flex;

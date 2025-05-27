@@ -4,7 +4,7 @@
 
     <template v-if="currentId && currentTemp">
       <edit-content v-if="hasPermission('requests:load:progressPayment')" @done="getProjectInfo"></edit-content>
-      <view-content v-else @done="getProjectInfo"></view-content>
+      <view-content v-else :is-page="true" @done="getProjectInfo"></view-content>
     </template>
 
     <a-empty v-if="!currentTemp && !pageLoading" />

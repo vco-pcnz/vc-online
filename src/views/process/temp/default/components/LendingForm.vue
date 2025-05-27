@@ -121,6 +121,7 @@
             <a-form-item :label="t('开发成本')">
               <DevCostDetail
                 :disabled="amountDisabled || inputADis"
+                :has-build="Boolean(lendingInfo.has_build)"
                 v-model:value="formState.devCost"
                 v-model:dataJson="formState.devCostDetail"
                 @change="devCostChange"

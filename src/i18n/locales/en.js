@@ -992,5 +992,6 @@ export default {
   "待办事项1": "Backlog",
   "快捷入口": "Quick Access",
   "设置1": "Setting",
-  "更多": "More"
+  "更多": "More",
+  "建设成本数据有改动，保存后将重置进度还款设置及首次建筑放款": "The construction cost data has been modified. After saving, the progress repayment settings and the first construction loan will be reset"
 }

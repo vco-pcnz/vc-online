@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-between title">
+  <div class="flex justify-between title items-center">
     <div class="bold fs_2xl">{{ t('待办事项1') }}(10)</div>
     <div>{{ t('更多') }}</div>
   </div>

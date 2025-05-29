@@ -1,20 +1,64 @@
 <template>
   <div class="flex justify-between title">
     <div class="bold fs_2xl">{{ t('快捷入口') }}</div>
-    <div class="flex gap-1 items-center"><i class="iconfont">&#xe604;</i>{{ t('设置1') }}</div>
+    <div class="flex gap-1 items-center cursor-pointer" @click="open = true"><i class="iconfont">&#xe604;</i>{{ t('设置1') }}</div>
   </div>
   <div class="wrapper">
-    <div class="item" v-for="(item, index) in 6" :key="index">
-      <i class="iconfont">&#xe679;</i>
-      <p>放款</p>
+    <div class="item nth5" v-for="(item, index) in list" :key="index">
+      <img class="icon" :src="item.icon" alt="" />
+      <p>{{ item.name }}</p>
     </div>
   </div>
+  <a-modal :width="600" v-if="open" :open="open" :title="t('快捷入口')" @cancel="open = false" class="QuickAccessModal">
+    <div class="bold">{{ t('已添加') }}</div>
+    <div class="wrapper">
+      <div class="item" v-for="(item, index) in list" :key="index">
+        <img class="icon" :src="item.icon" alt="" />
+        <p>{{ item.name }}</p>
+        <i class="iconfont add reduce">&#xe620;</i>
+      </div>
+    </div>
+    <div class="bold">{{ t('列表') }}</div>
+    <div class="wrapper">
+      <div class="item" v-for="(item, index) in list" :key="index">
+        <img class="icon" :src="item.icon" alt="" />
+        <p>{{ item.name }}</p>
+        <i class="iconfont add">&#xe621;</i>
+      </div>
+    </div>
+  </a-modal>
 </template>
 
 <script setup>
+import { name } from 'dayjs/locale/en';
 import { ref, computed, watch, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
+
+const open = ref(false);
+
+const list = ref([
+  {
+    name: 'users',
+    path: '/users/list',
+    icon: 'http://vco.com/uploads/images/annex/20250119/5cd812ff979a3bb1357.png'
+  },
+  {
+    name: 'users',
+    path: '/users/list',
+    icon: 'http://vco.com/uploads/images/annex/20250119/5cd812ff979a3bb1357.png'
+  },
+  {
+    name: 'users',
+    path: '/users/list',
+    icon: 'http://vco.com/uploads/images/annex/20250119/5cd812ff979a3bb1357.png'
+  },
+  {
+    name: 'users',
+    path: '/users/list',
+    icon: 'http://vco.com/uploads/images/annex/20250119/5cd812ff979a3bb1357.png'
+  }
+]);
 </script>
 
 <style lang="less" scoped>
@@ -27,17 +71,48 @@ const { t } = useI18n();
   flex-wrap: wrap;
   padding: 10px 15px 0;
   .item {
-    margin-right: 50px;
+    width: 65px;
+    height: 65px;
+    margin-right: 25px;
     text-align: center;
     margin-bottom: 15px;
-    &:nth-child(5n) {
+    cursor: pointer;
+    border: 1px solid transparent;
+    &:hover {
+      border: 1px solid #dbdbdb;
+    }
+    &.nth5:nth-child(5n) {
       margin-right: 0;
     }
-    .iconfont {
-      font-size: 30px;
+    .icon {
+      display: inline-block;
+      width: auto;
+      height: 20px;
+      margin: 15px 0 5px;
     }
     p {
       line-height: 1;
+    }
+  }
+}
+.QuickAccessModal {
+  .wrapper {
+    .item {
+      border: 1px solid #dbdbdb;
+      width: 65px;
+      height: 65px;
+      margin-right: 30px;
+      position: relative;
+      .add {
+        position: absolute;
+        color: #f19915;
+        font-size: 18px;
+        top: -13px;
+        right: -10px;
+        &.reduce {
+          color: #adadad;
+        }
+      }
     }
   }
 }

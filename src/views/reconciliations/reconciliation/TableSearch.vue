@@ -77,7 +77,7 @@ const typeData = computed(() => {
 const matchData = computed(() => {
   return [
     {
-      label: t('Relate'),
+      label: t('匹配'),
       value: '1'
     },
     {

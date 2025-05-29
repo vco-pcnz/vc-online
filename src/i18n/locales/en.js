@@ -984,8 +984,8 @@ export default {
   "初始补充股权": "Initial top up equity",
   "精确金额": "Exadt Amount",
   "精确日期": "Exact Date",
-  "匹配": "Relate",
-  "精确匹配": "Exact Relate",
+  "匹配": "Match",
+  "精确匹配": "Exact Match",
   "土地余额": "Land",
   "项目仪表板": "Project Dashboard",
   "数据更新时间": "Data update time",
@@ -993,5 +993,10 @@ export default {
   "快捷入口": "Quick Access",
   "设置1": "Setting",
   "更多": "More",
-  "建设成本数据有改动，保存后将重置进度还款设置及首次建筑放款": "The construction cost data has been modified. After saving, the progress repayment settings and the first construction loan will be reset"
+  "建设成本数据有改动，保存后将重置进度还款设置及首次建筑放款": "The construction cost data has been modified. After saving, the progress repayment settings and the first construction loan will be reset",
+  "待处理": "Processing",
+  "已添加": "Added",
+  "消息": "Message",
+  "此说明内容将显示在交易记录中": "This Notes content will be displayed in the transaction record",
+  "此消息针对 FC 的批准评论": "This message is for FC's approval remarks"
 }

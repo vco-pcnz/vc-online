@@ -742,14 +742,15 @@
               advanceObj.value.showError = false
             }
 
-            const footerData = footerDataCol.value.map(item => {
-              return {
-                loan: res.summary[`${item.name}`].amount,
-                ...item,
-                ...res.summary[`${item.name}`]
-              }
-            })
-            footerDataCol.value = footerData
+            // 编辑的时候不用处理footerData
+            // const footerData = footerDataCol.value.map(item => {
+            //   return {
+            //     loan: res.summary[`${item.name}`].amount,
+            //     ...item,
+            //     ...res.summary[`${item.name}`]
+            //   }
+            // })
+            // footerDataCol.value = footerData
           }
         }
       })
@@ -1076,15 +1077,6 @@
 
     for (let i = 0; i < footerDataCol.value.length; i++) {
       const item = footerDataCol.value[i]
-      summaryData.push({
-        id: summaryResData[`${item.name}`] ? summaryResData[`${item.name}`].id : 0,
-        amount: item.loan,
-        use_amount: 0,
-        type_name: item.name,
-        security_uuid: '',
-        type: 0,
-        category: 1
-      })
 
       // 子集数据
       if (item.list && item.list.length) {
@@ -1100,6 +1092,16 @@
             category: 1
           })
         }
+      } else { // 没有子集数据
+        summaryData.push({
+          id: summaryResData[`${item.name}`] ? summaryResData[`${item.name}`].id : 0,
+          amount: item.loan,
+          use_amount: 0,
+          type_name: item.name,
+          security_uuid: '',
+          type: 0,
+          category: 1
+        })
       }
     }
 

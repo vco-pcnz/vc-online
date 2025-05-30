@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- <layout></layout> -->
     <vco-page-nav sup-path="/tasks"></vco-page-nav>
     <div class="mt-5">
       <a-spin :spinning="tableLoading" size="large">

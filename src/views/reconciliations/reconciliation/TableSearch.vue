@@ -1,6 +1,14 @@
 <template>
   <vco-page-search @keyup.enter="searchHandle(false)">
-    <vco-page-search-item width="100" :title="t('类型')">
+    <div style="flex:1;"></div>
+    <vco-page-search-item width="120" :title="t('项目Open')">
+      <a-select :placeholder="t('请选择')" v-model:value="searchForm.is_open">
+        <a-select-option v-for="item in openData" :key="item.value" :value="item.value">
+          {{ item.label }}
+        </a-select-option>
+      </a-select>
+    </vco-page-search-item>
+    <vco-page-search-item width="120" :title="t('类型')">
       <a-select :placeholder="t('请选择')" v-model:value="searchForm.type">
         <a-select-option v-for="item in typeData" :key="item.value" :value="item.value">
           {{ item.label }}
@@ -14,7 +22,7 @@
         </a-select-option>
       </a-select>
     </vco-page-search-item>
-    <vco-page-search-item :title="t('日期')" width="264">
+    <vco-page-search-item :title="t('日期')" width="277">
       <div v-if="!exadtDate" class="flex items-center gap-2">
         <a-date-picker v-model:value="searchForm.start_date" valueFormat="YYYY-MM-DD" :format="selectDateFormat()" :placeholder="t('开放日期')" @change="searchForm.end_date = ''" />
         <p>-</p>
@@ -26,7 +34,7 @@
       </div>
     </vco-page-search-item>
 
-    <vco-page-search-item :title="t('金额')" width="200">
+    <vco-page-search-item :title="t('金额')" width="230">
       <div v-if="!exadtAmount" class="flex items-center gap-2">
         <a-input-number v-model:value="searchForm.min_amount" :min="1" :placeholder="t('最小值')" />
         <p>-</p>
@@ -40,14 +48,17 @@
     <vco-page-search-item width="150" :title="t('名称')">
       <a-input v-model:value="searchForm.project_name" :placeholder="t('请输入')" />
     </vco-page-search-item>
-
-    <vco-page-search-item width="100%">
-      <div class="flex items-center gap-2">
-        <a-button type="dark" @click="searchHandle(false)"><i class="iconfont">&#xe756;</i>{{ t('搜索') }}</a-button>
-        <a-button type="dark-line" @click="searchHandle(true)"><i class="iconfont">&#xe757;</i>{{ t('重置') }}</a-button>
-      </div>
+    <vco-page-search-item width="150" :title="t('客户经理')">
+      <a-input v-model:value="searchForm.lm_name" :placeholder="t('请输入')" />
     </vco-page-search-item>
   </vco-page-search>
+  <div class="flex items-center justify-between" style="width: 100%">
+      <slot></slot>
+    <div class="flex items-center gap-2 justify-end">
+      <a-button type="dark" @click="searchHandle(false)"><i class="iconfont">&#xe756;</i>{{ t('搜索') }}</a-button>
+      <a-button type="dark-line" @click="searchHandle(true)"><i class="iconfont">&#xe757;</i>{{ t('重置') }}</a-button>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -87,6 +98,23 @@ const matchData = computed(() => {
   ];
 });
 
+const openData = computed(() => {
+  return [
+    {
+      label: t('全部'),
+      value: ''
+    },
+    {
+      label: t('是'),
+      value: 1
+    },
+    {
+      label: t('否'),
+      value: 0
+    }
+  ];
+});
+
 const searchForm = ref({
   type: '',
   project_name: '',
@@ -97,7 +125,9 @@ const searchForm = ref({
   end_date: '',
   date: '',
   match: '',
-  date_match: ''
+  date_match: '',
+  is_open: '',
+  lm_name: ''
 });
 
 const exadtAmount = ref(false);
@@ -163,6 +193,8 @@ const searchHandle = (flag) => {
 .page-search-content {
   gap: 15px;
   align-items: flex-start;
+  justify-content: space-between;
+  margin: 0;
   .Exact {
     margin-top: 5px;
     .ant-checkbox-wrapper {

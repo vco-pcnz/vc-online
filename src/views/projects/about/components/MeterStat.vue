@@ -36,7 +36,7 @@
             <div class="efSGMs">
               <i class="iconfont">&#xe6b3;</i>
               <div class="tips">
-                <p>Estimated covering {{ dayjs(data.s_day).format(selectDateFormat()) }} - {{ dayjs(data.e_day).format(selectDateFormat()) }}</p>
+                <p>Estimated covering {{ dayjs(data?.s_day).format(selectDateFormat()) }} - {{ dayjs(data?.e_day).format(selectDateFormat()) }}</p>
               </div>
             </div>
           </div>

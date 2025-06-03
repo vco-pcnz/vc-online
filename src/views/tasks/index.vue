@@ -27,6 +27,7 @@
             table-layout="fixed"
             :pagination="false"
             row-key="task_id"
+            :rowClassName="setRowClass"
             :row-selection="currentParams?.status === '10' ? { selectedRowKeys: selectedRowKeys, ...rowSelection } : null"
           >
             <template #bodyCell="{ column, record }">
@@ -297,7 +298,10 @@ const rowSelection = ref({
         }
       });
     }
-  }
+  },
+  getCheckboxProps: (r) => ({
+    disabled: Boolean(r.allow_notify !== 1 && currentParams.value?.status === '10')
+  })
 });
 
 const loading = ref(false);
@@ -316,6 +320,13 @@ const send = (val) => {
     .finally(() => {
       loading.value = false;
     });
+};
+
+const setRowClass = (record, index) => {
+  if (!record.allow_notify && currentParams.value?.status === '10') {
+    return 'disabled';
+  }
+  return '';
 };
 
 // 点击操作
@@ -385,5 +396,10 @@ const opUpdate = () => {
 
 .status-txt {
   color: @colorPrimary;
+}
+
+:deep(.disabled) {
+  opacity: 0.6 !important;
+  cursor: no-drop;
 }
 </style>

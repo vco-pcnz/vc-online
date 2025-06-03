@@ -159,22 +159,7 @@ const searchHandle = (flag) => {
       searchForm.value[key] = '';
     }
   }
-
-  let updateData = {};
-  if (props.module === 'other') {
-    updateData = Object.assign(searchForm.value, {
-      type: '',
-      borrower_keyword: '',
-      borrower_search_type: '',
-      project_search_type: '',
-      project_keyword: ''
-    });
-  } else {
-    updateData = Object.assign(searchForm.value, {
-      keyword: ''
-    });
-  }
-  const data = cloneDeep(updateData);
+  const data = cloneDeep(searchForm.value);
   emits('search', data);
 };
 

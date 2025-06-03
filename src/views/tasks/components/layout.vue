@@ -21,7 +21,7 @@
       ]"
       v-model:current="searchForm.module"
     ></vco-page-tab>
-    <TableSearch :module="searchForm.module" @search="updateSearchForm"></TableSearch>
+    <TableSearch v-if="searchForm.module !== 'other'" :module="searchForm.module" @search="updateSearchForm"></TableSearch>
   </div>
 </template>
 
@@ -31,6 +31,7 @@ import { useI18n } from 'vue-i18n';
 import TableSearch from './TableSearch.vue';
 import { useUserStore } from '@/store';
 import { hasPermission } from '@/directives/permission/index';
+import { cloneDeep } from 'lodash';
 const { t } = useI18n();
 
 const emits = defineEmits(['search']);
@@ -47,7 +48,7 @@ const moduleData = computed(() => {
     {
       label: t('全部'),
       value: '',
-      num: userStore.taskInfo.total
+      num: userStore.taskInfo.all
     },
     {
       label: t('项目信息'),
@@ -99,7 +100,22 @@ watch(
 watch(
   () => searchForm.value,
   (val) => {
-    emits('search', searchForm.value);
+    console.log(111);
+    let updateData = cloneDeep(searchForm.value);
+    if (searchForm.value.module === 'other') {
+      Object.assign(updateData, {
+        type: '',
+        borrower_keyword: '',
+        borrower_search_type: '',
+        project_search_type: '',
+        project_keyword: ''
+      });
+    } else {
+      Object.assign(updateData, {
+        keyword: ''
+      });
+    }
+    emits('search', updateData);
   },
   { deep: true }
 );

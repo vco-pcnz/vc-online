@@ -22,62 +22,73 @@
       </div>
     </div>
     <div>
-      <div class="jhVYNA first" style="justify-items: center"><span>Dec ‘24</span><span>Jan ‘25</span><span>Feb ‘25</span><span>Mar ‘25</span></div>
+      <div class="jhVYNA first" style="justify-items: center">
+        <span v-for="(item, ym) in data" :key="ym"> {{ tool.monthYear(ym) }}</span>
+      </div>
       <div class="jhVYNA" style="justify-items: center">
         <div class="fPYWvF"></div>
-        <span>0.00</span><span>204,489,045.53</span><span>204,489,045.58</span><span>76,261,902.68</span>
+        <vco-number v-for="(item, ym) in data" :key="ym" :value="item.drawdown" :bold="true" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
       </div>
       <div class="jhVYNA" style="justify-items: center">
         <div class="hErflg"></div>
-        <span>78,066,840.95</span><span>0.00</span><span>0.00</span><span>346,551,502.89</span>
+        <vco-number v-for="(item, ym) in data" :key="ym" :value="item.repayment" :bold="true" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import tool from '@/utils/tool';
 const { t } = useI18n();
 
+const props = defineProps({
+  data: {
+    type: Object
+  }
+});
 const max = ref(0);
 const maxDrawdown = ref(0);
 const maxRepayment = ref(0);
-const data = ref({
-  '2024-12': {
-    drawdown: 0,
-    repayment: 78066840.95
-  },
-  '2025-01': {
-    drawdown: 204489045.53,
-    repayment: 0
-  },
-  '2025-02': {
-    drawdown: 204489045.58,
-    repayment: 0
-  },
-  '2025-03': {
-    drawdown: 76261902.68,
-    repayment: 346551502.89
-  }
-});
 
 const getHeight = (item, type) => {
   return ((item[type] / max.value) * 100).toFixed(1) + '%';
 };
-
-onMounted(() => {
+const initData = () => {
   // 找出 drawdown 的最大值
-  maxDrawdown.value = Object.values(data.value).reduce((max, item) => Math.max(max, item.drawdown), -Infinity);
+  maxDrawdown.value = Object.values(props.data).reduce((max, item) => Math.max(max, item.drawdown), -Infinity);
 
   // 找出 repayment 的最大值
-  maxRepayment.value = Object.values(data.value).reduce((max, item) => Math.max(max, item.repayment), -Infinity);
+  maxRepayment.value = Object.values(props.data).reduce((max, item) => Math.max(max, item.repayment), -Infinity);
   max.value = Math.max(maxDrawdown.value, maxRepayment.value);
-});
+};
+
+watch(
+  () => props.data,
+  (val) => {
+    initData();
+  },
+  {
+    deep: true,
+    immediate: true
+  }
+);
 </script>
 
 <style lang="less" scoped>
 .hRgViQ {
+  height: 400px;
+  flex: 1 1 0%;
+  padding: 32px 20px 20px;
+  border-radius: 16px;
+  background-color: rgb(240, 240, 240);
+  color: rgb(39, 39, 39);
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   &.chart {
     .title {
       display: flex;

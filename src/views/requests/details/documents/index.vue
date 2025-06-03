@@ -3,7 +3,7 @@
     <template #content>
       <a-spin :spinning="pageLoading" size="large">
         <div class="container-box">
-          <Documents v-if="showDoc && !pageLoading" :project_id="uuid" :annex_id="annex_id" :edit="false"></Documents>
+          <Documents v-if="showDoc && !pageLoading" :project_id="uuid" :annex_id="annex_id" :edit="true"></Documents>
           <a-empty v-if="!showDoc && !pageLoading" />
         </div>
       </a-spin>

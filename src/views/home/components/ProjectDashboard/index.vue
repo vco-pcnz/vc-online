@@ -1,36 +1,38 @@
 <template>
-  <div class="flex justify-between">
-    <div class="bold fs_2xl">{{ t('项目仪表板') }}</div>
-    <div class="flex items-center">
-      <div>{{ t('数据更新时间') }}：2025-05-21 08:00</div>
+  <a-spin :spinning="loading" size="large">
+    <div class="flex justify-between">
+      <div class="bold fs_2xl">{{ t('项目仪表板') }}</div>
+      <!-- <div class="flex items-center">
+        <div>{{ t('数据更新时间') }}：2025-05-21 08:00</div>
 
-      <a-button type="cyan ml-3">{{ t('更新') }}</a-button>
+        <a-button type="cyan ml-3">{{ t('更新') }}</a-button>
+      </div> -->
     </div>
-  </div>
-  <div class="dDggoj">
-    <ChartOne></ChartOne>
-    <div class="hRgViQ number">
-      <p class="title">Total IRR Forecast</p>
-      <div>
-        <p class="value">0%</p>
-        <div class="br"></div>
-        <p class="more">&nbsp;</p>
-        <p class="more">&nbsp;</p>
+    <div class="dDggoj">
+      <ChartOne :data="data?.counts || []"></ChartOne>
+      <div class="hRgViQ number">
+        <p class="title">Total IRR Forecast</p>
+        <div>
+          <p class="value">{{data.irr}}%</p>
+          <div class="br"></div>
+          <p class="more">&nbsp;</p>
+          <p class="more">&nbsp;</p>
+        </div>
       </div>
-    </div>
-    <div class="hRgViQ number">
-      <p class="title">Total Balance</p>
-      <div>
-        <div class="value"><vco-number :value="1727622378.6" :precision="2"></vco-number></div>
-        <div class="br"></div>
-        <p class="more">
-          <vco-number :value="4367369555.11" :precision="2" color="rgba(39, 39, 39, 0.467)" size="fs_md"></vco-number>
-        </p>
-        <p class="more">Total Current FC2&nbsp;</p>
+      <div class="hRgViQ number">
+        <p class="title">Total Balance</p>
+        <div>
+          <div class="value"><vco-number :value="data.total_balance" :precision="2"></vco-number></div>
+          <div class="br"></div>
+          <p class="more">
+            <vco-number :value="data.total_currentFc2" :precision="2" color="rgba(39, 39, 39, 0.467)" size="fs_md"></vco-number>
+          </p>
+          <p class="more">Total Current FC2&nbsp;</p>
+        </div>
       </div>
+      <ChartTwo :data="data?.months || []"></ChartTwo>
     </div>
-    <ChartTwo></ChartTwo>
-  </div>
+  </a-spin>
 </template>
 
 <script setup>
@@ -38,7 +40,22 @@ import { ref, computed, watch, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ChartOne from './ChartOne.vue';
 import ChartTwo from './ChartTwo.vue';
+import { dashboard } from '@/api/home/index';
 const { t } = useI18n();
+
+const loading = ref(false);
+const data = ref({
+});
+onMounted(() => {
+  loading.value = true;
+  dashboard()
+    .then((res) => {
+      data.value = res;
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+});
 </script>
 
 <style lang="less" scoped>

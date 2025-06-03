@@ -49,7 +49,7 @@
             type="dark"
             shape="round"
             class="uppercase"
-            @click="changeVisible = true"
+            @click="checkHandle(false)"
           >
             {{ t('审核') }}
           </a-button>
@@ -58,7 +58,7 @@
             :title="t('确定通过审核吗？')"
             :ok-text="t('确定')"
             :cancel-text="t('取消')"
-            @confirm="checkHandle"
+            @confirm="checkHandle(true)"
           >
             <a-button
               type="dark"
@@ -1094,25 +1094,35 @@
   };
 
   const submitRquest = async () => {
-    await checkHandle()
+    await checkHandle(true)
     changeAlertRef.value.changeLoading(false)
     changeVisible.value = false
   }
 
-  const checkHandle = async () => {
-    const params = {
-      uuid: props.currentId,
-      code: props.blockInfo.code
+  const checkHandle = async (flag = false) => {
+    const hasBuild = Boolean(Number(props.lendingInfo.has_build))
+    if (!hasBuild) {
+      message.error(t('请先设置建筑贷款总额的进度付款信息'))
+      return false
     }
-    await projectAuditCheckMode(params)
-      .then(() => {
-        emits('refresh');
-        emitter.emit('refreshAuditHisList');
-        return true;
-      })
-      .catch(() => {
-        return false;
-      });
+
+    if (flag) {
+      const params = {
+        uuid: props.currentId,
+        code: props.blockInfo.code
+      }
+      await projectAuditCheckMode(params)
+        .then(() => {
+          emits('refresh');
+          emitter.emit('refreshAuditHisList');
+          return true;
+        })
+        .catch(() => {
+          return false;
+        });
+    } else {
+      changeVisible.value = true
+    }
   }
 
   const saveDataTxtArr = ref([])

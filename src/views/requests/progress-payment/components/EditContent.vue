@@ -33,62 +33,65 @@
           <div v-if="tableHeader.length" class="form-block-content">
             <div class="flex justify-between mb-2">
               <div class="title">{{ t('进度付款阶段') }}</div>
-              <div v-if="!isOpen" class="flex gap-5">
-                <a-button type="dark" class="uppercase flex items-center" @click="exportHandle">
-                  {{ t('下载') }}
-                  <a-tooltip>
-                    <template #title>
-                      <span>{{ t(`下载为Excel表格，编辑后再点击右侧'上传'按钮上传编辑后的数据，以更新设置数据`) }}</span>
-                    </template>
-                    <QuestionCircleOutlined />
-                  </a-tooltip>
-                </a-button>
-                
-                <a-button type="primary" class="uppercase relative">
-                  {{ t('上传') }}
-                  <input
-                    type="file"
-                    id="excelFile"
-                    class="excel-upload"
-                    accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                    @change="importHandle"
-                  />
-                </a-button>
-
-                <a-popconfirm :title="t('确定初始化吗？')" @confirm="initHandle(false)">
-                  <a-button
-                    type="primary"
-                    class="uppercase flex items-center"
-                  >
-                    {{ t('初始化进度付款') }}
+              <template v-if="!easyModel">
+                <div v-if="!isOpen" class="flex gap-5">
+                  <a-button type="dark" class="uppercase flex items-center" @click="exportHandle">
+                    {{ t('下载') }}
                     <a-tooltip>
                       <template #title>
-                        <span>{{ t('操作后数据会按照最新建筑贷款总额和建筑总面积，重新计算进度付款数据') }}</span>
+                        <span>{{ t(`下载为Excel表格，编辑后再点击右侧'上传'按钮上传编辑后的数据，以更新设置数据`) }}</span>
                       </template>
                       <QuestionCircleOutlined />
                     </a-tooltip>
                   </a-button>
-                </a-popconfirm>
-                <a-button
-                  v-if="hasReseted"
-                  type="dark"
-                  class="uppercase"
-                  @click="restoreHandle"
-                >
-                  {{ t('还原') }}
-                </a-button>
-              </div>
-              <div v-else>
-                <a-button
-                  type="dark"
-                  class="uppercase"
-                  @click="restoreHandle"
-                >
-                  {{ t('刷新') }}
-                </a-button>
-              </div>
+                  
+                  <a-button type="primary" class="uppercase relative">
+                    {{ t('上传') }}
+                    <input
+                      type="file"
+                      id="excelFile"
+                      class="excel-upload"
+                      accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                      @change="importHandle"
+                    />
+                  </a-button>
+
+                  <a-popconfirm :title="t('确定初始化吗？')" @confirm="initHandle(false)">
+                    <a-button
+                      type="primary"
+                      class="uppercase flex items-center"
+                    >
+                      {{ t('初始化进度付款') }}
+                      <a-tooltip>
+                        <template #title>
+                          <span>{{ t('操作后数据会按照最新建筑贷款总额和建筑总面积，重新计算进度付款数据') }}</span>
+                        </template>
+                        <QuestionCircleOutlined />
+                      </a-tooltip>
+                    </a-button>
+                  </a-popconfirm>
+                  <a-button
+                    v-if="hasReseted"
+                    type="dark"
+                    class="uppercase"
+                    @click="restoreHandle"
+                  >
+                    {{ t('还原') }}
+                  </a-button>
+                </div>
+                <div v-else>
+                  <a-button
+                    type="dark"
+                    class="uppercase"
+                    @click="restoreHandle"
+                  >
+                    {{ t('刷新') }}
+                  </a-button>
+                </div>
+              </template>
             </div>
             <a-table
+              v-if="!easyModel"
               :columns="tableHeader"
               :data-source="tableData"
               bordered
@@ -207,7 +210,7 @@
                 </a-table-summary>
               </template>
             </a-table>
-            <div class="other-table-info">
+            <div class="other-table-info" :class="{'easy-model': easyModel}">
               <div v-for="item in footerDataCol" :key="item.type" class="item">
                 <div v-if="item.list && item.list.length" class="child-content">
                   <div class="child-item" v-for="childItem in item.list" :key="childItem.type">
@@ -234,7 +237,11 @@
               </div>
               <div class="item total">
                 <p>Total Cost to Complete</p>
-                <div class="total-item">
+                <div class="total-item flex justify-end items-center gap-2">
+                  <vco-number :value="loanTotal" size="fs_md" :precision="2" :end="true" color="#eb4b6d"></vco-number>
+                  <span>{{ Number(borrowerEquityTotal) < 0 ? '-' : '+' }}</span>
+                  <vco-number :value="Math.abs(borrowerEquityTotal)" size="fs_md" :precision="2" :end="true" color="#31bd65"></vco-number>
+                  <span>=</span>
                   <vco-number :value="tableTotal" size="fs_xl" :precision="2" :end="true" :bold="true"></vco-number>
                 </div>
               </div>
@@ -350,8 +357,30 @@
     }
   })
 
+  const loanTotal = computed(() => {
+    const inputArr = footerDataCol.value.map(item => Number(item.loan))
+    const inputNum = inputArr.reduce((total, num) => {
+      return Number(tool.plus(total, num))
+    }, 0);
+
+    const tableNum = easyModel.value ? 0 : TableLoanTotal.value(1)
+
+    return tool.plus(tableNum, inputNum)
+  })
+
+  const borrowerEquityTotal = computed(() => {
+    const inputArr = footerDataCol.value.map(item => Number(item.borrower_equity))
+    const inputNum = inputArr.reduce((total, num) => {
+      return Number(tool.plus(total, num))
+    }, 0);
+
+    const tableNum = easyModel.value ? 0 : TableLoanTotal.value(2)
+
+    return tool.plus(tableNum, inputNum)
+  })
+
   const tableTotal = computed(() => {
-    const tableNum = summaryHandle.value('total')
+    const tableNum = easyModel.value ? 0 : summaryHandle.value('total')
     const inputArr = footerDataCol.value.map(item => item.total)
     const inputNum = inputArr.reduce((total, num) => {
       return Number(tool.plus(total, num))
@@ -763,6 +792,9 @@
     }
   }
 
+  // 是否为简易模式
+  const easyModel = ref(true)
+
   // 请求项目信息
   const projectDetail = ref()
   const getProjectData = async () => {
@@ -778,16 +810,24 @@
         projectDetail.value = res
 
         emits('done', res)
-
+        const costModel = Boolean(res.lending.devCostDetail[0].model)
+        easyModel.value = costModel
         const list = res.lending.devCostDetail[0].data[0].list
-        const filterType = ['Land', 'Construction', 'Refinance', 'Land_gst']
+        const filterType = costModel ? ['Land', 'Refinance', 'Land_gst'] : ['Land', 'Construction', 'Refinance', 'Land_gst']
         const footerData = list.filter(item => !filterType.includes(item.type))
+
+        // 找到footerData中type为Construction的item, 如果有则把他排到第一位，并且删除原来的Construction
+        const conItem = footerData.find(item => item.type === 'Construction')
+        if (conItem) {
+          footerData.unshift(conItem)
+          footerData.splice(footerData.lastIndexOf(conItem), 1)
+        }
 
         footerDataCol.value = footerData || []
         
         const Construction = list.find(item => item.type === 'Construction')
-        buildAmount.value = Construction ? (Construction.loan || 0) : 0
-        borrowerEquity.value = Construction ? (Construction.borrower_equity || 0) : 0
+        buildAmount.value = Construction ? (Number(Construction.loan) || 0) : 0
+        borrowerEquity.value = Construction ? (Number(Construction.borrower_equity) || 0) : 0
       })
       await getSetedData()
     } catch (err) {
@@ -1105,7 +1145,7 @@
       }
     }
 
-    const construction = Number(TableLoanTotal.value(1))
+    const construction = easyModel.value ? buildAmount.value : Number(TableLoanTotal.value(1))
 
     const params = {
       security_uuid,
@@ -1123,7 +1163,7 @@
     const setLoanTotal = Number(Math.floor(TableLoanTotal.value(1)))
     const setBeTotal = Number(Math.floor(TableLoanTotal.value(2)))
 
-    if (setLoanTotal !== buildAmount.value) {
+    if ((setLoanTotal !== buildAmount.value) && !easyModel.value) {
       const diffNum = tool.minus(buildAmount.value, setLoanTotal)
 
       confirmTxt.value = t(`开发成本中的建造费为：<span>{0}</span>，当前设置值为：<span>{1}</span>，相差：<span>{2}</span>`, [
@@ -1138,7 +1178,7 @@
       return
     }
 
-    if (setBeTotal !== borrowerEquity.value) {
+    if ((setBeTotal !== borrowerEquity.value) && !easyModel.value) {
       const diffNum = tool.minus(borrowerEquity.value, setBeTotal)
 
       confirmTxt.value = t(`开发成本中的借款人出资为：<span>{0}</span>，当前设置值为：<span>{1}</span>，相差：<span>{2}</span>`, [
@@ -1159,7 +1199,7 @@
     } else {
       const sLen = securityData.value.length
       const rLen = Object.keys(setedData.value.row).length
-      if (rLen && sLen !== rLen) {
+      if (rLen && sLen !== rLen && !easyModel.value) {
         confirmTxt.value = t(`抵押物数量有变动，保存后会重置首次建筑贷款放款额`)
         currentParams.value.clear = 1
         changeVisible.value = true
@@ -1464,6 +1504,10 @@
     border: 1px solid #272727;
     border-top: none;
     background-color: #f8f8f8;
+    &.easy-model {
+      border-top: 1px solid #272727;
+      margin-top: 10px;
+    }
     > .item {
       border-bottom: 1px solid #272727;
       padding: 10px 15px;

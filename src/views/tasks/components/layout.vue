@@ -90,7 +90,7 @@ watch(
       status: searchForm.value.status,
       type: searchForm.value.type
     };
-
+    userStore.loadingCount = false;
     userStore.getTaskNumInfo();
   },
   { immediate: true, deep: true }

@@ -1,15 +1,15 @@
 <template>
   <div>
     <layout @search="reload"></layout>
-    <div class="flex gap-3 mt-3 send-box" v-if="currentParams?.status === '10'">
+    <div class="flex gap-3 mt-4 send-box" v-if="currentParams?.status === '10'">
       <a-popconfirm :title="t('确定发送邮件吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" :disabled="Boolean(!selectedRowKeys.length)" @confirm="send('3')">
-        <a-button type="cyan" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase" :loading="loading && type === '3'">
+        <a-button type="cyan" :disabled="Boolean(!selectedRowKeys.length)" class="uppercase" :loading="loading && type === '3'">
           {{ t('发送邮件') }}
         </a-button>
       </a-popconfirm>
 
       <a-popconfirm :title="t('确定发送短信吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" :disabled="Boolean(!selectedRowKeys.length)" @confirm="send('5')">
-        <a-button type="cyan" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase" :loading="loading && type === '5'">
+        <a-button type="cyan" :disabled="Boolean(!selectedRowKeys.length)" class="uppercase" :loading="loading && type === '5'">
           {{ t('发送短信') }}
         </a-button>
       </a-popconfirm>
@@ -185,7 +185,7 @@ const columns = computed(() => {
   }
   if (currentParams.value?.module === 'other') {
     head = [
-      { title: t('标题'), dataIndex: 'project_info',  align: 'left' },
+      { title: t('标题'), dataIndex: 'project_info', align: 'left' },
       // { title: t('说明'), dataIndex: 'note' },
       { title: t('创建时间'), dataIndex: 'create_time', width: 140, align: 'center' },
       {
@@ -196,6 +196,9 @@ const columns = computed(() => {
         width: 140
       }
     ];
+  }
+  if (currentParams.value && currentParams.value.status === '10') {
+    head.pop();
   }
   return head;
 });

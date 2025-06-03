@@ -13,7 +13,7 @@
       <div class="hRgViQ number">
         <p class="title">Total IRR Forecast</p>
         <div>
-          <p class="value">{{data.irr}}%</p>
+          <p class="value">{{ data.irr }}%</p>
           <div class="br"></div>
           <p class="more">&nbsp;</p>
           <p class="more">&nbsp;</p>
@@ -44,8 +44,7 @@ import { dashboard } from '@/api/home/index';
 const { t } = useI18n();
 
 const loading = ref(false);
-const data = ref({
-});
+const data = ref({});
 onMounted(() => {
   loading.value = true;
   dashboard()

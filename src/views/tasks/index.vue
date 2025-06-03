@@ -84,7 +84,7 @@
                 <p v-else>--</p>
               </template>
               <template v-if="column.dataIndex === 'operation'">
-                <Operation :data="record" @update="reload(true)"></Operation>
+                <Operation :data="record" :vcTeamData="vcTeamData" :vcTeamObj="vcTeamObj" @update="reload(true)"></Operation>
               </template>
             </template>
           </a-table>
@@ -98,11 +98,12 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { useTableList } from '@/hooks/useTableList';
 import { projectBacklogList, backlogNotify } from '@/api/tasks';
+import { associateSystemConfig } from '@/api/process';
 import layout from './components/layout.vue';
 import Operation from './components/Operation/index.vue';
 import { hasPermission } from '@/directives/permission/index';
@@ -154,8 +155,8 @@ const columns = computed(() => {
       { title: t('项目图片'), dataIndex: 'project_image', width: 80, align: 'center' },
       { title: t('项目信息'), dataIndex: 'project_info', width: 300, align: 'left' },
       { title: t('类型'), dataIndex: 'process_type', width: 140, align: 'left' },
-      { title: t('金额'), dataIndex: 'amount', width: 140, align: 'left' },
-      { title: t('说明'), dataIndex: 'note', align: 'left' },
+      // { title: t('金额'), dataIndex: 'amount', width: 140, align: 'left' },
+      // { title: t('说明'), dataIndex: 'note', align: 'left' },
       { title: t('创建时间'), dataIndex: 'create_time', width: 140, align: 'center' },
       {
         title: t('操作1'),
@@ -184,8 +185,8 @@ const columns = computed(() => {
   }
   if (currentParams.value?.module === 'other') {
     head = [
-      { title: t('标题'), dataIndex: 'project_info', width: 300, align: 'left' },
-      { title: t('说明'), dataIndex: 'note' },
+      { title: t('标题'), dataIndex: 'project_info',  align: 'left' },
+      // { title: t('说明'), dataIndex: 'note' },
       { title: t('创建时间'), dataIndex: 'create_time', width: 140, align: 'center' },
       {
         title: t('操作1'),
@@ -285,6 +286,28 @@ const send = (val) => {
       loading.value = false;
     });
 };
+
+const vcTeamObj = ref(null);
+const vcTeamData = ref([]);
+
+const getVcteamData = () => {
+  associateSystemConfig().then((res) => {
+    vcTeamData.value = res || [];
+    const vcTeamArr = vcTeamData.value.map((item) => item.code);
+
+    const vcObj = {};
+
+    for (let i = 0; i < vcTeamArr.length; i++) {
+      vcObj[vcTeamArr[i]] = [];
+    }
+
+    vcTeamObj.value = vcObj;
+  });
+};
+
+onMounted(() => {
+  getVcteamData();
+});
 </script>
 
 <style lang="less" scoped>

@@ -4,11 +4,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { processRoutes } from '@/constant';
 import { navigationTo } from '@/utils/tool';
-import { associateSystemConfig } from '@/api/process';
 import BindUsersDialog from '@/views/process/components/BindUsersDialog.vue';
 import emitter from '@/event';
 
@@ -17,39 +16,27 @@ const emits = defineEmits(['update']);
 const props = defineProps({
   data: {
     type: Object
+  },
+  vcTeamData: {
+    type: Array
+  },
+  vcTeamObj: {
+    type: Object
   }
 });
 
-const vcTeamObj = ref(null);
-const vcTeamData = ref([]);
 const showDialog = ref(false);
 const pIds = ref([]);
 
 const bindHandle = () => {
-  pIds.value = props.data ? [props.data.uuid] : selectedRowKeys.value;
-  vcTeamObj.value['alm'] = props.data?.alm_list || [];
+  pIds.value = [props.data.uuid];
+  props.vcTeamObj['alm'] = [];
   showDialog.value = true;
 };
 
 const bindDone = () => {
   emits('update');
-
   emitter.emit('refreshRequestsList');
-};
-
-const getVcteamData = () => {
-  associateSystemConfig().then((res) => {
-    vcTeamData.value = res || [];
-    const vcTeamArr = vcTeamData.value.map((item) => item.code);
-
-    const vcObj = {};
-
-    for (let i = 0; i < vcTeamArr.length; i++) {
-      vcObj[vcTeamArr[i]] = [];
-    }
-
-    vcTeamObj.value = vcObj;
-  });
 };
 
 const todoHandle = () => {
@@ -62,8 +49,4 @@ const todoHandle = () => {
     }
   }
 };
-
-onMounted(() => {
-  getVcteamData();
-});
 </script>

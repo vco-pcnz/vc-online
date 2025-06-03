@@ -24,7 +24,7 @@
                 </template>
               </a-alert>
             </a-col>
-            <a-col :span="24">
+            <a-col :span="12">
               <a-form-item :label="t('还款日期')" name="date">
                 <a-date-picker
                   v-model:value="formState.date"
@@ -40,7 +40,12 @@
                 </a-date-picker>
               </a-form-item>
             </a-col>
-            <a-col v-if="totalAmount" :span="7">
+            <a-col :span="12">
+              <a-form-item :label="t('到期日期')">
+                <div class="show-date">{{ tool.showDate(projectDetail?.date?.end_date) }}</div>
+              </a-form-item>
+            </a-col>
+            <a-col v-if="totalAmount" :span="maxReductionAmount && !isNormalUser ? 7 : 12">
               <a-form-item :label="t('还款总额')">
                 <vco-number :bold="true" :value="totalAmount" :precision="2" size="fs_xl" :end="true"></vco-number>
               </a-form-item>
@@ -69,9 +74,28 @@
                   </a-form-item>
                 </a-col>
             </template>
-            <a-col v-if="maxReductionAmount && !isNormalUser" :span="24">
+            <a-col v-if="maxReductionAmount && !isNormalUser" :span="8">
               <a-form-item :label="t('罚息减免最大额度')">
                 <vco-number :bold="true" :value="maxReductionAmount" :precision="2" size="fs_xl" :end="true"></vco-number>
+              </a-form-item>
+            </a-col>
+            <a-col v-if="totalAmount" :span="maxReductionAmount && !isNormalUser ? 8 : 12">
+              <a-form-item class="w-full-label">
+                <template #label>
+                  <div class="flex justify-between items-center gap-3" style="height: 22px;">
+                    <p>Loan IRR</p>
+                    <a-button
+                      v-if="maxReductionAmount && !isNormalUser"
+                      type="link"
+                      class="flex items-center text-sm"
+                      :loading="irrLoading"
+                      @click="refreshIrr"
+                    >
+                      {{ t('刷新') }}
+                    </a-button>
+                  </div>
+                </template>
+                <vco-number :bold="true" :value="irrPercent" prefix="" suffix="%" :precision="2" size="fs_xl" :end="true"></vco-number>
               </a-form-item>
             </a-col>
           </a-row>
@@ -86,7 +110,7 @@ import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import dayjs from 'dayjs';
 import { CalendarOutlined } from '@ant-design/icons-vue';
-import { projectLoanAllRepayment } from '@/api/project/loan';
+import { projectLoanAllRepayment, projectLoanCalcIrr } from '@/api/project/loan';
 import tool, { selectDateFormat } from "@/utils/tool"
 import { useUserStore } from '@/store'
 
@@ -131,11 +155,15 @@ const disabledDateFormat = (current) => {
 const totalAmount = ref(0)
 const maxReductionAmount = ref(0)
 const reductionAmount = ref(0)
+const irrLoading = ref(false)
+const irrPercent = ref(0)
 const getLoading = ref(false)
 const dateChange = (date) => {
   if (date) {
     const time = dayjs(date).format('YYYY-MM-DD')
+    reductionAmount.value = 0
     getLoading.value = true
+    irrLoading.value = false
 
     projectLoanAllRepayment({
       uuid: props.uuid,
@@ -143,6 +171,8 @@ const dateChange = (date) => {
     }).then(res => {
       totalAmount.value = Number(res.last_money) ? Number(res.last_money) : 0
       maxReductionAmount.value = Number(res.reduction_money) ? Number(res.reduction_money) : 0
+
+      irrPercent.value = Number(res.irr || 0)
       getLoading.value = false
     }).catch(() => {
       getLoading.value = false
@@ -151,6 +181,21 @@ const dateChange = (date) => {
     totalAmount.value = 0
     maxReductionAmount.value = 0
   }
+}
+
+const refreshIrr = () => {
+  irrLoading.value = true
+  const params = {
+    uuid: props.uuid,
+    date: dayjs(formState.value.date).format('YYYY-MM-DD'),
+    last_money: repaymentAmount.value
+  }
+  projectLoanCalcIrr(params).then(res => {
+    irrPercent.value = Number(res.irr || 0)
+    irrLoading.value = false
+  }).catch(() => {
+    irrLoading.value = false
+  })
 }
 
 const repaymentAmount = computed(() => {
@@ -254,5 +299,11 @@ const init = () => {
       margin-bottom: 0 !important;
     }
   }
+}
+
+.show-date {
+  color: #282828;
+  line-height: 50px;
+  font-size: 16px;
 }
 </style>

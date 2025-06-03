@@ -32,7 +32,7 @@
 
   const pageTitle = ref(t('进度付款阶段'))
 
-  const getProjectInfo = (data) => {
+const getProjectInfo = (data) => {
     pageTitle.value = `${typeStr.value}${data.borrower.organization_name || data.base.project_apply_sn}`
   }
   

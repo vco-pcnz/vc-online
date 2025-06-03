@@ -237,7 +237,11 @@
               </div>
               <div class="item total">
                 <p>Total Cost to Complete</p>
-                <div class="total-item">
+                <div class="total-item flex justify-end items-center gap-2">
+                  <vco-number :value="loanTotal" size="fs_md" :precision="2" :end="true" color="#eb4b6d"></vco-number>
+                  <span>{{ Number(borrowerEquityTotal) < 0 ? '-' : '+' }}</span>
+                  <vco-number :value="Math.abs(borrowerEquityTotal)" size="fs_md" :precision="2" :end="true" color="#31bd65"></vco-number>
+                  <span>=</span>
                   <vco-number :value="tableTotal" size="fs_xl" :precision="2" :end="true" :bold="true"></vco-number>
                 </div>
               </div>
@@ -353,8 +357,30 @@
     }
   })
 
+  const loanTotal = computed(() => {
+    const inputArr = footerDataCol.value.map(item => Number(item.loan))
+    const inputNum = inputArr.reduce((total, num) => {
+      return Number(tool.plus(total, num))
+    }, 0);
+
+    const tableNum = easyModel.value ? 0 : TableLoanTotal.value(1)
+
+    return tool.plus(tableNum, inputNum)
+  })
+
+  const borrowerEquityTotal = computed(() => {
+    const inputArr = footerDataCol.value.map(item => Number(item.borrower_equity))
+    const inputNum = inputArr.reduce((total, num) => {
+      return Number(tool.plus(total, num))
+    }, 0);
+
+    const tableNum = easyModel.value ? 0 : TableLoanTotal.value(2)
+
+    return tool.plus(tableNum, inputNum)
+  })
+
   const tableTotal = computed(() => {
-    const tableNum = summaryHandle.value('total')
+    const tableNum = easyModel.value ? 0 : summaryHandle.value('total')
     const inputArr = footerDataCol.value.map(item => item.total)
     const inputNum = inputArr.reduce((total, num) => {
       return Number(tool.plus(total, num))

@@ -469,7 +469,7 @@
   }
 
   const tableTotal = computed(() => {
-    const tableNum = summaryHandle('total')
+    const tableNum = easyModel.value ? 0 : summaryHandle('total')
     const inputArr = footerDataCol.value.map(item => item.loan)
     const inputNum = inputArr.reduce((total, num) => {
       return Number(tool.plus(total, num))

@@ -1,7 +1,7 @@
 <template>
   <div class="Period bold">
     <div class="fs_xs text-center">
-      <span class="weight_demiBold">{{ data?.sdaysDiff }} days</span>
+      <span class="weight_demiBold">{{ data?.is_overtime ? data?.sdaysDiff - data?.edaysDiff : data?.sdaysDiff + data?.edaysDiff }} days</span>
       <span class="color_red-error ml-2" v-if="Boolean(data?.is_overtime)">+ {{ data?.edaysDiff }} days overdue</span>
       <span class="color_grey ml-2" v-else>{{ data?.edaysDiff }} remaining</span>
     </div>
@@ -23,7 +23,7 @@
         <p class="fs_xs color_grey" v-else>Maturity</p>
       </div>
     </div>
-    <p class="fs_xs color_grey text-center" style="margin-top: -16px">{{ data?.sdaysDiff + data?.edaysDiff + 1 }} days</p>
+    <p class="fs_xs color_grey text-center" style="margin-top: -16px">{{ data?.sdaysDiff + 1}} days</p>
   </div>
 </template>
 

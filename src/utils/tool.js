@@ -441,6 +441,7 @@ tool.formatMoney = (value, formatOptions) => {
  * 日期格式本地化
  */
 tool.monthYear = (time) => {
+  if(!time) return ''
   const [year, month] = time.split('-');
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const monthIndex = parseInt(month, 10) - 1;
@@ -453,6 +454,7 @@ tool.monthYear = (time) => {
  * 日期格式本地化
  */
 tool.monthYearFull = (time) => {
+  if(!time) return ''
   const [year, month] = time.split('-');
   const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   const monthIndex = parseInt(month, 10) - 1;
@@ -464,6 +466,7 @@ tool.monthYearFull = (time) => {
  * 日期格式本地化
  */
 tool.monthYearDay = (time) => {
+  if(!time) return ''
   const [year, month, day] = time.split('-');
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const monthIndex = parseInt(month, 10) - 1;

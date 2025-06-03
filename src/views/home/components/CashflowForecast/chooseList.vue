@@ -112,7 +112,7 @@ const loadData = () => {
     ajaxFn({ ...pagination.value, ...obj })
       .then((res) => {
         data.value = res.data;
-        total.value = res.total;
+        total.value = res.count;
       })
       .finally(() => {
         loading.value = false;

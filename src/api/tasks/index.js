@@ -17,10 +17,11 @@ export const projectBacklogList = (params) =>
   });
 
 // 待办数量
-export const projectBacklogCount = () =>
+export const projectBacklogCount = (params) =>
   request({
     url: "/project/project/backlogCount",
-    method: "get"
+    method: "get",
+    params
   });
 
 
@@ -48,4 +49,11 @@ export const applyBrokerDetail = () =>
     method: "get"
   });
 
+// 催办通知
+export const backlogNotify = (data) =>
+  request({
+    url: "/project/project/backlogNotify",
+    method: "post",
+    data
+  });
   

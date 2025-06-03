@@ -1,80 +1,105 @@
 <template>
   <div class="nav-content">
-    <div v-for="item in tabList" :key="item.value" class="nav-link" :class="{ active: item.value === current }" @click="handChange(item)">
+    <div v-for="item in tabList" :key="item.value" class="nav-link" :class="{ active: item.value === searchForm.status }" @click="handChange(item)">
       {{ item.name }}
     </div>
   </div>
   <div class="flex justify-between items-end mt-5">
-    <vco-page-tab :tabData="navData" v-model:current="isActive" @change="tabChange"></vco-page-tab>
-    <TableSearch></TableSearch>
+    <vco-page-tab
+      :tabData="[
+        ...moduleData,
+        ...(hasPermission('task:other')
+          ? [
+              {
+                label: t('其他'),
+                hiden: false,
+                value: 'other',
+                num: userStore.taskInfo.other
+              }
+            ]
+          : [])
+      ]"
+      v-model:current="searchForm.module"
+    ></vco-page-tab>
+    <TableSearch @search="updateSearchForm"></TableSearch>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import TableSearch from './TableSearch.vue';
-import { useRoute } from 'vue-router';
 import { useUserStore } from '@/store';
-import { cloneDeep } from 'lodash';
+import { hasPermission } from '@/directives/permission/index';
 const { t } = useI18n();
 
-const emits = defineEmits(['update:current', 'change']);
-const tabList = ref([
-  { name: t('待处理'), value: '1' },
-  { name: t('已完成'), value: '2' }
-]);
-const current = ref(tabList.value.length ? tabList.value[0].value : '');
+const emits = defineEmits(['search']);
 
-const handChange = (data) => {
-  current.value = data.value;
-};
+const tabList = ref([
+  { name: t('待处理'), value: '0' },
+  { name: t('已完成'), value: '10' }
+]);
 
 const userStore = useUserStore();
 
-const navData = ref([]);
-
-const getNavData = () => {
-  const data = userStore.routerInfo || [];
-  const dataArr = cloneDeep(data);
-  const requestsMenu = dataArr.find((item) => item.path === '/tasks');
-  const child = requestsMenu.children || [];
-
-  const resData = child
-    .filter((item) => !item.meta.hide)
-    .map((item) => {
-      let num = item.num || 0;
-      if (item.path === '/tasks/projects') {
-        num = userStore.taskInfo.project;
-      }
-      if (item.path === '/tasks/loan') {
-        num = userStore.taskInfo.request;
-      }
-      if (item.path === '/tasks/other') {
-        num = userStore.taskInfo.other;
-      }
-
-      return {
-        label: t(item.meta.title),
-        value: item.path,
-        num: num
-      };
-    });
-  navData.value = resData;
-};
-
-const isActive = (path) => route.path === path;
-
-onMounted(() => {
-  getNavData();
+const moduleData = computed(() => {
+  return [
+    {
+      label: t('全部'),
+      value: '',
+      num: userStore.taskInfo.total
+    },
+    {
+      label: t('项目信息'),
+      value: 'project',
+      num: userStore.taskInfo.project
+    },
+    {
+      label: t('借款'),
+      value: 'request',
+      num: userStore.taskInfo.request
+    }
+  ];
 });
 
-const tabChange = () => {};
+const searchForm = ref({
+  status: '0',
+  module: '',
+  borrower_search_type: '',
+  project_search_type: '',
+  project_keyword: ''
+});
+
+const handChange = (data) => {
+  searchForm.value.status = data.value;
+};
+
+const updateSearchForm = (val) => {
+  searchForm.value = { ...searchForm.value, ...val };
+};
+
+const status_type = computed(() => ({
+  status: searchForm.value.status,
+  type: searchForm.value.type
+}));
+
 watch(
-  () => current.value,
+  () => status_type,
   (val) => {
-    emits('update:current', current.value);
-    emits('change');
+    userStore.taskInfoParams = {
+      status: searchForm.value.status,
+      type: searchForm.value.type
+    };
+
+    userStore.getTaskNumInfo();
+  },
+  { immediate: true, deep: true }
+);
+
+watch(
+  () => searchForm.value,
+  (val) => {
+    emits('search', searchForm.value);
   },
   { immediate: true, deep: true }
 );

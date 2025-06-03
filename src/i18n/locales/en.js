@@ -999,5 +999,6 @@ export default {
   "消息": "Message",
   "此说明内容将显示在交易记录中": "This Notes content will be displayed in the transaction record",
   "此消息针对 FC 的批准评论": "This message is for FC's approval remarks",
-  "模块": "Module"
+  "模块": "Module",
+  "信息": "information"
 }

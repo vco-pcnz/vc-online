@@ -1,7 +1,7 @@
 <template>
   <div>
     <vco-page-search @keyup.enter="searchHandle(false)">
-      <vco-page-search-item width="100" :title="t('类型')">
+      <vco-page-search-item width="120" :title="t('类型')">
         <a-select :placeholder="t('请选择')" v-model:value="searchForm.type">
           <a-select-option v-for="item in typeData" :key="item.value" :value="item.value">
             {{ item.label }}
@@ -16,7 +16,6 @@
       <vco-page-search-item :title="t('借款人信息')" width="250">
         <vco-type-input v-model="searchForm.borrower_keyword" v-model:type="searchForm.borrower_search_type" :type-data="borrowerTypeData" :placeholder="t('请输入')"></vco-type-input>
       </vco-page-search-item>
-
 
       <vco-page-search-item width="100%">
         <div class="flex items-center gap-2">
@@ -33,27 +32,63 @@ import { ref } from 'vue';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash';
 import { useI18n } from 'vue-i18n';
-import { useProjectsStore } from '@/store';
-import { selectDateFormat } from '@/utils/tool';
-const pageStore = useProjectsStore();
 
 const emits = defineEmits(['search']);
-const props = defineProps(['type']);
 
 const { t } = useI18n();
 
 const typeData = ref([
   {
-    label: t('申请中'),
+    label: t('全部'),
     value: ''
   },
   {
-    label: t('已批准'),
-    value: 'name'
+    label: t('放款'),
+    value: 'drawdown'
   },
   {
-    label: t('已拒绝'),
-    value: 'name'
+    label: t('还款'),
+    value: 'repayment'
+  },
+  {
+    label: t('解押'),
+    value: 'discharge'
+  },
+  {
+    label: t('罚息开始'),
+    value: 'penalty-start'
+  },
+  {
+    label: t('罚息结束'),
+    value: 'penalty-end'
+  },
+  {
+    label: t('变更'),
+    value: 'variation'
+  },
+  {
+    label: t('平账'),
+    value: 'journal'
+  },
+  {
+    label: t('关账'),
+    value: 'closed'
+  },
+  {
+    label: t('反洗钱'),
+    value: 'aml'
+  },
+  {
+    label: t('抵押物'),
+    value: 'security'
+  },
+  {
+    label: t('关账撤销'),
+    value: 'closed-cancel'
+  },
+  {
+    label: t('申请中介'),
+    value: 'vip-broker-vip'
   }
 ]);
 
@@ -94,18 +129,13 @@ const projectsTypeData = [
     value: 'address'
   }
 ];
-
 const searchForm = ref({
+  type: '',
   borrower_keyword: '',
   borrower_search_type: '',
   project_search_type: '',
-  project_keyword: '',
+  project_keyword: ''
 });
-
-const disabledDateFormatAfter = (current) => {
-  const targetDate = new Date(searchForm.value.start_date).setHours(0, 0, 0, 0);
-  return current && current < targetDate;
-};
 
 const searchHandle = (flag) => {
   if (flag) {
@@ -114,14 +144,7 @@ const searchHandle = (flag) => {
     }
   }
   const data = cloneDeep(searchForm.value);
-  if (data.start_date) {
-    data.start_date = dayjs(data.start_date).format('YYYY-MM-DD');
-  }
-  if (data.end_date) {
-    data.end_date = dayjs(data.end_date).format('YYYY-MM-DD');
-  }
-  pageStore.setSearchParams(data);
-  // emits('search', data)
+  emits('search', data);
 };
 
 // 暴露方法给父组件

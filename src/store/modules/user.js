@@ -35,6 +35,10 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
     authorities: [],
     // 是否为普通用户
     isNormalUser: true,
+    taskInfoParams: {
+      status: '0',
+      type: undefined
+    },
     taskInfo: {
       project: 0,
       request: 0,
@@ -86,7 +90,7 @@ const useUserStore = defineStore("VcOnlineUserInfo", {
     getTaskNumInfo() {
       if (this.loadingCount) { return }
       this.loadingCount = true
-      projectBacklogCount().then(res => {
+      projectBacklogCount(this.taskInfoParams).then(res => {
         this.taskInfo = {
           project: res.project_backlog_count || 0,
           request: res.request_backlog_count || 0,

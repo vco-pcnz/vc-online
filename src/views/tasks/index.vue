@@ -1,7 +1,7 @@
 <template>
   <div>
     <layout @search="reload"></layout>
-    <div class="flex gap-3 mt-3" v-if="currentParams?.status === '10'">
+    <div class="flex gap-3 mt-3 send-box" v-if="currentParams?.status === '10'">
       <a-popconfirm :title="t('确定发送邮件吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" :disabled="Boolean(!selectedRowKeys.length)" @confirm="send('3')">
         <a-button type="cyan" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase" :loading="loading && type === '3'">
           {{ t('发送邮件') }}
@@ -14,7 +14,7 @@
         </a-button>
       </a-popconfirm>
     </div>
-    <div class="mt-5">
+    <div class="mt-5 border-t">
       <a-spin :spinning="tableLoading" size="large">
         <div class="table-content sys-table-content no-top-line">
           <a-table
@@ -137,7 +137,7 @@ const columns = computed(() => {
     head = [
       { title: t('项目图片'), dataIndex: 'project_image', width: 80, align: 'center' },
       { title: t('信息'), dataIndex: 'project_info', width: 300, align: 'left' },
-      { title: t('模块'), dataIndex: 'module', width: 140, align: 'left' },
+      { title: t('模块'), dataIndex: 'module', align: 'left' },
 
       { title: t('创建时间'), dataIndex: 'create_time', width: 140, align: 'center' },
       {
@@ -155,7 +155,7 @@ const columns = computed(() => {
       { title: t('项目信息'), dataIndex: 'project_info', width: 300, align: 'left' },
       { title: t('类型'), dataIndex: 'process_type', width: 140, align: 'left' },
       { title: t('金额'), dataIndex: 'amount', width: 140, align: 'left' },
-      { title: t('说明'), dataIndex: 'note', width: 180, align: 'left' },
+      { title: t('说明'), dataIndex: 'note', align: 'left' },
       { title: t('创建时间'), dataIndex: 'create_time', width: 140, align: 'center' },
       {
         title: t('操作1'),
@@ -171,8 +171,8 @@ const columns = computed(() => {
       { title: t('项目图片'), dataIndex: 'project_image', width: 80, align: 'center' },
       { title: t('项目信息'), dataIndex: 'project_info', width: 300, align: 'left' },
       { title: t('借款金额'), dataIndex: 'loan_money', width: 200, align: 'left' },
-      { title: t('状态'), dataIndex: 'status', width: 200, align: 'center' },
-      { title: t('创建时间'), dataIndex: 'create_time', width: 200, align: 'center' },
+      { title: t('状态'), dataIndex: 'status', align: 'center' },
+      { title: t('创建时间'), dataIndex: 'create_time', width: 140, align: 'center' },
       {
         title: t('操作1'),
         dataIndex: 'operation',
@@ -184,15 +184,15 @@ const columns = computed(() => {
   }
   if (currentParams.value?.module === 'other') {
     head = [
-      { title: t('标题'), dataIndex: 'process_type', width: 300, align: 'left' },
+      { title: t('标题'), dataIndex: 'project_info', width: 300, align: 'left' },
       { title: t('说明'), dataIndex: 'note' },
-      { title: t('创建时间'), dataIndex: 'create_time', width: 200, align: 'center' },
+      { title: t('创建时间'), dataIndex: 'create_time', width: 140, align: 'center' },
       {
         title: t('操作1'),
         dataIndex: 'operation',
         fixed: 'right',
         align: 'center',
-        width: 110
+        width: 140
       }
     ];
   }
@@ -297,6 +297,10 @@ const send = (val) => {
     font-size: 15px !important;
     white-space: nowrap;
   }
+}
+
+.border-t {
+  border-top: 1px solid #808080;
 }
 
 .id-info {

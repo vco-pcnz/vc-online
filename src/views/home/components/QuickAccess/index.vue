@@ -1,36 +1,41 @@
 <template>
-  <div class="flex justify-between title">
-    <div class="bold fs_2xl">{{ t('快捷入口') }}</div>
-    <div class="flex gap-1 items-center cursor-pointer" @click="setting"><i class="iconfont">&#xe604;</i>{{ t('设置1') }}</div>
-  </div>
-  <div class="wrapper">
-    <div class="item" v-for="(item, index) in myList" :key="index" @click="navigationTo(item.path)">
-      <img class="icon" :src="item.icon" alt="" />
-      <p>{{ item.name }}</p>
+  <a-spin :spinning="loading" size="large">
+    <div class="flex justify-between title">
+      <div class="bold fs_2xl">{{ t('快捷入口') }}</div>
+      <div class="flex gap-1 items-center cursor-pointer" @click="setting"><i class="iconfont">&#xe604;</i>{{ t('设置1') }}</div>
     </div>
-  </div>
-  <a-empty v-if="!myList.length && !loading" style="min-height: 100px" />
+    <div class="wrapper">
+      <div class="item" v-for="(item, index) in myList" :key="index" @click="navigationTo(item.path)">
+        <img class="icon" :src="item.icon" alt="" />
+        <p>{{ item.name }}</p>
+      </div>
+    </div>
+    <a-empty v-if="!myList.length && !loading" style="min-height: 100px" />
+  </a-spin>
 
   <a-modal :width="600" v-if="open" :open="open" :title="t('快捷入口')" @cancel="open = false" :footer="false" class="QuickAccessModal">
-    <div class="bold">{{ t('已添加') }}</div>
-    <div class="wrapper">
-      <div class="item" v-for="(item, index) in settingData" :key="index">
-        <img class="icon" :src="item.icon" alt="" />
-        <p>{{ item.name }}</p>
-        <i class="iconfont add reduce" @click="handReduce(index)">&#xe620;</i>
+    <a-spin :spinning="loading" size="large">
+      <div class="bold">{{ t('已添加') }}</div>
+      <div class="wrapper">
+        <div class="item" v-for="(item, index) in settingData" :key="index">
+          <img class="icon" :src="item.icon" alt="" />
+          <p>{{ item.name }}</p>
+          <i class="iconfont add reduce" @click="handReduce(index)">&#xe620;</i>
+        </div>
+        <div style="text-align: center; width: 100%">
+          <a-empty v-if="!settingData.length && !loading" style="min-height: 100px" />
+        </div>
       </div>
-      <div style="text-align: center; width: 100%">
-        <a-empty v-if="!settingData.length && !loading" style="min-height: 100px" />
+      <div class="bold">{{ t('列表') }}</div>
+      <div class="wrapper">
+        <div class="item" v-for="(item, index) in list" :key="index">
+          <img class="icon" :src="item.icon" alt="" />
+          <p>{{ item.name }}</p>
+          <i class="iconfont add" v-if="showAdd(item)" @click="handAdd(item)">&#xe621;</i>
+        </div>
       </div>
-    </div>
-    <div class="bold">{{ t('列表') }}</div>
-    <div class="wrapper">
-      <div class="item" v-for="(item, index) in list" :key="index">
-        <img class="icon" :src="item.icon" alt="" />
-        <p>{{ item.name }}</p>
-        <i class="iconfont add" v-if="showAdd(item)" @click="handAdd(item)">&#xe621;</i>
-      </div>
-    </div>
+    </a-spin>
+
     <div class="flex justify-center mt-10">
       <a-button @click="save" type="dark" class="save big uppercase" :loading="loading">
         {{ t('确认') }}
@@ -101,8 +106,8 @@ const save = () => {
   loading.value = ref(false);
   saveMyQuick({ ids: settingData.value.map((d) => d.id) })
     .then((res) => {
-      getMyQuick()
-      open.value = false
+      getMyQuick();
+      open.value = false;
     })
     .finally(() => {
       loading.value = false;

@@ -1,20 +1,23 @@
 <template>
-  <div class="flex justify-between title items-center">
-    <div class="bold fs_2xl">{{ t('待办事项1') }}
-      <!-- (10) -->
-    </div>
-    <div class="cursor-pointer" @click="navigationTo('/tasks')">{{ t('更多') }}</div>
-  </div>
-  <div class="wrapper">
-    <div class="item cursor-pointer" v-for="(item, index) in list" :key="index" @click="navigationTo('/tasks?type=' + item.type)">
-      <!-- <i class="iconfont">&#xe679;</i> -->
-      <img class="icon" :src="item.icon" alt="" />
-      <div>
-        <p class="num"></p>
-        <p :title="item.name" class="name">{{ item.name }}</p>
+  <a-spin :spinning="loading" size="large">
+    <div class="flex justify-between title items-center">
+      <div class="bold fs_2xl">
+        {{ t('待办事项1') }}
+        <!-- (10) -->
       </div>
+      <div class="cursor-pointer" @click="navigationTo('/tasks')">{{ t('更多') }}</div>
     </div>
-  </div>
+    <div class="wrapper">
+      <div class="item cursor-pointer" v-for="(item, index) in list" :key="index" @click="navigationTo('/tasks?type=' + item.type)">
+        <!-- <i class="iconfont">&#xe679;</i> -->
+        <img class="icon" :src="item.icon" alt="" />
+        <div>
+          <p class="num"></p>
+          <p :title="item.name" class="name">{{ item.name }}</p>
+        </div>
+      </div>
+      <a-empty v-if="!list.length && !loading" style="min-height: 100px" /></div
+  ></a-spin>
 </template>
 
 <script setup>

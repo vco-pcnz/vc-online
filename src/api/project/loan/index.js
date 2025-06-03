@@ -264,6 +264,15 @@ export const projectLoanAllRepayment = (params) =>
     params
   });
 
+
+// 计算irr
+export const projectLoanCalcIrr = (data) =>
+  request({
+    url: 'project/loan/calcIrr',
+    method: 'post',
+    data
+  });
+
 // 获取项目变更财务字段数值
 export const projectCreditVariation = (params) =>
   request({

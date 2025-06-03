@@ -94,6 +94,7 @@
           </div>
           <p v-if="batchSelect" class="text-right mb-2">{{ t('点击下方表格，选择需要批量操作的数据')}}</p>
           <a-table
+            v-if="!easyModel"
             :columns="tableHeader"
             :data-source="tableData"
             bordered
@@ -305,7 +306,7 @@
               </a-table-summary>
             </template>
           </a-table>
-          <div v-if="footerDataCol.length" class="other-table-info" :class="{'page': isPage}">
+          <div v-if="footerDataCol.length" class="other-table-info" :class="{'page': isPage, 'easy-model': easyModel}">
             <div
               v-for="item in footerDataCol" :key="item.type"
               class="item"
@@ -884,6 +885,9 @@
     }
   }
 
+  // 是否为简易模式
+  const easyModel = ref(true)
+
   // 请求项目信息
   const getProjectData = async () => {
     pageLoading.value = true
@@ -896,9 +900,19 @@
       await ajaxFn(params).then(res => {
         emits('done', res)
 
+        const costModel = Boolean(res.lending.devCostDetail[0].model)
+        easyModel.value = costModel
+
         const list = res.lending.devCostDetail[0].data[0].list
-        const filterType = ['Land', 'Construction', 'Refinance', 'Land_gst']
+        const filterType = costModel ? ['Land', 'Refinance', 'Land_gst'] : ['Land', 'Construction', 'Refinance', 'Land_gst']
         const footerData = list.filter(item => !filterType.includes(item.type)) || []
+
+        // 找到footerData中type为Construction的item, 如果有则把他排到第一位，并且删除原来的Construction
+        const conItem = footerData.find(item => item.type === 'Construction')
+        if (conItem) {
+          footerData.unshift(conItem)
+          footerData.splice(footerData.lastIndexOf(conItem), 1)
+        }
 
         const dataArr = []
         for (let i = 0; i < footerData.length; i++) {
@@ -1351,6 +1365,12 @@
       overflow: hidden;
       height: auto;
     }
+    &.easy-model {
+      border-top: 1px solid #272727;
+      overflow: hidden;
+      height: auto;
+      margin-top: 10px;
+    }
     > .item {
       flex: 1;
       display: flex;
@@ -1365,6 +1385,7 @@
       &:nth-child(-n+5) {
         border-top: none;
       }
+      &:nth-child(5n),
       &:last-child {
         border-right: none;
       }

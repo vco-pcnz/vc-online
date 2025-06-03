@@ -1000,5 +1000,7 @@ export default {
   "此说明内容将显示在交易记录中": "This Notes content will be displayed in the transaction record",
   "此消息针对 FC 的批准评论": "This message is for FC's approval remarks",
   "模块": "Module",
-  "信息": "information"
+  "信息": "information",
+  "请先设置建筑贷款总额的进度付款信息": "Please set the progress payment information of the build amount",
+  "您可以通过还款计算器计算还款金额": "You can calculate the repayment amount through the repayment calculator"
 }

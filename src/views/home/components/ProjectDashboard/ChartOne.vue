@@ -12,7 +12,7 @@
       </div>
     </div>
     <div class="row-bars" style="padding: 42px 0px 16px">
-      <div class="ehsbrV" v-for="(item,index) in data" :key="index">
+      <div class="ehsbrV" v-for="(item, index) in data" :key="index">
         <div class="cHGikM" :style="{ height: getHeight(item) }">
           <label> {{ getPercentage(item) }}</label>
         </div>
@@ -70,10 +70,10 @@ const getPercentage = (item) => {
 };
 
 const initData = () => {
-  maxBalance.value = props.data.reduce((max, item) => Math.max(max, item.balance), -Infinity);
-  maxCurrentFC2.value = props.data.reduce((max, item) => Math.max(max, item.currentFc2), -Infinity);
-  totalBalance.value = props.data.reduce((sum, item) => sum + item.balance, 0);
-  totalCurrentFC2.value = props.data.reduce((sum, item) => sum + item.currentFc2, 0);
+  maxBalance.value = props.data.reduce((max, item) => Math.max(max, item.balance), -Infinity) || 1;
+  maxCurrentFC2.value = props.data.reduce((max, item) => Math.max(max, item.currentFc2), -Infinity) || 1;
+  totalBalance.value = props.data.reduce((sum, item) => sum + item.balance, 0) || 1;
+  totalCurrentFC2.value = props.data.reduce((sum, item) => sum + item.currentFc2, 0) || 1;
 };
 
 watch(

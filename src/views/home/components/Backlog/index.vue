@@ -1,6 +1,8 @@
 <template>
   <div class="flex justify-between title items-center">
-    <div class="bold fs_2xl">{{ t('待办事项1') }}(10)</div>
+    <div class="bold fs_2xl">{{ t('待办事项1') }}
+      <!-- (10) -->
+    </div>
     <div class="cursor-pointer" @click="navigationTo('/tasks')">{{ t('更多') }}</div>
   </div>
   <div class="wrapper">
@@ -8,7 +10,7 @@
       <!-- <i class="iconfont">&#xe679;</i> -->
       <img class="icon" :src="item.icon" alt="" />
       <div>
-        <p class="num">10</p>
+        <p class="num"></p>
         <p :title="item.name" class="name">{{ item.name }}</p>
       </div>
     </div>
@@ -16,53 +18,28 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { navigationTo } from '@/utils/tool';
+import { quick } from '@/api/home/index';
 
 const { t } = useI18n();
-const list = ref([
-  {
-    name: t('放款'),
-    type: 'drawdown',
-    icon: 'http://vco.com/uploads/images/annex/20250119/5cd812ff979a3bb1357.png'
-  },
-  {
-    name: t('还款'),
-    type: 'drawdown',
-    icon: 'http://vco.com/uploads/images/annex/20250119/5cd812ff979a3bb1357.png'
-  },
-  {
-    name: t('解押'),
-    type: 'discharge',
-    icon: 'http://vco.com/uploads/images/annex/20250119/5cd812ff979a3bb1357.png'
-  },
-  {
-    name: t('罚息开始'),
-    type: 'penalty-start',
-    icon: 'http://vco.com/uploads/images/annex/20250119/5cd812ff979a3bb1357.png'
-  },
-  {
-    name: t('罚息开始'),
-    type: 'penalty-start',
-    icon: 'http://vco.com/uploads/images/annex/20250119/5cd812ff979a3bb1357.png'
-  },
-  {
-    name: t('罚息开始'),
-    type: 'penalty-start',
-    icon: 'http://vco.com/uploads/images/annex/20250119/5cd812ff979a3bb1357.png'
-  },
-  {
-    name: t('罚息开始'),
-    type: 'penalty-start',
-    icon: 'http://vco.com/uploads/images/annex/20250119/5cd812ff979a3bb1357.png'
-  },
-  {
-    name: t('罚息开始'),
-    type: 'penalty-start',
-    icon: 'http://vco.com/uploads/images/annex/20250119/5cd812ff979a3bb1357.png'
-  }
-]);
+const list = ref([]);
+const loading = ref(false);
+
+const geList = () => {
+  loading.value = ref(true);
+  quick({ ptype: '2' })
+    .then((res) => {
+      list.value = res;
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+};
+onMounted(() => {
+  geList();
+});
 </script>
 
 <style lang="less" scoped>
@@ -80,6 +57,12 @@ const list = ref([
     align-items: center;
     gap: 5px;
     height: 55px;
+    padding: 0 10px;
+    box-sizing: border-box;
+    border: 1px solid transparent;
+    &:hover {
+      border: 1px solid #dbdbdb;
+    }
     .iconfont {
       font-size: 40px;
     }

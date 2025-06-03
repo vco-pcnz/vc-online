@@ -3,15 +3,16 @@
     <template #content>
       <a-spin :spinning="loading" size="large">
         <a-row class="flex justify-between mb-5 pb-5" style="border-bottom: 1px solid #a6a9b0">
-          <div style="margin-top: 25px">
-            <a-checkbox :checked="state.checkAll" :indeterminate="state.indeterminate" @change="onCheckAllChange" class="mr-3"></a-checkbox>
-            <a-popconfirm :title="t('确定要对账吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="checkMatchBills()" :disabled="!selectedRowKeys.length">
-              <a-button :disabled="!selectedRowKeys.length">
-                {{ t('对账') }}
-              </a-button>
-            </a-popconfirm>
-          </div>
-          <TableSearch v-model:value="searchParams" @search="search"></TableSearch>
+          <TableSearch v-model:value="searchParams" @search="search">
+            <div>
+              <a-checkbox :checked="state.checkAll" :indeterminate="state.indeterminate" @change="onCheckAllChange" class="mr-3"></a-checkbox>
+              <a-popconfirm :title="t('确定要对账吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="checkMatchBills()" :disabled="!selectedRowKeys.length">
+                <a-button :disabled="!selectedRowKeys.length">
+                  {{ t('对账') }}
+                </a-button>
+              </a-popconfirm>
+            </div>
+          </TableSearch>
         </a-row>
 
         <a-row>

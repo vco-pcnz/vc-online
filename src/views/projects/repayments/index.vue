@@ -2,28 +2,34 @@
   <detail-layout active-tab="repayments" @getProjectDetail="getProjectDetail">
     <template #content>
       <div class="ProjectDrawdowns">
-        <div :class="{ grid: hasPermission('projects:repayments:add') &&  projectDetail && !projectDetail?.base?.is_close}" class="mb-12">
+        <div :class="{ grid: (hasPermission('projects:repayments:add') || hasPermission('projects:repayments:calculator')) &&  projectDetail && !projectDetail?.base?.is_close}" class="mb-12">
           <MeterStat :uuid="uuid" :projectDetail="projectDetail" v-if="Boolean(uuid)" ref="MeterStatRef"></MeterStat>
-          <template v-if="projectDetail && !projectDetail?.base?.is_close && hasPermission('projects:repayments:add')">
+          <template v-if="projectDetail && !projectDetail?.base?.is_close && (hasPermission('projects:repayments:add') || hasPermission('projects:repayments:calculator'))">
             <div class="HelpBorrower">
-              <calculator :uuid="uuid" :projectDetail="projectDetail">
+              <calculator v-if="hasPermission('projects:repayments:calculator')" :uuid="uuid" :projectDetail="projectDetail">
                 <a-button :title="t('还款计算器')" type="brown" class="calculator-btn">
                   <i class="iconfont">&#xe643;</i>
                 </a-button>
               </calculator>
-              <template v-if="isNormalUser">
-                <div class="flex items-center"><i class="iconfont mr-2">&#xe757;</i><span class="weight_demiBold">{{ t('还款申请') }}</span></div>
-                <p class="color_grey mt-1 mb-3">{{ t('点击下方按钮创建还款申请') }}</p>
-                <drawdownre-quest :uuid="uuid" :projectDetail="projectDetail" @change="update">
-                  <a-button type="brown" shape="round" size="small">{{ t('创建还款') }}</a-button>
-                </drawdownre-quest>
+              <template v-if="hasPermission('projects:repayments:add')">
+                <template v-if="isNormalUser">
+                  <div class="flex items-center"><i class="iconfont mr-2">&#xe757;</i><span class="weight_demiBold">{{ t('还款申请') }}</span></div>
+                  <p class="color_grey mt-1 mb-3">{{ t('点击下方按钮创建还款申请') }}</p>
+                  <drawdownre-quest :uuid="uuid" :projectDetail="projectDetail" @change="update">
+                    <a-button type="brown" shape="round" size="small">{{ t('创建还款') }}</a-button>
+                  </drawdownre-quest>
+                </template>
+                <template v-else>
+                  <div class="flex items-center"><i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">{{ t('帮助借款人') }}</span></div>
+                  <p class="color_grey mt-1 mb-3">{{ t('您可以帮助他们创建还款请求') }}</p>
+                  <drawdownre-quest :uuid="uuid" :projectDetail="projectDetail" :count="total" @change="update">
+                    <a-button type="brown" shape="round" size="small">{{ t('创建还款') }}</a-button>
+                  </drawdownre-quest>
+                </template>
               </template>
               <template v-else>
-                <div class="flex items-center"><i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">{{ t('帮助借款人') }}</span></div>
-                <p class="color_grey mt-1 mb-3">{{ t('您可以帮助他们创建还款请求') }}</p>
-                <drawdownre-quest :uuid="uuid" :projectDetail="projectDetail" :count="total" @change="update">
-                  <a-button type="brown" shape="round" size="small">{{ t('创建还款') }}</a-button>
-                </drawdownre-quest>
+                <div class="flex items-center"><i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">{{ t('还款计算器') }}</span></div>
+                <p class="color_grey mt-1 mb-3">{{ t('您可以通过还款计算器计算还款金额') }}</p>
               </template>
             </div>
           </template>

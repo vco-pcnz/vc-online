@@ -14,13 +14,13 @@
               <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.apply_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" :showToday="false" />
             </div>
             <div class="input-item">
-              <div class="label">{{ t('说明') }}</div>
+              <vco-tip style="padding-bottom: 5px;" :tip="t('此说明内容将显示在交易记录中')"><div class="label" style="padding: 0;" :class="{ err: !formState.note && validate }">{{ t('说明') }}</div></vco-tip>
               <a-input v-model:value="formState.note" />
             </div>
           </a-col>
           <a-col :span="12">
             <div class="input-item">
-              <div class="label">{{ t('备注') }}</div>
+              <vco-tip style="padding-bottom: 5px;" :tip="t('此消息针对 FC 的批准评论')"><div class="label" style="padding: 0;">{{ t('消息') }}</div></vco-tip>
               <a-textarea v-model:value="formState.remark" :rows="10" />
             </div>
           </a-col>
@@ -134,7 +134,7 @@ const save = () => {
     return item.files && item.files.length;
   });
 
-  if (!formState.value.name || !formState.value.d_file.length || !formState.value.apply_date || tool.plus(formState.value.build_money || 0, formState.value.other_money || 0) == 0) return;
+  if (!formState.value.name || !formState.value.note || !formState.value.d_file.length || !formState.value.apply_date || tool.plus(formState.value.build_money || 0, formState.value.other_money || 0) == 0) return;
   submit();
 };
 
@@ -177,7 +177,7 @@ const loadType = (reset) => {
 
 const init = () => {
   formState.value.name = '';
-  formState.value.note = '';
+  formState.value.note = 'Development Drawdown';
   formState.value.remark = '';
   formState.value.apply_date = '';
   formState.value.d_file = [];

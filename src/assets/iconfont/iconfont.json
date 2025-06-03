@@ -6,6 +6,20 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "15391369",
+      "name": "减",
+      "font_class": "jian2",
+      "unicode": "e620",
+      "unicode_decimal": 58912
+    },
+    {
+      "icon_id": "15391370",
+      "name": "加",
+      "font_class": "jia1",
+      "unicode": "e621",
+      "unicode_decimal": 58913
+    },
+    {
       "icon_id": "201646",
       "name": "3.1 设置",
       "font_class": "31shezhi",

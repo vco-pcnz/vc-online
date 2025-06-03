@@ -539,7 +539,7 @@ onMounted(() => {
       padding-bottom: 60px;
       padding-top: 60px;
       position: relative;
-      overflow: hidden;
+      // overflow: hidden;
       &.hover {
         background: transparent;
         border: none;

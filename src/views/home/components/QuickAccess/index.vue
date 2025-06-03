@@ -4,7 +4,7 @@
     <div class="flex gap-1 items-center cursor-pointer" @click="open = true"><i class="iconfont">&#xe604;</i>{{ t('设置1') }}</div>
   </div>
   <div class="wrapper">
-    <div class="item nth5" v-for="(item, index) in list" :key="index">
+    <div class="item" v-for="(item, index) in list" :key="index" @click="navigationTo(item.path)">
       <img class="icon" :src="item.icon" alt="" />
       <p>{{ item.name }}</p>
     </div>
@@ -30,14 +30,29 @@
 </template>
 
 <script setup>
-import { name } from 'dayjs/locale/en';
 import { ref, computed, watch, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { navigationTo } from '@/utils/tool';
 const { t } = useI18n();
 
 const open = ref(false);
 
 const list = ref([
+  {
+    name: 'users',
+    path: '/users/list',
+    icon: 'http://vco.com/uploads/images/annex/20250119/5cd812ff979a3bb1357.png'
+  },
+  {
+    name: 'users',
+    path: '/users/list',
+    icon: 'http://vco.com/uploads/images/annex/20250119/5cd812ff979a3bb1357.png'
+  },
+  {
+    name: 'users',
+    path: '/users/list',
+    icon: 'http://vco.com/uploads/images/annex/20250119/5cd812ff979a3bb1357.png'
+  },
   {
     name: 'users',
     path: '/users/list',
@@ -69,20 +84,16 @@ const list = ref([
 .wrapper {
   display: flex;
   flex-wrap: wrap;
-  padding: 10px 15px 0;
+  padding: 10px 15px;
+  gap: 25px;
   .item {
     width: 65px;
     height: 65px;
-    margin-right: 25px;
     text-align: center;
-    margin-bottom: 15px;
     cursor: pointer;
     border: 1px solid transparent;
     &:hover {
       border: 1px solid #dbdbdb;
-    }
-    &.nth5:nth-child(5n) {
-      margin-right: 0;
     }
     .icon {
       display: inline-block;
@@ -101,7 +112,6 @@ const list = ref([
       border: 1px solid #dbdbdb;
       width: 65px;
       height: 65px;
-      margin-right: 30px;
       position: relative;
       .add {
         position: absolute;

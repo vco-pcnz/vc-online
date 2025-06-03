@@ -21,7 +21,7 @@
       ]"
       v-model:current="searchForm.module"
     ></vco-page-tab>
-    <TableSearch @search="updateSearchForm"></TableSearch>
+    <TableSearch :module="searchForm.module" @search="updateSearchForm"></TableSearch>
   </div>
 </template>
 
@@ -101,7 +101,7 @@ watch(
   (val) => {
     emits('search', searchForm.value);
   },
-  { immediate: true, deep: true }
+  { deep: true }
 );
 </script>
 

@@ -1,21 +1,29 @@
 <template>
   <div>
     <vco-page-search @keyup.enter="searchHandle(false)">
-      <vco-page-search-item width="120" :title="t('类型')">
-        <a-select :placeholder="t('请选择')" v-model:value="searchForm.type">
-          <a-select-option v-for="item in typeData" :key="item.value" :value="item.value">
-            {{ item.label }}
-          </a-select-option>
-        </a-select>
-      </vco-page-search-item>
+      <template v-if="module !== 'other'">
+        <vco-page-search-item width="120" :title="t('类型')">
+          <a-select :placeholder="t('请选择')" v-model:value="searchForm.type">
+            <a-select-option v-for="item in typeData" :key="item.value" :value="item.value">
+              {{ item.label }}
+            </a-select-option>
+          </a-select>
+        </vco-page-search-item>
 
-      <vco-page-search-item :title="t('项目信息')" width="250">
-        <vco-type-input v-model="searchForm.project_keyword" v-model:type="searchForm.project_search_type" :type-data="projectsTypeData" :placeholder="t('请输入')"></vco-type-input>
-      </vco-page-search-item>
+        <vco-page-search-item :title="t('项目信息')" width="250">
+          <vco-type-input v-model="searchForm.project_keyword" v-model:type="searchForm.project_search_type" :type-data="projectsTypeData" :placeholder="t('请输入')"></vco-type-input>
+        </vco-page-search-item>
 
-      <vco-page-search-item :title="t('借款人信息')" width="250">
-        <vco-type-input v-model="searchForm.borrower_keyword" v-model:type="searchForm.borrower_search_type" :type-data="borrowerTypeData" :placeholder="t('请输入')"></vco-type-input>
-      </vco-page-search-item>
+        <vco-page-search-item :title="t('借款人信息')" width="250">
+          <vco-type-input v-model="searchForm.borrower_keyword" v-model:type="searchForm.borrower_search_type" :type-data="borrowerTypeData" :placeholder="t('请输入')"></vco-type-input>
+        </vco-page-search-item>
+      </template>
+
+      <template v-else>
+        <vco-page-search-item :title="t('关键字')" width="250">
+          <a-input v-model:value="searchForm.keyword" :placeholder="t('请输入')" />
+        </vco-page-search-item>
+      </template>
 
       <vco-page-search-item width="100%">
         <div class="flex items-center gap-2">
@@ -28,12 +36,19 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash';
 import { useI18n } from 'vue-i18n';
+import { useRouter, useRoute } from 'vue-router';
+const route = useRoute();
 
 const emits = defineEmits(['search']);
+const props = defineProps({
+  module: {
+    type: String
+  }
+});
 
 const { t } = useI18n();
 
@@ -134,7 +149,8 @@ const searchForm = ref({
   borrower_keyword: '',
   borrower_search_type: '',
   project_search_type: '',
-  project_keyword: ''
+  project_keyword: '',
+  keyword: ''
 });
 
 const searchHandle = (flag) => {
@@ -143,9 +159,29 @@ const searchHandle = (flag) => {
       searchForm.value[key] = '';
     }
   }
-  const data = cloneDeep(searchForm.value);
+
+  let updateData = {};
+  if (props.module === 'other') {
+    updateData = Object.assign(searchForm.value, {
+      type: '',
+      borrower_keyword: '',
+      borrower_search_type: '',
+      project_search_type: '',
+      project_keyword: ''
+    });
+  } else {
+    updateData = Object.assign(searchForm.value, {
+      keyword: ''
+    });
+  }
+  const data = cloneDeep(updateData);
   emits('search', data);
 };
+
+onMounted(() => {
+  searchForm.value.type = route.query.type;
+  searchHandle();
+});
 
 // 暴露方法给父组件
 defineExpose({

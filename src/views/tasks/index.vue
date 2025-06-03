@@ -1,4 +1,7 @@
 <template>
+  <op-project ref="opProjectRef" @update="opUpdate"></op-project>
+  <op-loan ref="opLoanRef" @update="opUpdate"></op-loan>
+  <op-other ref="opOtherRef" @update="opUpdate"></op-other>
   <div>
     <layout @search="reload"></layout>
     <div class="flex gap-3 mt-4 send-box" v-if="currentParams?.status === '10'">
@@ -56,6 +59,25 @@
                 <span v-if="moduleData[record.module]" class="status-txt">{{ moduleData[record.module] }}</span>
                 <p v-else>--</p>
               </template>
+              <template v-if="column.dataIndex === 'borrower'">
+                <template v-if="record.showName">
+                  <div class="icon-txt">
+                    <i class="iconfont" v-if="record.borrower_type == 1">&#xe632;</i>
+                    <i class="iconfont" v-else>&#xe679;</i>
+                    <span :title="record.project_city" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-1">{{ record.showName }}</span>
+                  </div>
+                  <div class="icon-txt">
+                    <i class="iconfont">&#xe66f;</i>
+                    <span class="inline-block">{{ record.borrower_email }}</span>
+                  </div>
+                  <div class="icon-txt">
+                    <i class="iconfont">&#xe678;</i>
+                    <span class="inline-block">{{ record.borrower_phone }}</span>
+                  </div>
+                </template>
+
+                <p v-else>--</p>
+              </template>
               <template v-if="column.dataIndex === 'process_type'">
                 <span v-if="typeData[record.process_type]" class="status-txt">{{ typeData[record.process_type] }}</span>
                 <p v-else>--</p>
@@ -76,7 +98,8 @@
                 </span>
               </template>
               <template v-if="column.dataIndex === 'status'">
-                <span>{{ t(record.status_name) }}</span>
+                <span v-if="record.status_name" class="status-txt">{{ t(record.status_name) }}</span>
+                <p v-else>--</p>
               </template>
 
               <template v-if="column.dataIndex === 'create_time'">
@@ -84,7 +107,7 @@
                 <p v-else>--</p>
               </template>
               <template v-if="column.dataIndex === 'operation'">
-                <Operation :data="record" :vcTeamData="vcTeamData" :vcTeamObj="vcTeamObj" @update="reload(true)"></Operation>
+                <a-button type="primary" size="small" shape="round" class="uppercase" @click="todoHandle(record)">{{ t('点击处理') }}</a-button>
               </template>
             </template>
           </a-table>
@@ -98,15 +121,17 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { useTableList } from '@/hooks/useTableList';
 import { projectBacklogList, backlogNotify } from '@/api/tasks';
-import { associateSystemConfig } from '@/api/process';
+import { useUserStore } from '@/store';
+
 import layout from './components/layout.vue';
-import Operation from './components/Operation/index.vue';
-import { hasPermission } from '@/directives/permission/index';
+import OpProject from './components/Operation/Project.vue';
+import OpLoan from './components/Operation/Loan.vue';
+import OpOther from './components/Operation/Other.vue';
 
 const { t } = useI18n();
 
@@ -138,7 +163,8 @@ const columns = computed(() => {
     head = [
       { title: t('项目图片'), dataIndex: 'project_image', width: 80, align: 'center' },
       { title: t('信息'), dataIndex: 'project_info', width: 300, align: 'left' },
-      { title: t('模块'), dataIndex: 'module', align: 'left' },
+      { title: t('借款人'), dataIndex: 'borrower', width: 300, align: 'left' },
+      { title: t('模块'), dataIndex: 'module', align: 'center' },
 
       { title: t('创建时间'), dataIndex: 'create_time', width: 140, align: 'center' },
       {
@@ -154,7 +180,8 @@ const columns = computed(() => {
     head = [
       { title: t('项目图片'), dataIndex: 'project_image', width: 80, align: 'center' },
       { title: t('项目信息'), dataIndex: 'project_info', width: 300, align: 'left' },
-      { title: t('类型'), dataIndex: 'process_type', width: 140, align: 'left' },
+      { title: t('借款人'), dataIndex: 'borrower', width: 300, align: 'left' },
+      { title: t('类型'), dataIndex: 'process_type', align: 'center' },
       // { title: t('金额'), dataIndex: 'amount', width: 140, align: 'left' },
       // { title: t('说明'), dataIndex: 'note', align: 'left' },
       { title: t('创建时间'), dataIndex: 'create_time', width: 140, align: 'center' },
@@ -171,6 +198,7 @@ const columns = computed(() => {
     head = [
       { title: t('项目图片'), dataIndex: 'project_image', width: 80, align: 'center' },
       { title: t('项目信息'), dataIndex: 'project_info', width: 300, align: 'left' },
+      { title: t('借款人'), dataIndex: 'borrower', width: 300, align: 'left' },
       { title: t('借款金额'), dataIndex: 'loan_money', width: 200, align: 'left' },
       { title: t('状态'), dataIndex: 'status', align: 'center' },
       { title: t('创建时间'), dataIndex: 'create_time', width: 140, align: 'center' },
@@ -212,11 +240,11 @@ const tableDataRef = computed(() => {
       imgsArr = images.split(',');
     }
 
-    // if (item?.project?.borrower_type === 1) {
-    //   item.showName = `${item.first_name} ${item.middle_name} ${item.last_name}`;
-    // } else {
-    //   item.showName = item.organization_name;
-    // }
+    if (item?.borrower_type === 1) {
+      item.showName = `${item.first_name} ${item.middle_name} ${item.last_name}`;
+    } else {
+      item.showName = item.organization_name;
+    }
 
     item.process_type = item.process_type.toLowerCase();
     item.imgsArr = imgsArr;
@@ -290,27 +318,28 @@ const send = (val) => {
     });
 };
 
-const vcTeamObj = ref(null);
-const vcTeamData = ref([]);
-
-const getVcteamData = () => {
-  associateSystemConfig().then((res) => {
-    vcTeamData.value = res || [];
-    const vcTeamArr = vcTeamData.value.map((item) => item.code);
-
-    const vcObj = {};
-
-    for (let i = 0; i < vcTeamArr.length; i++) {
-      vcObj[vcTeamArr[i]] = [];
-    }
-
-    vcTeamObj.value = vcObj;
-  });
+// 点击操作
+const opProjectRef = ref(null);
+const opLoanRef = ref(null);
+const opOtherRef = ref(null);
+const todoHandle = (val) => {
+  if (val.module === 'project') {
+    opProjectRef.value.todoHandle(val);
+  }
+  if (val.module === 'request') {
+    opLoanRef.value.todoHandle(val);
+  }
+  if (val.module === 'other') {
+    opOtherRef.value.todoHandle(val);
+  }
 };
 
-onMounted(() => {
-  getVcteamData();
-});
+// 按钮操作完刷新页面
+const userStore = useUserStore();
+const opUpdate = () => {
+  userStore.getTaskNumInfo();
+  reload(true);
+};
 </script>
 
 <style lang="less" scoped>

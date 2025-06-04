@@ -2,23 +2,25 @@
   <a-spin :spinning="loading" size="large">
     <div class="flex justify-between">
       <div class="bold fs_2xl">{{ t('项目仪表板') }}</div>
-      <!-- <div class="flex items-center">
-        <div>{{ t('数据更新时间') }}：2025-05-21 08:00</div>
-
-        <a-button type="cyan ml-3">{{ t('更新') }}</a-button>
-      </div> -->
-    </div>
-    <div class="dDggoj">
-      <ChartOne :data="data?.counts || []"></ChartOne>
-      <div class="hRgViQ number">
-        <p class="title">Total IRR Forecast</p>
-        <div>
-          <p class="value">{{ data.irr }}%</p>
-          <div class="br"></div>
-          <p class="more">&nbsp;</p>
-          <p class="more">&nbsp;</p>
-        </div>
+      <div class="flex items-center">
+        <div v-if="data.date">{{ t('数据更新时间') }}：{{ data.date }}</div>
+        <a-button type="cyan ml-3" @click="loadData(1)">{{ t('更新') }}</a-button>
       </div>
+    </div>
+    <div class="dDggoj" :class="{ hak: !hasPermission('home:balance_irr') }">
+      <template v-if="hasPermission('home:balance_irr')">
+        <ChartOne :data="data?.counts || []"></ChartOne>
+        <div class="hRgViQ number">
+          <p class="title">Total IRR Forecast</p>
+          <div>
+            <p class="value">{{ data.irr }}%</p>
+            <div class="br"></div>
+            <p class="more">&nbsp;</p>
+            <p class="more">&nbsp;</p>
+          </div>
+        </div>
+      </template>
+
       <div class="hRgViQ number">
         <p class="title">Total Balance</p>
         <div>
@@ -41,19 +43,25 @@ import { useI18n } from 'vue-i18n';
 import ChartOne from './ChartOne.vue';
 import ChartTwo from './ChartTwo.vue';
 import { dashboard } from '@/api/home/index';
+import { hasPermission } from '@/directives/permission/index';
 const { t } = useI18n();
 
 const loading = ref(false);
 const data = ref({});
-onMounted(() => {
+
+const loadData = (val) => {
   loading.value = true;
-  dashboard()
+  dashboard({ upd: val })
     .then((res) => {
       data.value = res;
     })
     .finally(() => {
       loading.value = false;
     });
+};
+
+onMounted(() => {
+  loadData();
 });
 </script>
 
@@ -66,6 +74,9 @@ onMounted(() => {
   gap: 12px;
   margin-top: 12px;
   font-weight: 500;
+  &.hak {
+    grid-template-columns: 1.3fr 2fr;
+  }
   .hRgViQ {
     flex: 1 1 0%;
     min-width: 208px;

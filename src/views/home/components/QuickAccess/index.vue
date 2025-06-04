@@ -10,10 +10,10 @@
         <p>{{ item.name }}</p>
       </div>
     </div>
-    <a-empty v-if="!myList.length && !loading" style="min-height: 100px" />
+    <a-empty v-if="!myList.length && !loading" style="transform: scale(.6);min-height: 60px;" />
   </a-spin>
 
-  <a-modal :width="600" v-if="open" :open="open" :title="t('快捷入口')" @cancel="open = false" :footer="false" class="QuickAccessModal">
+  <a-modal :width="550" v-if="open" :open="open" :title="t('快捷入口')" @cancel="open = false" :footer="false" class="QuickAccessModal">
     <a-spin :spinning="loading" size="large">
       <div class="bold">{{ t('已添加') }}</div>
       <div class="wrapper">
@@ -23,7 +23,7 @@
           <i class="iconfont add reduce" @click="handReduce(index)">&#xe620;</i>
         </div>
         <div style="text-align: center; width: 100%">
-          <a-empty v-if="!settingData.length && !loading" style="min-height: 100px" />
+          <a-empty v-if="!settingData.length && !loading" style="transform: scale(.8);min-height: 60px;" />
         </div>
       </div>
       <div class="bold">{{ t('列表') }}</div>
@@ -128,10 +128,10 @@ onMounted(() => {
   display: flex;
   flex-wrap: wrap;
   padding: 10px 15px;
-  gap: 25px;
+  gap: 0 10px;
   .item {
-    width: 94px;
-    height: 65px;
+    width: 90px;
+    height: 90px;
     text-align: center;
     cursor: pointer;
     border: 1px solid transparent;
@@ -141,7 +141,7 @@ onMounted(() => {
     .icon {
       display: inline-block;
       width: auto;
-      height: 20px;
+      height: 30px;
       margin: 15px 0 5px;
     }
     p {
@@ -151,10 +151,11 @@ onMounted(() => {
 }
 .QuickAccessModal {
   .wrapper {
+    gap: 25px;
     .item {
       border: 1px solid #dbdbdb;
-      width: 94px;
-      height: 65px;
+      width: 90px;
+      height: 90px;
       position: relative;
       .add {
         position: absolute;

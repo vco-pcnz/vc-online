@@ -3,7 +3,7 @@
     <div class="flex justify-between title items-center">
       <div class="bold fs_2xl">
         {{ t('待办事项1') }}
-        <!-- (10) -->
+        ({{ userStore.taskInfo.total }})
       </div>
       <div class="cursor-pointer" @click="navigationTo('/tasks')">{{ t('更多') }}</div>
     </div>
@@ -12,21 +12,26 @@
         <!-- <i class="iconfont">&#xe679;</i> -->
         <img class="icon" :src="item.icon" alt="" />
         <div>
-          <p class="num"></p>
+          <p class="num" :class="{ active: item.backlog_count > 0 }">{{ item.backlog_count }}</p>
           <p :title="item.name" class="name">{{ item.name }}</p>
         </div>
       </div>
-      <a-empty v-if="!list.length && !loading" style="min-height: 100px" /></div
-  ></a-spin>
+      <div style="text-align: center; width: 100%">
+        <a-empty v-if="!list.length && !loading" style="transform: scale(0.6); min-height: 60px" />
+      </div>
+    </div>
+  </a-spin>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { navigationTo } from '@/utils/tool';
+import { useUserStore } from '@/store';
 import { quick } from '@/api/home/index';
 
 const { t } = useI18n();
+const userStore = useUserStore();
 const list = ref([]);
 const loading = ref(false);
 
@@ -54,12 +59,11 @@ onMounted(() => {
   display: flex;
   flex-wrap: wrap;
   padding: 10px 30px;
-  gap: 35px;
   .item {
     display: flex;
     align-items: center;
     gap: 5px;
-    height: 55px;
+    height: 90px;
     padding: 0 10px;
     box-sizing: border-box;
     border: 1px solid transparent;
@@ -71,14 +75,23 @@ onMounted(() => {
     }
     .icon {
       display: inline-block;
-      width: auto;
-      height: 38px;
+      width: 38px;
+      height: auto;
+      max-height: 60px;
     }
     .name {
       white-space: nowrap; /* 禁止换行 */
       overflow: hidden; /* 隐藏超出部分 */
       text-overflow: ellipsis; /* 显示省略号 */
-      width: 80px; /* 需要设置一个宽度 */
+      width: 73px; /* 需要设置一个宽度 */
+    }
+    .num {
+      font-size: 16px;
+      position: relative;
+      top: -7px;
+    }
+    .active {
+      color: red;
     }
   }
 }

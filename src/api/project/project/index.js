@@ -103,3 +103,10 @@ export const syncProjectBill = (data) =>
     method: 'post',
     data
   });
+
+  export const downGs = () =>
+    request({
+      url: 'project/down/gs',
+      method: 'get'
+    });
+  

@@ -20,8 +20,8 @@
       </template>
 
       <template v-else>
-        <vco-page-search-item :title="t('关键字')" width="250">
-          <a-input v-model:value="searchForm.keyword" :placeholder="t('请输入')" />
+        <vco-page-search-item :title="t('用户')" width="250">
+          <a-input v-model:value="searchForm.user_keyword" :placeholder="t('请输入')" />
         </vco-page-search-item>
       </template>
 
@@ -37,10 +37,10 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash';
 import { useI18n } from 'vue-i18n';
-import { useRouter, useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
+import { quick } from '@/api/home/index';
 const route = useRoute();
 
 const emits = defineEmits(['search']);
@@ -56,55 +56,55 @@ const typeData = ref([
   {
     label: t('全部'),
     value: ''
-  },
-  {
-    label: t('放款'),
-    value: 'drawdown'
-  },
-  {
-    label: t('还款'),
-    value: 'repayment'
-  },
-  {
-    label: t('解押'),
-    value: 'discharge'
-  },
-  {
-    label: t('罚息开始'),
-    value: 'penalty-start'
-  },
-  {
-    label: t('罚息结束'),
-    value: 'penalty-end'
-  },
-  {
-    label: t('变更'),
-    value: 'variation'
-  },
-  {
-    label: t('平账'),
-    value: 'journal'
-  },
-  {
-    label: t('关账'),
-    value: 'closed'
-  },
-  {
-    label: t('反洗钱'),
-    value: 'aml'
-  },
-  {
-    label: t('抵押物'),
-    value: 'security'
-  },
-  {
-    label: t('关账撤销'),
-    value: 'closed-cancel'
-  },
-  {
-    label: t('申请中介'),
-    value: 'vip-broker-vip'
   }
+  // {
+  //   label: t('放款'),
+  //   value: 'drawdown'
+  // },
+  // {
+  //   label: t('还款'),
+  //   value: 'repayment'
+  // },
+  // {
+  //   label: t('解押'),
+  //   value: 'discharge'
+  // },
+  // {
+  //   label: t('罚息开始'),
+  //   value: 'penalty-start'
+  // },
+  // {
+  //   label: t('罚息结束'),
+  //   value: 'penalty-end'
+  // },
+  // {
+  //   label: t('变更'),
+  //   value: 'variation'
+  // },
+  // {
+  //   label: t('平账'),
+  //   value: 'journal'
+  // },
+  // {
+  //   label: t('关账'),
+  //   value: 'closed'
+  // },
+  // {
+  //   label: t('反洗钱'),
+  //   value: 'aml'
+  // },
+  // {
+  //   label: t('抵押物'),
+  //   value: 'security'
+  // },
+  // {
+  //   label: t('关账撤销'),
+  //   value: 'closed-cancel'
+  // },
+  // {
+  //   label: t('申请中介'),
+  //   value: 'vip-broker-vip'
+  // }
 ]);
 
 const borrowerTypeData = [
@@ -150,7 +150,7 @@ const searchForm = ref({
   borrower_search_type: '',
   project_search_type: '',
   project_keyword: '',
-  keyword: ''
+  user_keyword: ''
 });
 
 const searchHandle = (flag) => {
@@ -159,11 +159,46 @@ const searchHandle = (flag) => {
       searchForm.value[key] = '';
     }
   }
-  const data = cloneDeep(searchForm.value);
-  emits('search', data);
+
+  if (props.module === 'other') {
+    Object.assign(searchForm.value, {
+      type: '',
+      borrower_keyword: '',
+      borrower_search_type: '',
+      project_search_type: '',
+      project_keyword: ''
+    });
+  } else {
+    Object.assign(searchForm.value, {
+      user_keyword: ''
+    });
+  }
+  let updateData = cloneDeep(searchForm.value);
+
+  emits('search', updateData);
+};
+
+const loading = ref(false);
+const loadType = () => {
+  loading.value = ref(true);
+  quick({ ptype: '2' })
+    .then((res) => {
+      if (res && res.length) {
+        res.map((item) => {
+          typeData.value.push({
+            label: item.name,
+            value: item.type
+          });
+        });
+      }
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 };
 
 onMounted(() => {
+  loadType();
   searchForm.value.type = route.query.type;
   searchHandle();
 });

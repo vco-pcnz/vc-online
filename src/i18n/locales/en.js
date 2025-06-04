@@ -1002,5 +1002,6 @@ export default {
   "模块": "Module",
   "信息": "information",
   "请先设置建筑贷款总额的进度付款信息": "Please set the progress payment information of the build amount",
-  "您可以通过还款计算器计算还款金额": "You can calculate the repayment amount through the repayment calculator"
+  "您可以通过还款计算器计算还款金额": "You can calculate the repayment amount through the repayment calculator",
+  "新开贷款": "New loan"
 }

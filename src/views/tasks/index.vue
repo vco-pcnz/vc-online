@@ -73,7 +73,9 @@
                   </div>
                   <div class="icon-txt" v-if="record.borrower_phone">
                     <i class="iconfont">&#xe678;</i>
-                    <span class="inline-block">{{ record.borrower_phone }}</span>
+                    <div class="inline-block" style="text-indent: 20px">
+                      <span v-if="record.borrower_phone_prefix"> +{{ record.borrower_phone_prefix }}</span> {{ record.borrower_phone }}
+                    </div>
                   </div>
                 </template>
 

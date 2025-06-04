@@ -20,7 +20,7 @@
           <p class="color_grey fs_xs">Line fee ({{ data?.left?.lineFeeRate }}%)</p>
           <vco-number :value="data?.left?.lineFee" :bold="true" :precision="2" size="fs_2xl"></vco-number>
         </a-col>
-        <a-col :span="24">
+        <a-col :span="24" v-if="hasPermission('projects:about:bonus')">
           <p class="color_grey fs_xs">Bonus ({{ data?.left?.bonusRate }}%)</p>
           <vco-number :value="data?.left?.bonus" :bold="true" :precision="2" size="fs_2xl"></vco-number>
         </a-col>
@@ -46,7 +46,7 @@
           <p class="color_grey fs_xs">Line fee</p>
           <vco-number :value="data?.middle?.lineFee" :bold="true" :precision="2" size="fs_2xl"></vco-number>
         </a-col>
-        <a-col :span="24">
+        <a-col :span="24" v-if="hasPermission('projects:about:bonus')">
           <p class="color_grey fs_xs">Bonus</p>
           <vco-number :value="data?.middle?.bonus2" :bold="true" :precision="2" size="fs_2xl"></vco-number>
         </a-col>

@@ -190,7 +190,7 @@
                     <i class="iconfont selected-icon">&#xe601;</i>
                   </template>
                 </div>
-                <vco-number v-else :value="record[column.dataIndex].amount" :class="{'borrowr-amount': record.category === 2}" size="fs_md" :precision="2" :end="true"></vco-number>
+                <vco-number v-else :value="record[column.dataIndex].amount" :class="{'borrowr-amount': record.category === 2}"  :color="isSelect ? '#272727' : '#ea3535'" size="fs_md" :precision="2" :end="true"></vco-number>
               </template>
             </template>
             <template #summary>
@@ -278,7 +278,11 @@
               :class="{'hover': isSelect}"
               @click="itemSetHandle(item)"
             >
-              <vco-number :value="item.amount" size="fs_md" :precision="2" :end="true"></vco-number>
+              <template v-if="!isSelect">
+                <vco-number :value="item.amount" size="fs_md" color="#ea3535" :precision="2" :end="true"></vco-number>
+                <vco-number :value="item.borrower_equity" size="fs_md" color="#31bd65" :precision="2" :end="true" class="mt-1"></vco-number>
+              </template>
+              <vco-number v-else :value="item.amount" size="fs_md" :precision="2" :end="true"></vco-number>
               <vco-number v-if="showProcess" :value="tableRemainTotal(item.amount, item.use_amount)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
               <vco-number v-if="showProcess" :value="item.use_amount" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
               <a-progress
@@ -301,7 +305,14 @@
           <div class="table-total-content">
             <p>Total Cost to Complete</p>
             <div class="total-item">
-              <vco-number :value="tableTotal" :bold="true" size="fs_xl" :precision="2" :end="true"></vco-number>
+              <div v-if="!isSelect" class="total-item flex justify-end items-center gap-2">
+                <vco-number :value="loanTotal" size="fs_md" :precision="2" :end="true" color="#eb4b6d"></vco-number>
+                <span>{{ Number(borrowerEquityTotal) < 0 ? '-' : '+' }}</span>
+                <vco-number :value="Math.abs(borrowerEquityTotal)" size="fs_md" :precision="2" :end="true" color="#31bd65"></vco-number>
+                <span>=</span>
+                <vco-number :value="tableTotal" size="fs_xl" :precision="2" :end="true" :bold="true"></vco-number>
+              </div>
+              <vco-number v-else :value="tableTotal" :bold="true" size="fs_xl" :precision="2" :end="true"></vco-number>
             </div>
           </div>
 
@@ -436,9 +447,34 @@
     }
   }
 
+  const loanTotal = computed(() => {
+    const inputArr = footerDataCol.value.map(item => Number(item.loan))
+    const inputNum = inputArr.reduce((total, num) => {
+      return Number(tool.plus(total, num))
+    }, 0);
+
+    const tableNum = easyModel.value ? 0 : TableLoanTotal.value(1)
+
+    return tool.plus(tableNum, inputNum)
+  })
+
+  const borrowerEquityTotal = computed(() => {
+    const inputArr = footerDataCol.value.map(item => Number(item.borrower_equity))
+    const inputNum = inputArr.reduce((total, num) => {
+      return Number(tool.plus(total, num))
+    }, 0);
+
+    const tableNum = easyModel.value ? 0 : TableLoanTotal.value(2)
+
+    return tool.plus(tableNum, inputNum)
+  })
+
+
   const tableTotal = computed(() => {
     const tableNum = easyModel.value ? 0 : summaryHandle('total')
-    const inputArr = footerDataCol.value.map(item => item.loan)
+
+    const key = props.isSelect ? 'loan' : 'total'
+    const inputArr = footerDataCol.value.map(item => item[key])
     const inputNum = inputArr.reduce((total, num) => {
       return Number(tool.plus(total, num))
     }, 0);
@@ -572,11 +608,15 @@
       const num = Number(total) ? Number(Number(tool.div(Number(useTotal), Number(total))).toFixed(2)) : 0
       obj.percent = Number(tool.times(num, 100))
 
-      if (Number(obj.payment)) {
+      
+      if (!props.isSelect) {
         dataArr.push(obj)
+      } else {
+        if (Number(obj.payment)) {
+          dataArr.push(obj)
+        }
       }
     }
-
     tableData.value = dataArr
 
     pageLoading.value = false
@@ -904,7 +944,13 @@
 
       try {
         await toolsDetail(params).then(res => {
+          const costModel = Boolean(res.devCostDetail[0].model)
+          easyModel.value = costModel
+
           const list = res.devCostDetail[0].data[0].list
+          const Construction = list.find(item => item.type === 'Construction')
+          buildAmount.value = Construction ? (Number(Construction.loan) || 0) : 0
+          
           handleFooterData(list)
         })
         

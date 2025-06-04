@@ -532,7 +532,7 @@
     { title: t('总计'), dataIndex: 'total', width: 180, align: 'center', fixed: 'right' }]
 
     // 合并第一行数据
-    if (tableHeader.value.length > 4) {
+    if (tableHeader.value.length > 3) {
       tableHeader.value.forEach((item, index) => {
         item.customCell = (record, _index) => {
           if (['type', 'total'].includes(item.dataIndex)) {

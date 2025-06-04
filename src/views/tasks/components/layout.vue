@@ -91,10 +91,11 @@ watch(
       status: searchForm.value.status,
       type: searchForm.value.type
     };
-    userStore.loadingCount = false;
-    userStore.getTaskNumInfo();
+    setTimeout(() => {
+      userStore.getTaskNumInfo();
+    }, 500);
   },
-  { immediate: true, deep: true }
+  { deep: true }
 );
 
 watch(

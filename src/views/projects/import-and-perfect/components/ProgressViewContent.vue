@@ -873,7 +873,15 @@
           })
 
           footerDataCol.value = footerData.filter(item => {
-            return props.isSelect ? Number(item.amount) : Number(item.amount) || Number(item.borrower_equity)
+            if (props.isSelect) {
+              return Number(item.amount)
+            } else {
+              if (item.list && item.list.length) {
+                return Number(item.amount)
+              } else {
+                return Number(item.amount) || Number(item.borrower_equity)
+              }
+            }
           })
         }
       })

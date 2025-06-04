@@ -3,10 +3,11 @@ import { request } from '@/utils/request';
 /**
  * 登录
  */
-export const dashboard = () =>
+export const dashboard = (params) =>
   request({
     url: '/home/dashboard',
-    method: 'get'
+    method: 'get',
+    params
   });
 
 export const myQuick = () =>

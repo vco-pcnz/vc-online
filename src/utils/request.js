@@ -146,7 +146,12 @@ function throttle(fn, wait = 1500) {
 }
 
 function stringify(data) {
-  return qs.stringify(data, { allowDots: true, encode: false });
+  return qs.stringify(data, { 
+    allowDots: true, 
+    encode: true, // 强制编码参数值
+    encoder: (value) => encodeURIComponent(value), // 自定义编码逻辑
+  });
+  // return qs.stringify(data, { allowDots: true, encode: false });
 }
 
 /**

@@ -67,11 +67,11 @@
                     <i class="iconfont" v-else>&#xe679;</i>
                     <span :title="record.project_city" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-1">{{ record.showName }}</span>
                   </div>
-                  <div class="icon-txt">
+                  <div class="icon-txt" v-if="record.borrower_email">
                     <i class="iconfont">&#xe66f;</i>
                     <span class="inline-block">{{ record.borrower_email }}</span>
                   </div>
-                  <div class="icon-txt">
+                  <div class="icon-txt" v-if="record.borrower_phone">
                     <i class="iconfont">&#xe678;</i>
                     <span class="inline-block">{{ record.borrower_phone }}</span>
                   </div>

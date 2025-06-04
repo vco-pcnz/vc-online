@@ -21,7 +21,7 @@
       ]"
       v-model:current="searchForm.module"
     ></vco-page-tab>
-    <TableSearch v-if="searchForm.module !== 'other'" :module="searchForm.module" @search="updateSearchForm"></TableSearch>
+    <TableSearch :module="searchForm.module" @search="updateSearchForm"></TableSearch>
   </div>
 </template>
 
@@ -100,7 +100,6 @@ watch(
 watch(
   () => searchForm.value,
   (val) => {
-    console.log(111);
     let updateData = cloneDeep(searchForm.value);
     if (searchForm.value.module === 'other') {
       Object.assign(updateData, {
@@ -112,7 +111,7 @@ watch(
       });
     } else {
       Object.assign(updateData, {
-        keyword: ''
+        user_keyword: ''
       });
     }
     emits('search', updateData);

@@ -871,7 +871,10 @@
             }
             return mergItem
           })
-          footerDataCol.value = footerData.filter(item => Number(item.amount))
+
+          footerDataCol.value = footerData.filter(item => {
+            return props.isSelect ? Number(item.amount) : Number(item.amount) || Number(item.borrower_equity)
+          })
         }
       })
     } catch (err) {
@@ -898,14 +901,16 @@
       const item = footerData[i]
 
       // 把大项也添加到数据中，兼容之前已经存在放款的情况
-      if (item.loan) {
+      const canFlag = props.isSelect ? item.loan : item.total || Number(item.borrower_equity)
+      if (canFlag) {
         dataArr.push(item)
       }
 
       if (item.list && item.list.length) {
         for (let j = 0; j < item.list.length; j++) {
           const listItem = item.list[j]
-          if (listItem.loan) {
+          const flag = props.isSelect ? listItem.loan : listItem.total || Number(listItem.borrower_equity)
+          if (flag) {
             listItem.name = `${item.name} [${listItem.type}]`
             dataArr.push(listItem)
           }

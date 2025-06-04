@@ -10,255 +10,251 @@
     ></vco-confirm-alert>
 
     <a-spin :spinning="pageLoading" size="large">
-      <div class="progress-payment-content">
-        <template v-if="(securityData.length || setedData.length) && !pageLoading">       
-          <div v-if="amortizedHeader.length" class="form-block-content">
-            <div class="title">{{ t('最新均摊值') }}</div>
-            <a-table
-              :columns="amortizedHeader"
-              :data-source="amortizedData"
-              bordered
-              :pagination="false"
-              table-layout="fixed"
-              :scroll="{ x: '100%' }"
-            >
-            </a-table>
-            <div class="amortized-text" v-html="amortizedCalc"></div>
-            <div class="flex justify-end items-center mt-2">
-              {{ t('贷款总额') }}：
-              <vco-number :value="Number(tool.plus(buildAmount, borrowerEquity))" size="fs_xl" :precision="2" :end="true"></vco-number>
-            </div>
+      <div class="progress-payment-content"> 
+        <div v-if="amortizedData.length" class="form-block-content">
+          <div class="title">{{ t('最新均摊值') }}</div>
+          <a-table
+            :columns="amortizedHeader"
+            :data-source="amortizedData"
+            bordered
+            :pagination="false"
+            table-layout="fixed"
+            :scroll="{ x: '100%' }"
+          >
+          </a-table>
+          <div class="amortized-text" v-html="amortizedCalc"></div>
+          <div class="flex justify-end items-center mt-2">
+            {{ t('贷款总额') }}：
+            <vco-number :value="Number(tool.plus(buildAmount, borrowerEquity))" size="fs_xl" :precision="2" :end="true"></vco-number>
           </div>
+        </div>
 
-          <div v-if="tableHeader.length" class="form-block-content">
-            <div class="flex justify-between mb-2">
-              <div class="title">{{ t('进度付款阶段') }}</div>
-              <template v-if="!easyModel">
-                <div v-if="!isOpen" class="flex gap-5">
-                  <a-button type="dark" class="uppercase flex items-center" @click="exportHandle">
-                    {{ t('下载') }}
+        <div class="form-block-content">
+          <div class="flex justify-between mb-2">
+            <div class="title">{{ t('进度付款阶段') }}</div>
+            <template v-if="!easyModel && calcBuildAmount">
+              <div v-if="!isOpen" class="flex gap-5">
+                <a-button type="dark" class="uppercase flex items-center" @click="exportHandle">
+                  {{ t('下载') }}
+                  <a-tooltip>
+                    <template #title>
+                      <span>{{ t(`下载为Excel表格，编辑后再点击右侧'上传'按钮上传编辑后的数据，以更新设置数据`) }}</span>
+                    </template>
+                    <QuestionCircleOutlined />
+                  </a-tooltip>
+                </a-button>
+                
+                <a-button type="primary" class="uppercase relative">
+                  {{ t('上传') }}
+                  <input
+                    type="file"
+                    id="excelFile"
+                    class="excel-upload"
+                    accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    @change="importHandle"
+                  />
+                </a-button>
+
+                <a-popconfirm :title="t('确定初始化吗？')" @confirm="initHandle(false)">
+                  <a-button
+                    type="primary"
+                    class="uppercase flex items-center"
+                  >
+                    {{ t('初始化进度付款') }}
                     <a-tooltip>
                       <template #title>
-                        <span>{{ t(`下载为Excel表格，编辑后再点击右侧'上传'按钮上传编辑后的数据，以更新设置数据`) }}</span>
+                        <span>{{ t('操作后数据会按照最新建筑贷款总额和建筑总面积，重新计算进度付款数据') }}</span>
                       </template>
                       <QuestionCircleOutlined />
                     </a-tooltip>
                   </a-button>
-                  
-                  <a-button type="primary" class="uppercase relative">
-                    {{ t('上传') }}
-                    <input
-                      type="file"
-                      id="excelFile"
-                      class="excel-upload"
-                      accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                      @change="importHandle"
-                    />
-                  </a-button>
-
-                  <a-popconfirm :title="t('确定初始化吗？')" @confirm="initHandle(false)">
-                    <a-button
-                      type="primary"
-                      class="uppercase flex items-center"
-                    >
-                      {{ t('初始化进度付款') }}
-                      <a-tooltip>
-                        <template #title>
-                          <span>{{ t('操作后数据会按照最新建筑贷款总额和建筑总面积，重新计算进度付款数据') }}</span>
-                        </template>
-                        <QuestionCircleOutlined />
-                      </a-tooltip>
-                    </a-button>
-                  </a-popconfirm>
-                  <a-button
-                    v-if="hasReseted"
-                    type="dark"
-                    class="uppercase"
-                    @click="restoreHandle"
-                  >
-                    {{ t('还原') }}
-                  </a-button>
-                </div>
-                <div v-else>
-                  <a-button
-                    type="dark"
-                    class="uppercase"
-                    @click="restoreHandle"
-                  >
-                    {{ t('刷新') }}
-                  </a-button>
-                </div>
-              </template>
-            </div>
-            <a-table
-              v-if="!easyModel"
-              :columns="tableHeader"
-              :data-source="tableData"
-              bordered
-              :pagination="false"
-              table-layout="fixed"
-              :scroll="{ x: '100%', y: 500 }"
-            >
-              <template #bodyCell="{ column, record, index }">
-                <template v-if="record.isFixedRow">
-                  <template v-if="column.dataIndex === 'type'">
-                    <p>{{ record.type }}</p>
-                  </template>
-                  <template v-else-if="column.dataIndex === 'payment'">
-                    <p>--</p>
-                  </template>
-                  <template v-else-if="column.dataIndex === 'total'">
-                    <vco-number :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
-                  </template>
-                  <template v-else>
-                    <div class="flex justify-center flex-col items-center" style="width: 710px;">
-                      <a-input-number
-                        v-model:value="advanceAmount"
-                        :max="99999999999"
-                        :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                        :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                        style="width: 200px;"
-                        @input="() => initHandle(true)"
-                        @blur="advanceBlur"
-                      />
-                      <p v-if="advanceObj?.showError" class="input-error text-center">
-                        {{ t('最小值:{0}', [`$${numberStrFormat(advanceObj.use_amount)}`]) }}
-                      </p>
-                      <div v-if="isOpen" class="mt-1">
-                        <vco-number :value="advanceObj.use_amount" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
-                      </div>
-                    </div>
-                  </template>
-                </template>
-
-                <template v-else-if="column.dataIndex === 'type'">
-                  <p>{{ record[column.dataIndex] }}</p>
+                </a-popconfirm>
+                <a-button
+                  v-if="hasReseted"
+                  type="dark"
+                  class="uppercase"
+                  @click="restoreHandle"
+                >
+                  {{ t('还原') }}
+                </a-button>
+              </div>
+              <div v-else>
+                <a-button
+                  type="dark"
+                  class="uppercase"
+                  @click="restoreHandle"
+                >
+                  {{ t('刷新') }}
+                </a-button>
+              </div>
+            </template>
+          </div>
+          <a-table
+            v-if="!easyModel && calcBuildAmount"
+            :columns="tableHeader"
+            :data-source="tableData"
+            bordered
+            :pagination="false"
+            table-layout="fixed"
+            :scroll="{ x: '100%', y: 500 }"
+          >
+            <template #bodyCell="{ column, record, index }">
+              <template v-if="record.isFixedRow">
+                <template v-if="column.dataIndex === 'type'">
+                  <p>{{ record.type }}</p>
                 </template>
                 <template v-else-if="column.dataIndex === 'payment'">
-                  <p v-if="isOpen">{{ record[column.dataIndex] }}%</p>
-                  <a-input
-                    v-else
-                    v-model:value="record[column.dataIndex]"
-                    @input="() => initHandle(true)"
-                    suffix="%"
-                    :class="{'loan-input': Number(record.category) === 1,'borrower-input': Number(record.category) === 2}"
-                  />
+                  <p>--</p>
                 </template>
                 <template v-else-if="column.dataIndex === 'total'">
-                  <div class="total-info-txt">Loan<vco-number :value="record[column.dataIndex]" size="fs_xs" :precision="2" :end="true" color="#eb4b6d"></vco-number></div>
-                  <div v-if="record.type === tableData[index + 1]?.type" class="total-info-txt">Borrower Equity
-                    <vco-number :value="tableData[index + 1][column.dataIndex]" size="fs_xs" :precision="2" :end="true" color="#31bd65"></vco-number>
-                  </div>
-                  <div class="flex justify-end">
-                    <vco-number v-if="record.type === tableData[index + 1]?.type" :value="Number(tool.plus(record[column.dataIndex], tableData[index + 1][column.dataIndex]))" size="fs_md" :precision="2" :end="true"></vco-number>
-                    <vco-number v-else :value="record[column.dataIndex]" size="fs_md" :precision="2" :end="true"></vco-number>
-                  </div>
+                  <vco-number :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
                 </template>
                 <template v-else>
-                  <a-input-number
-                    v-model:value="record[column.dataIndex].amount"
-                    :max="99999999999"
-                    :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                    :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                    :disabled="record[column.dataIndex].disabled"
-                    @input="itemInput(record, record[column.dataIndex])"
-                    @blur="inputBlur(record, record[column.dataIndex])"
-                    :class="{'loan-input': Number(record.category) === 1,'borrower-input': Number(record.category) === 2}"
-                  />
-                  <p v-if="record[column.dataIndex].showError" class="input-error">
-                    {{ t('最小值:{0}', [`$${numberStrFormat(record[column.dataIndex].use_amount)}`]) }}
-                  </p>
-                  <div v-if="isOpen" class="mt-1">
-                    <vco-number :value="record[column.dataIndex].use_amount" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
+                  <div class="flex justify-center flex-col items-center" :style="{width: amLen === 1 ? '340px' : '710px'}">
+                    <a-input-number
+                      v-model:value="advanceAmount"
+                      :max="99999999999"
+                      :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                      :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                      style="width: 200px;"
+                      @input="() => initHandle(true)"
+                      @blur="advanceBlur"
+                    />
+                    <p v-if="advanceObj?.showError" class="input-error text-center">
+                      {{ t('最小值:{0}', [`$${numberStrFormat(advanceObj.use_amount)}`]) }}
+                    </p>
+                    <div v-if="isOpen" class="mt-1">
+                      <vco-number :value="advanceObj.use_amount" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
+                    </div>
                   </div>
                 </template>
               </template>
-              <template #summary>
-                <a-table-summary fixed>
-                  <a-table-summary-row>
-                    <a-table-summary-cell v-for="(item, index) in summaryCol" :index="index" :key="item.key" class="text-center">
-                      <template v-if="item.key === 'type'">Construction</template>
-                      <template v-else-if="item.key === 'payment'">
-                        <p class="total-percent"
-                          :class="{'plus': summaryHandle(item.key) > 100, 'minus': summaryHandle(item.key) < 100}"
-                        >{{ numberStrFormat(summaryHandle(item.key)) }}%</p>
-                      </template>
-                      <template v-else-if="item.key === 'total'">
-                        <div class="total-info-txt">
-                          Loan
-                          <vco-number :value="TableLoanTotal(1)" size="fs_xs" :precision="2" :end="true" color="#eb4b6d"></vco-number>
-                        </div>
-                        <div class="total-info-txt">
-                          Borrower Equity
-                          <vco-number :value="TableLoanTotal(2)" size="fs_xs" :precision="2" :end="true" color="#31bd65"></vco-number>
-                        </div>
-                        <div class="flex justify-end">
-                          <vco-number
-                            :value="summaryHandle(item.key)"
-                            size="fs_md"
-                            :precision="2"
-                            :end="true"
-                            :color="totalColor(summaryHandle(item.key))"
-                          ></vco-number>
-                        </div>
-                      </template>
-                      <template v-else>
-                        <vco-number :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
-                      </template>
-                    </a-table-summary-cell>
-                  </a-table-summary-row>
-                </a-table-summary>
+
+              <template v-else-if="column.dataIndex === 'type'">
+                <p>{{ record[column.dataIndex] }}</p>
               </template>
-            </a-table>
-            <div class="other-table-info" :class="{'easy-model': easyModel}">
-              <div v-for="item in footerDataCol" :key="item.type" class="item">
-                <div v-if="item.list && item.list.length" class="child-content">
-                  <div class="child-item" v-for="childItem in item.list" :key="childItem.type">
-                    <p>{{ childItem.type }}</p>
-                    <div class="flex justify-end items-center gap-2 flex-1">
-                    <vco-number :value="childItem.loan" size="fs_xs" :precision="2" :end="true" color="#eb4b6d"></vco-number>
-                      <span>{{ Number(childItem.borrower_equity) < 0 ? '-' : '+' }}</span>
-                      <vco-number :value="Math.abs(childItem.borrower_equity)" size="fs_xs" :precision="2" :end="true" color="#31bd65"></vco-number>
-                      <span>=</span>
-                      <vco-number :value="childItem.total" size="fs_xs" :precision="2" :end="true"></vco-number>
-                    </div>
-                  </div>
+              <template v-else-if="column.dataIndex === 'payment'">
+                <p v-if="isOpen">{{ record[column.dataIndex] }}%</p>
+                <a-input
+                  v-else
+                  v-model:value="record[column.dataIndex]"
+                  @input="() => initHandle(true)"
+                  suffix="%"
+                  :class="{'loan-input': Number(record.category) === 1,'borrower-input': Number(record.category) === 2}"
+                />
+              </template>
+              <template v-else-if="column.dataIndex === 'total'">
+                <div class="total-info-txt">Loan<vco-number :value="record[column.dataIndex]" size="fs_xs" :precision="2" :end="true" color="#eb4b6d"></vco-number></div>
+                <div v-if="record.type === tableData[index + 1]?.type" class="total-info-txt">Borrower Equity
+                  <vco-number :value="tableData[index + 1][column.dataIndex]" size="fs_xs" :precision="2" :end="true" color="#31bd65"></vco-number>
                 </div>
-                <div class="item-info">
-                  <p>{{ item.name }}</p>
-                  <div class="total-item flex justify-end items-center gap-2">
-                    <vco-number :value="item.loan" size="fs_md" :precision="2" :end="true" color="#eb4b6d"></vco-number>
-                    <span>{{ Number(item.borrower_equity) < 0 ? '-' : '+' }}</span>
-                    <vco-number :value="Math.abs(item.borrower_equity)" size="fs_md" :precision="2" :end="true" color="#31bd65"></vco-number>
+                <div class="flex justify-end">
+                  <vco-number v-if="record.type === tableData[index + 1]?.type" :value="Number(tool.plus(record[column.dataIndex], tableData[index + 1][column.dataIndex]))" size="fs_md" :precision="2" :end="true"></vco-number>
+                  <vco-number v-else :value="record[column.dataIndex]" size="fs_md" :precision="2" :end="true"></vco-number>
+                </div>
+              </template>
+              <template v-else>
+                <a-input-number
+                  v-model:value="record[column.dataIndex].amount"
+                  :max="99999999999"
+                  :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                  :disabled="record[column.dataIndex].disabled"
+                  @input="itemInput(record, record[column.dataIndex])"
+                  @blur="inputBlur(record, record[column.dataIndex])"
+                  :class="{'loan-input': Number(record.category) === 1,'borrower-input': Number(record.category) === 2}"
+                />
+                <p v-if="record[column.dataIndex].showError" class="input-error">
+                  {{ t('最小值:{0}', [`$${numberStrFormat(record[column.dataIndex].use_amount)}`]) }}
+                </p>
+                <div v-if="isOpen" class="mt-1">
+                  <vco-number :value="record[column.dataIndex].use_amount" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
+                </div>
+              </template>
+            </template>
+            <template #summary>
+              <a-table-summary fixed>
+                <a-table-summary-row>
+                  <a-table-summary-cell v-for="(item, index) in summaryCol" :index="index" :key="item.key" class="text-center">
+                    <template v-if="item.key === 'type'">Construction</template>
+                    <template v-else-if="item.key === 'payment'">
+                      <p class="total-percent"
+                        :class="{'plus': summaryHandle(item.key) > 100, 'minus': summaryHandle(item.key) < 100}"
+                      >{{ numberStrFormat(summaryHandle(item.key)) }}%</p>
+                    </template>
+                    <template v-else-if="item.key === 'total'">
+                      <div class="total-info-txt">
+                        Loan
+                        <vco-number :value="TableLoanTotal(1)" size="fs_xs" :precision="2" :end="true" color="#eb4b6d"></vco-number>
+                      </div>
+                      <div class="total-info-txt">
+                        Borrower Equity
+                        <vco-number :value="TableLoanTotal(2)" size="fs_xs" :precision="2" :end="true" color="#31bd65"></vco-number>
+                      </div>
+                      <div class="flex justify-end">
+                        <vco-number
+                          :value="summaryHandle(item.key)"
+                          size="fs_md"
+                          :precision="2"
+                          :end="true"
+                          :color="totalColor(summaryHandle(item.key))"
+                        ></vco-number>
+                      </div>
+                    </template>
+                    <template v-else>
+                      <vco-number :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
+                    </template>
+                  </a-table-summary-cell>
+                </a-table-summary-row>
+              </a-table-summary>
+            </template>
+          </a-table>
+          <div class="other-table-info" :class="{'easy-model': easyModel || !calcBuildAmount}">
+            <div v-for="item in footerDataCol" :key="item.type" class="item">
+              <div v-if="item.list && item.list.length" class="child-content">
+                <div class="child-item" v-for="childItem in item.list" :key="childItem.type">
+                  <p>{{ childItem.type }}</p>
+                  <div class="flex justify-end items-center gap-2 flex-1">
+                  <vco-number :value="childItem.loan" size="fs_xs" :precision="2" :end="true" color="#eb4b6d"></vco-number>
+                    <span>{{ Number(childItem.borrower_equity) < 0 ? '-' : '+' }}</span>
+                    <vco-number :value="Math.abs(childItem.borrower_equity)" size="fs_xs" :precision="2" :end="true" color="#31bd65"></vco-number>
                     <span>=</span>
-                    <vco-number :value="item.total" size="fs_md" :precision="2" :end="true" :bold="true"></vco-number>
+                    <vco-number :value="childItem.total" size="fs_xs" :precision="2" :end="true"></vco-number>
                   </div>
                 </div>
               </div>
-              <div class="item total">
-                <p>Total Cost to Complete</p>
+              <div class="item-info">
+                <p>{{ item.name }}</p>
                 <div class="total-item flex justify-end items-center gap-2">
-                  <vco-number :value="loanTotal" size="fs_md" :precision="2" :end="true" color="#eb4b6d"></vco-number>
-                  <span>{{ Number(borrowerEquityTotal) < 0 ? '-' : '+' }}</span>
-                  <vco-number :value="Math.abs(borrowerEquityTotal)" size="fs_md" :precision="2" :end="true" color="#31bd65"></vco-number>
+                  <vco-number :value="item.loan" size="fs_md" :precision="2" :end="true" color="#eb4b6d"></vco-number>
+                  <span>{{ Number(item.borrower_equity) < 0 ? '-' : '+' }}</span>
+                  <vco-number :value="Math.abs(item.borrower_equity)" size="fs_md" :precision="2" :end="true" color="#31bd65"></vco-number>
                   <span>=</span>
-                  <vco-number :value="tableTotal" size="fs_xl" :precision="2" :end="true" :bold="true"></vco-number>
+                  <vco-number :value="item.total" size="fs_md" :precision="2" :end="true" :bold="true"></vco-number>
                 </div>
               </div>
             </div>
-            <div class="mt-10 flex justify-end gap-10">
-              <a-button type="grey" class="big shadow bold uppercase"
-                @click="goBack"
-              >{{ t('返回') }}</a-button>
-              <a-button type="dark" class="big shadow bold uppercase" 
-                :loading="subLoading"
-                @click="submitHandle"
-              >{{ t('提交') }}</a-button>
+            <div class="item total">
+              <p>Total Cost to Complete</p>
+              <div class="total-item flex justify-end items-center gap-2">
+                <vco-number :value="loanTotal" size="fs_md" :precision="2" :end="true" color="#eb4b6d"></vco-number>
+                <span>{{ Number(borrowerEquityTotal) < 0 ? '-' : '+' }}</span>
+                <vco-number :value="Math.abs(borrowerEquityTotal)" size="fs_md" :precision="2" :end="true" color="#31bd65"></vco-number>
+                <span>=</span>
+                <vco-number :value="tableTotal" size="fs_xl" :precision="2" :end="true" :bold="true"></vco-number>
+              </div>
             </div>
           </div>
-        </template>
-
-        <a-empty v-if="!securityData.length && !Object.keys(setedData.data).length && !pageLoading" />
+          <div class="mt-10 flex justify-end gap-10">
+            <a-button type="grey" class="big shadow bold uppercase"
+              @click="goBack"
+            >{{ t('返回') }}</a-button>
+            <a-button type="dark" class="big shadow bold uppercase" 
+              :loading="subLoading"
+              @click="submitHandle"
+            >{{ t('提交') }}</a-button>
+          </div>
+        </div>
       </div>
     </a-spin>
   </div>
@@ -751,35 +747,21 @@
     try {
       const ajaxFn = isRequests.value ? projectGetBuild : projectLoanGetBuild
       await ajaxFn(params).then(res => {
-        const data = res.data || {}
-        if (Object.keys(data).length) {
-          setedData.value = res
-
-          // 首次放款数据
-          if (Object.keys(res.payment).length) {
-            if (res.payment[`0$1__payment`]) {
-              advancePercent.value = res.payment[`0$1__payment`].amount
-            }
+        setedData.value = res
+        // 首次放款数据
+        if (Object.keys(res.payment).length) {
+          if (res.payment[`0$1__payment`]) {
+            advancePercent.value = res.payment[`0$1__payment`].amount
           }
+        }
 
-          // footer 数据
-          if (Object.keys(res.summary).length) {
-            if (res.summary[`${advanceKey.value}`]) {
-              advanceAmount.value = res.summary[`${advanceKey.value}`].amount
+        // footer 数据
+        if (Object.keys(res.summary).length) {
+          if (res.summary[`${advanceKey.value}`]) {
+            advanceAmount.value = res.summary[`${advanceKey.value}`].amount
 
-              advanceObj.value = res.summary[`${advanceKey.value}`]
-              advanceObj.value.showError = false
-            }
-
-            // 编辑的时候不用处理footerData
-            // const footerData = footerDataCol.value.map(item => {
-            //   return {
-            //     loan: res.summary[`${item.name}`].amount,
-            //     ...item,
-            //     ...res.summary[`${item.name}`]
-            //   }
-            // })
-            // footerDataCol.value = footerData
+            advanceObj.value = res.summary[`${advanceKey.value}`]
+            advanceObj.value.showError = false
           }
         }
       })
@@ -957,7 +939,7 @@
   const columnsTypeObj = ref({})
   const columnsType = () => {
     // 计算borrowerEquity占比
-    const borrowerEquityPercent = tool.times(tool.div(borrowerEquity.value, calcBuildAmount.value), 100)
+    const borrowerEquityPercent = calcBuildAmount.value ? tool.times(tool.div(borrowerEquity.value, calcBuildAmount.value), 100) : 0
     let remainingPercent = borrowerEquityPercent
 
     systemDictDataApi({

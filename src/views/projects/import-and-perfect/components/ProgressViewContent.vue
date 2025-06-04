@@ -49,7 +49,7 @@
 
     <a-spin :spinning="pageLoading" size="large">
       <div class="progress-payment-content" :class="{'preview-table': !isSelect}">
-        <div v-if="tableHeader.length && hasData && !pageLoading" class="form-block-content" :class="{'mt-10': isSelect}">
+        <div v-if="tableHeader.length && !pageLoading" class="form-block-content" :class="{'mt-10': isSelect}">
           <div v-if="!isSelect && !isBlock" class="title">{{ t('进度付款阶段') }}</div>
           <div v-if="isSelect" class="mt-2 mb-2 flex justify-end gap-4">
             <a-button v-if="selectDataHasNum" type="cyan" class="bold uppercase" @click="selectCancelAll">{{ t('取消所有设置') }}</a-button>
@@ -59,7 +59,7 @@
           </div>
           <p v-if="batchSelect" class="text-right mb-2">{{ t('点击下方表格，选择需要批量操作的数据')}}</p>
           <a-table
-            v-if="!easyModel"
+            v-if="!easyModel && buildAmount"
             :columns="tableHeader"
             :data-source="tableData"
             bordered
@@ -98,7 +98,7 @@
                 </template>
                 <template v-else>
                   <div v-if="showProcess" class="select-item adv" :class="{'hover': isSelect}" @click="itemSetHandle(advanceObj)">
-                    <div class="flex justify-center flex-col items-center" style="width: 660px;">
+                    <div class="flex justify-center flex-col items-center" :style="{width: tableHeader.length === 4 ? '265px' : '660px'}">
                       <vco-number :value="advanceAmount" size="fs_xs" :precision="2" :end="true"></vco-number>
                       <vco-number :value="tableRemainTotal(advanceAmount, advanceObj?.use_amount || 0)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
                       <vco-number :value="advanceObj?.use_amount || 0" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
@@ -121,7 +121,7 @@
                     </template>
                   </div>
 
-                  <div v-else class="flex justify-center" style="width: 660px;">
+                  <div v-else class="flex justify-center" :style="{width: tableHeader.length === 4 ? '265px' : '660px'}">
                     <vco-number :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
                   </div>
                 </template>
@@ -271,7 +271,7 @@
               </a-table-summary>
             </template>
           </a-table>
-          <div v-if="footerDataCol.length" class="other-table-info" :class="{'page': isPage, 'easy-model': easyModel}">
+          <div v-if="footerDataCol.length" class="other-table-info" :class="{'page': isPage, 'easy-model': easyModel || !buildAmount}">
             <div
               v-for="item in footerDataCol" :key="item.type"
               class="item"
@@ -316,7 +316,6 @@
             >{{ t('确定') }}</a-button>
           </div>
         </div>
-        <a-empty v-if="!hasData && !pageLoading" />
       </div>
     </a-spin>
   </div>
@@ -381,10 +380,6 @@
     const data = props.selectedData.map(item => item.build_id) || []
     return data
   })
-
-  // 是否为进件阶段
-  const isRequests = ref(false)
-  const hasData = ref(false)
 
    // 已设置数据
   const setedData = ref({
@@ -734,123 +729,116 @@
           data = dataRes
         }
         
-        if (Object.keys(data).length) {
-          setedData.value = res
-          hasData.value = true
+        setedData.value = res
 
-          // 首次放款数据
-          if (Object.keys(res.payment).length) {
-            if (res.payment[`0$1__payment`]) {
-              advancePercent.value = res.payment[`0$1__payment`].amount
-            }
+        // 首次放款数据
+        if (Object.keys(res.payment).length) {
+          if (res.payment[`0$1__payment`]) {
+            advancePercent.value = res.payment[`0$1__payment`].amount
           }
+        }
 
-          // footer 数据
-          if (Object.keys(res.summary).length) {
-            if (res.summary[`${advanceKey.value}`]) {
-              advanceAmount.value = res.summary[`${advanceKey.value}`].amount
+        // footer 数据
+        if (Object.keys(res.summary).length) {
+          if (res.summary[`${advanceKey.value}`]) {
+            advanceAmount.value = res.summary[`${advanceKey.value}`].amount
 
-              const advanceItem = res.summary[`${advanceKey.value}`]
-              advanceItem.amount = Number(advanceItem.amount)
-              advanceItem.checked = false
-              advanceItem.selected = false
-              advanceItem.set_amount = ''
-              advanceItem.set_amount_per = ''
-              if (advanceItem.amount) {
-                const use_amount = advanceItem.use_amount || 0
-                const num = Number(Number(tool.div(Number(use_amount), Number(advanceItem.amount))).toFixed(2))
-                advanceItem.percent = Number(tool.times(num, 100))
-              } else {
-                advanceItem.percent = 0
-              }
-              
-              // 处理编辑额度
-              if (buildLogDataIds.value.includes(advanceItem.id)) {
-                const logItem = props.buildLogData.find(item => item.build_id === advanceItem.id)
-                if (logItem) {
-                  advanceItem.use_amount = tool.minus(advanceItem.use_amount, logItem.amount)
-                  if (advanceItem.amount) {
-                    const num = Number(Number(tool.div(Number(advanceItem.use_amount), Number(advanceItem.amount))).toFixed(2))
-                    advanceItem.percent = Number(tool.times(num, 100))
-                  } else {
-                    advanceItem.percent = 0
-                  }
+            const advanceItem = res.summary[`${advanceKey.value}`]
+            advanceItem.amount = Number(advanceItem.amount)
+            advanceItem.checked = false
+            advanceItem.selected = false
+            advanceItem.set_amount = ''
+            advanceItem.set_amount_per = ''
+            if (advanceItem.amount) {
+              const use_amount = advanceItem.use_amount || 0
+              const num = Number(Number(tool.div(Number(use_amount), Number(advanceItem.amount))).toFixed(2))
+              advanceItem.percent = Number(tool.times(num, 100))
+            } else {
+              advanceItem.percent = 0
+            }
+            
+            // 处理编辑额度
+            if (buildLogDataIds.value.includes(advanceItem.id)) {
+              const logItem = props.buildLogData.find(item => item.build_id === advanceItem.id)
+              if (logItem) {
+                advanceItem.use_amount = tool.minus(advanceItem.use_amount, logItem.amount)
+                if (advanceItem.amount) {
+                  const num = Number(Number(tool.div(Number(advanceItem.use_amount), Number(advanceItem.amount))).toFixed(2))
+                  advanceItem.percent = Number(tool.times(num, 100))
+                } else {
+                  advanceItem.percent = 0
                 }
               }
-
-              // 编辑回显数据
-              if (selectedDataIds.value.includes(advanceItem.id)) {
-                const selItem = props.selectedData.find(item => item.build_id === advanceItem.id)
-                if (selItem) {
-                  advanceItem.checked = true
-                  advanceItem.set_amount = selItem.amount
-                  selectData.value.push(advanceItem)
-                }
-              }
-
-              advanceObj.value = advanceItem
             }
 
-            const footerData = footerDataCol.value.map(item => {
-              const summaryItem = res.summary[`${item.name}`] || {}
-              item.amount = Object.keys(summaryItem).length ? Number(summaryItem.amount) : 0
-              item.checked = false
-              item.selected = false
-              item.set_amount = ''
-              item.set_amount_per = ''
-
-              const mergItem = {
-                loan: item.amount,
-                ...summaryItem,
-                ...item
+            // 编辑回显数据
+            if (selectedDataIds.value.includes(advanceItem.id)) {
+              const selItem = props.selectedData.find(item => item.build_id === advanceItem.id)
+              if (selItem) {
+                advanceItem.checked = true
+                advanceItem.set_amount = selItem.amount
+                selectData.value.push(advanceItem)
               }
+            }
 
-              if (Number(mergItem.amount)) {
-                const use_amount = mergItem.use_amount || 0
-                const num = Number(Number(tool.div(Number(use_amount), Number(mergItem.amount))).toFixed(2))
-                mergItem.percent = Number(tool.times(num, 100))
-              } else {
-                mergItem.percent = 0
-              }
-
-              // 处理编辑额度
-              if (buildLogDataIds.value.includes(mergItem.id)) {
-                const logItem = props.buildLogData.find(item => item.build_id === mergItem.id)
-                if (logItem) {
-                  mergItem.use_amount = tool.minus(mergItem.use_amount, logItem.amount)
-                  if (mergItem.amount) {
-                    const num = Number(Number(tool.div(Number(mergItem.use_amount), Number(mergItem.amount))).toFixed(2))
-                    mergItem.percent = Number(tool.times(num, 100))
-                  } else {
-                    mergItem.percent = 0
-                  }
-                }
-              }
-
-              // 编辑回显数据
-              if (selectedDataIds.value.includes(mergItem.id)) {
-                const selItem = props.selectedData.find(item => item.build_id === mergItem.id)
-                if (selItem) {
-                  mergItem.checked = true
-                  mergItem.set_amount = selItem.amount
-                  selectData.value.push(mergItem)
-                }
-              }
-              return mergItem
-            })
-            footerDataCol.value = footerData.filter(item => Number(item.amount))
+            advanceObj.value = advanceItem
           }
-        } else {
-          pageLoading.value = false
+
+          const footerData = footerDataCol.value.map(item => {
+            const summaryItem = res.summary[`${item.name}`] || {}
+            item.amount = Object.keys(summaryItem).length ? Number(summaryItem.amount) : 0
+            item.checked = false
+            item.selected = false
+            item.set_amount = ''
+            item.set_amount_per = ''
+
+            const mergItem = {
+              loan: item.amount,
+              ...summaryItem,
+              ...item
+            }
+
+            if (Number(mergItem.amount)) {
+              const use_amount = mergItem.use_amount || 0
+              const num = Number(Number(tool.div(Number(use_amount), Number(mergItem.amount))).toFixed(2))
+              mergItem.percent = Number(tool.times(num, 100))
+            } else {
+              mergItem.percent = 0
+            }
+
+            // 处理编辑额度
+            if (buildLogDataIds.value.includes(mergItem.id)) {
+              const logItem = props.buildLogData.find(item => item.build_id === mergItem.id)
+              if (logItem) {
+                mergItem.use_amount = tool.minus(mergItem.use_amount, logItem.amount)
+                if (mergItem.amount) {
+                  const num = Number(Number(tool.div(Number(mergItem.use_amount), Number(mergItem.amount))).toFixed(2))
+                  mergItem.percent = Number(tool.times(num, 100))
+                } else {
+                  mergItem.percent = 0
+                }
+              }
+            }
+
+            // 编辑回显数据
+            if (selectedDataIds.value.includes(mergItem.id)) {
+              const selItem = props.selectedData.find(item => item.build_id === mergItem.id)
+              if (selItem) {
+                mergItem.checked = true
+                mergItem.set_amount = selItem.amount
+                selectData.value.push(mergItem)
+              }
+            }
+            return mergItem
+          })
+          footerDataCol.value = footerData.filter(item => Number(item.amount))
         }
       })
     } catch (err) {
       pageLoading.value = false
     }
 
-    if (hasData.value) {
-      setTableHeader()
-    }
+    setTableHeader()
   }
 
   // 处理footer 数据
@@ -888,6 +876,8 @@
     footerDataCol.value = dataArr
   }
 
+  const buildAmount = ref(0)
+
   // 是否为简易模式
   const easyModel = ref(true)
 
@@ -900,6 +890,10 @@
       easyModel.value = costModel
       
       const list = props.projectDetail.devCostDetail[0].data[0].list
+
+      const Construction = list.find(item => item.type === 'Construction')
+      buildAmount.value = Construction ? (Number(Construction.loan) || 0) : 0
+
       handleFooterData(list)
       await getSetedData()
     } else {

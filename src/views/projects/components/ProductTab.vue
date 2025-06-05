@@ -3,6 +3,7 @@
     <div v-for="item in productData" :key="item.uuid" class="nav-link" :class="{ active: item.uuid === currentProduct }" @click="productChange(item)">
       {{ item.name }}
     </div>
+    <slot></slot>
   </div>
 </template>
 

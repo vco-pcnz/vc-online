@@ -132,7 +132,10 @@
           <div class="col-content">
             <div v-for="(item, index) in tabData" :key="index" class="col-block" :class="{ passed: item.passed }">
               <div v-for="(_item, _index) in item.list" :key="_item.date" class="col-item">
-                <div v-if="isAbout" class="item about flex items-center"><span class="circle" :style="{ background: _item.status === 2 || (_item.passed && _item.is_fee) ? '#181818' : '#b4d8d8' }"></span></div>
+                <div v-if="isAbout"
+                  class="item about flex items-center">
+                    <span class="circle" :style="{ background: _item.status === 2 || (_item.passed && _item.is_fee) ? '#181818' : '#b4d8d8' }"></span>
+                </div>
                 <div v-else class="item"></div>
                 <div class="item">{{ tool.showDate(_item.date) }}</div>
                 <div class="item type">
@@ -365,6 +368,10 @@ const getDataInfo = () => {
           itemData.forEach((item, index) => {
             const currentTargetDate = dayjs(item.date);
             item.passed = currentTargetDate.isBefore(currentMonth, 'day') || currentTargetDate.isSame(currentMonth, 'day');
+
+            if (item.type === 4 && Number(item.balance) === 0 && item.note === 'FINAL REPAYMENT' && index === itemData.length - 1) {
+              item.passed = false
+            }
 
             if (item.type === 2) {
               item.drawdown = tool.formatMoney(item.amount);

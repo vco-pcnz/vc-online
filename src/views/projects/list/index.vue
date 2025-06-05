@@ -1,5 +1,8 @@
 <template>
-  <product-tab v-model:current="pageStore.product_uuid" @change="tabChange"></product-tab>
+  <product-tab v-model:current="pageStore.product_uuid" @change="tabChange">
+    <div style="flex: 1"></div>
+    <a-button type="cyan" size="small" class="ml-3" shape="round" @click="report" :loading="downloading" v-if="hasPermission('projects:newLoan:download')">{{ t('新开贷款') }}</a-button>
+  </product-tab>
   <vco-page-tab class="mt-5" :tabData="tabData" v-model:current="pageStore.sta" @change="tabChange"></vco-page-tab>
 
   <div class="flex justify-between items-center">
@@ -30,7 +33,9 @@ import { useI18n } from 'vue-i18n';
 import TableSearch from '../components/TableSearch.vue';
 import TableBlock from '../components/TableBlock.vue';
 import { useProjectsStore } from '@/store';
+import { hasPermission } from '@/directives/permission/index';
 import ProductTab from './../components/ProductTab.vue';
+import { downGs } from '@/api/project/project';
 
 const { t } = useI18n();
 const pageStore = useProjectsStore();
@@ -62,4 +67,15 @@ const tabChange = () => {
 };
 
 onMounted(() => {});
+const downloading = ref(false);
+const report = () => {
+  downloading.value = true;
+  downGs()
+    .then((res) => {
+      window.open(res);
+    })
+    .finally(() => {
+      downloading.value = false;
+    });
+};
 </script>

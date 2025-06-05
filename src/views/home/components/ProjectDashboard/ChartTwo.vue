@@ -57,10 +57,10 @@ const getHeight = (item, type) => {
 };
 const initData = () => {
   // 找出 drawdown 的最大值
-  maxDrawdown.value = Object.values(props.data).reduce((max, item) => Math.max(max, item.drawdown), -Infinity);
+  maxDrawdown.value = Object.values(props.data).reduce((max, item) => Math.max(max, item.drawdown), -Infinity) || 1;
 
   // 找出 repayment 的最大值
-  maxRepayment.value = Object.values(props.data).reduce((max, item) => Math.max(max, item.repayment), -Infinity);
+  maxRepayment.value = Object.values(props.data).reduce((max, item) => Math.max(max, item.repayment), -Infinity) || 1;
   max.value = Math.max(maxDrawdown.value, maxRepayment.value);
 };
 
@@ -126,7 +126,7 @@ watch(
     .jhVYNA {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr 1fr;
-      gap: 24px;
+      gap: 12px;
       position: relative;
       margin-top: 10px;
       text-align: center;

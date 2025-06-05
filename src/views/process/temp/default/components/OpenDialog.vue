@@ -175,11 +175,14 @@ const openDateChange = (date) => {
   if (date) {
     const { start_date, end_date } = props.infoData.lending;
     const calcDay = tool.calculateDurationPrecise(start_date, end_date);
+    const months = calcDay.months;
+    const days = calcDay.days;
     const gapDay = calcDay.gapDay;
 
     if (gapDay) {
       let statrDate = dayjs(date);
-      const endDateStr = tool.calculateEndDateByDays(statrDate, gapDay);
+      // const endDateStr = tool.calculateEndDateByDays(statrDate, gapDay);
+      const endDateStr = tool.calculateEndDate(statrDate, months, days);
 
       startDate.value = dayjs(date).format('YYYY-MM-DD');
       endDate.value = endDateStr;

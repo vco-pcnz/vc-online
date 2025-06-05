@@ -1235,6 +1235,7 @@
           uuid: props.currentId,
           build_amount: formState.value.build_amount || 0,
           land_amount: formState.value.land_amount || 0,
+          equity_amount: formState.value.equity_amount || 0,
           initial_build_amount: formState.value.initial_build_amount || 0,
           initial_land_amount: formState.value.initial_land_amount || 0,
           initial_equity_amount: formState.value.initial_equity_amount || 0,

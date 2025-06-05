@@ -330,7 +330,8 @@ tool.diffDate = (a, b) => {
   const date1 = dayjs(a);
   const date2 = dayjs(b);
 
-  return date2.diff(date1, 'day') + 1;
+  // return date2.diff(date1, 'day') + 1;
+  return date2.diff(date1, 'day');
 };
 
 /**
@@ -341,8 +342,10 @@ tool.calculateDurationPrecise = (startDate, endDate) => {
   const end = dayjs(endDate);
 
   const months = end.diff(start, 'month');
-  const remainingDays = end.subtract(months, 'month').diff(start, 'day') + 1;
-  const gapDay = end.diff(start, 'day') + 1;
+  // const remainingDays = end.subtract(months, 'month').diff(start, 'day') + 1;
+  // const gapDay = end.diff(start, 'day') + 1;
+  const remainingDays = end.subtract(months, 'month').diff(start, 'day');
+  const gapDay = end.diff(start, 'day');
 
   let res = {
     months,
@@ -359,7 +362,8 @@ tool.calculateDurationPrecise = (startDate, endDate) => {
 tool.calculateEndDate = (startDate, months = 0, days = 0) => {
   const start = dayjs(startDate);
   // 增加月数和天数
-  const end = start.add(months, 'month').add(days, 'day').subtract(1, 'day');
+  // const end = start.add(months, 'month').add(days, 'day').subtract(1, 'day');
+  const end = start.add(months, 'month').add(days, 'day');
   return end.format('YYYY-MM-DD'); // 返回格式化的日期
 };
 
@@ -369,7 +373,8 @@ tool.calculateEndDate = (startDate, months = 0, days = 0) => {
 tool.calculateEndDateByDays = (startDate, days = 0) => {
   const start = dayjs(startDate);
   // 增加月数和天数
-  const end = start.add(days, 'day').subtract(1, 'day');
+  // const end = start.add(days, 'day').subtract(1, 'day');
+  const end = start.add(days, 'day');
   return end.format('YYYY-MM-DD'); // 返回格式化的日期
 };
 

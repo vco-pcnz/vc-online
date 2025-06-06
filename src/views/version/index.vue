@@ -3,7 +3,7 @@
   <div class="version-page">
     <a-timeline>
       <a-timeline-item v-for="(item, index) in list" :key="item.id">
-        <div class="date" :class="[{ active: !index }]">{{ item.date }}</div>
+        <div class="date" :class="[{ active: !index }]">{{ tool.showDate(item.date, 'DD/MM/YY') }}</div>
         <a-collapse v-model:activeKey="item.openId">
           <template #expandIcon="{ isActive }">
             <RightOutlined style="position: absolute; right: 10px" :rotate="isActive ? 90 : 0" />
@@ -75,11 +75,11 @@ onMounted(() => {
 <style lang="less">
 @import '@/styles/variables.less';
 .version-page {
-  padding-left: 145px;
+  padding-left: 125px;
   padding-right: 30px;
   .date {
     position: absolute;
-    left: -140px;
+    left: -124px;
     top: 6px;
     background: #dbdbdb;
     padding: 5px 10px;

@@ -49,7 +49,7 @@
 
     <a-spin :spinning="pageLoading" size="large">
       <div class="progress-payment-content" :class="{'preview-table': !isSelect}">
-        <div v-if="tableHeader.length && !pageLoading" class="form-block-content" :class="{'mt-10': isSelect}">
+        <div v-if="(tableHeader.length || footerDataCol.length) && !pageLoading" class="form-block-content" :class="{'mt-10': isSelect}">
           <div v-if="!isSelect && !isBlock" class="title">{{ t('进度付款阶段') }}</div>
           <div v-if="isSelect" class="mt-2 mb-2 flex justify-end gap-4">
             <a-button v-if="selectDataHasNum" type="cyan" class="bold uppercase" @click="selectCancelAll">{{ t('取消所有设置') }}</a-button>
@@ -327,6 +327,8 @@
             >{{ t('确定') }}</a-button>
           </div>
         </div>
+
+        <a-empty v-if="!footerDataCol.length && !buildAmount && !pageLoading"></a-empty>
       </div>
     </a-spin>
   </div>
@@ -883,6 +885,8 @@
               }
             }
           })
+        } else {
+          footerDataCol.value = []
         }
       })
     } catch (err) {

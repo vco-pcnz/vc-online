@@ -82,7 +82,7 @@
                 <p v-else>--</p>
               </template>
               <template v-if="column.dataIndex === 'process_type'">
-                <span v-if="typeData[record.process_type]" class="status-txt">{{ typeData[record.process_type] }}</span>
+                <p v-if="typeData[record.process_type] || record.process_type" class="status-txt uppercaseFirst">{{ typeData[record.process_type] || record.process_type }}</p>
                 <p v-else>--</p>
               </template>
               <template v-if="column.dataIndex === 'amount'">
@@ -168,6 +168,7 @@ const columns = computed(() => {
       { title: t('信息'), dataIndex: 'project_info', width: 300, align: 'left' },
       { title: t('借款人'), dataIndex: 'borrower', width: 300, align: 'left' },
       { title: t('模块'), dataIndex: 'module', align: 'center' },
+      { title: t('类型'), dataIndex: 'process_type', align: 'center' },
 
       { title: t('创建时间'), dataIndex: 'create_time', width: 140, align: 'center' },
       {
@@ -364,6 +365,12 @@ const opUpdate = () => {
   :deep(.ant-statistic-content) {
     font-size: 15px !important;
     white-space: nowrap;
+  }
+
+  :deep(.uppercaseFirst) {
+    &::first-letter {
+      text-transform: uppercase;
+    }
   }
 }
 

@@ -49,73 +49,132 @@
 
     <a-spin :spinning="pageLoading" size="large">
       <div class="progress-payment-content" :class="{'preview-table': !isSelect}">
-        <div v-if="!isRequests && !isSelect && !pageLoading" class="form-block-content">
-          <div class="title">{{ t('放款统计') }}</div>
-          <a-table
-            :columns="statTableHeader"
-            :data-source="statTableData"
-            bordered
-            :pagination="false"
-          >
-            <template #bodyCell="{ column, record }">
-              <template v-if="column.dataIndex === 'totalAmount'">
-                <vco-number :value="tableTotal" size="fs_xl" :precision="2" :end="true"></vco-number>
+        <template v-if="footerDataCol.length || buildAmount">
+          <div v-if="!isRequests && !isSelect && !pageLoading" class="form-block-content">
+            <div class="title">{{ t('放款统计') }}</div>
+            <a-table
+              :columns="statTableHeader"
+              :data-source="statTableData"
+              bordered
+              :pagination="false"
+            >
+              <template #bodyCell="{ column, record }">
+                <template v-if="column.dataIndex === 'totalAmount'">
+                  <vco-number :value="tableTotal" size="fs_xl" :precision="2" :end="true"></vco-number>
+                </template>
+                <template v-if="column.dataIndex === 'useAmount'">
+                  <vco-number :value="statUseAmount" color="#31bd65" size="fs_xl" :precision="2" :end="true"></vco-number>
+                </template>
+                <template v-if="column.dataIndex === 'userPercent'">
+                  <div style="padding: 0 40px;">
+                    <a-progress
+                      :stroke-color="{
+                        '0%': '#64ec22',
+                        '100%': '#31bd65'
+                      }"
+                      :size="6"
+                      :percent="statUserPercent"
+                    />
+                  </div>
+                  
+                </template>
+                <template v-if="column.dataIndex === 'remainingAmount'">
+                  <vco-number :value="statRemainAmount" :bold="true" size="fs_xl" :precision="2" :end="true"></vco-number>
+                </template>
               </template>
-              <template v-if="column.dataIndex === 'useAmount'">
-                <vco-number :value="statUseAmount" color="#31bd65" size="fs_xl" :precision="2" :end="true"></vco-number>
-              </template>
-              <template v-if="column.dataIndex === 'userPercent'">
-                <div style="padding: 0 40px;">
-                  <a-progress
-                    :stroke-color="{
-                      '0%': '#64ec22',
-                      '100%': '#31bd65'
-                    }"
-                    :size="6"
-                    :percent="statUserPercent"
-                  />
-                </div>
-                
-              </template>
-              <template v-if="column.dataIndex === 'remainingAmount'">
-                <vco-number :value="statRemainAmount" :bold="true" size="fs_xl" :precision="2" :end="true"></vco-number>
-              </template>
-            </template>
-          </a-table>
-        </div>
-
-        <div v-if="tableHeader.length && !pageLoading" class="form-block-content" :class="{'mt-10': isSelect}">
-          <div v-if="!isSelect" class="title">{{ t('进度付款阶段') }}</div>
-          <div v-if="isSelect" class="mt-2 mb-2 flex justify-end gap-4">
-            <a-button v-if="selectDataHasNum" type="cyan" class="bold uppercase" @click="selectCancelAll">{{ t('取消所有设置') }}</a-button>
-            <a-button type="primary" class="bold uppercase" @click="batchSelectHandle">{{ batchSelect ? t('取消批量模式') : t('批量选择') }}</a-button>
-            <a-button v-if="batchSelectData.length" type="grey" class="bold uppercase" @click="batchSelectCancel">{{ t('取消已选择')}}</a-button>
-            <a-button v-if="batchSelect" type="dark" :disabled="!batchSelectData.length" class="bold uppercase" @click="batchSelectSet">{{ t('批量设置1') }} ({{ batchSelectData.length }})</a-button>
+            </a-table>
           </div>
-          <p v-if="batchSelect" class="text-right mb-2">{{ t('点击下方表格，选择需要批量操作的数据')}}</p>
-          <a-table
-            v-if="!easyModel && buildAmount"
-            :columns="tableHeader"
-            :data-source="tableData"
-            bordered
-            :pagination="false"
-            table-layout="fixed"
-            :scroll="{ x: '100%', y: isSelect ? 300 : 600 }"
-          >
-            <template #bodyCell="{ column, record, index }">
-              <template v-if="record.isFixedRow">
-                <template v-if="column.dataIndex === 'type'">
-                  <p>{{ record.type }}</p>
+
+          <div v-if="tableHeader.length && !pageLoading" class="form-block-content" :class="{'mt-10': isSelect}">
+            <div v-if="!isSelect" class="title">{{ t('进度付款阶段') }}</div>
+            <div v-if="isSelect" class="mt-2 mb-2 flex justify-end gap-4">
+              <a-button v-if="selectDataHasNum" type="cyan" class="bold uppercase" @click="selectCancelAll">{{ t('取消所有设置') }}</a-button>
+              <a-button type="primary" class="bold uppercase" @click="batchSelectHandle">{{ batchSelect ? t('取消批量模式') : t('批量选择') }}</a-button>
+              <a-button v-if="batchSelectData.length" type="grey" class="bold uppercase" @click="batchSelectCancel">{{ t('取消已选择')}}</a-button>
+              <a-button v-if="batchSelect" type="dark" :disabled="!batchSelectData.length" class="bold uppercase" @click="batchSelectSet">{{ t('批量设置1') }} ({{ batchSelectData.length }})</a-button>
+            </div>
+            <p v-if="batchSelect" class="text-right mb-2">{{ t('点击下方表格，选择需要批量操作的数据')}}</p>
+            <a-table
+              v-if="!easyModel && buildAmount"
+              :columns="tableHeader"
+              :data-source="tableData"
+              bordered
+              :pagination="false"
+              table-layout="fixed"
+              :scroll="{ x: '100%', y: isSelect ? 300 : 600 }"
+            >
+              <template #bodyCell="{ column, record, index }">
+                <template v-if="record.isFixedRow">
+                  <template v-if="column.dataIndex === 'type'">
+                    <p>{{ record.type }}</p>
+                  </template>
+                  <template v-else-if="column.dataIndex === 'payment'">
+                    <p>--</p>
+                  </template>
+                  <template v-else-if="column.dataIndex === 'total'">
+                    <template v-if="showProcess">
+                      <div class="select-item disabled">
+                        <vco-number :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
+                        <vco-number :value="tableRemainTotal(advanceAmount, advanceObj?.use_amount || 0)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
+                        <vco-number :value="advanceObj?.use_amount || 0" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
+                        <div class="process-gap"></div>
+                        <div class="item-process-content">
+                          <a-progress
+                            :stroke-color="{
+                              '0%': '#64ec22',
+                              '100%': '#31bd65'
+                            }"
+                            :size="6"
+                            :percent="advanceObj ? advanceObj.percent : 0"
+                          />
+                        </div>
+                      </div>
+                    </template>
+                    <vco-number v-else :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
+                  </template>
+                  <template v-else>
+                    <div v-if="showProcess" class="select-item adv" :class="{'hover': isSelect}" @click="itemSetHandle(advanceObj)">
+                      <div class="flex justify-center flex-col items-center" :style="{width: tableHeader.length === 4 ? '265px' : '660px'}">
+                        <vco-number :value="advanceAmount" size="fs_xs" :precision="2" :end="true"></vco-number>
+                        <vco-number :value="tableRemainTotal(advanceAmount, advanceObj?.use_amount || 0)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
+                        <vco-number :value="advanceObj?.use_amount || 0" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
+                        <div class="process-gap"></div>
+                        <div class="init-progress">
+                          <a-progress
+                            :stroke-color="{
+                              '0%': '#64ec22',
+                              '100%': '#31bd65'
+                            }"
+                            :size="6"
+                            :percent="advanceObj.percent"
+                          />
+                        </div>
+                      </div>
+                      <div v-if="advanceObj.checked" class="selected">{{ `$${numberStrFormat(advanceObj.set_amount)}` }}</div>
+                      <template v-if="advanceObj.selected">
+                        <div class="selected-bg"></div>
+                        <i class="iconfont selected-icon">&#xe601;</i>
+                      </template>
+                    </div>
+
+                    <div v-else class="flex justify-center" :style="{width: tableHeader.length === 4 ? '265px' : '660px'}">
+                      <vco-number :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
+                    </div>
+                  </template>
+                </template>
+
+                <template v-else-if="column.dataIndex === 'type'">
+                  <p>{{ record[column.dataIndex] }}</p>
                 </template>
                 <template v-else-if="column.dataIndex === 'payment'">
-                  <p>--</p>
+                  <p>{{ numberStrFormat(record[column.dataIndex]) }}%</p>
                 </template>
                 <template v-else-if="column.dataIndex === 'total'">
                   <template v-if="showProcess">
                     <div class="select-item disabled">
-                      <vco-number :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
-                      <vco-number :value="tableRemainTotal(advanceAmount, advanceObj?.use_amount || 0)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
-                      <vco-number :value="advanceObj?.use_amount || 0" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
+                      <vco-number :value="record.total" size="fs_md" :precision="2" :end="true"></vco-number>
+                      <vco-number :value="tableRemainTotal(record.total, record.useTotal)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
+                      <vco-number :value="record.useTotal" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
                       <div class="process-gap"></div>
                       <div class="item-process-content">
                         <a-progress
@@ -124,56 +183,32 @@
                             '100%': '#31bd65'
                           }"
                           :size="6"
-                          :percent="advanceObj ? advanceObj.percent : 0"
+                          :percent="record.percent"
                         />
                       </div>
                     </div>
                   </template>
-                  <vco-number v-else :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
+                  <template v-else>
+                    <template v-if="isSelect"> 
+                      <vco-number :value="record[column.dataIndex]" size="fs_md" :precision="2" :end="true"></vco-number>
+                    </template>
+                    <template v-else>
+                      <div class="total-info-txt">Loan<vco-number :value="record[column.dataIndex]" size="fs_xs" :precision="2" :end="true" color="#eb4b6d"></vco-number></div>
+                      <div v-if="record.type === tableData[index + 1]?.type" class="total-info-txt">Borrower Equity
+                        <vco-number :value="tableData[index + 1][column.dataIndex]" size="fs_xs" :precision="2" :end="true" color="#31bd65"></vco-number>
+                      </div>
+                      <div class="flex justify-end">
+                        <vco-number v-if="record.type === tableData[index + 1]?.type" :value="Number(tool.plus(record[column.dataIndex], tableData[index + 1][column.dataIndex]))" size="fs_md" :precision="2" :end="true"></vco-number>
+                        <vco-number v-else :value="record[column.dataIndex]" size="fs_md" :precision="2" :end="true"></vco-number>
+                      </div>
+                    </template>
+                  </template>
                 </template>
                 <template v-else>
-                  <div v-if="showProcess" class="select-item adv" :class="{'hover': isSelect}" @click="itemSetHandle(advanceObj)">
-                    <div class="flex justify-center flex-col items-center" :style="{width: tableHeader.length === 4 ? '265px' : '660px'}">
-                      <vco-number :value="advanceAmount" size="fs_xs" :precision="2" :end="true"></vco-number>
-                      <vco-number :value="tableRemainTotal(advanceAmount, advanceObj?.use_amount || 0)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
-                      <vco-number :value="advanceObj?.use_amount || 0" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
-                      <div class="process-gap"></div>
-                      <div class="init-progress">
-                        <a-progress
-                          :stroke-color="{
-                            '0%': '#64ec22',
-                            '100%': '#31bd65'
-                          }"
-                          :size="6"
-                          :percent="advanceObj.percent"
-                        />
-                      </div>
-                    </div>
-                    <div v-if="advanceObj.checked" class="selected">{{ `$${numberStrFormat(advanceObj.set_amount)}` }}</div>
-                    <template v-if="advanceObj.selected">
-                      <div class="selected-bg"></div>
-                      <i class="iconfont selected-icon">&#xe601;</i>
-                    </template>
-                  </div>
-
-                  <div v-else class="flex justify-center" :style="{width: tableHeader.length === 4 ? '265px' : '660px'}">
-                    <vco-number :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
-                  </div>
-                </template>
-              </template>
-
-              <template v-else-if="column.dataIndex === 'type'">
-                <p>{{ record[column.dataIndex] }}</p>
-              </template>
-              <template v-else-if="column.dataIndex === 'payment'">
-                <p>{{ numberStrFormat(record[column.dataIndex]) }}%</p>
-              </template>
-              <template v-else-if="column.dataIndex === 'total'">
-                <template v-if="showProcess">
-                  <div class="select-item disabled">
-                    <vco-number :value="record.total" size="fs_md" :precision="2" :end="true"></vco-number>
-                    <vco-number :value="tableRemainTotal(record.total, record.useTotal)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
-                    <vco-number :value="record.useTotal" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
+                  <div v-if="showProcess" class="select-item col" :class="{'hover': isSelect}" @click="itemSetHandle(record[column.dataIndex])">
+                    <vco-number :value="record[column.dataIndex].amount" size="fs_xs" :precision="2" :end="true"></vco-number>
+                    <vco-number :value="tableRemainTotal(record[column.dataIndex].amount, record[column.dataIndex].use_amount)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
+                    <vco-number :value="record[column.dataIndex].use_amount" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
                     <div class="process-gap"></div>
                     <div class="item-process-content">
                       <a-progress
@@ -182,175 +217,144 @@
                           '100%': '#31bd65'
                         }"
                         :size="6"
-                        :percent="record.percent"
+                        :percent="record[column.dataIndex].percent"
                       />
                     </div>
-                  </div>
-                </template>
-                <template v-else>
-                  <template v-if="isSelect"> 
-                    <vco-number :value="record[column.dataIndex]" size="fs_md" :precision="2" :end="true"></vco-number>
-                  </template>
-                  <template v-else>
-                    <div class="total-info-txt">Loan<vco-number :value="record[column.dataIndex]" size="fs_xs" :precision="2" :end="true" color="#eb4b6d"></vco-number></div>
-                    <div v-if="record.type === tableData[index + 1]?.type" class="total-info-txt">Borrower Equity
-                      <vco-number :value="tableData[index + 1][column.dataIndex]" size="fs_xs" :precision="2" :end="true" color="#31bd65"></vco-number>
-                    </div>
-                    <div class="flex justify-end">
-                      <vco-number v-if="record.type === tableData[index + 1]?.type" :value="Number(tool.plus(record[column.dataIndex], tableData[index + 1][column.dataIndex]))" size="fs_md" :precision="2" :end="true"></vco-number>
-                      <vco-number v-else :value="record[column.dataIndex]" size="fs_md" :precision="2" :end="true"></vco-number>
-                    </div>
-                  </template>
-                </template>
-              </template>
-              <template v-else>
-                <div v-if="showProcess" class="select-item col" :class="{'hover': isSelect}" @click="itemSetHandle(record[column.dataIndex])">
-                  <vco-number :value="record[column.dataIndex].amount" size="fs_xs" :precision="2" :end="true"></vco-number>
-                  <vco-number :value="tableRemainTotal(record[column.dataIndex].amount, record[column.dataIndex].use_amount)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
-                  <vco-number :value="record[column.dataIndex].use_amount" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
-                  <div class="process-gap"></div>
-                  <div class="item-process-content">
-                    <a-progress
-                      :stroke-color="{
-                        '0%': '#64ec22',
-                        '100%': '#31bd65'
-                      }"
-                      :size="6"
-                      :percent="record[column.dataIndex].percent"
-                    />
-                  </div>
-                  <div v-if="record[column.dataIndex].checked" class="selected">{{ `$${numberStrFormat(record[column.dataIndex].set_amount)}` }}</div>
-                  <template v-if="record[column.dataIndex].selected">
-                    <div class="selected-bg"></div>
-                    <i class="iconfont selected-icon">&#xe601;</i>
-                  </template>
-                </div>
-                <vco-number v-else :value="record[column.dataIndex].amount" size="fs_md" :precision="2" :end="true"></vco-number>
-              </template>
-            </template>
-            <template #summary>
-              <a-table-summary fixed>
-                <a-table-summary-row>
-                  <a-table-summary-cell v-for="(item, index) in summaryCol" :index="index" :key="item.key" class="text-center">
-                    <template v-if="item.key === 'type'">Construction</template>
-                    <template v-else-if="item.key === 'payment'">
-                      <p class="total-percent">{{ numberStrFormat(summaryHandle(item.key)) }}%</p>
+                    <div v-if="record[column.dataIndex].checked" class="selected">{{ `$${numberStrFormat(record[column.dataIndex].set_amount)}` }}</div>
+                    <template v-if="record[column.dataIndex].selected">
+                      <div class="selected-bg"></div>
+                      <i class="iconfont selected-icon">&#xe601;</i>
                     </template>
-                    <template v-else-if="item.key === 'total'">
-                      <template v-if="showProcess">
-                        <div class="select-item footer disabled">
-                          <vco-number :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
-                          <vco-number :value="tableRemainTotal(summaryHandle(item.key), tableUseTotal)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
-                          <vco-number :value="tableUseTotal" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
-                          <div class="process-gap"></div>
-                          <div class="item-process-content">
-                            <a-progress
-                              :stroke-color="{
-                                '0%': '#64ec22',
-                                '100%': '#31bd65'
-                              }"
-                              :size="6"
-                              :percent="getTotalPercent(tableUseTotal, summaryHandle(item.key))"
-                            />
-                          </div>
-                        </div>
+                  </div>
+                  <vco-number v-else :value="record[column.dataIndex].amount" size="fs_md" :precision="2" :end="true"></vco-number>
+                </template>
+              </template>
+              <template #summary>
+                <a-table-summary fixed>
+                  <a-table-summary-row>
+                    <a-table-summary-cell v-for="(item, index) in summaryCol" :index="index" :key="item.key" class="text-center">
+                      <template v-if="item.key === 'type'">Construction</template>
+                      <template v-else-if="item.key === 'payment'">
+                        <p class="total-percent">{{ numberStrFormat(summaryHandle(item.key)) }}%</p>
                       </template>
-                      <template v-else>
-                        <template v-if="isSelect">
-                          <vco-number :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
+                      <template v-else-if="item.key === 'total'">
+                        <template v-if="showProcess">
+                          <div class="select-item footer disabled">
+                            <vco-number :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
+                            <vco-number :value="tableRemainTotal(summaryHandle(item.key), tableUseTotal)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
+                            <vco-number :value="tableUseTotal" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
+                            <div class="process-gap"></div>
+                            <div class="item-process-content">
+                              <a-progress
+                                :stroke-color="{
+                                  '0%': '#64ec22',
+                                  '100%': '#31bd65'
+                                }"
+                                :size="6"
+                                :percent="getTotalPercent(tableUseTotal, summaryHandle(item.key))"
+                              />
+                            </div>
+                          </div>
                         </template>
                         <template v-else>
-                          <div class="total-info-txt">
-                            Loan
-                            <vco-number :value="TableLoanTotal(1)" size="fs_xs" :precision="2" :end="true" color="#eb4b6d"></vco-number>
-                          </div>
-                          <div class="total-info-txt">
-                            Borrower Equity
-                            <vco-number :value="TableLoanTotal(2)" size="fs_xs" :precision="2" :end="true" color="#31bd65"></vco-number>
-                          </div>
-                          <div class="flex justify-end">
-                            <vco-number
-                              :value="summaryHandle(item.key)"
-                              size="fs_md"
-                              :precision="2"
-                              :end="true"
-                            ></vco-number>
-                          </div>
+                          <template v-if="isSelect">
+                            <vco-number :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
+                          </template>
+                          <template v-else>
+                            <div class="total-info-txt">
+                              Loan
+                              <vco-number :value="TableLoanTotal(1)" size="fs_xs" :precision="2" :end="true" color="#eb4b6d"></vco-number>
+                            </div>
+                            <div class="total-info-txt">
+                              Borrower Equity
+                              <vco-number :value="TableLoanTotal(2)" size="fs_xs" :precision="2" :end="true" color="#31bd65"></vco-number>
+                            </div>
+                            <div class="flex justify-end">
+                              <vco-number
+                                :value="summaryHandle(item.key)"
+                                size="fs_md"
+                                :precision="2"
+                                :end="true"
+                              ></vco-number>
+                            </div>
+                          </template>
                         </template>
                       </template>
-                    </template>
-                    <template v-else>
-                      <template v-if="showProcess">
-                        <div class="select-item footer disabled">
-                          <vco-number :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
-                          <vco-number :value="tableRemainTotal(summaryHandle(item.key), summaryHandle(item.key, 'use_amount'))" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
-                          <vco-number :value="summaryHandle(item.key, 'use_amount')" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
-                          <div class="process-gap"></div>
-                          <div class="item-process-content">
-                            <a-progress
-                              :stroke-color="{
-                                '0%': '#64ec22',
-                                '100%': '#31bd65'
-                              }"
-                              :size="6"
-                              :percent="getTotalPercent(summaryHandle(item.key, 'use_amount'), summaryHandle(item.key))"
-                            />
+                      <template v-else>
+                        <template v-if="showProcess">
+                          <div class="select-item footer disabled">
+                            <vco-number :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
+                            <vco-number :value="tableRemainTotal(summaryHandle(item.key), summaryHandle(item.key, 'use_amount'))" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
+                            <vco-number :value="summaryHandle(item.key, 'use_amount')" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
+                            <div class="process-gap"></div>
+                            <div class="item-process-content">
+                              <a-progress
+                                :stroke-color="{
+                                  '0%': '#64ec22',
+                                  '100%': '#31bd65'
+                                }"
+                                :size="6"
+                                :percent="getTotalPercent(summaryHandle(item.key, 'use_amount'), summaryHandle(item.key))"
+                              />
+                            </div>
                           </div>
-                        </div>
-                        
+                          
+                        </template>
+                        <vco-number v-else :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
                       </template>
-                      <vco-number v-else :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
-                    </template>
-                  </a-table-summary-cell>
-                </a-table-summary-row>
-              </a-table-summary>
-            </template>
-          </a-table>
-          <div v-if="footerDataCol.length" class="other-table-info" :class="{'page': isPage, 'easy-model': easyModel || !buildAmount}">
-            <div
-              v-for="item in footerDataCol" :key="item.type"
-              class="item"
-              :class="{'hover': isSelect}"
-              @click="itemSetHandle(item)"
-            >
-              <vco-number :value="item.amount" size="fs_md" :precision="2" :end="true"></vco-number>
-              <vco-number v-if="showProcess" :value="tableRemainTotal(item.amount, item.use_amount)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
-              <vco-number v-if="showProcess" :value="item.use_amount" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
-              <a-progress
-                v-if="showProcess"
-                :stroke-color="{
-                  '0%': '#64ec22',
-                  '100%': '#31bd65'
-                }"
-                :size="6"
-                :percent="item.percent"
-              />
-              <p :class="{'mt-2': !showProcess}">{{ item.name }}</p>
-              <div v-if="item.checked" class="selected">{{ `$${numberStrFormat(item.set_amount)}` }}</div>
-              <template v-if="item.selected">
-                <div class="selected-bg"></div>
-                <i class="iconfont selected-icon">&#xe601;</i>
+                    </a-table-summary-cell>
+                  </a-table-summary-row>
+                </a-table-summary>
               </template>
+            </a-table>
+            <div v-if="footerDataCol.length" class="other-table-info" :class="{'page': isPage, 'easy-model': easyModel || !buildAmount}">
+              <div
+                v-for="item in footerDataCol" :key="item.type"
+                class="item"
+                :class="{'hover': isSelect}"
+                @click="itemSetHandle(item)"
+              >
+                <vco-number :value="item.amount" size="fs_md" :precision="2" :end="true"></vco-number>
+                <vco-number v-if="showProcess" :value="tableRemainTotal(item.amount, item.use_amount)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
+                <vco-number v-if="showProcess" :value="item.use_amount" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
+                <a-progress
+                  v-if="showProcess"
+                  :stroke-color="{
+                    '0%': '#64ec22',
+                    '100%': '#31bd65'
+                  }"
+                  :size="6"
+                  :percent="item.percent"
+                />
+                <p :class="{'mt-2': !showProcess}">{{ item.name }}</p>
+                <div v-if="item.checked" class="selected">{{ `$${numberStrFormat(item.set_amount)}` }}</div>
+                <template v-if="item.selected">
+                  <div class="selected-bg"></div>
+                  <i class="iconfont selected-icon">&#xe601;</i>
+                </template>
+              </div>
             </div>
-          </div>
-          <div class="table-total-content">
-            <p>Total Cost to Complete</p>
-            <div class="total-item">
-              <vco-number :value="tableTotal" :bold="true" size="fs_xl" :precision="2" :end="true"></vco-number>
+            <div class="table-total-content">
+              <p>Total Cost to Complete</p>
+              <div class="total-item">
+                <vco-number :value="tableTotal" :bold="true" size="fs_xl" :precision="2" :end="true"></vco-number>
+              </div>
             </div>
-          </div>
 
-          <div v-if="isSelect" class="mt-10 flex justify-between">
-            <div>
-              <vco-number :value="selectTotalAmount" :bold="true" size="fs_3xl" :precision="2" :end="true"></vco-number>
-              <p style="font-size: 12px; color: #888;">{{ t('已选总额') }}</p>
+            <div v-if="isSelect" class="mt-10 flex justify-between">
+              <div>
+                <vco-number :value="selectTotalAmount" :bold="true" size="fs_3xl" :precision="2" :end="true"></vco-number>
+                <p style="font-size: 12px; color: #888;">{{ t('已选总额') }}</p>
+              </div>
+              
+              <a-button type="dark" class="big shadow bold uppercase"
+                @click="selectConfirm"
+              >{{ t('确定') }}</a-button>
             </div>
-            
-            <a-button type="dark" class="big shadow bold uppercase"
-              @click="selectConfirm"
-            >{{ t('确定') }}</a-button>
           </div>
-        </div>
+        </template>
+
+        <a-empty v-if="!footerDataCol.length && !buildAmount && !pageLoading"></a-empty>
       </div>
     </a-spin>
   </div>
@@ -864,6 +868,8 @@
             return mergItem
           })
           footerDataCol.value = footerData.filter(item => Number(item.amount))
+        } else {
+          footerDataCol.value = []
         }
 
         // 统计数据

@@ -1,12 +1,15 @@
 <template>
-  <ProjectDashboard></ProjectDashboard>
-  <div class="flex my-12" style="gap: 12px">
+  <div class="flex" style="gap: 12px">
     <div class="block-item flex-1" style="flex: 0 0 62.5%" v-if="hasPermission('home:backlog')">
       <Backlog></Backlog>
     </div>
     <div class="block-item flex-1">
       <QuickAccess></QuickAccess>
     </div>
+  </div>
+  <div class=" my-12">
+    <ProjectDashboard></ProjectDashboard>
+
   </div>
   <CashflowForecast v-if="hasPermission('home:cashflow_forecast')"></CashflowForecast>
 </template>

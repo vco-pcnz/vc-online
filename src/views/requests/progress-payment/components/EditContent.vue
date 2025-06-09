@@ -11,7 +11,7 @@
 
     <a-spin :spinning="pageLoading" size="large">
       <div class="progress-payment-content"> 
-        <div v-if="amortizedData.length" class="form-block-content">
+        <div v-if="amortizedData.length && !easyModel" class="form-block-content">
           <div class="title">{{ t('最新均摊值') }}</div>
           <a-table
             :columns="amortizedHeader"
@@ -809,6 +809,7 @@
         
         const Construction = list.find(item => item.type === 'Construction')
         buildAmount.value = Construction ? (Number(Construction.loan) || 0) : 0
+
         borrowerEquity.value = Construction ? (Number(Construction.borrower_equity) || 0) : 0
       })
       await getSetedData()
@@ -1142,8 +1143,8 @@
     currentParams.value = cloneDeep(params)
     changeColseBtn.value = false
 
-    const setLoanTotal = Number(Math.floor(TableLoanTotal.value(1)))
-    const setBeTotal = Number(Math.floor(TableLoanTotal.value(2)))
+    const setLoanTotal = TableLoanTotal.value(1)
+    const setBeTotal =TableLoanTotal.value(2)
 
     if ((setLoanTotal !== buildAmount.value) && !easyModel.value) {
       const diffNum = tool.minus(buildAmount.value, setLoanTotal)

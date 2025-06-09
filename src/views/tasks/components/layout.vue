@@ -51,12 +51,12 @@ const moduleData = computed(() => {
       num: userStore.taskInfo.all
     },
     {
-      label: t('项目信息'),
+      label: t('借款'),
       value: 'project',
       num: userStore.taskInfo.project
     },
     {
-      label: t('借款'),
+      label: t('请求1'),
       value: 'request',
       num: userStore.taskInfo.request
     }

@@ -17,7 +17,11 @@ const todoHandle = (data) => {
   } else if (['penalty-start', 'penalty-end'].includes(data.process_type)) {
     navigationTo(`/projects/penalty?uuid=${data.uuid}`);
   } else if (data.process_type === 'variation') {
-    navigationTo(`/projects/variations?uuid=${data.uuid}`);
+    if (data.relation_id) {
+      navigationTo(`/projects/variations-details/about?uuid=${data.uuid}&id=${data.relation_id}`);
+    } else {
+      navigationTo(`/projects/variations?uuid=${data.uuid}`);
+    }
   } else if (data.process_type === 'journal') {
     navigationTo(`/projects/journal?uuid=${data.uuid}`);
   } else if (['closed', 'closed-cancel'].includes(data.process_type)) {

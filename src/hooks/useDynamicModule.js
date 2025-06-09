@@ -49,10 +49,11 @@ export function useDynamicModule() {
         }
         mainStepData.value = res.main_step
         stepData.value = res.step
+        canNext.value = nextStep.value && !nextStep.value.examine
+
         previousStep.value = res.step[currentPageIndex.value - 1] || null
         currentStep.value = res.step[currentPageIndex.value]
         nextStep.value = res.step[currentPageIndex.value + 1] || null
-        canNext.value = nextStep.value && !nextStep.value.examine
 
         if (currentStep.value.name) {
           const name = i18n.global.t(currentStep.value.name)

@@ -45,6 +45,17 @@ const useUserStore = defineStore('VcOnlineUserInfo', {
       total: 0,
       other: 0
     },
+    LoanRequestsInfo: {
+      drawdown_num: 0,
+      repayment_num: 0,
+      variation_num: 0,
+      security_num: 0,
+      journal_num: 0,
+      penalty_num: 0,
+      close_num: 0,
+      wash_num: 0,
+      broker_num: 0
+    },
     loadingCount: false
   }),
 

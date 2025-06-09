@@ -3,10 +3,16 @@
     <div class="nav-content">
       <router-link v-for="link in navData" :key="link.path" :to="link.path" class="nav-link" :class="{ active: isActive(link.path) }">
         {{ t(link.title) }}
-        <template v-if="supPath === '/tasks'">
-          <span v-if="link.path === '/tasks/projects'">({{ taskInfo.project }})</span>
-          <span v-if="link.path === '/tasks/loan'">({{ taskInfo.request }})</span>
-          <span v-if="link.path === '/tasks/other'">({{ taskInfo.other }})</span>
+        <template v-if="supPath === '/loanRequests'">
+          <span v-if="link.path === '/loanRequests/drawdown'">({{ LoanRequestsInfo.drawdown_num }})</span>
+          <span v-if="link.path === '/loanRequests/repayment'">({{ LoanRequestsInfo.repayment_num }})</span>
+          <span v-if="link.path === '/loanRequests/variation'">({{ LoanRequestsInfo.variation_num }})</span>
+          <span v-if="link.path === '/loanRequests/security'">({{ LoanRequestsInfo.security_num }})</span>
+          <span v-if="link.path === '/loanRequests/journal'">({{ LoanRequestsInfo.journal_num }})</span>
+          <span v-if="link.path === '/loanRequests/default'">({{ LoanRequestsInfo.penalty_num }})</span>
+          <span v-if="link.path === '/loanRequests/close'">({{ LoanRequestsInfo.close_num }})</span>
+          <span v-if="link.path === '/loanRequests/wash'">({{ LoanRequestsInfo.wash_num }})</span>
+          <span v-if="link.path === '/loanRequests/be_roker'">({{ LoanRequestsInfo.broker_num }})</span>
         </template>
         <template v-else>
           <span v-if="link.num">({{ link.num }})</span>
@@ -39,6 +45,7 @@ const userStore = useUserStore();
 
 // 这里是待办数量
 const taskInfo = computed(() => userStore.taskInfo);
+const LoanRequestsInfo = computed(() => userStore.LoanRequestsInfo);
 
 const navData = ref([]);
 

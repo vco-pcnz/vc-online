@@ -1,43 +1,52 @@
 <template>
   <div>
     <vco-page-search @keyup.enter="searchHandle(false)">
-      <vco-page-search-item width="120" :title="t('类型')" v-if="typeData.length">
-        <a-select :placeholder="t('请选择')" v-model:value="searchForm.type">
-          <a-select-option v-for="item in typeData" :key="item.value" :value="item.value">
-            {{ item.label }}
-          </a-select-option>
-        </a-select>
-      </vco-page-search-item>
-      <template v-if="roterName === 'LoanRequestsJournal'">
-        <vco-page-search-item width="180" :title="t('类型')">
-          <a-tree-select
-            class="treeSelectHak"
-            :loading="loading_type"
-            v-model:value="treeDataValue"
-            labelInValue
-            style="width: 100%"
-            :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
-            :tree-data="treeData"
-            :placeholder="t('请选择')"
-            @change="handleChange"
-          />
+      <template v-if="roterName !== 'LoanRequestsBe_roker'">
+        <vco-page-search-item width="120" :title="t('类型')" v-if="typeData.length">
+          <a-select :placeholder="t('请选择')" v-model:value="searchForm.type">
+            <a-select-option v-for="item in typeData" :key="item.value" :value="item.value">
+              {{ item.label }}
+            </a-select-option>
+          </a-select>
+        </vco-page-search-item>
+        <template v-if="roterName === 'LoanRequestsJournal'">
+          <vco-page-search-item width="180" :title="t('类型')">
+            <a-tree-select
+              class="treeSelectHak"
+              :loading="loading_type"
+              v-model:value="treeDataValue"
+              labelInValue
+              style="width: 100%"
+              :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
+              :tree-data="treeData"
+              :placeholder="t('请选择')"
+              @change="handleChange"
+            />
+          </vco-page-search-item>
+        </template>
+        <vco-page-search-item width="120" :title="t('状态')" v-if="statusData.length && currentTab === '1'">
+          <a-select :placeholder="t('请选择')" v-model:value="searchForm.state">
+            <a-select-option v-for="item in statusData" :key="item.value" :value="item.value">
+              {{ item.label }}
+            </a-select-option>
+          </a-select>
+        </vco-page-search-item>
+
+        <vco-page-search-item :title="t('项目信息')" width="210">
+          <vco-type-input v-model="searchForm.project_keyword" v-model:type="searchForm.project_search_type" :type-data="projectsTypeData" :placeholder="t('请输入')"></vco-type-input>
+        </vco-page-search-item>
+
+        <vco-page-search-item :title="t('借款人信息')" width="210">
+          <vco-type-input v-model="searchForm.borrower_keyword" v-model:type="searchForm.borrower_search_type" :type-data="borrowerTypeData" :placeholder="t('请输入')"></vco-type-input>
         </vco-page-search-item>
       </template>
-      <vco-page-search-item width="120" :title="t('状态')" v-if="statusData.length && currentTab === '1'">
-        <a-select :placeholder="t('请选择')" v-model:value="searchForm.state">
-          <a-select-option v-for="item in statusData" :key="item.value" :value="item.value">
-            {{ item.label }}
-          </a-select-option>
-        </a-select>
-      </vco-page-search-item>
 
-      <vco-page-search-item :title="t('项目信息')" width="210">
-        <vco-type-input v-model="searchForm.project_keyword" v-model:type="searchForm.project_search_type" :type-data="projectsTypeData" :placeholder="t('请输入')"></vco-type-input>
-      </vco-page-search-item>
+      <template v-else>
+        <vco-page-search-item width="320" :title="t('关键字')">
+          <vco-type-input v-model="searchForm.keywords" v-model:type="searchForm.key" :type-data="baseInfoData" :placeholder="t('请输入')"></vco-type-input>
+        </vco-page-search-item>
+      </template>
 
-      <vco-page-search-item :title="t('借款人信息')" width="210">
-        <vco-type-input v-model="searchForm.borrower_keyword" v-model:type="searchForm.borrower_search_type" :type-data="borrowerTypeData" :placeholder="t('请输入')"></vco-type-input>
-      </vco-page-search-item>
       <vco-page-search-item width="100%">
         <div class="flex items-center gap-2">
           <a-button type="dark" @click="searchHandle(false)"><i class="iconfont">&#xe756;</i>{{ t('搜索') }}</a-button>
@@ -112,6 +121,29 @@ const projectsTypeData = [
     value: 'address'
   }
 ];
+
+const baseInfoData = [
+  {
+    label: t('全部'),
+    value: 'all'
+  },
+  {
+    label: t('姓名'),
+    value: 'name'
+  },
+  {
+    label: t('邮箱'),
+    value: 'email'
+  },
+  {
+    label: t('电话'),
+    value: 'mobile'
+  },
+  {
+    label: t('用户Id'),
+    value: 'id'
+  }
+];
 const searchForm = ref({
   state: '',
   cate: '',
@@ -120,7 +152,8 @@ const searchForm = ref({
   borrower_search_type: '',
   project_search_type: '',
   project_keyword: '',
-  user_keyword: ''
+  key: 'all',
+  keywords: ''
 });
 
 const searchHandle = (flag) => {
@@ -131,6 +164,7 @@ const searchHandle = (flag) => {
         searchForm.value[key] = props.typeData.length ? props.typeData[0].value : '';
       }
     }
+    searchForm.value.key = 'all';
   }
 
   if (props.currentTab !== '1') {
@@ -190,7 +224,7 @@ const loadType = (reset) => {
 
 const handleChange = (val) => {
   let arr = val.value.split('_');
-  searchForm.value.type = ''
+  searchForm.value.type = '';
   if (arr[0] == '0' && arr.length > 1) {
     val.label = 'Journal/' + val.label;
     searchForm.value.type = val.value.split('_')[1];

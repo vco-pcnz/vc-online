@@ -105,6 +105,24 @@
                 <p v-else>--</p>
               </template>
 
+              <template v-if="column.dataIndex === 'phone'">
+                <div class="icon-txt" v-if="record.apply_user.mobile">
+                  <i class="iconfont">&#xe678;</i>
+                  <div class="inline-block" style="text-indent: 20px">
+                    <span v-if="record.apply_user.pre"> +{{ record.apply_user.pre }}</span> {{ record.apply_user.mobile }}
+                  </div>
+                </div>
+              </template>
+              
+              <template v-if="column.dataIndex === 'email'">
+                <div class="icon-txt" v-if="record.apply_user.email">
+                  <i class="iconfont">&#xe66f;</i>
+                  <div class="inline-block" style="text-indent: 20px">
+                    {{ record.apply_user.email }}
+                  </div>
+                </div>
+              </template>
+
               <template v-if="column.dataIndex === 'create_time'">
                 <span v-if="record.create_time">{{ tool.showDate(record.create_time) }}</span>
                 <p v-else>--</p>
@@ -219,6 +237,8 @@ const columns = computed(() => {
     head = [
       { title: t('标题'), dataIndex: 'project_info', align: 'left' },
       // { title: t('说明'), dataIndex: 'note' },
+      { title: t('电话'), dataIndex: 'phone', width: 300, align: 'left' },
+      { title: t('邮箱'), dataIndex: 'email', width: 300, align: 'left' },
       { title: t('创建时间'), dataIndex: 'create_time', width: 140, align: 'center' },
       {
         title: t('操作1'),

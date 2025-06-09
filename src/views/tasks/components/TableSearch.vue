@@ -20,8 +20,8 @@
       </template>
 
       <template v-else>
-        <vco-page-search-item :title="t('用户')" width="250">
-          <a-input v-model:value="searchForm.user_keyword" :placeholder="t('请输入')" />
+        <vco-page-search-item width="320" :title="t('关键字')">
+          <vco-type-input v-model="searchForm.keywords" v-model:type="searchForm.key" :type-data="baseInfoData" :placeholder="t('请输入')"></vco-type-input>
         </vco-page-search-item>
       </template>
 
@@ -144,13 +144,38 @@ const projectsTypeData = [
     value: 'address'
   }
 ];
+
+const baseInfoData = [
+  {
+    label: t('全部'),
+    value: 'all'
+  },
+  {
+    label: t('姓名'),
+    value: 'name'
+  },
+  {
+    label: t('邮箱'),
+    value: 'email'
+  },
+  {
+    label: t('电话'),
+    value: 'mobile'
+  },
+  {
+    label: t('用户Id'),
+    value: 'id'
+  }
+];
+
 const searchForm = ref({
   type: '',
   borrower_keyword: '',
   borrower_search_type: '',
   project_search_type: '',
   project_keyword: '',
-  user_keyword: ''
+  key: 'all',
+  keywords: ''
 });
 
 const searchHandle = (flag) => {
@@ -158,6 +183,7 @@ const searchHandle = (flag) => {
     for (const key in searchForm.value) {
       searchForm.value[key] = '';
     }
+    searchForm.value.key = 'all';
   }
 
   if (props.module === 'other') {

@@ -19,6 +19,22 @@
               <span v-if="record.create_time">{{ tool.showDate(record.create_time) }}</span>
               <p v-else>--</p>
             </template>
+            <template v-if="column.dataIndex === 'phone'">
+              <div class="icon-txt" v-if="record.user.mobile">
+                <i class="iconfont">&#xe678;</i>
+                <div class="inline-block" style="text-indent: 20px">
+                  <span v-if="record.user.pre"> +{{ record.user.pre }}</span> {{ record.user.mobile }}
+                </div>
+              </div>
+            </template>
+            <template v-if="column.dataIndex === 'email'">
+              <div class="icon-txt" v-if="record.user.email">
+                <i class="iconfont">&#xe66f;</i>
+                <div class="inline-block" style="text-indent: 20px">
+                  {{ record.user.email }}
+                </div>
+              </div>
+            </template>
 
             <template v-if="column.dataIndex === 'status_name'">
               <div :style="{ color: colors[record.status_name] }">{{ record.status_name }}</div>
@@ -58,6 +74,8 @@ const { tableRef, pageObj, tableLoading, pageChange, tableData, getTableData } =
 
 const columns = reactive([
   { title: t('标题'), dataIndex: 'process_type', align: 'left' },
+  { title: t('电话'), dataIndex: 'phone', width: 200, align: 'left' },
+  { title: t('邮箱'), dataIndex: 'email', width: 200, align: 'left' },
   { title: t('状态t'), dataIndex: 'status_name', width: 220, align: 'center' },
   { title: t('创建时间'), dataIndex: 'create_time', width: 200, align: 'center' },
   {
@@ -85,7 +103,6 @@ const colors = ref({
   'LC REVIEW': '#d3a631',
   'DISCHARGE CONFIRM': 'rgb(11, 218, 142)'
 });
-
 
 const reload = (val) => {
   getTableData(val);

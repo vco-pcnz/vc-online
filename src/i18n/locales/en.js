@@ -1006,5 +1006,6 @@ export default {
   "新开贷款": "New loan",
   "请求1": "Request",
   "请完善每条数据的文件信息": "Please complete the file information for each data",
-  "受托人": "Trustee"
+  "受托人": "Trustee",
+  "删除文件夹中相关的文件": "Delete related files in the folder"
 }

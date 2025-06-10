@@ -69,7 +69,7 @@
                   </div>
                   <div class="icon-txt" v-if="record.borrower_email">
                     <i class="iconfont">&#xe66f;</i>
-                    <span class="inline-block">{{ record.borrower_email }}</span>
+                    <span :title="record.borrower_email" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-1">{{ record.borrower_email }}</span>
                   </div>
                   <div class="icon-txt" v-if="record.borrower_phone">
                     <i class="iconfont">&#xe678;</i>
@@ -103,6 +103,24 @@
               <template v-if="column.dataIndex === 'status'">
                 <span v-if="record.status_name" class="status-txt">{{ t(record.status_name) }}</span>
                 <p v-else>--</p>
+              </template>
+
+              <template v-if="column.dataIndex === 'phone'">
+                <div class="icon-txt" v-if="record.apply_user.mobile">
+                  <i class="iconfont">&#xe678;</i>
+                  <div class="inline-block" style="text-indent: 20px">
+                    <span v-if="record.apply_user.pre"> +{{ record.apply_user.pre }}</span> {{ record.apply_user.mobile }}
+                  </div>
+                </div>
+              </template>
+              
+              <template v-if="column.dataIndex === 'email'">
+                <div class="icon-txt" v-if="record.apply_user.email">
+                  <i class="iconfont">&#xe66f;</i>
+                  <div class="inline-block" style="text-indent: 20px">
+                    {{ record.apply_user.email }}
+                  </div>
+                </div>
               </template>
 
               <template v-if="column.dataIndex === 'create_time'">
@@ -219,6 +237,8 @@ const columns = computed(() => {
     head = [
       { title: t('标题'), dataIndex: 'project_info', align: 'left' },
       // { title: t('说明'), dataIndex: 'note' },
+      { title: t('电话'), dataIndex: 'phone', width: 300, align: 'left' },
+      { title: t('邮箱'), dataIndex: 'email', width: 300, align: 'left' },
       { title: t('创建时间'), dataIndex: 'create_time', width: 140, align: 'center' },
       {
         title: t('操作1'),

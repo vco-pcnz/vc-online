@@ -53,7 +53,7 @@
           >{{ t('添加') }}</a-button>
         </a-popover>
 
-        <template v-if="!securityInfo.is_check && securityInfo.count && blockInfo?.showCheck">
+        <template v-if="!securityInfo.is_check && blockInfo?.showCheck && (securityInfo.count || !buildAmount)">
           <a-button
             v-if="confirmTxt"
             type="dark"
@@ -156,6 +156,10 @@ const props = defineProps({
     type: Object,
     default: () => {}
   },
+  lendingInfo: {
+    type: Object,
+    default: () => {}
+  },
   projectInfo: {
     type: Object,
     default: () => {}
@@ -183,6 +187,10 @@ const addVisible = ref(false);
 
 const changeAlertRef = ref()
 const changeVisible = ref(false)
+
+const buildAmount = computed(() => {
+  return Number(props.lendingInfo?.build_amount || 0)
+})
 
 const confirmTxt = computed(() => {
   if (props.isDetails) {

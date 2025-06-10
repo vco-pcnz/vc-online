@@ -1,20 +1,42 @@
 <template>
   <div>
     <vco-page-search @keyup.enter="searchHandle(false)">
-      <template v-if="module !== 'other'">
-        <vco-page-search-item width="120" :title="t('类型')">
+      <template v-if="roterName !== 'LoanRequestsBe_roker'">
+        <vco-page-search-item width="120" :title="t('类型')" v-if="typeData.length">
           <a-select :placeholder="t('请选择')" v-model:value="searchForm.type">
             <a-select-option v-for="item in typeData" :key="item.value" :value="item.value">
               {{ item.label }}
             </a-select-option>
           </a-select>
         </vco-page-search-item>
+        <template v-if="roterName === 'LoanRequestsJournal'">
+          <vco-page-search-item width="180" :title="t('类型')">
+            <a-tree-select
+              class="treeSelectHak"
+              :loading="loading_type"
+              v-model:value="treeDataValue"
+              labelInValue
+              style="width: 100%"
+              :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
+              :tree-data="treeData"
+              :placeholder="t('请选择')"
+              @change="handleChange"
+            />
+          </vco-page-search-item>
+        </template>
+        <vco-page-search-item width="120" :title="t('状态')" v-if="statusData.length && currentTab === '1'">
+          <a-select :placeholder="t('请选择')" v-model:value="searchForm.state">
+            <a-select-option v-for="item in statusData" :key="item.value" :value="item.value">
+              {{ item.label }}
+            </a-select-option>
+          </a-select>
+        </vco-page-search-item>
 
-        <vco-page-search-item :title="t('项目信息')" width="250">
+        <vco-page-search-item :title="t('项目信息')" width="210">
           <vco-type-input v-model="searchForm.project_keyword" v-model:type="searchForm.project_search_type" :type-data="projectsTypeData" :placeholder="t('请输入')"></vco-type-input>
         </vco-page-search-item>
 
-        <vco-page-search-item :title="t('借款人信息')" width="250">
+        <vco-page-search-item :title="t('借款人信息')" width="210">
           <vco-type-input v-model="searchForm.borrower_keyword" v-model:type="searchForm.borrower_search_type" :type-data="borrowerTypeData" :placeholder="t('请输入')"></vco-type-input>
         </vco-page-search-item>
       </template>
@@ -36,76 +58,31 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { cloneDeep } from 'lodash';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import { quick } from '@/api/home/index';
+import { systemDictData } from '@/api/system';
 const route = useRoute();
 
 const emits = defineEmits(['search']);
 const props = defineProps({
-  module: {
+  currentTab: {
+    type: String
+  },
+  typeData: {
+    type: Array
+  },
+  statusData: {
+    type: Array
+  },
+  roterName: {
     type: String
   }
 });
 
 const { t } = useI18n();
-
-const typeData = ref([
-  {
-    label: t('全部'),
-    value: ''
-  }
-  // {
-  //   label: t('放款'),
-  //   value: 'drawdown'
-  // },
-  // {
-  //   label: t('还款'),
-  //   value: 'repayment'
-  // },
-  // {
-  //   label: t('解押'),
-  //   value: 'discharge'
-  // },
-  // {
-  //   label: t('罚息开始'),
-  //   value: 'penalty-start'
-  // },
-  // {
-  //   label: t('罚息结束'),
-  //   value: 'penalty-end'
-  // },
-  // {
-  //   label: t('变更'),
-  //   value: 'variation'
-  // },
-  // {
-  //   label: t('平账'),
-  //   value: 'journal'
-  // },
-  // {
-  //   label: t('关账'),
-  //   value: 'closed'
-  // },
-  // {
-  //   label: t('反洗钱'),
-  //   value: 'aml'
-  // },
-  // {
-  //   label: t('抵押物'),
-  //   value: 'security'
-  // },
-  // {
-  //   label: t('关账撤销'),
-  //   value: 'closed-cancel'
-  // },
-  // {
-  //   label: t('申请中介'),
-  //   value: 'vip-broker-vip'
-  // }
-]);
 
 const borrowerTypeData = [
   {
@@ -167,8 +144,9 @@ const baseInfoData = [
     value: 'id'
   }
 ];
-
 const searchForm = ref({
+  state: '',
+  cate: '',
   type: '',
   borrower_keyword: '',
   borrower_search_type: '',
@@ -182,21 +160,16 @@ const searchHandle = (flag) => {
   if (flag) {
     for (const key in searchForm.value) {
       searchForm.value[key] = '';
+      if (key == 'type') {
+        searchForm.value[key] = props.typeData.length ? props.typeData[0].value : '';
+      }
     }
     searchForm.value.key = 'all';
   }
 
-  if (props.module === 'other') {
+  if (props.currentTab !== '1') {
     Object.assign(searchForm.value, {
-      type: '',
-      borrower_keyword: '',
-      borrower_search_type: '',
-      project_search_type: '',
-      project_keyword: ''
-    });
-  } else {
-    Object.assign(searchForm.value, {
-      user_keyword: ''
+      state: ''
     });
   }
   let updateData = cloneDeep(searchForm.value);
@@ -204,29 +177,71 @@ const searchHandle = (flag) => {
   emits('search', updateData);
 };
 
-const loading = ref(false);
-const loadType = () => {
-  loading.value = ref(true);
-  quick({ ptype: '2' })
+watch(
+  () => props.typeData,
+  (val) => {
+    if (val && val.length) {
+      searchForm.value.type = val[0].value;
+    }
+  },
+  { deep: true, immediate: true }
+);
+
+const treeDataValue = ref();
+const treeData = ref([
+  { value: '0', label: 'Journal', children: [] },
+  { value: '1', label: 'Duration', children: [] }
+]);
+
+const loading_type = ref(false);
+const loadType = (reset) => {
+  loading_type.value = true;
+  systemDictData('journal_type')
     .then((res) => {
-      if (res && res.length) {
-        res.map((item) => {
-          typeData.value.push({
-            label: item.name,
-            value: item.type
-          });
-        });
-      }
+      treeData.value[0].children = res.map((item) => {
+        return {
+          value: '0_' + item.code,
+          label: item.name
+        };
+      });
     })
-    .finally(() => {
-      loading.value = false;
+    .finally((_) => {
+      loading_type.value = false;
+    });
+  systemDictData('duration')
+    .then((res) => {
+      treeData.value[1].children = res.map((item) => {
+        return {
+          value: '1_' + item.code,
+          label: item.name
+        };
+      });
+    })
+    .finally((_) => {
+      loading_type.value = false;
     });
 };
 
+const handleChange = (val) => {
+  let arr = val.value.split('_');
+  searchForm.value.type = '';
+  if (arr[0] == '0' && arr.length > 1) {
+    val.label = 'Journal/' + val.label;
+    searchForm.value.type = val.value.split('_')[1];
+  }
+  if (arr[0] == '1' && arr.length > 1) {
+    val.label = 'Duration/' + val.label;
+    searchForm.value.type = val.value.split('_')[1];
+  }
+  searchForm.value.cate = arr[0] === '0' ? '1' : '2';
+
+  treeDataValue.value = val;
+};
+
 onMounted(() => {
-  loadType();
-  searchForm.value.type = route.query.type;
-  searchHandle();
+  if (props.roterName === 'LoanRequestsJournal') {
+    loadType();
+  }
 });
 
 // 暴露方法给父组件
@@ -244,5 +259,6 @@ defineExpose({
 }
 .page-search-content {
   margin-top: 0;
+  gap: 16px;
 }
 </style>

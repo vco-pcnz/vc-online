@@ -20,6 +20,9 @@ const { t } = useI18n();
 const props = defineProps({
   params: {
     type: Object
+  },
+  tabNum: {
+    type: Object
   }
 });
 
@@ -27,23 +30,26 @@ const userStore = useUserStore();
 const route = useRoute();
 const emits = defineEmits(['search']);
 const currentTab = ref('1');
-const tabData = ref([
-  {
-    label: t('申请中'),
-    value: '1',
-    num: 0
-  },
-  {
-    label: t('已批准'),
-    value: '2',
-    num: 0
-  },
-  {
-    label: t('已拒绝'),
-    value: '3',
-    num: 0
-  }
-]);
+
+const tabData = computed(() => {
+  return [
+    {
+      label: t('申请中'),
+      value: '1',
+      num: props.tabNum ? props.tabNum['1'] : 0
+    },
+    {
+      label: t('已批准'),
+      value: '2',
+      num: props.tabNum ? props.tabNum['2'] : 0
+    },
+    {
+      label: t('已拒绝'),
+      value: '3',
+      num: props.tabNum ? props.tabNum['3'] : 0
+    }
+  ];
+});
 
 const searchOldData = ref({});
 const updateSearchForm = (val) => {
@@ -260,3 +266,20 @@ watch(
   { deep: true, immediate: true }
 );
 </script>
+
+<style lang="less" >
+
+.loanRequestsMark {
+  position: absolute !important;
+  background-color: #F19915;
+  color: #fff;
+  font-size: 11px;
+  padding: 2px 10px;
+  white-space: nowrap;
+  text-align: center;
+  top: 4px;
+  right: 0;
+  border-top-right-radius: 12px;
+  border-bottom-left-radius: 12px;
+}
+</style>

@@ -2,7 +2,7 @@
   <a-spin :spinning="loading" size="large">
     <div class="flex justify-between title">
       <div class="bold fs_2xl">{{ t('快捷入口') }}</div>
-      <div class="flex gap-1 items-center cursor-pointer" @click="setting"><i class="iconfont">&#xe604;</i>{{ t('设置1') }}</div>
+      <div class="flex items-center cursor-pointer" @click="setting"><i class="iconfont">&#xe604;</i>{{ t('设置1') }}</div>
     </div>
     <div class="wrapper">
       <div class="item" v-for="(item, index) in myList" :key="index" @click="navigationTo(item.path)">
@@ -10,10 +10,10 @@
         <p>{{ item.name }}</p>
       </div>
     </div>
-    <a-empty v-if="!myList.length && !loading" style="transform: scale(.6);min-height: 60px;" />
+    <a-empty v-if="!myList.length && !loading" :image="simpleImage" style="min-height: 100px" />
   </a-spin>
 
-  <a-modal :width="550" v-if="open" :open="open" :title="t('快捷入口')" @cancel="open = false" :footer="false" class="QuickAccessModal">
+  <a-modal :width="560" v-if="open" :open="open" :title="t('快捷入口')" @cancel="open = false" :footer="false" class="QuickAccessModal">
     <a-spin :spinning="loading" size="large">
       <div class="bold">{{ t('已添加') }}</div>
       <div class="wrapper">
@@ -23,7 +23,7 @@
           <i class="iconfont add reduce" @click="handReduce(index)">&#xe620;</i>
         </div>
         <div style="text-align: center; width: 100%">
-          <a-empty v-if="!settingData.length && !loading" style="transform: scale(.8);min-height: 60px;" />
+          <a-empty v-if="!settingData.length && !loading" :image="simpleImage" style="min-height: 100px" />
         </div>
       </div>
       <div class="bold">{{ t('列表') }}</div>
@@ -47,11 +47,13 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { Empty } from 'ant-design-vue';
 import { navigationTo } from '@/utils/tool';
 import { myQuick, quick, saveMyQuick } from '@/api/home/index';
 import { cloneDeep } from 'lodash';
 
 const { t } = useI18n();
+const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE;
 
 const open = ref(false);
 const loading = ref(false);
@@ -66,7 +68,7 @@ const setting = () => {
 };
 
 const getMyQuick = () => {
-  loading.value = ref(true);
+  loading.value = true;
   myQuick()
     .then((res) => {
       myList.value = res;
@@ -77,7 +79,7 @@ const getMyQuick = () => {
 };
 
 const geList = () => {
-  loading.value = ref(true);
+  loading.value = true;
   quick()
     .then((res) => {
       list.value = res;
@@ -127,8 +129,8 @@ onMounted(() => {
 .wrapper {
   display: flex;
   flex-wrap: wrap;
-  padding: 10px 15px;
-  gap: 0 10px;
+  padding: 10px 22px;
+  gap: 0 20px;
   .item {
     width: 90px;
     height: 90px;

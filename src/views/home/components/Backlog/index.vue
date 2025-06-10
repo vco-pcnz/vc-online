@@ -17,7 +17,7 @@
         </div>
       </div>
       <div style="text-align: center; width: 100%">
-        <a-empty v-if="!list.length && !loading" style="transform: scale(0.6); min-height: 60px" />
+        <a-empty v-if="!list.length && !loading" :image="simpleImage" style="min-height: 100px" />
       </div>
     </div>
   </a-spin>
@@ -26,17 +26,19 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { Empty } from 'ant-design-vue';
 import { navigationTo } from '@/utils/tool';
 import { useUserStore } from '@/store';
 import { quick } from '@/api/home/index';
 
 const { t } = useI18n();
+const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE;
 const userStore = useUserStore();
 const list = ref([]);
 const loading = ref(false);
 
 const geList = () => {
-  loading.value = ref(true);
+  loading.value = true;
   quick({ ptype: '2' })
     .then((res) => {
       list.value = res;
@@ -83,7 +85,7 @@ onMounted(() => {
       white-space: nowrap; /* 禁止换行 */
       overflow: hidden; /* 隐藏超出部分 */
       text-overflow: ellipsis; /* 显示省略号 */
-      width: 73px; /* 需要设置一个宽度 */
+      width: 90px; /* 需要设置一个宽度 */
     }
     .num {
       font-size: 16px;

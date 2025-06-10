@@ -1,5 +1,5 @@
 <template>
-  <layout @search="reload" :params="{ type: 2 }"></layout>
+  <layout @search="reload" :params="{ type: 2 }" :tabNum="otherInfo?.num"></layout>
   <div class="mt-5">
     <a-spin :spinning="tableLoading" size="large">
       <div class="table-content sys-table-content cursor-pointer">
@@ -60,6 +60,7 @@
             <template v-if="column.dataIndex === 'create_time'">
               <span v-if="record.create_time">{{ tool.showDate(record.create_time) }}</span>
               <p v-else>--</p>
+              <div class="loanRequestsMark" v-if="record.has_permission">{{ t('操作') }}</div>
             </template>
           </template>
         </a-table>
@@ -82,7 +83,7 @@ import layout from '../components/layout.vue';
 
 const { t } = useI18n();
 
-const { tableRef, pageObj, tableLoading, pageChange, tableData, getTableData } = useTableList(
+const { tableRef, pageObj, otherInfo, tableLoading, pageChange, tableData, getTableData } = useTableList(
   projectLoan,
   {
     limit: 10
@@ -140,7 +141,6 @@ const rowClick = (record, index) => {
 const reload = (val) => {
   getTableData(val);
 };
-
 </script>
 
 <style lang="less" scoped>

@@ -502,7 +502,7 @@
           submitRquest(params)
         }
       } else if (currentMark.value === 'step_aml_audit') {
-        const pass = washTableRef.value.tableData.every(item => item.document && item.document.length)
+        const pass = washTableRef.value.tableData.filter(item => !item.condition_time).every(item => item.document && item.document.length)
         if (pass) {
           submitRquest(params)
         } else {

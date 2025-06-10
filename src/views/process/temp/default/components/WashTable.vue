@@ -398,6 +398,10 @@ onMounted(() => {
 onUnmounted(() => {
   emitter.off('blockShowTarget', blockShowTargetHandle);
 });
+
+defineExpose({
+  tableData
+})
 </script>
 
 <style lang="less" scoped>

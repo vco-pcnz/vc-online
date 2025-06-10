@@ -1,5 +1,5 @@
 <template>
-  <layout @search="reload" :params="{ type: 4 }"></layout>
+  <layout @search="reload" :params="{ type: 4 }" :tabNum="otherInfo?.num"></layout>
   <div class="mt-5">
     <a-spin :spinning="tableLoading" size="large">
       <div class="table-content sys-table-content cursor-pointer">
@@ -43,12 +43,12 @@
               </template>
             </template>
 
-             <template v-if="column.dataIndex === 'all_repayment'">
-              <span class="status-txt">{{ record.all_repayment ? t('全额还款') : t('部分还款') }}</span> 
+            <template v-if="column.dataIndex === 'all_repayment'">
+              <span class="status-txt">{{ record.all_repayment ? t('全额还款') : t('部分还款') }}</span>
             </template>
 
             <template v-if="column.dataIndex === 'apply_amount'">
-              <vco-number :value="record.apply_amount" :precision="2" size="fs_xs" :end="true"></vco-number>
+              <vco-number :value="record.apply_amount" :precision="2" prefix=" $" size="fs_xs" :end="true"></vco-number>
               <p class="fs_xs color_grey" v-if="record.date">{{ tool.showDate(record.date) }}</p>
             </template>
             <template v-if="column.dataIndex === 'status_name'">
@@ -64,6 +64,7 @@
             <template v-if="column.dataIndex === 'create_time'">
               <span v-if="record.create_time">{{ tool.showDate(record.create_time) }}</span>
               <p v-else>--</p>
+              <div class="loanRequestsMark" v-if="record.has_permission">{{ t('操作') }}</div>
             </template>
           </template>
         </a-table>
@@ -86,7 +87,7 @@ import layout from '../components/layout.vue';
 
 const { t } = useI18n();
 
-const { tableRef, pageObj, tableLoading, pageChange, tableData, getTableData } = useTableList(
+const { tableRef, pageObj, otherInfo, tableLoading, pageChange, tableData, getTableData } = useTableList(
   projectLoan,
   {
     limit: 10

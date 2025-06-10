@@ -113,7 +113,7 @@
                   </div>
                 </div>
               </template>
-              
+
               <template v-if="column.dataIndex === 'email'">
                 <div class="icon-txt" v-if="record.apply_user.email">
                   <i class="iconfont">&#xe66f;</i>
@@ -121,6 +121,11 @@
                     {{ record.apply_user.email }}
                   </div>
                 </div>
+              </template>
+
+              <template v-if="column.dataIndex === 'start_date'">
+                <span v-if="record.start_date">{{ tool.showDate(record.start_date) }}</span>
+                <p v-else>--</p>
               </template>
 
               <template v-if="column.dataIndex === 'create_time'">
@@ -206,6 +211,7 @@ const columns = computed(() => {
       { title: t('类型'), dataIndex: 'process_type', align: 'center' },
       // { title: t('金额'), dataIndex: 'amount', width: 140, align: 'left' },
       // { title: t('说明'), dataIndex: 'note', align: 'left' },
+      { title: t('开放日期'), dataIndex: 'start_date', width: 140, align: 'center' },
       { title: t('创建时间'), dataIndex: 'create_time', width: 140, align: 'center' },
       {
         title: t('操作1'),

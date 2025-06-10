@@ -2,8 +2,7 @@
   <a-modal :open="selectVisible" :title="t('进度付款阶段')" :width="1400" :footer="null" :keyboard="false" :maskClosable="false" class="middle-position" @cancel="selectVisible = false">
     <view-content v-if="selectVisible" :selectedData="selectedData" :buildLogData="buildLogData" :is-select="true" :show-process="true" @selectDone="selectDoneHandle"></view-content>
   </a-modal>
-
-  <div class="input-item" style="margin-top: 16px">
+  <div class="input-item" style="margin-top: 16px" v-if="!keepShowOther">
     <div class="label" :class="{ err: !formState.build_money && validate && !showOther }">{{ t('进度款') }}</div>
     <div class="flex gap-2 items-center">
       <a-input-number
@@ -19,7 +18,7 @@
       <i class="iconfont add" :style="{ transform: showOther ? 'rotate(0deg)' : 'rotate(45deg)' }" @click="updateShowOther()">&#xe781;</i>
     </div>
   </div>
-  <template v-if="showOther">
+  <template v-if="showOther || keepShowOther">
     <a-alert type="info" class="mt-5">
       <template #message>
         <a-row :gutter="24">
@@ -68,7 +67,7 @@
 </template>
 
 <script scoped setup>
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import ViewContent from '@/views/requests/progress-payment/components/ViewContent.vue';
@@ -163,6 +162,10 @@ const changeOtherType = () => {
 
 onMounted(() => {
   loadType();
+});
+
+const keepShowOther = computed(() => {
+  return !(props.projectDetail.base.build_amount > 0);
 });
 
 const editData = ref(null);

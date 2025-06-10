@@ -111,6 +111,10 @@ const statusData = computed(() => {
           value: ''
         },
         {
+          label: 'PENDING APPLY',
+          value: '0'
+        },
+        {
           label: 'FC REVIEW',
           value: '100'
         },

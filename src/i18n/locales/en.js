@@ -480,7 +480,7 @@ export default {
   "确定发送邮件吗？": "Are you sure you want to send the email?",
   "确定发送短信吗？": "Are you sure you want to send SMS?",
   "新增信息": "New information",
-  "反洗钱流程": "AML Procedures",
+  "反洗钱流程": "AML Review",
   "发送短信": "Send SMS",
   "发送邮件": "Send E-mail",
   "选中本页": "Select this page",

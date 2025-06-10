@@ -53,6 +53,7 @@
           
           <div v-if="isAml" class="mb-10">
             <wash-table
+              ref="washTableRef"
               :current-id="currentId"
               :current-step="currentStep"
               :block-info="PageBlockObjRef.AML"
@@ -155,6 +156,7 @@
   import { ref, watch, onMounted, onUnmounted, computed } from "vue";
   import { useI18n } from "vue-i18n";
   import { cloneDeep } from "lodash";
+  import { message } from 'ant-design-vue/es';
   import {
     projectAuditStepDetail,
     projectAuditSaveStep,
@@ -465,6 +467,8 @@
     })
   }
 
+  const washTableRef = ref()
+
   const submitHandle = () => {
     if (subDisabled.value) {
       return false
@@ -496,6 +500,13 @@
           }
         } else {
           submitRquest(params)
+        }
+      } else if (currentMark.value === 'step_aml_audit') {
+        const pass = washTableRef.value.tableData.every(item => item.document && item.document.length)
+        if (pass) {
+          submitRquest(params)
+        } else {
+          message.error(t('请完善每条数据的文件信息'))
         }
       } else {
         submitRquest(params)

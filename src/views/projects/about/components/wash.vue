@@ -8,7 +8,8 @@
         <p class="name">{{ item.name }}</p>
         <span class="cer" v-if="item.cate == 1">{{ t('借款人') }}</span>
         <span class="cer" v-if="item.cate == 2">{{ t('担保人') }}</span>
-        <span class="cer" v-if="item.cate == 3">{{ t('投资人') }}</span>
+        <span class="cer" v-if="item.cate == 4">{{ t('受托人') }}</span>
+        <span class="cer" v-if="item.cate == 9">{{ t('其他') }}</span>
       </div>
     </li>
   </ul>

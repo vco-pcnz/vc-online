@@ -89,7 +89,8 @@
                 <span class="cer" v-if="record.cate == 1">{{ t('借款人') }}</span>
                 <span class="cer" v-if="record.cate == 2">{{ t('担保人') }}</span>
                 <span class="cer" v-if="record.cate == 3">{{ t('受益人') }}</span>
-                <span class="cer" v-if="record.cate == 4">{{ t('投资人') }}</span>
+                <span class="cer" v-if="record.cate == 4">{{ t('受托人') }}</span>
+                <span class="cer" v-if="record.cate == 9">{{ t('其他') }}</span>
               </template>
               <template v-if="column.dataIndex === 'mobile'">
                 {{ record.pre && record.mobile ? '+' + record.pre + ' ' + record.mobile : record.mobile }}

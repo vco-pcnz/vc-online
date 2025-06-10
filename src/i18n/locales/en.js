@@ -1005,5 +1005,6 @@ export default {
   "您可以通过还款计算器计算还款金额": "You can calculate the repayment amount through the repayment calculator",
   "新开贷款": "New loan",
   "请求1": "Request",
-  "请完善每条数据的文件信息": "Please complete the file information for each data"
+  "请完善每条数据的文件信息": "Please complete the file information for each data",
+  "受托人": "Trustee"
 }

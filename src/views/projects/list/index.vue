@@ -57,8 +57,8 @@ const tableSearchRef = ref();
 
 const tabChange = () => {
   pageStore.pagination.page = 1;
-  pageStore.searchParams['order'] = undefined;
-  pageStore.searchParams['sort'] = undefined;
+  pageStore.searchParams['order'] = 'desc';
+  pageStore.searchParams['sort'] = 'start_date';
   if (tableSearchRef.value) {
     tableSearchRef.value.searchHandle(true);
   } else {

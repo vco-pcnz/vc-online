@@ -1100,8 +1100,9 @@
   }
 
   const checkHandle = async (flag = false) => {
+    const build_amount = Number(props.dataInfo.lending.build_amount)
     const hasBuild = Boolean(Number(props.lendingInfo.has_build))
-    if (!hasBuild) {
+    if (build_amount && !hasBuild) {
       message.error(t('请先设置建筑贷款总额的进度付款信息'))
       return false
     }

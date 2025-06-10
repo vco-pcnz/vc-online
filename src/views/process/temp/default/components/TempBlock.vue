@@ -227,6 +227,7 @@
           :block-info="blockInfo.security"
           :project-info="dataInfo.project"
           :security-info="dataInfo.security"
+          :lending-info="lendingInfo"
           @refresh="dataRefresh"
         ></security-items>
       </template>

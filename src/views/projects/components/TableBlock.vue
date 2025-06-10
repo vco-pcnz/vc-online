@@ -309,8 +309,8 @@ watch(
   () => props.type,
   (val) => {
     sort.value = {
-      order: '',
-      sort: 'desc'
+      sort: 'start_date',
+      order: 'desc'
     };
   },
   {

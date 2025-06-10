@@ -480,7 +480,7 @@ export default {
   "确定发送邮件吗？": "Are you sure you want to send the email?",
   "确定发送短信吗？": "Are you sure you want to send SMS?",
   "新增信息": "New information",
-  "反洗钱流程": "AML Procedures",
+  "反洗钱流程": "AML Review",
   "发送短信": "Send SMS",
   "发送邮件": "Send E-mail",
   "选中本页": "Select this page",
@@ -1005,5 +1005,7 @@ export default {
   "您可以通过还款计算器计算还款金额": "You can calculate the repayment amount through the repayment calculator",
   "新开贷款": "New loan",
   "请求1": "Request",
-  "请完善每条数据的文件信息": "Please complete the file information for each data"
+  "请完善每条数据的文件信息": "Please complete the file information for each data",
+  "受托人": "Trustee",
+  "删除文件夹中相关的文件": "Delete related files in the folder"
 }

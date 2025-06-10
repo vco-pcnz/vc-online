@@ -23,6 +23,9 @@
             </a-popconfirm>
 
             <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" :disabled="Boolean(!selectedRowKeys.length)" @confirm="checkHandle(4)">
+              <template #description>
+                <a-checkbox v-model:checked="batchRemoveDoc">{{ t('删除文件夹中相关的文件') }}</a-checkbox>
+              </template>
               <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase" :loading="loading && type === 4">
                 {{ t('删除') }}
               </a-button>
@@ -89,7 +92,8 @@
                 <span class="cer" v-if="record.cate == 1">{{ t('借款人') }}</span>
                 <span class="cer" v-if="record.cate == 2">{{ t('担保人') }}</span>
                 <span class="cer" v-if="record.cate == 3">{{ t('受益人') }}</span>
-                <span class="cer" v-if="record.cate == 4">{{ t('投资人') }}</span>
+                <span class="cer" v-if="record.cate == 4">{{ t('受托人') }}</span>
+                <span class="cer" v-if="record.cate == 9">{{ t('其他') }}</span>
               </template>
               <template v-if="column.dataIndex === 'mobile'">
                 {{ record.pre && record.mobile ? '+' + record.pre + ' ' + record.mobile : record.mobile }}
@@ -111,7 +115,10 @@
                   <template v-if="blockInfo.showEdit">
                     <i class="iconfont" :title="t('审核')" @click="checkOne(record.id)" v-if="record.status != 4 && record.status != 3 && record.document && record.document.length && hasPermission('requests:aml:check')"> &#xe647; </i>
                     <i class="iconfont" :title="t('编辑')" @click="showForm(record)">&#xe753;</i>
-                    <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.id)">
+                    <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record)">
+                      <template #description>
+                        <a-checkbox v-model:checked="record.removeDoc">{{ t('删除文件夹中相关的文件') }}</a-checkbox>
+                      </template>
                       <i class="iconfont" :title="t('删除l')">&#xe8c1;</i>
                     </a-popconfirm>
                   </template>
@@ -257,11 +264,15 @@ const onSelectAll = (type) => {
   }
 };
 
+const batchRemoveDoc = ref(true)
 const loading = ref(false);
 const type = ref();
 const checkHandle = async (val) => {
   let ajaxFn = null;
   type.value = val;
+  const params = {
+    id: selectAll.value == 'all' ? 'all' : selectedRowKeys.value, uuid: props.currentId
+  }
   if (val === 1) {
     ajaxFn = washCheck;
   } else if (val === 2) {
@@ -270,11 +281,12 @@ const checkHandle = async (val) => {
     ajaxFn = sendSms;
   } else if (val === 4) {
     ajaxFn = washRemove;
+    params.del_file = batchRemoveDoc.value ? 1 : 0
   }
 
   if (ajaxFn) {
     loading.value = true;
-    await ajaxFn({ id: selectAll.value == 'all' ? 'all' : selectedRowKeys.value, uuid: props.currentId })
+    await ajaxFn(params)
       .then(() => {
         loadData();
         loading.value = false;
@@ -300,9 +312,10 @@ const checkOne = (id) => {
     });
 };
 
-const remove = (id) => {
+const remove = (data) => {
   loading.value = true;
-  washRemove({ id: [id], uuid: props.currentId })
+  const del_file = data.removeDoc ? 1 : 0
+  washRemove({ id: [data.id], uuid: props.currentId, del_file })
     .then((res) => {
       loadData();
     })
@@ -348,7 +361,11 @@ const loadData = () => {
 
   ajaxFn({ uuid: props.currentId, ...pagination.value })
     .then((res) => {
-      tableData.value = res.data;
+      const data = res.data || []
+      data.forEach(item => {
+        item.removeDoc = true
+      })
+      tableData.value = data;
       total.value = res.count;
       if (selectAll.value == 'all') {
         selectAll.value = '';

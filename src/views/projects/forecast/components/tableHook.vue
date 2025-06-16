@@ -43,7 +43,13 @@
 
       <div class="col-content">
         <template v-for="(_item, key) in data?.list">
-          <div v-for="(item, index) in data?.list[key]" :key="item.id" class="col-item" :class="{ passed: item.status != 0 || item.first, yellow: item.type == 4 && item.first, red: item.is_hide, item: itemId }" @click="showLog(item)">
+          <div
+            v-for="(item, index) in data?.list[key]"
+            :key="item.id"
+            class="col-item"
+            :class="{ passed: item.status != 0 || item.first, yellow: item.type == 4 && item.first, red: item.is_hide, item: itemId, grace: item.is_grace }"
+            @click="showLog(item)"
+          >
             <div class="item flex items-center"><span class="circle" :style="{ background: item.status != 0 || item.first ? '#181818' : '#b4d8d8' }"></span></div>
             <div class="item">
               <template v-if="!index"> {{ tool.monthYear(item.ym) }}</template>
@@ -90,7 +96,10 @@
             <div class="item">
               <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.note" style="width: 250px">{{ item.note }}</p>
             </div>
-            <div v-if="!itemId" class="item history"><i class="iconfont nav-icon" v-if="!item.first">&#xe794;</i></div>
+            <div v-if="!itemId" class="item history">
+              <i class="iconfont nav-icon" v-if="!item.first">&#xe794;</i>
+              <i class="iconfont grace-icon" v-if="item.is_grace && hasPermission('projects:forecast:grace')" @click.stop="removeHandle(item, item.is_grace)">&#xe8c1;</i>
+            </div>
             <div v-else class="item opt">
               <i v-if="item.first" class="iconfont disabled">&#xe8cf;</i>
               <Add v-else :uuid="uuid" :item-id="itemId" :projectDetail="projectDetail" :item-date="item" @update="update">
@@ -103,8 +112,13 @@
       </div>
     </div>
     <a-empty v-if="data?.list.constructor === Array && !data?.list.length" />
-    <div class="flex justify-center pb-8" v-if="!projectDetail?.base?.is_close">
-      <Add :uuid="uuid" :item-id="itemId" :projectDetail="projectDetail" @update="update"> <a-button type="brown" shape="round" size="small">add forecast</a-button></Add>
+    <div class="flex justify-center pb-8 gap-5" v-if="!projectDetail?.base?.is_close">
+      <Add :uuid="uuid" :item-id="itemId" :projectDetail="projectDetail" @update="update">
+        <a-button type="brown" shape="round" size="small">add forecast</a-button>
+      </Add>
+      <GracePeriod :uuid="uuid" :table-data="data?.list" :projectDetail="projectDetail" @update="update" v-if="hasPermission('projects:forecast:grace')">
+        <a-button type="brown" shape="round" size="small">{{ t('宽限期') }}</a-button>
+      </GracePeriod>
     </div>
     <div class="static-block">
       <div class="item">
@@ -167,16 +181,18 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import { DownOutlined } from '@ant-design/icons-vue';
 import dayjs from 'dayjs';
 import tool from '@/utils/tool';
-import { projectDetailForecastList, projectForecastExportExcel, projectForecastStatistics } from '@/api/process';
+import GracePeriod from './GracePeriod.vue';
 import Add from './add.vue';
 import Log from './log.vue';
 import { projectVariationDeletef } from '@/api/project/variation';
+import { forecastDelete } from '@/api/project/loan';
+import { hasPermission } from '@/directives/permission/index';
 
 const props = defineProps({
   uuid: {
@@ -198,55 +214,6 @@ const props = defineProps({
 const emits = defineEmits(['update']);
 const { t } = useI18n();
 
-const statisticsData = ref(null);
-
-const downloading = ref(false);
-const downLoadExcel = (type) => {
-  const params = {
-    type,
-    uuid: props.uuid
-  };
-  downloading.value = true;
-  projectForecastExportExcel(params)
-    .then((res) => {
-      downloading.value = false;
-      window.open(res);
-    })
-    .catch(() => {
-      downloading.value = false;
-    });
-};
-
-const option = ref({
-  series: [
-    {
-      type: 'pie',
-      center: ['50%', '50%'],
-      radius: '100%',
-      color: ['#272727', '#f4eee8'],
-      label: {
-        show: false
-      },
-      silent: true,
-      data: [{ value: 0 }, { value: 1 }],
-      label: {
-        show: true, // 显示标签
-        position: 'inside', // 标签位置：扇区内部
-        formatter: function (params) {
-          // 仅显示第一个数据项的百分比
-          return params.dataIndex === 0 ? `{d}%`.replace('{d}', params.percent) : '';
-        },
-        textStyle: {
-          color: '#fff', // 文本颜色
-          fontWeight: 'bold',
-          fontSize: 14,
-          textBorderWidth: 0 // 取消描边
-        }
-      }
-    }
-  ]
-});
-
 const logRef = ref();
 const logList = ref([]);
 const itemDate = ref();
@@ -265,7 +232,8 @@ const currentParams = ref();
 const delAlertRef = ref();
 const delVisible = ref(false);
 
-const removeHandle = (data) => {
+const removeHandle = (data, is_grace) => {
+  handleType.value = is_grace;
   const { id, date, type } = data;
   const params = {
     apply_uuid: props.uuid,
@@ -274,18 +242,41 @@ const removeHandle = (data) => {
   };
 
   currentParams.value = params;
-  handleType.value = 1;
-
-  if (type === 4) {
-    changeType.value = 2;
+  if (is_grace) {
     delVisible.value = true;
   } else {
-    tipsVisible.value = true;
+    if (type === 4) {
+      changeType.value = 2;
+      delVisible.value = true;
+    } else {
+      tipsVisible.value = true;
+    }
   }
 };
 
 const subLoading = ref(false);
 const sureHandle = () => {
+  if (handleType.value) {
+    subLoading.value = true;
+    forecastDelete({ id: currentParams.value.id, apply_uuid: props.uuid, change: 2 })
+      .then(() => {
+        subLoading.value = false;
+        tipsVisible.value = false;
+
+        emits('update');
+        if (delAlertRef.value) {
+          delVisible.value = false;
+          delAlertRef.value.changeLoading(false);
+        }
+      })
+      .catch(() => {
+        subLoading.value = false;
+        if (delAlertRef.value) {
+          delAlertRef.value.changeLoading(false);
+        }
+      });
+    return;
+  }
   if (changeType.value === undefined) {
     message.error(t('请选择') + t('修改方式'));
     return false;
@@ -366,7 +357,8 @@ const update = () => {
       &:nth-child(9) {
         flex: 0 0 150px;
       }
-      &:nth-child(10),&.history {
+      &:nth-child(10),
+      &.history {
         flex: 0 0 100px;
         text-align: right;
       }
@@ -445,6 +437,10 @@ const update = () => {
 
       &.red {
         background-color: #ffa7a7 !important;
+      }
+
+      &.grace {
+        background-color: #f1dde4 !important;
       }
 
       > .item {
@@ -528,5 +524,11 @@ const update = () => {
   display: inline-block;
   height: 8px;
   width: 8px;
+}
+
+.grace-icon {
+  position: absolute;
+  right: 4px;
+  color: red;
 }
 </style>

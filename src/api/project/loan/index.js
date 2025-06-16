@@ -168,6 +168,14 @@ export const darwdownLog = (params) =>
     params
   });
 
+  // 删除
+export const forecastDelete = (data) =>
+  request({
+    url: 'project/forecast/deletef',
+    method: 'post',
+    data
+  });
+
 // forecast darwDown列表
 export const addf = (data) =>
   request({

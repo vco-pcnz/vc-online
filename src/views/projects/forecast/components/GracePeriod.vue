@@ -22,7 +22,7 @@
           <div class="label">Notes</div>
           <a-textarea v-model:value="formState.note" :rows="6" />
         </div>
-        <div class="mt-3 gap-3">
+        <div class="mt-3 gap-3 flex justify-between">
           <p>
             <span class=""> {{ t('利率') }}: </span><span class="fs_xl bold">{{ projectDetail.credit.left.interestRate }}</span
             >%
@@ -83,12 +83,12 @@ const formState = ref({
 
 const defaultPickerValue = computed(() => {
   const startDate = props.projectDetail.loan.end_date;
-  return dayjs(startDate).add(1, 'day');
+  return dayjs(startDate).add(2, 'day');
 });
 
 const disabledDateFormat = (current) => {
   const startDate = props.projectDetail.loan.end_date;
-  if (current && current.isBefore(startDate, 'day')) {
+  if (current && current.isBefore(dayjs(startDate).add(1, 'day'), 'day')) {
     return true;
   }
   return false;

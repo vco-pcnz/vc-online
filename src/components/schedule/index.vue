@@ -645,6 +645,8 @@ onMounted(() => {
   if (props.currentId) {
     if (!props.lateTable) {
       lateTabActiveKey.value = '2'
+    } else {
+      lateTabActiveKey.value = '1'
     }
     getDataInfo(Number(lateTabActiveKey.value) === 1);
     if (!props.itemId) {

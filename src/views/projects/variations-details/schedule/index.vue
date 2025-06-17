@@ -2,7 +2,7 @@
   <detail-layout active-tab="schedule" @getProjectDetail="getProjectDetail">
     <template #content>
       <schedule
-        v-if="uuid && id"
+        v-if="uuid && id && currentProduct"
         :currentId="uuid"
         :item-id="id"
         :late-table="lateTable"

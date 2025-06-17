@@ -1,7 +1,7 @@
 <template>
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="JournalRef" class="Journal">
-    <a-modal :width="486" :open="visible" :title="(formState.id ? 'Edit ' : 'Add ') + t('宽限期')" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
+    <a-modal :width="500" :open="visible" :title="(formState.id ? 'Edit ' : 'Add ') + t('宽限期')" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <div class="input-item">
           <div class="label" :class="{ err: !formState.date && validate }">{{ t('日期') }}</div>

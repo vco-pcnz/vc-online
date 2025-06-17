@@ -95,7 +95,7 @@ const columns = reactive([
     key: 'spent',
     width: '150px',
     customRender: ({ record }) => {
-      if (record.amount > 0) return tool.formatMoney(Math.abs(record.amount));
+      if (record.type == 'SPEND') return tool.formatMoney(Math.abs(record.amount));
     }
   },
   {
@@ -104,7 +104,7 @@ const columns = reactive([
     key: 'received',
     width: '150px',
     customRender: ({ record }) => {
-      if (record.amount < 0) return tool.formatMoney(Math.abs(record.amount));
+      if (record.type == 'RECEIVE') return tool.formatMoney(Math.abs(record.amount));
     }
   },
   {

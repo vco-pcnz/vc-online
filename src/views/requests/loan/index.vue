@@ -78,17 +78,17 @@
                     </span>
                   </template>
                   <template v-if="column.dataIndex === 'borrower_info'">
-                    <div class="icon-txt">
+                    <div class="icon-txt cursor-pointer" @click="navigationTo(`/requests/details/about?uuid=${record.uuid}`)">
                       <i class="iconfont cer">{{ record.borrower_type === 1 ? '&#xe632;' : '&#xe683;' }}</i>
                       <span :title="record.showName" class="cer text-ellipsis overflow-hidden whitespace-normal line-clamp-1">{{ record.showName || '--' }}</span>
                     </div>
-                    <div class="icon-txt mt-1.5">
+                    <div class="icon-txt mt-1.5 cursor-pointer" @click="navigationTo(`/requests/details/about?uuid=${record.uuid}`)">
                       <i class="iconfont" :class="{ cer: record.borrower_ver }">&#xe66f;</i>
                       <span :class="{ cer: record.borrower_ver }" :title="record.borrower_email" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-1">
                         {{ record.borrower_email || '--' }}
                       </span>
                     </div>
-                    <div class="icon-txt">
+                    <div class="icon-txt cursor-pointer" @click="navigationTo(`/requests/details/about?uuid=${record.uuid}`)">
                       <i class="iconfont" :class="{ cer: record.borrower_ver }">&#xe678;</i>
                       <span :class="{ cer: record.borrower_ver }" :title="record.borrower_phone" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-1">
                         {{ record.borrower_phone || '--' }}
@@ -96,13 +96,13 @@
                     </div>
                   </template>
                   <template v-if="column.dataIndex === 'lm'">
-                    <div class="user-content" v-if="record.lm_list && record.lm_list.length">
+                    <div class="user-content cursor-pointer" v-if="record.lm_list && record.lm_list.length" @click="navigationTo(`/requests/details/about?uuid=${record.uuid}`)">
                       <vco-user-item v-for="(item, index) in record.lm_list" :key="index" :data="item"></vco-user-item>
                     </div>
                     <p v-else>--</p>
                   </template>
                   <template v-if="column.dataIndex === 'term'">
-                    <vco-time-line v-if="record.start_date && record.end_date" :open-date="record.start_date" :maturity-date="record.end_date"></vco-time-line>
+                    <vco-time-line class="cursor-pointer" v-if="record.start_date && record.end_date" :open-date="record.start_date" :maturity-date="record.end_date" @click="navigationTo(`/requests/details/about?uuid=${record.uuid}`)" ></vco-time-line>
                     <p v-else>--</p>
                   </template>
                   <!-- <template v-if="column.dataIndex === 'lvr'">
@@ -110,7 +110,7 @@
                     <p v-else>--</p>
                   </template> -->
                   <template v-if="column.dataIndex === 'create_time'">
-                    <span v-if="record.create_time">{{ tool.showDate(record.create_time) }}</span>
+                    <span v-if="record.create_time" class="cursor-pointer" @click="navigationTo(`/requests/details/about?uuid=${record.uuid}`)">{{ tool.showDate(record.create_time) }}</span>
                     <p v-else>--</p>
                   </template>
                   <template v-if="column.dataIndex === 'status'">

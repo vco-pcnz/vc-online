@@ -13,9 +13,15 @@
 
         <div class="input-item">
           <div class="label" :class="{ err: !formState.date && validate }">{{ t('日期') }}</div>
-          <a-date-picker class="datePicker"
-            :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.date"
-            :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" :showToday="false"
+          <a-date-picker
+            class="datePicker"
+            :disabledDate="disabledDateFormat"
+            inputReadOnly
+            v-model:value="formState.date"
+            :format="selectDateFormat()"
+            valueFormat="YYYY-MM-DD"
+            placeholder=""
+            :showToday="false"
             :defaultPickerValue="defaultPickerValue"
           />
         </div>
@@ -69,7 +75,7 @@ import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import tool, { selectDateFormat } from '@/utils/tool';
 import { addf } from '@/api/project/loan';
-import { projectVariationAddf } from '@/api/project/variation'
+import { projectVariationAddf } from '@/api/project/variation';
 import dayjs, { Dayjs } from 'dayjs';
 import { cloneDeep } from 'lodash';
 
@@ -108,16 +114,25 @@ const formState = ref({
 
 const defaultPickerValue = computed(() => {
   const startDate = props.itemId ? props.projectDetail.variationInfo.start_date : props.projectDetail.loan.start_date;
-  return dayjs(startDate).add(1, 'day')
-})
+  return dayjs(startDate).add(1, 'day');
+});
 
 const disabledDateFormat = (current) => {
   const startDate = props.itemId ? props.projectDetail.variationInfo.start_date : props.projectDetail.loan.start_date;
   if (current && current.isBefore(startDate, 'day')) {
     return true;
   }
+  if (formState.value.type == '4') {
+    const endDate = props.projectDetail.loan.end_date;
+    if (formState.value.date && dayjs(formState.value.date).isAfter(dayjs(endDate))) {
+      formState.value.date = '';
+    }
+    if (current && current.isAfter(endDate, 'day')) {
+      return true;
+    }
 
-  return false;
+    return false;
+  }
 };
 
 const updateVisible = (value) => {
@@ -138,11 +153,11 @@ const setShowTip = () => {
 const save = () => {
   validate.value = true;
   if (formState.value.amount === '' || !formState.value.date) return;
-  
+
   let params = { ...formState.value, apply_uuid: props.uuid };
-  const ajaxFn = props.itemId ? projectVariationAddf : addf
+  const ajaxFn = props.itemId ? projectVariationAddf : addf;
   if (props.itemId) {
-    params.variation_id = props.itemId
+    params.variation_id = props.itemId;
   }
 
   loading.value = true;

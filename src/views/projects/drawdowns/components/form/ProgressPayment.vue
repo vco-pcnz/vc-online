@@ -165,8 +165,7 @@ onMounted(() => {
 });
 
 const keepShowOther = computed(() => {
-  // return !(props.projectDetail.base.build_amount > 0);
-  return false;
+  return !(props.projectDetail.base.build_amount > 0);
 });
 
 const editData = ref(null);

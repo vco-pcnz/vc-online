@@ -5,6 +5,7 @@
         v-if="uuid && id"
         :currentId="uuid"
         :item-id="id"
+        :late-table="lateTable"
         :current-product="currentProduct"
       ></schedule>
     </template>
@@ -21,10 +22,12 @@
 
   const uuid = ref(route.query.uuid)
   const id = ref(route.query.id)
+  const lateTable = ref(false)
 
   const currentProduct = ref('')
 
   const getProjectDetail = (res) => {
+    lateTable.value = Number(res.variationInfo.is_late) === 1
     currentProduct.value = res.product.code
   }
 </script>

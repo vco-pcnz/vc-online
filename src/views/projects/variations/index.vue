@@ -56,6 +56,10 @@
                 <span v-if="record.start_date" :class="{'declined-txt': record.declined}">{{ tool.showDate(record.start_date) }}</span>
                 <span v-else>--</span>
               </template>
+              <template v-if="column.dataIndex === 'is_late'">
+                <a-tag v-if="Number(record.is_late) === 1" color="red" style="margin-inline-end: 0 !important;">{{ t('延迟变更') }}</a-tag>
+                <a-tag v-else color="green" style="margin-inline-end: 0 !important;">{{ t('正常变更') }}</a-tag>
+              </template>
               <template v-if="column.dataIndex === 'initial_amount'">
                 <vco-number v-if="record.initial_amount" :class="{'declined-txt': record.declined}" :value="record.initial_amount" :precision="2"></vco-number>
                 <p v-else>--</p>
@@ -172,6 +176,7 @@ const columns = reactive([
   { title: '', dataIndex: 'cricle', width: 40, align: 'center' },
   { title: t('变更类型'), dataIndex: 'type_name', width: 180, align: 'center' },
   { title: t('变更开始日期'), dataIndex: 'start_date', width: 130, align: 'center' },
+  { title: t('类型'), dataIndex: 'is_late', width: 120, align: 'center' },
   { title: t('首次放款'), dataIndex: 'initial_amount', width: 140, align: 'center' },
   { title: t('变更金额'), dataIndex: 'amount', width: 140, align: 'center' },
   { title: t('变更后结束日期'), dataIndex: 'end_date', width: 130, align: 'center' },

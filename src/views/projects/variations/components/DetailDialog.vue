@@ -10,11 +10,11 @@
           <a-form-item :label="t('变更开始日期')" name="start_date">
             <a-date-picker v-model:value="formState.start_date" :format="selectDateFormat()" :disabledDate="disabledDate" :disabled="detailData.mark == 'variation_overdue_open'" placeholder="" @change="dateChange" />
           </a-form-item>
-          <a-form-item :label="t('开发成本')" name="devCost">
+          <!-- <a-form-item :label="t('开发成本')" name="devCost">
             <DevCostDetail :dataJson="DevCostData.devCostDetail || projectDetail?.base?.devCostDetail" :disabledGST="true" :DevCostDetail="true" @change="saveDevCostData">
               <a-input-number :value="DevCostData.devCost || projectDetail?.base?.devCost" :max="99999999999" readonly :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
             </DevCostDetail>
-          </a-form-item>
+          </a-form-item> -->
         </a-form>
       </div>
 
@@ -310,7 +310,15 @@ const showOpenDialog = () => {
   showConfirm.value = true;
 
   startDate.value = props.detailData.start_date;
-  formState.value.start_date = dayjs(props.detailData.start_date);
+
+  const currentDate = dayjs();
+  const startDateDay = dayjs(props.detailData.start_date);
+
+  if (startDateDay.isAfter(currentDate)) {
+    formState.value.start_date = currentDate
+  } else {
+    formState.value.start_date = startDateDay
+  }
   endDate.value = props.detailData.end_date;
 };
 
@@ -363,7 +371,8 @@ const openHandleSubmit = (params) => {
 };
 
 const disabledDate = (currentDate) => {
-  return currentDate && currentDate.valueOf() > Date.now();
+  const startDate = dayjs(props.projectDetail.date.var_start_date);
+  return currentDate && currentDate.isBefore(startDate.startOf('day').add(1, 'day')) || currentDate.valueOf() > Date.now();
 };
 
 const dateChange = (date) => {

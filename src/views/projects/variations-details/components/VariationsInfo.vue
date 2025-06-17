@@ -1,5 +1,6 @@
 <template>
   <div class="info-content">
+    <div class="variation-type" :class="{ 'late': Number(variationsInfo.is_late) === 1 }">{{ Number(variationsInfo.is_late) === 1 ? t('延迟变更') : t('正常变更') }}</div>
     <!-- 编辑弹窗 -->
     <AddVariations ref="editVariationsRef" :currentId="uuid" :project-detail="detail" :detailData="variationsInfo" @update="updateHandle"></AddVariations>
 
@@ -130,6 +131,25 @@ const updateHandle = () => {
   border-radius: 10px;
   box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.1);
   padding: 30px;
+  position: relative;
+  overflow: hidden;
+  > .variation-type {
+    color: #389e0d;
+    background: #f6ffed;
+    border: 1px solid #b7eb8f;
+    padding: 2px 30px;
+    position: absolute;
+    border-top-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    top: 0;
+    left: 0;
+    font-weight: bold;
+    &.late {
+      color: #cf1322;
+      background: #fff1f0;
+      border: 1px solid #ffa39e;
+    }
+  }
   > .title-content {
     display: flex;
     align-items: center;

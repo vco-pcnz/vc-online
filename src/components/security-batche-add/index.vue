@@ -74,48 +74,53 @@
               <template v-if="column.dataIndex === 'typology'">
                 <div class="stuff-item-content">
                   <div class="stuff-item">
-                    <a-select show-search v-model:value="record.typology.beds">
-                      <a-select-option v-for="num in 8" :key="`beds_${num - 1}`" :value="num - 1">{{ num - 1 }}</a-select-option>
-                    </a-select>
+                    <a-auto-complete
+                      v-model:value="record.typology.beds"
+                      :options="getInputOptions(8, false)"
+                    />
                     <p>beds</p>
                   </div>
                   <div class="stuff-item">
-                    <a-select show-search v-model:value="record.typology.bath">
-                      <a-select-option v-for="num in Array.from({ length: 15 }, (_, i) => i * 0.5)" :key="`bath_${num}`" :value="num">
-                        {{ num }}
-                      </a-select-option>
-                    </a-select>
+                    <a-auto-complete
+                      v-model:value="record.typology.bath"
+                      :options="getInputOptions(15, true)"
+                    />
                     <p>bath</p>
                   </div>
                   <div class="stuff-item">
-                    <a-select show-search v-model:value="record.typology.lounge">
-                      <a-select-option v-for="num in 5" :key="`lounge_${num - 1}`" :value="num - 1">{{ num - 1 }}</a-select-option>
-                    </a-select>
+                    <a-auto-complete
+                      v-model:value="record.typology.lounge"
+                      :options="getInputOptions(5, false)"
+                    />
                     <p>lounge</p>
                   </div>
                   <div class="stuff-item">
-                    <a-select show-search v-model:value="record.typology.garage">
-                      <a-select-option v-for="num in 5" :key="`garage_${num - 1}`" :value="num - 1">{{ num - 1 }}</a-select-option>
-                    </a-select>
+                    <a-auto-complete
+                      v-model:value="record.typology.garage"
+                      :options="getInputOptions(5, false)"
+                    />
                     <p>garage</p>
                   </div>
                   <div class="stuff-item">
-                    <a-select show-search v-model:value="record.typology.carpark">
-                      <a-select-option v-for="num in 5" :key="`carpark_${num - 1}`" :value="num - 1">{{ num - 1 }}</a-select-option>
-                    </a-select>
+                    <a-auto-complete
+                      v-model:value="record.typology.carpark"
+                      :options="getInputOptions(5, false)"
+                    />
                     <p>carpark</p>
                   </div>
                   <div class="stuff-item">
-                    <a-select show-search v-model:value="record.typology.level">
-                      <a-select-option v-for="num in 4" :key="`level_${num}`" :value="num">{{ num }}</a-select-option>
-                    </a-select>
+                    <a-auto-complete
+                      v-model:value="record.typology.level"
+                      :options="getInputOptions(4, false)"
+                    />
                     <p>level</p>
                   </div>
                   <template v-if="record.typology.other.length">
                     <div v-for="(item, index) in record.typology.other" :key="index" class="stuff-item other">
-                      <a-select show-search v-model:value="item.value">
-                        <a-select-option v-for="num in 5" :key="`other_${index}_${num}`" :value="num">{{ num }}</a-select-option>
-                      </a-select>
+                      <a-auto-complete
+                        v-model:value="item.value"
+                        :options="getInputOptions(5, false)"
+                      />
                       <a-select show-search v-model:value="item.key" class="type-key">
                         <a-select-option v-for="_item in otherTypeData" :key="_item.value" :value="_item.label">{{ _item.label }}</a-select-option>
                       </a-select>
@@ -215,48 +220,53 @@
               <template v-if="column.dataIndex === 'typology'">
                 <div class="stuff-item-content">
                   <div class="stuff-item">
-                    <a-select show-search v-model:value="record.typology.beds">
-                      <a-select-option v-for="num in 8" :key="`beds_${num - 1}`" :value="num - 1">{{ num - 1 }}</a-select-option>
-                    </a-select>
+                    <a-auto-complete
+                      v-model:value="record.typology.beds"
+                      :options="getInputOptions(8, false)"
+                    />
                     <p>beds</p>
                   </div>
                   <div class="stuff-item">
-                    <a-select show-search v-model:value="record.typology.bath">
-                      <a-select-option v-for="num in Array.from({ length: 15 }, (_, i) => i * 0.5)" :key="`bath_${num}`" :value="num">
-                        {{ num }}
-                      </a-select-option>
-                    </a-select>
+                    <a-auto-complete
+                      v-model:value="record.typology.bath"
+                      :options="getInputOptions(15, true)"
+                    />
                     <p>bath</p>
                   </div>
                   <div class="stuff-item">
-                    <a-select show-search v-model:value="record.typology.lounge">
-                      <a-select-option v-for="num in 5" :key="`lounge_${num - 1}`" :value="num - 1">{{ num - 1 }}</a-select-option>
-                    </a-select>
+                    <a-auto-complete
+                      v-model:value="record.typology.lounge"
+                      :options="getInputOptions(5, false)"
+                    />
                     <p>lounge</p>
                   </div>
                   <div class="stuff-item">
-                    <a-select show-search v-model:value="record.typology.garage">
-                      <a-select-option v-for="num in 5" :key="`garage_${num - 1}`" :value="num - 1">{{ num - 1 }}</a-select-option>
-                    </a-select>
+                    <a-auto-complete
+                      v-model:value="record.typology.garage"
+                      :options="getInputOptions(5, false)"
+                    />
                     <p>garage</p>
                   </div>
                   <div class="stuff-item">
-                    <a-select show-search v-model:value="record.typology.carpark">
-                      <a-select-option v-for="num in 5" :key="`carpark_${num - 1}`" :value="num - 1">{{ num - 1 }}</a-select-option>
-                    </a-select>
+                    <a-auto-complete
+                      v-model:value="record.typology.carpark"
+                      :options="getInputOptions(5, false)"
+                    />
                     <p>carpark</p>
                   </div>
                   <div class="stuff-item">
-                    <a-select show-search v-model:value="record.typology.level">
-                      <a-select-option v-for="num in 4" :key="`level_${num}`" :value="num">{{ num }}</a-select-option>
-                    </a-select>
+                    <a-auto-complete
+                      v-model:value="record.typology.level"
+                      :options="getInputOptions(4, false)"
+                    />
                     <p>level</p>
                   </div>
                   <template v-if="record.typology.other.length">
                     <div v-for="(item, index) in record.typology.other" :key="index" class="stuff-item other">
-                      <a-select show-search v-model:value="item.value">
-                        <a-select-option v-for="num in 5" :key="`other_${index}_${num}`" :value="num">{{ num }}</a-select-option>
-                      </a-select>
+                      <a-auto-complete
+                        v-model:value="item.value"
+                        :options="getInputOptions(5, false)"
+                      />
                       <a-select show-search v-model:value="item.key" class="type-key">
                         <a-select-option v-for="_item in otherTypeData" :key="_item.value" :value="_item.label">{{ _item.label }}</a-select-option>
                       </a-select>
@@ -1103,6 +1113,18 @@ const typologyAdd = (data) => {
 };
 const typologyRemove = (data, index) => {
   data.typology.other.splice(index, 1);
+};
+
+// 输入提示
+const getInputOptions = (max, decimal = false) => {
+  if (decimal) {
+    return Array.from({ length: max * 2 }, (_, i) => i * 0.5).map((item) => ({
+      value: item
+    }));
+  }
+  return Array.from({ length: max }, (_, i) => i + 1).map((item) => ({
+    value: item
+  }));
 };
 
 onMounted(async () => {

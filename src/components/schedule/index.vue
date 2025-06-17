@@ -117,6 +117,11 @@
           </div>
         </div>
 
+        <a-tabs v-if="lateTable" v-model:activeKey="lateTabActiveKey" @change="lateTableChange">
+          <a-tab-pane key="1" :tab="t('延迟变更')"></a-tab-pane>
+          <a-tab-pane key="2" :tab="t('原本变更')"></a-tab-pane>
+        </a-tabs>
+
         <div v-if="tabData.length" class="table-content">
           <div class="col-item th">
             <div class="item uppercase" :class="{ about: isAbout }"></div>
@@ -315,6 +320,10 @@ const props = defineProps({
   currentProduct: {
     type: String,
     default: ''
+  },
+  lateTable: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -335,7 +344,7 @@ const tabData = ref([]);
 const currentMonth = dayjs();
 const statisticsData = ref(null);
 
-const getDataInfo = () => {
+const getDataInfo = (isLate = false) => {
   pageLoading.value = true;
 
   const params = {
@@ -353,6 +362,10 @@ const getDataInfo = () => {
   if (props.itemId) {
     ajaxFn = projectForecastVaiList;
     params.id = props.itemId;
+  }
+
+  if (isLate) {
+    params.vai = 1;
   }
 
   ajaxFn(params)
@@ -423,6 +436,10 @@ const getDataInfo = () => {
   if (props.itemId) {
     staticAjaxFn = projectVariationStatisticsVai;
     staticParams.id = props.itemId;
+  }
+
+  if (isLate) {
+    staticParams.vai = 1;
   }
 
   staticAjaxFn(staticParams).then((res) => {
@@ -564,7 +581,7 @@ const submitHandle = () => {
         .then(() => {
           saveLoading.value = false;
           visible.value = false;
-          getDataInfo();
+          getDataInfo(Number(lateTabActiveKey.value) === 1);
         })
         .catch(() => {
           saveLoading.value = false;
@@ -600,12 +617,18 @@ const updateHandle = () => {
 
   projectVariationForecastUpd(params)
     .then(() => {
-      getDataInfo();
+      getDataInfo(Number(lateTabActiveKey.value) === 1);
       updateLoading.value = false;
     })
     .catch(() => {
       updateLoading.value = false;
     });
+};
+
+const lateTabActiveKey = ref('1');
+const lateTableChange = (key) => {
+  const number = Number(key)
+  getDataInfo(number === 1);
 };
 
 watch(
@@ -620,7 +643,12 @@ watch(
 
 onMounted(() => {
   if (props.currentId) {
-    getDataInfo();
+    if (!props.lateTable) {
+      lateTabActiveKey.value = '2'
+    } else {
+      lateTabActiveKey.value = '1'
+    }
+    getDataInfo(Number(lateTabActiveKey.value) === 1);
     if (!props.itemId) {
       getDurationType();
     }

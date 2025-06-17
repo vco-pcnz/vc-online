@@ -89,7 +89,7 @@
                       <a-input
                         v-model:value="formState[item.credit_table]"
                         :suffix="item.credit_unit"
-                        :disabled="item.credit_table === 'credit_brokerFeeRate' && !borkerFeeCalcAmount"
+                        :disabled="item.credit_table === 'credit_brokerFeeRate' && (!borkerFeeCalcAmount && formState.type !== 4)"
                         :loading="item.credit_table === 'credit_brokerFeeRate' && loadingBorkerFeeCalcAmount"
                         @input="handInput(item.credit_table)"
                       />
@@ -113,7 +113,7 @@
                       </template>
                       <a-input-number
                         @input="handInput(item.credit_table)"
-                        :disabled="item.credit_table === 'credit_brokerFee' && !borkerFeeCalcAmount"
+                        :disabled="item.credit_table === 'credit_brokerFee' && (!borkerFeeCalcAmount && formState.type !== 4)"
                         :loading="item.credit_table === 'credit_brokerFee' && loadingBorkerFeeCalcAmount"
                         v-model:value="formState[item.credit_table]"
                         :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
@@ -204,12 +204,14 @@ const endDefaultPickerValue = computed(() => {
 
 const disabledDate = (current) => {
   const startDate = dayjs(props.projectDetail.date.var_start_date);
-  const nowDate = dayjs(new Date());
+  // const nowDate = dayjs(new Date());
 
-  const isAfter = nowDate.isAfter(startDate);
-  const cDate = isAfter ? nowDate : startDate;
+  // const isAfter = nowDate.isAfter(startDate);
+  // const cDate = isAfter ? nowDate : startDate;
 
-  return (current && current.isBefore(cDate.startOf('day'))) || current.isAfter(dayjs(props.projectDetail.date.end_date).startOf('day'));
+  // return (current && current.isBefore(cDate.startOf('day'))) || current.isAfter(dayjs(props.projectDetail.date.end_date).startOf('day'));
+
+  return (current && current.isBefore(startDate.startOf('day').add(1, 'day')));
 };
 
 const endDisabledDate = (current) => {
@@ -421,11 +423,13 @@ const createFormItems = (flag) => {
 
   const perData = colItems.filter((item) => item.is_ratio);
   const dolData = colItems.filter((item) => !item.is_ratio);
+
   percentItems.value = perData;
   dollarItems.value = dolData;
 
   formRules.value = { ...formRules.value, ...rulesData };
 
+  // 编辑时，数据回填
   if (props.detailData?.id) {
     dataRefull(Boolean(flag));
   }
@@ -436,6 +440,11 @@ const getCreditVal = () => {
     apply_uuid: props.currentId
   }).then((res) => {
     creditVariationinfo.value = res;
+
+    // 编辑时，有限设置type
+    if (props.detailData && props.detailData?.type) {
+      formState.value.type = props.detailData.type;
+    }
 
     createFormItems();
   });

@@ -354,7 +354,7 @@
             <a-col :span="1" class="plus-txt">
               <i class="iconfont">&#xe711;</i>
             </a-col>
-            <a-col :span="6" class="financial-amount">
+            <a-col :span="4" class="financial-amount">
               <a-form-item :label="t('再融资金额')">
                 <vco-number
                   :value="refinancialAmount"
@@ -366,7 +366,7 @@
             </a-col>
           </template>
           <a-col :span="1" class="plus-txt"><i class="iconfont">=</i></a-col>
-          <a-col :span="isRefinancial ? 8 : (formState.equity_amount ? 6 : 8)" class="total-amount-info" :class="{'financial': isRefinancial}">
+          <a-col :span="isRefinancial ? 5 : (formState.equity_amount ? 6 : 8)" class="total-amount-info" :class="{'financial': isRefinancial}">
             <a-form-item :label="t('首次放款总金额')">
               <vco-number
                 :value="totalInitialAmountRef"

@@ -344,7 +344,7 @@ const tabData = ref([]);
 const currentMonth = dayjs();
 const statisticsData = ref(null);
 
-const getDataInfo = (isBefore = false) => {
+const getDataInfo = (isLate = false) => {
   pageLoading.value = true;
 
   const params = {
@@ -364,7 +364,7 @@ const getDataInfo = (isBefore = false) => {
     params.id = props.itemId;
   }
 
-  if (isBefore) {
+  if (isLate) {
     params.vai = 1;
   }
 
@@ -438,7 +438,7 @@ const getDataInfo = (isBefore = false) => {
     staticParams.id = props.itemId;
   }
 
-  if (isBefore) {
+  if (isLate) {
     staticParams.vai = 1;
   }
 
@@ -581,7 +581,7 @@ const submitHandle = () => {
         .then(() => {
           saveLoading.value = false;
           visible.value = false;
-          getDataInfo(Number(lateTabActiveKey.value) === 2);
+          getDataInfo(Number(lateTabActiveKey.value) === 1);
         })
         .catch(() => {
           saveLoading.value = false;
@@ -617,7 +617,7 @@ const updateHandle = () => {
 
   projectVariationForecastUpd(params)
     .then(() => {
-      getDataInfo(Number(lateTabActiveKey.value) === 2);
+      getDataInfo(Number(lateTabActiveKey.value) === 1);
       updateLoading.value = false;
     })
     .catch(() => {
@@ -628,7 +628,7 @@ const updateHandle = () => {
 const lateTabActiveKey = ref('1');
 const lateTableChange = (key) => {
   const number = Number(key)
-  getDataInfo(number === 2);
+  getDataInfo(number === 1);
 };
 
 watch(
@@ -643,7 +643,12 @@ watch(
 
 onMounted(() => {
   if (props.currentId) {
-    getDataInfo();
+    if (!props.lateTable) {
+      lateTabActiveKey.value = '2'
+    } else {
+      lateTabActiveKey.value = '1'
+    }
+    getDataInfo(Number(lateTabActiveKey.value) === 1);
     if (!props.itemId) {
       getDurationType();
     }

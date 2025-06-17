@@ -211,7 +211,7 @@ const disabledDate = (current) => {
 
   // return (current && current.isBefore(cDate.startOf('day'))) || current.isAfter(dayjs(props.projectDetail.date.end_date).startOf('day'));
 
-  return (current && current.isBefore(startDate.startOf('day').add(1, 'day'))) || current.isAfter(dayjs(props.projectDetail.date.end_date).startOf('day'));
+  return (current && current.isBefore(startDate.startOf('day').add(1, 'day')));
 };
 
 const endDisabledDate = (current) => {

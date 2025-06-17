@@ -388,6 +388,11 @@ const passFormInit = (key) => {
 };
 
 const createFormItems = (flag) => {
+  // 编辑时，数据回填
+  if (props.detailData?.id) {
+    dataRefull(Boolean(flag));
+  }
+
   const creditInfo = cloneDeep(creditVariationinfo.value);
 
   if (formState.value.type === 5) {
@@ -423,15 +428,11 @@ const createFormItems = (flag) => {
 
   const perData = colItems.filter((item) => item.is_ratio);
   const dolData = colItems.filter((item) => !item.is_ratio);
-  console.log('perData', perData);
+
   percentItems.value = perData;
   dollarItems.value = dolData;
 
   formRules.value = { ...formRules.value, ...rulesData };
-
-  if (props.detailData?.id) {
-    dataRefull(Boolean(flag));
-  }
 };
 
 const getCreditVal = () => {

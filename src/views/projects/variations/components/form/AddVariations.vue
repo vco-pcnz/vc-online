@@ -388,11 +388,6 @@ const passFormInit = (key) => {
 };
 
 const createFormItems = (flag) => {
-  // 编辑时，数据回填
-  if (props.detailData?.id) {
-    dataRefull(Boolean(flag));
-  }
-
   const creditInfo = cloneDeep(creditVariationinfo.value);
 
   if (formState.value.type === 5) {
@@ -433,6 +428,11 @@ const createFormItems = (flag) => {
   dollarItems.value = dolData;
 
   formRules.value = { ...formRules.value, ...rulesData };
+
+  // 编辑时，数据回填
+  if (props.detailData?.id) {
+    dataRefull(Boolean(flag));
+  }
 };
 
 const getCreditVal = () => {
@@ -440,6 +440,11 @@ const getCreditVal = () => {
     apply_uuid: props.currentId
   }).then((res) => {
     creditVariationinfo.value = res;
+
+    // 编辑时，有限设置type
+    if (props.detailData && props.detailData?.type) {
+      formState.value.type = props.detailData.type;
+    }
 
     createFormItems();
   });

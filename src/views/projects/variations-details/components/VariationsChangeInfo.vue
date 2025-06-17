@@ -200,7 +200,7 @@ const changeData = computed(() => {
   const loan_money = [2, 5].includes(Number(props.detail.variationInfo.type)) ? amount * -1 : amount;
   const obj = {
     start_date: props.detail.variationInfo.start_date || 0,
-    end_date: gapDay.gapDay - 1,
+    end_date: gapDay.gapDay,
     loan_money: loan_money || 0,
     estabFee: estabFee || 0,
     lineFee: lineFee || 0,

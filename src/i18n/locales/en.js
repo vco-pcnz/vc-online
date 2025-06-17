@@ -1007,5 +1007,8 @@ export default {
   "请求1": "Request",
   "请完善每条数据的文件信息": "Please complete the file information for each data",
   "受托人": "Trustee",
-  "删除文件夹中相关的文件": "Delete related files in the folder"
+  "删除文件夹中相关的文件": "Delete related files in the folder",
+  "原本变更": "Original variation",
+  "延迟变更": "Belated variation",
+  "正常变更": "Normal variation"
 }

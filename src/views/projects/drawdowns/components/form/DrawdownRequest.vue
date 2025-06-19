@@ -14,13 +14,17 @@
               <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.apply_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" :showToday="false" />
             </div>
             <div class="input-item">
-              <vco-tip style="padding-bottom: 5px;" :tip="t('此说明内容将显示在交易记录中')"><div class="label" style="padding: 0;" :class="{ err: !formState.note && validate }">{{ t('说明') }}</div></vco-tip>
+              <vco-tip style="padding-bottom: 5px" :tip="t('此说明内容将显示在交易记录中')"
+                ><div class="label" style="padding: 0" :class="{ err: !formState.note && validate }">{{ t('说明') }}</div></vco-tip
+              >
               <a-input v-model:value="formState.note" />
             </div>
           </a-col>
           <a-col :span="12">
             <div class="input-item">
-              <vco-tip style="padding-bottom: 5px;" :tip="t('此消息针对 FC 的批准评论')"><div class="label" style="padding: 0;">{{ t('消息') }}</div></vco-tip>
+              <vco-tip style="padding-bottom: 5px" :tip="t('此消息针对 FC 的批准评论')"
+                ><div class="label" style="padding: 0">{{ t('消息') }}</div></vco-tip
+              >
               <a-textarea v-model:value="formState.remark" :rows="10" />
             </div>
           </a-col>
@@ -73,6 +77,8 @@ import DocumentsUpload from './DocumentsUpload.vue';
 import { systemDictData } from '@/api/system';
 import ProgressPayment from './ProgressPayment.vue';
 import tool from '@/utils/tool';
+import dayjs from 'dayjs';
+
 const { t } = useI18n();
 const emits = defineEmits(['change']);
 
@@ -112,14 +118,22 @@ const updateVisible = (value) => {
 const disabledDateFormat = (current) => {
   const startDate = props.projectDetail.loan.start_date;
   const endDate = props.projectDetail.loan.end_date;
+  // 当前日期
+  const currentDate = dayjs();
 
   if (current && current.isBefore(startDate, 'day')) {
     return true;
   }
 
-  // if (current && current.isAfter(endDate, 'day')) {
-  //   return true;
-  // }
+  if (currentDate.isBefore(endDate)) {
+    if (current && current.isAfter(endDate, 'day')) {
+      return true;
+    }
+  } else {
+    if (current && current.isAfter(currentDate, 'day')) {
+      return true;
+    }
+  }
 
   return false;
 };

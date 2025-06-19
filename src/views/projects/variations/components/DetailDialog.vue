@@ -8,7 +8,8 @@
       <div class="sys-form-content mt-5">
         <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
           <a-form-item :label="t('变更开始日期')" name="start_date">
-            <a-date-picker v-model:value="formState.start_date" :format="selectDateFormat()" :disabledDate="disabledDate" :disabled="detailData.mark == 'variation_overdue_open'" placeholder="" @change="dateChange" />
+            <a-date-picker v-model:value="formState.start_date" :format="selectDateFormat()" :disabledDate="disabledDate" :disabled="detailData.mark == 'variation_overdue_open' || isLate" placeholder="" @change="dateChange" />
+            <a-tag v-if="isLate" color="red" class="mt-2">{{ t('延迟变更') }}</a-tag>
           </a-form-item>
           <!-- <a-form-item :label="t('开发成本')" name="devCost">
             <DevCostDetail :dataJson="DevCostData.devCostDetail || projectDetail?.base?.devCostDetail" :disabledGST="true" :DevCostDetail="true" @change="saveDevCostData">
@@ -17,6 +18,8 @@
           </a-form-item> -->
         </a-form>
       </div>
+
+      
 
       <a-row v-if="![4, 5].includes(detailData.type)" :gutter="24">
         <a-col :span="10" class="mt-2">
@@ -189,6 +192,10 @@ const titleTxt = computed(() => {
 const updateVisible = (value) => {
   emits('update:visible', value);
 };
+
+const isLate = computed(() => {
+  return Number(props.detailData.is_late) === 1;
+});
 
 const newTotalAmount = computed(() => {
   const total = Number(props.projectDetail.base.loan_money);

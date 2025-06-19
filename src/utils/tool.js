@@ -517,6 +517,12 @@ export const numberStrFormat = (number, decimal = 2, flag = false) => {
   return !isNaN(amount) && amount < 0 ? '-' + resStr : resStr;
 };
 
+// 格式化金额还原为数字
+export const formatMoneyToNumber = (value) => {
+  const num = value.replace(/\$\s?|(,*)/g, '');
+  return Number(num);
+};
+
 // 对象数组去重
 export const removeDuplicates = (arr, key) => {
   return arr.reduce((acc, item) => {

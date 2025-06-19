@@ -297,6 +297,14 @@ export const projectVariationEdit = (data) =>
     data
   });
 
+// 变更选择放款
+export const projectVariationDrawdownSel = (params) =>
+  request({
+    url: 'project/variation/drawdownSel',
+    method: 'get',
+    params
+  });
+
 // 还款选择抵押物
 export const projectDischargeSelSecurity = (params) =>
   request({

@@ -16,7 +16,15 @@
             </a-col>
             <a-col :span="8">
               <a-form-item :label="t('变更开始日期')" name="start_date">
-                <a-date-picker inputReadOnly v-model:value="formState.start_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" :disabledDate="disabledDate" :showToday="false" @change="dateChange('start_date')" />
+                <a-form-item-rest>
+                  <a-date-picker inputReadOnly v-model:value="formState.start_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" :disabledDate="disabledDate" :showToday="false" @change="dateChange('start_date')" />
+                  <a-checkbox
+                    v-if="initDrawdownData.length"
+                    v-model:checked="initDrawdownSel"
+                    class="mt-1"
+                    style="font-size: 12px;"
+                  >{{ t('所选日期存在放款数据，是否将其设置为变更后首次放款') }}</a-checkbox>
+                </a-form-item-rest>
               </a-form-item>
             </a-col>
 
@@ -67,7 +75,13 @@
             </a-col>
             <a-col v-if="formState.type" :span="[1, 2, 3].includes(Number(formState.type)) ? 8 : 16">
               <a-form-item :label="t('变更后首次放款')" name="initial_amount">
-                <a-input-number v-model:value="formState.initial_amount" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
+                <a-select
+                  v-if="initDrawdownSel"
+                  v-model:value="formState.initial_sn"
+                  :options="initDrawdownData"
+                  @change="initDrawdownSelChange"
+                ></a-select>
+                <a-input-number v-else v-model:value="formState.initial_amount" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
               </a-form-item>
             </a-col>
 
@@ -149,9 +163,9 @@ import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import { QuestionCircleOutlined } from '@ant-design/icons-vue';
 import { systemDictData } from '@/api/system';
-import { projectCreditVariation, projectVariationEdit, borkerFeeCalc } from '@/api/project/loan';
+import { projectCreditVariation, projectVariationEdit, borkerFeeCalc, projectVariationDrawdownSel } from '@/api/project/loan';
 import { ruleCredit } from '@/api/process';
-import { selectDateFormat } from '@/utils/tool';
+import { selectDateFormat, numberStrFormat, formatMoneyToNumber } from '@/utils/tool';
 import dayjs from 'dayjs';
 import tool from '@/utils/tool';
 import { cloneDeep } from 'lodash';
@@ -228,7 +242,8 @@ const formState = ref({
   start_date: '',
   end_date: '',
   initial_amount: '',
-  note: ''
+  note: '',
+  initial_sn: ''
 });
 
 const formRules = ref({
@@ -245,6 +260,9 @@ const updateVisible = (value) => {
   if (!value) {
     formRef.value.clearValidate();
     formRef.value.resetFields();
+
+    initDrawdownSel.value = false;
+    initDrawdownData.value = [];
     Object.keys(formState.value).forEach((key) => {
       formState.value[key] = ''; // 清空每个字段
     });
@@ -290,6 +308,18 @@ const save = () => {
     });
 };
 
+const initDrawdownSel = ref(false);
+const initDrawdownData = ref([]);
+
+const initDrawdownSelChange = (val) => {
+  if (val) {
+    const amount = initDrawdownData.value.find((item) => item.value == val)?.label;
+    formState.value.initial_amount = formatMoneyToNumber(amount);
+  } else {
+    formState.value.initial_amount = '';
+  }
+};
+
 const dateChange = (type) => {
   const start_date = formState.value.start_date;
   const end_date = formState.value.end_date;
@@ -300,6 +330,35 @@ const dateChange = (type) => {
     if (date1.isAfter(date2)) {
       message.error(t('{0}应在{1}之前', [t('变更开始日期'), t('变更结束日期')]));
       formState.value[type] = '';
+    }
+  }
+
+  if (type == 'start_date') {
+    formState.value.initial_sn = '';
+
+    initDrawdownSel.value = false;
+
+    // 如果所选时间在当月之前并且天数大于7天
+    const startDate = dayjs(formState.value.start_date);
+    const nowDate = dayjs(new Date());
+    const diffDay = startDate.diff(nowDate, 'day');
+
+    // 晚变更
+    if (startDate.isBefore(nowDate.startOf('month')) && Math.abs(diffDay) > 7) {
+      projectVariationDrawdownSel({
+        uuid: props.currentId,
+        date: formState.value.start_date
+      }).then((res) => {
+        const data = res.map((item) => {
+          return {
+            label: `$${numberStrFormat(item.amount)}`,
+            value: item.sn
+          };
+        });
+        initDrawdownData.value = data;
+      });
+    } else {
+      initDrawdownData.value = [];
     }
   }
 };

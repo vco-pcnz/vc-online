@@ -320,6 +320,25 @@ const initDrawdownSelChange = (val) => {
   }
 };
 
+const getInitDradownData = (flag = false) => {
+  projectVariationDrawdownSel({
+    uuid: props.currentId,
+    date: formState.value.start_date
+  }).then((res) => {
+    const data = res.map((item) => {
+      return {
+        label: `$${numberStrFormat(item.amount)}`,
+        value: item.sn
+      };
+    });
+    initDrawdownData.value = data;
+
+    if (flag) {
+      initDrawdownSelChange(props.detailData.initial_sn)
+    }
+  });
+}
+
 const dateChange = (type) => {
   const start_date = formState.value.start_date;
   const end_date = formState.value.end_date;
@@ -345,18 +364,7 @@ const dateChange = (type) => {
 
     // 晚变更
     if (startDate.isBefore(nowDate.startOf('month')) && Math.abs(diffDay) > 7) {
-      projectVariationDrawdownSel({
-        uuid: props.currentId,
-        date: formState.value.start_date
-      }).then((res) => {
-        const data = res.map((item) => {
-          return {
-            label: `$${numberStrFormat(item.amount)}`,
-            value: item.sn
-          };
-        });
-        initDrawdownData.value = data;
-      });
+      getInitDradownData()
     } else {
       initDrawdownData.value = [];
     }
@@ -519,6 +527,16 @@ const getCreditInfo = () => {
 const typeData = ref([]);
 
 const init = () => {
+  // 编辑时，如果是晚变更并且首次放款是选择的
+  if (props.detailData?.initial_sn) {
+    initDrawdownSel.value = true;
+
+    formState.value.initial_sn = props.detailData.initial_sn;
+    formState.value.start_date = props.detailData.start_date;
+
+    getInitDradownData(true)
+  }
+  
   getCreditInfo();
   systemDictData('variation_type').then((res) => {
     const data = res.map((item) => {

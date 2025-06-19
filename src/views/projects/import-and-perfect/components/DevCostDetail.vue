@@ -403,9 +403,13 @@ const save = () => {
     message.error(t('建设成本类型不能为空'));
     return;
   }
-  const conLoan = Number(doneData.data[0].loan);
 
-  if (Number(props.loanAmount) !== conLoan) {
+  const conLoan = Number(doneData.data[0].loan);
+  const tueLoan = Number(doneData.data[1].loan);
+
+  const totalLoan = Number(tool.plus(conLoan, tueLoan));
+
+  if (Number(props.loanAmount) !== totalLoan) {
     const diffNum = tool.minus(props.loanAmount, conLoan);
 
     errorTxt.value = t(`借款金额为：<span>{0}</span>，设置的建筑成本为：<span>{1}</span>，相差：<span>{2}</span>`, [`$${numberStrFormat(props.loanAmount)}`, `$${numberStrFormat(conLoan)}`, `$${numberStrFormat(diffNum)}`]);

@@ -5,7 +5,7 @@
         <a-row :gutter="24">
           <a-col :span="24">
             <a-form-item label="">
-              <vco-choose-user ref="vcoChooseUserRef" url="stake/selStake" :params="{ type: 20 }" @change="choiceUserDone" :title="t('搜索利益相关者')" :showRest="Boolean(!formState.id && formState.stake_uuid)"></vco-choose-user>
+              <vco-choose-user v-if="visible" ref="vcoChooseUserRef" url="stake/selStake" :params="{ type: 20 }" @change="choiceUserDone" :title="t('搜索利益相关者')" :showRest="Boolean(!formState.id && formState.stake_uuid)"></vco-choose-user>
             </a-form-item>
           </a-col>
 

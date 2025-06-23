@@ -797,7 +797,7 @@ const batchitem = {
   sales_price: 0,
   repayment_price: 0,
   is_gst: false,
-  is_calc: false,
+  is_calc: true,
   amount: 0,
   insurance_value: 0,
   insurance_expire_date: '',

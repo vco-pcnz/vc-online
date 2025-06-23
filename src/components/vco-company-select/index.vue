@@ -112,7 +112,7 @@ const getInfo = (val) => {
       con_id: '',
       province_code_name: hasData(res.address) ? res.address.address3 : '',
       email: updateEmail ? props.email || resEmail : resEmail,
-      pre: hasData(res.phone_number) ? res.phone_number.phoneCountryCode : '',
+      pre: hasData(res.phone_number) ? res.phone_number.phoneCountryCode.replace('+', '') : '',
       mobile: hasData(res.phone_number) ? (hasData(res.phone_number.phoneAreaCode) ? res.phone_number.phoneAreaCode : '') + (hasData(res.phone_number.phoneNumber) ? res.phone_number.phoneNumber : '') : ''
     };
     emits('change', obj);

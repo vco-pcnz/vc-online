@@ -18,8 +18,10 @@
           </div>
           <div class="input-item" v-else>
             <div class="label flex justify-between items-center" :class="{ err: !formState.bank_sn && validate }">
-              <!-- {{ t('单号') }} -->
-              <div></div>
+              <!--  -->
+              <div>
+                <span v-if="!formState.bank_sn && validate">{{ t('请选择') }}</span>
+              </div>
 
               <a-dropdown class="Filter" trigger="click" v-model:open="dropdownVisible">
                 <a-button type="brown" shape="round" size="small"> {{ t('选择') }}</a-button>

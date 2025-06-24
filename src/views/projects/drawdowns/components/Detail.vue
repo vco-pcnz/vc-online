@@ -69,28 +69,35 @@
         </template>
       </div>
     </div>
-    <div class="flex justify-center mt-3">
+    <div class="mt-3">
+      <!-- 撤回 -->
       <a-popconfirm :title="t('您确实要撤回该请求吗？')" @confirm="recall" v-if="detail?.prev_permission">
         <template #icon>
           <CheckCircleOutlined :style="{ color: '#a9ad57' }" />
         </template>
-        <a-button type="dark" class="big uppercase" :loading="accept_loading" style="width: 100%"> {{ t('撤回申请') }} </a-button>
+        <a-button type="dark" class="big uppercase mb-3" :loading="accept_loading" style="width: 100%"> {{ t('撤回申请') }} </a-button>
       </a-popconfirm>
-      <template v-if="detail?.has_permission && !detail?.prev_permission">
+
+      <!-- 审核 -->
+      <template v-if="detail?.has_permission">
         <AcceptFc v-if="detail?.mark === 'drawdown_fc'" :uuid="uuid" :detail="detail" :projectDetail="projectDetail" @change="update">
           <a-button type="dark" class="big uppercase" style="width: 100%" :loading="accept_loading"> {{ t('接受请求') }} </a-button>
         </AcceptFc>
         <a-button v-else-if="detail?.mark === 'drawdown_lm'" type="dark" class="big uppercase" style="width: 100%" @click="visible_tip = true">{{ t('接受请求') }}</a-button>
+        <!-- 对账 -->
+        <ReconciliationModal v-else-if="detail?.mark === 'drawdown_lm_recon'" :detail="detail" :uuid="uuid" :type="1" @update="update">
+          <a-button type="cyan" class="big uppercase" style="width: 100%"> {{ t('对账') }} </a-button>
+        </ReconciliationModal>
+
         <a-popconfirm v-else :title="t('您确定要接受该请求吗？')" @confirm="accept">
           <template #icon>
             <CheckCircleOutlined :style="{ color: '#a9ad57' }" />
           </template>
           <a-button type="dark" class="big uppercase" style="width: 100%">{{ t('接受请求') }}</a-button>
         </a-popconfirm>
-        <!-- <a-button v-else type="dark" class="big uppercase" style="width: 100%" :loading="accept_loading" @click="accept"> Accept documents </a-button> -->
       </template>
     </div>
-    <template v-if="detail?.has_permission">
+    <template v-if="detail?.has_permission && (detail?.mark == 'drawdown_lm' || detail?.mark == 'drawdown_fc')">
       <p class="text-center color_grey fs_xs my-3">{{ t('您可以点击下面的按钮来拒绝放款请求。') }}</p>
       <div class="flex justify-center">
         <a-popconfirm :title="t('确定要拒绝该请求吗？')" okText="decline" @confirm="decline">
@@ -103,20 +110,14 @@
       <DrawdownBack :uuid="uuid" :detail="detail" @change="update" v-if="detail?.has_permission && detail?.mark === 'drawdown_fc'"></DrawdownBack>
     </template>
     <!-- 分配利益相关者 -->
-    <!-- <div class="flex justify-center mt-3" v-if="detail?.stake && detail?.stake.length">
-      <StakeTable :stake="detail?.stake">
-        <a-button type="brown" shape="round" size="small">view investors</a-button>
-      </StakeTable>
-    </div> -->
     <div class="flex justify-center mt-3">
       <AddStake :uuid="uuid" :detail="detail" :projectDetail="projectDetail" :stake="detail?.stake" @change="update" v-if="detail?.has_permission && detail?.mark === 'drawdown_fc'">
         <a-button type="brown" shape="round" size="small">{{ t('分配投资者') }}</a-button>
       </AddStake>
     </div>
-    <!-- 对账 -->
-    <ReconciliationModal v-if="hasPermission('projects:detail:doReconcile') && detail?.status == 1" :apply_id="detail?.id" @update="update">
-      <a-button type="cyan" class="big uppercase" style="width: 100%"> {{ t('对账') }} </a-button>
-    </ReconciliationModal>
+    <a-popconfirm v-if="hasPermission('projects:repayments:revoke') && detail?.mark === 'drawdown_lm_recon' && detail?.state !== 1000" :title="t('您确定撤销放款吗？')" @confirm="revokeHandle">
+      <a-button type="brown" class="big uppercase w-full">{{ t('撤销放款') }}</a-button>
+    </a-popconfirm>
   </div>
   <TipEditForecast @confirm="accept" v-model:visible="visible_tip"></TipEditForecast>
 </template>
@@ -128,12 +129,11 @@ import tool from '@/utils/tool';
 import { navigationTo } from '@/utils/tool';
 import { CheckCircleOutlined } from '@ant-design/icons-vue';
 import { hasPermission } from '@/directives/permission/index';
-import { forecastDarwdown, loanDsel, loanDdeclinel, loanDsaveStep, loanDrecall } from '@/api/project/loan';
+import { forecastDarwdown, loanDsel, loanDdeclinel, loanDsaveStep, loanDrecall, loanDrevoke } from '@/api/project/loan';
 import DrawdownAmount from './form/DrawdownAmount.vue';
 import DrawdownBack from './form/DrawdownBack.vue';
 import AcceptFc from './form/AcceptFc.vue';
 import AddStake from './form/addStake.vue';
-import StakeTable from './form/stakeTable.vue';
 import ReconciliationModal from '@/views/projects/components/ReconciliationModal.vue';
 
 const { t } = useI18n();
@@ -240,6 +240,17 @@ const recall = () => {
     })
     .finally((_) => {
       accept_loading.value = false;
+    });
+};
+
+const revokeHandle = async () => {
+  await loanDrevoke({ uuid: props.uuid, id: props.detail?.id })
+    .then((res) => {
+      update();
+      return true;
+    })
+    .catch(() => {
+      return false;
     });
 };
 

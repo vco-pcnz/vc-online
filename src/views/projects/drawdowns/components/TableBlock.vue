@@ -5,9 +5,9 @@
       <li>{{ t('放款') }}</li>
       <li>{{ t('请求数据') }}</li>
       <li>{{ t('状态t') }}</li>
-      <li>{{ t('申请时间') }}</li>
-      <li>{{ t('创建时间') }}</li>
       <li>{{ t('已批准') }}</li>
+      <li>{{ t('创建时间') }}</li>
+      <li>{{ t('对账') }}</li>
     </ul>
     <div v-if="tableData.length" class="table-body">
       <template v-for="(item, index) in tableData" :key="item.id">
@@ -21,21 +21,17 @@
           </li>
           <li>
             <vco-number :value="item.apply_amount" :precision="2" size="fs_xs" :end="true"></vco-number>
-            <p class="fs_xs color_grey" v-if="item.date">{{ tool.showDate(item.date) }}</p>
+            <p class="fs_xs color_grey" v-if="item.apply_date">{{ tool.showDate(item.apply_date) }}</p>
           </li>
           <li :style="{ color: colors[item.status_name] }">
-            <template v-if="item.status == 2">
+            <template v-if="item.state == 1000">
               <p class="fs_xs bold" style="color: #181818">PAID</p>
-              <p class="fs_xs color_grey" v-if="item.open_date">{{ tool.showDate(item.open_date) }}</p>
             </template>
             <p v-else>{{ item.status_name }}</p>
           </li>
           <li>
-            <p class="fs_xs color_grey">
-              <template v-if="item.apply_date">
-                {{ tool.showDate(item.apply_date) }}
-              </template>
-            </p>
+            <vco-number :value="item.amount" :precision="2" size="fs_xs"></vco-number>
+            <p class="fs_xs color_grey" v-if="item.date">{{ tool.showDate(item.date) }}</p>
           </li>
           <li>
             <p class="fs_xs color_grey">
@@ -43,7 +39,8 @@
             </p>
           </li>
           <li>
-            <vco-number :value="item.amount" :precision="2" size="fs_xs"></vco-number>
+            <vco-number :value="item.open_amount" :precision="2" size="fs_xs"></vco-number>
+            <p class="fs_xs color_grey" v-if="item.open_date">{{ tool.showDate(item.open_date) }}</p>
           </li>
         </ul>
       </template>
@@ -196,7 +193,7 @@ watch(
       width: 200px;
     }
     &:nth-child(3) {
-      width: 150px;
+      width: 120px;
       text-align: center;
     }
     &:nth-child(4) {
@@ -205,14 +202,14 @@ watch(
       text-transform: uppercase;
       width: 200px;
     }
-    &:nth-child(5),
-    &:nth-child(6) {
+    &:nth-child(6){
       text-align: center;
       width: 100px;
     }
+    &:nth-child(5),
     &:nth-child(7) {
-      text-align: right;
-      width: 150px;
+      text-align: center;
+      width: 120px;
     }
   }
 }

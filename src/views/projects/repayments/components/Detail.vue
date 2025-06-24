@@ -1,27 +1,13 @@
 <template>
   <div>
     <!-- 抵押物选择弹窗 -->
-    <securities-dialog
-      v-model:visible="securitiesVisible"
-      :select-data="relatedData"
-      :is-details="true"
-    ></securities-dialog>
+    <securities-dialog v-model:visible="securitiesVisible" :select-data="relatedData" :is-details="true"></securities-dialog>
 
     <!-- 信息编辑弹窗 -->
-    <drawdown-request
-      ref="editDialogRef"
-      :uuid="uuid"
-      :data-info="detail"
-      @change="update"
-    ></drawdown-request>
+    <drawdown-request ref="editDialogRef" :uuid="uuid" :data-info="detail" @change="update"></drawdown-request>
 
     <!-- 详情弹窗 -->
-    <details-dialog
-      v-model:visible="detailsVisible"
-      :uuid="uuid"
-      :detail-data="detail"
-      @done="update"
-    ></details-dialog>
+    <details-dialog v-model:visible="detailsVisible" :uuid="uuid" :detail-data="detail" @done="update"></details-dialog>
 
     <div class="color_grey fs_2xs text-center py-3 text-uppercase uppercase" style="letter-spacing: 1px">{{ t('详情') }}</div>
 
@@ -37,7 +23,7 @@
         <a-button type="brown" shape="round" size="small" @click="navigationTo('/projects/documents?uuid=' + uuid + '&annex_id=' + detail?.annex_id)">{{ t('查看文件') }}</a-button>
         <a-button v-if="detail?.security && detail?.security?.length" type="brown" shape="round" size="small" @click="openSecurity">{{ t('关联抵押品') }}</a-button>
       </div>
-      
+
       <div v-if="Number(detail?.reduction_money)" class="flex items-center box mt-4">
         <i class="iconfont left-icon mr-3">&#xe799;</i>
         <div>
@@ -50,13 +36,7 @@
         <i class="iconfont left-icon mr-3">&#xe757;</i>
         <div>
           <div class="flex">
-            <vco-number
-              :value="repaymentAmount"
-              :precision="2"
-              :bold="true"
-              size="fs_2xl"
-              :color="Number(detail?.reduction_money) ? '#31bd65' : '#282828'"
-            ></vco-number>
+            <vco-number :value="repaymentAmount" :precision="2" :bold="true" size="fs_2xl" :color="Number(detail?.reduction_money) ? '#31bd65' : '#282828'"></vco-number>
             <i v-if="detail?.has_permission && detail?.mark === 'repayment_lm'" @click="openEditHandle" class="iconfont edit">&#xe8cf;</i>
           </div>
           <p class="bold color_grey fs_2xs">{{ t('申请金额') }}: {{ tool.formatMoney(detail?.apply_amount) }}</p>
@@ -71,19 +51,20 @@
         </div>
 
         <div v-if="detail?.has_permission || hasPermission('projects:repayments:revoke')">
-          <a-button v-if="detail?.has_permission" type="dark" class="big uppercase w-full" @click="detailsVisible = true">{{ t('接受请求') }}</a-button>
+          <template v-if="detail?.has_permission">
+            <!-- 对账 -->
+            <ReconciliationModal v-if="detail?.mark === 'repayment_lm_recon'" :detail="detail" :uuid="uuid" :type="2" @update="update">
+              <a-button type="cyan" class="big uppercase" style="width: 100%"> {{ t('对账') }} </a-button>
+            </ReconciliationModal>
+            <!-- 接受请求 -->
+            <a-button v-else type="dark" class="big uppercase w-full" @click="detailsVisible = true">{{ t('接受请求') }}</a-button>
+          </template>
 
-          <a-popconfirm
-            v-if="hasPermission('projects:repayments:revoke') && !detail?.has_permission && detail?.status !== 2 && detail?.status"
-            :title="t('您确定撤销还款吗？')"
-            @confirm="revokeHandle"
-          >
-            <a-button
-              type="brown" class="big uppercase w-full"
-            >{{ t('撤销还款') }}</a-button>
+          <a-popconfirm v-if="hasPermission('projects:repayments:revoke') && !detail?.has_permission && detail?.status !== 2 && detail?.status" :title="t('您确定撤销还款吗？')" @confirm="revokeHandle">
+            <a-button type="brown" class="big uppercase w-full">{{ t('撤销还款') }}</a-button>
           </a-popconfirm>
-          
-          <div v-if="detail?.has_permission" class="mt-4">
+
+          <div v-if="detail?.has_permission && (detail?.mark == 'repayment_lm' || detail?.mark == 'repayment_fc' || detail?.mark == 'repayment_director')" class="mt-4">
             <p class="text-center color_grey fs_xs my-3">{{ t('您可以点击下面的按钮来拒绝还款请求。') }}</p>
             <div class="flex justify-center">
               <a-popconfirm :title="t('确定要拒绝该请求吗？')" @confirm="decline">
@@ -95,15 +76,9 @@
           <DrawdownBack v-if="detail?.mark === 'repayment_fc' && detail?.has_permission" :uuid="uuid" :detail="detail" @change="update"></DrawdownBack>
         </div>
       </div>
-
-      <!-- 对账 -->
-      <ReconciliationModal v-if="hasPermission('projects:detail:doReconcile') && detail?.status == 1" :apply_id="detail?.id" @update="update">
-        <a-button type="cyan" class="big uppercase mt-3" style="width: 100%"> {{ t('对账') }} </a-button>
-      </ReconciliationModal>
     </div>
     <TipEditForecast @confirm="accept" tip2="请释放抵押品" v-model:visible="visible_tip"></TipEditForecast>
   </div>
-  
 </template>
 
 <script setup>
@@ -133,18 +108,18 @@ const props = defineProps({
   }
 });
 const accept_loading = ref(false);
-const visible_tip = ref(false)
+const visible_tip = ref(false);
 
 const repaymentAmount = computed(() => {
-  const reduction_money = Number(props.detail?.reduction_money)
+  const reduction_money = Number(props.detail?.reduction_money);
   if (reduction_money) {
-    const apply_amount = Number(props.detail?.apply_amount)
-    const res = tool.minus(apply_amount, reduction_money)
-    return res
+    const apply_amount = Number(props.detail?.apply_amount);
+    const res = tool.minus(apply_amount, reduction_money);
+    return res;
   } else {
-    return props.detail?.apply_amount
+    return props.detail?.apply_amount;
   }
-})
+});
 
 // 拒绝
 const decline = async () => {
@@ -168,32 +143,34 @@ const recall = async () => {
 };
 
 const revokeHandle = async () => {
-  await loanRrevoke({ uuid: props.uuid, id: props.detail?.id }).then((res) => {
-    update();
-    return true
-  }).catch(() => {
-    return false
-  });
-}
+  await loanRrevoke({ uuid: props.uuid, id: props.detail?.id })
+    .then((res) => {
+      update();
+      return true;
+    })
+    .catch(() => {
+      return false;
+    });
+};
 
-const securitiesVisible = ref(false)
-const relatedData = ref([])
+const securitiesVisible = ref(false);
+const relatedData = ref([]);
 
 const openSecurity = () => {
-  relatedData.value = props.detail?.security
-  securitiesVisible.value = true
-}
+  relatedData.value = props.detail?.security;
+  securitiesVisible.value = true;
+};
 
 const update = () => {
   emits('update');
 };
 
-const editDialogRef = ref()
+const editDialogRef = ref();
 const openEditHandle = () => {
-  editDialogRef.value && editDialogRef.value.init()
-}
+  editDialogRef.value && editDialogRef.value.init();
+};
 
-const detailsVisible = ref(false)
+const detailsVisible = ref(false);
 </script>
 
 <style scoped lang="less">

@@ -19,12 +19,12 @@
       </template>
     </div>
     <div v-if="((variationsInfo.state === 0) || variationsInfo.has_permission)" class="handle-content">
-      <template v-if="variationsInfo.state === 0 && hasPermission('projects:variations:request')">
-        <a-popconfirm :title="t('您确定提交申请吗？')" @confirm="requesetSub">
+      <template v-if="variationsInfo.state === 0 && (hasPermission('projects:variations:request') || hasPermission('projects:variations:delete'))">
+        <a-popconfirm v-if="hasPermission('projects:variations:request')" :title="t('您确定提交申请吗？')" @confirm="requesetSub">
           <a-button type="dark" class="big shadow bold uppercase">{{ t('提交申请') }}</a-button>
         </a-popconfirm>
-        <a-popconfirm :title="t('您确定删除请求吗？')" @confirm="requesetCancel">
-          <a-button type="danger" size="small" shape="round" class="mt-5">{{ t('删除请求') }}</a-button>
+        <a-popconfirm v-if="hasPermission('projects:variations:delete')" :title="t('您确定删除请求吗？')" @confirm="requesetCancel">
+          <a-button type="danger" size="small" :shape="hasPermission('projects:variations:request') ? 'round' : ''" :class="hasPermission('projects:variations:request') ? 'mt-5' : 'big shadow bold uppercase'">{{ t('删除请求') }}</a-button>
         </a-popconfirm>
       </template>
 

@@ -97,7 +97,7 @@
         </a-popconfirm>
       </template>
     </div>
-    <template v-if="detail?.has_permission && (detail?.mark == 'drawdown_lm' || detail?.mark == 'drawdown_fc')">
+    <template v-if="detail?.has_permission && (detail?.mark == 'drawdown_lm' || detail?.mark == 'drawdown_fc' || detail?.mark == 'drawdown_director')">
       <p class="text-center color_grey fs_xs my-3">{{ t('您可以点击下面的按钮来拒绝放款请求。') }}</p>
       <div class="flex justify-center">
         <a-popconfirm :title="t('确定要拒绝该请求吗？')" okText="decline" @confirm="decline">

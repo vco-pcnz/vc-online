@@ -1,20 +1,72 @@
 <template>
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="JournalRef" class="Journal">
-    <a-modal :width="486" :open="visible" :title="t('对账')" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
+    <a-modal :width="500" :open="visible" :title="t('对账')" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <div class="input-item">
-          <div class="label" :class="{ err: !formState.type && validate }">{{ t('类型') }}</div>
-          <a-select style="width: 100%" v-model:value="formState.type" show-search :options="options" @change="loadType"></a-select>
+          <div class="label" :class="{ err: !formState.ctype && validate }">{{ t('类型') }}</div>
+          <a-select style="width: 100%" v-model:value="formState.ctype" show-search :options="options"></a-select>
         </div>
-        <template v-if="formState.type == 2">
+        <template v-if="formState.ctype == 2">
           <div class="input-item">
             <div class="label" :class="{ err: !formState.bank_type && validate }">{{ t('类型') }}</div>
-            <a-select style="width: 100%" v-model:value="formState.bank_type" show-search :options="types" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
+            <a-select style="width: 100%" v-model:value="formState.bank_type" show-search :options="types" :fieldNames="{ label: 'name', value: 'code' }" @change="resetReconciliationItem"></a-select>
           </div>
-          <div class="input-item">
-            <div class="label" :class="{ err: !formState.bank_no && validate }">{{ t('单号') }}</div>
-            <a-input v-model:value="formState.bank_no" />
+          <div class="input-item" v-if="formState.bank_type !== '1'">
+            <div class="label" :class="{ err: !formState.bank_sn && validate }">{{ t('单号') }}</div>
+            <a-input v-model:value="formState.bank_sn" />
+          </div>
+          <div class="input-item" v-else>
+            <div class="label flex justify-between items-center" :class="{ err: !formState.bank_sn && validate }">
+              <!--  -->
+              <div>
+                <span v-if="!formState.bank_sn && validate">{{ t('请选择') }}</span>
+              </div>
+
+              <a-dropdown class="Filter" trigger="click" v-model:open="dropdownVisible">
+                <a-button type="brown" shape="round" size="small"> {{ t('选择') }}</a-button>
+
+                <template #overlay>
+                  <a-spin :spinning="loading" size="large">
+                    <div class="list">
+                      <template v-for="item in treeData" :key="item">
+                        <div class="list-item" @click="selectReconciliation(item)" :class="[{ par: item.children && item.children.length, dis: isDis(item) }]">
+                          <div class="flex justify-between">
+                            <span>{{ tool.showDate(item.date) }}</span>
+                            <vco-number color="#7dc1c1" :value="item.amount" :precision="2" :bold="true" size="fs_md"></vco-number>
+                          </div>
+                          <p class="fs_2xs color_grey">{{ item.description }}</p>
+                        </div>
+                        <template v-if="item.children && item.children.length">
+                          <div class="list-item" :class="[{ dis: isDis(sub) }]" @click="selectReconciliation(sub)" v-for="sub in item.children" :key="sub.id" style="padding-left: 40px">
+                            <div class="flex justify-between">
+                              <span>{{ tool.showDate(sub.date) }}</span>
+                              <vco-number color="#7dc1c1" :value="sub.amount" :precision="2" :bold="true" size="fs_md"></vco-number>
+                            </div>
+                            <p class="fs_2xs color_grey">{{ sub.description }}</p>
+                          </div>
+                        </template>
+                      </template>
+                      <div style="text-align: center; width: 100%">
+                        <a-empty v-if="!treeData.length && !loading" :image="simpleImage" style="min-height: 100px" />
+                      </div>
+                    </div>
+                  </a-spin>
+                </template>
+              </a-dropdown>
+            </div>
+            <div class="list reconciliationItemFill">
+              <i class="icon iconfont" v-if="Boolean(reconciliationItem)" @click="resetReconciliationItem">&#xe781;</i>
+              <div class="list-item" :class="[{ dis: isDis(reconciliationItem) }]">
+                <template v-if="reconciliationItem">
+                  <div class="flex justify-between">
+                    <span>{{ tool.showDate(reconciliationItem.date) }}</span>
+                    <vco-number color="#7dc1c1" :value="reconciliationItem.amount" :precision="2" :bold="true" size="fs_md"></vco-number>
+                  </div>
+                  <p class="fs_2xs color_grey">{{ reconciliationItem.description }}</p>
+                </template>
+              </div>
+            </div>
           </div>
         </template>
         <div class="input-item">
@@ -35,14 +87,24 @@
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
-import { doReconcile } from '@/api/reconciliations';
 import { systemDictData } from '@/api/system';
+import { getReconciliation } from '@/api/project/loan';
+import { loanDsaveStep, loanRsaveStep } from '@/api/project/loan';
+import tool from '@/utils/tool';
+import { Empty } from 'ant-design-vue';
+const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE;
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);
 
 const props = defineProps({
-  apply_id: {
+  detail: {
+    type: [String, Number]
+  },
+  uuid: {
+    type: Object
+  },
+  type: {
     type: [String, Number]
   }
 });
@@ -64,10 +126,9 @@ const options = ref([
 const types = ref([]);
 
 const formState = ref({
-  apply_id: '',
-  type: 1,
+  ctype: 2,
   bank_type: '',
-  bank_no: '',
+  bank_sn: '',
   remark: ''
 });
 
@@ -78,8 +139,8 @@ const updateVisible = (value) => {
 const loading_type = ref(false);
 
 const loadType = () => {
-  formState.value.bank_type = '';
-  formState.value.bank_no = '';
+  formState.value.bank_type = '1';
+  formState.value.bank_sn = '';
   if (types.value.length) {
     return;
   }
@@ -93,13 +154,19 @@ const loadType = () => {
     });
 };
 const save = () => {
-  formState.value.apply_id = props.apply_id;
   validate.value = true;
-  if (formState.value.type == 2 && (!formState.value.bank_type || !formState.value.bank_no)) {
+  if (formState.value.ctype == 2 && (!formState.value.bank_type || !formState.value.bank_sn)) {
     return;
   }
   loading.value = true;
-  doReconcile(formState.value)
+
+  let ajax = null;
+  if (props.type == 1) {
+    ajax = loanDsaveStep;
+  } else {
+    ajax = loanRsaveStep;
+  }
+  ajax({ uuid: props.uuid, id: props.detail?.id, ...formState.value })
     .then((res) => {
       message.success(t('提交成功'));
       emits('update');
@@ -111,14 +178,55 @@ const save = () => {
     });
 };
 
+const dropdownVisible = ref(false);
+const treeData = ref([]);
+const loadReconciliation = () => {
+  getReconciliation({ uuid: props.uuid, type: props.type }).then((res) => {
+    treeData.value = res;
+  });
+};
+
+const reconciliationItem = ref(null);
+const selectReconciliation = (val) => {
+  if ((val.children && val.children.length) || isDis(val)) return;
+  reconciliationItem.value = val;
+  formState.value.bank_sn = val.bank_sn;
+};
+
+const resetReconciliationItem = () => {
+  reconciliationItem.value = null;
+  formState.value.bank_sn = '';
+  dropdownVisible.value = false;
+};
+
+const isDis = (val) => {
+  if (val && props.type == 1 && props.detail?.amount == val.amount) {
+    // 放款
+    return false;
+  }
+  if (val && props.type == 2) {
+    // 全额还款
+    if (props.detail?.all_repayment) {
+      if (Math.abs(props.detail?.amount) == val.amount && props.detail?.date === val.date) {
+        return false;
+      }
+      return true;
+    }
+    return false;
+  }
+  return true;
+};
+
 const init = () => {
   formState.value = {
-    apply_id: '',
-    type: 1,
+    ctype: 2,
     bank_type: '',
-    bank_no: '',
+    bank_sn: '',
     remark: ''
   };
+  reconciliationItem.value = null;
+  loadType();
+  loadReconciliation();
   visible.value = true;
 };
 </script>
@@ -158,6 +266,56 @@ const init = () => {
 
   .input-item {
     margin-top: 20px;
+  }
+}
+
+.list {
+  border-radius: 8px;
+  box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+  background: #fff;
+  padding: 20px 0;
+
+  max-height: 380px;
+  width: 300px;
+  overflow-y: auto;
+  padding-bottom: 8px;
+  padding-top: 8px;
+  .list-item {
+    line-height: 1.5;
+    transition: background-color 0.1s cubic-bezier(0.215, 0.61, 0.355, 1);
+    align-items: center;
+    padding: 8px 20px;
+    cursor: pointer;
+    &:hover {
+      background-color: rgba(227, 235, 235, 0.4);
+    }
+    &.dis,
+    &.par {
+      background-color: rgba(206, 206, 206, 0.4);
+      opacity: 0.5;
+      cursor: auto;
+    }
+  }
+
+  &.reconciliationItemFill {
+    width: 100%;
+    padding: 0;
+    border: 1px solid #272727 !important;
+    min-height: 50px;
+    background: #f7f9f8;
+    position: relative;
+    padding-right: 20px;
+    .iconfont {
+      position: absolute;
+      top: calc(50% - 10px);
+      right: 10px;
+      color: #a3a3a3;
+      cursor: pointer;
+    }
+    .list-item {
+      background-color: #f7f9f8;
+      padding: 5px 20px;
+    }
   }
 }
 </style>

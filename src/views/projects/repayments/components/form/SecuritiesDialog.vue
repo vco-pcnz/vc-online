@@ -123,11 +123,15 @@
     },
     onSelectAll: (selected, changeSelectedRows, changeRows) => {
       if (selected) {
-        // 全选时，将 changeRows 中的数据加入 selectedRows
-        selectedRowKeys.value = Array.from(new Set([...selectedRowKeys.value, ...changeRows.map((row) => row.uuid)]));
-        selectedRows.value = Array.from(new Set([...selectedRows.value, ...changeSelectedRows]));
+        // 合并 selectedRows 和 changeSelectedRows，去除 undefined，并用 uuid 去重
+        const merged = [...selectedRows.value, ...changeSelectedRows].filter(Boolean);
+        const map = new Map();
+        merged.forEach(item => {
+          if (item && item.uuid) map.set(item.uuid, item);
+        });
+        selectedRows.value = Array.from(map.values());
+        selectedRowKeys.value = Array.from(new Set([...selectedRowKeys.value, ...changeRows.map(row => row.uuid)]));
       } else {
-        // 取消全选时，移除 changeRows 中的数据
         selectedRowKeys.value = selectedRowKeys.value.filter((key) => !changeRows.some((row) => row.uuid === key));
         selectedRows.value = selectedRows.value.filter((row) => !changeRows.some((r) => r.uuid === row.uuid));
       }
@@ -165,6 +169,8 @@
         }
       } else {
         tableLoading.value = false
+        selectedRows.value = []
+        selectedRowKeys.value = []
       }
     }
   )

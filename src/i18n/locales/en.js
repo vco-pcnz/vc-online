@@ -747,7 +747,7 @@ export default {
   "此操作会影响forecast,是否要继续?": "This operation will affect the forecast, do you want to continue?",
   "请释放抵押品": "Please release the collateral",
   "预估贷款": "Estimated Loan",
-  "关联抵押品": "Related Securities",
+  "关联抵押物": "Related Securities",
   "快捷选择": "Quick Selection",
   "开发成本": "Development cost",
   "确认变更": "Confirm Variations",
@@ -1012,5 +1012,13 @@ export default {
   "原本变更": "Original variation",
   "延迟变更": "Belated variation",
   "正常变更": "Normal variation",
-  "所选日期存在放款数据，是否将其设置为变更后首次放款": "The selected date has drawdown data. Do you want to set it as the first drawdown after the variation?"
+  "所选日期存在放款数据，是否将其设置为变更后首次放款": "The selected date has drawdown data. Do you want to set it as the first drawdown after the variation?",
+  "反洗钱1": "AML",
+  "撤销放款": "Revoke drawdown",
+  "您确定撤销放款吗？": "Are you sure you want to revoke the drawdown?",
+  "您可以点击下面的按钮来释放抵押物。": "You can click the button below to release the Securities.",
+  "抵押物解押": "Release Securities",
+  "确定解押": "Confirm release",
+  "您确定解押{0}个抵押物吗？": "Are you sure you want to release {0} securities?",
+  "已解押抵押物": "Released Securities"
 }

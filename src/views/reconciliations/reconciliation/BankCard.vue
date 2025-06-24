@@ -8,7 +8,7 @@
         <p class="xs_text">{{ tool.showDate(data.date) }}</p>
         <p v-if="project">{{ project.project_name }}</p>
         <p>{{ data.type }}</p>
-        <p>{{ data.description || '' }}</p>
+        <p>{{ data.reference || data.description || '' }}</p>
       </a-col>
       <a-col :span="6" class="content_cell content_middle">
         <p class="xs_text">Spent</p>

@@ -28,15 +28,15 @@
                   <a-spin :spinning="loading" size="large">
                     <div class="list">
                       <template v-for="item in treeData" :key="item">
-                        <div class="list-item" @click="selectReconciliation(item)" :class="[{ parent: item.children && item.children.length }]">
+                        <div class="list-item" @click="selectReconciliation(item)" :class="[{ par: item.children && item.children.length, dis: isDis(item) }]">
                           <div class="flex justify-between">
                             <span>{{ tool.showDate(item.date) }}</span>
-                            <vco-number :color="detail?.amount == item.amount ? '#7dc1c1' : '#333'" :value="item.amount" :precision="2" :bold="true" size="fs_md"></vco-number>
+                            <vco-number color="#7dc1c1" :value="item.amount" :precision="2" :bold="true" size="fs_md"></vco-number>
                           </div>
                           <p class="fs_2xs color_grey">{{ item.description }}</p>
                         </div>
                         <template v-if="item.children && item.children.length">
-                          <div class="list-item" @click="selectReconciliation(sub)" v-for="sub in item.children" :key="sub.id" style="padding-left: 40px">
+                          <div class="list-item" :class="[{ dis: isDis(sub) }]" @click="selectReconciliation(sub)" v-for="sub in item.children" :key="sub.id" style="padding-left: 40px">
                             <div class="flex justify-between">
                               <span>{{ tool.showDate(sub.date) }}</span>
                               <vco-number color="#7dc1c1" :value="sub.amount" :precision="2" :bold="true" size="fs_md"></vco-number>
@@ -55,11 +55,11 @@
             </div>
             <div class="list reconciliationItemFill">
               <i class="icon iconfont" v-if="Boolean(reconciliationItem)" @click="resetReconciliationItem">&#xe781;</i>
-              <div class="list-item">
+              <div class="list-item" :class="[{ dis: isDis(reconciliationItem) }]">
                 <template v-if="reconciliationItem">
                   <div class="flex justify-between">
                     <span>{{ tool.showDate(reconciliationItem.date) }}</span>
-                    <vco-number :color="detail?.amount == reconciliationItem.amount ? '#7dc1c1' : '#333'" :value="reconciliationItem.amount" :precision="2" :bold="true" size="fs_md"></vco-number>
+                    <vco-number color="#7dc1c1" :value="reconciliationItem.amount" :precision="2" :bold="true" size="fs_md"></vco-number>
                   </div>
                   <p class="fs_2xs color_grey">{{ reconciliationItem.description }}</p>
                 </template>
@@ -186,7 +186,7 @@ const loadReconciliation = () => {
 
 const reconciliationItem = ref(null);
 const selectReconciliation = (val) => {
-  if (val.children && val.children.length) return;
+  if ((val.children && val.children.length) || isDis(val)) return;
   reconciliationItem.value = val;
   formState.value.bank_sn = val.bank_sn;
 };
@@ -195,6 +195,24 @@ const resetReconciliationItem = () => {
   reconciliationItem.value = null;
   formState.value.bank_sn = '';
   dropdownVisible.value = false;
+};
+
+const isDis = (val) => {
+  if (val && props.type == 1 && props.detail?.amount == val.amount) {
+    // 放款
+    return false;
+  }
+  if (val && props.type == 2) {
+    // 全额还款
+    if (props.detail?.all_repayment) {
+      if (Math.abs(props.detail?.amount) == val.amount) {
+        return false;
+      }
+      return true;
+    }
+    return false;
+  }
+  return true;
 };
 
 const init = () => {
@@ -269,7 +287,8 @@ const init = () => {
     &:hover {
       background-color: rgba(227, 235, 235, 0.4);
     }
-    &.parent {
+    &.dis,
+    &.par {
       background-color: rgba(206, 206, 206, 0.4);
       opacity: 0.5;
       cursor: auto;
@@ -286,7 +305,7 @@ const init = () => {
     padding-right: 20px;
     .iconfont {
       position: absolute;
-      top: 15px;
+      top: calc(50% - 10px);
       right: 10px;
       color: #a3a3a3;
       cursor: pointer;

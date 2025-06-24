@@ -207,7 +207,7 @@ const isDis = (val) => {
   if (val && props.type == 2) {
     // 全额还款
     if (props.detail?.all_repayment) {
-      if (Math.abs(props.detail?.amount) == val.amount) {
+      if (Math.abs(props.detail?.amount) == val.amount && props.detail?.date === val.date) {
         return false;
       }
       return true;

@@ -5,17 +5,14 @@
       <li>{{ t('还款') }}</li>
       <li>{{ t('请求数据') }}</li>
       <li>{{ t('状态t') }}</li>
-      <li>{{ t('创建日期') }}</li>
-      <li>{{ t('还款日期') }}</li>
       <li>{{ t('已批准') }}</li>
+      <li>{{ t('创建日期') }}</li>
+      <li>{{ t('对账') }}</li>
     </ul>
     <div v-if="tableData.length" class="table-body">
-      <template v-for="(item,index) in tableData" :key="item.id">
-        <ul class="table-col tr"
-          :class="{ active: active_id == item.id, declined: item.status_name === 'DECLINED REPAYMENT', 'all-repayment': item.all_repayment }"
-          @click="viewDetail(item)"
-        >
-          <li><div class="circle" :class="{'done': item.status === 2}"></div></li>
+      <template v-for="(item, index) in tableData" :key="item.id">
+        <ul class="table-col tr" :class="{ active: active_id == item.id, declined: item.status_name === 'DECLINED REPAYMENT', 'all-repayment': item.all_repayment }" @click="viewDetail(item)">
+          <li><div class="circle" :class="{ done: item.status === 2 }"></div></li>
           <li>
             <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.name" style="width: 200px">
               <span class="index-num">{{ total - (pagination.page - 1) * pagination.limit - index }}</span>
@@ -24,18 +21,21 @@
           </li>
           <li>
             <vco-number :value="item.apply_amount" :precision="2" size="fs_md" :end="true"></vco-number>
+            <p class="fs_xs color_grey" v-if="item.apply_date">{{ tool.showDate(item.apply_date) }}</p>
           </li>
           <li :style="{ color: colors[item.status_name] }">
-            {{ item.status === 2 ? 'REPAID' : item.status_name }}
+            {{ item.state === 1000 ? 'REPAID' : item.status_name }}
+          </li>
+          <li>
+            <vco-number :value="item.amount" :precision="2" size="fs_xs"></vco-number>
+            <p class="fs_xs color_grey" v-if="item.date">{{ tool.showDate(item.date) }}</p>
           </li>
           <li>
             <p class="fs_xs color_grey">{{ tool.showDate(item.create_time) }}</p>
           </li>
           <li>
-            <p class="fs_xs color_grey">{{ tool.showDate(item.apply_date) }}</p>
-          </li>
-          <li>
-            <vco-number :value="item.amount" :precision="2" size="fs_md" :end="true"></vco-number>
+            <vco-number :value="item.open_amount" :precision="2" size="fs_xs"></vco-number>
+            <p class="fs_xs color_grey" v-if="item.open_date">{{ tool.showDate(item.open_date) }}</p>
           </li>
           <div v-if="item.all_repayment" class="tips">{{ t('全额还款') }}</div>
         </ul>
@@ -201,21 +201,21 @@ watch(
       flex: 1;
     }
     &:nth-child(3) {
-      width: 160px;
+      width: 120px;
       text-align: center;
     }
     &:nth-child(4) {
       text-align: center;
       width: 210px;
     }
-    &:nth-child(5),
-    &:nth-child(6) {
-      width: 100px;
+    &:nth-child(6){
       text-align: center;
+      width: 100px;
     }
+    &:nth-child(5),
     &:nth-child(7) {
-      width: 130px;
-      text-align: right;
+      text-align: center;
+      width: 120px;
     }
   }
 }

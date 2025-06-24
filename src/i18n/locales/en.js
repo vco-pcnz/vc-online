@@ -1012,5 +1012,9 @@ export default {
   "原本变更": "Original variation",
   "延迟变更": "Belated variation",
   "正常变更": "Normal variation",
-  "所选日期存在放款数据，是否将其设置为变更后首次放款": "The selected date has drawdown data. Do you want to set it as the first drawdown after the variation?"
+  "所选日期存在放款数据，是否将其设置为变更后首次放款": "The selected date has drawdown data. Do you want to set it as the first drawdown after the variation?",
+  "反洗钱1": "AML",
+  "撤销放款": "Revoke drawdown",
+  "您确定撤销放款吗？": "Are you sure you want to revoke the drawdown?"
+
 }

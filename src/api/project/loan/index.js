@@ -104,6 +104,14 @@ export const loanDrecall = (data) =>
     data
   });
 
+// 放款撤销
+export const loanDrevoke = (data) =>
+  request({
+    url: 'project/loan/drevoke',
+    method: 'post',
+    data
+  });
+
 // 还款款召回
 export const loanRrecall = (data) =>
   request({
@@ -168,7 +176,7 @@ export const darwdownLog = (params) =>
     params
   });
 
-  // 删除
+// 删除
 export const forecastDelete = (data) =>
   request({
     url: 'project/forecast/deletef',
@@ -272,7 +280,6 @@ export const projectLoanAllRepayment = (params) =>
     params
   });
 
-
 // 计算irr
 export const projectLoanCalcIrr = (data) =>
   request({
@@ -333,6 +340,14 @@ export const getCompanyInfoByNzbn = (params) =>
 export const borkerFeeCalc = (params) =>
   request({
     url: 'project/variation/borkerFeeCalc',
+    method: 'get',
+    params
+  });
+
+// 对账单-列表
+export const getReconciliation = (params) =>
+  request({
+    url: 'project/loan/getReconciliation',
     method: 'get',
     params
   });

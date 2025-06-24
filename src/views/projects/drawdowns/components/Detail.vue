@@ -107,7 +107,7 @@
           <a-button type="danger" size="small" shape="round" :loading="decline_loading">{{ t('拒绝请求') }}</a-button>
         </a-popconfirm>
       </div>
-      <DrawdownBack :uuid="uuid" :detail="detail" @change="update" v-if="detail?.has_permission && detail?.mark === 'drawdown_fc'"></DrawdownBack>
+      <DrawdownBack :uuid="uuid" :detail="detail" @change="update" v-if="detail?.has_permission && (detail?.mark == 'drawdown_fc' || detail?.mark == 'drawdown_director')"></DrawdownBack>
     </template>
     <!-- 分配利益相关者 -->
     <div class="flex justify-center mt-3">

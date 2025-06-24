@@ -113,7 +113,7 @@
                 <template #label>
                   <div class="w-full flex justify-between items-center">
                     <div class="flex gap-2 items-center">
-                      <span>{{ t('关联抵押品') }}</span>
+                      <span>{{ t('关联抵押物') }}</span>
                       <a-switch v-model:checked="showRelatedSwitch" size="small"></a-switch>
                     </div>
                     
@@ -336,7 +336,8 @@ const submit = () => {
     ...formState.value,
     apply_date: dayjs(formState.value.apply_date).format('YYYY-MM-DD'),
     uuid: props.uuid,
-    document: document.value
+    document: document.value,
+    security: []
   };
 
   if (!params.all_repayment) {

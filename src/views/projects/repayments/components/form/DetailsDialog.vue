@@ -8,8 +8,6 @@
     :maskClosable="false"
     @cancel="updateVisible(false)"
   >
-    <TipEditForecast @confirm="accept" tip2="请释放抵押品" v-model:visible="visible_tip"></TipEditForecast>
-
     <a-row v-if="detailData && detailData?.id" :gutter="24">
       <a-col :span="12" class="item-txt">
         <p>{{ t('还款标题') }}</p>
@@ -42,7 +40,7 @@
         <p>{{ detailData.note || '--' }}</p>
       </a-col>
       <a-col :span="24" v-if="detailData.security && detailData.security.length" class="item-txt">
-        <p>{{ t('关联抵押品') }}</p>
+        <p>{{ t('关联抵押物') }}</p>
         <div class="table-content sys-table-content related-content mt-2">
           <a-table
             rowKey="uuid"
@@ -73,14 +71,7 @@
           @click="updateVisible(false)"
         >{{ t('关闭') }}</a-button>
 
-        <a-button
-          v-if="detailData?.mark === 'repayment_lm'"
-          type="dark" class="big shadow bold uppercase mb-5 mt-5"
-          :loading="subLoading"
-          @click="visible_tip = true"
-        >{{ t('接受请求') }}</a-button>
-
-        <a-popconfirm v-else :title="t('您确定要接受该请求吗？')" @confirm="accept">
+        <a-popconfirm :title="t('您确定要接受该请求吗？')" @confirm="accept">
           <a-button
             type="dark" class="big shadow bold uppercase mb-5 mt-5"
           >{{ t('接受请求') }}</a-button>
@@ -146,8 +137,6 @@
     { title: t('当前抵押物价值'), dataIndex: 'real_amount', width: 170 }
   ]);
 
-  const visible_tip = ref(false)
-
   const subLoading = ref(false)
   // 同意
   const accept = async () => {
@@ -170,7 +159,6 @@
           calAmount();
         }
       } else {
-        visible_tip.value = false
         subLoading.value = false
       }
     }

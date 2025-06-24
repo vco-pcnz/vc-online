@@ -136,6 +136,14 @@ export const loanDelSecurity = (data) =>
     data
   });
 
+// 还款申请--解押抵押物
+export const loanDisSecurity = (data) =>
+  request({
+    url: 'project/discharge/disSecurity',
+    method: 'post',
+    data
+  });
+
 // 放款拒绝
 export const loanDdeclinel = (data) =>
   request({

@@ -139,7 +139,7 @@
               <div v-for="(_item, _index) in item.list" :key="_item.date" class="col-item">
                 <div v-if="isAbout"
                   class="item about flex items-center">
-                    <span class="circle" :style="{ background: _item.status === 2 || (_item.passed && _item.is_fee) ? '#181818' : '#b4d8d8' }"></span>
+                    <span class="circle" :style="{ background: _item.status > 1 || (_item.passed && _item.is_fee) ? '#181818' : '#b4d8d8' }"></span>
                 </div>
                 <div v-else class="item"></div>
                 <div class="item">{{ tool.showDate(_item.date) }}</div>

@@ -9,6 +9,9 @@
     <!-- 详情弹窗 -->
     <details-dialog v-model:visible="detailsVisible" :uuid="uuid" :detail-data="detail" @done="update"></details-dialog>
 
+    <!-- 抵押物解压弹窗 -->
+    <release-dialog v-model:visible="releaseVisible" :uuid="uuid" :detail-data="detail" @done="update"></release-dialog>
+
     <div class="color_grey fs_2xs text-center py-3 text-uppercase uppercase" style="letter-spacing: 1px">{{ t('详情') }}</div>
 
     <div class="detail">
@@ -21,7 +24,7 @@
 
       <div class="flex gap-4">
         <a-button type="brown" shape="round" size="small" @click="navigationTo('/projects/documents?uuid=' + uuid + '&annex_id=' + detail?.annex_id)">{{ t('查看文件') }}</a-button>
-        <a-button v-if="detail?.security && detail?.security?.length" type="brown" shape="round" size="small" @click="openSecurity">{{ t('关联抵押品') }}</a-button>
+        <a-button v-if="detail?.security && detail?.security?.length" type="brown" shape="round" size="small" @click="openSecurity">{{ detail?.is_dis === 1 ? t('已解押抵押物') : t('关联抵押物') }}</a-button>
       </div>
 
       <div v-if="Number(detail?.reduction_money)" class="flex items-center box mt-4">
@@ -73,16 +76,22 @@
             </div>
           </div>
 
+          <div v-if="detail?.status >= 2 && hasPermission('projects:repayments:release') && detail?.is_dis !== 1" class="mt-4">
+            <p class="text-center color_grey fs_xs my-3">{{ t('您可以点击下面的按钮来释放抵押物。') }}</p>
+            <div class="flex justify-center">
+              <a-button type="dark" size="small" shape="round" @click="releaseVisible = true">{{ t('抵押物解押') }}</a-button>
+            </div>
+          </div>
+
           <DrawdownBack v-if="detail?.mark === 'repayment_fc' && detail?.has_permission" :uuid="uuid" :detail="detail" @change="update"></DrawdownBack>
         </div>
       </div>
     </div>
-    <TipEditForecast @confirm="accept" tip2="请释放抵押品" v-model:visible="visible_tip"></TipEditForecast>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue';
+import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool, { navigationTo } from '@/utils/tool';
 import { hasPermission } from '@/directives/permission/index';
@@ -92,6 +101,7 @@ import ReconciliationModal from '@/views/projects/components/ReconciliationModal
 import SecuritiesDialog from './form/SecuritiesDialog.vue';
 import DrawdownRequest from './form/DrawdownRequest.vue';
 import DetailsDialog from './form/DetailsDialog.vue';
+import ReleaseDialog from './form/ReleaseDialog.vue';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);
@@ -108,7 +118,6 @@ const props = defineProps({
   }
 });
 const accept_loading = ref(false);
-const visible_tip = ref(false);
 
 const repaymentAmount = computed(() => {
   const reduction_money = Number(props.detail?.reduction_money);
@@ -171,6 +180,8 @@ const openEditHandle = () => {
 };
 
 const detailsVisible = ref(false);
+
+const releaseVisible = ref(false);
 </script>
 
 <style scoped lang="less">

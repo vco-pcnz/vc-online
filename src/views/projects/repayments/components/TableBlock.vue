@@ -34,7 +34,7 @@
             <p class="fs_xs color_grey">{{ tool.showDate(item.create_time) }}</p>
           </li>
           <li>
-            <vco-number :value="item.open_amount" :precision="2" size="fs_xs"></vco-number>
+            <vco-number :value="Math.abs(item.open_amount)" :precision="2" size="fs_xs"></vco-number>
             <p class="fs_xs color_grey" v-if="item.open_date">{{ tool.showDate(item.open_date) }}</p>
           </li>
           <div v-if="item.all_repayment" class="tips">{{ t('全额还款') }}</div>
@@ -208,7 +208,7 @@ watch(
       text-align: center;
       width: 210px;
     }
-    &:nth-child(6){
+    &:nth-child(6) {
       text-align: center;
       width: 100px;
     }

@@ -1020,5 +1020,7 @@ export default {
   "抵押物解押": "Release Securities",
   "确定解押": "Confirm release",
   "您确定解押{0}个抵押物吗？": "Are you sure you want to release {0} securities?",
-  "已解押抵押物": "Released Securities"
+  "已解押抵押物": "Released Securities",
+  "发送通知": "Send notification",
+  "确定发送通知吗？": "Are you sure you want to send notification?"
 }

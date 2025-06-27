@@ -23,7 +23,7 @@
             <vco-number :value="item.apply_amount" :precision="2" size="fs_md" :end="true"></vco-number>
             <p class="fs_xs color_grey" v-if="item.apply_date">{{ tool.showDate(item.apply_date) }}</p>
           </li>
-          <li :style="{ color: colors[item.status_name] }">
+          <li :style="{ color: item.state == 1000 ? '#272727' : '#d3a631' }">
             {{ item.state === 1000 ? 'REPAID' : item.status_name }}
           </li>
           <li>
@@ -72,14 +72,6 @@ const props = defineProps({
 });
 
 const { t } = useI18n();
-const colors = ref({
-  'REPAYMENT CONFIRM': '#a9ad57',
-  'LM REVIEW': '#d3a631',
-  'LM PENDING REVIEW': '#d3a631',
-  'FC REVIEW': '#d3a631',
-  'PENDING APPROVAL…': '#d3a631',
-  'FC PENDING REVIEW': '#d3a631'
-});
 
 const active_id = ref('');
 

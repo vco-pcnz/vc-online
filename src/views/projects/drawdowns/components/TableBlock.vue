@@ -23,7 +23,7 @@
             <vco-number :value="item.apply_amount" :precision="2" size="fs_xs" :end="true"></vco-number>
             <p class="fs_xs color_grey" v-if="item.apply_date">{{ tool.showDate(item.apply_date) }}</p>
           </li>
-          <li :style="{ color: item.state == 1000?'#272727':'#d3a631' }">
+          <li :style="{ color: setStatusColor(item) }">
             <template v-if="item.state == 1000">
               <p class="fs_xs bold" style="color: #181818">PAID</p>
             </template>
@@ -77,6 +77,16 @@ const props = defineProps({
 });
 
 const { t } = useI18n();
+
+const setStatusColor = (val) => {
+  if (val.state == 1000) {
+    return '#272727';
+  } else if (val.state == -900) {
+    return '#ff7875';
+  } else {
+    return '#d3a631';
+  }
+};
 
 const active_id = ref('');
 
@@ -194,7 +204,7 @@ watch(
       text-transform: uppercase;
       width: 200px;
     }
-    &:nth-child(6){
+    &:nth-child(6) {
       text-align: center;
       width: 100px;
     }

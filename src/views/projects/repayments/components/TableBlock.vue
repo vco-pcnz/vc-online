@@ -23,7 +23,7 @@
             <vco-number :value="item.apply_amount" :precision="2" size="fs_md" :end="true"></vco-number>
             <p class="fs_xs color_grey" v-if="item.apply_date">{{ tool.showDate(item.apply_date) }}</p>
           </li>
-          <li :style="{ color: item.state == 1000 ? '#272727' : '#d3a631' }">
+          <li :style="{ color: setStatusColor(item) }">
             {{ item.state === 1000 ? 'REPAID' : item.status_name }}
           </li>
           <li>
@@ -78,6 +78,16 @@ const active_id = ref('');
 const viewDetail = (val) => {
   active_id.value = val.id;
   emit('change', val);
+};
+
+const setStatusColor = (val) => {
+  if (val.state == 1000) {
+    return '#272727';
+  } else if (val.state == -900) {
+    return '#ff7875';
+  } else {
+    return '#d3a631';
+  }
 };
 
 watch(

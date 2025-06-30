@@ -48,7 +48,7 @@
     <vco-page-search-item width="150" :title="t('名称')">
       <a-input v-model:value="searchForm.project_name" :placeholder="t('请输入')" />
     </vco-page-search-item>
-    <vco-page-search-item width="150" :title="t('客户经理')">
+    <vco-page-search-item width="150" :title="t('客户经理')" v-if="hasPermission('reconciliations:manage:search:lm')">
       <a-input v-model:value="searchForm.lm_name" :placeholder="t('请输入')" />
     </vco-page-search-item>
   </vco-page-search>
@@ -65,6 +65,7 @@
 import { ref, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { selectDateFormat } from '@/utils/tool';
+import { hasPermission } from '@/directives/permission/index';
 
 const emits = defineEmits(['search', 'update:value']);
 const { t } = useI18n();

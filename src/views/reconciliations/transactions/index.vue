@@ -1,5 +1,5 @@
 <template>
-  <layout ref="layoutRef">
+  <layout ref="layoutRef" @update="reload">
     <template #content>
       <div class="flex justify-between items-end mb-5 pb-5" style="border-bottom: 1px solid #a6a9b0">
         <div class="actions">
@@ -16,8 +16,9 @@
         <a-table :data-source="dataSource" :columns="columns" :pagination="false" :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }" row-key="sn">
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'status'">
+              <div v-if="record.status == 1" class="status_tag unreconciled_tag">Unreconciled</div>
               <div v-if="record.status == 2" class="status_tag">Reconciled</div>
-              <div v-else class="status_tag unreconciled_tag">Unreconciled</div>
+              <div v-if="record.status == 3" class="status_tag">{{t('已确认')}}</div>
             </template>
           </template>
         </a-table>
@@ -33,6 +34,7 @@
 import { ref, reactive, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import layout from '../components/layout.vue';
+import { cloneDeep } from 'lodash';
 import tool from '@/utils/tool.js';
 import { getTransactions, removeTransactions } from '@/api/reconciliations';
 import TableSearch from './TableSearch.vue';
@@ -185,6 +187,11 @@ const loadData = () => {
     .finally(() => {
       loading.value = false;
     });
+};
+
+const reload = () => {
+  pagination.value.page = 1;
+  loadData();
 };
 
 const search = (val) => {

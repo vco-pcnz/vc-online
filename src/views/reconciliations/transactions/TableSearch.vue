@@ -60,15 +60,15 @@ const statusData = computed(() => {
     },
     {
       label: t('未对账'),
-      value: '0'
-    },
-    {
-      label: t('已对账'),
       value: '1'
     },
     {
-      label: t('已取消'),
-      value: '-1'
+      label: t('已对账'),
+      value: '2'
+    },
+    {
+      label: t('已确认'),
+      value: '3'
     }
   ];
 });

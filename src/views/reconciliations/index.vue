@@ -31,7 +31,7 @@
               <!-- ok -->
               <ok :item="item" :project="item.project" @update="loadData"></ok>
               <!-- right -->
-              <transaction :item="item" @update="changeItemForm" v-if="!!item.transaction"></transaction>
+              <transaction :item="item" @update="changeItemForm" v-if="item.transaction && item.transaction.length"></transaction>
               <reconciliation-form :way_options="way_options" :disabled="!item.project" :fee_type="item.fee_type" v-else :item="item"></reconciliation-form>
             </template>
           </a-row>
@@ -43,7 +43,7 @@
                 <!-- ok -->
                 <ok :item="sub" :project="item.project" @update="loadData"></ok>
                 <!-- right -->
-                <transaction :item="sub" @update="changeItemForm" v-if="!!sub.transaction"></transaction>
+                <transaction :item="sub" @update="changeItemForm" v-if="sub.transaction && sub.transaction.length"></transaction>
                 <reconciliation-form :way_options="way_options" :disabled="!item.project" :fee_type="item.fee_type" v-else :item="sub"></reconciliation-form>
               </template>
             </a-row>
@@ -105,6 +105,7 @@ const loadData = () => {
       total.value = res.count;
       if (res.data.length) {
         res.data.map((item) => {
+          item['check_index'] = 0;
           if (item.fee_type.length) {
             item.fee_type.map((_item) => {
               _item['value'] = JSON.stringify(_item);
@@ -210,10 +211,10 @@ const onCheckAllChange = (e) => {
       // 选中当前页面所有
       if (!selectedRowKeys.value.includes(val.id)) {
         selectedRowKeys.value.push(val.id);
-        selectedRowsDate.value.push(val.date !== val.transaction.date && val.date !== val.f_date);
+        selectedRowsDate.value.push(val.date !== val.transaction[val.check_index].date && val.date !== val.f_date);
         selectedRows.value.push({
           bank_sn: val.bank_sn,
-          sn: val.transaction.sn
+          sn: val.transaction[val.check_index].sn
         });
       }
     }
@@ -276,7 +277,13 @@ const changeItemForm = (val) => {
     let index = selectedRowKeys.value.findIndex((it) => {
       return it === val.id;
     });
-    selectedRowsDate.value[index] = val.date !== val.transaction.date && val.date !== val.f_date;
+
+    selectedRows.value[index] = {
+      bank_sn: val.bank_sn,
+      sn: val.transaction[val.check_index].sn
+    };
+    
+    selectedRowsDate.value[index] = val.date !== val.transaction[val.check_index].date && val.date !== val.f_date;
   }
 };
 </script>

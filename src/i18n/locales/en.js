@@ -713,7 +713,7 @@ export default {
   "变更后首次放款": "Initial drawdown after variation",
   "关联用户": "Associate users",
   "变更1": "Variations",
-  "反洗钱": "Wash",
+  "反洗钱": "AML",
   "审核变更请求": "Reviewing Variations Requests",
   "变更详情": "Variations Details",
   "关闭": "Close",

@@ -209,7 +209,7 @@
         ></lending-form>
       </template>
 
-      <template v-else-if="item === 'bonus'">
+      <template v-else-if="item === 'bonus' && !isAlm">
         <bouns-form
           :current-id="currentId"
           :current-step="currentStep"
@@ -290,6 +290,8 @@ import ConfirmForm from "./ConfirmForm.vue";
 import { projectAuditCheckMode } from "@/api/process"
 import emitter from '@/event';
 
+import { useUserStore } from '@/store';
+
 const { t } = useI18n();
 const emits = defineEmits(['refresh', 'lendingDone', 'openData', 'compareDone']);
 
@@ -317,6 +319,12 @@ const props = defineProps({
     type: Boolean,
     default: false
   }
+})
+
+const userStore = useUserStore();
+const isAlm = computed(() => {
+  const roles = userStore.userInfo.roles;
+  return roles.length === 1 && (roles[0].name.toLowerCase()) === 'aml';
 })
 
 const borrowerTarget = ref(true)

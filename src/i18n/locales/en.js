@@ -671,8 +671,8 @@ export default {
   "确定撤销合并吗？": "Are you sure to cancel the merge?",
   "合并详情": "Merge Details",
   "当前抵押物价值": "Current Security value",
-  "未对账": "Not reconciled",
-  "已对账": "Completed",
+  "未对账": "Unreconciled",
+  "已对账": "Reconciled",
   "开始流程": "Start process",
   "结束流程": "End process",
   "开始时间": "Start Time",
@@ -713,7 +713,7 @@ export default {
   "变更后首次放款": "Initial drawdown after variation",
   "关联用户": "Associate users",
   "变更1": "Variations",
-  "反洗钱": "Wash",
+  "反洗钱": "AML",
   "审核变更请求": "Reviewing Variations Requests",
   "变更详情": "Variations Details",
   "关闭": "Close",
@@ -1020,5 +1020,9 @@ export default {
   "抵押物解押": "Release Securities",
   "确定解押": "Confirm release",
   "您确定解押{0}个抵押物吗？": "Are you sure you want to release {0} securities?",
-  "已解押抵押物": "Released Securities"
+  "已解押抵押物": "Released Securities",
+  "发送通知": "Send notification",
+  "确定发送通知吗？": "Are you sure you want to send notification?",
+  "已确认": "Confirmed",
+  "超时放款": "Overdue drawdown"
 }

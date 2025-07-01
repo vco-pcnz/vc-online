@@ -150,7 +150,7 @@
                           />
                         </div>
                       </div>
-                      <div v-if="advanceObj.checked" class="selected">{{ `$${numberStrFormat(advanceObj.set_amount)}` }}</div>
+                      <div v-if="advanceObj.checked" class="selected">{{ `$${numberStrFormat(advanceObj?.set_amount)}` }}</div>
                       <template v-if="advanceObj.selected">
                         <div class="selected-bg"></div>
                         <i class="iconfont selected-icon">&#xe601;</i>
@@ -207,8 +207,8 @@
                 <template v-else>
                   <div v-if="showProcess" class="select-item col" :class="{'hover': isSelect}" @click="itemSetHandle(record[column.dataIndex])">
                     <vco-number :value="record[column.dataIndex].amount" size="fs_xs" :precision="2" :end="true"></vco-number>
-                    <vco-number :value="tableRemainTotal(record[column.dataIndex].amount, record[column.dataIndex].use_amount)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
-                    <vco-number :value="record[column.dataIndex].use_amount" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
+                    <vco-number :value="tableRemainTotal(record[column.dataIndex].amount, record[column.dataIndex]?.use_amount || 0)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
+                    <vco-number :value="record[column.dataIndex]?.use_amount || 0" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
                     <div class="process-gap"></div>
                     <div class="item-process-content">
                       <a-progress
@@ -315,8 +315,8 @@
                 @click="itemSetHandle(item)"
               >
                 <vco-number :value="item.amount" size="fs_md" :precision="2" :end="true"></vco-number>
-                <vco-number v-if="showProcess" :value="tableRemainTotal(item.amount, item.use_amount)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
-                <vco-number v-if="showProcess" :value="item.use_amount" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
+                <vco-number v-if="showProcess" :value="tableRemainTotal(item.amount, item?.use_amount || 0)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
+                <vco-number v-if="showProcess" :value="item?.use_amount || 0" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
                 <a-progress
                   v-if="showProcess"
                   :stroke-color="{
@@ -484,7 +484,7 @@
     const total = arr.reduce((total, num) => {
       return Number(tool.plus(total, num))
     }, 0);
-    const totalAll = tool.plus(Number(total), advanceObj.value.use_amount)
+    const totalAll = tool.plus(Number(total), advanceObj.value?.use_amount || 0)
     return totalAll
   })
 
@@ -502,7 +502,7 @@
     return selectData.value.filter(item => Number(item.set_amount)).length
   })
 
-  const tableRemainTotal = (total, useTotal) => {
+  const tableRemainTotal = (total, useTotal = 0) => {
     return tool.minus(total, useTotal)
   }
 
@@ -553,7 +553,7 @@
           amountItem.set_amount_per = ''
 
           if (amountItem.amount) {
-            const use_amount = amountItem.use_amount || 0
+            const use_amount = amountItem?.use_amount || 0
             const num = Number(Number(tool.div(Number(use_amount), Number(amountItem.amount))).toFixed(2))
             amountItem.percent = Number(tool.times(num, 100))
           } else {
@@ -564,7 +564,7 @@
           if (buildLogDataIds.value.includes(amountItem.id)) {
             const logItem = props.buildLogData.find(item => item.build_id === amountItem.id)
             if (logItem) {
-              amountItem.use_amount = tool.minus(amountItem.use_amount, logItem.amount)
+              amountItem.use_amount = tool.minus(amountItem?.use_amount || 0, logItem.amount)
               if (amountItem.amount) {
                 const num = Number(Number(tool.div(Number(amountItem.use_amount), Number(amountItem.amount))).toFixed(2))
                 amountItem.percent = Number(tool.times(num, 100))

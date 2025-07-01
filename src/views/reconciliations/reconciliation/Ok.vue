@@ -1,10 +1,10 @@
 <template>
   <a-col :span="2" class="content_btn">
-    <a-popconfirm :title="t('确定要对账吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="showTip(item)" :disabled="(!item.transaction && (!item['f_date'] || !item['f_fee'] || !item['f_note'])) || !project">
+    <a-popconfirm :title="t('确定要对账吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="showTip(item)" :disabled="(!item.transaction.length && (!item['f_date'] || !item['f_fee'] || !item['f_note'])) || !project">
       <a-button
         :loading="ok_loading && formState.id == item.id"
-        :class="{ active: (!item.transaction && item['f_date'] && item['f_fee'] && item['f_note'] && project) || item.transaction }"
-        :disabled="(!item.transaction && (!item['f_date'] || !item['f_fee'] || !item['f_note'])) || !project"
+        :class="{ active: (!item.transaction.length && item['f_date'] && item['f_fee'] && item['f_note'] && project) || item.transaction.length }"
+        :disabled="(!item.transaction.length && (!item['f_date'] || !item['f_fee'] || !item['f_note'])) || !project"
       >
         OK
       </a-button>
@@ -37,7 +37,7 @@ const showTip = (val) => {
   formState.value = val;
   if (val.f_date && val.f_date !== val.date) {
     visible.value = true;
-  } else if (val.transaction && val.date !== val.transaction.date &&  val.date !== val.f_date) {
+  } else if (val.transaction.length && val.date !== val.transaction[val.check_index].date &&  val.date !== val.f_date) {
     visible.value = true;
   } else {
     submit();
@@ -46,14 +46,14 @@ const showTip = (val) => {
 const submit = () => {
   let params = {};
   let ajaxFn = null;
-  if (formState.value.transaction) {
+  if (formState.value.transaction.length) {
     // 对账
     ajaxFn = checkMatchBill;
     params = {
       data: [
         {
           bank_sn: formState.value.bank_sn,
-          sn: formState.value.transaction.sn
+          sn: formState.value.transaction[formState.value.check_index].sn
         }
       ]
     };

@@ -31,7 +31,7 @@
               <!-- ok -->
               <ok :item="item" :project="item.project" @update="loadData"></ok>
               <!-- right -->
-              <transaction :item="item" @update="changeItemForm" v-if="!!item.transaction"></transaction>
+              <transaction :item="item" @update="changeItemForm" v-if="item.transaction && item.transaction.length"></transaction>
               <reconciliation-form :way_options="way_options" :disabled="!item.project" :fee_type="item.fee_type" v-else :item="item"></reconciliation-form>
             </template>
           </a-row>
@@ -43,7 +43,7 @@
                 <!-- ok -->
                 <ok :item="sub" :project="item.project" @update="loadData"></ok>
                 <!-- right -->
-                <transaction :item="sub" @update="changeItemForm" v-if="!!sub.transaction"></transaction>
+                <transaction :item="sub" @update="changeItemForm" v-if="sub.transaction && sub.transaction.length"></transaction>
                 <reconciliation-form :way_options="way_options" :disabled="!item.project" :fee_type="item.fee_type" v-else :item="sub"></reconciliation-form>
               </template>
             </a-row>
@@ -74,6 +74,7 @@ import TipModal from './reconciliation/TipModal.vue';
 import { checkMatchBill } from '@/api/reconciliations';
 import { cloneDeep } from 'lodash';
 import { systemDictData } from '@/api/system';
+import dayjs from 'dayjs';
 const { t } = useI18n();
 
 const layoutRef = ref();
@@ -108,6 +109,21 @@ const loadData = () => {
           if (item.fee_type.length) {
             item.fee_type.map((_item) => {
               _item['value'] = JSON.stringify(_item);
+            });
+          }
+          item['check_index'] = 0;
+          if (item.transaction && item.transaction.length > 1) {
+            const dates = item.transaction.map((item) => {
+              return item.date;
+            });
+            let smallestDiff = Math.abs(dayjs(dates[0]).diff(dayjs(item.date), 'day'));
+
+            dates.forEach((date, index) => {
+              const currentDiff = Math.abs(dayjs(date).diff(dayjs(item.date), 'day'));
+              if (currentDiff < smallestDiff) {
+                smallestDiff = currentDiff;
+                item['check_index'] = index;
+              }
             });
           }
         });
@@ -210,10 +226,10 @@ const onCheckAllChange = (e) => {
       // 选中当前页面所有
       if (!selectedRowKeys.value.includes(val.id)) {
         selectedRowKeys.value.push(val.id);
-        selectedRowsDate.value.push(val.date !== val.transaction.date && val.date !== val.f_date);
+        selectedRowsDate.value.push(val.date !== val.transaction[val.check_index].date && val.date !== val.f_date);
         selectedRows.value.push({
           bank_sn: val.bank_sn,
-          sn: val.transaction.sn
+          sn: val.transaction[val.check_index].sn
         });
       }
     }
@@ -276,7 +292,13 @@ const changeItemForm = (val) => {
     let index = selectedRowKeys.value.findIndex((it) => {
       return it === val.id;
     });
-    selectedRowsDate.value[index] = val.date !== val.transaction.date && val.date !== val.f_date;
+
+    selectedRows.value[index] = {
+      bank_sn: val.bank_sn,
+      sn: val.transaction[val.check_index].sn
+    };
+
+    selectedRowsDate.value[index] = val.date !== val.transaction[val.check_index].date && val.date !== val.f_date;
   }
 };
 </script>

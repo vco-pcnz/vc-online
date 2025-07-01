@@ -1,20 +1,24 @@
 <template>
-  <layout ref="layoutRef">
+  <layout ref="layoutRef" @update="reload">
     <template #content>
-      <div class="actions mb-5" style="border-bottom: 1px solid #a6a9b0">
-        <a-popconfirm :title="t('确定要删除勾选的数据吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="onRemove()" :disabled="!selectedRowKeys.length">
-          <a-button :disabled="!selectedRowKeys.length">
-            {{ t('删除重做') }}
-          </a-button>
-        </a-popconfirm>
-        <span class="count">{{ t('选中{ 0 }条', [selectedRowKeys.length]) }}</span>
+      <div class="flex justify-between items-end mb-5 pb-5" style="border-bottom: 1px solid #a6a9b0">
+        <div class="actions">
+          <a-popconfirm :title="t('确定要删除勾选的数据吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="onRemove()" :disabled="!selectedRowKeys.length">
+            <a-button :disabled="!selectedRowKeys.length">
+              {{ t('删除重做') }}
+            </a-button>
+          </a-popconfirm>
+          <span class="count">{{ t('选中{ 0 }条', [selectedRowKeys.length]) }}</span>
+        </div>
+        <TableSearch @search="search"></TableSearch>
       </div>
       <a-spin :spinning="loading" size="large">
         <a-table :data-source="dataSource" :columns="columns" :pagination="false" :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }" row-key="sn">
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'status'">
+              <div v-if="record.status == 1" class="status_tag unreconciled_tag">Unreconciled</div>
               <div v-if="record.status == 2" class="status_tag">Reconciled</div>
-              <div v-else class="status_tag unreconciled_tag">Unreconciled</div>
+              <div v-if="record.status == 3" class="status_tag">{{t('已确认')}}</div>
             </template>
           </template>
         </a-table>
@@ -30,8 +34,10 @@
 import { ref, reactive, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import layout from '../components/layout.vue';
+import { cloneDeep } from 'lodash';
 import tool from '@/utils/tool.js';
 import { getTransactions, removeTransactions } from '@/api/reconciliations';
+import TableSearch from './TableSearch.vue';
 
 const { t } = useI18n();
 
@@ -156,6 +162,12 @@ const pagination = ref({
   limit: 10
 });
 
+const searchParams = ref({
+  type: '',
+  name: '',
+  status: ''
+});
+
 const setPaginate = (page, limit) => {
   pagination.value = {
     page,
@@ -166,7 +178,7 @@ const setPaginate = (page, limit) => {
 
 const loadData = () => {
   loading.value = true;
-  getTransactions(pagination.value)
+  getTransactions({ ...pagination.value, ...searchParams.value })
     .then((res) => {
       total.value = res.count;
       dataSource.value = res.data;
@@ -177,6 +189,16 @@ const loadData = () => {
     });
 };
 
+const reload = () => {
+  pagination.value.page = 1;
+  loadData();
+};
+
+const search = (val) => {
+  searchParams.value = cloneDeep(val);
+  reload();
+};
+
 onMounted(() => {
   loadData();
 });
@@ -184,7 +206,6 @@ onMounted(() => {
 
 <style scoped lang="less">
 .actions {
-  padding-bottom: 16px;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -197,6 +218,10 @@ onMounted(() => {
   .count {
     padding-left: 20px;
   }
+}
+
+.page-search-content {
+  margin-top: 0;
 }
 
 .status_tag {

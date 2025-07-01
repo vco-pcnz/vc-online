@@ -2,7 +2,7 @@
   <a-col :span="11">
     <a-row :class="['content', { content_match: false }]">
       <a-col :span="2" class="content_cell">
-        <a-checkbox :checked="selectedRowKeys.includes(data?.id)" :disabled="!data.transaction" @click="check(data)"></a-checkbox>
+        <a-checkbox :checked="selectedRowKeys.includes(data?.id)" :disabled="!data.transaction.length" @click="check(data)"></a-checkbox>
       </a-col>
       <a-col :span="9" class="content_cell">
         <p class="xs_text">{{ tool.showDate(data.date) }}</p>

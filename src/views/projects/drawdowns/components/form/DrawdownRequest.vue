@@ -125,15 +125,15 @@ const disabledDateFormat = (current) => {
     return true;
   }
 
-  if (currentDate.isBefore(endDate)) {
-    if (current && current.isAfter(endDate, 'day')) {
-      return true;
-    }
-  } else {
-    if (current && current.isAfter(currentDate, 'day')) {
-      return true;
-    }
-  }
+  // if (currentDate.isBefore(endDate)) {
+  //   if (current && current.isAfter(endDate, 'day')) {
+  //     return true;
+  //   }
+  // } else {
+  //   if (current && current.isAfter(currentDate, 'day')) {
+  //     return true;
+  //   }
+  // }
 
   return false;
 };

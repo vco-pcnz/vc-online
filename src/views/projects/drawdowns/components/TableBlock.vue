@@ -11,7 +11,7 @@
     </ul>
     <div v-if="tableData.length" class="table-body">
       <template v-for="(item, index) in tableData" :key="item.id">
-        <ul class="table-col tr" :class="{ active: active_id == item.id, declined: item.status_name === 'DECLINED DRAWDOWN' }" @click="viewDetail(item)">
+        <ul class="table-col tr" :class="{ active: active_id == item.id, declined: item.status_name === 'DECLINED DRAWDOWN', 'all-overdue': isOverdue(item) }" @click="viewDetail(item)">
           <li><div class="circle" :class="{ solid: item.status == 2 }"></div></li>
           <li>
             <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.name" style="width: 200px">
@@ -42,6 +42,7 @@
             <vco-number :value="item.open_amount" :precision="2" size="fs_xs"></vco-number>
             <p class="fs_xs color_grey" v-if="item.open_date">{{ tool.showDate(item.open_date) }}</p>
           </li>
+          <div v-if="isOverdue(item)" class="tips">{{ t('超时放款') }}</div>
         </ul>
       </template>
     </div>
@@ -54,6 +55,7 @@ import { ref, watch } from 'vue';
 import { Empty } from 'ant-design-vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
+import dayjs from 'dayjs';
 
 const emit = defineEmits(['change']);
 const props = defineProps({
@@ -69,6 +71,9 @@ const props = defineProps({
         limit: 5
       };
     }
+  },
+  projectDetail: {
+    type: Object
   },
   total: {
     type: Number,
@@ -93,6 +98,15 @@ const active_id = ref('');
 const viewDetail = (val) => {
   active_id.value = val.id;
   emit('change', val);
+};
+
+// 是不是 超时放款
+const isOverdue = (val) => {
+  let date = val.open_date || val.date || val.apply_date;
+  if (dayjs(props.projectDetail.loan.end_date).isBefore(date)) {
+    return true;
+  }
+  return false;
 };
 
 watch(
@@ -158,6 +172,20 @@ watch(
 
     &.declined {
       opacity: 0.5;
+    }
+
+    &.all-overdue {
+      position: relative;
+      .tips {
+        position: absolute;
+        background-color: @colorPrimary;
+        font-size: 11px;
+        padding: 2px 20px;
+        top: 0;
+        right: 0;
+        border-bottom-left-radius: 12px;
+        border-top-right-radius: 12px;
+      }
     }
 
     > li {

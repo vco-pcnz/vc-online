@@ -1023,5 +1023,6 @@ export default {
   "已解押抵押物": "Released Securities",
   "发送通知": "Send notification",
   "确定发送通知吗？": "Are you sure you want to send notification?",
-  "已确认": "Confirmed"
+  "已确认": "Confirmed",
+  "超时放款": "Overdue drawdown"
 }

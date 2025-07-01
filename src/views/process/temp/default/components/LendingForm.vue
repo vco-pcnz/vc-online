@@ -122,9 +122,14 @@
               <DevCostDetail
                 :disabled="amountDisabled || inputADis"
                 :has-build="Boolean(lendingInfo.has_build)"
+                :showRefinancial="((refinancialData.length && blockInfo.showEdit) || isRefinancial) && refinancialShow"
+                :refinancialData="formattedRefinancialData"
                 v-model:value="formState.devCost"
                 v-model:dataJson="formState.devCostDetail"
+                v-model:isRefinancial="isRefinancial"
+                v-model:substitutionIds="formState.substitution_ids"
                 @change="devCostChange"
+                @reChange="refinancialChange"
               >
                 <div class="flex items-center" style="height: 50px;">
                   <vco-number class="float-left" v-model:value="formState.devCost" size="fs_xl" :precision="2" :end="true"></vco-number>
@@ -176,7 +181,7 @@
             </a-form-item>
           </a-col>
           
-          <a-col :span="formState.equity_amount ? 5 : 7">
+          <a-col :span="formState.equity_amount ? (isRefinancial ? 4 : 5) : isRefinancial ? 5 : 7">
             <a-form-item :label="t('土地贷款总额')" name="land_amount">
               <a-input-number
                 v-model:value="formState.land_amount"
@@ -193,13 +198,13 @@
           <a-col :span="1" class="plus-txt">
             <i class="iconfont">&#xe889;</i>
           </a-col>
-          <a-col :span="formState.equity_amount ? 5 : 7">
+          <a-col :span="formState.equity_amount ? (isRefinancial ? 4 : 5) : isRefinancial ? 5 : 7">
             <a-form-item name="build_amount" class="w-full-label">
               <template #label>
-                <div class="w-full flex justify-between items-center" style="height: 22px;">
+                <div class="w-full flex justify-between items-center">
                   <p>{{ t('建筑贷款总额') }}</p>
                   <a-button
-                    v-if="showProgressPayment"
+                    v-if="showProgressPayment && !isDetails"
                     type="link"
                     style="font-size: 12px; height: auto !important;"
                     class="flex items-center"
@@ -227,7 +232,7 @@
             <a-col :span="1" class="plus-txt">
               <i class="iconfont">&#xe889;</i>
             </a-col>
-            <a-col :span="5">
+            <a-col :span="isRefinancial ? 4 : 5">
               <a-form-item :label="t('补充股权')" name="equity_amount">
                 <a-input-number
                   v-model:value="formState.equity_amount"
@@ -243,8 +248,28 @@
             </a-col>
           </template>
 
+          <template v-if="isRefinancial">
+            <a-col :span="1" class="plus-txt">
+              <i class="iconfont">&#xe889;</i>
+            </a-col>
+            <a-col :span="formState.equity_amount ? 4 : 5">
+              <a-form-item :label="t('再融资金额')">
+                <a-input-number
+                  v-model:value="refinancialAmount"
+                  :max="99999999999"
+                  :disabled="true"
+                  :formatter="
+                    (value) =>
+                      `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                  "
+                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                />
+              </a-form-item>
+            </a-col>
+          </template>
+
           <a-col :span="1" class="plus-txt"><i class="iconfont">=</i></a-col>
-          <a-col :span="formState.equity_amount ? 6 : 8" class="total-amount-info">
+          <a-col :span="formState.equity_amount ? (isRefinancial ? 4 : 6) : isRefinancial ? 6 : 8" class="total-amount-info">
             <a-form-item :label="t('借款总金额')">
               <vco-number
                 :value="totalAmountRef"
@@ -254,7 +279,7 @@
             </a-form-item>
           </a-col>
           <a-col :span="24"><div class="form-line"></div></a-col>
-          <a-col v-if="((refinancialData.length && blockInfo.showEdit) || isRefinancial) && refinancialShow" :span="24">
+          <!-- <a-col v-if="((refinancialData.length && blockInfo.showEdit) || isRefinancial) && refinancialShow" :span="24">
             <div v-if="!refinancialDisabled" class="flex gap-2 mb-5">
               <p>{{ t('是否需要再融资') }}</p>
               <a-switch v-model:checked="isRefinancial"></a-switch>
@@ -282,8 +307,8 @@
                 </template>
               </a-select>
             </a-form-item>
-          </a-col>
-          <a-col :span="isRefinancial ? (formState.equity_amount ? 5 : 6) : (formState.equity_amount ? 5 : 7)">
+          </a-col> -->
+          <a-col :span="formState.equity_amount ? 5 : 7">
             <a-form-item
               :label="t('首次土地贷款放款额')"
               name="initial_land_amount"
@@ -303,7 +328,7 @@
           <a-col :span="1" class="plus-txt">
             <i class="iconfont">&#xe889;</i>
           </a-col>
-          <a-col :span="isRefinancial ? (formState.equity_amount ? 5 : 6) : (formState.equity_amount ? 5 : 7)">
+          <a-col :span="formState.equity_amount ? 5 : 7">
             <a-form-item name="initial_build_amount" class="w-full-label">
               <template #label>
                 <div class="w-full flex justify-between items-center" style="height: 22px;">
@@ -350,23 +375,8 @@
               </a-form-item>
             </a-col>
           </template>
-          <template v-if="isRefinancial">
-            <a-col :span="1" class="plus-txt">
-              <i class="iconfont">&#xe711;</i>
-            </a-col>
-            <a-col :span="4" class="financial-amount">
-              <a-form-item :label="t('再融资金额')">
-                <vco-number
-                  :value="refinancialAmount"
-                  :precision="2"
-                  :end="true"
-                  color="#31bd65"
-                ></vco-number>
-              </a-form-item>
-            </a-col>
-          </template>
           <a-col :span="1" class="plus-txt"><i class="iconfont">=</i></a-col>
-          <a-col :span="isRefinancial ? 5 : (formState.equity_amount ? 6 : 8)" class="total-amount-info" :class="{'financial': isRefinancial}">
+          <a-col :span="formState.equity_amount ? 6 : 8" class="total-amount-info" :class="{'financial': isRefinancial}">
             <a-form-item :label="t('首次放款总金额')">
               <vco-number
                 :value="totalInitialAmountRef"
@@ -791,7 +801,9 @@
     const build_amount = formState.value.build_amount || 0;
     const land_amount = formState.value.land_amount || 0;
     const equity_amount = formState.value.equity_amount || 0;
-    return tool.plus(tool.plus(build_amount, land_amount), equity_amount);
+
+    const total_amount = tool.plus(tool.plus(build_amount, land_amount), equity_amount);
+    return tool.plus(total_amount, refinancialAmount.value);
   });
 
   const totalInitialAmountRef = computed(() => {
@@ -799,7 +811,8 @@
     const initial_land_amount = formState.value.initial_land_amount || 0;
     const initial_equity_amount = formState.value.initial_equity_amount || 0;
     const initial_total_amount = tool.plus(tool.plus(initial_build_amount, initial_land_amount), initial_equity_amount);
-    return tool.minus(initial_total_amount, refinancialAmount.value);
+    // return tool.minus(initial_total_amount, refinancialAmount.value);
+    return initial_total_amount
   });
 
   const colClassName = (num) => {
@@ -1240,7 +1253,7 @@
           initial_build_amount: formState.value.initial_build_amount || 0,
           initial_land_amount: formState.value.initial_land_amount || 0,
           initial_equity_amount: formState.value.initial_equity_amount || 0,
-          substitution_ids: formState.value.substitution_ids || [],
+          // substitution_ids: formState.value.substitution_ids || [],
           substitution_amount: refinancialAmount.value || 0,
           has_linefee: Number(formState.value.has_linefee),
           do__est: Number(formState.value.do__est),
@@ -1284,7 +1297,9 @@
       uuid: props.currentId,
       devCost: formState.value.devCost,
       devCostDetail: formState.value.devCostDetail,
-      set__devCost: 1
+      set__devCost: 1,
+      substitution_ids: formState.value.substitution_ids || [],
+      substitution_amount: refinancialAmount.value || 0,
     })
   }
 
@@ -1294,6 +1309,7 @@
       if (val) {
         formState.value.substitution_ids = val.substitution_ids || []
         isRefinancial.value = Boolean(val.substitution_ids && val?.substitution_ids?.length)
+        refinancialAmount.value = val.substitution_amount || 0
 
         if (Number(val.land_amount) !== Number(formState.value.land_amount) ||
           Number(val.build_amount) !== Number(formState.value.build_amount) ||
@@ -1422,6 +1438,8 @@ const goHandle = (page) => {
 
 .plus-txt {
   position: relative;
+  flex: 0 0 3.1666666666666666%;
+  max-width: 3.1666666666666666%;
   .iconfont {
     position: absolute;
     top: 50%;

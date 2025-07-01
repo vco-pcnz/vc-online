@@ -169,7 +169,7 @@
                   </template>
                 </template>
               </a-table>
-              <div class="flex items-center total-row" v-if="item.list.length">
+              <div class="flex items-center total-row" v-if="item.list && item.list.length">
                 <div class="title bold pl">{{ t('总财务费用') }}</div>
                 <div class="amount pl">
                   <vco-number :value="item.loan" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
@@ -224,6 +224,38 @@
               <div class="total" v-if="edit"></div>
             </div>
           </div>
+          <div v-if="showRefinancial" class="refinancial-row">
+            <div class="flex gap-4 items-center">
+              <p>{{ t('是否需要再融资') }}</p>
+              <a-switch v-model:checked="isRefinancialChecked" @change="changeRefinancial" />
+            </div>
+
+            <div v-if="isRefinancialChecked" class="refinancial-select">
+              <a-select
+                v-model:value="refinancialIds"
+                mode="multiple"
+                :options="refinancialData"
+                :filter-option="filterOption"
+                :placeholder="t('请选择项目')"
+                @change="(value, option) => refinancialChange(option)"
+              >
+                <template #option="{ label, value, item }">
+                  <p>{{ label }}</p>
+                  <vco-number
+                    :value="Number(item.amount)"
+                    :precision="2"
+                    size="fs_xs"
+                    :end="true"
+                    color="#666666"
+                  ></vco-number>
+                </template>
+              </a-select>
+
+              <div class="amount">
+                <vco-number :value="refinancialAmount" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
+              </div>
+            </div>
+          </div>
         </a-form-item-rest>
         <div class="flex items-center total-row" style="border: none; padding: 0 24px">
           <div class="title bold bold fs_xl text-left">{{ t('总计') }}</div>
@@ -234,7 +266,7 @@
             <vco-number :value="data.borrower_equity" :precision="2" size="fs_xl" :bold="true" :end="true"></vco-number>
           </div>
           <div class="amount">
-            <vco-number :value="data.total" :precision="2" size="fs_xl" :bold="true" :end="true"></vco-number>
+            <vco-number :value="devTotal" :precision="2" size="fs_xl" :bold="true" :end="true"></vco-number>
           </div>
           <div class="total" v-if="edit"></div>
         </div>
@@ -258,7 +290,7 @@ import { cloneDeep } from 'lodash';
 import Icon, { PlusCircleOutlined, MinusCircleOutlined } from '@ant-design/icons-vue';
 
 const { t } = useI18n();
-const emits = defineEmits(['update:value', 'update:dataJson', 'change']);
+const emits = defineEmits(['update:value', 'update:dataJson', 'update:isRefinancial', 'update:substitutionIds', 'change', 'reChange']);
 
 const props = defineProps({
   value: {
@@ -290,6 +322,22 @@ const props = defineProps({
   hasBuild: {
     type: Boolean,
     default: false
+  },
+  isRefinancial: {
+    type: Boolean,
+    default: false
+  },
+  showRefinancial: {
+    type: Boolean,
+    default: false
+  },
+  refinancialData: {
+    type: Array,
+    default: () => []
+  },
+  substitutionIds: {
+    type: Array,
+    default: () => []
   }
 });
 
@@ -401,6 +449,11 @@ const saveDone = () => {
 }
 
 const save = () => {
+  emits('update:isRefinancial', isRefinancialChecked.value);
+  emits('update:substitutionIds', refinancialIds.value);
+  emits('reChange', selectedDatas.value);
+
+
   const doneData = cloneDeep(data.value);
   doneData.data[0].list.forEach((item) => {
     item.name = item.model ? item.type : typesObj.value[item.type] || '';
@@ -567,6 +620,53 @@ const initItemData = (index) => {
   initData();
 };
 
+const isRefinancialChecked = ref(false);
+const refinancialIds = ref([]);
+const selectedDatas = ref([]);
+
+const filterOption = (input, option) => {
+  return option.label.toLowerCase().includes(input.toLowerCase());
+};
+
+const changeRefinancial = (value) => {
+  if (!value) {
+    refinancialIds.value = []
+    selectedDatas.value = []
+  }
+}
+
+const refinancialAmount = computed(() => {
+  if (refinancialIds.value.length) {
+    const objArr = props.refinancialData.filter(item => refinancialIds.value.includes(item.item.uuid))
+    const dataArr = objArr.map(item => Number(item.item.amount))
+    const sum = dataArr.reduce((acc, cur) => acc + cur, 0)
+    return sum
+  }
+  return 0
+})
+
+const refinancialChange = (data) => {
+  selectedDatas.value = data
+}
+
+const devTotal = computed(() => {
+  return tool.plus(data.value.total, refinancialAmount.value)
+})
+
+watch(
+  () => props.isRefinancial,
+  (newVal) => {
+    isRefinancialChecked.value = newVal;
+  }
+)
+
+watch(
+  () => props.substitutionIds,
+  (newVal) => {
+    refinancialIds.value = newVal;
+  }
+)
+
 onMounted(() => {
   if (!props.dataJson) {
     emits('update:value', cloneDeep(data.value.total));
@@ -617,6 +717,12 @@ onMounted(() => {
       }
       &.err {
         border-color: #c1430c;
+      }
+    }
+
+    .refinancial-select {
+      .ant-select-selector {
+        height: auto !important;
       }
     }
 
@@ -710,5 +816,30 @@ onMounted(() => {
 .disabled {
   color: #999;
   cursor: not-allowed;
+}
+
+.refinancial-row {
+  background: #f1f1f1;
+  padding: 24px;
+  border-radius: 8px;
+  > .items-center {
+    margin-bottom: 15px;
+    > p {
+      font-size: 18px;
+      font-weight: 500;
+    }
+  }
+}
+
+.refinancial-select {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  .ant-select {
+    flex: 1;
+  }
+  .amount {
+    width: 274px;
+  }
 }
 </style>

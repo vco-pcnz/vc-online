@@ -25,14 +25,14 @@
       </a-collapse-panel>
     </a-collapse>
 
-    <div class="flex justify-end mt-5" v-if="item.transaction && item.transaction.length > 1">
+    <div class="flex justify-end mt-5" style="position: absolute; top: -20px; right: -3px; z-index: 11" v-if="item.transaction && item.transaction.length > 1">
       <a-dropdown class="Filter" trigger="click" v-model:open="dropdownVisible">
-        <a-button type="brown" shape="round" size="small"> {{ t('选择') }}</a-button>
+        <a-button type="primary" size="small"> {{ t('选择') }}</a-button>
 
         <template #overlay>
           <div class="list">
             <template v-for="(sub, index) in item.transaction" :key="sub">
-              <div class="list-item" @click="check(index)">
+              <div @click="check(index)" :class="['list-item', { active: item.check_index == index }]">
                 <div class="flex justify-between">
                   <span>{{ tool.showDate(sub.date) }}</span>
                   <vco-number color="#7dc1c1" :value="sub.amount" :precision="2" :bold="true" size="fs_md"></vco-number>
@@ -132,6 +132,9 @@ const handleChange = () => {
     cursor: pointer;
     &:hover {
       background-color: rgba(227, 235, 235, 0.4);
+    }
+    &.active {
+      background-color: rgba(227, 235, 235, 0.8);
     }
     &.dis,
     &.par {

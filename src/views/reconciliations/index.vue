@@ -74,6 +74,7 @@ import TipModal from './reconciliation/TipModal.vue';
 import { checkMatchBill } from '@/api/reconciliations';
 import { cloneDeep } from 'lodash';
 import { systemDictData } from '@/api/system';
+import dayjs from 'dayjs';
 const { t } = useI18n();
 
 const layoutRef = ref();
@@ -105,10 +106,24 @@ const loadData = () => {
       total.value = res.count;
       if (res.data.length) {
         res.data.map((item) => {
-          item['check_index'] = 0;
           if (item.fee_type.length) {
             item.fee_type.map((_item) => {
               _item['value'] = JSON.stringify(_item);
+            });
+          }
+          item['check_index'] = 0;
+          if (item.transaction && item.transaction.length > 1) {
+            const dates = item.transaction.map((item) => {
+              return item.date;
+            });
+            let smallestDiff = Math.abs(dayjs(dates[0]).diff(dayjs(item.date), 'day'));
+
+            dates.forEach((date, index) => {
+              const currentDiff = Math.abs(dayjs(date).diff(dayjs(item.date), 'day'));
+              if (currentDiff < smallestDiff) {
+                smallestDiff = currentDiff;
+                item['check_index'] = index;
+              }
             });
           }
         });
@@ -282,7 +297,7 @@ const changeItemForm = (val) => {
       bank_sn: val.bank_sn,
       sn: val.transaction[val.check_index].sn
     };
-    
+
     selectedRowsDate.value[index] = val.date !== val.transaction[val.check_index].date && val.date !== val.f_date;
   }
 };

@@ -113,6 +113,7 @@
                   <div class="flex justify-center flex-col items-center" :style="{width: amLen === 1 ? '340px' : '710px'}">
                     <a-input-number
                       v-model:value="advanceAmount"
+                      :min="0"
                       :max="99999999999"
                       :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                       :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
@@ -156,6 +157,7 @@
               <template v-else>
                 <a-input-number
                   v-model:value="record[column.dataIndex].amount"
+                  :min="0"
                   :max="99999999999"
                   :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                   :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
@@ -709,7 +711,7 @@
     for (let i = 0; i < itemData.length; i++) {
       let title = itemData[i].card_no
       if (props.isOpen && Boolean(itemData[i].status)) {
-        title = `${title}${t('已解押')}）`
+        title = `${title}(${t('已解押')}）`
       }
       headerData.push({
         title,

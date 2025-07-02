@@ -138,16 +138,16 @@ const formState = ref({
 });
 
 const disabledDateFormat = (current) => {
-  const startDate = dayjs()
-  // const endDate = props?.projectDetail?.date?.end_date
-
-  if (current && current.isBefore(startDate, 'day')) {
-    return true;
-  }
-
-  // if (current && current.isAfter(endDate, 'day')) {
+  // const startDate = dayjs()
+  // if (current && current.isBefore(startDate, 'day')) {
   //   return true;
   // }
+
+  // 2025-07-02 13:00:00 - 修改为变更之后的日期
+  const var_start_date = dayjs(props?.projectDetail?.date?.var_start_date || props?.projectDetail?.date?.start_date).add(1, 'day')
+  if (current.isBefore(var_start_date, 'day')) {
+    return true;
+  }
 
   return false;
 }

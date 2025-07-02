@@ -10,11 +10,12 @@
           </a-select>
         </vco-page-search-item>
         <template v-if="roterName === 'LoanRequestsJournal'">
-          <vco-page-search-item width="180" :title="t('类型')">
+          <vco-page-search-item width="150" :title="t('类型')">
             <a-tree-select
-              class="treeSelectHak"
+              popupClassName="treeSelectHak"
               :loading="loading_type"
               v-model:value="treeDataValue"
+              tree-default-expand-all
               labelInValue
               style="width: 100%"
               :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
@@ -164,7 +165,9 @@ const searchHandle = (flag) => {
         searchForm.value[key] = props.typeData.length ? props.typeData[0].value : '';
       }
     }
+
     searchForm.value.key = 'all';
+    treeDataValue.value = null;
   }
 
   if (props.currentTab !== '1') {

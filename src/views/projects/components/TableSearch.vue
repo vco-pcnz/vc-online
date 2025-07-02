@@ -16,29 +16,38 @@
           <a-date-picker v-model:value="searchForm.end_date" :format="selectDateFormat()" :disabledDate="disabledDateFormatAfter" :placeholder="t('到期日期')" />
         </div>
       </vco-page-search-item>
-
       <vco-page-search-item :title="t('客户经理')" width="180">
         <a-input v-model:value="searchForm.lm_name" :placeholder="t('请输入')" />
       </vco-page-search-item>
+      <template v-if="isExpand">
+        <vco-page-search-item :title="t('借款金额')" width="264">
+          <div class="flex items-center gap-2">
+            <a-input-number v-model:value="searchForm.min_loan_money" :min="1" :placeholder="t('最小值')" />
+            <p>-</p>
+            <a-input-number v-model:value="searchForm.max_loan_money" :min="searchForm.min_loan_money" :placeholder="t('最大值')" />
+          </div>
+        </vco-page-search-item>
+      </template>
 
-      <vco-page-search-item :title="t('借款金额')" width="264">
-        <div class="flex items-center gap-2">
-          <a-input-number v-model:value="searchForm.min_loan_money" :min="1" :placeholder="t('最小值')" />
-          <p>-</p>
-          <a-input-number v-model:value="searchForm.max_loan_money" :min="searchForm.min_loan_money" :placeholder="t('最大值')" />
-        </div>
-      </vco-page-search-item>
+      <template v-else>
+        <vco-page-search-item>
+          <div class="flex items-center gap-2">
+          <div class="search_expand" v-if="!isExpand" @click="isExpand = !isExpand">{{ t('展开') }}<DoubleRightOutlined class="icon" /></div>
+            <a-button type="dark" @click="searchHandle(false)"><i class="iconfont">&#xe756;</i>{{ t('搜索') }}</a-button>
+            <a-button type="dark-line" @click="searchHandle(true)"><i class="iconfont">&#xe757;</i>{{ t('重置') }}</a-button>
+          </div>
+        </vco-page-search-item>
+      </template>
     </vco-page-search>
 
-    <div class="flex justify-between items-end">
+    <div class="flex justify-between items-end mt-5">
       <p class="num" v-if="type == 'closed'">{{ pageStore.total }} {{ t('已关闭项目') }}</p>
       <p class="num" v-if="type == 'open'">{{ pageStore.total }} {{ t('项目') }}</p>
-      <vco-page-search-item width="100%">
-        <div class="flex items-center gap-2">
-          <a-button type="dark" @click="searchHandle(false)"><i class="iconfont">&#xe756;</i>{{ t('搜索') }}</a-button>
-          <a-button type="dark-line" @click="searchHandle(true)"><i class="iconfont">&#xe757;</i>{{ t('重置') }}</a-button>
-        </div>
-      </vco-page-search-item>
+      <div class="flex items-center gap-2" v-if="isExpand">
+        <div class="search_expand isExpand" @click="isExpand = !isExpand">{{ t('收起') }}<DoubleRightOutlined class="icon" /></div>
+        <a-button type="dark" @click="searchHandle(false)"><i class="iconfont">&#xe756;</i>{{ t('搜索') }}</a-button>
+        <a-button type="dark-line" @click="searchHandle(true)"><i class="iconfont">&#xe757;</i>{{ t('重置') }}</a-button>
+      </div>
     </div>
   </div>
 </template>
@@ -50,6 +59,7 @@ import { cloneDeep } from 'lodash';
 import { useI18n } from 'vue-i18n';
 import { useProjectsStore } from '@/store';
 import { selectDateFormat } from '@/utils/tool';
+import { DoubleRightOutlined } from '@ant-design/icons-vue';
 const pageStore = useProjectsStore();
 
 const emits = defineEmits(['search']);
@@ -57,6 +67,7 @@ const props = defineProps(['type']);
 
 const { t } = useI18n();
 
+const isExpand = ref(false);
 const borrowerTypeData = [
   {
     label: t('全部属性'),
@@ -133,7 +144,6 @@ const searchHandle = (flag) => {
 defineExpose({
   searchHandle
 });
-
 </script>
 
 <style lang="less" scoped>

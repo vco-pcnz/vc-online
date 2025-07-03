@@ -96,6 +96,15 @@ const viewDetail = (val) => {
   emit('change', val);
 };
 
+// 是不是 超时放款
+const isOverdue = (val) => {
+  let date = val.open_date || val.date || val.apply_date;
+  if (dayjs(props.projectDetail?.loan?.end_date).isBefore(date)) {
+    return true;
+  }
+  return false;
+};
+
 watch(
   () => props.tableData,
   (val) => {

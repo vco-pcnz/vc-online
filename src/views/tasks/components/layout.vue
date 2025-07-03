@@ -52,7 +52,7 @@ const moduleData = computed(() => {
     },
     {
       label: t('借款'),
-      value: 'project',
+      value: 'loan',
       num: userStore.taskInfo.project
     },
     {
@@ -112,7 +112,8 @@ watch(
       });
     } else {
       Object.assign(updateData, {
-        user_keyword: ''
+        key: '',
+        keywords: ''
       });
     }
     emits('search', updateData);

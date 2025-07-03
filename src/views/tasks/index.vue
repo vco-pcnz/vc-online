@@ -198,7 +198,7 @@ const columns = computed(() => {
       { title: t('借款人'), dataIndex: 'borrower', width: 300, align: 'left' },
       { title: t('模块'), dataIndex: 'module', align: 'center' },
       { title: t('类型'), dataIndex: 'process_type', align: 'center' },
-
+      { title: t('状态'), dataIndex: 'status', align: 'center' },
       { title: t('创建时间'), dataIndex: 'create_time', width: 140, align: 'center' },
       {
         title: t('操作1'),
@@ -218,6 +218,7 @@ const columns = computed(() => {
       // { title: t('金额'), dataIndex: 'amount', width: 140, align: 'left' },
       // { title: t('说明'), dataIndex: 'note', align: 'left' },
       { title: t('开放日期'), dataIndex: 'start_date', width: 140, align: 'center' },
+      { title: t('状态'), dataIndex: 'status', align: 'center' },
       { title: t('创建时间'), dataIndex: 'create_time', width: 140, align: 'center' },
       {
         title: t('操作1'),
@@ -251,6 +252,7 @@ const columns = computed(() => {
       // { title: t('说明'), dataIndex: 'note' },
       { title: t('电话'), dataIndex: 'phone', width: 300, align: 'left' },
       { title: t('邮箱'), dataIndex: 'email', width: 300, align: 'left' },
+      { title: t('状态'), dataIndex: 'status', align: 'center' },
       { title: t('创建时间'), dataIndex: 'create_time', width: 140, align: 'center' },
       {
         title: t('操作1'),
@@ -369,7 +371,7 @@ const opProjectRef = ref(null);
 const opLoanRef = ref(null);
 const opOtherRef = ref(null);
 const todoHandle = (val) => {
-  if (val.module === 'project') {
+  if (val.module === 'loan') {
     opProjectRef.value.todoHandle(val);
   }
   if (val.module === 'request') {

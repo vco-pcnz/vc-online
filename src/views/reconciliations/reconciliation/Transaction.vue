@@ -11,9 +11,29 @@
         <p class="xs_text">Spent</p>
         <p v-if="item.transaction[item.check_index].amount > 0">{{ tool.formatMoney(Math.abs(item.transaction[item.check_index].amount), { prefix: '' }) }}</p>
       </a-col>
-      <a-col :span="6" class="content_cell">
+      <a-col :span="6" class="content_cell relative">
         <p class="xs_text">Received</p>
         <p v-if="item.transaction[item.check_index].amount < 0">{{ tool.formatMoney(Math.abs(item.transaction[item.check_index].amount), { prefix: '' }) }}</p>
+
+        <div v-if="item.transaction && item.transaction.length > 1" class="flex justify-end mt-5" style="position: absolute; bottom: 5px; right: 5px; z-index: 11">
+          <a-dropdown class="Filter" trigger="click" v-model:open="dropdownVisible">
+            <a-button type="primary" shape="round" size="small" style="transform: scale(0.8)"> {{ t('选择') }}</a-button>
+
+            <template #overlay>
+              <div class="list">
+                <template v-for="(sub, index) in item.transaction" :key="sub">
+                  <div @click="check(index)" :class="['list-item', { active: item.check_index == index }]">
+                    <div class="flex justify-between">
+                      <span>{{ tool.showDate(sub.date) }}</span>
+                      <vco-number color="#7dc1c1" :value="sub.amount" :precision="2" :bold="true" size="fs_md"></vco-number>
+                    </div>
+                    <p class="fs_2xs color_grey">{{ sub.note }}</p>
+                  </div>
+                </template>
+              </div>
+            </template>
+          </a-dropdown>
+        </div>
       </a-col>
     </a-row>
     <a-collapse ghost class="footer">
@@ -25,25 +45,8 @@
       </a-collapse-panel>
     </a-collapse>
 
-    <div class="flex justify-end mt-5" style="position: absolute; top: -20px; right: -3px; z-index: 11" v-if="item.transaction && item.transaction.length > 1">
-      <a-dropdown class="Filter" trigger="click" v-model:open="dropdownVisible">
-        <a-button type="primary" size="small"> {{ t('选择') }}</a-button>
-
-        <template #overlay>
-          <div class="list">
-            <template v-for="(sub, index) in item.transaction" :key="sub">
-              <div @click="check(index)" :class="['list-item', { active: item.check_index == index }]">
-                <div class="flex justify-between">
-                  <span>{{ tool.showDate(sub.date) }}</span>
-                  <vco-number color="#7dc1c1" :value="sub.amount" :precision="2" :bold="true" size="fs_md"></vco-number>
-                </div>
-                <p class="fs_2xs color_grey">{{ sub.note }}</p>
-              </div>
-            </template>
-          </div>
-        </template>
-      </a-dropdown>
-    </div>
+    <!-- 类型 -->
+    <div v-if="item.transaction[item.check_index].type == 4 && item.transaction[item.check_index].first == 1" class="typeTips">{{ t('全额还款') }}</div>
   </a-col>
 </template>
 
@@ -143,5 +146,16 @@ const handleChange = () => {
       cursor: auto;
     }
   }
+}
+
+.typeTips {
+  position: absolute;
+  background-color: @colorPrimary;
+  font-size: 10px;
+  padding: 0 20px;
+  top: 0;
+  right: 0;
+  border-bottom-left-radius: 4px;
+  border-top-right-radius: 4px;
 }
 </style>

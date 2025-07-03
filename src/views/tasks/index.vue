@@ -209,7 +209,7 @@ const columns = computed(() => {
       }
     ];
   }
-  if (currentParams.value?.module === 'project') {
+  if (currentParams.value?.module === 'loan') {
     head = [
       { title: t('项目图片'), dataIndex: 'project_image', width: 80, align: 'center' },
       { title: t('项目信息'), dataIndex: 'project_info', width: 300, align: 'left' },

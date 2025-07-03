@@ -1,6 +1,6 @@
 <template>
   <vco-page-search @keyup.enter="searchHandle(false)">
-    <div style="flex:1;"></div>
+    <div style="flex: 1"></div>
     <vco-page-search-item width="120" :title="t('项目Open')">
       <a-select :placeholder="t('请选择')" v-model:value="searchForm.is_open">
         <a-select-option v-for="item in openData" :key="item.value" :value="item.value">
@@ -45,16 +45,29 @@
         <a-checkbox v-model:checked="exadtAmount">{{ t('精确金额') }}</a-checkbox>
       </div>
     </vco-page-search-item>
-    <vco-page-search-item width="150" :title="t('名称')">
-      <a-input v-model:value="searchForm.project_name" :placeholder="t('请输入')" />
-    </vco-page-search-item>
-    <vco-page-search-item width="150" :title="t('客户经理')" v-if="hasPermission('reconciliations:manage:search:lm')">
-      <a-input v-model:value="searchForm.lm_name" :placeholder="t('请输入')" />
-    </vco-page-search-item>
+    <template v-if="isExpand">
+      <vco-page-search-item width="150" :title="t('名称')">
+        <a-input v-model:value="searchForm.project_name" :placeholder="t('请输入')" />
+      </vco-page-search-item>
+      <vco-page-search-item width="150" :title="t('客户经理')" v-if="hasPermission('reconciliations:manage:search:lm')">
+        <a-input v-model:value="searchForm.lm_name" :placeholder="t('请输入')" />
+      </vco-page-search-item>
+    </template>
+
+    <template v-else>
+      <vco-page-search-item>
+        <div class="flex items-center gap-2">
+          <div class="search_expand" v-if="!isExpand" @click="isExpand = !isExpand">{{ t('展开') }}<DoubleRightOutlined class="icon" /></div>
+          <a-button type="dark" @click="searchHandle(false)"><i class="iconfont">&#xe756;</i>{{ t('搜索') }}</a-button>
+          <a-button type="dark-line" @click="searchHandle(true)"><i class="iconfont">&#xe757;</i>{{ t('重置') }}</a-button>
+        </div>
+      </vco-page-search-item>
+    </template>
   </vco-page-search>
   <div class="flex items-center justify-between" style="width: 100%">
-      <slot></slot>
-    <div class="flex items-center gap-2 justify-end">
+    <slot></slot>
+    <div class="flex items-center gap-2" v-if="isExpand">
+      <div class="search_expand isExpand" @click="isExpand = !isExpand">{{ t('收起') }}<DoubleRightOutlined class="icon" /></div>
       <a-button type="dark" @click="searchHandle(false)"><i class="iconfont">&#xe756;</i>{{ t('搜索') }}</a-button>
       <a-button type="dark-line" @click="searchHandle(true)"><i class="iconfont">&#xe757;</i>{{ t('重置') }}</a-button>
     </div>
@@ -66,10 +79,12 @@ import { ref, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { selectDateFormat } from '@/utils/tool';
 import { hasPermission } from '@/directives/permission/index';
+import { DoubleRightOutlined } from '@ant-design/icons-vue';
 
 const emits = defineEmits(['search', 'update:value']);
 const { t } = useI18n();
 
+const isExpand = ref(false);
 const typeData = computed(() => {
   return [
     {

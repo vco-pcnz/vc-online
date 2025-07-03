@@ -169,10 +169,10 @@ const check = (val) => {
     selectedRowsDate.value.splice(index, 1);
   } else {
     selectedRowKeys.value.push(val.id);
-    selectedRowsDate.value.push(val.date !== val.transaction.date && val.date !== val.f_date);
+    selectedRowsDate.value.push(val.date !== val.transaction[val.check_index].date && val.date !== val.f_date);
     selectedRows.value.push({
       bank_sn: val.bank_sn,
-      sn: val.transaction.sn
+      sn: val.transaction[val.check_index].sn
     });
   }
 };
@@ -224,7 +224,7 @@ const onCheckAllChange = (e) => {
       }
     } else {
       // 选中当前页面所有
-      if (!selectedRowKeys.value.includes(val.id)) {
+      if (!selectedRowKeys.value.includes(val.id) && val.transaction.length) {
         selectedRowKeys.value.push(val.id);
         selectedRowsDate.value.push(val.date !== val.transaction[val.check_index].date && val.date !== val.f_date);
         selectedRows.value.push({
@@ -243,12 +243,12 @@ watch(
   (val) => {
     currentSelectData.value = [];
     rowData.value.map((item) => {
-      if (item.transaction) {
+      if (item.transaction && item.transaction.length) {
         currentSelectData.value.push(item);
       }
       if (item.children && item.children.length) {
         item.children.map((sub) => {
-          if (sub.transaction) {
+          if (sub.transaction && sub.transaction.length) {
             currentSelectData.value.push(sub);
           }
         });

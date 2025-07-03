@@ -231,7 +231,7 @@ a:hover {
   }
 
   .ant-input-number.mini,
-  .ant-input-number.mini .ant-input-number-input{
+  .ant-input-number.mini .ant-input-number-input {
     height: 38px !important;
   }
 
@@ -910,7 +910,6 @@ a:hover {
   padding: 30px 40px !important;
 }
 
-
 /* 为富文本容器添加特定类名 */
 .rich-text-content,
 .rich-text-content * {
@@ -941,15 +940,41 @@ a:hover {
 }
 
 .loan-input {
-  background-color: rgba(235, 75, 109, .3) !important;
+  background-color: rgba(235, 75, 109, 0.3) !important;
   input {
     background-color: transparent !important;
   }
 }
 
 .borrower-input {
-  background-color: rgba(49, 189, 101, .3) !important;
+  background-color: rgba(49, 189, 101, 0.3) !important;
   input {
     background-color: transparent !important;
+  }
+}
+
+.search_expand {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  // color: @colorPrimary;
+  cursor: pointer;
+  .icon {
+    transform: rotate(90deg);
+    font-size: 10px;
+  }
+  &.isExpand {
+    .icon {
+      transform: rotate(-90deg);
+    }
+  }
+}
+
+.treeSelectHak {
+  &.ant-tree-select-dropdown .ant-select-tree .ant-select-tree-switcher {
+    width: 10px !important;
+  }
+  &.ant-tree-select-dropdown .ant-select-tree .ant-select-tree-indent-unit {
+    width: 10px !important;
   }
 }

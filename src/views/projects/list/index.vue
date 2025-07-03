@@ -5,9 +5,8 @@
   </product-tab>
   <vco-page-tab class="mt-5" :tabData="tabData" v-model:current="pageStore.sta" @change="tabChange"></vco-page-tab>
 
-  <div class="flex justify-between items-center">
-    <TableSearch ref="tableSearchRef" :type="pageStore.sta == 1 ? 'open' : 'closed'"></TableSearch>
-  </div>
+  <TableSearch class="mb-5" ref="tableSearchRef" :type="pageStore.sta == 1 ? 'open' : 'closed'"></TableSearch>
+
   <a-spin :spinning="pageStore.loading" size="large">
     <div class="table-content">
       <table-block :table-data="pageStore.list" :type="pageStore.sta == 1 ? 'current' : 'closed'"></table-block>

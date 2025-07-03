@@ -533,6 +533,20 @@ export const removeDuplicates = (arr, key) => {
   }, []);
 };
 
+// 保留小数点后n位 ，默认2
+export const fixNumber = (value, fractionDigits = 2) => {
+  if (typeof value === 'number') {
+    // 先转换为字符串，如果有小数则字符串截取，没有小数则返回原值
+    const str = value.toString();
+    const index = str.indexOf('.');
+    if (index !== -1) {
+      return Number(str.slice(0, index + fractionDigits + 1));
+    }
+    return str;
+  }
+  return value;
+}
+
 /**
  * 日期选择格式化
  */

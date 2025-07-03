@@ -46,7 +46,7 @@
         >{{ t('确定') }}</a-button>
       </div>
     </a-modal>
-
+    
     <a-spin :spinning="pageLoading" size="large">
       <div class="progress-payment-content" :class="{'preview-table': !isSelect}">
         <template v-if="footerDataCol.length || buildAmount">
@@ -366,7 +366,7 @@
   import { useRoute } from "vue-router"
   import { projectAuditStepDetail, projectGetBuild, projectLoanGetBuild, projectDetailApi } from "@/api/process"
   import { cloneDeep } from "lodash"
-  import tool, { numberStrFormat } from "@/utils/tool"
+  import tool, { numberStrFormat, fixNumber } from "@/utils/tool"
 
   const { t } = useI18n();
   const route = useRoute();
@@ -463,7 +463,7 @@
 
   const getTotalPercent = (useAmount, amount) => {
     if (Number(amount)) {
-      const num = Number(Number(tool.div(Number(useAmount), Number(amount))).toFixed(2))
+      const num = fixNumber(Number(tool.div(Number(useAmount), Number(amount))), 4)
       return Number(tool.times(num, 100))
     } else {
       return 0
@@ -554,7 +554,7 @@
 
           if (amountItem.amount) {
             const use_amount = amountItem?.use_amount || 0
-            const num = Number(Number(tool.div(Number(use_amount), Number(amountItem.amount))).toFixed(2))
+            const num = fixNumber(Number(tool.div(Number(use_amount), Number(amountItem.amount))), 4)
             amountItem.percent = Number(tool.times(num, 100))
           } else {
             amountItem.percent = 0
@@ -566,7 +566,7 @@
             if (logItem) {
               amountItem.use_amount = tool.minus(amountItem?.use_amount || 0, logItem.amount)
               if (amountItem.amount) {
-                const num = Number(Number(tool.div(Number(amountItem.use_amount), Number(amountItem.amount))).toFixed(2))
+                const num = fixNumber(Number(tool.div(Number(amountItem.use_amount), Number(amountItem.amount))), 4)
                 amountItem.percent = Number(tool.times(num, 100))
               } else {
                 amountItem.percent = 0
@@ -603,7 +603,7 @@
 
       const total = obj.total || 0
       const useTotal = obj.useTotal || 0
-      const num = Number(total) ? Number(Number(tool.div(Number(useTotal), Number(total))).toFixed(2)) : 0
+      const num = Number(total) ? fixNumber(Number(tool.div(Number(useTotal), Number(total))), 4) : 0
       obj.percent = Number(tool.times(num, 100))
 
       if (Number(obj.payment)) {
@@ -786,7 +786,7 @@
             advanceItem.set_amount_per = ''
             if (advanceItem.amount) {
               const use_amount = advanceItem.use_amount || 0
-              const num = Number(Number(tool.div(Number(use_amount), Number(advanceItem.amount))).toFixed(2))
+              const num = fixNumber(Number(tool.div(Number(use_amount), Number(advanceItem.amount))), 4)
               advanceItem.percent = Number(tool.times(num, 100))
             } else {
               advanceItem.percent = 0
@@ -798,7 +798,7 @@
               if (logItem) {
                 advanceItem.use_amount = tool.minus(advanceItem.use_amount, logItem.amount)
                 if (advanceItem.amount) {
-                  const num = Number(Number(tool.div(Number(advanceItem.use_amount), Number(advanceItem.amount))).toFixed(2))
+                  const num = fixNumber(Number(tool.div(Number(advanceItem.use_amount), Number(advanceItem.amount))), 4)
                   advanceItem.percent = Number(tool.times(num, 100))
                 } else {
                   advanceItem.percent = 0
@@ -835,7 +835,7 @@
 
             if (Number(mergItem.amount)) {
               const use_amount = mergItem.use_amount || 0
-              const num = Number(Number(tool.div(Number(use_amount), Number(mergItem.amount))).toFixed(2))
+              const num = fixNumber(Number(tool.div(Number(use_amount), Number(mergItem.amount))), 4)
               mergItem.percent = Number(tool.times(num, 100))
             } else {
               mergItem.percent = 0
@@ -847,7 +847,7 @@
               if (logItem) {
                 mergItem.use_amount = tool.minus(mergItem.use_amount, logItem.amount)
                 if (mergItem.amount) {
-                  const num = Number(Number(tool.div(Number(mergItem.use_amount), Number(mergItem.amount))).toFixed(2))
+                  const num = fixNumber(Number(tool.div(Number(mergItem.use_amount), Number(mergItem.amount))), 4)
                   mergItem.percent = Number(tool.times(num, 100))
                 } else {
                   mergItem.percent = 0
@@ -1131,8 +1131,8 @@
   const statUserPercent = computed(() => {
     let res = 0
     if (Number(tableTotal.value)) {
-      const perNum = tool.div(statUseAmount.value, tableTotal.value)
-      res = Number(tool.times(Number(perNum), 100)).toFixed(2)
+      const perNum = fixNumber(Number(tool.div(statUseAmount.value, tableTotal.value)), 4)
+      res = Number(tool.times(Number(perNum), 100))
     }
     return Number(res)
   })

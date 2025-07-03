@@ -40,7 +40,7 @@
       </template>
     </vco-page-search>
 
-    <div class="flex justify-between items-end mt-5">
+    <div class="flex justify-between items-end mt-5" style="height: 32px;">
       <p class="num" v-if="type == 'closed'">{{ pageStore.total }} {{ t('已关闭项目') }}</p>
       <p class="num" v-if="type == 'open'">{{ pageStore.total }} {{ t('项目') }}</p>
       <div class="flex items-center gap-2" v-if="isExpand">
@@ -151,6 +151,5 @@ defineExpose({
   font-size: 20px;
   font-weight: 600;
   line-height: 1.2;
-  margin-bottom: 8px;
 }
 </style>

@@ -85,9 +85,9 @@ const handleChange = () => {
   }
 
   &_date_inconsistency {
-    border: 1px solid #4ec399;
+    border: 1px solid #80bb7c;
     border-radius: 4px 4px 0 0;
-    background-color: #a8dbc9;
+    background-color: #acd5a9;
   }
 
   &_cell {

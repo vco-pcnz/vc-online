@@ -63,7 +63,7 @@
                 </span>
               </template>
               <template v-if="column.dataIndex === 'module'">
-                <span v-if="moduleData[record.module]" class="status-txt">{{ moduleData[record.module] }}</span>
+                <span v-if="record.module" class="status-txt">{{ record.module }}</span>
                 <p v-else>--</p>
               </template>
               <template v-if="column.dataIndex === 'borrower'">

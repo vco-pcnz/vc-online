@@ -1,14 +1,14 @@
 <template>
   <vco-page-search @keyup.enter="searchHandle(false)">
     <div style="flex: 1"></div>
-    <vco-page-search-item width="120" :title="t('项目Open')">
+    <vco-page-search-item width="100" :title="t('项目Open')">
       <a-select :placeholder="t('请选择')" v-model:value="searchForm.is_open">
         <a-select-option v-for="item in openData" :key="item.value" :value="item.value">
           {{ item.label }}
         </a-select-option>
       </a-select>
     </vco-page-search-item>
-    <vco-page-search-item width="120" :title="t('类型')">
+    <vco-page-search-item width="100" :title="t('类型')">
       <a-select :placeholder="t('请选择')" v-model:value="searchForm.type">
         <a-select-option v-for="item in typeData" :key="item.value" :value="item.value">
           {{ item.label }}
@@ -34,7 +34,12 @@
       </div>
     </vco-page-search-item>
 
-    <vco-page-search-item :title="t('金额')" width="230">
+      <vco-page-search-item width="150" :title="t('名称')">
+        <a-input v-model:value="searchForm.project_name" :placeholder="t('请输入')" />
+      </vco-page-search-item>
+  
+    <template v-if="isExpand">
+        <vco-page-search-item :title="t('金额')" width="230">
       <div v-if="!exadtAmount" class="flex items-center gap-2">
         <a-input-number v-model:value="searchForm.min_amount" :min="1" :placeholder="t('最小值')" />
         <p>-</p>
@@ -45,10 +50,6 @@
         <a-checkbox v-model:checked="exadtAmount">{{ t('精确金额') }}</a-checkbox>
       </div>
     </vco-page-search-item>
-    <template v-if="isExpand">
-      <vco-page-search-item width="150" :title="t('名称')">
-        <a-input v-model:value="searchForm.project_name" :placeholder="t('请输入')" />
-      </vco-page-search-item>
       <vco-page-search-item width="150" :title="t('客户经理')" v-if="hasPermission('reconciliations:manage:search:lm')">
         <a-input v-model:value="searchForm.lm_name" :placeholder="t('请输入')" />
       </vco-page-search-item>

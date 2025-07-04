@@ -14,7 +14,7 @@
                 label: t('其他'),
                 hiden: false,
                 value: 'other',
-                num: userStore.taskInfo.other
+                num: searchForm.module == 'other' && !tableLoading ? currentTotal : userStore.taskInfo.other
               }
             ]
           : [])
@@ -36,6 +36,16 @@ const { t } = useI18n();
 
 const emits = defineEmits(['search']);
 
+const props = defineProps({
+  tableLoading: {
+    type: Boolean,
+    default: false
+  },
+  currentTotal: {
+    type: [String, Number]
+  }
+});
+
 const tabList = ref([
   { name: t('待处理'), value: '0' },
   { name: t('已完成'), value: '10' }
@@ -48,17 +58,17 @@ const moduleData = computed(() => {
     {
       label: t('全部'),
       value: '',
-      num: userStore.taskInfo.all
+      num: !searchForm.value.module && !props.tableLoading ? props.currentTotal : userStore.taskInfo.all
     },
     {
       label: t('借款'),
       value: 'loan',
-      num: userStore.taskInfo.project
+      num: searchForm.value.module == 'loan' && !props.tableLoading ? props.currentTotal : userStore.taskInfo.project
     },
     {
       label: t('请求1'),
       value: 'request',
-      num: userStore.taskInfo.request
+      num: searchForm.value.module == 'request' && !props.tableLoading ? props.currentTotal : userStore.taskInfo.request
     }
   ];
 });

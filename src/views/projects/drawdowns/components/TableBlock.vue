@@ -24,7 +24,7 @@
             <p class="fs_xs color_grey" v-if="item.apply_date">{{ tool.showDate(item.apply_date) }}</p>
           </li>
           <li :style="{ color: setStatusColor(item) }">
-            <template v-if="item.state == 1000">
+            <template v-if="item.state == 1000 && item.status > 1">
               <p class="fs_xs bold" style="color: #181818">PAID</p>
             </template>
             <p v-else>{{ item.status_name }}</p>
@@ -84,7 +84,7 @@ const props = defineProps({
 const { t } = useI18n();
 
 const setStatusColor = (val) => {
-  if (val.state == 1000) {
+  if (val.state == 1000 && val.status > 1) {
     return '#272727';
   } else if (val.state == -900) {
     return '#ff7875';

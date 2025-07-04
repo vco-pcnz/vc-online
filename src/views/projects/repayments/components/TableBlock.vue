@@ -24,7 +24,7 @@
             <p class="fs_xs color_grey" v-if="item.apply_date">{{ tool.showDate(item.apply_date) }}</p>
           </li>
           <li :style="{ color: setStatusColor(item) }">
-            {{ item.state === 1000 ? 'REPAID' : item.status_name }}
+            {{ item.state === 1000 && item.status > 1 ? 'REPAID' : item.status_name }}
           </li>
           <li>
             <vco-number :value="item.amount" :precision="2" size="fs_xs"></vco-number>
@@ -81,7 +81,7 @@ const viewDetail = (val) => {
 };
 
 const setStatusColor = (val) => {
-  if (val.state == 1000) {
+  if (val.state == 1000 && val.status > 1) {
     return '#272727';
   } else if (val.state == -900) {
     return '#ff7875';

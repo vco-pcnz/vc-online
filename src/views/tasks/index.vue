@@ -3,7 +3,7 @@
   <op-loan ref="opLoanRef" @update="opUpdate"></op-loan>
   <op-other ref="opOtherRef" @update="opUpdate"></op-other>
   <div>
-    <layout @search="reload"></layout>
+    <layout :currentTotal="pageObj.total" :tableLoading="tableLoading" @search="reload"></layout>
     <div class="flex gap-3 mt-4 send-box" v-if="currentParams?.status === '10'">
       <a-popconfirm :title="t('确定发送通知吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" :disabled="Boolean(!selectedRowKeys.length)" @confirm="send('1')">
         <a-button type="cyan" :disabled="Boolean(!selectedRowKeys.length)" class="uppercase" :loading="loading && type === '1'">
@@ -63,7 +63,7 @@
                 </span>
               </template>
               <template v-if="column.dataIndex === 'module'">
-                <span v-if="moduleData[record.module]" class="status-txt">{{ moduleData[record.module] }}</span>
+                <span v-if="record.module" class="status-txt">{{ record.module }}</span>
                 <p v-else>--</p>
               </template>
               <template v-if="column.dataIndex === 'borrower'">
@@ -198,7 +198,7 @@ const columns = computed(() => {
       { title: t('借款人'), dataIndex: 'borrower', width: 300, align: 'left' },
       { title: t('模块'), dataIndex: 'module', align: 'center' },
       { title: t('类型'), dataIndex: 'process_type', align: 'center' },
-
+      { title: t('状态'), dataIndex: 'status', align: 'center' },
       { title: t('创建时间'), dataIndex: 'create_time', width: 140, align: 'center' },
       {
         title: t('操作1'),
@@ -209,7 +209,7 @@ const columns = computed(() => {
       }
     ];
   }
-  if (currentParams.value?.module === 'project') {
+  if (currentParams.value?.module === 'loan') {
     head = [
       { title: t('项目图片'), dataIndex: 'project_image', width: 80, align: 'center' },
       { title: t('项目信息'), dataIndex: 'project_info', width: 300, align: 'left' },
@@ -218,6 +218,7 @@ const columns = computed(() => {
       // { title: t('金额'), dataIndex: 'amount', width: 140, align: 'left' },
       // { title: t('说明'), dataIndex: 'note', align: 'left' },
       { title: t('开放日期'), dataIndex: 'start_date', width: 140, align: 'center' },
+      { title: t('状态'), dataIndex: 'status', align: 'center' },
       { title: t('创建时间'), dataIndex: 'create_time', width: 140, align: 'center' },
       {
         title: t('操作1'),
@@ -251,6 +252,7 @@ const columns = computed(() => {
       // { title: t('说明'), dataIndex: 'note' },
       { title: t('电话'), dataIndex: 'phone', width: 300, align: 'left' },
       { title: t('邮箱'), dataIndex: 'email', width: 300, align: 'left' },
+      { title: t('状态'), dataIndex: 'status', align: 'center' },
       { title: t('创建时间'), dataIndex: 'create_time', width: 140, align: 'center' },
       {
         title: t('操作1'),
@@ -369,7 +371,7 @@ const opProjectRef = ref(null);
 const opLoanRef = ref(null);
 const opOtherRef = ref(null);
 const todoHandle = (val) => {
-  if (val.module === 'project') {
+  if (val.module === 'loan') {
     opProjectRef.value.todoHandle(val);
   }
   if (val.module === 'request') {

@@ -36,7 +36,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { cloneDeep } from 'lodash';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
@@ -174,7 +174,7 @@ const searchForm = ref({
   borrower_search_type: '',
   project_search_type: '',
   project_keyword: '',
-  key: 'all',
+  key: '',
   keywords: ''
 });
 
@@ -183,7 +183,11 @@ const searchHandle = (flag) => {
     for (const key in searchForm.value) {
       searchForm.value[key] = '';
     }
-    searchForm.value.key = 'all';
+    if (props.module === 'other') {
+      searchForm.value.key = 'all';
+    } else {
+      searchForm.value.key = '';
+    }
   }
 
   if (props.module === 'other') {
@@ -196,7 +200,8 @@ const searchHandle = (flag) => {
     });
   } else {
     Object.assign(searchForm.value, {
-      user_keyword: ''
+      key: '',
+      keywords: ''
     });
   }
   let updateData = cloneDeep(searchForm.value);
@@ -229,6 +234,17 @@ onMounted(() => {
   searchHandle();
 });
 
+watch(
+  () => props.module,
+  (val) => {
+    if (props.module === 'other') {
+      searchForm.value.key = 'all';
+    } else {
+      searchForm.value.key = '';
+    }
+  },
+  { deep: true }
+);
 // 暴露方法给父组件
 defineExpose({
   searchHandle

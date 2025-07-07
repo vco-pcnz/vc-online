@@ -1,6 +1,6 @@
 <template>
   <a-modal :open="selectVisible" :title="t('进度付款阶段')" :width="1400" :footer="null" :keyboard="false" :maskClosable="false" class="middle-position" @cancel="selectVisible = false">
-    <view-content v-if="selectVisible" :selectedData="selectedData" :buildLogData="buildLogData" :is-select="true" :show-process="true" @selectDone="selectDoneHandle"></view-content>
+    <view-content v-if="selectVisible" :selectedData="selectedData" :buildLogData="buildLogData" :is-select="isEdit" :show-process="true" @selectDone="selectDoneHandle"></view-content>
   </a-modal>
   <div class="input-item" style="margin-top: 16px" v-if="!keepShowOther">
     <div class="label" :class="{ err: !formState.build_money && validate && !showOther }">{{ t('进度款') }}</div>
@@ -15,7 +15,7 @@
         :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
       />
       <a-button type="brown" style="min-width: 80px; padding: 0; border-radius: 10px" class="big" size="small" @click="selectVisible = true">{{ t('选择') }}</a-button>
-      <i class="iconfont add" :style="{ transform: showOther ? 'rotate(0deg)' : 'rotate(45deg)' }" @click="updateShowOther()">&#xe781;</i>
+      <i class="iconfont add" v-if="isEdit" :style="{ transform: showOther ? 'rotate(0deg)' : 'rotate(45deg)' }" @click="updateShowOther()">&#xe781;</i>
     </div>
   </div>
   <div class="vip_amount_tip" v-if="!showOther && !keepShowOther && data.vip_amount > 0">
@@ -27,15 +27,15 @@
         <a-row :gutter="24">
           <a-col :span="5">
             <div class="label">{{ t('类型') }}</div>
-            <a-select :loading="loading_type" style="width: 100%" v-model:value="formState.other_type" :options="types" :fieldNames="{ label: 'name', value: 'code' }" @change="changeOtherType"></a-select>
+            <a-select :disabled="!isEdit" :loading="loading_type" style="width: 100%" v-model:value="formState.other_type" :options="types" :fieldNames="{ label: 'name', value: 'code' }" @change="changeOtherType"></a-select>
           </a-col>
           <a-col :span="7">
             <div class="label">{{ t('金额') }}</div>
-            <a-input-number v-model:value="formState.other_money" @input="change()" :max="max_other_money" :min="0" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
+            <a-input-number :readonly="!isEdit" v-model:value="formState.other_money" @input="change()" :max="max_other_money" :min="0" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
           </a-col>
           <a-col :span="12">
             <div class="label">{{ t('说明') }}</div>
-            <a-input v-model:value="formState.other_note" @input="change()" />
+            <a-input :readonly="!isEdit" v-model:value="formState.other_note" @input="change()" />
           </a-col>
         </a-row>
         <div class="flex gap-10 mt-2">
@@ -96,6 +96,10 @@ const props = defineProps({
   },
   projectDetail: {
     type: Object
+  },
+  isEdit: {
+    type: Boolean,
+    default: true
   }
 });
 

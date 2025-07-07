@@ -8,9 +8,9 @@
           <a-input-number v-model:value="amount" :max="99999999999" :min="0" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
         </div> -->
 
-        <ProgressPayment :visible="visible" :validate="validate" :data="formState" :projectDetail="projectDetail" @change="updateformState"></ProgressPayment>
+        <ProgressPayment :visible="visible" :validate="validate" :data="formState" :projectDetail="projectDetail" :isEdit="isEdit" @change="updateformState"></ProgressPayment>
 
-        <div class="flex justify-center">
+        <div class="flex justify-center" v-if="isEdit">
           <a-button @click="save" type="dark" class="save big uppercase" :loading="loading">
             {{ t('保存') }}
           </a-button>
@@ -41,6 +41,10 @@ const props = defineProps({
   },
   projectDetail: {
     type: Object
+  },
+  isEdit: {
+    type: Boolean,
+    default: true
   }
 });
 
@@ -86,7 +90,6 @@ const save = () => {
       loading.value = false;
     });
 };
-
 
 const init = () => {
   Object.keys(formState.value).forEach((key) => {

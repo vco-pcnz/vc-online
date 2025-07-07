@@ -7,17 +7,21 @@
           <a-col :span="12">
             <div class="input-item">
               <div class="label" :class="{ err: !formState.name && validate }">Drawdown title</div>
-              <a-select :loading="loading_type" style="width: 100%" v-model:value="formState.name" :options="title_type" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
+              <a-select :loading="loading_type" :disabled="isEdit" style="width: 100%" v-model:value="formState.name" :options="title_type" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
             </div>
             <div class="input-item" style="margin: 15.5px 0">
               <div class="label" :class="{ err: !formState.apply_date && validate }">{{ t('日期') }}</div>
               <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.apply_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" :showToday="false" />
             </div>
             <div class="input-item">
-              <vco-tip style="padding-bottom: 5px" :tip="t('此说明内容将显示在交易记录中')"
-                ><div class="label" style="padding: 0" :class="{ err: !formState.note && validate }">{{ t('说明') }}</div></vco-tip
-              >
+              <vco-tip style="padding-bottom: 5px" :tip="t('此说明内容将显示在交易记录中')">
+                <div class="label" style="padding: 0" :class="{ err: !formState.note && validate }">{{ t('说明') }}</div>
+              </vco-tip>
               <a-input v-model:value="formState.note" />
+            </div>
+            <div class="input-item" style="padding-top: 15px" v-if="hasPermission('projects:drawdowns:add')">
+              <div class="label">{{ t('金额') }}</div>
+              <a-input-number v-model:value="formState.vip_amount" :max="99999999999" :min="0" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
             </div>
           </a-col>
           <a-col :span="12">
@@ -25,18 +29,18 @@
               <vco-tip style="padding-bottom: 5px" :tip="t('此消息针对 FC 的批准评论')"
                 ><div class="label" style="padding: 0">{{ t('消息') }}</div></vco-tip
               >
-              <a-textarea v-model:value="formState.remark" :rows="10" />
+              <a-textarea v-model:value="formState.remark" :rows="hasPermission('projects:drawdowns:add') ? 14 : 10" />
             </div>
           </a-col>
-          <a-col :span="24">
-            <ProgressPayment :visible="visible" :validate="validate" @change="updateformState" :projectDetail="projectDetail"></ProgressPayment>
+          <a-col :span="24" v-if="!hasPermission('projects:drawdowns:add')">
+            <ProgressPayment ref="ProgressPaymentRef" :visible="visible" :validate="validate" :data="formState" @change="updateformState" :projectDetail="projectDetail"></ProgressPayment>
           </a-col>
         </a-row>
         <p class="my-5 bold fs_xl">Documents</p>
         <p class="label" style="margin-top: -15px; opacity: 0" :class="{ err: !formState.d_file.length && validate }">Provide at least one of these documents</p>
 
         <template v-for="item in formModal2" :key="item.id">
-          <documents-upload v-if="!item.children" v-model:value="item['files']">
+          <documents-upload v-if="!item.children" v-model:value="item['files']" v-model:list="item['list']">
             <div class="upload-title">
               <i class="iconfont">&#xe795;</i>
               <span class="name">{{ item.name }}</span>
@@ -49,7 +53,7 @@
           <span class="name">Certificates</span>
         </div>
         <template v-for="item in formModal3" :key="item.id">
-          <documents-upload v-model:visible="item.check" v-model:value="item['files']">
+          <documents-upload v-model:visible="item.check" v-model:value="item['files']" v-model:list="item['list']">
             <div class="checkbox-item">
               <a-checkbox v-model:checked="item.check"> {{ item.name }}</a-checkbox>
             </div>
@@ -71,13 +75,15 @@ import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import { annexSel } from '@/api/project/annex';
-import { loanDedit } from '@/api/project/loan';
+import { loanDedit, loanDchange } from '@/api/project/loan';
 import { selectDateFormat } from '@/utils/tool';
 import DocumentsUpload from './DocumentsUpload.vue';
 import { systemDictData } from '@/api/system';
 import ProgressPayment from './ProgressPayment.vue';
 import tool from '@/utils/tool';
 import dayjs from 'dayjs';
+import { hasPermission } from '@/directives/permission/index';
+import { pick } from 'lodash';
 
 const { t } = useI18n();
 const emits = defineEmits(['change']);
@@ -87,6 +93,9 @@ const props = defineProps({
     type: String
   },
   projectDetail: {
+    type: Object
+  },
+  detail: {
     type: Object
   }
 });
@@ -102,10 +111,12 @@ const formState = ref({
   name: '',
   note: '',
   remark: '',
+  other_note: '',
   apply_date: '',
+  other_type: '',
   build_money: '',
   other_money: 0,
-  other_note: '',
+  vip_amount: '',
   build__data: [],
   p_file: [],
   d_file: []
@@ -148,14 +159,31 @@ const save = () => {
     return item.files && item.files.length;
   });
 
-  if (!formState.value.name || !formState.value.note || !formState.value.d_file.length || !formState.value.apply_date || tool.plus(formState.value.build_money || 0, formState.value.other_money || 0) == 0) return;
+  let amount = tool.plus(formState.value.build_money || 0, formState.value.other_money || 0);
+  if (hasPermission('projects:drawdowns:add')) {
+    // vip
+    amount = formState.value.vip_amount || 0;
+  }
+  if (!formState.value.name || !formState.value.note || !formState.value.d_file.length || !formState.value.apply_date || amount == 0) return;
   submit();
 };
 
 const submit = () => {
+  let ajax = loanDedit;
+  let params = {
+    ...formState.value
+  };
+  if (props.detail) {
+    params = {
+      id: props.detail.id,
+      ...formState.value
+    };
+    ajax = loanDchange;
+  }
+
   loading.value = true;
 
-  loanDedit(formState.value)
+  ajax(params)
     .then((res) => {
       visible.value = false;
       validate.value = false;
@@ -190,13 +218,29 @@ const loadType = (reset) => {
 };
 
 const init = () => {
-  formState.value.name = '';
-  formState.value.note = 'Development Drawdown';
-  formState.value.remark = '';
-  formState.value.apply_date = '';
-  formState.value.d_file = [];
-  formState.value.p_file = [];
+  validate.value = false;
+  if (props.detail) {
+    initData();
+  } else {
+    formState.value.name = '';
+    formState.value.note = 'Development Drawdown';
+    formState.value.remark = '';
+    formState.value.apply_date = '';
+    formState.value.d_file = [];
+    formState.value.p_file = [];
+  }
+
   annexSel({ apply_uuid: props.uuid, type: 2 }).then((res) => {
+    const ids = res.map((item) => {
+      return item.name;
+    });
+    if (props.detail) {
+      props.detail.d_file.map((item) => {
+        if (ids.includes(item.name)) {
+          res[ids.indexOf(item.name)]['list'] = item.attach;
+        }
+      });
+    }
     formModal2.value = res;
   });
   annexSel({ apply_uuid: props.uuid, type: 3 }).then((res) => {
@@ -204,11 +248,47 @@ const init = () => {
       res.map((item) => {
         item['check'] = false;
       });
+      if (props.detail) {
+        const file_ids = props.detail.d_file.map((item) => {
+          return item.name;
+        });
+        if (file_ids.includes('Certificates')) {
+          const certificateData = props.detail.d_file[file_ids.indexOf('Certificates')];
+          const uuids = certificateData.attach.map((item) => {
+            return item.uuid;
+          });
+          res.map((item) => {
+            if (certificateData.note_attach[item.name]) {
+              item['check'] = true;
+              item['list'] = [];
+              certificateData.note_attach[item.name].map((sub) => {
+                if (uuids.includes(sub)) {
+                  item['list'].push(certificateData.attach[uuids.indexOf(sub)]);
+                }
+              });
+            }
+          });
+        }
+      }
     }
     formModal3.value = res;
   });
   loadType();
   visible.value = true;
+};
+
+// edit
+const isEdit = ref(false);
+const ProgressPaymentRef = ref(null);
+const initData = () => {
+  isEdit.value = true;
+  let keys = ['name', 'note', 'remark', 'other_note', 'apply_date', 'other_type', 'build_money', 'other_money', 'vip_amount'];
+  const newData = pick(props.detail, keys);
+  Object.assign(formState.value, newData);
+  if (props.detail?.buildlog) {
+    formState.value.build__data = props.detail?.buildlog;
+    if (ProgressPaymentRef.value) ProgressPaymentRef.value.init();
+  }
 };
 
 const updateformState = (val) => {

@@ -104,6 +104,7 @@ const loadData = () => {
   reconciliationList({ ...pagination.value, ...searchParams.value })
     .then((res) => {
       total.value = res.count;
+      localStorage.setItem('res_xero_update_time', res.otherInfo);
       if (res.data.length) {
         res.data.map((item) => {
           if (item.fee_type.length) {

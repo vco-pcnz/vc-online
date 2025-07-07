@@ -18,6 +18,9 @@
       <i class="iconfont add" :style="{ transform: showOther ? 'rotate(0deg)' : 'rotate(45deg)' }" @click="updateShowOther()">&#xe781;</i>
     </div>
   </div>
+  <div class="vip_amount_tip" v-if="!showOther && !keepShowOther && data.vip_amount > 0">
+    {{ t('申请金额') }} <span class="vip_amount">{{ tool.formatMoney(data.vip_amount || 0) }}</span>
+  </div>
   <template v-if="showOther || keepShowOther">
     <a-alert type="info" class="mt-5">
       <template #message>
@@ -47,6 +50,9 @@
         </div>
       </template>
     </a-alert>
+    <div class="vip_amount_tip" v-if="(showOther || keepShowOther) && data.vip_amount > 0">
+      {{ t('申请金额') }} <span class="vip_amount">{{ tool.formatMoney(data.vip_amount || 0) }}</span>
+    </div>
     <div class="flex justify-end items-end mt-5">
       <div>
         <div class="label">{{ t('进度款') }}</div>
@@ -73,6 +79,7 @@ import tool from '@/utils/tool';
 import ViewContent from '@/views/requests/progress-payment/components/ViewContent.vue';
 import { cloneDeep } from 'lodash';
 import { systemDictData } from '@/api/system';
+import { pick } from 'lodash';
 
 const emits = defineEmits(['change']);
 const { t } = useI18n();
@@ -173,8 +180,10 @@ watch(
   () => props.visible,
   (val) => {
     if (val && props.data) {
-      editData.value = cloneDeep(props.data);
-      formState.value = cloneDeep(props.data);
+      let keys = ['other_type', 'build_money', 'other_money', 'other_note', 'build__data'];
+      const newData = pick(props.data, keys);
+      editData.value = cloneDeep(newData);
+      formState.value = cloneDeep(newData);
       formState.value.other_type += '';
       changeOtherType();
       if (props.data?.build__data) {
@@ -223,5 +232,13 @@ watch(
   }
   color: #c1430c;
   opacity: 1 !important;
+}
+
+.vip_amount_tip {
+  color: #888;
+  margin-top: 5px;
+  .vip_amount {
+    color: @colorPrimary;
+  }
 }
 </style>

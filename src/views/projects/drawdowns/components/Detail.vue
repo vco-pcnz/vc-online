@@ -26,9 +26,10 @@
         <div class="flex">
           <vco-number :value="detail?.amount" :precision="2" :bold="true" size="fs_2xl"></vco-number>
           <span class="unit">nzd</span>
-          <DrawdownAmount :uuid="uuid" :detail="detail" :projectDetail="projectDetail" @change="update" v-if="detail?.mark === 'drawdown_lm' && hasPermission('projects:drawdowns:edit')"><i class="iconfont edit">&#xe8cf;</i></DrawdownAmount>
+          <!-- <DrawdownAmount :uuid="uuid" :detail="detail" :projectDetail="projectDetail" @change="update" v-if="detail?.mark === 'drawdown_lm' && hasPermission('projects:drawdowns:edit')"><i class="iconfont edit">&#xe8cf;</i></DrawdownAmount> -->
+          <DrawdownRequest :uuid="uuid" :detail="detail" :projectDetail="projectDetail" @change="update" v-if="detail?.mark === 'drawdown_lm' && hasPermission('projects:drawdowns:edit')"><i class="iconfont edit">&#xe8cf;</i></DrawdownRequest>
         </div>
-        <p class="bold color_grey fs_2xs">{{ t('申请金额') }}: {{ tool.formatMoney(detail?.amount) }}</p>
+        <p class="bold color_grey fs_2xs">{{ t('申请金额') }}: {{ detail?.apply_amount > 0 ? tool.formatMoney(detail?.apply_amount) : tool.formatMoney(detail?.vip_amount) }}</p>
       </div>
     </div>
     <div class="flex items-center box frist mt-2">
@@ -131,6 +132,7 @@ import { CheckCircleOutlined } from '@ant-design/icons-vue';
 import { hasPermission } from '@/directives/permission/index';
 import { forecastDarwdown, loanDsel, loanDdeclinel, loanDsaveStep, loanDrecall, loanDrevoke } from '@/api/project/loan';
 import DrawdownAmount from './form/DrawdownAmount.vue';
+import DrawdownRequest from './form/DrawdownRequest.vue';
 import DrawdownBack from './form/DrawdownBack.vue';
 import AcceptFc from './form/AcceptFc.vue';
 import AddStake from './form/addStake.vue';

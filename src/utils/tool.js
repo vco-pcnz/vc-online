@@ -319,8 +319,13 @@ tool.showDate = (time, myformat) => {
 /**
  * 时间格式
  */
-tool.showTime = (time) => {
-  return dayjs(time).format('YYYY-MM-DD HH:mm:ss');
+tool.showTime = (time, myformat) => {
+  
+  const locale = i18n.global.locale.value;
+  const date = dayjs(time, 'YYYY/MM/DD HH:mm:ss'); // 解析原始日期字符串
+  const format = locale === 'en' ? `DD MMM 'YY HH:mm:ss` : 'YYYY/MM/DD HH:mm:ss';
+  return date.format(myformat || format);
+  // return dayjs(time).format('YYYY-MM-DD HH:mm:ss');
 };
 
 /**

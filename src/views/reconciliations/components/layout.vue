@@ -2,6 +2,7 @@
   <div>
     <vco-page-nav sup-path="/reconciliations" ref="pageNavRef">
       <template #action>
+        <div v-if="res_xero_update_time">{{ t('数据更新时间') }}：{{ tool.showTime(res_xero_update_time) }}</div>
         <img :width="58" :height="14" :src="xeroImg" alt="Xero" />
         <a-statistic-countdown :value="deadline" @finish="onFinish" format="mm:ss" v-if="Boolean(countdown)">
           <template #prefix>
@@ -39,6 +40,7 @@ import { message } from 'ant-design-vue';
 import { useI18n } from 'vue-i18n';
 import { CheckCircleOutlined } from '@ant-design/icons-vue';
 import { systemConfigData } from '@/api/system';
+import tool from '@/utils/tool';
 const { t } = useI18n();
 
 const emits = defineEmits(['update']);
@@ -47,6 +49,7 @@ const loading = ref(false);
 const deadline = ref();
 const countdown = ref(false);
 const xero_update_time = ref(0);
+const res_xero_update_time = ref(null);
 
 const pageNavRef = ref();
 
@@ -87,6 +90,8 @@ onMounted(() => {
     deadline.value = Number(localStorage.getItem('deadline'));
     countdown.value = true;
   }
+
+  res_xero_update_time.value = localStorage.getItem('res_xero_update_time') || null;
 
   systemConfigData({ pcode: 'web_config', code: 'xero_update' }).then((res) => {
     if (res.xero_update) {

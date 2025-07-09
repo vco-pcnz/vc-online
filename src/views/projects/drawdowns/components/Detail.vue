@@ -118,7 +118,7 @@
         <a-button type="brown" shape="round" size="small">{{ t('分配投资者') }}</a-button>
       </AddStake>
     </div>
-    <a-popconfirm v-if="hasPermission('projects:repayments:revoke') && detail?.mark === 'drawdown_lm_recon' && detail?.state !== 1000" :title="t('您确定撤销放款吗？')" @confirm="revokeHandle">
+    <a-popconfirm v-if="hasPermission('projects:repayments:revoke') && detail?.mark === 'drawdown_lm_recon' && detail?.state !== 1000 && detail?.name !== 'Initial drawdown'" :title="t('您确定撤销放款吗？')" @confirm="revokeHandle">
       <a-button type="brown" class="big uppercase w-full">{{ t('撤销放款') }}</a-button>
     </a-popconfirm>
   </div>

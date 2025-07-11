@@ -574,7 +574,7 @@ onMounted(() => {
 
 .sales-content {
   background-color: #f0f0f0;
-  border: 1px solid #f0f0f0;
+  border: 1px solid #282828;
   border-radius: 10px;
   padding: 10px 15px;
 }

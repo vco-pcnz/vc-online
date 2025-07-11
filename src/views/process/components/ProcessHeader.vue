@@ -106,7 +106,11 @@
     const stepData = cloneDeep(props.stepData)
     const mainStepData = cloneDeep(props.mainStepData)
     const checkStep = mainStepData.find(item => item.stateCode && item.stateCode.length > 1)
+
     const checkArr = checkStep ? checkStep.stateCode : []
+
+    // 反洗钱流程增加了850，暂时写固定： 20250708
+    checkArr.splice(5, 0, 850)
 
     const resData = []
     const currentStepCode = props.currentStep.stateCode
@@ -153,6 +157,9 @@
 
   const processData = computed(() => {
     const data = cloneDeep(props.mainStepData)
+    // 反洗钱流程增加了850，暂时写固定： 20250708
+    data[4].stateCode.splice(5, 0, 850)
+
     data.push({
       name: '',
       code: 'end'

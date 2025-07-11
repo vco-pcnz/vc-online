@@ -736,3 +736,27 @@ export const projectLoanSaveBuild = (data) =>
     method: "post",
     data
   });
+
+// 共享抵押物选择-项目列表
+export const selProject = (params) =>
+  request({
+    url: "/projectDetail/selProject",
+    method: "get",
+    params
+  });
+  
+// 共享抵押物选择-抵押物列表
+export const selSecurity = (params) =>
+  request({
+    url: "/projectDetail/selSecurity",
+    method: "get",
+    params
+  });
+
+// 共享抵押物选择-保存
+export const shareSaveProject = (data) =>
+  request({
+    url: "/projectDetail/shareSaveProject",
+    method: "post",
+    data
+  });

@@ -1024,5 +1024,16 @@ export default {
   "发送通知": "Send notification",
   "确定发送通知吗？": "Are you sure you want to send notification?",
   "已确认": "Confirmed",
-  "超时放款": "Overdue drawdown"
+  "超时放款": "Overdue drawdown",
+  "共享抵押物": "Shared Securities",
+  "共享抵押物选择": "Shared Securities Selection",
+  "项目ID": "Project ID",
+  "抵押物名称": "Security name",
+  "当前选择": "Current selection",
+  "选择项目": "Select project",
+  "直接绑定": "Direct binding",
+  "解绑": "Unbind",
+  "手机": "Mobile",
+  "共享LVR": "Shared LVR",
+  "确定解绑吗？": "Are you sure you want to unbind?"
 }

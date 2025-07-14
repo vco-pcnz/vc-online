@@ -1,6 +1,42 @@
 <template>
   <detail-layout active-tab="discharge" @getProjectDetail="getProjectDetail">
     <template #content>
+      <a-modal
+        :width="700"
+        v-model:open="shareSecurityVisible"
+        :title="t('共享抵押物')"
+        @ok="shareSecurityVisible = false"
+      >
+        <div class="share-security-content">
+          <a-table
+            v-if="shareSecurityData.length"
+            :dataSource="shareSecurityData"
+            :columns="columns"
+            :pagination="false"
+            :bordered="true"
+          >
+            <template #bodyCell="{ column, record }">
+              <template v-if="column.dataIndex === 'amount'">
+                <span>
+                  <vco-number v-if="record.amount" :value="record.amount" :precision="2" size="fs_md"></vco-number>
+                  <p v-else>--</p>
+                </span>
+              </template>
+              <template v-if="column.dataIndex === 'insurance_value'">
+                <span>
+                  <vco-number v-if="record.insurance_value" :value="record.insurance_value" :precision="2" size="fs_md"></vco-number>
+                  <p v-else>--</p>
+                </span>
+              </template>
+              <template v-if="column.dataIndex === 'is_direct_bind'">
+                <a-tag v-if="record.is_direct_bind" color="green">{{ t('是') }}</a-tag>
+                <a-tag v-else color="red">{{ t('否') }}</a-tag>
+              </template>
+            </template>
+          </a-table>
+        </div>
+      </a-modal>
+      
       <!-- 新增抵押物 -->
       <security-add-edit
         v-model:visible="addVisible"
@@ -13,6 +49,7 @@
 
       <div class="ProjectDrawdowns">
         <div class="flex justify-end mb-5 gap-4">
+          <a-button v-if="shareSecurityData.length" type="brown" shape="round" @click="shareSecurityVisible = true">{{ t('共享抵押物') }}</a-button>
           <a-button
             v-if="hasPermission('process:security-list')" type="brown" shape="round" class="pre-sale-enter"
             @click="navigationTo(`/projects/discharge/security-list?uuid=${uuid}`)"
@@ -35,8 +72,6 @@
             <div class="HelpBorrower">
               <div class="flex items-center"><i class="iconfont mr-2">&#xe614;</i><span class="weight_demiBold">{{ t('抵押物信息') }}</span></div>
               <p class="color_grey mt-1 mb-3">{{ t('您可以点击下方按钮添加抵押物') }}</p>
-
-
               <a-popover
                 v-model:open="addSecurityVisible" trigger="click"
               >
@@ -87,7 +122,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { RightOutlined } from '@ant-design/icons-vue';
 import detailLayout from '../components/detailLayout.vue';
@@ -184,15 +219,30 @@ const itemInfo = ref(null)
 
 const addSecurityVisible = ref(false)
 
-const openAddEdit = (data, flag = false) => {
+const shareSecurityVisible = ref(false)
+const shareSecurityData = computed(() => {
+  const data = projectDetail.value?.base?.share_group || []
+  if (data.length) {
+    data.forEach(item => {
+      item.loading = false;
+      item.is_direct_bind = item.uuid === projectDetail.value?.base?.share_bind;
+    })
+  }
+  return data
+})
+const columns = [
+  { title: t('项目名称'), dataIndex: 'project_name', width: 200 },
+  { title: t('项目ID'), dataIndex: 'project_apply_sn', width: 200 },
+  { title: t('直接绑定'), dataIndex: 'is_direct_bind', width: 120 }
+]
 
+const openAddEdit = (data, flag = false) => {
   if (flag) {
     navigationTo(`/projects/discharge/security-batche?uuid=${route.query.uuid}`)
   } else {
     itemInfo.value = data
     addVisible.value = true
   }
-  
   addSecurityVisible.value = false
 }
 
@@ -233,5 +283,20 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.share-security-content {
+  padding: 10px 0;
+  :deep(.ant-table-wrapper) {
+    .ant-table-tbody>tr>td {
+      padding: 8px 10px !important;
+    }
+    .ant-table-thead>tr>th {
+      padding: 8px 10px !important;
+      color: #282828 !important;
+      font-weight: 500 !important;
+      font-size: 13px !important;
+    }
+  }
 }
 </style>

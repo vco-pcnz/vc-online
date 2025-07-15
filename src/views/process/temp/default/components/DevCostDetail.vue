@@ -227,7 +227,7 @@
           <div v-if="showRefinancial" class="refinancial-row">
             <div class="flex gap-4 items-center">
               <p>{{ t('是否需要再融资') }}</p>
-              <a-switch v-model:checked="isRefinancialChecked" @change="changeRefinancial" />
+              <a-switch v-if="edit" v-model:checked="isRefinancialChecked" @change="changeRefinancial" />
             </div>
 
             <div v-if="isRefinancialChecked" class="refinancial-select">
@@ -237,6 +237,7 @@
                 :options="refinancialData"
                 :filter-option="filterOption"
                 :placeholder="t('请选择项目')"
+                :disabled="!edit"
                 @change="(value, option) => refinancialChange(option)"
               >
                 <template #option="{ label, value, item }">
@@ -468,8 +469,14 @@ const save = () => {
     const hasDataList = cloneDeep(hasSetData.value.data[0].list)
     const setDataList = doneData.data[0].list
     const hasChange = isArrayEqual(hasDataList, setDataList)
+
+    const isRefinancialChange = isArrayEqual(props.substitutionIds, refinancialIds.value)
+
     if (!hasChange) {
       confirmTxt.value = t('建设成本数据有改动，保存后将重置进度还款设置及首次建筑放款')
+      changeVisible.value = true
+    } else if (!isRefinancialChange) {
+      confirmTxt.value = t('再融资数据有改动，保存后将重置进度还款设置及首次建筑放款')
       changeVisible.value = true
     } else {
       saveDone()
@@ -543,9 +550,17 @@ const initData = () => {
   data.value.total = tool.plus(data.value.loan || 0, data.value.borrower_equity || 0);
 
   hasSetData.value = cloneDeep(props.dataJson[0])
+
+  isRefinancialChecked.value = props.isRefinancial
+  if (props.substitutionIds && props.substitutionIds.length) {
+    refinancialIds.value = props.substitutionIds
+
+    const objArr = props.refinancialData.filter(item => props.substitutionIds.includes(item.value))
+    selectedDatas.value = objArr
+  }
 };
 const init = () => {
-  if (props.disabled) return;
+  if (props.disabled && props.edit) return;
   loadType();
   if (props.dataJson && props.dataJson.length) {
     data.value = cloneDeep(props.dataJson[0]);
@@ -664,6 +679,10 @@ watch(
   () => props.substitutionIds,
   (newVal) => {
     refinancialIds.value = newVal;
+    if (newVal && newVal.length) {
+      const objArr = props.refinancialData.filter(item => newVal.includes(item.value))
+      selectedDatas.value = objArr
+    }
   }
 )
 

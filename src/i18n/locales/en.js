@@ -1035,5 +1035,6 @@ export default {
   "解绑": "Unbind",
   "手机": "Mobile",
   "共享LVR": "Shared LVR",
-  "确定解绑吗？": "Are you sure you want to unbind?"
+  "确定解绑吗？": "Are you sure you want to unbind?",
+  "再融资数据有改动，保存后将重置进度还款设置及首次建筑放款": "The refinancing data has been modified. After saving, the progress repayment settings and the first construction loan will be reset"
 }

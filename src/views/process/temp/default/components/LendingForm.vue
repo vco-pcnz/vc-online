@@ -121,8 +121,9 @@
             <a-form-item :label="t('开发成本')">
               <DevCostDetail
                 :disabled="amountDisabled || inputADis"
+                :edit="!isDetails"
                 :has-build="Boolean(lendingInfo.has_build)"
-                :showRefinancial="((refinancialData.length && blockInfo.showEdit) || isRefinancial) && refinancialShow"
+                :showRefinancial="((refinancialData.length && blockInfo.showEdit) || isRefinancial || isDetails) && refinancialShow"
                 :refinancialData="formattedRefinancialData"
                 v-model:value="formState.devCost"
                 v-model:dataJson="formState.devCostDetail"
@@ -135,6 +136,9 @@
                   <vco-number class="float-left" v-model:value="formState.devCost" size="fs_xl" :precision="2" :end="true"></vco-number>
                   <a-button class="float-left ml-3" v-if="!amountDisabled && !inputADis" type="link">
                     <i class="iconfont">&#xe753;</i>
+                  </a-button>
+                  <a-button class="float-left ml-1" v-if="isDetails" type="link">
+                    <i class="iconfont">&#xe76f;</i>
                   </a-button>
                 </div>
               </DevCostDetail>
@@ -674,7 +678,7 @@
     } else {
       const mark = props?.currentStep?.mark
       if (props?.blockInfo?.showEdit) {
-        if (['step_lm_audit'].includes(mark)) {
+        if (['step_lm_audit', 'step_open'].includes(mark)) {
           return true
         } else {
           return isRefinancial.value

@@ -563,6 +563,8 @@
         uuid: props.currentId
       }).then(res => {
         infoData = res
+      }).catch(() => {
+        pageLoading.value = false
       })
     }
 

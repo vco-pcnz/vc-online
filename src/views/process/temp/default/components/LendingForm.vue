@@ -214,7 +214,7 @@
                     class="flex items-center"
                     @click="goProgressPage"
                   >
-                    <p>{{ formState.equity_amount ? t('设置') : t('进度付款') }}</p>
+                    <p>{{ (formState.equity_amount || refinancialAmount) ? t('设置') : t('进度付款') }}</p>
                     <i class="iconfont" style="font-size: 12px;">&#xe602;</i>
                   </a-button>
                 </div>

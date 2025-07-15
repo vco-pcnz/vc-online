@@ -369,6 +369,7 @@
               <a-form-item :label="t('初始补充股权')" name="initial_equity_amount">
                 <a-input-number
                   v-model:value="formState.initial_equity_amount"
+                  :disabled="amountDisabled"
                   :max="Number(formState.equity_amount)"
                   :formatter="
                     (value) =>
@@ -1064,11 +1065,11 @@
       ? props.lendingInfo.build_amount
       : props.lendingInfo.loan_money || 0;
 
-    formState.value.land_amount = props.lendingInfo.land_amount;
+    formState.value.land_amount = props.lendingInfo.land_amount || 0;
     
-    formState.value.initial_build_amount = props.lendingInfo.initial_build_amount;
-    formState.value.initial_land_amount = props.lendingInfo.initial_land_amount;
-    formState.value.initial_equity_amount = props.lendingInfo.initial_equity_amount;
+    formState.value.initial_build_amount = props.lendingInfo.initial_build_amount || 0;
+    formState.value.initial_land_amount = props.lendingInfo.initial_land_amount || 0;
+    formState.value.initial_equity_amount = props.lendingInfo.initial_equity_amount || 0;
 
     formState.value.devCost = props.lendingInfo.devCost
     formState.value.devCostDetail = props.lendingInfo.devCostDetail

@@ -48,8 +48,8 @@
               <p class="fs_xs color_grey" v-if="record.date">{{ tool.showDate(record.date) }}</p>
             </template>
             <template v-if="column.dataIndex === 'status_name'">
-              <div :style="{ color: colors[record.status_name] }">
-                <template v-if="record.status == 2">
+              <div :style="{ color: setStatusColor(record) }">
+                <template v-if="record.state == 1000 && record.status > 1">
                   <p class="fs_xs bold" style="color: #181818">PAID</p>
                   <p class="fs_xs color_grey" v-if="record.open_date">{{ tool.showDate(record.open_date) }}</p>
                 </template>
@@ -121,14 +121,15 @@ const tableDataRef = computed(() => {
   return data;
 });
 
-const colors = ref({
-  'DRAWDOWN CONFIRM': '#a9ad57',
-  'LM REVIEW': '#d3a631',
-  'LM PENDING REVIEW': '#d3a631',
-  'FC REVIEW': '#d3a631',
-  'PENDING APPROVAL…': '#d3a631',
-  'FC PENDING REVIEW': '#d3a631'
-});
+const setStatusColor = (val) => {
+  if (val.state == 1000 && val.status > 1) {
+    return '#272727';
+  } else if (val.state == -900) {
+    return '#ff7875';
+  } else {
+    return '#d3a631';
+  }
+};
 
 const rowClick = (record, index) => {
   return {

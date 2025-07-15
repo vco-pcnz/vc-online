@@ -542,7 +542,7 @@ export default {
   "请输入小于或等于{0}的数字": "Please enter a number less than or equal to {0}",
   "当前项目地址为：{0}，抵押物地址与项目地址不一致，确定提交吗？": "The current project address is: <span>{0}</span>. The collateral address is inconsistent with the project address. Are you sure you want to submit?",
   "项目Open": "Project Open",
-  "LM检查及Open": "LM Check and Open",
+  "LM检查及Open": "LM Open",
   "是否复制以上信息": "Do you want to copy the above information?",
   "复制条数": "Number of copies",
   "需要点击选择已上传的文件进行上传": "You need to click to select the uploaded file to upload",
@@ -1024,5 +1024,17 @@ export default {
   "发送通知": "Send notification",
   "确定发送通知吗？": "Are you sure you want to send notification?",
   "已确认": "Confirmed",
-  "超时放款": "Overdue drawdown"
+  "超时放款": "Overdue drawdown",
+  "共享抵押物": "Shared Securities",
+  "共享抵押物选择": "Shared Securities Selection",
+  "项目ID": "Project ID",
+  "抵押物名称": "Security name",
+  "当前选择": "Current selection",
+  "选择项目": "Select project",
+  "直接绑定": "Direct binding",
+  "解绑": "Unbind",
+  "手机": "Mobile",
+  "共享LVR": "Shared LVR",
+  "确定解绑吗？": "Are you sure you want to unbind?",
+  "再融资数据有改动，保存后将重置进度还款设置及首次建筑放款": "The refinancing data has been modified. After saving, the progress repayment settings and the first construction loan will be reset"
 }

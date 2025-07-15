@@ -3,6 +3,14 @@
     class="block-item mb"
     :class="{ checked: securityInfo.is_check && blockInfo?.showCheck, 'details': isDetails }"
   >
+    <!-- 共享抵押物选择 -->
+    <vco-shared-securities
+      v-model:visible="sharedVisible"
+      :shared-project="sharedProject"
+      :project-uuid="currentId"
+      @done="sharedDone"
+    ></vco-shared-securities>
+
     <!-- 确认弹窗 -->
     <vco-confirm-alert
       ref="changeAlertRef"
@@ -90,7 +98,7 @@
 
     <div v-show="securityTarget" class="sys-form-content mt-5">
       <a-form layout="vertical">
-        <div class="col-item-content">
+        <div class="col-item-content" :class="{ 'share-lvr': shareLvr }">
           <!-- <div class="col-item">
             <a-form-item :label="t('土地总额')">
               <vco-number
@@ -109,6 +117,17 @@
               ></vco-number>
             </a-form-item>
           </div> -->
+          <div v-if="shareLvr" class="col-item">
+            <a-form-item :label="t('共享LVR')">
+              <vco-number
+                :value="shareLvr"
+                :precision="2"
+                :end="true"
+                suffix="%"
+                prefix=""
+              ></vco-number>
+            </a-form-item>
+          </div>
           <div class="col-item">
             <a-form-item :label="t('抵押物价值')">
               <vco-number
@@ -134,6 +153,59 @@
           </div>
         </div>
       </a-form>
+
+      <div v-if="((isDetails || !props.blockInfo.showEdit) && joinProjectData.length) || props.blockInfo.showEdit" class="flex justify-between items-center">
+        <div class="flex gap-2 mb-3 items-center mt-3">
+          <p style="font-size: 12px">{{ t('共享抵押物') }}</p>
+          <a-switch
+            v-if="blockInfo.showEdit && !isDetails"
+            v-model:checked="isShared"
+            size="small"
+          ></a-switch>
+        </div>
+        <a-button
+          v-if="isShared && blockInfo.showEdit && !isDetails"
+          type="brown"
+          shape="round"
+          size="small"
+          @click="sharedVisible = true"
+        > {{ t('选择') }}</a-button>
+      </div>
+      
+      <div v-if="isShared" class="sales-content">
+        <a-table
+          v-if="joinProjectData.length"
+          :dataSource="joinProjectData"
+          :columns="columns"
+          :pagination="false"
+          :bordered="true"
+        >
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.dataIndex === 'amount'">
+              <span>
+                <vco-number v-if="record.amount" :value="record.amount" :precision="2" size="fs_md"></vco-number>
+                <p v-else>--</p>
+              </span>
+            </template>
+            <template v-if="column.dataIndex === 'insurance_value'">
+              <span>
+                <vco-number v-if="record.insurance_value" :value="record.insurance_value" :precision="2" size="fs_md"></vco-number>
+                <p v-else>--</p>
+              </span>
+            </template>
+            <template v-if="column.dataIndex === 'is_direct_bind'">
+              <a-tag v-if="record.is_direct_bind" color="green">{{ t('是') }}</a-tag>
+              <a-tag v-else color="red">{{ t('否') }}</a-tag>
+            </template>
+            <template v-if="column.dataIndex === 'operation'">
+              <a-popconfirm v-if="record.is_direct_bind" :title="t('确定解绑吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="unBindHandle(record)">
+                <a-button type="link" size="small">{{ t('解绑') }}</a-button>
+              </a-popconfirm>
+            </template>
+          </template>
+        </a-table>
+        <p v-else>{{ t('暂无数据') }}</p>
+      </div>
     </div>
     <div v-if="blockInfo?.showCheck" class="check-content">
       <i class="iconfont">&#xe647;</i>
@@ -144,11 +216,12 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { projectAuditCheckMode } from '@/api/process';
+import { projectAuditCheckMode, shareSaveProject } from '@/api/process';
 import SecurityAddEdit from './SecurityAddEdit.vue';
 import emitter from "@/event"
 import { navigationTo } from '@/utils/tool';
 import { useRoute } from 'vue-router'
+import { cloneDeep } from 'lodash';
 
 const emits = defineEmits(['refresh']);
 const props = defineProps({
@@ -249,6 +322,62 @@ const editHandle = () => {
   navigationTo(`/process/security-batche?uuid=${route.query.uuid}&code=${props.blockInfo.code}&e=1`)
 }
 
+const isShared = ref(false);
+const sharedVisible = ref(false);
+
+const joinProjectData = computed(() => {
+  const data = cloneDeep(props.securityInfo.share_group) || [];
+  data.forEach(item => {
+    item.loading = false;
+    item.is_direct_bind = item.uuid === props.securityInfo.share;
+  })
+  isShared.value = data.length > 0;
+  return data;
+})
+
+const sharedProject = computed(() => {
+  return joinProjectData.value.find(item => item.is_direct_bind) || {};
+})
+
+const shareLvr = computed(() => {
+  return props.securityInfo.share_lvr ? Number(props.securityInfo.share_lvr) : 0;
+})
+
+const columns = computed(() => {
+  const data = [
+    { title: t('项目名称'), dataIndex: 'project_name', width: 200 },
+    { title: t('项目ID'), dataIndex: 'project_apply_sn', width: 200 },
+    { title: t('直接绑定'), dataIndex: 'is_direct_bind', width: 120 }
+  ]
+  if (!props.isDetails && props.blockInfo.showEdit) {
+    data.push({ title: t('操作1'), dataIndex: 'operation', width: 100, align: 'center' })
+  }
+  return data;
+})
+
+const sharedDone = () => {
+  emits('refresh');
+}
+
+const unBindHandle = async (data) => {
+  const params = {
+    uuid: props.currentId,
+    share: ''
+  };
+
+  data.loading = true;
+  await shareSaveProject(params)
+    .then(() => {
+      data.loading = false;
+      emits('refresh');
+      return true;
+    })
+    .catch(() => {
+      data.loading = false;
+      return false;
+    });
+}
+
 onMounted(() => {
   emitter.on('blockShowTarget', blockShowTargetHandle)
 })
@@ -267,11 +396,39 @@ onUnmounted(() => {
 
 .col-item-content {
   overflow: hidden;
+  &.share-lvr {
+    > .col-item {
+      width: 25%;
+    }
+  }
   > .col-item {
     width: 33.33333%;
     float: left;
     :deep(.ant-statistic-content) {
       font-size: 18px !important;
+    }
+  }
+}
+
+.sales-content {
+  border: 1px solid #282828;
+  background-color: #f7f9f8;
+  border-radius: 10px;
+  padding: 10px 15px;
+  > p {
+    text-align: center;
+    font-size: 14px;
+    color: #999;
+  }
+  :deep(.ant-table-wrapper) {
+    .ant-table-tbody>tr>td {
+      padding: 8px 10px !important;
+    }
+    .ant-table-thead>tr>th {
+      padding: 8px 10px !important;
+      color: #282828 !important;
+      font-weight: 500 !important;
+      font-size: 13px !important;
     }
   }
 }

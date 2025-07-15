@@ -289,7 +289,7 @@ const submitRquest = async () => {
 const checkHandle = async () => {
   const params = {
     uuid: props.currentId,
-    share: ''
+    code: props.blockInfo.code
   }
   await projectAuditCheckMode(params)
     .then(() => {
@@ -361,7 +361,8 @@ const sharedDone = () => {
 
 const unBindHandle = async (data) => {
   const params = {
-    uuid: props.currentId
+    uuid: props.currentId,
+    share: ''
   };
 
   data.loading = true;

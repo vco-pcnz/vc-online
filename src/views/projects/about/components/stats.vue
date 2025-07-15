@@ -57,16 +57,21 @@
       <a-divider />
       <a-row :gutter="16">
         <a-col :span="12">
-          <div :class="{ 'color_red-error': Math.abs(data?.right?.lvr) > Math.abs(data?.right?.lvrMax) }">
+          <div v-if="Number(detail?.base?.share_lvr)">
             <p class="color_grey fs_xs">
-              LVR
-              <a-tooltip v-if="Number(detail?.base?.share_lvr)" placement="top">
+              {{ t('共享LVR') }}
+              <a-tooltip placement="top">
                 <template #title>
-                  <span>{{ `${t('共享LVR')}: ${detail?.base?.share_lvr}` }}%</span>
+                  <p>{{ `LVR: ${data?.right?.lvr}` }}%</p>
+                  <p class="fs_xs">{{ Math.abs(data?.right?.lvr) > Math.abs(data?.right?.lvrMax) ? 'over the ' : '' }}max {{ data?.right?.lvrMax }}%</p>
                 </template>
-                <i class="iconfont cursor-pointer ml-1">&#xe6b3;</i>
+                <i class="iconfont cursor-pointer ml-1">&#xe784;</i>
               </a-tooltip>
             </p>
+            <span class="fs_xl bold">{{ detail?.base?.share_lvr }}%</span>
+          </div>
+          <div v-else :class="{ 'color_red-error': Math.abs(data?.right?.lvr) > Math.abs(data?.right?.lvrMax) }">
+            <p class="color_grey fs_xs">LVR</p>
             <span class="fs_xl bold">{{ data?.right?.lvr }}%</span>
             <p class="fs_xs">{{ Math.abs(data?.right?.lvr) > Math.abs(data?.right?.lvrMax) ? 'over the ' : '' }}max {{ data?.right?.lvrMax }}%</p>
           </div>

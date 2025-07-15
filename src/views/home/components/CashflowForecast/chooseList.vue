@@ -237,9 +237,7 @@ watch(
       display: flex;
     }
     &-List {
-      width: 100%;
       max-height: 380px;
-      overflow-y: auto;
       padding-bottom: 8px;
       padding-top: 8px;
       .Filter-Item {

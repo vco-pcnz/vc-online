@@ -2,8 +2,7 @@
   <div class="flex-1">
     <div class="flex title mb-10">
       <span class="fs_2xl">Forecast</span>
-      <SelectDate :list="dates" @change="setDate"></SelectDate>
-      <a-button type="brown" size="small" shape="round" @click="change">{{ type ? 'for repayments' : 'for drawdowns' }}</a-button>
+      <SearchContent v-model:value="searchForm" :searchConfig="searchConfig" downloadUrl1="project/forecast/forecastExport" @change="loadData"></SearchContent>
     </div>
 
     <a-spin :spinning="loading" size="large">
@@ -47,30 +46,26 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import SelectDate from './SelectDate.vue';
 import tool from '@/utils/tool';
 import { forecast, forecastExport } from '@/api/project/forecast';
+import dayjs, { Dayjs } from 'dayjs';
+import SearchContent from './SearchContent/index.vue';
 
 const { t } = useI18n();
 
 const data = ref();
 
-const dates = ref([
-  { name: 'Upcoming week', code: 'upcoming_week' },
-  { name: 'Upcoming month', code: 'upcoming_month' },
-  { name: 'Upcoming 2 months', code: 'upcoming_two_month' }
-]);
-
-const type = ref(2);
-const change = () => {
-  type.value = type.value == 2 ? 4 : 2;
-  loadData();
-};
+const searchConfig = ref(['time', 'Type']);
+const searchForm = ref({
+  start_date: dayjs().add(-7, 'd').format('YYYY-MM-DD'),
+  end_date: dayjs().format('YYYY-MM-DD'),
+  type: '2'
+});
 
 const downloading = ref(false);
 const report = (uid) => {
   downloading.value = !uid;
-  forecastExport({ search_key: search_key.value, type: type.value, uid: uid })
+  forecastExport({ ...searchForm.value, uid: uid })
     .then((res) => {
       window.open(res);
     })
@@ -80,10 +75,10 @@ const report = (uid) => {
 };
 
 const loading = ref(false);
-const search_key = ref();
-const loadData = () => {
+const loadData = (val) => {
+  if (val) searchForm.value = { ...searchForm.value, ...val };
   loading.value = true;
-  forecast({ search_key: search_key.value, type: type.value })
+  forecast(searchForm.value)
     .then((res) => {
       data.value = res.data;
     })
@@ -92,10 +87,9 @@ const loadData = () => {
     });
 };
 
-const setDate = (val) => {
-  search_key.value = val || '';
+onMounted(() => {
   loadData();
-};
+});
 </script>
 
 <style scoped lang="less">

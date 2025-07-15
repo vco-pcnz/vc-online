@@ -95,3 +95,11 @@ export const forecastPerformance = (params) =>
     method: 'get',
     params
   });
+
+// brief
+export const forecastBrief = (params) =>
+  request({
+    url: 'project/forecast/brief',
+    method: 'get',
+    params
+  });

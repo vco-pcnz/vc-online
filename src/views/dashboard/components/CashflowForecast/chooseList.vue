@@ -189,6 +189,7 @@ watch(
   background: #fff;
   .ant-checkbox-group {
     padding-left: 0;
+    width: 100%;
   }
   :deep(.ant-checkbox-wrapper) {
     color: #181818;
@@ -236,8 +237,7 @@ watch(
       display: flex;
     }
     &-List {
-      max-height: 380px;
-      overflow-y: auto;
+      width: 100%;
       padding-bottom: 8px;
       padding-top: 8px;
       .Filter-Item {

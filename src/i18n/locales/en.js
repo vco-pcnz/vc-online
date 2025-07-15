@@ -1024,5 +1024,13 @@ export default {
   "发送通知": "Send notification",
   "确定发送通知吗？": "Are you sure you want to send notification?",
   "已确认": "Confirmed",
-  "超时放款": "Overdue drawdown"
+  "超时放款": "Overdue drawdown",
+  "统计简报": "Statistical brief",
+  "新增贷款": "New loan",
+  "新增贷款金额": "New loan amount",
+  "新增放款": "New drawdown",
+  "新增还款": "New repayment",
+  "创建报告": "Create report",
+  "环比": "PoP"
+
 }

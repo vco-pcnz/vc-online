@@ -884,6 +884,8 @@
     if ('credit_brokerFeeRate' in formState.value && 'credit_brokerFee' in formState.value) {
       const build_amount = formState.value.build_amount || 0;
       const land_amount = formState.value.land_amount || 0;
+      const equity_amount = formState.value.equity_amount || 0
+      const refinancial_amount = refinancialAmount.value || 0
       const brokeFeeRate = formState.value.credit_brokerFeeRate || 0
       
 
@@ -891,8 +893,10 @@
         formState.value.credit_brokerFee = 0
       } else {
         const amount = tool.plus(build_amount, land_amount);
+        const reTotal = tool.plus(amount, refinancial_amount)
+        const total = tool.plus(reTotal, equity_amount)
         const per = tool.div(Number(brokeFeeRate), 100)
-        const num = tool.times(amount, per)
+        const num = tool.times(total, per)
 
         formState.value.credit_brokerFee = num
       }
@@ -904,13 +908,17 @@
     if ('credit_brokerFeeRate' in formState.value && 'credit_brokerFee' in formState.value) {
       const build_amount = formState.value.build_amount || 0;
       const land_amount = formState.value.land_amount || 0;
+      const equity_amount = formState.value.equity_amount || 0
+      const refinancial_amount = refinancialAmount.value || 0
       const brokeFee = formState.value.credit_brokerFee || 0
 
       if (isNaN(Number(brokeFee))) {
         formState.value.credit_brokerFeeRate = 0
       } else {
         const amount = tool.plus(build_amount, land_amount);
-        const per = tool.div(brokeFee, amount)
+        const reTotal = tool.plus(amount, refinancial_amount)
+        const total = tool.plus(reTotal, equity_amount)
+        const per = tool.div(brokeFee, total)
         const num = tool.times(per, 100)
 
         formState.value.credit_brokerFeeRate = Number(Number(num).toFixed(6))

@@ -415,6 +415,13 @@
         })
       }
 
+      if (Number(obj?.initial_equity_amount) !== Number(staticFormData?.initial_equity_amount)) {
+        arr.unshift({
+          name: t('初始补充股权'),
+          before: `$${numberStrFormat(Number(staticFormData?.initial_equity_amount))}`,
+          now: `$${numberStrFormat(Number(obj?.initial_equity_amount))}`
+        })
+      }
 
       if (Number(obj?.initial_build_amount) !== Number(staticFormData?.initial_build_amount)) {
         arr.unshift({
@@ -429,6 +436,22 @@
           name: t('首次土地贷款放款额'),
           before: `$${numberStrFormat(Number(staticFormData?.initial_land_amount))}`,
           now: `$${numberStrFormat(Number(obj?.initial_land_amount))}`
+        })
+      }
+
+      if (Number(obj?.substitution_amount) !== Number(staticFormData?.substitution_amount)) {
+        arr.unshift({
+          name: t('再融资金额'),
+          before: `$${numberStrFormat(Number(staticFormData?.substitution_amount))}`,
+          now: `$${numberStrFormat(Number(obj?.substitution_amount))}`
+        })
+      }
+
+      if (Number(obj?.equity_amount) !== Number(staticFormData?.equity_amount)) {
+        arr.unshift({
+          name: t('补充股权'),
+          before: `$${numberStrFormat(Number(staticFormData?.equity_amount))}`,
+          now: `$${numberStrFormat(Number(obj?.equity_amount))}`
         })
       }
 

@@ -1103,7 +1103,10 @@
     })
 
     // 需要退回的对比数据
-    const nowChangeData = cloneDeep(formState.value)
+    const nowChangeData = {
+      ...cloneDeep(formState.value),
+      substitution_amount: refinancialAmount.value || 0
+    }
     const changeBack = cloneDeep(changeBackItems.value)
     const creditTableInfo = cloneDeep(staticWriteData.value)
 

@@ -60,7 +60,7 @@
           <div :class="{ 'color_red-error': Math.abs(data?.right?.lvr) > Math.abs(data?.right?.lvrMax) }">
             <p class="color_grey fs_xs">
               LVR
-              <a-tooltip v-if="detail?.base?.share_lvr" placement="top">
+              <a-tooltip v-if="Number(detail?.base?.share_lvr)" placement="top">
                 <template #title>
                   <span>{{ `${t('共享LVR')}: ${detail?.base?.share_lvr}` }}%</span>
                 </template>

@@ -51,6 +51,9 @@
               <template v-if="column.dataIndex === 'project_apply_sn'">
                 <span>{{ record?.project_apply_sn || '--' }}</span>
               </template>
+              <template v-if="column.dataIndex === 'borrower'">
+                <span>{{ getBorrower(record) }}</span>
+              </template>
               <template v-if="column.dataIndex === 'operation'">
                 <a-button
                   :type="record.selected ? 'primary' : 'default'" size="small" shape="round" class="uppercase"
@@ -125,6 +128,7 @@
   const columns = reactive([
     { title: t('项目名称'), dataIndex: 'project_name', width: 140, align: 'left' },
     { title: t('项目ID'), dataIndex: 'project_apply_sn', width: 120, align: 'left' },
+    { title: t('借款人'), dataIndex: 'borrower', width: 120, align: 'left' },
     {
       title: t('操作1'),
       dataIndex: 'operation',
@@ -163,6 +167,14 @@
   const updateVisible = (value) => {
     emits('update:visible', value);
   };
+
+  const getBorrower = (record) => {
+    if (record.borrower_type === 1) {
+      return record.user_name || '--';
+    } else {
+      return record.organization_name || '--';
+    }
+  }
 
   watch(() => props.visible, (val) => {
     if (val) {

@@ -2,14 +2,17 @@
   <div class="search-content">
     <template v-for="key in searchConfig" :key="key">
       <date-picker v-if="key === 'Date'" :data="searchForm.date" @change="change" />
-      <range-picker v-if="key === 'time'" :data="[searchForm.start_date, searchForm.end_date]" @change="change" />
+      <range-picker v-if="key === 'Time'" :data="[searchForm.start_date, searchForm.end_date]" @change="change" />
       <select-lm v-if="key === 'LM'" @change="change" />
       <select-project v-if="key === 'Project'" @change="change" />
       <select-state v-if="key === 'State'" :data="searchForm.search" :open_hidden="open_hidden" @change="change" />
       <select-type v-if="key === 'Type'" :data="searchForm.type" @change="change" />
     </template>
 
-    <a-button type="cyan" class="ml-3" @click="report" :loading="downloading" v-if="downloadUrl">{{ t('创建报告') }}</a-button>
+    <a-button type="cyan" class="ml-3" @click="report" :loading="downloading" v-if="downloadUrl">
+      <i class="iconfont">&#xe780;</i>
+      {{ t('创建报告') }}
+    </a-button>
   </div>
 </template>
 

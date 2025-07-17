@@ -39,8 +39,8 @@ const rangePresets = ref([
     label: 'Previous Week',
     cycle: '',
     value: [
-      dayjs().subtract(1, 'week').startOf('week').add(1, 'day').add(1, 'day'), // 上周的第一天（周一）
-      dayjs().subtract(1, 'week').endOf('week').add(1, 'day').add(1, 'day') // 上周的最后一天（周日）
+      dayjs().subtract(1, 'week').startOf('week').add(1, 'day'), // 上周的第一天（周一）
+      dayjs().subtract(1, 'week').endOf('week').add(1, 'day') // 上周的最后一天（周日）
     ]
   },
   {

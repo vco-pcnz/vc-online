@@ -1,6 +1,7 @@
 <template>
   <div class="flex items-end title">
-    <div class="flex-1 fs_2xl">Cashflow forecast</div>
+    <div v-if="showArrow" class="flex-1 fs_2xl cursor-pointer" @click="navigationTo('/dashboard/cashflow')">Cashflow forecast <i class="iconfont">&#xe794;</i></div>
+    <div v-else class="flex-1 fs_2xl cursor-pointer" @click="goBack()"><i class="iconfont" style="rotate: 180deg; display: inline-block">&#xe794;</i>Cashflow forecast</div>
     <SearchContent v-model:value="searchForm" :searchConfig="searchConfig" downloadUrl="project/forecast/cashFlowForecastExport" @change="loadData"></SearchContent>
   </div>
   <a-spin :spinning="loading" size="large">
@@ -92,12 +93,10 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import tool, { selectDateFormat } from '@/utils/tool';
-import { DownOutlined } from '@ant-design/icons-vue';
-import dayjs, { Dayjs } from 'dayjs';
+import tool, { goBack, navigationTo } from '@/utils/tool';
+import dayjs from 'dayjs';
 import TableBlock from './TableBlock.vue';
 import { cashFlowForecast } from '@/api/project/forecast';
-import DropdownList from './chooseList.vue';
 import Forecast from './ForecastModal.vue';
 import VcoNumberNew from './vco-number-new.vue';
 import LineLabel from './line-label.vue';
@@ -105,11 +104,13 @@ import { useUserStore } from '@/store';
 import SearchContent from '../SearchContent/index.vue';
 
 const { t } = useI18n();
-const userStore = useUserStore();
 
-const props = defineProps([]);
-
-const isOpen = ref(false);
+const props = defineProps({
+  showArrow: {
+    type: Boolean,
+    default: false
+  }
+});
 
 const visible_forecast = ref(false);
 const tooltipBoxRef = ref();

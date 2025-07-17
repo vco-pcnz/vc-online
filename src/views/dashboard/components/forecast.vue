@@ -48,14 +48,14 @@ import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { forecast, forecastExport } from '@/api/project/forecast';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import SearchContent from './SearchContent/index.vue';
 
 const { t } = useI18n();
 
 const data = ref();
 
-const searchConfig = ref(['time', 'Type']);
+const searchConfig = ref(['Time', 'Type']);
 const searchForm = ref({
   start_date: dayjs().add(-7, 'd').format('YYYY-MM-DD'),
   end_date: dayjs().format('YYYY-MM-DD'),

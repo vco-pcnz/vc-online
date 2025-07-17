@@ -1042,5 +1042,14 @@ export default {
   "解绑": "Unbind",
   "手机": "Mobile",
   "共享LVR": "Shared LVR",
-  "确定解绑吗？": "Are you sure you want to unbind?"
+  "确定解绑吗？": "Are you sure you want to unbind?",
+  "收入": "Income",
+  "收入记录": "Income log",
+  "现金流": "Cashflow",
+  "区域分布": "Regional distribution",
+  "地区": "Area",
+  "项目数量": "Project count",
+  "放款总额": "Total Drawdown Amount",
+  "待还款总额": "Total Pending Repayment",
+  
 }

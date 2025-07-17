@@ -1,27 +1,49 @@
 <template>
+  <div class="flex items-end title mt-10">
+    <div class="flex-1 fs_2xl cursor-pointer" @click="navigationTo('/dashboard/profit')">{{ t('收入记录') }}</div>
+    <SearchContent v-model:value="searchForm" :searchConfig="searchConfig" downloadUrl="project/forecast/cashFlowForecastExport" @change="loadData"></SearchContent>
+  </div>
   <template v-if="data">
-    <div class="row-box" v-for="(item, index) in data.list" :key="index">
+    <div class="row thead mt-10">
+      <div class="weight_demiBold">{{ t('日期') }}</div>
+      <div class=""></div>
+      <div>{{ t('项目数据') }}</div>
+      <div>
+        {{ t('类型') }}
+      </div>
+      <div>
+        {{ t('说明') }}
+      </div>
+      <div class="text-center">
+        {{ t('金额') }}
+      </div>
+      <!-- <div class="text-center">
+        {{ t('项目') }}
+      </div> -->
+    </div>
+    <div class="row-box" v-for="(item, index) in data" :key="index">
       <div class="row">
         <div class="weight_demiBold">{{ tool.monthYearDay(item.date) }}</div>
         <div class="circle"></div>
+        <div class="bold">{{ item.project_name }}</div>
         <div class="bold">{{ item.name }}</div>
-        <div class="color_grey fs_xs text-center">
+        <div class="color_grey fs_xs">
           {{ item.note }}
         </div>
-        <div class="text-right">
-          <vco-number :bold="true" prefix="" color="#569695" :value="item.amount" :precision="2" size="fs_md"></vco-number>
+        <div class="text-center">
+          <vco-number :bold="true" :value="item.amount" :precision="2" size="fs_md"></vco-number>
         </div>
-        <div class="text-right">
+        <!-- <div class="text-right">
           <vco-number prefix="(" suffix=")" :bold="true" :end="true" :value="item.cashflow_amount" :precision="2" size="fs_md"></vco-number>
-        </div>
+        </div> -->
       </div>
     </div>
   </template>
-  <a-empty v-if="!data || !data.list || !data.list.length" />
+  <a-empty v-if="!data || !data.length" />
   <div class="flex justify-center pb-5" v-if="total > pagination.limit">
     <a-pagination size="small" :total="total" :pageSize="pagination.limit" :current="pagination.page" show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
   </div>
-  <template v-if="data">
+  <template v-if="data && false">
     <div class="footer flex justify-between items-end">
       <div class="left">
         <span>{{ data.drawdown_num }} drawdowns</span>
@@ -49,19 +71,25 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
+import dayjs from 'dayjs';
+import SearchContent from './SearchContent/index.vue';
+import { profitLog } from '@/api/project/forecast';
 
 const emits = defineEmits(['change']);
 
 const props = defineProps({
   total: {
     type: Number
-  },
-  data: {
-    type: Object
   }
+});
+
+const searchConfig = ref(['Time', 'LM', 'Project']);
+const searchForm = ref({
+  start_date: dayjs().add(-7, 'd').format('YYYY-MM-DD'),
+  end_date: dayjs().format('YYYY-MM-DD')
 });
 
 const { t } = useI18n();
@@ -71,13 +99,35 @@ const pagination = ref({
   limit: 10
 });
 
+const total = ref(0);
+const data = ref([]);
+const loading = ref(false);
+
+const loadData = (val) => {
+  loading.value = true;
+  let params = searchForm.value;
+  if (val) params = { ...searchForm.value, ...val };
+  profitLog({ ...params, ...pagination.value })
+    .then((res) => {
+      total.value = res.count;
+      data.value = res.data;
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+};
+
 const setPaginate = (page, limit) => {
   pagination.value = {
     page,
     limit
   };
-  emits('change', pagination.value);
+  loadData();
 };
+
+onMounted(() => {
+  loadData();
+});
 </script>
 <style lang="less" scoped>
 .footer {
@@ -105,8 +155,15 @@ const setPaginate = (page, limit) => {
 .row {
   align-items: center;
   display: grid;
-  grid-template-columns: 0.4fr 0.1fr 0.7fr 0.75fr 0.75fr 0.75fr;
+  grid-template-columns: .8fr 0.1fr 1fr 1fr 2fr 0.75fr;
+  gap: 10px;
   padding: 12px 24px;
+  &.thead {
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #888 !important;
+    background: rgba(0, 0, 0, 0.05);
+  }
   .circle {
     border-radius: 4px;
     display: inline-block;

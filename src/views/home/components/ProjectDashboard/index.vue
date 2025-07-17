@@ -3,7 +3,7 @@
     <div class="flex justify-between">
       <div class="bold fs_2xl">{{ t('项目仪表板') }}</div>
       <div class="flex items-center">
-        <div v-if="data.date">{{ t('数据更新时间') }}：{{ data.date }}</div>
+        <div v-if="data.date">{{ t('数据更新时间') }}: {{ data.date }}</div>
         <a-button type="cyan ml-3" @click="loadData(1)">{{ t('更新') }}</a-button>
       </div>
     </div>

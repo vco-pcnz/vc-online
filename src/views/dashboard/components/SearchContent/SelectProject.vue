@@ -3,7 +3,7 @@
     <a-input readonly class="input-label" style="width: 60px" value="Project" />
     <div>
       <a-dropdown class="Filter" trigger="click" v-model:open="visible">
-        <a-select :open="false" v-model:value="select" mode="multiple" style="width: 180px" :maxTagCount="1" :placeholder="t('请选择')" :options="data" :fieldNames="{ label: 'project_name', value: 'id' }"> </a-select>
+        <a-select :open="false" v-model:value="select" mode="multiple" style="width: 180px" :maxTagCount="1" :placeholder="t('请选择')" :options="data" :fieldNames="{ label: 'project_name', value: 'uuid' }"> </a-select>
 
         <template #overlay>
           <div class="Overlay" style="width: 700px; padding-right: 16px">
@@ -25,7 +25,7 @@
             <a-checkbox-group v-model:value="select" @change="() => (checkedAll = !select.length)">
               <ul class="Filter-List">
                 <li class="Filter-Item" v-for="item in data" :key="item.uuid">
-                  <a-checkbox :value="item.id" v-model:checked="checkedAll" class="Filter-Check">
+                  <a-checkbox :value="item.uuid" v-model:checked="checkedAll" class="Filter-Check">
                     {{ item.project_name }}
                   </a-checkbox>
                 </li>
@@ -121,7 +121,7 @@ watch(
 watch(
   () => select.value,
   (val) => {
-    emits('change', { apply_project_id: select.value.join() });
+    emits('change', { apply_project_id: select.value.join(), project_uuids: select.value.join() });
   }
 );
 

@@ -1,13 +1,14 @@
 <template>
   <div>
     <StatisticalBrief></StatisticalBrief>
-    <CashflowForecast></CashflowForecast>
+    <CashflowForecast :showArrow="true"></CashflowForecast>
     <!-- <Cashflow></Cashflow> -->
     <div class="flex gap-5 mt-5">
       <transactions></transactions>
       <forecast></forecast>
     </div>
-    <ForecastPerformance></ForecastPerformance>
+    <Income :showArrow="true"></Income>
+    <RegionalDistribution></RegionalDistribution>
   </div>
 </template>
 
@@ -18,7 +19,8 @@ import CashflowForecast from './components/CashflowForecast/index.vue';
 import Cashflow from './components/Cashflow.vue';
 import transactions from './components/transactions.vue';
 import forecast from './components/forecast.vue';
-import ForecastPerformance from './components/Performance.vue';
+import Income from './components/Income.vue';
+import RegionalDistribution from './components/RegionalDistribution.vue';
 </script>
 
 <style scoped lang="less">
@@ -33,21 +35,27 @@ import ForecastPerformance from './components/Performance.vue';
   .fs_2xl {
     font-weight: 700;
   }
-  .picker-btn {
+  .iconfont {
+    font-weight: 200;
     font-size: 12px;
-    .DropdownIcon {
-      font-size: 10px;
-      position: relative;
-      top: -2px;
-      transition: -webkit-transform 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
-      transition: transform 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
-      transition: transform 0.2s cubic-bezier(0.645, 0.045, 0.355, 1), -webkit-transform 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
-    }
-    &.open {
-      .DropdownIcon {
-        transform: rotate(180deg);
-      }
-    }
+    bottom: 1px;
+    position: relative;
   }
+  // .picker-btn {
+  //   font-size: 12px;
+  //   .DropdownIcon {
+  //     font-size: 10px;
+  //     position: relative;
+  //     top: -2px;
+  //     transition: -webkit-transform 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+  //     transition: transform 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+  //     transition: transform 0.2s cubic-bezier(0.645, 0.045, 0.355, 1), -webkit-transform 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+  //   }
+  //   &.open {
+  //     .DropdownIcon {
+  //       transform: rotate(180deg);
+  //     }
+  //   }
+  // }
 }
 </style>

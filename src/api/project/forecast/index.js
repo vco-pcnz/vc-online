@@ -103,3 +103,25 @@ export const forecastBrief = (params) =>
     method: 'get',
     params
   });
+
+
+// 利润统计
+export const profitSta = (params) =>
+  request({
+    url: '/project/forecast/profitSta',
+    method: 'get',
+    params
+  });
+
+// 利润记录
+export const profitLog = (params) =>
+  request({
+    url: '/project/forecast/profit',
+    method: 'get',
+    params
+  });
+
+
+ 
+
+ 

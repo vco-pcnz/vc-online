@@ -1051,5 +1051,5 @@ export default {
   "项目数量": "Project count",
   "放款总额": "Total Drawdown Amount",
   "待还款总额": "Total Pending Repayment",
-  
+  "再融资数据有改动，保存后将重置进度还款设置及首次建筑放款": "The refinancing data has been modified. After saving, the progress repayment settings and the first construction loan will be reset"
 }

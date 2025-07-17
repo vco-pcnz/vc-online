@@ -121,8 +121,9 @@
             <a-form-item :label="t('开发成本')">
               <DevCostDetail
                 :disabled="amountDisabled || inputADis"
+                :edit="!isDetails"
                 :has-build="Boolean(lendingInfo.has_build)"
-                :showRefinancial="((refinancialData.length && blockInfo.showEdit) || isRefinancial) && refinancialShow"
+                :showRefinancial="((refinancialData.length && blockInfo.showEdit) || isRefinancial || isDetails) && refinancialShow"
                 :refinancialData="formattedRefinancialData"
                 v-model:value="formState.devCost"
                 v-model:dataJson="formState.devCostDetail"
@@ -135,6 +136,9 @@
                   <vco-number class="float-left" v-model:value="formState.devCost" size="fs_xl" :precision="2" :end="true"></vco-number>
                   <a-button class="float-left ml-3" v-if="!amountDisabled && !inputADis" type="link">
                     <i class="iconfont">&#xe753;</i>
+                  </a-button>
+                  <a-button class="float-left ml-1" v-if="isDetails" type="link">
+                    <i class="iconfont">&#xe76f;</i>
                   </a-button>
                 </div>
               </DevCostDetail>
@@ -210,7 +214,7 @@
                     class="flex items-center"
                     @click="goProgressPage"
                   >
-                    <p>{{ formState.equity_amount ? t('设置') : t('进度付款') }}</p>
+                    <p>{{ (formState.equity_amount || refinancialAmount) ? t('设置') : t('进度付款') }}</p>
                     <i class="iconfont" style="font-size: 12px;">&#xe602;</i>
                   </a-button>
                 </div>
@@ -365,6 +369,7 @@
               <a-form-item :label="t('初始补充股权')" name="initial_equity_amount">
                 <a-input-number
                   v-model:value="formState.initial_equity_amount"
+                  :disabled="amountDisabled"
                   :max="Number(formState.equity_amount)"
                   :formatter="
                     (value) =>
@@ -674,7 +679,7 @@
     } else {
       const mark = props?.currentStep?.mark
       if (props?.blockInfo?.showEdit) {
-        if (['step_lm_audit'].includes(mark)) {
+        if (['step_lm_audit', 'step_open'].includes(mark)) {
           return true
         } else {
           return isRefinancial.value
@@ -879,6 +884,8 @@
     if ('credit_brokerFeeRate' in formState.value && 'credit_brokerFee' in formState.value) {
       const build_amount = formState.value.build_amount || 0;
       const land_amount = formState.value.land_amount || 0;
+      const equity_amount = formState.value.equity_amount || 0
+      const refinancial_amount = refinancialAmount.value || 0
       const brokeFeeRate = formState.value.credit_brokerFeeRate || 0
       
 
@@ -886,8 +893,10 @@
         formState.value.credit_brokerFee = 0
       } else {
         const amount = tool.plus(build_amount, land_amount);
+        const reTotal = tool.plus(amount, refinancial_amount)
+        const total = tool.plus(reTotal, equity_amount)
         const per = tool.div(Number(brokeFeeRate), 100)
-        const num = tool.times(amount, per)
+        const num = tool.times(total, per)
 
         formState.value.credit_brokerFee = num
       }
@@ -899,13 +908,17 @@
     if ('credit_brokerFeeRate' in formState.value && 'credit_brokerFee' in formState.value) {
       const build_amount = formState.value.build_amount || 0;
       const land_amount = formState.value.land_amount || 0;
+      const equity_amount = formState.value.equity_amount || 0
+      const refinancial_amount = refinancialAmount.value || 0
       const brokeFee = formState.value.credit_brokerFee || 0
 
       if (isNaN(Number(brokeFee))) {
         formState.value.credit_brokerFeeRate = 0
       } else {
         const amount = tool.plus(build_amount, land_amount);
-        const per = tool.div(brokeFee, amount)
+        const reTotal = tool.plus(amount, refinancial_amount)
+        const total = tool.plus(reTotal, equity_amount)
+        const per = tool.div(brokeFee, total)
         const num = tool.times(per, 100)
 
         formState.value.credit_brokerFeeRate = Number(Number(num).toFixed(6))
@@ -1060,11 +1073,11 @@
       ? props.lendingInfo.build_amount
       : props.lendingInfo.loan_money || 0;
 
-    formState.value.land_amount = props.lendingInfo.land_amount;
+    formState.value.land_amount = props.lendingInfo.land_amount || 0;
     
-    formState.value.initial_build_amount = props.lendingInfo.initial_build_amount;
-    formState.value.initial_land_amount = props.lendingInfo.initial_land_amount;
-    formState.value.initial_equity_amount = props.lendingInfo.initial_equity_amount;
+    formState.value.initial_build_amount = props.lendingInfo.initial_build_amount || 0;
+    formState.value.initial_land_amount = props.lendingInfo.initial_land_amount || 0;
+    formState.value.initial_equity_amount = props.lendingInfo.initial_equity_amount || 0;
 
     formState.value.devCost = props.lendingInfo.devCost
     formState.value.devCostDetail = props.lendingInfo.devCostDetail
@@ -1090,7 +1103,10 @@
     })
 
     // 需要退回的对比数据
-    const nowChangeData = cloneDeep(formState.value)
+    const nowChangeData = {
+      ...cloneDeep(formState.value),
+      substitution_amount: refinancialAmount.value || 0
+    }
     const changeBack = cloneDeep(changeBackItems.value)
     const creditTableInfo = cloneDeep(staticWriteData.value)
 

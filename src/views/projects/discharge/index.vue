@@ -15,18 +15,9 @@
             :pagination="false"
             :bordered="true"
           >
-            <template #bodyCell="{ column, record }">
-              <template v-if="column.dataIndex === 'amount'">
-                <span>
-                  <vco-number v-if="record.amount" :value="record.amount" :precision="2" size="fs_md"></vco-number>
-                  <p v-else>--</p>
-                </span>
-              </template>
-              <template v-if="column.dataIndex === 'insurance_value'">
-                <span>
-                  <vco-number v-if="record.insurance_value" :value="record.insurance_value" :precision="2" size="fs_md"></vco-number>
-                  <p v-else>--</p>
-                </span>
+              <template #bodyCell="{ column, record }">
+                <template v-if="column.dataIndex === 'borrower'">
+                <span>{{ record.borrower_type === 1 ? record.user_name || '--' : record.organization_name || '--' }}</span>
               </template>
               <template v-if="column.dataIndex === 'is_direct_bind'">
                 <a-tag v-if="record.is_direct_bind" color="green">{{ t('是') }}</a-tag>
@@ -231,9 +222,10 @@ const shareSecurityData = computed(() => {
   return data
 })
 const columns = [
-  { title: t('项目名称'), dataIndex: 'project_name', width: 200 },
-  { title: t('项目ID'), dataIndex: 'project_apply_sn', width: 200 },
-  { title: t('直接绑定'), dataIndex: 'is_direct_bind', width: 120 }
+  { title: t('项目名称'), dataIndex: 'project_name', width: 140 },
+  { title: t('项目ID'), dataIndex: 'project_apply_sn', width: 100 },
+  { title: t('借款人'), dataIndex: 'borrower', width: 120 },
+  { title: t('直接绑定'), dataIndex: 'is_direct_bind', width: 100 }
 ]
 
 const openAddEdit = (data, flag = false) => {

@@ -1588,11 +1588,11 @@
     }
   }
 
-  .preview-table {
-    :deep(.ant-table-wrapper) {
-      .ant-table-tbody>tr>td {
-        padding: 10px;
-      }
-    }
-  }
+  // .preview-table {
+  //   :deep(.ant-table-wrapper) {
+  //     .ant-table-tbody>tr>td {
+  //       padding: 10px;
+  //     }
+  //   }
+  // }
 </style>

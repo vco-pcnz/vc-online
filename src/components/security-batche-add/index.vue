@@ -501,7 +501,7 @@ const totalTypology = computed(() => {
 
   const calc = typologyArr.reduce((acc, item) => {
     // 累加固定字段
-    ['beds', 'lounge', 'bath', 'garage', 'level', 'carpark'].forEach((key) => {
+    ['beds', 'bath', 'lounge', 'garage', 'carpark', 'level'].forEach((key) => {
       acc[key] = (acc[key] || 0) + item[key];
     });
 

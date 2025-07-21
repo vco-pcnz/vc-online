@@ -194,7 +194,7 @@ const changeData = computed(() => {
   const credit_fc2 = tool.minus(props.detail.variationInfo.project_credit.credit_forecastFc2, props.detail.credit.credit_fc2);
   const interestRate = tool.minus(props.detail.variationInfo.project_credit.credit_loanInterest, props.detail.credit.left.interestRate);
   const lvr = tool.minus(props.detail.variationInfo.project_credit.credit_lvr, props.detail.credit.right.lvr);
-  const irr = tool.minus(props.detail.variationInfo.project_credit.credit_irr, props.detail.credit.right.irr);
+  const irr = tool.minus(props.detail.variationInfo.project_credit.credit_irrPreset, props.detail.credit.right.irr);
 
   const amount = props.detail.variationInfo.amount;
   const loan_money = [2, 5].includes(Number(props.detail.variationInfo.type)) ? amount * -1 : amount;
@@ -230,7 +230,7 @@ const afterData = computed(() => {
     credit_fc2: props.detail.variationInfo.project_credit.credit_forecastFc2 || 0,
     interestRate: props.detail.variationInfo.project_credit.credit_loanInterest || 0,
     lvr: props.detail.variationInfo.project_credit.credit_lvr || 0,
-    irr: props.detail.variationInfo.project_credit.credit_irr || 0,
+    irr: props.detail.variationInfo.project_credit.credit_irrPreset || 0,
   };
   return obj;
 });

@@ -122,8 +122,8 @@ const disabledDateFormat = (current) => {
   if (current && current.isBefore(startDate, 'day')) {
     return true;
   }
-  if (formState.value.type == '4') {
-    const endDate = props.projectDetail.loan.end_date;
+  if (formState.value.type == '4' || props.itemId) {
+    const endDate = props.itemId ? props.projectDetail.variationInfo.end_date : props.projectDetail.loan.end_date;
     if (formState.value.date && dayjs(formState.value.date).isAfter(dayjs(endDate))) {
       formState.value.date = '';
     }

@@ -13,6 +13,7 @@
       :multiple="isMultiple"
       :showUploadList="showUploadList"
       :accept="accept"
+      directory
       @preview="handlePreview"
       @change="handleChange"
     >

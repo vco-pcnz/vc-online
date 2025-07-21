@@ -1,6 +1,6 @@
 <template>
   <div class="sys-table-content border-top-none" :class="{ copy: hasPermission('projects:copy') }">
-    <a-table :columns="columns" :data-source="tableData" :pagination="false" :scroll="{ x: '1560px' }" :customRow="rowClick" row-key="uuid" :rowClassName="setRowClass" :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }">
+    <a-table :columns="columns" :data-source="tableData" :pagination="false" :scroll="{ x: '1840px' }" :customRow="rowClick" row-key="uuid" :rowClassName="setRowClass" :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }">
       <template #headerCell="{ column }">
         <template v-if="column.key === 'open'">
           <span class="headSortItem" :class="{ active: sort.sort == 'start_date' }" @click="sortChange('start_date')">
@@ -100,6 +100,7 @@
           <p class="bold black">{{ tool.showDate(record.end_date) }}</p>
           <span class="replenish_text" :class="{ 'color_red-error': diffInDays(record.end_date) < 0 }"> {{ Math.abs(diffInDays(record.end_date)) }} {{ diffInDays(record.end_date) < 0 ? 'days ago' : 'days left' }}</span>
         </template>
+
         <template v-if="column.key === 'irr'">
           <div :class="{ 'color_red-error': Math.abs(record.credit?.irr) < Math.abs(record.credit?.irrPreset) }">
             <p class="bold black">
@@ -109,6 +110,7 @@
             <span class="replenish_text">{{ record.credit.irrPreset }}% · {{ (record.credit.irr - record.credit.irrPreset).toFixed(2) }}%</span>
           </div>
         </template>
+        
         <template v-if="column.key === 'income'">
           <p class="black">{{ tool.formatMoney(record.credit.income) }}</p>
         </template>
@@ -196,6 +198,8 @@ const columns = reactive([
   { title: t('开始日期'), key: 'open', width: 110 },
   { title: t('到期'), key: 'end_date', width: 110 },
   { title: t('IRR预测'), key: 'irr', width: 140 },
+  { title: 'LVR', key: 'lvr', width: 140 },
+  { title: 'LTC', key: 'ltc', width: 140 },
   { title: t('收入'), key: 'income', width: 120 },
   { title: t('待提取'), key: 'undrawn', width: 120 },
   { title: t('贷款余额'), key: 'loan_balance', width: 150 },

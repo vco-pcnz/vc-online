@@ -116,7 +116,7 @@
       <Add :uuid="uuid" :item-id="itemId" :projectDetail="projectDetail" @update="update">
         <a-button type="brown" shape="round" size="small">add forecast</a-button>
       </Add>
-      <GracePeriod :uuid="uuid" :table-data="data?.list" :projectDetail="projectDetail" @update="update" v-if="hasPermission('projects:forecast:grace')">
+      <GracePeriod :uuid="uuid" :table-data="data?.list" :projectDetail="projectDetail" @update="update" v-if="!itemId && hasPermission('projects:forecast:grace')">
         <a-button type="brown" shape="round" size="small">{{ t('宽限期') }}</a-button>
       </GracePeriod>
     </div>
@@ -170,7 +170,7 @@
         <!-- <div class="fs_xl" style="color: hsla(0, 0%, 100%, 0.5)">{{ data?.period1 || 0 }}%</div> -->
       </div>
 
-      <div class="item">
+      <div class="item ml-2">
         <p>points</p>
         <!-- <div class="fs_xl">{{ data?.period2 || 0 }}%</div> -->
       </div>

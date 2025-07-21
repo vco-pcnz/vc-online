@@ -82,9 +82,10 @@
                 </StartDefault>
                 <a-button v-if="hasPermission('projects:penalty:view') && detail?.base?.penalty" type="brown" shape="round" size="small" @click="navigationTo('/projects/penalty?uuid=' + currentId)">{{ t('罚息') }}</a-button>
 
-                <AddVariations v-if="hasPermission('projects:variations:add') && !Boolean(detail?.base?.variation)" :currentId="currentId" :project-detail="detail" @update="variationsUpdate">
+                <!-- <AddVariations v-if="hasPermission('projects:variations:add') && !Boolean(detail?.base?.variation)" :currentId="currentId" :project-detail="detail" @update="variationsUpdate">
                   <a-button type="brown" shape="round" size="small">{{ t('添加变更') }}</a-button>
-                </AddVariations>
+                </AddVariations> -->
+                <a-button v-if="hasPermission('projects:variations:add') && !Boolean(detail?.base?.variation)" type="brown" shape="round" size="small" @click="navigationTo('/projects/variations/add?uuid=' + currentId)">{{ t('添加变更') }}</a-button>
                 <a-button v-if="hasPermission('projects:variations:view') && detail?.base?.variation" type="brown" shape="round" size="small" @click="navigationTo('/projects/variations?uuid=' + currentId)">{{ t('变更1') }}</a-button>
 
                 <Journal v-if="hasPermission('projects:journal:edit') && !detail?.base?.journal" :projectDetail="detail" :currentId="currentId" @update="update">

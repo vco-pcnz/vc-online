@@ -1,7 +1,12 @@
 <template>
   <div class="flex items-end title">
-    <div v-if="showArrow" class="flex-1 fs_2xl cursor-pointer" @click="navigationTo('/dashboard/cashflow')">Cashflow forecast <i class="iconfont">&#xe794;</i></div>
-    <div v-else class="flex-1 fs_2xl cursor-pointer" @click="goBack()"><i class="iconfont" style="rotate: 180deg; display: inline-block">&#xe794;</i>Cashflow forecast</div>
+    <template v-if="isNav">
+      <div v-if="showArrow" class="flex-1 fs_2xl cursor-pointer" @click="navigationTo('/dashboard/cashflow')">Cashflow forecast <i class="iconfont">&#xe794;</i></div>
+      <div v-else class="flex-1 fs_2xl cursor-pointer" @click="goBack()"><i class="iconfont" style="rotate: 180deg; display: inline-block">&#xe794;</i>Cashflow forecast</div>
+    </template>
+    <template v-else>
+      <div class="flex-1 fs_2xl cursor-pointer">Cashflow forecast</div>
+    </template>
     <SearchContent v-model:value="searchForm" :searchConfig="searchConfig" downloadUrl="project/forecast/cashFlowForecastExport" @change="loadData"></SearchContent>
   </div>
   <a-spin :spinning="loading" size="large">
@@ -109,6 +114,10 @@ const props = defineProps({
   showArrow: {
     type: Boolean,
     default: false
+  },
+  isNav: {
+    type: Boolean,
+    default: true
   }
 });
 
@@ -568,5 +577,9 @@ onMounted(() => {
   position: absolute !important;
   inset: 0;
   z-index: 3;
+}
+
+.fs_2xl {
+  font-weight: 700;
 }
 </style>

@@ -11,10 +11,10 @@
           <a-dropdown v-else-if="link.path === '/dashboard'">
             <p class="router-name flex gap-1">
               {{ t(link.title) }}
-              <DownOutlined style="transform: scale(.7);"/>
+              <DownOutlined style="transform: scale(0.7)" />
             </p>
             <template #overlay>
-              <a-menu style="margin-left: -8px;margin-top: 15px;">
+              <a-menu style="margin-left: -8px; margin-top: 15px">
                 <a-menu-item>
                   <a class="fs_sm" href="/dashboard/cashflow">Cashflow </a>
                 </a-menu-item>

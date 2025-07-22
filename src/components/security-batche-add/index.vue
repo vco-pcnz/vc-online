@@ -968,6 +968,8 @@ const salesPriceInput = (data, flag) => {
     }
 
     netproceedsPriceInput(data);
+  } else {
+    data.amount = 0;
   }
 };
 

@@ -34,7 +34,7 @@
       </div>
     </vco-page-search-item>
 
-      <vco-page-search-item width="150" :title="t('名称')">
+      <vco-page-search-item width="150" :title="t('项目名称')">
         <a-input v-model:value="searchForm.project_name" :placeholder="t('请输入')" />
       </vco-page-search-item>
   

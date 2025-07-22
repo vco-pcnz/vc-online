@@ -1,34 +1,8 @@
 <template>
-  <div class="flex items-end">
-    <div class="flex title flex-1">
-      <span class="fs_2xl">Cashflow forecast</span>
-      <a-button type="brown" size="small" :class="['picker-btn', { open: isOpen }]" shape="round" @click="isOpen = true">
-        {{ tool.showDate(searchForm.date) }} <DownOutlined class="DropdownIcon" />
-        <a-date-picker
-          class="datePicker"
-          inputReadOnly
-          :open="isOpen"
-          :disabledDate="disabledDateFormat"
-          v-model:value="searchForm.date"
-          :format="selectDateFormat()"
-          valueFormat="YYYY-MM-DD"
-          :showToday="false"
-          @change="loadData()"
-          @openChange="(val) => (isOpen = val)"
-        />
-      </a-button>
-      <!-- {{ userStore.userInfo }} -->
-      <DropdownList v-if="data" label="managers" labelKey="user_name" :dataList="data.managers" v-model:value="searchForm.uid" @change="loadData()"></DropdownList>
-      <DropdownList v-if="toDay === searchForm.date" :type="2" label="requests" labelKey="project_name" searchKey="project_name" v-model:value="searchForm.apply_project_id" @change="loadData()"></DropdownList>
-      <!-- <a-radio-group v-model:value="searchForm.search" @change="loadData()" button-style="solid" size="small">
-        <a-radio-button value="open">open</a-radio-button>
-        <a-radio-button value="approve ">approve</a-radio-button>
-      </a-radio-group> -->
-      
-      <a-button type="brown" size="small" shape="round" @click="setSearchFormSearch">for {{ searchForm.search }}</a-button>
-    </div>
-
-    <a-button type="cyan" size="small" class="ml-3" shape="round" @click="report" :loading="downloading">Create report</a-button>
+  <div class="flex items-end title">
+    <div v-if="showArrow" class="flex-1 fs_2xl cursor-pointer" @click="navigationTo('/dashboard/cashflow')">Cashflow forecast <i class="iconfont">&#xe794;</i></div>
+    <div v-else class="flex-1 fs_2xl cursor-pointer" @click="goBack()"><i class="iconfont" style="rotate: 180deg; display: inline-block">&#xe794;</i>Cashflow forecast</div>
+    <SearchContent v-model:value="searchForm" :searchConfig="searchConfig" downloadUrl="project/forecast/cashFlowForecastExport" @change="loadData"></SearchContent>
   </div>
   <a-spin :spinning="loading" size="large">
     <div class="CashflowForecastChart">
@@ -113,29 +87,30 @@
       </template>
     </div>
   </div>
-  <Forecast :date="dates[hoverIndex]" v-model:visible="visible_forecast"></Forecast>
+  <Forecast :date="dates[hoverIndex]" :searchForm="searchForm" v-model:visible="visible_forecast"></Forecast>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import tool, { selectDateFormat } from '@/utils/tool';
-import { DownOutlined } from '@ant-design/icons-vue';
-import dayjs, { Dayjs } from 'dayjs';
+import tool, { goBack, navigationTo } from '@/utils/tool';
+import dayjs from 'dayjs';
 import TableBlock from './TableBlock.vue';
-import { cashFlowForecast, cashFlowForecastExport } from '@/api/project/forecast';
-import DropdownList from './chooseList.vue';
+import { cashFlowForecast } from '@/api/project/forecast';
 import Forecast from './ForecastModal.vue';
 import VcoNumberNew from './vco-number-new.vue';
 import LineLabel from './line-label.vue';
 import { useUserStore } from '@/store';
+import SearchContent from '../SearchContent/index.vue';
 
 const { t } = useI18n();
-const userStore = useUserStore();
 
-const props = defineProps([]);
-
-const isOpen = ref(false);
+const props = defineProps({
+  showArrow: {
+    type: Boolean,
+    default: false
+  }
+});
 
 const visible_forecast = ref(false);
 const tooltipBoxRef = ref();
@@ -190,15 +165,6 @@ const chartData = computed(() => {
   return false;
 });
 
-const disabledDateFormat = (current) => {
-  const endDate = new Date();
-  if (current && current.isAfter(endDate, 'day')) {
-    return true;
-  }
-
-  return false;
-};
-
 const data = ref(null);
 const zeroLine = ref(0);
 const Min = ref(0);
@@ -207,29 +173,12 @@ const minMax = ref(0);
 const dates = ref([]);
 const loading = ref(false);
 const toDay = ref(dayjs().format('YYYY-MM-DD'));
+
+const searchConfig = ref(['Date', 'State', 'LM', 'Project']);
 const searchForm = ref({
   date: dayjs().format('YYYY-MM-DD'),
-  uid: '',
-  apply_project_id: '',
   search: 'open' //approve
 });
-
-const downloading = ref(false);
-const report = () => {
-  downloading.value = true;
-  cashFlowForecastExport(searchForm.value)
-    .then((res) => {
-      window.open(res);
-    })
-    .finally(() => {
-      downloading.value = false;
-    });
-};
-
-const setSearchFormSearch = () => {
-  searchForm.value.search = searchForm.value.search == 'open' ? 'approve' : 'open'
-  loadData()
-}
 
 const isAllElementsEqual = ref(false);
 const areAllElementsEqual = (arr) => {
@@ -247,9 +196,11 @@ const areAllElementsEqual = (arr) => {
   return true;
 };
 
-const loadData = () => {
+const loadData = (val) => {
   loading.value = true;
-  if (toDay.value !== searchForm.value.date) searchForm.apply_project_id = '';
+  // if (toDay.value !== searchForm.value.date) searchForm.apply_project_id = '';
+
+  if (val) searchForm.value = { ...searchForm.value, ...val };
   cashFlowForecast(searchForm.value)
     .then((res) => {
       // res = {

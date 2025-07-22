@@ -182,6 +182,8 @@ const check = (val) => {
 const visible = ref(false);
 
 const checkMatchBills = () => {
+  // console.log(selectedRowsDate.value)
+  // return
   if (selectedRowsDate.value.includes(true)) {
     visible.value = true;
   } else {

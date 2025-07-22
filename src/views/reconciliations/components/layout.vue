@@ -2,7 +2,7 @@
   <div>
     <vco-page-nav sup-path="/reconciliations" ref="pageNavRef">
       <template #action>
-        <div v-if="res_xero_update_time">{{ t('数据更新时间') }}：{{ tool.showTime(res_xero_update_time) }}</div>
+        <div v-if="res_xero_update_time">{{ t('数据更新时间') }}: {{ tool.showTime(res_xero_update_time) }}</div>
         <img :width="58" :height="14" :src="xeroImg" alt="Xero" />
         <a-statistic-countdown :value="deadline" @finish="onFinish" format="mm:ss" v-if="Boolean(countdown)">
           <template #prefix>

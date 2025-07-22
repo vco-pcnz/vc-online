@@ -17,17 +17,9 @@
       </div>
     </div>
   </template>
-  <a-empty v-if="!data || !data.list.length" />
+  <a-empty v-if="!data || !data.list || !data.list.length" />
   <div class="flex justify-center pb-5" v-if="total > pagination.limit">
-    <a-pagination
-      size="small"
-      :total="total"
-      :pageSize="pagination.limit"
-      :current="pagination.page"
-      show-quick-jumper
-      :show-total="(total) => t('共{0}条', [total])"
-      @change="setPaginate"
-    />
+    <a-pagination size="small" :total="total" :pageSize="pagination.limit" :current="pagination.page" show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
   </div>
   <template v-if="data">
     <div class="footer flex justify-between items-end">
@@ -38,64 +30,18 @@
       <div class="flex gap-8">
         <div>
           <p class="label color_grey fs_xs">withdrawn</p>
-          <vco-number
-            :bold="true"
-            color="#fff"
-            :value="data.drawdown_amount"
-            :end="true"
-            :precision="2"
-            size="fs_2xl"
-            v-if="data.drawdown_amount > 0"
-          ></vco-number>
-          <vco-number
-            v-else
-            :bold="true"
-            prefix="$("
-            suffix=")"
-            color="#fff"
-            :value="data.drawdown_amount"
-            :end="true"
-            :precision="2"
-            size="fs_2xl"
-          ></vco-number>
+          <vco-number :bold="true" color="#fff" :value="data.drawdown_amount" :end="true" :precision="2" size="fs_2xl" v-if="data.drawdown_amount > 0"></vco-number>
+          <vco-number v-else :bold="true" prefix="$(" suffix=")" color="#fff" :value="data.drawdown_amount" :end="true" :precision="2" size="fs_2xl"></vco-number>
         </div>
         <div>
           <p class="label color_grey fs_xs">repaid</p>
-          <vco-number
-            :bold="true"
-            color="#fff"
-            :value="data.repayment_amount"
-            :end="true"
-            :precision="2"
-            size="fs_2xl"
-            v-if="data.repayment_amount > 0"
-          ></vco-number>
-          <vco-number
-            v-else
-            :bold="true"
-            prefix="$("
-            suffix=")"
-            color="#fff"
-            :value="data.repayment_amount"
-            :end="true"
-            :precision="2"
-            size="fs_2xl"
-          ></vco-number>
+          <vco-number :bold="true" color="#fff" :value="data.repayment_amount" :end="true" :precision="2" size="fs_2xl" v-if="data.repayment_amount > 0"></vco-number>
+          <vco-number v-else :bold="true" prefix="$(" suffix=")" color="#fff" :value="data.repayment_amount" :end="true" :precision="2" size="fs_2xl"></vco-number>
         </div>
         <div>
           <p class="label color_grey fs_xs">cashflow</p>
           <vco-number :bold="true" color="#fff" :value="data.total" :end="true" :precision="2" size="fs_2xl" v-if="data.total > 0"></vco-number>
-          <vco-number
-            :bold="true"
-            prefix="$("
-            suffix=")"
-            color="#fff"
-            :value="data.total"
-            :end="true"
-            :precision="2"
-            size="fs_2xl"
-            v-else
-          ></vco-number>
+          <vco-number :bold="true" prefix="$(" suffix=")" color="#fff" :value="data.total" :end="true" :precision="2" size="fs_2xl" v-else></vco-number>
         </div>
       </div>
     </div>

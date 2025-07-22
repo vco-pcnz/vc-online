@@ -104,6 +104,8 @@ const loadData = () => {
   reconciliationList({ ...pagination.value, ...searchParams.value })
     .then((res) => {
       total.value = res.count;
+      localStorage.setItem('res_xero_update_time', res.otherInfo);
+      layoutRef.value.updateResTime();
       if (res.data.length) {
         res.data.map((item) => {
           if (item.fee_type.length) {
@@ -180,6 +182,8 @@ const check = (val) => {
 const visible = ref(false);
 
 const checkMatchBills = () => {
+  // console.log(selectedRowsDate.value)
+  // return
   if (selectedRowsDate.value.includes(true)) {
     visible.value = true;
   } else {

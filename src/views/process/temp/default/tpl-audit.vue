@@ -174,7 +174,7 @@
   import useProcessStore from "@/store/modules/process"
   import OpenDialog from "./components/OpenDialog.vue";
   import ResovleDialog from '@/views/process/components/ResovleDialog.vue';
-  import { numberStrFormat, navigationTo } from '@/utils/tool'
+  import tool, { numberStrFormat, navigationTo } from '@/utils/tool'
 
   // 初始化当前项目的forcastList 状态
   const processStore = useProcessStore()
@@ -300,6 +300,9 @@
       ...data.project
     }
 
+    console.log('staticFormData', staticFormData);
+    console.log('obj', obj);
+
     let compareBack = {}
     const compareBackObjData = {}
 
@@ -387,19 +390,39 @@
     compareBackObj.value = compareBackObjData
 
     if (Object.keys(compareBack).includes(props.currentStep.mark)) {
-      if (obj?.start_date !== staticFormData.start_date) {
+      // if (obj?.start_date !== staticFormData.start_date) {
+      //   arr.unshift({
+      //     name: t('开放日期'),
+      //     before: staticFormData.start_date,
+      //     now: obj?.start_date
+      //   })
+      // }
+
+      // if (obj?.end_date !== staticFormData.end_date) {
+      //   arr.unshift({
+      //     name: t('到期日期'),
+      //     before: staticFormData.end_date,
+      //     now: obj?.end_date
+      //   })
+      // }
+
+      // 这里不判断日期，改为判断周期是否有改动 - 2025-07-14
+      const staticDate = tool.calculateDurationPrecise(staticFormData.start_date, staticFormData.end_date);
+      const nowDate = tool.calculateDurationPrecise(obj?.start_date, obj?.end_date);
+
+      if (staticDate.months !== nowDate.months || staticDate.days !== nowDate.days) {
         arr.unshift({
-          name: t('开放日期'),
-          before: staticFormData.start_date,
-          now: obj?.start_date
+          name: t('项目周期'),
+          before: `${staticDate.months} ${t('月')} ${staticDate.days} ${t('天')}`,
+          now: `${nowDate.months} ${t('月')} ${nowDate.days} ${t('天')}`
         })
       }
 
-      if (obj?.end_date !== staticFormData.end_date) {
+      if ((staticFormData?.initial_equity_amount || staticFormData?.initial_equity_amount === 0) && Number(obj?.initial_equity_amount) !== Number(staticFormData?.initial_equity_amount)) {
         arr.unshift({
-          name: t('到期日期'),
-          before: staticFormData.end_date,
-          now: obj?.end_date
+          name: t('初始补充股权'),
+          before: `$${numberStrFormat(Number(staticFormData?.initial_equity_amount))}`,
+          now: `$${numberStrFormat(Number(obj?.initial_equity_amount))}`
         })
       }
 
@@ -416,6 +439,22 @@
           name: t('首次土地贷款放款额'),
           before: `$${numberStrFormat(Number(staticFormData?.initial_land_amount))}`,
           now: `$${numberStrFormat(Number(obj?.initial_land_amount))}`
+        })
+      }
+
+      if ((staticFormData?.substitution_amount || staticFormData?.substitution_amount === 0) && Number(obj?.substitution_amount) !== Number(staticFormData?.substitution_amount)) {
+        arr.unshift({
+          name: t('再融资金额'),
+          before: `$${numberStrFormat(Number(staticFormData?.substitution_amount))}`,
+          now: `$${numberStrFormat(Number(obj?.substitution_amount))}`
+        })
+      }
+
+      if ((staticFormData?.equity_amount || staticFormData?.equity_amount === 0) && Number(obj?.equity_amount) !== Number(staticFormData?.equity_amount)) {
+        arr.unshift({
+          name: t('补充股权'),
+          before: `$${numberStrFormat(Number(staticFormData?.equity_amount))}`,
+          now: `$${numberStrFormat(Number(obj?.equity_amount))}`
         })
       }
 
@@ -550,6 +589,8 @@
         uuid: props.currentId
       }).then(res => {
         infoData = res
+      }).catch(() => {
+        pageLoading.value = false
       })
     }
 

@@ -57,7 +57,20 @@
       <a-divider />
       <a-row :gutter="16">
         <a-col :span="12">
-          <div :class="{ 'color_red-error': Math.abs(data?.right?.lvr) > Math.abs(data?.right?.lvrMax) }">
+          <div v-if="Number(detail?.base?.share_lvr)">
+            <p class="color_grey fs_xs">
+              {{ t('共享LVR') }}
+              <a-tooltip placement="top">
+                <template #title>
+                  <p>{{ `LVR: ${data?.right?.lvr}` }}%</p>
+                  <p class="fs_xs">{{ Math.abs(data?.right?.lvr) > Math.abs(data?.right?.lvrMax) ? 'over the ' : '' }}max {{ data?.right?.lvrMax }}%</p>
+                </template>
+                <i class="iconfont cursor-pointer ml-1">&#xe784;</i>
+              </a-tooltip>
+            </p>
+            <span class="fs_xl bold">{{ detail?.base?.share_lvr }}%</span>
+          </div>
+          <div v-else :class="{ 'color_red-error': Math.abs(data?.right?.lvr) > Math.abs(data?.right?.lvrMax) }">
             <p class="color_grey fs_xs">LVR</p>
             <span class="fs_xl bold">{{ data?.right?.lvr }}%</span>
             <p class="fs_xs">{{ Math.abs(data?.right?.lvr) > Math.abs(data?.right?.lvrMax) ? 'over the ' : '' }}max {{ data?.right?.lvrMax }}%</p>
@@ -81,10 +94,17 @@
           <div :class="{ 'color_red-error': Math.abs(data?.right?.ltc) > Math.abs(data?.right?.baseline) }">
             <div class="color_grey fs_xs flex items-center gap-2">
               LTC
-              <div class="efSGMs">
+              <a-tooltip placement="top">
+                <template #title>
+                  <div>LTC = Projected FC2 / Total Development Cost</div>
+                </template>
+                <i class="iconfont cursor-pointer">&#xe6b3;</i>
+              </a-tooltip>
+
+              <!-- <div class="efSGMs">
                 <i class="iconfont">&#xe6b3;</i>
                 <div class="tips"><p>LTC = Projected FC2 / Total Development Cost </p></div>
-              </div>
+              </div> -->
             </div>
             <p class="fs_xl bold">{{ data?.right?.ltc }}%</p>
           </div>
@@ -101,10 +121,16 @@
         <a-col :span="24">
           <div class="fs_xs flex items-center gap-2" :class="{ 'color_red-error': Math.abs(data?.right?.ltc) > Math.abs(data?.right?.baseline) }">
             Benchmark {{ data?.right?.baseline }}%
-            <div class="efSGMs">
+            <a-tooltip placement="top">
+              <template #title>
+                <div>Benchmark = FC2 / Development Cost</div>
+              </template>
+              <i class="iconfont cursor-pointer">&#xe6b3;</i>
+            </a-tooltip>
+            <!-- <div class="efSGMs">
               <i class="iconfont">&#xe6b3;</i>
               <div class="tips" style="width: 230px;"><p>Benchmark = FC2 / Development Cost </p></div>
-            </div>
+            </div> -->
           </div>
         </a-col>
       </a-row>

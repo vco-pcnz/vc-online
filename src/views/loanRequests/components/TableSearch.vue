@@ -37,9 +37,11 @@
           <vco-type-input v-model="searchForm.project_keyword" v-model:type="searchForm.project_search_type" :type-data="projectsTypeData" :placeholder="t('请输入')"></vco-type-input>
         </vco-page-search-item>
 
-        <vco-page-search-item :title="t('借款人信息')" width="210">
-          <vco-type-input v-model="searchForm.borrower_keyword" v-model:type="searchForm.borrower_search_type" :type-data="borrowerTypeData" :placeholder="t('请输入')"></vco-type-input>
-        </vco-page-search-item>
+        <template v-if="isExpand || roterName !== 'LoanRequestsRepayment'">
+          <vco-page-search-item :title="t('借款人信息')" width="210">
+            <vco-type-input v-model="searchForm.borrower_keyword" v-model:type="searchForm.borrower_search_type" :type-data="borrowerTypeData" :placeholder="t('请输入')"></vco-type-input>
+          </vco-page-search-item>
+        </template>
       </template>
 
       <template v-else>
@@ -48,13 +50,20 @@
         </vco-page-search-item>
       </template>
 
-      <vco-page-search-item width="100%">
+      <vco-page-search-item width="100%" v-if="!isExpand">
         <div class="flex items-center gap-2">
+          <div class="search_expand" v-if="roterName =='LoanRequestsRepayment'" @click="isExpand = !isExpand">{{ t('展开') }}<DoubleRightOutlined class="icon" /></div>
           <a-button type="dark" @click="searchHandle(false)"><i class="iconfont">&#xe756;</i>{{ t('搜索') }}</a-button>
           <a-button type="dark-line" @click="searchHandle(true)"><i class="iconfont">&#xe757;</i>{{ t('重置') }}</a-button>
         </div>
       </vco-page-search-item>
     </vco-page-search>
+
+    <div class="flex items-center gap-2 justify-end mt-5" v-if="isExpand">
+      <div class="search_expand isExpand" @click="isExpand = !isExpand">{{ t('收起') }}<DoubleRightOutlined class="icon" /></div>
+      <a-button type="dark" @click="searchHandle(false)"><i class="iconfont">&#xe756;</i>{{ t('搜索') }}</a-button>
+      <a-button type="dark-line" @click="searchHandle(true)"><i class="iconfont">&#xe757;</i>{{ t('重置') }}</a-button>
+    </div>
   </div>
 </template>
 
@@ -65,9 +74,11 @@ import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import { quick } from '@/api/home/index';
 import { systemDictData } from '@/api/system';
+import { DoubleRightOutlined } from '@ant-design/icons-vue';
 const route = useRoute();
 
 const emits = defineEmits(['search']);
+const isExpand = ref(false);
 const props = defineProps({
   currentTab: {
     type: String

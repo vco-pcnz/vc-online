@@ -22,6 +22,8 @@
         </div>
       </a-modal>
 
+      <reset-schedule-dialog v-model:visible="resetScheduleDialogVisible" :currentId="currentId" @done="getDataInfo(Number(lateTabActiveKey) === 1)" />
+
       <div style="min-height: 200px">
         <div v-if="statisticsData && tabData.length" class="flex header-static" :class="{ 'mt-10': itemId }">
           <div class="item-content">
@@ -113,7 +115,17 @@
             >
               {{ t('增加存蓄费') }}
             </a-button> -->
-            <a-button v-if="itemId" :loading="updateLoading" @click="updateHandle" type="brown" shape="round" size="small">{{ t('更新明细表') }}</a-button>
+
+            <div class="flex flex-col items-center gap-3">
+              <a-button
+                v-if="isAbout && !isClose && !itemId && !budget && hasPermission('projects:schedule:reset')"
+                type="brown" shape="round" size="small"
+                @click="resetScheduleDialogVisible = true"
+              >
+                {{ t('重置当前预测表') }}
+              </a-button>
+              <a-button v-if="itemId" :loading="updateLoading" @click="updateHandle" type="brown" shape="round" size="small">{{ t('更新明细表') }}</a-button>
+            </div>
           </div>
         </div>
 
@@ -280,7 +292,7 @@ import {
   projectForecastExportExcelEst
 } from '@/api/process';
 import { projectForecastVaiList, projectVariationStatisticsVai, projectVariationForecastUpd, projectVariationExportExcel } from '@/api/project/variation';
-
+import ResetScheduleDialog from './components/reset-schedule-dialog.vue';
 import { systemDictData } from '@/api/system';
 import { useUserStore } from '@/store';
 
@@ -630,6 +642,8 @@ const lateTableChange = (key) => {
   const number = Number(key)
   getDataInfo(number === 1);
 };
+
+const resetScheduleDialogVisible = ref(false);
 
 watch(
   () => visible.value,

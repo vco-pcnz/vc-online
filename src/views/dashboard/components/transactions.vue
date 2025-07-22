@@ -2,8 +2,7 @@
   <div class="flex-1">
     <div class="flex title mb-10">
       <span class="fs_2xl">Transactions</span>
-      <SelectDate :list="dates" @change="setDate"></SelectDate>
-      <a-button type="brown" size="small" shape="round" @click="change">{{ type !== 2 ? 'for repayments' : 'for drawdowns' }}</a-button>
+      <SearchContent v-model:value="searchForm" :searchConfig="searchConfig" downloadUrl1="project/forecast/transactionsExport" @change="loadData"></SearchContent>
     </div>
     <a-spin :spinning="loading" size="large">
       <ul class="CashflowMiniStat_list">
@@ -25,7 +24,7 @@
               <p class="color_grey fs_xs">Statements total</p>
               <vco-number :value="item.amount" :precision="2" size="fs_2xl"></vco-number>
             </div>
-            <a-button class="iconBox ml-5" :disabled="!item.download" @click="report(item.id)">
+            <a-button class="iconBox ml-5" :disabled="!item.download" @click="report(item.uuid)">
               <i class="iconfont" :class="{ disabled: !item.download }">&#xe773;</i>
             </a-button>
           </div>
@@ -36,9 +35,9 @@
       <i class="iconfont" style="font-size: 38px; color: #b8cdcc">&#xe78f;</i>
       <div>
         <vco-number :value="data?.total_amount" :precision="2" :bold="true"></vco-number>
-        <p class="color_grey fs_xs">Total for {{ tool.showDate(data?.period.start_date) }} - {{ tool.showDate(data?.period.end_date) }}</p>
+        <p class="color_grey fs_xs">Total for {{ tool.showDate(searchForm.start_date) }} - {{ tool.showDate(searchForm.end_date) }}</p>
       </div>
-      <a-button type="dark" size="large" :loading="downloading" class="" @click="report">Create report</a-button>
+      <a-button type="cyan" size="large" :loading="downloading" class="" @click="report">Create report</a-button>
     </div>
   </div>
 </template>
@@ -46,30 +45,26 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import SelectDate from './SelectDate.vue';
 import tool from '@/utils/tool';
 import { transactions, transactionsExport } from '@/api/project/forecast';
+import dayjs from 'dayjs';
+import SearchContent from './SearchContent/index.vue';
 
 const { t } = useI18n();
 
 const data = ref();
 
-const dates = ref([
-  { name: 'Previous week', code: 'previous_week' },
-  { name: 'Previous month', code: 'previous_month' },
-  { name: 'Previous 2 months', code: 'previous_two_month' }
-]);
-
-const type = ref(2);
-const change = () => {
-  type.value = type.value == 2 ? 4 : 2;
-  loadData();
-};
+const searchConfig = ref(['Time', 'Type']);
+const searchForm = ref({
+  start_date: dayjs().add(-7, 'd').format('YYYY-MM-DD'),
+  end_date: dayjs().format('YYYY-MM-DD'),
+  type: '2'
+});
 
 const downloading = ref(false);
-const report = (uid) => {
-  downloading.value = !uid;
-  transactionsExport({ search_key: search_key.value, type: type.value, uid: uid })
+const report = (uuid) => {
+  downloading.value = !uuid;
+  transactionsExport({ ...searchForm.value, lm_uuids: uuid })
     .then((res) => {
       window.open(res);
     })
@@ -79,22 +74,21 @@ const report = (uid) => {
 };
 
 const loading = ref(false);
-const search_key = ref();
-const loadData = () => {
+const loadData = (val) => {
+  if (val) searchForm.value = { ...searchForm.value, ...val };
   loading.value = true;
-  transactions({ search_key: search_key.value, type: type.value })
+  transactions(searchForm.value)
     .then((res) => {
-      data.value = res.data;
+      data.value = res;
     })
     .finally(() => {
       loading.value = false;
     });
 };
 
-const setDate = (val) => {
-  search_key.value = val || '';
+onMounted(() => {
   loadData();
-};
+});
 </script>
 
 <style scoped lang="less">

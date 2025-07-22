@@ -689,6 +689,14 @@ export const projectForecastExportExcelEst = (params) =>
     params
   });
 
+// 预算-预测表-重置
+export const projectDownSchedule = (data) =>
+  request({
+    url: "/project/down/schedule",
+    method: "post",
+    data
+  });
+
 // 产品列表
 export const productSel = (params) =>
   request({
@@ -733,6 +741,30 @@ export const projectSaveBuild = (data) =>
 export const projectLoanSaveBuild = (data) =>
   request({
     url: "/project/loan/saveBuild",
+    method: "post",
+    data
+  });
+
+// 共享抵押物选择-项目列表
+export const selProject = (params) =>
+  request({
+    url: "/projectDetail/selProject",
+    method: "get",
+    params
+  });
+  
+// 共享抵押物选择-抵押物列表
+export const selSecurity = (params) =>
+  request({
+    url: "/projectDetail/selSecurity",
+    method: "get",
+    params
+  });
+
+// 共享抵押物选择-保存
+export const shareSaveProject = (data) =>
+  request({
+    url: "/projectDetail/shareSaveProject",
     method: "post",
     data
   });

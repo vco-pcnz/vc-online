@@ -13,7 +13,7 @@
   <div class="my-12">
     <ProjectDashboard></ProjectDashboard>
   </div>
-  <CashflowForecast v-if="hasPermission('home:cashflow_forecast')"></CashflowForecast>
+  <CashflowForecast v-if="hasPermission('home:cashflow_forecast')" :isNav="false"></CashflowForecast>
 </template>
 
 <script setup>
@@ -23,7 +23,7 @@ import ProjectDashboard from './components/ProjectDashboard/index.vue';
 import Backlog from './components/Backlog/index.vue';
 import Notice from './components/Notice/index.vue';
 import QuickAccess from './components/QuickAccess/index.vue';
-import CashflowForecast from './components/CashflowForecast/index.vue';
+import CashflowForecast from '../dashboard/components/CashflowForecast/index.vue';
 const { t } = useI18n();
 </script>
 
@@ -37,5 +37,9 @@ const { t } = useI18n();
   overflow: hidden;
   position: relative;
   border: 1px solid #fff;
+}
+
+:deep(.fs_2xl) {
+  font-weight: 700;
 }
 </style>

@@ -3,26 +3,15 @@
     <div class="table-block">
       <ul class="table-col header">
         <li class="check">
-          <a-checkbox
-            v-model:checked="noticeStore.checkedAll"
-            @change="checkedAllHandle"
-          ></a-checkbox>
+          <a-checkbox v-model:checked="noticeStore.checkedAll" @change="checkedAllHandle"></a-checkbox>
         </li>
         <li>
-          <a-button
-            type="cyan"
-            @click="handleMarkRead"
-            :disabled="!noticeStore.selectedNoticeIds.length"
-          >
+          <a-button type="cyan" @click="handleMarkRead" :disabled="!noticeStore.selectedNoticeIds.length">
             {{ t('标记已读') }}
           </a-button>
         </li>
         <li>
-          <a-button
-            type="cyan"
-            @click="handleAllRead"
-            :disabled="!noticeList.length"
-          >
+          <a-button type="cyan" @click="handleAllRead" :disabled="!noticeList.length">
             {{ t('全部已读') }}
           </a-button>
         </li>
@@ -31,29 +20,18 @@
         <template v-for="item in noticeList" :key="item.id">
           <ul class="table-col tr">
             <li class="check">
-              <a-checkbox
-                v-model:checked="item.checked"
-                :disabled="item.look === 1"
-                @change="itemcheck"
-              ></a-checkbox>
+              <a-checkbox v-model:checked="item.checked" :disabled="item.look === 1" @change="itemcheck"></a-checkbox>
             </li>
-            <li
-              :class="`notice-info ${item.look > 0 ? 'mark-read' : ''}`"
-              @click="handleDetail(item)"
-            >
+            <li :class="`notice-info ${item.look > 0 ? 'mark-read' : ''}`" @click="handleDetail(item)">
               <h3 class="title">{{ item.title }}</h3>
-              <p class="content">{{ item.describe }}</p>
+              <div class="flex items-end fs_xs" style="opacity: 0.4">
+                <p :title="item.describe" class="content text-ellipsis overflow-hidden whitespace-normal line-clamp-1 flex-1">{{ item.describe }}</p>
+                <div style="flex: 0 0 140px" class="text-right">{{ item.create_time }}</div>
+              </div>
             </li>
           </ul>
         </template>
-        <a-pagination
-          show-quick-jumper
-          show-size-changer
-          :hideOnSinglePage="true"
-          :total="total"
-          :show-total="(total) => t('共{0}条', [total])"
-          @change="handlePageChange"
-        />
+        <a-pagination show-quick-jumper show-size-changer :hideOnSinglePage="true" :total="total" :show-total="(total) => t('共{0}条', [total])" @change="handlePageChange" />
       </div>
       <a-empty v-else :image="simpleImage" />
     </div>

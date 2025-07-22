@@ -20,7 +20,7 @@
             </p>
           </li>
           <li>
-            <vco-number :value="item.apply_amount" :precision="2" size="fs_xs" :end="true"></vco-number>
+            <vco-number :value="item.apply_amount > 0 ? item.apply_amount : item.vip_amount" :precision="2" size="fs_xs" :end="true"></vco-number>
             <p class="fs_xs color_grey" v-if="item.apply_date">{{ tool.showDate(item.apply_date) }}</p>
           </li>
           <li :style="{ color: setStatusColor(item) }">

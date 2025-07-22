@@ -8,8 +8,11 @@
     </div>
     <div class="wrapper">
       <div class="item cursor-pointer" v-for="(item, index) in list" :key="index" @click="getDetail(item.id)">
-        <h3 class="tit">{{ item.title }}</h3>
-        <p class="text-ellipsis overflow-hidden whitespace-normal line-clamp-1">{{ item.describe }}</p>
+        <h3 :title="item.title" class="tit text-ellipsis overflow-hidden whitespace-normal line-clamp-1">{{ item.title }}</h3>
+        <div class="flex items-end fs_xs" style="opacity: 0.4">
+          <p :title="item.describe" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-1 flex-1">{{ item.describe }}</p>
+          <div style="flex: 0 0 140px" class="text-right">{{ item.create_time }}</div>
+        </div>
       </div>
       <div style="text-align: center; width: 100%">
         <a-empty v-if="!list.length && !loading" :image="simpleImage" style="min-height: 100px" />

@@ -32,7 +32,7 @@ const emits = defineEmits(['search']);
 const currentTab = ref('1');
 
 const tabData = computed(() => {
-  return [
+  let arr = [
     {
       label: t('申请中'),
       value: '1',
@@ -44,11 +44,19 @@ const tabData = computed(() => {
       num: props.tabNum ? props.tabNum['2'] : 0
     },
     {
+      label:  route.name == 'LoanRequestsDrawdown'?'PAID':'REPAID',
+      value: '4',
+      num: props.tabNum ? props.tabNum['4'] : 0,
+      hide: route.name !== 'LoanRequestsDrawdown' && route.name !== 'LoanRequestsRepayment'
+    },
+    {
       label: t('已拒绝'),
       value: '3',
       num: props.tabNum ? props.tabNum['3'] : 0
     }
   ];
+  console.log(route.name)
+  return arr.filter(item => !item.hide);
 });
 
 const searchOldData = ref({});
@@ -81,6 +89,10 @@ const statusData = computed(() => {
         {
           label: 'FC REVIEW',
           value: '200'
+        },
+        {
+          label: 'DIRECTOR REVIEW',
+          value: '300'
         }
       ];
       break;
@@ -271,11 +283,10 @@ watch(
 );
 </script>
 
-<style lang="less" >
-
+<style lang="less">
 .loanRequestsMark {
   position: absolute !important;
-  background-color: #F19915;
+  background-color: #f19915;
   color: #fff;
   font-size: 11px;
   padding: 2px 10px;

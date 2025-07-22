@@ -1,7 +1,8 @@
 <template>
   <div class="flex justify-between title mb-10">
     <span class="fs_2xl">{{ t('统计简报') }}</span>
-    <SearchContent v-model:value="searchForm" :searchConfig="searchConfig" :open_hidden="true" downloadUrl="project/forecast/briefExport" @change="loadData"></SearchContent>
+    <SearchContent v-model:value="searchForm" :searchConfig="searchConfig" :open_hidden="true" @change="loadData"></SearchContent>
+    <!-- downloadUrl="project/forecast/briefExport"  -->
   </div>
   <a-spin :spinning="loading" size="large">
     <div class="list mb-10">

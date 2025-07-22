@@ -12,7 +12,7 @@
           <a-row :gutter="24">
             <a-col :span="16">
               <a-form-item :label="t('变更类型')" name="type">
-                <a-select v-model:value="formState.type" :options="typeData"></a-select>
+                <a-select v-model:value="formState.type" :options="typeData" @change="typeChange"></a-select>
               </a-form-item>
             </a-col>
             <a-col :span="8">
@@ -36,6 +36,61 @@
               </a-form-item>
             </a-col>
           </a-row>
+          <a-row :gutter="24">
+            <a-col :span="7">
+              <a-form-item :label="t('开发成本')">
+                <div class="input-number-container">
+                  <vco-number :value="projectInfo?.credit?.right?.devCost" :bold="true" size="fs_ml" :precision="2"></vco-number>
+                </div>
+              </a-form-item>
+            </a-col>
+            <template v-if="[1, 2, 4, 5].includes(formState.type)">
+              <a-col :span="1" class="plus-txt">
+                <i class="iconfont" v-if="[1, 4].includes(Number(formState.type))">&#xe712;</i>
+                <i class="iconfont" v-else>&#xe711;</i>
+              </a-col>
+              <a-col :span="7">
+                <a-form-item :label="t('变更值')">
+                  <DevCostDetail
+                    :dataJson="devCostJsonData"
+                    :disabledGST="true"
+                    :disabledLoan="true"
+                    :disabledModel="true"
+                    :is-variation="true"
+                    :uuid="uuid"
+                    :remain-land-amount="Number(projectInfo?.base?.remain_land_amount) || 0"
+                    :is-plus="[1, 4].includes(Number(formState.type))"
+                    @change="devCostChange"
+                  >
+                    <div class="input-number-container">
+                      <a-input-number
+                        v-model:value="changeCost"
+                        :max="99999999999"
+                        :disabled="true"
+                        :formatter="
+                          (value) =>
+                            `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                        "
+                        :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                      />
+                      <i class="iconfont">&#xe8cf;</i>
+                    </div>
+                    
+                  </DevCostDetail>
+                </a-form-item>
+              </a-col>
+              <a-col :span="1" class="plus-txt">
+                <i class="iconfont">=</i>
+              </a-col>
+              <a-col :span="8">
+                <a-form-item :label="t('变更后')">
+                  <div class="input-number-container">
+                    <vco-number :value="changeCostAfter" :bold="true" size="fs_ml" :precision="2"></vco-number>
+                  </div>
+                </a-form-item>
+              </a-col>
+            </template>
+          </a-row>
         </a-form>
       </div>
     </div>
@@ -44,12 +99,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { projectDetail } from '@/api/project/project';
 import { systemDictData } from '@/api/system';
-import { projectCreditVariation, projectVariationEdit, borkerFeeCalc, projectVariationDrawdownSel } from '@/api/project/loan';
+import { projectVariationDrawdownSel } from '@/api/project/loan';
 import { useI18n } from 'vue-i18n';
+import DevCostDetail from '@/views/process/temp/default/components/DevCostDetail.vue';
 import { selectDateFormat, numberStrFormat, formatMoneyToNumber } from '@/utils/tool';
 import BaseCard from '@/views/projects/about/components/base.vue';
 import dayjs from 'dayjs';
@@ -71,17 +127,28 @@ const getTypeData = () => {
         value: Number(item.code)
       };
     });
-    console.log(data);
     typeData.value = data;
   });
 };
+
+const devCostJsonData = ref([]);
 
 const getProjectDetail = async () => {
   pageLoading.value = true;
   const res = await projectDetail({uuid: uuid.value});
   projectInfo.value = res;
   pageLoading.value = false;
+
+  devCostJsonData.value = projectInfo.value.base.devCostDetail;
 };
+
+const devCostChange = (val) => {
+  devCostJsonData.value = val.devCostDetail;
+}
+
+const typeChange = () => {
+  devCostJsonData.value = projectInfo.value.base.devCostDetail;
+}
 
 const formRef = ref();
 
@@ -93,6 +160,32 @@ const formState = ref({
   initial_amount: '',
   note: '',
   initial_sn: ''
+});
+
+const changeCost = computed(() => {
+  const data = cloneDeep(devCostJsonData.value);
+  if (data.length) {
+    const itemData = data[0].data[0].list || [];
+    // 平铺itemData 并计算change_value 的合
+    const flatData = itemData.flatMap((item) => item.list || []);
+    const mergeData = [...itemData, ...flatData];
+    const changeValue = mergeData.reduce((acc, item) => tool.plus(acc, item.change_value || 0), 0);
+    return changeValue;
+  } else {
+    return 0;
+  }
+});
+
+const changeCostAfter = computed(() => {
+  let changeNum = changeCost.value || 0
+  let resNum = 0
+  if ([1, 4].includes(Number(formState.value.type))) {
+    resNum = tool.plus(projectInfo.value.credit.right.devCost, changeNum)
+  }
+  if ([2, 5].includes(Number(formState.value.type))) {
+    resNum = tool.minus(projectInfo.value.credit.right.devCost, changeNum)
+  }
+  return resNum;
 });
 
 const formRules = ref({
@@ -207,5 +300,35 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   height: 300px;
+}
+
+.plus-txt {
+  position: relative;
+  .iconfont {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #282828;
+    font-weight: bold;
+    font-size: 18px;
+  }
+}
+
+.input-number-container {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  .iconfont {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: @colorPrimary;
+    font-weight: bold;
+    font-size: 18px;
+  }
 }
 </style>

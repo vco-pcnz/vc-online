@@ -1043,5 +1043,6 @@ export default {
   "预计FC2": "Estimated FC2",
   "多个以英文逗号分隔": "Multiple separated by English commas",
   "Line Fee 费率": "Line Fee Rate",
-  "真实变更开始日期": "Real variation start date"
+  "真实变更开始日期": "Real variation start date",
+  "最大变更值": "Max variation value"
 }

@@ -49,8 +49,10 @@
         <a-pagination size="small" :total="total" :pageSize="pagination.limit" :current="pagination.page" show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
       </div>
     </div>
-    <div class="chart" style="padding: 0 30px">
-      <v-chart class="chart2" :option="option" autoresize />
+    <div style="position: relative">
+      <div class="chart" style="position: absolute; top: 0; right: 50px; height: 0; padding-top: 100%; left: 50px">
+        <v-chart class="chart2" style="position: absolute; inset: 0" :option="option" autoresize />
+      </div>
     </div>
   </div>
 </template>

@@ -1,13 +1,11 @@
 <template>
   <div class="search-content">
-    <template v-for="key in searchConfig" :key="key">
-      <date-picker v-if="key === 'Date'" :data="searchForm.date" @change="change" />
-      <range-picker v-if="key === 'Time'" :data="[searchForm.start_date, searchForm.end_date]" @change="change" />
-      <select-lm v-if="key === 'LM'" @change="change" />
-      <select-project v-if="key === 'Project'" @change="change" />
-      <select-state v-if="key === 'State'" :data="searchForm.search" :open_hidden="open_hidden" @change="change" />
-      <select-type v-if="key === 'Type'" :data="searchForm.type" @change="change" />
-    </template>
+    <date-picker v-if="searchConfig.includes('Date')" :data="searchForm.date" @change="change" />
+    <range-picker v-if="searchConfig.includes('Time')" :data="[searchForm.start_date, searchForm.end_date]" @change="change" />
+    <select-state v-if="searchConfig.includes('State')" :data="searchForm.search" :open_hidden="open_hidden" @change="changeLm" />
+    <select-type v-if="searchConfig.includes('Type')" :data="searchForm.type" @change="change" />
+    <select-lm v-if="searchConfig.includes('LM')" @change="changeLm" />
+    <select-project v-if="searchConfig.includes('Project')" ref="selectProjectRef" @change="change" />
 
     <a-button type="cyan" class="ml-3" @click="report" :loading="downloading" v-if="downloadUrl">
       <i class="iconfont">&#xe780;</i>
@@ -52,7 +50,7 @@ const searchForm = ref({
   cycle: '',
   date: '',
   lm_uuids: '',
-  apply_project_id: '',
+  project_uuids: '',
   type: '',
   search: ''
 });
@@ -76,6 +74,18 @@ const report = () => {
     .catch((e) => {
       downloading.value = false;
     });
+};
+
+const selectProjectRef = ref();
+const changeLm = (val) => {
+  if (props.searchConfig.includes('Project')) {
+    searchForm.value.project_uuids = '';
+    searchForm.value = { ...searchForm.value, ...val };
+    emits('change', searchForm.value);
+    selectProjectRef.value.init({ lm_uuids: searchForm.value.lm_uuids, search: searchForm.value.search });
+  } else {
+    change(val);
+  }
 };
 
 const change = (val) => {

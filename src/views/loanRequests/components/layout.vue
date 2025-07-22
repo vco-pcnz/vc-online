@@ -89,6 +89,10 @@ const statusData = computed(() => {
         {
           label: 'FC REVIEW',
           value: '200'
+        },
+        {
+          label: 'DIRECTOR REVIEW',
+          value: '300'
         }
       ];
       break;

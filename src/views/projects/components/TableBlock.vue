@@ -110,6 +110,25 @@
             <span class="replenish_text">{{ record.credit.irrPreset }}% · {{ (record.credit.irr - record.credit.irrPreset).toFixed(2) }}%</span>
           </div>
         </template>
+
+         <template v-if="column.key === 'lvr'">
+          <div :class="{ 'color_red-error': Math.abs(record.credit?.lvrMax) < Math.abs(record.credit?.lvr) }">
+            <p class="bold black">
+              <i class="iconfont" style="color: #67837e">&#xe761;</i>
+              {{ record.credit.lvr }}%
+            </p>
+            <span class="replenish_text">{{ record.credit.lvrMax }}% · {{ (record.credit.lvrMax - record.credit.lvr).toFixed(2) }}%</span>
+          </div>
+        </template>
+         <template v-if="column.key === 'ltc'">
+          <div :class="{ 'color_red-error': Math.abs(record.credit?.ltc) > Math.abs(record.credit?.baseline) }">
+            <p class="bold black">
+              <i class="iconfont" style="color: #67837e">&#xe761;</i>
+              {{ record.credit.ltc }}%
+            </p>
+            <span class="replenish_text">{{ record.credit.baseline }}% · {{ (record.credit.baseline - record.credit.ltc).toFixed(2) }}%</span>
+          </div>
+        </template>
         
         <template v-if="column.key === 'income'">
           <p class="black">{{ tool.formatMoney(record.credit.income) }}</p>

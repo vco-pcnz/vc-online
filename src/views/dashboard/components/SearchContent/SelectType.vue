@@ -1,7 +1,7 @@
 <template>
   <div class="flex">
     <a-input readonly class="input-label" value="Type" />
-    <a-select v-model:value="value" style="width: 110px" :placeholder="t('请选择')" :allowClear="open_hidden" :options="options" @change="onChange"></a-select>
+    <a-select v-model:value="value" style="width: 110px" :placeholder="t('请选择')" :options="options" @change="onChange"></a-select>
   </div>
 </template>
 

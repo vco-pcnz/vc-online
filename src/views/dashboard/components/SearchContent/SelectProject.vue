@@ -3,7 +3,7 @@
     <a-input readonly class="input-label" style="width: 60px" value="Project" />
     <div>
       <a-dropdown class="Filter" trigger="click" v-model:open="visible">
-        <a-select :open="false" v-model:value="select" mode="multiple" style="width: 180px" :maxTagCount="1" :placeholder="t('请选择')" :options="data" :fieldNames="{ label: 'project_name', value: 'uuid' }"> </a-select>
+        <a-select :open="false" v-model:value="select" mode="multiple" style="width: 180px" :maxTagCount="1" :placeholder="t('请选择')" :options="data" :fieldNames="{ label: 'project_name', value: 'uuid' }" @deselect="update"> </a-select>
 
         <template #overlay>
           <div class="Overlay" style="width: 700px; padding-right: 16px">
@@ -22,15 +22,13 @@
               </vco-page-search>
             </div>
 
-            <a-checkbox-group v-model:value="select" @change="() => (checkedAll = !select.length)">
-              <ul class="Filter-List">
-                <li class="Filter-Item" v-for="item in data" :key="item.uuid">
-                  <a-checkbox :value="item.uuid" v-model:checked="checkedAll" class="Filter-Check">
-                    {{ item.project_name }}
-                  </a-checkbox>
-                </li>
-              </ul>
-            </a-checkbox-group>
+            <ul class="Filter-List">
+              <li class="Filter-Item" v-for="item in data" :key="item.uuid">
+                <a-checkbox :checked="select.includes(item.uuid)" class="Filter-Check" @click="onSelect(item.uuid)">
+                  {{ item.project_name }}
+                </a-checkbox>
+              </li>
+            </ul>
 
             <a-empty v-if="!data || !data.length" />
             <div class="flex justify-center pb-5">
@@ -56,8 +54,8 @@ const props = defineProps({
   value: {
     type: String
   },
-  dataList: {
-    type: [Array, Object]
+  params: {
+    type: Object
   }
 });
 
@@ -80,12 +78,25 @@ const setPaginate = (page, limit) => {
   loadData();
 };
 
+const onSelect = (val) => {
+  if (!select.value.includes(val)) {
+    select.value.push(val);
+  } else {
+    let index = select.value.findIndex((it) => {
+      return it === val;
+    });
+    select.value.splice(index, 1);
+  }
+  checkedAll.value = !select.value.length;
+  emits('change', { project_uuids: select.value.join() });
+};
+
 const loadData = () => {
   loading.value = true;
-  forecastProjectList({ ...pagination.value, ...searchForm.value })
+  forecastProjectList({ ...pagination.value, ...searchForm.value, ...params.value })
     .then((res) => {
       data.value = res.data;
-      total.value = res.total;
+      total.value = res.count;
     })
     .finally(() => {
       loading.value = false;
@@ -96,12 +107,18 @@ const searchForm = ref({
   project_name: ''
 });
 
+const update = () => {
+  emits('change', { project_uuids: select.value.join() });
+};
+
 // 搜索
 const searchHandle = (flag) => {
   if (flag) {
     searchForm.value = {
       project_name: ''
     };
+    select.value = [];
+    update();
   }
 
   pagination.value.page = 1;
@@ -111,6 +128,7 @@ const searchHandle = (flag) => {
 onMounted(() => {
   loadData();
 });
+
 watch(
   () => checkedAll.value,
   (val) => {
@@ -118,22 +136,22 @@ watch(
   }
 );
 
-watch(
-  () => select.value,
-  (val) => {
-    emits('change', { apply_project_id: select.value.join(), project_uuids: select.value.join() });
-  }
-);
+const params = ref({
+  lm_uuids: '',
+  search: ''
+});
 
-watch(
-  () => props.dataList,
-  (val) => {
-    if (val) {
-      data.value = cloneDeep(val);
-    }
-  },
-  { deep: true, immediate: true }
-);
+const init = (val) => {
+  pagination.value.page = 1;
+  select.value = [];
+  params.value = val;
+  loadData();
+};
+
+// 暴露方法给父组件
+defineExpose({
+  init
+});
 </script>
 
 <style scoped lang="less">

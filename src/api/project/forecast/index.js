@@ -104,7 +104,6 @@ export const forecastBrief = (params) =>
     params
   });
 
-
 // 利润统计
 export const profitSta = (params) =>
   request({
@@ -121,7 +120,17 @@ export const profitLog = (params) =>
     params
   });
 
+//  更新利益
+export const profitUpd = () =>
+  request({
+    url: '/project/forecast/profitUpd',
+    method: 'get'
+  });
 
- 
-
- 
+// 区域
+export const regional = (params) =>
+  request({
+    url: '/project/forecast/regional',
+    method: 'get',
+    params
+  });

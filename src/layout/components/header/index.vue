@@ -108,8 +108,6 @@ const menuData = computed(() => {
         path: item.path
       };
     });
-  console.log(dataArr);
-  console.log(resData);
   return resData;
 });
 

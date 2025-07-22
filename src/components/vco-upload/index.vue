@@ -13,10 +13,10 @@
       :multiple="isMultiple"
       :showUploadList="showUploadList"
       :accept="accept"
-      directory
       @preview="handlePreview"
       @change="handleChange"
     >
+    <!-- directory 文件夹 -->
       <slot>
         <div v-if="(isMultiple && fileList.length < limit && !disabled) || (!isMultiple && !picUrl)" class="upload-slot">
           <loading-outlined v-if="spinning" />

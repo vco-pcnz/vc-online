@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-end title mt-10">
     <div class="flex-1 fs_2xl cursor-pointer" @click="navigationTo('/dashboard/profit')">{{ t('收入记录') }}</div>
-    <SearchContent v-model:value="searchForm" :searchConfig="searchConfig" downloadUrl="project/forecast/cashFlowForecastExport" @change="loadData"></SearchContent>
+    <SearchContent v-model:value="searchForm" :searchConfig="searchConfig" downloadUrl="project/forecast/profitExport" @change="loadData"></SearchContent>
   </div>
   <template v-if="data">
     <div class="row thead mt-10">
@@ -105,9 +105,8 @@ const loading = ref(false);
 
 const loadData = (val) => {
   loading.value = true;
-  let params = searchForm.value;
-  if (val) params = { ...searchForm.value, ...val };
-  profitLog({ ...params, ...pagination.value })
+  if (val) searchForm.value = { ...searchForm.value, ...val };
+  profitLog({ ...searchForm.value, ...pagination.value })
     .then((res) => {
       total.value = res.count;
       data.value = res.data;

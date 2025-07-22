@@ -1,15 +1,6 @@
 <template>
   <div @click.stop ref="renameRef" class="forecast">
-    <a-modal
-      :open="visible"
-      :title="'Cashflow forecast details for ' + (date ? tool.monthYearFull(date) : '')"
-      :width="1000"
-      :footer="null"
-      :keyboard="false"
-      :maskClosable="false"
-      :getContainer="() => $refs.renameRef"
-      @update:open="updateVisible"
-    >
+    <a-modal :open="visible" :title="'Cashflow forecast details for ' + (date ? tool.monthYearFull(date) : '')" :width="1000" :footer="null" :keyboard="false" :maskClosable="false" :getContainer="() => $refs.renameRef" @update:open="updateVisible">
       <a-spin :spinning="loading" size="large">
         <ForecastList :data="data" :total="total" @change="loadData"></ForecastList>
       </a-spin>
@@ -34,6 +25,9 @@ const props = defineProps({
   },
   date: {
     type: String
+  },
+  searchForm: {
+    type: Object
   }
 });
 
@@ -51,11 +45,12 @@ const loadData = (pagination) => {
   data.value = null;
   loading.value = true;
   pagination = pagination ? pagination : { page: 1, limit: 10 };
-  monthlyCashFlowList({ search_key: props.date, ...pagination })
+  monthlyCashFlowList({ search_key: props.date, ...pagination, ...props.searchForm })
     .then((res) => {
       total.value = res.count;
       data.value = res.data;
-    }).finally(() => {
+    })
+    .finally(() => {
       loading.value = false;
     });
 };

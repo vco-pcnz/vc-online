@@ -87,7 +87,7 @@
       </template>
     </div>
   </div>
-  <Forecast :date="dates[hoverIndex]" v-model:visible="visible_forecast"></Forecast>
+  <Forecast :date="dates[hoverIndex]" :searchForm="searchForm" v-model:visible="visible_forecast"></Forecast>
 </template>
 
 <script setup>
@@ -174,7 +174,7 @@ const dates = ref([]);
 const loading = ref(false);
 const toDay = ref(dayjs().format('YYYY-MM-DD'));
 
-const searchConfig = ref(['Date', 'LM', 'Project', 'State']);
+const searchConfig = ref(['Date', 'State', 'LM', 'Project']);
 const searchForm = ref({
   date: dayjs().format('YYYY-MM-DD'),
   search: 'open' //approve
@@ -200,9 +200,8 @@ const loadData = (val) => {
   loading.value = true;
   // if (toDay.value !== searchForm.value.date) searchForm.apply_project_id = '';
 
-  let params = searchForm.value;
-  if (val) params = { ...searchForm.value, ...val };
-  cashFlowForecast(params)
+  if (val) searchForm.value = { ...searchForm.value, ...val };
+  cashFlowForecast(searchForm.value)
     .then((res) => {
       // res = {
       //   available_fund: '691321894.17',

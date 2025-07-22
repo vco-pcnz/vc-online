@@ -96,32 +96,25 @@ watch(
       align-items: center;
     }
     .row-bars {
-      flex: 1 1 0%;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 24px;
+      flex: 1;
+      display: flex;
       .ehsbrV {
-        position: relative;
-        height: 100%;
-        width: 100%;
-        background-color: transparent;
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
       }
     }
     .bar_l {
-      left: 0;
-      height: 10%;
-      width: calc(50% - 2px);
       background-color: rgb(229, 224, 215);
-      position: absolute;
-      bottom: 0px;
+      min-height: 5px !important;
+      width: 35px;
+      margin-right: 15px;
     }
     .bar_r {
-      right: 0;
-      height: 100%;
-      width: calc(50% - 2px);
       background-color: rgb(180, 241, 219);
-      position: absolute;
-      bottom: 0px;
+      min-height: 5px !important;
+      width: 35px;
     }
     .jhVYNA {
       display: grid;

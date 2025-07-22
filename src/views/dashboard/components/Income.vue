@@ -5,12 +5,12 @@
       <div v-else class="flex-1 fs_2xl cursor-pointer" @click="goBack()"><i class="iconfont" style="rotate: 180deg; display: inline-block">&#xe794;</i>{{ t('收入') }}</div>
 
       <div>
-        {{ t('数据更新时间') }}: {{ tool.showTime('2025-07-17') }}
-        <a-button type="cyan" class="ml-3">{{ t('更新') }}</a-button>
+        <span v-if="updateTime">{{ tool.showTime(updateTime) }}</span>
+        <a-button type="cyan" class="ml-3" :loading="updateLoading" @click="update">{{ t('更新') }}</a-button>
       </div>
     </div>
 
-    <SearchContent v-model:value="searchForm" :searchConfig="searchConfig" downloadUrl="project/forecast/cashFlowForecastExport" @change="loadData"></SearchContent>
+    <SearchContent v-model:value="searchForm" :searchConfig="searchConfig" downloadUrl="project/forecast/profitStaExport" @change="loadData"></SearchContent>
   </div>
   <a-spin :spinning="loading" size="large">
     <div class="chart" @click="navigationTo('/dashboard/income')">
@@ -25,7 +25,7 @@ import { useI18n } from 'vue-i18n';
 import tool, { goBack, navigationTo } from '@/utils/tool';
 import SearchContent from './SearchContent/index.vue';
 import dayjs from 'dayjs';
-import { profitSta } from '@/api/project/forecast';
+import { profitSta, profitUpd } from '@/api/project/forecast';
 
 const { t } = useI18n();
 
@@ -52,7 +52,7 @@ const option = ref({
     bottom: 50,
     top: 50
   },
-  color: ['#b4d8d8'],
+  color: ['#f1e4b4', '#98c2db', '#d3bcbd', '#bad7d5', '#e3edea'],
   legend: {},
   xAxis: {
     type: 'category',
@@ -60,11 +60,6 @@ const option = ref({
   },
   yAxis: {
     type: 'value',
-    // axisLabel: {
-    //   formatter: '{value}%' // 在 y 轴数值后添加 %
-    // },
-    // min: 0,
-    // max: 100,
     splitLine: {
       show: true, // 显示分割线
       lineStyle: {
@@ -77,15 +72,25 @@ const option = ref({
     trigger: 'axis',
     axisPointer: {
       type: 'shadow'
+    },
+    formatter: function (params) {
+      // 定义 tooltip 的 HTML 样式
+      const bodyStyle = 'font-family: Aeonik, Arial, Helvetica, sans-serif;';
+
+      let result = `<div style="color: #333;">${params[0].axisValue}</div>`; // 标题
+      params.forEach((item) => {
+        result += `
+          <div style="${bodyStyle} margin-top: 4px;">
+            ${item.marker} 
+            <span style="">${item.seriesName}:</span> 
+            <span style="color: #333;font-weight: bold;">$${item.value}</span>
+          </div>
+        `;
+      });
+      return result;
     }
   },
-  series: [
-    {
-      type: 'bar', //line
-      barWidth: 50,
-      data: []
-    }
-  ]
+  series: []
 });
 
 const loadData = (val) => {
@@ -94,20 +99,33 @@ const loadData = (val) => {
   loading.value = true;
   profitSta(params)
     .then((res) => {
-      if (res && res.length) {
-        option.value.series[0].data = res.map((item) => item.amount);
-        option.value.xAxis.data = res.map((item) => {
-          if (item.time.length == '7') {
-            return tool.monthYear(item.time);
-          }
-          if (item.time.length == '10') {
-            return tool.showDate(item.time);
-          }
-        });
-      }
+      console.log(res.data);
+      option.value.xAxis.data = res.data.time.map((item) => {
+        if (item.length == '7') {
+          return tool.monthYear(item);
+        }
+        if (item.length == '10') {
+          return tool.showDate(item);
+        }
+      });
+      option.value.series = res.data.bar;
+      updateTime.value = res.otherInfo;
     })
     .finally(() => {
       loading.value = false;
+    });
+};
+
+const updateTime = ref('');
+const updateLoading = ref(false);
+const update = () => {
+  updateLoading.value = true;
+  profitUpd()
+    .then((res) => {
+      loadData();
+    })
+    .finally(() => {
+      updateLoading.value = false;
     });
 };
 
@@ -120,5 +138,6 @@ onMounted(() => {
 @import '@/styles/variables.less';
 .chart {
   height: 400px;
+  margin-top: 15px;
 }
 </style>

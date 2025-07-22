@@ -25,7 +25,7 @@
               <p class="color_grey fs_xs">Statements total</p>
               <vco-number :value="item.amount" :precision="2" size="fs_2xl"></vco-number>
             </div>
-            <a-button class="iconBox ml-5" :disabled="!item.download" @click="report(item.id)">
+            <a-button class="iconBox ml-5" :disabled="!item.download" @click="report(item.uuid)">
               <i class="iconfont" :class="{ disabled: !item.download }">&#xe773;</i>
             </a-button>
           </div>
@@ -36,9 +36,9 @@
       <i class="iconfont" style="font-size: 38px; color: #b8cdcc">&#xe721;</i>
       <div>
         <vco-number :value="data?.total_amount" :precision="2" :bold="true"></vco-number>
-        <p class="color_grey fs_xs">Total for {{ tool.showDate(data?.period.start_date) }} - {{ tool.showDate(data?.period.end_date) }}</p>
+        <p class="color_grey fs_xs">Total for {{ tool.showDate(searchForm.start_date) }} - {{ tool.showDate(searchForm.end_date) }}</p>
       </div>
-      <a-button type="dark" size="large" :loading="downloading" class="" @click="report">Create report</a-button>
+      <a-button type="cyan" size="large" :loading="downloading" class="" @click="report">Create report</a-button>
     </div>
   </div>
 </template>
@@ -63,9 +63,9 @@ const searchForm = ref({
 });
 
 const downloading = ref(false);
-const report = (uid) => {
-  downloading.value = !uid;
-  forecastExport({ ...searchForm.value, uid: uid })
+const report = (uuid) => {
+  downloading.value = !uuid;
+  forecastExport({ ...searchForm.value, lm_uuids: uuid })
     .then((res) => {
       window.open(res);
     })
@@ -80,7 +80,7 @@ const loadData = (val) => {
   loading.value = true;
   forecast(searchForm.value)
     .then((res) => {
-      data.value = res.data;
+      data.value = res;
     })
     .finally(() => {
       loading.value = false;

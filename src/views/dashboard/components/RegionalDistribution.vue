@@ -17,13 +17,30 @@
       </div>
       <div class="row-box" v-for="(item, index) in data" :key="index">
         <div class="row">
-          <div class="weight_demiBold">Auckland</div>
-          <div class="text-center">10</div>
+          <div class="weight_demiBold">
+            <a-button size="small" class="showChildrenIcon" @click="item.showChildren = !item.showChildren">
+              <template #icon><MinusOutlined v-if="item.showChildren" /><PlusOutlined v-else /></template>
+            </a-button>
+            {{ item.name }}
+          </div>
+          <div class="text-center">{{ item.count }}</div>
           <div class="color_grey fs_xs text-center">
-            <vco-number :bold="true" prefix="" :value="item.amount" :precision="2" size="fs_md"></vco-number>
+            <vco-number :bold="true" :value="item.money" :precision="2" size="fs_md"></vco-number>
           </div>
           <div class="text-center">
-            <vco-number :bold="true" prefix="" :value="item.amount" :precision="2" size="fs_md"></vco-number>
+            <vco-number :bold="true" :value="item.hkmoney" :precision="2" size="fs_md"></vco-number>
+          </div>
+        </div>
+        <div v-if="item.children && item.children.length" class="childrenBox" :class="item.showChildren ? 'show' : 'hidden'">
+          <div class="row" v-for="(sub, subIndex) in item.children" :key="subIndex">
+            <div class="weight_demiBold">{{ sub.name }}</div>
+            <div class="text-center">{{ sub.count }}</div>
+            <div class="color_grey fs_xs text-center">
+              <vco-number :bold="true" :value="sub.money" :precision="2" size="fs_md"></vco-number>
+            </div>
+            <div class="text-center">
+              <vco-number :bold="true" :value="sub.hkmoney" :precision="2" size="fs_md"></vco-number>
+            </div>
           </div>
         </div>
       </div>
@@ -32,7 +49,7 @@
         <a-pagination size="small" :total="total" :pageSize="pagination.limit" :current="pagination.page" show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
       </div>
     </div>
-    <div class="chart" style="padding: 0 30px;">
+    <div class="chart" style="padding: 0 30px">
       <v-chart class="chart2" :option="option" autoresize />
     </div>
   </div>
@@ -42,7 +59,8 @@
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
-import { cashFlowList } from '@/api/project/forecast';
+import { regional } from '@/api/project/forecast';
+import { PlusOutlined, MinusOutlined } from '@ant-design/icons-vue';
 
 const { t } = useI18n();
 const pagination = ref({
@@ -56,11 +74,19 @@ const loading = ref(false);
 
 const loadData = (val) => {
   loading.value = true;
-  cashFlowList({ ...pagination.value })
+  regional({ ...pagination.value })
     .then((res) => {
-      console.log(res);
-      total.value = res.count;
-      data.value = res.data.list;
+      let money = 0;
+      let hkmoney = 0;
+      res.map((item) => {
+        item['showChildren'] = false;
+        money = tool.plus(money, item.money);
+        hkmoney = tool.plus(hkmoney, item.hkmoney);
+      });
+      option.value.series[0].data = [{ value: hkmoney }, { value: money }];
+      total.value = res.length;
+      dataList.value = res;
+      getCurrentData();
     })
     .finally(() => {
       loading.value = false;
@@ -72,7 +98,13 @@ const setPaginate = (page, limit) => {
     page,
     limit
   };
-  loadData();
+  getCurrentData();
+};
+
+const dataList = ref([]);
+const getCurrentData = () => {
+  let star = (pagination.value.page - 1) * pagination.value.limit;
+  data.value = dataList.value.slice(star, star + pagination.value.limit).concat([]);
 };
 // 初始化图表
 const option = ref({
@@ -111,7 +143,6 @@ const option = ref({
 
 onMounted(() => {
   loadData();
-  option.value.series[0].data = [{ value: 100 }, { value: 300 }]
 });
 </script>
 <style lang="less" scoped>
@@ -120,7 +151,6 @@ onMounted(() => {
   grid-template-columns: 0fr 5fr 1.5fr;
 }
 .row-box {
-  padding: 8px 0;
   border-bottom: 1px solid #e2e5e2;
   &:last-child {
     border: none;
@@ -136,6 +166,48 @@ onMounted(() => {
     letter-spacing: 1px;
     color: #888 !important;
     background: rgba(0, 0, 0, 0.05);
+  }
+}
+.childrenBox {
+  background: #f7f3e6;
+  overflow: hidden;
+  transition: height 0.3s ease;
+  height: 0;
+  &.show {
+    height: auto;
+  }
+  &.hidden {
+    height: 0;
+  }
+
+  .weight_demiBold {
+    text-indent: 30px;
+  }
+}
+
+.showChildrenIcon {
+  outline: none;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  box-sizing: border-box;
+  width: 17px !important;
+  height: 17px !important;
+  padding: 0;
+  background: #ffffff;
+  border: 1px solid #f0f0f0;
+  border-radius: 6px;
+  transform: scale(0.9411764705882353);
+  user-select: none;
+  font-size: 8px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  bottom: 4px;
+  &:hover {
+    color: #69b1ff;
+    border-color: #69b1ff;
   }
 }
 </style>

@@ -101,11 +101,11 @@
               <i class="iconfont grace-icon" v-if="(item.is_grace && hasPermission('projects:forecast:grace')) || (item.status == 0 && hasPermission('projects:forecast:delete'))" @click.stop="removeHandle(item, item.is_grace)">&#xe8c1;</i>
             </div>
             <div v-else class="item opt">
-              <i v-if="item.first" class="iconfont disabled">&#xe8cf;</i>
+              <i v-if="item.first || item.status != 0" class="iconfont disabled">&#xe8cf;</i>
               <Add v-else :uuid="uuid" :item-id="itemId" :projectDetail="projectDetail" :item-date="item" @update="update">
                 <i class="iconfont">&#xe8cf;</i>
               </Add>
-              <i class="iconfont" :class="{ disabled: item.first }" @click="removeHandle(item)">&#xe8c1;</i>
+              <i class="iconfont" :class="{ disabled: item.first || item.status != 0 }" @click="removeHandle(item)">&#xe8c1;</i>
             </div>
           </div>
         </template>

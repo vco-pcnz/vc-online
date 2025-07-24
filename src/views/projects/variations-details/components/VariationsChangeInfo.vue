@@ -53,7 +53,7 @@
           <p class="txt" :class="{ plus: Number(changeData.end_date) > 0, reduce: Number(changeData.end_date) < 0 }">
             <i class="iconfont" v-if="Number(changeData.end_date) > 0" style="color: #eb4b6d">&#xe712;</i>
             <i class="iconfont" v-if="Number(changeData.end_date) < 0" style="color: #31bd65">&#xe711;</i>
-            <span>{{ changeData.end_date }}</span>
+            <span>{{ Math.abs(Number(changeData.end_date)) }}</span>
           </p>
         </a-col>
         <a-col :span="24" class="item-txt">
@@ -170,31 +170,48 @@ const props = defineProps({
     type: Object,
     default: () => {},
   },
+  variationInfo: {
+    type: Object,
+    default: () => {},
+  },
 });
 
 const beforeData = computed(() => {
-  const obj = {
-    start_date: props.detail.date.start_date || '',
-    end_date: props.detail.date.end_date || '',
-    loan_money: props.detail.base.loan_money || 0,
-    estabFee: props.detail.credit.left.estabFee || 0,
-    lineFee: props.detail.credit.left.lineFee || 0,
-    credit_fc2: props.detail.credit.credit_fc2 || 0,
-    interestRate: props.detail.credit.left.interestRate || 0,
-    lvr: props.detail.credit.right.lvr || 0,
-    irr: props.detail.credit.right.irr || 0,
-  };
-  return obj;
+  if (props.variationInfo.state === 1000) {
+    return {
+      start_date: props.variationInfo.old_credit.project.var_start_date || '',
+      end_date: props.variationInfo.old_credit.project.end_date || '',
+      loan_money: props.variationInfo.old_credit.project.loan_money || 0,
+      estabFee: props.variationInfo.old_credit.credit_estabFee || 0,
+      lineFee: props.variationInfo.old_credit.credit_lineFee || 0,
+      credit_fc2: props.variationInfo.old_credit.credit_fc2 || 0,
+      interestRate: Number(props.variationInfo.old_credit.credit_loanInterest) || 0,
+      lvr: props.variationInfo.old_credit.credit_lvr || 0,
+      irr: props.variationInfo.old_credit.credit_irr || 0
+    }
+  } else {
+    return {
+      start_date: props.detail.date.start_date || '',
+      end_date: props.detail.date.end_date || '',
+      loan_money: props.detail.base.loan_money || 0,
+      estabFee: props.detail.credit.left.estabFee || 0,
+      lineFee: props.detail.credit.left.lineFee || 0,
+      credit_fc2: props.detail.credit.credit_fc2 || 0,
+      interestRate: props.detail.credit.left.interestRate || 0,
+      lvr: props.detail.credit.right.lvr || 0,
+      irr: props.detail.credit.right.irr || 0
+    }
+  }
 });
 
 const changeData = computed(() => {
   const gapDay = tool.calculateDurationPrecise(beforeData.value.end_date, props.detail.variationInfo.end_date);
-  const estabFee = tool.minus(props.detail.variationInfo.project_credit.credit_estabFee, props.detail.credit.left.estabFee);
-  const lineFee = tool.minus(props.detail.variationInfo.all_lineFee, props.detail.credit.left.lineFee);
-  const credit_fc2 = tool.minus(props.detail.variationInfo.project_credit.credit_forecastFc2, props.detail.credit.credit_fc2);
-  const interestRate = tool.minus(props.detail.variationInfo.project_credit.credit_loanInterest, props.detail.credit.left.interestRate);
-  const lvr = tool.minus(props.detail.variationInfo.project_credit.credit_lvr, props.detail.credit.right.lvr);
-  const irr = tool.minus(props.detail.variationInfo.project_credit.credit_irrPreset, props.detail.credit.right.irr);
+  const estabFee = tool.minus(props.detail.variationInfo.project_credit.credit_estabFee, beforeData.value.estabFee);
+  const lineFee = tool.minus(props.detail.variationInfo.all_lineFee, beforeData.value.lineFee);
+  const credit_fc2 = tool.minus(props.detail.variationInfo.project_credit.credit_forecastFc2, beforeData.value.credit_fc2);
+  const interestRate = tool.minus(props.detail.variationInfo.project_credit.credit_loanInterest, beforeData.value.interestRate);
+  const lvr = tool.minus(props.detail.variationInfo.project_credit.credit_lvr, beforeData.value.lvr);
+  const irr = tool.minus(props.detail.variationInfo.project_credit.credit_irrPreset, beforeData.value.irr);
 
   const amount = props.detail.variationInfo.amount;
   const loan_money = [2, 5].includes(Number(props.detail.variationInfo.type)) ? amount * -1 : amount;
@@ -214,7 +231,7 @@ const changeData = computed(() => {
 
 const afterData = computed(() => {
   const cAmount = props.detail.variationInfo.amount || 0;
-  const bAmount = props.detail.base.loan_money || 0;
+  const bAmount = props.variationInfo.state === 1000 ? props.variationInfo.old_credit.project.loan_money : props.detail.base.loan_money;
   let loan_money = 0;
   if ([2, 5].includes(Number(props.detail.variationInfo.type))) {
     loan_money = tool.minus(bAmount, cAmount);

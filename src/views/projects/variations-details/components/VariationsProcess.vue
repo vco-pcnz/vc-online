@@ -86,7 +86,8 @@ const getStepData = async () => {
     if (step && step.length) {
       defStep = step;
       defStep.push({
-        name: ''
+        name: '',
+        stateCode: 900
       });
       const stateCode = step.map((item) => item.stateCode);
       max = Math.max(...stateCode);

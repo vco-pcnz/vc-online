@@ -8,13 +8,13 @@
       <div class="tips-content">
         <a-radio-group v-model:value="changeType">
           <a-radio :value="2" class="mt-4"
-            ><p class="tips-txt">{{ t('仅修改当前项，其他日期的放款信息不变') }}</p></a-radio
+            ><p class="tips-txt">{{ t('保持所有未来预测不变。') }}</p></a-radio
           >
           <a-radio :value="1" class="mt-4"
-            ><p class="tips-txt">{{ t('{0}以后已手动修改的放款信息，保留已设置的值', [tool.showDate(currentParams.date)]) }}</p></a-radio
+            ><p class="tips-txt">{{ t('保持手动编辑的预测不变，并按比例调整剩余预测。') }}</p></a-radio
           >
           <a-radio :value="0" class="mt-4"
-            ><p class="tips-txt">{{ t('{0}以后已手动修改的放款信息，按照比例均分', [tool.showDate(currentParams.date)]) }}</p></a-radio
+            ><p class="tips-txt">{{ t('按比例调整所有未来预测，并覆盖所有手动输入。') }}</p></a-radio
           >
         </a-radio-group>
 
@@ -98,14 +98,14 @@
             </div>
             <div v-if="!itemId" class="item history">
               <i class="iconfont nav-icon" v-if="!item.first">&#xe794;</i>
-              <i class="iconfont grace-icon" v-if="item.is_grace && hasPermission('projects:forecast:grace')" @click.stop="removeHandle(item, item.is_grace)">&#xe8c1;</i>
+              <i class="iconfont grace-icon" v-if="(item.is_grace && hasPermission('projects:forecast:grace')) || (item.status == 0 && hasPermission('projects:forecast:delete'))" @click.stop="removeHandle(item, item.is_grace)">&#xe8c1;</i>
             </div>
             <div v-else class="item opt">
-              <i v-if="item.first" class="iconfont disabled">&#xe8cf;</i>
+              <i v-if="item.first || item.status != 0" class="iconfont disabled">&#xe8cf;</i>
               <Add v-else :uuid="uuid" :item-id="itemId" :projectDetail="projectDetail" :item-date="item" @update="update">
                 <i class="iconfont">&#xe8cf;</i>
               </Add>
-              <i class="iconfont" :class="{ disabled: item.first }" @click="removeHandle(item)">&#xe8c1;</i>
+              <i class="iconfont" :class="{ disabled: item.first || item.status != 0 }" @click="removeHandle(item)">&#xe8c1;</i>
             </div>
           </div>
         </template>
@@ -245,7 +245,8 @@ const removeHandle = (data, is_grace) => {
   if (is_grace) {
     delVisible.value = true;
   } else {
-    if (type === 4) {
+    console.log(data.amount);
+    if (type === 4 || data.amount == '0.00') {
       changeType.value = 2;
       delVisible.value = true;
     } else {
@@ -256,9 +257,16 @@ const removeHandle = (data, is_grace) => {
 
 const subLoading = ref(false);
 const sureHandle = () => {
-  if (handleType.value) {
+  if (!handleType.value) {
+    if (changeType.value === undefined) {
+      message.error(t('请选择') + t('修改方式'));
+      return false;
+    }
+  }
+  if (!props.itemId) {
+    // 当前页面删除 宽限期的固定为2 其他的需要选择修改方式
     subLoading.value = true;
-    forecastDelete({ id: currentParams.value.id, apply_uuid: props.uuid, change: 2 })
+    forecastDelete({ id: currentParams.value.id, apply_uuid: props.uuid, change: handleType.value ? 2 : changeType.value })
       .then(() => {
         subLoading.value = false;
         tipsVisible.value = false;
@@ -275,37 +283,33 @@ const sureHandle = () => {
           delAlertRef.value.changeLoading(false);
         }
       });
-    return;
+  } else {
+    // 变更的删除
+    const params = {
+      ...currentParams.value,
+      change: changeType.value,
+      variation_id: props.itemId
+    };
+
+    subLoading.value = true;
+    projectVariationDeletef(params)
+      .then(() => {
+        subLoading.value = false;
+        tipsVisible.value = false;
+
+        emits('update');
+        if (delAlertRef.value) {
+          delVisible.value = false;
+          delAlertRef.value.changeLoading(false);
+        }
+      })
+      .catch(() => {
+        subLoading.value = false;
+        if (delAlertRef.value) {
+          delAlertRef.value.changeLoading(false);
+        }
+      });
   }
-  if (changeType.value === undefined) {
-    message.error(t('请选择') + t('修改方式'));
-    return false;
-  }
-
-  const params = {
-    ...currentParams.value,
-    change: changeType.value,
-    variation_id: props.itemId
-  };
-
-  subLoading.value = true;
-  projectVariationDeletef(params)
-    .then(() => {
-      subLoading.value = false;
-      tipsVisible.value = false;
-
-      emits('update');
-      if (delAlertRef.value) {
-        delVisible.value = false;
-        delAlertRef.value.changeLoading(false);
-      }
-    })
-    .catch(() => {
-      subLoading.value = false;
-      if (delAlertRef.value) {
-        delAlertRef.value.changeLoading(false);
-      }
-    });
 };
 
 const update = () => {

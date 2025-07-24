@@ -8,7 +8,7 @@
         <template #overlay>
           <div class="Overlay" style="width: 700px; padding-right: 16px">
             <div class="flex items-end">
-              <a-checkbox v-model:checked="checkedAll" :disabled="checkedAll" class="Filter-Check"> All requests excluded </a-checkbox>
+              <a-checkbox v-model:checked="checkedAll" :disabled="checkedAll" class="Filter-Check"> All project </a-checkbox>
               <vco-page-search @keyup.enter="searchHandle(false)">
                 <vco-page-search-item :title="t('名称')">
                   <a-input v-model:value="searchForm.project_name" :placeholder="t('请输入')" />

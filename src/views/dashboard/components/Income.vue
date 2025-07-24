@@ -26,6 +26,7 @@ import tool, { goBack, navigationTo } from '@/utils/tool';
 import SearchContent from './SearchContent/index.vue';
 import dayjs from 'dayjs';
 import { profitSta, profitUpd } from '@/api/project/forecast';
+import { cloneDeep } from 'lodash';
 
 const { t } = useI18n();
 
@@ -74,18 +75,22 @@ const option = ref({
       type: 'shadow'
     },
     formatter: function (params) {
+      console.log(params);
       // 定义 tooltip 的 HTML 样式
+
       const bodyStyle = 'font-family: Aeonik, Arial, Helvetica, sans-serif;';
 
       let result = `<div style="color: #333;">${params[0].axisValue}</div>`; // 标题
       params.forEach((item) => {
-        result += `
+        if (item.componentSubType === 'bar') {
+          result += `
           <div style="${bodyStyle} margin-top: 4px;">
             ${item.marker} 
             <span style="">${item.seriesName}:</span> 
             <span style="color: #333;font-weight: bold;">$${item.value}</span>
           </div>
         `;
+        }
       });
       return result;
     }
@@ -99,7 +104,6 @@ const loadData = (val) => {
   loading.value = true;
   profitSta(params)
     .then((res) => {
-      console.log(res.data);
       option.value.xAxis.data = res.data.time.map((item) => {
         if (item.length == '7') {
           return tool.monthYear(item);
@@ -108,7 +112,12 @@ const loadData = (val) => {
           return tool.showDate(item);
         }
       });
-      option.value.series = res.data.bar;
+      // let lineArr = cloneDeep(res.data.bar);
+      // lineArr.map((item) => {
+      //   item.type = 'line';
+      //   item['smooth'] = true;
+      // });
+      option.value.series = [...res.data.bar];
       updateTime.value = res.otherInfo;
     })
     .finally(() => {

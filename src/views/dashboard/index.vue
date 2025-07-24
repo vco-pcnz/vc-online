@@ -41,21 +41,5 @@ import RegionalDistribution from './components/RegionalDistribution.vue';
     bottom: 1px;
     position: relative;
   }
-  // .picker-btn {
-  //   font-size: 12px;
-  //   .DropdownIcon {
-  //     font-size: 10px;
-  //     position: relative;
-  //     top: -2px;
-  //     transition: -webkit-transform 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
-  //     transition: transform 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
-  //     transition: transform 0.2s cubic-bezier(0.645, 0.045, 0.355, 1), -webkit-transform 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
-  //   }
-  //   &.open {
-  //     .DropdownIcon {
-  //       transform: rotate(180deg);
-  //     }
-  //   }
-  // }
 }
 </style>

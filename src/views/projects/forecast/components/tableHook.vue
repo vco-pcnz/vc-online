@@ -98,7 +98,7 @@
             </div>
             <div v-if="!itemId" class="item history">
               <i class="iconfont nav-icon" v-if="!item.first">&#xe794;</i>
-              <i class="iconfont grace-icon" v-if="item.is_grace && hasPermission('projects:forecast:grace')" @click.stop="removeHandle(item, item.is_grace)">&#xe8c1;</i>
+              <i class="iconfont grace-icon" v-if="(item.is_grace && hasPermission('projects:forecast:grace')) || (item.status == 0 && hasPermission('projects:forecast:delete'))" @click.stop="removeHandle(item, item.is_grace)">&#xe8c1;</i>
             </div>
             <div v-else class="item opt">
               <i v-if="item.first" class="iconfont disabled">&#xe8cf;</i>
@@ -245,7 +245,8 @@ const removeHandle = (data, is_grace) => {
   if (is_grace) {
     delVisible.value = true;
   } else {
-    if (type === 4) {
+    console.log(data.amount);
+    if (type === 4 || data.amount == '0.00') {
       changeType.value = 2;
       delVisible.value = true;
     } else {
@@ -256,9 +257,16 @@ const removeHandle = (data, is_grace) => {
 
 const subLoading = ref(false);
 const sureHandle = () => {
-  if (handleType.value) {
+  if (!handleType.value) {
+    if (changeType.value === undefined) {
+      message.error(t('请选择') + t('修改方式'));
+      return false;
+    }
+  }
+  if (!props.itemId) {
+    // 当前页面删除 宽限期的固定为2 其他的需要选择修改方式
     subLoading.value = true;
-    forecastDelete({ id: currentParams.value.id, apply_uuid: props.uuid, change: 2 })
+    forecastDelete({ id: currentParams.value.id, apply_uuid: props.uuid, change: handleType.value ? 2 : changeType.value })
       .then(() => {
         subLoading.value = false;
         tipsVisible.value = false;
@@ -275,37 +283,33 @@ const sureHandle = () => {
           delAlertRef.value.changeLoading(false);
         }
       });
-    return;
+  } else {
+    // 变更的删除
+    const params = {
+      ...currentParams.value,
+      change: changeType.value,
+      variation_id: props.itemId
+    };
+
+    subLoading.value = true;
+    projectVariationDeletef(params)
+      .then(() => {
+        subLoading.value = false;
+        tipsVisible.value = false;
+
+        emits('update');
+        if (delAlertRef.value) {
+          delVisible.value = false;
+          delAlertRef.value.changeLoading(false);
+        }
+      })
+      .catch(() => {
+        subLoading.value = false;
+        if (delAlertRef.value) {
+          delAlertRef.value.changeLoading(false);
+        }
+      });
   }
-  if (changeType.value === undefined) {
-    message.error(t('请选择') + t('修改方式'));
-    return false;
-  }
-
-  const params = {
-    ...currentParams.value,
-    change: changeType.value,
-    variation_id: props.itemId
-  };
-
-  subLoading.value = true;
-  projectVariationDeletef(params)
-    .then(() => {
-      subLoading.value = false;
-      tipsVisible.value = false;
-
-      emits('update');
-      if (delAlertRef.value) {
-        delVisible.value = false;
-        delAlertRef.value.changeLoading(false);
-      }
-    })
-    .catch(() => {
-      subLoading.value = false;
-      if (delAlertRef.value) {
-        delAlertRef.value.changeLoading(false);
-      }
-    });
 };
 
 const update = () => {

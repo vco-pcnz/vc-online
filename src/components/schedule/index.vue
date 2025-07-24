@@ -124,7 +124,7 @@
               >
                 {{ t('重置当前预测表') }}
               </a-button>
-              <a-button v-if="itemId" :loading="updateLoading" @click="updateHandle" type="brown" shape="round" size="small">{{ t('更新明细表') }}</a-button>
+              <a-button v-if="itemId && variationInfo.state !== 1000" :loading="updateLoading" @click="updateHandle" type="brown" shape="round" size="small">{{ t('更新明细表') }}</a-button>
             </div>
           </div>
         </div>
@@ -336,6 +336,10 @@ const props = defineProps({
   lateTable: {
     type: Boolean,
     default: false
+  },
+  variationInfo: {
+    type: Object,
+    default: () => {}
   }
 });
 

@@ -110,8 +110,8 @@
             <p v-if="item.is_ratio">{{ creditOldinfo[item.credit_table] }}%</p>
             <vco-number v-else :value="creditOldinfo[item.credit_table]" color="#888888" :precision="2"></vco-number>
             <i class="iconfont">&#xe794;</i>
-            <p v-if="item.is_ratio">{{ detailData.credit[item.credit_table] }}%</p>
-            <vco-number v-else :value="item.variation_add ? tool.plus(detailData?.credit[item.credit_table], creditOldinfo[item.credit_table]) : detailData?.credit[item.credit_table]" :precision="2"></vco-number>
+            <p v-if="item.is_ratio">{{ detailData.project_credit[item.credit_table] }}%</p>
+            <vco-number v-else :value="item.variation_add ? tool.plus(detailData?.project_credit[item.credit_table], creditOldinfo[item.credit_table]) : detailData?.project_credit[item.credit_table]" :precision="2"></vco-number>
           </div>
         </a-col>
       </div>
@@ -218,7 +218,8 @@ const creditItemsData = ref([]);
 
 const getCreditVal = () => {
   projectCreditVariation({
-    apply_uuid: props.uuid
+    apply_uuid: props.uuid,
+    show: 1
   }).then((res) => {
     const creditInfo = cloneDeep(res);
 

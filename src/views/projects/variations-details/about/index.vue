@@ -15,11 +15,11 @@
             <variation-documents
               :uuid="uuid"
               :id="id"
-              :detail="projectDetail?.variationInfo?.document"
+              :detail="projectDetail?.variationInfo?.document || {}"
               v-if="(projectDetail?.variationInfo?.mark === 'variation_lm' || projectDetail?.variationInfo?.mark === 'variation_overdue_open') && projectDetail?.variationInfo?.has_permission && projectDetail?.variationInfo?.state > 0"
               @update="updateHandle"
             ></variation-documents>
-            <variations-change-info :detail="projectDetail"></variations-change-info>
+            <variations-change-info :detail="projectDetail" :variation-info="projectDetail?.variationInfo"></variations-change-info>
           </div>
         </div>
       </a-spin>

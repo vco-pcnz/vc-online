@@ -7,6 +7,23 @@
           <a-badge v-if="link.path === '/tasks'" :count="taskInfo.total">
             <p class="router-name">{{ t(link.title) }}</p>
           </a-badge>
+
+          <a-dropdown v-else-if="link.path === '/dashboard'">
+            <p class="router-name flex gap-1">
+              {{ t(link.title) }}
+              <DownOutlined style="transform: scale(0.7)" />
+            </p>
+            <template #overlay>
+              <a-menu style="margin-left: -8px; margin-top: 15px">
+                <a-menu-item>
+                  <a class="fs_sm" href="/dashboard/cashflow">Cashflow </a>
+                </a-menu-item>
+                <a-menu-item>
+                  <a class="fs_sm" href="/dashboard/income">{{ t('收入') }}</a>
+                </a-menu-item>
+              </a-menu>
+            </template>
+          </a-dropdown>
           <p class="router-name" v-else>{{ t(link.title) }}</p>
         </router-link>
       </div>
@@ -68,6 +85,7 @@ import { hasPermission } from '@/directives/permission/index';
 import ApplyBroker from '@/views/profile/apply-broker/form.vue';
 import ApplyBrokerDetail from '@/views/profile/apply-broker/detail.vue';
 import { applyBrokerDetail } from '@/api/tasks';
+import { DownOutlined } from '@ant-design/icons-vue';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -149,7 +167,7 @@ onMounted(() => {
       noticeStore.startPolling(res.notes_interval_time);
     }
   });
-  
+
   if (hasPermission('profile:apply:broker')) {
     LoadApplyBrokerDetail();
   }
@@ -190,8 +208,8 @@ onUnmounted(() => {
       justify-content: flex-end;
 
       .link {
-        padding-left: 20px;
-        padding-right: 20px;
+        padding-left: 15px;
+        padding-right: 15px;
       }
     }
 

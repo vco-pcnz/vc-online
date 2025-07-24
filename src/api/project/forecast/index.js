@@ -95,3 +95,42 @@ export const forecastPerformance = (params) =>
     method: 'get',
     params
   });
+
+// brief
+export const forecastBrief = (params) =>
+  request({
+    url: 'project/forecast/brief',
+    method: 'get',
+    params
+  });
+
+// 利润统计
+export const profitSta = (params) =>
+  request({
+    url: '/project/forecast/profitSta',
+    method: 'get',
+    params
+  });
+
+// 利润记录
+export const profitLog = (params) =>
+  request({
+    url: '/project/forecast/profit',
+    method: 'get',
+    params
+  });
+
+//  更新利益
+export const profitUpd = () =>
+  request({
+    url: '/project/forecast/profitUpd',
+    method: 'get'
+  });
+
+// 区域
+export const regional = (params) =>
+  request({
+    url: '/project/forecast/regional',
+    method: 'get',
+    params
+  });

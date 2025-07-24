@@ -49,13 +49,13 @@
       <div class="tips-content">
         <a-radio-group v-model:value="formState.change">
           <a-radio :value="2" class="mt-4"
-            ><p class="tips-txt">{{ t('仅修改当前项，其他日期的放款信息不变') }}</p></a-radio
+            ><p class="tips-txt">{{ t('保持所有未来预测不变。') }}</p></a-radio
           >
           <a-radio :value="1" class="mt-4"
-            ><p class="tips-txt">{{ t('{0}以后已手动修改的放款信息，保留已设置的值', [tool.showDate(formState.date)]) }}</p></a-radio
+            ><p class="tips-txt">{{ t('保持手动编辑的预测不变，并按比例调整剩余预测。') }}</p></a-radio
           >
           <a-radio :value="0" class="mt-4"
-            ><p class="tips-txt">{{ t('{0}以后已手动修改的放款信息，按照比例均分', [tool.showDate(formState.date)]) }}</p></a-radio
+            ><p class="tips-txt">{{ t('按比例调整所有未来预测，并覆盖所有手动输入。') }}</p></a-radio
           >
         </a-radio-group>
 
@@ -122,8 +122,8 @@ const disabledDateFormat = (current) => {
   if (current && current.isBefore(startDate, 'day')) {
     return true;
   }
-  if (formState.value.type == '4') {
-    const endDate = props.projectDetail.loan.end_date;
+  if (formState.value.type == '4' || props.itemId) {
+    const endDate = props.itemId ? props.projectDetail.variationInfo.end_date : props.projectDetail.loan.end_date;
     if (formState.value.date && dayjs(formState.value.date).isAfter(dayjs(endDate))) {
       formState.value.date = '';
     }

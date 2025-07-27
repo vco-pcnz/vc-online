@@ -689,14 +689,6 @@ export const projectForecastExportExcelEst = (params) =>
     params
   });
 
-// 预算-预测表-重置
-export const projectDownSchedule = (data) =>
-  request({
-    url: "/project/down/schedule",
-    method: "post",
-    data
-  });
-
 // 产品列表
 export const productSel = (params) =>
   request({

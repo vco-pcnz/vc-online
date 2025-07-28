@@ -498,6 +498,7 @@ const subHandle = () => {
     delete item.fee;
     delete item.drawdown;
     delete item.repayment;
+    delete item.showDelete;
   });
 
   const formData = cloneDeep(formState.value);
@@ -567,6 +568,7 @@ const reconcileSubmit = () => {
     .then(() => {
       reconcileItem.value.from = reconcileFormState.value.from;
       reconcileItem.value.bank_sn = reconcileFormState.value.bank_sn;
+      reconcileItem.value.status = 3;
       showReconcileModal.value = false;
     })
     .catch((error) => {

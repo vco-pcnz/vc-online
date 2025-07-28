@@ -1067,7 +1067,7 @@ export default {
   "平账数据": "Netting data",
   "关账日期": "Close date",
   "当前数据已匹配有对账数据，是否取消匹配的对账数据？": "The current data has been matched with reconciliation data. Do you want to cancel the matched reconciliation data?",
-  "取消对账": "Cancel reconciliation",
+  "取消对账": "Unreconcile",
   "撤销操作": "Undo operation",
   "重新生成": "Re-generate",
   "可能为错误数据": "Possible error data",

@@ -379,7 +379,7 @@ const setTableData = (resData) => {
           item.showReconcile = item.store_is_irr === 1 && !item.store_bank_sn;
         }
 
-        item.showDelete = errorDate.includes(item.date);
+        item.showDelete = errorDate.includes(item.date) || item.is_error;
         
         item.passed = currentTargetDate.isBefore(currentMonth, 'day') || currentTargetDate.isSame(currentMonth, 'day');
 

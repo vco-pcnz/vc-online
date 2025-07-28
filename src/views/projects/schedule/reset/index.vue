@@ -296,6 +296,7 @@ const showContent = ref(false);
 const getProjectDetail = async () => {
   pageLoading.value = true;
   const res = await projectDetail({ uuid: uuid.value });
+
   if (res.base.is_close === 1) {
     showError.value = true;
   } else {
@@ -305,6 +306,15 @@ const getProjectDetail = async () => {
       showError.value = true;
     }
   }
+
+  formState.value.time_date = [dayjs(res.date.start_date), dayjs(res.date.end_date)];
+  formState.value.loan_money = res.base.loan_money;
+  formState.value.fc2 = res.credit.credit_fc2;
+  formState.value.linefee = res.credit.linefee;
+  formState.value.LineFeeRate = res.credit.left.lineFeeRate;
+  formState.value.estabRate = res.credit.left.estabFeeRate;
+  formState.value.interestRate = res.credit.left.interestRate;
+
   projectDetailInfo.value = res;
   pageLoading.value = false;
 };
@@ -336,6 +346,15 @@ const formRules = {
     { required: true, message: t('请输入'), trigger: 'blur' }
   ],
   linefee: [
+    { required: true, message: t('请输入'), trigger: 'blur' }
+  ],
+  LineFeeRate: [
+    { required: true, message: t('请输入'), trigger: 'blur' }
+  ],
+  estabRate: [
+    { required: true, message: t('请输入'), trigger: 'blur' }
+  ],
+  interestRate: [
     { required: true, message: t('请输入'), trigger: 'blur' }
   ],
   file: [

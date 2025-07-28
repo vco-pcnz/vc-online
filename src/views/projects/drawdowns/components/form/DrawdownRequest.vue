@@ -228,6 +228,13 @@ const init = () => {
     formState.value.apply_date = '';
     formState.value.d_file = [];
     formState.value.p_file = [];
+    formState.value.apply_date = '';
+    formState.value.other_note = '';
+    formState.value.other_type = '';
+    formState.value.build_money = '';
+    formState.value.other_money = '';
+    formState.value.vip_amount = '';
+    formState.value.build__data = [];
   }
 
   annexSel({ apply_uuid: props.uuid, type: 2 }).then((res) => {

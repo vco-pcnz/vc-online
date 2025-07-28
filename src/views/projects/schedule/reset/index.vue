@@ -395,7 +395,7 @@ const setTableData = (resData) => {
         item.showReconcile = false
         if ([0, 2, 4].includes(item.type)) {
           item.showCancel = item.store_is_irr === 1 && item.store_bank_sn;
-          item.showReconcile = item.store_is_irr === 1 && !item.store_bank_sn;
+          item.showReconcile = item.store_is_irr === 1 && !item.store_bank_sn && item.status !== 2;
         }
 
         item.showDelete = errorDate.includes(item.date) || item.is_error;

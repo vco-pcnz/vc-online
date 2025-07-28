@@ -1069,5 +1069,8 @@ export default {
   "当前数据已匹配有对账数据，是否取消匹配的对账数据？": "The current data has been matched with reconciliation data. Do you want to cancel the matched reconciliation data?",
   "取消对账": "Cancel reconciliation",
   "撤销操作": "Undo operation",
-  "重新生成": "Re-generate"
+  "重新生成": "Re-generate",
+  "可能为错误数据": "Possible error data",
+  "是否删除该数据？": "Are you sure you want to delete this data?",
+  "对账方式": "Reconciliation method"
 }

@@ -1,5 +1,27 @@
 <template>
   <div>
+    <!-- 对账弹窗 -->
+    <a-modal v-model:open="showReconcileModal" :title="t('对账')" :width="500" :footer="null">
+      <div class="sys-form-content mt-10">
+        <a-form ref="reconcileFormRef" :model="reconcileFormState" layout="vertical" :rules="reconcileFormRules">
+          <a-form-item :label="t('对账方式')" name="from">
+            <a-select v-model:value="reconcileFormState.from" :disabled="true">
+              <a-select-option value="other">{{ t('其他') }}</a-select-option>
+            </a-select>
+          </a-form-item>
+          <a-form-item :label="t('单号')" name="bank_sn">
+            <a-input v-model:value="reconcileFormState.bank_sn" />
+          </a-form-item>
+        </a-form>
+        <div class="mt-10">
+          <a-button type="dark" class="save big uppercase shadow bold w-full" @click="reconcileSubmit">
+            {{ t('确定') }}
+          </a-button>
+        </div>
+      </div>
+      
+    </a-modal>
+    
     <a-spin :spinning="pageLoading" size="large">
       <vco-page-panel w="200px" @back="backHandle">
         <template #title>
@@ -166,9 +188,15 @@
 
         <div class="col-content">
           <div v-for="(item, index) in tableData" :key="index" class="col-block" :class="{ passed: item.passed }">
-            <div v-for="(_item, _index) in item.list" :key="_item.date" class="col-item">
-              <div class="item about flex items-center">
-                  <span class="circle" :style="{ background: _item.status > 1 || (_item.passed && _item.is_fee) ? '#181818' : '#b4d8d8' }"></span>
+            <div v-for="(_item, _index) in item.list" :key="_item.date" class="col-item" :class="{'error': _item.is_error}">
+              <div class="item about flex items-center justify-start gap-2">
+                <a-tooltip v-if="_item.is_error">
+                  <template #title>
+                    <span>{{ t('可能为错误数据') }}</span>
+                  </template>
+                  <ExclamationCircleOutlined class="text-red-500" />
+                </a-tooltip>
+                <span class="circle" :style="{ background: _item.status > 1 || (_item.passed && _item.is_fee) ? '#181818' : '#b4d8d8' }"></span>
               </div>
               <div class="item">{{ tool.showDate(_item.date) }}</div>
               <div class="item type">
@@ -197,13 +225,29 @@
                   :title="t('当前数据已匹配有对账数据，是否取消匹配的对账数据？')"
                   @confirm="cancelReconcile(_item)"
                 >
-                  <a-button type="link">{{ t('取消对账')}}</a-button>
+                  <a-button type="link" danger>{{ t('取消对账')}}</a-button>
                 </a-popconfirm>
                 <a-button
                   v-if="_item.showCancel && _item.is_irr === 1 && !_item.bank_sn"
                   type="link"
                   @click="undoReconcile(_item)"
                 >{{ t('撤销操作')}}</a-button>
+                <div v-if="_item.showReconcile" class="flex items-center justify-center gap-2">
+                  <a-popconfirm
+                    v-if="_item.showDelete"
+                    :title="t('是否删除该数据？')"
+                    @confirm="deleteItem(index, _index)"
+                  >
+                    <a-button
+                      type="link"
+                      danger
+                    >{{ t('删除')}}</a-button>
+                  </a-popconfirm>
+                  <a-button
+                    type="link"
+                    @click="reconcileHandle(_item)"
+                  >{{ t('对账')}}</a-button>
+                </div>
               </div>
             </div>
           </div>
@@ -223,9 +267,9 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { UploadOutlined } from '@ant-design/icons-vue';
+import { UploadOutlined, ExclamationCircleOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue/es';
 import { projectDetail, scheduleSaveTemp, projectDownSchedule } from '@/api/project/project';
 import { hasPermission } from '@/directives/permission';
@@ -310,7 +354,9 @@ const onUpload = ({file}) => {
 }
 
 const tableData = ref([]);
-const setTableData = (data) => {
+const setTableData = (resData) => {
+  const data = resData.data;
+  const errorDate = resData.error_date;
   const dataArr = [];
   const currentMonth = dayjs();
   if (Object.keys(data).length) {
@@ -326,7 +372,14 @@ const setTableData = (data) => {
         item.store_bank_sn = item.bank_sn;
 
         // 是否显示取消对账按钮
-        item.showCancel = item.store_is_irr === 1 && item.store_bank_sn;
+        item.showCancel = false
+        item.showReconcile = false
+        if ([0, 2, 4].includes(item.type)) {
+          item.showCancel = item.store_is_irr === 1 && item.store_bank_sn;
+          item.showReconcile = item.store_is_irr === 1 && !item.store_bank_sn;
+        }
+
+        item.showDelete = errorDate.includes(item.date);
         
         item.passed = currentTargetDate.isBefore(currentMonth, 'day') || currentTargetDate.isSame(currentMonth, 'day');
 
@@ -426,6 +479,10 @@ const undoReconcile = (item) => {
   item.status = item.store_status;
 }
 
+const deleteItem = (index, _index) => {
+  tableData.value[index].list.splice(_index, 1);
+}
+
 const subLoading = ref(false);
 const subHandle = () => {
   const data = cloneDeep(tableData.value);
@@ -435,6 +492,7 @@ const subHandle = () => {
     delete item.store_status;
     delete item.store_bank_sn;
     delete item.showCancel;
+    delete item.showReconcile;
     delete item.passed;
     delete item.nameStr;
     delete item.fee;
@@ -476,6 +534,52 @@ const subHandle = () => {
     subLoading.value = false;
   });
 }
+
+const reconcileItem = ref({});
+const showReconcileModal = ref(false);
+const reconcileFormRef = ref();
+const reconcileFormState = ref({
+  from: 'other',
+  bank_sn: ''
+});
+const reconcileFormRules = {
+  from: [
+    { required: true, message: t('请选择'), trigger: 'change' }
+  ],
+  bank_sn: [
+    { required: true, message: t('请输入'), trigger: 'blur' }
+  ]
+}
+
+const reconcileHandle = (item) => {
+  reconcileItem.value = item;
+  showReconcileModal.value = true;
+
+  setTimeout(() => {
+    reconcileFormState.value.from = item.from || 'other';
+    reconcileFormState.value.bank_sn = item.bank_sn || '';
+  }, 100);
+}
+
+const reconcileSubmit = () => {
+  reconcileFormRef.value
+    .validate()
+    .then(() => {
+      reconcileItem.value.from = reconcileFormState.value.from;
+      reconcileItem.value.bank_sn = reconcileFormState.value.bank_sn;
+      showReconcileModal.value = false;
+    })
+    .catch((error) => {
+      console.log('error', error);
+    });
+}
+
+watch(showReconcileModal, (newVal) => {
+  if (!newVal) {
+    reconcileFormRef.value.clearValidate();
+    reconcileFormRef.value.resetFields();
+  }
+});
 
 onMounted(() => {
   if (uuid.value) {
@@ -522,6 +626,10 @@ onMounted(() => {
   .col-item {
     width: 100%;
     display: flex;
+    &.error {
+      background-color: #fad3c2 !important;
+      border-radius: 10px;
+    }
     &.th {
       font-weight: bold;
       font-size: 10px;
@@ -532,7 +640,8 @@ onMounted(() => {
       &:nth-child(1) {
         width: 0;
         &.about {
-          width: 40px;
+          width: 60px;
+          flex-direction: row;
         }
       }
       &:nth-child(2) {

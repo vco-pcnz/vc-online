@@ -20,6 +20,18 @@
             {{ column.title }}
           </span>
         </template>
+        <template v-if="column.key === 'lvr'">
+          <span class="headSortItem" :class="{ active: sort.sort == 'credit_lvr' }" @click="sortChange('credit_lvr')">
+            <i class="iconfont" :class="{ asc: sort.order == 'asc' && sort.sort == 'credit_lvr' }">&#xe74d;</i>
+            {{ column.title }}
+          </span>
+        </template>
+        <template v-if="column.key === 'ltc'">
+          <span class="headSortItem" :class="{ active: sort.sort == 'credit_ltc' }" @click="sortChange('credit_ltc')">
+            <i class="iconfont" :class="{ asc: sort.order == 'asc' && sort.sort == 'credit_ltc' }">&#xe74d;</i>
+            {{ column.title }}
+          </span>
+        </template>
         <!-- <template v-if="column.key === 'income'">
           <span class="headSortItem" :class="{ active: sort.sort == 'income' }" @click="sortChange('income')">
             <i class="iconfont" :class="{ asc: sort.order == 'asc' && sort.sort == 'income' }">&#xe74d;</i>
@@ -111,7 +123,7 @@
           </div>
         </template>
 
-         <template v-if="column.key === 'lvr'">
+        <template v-if="column.key === 'lvr'">
           <div :class="{ 'color_red-error': Math.abs(record.credit?.lvrMax) < Math.abs(record.credit?.lvr) }">
             <p class="bold black">
               <i class="iconfont" style="color: #67837e">&#xe761;</i>
@@ -120,7 +132,7 @@
             <span class="replenish_text">{{ record.credit.lvrMax }}% · {{ (record.credit.lvrMax - record.credit.lvr).toFixed(2) }}%</span>
           </div>
         </template>
-         <template v-if="column.key === 'ltc'">
+        <template v-if="column.key === 'ltc'">
           <div :class="{ 'color_red-error': Math.abs(record.credit?.ltc) > Math.abs(record.credit?.baseline) }">
             <p class="bold black">
               <i class="iconfont" style="color: #67837e">&#xe761;</i>
@@ -129,7 +141,7 @@
             <span class="replenish_text">{{ record.credit.baseline }}% · {{ (record.credit.baseline - record.credit.ltc).toFixed(2) }}%</span>
           </div>
         </template>
-        
+
         <template v-if="column.key === 'income'">
           <p class="black">{{ tool.formatMoney(record.credit.income) }}</p>
         </template>

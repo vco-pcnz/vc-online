@@ -424,8 +424,10 @@ const relatedData = ref([])
 
 const securitiesDone = (data) => {
   const arr = cloneDeep(data)
+  const uuidArr = arr.map(item => item.uuid)
+
   const selected = Array.from(new Set([...relatedData.value, ...arr]));
-  const selData = removeDuplicates(selected, 'uuid')
+  const selData = removeDuplicates(selected, 'uuid').filter(item => uuidArr.includes(item.uuid))
   selData.forEach(item => {
     item.real_amount = Number(item.real_amount) ? item.real_amount : item.amount
   })

@@ -300,9 +300,6 @@
       ...data.project
     }
 
-    console.log('staticFormData', staticFormData);
-    console.log('obj', obj);
-
     let compareBack = {}
     const compareBackObjData = {}
 

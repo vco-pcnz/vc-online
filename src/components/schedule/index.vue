@@ -86,10 +86,10 @@
               <template #overlay>
                 <a-menu>
                   <template v-if="!ptRole && !hideForcast">
-                    <a-menu-item>
+                    <a-menu-item v-if="!isOld">
                       <div class="pt-2 pb-2" @click="downLoadExcel(0)">{{ t('额度费用计算时间表') }}</div>
                     </a-menu-item>
-                    <a-menu-item v-if="!ptRole && !hideForcast">
+                    <a-menu-item v-if="!ptRole && !hideForcast && !isOld">
                       <div class="pt-2 pb-2" @click="downLoadExcel(1)">{{ t('预测放款时间表') }}</div>
                     </a-menu-item>
                   </template>
@@ -340,6 +340,10 @@ const props = defineProps({
   variationInfo: {
     type: Object,
     default: () => {}
+  },
+  isOld: {
+    type: Boolean,
+    default: false
   }
 });
 

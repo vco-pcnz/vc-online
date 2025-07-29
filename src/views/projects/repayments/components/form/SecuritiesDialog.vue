@@ -157,8 +157,9 @@
       if (val) {
         if (!props.isDetails) {
           if (props.selectData.length) {
-          const arr = props.selectData.map(item => item.uuid)
+            const arr = props.selectData.map(item => item.uuid)
             selectedRowKeys.value = arr
+            selectedRows.value = props.selectData
           } else {
             selectedRows.value = []
             selectedRowKeys.value = []

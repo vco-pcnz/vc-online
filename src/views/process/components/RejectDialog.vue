@@ -14,7 +14,7 @@
           <a-textarea
             v-model:value="formState.decline_reason"
             :placeholder="t('请输入')"
-            :auto-size="{ minRows: 2, maxRows: 5 }"
+            :auto-size="{ minRows: 7 }"
           />
         </a-form-item>
       </a-form>

@@ -1,7 +1,16 @@
 <template>
   <detail-layout active-tab="schedule" @getProjectDetail="getProjectDetail">
     <template #content>
-      <schedule v-if="project_id" :isDetails="true" :current-product="currentProduct" :isClose="Boolean(projectDetail?.base?.is_close)" :isAbout="true" :currentId="project_id" :ptRole="!!projectDetail?.base?.ptRole"></schedule>
+      <schedule
+        v-if="project_id"
+        :isDetails="true"
+        :current-product="currentProduct"
+        :isClose="Boolean(projectDetail?.base?.is_close)"
+        :isAbout="true"
+        :currentId="project_id"
+        :ptRole="!!projectDetail?.base?.ptRole"
+        :is-old="isOld"
+        :is-reset="true"></schedule>
     </template>
   </detail-layout>
 </template>
@@ -15,9 +24,11 @@ import { useRoute } from 'vue-router';
 const route = useRoute();
 const project_id = ref();
 const currentProduct = ref('')
+const isOld = ref(false)
 
 const projectDetail = ref();
 const getProjectDetail = (val) => {
+  isOld.value = Boolean(val.base.old);
   currentProduct.value = val.product.code
   projectDetail.value = val;
 };

@@ -1062,5 +1062,16 @@ export default {
   "多个以英文逗号分隔": "Multiple separated by English commas",
   "Line Fee 费率": "Line Fee Rate",
   "真实变更开始日期": "Real variation start date",
-  "最大变更值": "Max variation value"
+  "最大变更值": "Max variation value",
+  "重置预测表": "Reset Schedule",
+  "生成预测表": "Generate Schedule",
+  "平账数据": "Netting data",
+  "关账日期": "Close date",
+  "当前数据已匹配有对账数据，是否取消匹配的对账数据？": "The current data has been matched with reconciliation data. Do you want to cancel the matched reconciliation data?",
+  "取消对账": "Unreconcile",
+  "撤销操作": "Undo operation",
+  "重新生成": "Re-generate",
+  "可能为错误数据": "Possible error data",
+  "是否删除该数据？": "Are you sure you want to delete this data?",
+  "对账方式": "Reconciliation method"
 }

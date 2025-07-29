@@ -104,9 +104,25 @@ export const syncProjectBill = (data) =>
     data
   });
 
-  export const downGs = () =>
-    request({
-      url: 'project/down/gs',
-      method: 'get'
-    });
+export const downGs = () =>
+  request({
+    url: 'project/down/gs',
+    method: 'get'
+  });
   
+
+// 预算-预测表-重置-生成预测表
+export const scheduleSaveTemp = (data) =>
+  request({
+    url: "/project/down/scheduleSaveTemp",
+    method: "post",
+    data
+  });
+  
+// 预算-预测表-重置
+export const projectDownSchedule = (data) =>
+  request({
+    url: "/project/down/schedule",
+    method: "post",
+    data
+  });

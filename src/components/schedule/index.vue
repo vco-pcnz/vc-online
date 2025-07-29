@@ -22,8 +22,6 @@
         </div>
       </a-modal>
 
-      <reset-schedule-dialog v-model:visible="resetScheduleDialogVisible" :currentId="currentId" @done="getDataInfo(Number(lateTabActiveKey) === 1)" />
-
       <div style="min-height: 200px">
         <div v-if="statisticsData && tabData.length" class="flex header-static" :class="{ 'mt-10': itemId }">
           <div class="item-content">
@@ -88,10 +86,10 @@
               <template #overlay>
                 <a-menu>
                   <template v-if="!ptRole && !hideForcast">
-                    <a-menu-item>
+                    <a-menu-item v-if="!isOld">
                       <div class="pt-2 pb-2" @click="downLoadExcel(0)">{{ t('额度费用计算时间表') }}</div>
                     </a-menu-item>
-                    <a-menu-item v-if="!ptRole && !hideForcast">
+                    <a-menu-item v-if="!ptRole && !hideForcast && !isOld">
                       <div class="pt-2 pb-2" @click="downLoadExcel(1)">{{ t('预测放款时间表') }}</div>
                     </a-menu-item>
                   </template>
@@ -120,9 +118,11 @@
               <a-button
                 v-if="isAbout && !isClose && !itemId && !budget && hasPermission('projects:schedule:reset')"
                 type="brown" shape="round" size="small"
-                @click="resetScheduleDialogVisible = true"
+                class="flex items-center justify-center"
+                @click="navigationTo(`/projects/schedule/reset?uuid=${currentId}`)"
               >
                 {{ t('重置当前预测表') }}
+                <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px'  }" />
               </a-button>
               <a-button v-if="itemId && variationInfo.state !== 1000" :loading="updateLoading" @click="updateHandle" type="brown" shape="round" size="small">{{ t('更新明细表') }}</a-button>
             </div>
@@ -276,7 +276,7 @@
 <script setup>
 import { ref, reactive, onMounted, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { DownOutlined } from '@ant-design/icons-vue';
+import { DownOutlined, RightOutlined } from '@ant-design/icons-vue';
 import dayjs from 'dayjs';
 import tool, { selectDateFormat } from '@/utils/tool';
 import { hasPermission } from '@/directives/permission';
@@ -292,9 +292,9 @@ import {
   projectForecastExportExcelEst
 } from '@/api/process';
 import { projectForecastVaiList, projectVariationStatisticsVai, projectVariationForecastUpd, projectVariationExportExcel } from '@/api/project/variation';
-import ResetScheduleDialog from './components/reset-schedule-dialog.vue';
-import { systemDictData } from '@/api/system';
+import { systemDictData } from '@/api/system';``
 import { useUserStore } from '@/store';
+import { navigationTo } from "@/utils/tool"
 
 const props = defineProps({
   currentId: {
@@ -340,6 +340,10 @@ const props = defineProps({
   variationInfo: {
     type: Object,
     default: () => {}
+  },
+  isOld: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -646,8 +650,6 @@ const lateTableChange = (key) => {
   const number = Number(key)
   getDataInfo(number === 1);
 };
-
-const resetScheduleDialogVisible = ref(false);
 
 watch(
   () => visible.value,

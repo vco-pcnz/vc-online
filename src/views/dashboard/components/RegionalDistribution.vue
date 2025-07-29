@@ -174,6 +174,8 @@ onMounted(() => {
   background: #f7f3e6;
   overflow: hidden;
   transition: height 0.3s ease;
+  max-height: 200px;
+  overflow: auto;
   height: 0;
   &.show {
     height: auto;

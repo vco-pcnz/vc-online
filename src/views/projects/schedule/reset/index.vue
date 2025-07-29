@@ -393,9 +393,13 @@ const setTableData = (resData) => {
         // 是否显示取消对账按钮
         item.showCancel = false
         item.showReconcile = false
-        if ([0, 2, 4].includes(item.type)) {
+        if ([0, 2, 4, 5].includes(item.type)) {
           item.showCancel = item.store_is_irr === 1 && item.store_bank_sn;
           item.showReconcile = item.store_is_irr === 1 && !item.store_bank_sn && item.status !== 2;
+
+          if (item.type === 5) {
+            item.showReconcile = item.showReconcile && item.is_duration === 1;
+          }
         }
 
         item.showDelete = errorDate.includes(item.date) || item.is_error;
@@ -666,19 +670,19 @@ onMounted(() => {
         }
       }
       &:nth-child(2) {
-        width: 120px;
+        width: 110px;
       }
       &:nth-child(3) {
-        width: 130px;
+        width: 140px;
         word-break: break-all;
       }
       &:nth-child(4) {
-        width: 190px;
+        width: 180px;
       }
       &:nth-child(5),
       &:nth-child(6),
       &:nth-child(7) {
-        width: 160px;
+        width: 140px;
         text-align: center;
       }
       &:nth-child(8) {
@@ -690,7 +694,7 @@ onMounted(() => {
         text-align: center;
       }
       &:nth-child(10) {
-        width: 120px;
+        width: 145px;
         text-align: center;
       }
       .note {

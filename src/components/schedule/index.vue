@@ -1,5 +1,7 @@
 <template>
   <div>
+    <!-- 对账 -->
+    <ReconciliationModal ref="reconciliationModalRef" :detail="itemDetail" :uuid="currentId" :type="3" @update="getDataInfo"> </ReconciliationModal>
     <a-spin :spinning="pageLoading" size="large">
       <a-modal :open="visible" :title="t('增加存蓄费')" :width="500" :footer="null" :keyboard="false" :maskClosable="false" @cancel="visible = false">
         <div class="sys-form-content mt-5">
@@ -117,12 +119,14 @@
             <div class="flex flex-col items-center gap-3">
               <a-button
                 v-if="isAbout && !isClose && !itemId && !budget && hasPermission('projects:schedule:reset')"
-                type="brown" shape="round" size="small"
+                type="brown"
+                shape="round"
+                size="small"
                 class="flex items-center justify-center"
                 @click="navigationTo(`/projects/schedule/reset?uuid=${currentId}`)"
               >
                 {{ t('重置当前预测表') }}
-                <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px'  }" />
+                <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px' }" />
               </a-button>
               <a-button v-if="itemId && variationInfo.state !== 1000" :loading="updateLoading" @click="updateHandle" type="brown" shape="round" size="small">{{ t('更新明细表') }}</a-button>
             </div>
@@ -143,15 +147,15 @@
             <div class="item uppercase">{{ t('利息、费用') }}</div>
             <div class="item uppercase">{{ t('放款') }}</div>
             <div class="item uppercase">{{ t('还款') }}</div>
-            <div class="item uppercase">{{ t('余额') }}</div>
+            <div class="item uppercase balance">{{ t('余额') }}</div>
+            <div class="item uppercase ops" v-if="isReconciliation">{{ t('操作1') }}</div>
           </div>
 
           <div class="col-content">
             <div v-for="(item, index) in tabData" :key="index" class="col-block" :class="{ passed: item.passed }">
               <div v-for="(_item, _index) in item.list" :key="_item.date" class="col-item">
-                <div v-if="isAbout"
-                  class="item about flex items-center">
-                    <span class="circle" :style="{ background: _item.status > 1 || (_item.passed && _item.is_fee) ? '#181818' : '#b4d8d8' }"></span>
+                <div v-if="isAbout" class="item about flex items-center">
+                  <span class="circle" :style="{ background: _item.status > 1 || (_item.passed && _item.is_fee) ? '#181818' : '#b4d8d8' }"></span>
                 </div>
                 <div v-else class="item"></div>
                 <div class="item">{{ tool.showDate(_item.date) }}</div>
@@ -169,9 +173,10 @@
                 <div class="item">{{ _item.fee }}</div>
                 <div class="item drawdown">{{ _item.drawdown }}</div>
                 <div class="item">{{ _item.repayment }}</div>
-                <div class="item">
+                <div class="item balance">
                   <vco-number :value="_item.balance" :precision="2" :end="true"></vco-number>
                 </div>
+                <div class="item ops cursor-pointer" v-if="isReconciliation" @click="showReconciliationModal(_item)"><i class="iconfont">&#xe601;</i></div>
               </div>
             </div>
           </div>
@@ -292,9 +297,11 @@ import {
   projectForecastExportExcelEst
 } from '@/api/process';
 import { projectForecastVaiList, projectVariationStatisticsVai, projectVariationForecastUpd, projectVariationExportExcel } from '@/api/project/variation';
-import { systemDictData } from '@/api/system';``
+import { systemDictData } from '@/api/system';
+``;
 import { useUserStore } from '@/store';
-import { navigationTo } from "@/utils/tool"
+import { navigationTo } from '@/utils/tool';
+import ReconciliationModal from '@/views/projects/components/ReconciliationModal.vue';
 
 const props = defineProps({
   currentId: {
@@ -340,6 +347,10 @@ const props = defineProps({
   variationInfo: {
     type: Object,
     default: () => {}
+  },
+  isReconciliation: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -399,7 +410,7 @@ const getDataInfo = (isLate = false) => {
             item.passed = currentTargetDate.isBefore(currentMonth, 'day') || currentTargetDate.isSame(currentMonth, 'day');
 
             if (item.type === 4 && Number(item.balance) === 0 && item.note === 'FINAL REPAYMENT' && index === itemData.length - 1) {
-              item.passed = false
+              item.passed = false;
             }
 
             if (item.type === 2) {
@@ -643,8 +654,16 @@ const updateHandle = () => {
 
 const lateTabActiveKey = ref('1');
 const lateTableChange = (key) => {
-  const number = Number(key)
+  const number = Number(key);
   getDataInfo(number === 1);
+};
+
+// 对账
+const reconciliationModalRef = ref(null);
+const itemDetail = ref(null);
+const showReconciliationModal = (val) => {
+  itemDetail.value = val;
+  reconciliationModalRef.value.init();
 };
 
 watch(
@@ -660,9 +679,9 @@ watch(
 onMounted(() => {
   if (props.currentId) {
     if (!props.lateTable) {
-      lateTabActiveKey.value = '2'
+      lateTabActiveKey.value = '2';
     } else {
-      lateTabActiveKey.value = '1'
+      lateTabActiveKey.value = '1';
     }
     getDataInfo(Number(lateTabActiveKey.value) === 1);
     if (!props.itemId) {
@@ -796,9 +815,13 @@ onMounted(() => {
         width: 170px;
         text-align: center;
       }
-      &:last-child {
+      &.balance {
         flex: 1;
         text-align: right;
+      }
+      &.ops {
+        width: 40px;
+        text-align: center;
       }
       .note {
         font-size: 12px;
@@ -843,7 +866,14 @@ onMounted(() => {
         display: flex;
         flex-direction: column;
         justify-content: center;
-        &:last-child {
+        &.ops {
+          width: 40px;
+          text-align: center;
+          .iconfont {
+            color: @colorPrimary;
+          }
+        }
+        &.balance {
           :deep(.ant-statistic-content) {
             font-weight: 500 !important;
             font-size: 16px !important;

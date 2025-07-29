@@ -1,7 +1,7 @@
 <template>
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="JournalRef" class="Journal">
-    <a-modal :width="500" :open="visible" :title="t('对账')" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
+    <a-modal :width="600" :open="visible" :title="t('对账')" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <div class="input-item">
           <div class="label" :class="{ err: !formState.ctype && validate }">{{ t('类型') }}</div>
@@ -32,7 +32,9 @@
                       <template v-for="item in treeData" :key="item">
                         <div class="list-item" @click="selectReconciliation(item)" :class="[{ par: item.children && item.children.length, dis: isDis(item) }]">
                           <div class="flex justify-between">
-                            <span>{{ tool.showDate(item.date) }}</span>
+                            <div>
+                              {{ tool.showDate(item.date) }} <span class="fs_2xs">({{ item.type }})</span>
+                            </div>
                             <vco-number color="#7dc1c1" :value="item.amount" :precision="2" :bold="true" size="fs_md"></vco-number>
                           </div>
                           <p class="fs_2xs color_grey">{{ item.description }}</p>
@@ -60,7 +62,10 @@
               <div class="list-item" :class="[{ dis: isDis(reconciliationItem) }]">
                 <template v-if="reconciliationItem">
                   <div class="flex justify-between">
-                    <span>{{ tool.showDate(reconciliationItem.date) }}</span>
+                    <div>
+                      {{ tool.showDate(reconciliationItem.date) }} <span class="fs_2xs">({{ reconciliationItem.type }})</span>
+                    </div>
+
                     <vco-number color="#7dc1c1" :value="reconciliationItem.amount" :precision="2" :bold="true" size="fs_md"></vco-number>
                   </div>
                   <p class="fs_2xs color_grey">{{ reconciliationItem.description }}</p>
@@ -191,6 +196,7 @@ const selectReconciliation = (val) => {
   if ((val.children && val.children.length) || isDis(val)) return;
   reconciliationItem.value = val;
   formState.value.bank_sn = val.bank_sn;
+  dropdownVisible.value = false;
 };
 
 const resetReconciliationItem = () => {
@@ -229,6 +235,11 @@ const init = () => {
   loadReconciliation();
   visible.value = true;
 };
+
+// 暴露方法给父组件
+defineExpose({
+  init
+});
 </script>
 <style scoped lang="less">
 @import '@/styles/variables.less';

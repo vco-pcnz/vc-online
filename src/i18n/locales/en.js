@@ -1072,5 +1072,7 @@ export default {
   "重新生成": "Re-generate",
   "可能为错误数据": "Possible error data",
   "是否删除该数据？": "Are you sure you want to delete this data?",
-  "对账方式": "Reconciliation method"
+  "对账方式": "Reconciliation method",
+  "交易记录": "Transaction records",
+  "银行": "Bank"
 }

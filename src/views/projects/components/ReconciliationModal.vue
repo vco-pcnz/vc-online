@@ -9,7 +9,7 @@
         </div>
         <template v-if="formState.ctype == 2">
           <div class="input-item">
-            <div class="label" :class="{ err: !formState.bank_type && validate }">{{ t('类型') }}</div>
+            <div class="label" :class="{ err: !formState.bank_type && validate }">{{ t('银行') }}</div>
             <a-select style="width: 100%" v-model:value="formState.bank_type" show-search :options="types" :fieldNames="{ label: 'name', value: 'code' }" @change="resetReconciliationItem"></a-select>
           </div>
           <div class="input-item" v-if="formState.bank_type !== '1'">
@@ -17,61 +17,56 @@
             <a-input v-model:value="formState.bank_sn" />
           </div>
           <div class="input-item" v-else>
-            <div class="label flex justify-between items-center" :class="{ err: !formState.bank_sn && validate }">
-              <!--  -->
-              <div>
-                <span v-if="!formState.bank_sn && validate">{{ t('请选择') }}</span>
-              </div>
-
-              <a-dropdown class="Filter" trigger="click" v-model:open="dropdownVisible">
-                <a-button type="brown" shape="round" size="small"> {{ t('选择') }}</a-button>
-
-                <template #overlay>
-                  <a-spin :spinning="loading" size="large">
-                    <div class="list">
-                      <template v-for="item in treeData" :key="item">
-                        <div class="list-item" @click="selectReconciliation(item)" :class="[{ par: item.children && item.children.length, dis: isDis(item) }]">
-                          <div class="flex justify-between">
-                            <div>
-                              {{ tool.showDate(item.date) }} <span class="fs_2xs">({{ item.type }})</span>
-                            </div>
-                            <vco-number color="#7dc1c1" :value="item.amount" :precision="2" :bold="true" size="fs_md"></vco-number>
-                          </div>
-                          <p class="fs_2xs color_grey">{{ item.description }}</p>
-                        </div>
-                        <template v-if="item.children && item.children.length">
-                          <div class="list-item" :class="[{ dis: isDis(sub) }]" @click="selectReconciliation(sub)" v-for="sub in item.children" :key="sub.id" style="padding-left: 40px">
-                            <div class="flex justify-between">
-                              <span>{{ tool.showDate(sub.date) }}</span>
-                              <vco-number color="#7dc1c1" :value="sub.amount" :precision="2" :bold="true" size="fs_md"></vco-number>
-                            </div>
-                            <p class="fs_2xs color_grey">{{ sub.description }}</p>
-                          </div>
-                        </template>
-                      </template>
-                      <div style="text-align: center; width: 100%">
-                        <a-empty v-if="!treeData.length && !loading" :image="simpleImage" style="min-height: 100px" />
+            <div class="label" :class="{ err: !formState.bank_sn && validate }">
+              {{ t('交易记录') }}
+            </div>
+            <a-dropdown class="Filter" trigger="click" v-model:open="dropdownVisible">
+              <div class="list reconciliationItemFill">
+                <i class="icon iconfont" v-if="Boolean(reconciliationItem)" @click.stop="resetReconciliationItem">&#xe781;</i>
+                <DownOutlined class="icon iconfont DownOutlined" :class="{ active: dropdownVisible }" v-if="Boolean(!reconciliationItem)" />
+                <div class="list-item" :class="[{ dis: isDis(reconciliationItem) }]">
+                  <template v-if="reconciliationItem">
+                    <div class="flex justify-between">
+                      <div>
+                        {{ tool.showDate(reconciliationItem.date) }} <span class="fs_2xs">({{ reconciliationItem.type }})</span>
                       </div>
-                    </div>
-                  </a-spin>
-                </template>
-              </a-dropdown>
-            </div>
-            <div class="list reconciliationItemFill">
-              <i class="icon iconfont" v-if="Boolean(reconciliationItem)" @click="resetReconciliationItem">&#xe781;</i>
-              <div class="list-item" :class="[{ dis: isDis(reconciliationItem) }]">
-                <template v-if="reconciliationItem">
-                  <div class="flex justify-between">
-                    <div>
-                      {{ tool.showDate(reconciliationItem.date) }} <span class="fs_2xs">({{ reconciliationItem.type }})</span>
-                    </div>
 
-                    <vco-number color="#7dc1c1" :value="reconciliationItem.amount" :precision="2" :bold="true" size="fs_md"></vco-number>
-                  </div>
-                  <p class="fs_2xs color_grey">{{ reconciliationItem.description }}</p>
-                </template>
+                      <vco-number color="#7dc1c1" :value="reconciliationItem.amount" :precision="2" :bold="true" size="fs_md"></vco-number>
+                    </div>
+                    <p class="fs_2xs color_grey">{{ reconciliationItem.description }}</p>
+                  </template>
+                </div>
               </div>
-            </div>
+              <template #overlay>
+                <a-spin :spinning="loading" size="large">
+                  <div class="list">
+                    <template v-for="item in treeData" :key="item">
+                      <div class="list-item" @click="selectReconciliation(item)" :class="[{ par: item.children && item.children.length, dis: isDis(item) }]">
+                        <div class="flex justify-between">
+                          <div>
+                            {{ tool.showDate(item.date) }} <span class="fs_2xs">({{ item.type }})</span>
+                          </div>
+                          <vco-number color="#7dc1c1" :value="item.amount" :precision="2" :bold="true" size="fs_md"></vco-number>
+                        </div>
+                        <p class="fs_2xs color_grey">{{ item.description }}</p>
+                      </div>
+                      <template v-if="item.children && item.children.length">
+                        <div class="list-item" :class="[{ dis: isDis(sub) }]" @click="selectReconciliation(sub)" v-for="sub in item.children" :key="sub.id" style="padding-left: 40px">
+                          <div class="flex justify-between">
+                            <span>{{ tool.showDate(sub.date) }}</span>
+                            <vco-number color="#7dc1c1" :value="sub.amount" :precision="2" :bold="true" size="fs_md"></vco-number>
+                          </div>
+                          <p class="fs_2xs color_grey">{{ sub.description }}</p>
+                        </div>
+                      </template>
+                    </template>
+                    <div style="text-align: center; width: 100%">
+                      <a-empty v-if="!treeData.length && !loading" :image="simpleImage" style="min-height: 100px" />
+                    </div>
+                  </div>
+                </a-spin>
+              </template>
+            </a-dropdown>
           </div>
         </template>
         <div class="input-item">
@@ -94,10 +89,11 @@ import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import { systemDictData } from '@/api/system';
 import { getReconciliation } from '@/api/project/loan';
-import { loanDsaveStep, loanRsaveStep } from '@/api/project/loan';
+import { loanDsaveStep, loanRsaveStep, reconciliation } from '@/api/project/loan';
 import tool from '@/utils/tool';
 import { Empty } from 'ant-design-vue';
 const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE;
+import { DownOutlined } from '@ant-design/icons-vue';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);
@@ -111,6 +107,10 @@ const props = defineProps({
   },
   type: {
     type: [String, Number]
+  },
+  isSchedule: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -166,10 +166,17 @@ const save = () => {
   loading.value = true;
 
   let ajax = null;
+  // drawdowns
   if (props.type == 1) {
     ajax = loanDsaveStep;
-  } else {
+  }
+  // repayments
+  if (props.type == 2) {
     ajax = loanRsaveStep;
+  }
+  // isSchedule
+  if (props.isSchedule) {
+    ajax = reconciliation;
   }
   ajax({ uuid: props.uuid, id: props.detail?.id, ...formState.value })
     .then((res) => {
@@ -230,6 +237,7 @@ const init = () => {
     bank_sn: '',
     remark: ''
   };
+  validate.value = false;
   reconciliationItem.value = null;
   loadType();
   loadReconciliation();
@@ -287,7 +295,6 @@ defineExpose({
   padding: 20px 0;
 
   max-height: 380px;
-  width: 300px;
   overflow-y: auto;
   padding-bottom: 8px;
   padding-top: 8px;
@@ -322,6 +329,15 @@ defineExpose({
       right: 10px;
       color: #a3a3a3;
       cursor: pointer;
+    }
+    .DownOutlined {
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.88);
+      top: calc(50% - 6px);
+      transition: all 0.2s ease;
+      &.active {
+        transform: rotate(180deg);
+      }
     }
     .list-item {
       background-color: #f7f9f8;

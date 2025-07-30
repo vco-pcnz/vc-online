@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- 对账 -->
-    <ReconciliationModal ref="reconciliationModalRef" :detail="itemDetail" :uuid="currentId" :type="3" @update="getDataInfo"> </ReconciliationModal>
+    <ReconciliationModal ref="reconciliationModalRef" :detail="itemDetail" :uuid="currentId" :type="ReconciliationType" :isSchedule="true" @update="getDataInfo"> </ReconciliationModal>
     <a-spin :spinning="pageLoading" size="large">
       <a-modal :open="visible" :title="t('增加存蓄费')" :width="500" :footer="null" :keyboard="false" :maskClosable="false" @cancel="visible = false">
         <div class="sys-form-content mt-5">
@@ -176,7 +176,7 @@
                 <div class="item balance">
                   <vco-number :value="_item.balance" :precision="2" :end="true"></vco-number>
                 </div>
-                <div class="item ops cursor-pointer" v-if="isReconciliation" @click="showReconciliationModal(_item)"><i class="iconfont">&#xe601;</i></div>
+                <div class="item ops cursor-pointer" v-if="isReconciliation"><i v-if="_item.status == 1 && _item.is_irr" class="iconfont" @click="showReconciliationModal(_item)">&#xe601;</i></div>
               </div>
             </div>
           </div>
@@ -659,9 +659,15 @@ const lateTableChange = (key) => {
 };
 
 // 对账
+const ReconciliationType = ref(1);
 const reconciliationModalRef = ref(null);
 const itemDetail = ref(null);
 const showReconciliationModal = (val) => {
+  if (val.amount > 0) {
+    ReconciliationType.value = 1;
+  } else {
+    ReconciliationType.value = 2;
+  }
   itemDetail.value = val;
   reconciliationModalRef.value.init();
 };

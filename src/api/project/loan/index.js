@@ -359,3 +359,11 @@ export const getReconciliation = (params) =>
     method: 'get',
     params
   });
+
+// 删除
+export const reconciliation = (data) =>
+  request({
+    url: 'project/forecast/reconciliation',
+    method: 'post',
+    data
+  });

@@ -1,12 +1,6 @@
 <template>
   <detail-layout active-tab="schedule" @getProjectDetail="getProjectDetail">
     <template #content>
-      <div class="relative">
-        <a-button v-if="hasPermission('projects:detail:schedule:reconciliation')" type="brown" shape="round" class="pre-sale-enter" @click="navigationTo(`/projects/schedule/reconciliation?uuid=${project_id}`)">
-          {{ t('对账') }}
-          <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px' }" />
-        </a-button>
-      </div>
       <schedule
         v-if="project_id"
         :isDetails="true"
@@ -17,6 +11,7 @@
         :ptRole="!!projectDetail?.base?.ptRole"
         :is-old="isOld"
         :is-reset="true"
+        :is-reconciliation="true"
       ></schedule>
     </template>
   </detail-layout>
@@ -24,15 +19,10 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useI18n } from 'vue-i18n';
-import detailLayout from '../components/detailLayout.vue';
+import detailLayout from '../../components/detailLayout.vue';
 import schedule from '@/components/schedule/index.vue';
 import { useRoute } from 'vue-router';
-import { hasPermission } from '@/directives/permission/index';
-import { RightOutlined } from '@ant-design/icons-vue';
-import { navigationTo } from '@/utils/tool';
 
-const { t } = useI18n();
 const route = useRoute();
 const project_id = ref();
 const currentProduct = ref('');
@@ -52,14 +42,4 @@ onMounted(() => {
 
 <style scoped lang="less">
 @import '@/styles/variables.less';
-
-.pre-sale-enter {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  top: -10px;
-  right: 0;
-  z-index: 2;
-}
 </style>

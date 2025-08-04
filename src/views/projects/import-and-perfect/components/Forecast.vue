@@ -14,7 +14,7 @@
     </div>
 
     <div class="col-content">
-      <div v-for="item in data" :key="item.id" class="col-item" :class="{ passed: item.status != 0 || item.first, yellow: item.type == 4 && item.first, red: item.is_hide }" @click="showEdit(item)">
+      <div v-for="item in data" :key="item.id" class="col-item" :class="{ passed: item.status != 0 || item.first, yellow: item.type == 4 && item.first, red: item.is_hide }">
         <div class="item flex items-center"><span class="circle" :style="{ background: item.status != 0 || item.first ? '#181818' : '#b4d8d8' }"></span></div>
         <div class="item">
           {{ tool.monthYear(item.ym) }}
@@ -59,7 +59,7 @@
           <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.note" style="width: 250px">{{ item.note }}</p>
         </div>
         <div class="item history cursor-pointer">
-          <i class="iconfont color_coal" v-if="item.status != 0 || item.first">&#xe8cf;</i>
+          <i class="iconfont color_coal" v-if="(item.status != 0 || item.first) && item.amount > 0" @click="showEdit(item)">&#xe8cf;</i>
         </div>
       </div>
     </div>

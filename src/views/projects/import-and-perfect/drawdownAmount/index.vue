@@ -55,9 +55,10 @@ const updateVisible = (value) => {
 
 const formState = ref({
   build_money: '',
+  land_money: 0,
+  equity_money: 0,
   other_money: 0,
   other_note: '',
-  other_type: '',
   build__data: []
 });
 
@@ -66,7 +67,7 @@ const updateformState = (val) => {
 };
 const save = () => {
   validate.value = true;
-  const conTotal = tool.plus(formState.value.build_money || 0, formState.value.other_money || 0);
+  const conTotal = tool.plus(tool.plus(formState.value.build_money || 0, formState.value.land_money || 0), tool.plus(formState.value.equity_money || 0, formState.value.other_money || 0));
   if (conTotal != tool.plus(detail.value.amount || 0, 0)) {
     // message.error(t('金额不匹配'));
     const diffNum = tool.minus(detail.value.amount, conTotal);
@@ -99,7 +100,7 @@ const detail = ref({});
 const isEdit = ref(false);
 const init = (val) => {
   detail.value = val;
-  isEdit.value = tool.plus(val.build_money || 0, val.other_money || 0) > 0;
+  isEdit.value = tool.plus(val.amount || 0, 0) > 0;
   Object.keys(formState.value).forEach((key) => {
     formState.value[key] = detail.value[key] || formState.value[key];
   });

@@ -31,9 +31,7 @@
           </template>
         </a-table>
         <div class="flex mt-2 justify-end">
-          <div class="flex items-center">
-            <span class="mr-2 color_grey">total:</span><vco-number :value="item?.amount" prefix=" " :precision="2" size="fs_xl" :bold="true" :end="true"></vco-number>
-          </div>
+          <div class="flex items-center"><span class="mr-2 color_grey">total:</span><vco-number :value="item?.amount" prefix=" " :precision="2" size="fs_xl" :bold="true" :end="true"></vco-number></div>
           <div class="flex items-center ml-5">
             <template v-if="distributableAmount < 0">
               <span class="mr-2 color_red-error">available:</span>:
@@ -91,7 +89,7 @@ const columns = reactive([
 const distributableAmount = computed(() => {
   const sum = list.value.reduce((accumulator, currentValue) => {
     if (currentValue.amount) {
-      return accumulator + parseFloat(currentValue.amount);
+      return tool.plus(accumulator || 0, parseFloat(currentValue.amount || 0));
     } else {
       return accumulator;
     }

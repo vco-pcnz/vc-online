@@ -115,6 +115,8 @@ const formState = ref({
   apply_date: '',
   other_type: '',
   build_money: '',
+  land_money: 0,
+  equity_money: 0,
   other_money: 0,
   vip_amount: '',
   build__data: [],
@@ -159,7 +161,7 @@ const save = () => {
     return item.files && item.files.length;
   });
 
-  let amount = tool.plus(formState.value.build_money || 0, formState.value.other_money || 0);
+  let amount = tool.plus(tool.plus(formState.value.build_money || 0, formState.value.land_money || 0), tool.plus(formState.value.equity_money || 0, formState.value.other_money || 0));
   if (hasPermission('projects:drawdowns:add')) {
     // vip
     amount = formState.value.vip_amount || 0;
@@ -232,6 +234,8 @@ const init = () => {
     formState.value.other_note = '';
     formState.value.other_type = '';
     formState.value.build_money = '';
+    formState.value.land_money = '';
+    formState.value.equity_money = '';
     formState.value.other_money = '';
     formState.value.vip_amount = '';
     formState.value.build__data = [];
@@ -289,7 +293,7 @@ const isEdit = ref(false);
 const ProgressPaymentRef = ref(null);
 const initData = () => {
   isEdit.value = true;
-  let keys = ['name', 'note', 'remark', 'other_note', 'apply_date', 'other_type', 'build_money', 'other_money', 'vip_amount'];
+  let keys = ['name', 'note', 'remark', 'other_note', 'apply_date', 'other_type', 'build_money', 'land_money', 'equity_money', 'other_money', 'vip_amount'];
   const newData = pick(props.detail, keys);
   Object.assign(formState.value, newData);
   if (props.detail?.buildlog) {

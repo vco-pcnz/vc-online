@@ -23,57 +23,74 @@
     <a-alert type="info" class="mt-5">
       <template #message>
         <a-row :gutter="24">
-          <a-col :span="5">
-            <div class="label">{{ t('类型') }}</div>
-            <a-select :loading="loading_type" style="width: 100%" v-model:value="formState.other_type" :options="types" :fieldNames="{ label: 'name', value: 'code' }" @change="changeOtherType"></a-select>
+          <a-col :span="8">
+            <div class="label">{{ t('土地余额') }} ({{ tool.formatMoney(tool.plus(projectDetail?.base?.remain_land_amount || 0, editData?.land_money || 0)) }})</div>
+            <a-input-number
+              v-model:value="formState.land_money"
+              @input="change()"
+              :max="tool.plus(projectDetail?.base?.remain_land_amount || 0, editData?.land_money || 0)"
+              :min="0"
+              :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+              :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+            />
           </a-col>
-          <a-col :span="7">
-            <div class="label">{{ t('金额') }}</div>
-            <a-input-number v-model:value="formState.other_money" @input="change()" :max="max_other_money" :min="0" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
+          <a-col :span="8">
+            <div class="label">{{ t('补充股权') }} ({{ tool.formatMoney(tool.plus(projectDetail?.base?.remain_equity_amount || 0, editData?.equity_money || 0)) }})</div>
+            <a-input-number
+              v-model:value="formState.equity_money"
+              @input="change()"
+              :max="tool.plus(projectDetail?.base?.remain_equity_amount || 0, editData?.equity_money || 0)"
+              :min="0"
+              :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+              :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+            />
           </a-col>
-          <a-col :span="12">
+          <a-col :span="8">
+            <div class="label">{{ t('其他金额') }}</div>
+            <a-input-number v-model:value="formState.other_money" @input="change()" :max="99999999999" :min="0" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
+          </a-col>
+          <a-col :span="24" class="mt-3">
             <div class="label">{{ t('说明') }}</div>
             <a-input v-model:value="formState.other_note" @input="change()" />
           </a-col>
         </a-row>
-        <div class="flex gap-10 mt-2">
-          <div>
-            <span class="label">{{ t('土地余额') }}:</span>
-            {{ tool.formatMoney(tool.plus(projectDetail?.remain_land_amount || 0, data && editData?.other_type == 1 ? editData?.other_money : 0)) }}
-          </div>
-          <div>
-            <span class="label">{{ t('补充股权') }}:</span>
-            {{ tool.formatMoney(tool.plus(projectDetail?.remain_equity_amount || 0, editData && editData?.other_type == 2 ? editData?.other_money : 0)) }}
-          </div>
-        </div>
       </template>
     </a-alert>
     <div class="flex justify-end items-end mt-5">
       <div>
         <div class="label">{{ t('进度款') }}</div>
-        <div class="fs_2xl">{{ tool.formatMoney(formState.build_money || 0) }}</div>
+        <div class="fs_xl">{{ tool.formatMoney(formState.build_money || 0) }}</div>
+      </div>
+      <div class="operator">+</div>
+      <div>
+        <div class="label">{{ t('土地余额') }}</div>
+        <div class="fs_xl">{{ tool.formatMoney(formState.land_money || 0) }}</div>
+      </div>
+      <div class="operator">+</div>
+      <div>
+        <div class="label">{{ t('补充股权') }}</div>
+        <div class="fs_xl">{{ tool.formatMoney(formState.equity_money || 0) }}</div>
       </div>
       <div class="operator">+</div>
       <div>
         <div class="label">{{ t('其他金额') }}</div>
-        <div class="fs_2xl">{{ tool.formatMoney(formState.other_money || 0) }}</div>
+        <div class="fs_xl">{{ tool.formatMoney(formState.other_money || 0) }}</div>
       </div>
       <div class="operator">=</div>
-      <div :class="{ err: tool.plus(formState.build_money || 0, formState.other_money || 0) != tool.plus(total || 0, 0) }">
+      <div :class="{ err: getTotal() == 0 && validate }">
         <div class="label">{{ t('总计') }}</div>
-        <div class="fs_2xl">{{ tool.formatMoney(tool.plus(formState.build_money || 0, formState.other_money || 0)) }}</div>
+        <div class="fs_xl">{{ tool.formatMoney(getTotal()) }}</div>
       </div>
     </div>
   </template>
 </template>
 
 <script scoped setup>
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import ViewContent from './../components/ProgressViewContent.vue';
 import { cloneDeep } from 'lodash';
-import { systemDictData } from '@/api/system';
 const emits = defineEmits(['change']);
 const { t } = useI18n();
 const props = defineProps({
@@ -100,8 +117,9 @@ const showOther = ref(false);
 const selectVisible = ref(false);
 const formState = ref({
   build_money: '',
+  land_money: 0,
+  equity_money: 0,
   other_money: 0,
-  other_type: '3',
   other_note: '',
   build__data: []
 });
@@ -123,50 +141,17 @@ const buildLogData = ref([]);
 const updateShowOther = () => {
   showOther.value = !showOther.value;
   if (!showOther.value) {
+    formState.value.land_money = 0;
+    formState.value.equity_money = 0;
     formState.value.other_money = 0;
     formState.value.other_note = '';
   }
   emits('change', formState.value);
 };
 
-const types = ref([]);
-const loading_type = ref(false);
-const loadType = (reset) => {
-  loading_type.value = true;
-  systemDictData('other_draw_type')
-    .then((res) => {
-      types.value = res;
-    })
-    .finally((_) => {
-      loading_type.value = false;
-    });
+const getTotal = () => {
+  return tool.plus(tool.plus(formState.value.build_money || 0, formState.value.land_money || 0), tool.plus(formState.value.equity_money || 0, formState.value.other_money || 0));
 };
-
-const max_other_money = ref(99999999999);
-
-const changeOtherType = () => {
-  if (formState.value.other_type == 1) {
-    let max = tool.plus(props.projectDetail?.remain_land_amount || 0, editData.value && editData.value?.other_type == 1 ? editData.value?.other_money : 0);
-    max_other_money.value = max;
-    if (Number(formState.value.other_money) > Number(max)) {
-      formState.value.other_money = max;
-    }
-  } else if (formState.value.other_type == 2) {
-    let max = tool.plus(props.projectDetail?.remain_equity_amount || 0, editData.value && editData.value?.other_type == 2 ? editData.value?.other_money : 0);
-    max_other_money.value = max;
-    if (Number(formState.value.other_money) > Number(max)) {
-      formState.value.other_money = max;
-    }
-  } else {
-    formState.value.other_type = '3';
-    max_other_money.value = 99999999999;
-  }
-  emits('change', formState.value);
-};
-
-onMounted(() => {
-  loadType();
-});
 
 const editData = ref(null);
 watch(
@@ -175,13 +160,11 @@ watch(
     if (val && props.data) {
       editData.value = cloneDeep(props.data);
       formState.value = cloneDeep(props.data);
-      formState.value.other_type += '';
-      changeOtherType();
       if (props.data?.build__data) {
         selectedData.value = cloneDeep(props.data?.build__data);
         buildLogData.value = cloneDeep(props.data?.build__data);
       }
-      if (props.data?.other_money > 0) {
+      if (tool.plus(props.data?.land_money || 0, tool.plus(props.data?.equity_money || 0, props.data?.other_money || 0)) > 0) {
         showOther.value = true;
       } else {
         showOther.value = false;
@@ -214,7 +197,7 @@ watch(
 }
 .operator {
   font-size: 20px;
-  margin: 0 20px;
+  margin: 0 10px;
 }
 .err {
   .label {

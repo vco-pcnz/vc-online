@@ -139,6 +139,7 @@ const formState = ref({
 
 const updateVisible = (value) => {
   visible.value = value;
+  dropdownVisible.value = false;
 };
 
 const loading_type = ref(false);

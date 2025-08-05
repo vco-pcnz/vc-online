@@ -279,7 +279,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, watch, computed } from 'vue';
+import { ref, reactive, onMounted, watch, computed, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { DownOutlined, RightOutlined } from '@ant-design/icons-vue';
 import dayjs from 'dayjs';
@@ -666,13 +666,14 @@ const lateTableChange = (key) => {
 const ReconciliationType = ref(1);
 const reconciliationModalRef = ref(null);
 const itemDetail = ref(null);
-const showReconciliationModal = (val) => {
+const showReconciliationModal = async (val) => {
   if (val.amount > 0) {
     ReconciliationType.value = 1;
   } else {
     ReconciliationType.value = 2;
   }
   itemDetail.value = val;
+  await nextTick(); // Wait for DOM and reactivity updates
   reconciliationModalRef.value.init();
 };
 

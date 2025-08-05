@@ -128,7 +128,7 @@ const columns = reactive([
 const distributableAmount = computed(() => {
   const sum = orgs.value.reduce((accumulator, currentValue) => {
     if (currentValue.amount) {
-      return accumulator + parseFloat(currentValue.amount);
+      return tool.plus(accumulator || 0, parseFloat(currentValue.amount || 0));
     } else {
       return accumulator;
     }

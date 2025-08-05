@@ -40,7 +40,12 @@
               </a-col>
               <a-col :span="7">
                 <a-form-item :label="t('变更金额')" name="amount">
-                  <a-input-number v-model:value="formState.amount" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
+                  <a-input-number
+                    v-model:value="formState.amount"
+                    :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                    :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                    @change="handInput('credit_brokerFeeRate')"
+                  />
                 </a-form-item>
               </a-col>
               <a-col :span="1" class="icon-txt">
@@ -556,6 +561,22 @@ const type_startDate = computed(() => ({
   start_date: formState.value.start_date
 }));
 
+const borkerFeeCalcAmount = ref(0);
+const borkerFeeCalcAmountRef = computed(() => {
+  const total = Number(borkerFeeCalcAmount.value);
+  const num = Number(formState.value.amount);
+  const isPlus = [1, 4].includes(Number(formState.value.type));
+
+  let res = 0;
+  if (isPlus) {
+    res = tool.plus(total, num);
+  } else {
+    res = tool.minus(total, num);
+  }
+
+  return res;
+})
+
 const loadingBorkerFeeCalcAmount = ref(false);
 watch(
   type_startDate,
@@ -577,14 +598,12 @@ watch(
   { deep: true }
 );
 
-const borkerFeeCalcAmount = ref(0);
-
 const handInput = (key) => {
   if (key == 'credit_brokerFeeRate' && formState.value.type != 4) {
-    formState.value.credit_brokerFee = (((formState.value.credit_brokerFeeRate || 0) * (borkerFeeCalcAmount.value || 0)) / 100).toFixed(2);
+    formState.value.credit_brokerFee = (((formState.value.credit_brokerFeeRate || 0) * (borkerFeeCalcAmountRef.value || 0)) / 100).toFixed(2);
   }
   if (key == 'credit_brokerFee') {
-    formState.value.credit_brokerFeeRate = (((formState.value.credit_brokerFee || 0) / (borkerFeeCalcAmount.value || 0)) * 100).toFixed(6);
+    formState.value.credit_brokerFeeRate = (((formState.value.credit_brokerFee || 0) / (borkerFeeCalcAmountRef.value || 0)) * 100).toFixed(6);
   }
 };
 

@@ -60,9 +60,10 @@ const updateVisible = (value) => {
 
 const formState = ref({
   build_money: '',
+  land_money: 0,
+  equity_money: 0,
   other_money: 0,
   other_note: '',
-  other_type: '',
   build__data: []
 });
 
@@ -71,7 +72,7 @@ const updateformState = (val) => {
 };
 const save = () => {
   validate.value = true;
-  if (tool.plus(formState.value.build_money || 0, formState.value.other_money || 0) == 0) return;
+  if (tool.plus(tool.plus(formState.value.build_money || 0, formState.value.land_money || 0), tool.plus(formState.value.equity_money || 0, formState.value.other_money || 0)) == 0) return;
   loading.value = true;
   let params = {
     uuid: props.uuid,

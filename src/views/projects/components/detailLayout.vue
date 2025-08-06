@@ -80,6 +80,8 @@ const backPrev = (link) => {
 const back = () => {
   if (backPrev(route.path)) {
     router.push(`/projects/about?uuid=${route.query.uuid}`);
+  } else if (route.path.indexOf('schedule/reconciliation') > -1) {
+    router.push(`/projects/schedule?uuid=${route.query.uuid}`);
   } else {
     router.push(`/projects/list`);
   }

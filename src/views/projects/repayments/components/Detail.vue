@@ -63,7 +63,7 @@
             <a-button v-else type="dark" class="big uppercase w-full" @click="detailsVisible = true">{{ t('接受请求') }}</a-button>
           </template>
 
-          <a-popconfirm v-if="hasPermission('projects:repayments:revoke') && [0, 1].includes(Number(detail?.status)) && detail?.state > 0 && !['repayment_lm', 'drawdown_lm'].includes(detail.mark)" :title="t('您确定撤销还款吗？')" @confirm="revokeHandle">
+          <a-popconfirm v-if="!detail?.prev_permission && hasPermission('projects:repayments:revoke') && [0, 1].includes(Number(detail?.status)) && detail?.state > 0 && !['repayment_lm', 'drawdown_lm'].includes(detail.mark)" :title="t('您确定撤销还款吗？')" @confirm="revokeHandle">
             <a-button type="brown" class="big uppercase w-full mt-4">{{ t('撤销还款') }}</a-button>
           </a-popconfirm>
 

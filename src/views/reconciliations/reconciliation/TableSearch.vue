@@ -34,22 +34,22 @@
       </div>
     </vco-page-search-item>
 
-      <vco-page-search-item width="150" :title="t('项目名称')">
-        <a-input v-model:value="searchForm.project_name" :placeholder="t('请输入')" />
-      </vco-page-search-item>
-  
-    <template v-if="isExpand">
-        <vco-page-search-item :title="t('金额')" width="230">
-      <div v-if="!exadtAmount" class="flex items-center gap-2">
-        <a-input-number v-model:value="searchForm.min_amount" :min="1" :placeholder="t('最小值')" />
-        <p>-</p>
-        <a-input-number v-model:value="searchForm.max_amount" :min="searchForm.min_amount" :placeholder="t('最大值')" />
-      </div>
-      <a-input-number v-else v-model:value="searchForm.amount" :placeholder="t('请输入')" />
-      <div class="Exact">
-        <a-checkbox v-model:checked="exadtAmount">{{ t('精确金额') }}</a-checkbox>
-      </div>
+    <vco-page-search-item width="150" :title="t('项目名称')">
+      <a-input v-model:value="searchForm.project_name" :placeholder="t('请输入')" />
     </vco-page-search-item>
+
+    <template v-if="isExpand">
+      <vco-page-search-item :title="t('金额')" width="230">
+        <div v-if="!exadtAmount" class="flex items-center gap-2">
+          <a-input-number v-model:value="searchForm.min_amount" :min="1" :placeholder="t('最小值')" />
+          <p>-</p>
+          <a-input-number v-model:value="searchForm.max_amount" :min="searchForm.min_amount" :placeholder="t('最大值')" />
+        </div>
+        <a-input-number v-else v-model:value="searchForm.amount" :placeholder="t('请输入')" />
+        <div class="Exact">
+          <a-checkbox v-model:checked="exadtAmount">{{ t('精确金额') }}</a-checkbox>
+        </div>
+      </vco-page-search-item>
       <vco-page-search-item width="150" :title="t('客户经理')" v-if="hasPermission('reconciliations:manage:search:lm')">
         <a-input v-model:value="searchForm.lm_name" :placeholder="t('请输入')" />
       </vco-page-search-item>
@@ -76,7 +76,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { selectDateFormat } from '@/utils/tool';
 import { hasPermission } from '@/directives/permission/index';
@@ -143,7 +143,7 @@ const searchForm = ref({
   date: '',
   match: '',
   date_match: '',
-  is_open: '',
+  is_open: 1,
   lm_name: ''
 });
 
@@ -204,6 +204,10 @@ const searchHandle = (flag) => {
   emits('update:value', searchForm.value);
   emits('search', searchForm.value);
 };
+
+onMounted(() => {
+  searchHandle();
+});
 </script>
 
 <style scoped lang="less">

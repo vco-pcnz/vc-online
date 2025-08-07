@@ -148,7 +148,7 @@
             <div class="item uppercase">{{ t('放款') }}</div>
             <div class="item uppercase">{{ t('还款') }}</div>
             <div class="item uppercase balance">{{ t('余额') }}</div>
-            <div class="item uppercase ops" v-if="isReconciliation">{{ t('操作1') }}</div>
+            <div class="item uppercase ops" v-if="isReconciliation">RC/NR</div>
           </div>
 
           <div class="col-content">
@@ -279,7 +279,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, watch, computed } from 'vue';
+import { ref, reactive, onMounted, watch, computed, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { DownOutlined, RightOutlined } from '@ant-design/icons-vue';
 import dayjs from 'dayjs';
@@ -666,13 +666,14 @@ const lateTableChange = (key) => {
 const ReconciliationType = ref(1);
 const reconciliationModalRef = ref(null);
 const itemDetail = ref(null);
-const showReconciliationModal = (val) => {
+const showReconciliationModal = async (val) => {
   if (val.amount > 0) {
     ReconciliationType.value = 1;
   } else {
     ReconciliationType.value = 2;
   }
   itemDetail.value = val;
+  await nextTick(); // Wait for DOM and reactivity updates
   reconciliationModalRef.value.init();
 };
 
@@ -830,7 +831,7 @@ onMounted(() => {
         text-align: right;
       }
       &.ops {
-        width: 40px;
+        width: 50px;
         text-align: center;
       }
       .note {
@@ -877,7 +878,7 @@ onMounted(() => {
         flex-direction: column;
         justify-content: center;
         &.ops {
-          width: 40px;
+          width: 50px;
           text-align: center;
           .iconfont {
             color: @colorPrimary;

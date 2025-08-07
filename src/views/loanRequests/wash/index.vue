@@ -133,7 +133,7 @@ const colors = ref({
 const rowClick = (record, index) => {
   return {
     onClick: () => {
-      navigationTo(`/projects/orgs?uuid=${record.project.uuid}&type=2`);
+      navigationTo(`/projects/orgs?uuid=${record.project.uuid}&type=2`,true);
     }
   };
 };

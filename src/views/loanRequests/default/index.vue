@@ -136,7 +136,7 @@ const colors = ref({
 const rowClick = (record, index) => {
   return {
     onClick: () => {
-      navigationTo(`/projects/penalty?uuid=${record.project.uuid}`);
+      navigationTo(`/projects/penalty?uuid=${record.project.uuid}`,true);
     }
   };
 };

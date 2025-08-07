@@ -139,7 +139,7 @@ const setStatusColor = (val) => {
 const rowClick = (record, index) => {
   return {
     onClick: () => {
-      navigationTo(`/projects/repayments?uuid=${record.project.uuid}`);
+      navigationTo(`/projects/repayments?uuid=${record.project.uuid}`,true);
     }
   };
 };

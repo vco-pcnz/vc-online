@@ -134,7 +134,7 @@ const setStatusColor = (val) => {
 const rowClick = (record, index) => {
   return {
     onClick: () => {
-      navigationTo(`/projects/drawdowns?uuid=${record.project.uuid}`);
+      navigationTo(`/projects/drawdowns?uuid=${record.project.uuid}`,true);
     }
   };
 };

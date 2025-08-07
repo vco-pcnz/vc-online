@@ -151,7 +151,7 @@ const reload = () => {
 };
 const way_options = ref([]);
 onMounted((_) => {
-  loadData();
+  // loadData();
   systemDictData('reconciliation_way').then((res) => {
     way_options.value = res;
   });

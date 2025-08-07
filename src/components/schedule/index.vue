@@ -148,7 +148,7 @@
             <div class="item uppercase">{{ t('放款') }}</div>
             <div class="item uppercase">{{ t('还款') }}</div>
             <div class="item uppercase balance">{{ t('余额') }}</div>
-            <div class="item uppercase ops" v-if="isReconciliation">{{ t('操作1') }}</div>
+            <div class="item uppercase ops" v-if="isReconciliation">RC/NR</div>
           </div>
 
           <div class="col-content">
@@ -831,7 +831,7 @@ onMounted(() => {
         text-align: right;
       }
       &.ops {
-        width: 40px;
+        width: 50px;
         text-align: center;
       }
       .note {
@@ -878,7 +878,7 @@ onMounted(() => {
         flex-direction: column;
         justify-content: center;
         &.ops {
-          width: 40px;
+          width: 50px;
           text-align: center;
           .iconfont {
             color: @colorPrimary;

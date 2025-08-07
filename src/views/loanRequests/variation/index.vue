@@ -160,7 +160,7 @@ const colors = ref({
 const rowClick = (record, index) => {
   return {
     onClick: () => {
-      navigationTo(`/projects/variations-details/about?uuid=${record.project.uuid}&id=${record.id}`);
+      navigationTo(`/projects/variations-details/about?uuid=${record.project.uuid}&id=${record.id}`,true);
     }
   };
 };

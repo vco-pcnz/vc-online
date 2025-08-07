@@ -50,7 +50,7 @@ const todoHandle = (data) => {
   } else {
     const href = processRoutes[data.next_index - 1];
     if (href) {
-      navigationTo(`${href}?uuid=${data.uuid}`);
+      navigationTo(`${href}?uuid=${data.uuid}`,true);
     }
   }
 };

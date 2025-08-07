@@ -132,10 +132,10 @@ const rowClick = (record, index) => {
     onClick: () => {
       if (record.state2 === 1000) {
         // 解押
-        navigationTo(`/projects/discharge?uuid=${record.project.uuid}`);
+        navigationTo(`/projects/discharge?uuid=${record.project.uuid}`,true);
       } else {
         // 添加抵押物
-        navigationTo(`/projects/discharge?uuid=${record.project.uuid}&type=1`);
+        navigationTo(`/projects/discharge?uuid=${record.project.uuid}&type=1`,true);
       }
     }
   };

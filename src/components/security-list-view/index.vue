@@ -1,6 +1,6 @@
 <template>
   <div>
-    <vco-page-panel @back="goBack">
+    <vco-page-panel v-if="!isVariation" @back="goBack">
       <template #title>
         <div class="page-title-content">
           <div v-if="dataInfo?.base?.project_apply_sn" class="tag">{{ `${dataInfo?.product?.name} - ${(dataInfo?.borrower?.organization_name || dataInfo?.base?.project_apply_sn)}` }}</div>
@@ -10,14 +10,14 @@
     </vco-page-panel>
 
     <a-spin :spinning="pageLoading" size="large">
-      <div class="form-block-content">
+      <div class="form-block-content" :class="{'mb-5': isVariation}">
         <a-table
           :columns="formColumns"
           :data-source="formDataSource"
           bordered
           :pagination="false"
           table-layout="fixed"
-          :scroll="{ x: '100%', y: 600 }"
+          :scroll="{ x: '100%', y: isVariation ? 300 : 600 }"
         >
           <template #bodyCell="{ column, record, index }">
             <template v-if="column.dataIndex === 'typology'">
@@ -104,6 +104,10 @@
     type: {
       type: String,
       default: ""
+    },
+    isVariation: {
+      type: Boolean,
+      default: false
     }
   })
 

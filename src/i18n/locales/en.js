@@ -1076,5 +1076,9 @@ export default {
   "对账方式": "Reconciliation method",
   "交易记录": "Transaction records",
   "银行": "Bank",
-  "明细表对账": "Schedule"
+  "明细表对账": "Schedule",
+  "变更抵押物": "Variation of securities",
+  "抵押物总价值": "Total value of securities",
+  "变更增加": "Variation increase",
+  "延长周期(月份)": "Extend cycle (months)"
 }

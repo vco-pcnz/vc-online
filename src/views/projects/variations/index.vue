@@ -23,14 +23,12 @@
       <vco-table-tool>
         <template #right>
           <span>
-            <AddVariations
+            <a-button
               v-if="hasPermission('projects:variations:add')"
-              :currentId="uuid"
-              :project-detail="projectDetail"
-              @update="updateHandle(true)"
-            >
-              <a-button type="dark" class="uppercase">{{ t('添加变更') }}</a-button>
-            </AddVariations>
+              type="dark"
+              class="uppercase"
+              @click="goProgressPage"
+            >{{ t('添加变更') }}</a-button>
           </span>
         </template>
       </vco-table-tool>
@@ -245,6 +243,10 @@ const openDetail = (data, flag) => {
 
 const goDetail = (data) => {
   navigationTo(`/projects/variations-details/about?uuid=${uuid.value}&id=${data.id}`)
+}
+
+const goProgressPage = () => {
+  navigationTo(`/projects/variations/add/?uuid=${uuid.value}`)
 }
 
 const updateHandle = (flag) => {

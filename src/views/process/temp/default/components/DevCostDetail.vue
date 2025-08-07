@@ -63,7 +63,7 @@
                       <a-input-number
                         v-if="(record.type !== 'Land_gst' && record.type !== 'Build_gst') || column.dataIndex === 'loan'"
                         v-model:value="record[column.dataIndex]"
-                        :disabled="Boolean(record?.status) || (disabledLoan && column.dataIndex === 'loan') || Boolean(record?.list && record?.list.length)"
+                        :disabled="Boolean(record?.status) || (disabledLoan && column.dataIndex === 'loan') || Boolean(record?.list && record?.list.length) || isVariation"
                         @change="initData"
                         :max="99999999999"
                         :min="0"

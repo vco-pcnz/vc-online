@@ -40,7 +40,7 @@
         <div>
           <div class="flex">
             <vco-number :value="repaymentAmount" :precision="2" :bold="true" size="fs_2xl" :color="Number(detail?.reduction_money) ? '#31bd65' : '#282828'"></vco-number>
-            <i v-if="detail?.has_permission && detail?.mark === 'repayment_lm'" @click="openEditHandle" class="iconfont edit">&#xe8cf;</i>
+            <i v-if="hasPermission('projects:repayments:edit') && detail?.mark === 'repayment_lm'" @click="openEditHandle" class="iconfont edit">&#xe8cf;</i>
           </div>
           <p class="bold color_grey fs_2xs">{{ t('申请金额') }}: {{ tool.formatMoney(detail?.apply_amount) }}</p>
         </div>
@@ -63,7 +63,7 @@
             <a-button v-else type="dark" class="big uppercase w-full" @click="detailsVisible = true">{{ t('接受请求') }}</a-button>
           </template>
 
-          <a-popconfirm v-if="hasPermission('projects:repayments:revoke') && [0, 1].includes(Number(detail?.status)) && detail?.state > 0 && !['repayment_lm', 'drawdown_lm'].includes(detail.mark)" :title="t('您确定撤销还款吗？')" @confirm="revokeHandle">
+          <a-popconfirm v-if="!detail?.prev_permission && hasPermission('projects:repayments:revoke') && [0, 1].includes(Number(detail?.status)) && detail?.state > 0 && !['repayment_lm', 'drawdown_lm'].includes(detail.mark)" :title="t('您确定撤销还款吗？')" @confirm="revokeHandle">
             <a-button type="brown" class="big uppercase w-full mt-4">{{ t('撤销还款') }}</a-button>
           </a-popconfirm>
 

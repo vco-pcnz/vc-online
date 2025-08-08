@@ -6,7 +6,7 @@
     <a-image v-if="detail?.base.project_image" :src="detail?.base.project_image" height="313.67px" width="100%" />
     <div class="base-card">
       <p class="id_async">
-        <span>ID {{ detail?.base.project_apply_sn }}</span>
+        <span style="color: #181818;">ID {{ detail?.base.project_apply_sn }}</span>
         <template v-if="!variations && !detail?.base?.ptRole">
           <a-statistic-countdown :value="deadline" @finish="onFinish" format="mm:ss" v-if="Boolean(countdown)">
             <template #prefix>
@@ -26,8 +26,12 @@
           </a-spin>
         </template>
       </p>
-      <p class="mb-5">{{ t('借款人') }}: {{ detail?.base.borrower_user_name }}</p>
-      <p class="text-2xl name">{{ detail?.base.project_name || detail?.base.borrower_user_name }}</p>
+      <p class="mt-3">{{ t('借款人') }}</p>
+      <p style="color: #181818;">{{ detail?.base.borrower_user_name }}</p>
+      <p v-if="variations" class="mt-3">{{ t('借款周期') }}</p>
+      <p style="color: #181818;">{{ tool.showDate(detail?.date?.start_date) + ' - ' + tool.showDate(detail?.date?.end_date) }}</p>
+
+      <p class="text-2xl name mt-5">{{ detail?.base.project_name || detail?.base.borrower_user_name }}</p>
       <template v-if="detail?.base?.project_address_other">
         <template v-for="(item, index) in detail?.base?.project_address_other" :key="index">
           <p class="fs_xs mt-2" v-if="moreAddr ? true : index < 1">{{ item.project_city }}</p>
@@ -62,6 +66,7 @@ import { CheckCircleOutlined } from '@ant-design/icons-vue';
 import { syncProjectBill } from '@/api/project/project';
 import { message } from 'ant-design-vue';
 import { systemConfigData } from '@/api/system';
+import tool from '@/utils/tool';
 
 const { t } = useI18n();
 

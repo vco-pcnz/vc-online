@@ -44,52 +44,82 @@
                 <a-select v-model:value="formState.type" :options="typeData" @change="typeChange"></a-select>
               </a-form-item>
             </a-col>
-            <a-col :span="[1, 2, 3].includes(Number(formState.type)) ? 6 :12">
-              <a-form-item :label="t('变更开始日期')" name="start_date">
-                <a-form-item-rest>
-                  <a-date-picker
-                    v-model:value="formState.start_date"
-                    :format="selectDateFormat()"
-                    valueFormat="YYYY-MM-DD"
-                    :disabledDate="disabledDate"
-                    :showToday="false"
-                    @change="dateChange('start_date')"
-                  />
+            <a-col :span="[1, 2, 3].includes(Number(formState.type)) ? 16 : 12">
+              <a-row :gutter="24">
+                <a-col :span="[1, 2, 3].includes(Number(formState.type)) ? 8 : 24">
+                  <a-form-item :label="t('变更开始日期')" name="start_date">
+                    <a-form-item-rest>
+                      <a-date-picker
+                        v-model:value="formState.start_date"
+                        :format="selectDateFormat()"
+                        valueFormat="YYYY-MM-DD"
+                        :disabledDate="disabledDate"
+                        :showToday="false"
+                        @change="dateChange('start_date')"
+                      />
+                    </a-form-item-rest>
+                  </a-form-item>
+                </a-col>
+                <template v-if="[1, 2, 3].includes(Number(formState.type))">
+                  <a-col :span="8">
+                    <a-form-item :label="t('延长周期')" name="extend_month">
+                      <a-form-item-rest>
+                        <div class="flex gap-2">
+                          <a-input-number
+                            v-model:value="formState.extend_month"
+                            :min="0"
+                            :precision="0"
+                            :placeholder="t('月1')"
+                            :controls="false"
+                            @input="extendCycleInput"
+                          >
+                            <template #addonAfter>
+                              <span>{{ t('月1') }}</span>
+                            </template>
+                          </a-input-number>
+                          <a-input-number
+                            v-model:value="formState.extend_day"
+                            :min="0"
+                            :max="30"
+                            :precision="0"
+                            :placeholder="t('天1')"
+                            :controls="false"
+                            @input="extendCycleInput"
+                          >
+                            <template #addonAfter>
+                              <span>{{ t('天1') }}</span>
+                            </template>
+                          </a-input-number>
+                        </div>
+                      </a-form-item-rest>
+                    </a-form-item>
+                  </a-col>
+                  <a-col :span="8">
+                    <a-form-item :label="t('变更后结束日期')" name="end_date">
+                      <a-date-picker
+                        inputReadOnly
+                        v-model:value="formState.end_date"
+                        :format="selectDateFormat()"
+                        valueFormat="YYYY-MM-DD"
+                        :showToday="false"
+                        :defaultPickerValue="endDefaultPickerValue"
+                        :disabledDate="endDisabledDate"
+                        @change="dateChange('end_date')"
+                      />
+                    </a-form-item>
+                  </a-col>
+                </template>
+                <a-col :span="24" v-if="initDrawdownData.length" style="position: relative; top: -10px;">
                   <a-checkbox
-                    v-if="initDrawdownData.length"
                     v-model:checked="initDrawdownSel"
                     class="mt-1"
                     style="font-size: 12px;"
                     @change="initDrawdownCheckedChange"
                   >{{ t('所选日期存在放款数据，是否将其设置为变更后首次放款') }}</a-checkbox>
-                </a-form-item-rest>
-              </a-form-item>
+                </a-col>
+                
+              </a-row>
             </a-col>
-            <template v-if="[1, 2, 3].includes(Number(formState.type))">
-              <a-col :span="4">
-                <a-form-item :label="t('延长周期(月份)')" name="extend_month">
-                  <a-input-number
-                    v-model:value="formState.extend_month"
-                    :min="0"
-                    :precision="0"
-                  />
-                </a-form-item>
-              </a-col>
-              <a-col :span="6">
-                <a-form-item :label="t('变更后结束日期')" name="end_date">
-                  <a-date-picker
-                    inputReadOnly
-                    v-model:value="formState.end_date"
-                    :format="selectDateFormat()"
-                    valueFormat="YYYY-MM-DD"
-                    :showToday="false"
-                    :defaultPickerValue="endDefaultPickerValue"
-                    :disabledDate="endDisabledDate"
-                    @change="dateChange('end_date')"
-                  />
-                </a-form-item>
-              </a-col>
-            </template>
           </a-row>
           <a-row :gutter="24">
             <a-col :span="7">
@@ -349,7 +379,7 @@
               <a-col :span="24"><div class="pt-5" style="border-top: 1px dashed #282828"></div></a-col>
               <template v-if="colItemsRef.length">
                 <template v-for="item in colItemsRef" :key="item.credit_table">
-                  <a-col :span="getItemsSpan" v-if="!(formState.type == 5 && item.credit_table === 'credit_brokerFeeRate')">
+                  <a-col :span="getItemsSpan">
                     <a-form-item :name="item.credit_table">
                       <template #label>
                         {{ item.credit_name }}
@@ -471,6 +501,8 @@ const devCostChange = (val) => {
 }
 
 const typeChange = (val) => {
+  createFormItems()
+
   const params = {
     uuid: uuid.value,
     type: val,
@@ -495,6 +527,8 @@ const formState = ref({
   start_date: '',
   end_date: '',
   initial_amount: '',
+  extend_month: '',
+  extend_day: '',
   note: '',
   initial_sn: ''
 });
@@ -685,6 +719,19 @@ const dateChange = (type) => {
       initDrawdownData.value = [];
     }
   }
+
+  if (type == 'end_date') {
+    const end_date = formState.value.end_date
+    if (end_date) {
+      const startDate = projectInfo.value.date.end_date
+      const calcDay = tool.calculateDurationPrecise(startDate, end_date)
+      formState.value.extend_month = calcDay.months
+      formState.value.extend_day = calcDay.days
+    } else {
+      formState.value.extend_month = ''
+      formState.value.extend_day = ''
+    }
+  }
 };
 
 const statistics = ref({
@@ -785,12 +832,15 @@ const getValidateInfo = (data) => {
 };
 
 const colItemsRef = ref([])
-const createFormItems = (flag) => {
+const createFormItems = () => {
   const creditInfo = cloneDeep(creditVariationinfo.value);
 
   if (formState.value.type === 5) {
+    delete creditInfo.credit_estabFee;
     delete creditInfo.credit_estabFeeRate;
     delete creditInfo.credit_LineFeeRate;
+    delete creditInfo.credit_brokerFee;
+    delete creditInfo.credit_brokerFeeRate;
   }
 
   const keyArr = [];
@@ -847,8 +897,8 @@ const createFormItems = (flag) => {
   formRules.value = { ...formRules.value, ...rulesData };
 };
 
-const getCreditVal = () => {
-  projectCreditVariation({
+const getCreditVal = async () => {
+  await projectCreditVariation({
     apply_uuid: uuid.value
   }).then((res) => {
     creditVariationinfo.value = res;
@@ -857,10 +907,10 @@ const getCreditVal = () => {
   });
 };
 
-const getCreditInfo = () => {
-  ruleCredit().then((res) => {
+const getCreditInfo = async () => {
+  await ruleCredit().then(async (res) => {
     creditData.value = res || [];
-    getCreditVal();
+    await getCreditVal();
   });
 };
 
@@ -911,13 +961,14 @@ watch(
   type_startDate,
   (val) => {
     // 变更自动计算broker fee
-    if ([1, 2, 3].includes(val.type) && val.start_date) {
+    if ([1, 2, 3, 4].includes(val.type) && val.start_date) {
       borkerFeeCalcAmount.value = 0;
       loadingBorkerFeeCalcAmount.value = true;
       borkerFeeCalc({ uuid: uuid.value, start_date: val.start_date })
         .then((res) => {
           borkerFeeCalcAmount.value = res;
           handInput('credit_brokerFeeRate');
+          handInput('credit_estabFeeRate');
         })
         .finally(() => {
           loadingBorkerFeeCalcAmount.value = false;
@@ -927,28 +978,107 @@ watch(
   { deep: true }
 );
 
+const calcSameTerminc = (flag = false) => {
+  const num = loanMoneyChangeNum.value || 0
+  const brokerFeeRate = formState.value.credit_brokerFeeRate || 0
+  const credit_brokerFee = formState.value.credit_brokerFee || 0
+
+  if (flag) {
+    const rate = Number(tool.div(brokerFeeRate, 100))
+    formState.value.credit_brokerFee = Number(tool.times(num, rate)).toFixed(2)
+  } else {
+    const rate = Number(tool.div(credit_brokerFee, num))
+    formState.value.credit_brokerFeeRate = Number(tool.times(rate, 100)).toFixed(2)
+  }
+}
+
+const calcExtendTermEstab = (flag = false) => {
+  const credit_estabFeeRate = formState.value.credit_estabFeeRate || 0
+  const credit_estabFee = formState.value.credit_estabFee || 0
+  let num = borkerFeeCalcAmountRef.value || 0
+
+  if (formState.value.type !== 4) {
+    num = Number(borkerFeeCalcAmountRef.value || 0)
+      + Number(loanMoneyChangeNum.value || 0)
+      + Number(formState.value.credit_brokerFee)
+      + Number(formState.value.credit_legalFee)
+      + Number(formState.value.credit_otherFee)
+  }
+
+  if (flag) {
+    formState.value.credit_estabFee = Number(tool.times(tool.div(credit_estabFeeRate, 100), num)).toFixed(2)
+  } else {
+    formState.value.credit_estabFeeRate = Number(tool.times(tool.div(credit_estabFee, num), 100)).toFixed(2)
+  }
+}
+
+watch(
+  () => loanMoneyChangeNum.value,
+  () => {
+    if ([4].includes(type_startDate.value.type)) {
+      calcSameTerminc(true)
+    }
+    if ([1, 2, 3].includes(type_startDate.value.type)) {
+      calcExtendTermEstab(true)
+    }
+  },
+  { deep: true }
+);
+
 const handInput = (key) => {
-  if (key == 'credit_brokerFeeRate' && formState.value.type != 4) {
-    formState.value.credit_brokerFee = (((formState.value.credit_brokerFeeRate || 0) * (borkerFeeCalcAmountRef.value || 0)) / 100).toFixed(2);
+  if (key == 'credit_brokerFeeRate') {
+    const credit_brokerFeeRate = formState.value.credit_brokerFeeRate || 0
+    const num = borkerFeeCalcAmountRef.value || 0
+    if (formState.value.type === 4) {
+      calcSameTerminc(true)
+    } else {
+      formState.value.credit_brokerFee = Number(tool.times(tool.div(credit_brokerFeeRate, 100), num)).toFixed(2)
+    }
   }
   if (key == 'credit_brokerFee') {
-    formState.value.credit_brokerFeeRate = (((formState.value.credit_brokerFee || 0) / (borkerFeeCalcAmountRef.value || 0)) * 100).toFixed(6);
+    const credit_brokerFee = formState.value.credit_brokerFee || 0
+    const num = borkerFeeCalcAmountRef.value || 0
+    if (formState.value.type === 4) {
+      calcSameTerminc(false)
+    } else {
+      formState.value.credit_brokerFeeRate = Number(tool.times(tool.div(credit_brokerFee, num), 100)).toFixed(2)
+    }
+  }
+
+  if (key === 'credit_estabFeeRate') {
+    calcExtendTermEstab(true)
+  }
+
+  if (key === 'credit_estabFee') {
+    calcExtendTermEstab(false)
   }
 };
+
+const extendCycleInput = () => {
+  const { end_date } = projectInfo.value.date;
+  const months = formState.value.extend_month || 0;
+  const days = formState.value.extend_day || 0;
+
+  if (!isNaN(months) && !isNaN(days)) {
+    if (months || days) {
+      const endDate = tool.calculateEndDate(dayjs(end_date), months, days)
+      formState.value.end_date = endDate
+    }
+  }
+}
 
 onMounted(async () => {
   if (uuid.value) {
     await getProjectDetail();
+    await getCreditInfo();
+    getTypeData();
+    getsecurityInfo()
 
     const obj = JSON.parse(localStorage.getItem('variationId') || '{}');
     if (obj[uuid.value]) {
       currentVariationId.value = obj[uuid.value];
       getVariationDetail();
     }
-    getsecurityInfo()
-    getTypeData();
-
-    getCreditInfo();
   }
 });
 </script>

@@ -1075,5 +1075,6 @@ export default {
   "对账方式": "Reconciliation method",
   "交易记录": "Transaction records",
   "银行": "Bank",
-  "明细表对账": "Schedule"
+  "明细表对账": "Schedule",
+  "对账报告详情": "Reconciliation Result Report"
 }

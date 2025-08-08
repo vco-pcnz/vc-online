@@ -11,20 +11,12 @@
       :multiple="isMultiple"
       :maxCount="limit"
       :showUploadList="isMultiple"
-      accept="image/*"
+      accept="image/*,image/heic,image/heif"
       @preview="handlePreview"
       @change="handleChange"
     >
-      <img
-        v-if="!isMultiple && picUrl"
-        :src="getAvatarView()"
-      />
-      <div
-        v-else-if="
-          (isMultiple && fileList.length < limit && !disabled) ||
-          (!isMultiple && !picUrl)
-        "
-      >
+      <img v-if="!isMultiple && picUrl" :src="getAvatarView()" />
+      <div v-else-if="(isMultiple && fileList.length < limit && !disabled) || (!isMultiple && !picUrl)">
         <loading-outlined v-if="loading" />
         <plus-outlined v-else />
         <div class="ant-upload-text">{{ t(text) }}</div>
@@ -34,330 +26,315 @@
       <DeleteOutlined />
       <p>{{ t('删除') }}</p>
     </div>
-    <a-modal
-      v-model:open="previewVisible"
-      :footer="null"
-      @cancel="previewHandleCancel"
-    >
+    <a-modal v-model:open="previewVisible" :footer="null" @cancel="previewHandleCancel">
       <img alt="example" style="width: 100%" :src="previewImage" />
     </a-modal>
   </div>
 </template>
 
 <script setup>
-  import { ref, onMounted, watch } from 'vue';
-  import { DeleteOutlined, PlusOutlined, LoadingOutlined } from '@ant-design/icons-vue';
-  import { message } from 'ant-design-vue/es';
-  import { useI18n } from 'vue-i18n';
-  import { getToken } from '@/utils/token-util';
-  import { cloneDeep } from 'lodash';
+import { ref, onMounted, watch } from 'vue';
+import { DeleteOutlined, PlusOutlined, LoadingOutlined } from '@ant-design/icons-vue';
+import { message } from 'ant-design-vue/es';
+import { useI18n } from 'vue-i18n';
+import { getToken } from '@/utils/token-util';
+import { cloneDeep } from 'lodash';
 
-  const uploadUrl = import.meta.env.VITE_APP_OPEN_PROXY === 'true' ? import.meta.env.VITE_APP_PROXY_PREFIX : import.meta.env.VITE_APP_BASE_URL
+const uploadUrl = import.meta.env.VITE_APP_OPEN_PROXY === 'true' ? import.meta.env.VITE_APP_PROXY_PREFIX : import.meta.env.VITE_APP_BASE_URL;
 
-  const { t } = useI18n();
+const { t } = useI18n();
 
-  const emits = defineEmits(['update:value', 'change']);
+const emits = defineEmits(['update:value', 'change']);
 
-  const props = defineProps({
-    isAvatar: {
-      type: Boolean,
-      default: false
-    },
-    text: {
-      type: String,
-      default: '上传图片'
-    },
-    // 父组件传进来的已有的图片数据
-    value: {
-      type: [String, Array],
-      required: false
-    },
-    // 后端要求携带的其他参数
-    bizPath: {
-      type: String,
-      required: false,
-      default: 'temp'
-    },
-    // 只能查看不可上传和删除时开启该属性
-    disabled: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
-    // 是否多图
-    isMultiple: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
-    // 多图情况下限制图片张数
-    limit: {
-      type: Number,
-      required: false,
-      default: 1
-    },
-    maxSize: {
-      type: Number,
-      required: false,
-      default: 100 // 100 MB
+const props = defineProps({
+  isAvatar: {
+    type: Boolean,
+    default: false
+  },
+  text: {
+    type: String,
+    default: '上传图片'
+  },
+  // 父组件传进来的已有的图片数据
+  value: {
+    type: [String, Array],
+    required: false
+  },
+  // 后端要求携带的其他参数
+  bizPath: {
+    type: String,
+    required: false,
+    default: 'temp'
+  },
+  // 只能查看不可上传和删除时开启该属性
+  disabled: {
+    type: Boolean,
+    required: false,
+    default: false
+  },
+  // 是否多图
+  isMultiple: {
+    type: Boolean,
+    required: false,
+    default: false
+  },
+  // 多图情况下限制图片张数
+  limit: {
+    type: Number,
+    required: false,
+    default: 1
+  },
+  maxSize: {
+    type: Number,
+    required: false,
+    default: 100 // 100 MB
+  }
+});
+
+const uploadAction = uploadUrl + '/upload/uploadImage';
+const headers = ref({ 'Content-Type': 'multipart/form-data' });
+const fileList = ref([]);
+const previewImage = ref('');
+const previewVisible = ref(false);
+const picUrl = ref(false);
+const canClick = ref(true);
+const loading = ref(false);
+
+const getFileAccessHttpUrl = (avatar, subStr = '') => {
+  if (!subStr) subStr = 'http';
+  if (avatar && avatar.startsWith(subStr)) {
+    return avatar;
+  } else {
+    if (avatar && avatar.length > 0 && avatar.indexOf('[') == -1) {
+      return uploadUrl + '/uploads/' + avatar;
     }
+  }
+};
+
+const uidGenerator = () => {
+  return 'static-' + parseInt(String(Math.random() * 10000 + 1), 10);
+};
+
+const getFileName = (path) => {
+  if (path.lastIndexOf('\\') >= 0) {
+    let reg = new RegExp('\\\\', 'g');
+    path = path.replace(reg, '/');
+  }
+  return path.substring(path.lastIndexOf('/') + 1);
+};
+
+const initFileList = (paths) => {
+  picUrl.value = true;
+  const list = [];
+  const item = paths.split(',');
+  for (let i = 0; i < item.length; i++) {
+    let url = getFileAccessHttpUrl(item[i]);
+    list.push({
+      uid: uidGenerator(),
+      name: getFileName(item[i]),
+      status: 'done',
+      url: url,
+      response: {
+        status: 'history',
+        data: item[i]
+      }
+    });
+  }
+  fileList.value = list;
+};
+
+const initObjectFileList = (data) => {
+  const idArr = data.map((item) => item.id || item.uuid);
+
+  const list = data.map((item) => {
+    return {
+      uid: item.uuid || item.id || uidGenerator(),
+      name: item.real_name || item.name || getFileName(item.value),
+      status: 'done',
+      url: item.value,
+      response: {
+        status: 'history',
+        data: item.value
+      }
+    };
   });
 
-  const uploadAction = uploadUrl + '/upload/uploadImage';
-  const headers = ref({ 'Content-Type': 'multipart/form-data' });
-  const fileList = ref([]);
-  const previewImage = ref('');
-  const previewVisible = ref(false);
-  const picUrl = ref(false);
-  const canClick = ref(true);
-  const loading = ref(false);
+  fileList.value = list;
+  emits('update:value', idArr);
+};
 
-  const getFileAccessHttpUrl = (avatar, subStr = '') => {
-    if (!subStr) subStr = 'http';
-    if (avatar && avatar.startsWith(subStr)) {
-      return avatar;
-    } else {
-      if (avatar && avatar.length > 0 && avatar.indexOf('[') == -1) {
-        return uploadUrl + '/uploads/' + avatar;
-      }
-    }
-  };
+const fileType = ref(['jpg', 'jpeg', 'png', 'gif', 'bmp', 'jfif', 'heic', 'heif']);
 
-  const uidGenerator = () => {
-    return 'static-' + parseInt(String(Math.random() * 10000 + 1), 10);
-  };
-
-  const getFileName = (path) => {
-    if (path.lastIndexOf('\\') >= 0) {
-      let reg = new RegExp('\\\\', 'g');
-      path = path.replace(reg, '/');
-    }
-    return path.substring(path.lastIndexOf('/') + 1);
-  };
-
-  const initFileList = (paths) => {
-    picUrl.value = true;
-    const list = [];
-    const item = paths.split(',');
-    for (let i = 0; i < item.length; i++) {
-      let url = getFileAccessHttpUrl(item[i]);
-      list.push({
-        uid: uidGenerator(),
-        name: getFileName(item[i]),
-        status: 'done',
-        url: url,
-        response: {
-          status: 'history',
-          data: item[i]
-        }
-      });
-    }
-    fileList.value = list;
-  };
-
-  const initObjectFileList = (data) => {
-    const idArr = data.map(item => item.id || item.uuid)
-
-    const list = data.map(item => {
-      return {
-        uid: item.uuid || item.id || uidGenerator(),
-        name: item.real_name || item.name || getFileName(item.value),
-        status: 'done',
-        url: item.value,
-        response: {
-          status: 'history',
-          data: item.value
-        }
-      }
-    })
-
-    fileList.value = list;
-    emits('update:value', idArr);
-  }
-
-  const beforeUpload = (file, tips) => {
-    var fileType = file.type;
-    if (fileType.indexOf('image') < 0) {
-      if (tips) {
-        message.warning(t('请上传图片'));
-      }
+const beforeUpload = (file, tips) => {
+  const fileExtension = file.name.split('.').pop().toLowerCase();
+  const isFileType = fileType.value.includes(fileExtension);
+  if (!isFileType) {
+    if (tips) {
+      message.error(t('上传格式不正确，不是{0}', [fileType.value]));
       return false;
     }
-    const isJPG =
-      file.type === 'image/jpeg' ||
-      file.type === 'image/jpg' ||
-      file.type === 'image/png' ||
-      file.type === 'image/bmp' ||
-      file.type === 'image/gif';
-    if (!isJPG) {
-      if (tips) {
-        message.error(t('上传图片的格式不正确，不是JPG、JPEG、GIF、PNG、BMP'));
-        return false;
-      }
-    }
-    const isLt2M = file.size / 1024 / 1024 < props.maxSize;
-    if (!isLt2M) {
-      if (tips) {
-        message.error(t('大小不能超过{0}', [`${props.maxSize}MB`]));
-        return false;
-      }
-    }
+  }
 
-    return isJPG && isLt2M;
-  };
-
-  const deleteImg = (e) => {
-    canClick.value = true;
-    picUrl.value = false;
-    fileList.value = [];
-    emits('update:value', '');
-    e.stopPropagation();
-  };
-
-  // 关闭弹框
-  const previewHandleCancel = () => {
-    previewVisible.value = false;
-  };
-
-  // 预览
-  const handlePreview = (file) => {
-    previewImage.value = file.url || file.preview;
-    previewVisible.value = true;
-  };
-
-  // 回传父组件
-  const handlePathChange = () => {
-    for (let i = fileList.value.length - 1; i >= 0; i--) {
-      if (!fileList.value[i].response) {
-        fileList.value.splice(i, 1);
-      }
-    }
-
-    const uploadFiles = cloneDeep(fileList.value);
-
-    let item = [];
-    if (!props.isMultiple) {
-      item = uploadFiles[uploadFiles.length - 1].response.data;
-    } else {
-      for (var i = 0; i < uploadFiles.length; i++) {
-        const itemData =
-          uploadFiles[i].response.status === 'history'
-          ? uploadFiles[i].uid.indexOf('static') > -1 ? uploadFiles[i].url : uploadFiles[i].uid
-          : uploadFiles[i].response.data
-        item.push(itemData);
-      }
-    }
-    emits('update:value', item);
-    emits('change', item);
-  };
-
-  // 上传
-  const handleChange = (info) => {
-    picUrl.value = false;
-    let list = info.fileList;
-
-    if (info.file.status === 'done') {
-      if (info.file.response.success) {
-        picUrl.value = true;
-        list = list.map((file) => {
-          if (file.response) {
-            file.url = getFileAccessHttpUrl(file.response.data);
-          }
-          return file;
-        });
-      }
-    } else if (info.file.status === 'error') {
-      message.error(`${info.file.name} ${t('上传失败')}.`);
-    }
-
-    fileList.value = list;
-
-    if (info.file.status === 'done') {
-      if (list.length === 1) {
-        handlePathChange();
-      } else {
-        const num = list.filter((item) => item.status !== 'uploading').length;
-        if (num === list.length) {
-          handlePathChange();
-        }
-      }
-    }
-    if (info.file.status === 'removed') {
-      handlePathChange();
-    }
-
-    if (info.file && info.fileList.length) {
-      const index = info.fileList.findIndex(
-        (item) => item.uid === info.file.uid
-      );
-
-      if (index > -1) {
-        if (!beforeUpload(info.file, false)) {
-          fileList.value?.splice(index, 1);
-        }
-      }
-    }
-  };
-
-  // 单图上传显示最新的一张
-  const getAvatarView = () => {
-    if (fileList.value.length > 0) {
-      let url = fileList.value[fileList.value.length - 1].url;
-      return getFileAccessHttpUrl(url);
-    }
-  };
-
-  const hasData = (data) => {
-    if (data) {
-      if (typeof data === 'string') {
-        return !!data
-      } else if (data instanceof Array) {
-        return data.length
-      } else {
-        return Object.keys(data).length
-      }
-    } else {
-      return false
+  const isLt2M = file.size / 1024 / 1024 < props.maxSize;
+  if (!isLt2M) {
+    if (tips) {
+      message.error(t('大小不能超过{0}', [`${props.maxSize}MB`]));
+      return false;
     }
   }
 
-  const notInit = ref(true)
+  return isFileType && isLt2M;
+};
 
-  onMounted(() => {
-    const token = getToken();
-    headers.value = { Authorization: token };
-  });
+const deleteImg = (e) => {
+  canClick.value = true;
+  picUrl.value = false;
+  fileList.value = [];
+  emits('update:value', '');
+  e.stopPropagation();
+};
 
-  watch(
-    () => props.value,
-    (val) => {
-      if ((hasData(val) && notInit.value) || props.isAvatar) {
-        notInit.value = false
-        const data = cloneDeep(val);
-        if (data) {
-          if (data instanceof Array) {
-            if (data.length) {
-              if (typeof data[0] === 'string') {
-                initFileList(data.join(','));
-              } else if ((data[0].uuid || data[0].id ) && data[0].value) {
-                initObjectFileList(data)
-              }
-            }
-          } else if(typeof data === 'string') {
-            initFileList(data);
-          } else {
-            initObjectFileList([data])
-          }
-        } else {
-          fileList.value = [];
-          picUrl.value = false;
-        }
-      }
-    },
-    {
-      immediate: true
+// 关闭弹框
+const previewHandleCancel = () => {
+  previewVisible.value = false;
+};
+
+// 预览
+const handlePreview = (file) => {
+  previewImage.value = file.url || file.preview;
+  previewVisible.value = true;
+};
+
+// 回传父组件
+const handlePathChange = () => {
+  for (let i = fileList.value.length - 1; i >= 0; i--) {
+    if (!fileList.value[i].response) {
+      fileList.value.splice(i, 1);
     }
-  )
+  }
+
+  const uploadFiles = cloneDeep(fileList.value);
+
+  let item = [];
+  if (!props.isMultiple) {
+    item = uploadFiles[uploadFiles.length - 1].response.data;
+  } else {
+    for (var i = 0; i < uploadFiles.length; i++) {
+      const itemData = uploadFiles[i].response.status === 'history' ? (uploadFiles[i].uid.indexOf('static') > -1 ? uploadFiles[i].url : uploadFiles[i].uid) : uploadFiles[i].response.data;
+      item.push(itemData);
+    }
+  }
+  emits('update:value', item);
+  emits('change', item);
+};
+
+// 上传
+const handleChange = (info) => {
+  picUrl.value = false;
+  let list = info.fileList;
+
+  if (info.file.status === 'done') {
+    if (info.file.response.success) {
+      picUrl.value = true;
+      list = list.map((file) => {
+        if (file.response) {
+          file.url = getFileAccessHttpUrl(file.response.data);
+        }
+        return file;
+      });
+    } else {
+      message.error(`${info.file.response.msg}` || ` ${t('上传失败')}.`);
+    }
+  } else if (info.file.status === 'error') {
+    message.error(`${info.file.name} ${t('上传失败')}.`);
+  }
+
+  fileList.value = list;
+
+  if (info.file.status === 'done') {
+    if (list.length === 1) {
+      handlePathChange();
+    } else {
+      const num = list.filter((item) => item.status !== 'uploading').length;
+      if (num === list.length) {
+        handlePathChange();
+      }
+    }
+  }
+  if (info.file.status === 'removed') {
+    handlePathChange();
+  }
+
+  if (info.file && info.fileList.length) {
+    const index = info.fileList.findIndex((item) => item.uid === info.file.uid);
+
+    if (index > -1) {
+      if (!beforeUpload(info.file, false)) {
+        fileList.value?.splice(index, 1);
+      }
+    }
+  }
+};
+
+// 单图上传显示最新的一张
+const getAvatarView = () => {
+  if (fileList.value.length > 0) {
+    let url = fileList.value[fileList.value.length - 1].url;
+    return getFileAccessHttpUrl(url);
+  }
+};
+
+const hasData = (data) => {
+  if (data) {
+    if (typeof data === 'string') {
+      return !!data;
+    } else if (data instanceof Array) {
+      return data.length;
+    } else {
+      return Object.keys(data).length;
+    }
+  } else {
+    return false;
+  }
+};
+
+const notInit = ref(true);
+
+onMounted(() => {
+  const token = getToken();
+  headers.value = { Authorization: token };
+});
+
+watch(
+  () => props.value,
+  (val) => {
+    if ((hasData(val) && notInit.value) || props.isAvatar) {
+      notInit.value = false;
+      const data = cloneDeep(val);
+      if (data) {
+        if (data instanceof Array) {
+          if (data.length) {
+            if (typeof data[0] === 'string') {
+              initFileList(data.join(','));
+            } else if ((data[0].uuid || data[0].id) && data[0].value) {
+              initObjectFileList(data);
+            }
+          }
+        } else if (typeof data === 'string') {
+          initFileList(data);
+        } else {
+          initObjectFileList([data]);
+        }
+      } else {
+        fileList.value = [];
+        picUrl.value = false;
+      }
+    }
+  },
+  {
+    immediate: true
+  }
+);
 </script>
 
 <style lang="less" scoped>

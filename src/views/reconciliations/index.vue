@@ -128,6 +128,12 @@ const loadData = () => {
               }
             });
           }
+
+          if (item.children && item.children.length > 1) {
+            item.children.map((_item) => {
+              _item['check_index'] = 0;
+            });
+          }
         });
       }
       dataList.value = res.data;

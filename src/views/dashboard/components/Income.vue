@@ -87,7 +87,7 @@ const option = ref({
           <div style="${bodyStyle} margin-top: 4px;">
             ${item.marker} 
             <span style="">${item.seriesName}:</span> 
-            <span style="color: #333;font-weight: bold;">$${item.value}</span>
+            <span style="color: #333;font-weight: bold;">${tool.formatMoney(item.value)}</span>
           </div>
         `;
         }

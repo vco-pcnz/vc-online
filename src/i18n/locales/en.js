@@ -1062,6 +1062,7 @@ export default {
   "多个以英文逗号分隔": "Multiple separated by English commas",
   "Line Fee 费率": "Line Fee Rate",
   "真实变更开始日期": "Real variation start date",
+  "最大变更值": "Max variation value",
   "重置预测表": "Reset Schedule",
   "生成预测表": "Generate Schedule",
   "平账数据": "Netting data",
@@ -1076,5 +1077,17 @@ export default {
   "交易记录": "Transaction records",
   "银行": "Bank",
   "明细表对账": "Schedule",
-  "对账报告详情": "Reconciliation Result Report"
+  "对账报告详情": "Reconciliation Result Report",
+  "变更抵押物": "Variation of securities",
+  "抵押物总价值": "Total value of securities",
+  "变更增加": "Variation increase",
+  "延长周期": "Extend term",
+  "天1": "D",
+  "月1": "M",
+  "请设置": "Please set ",
+  "开发成本变更值": "Development cost variation value",
+  "已设置": "Set",
+  "未设置": "Not set",
+  "已设置有首次建筑贷款放款额，保存后将清空已有设置，是否继续？": "There is already a initial build amount set. After saving, the existing settings will be cleared. Do you want to continue?",
+  "已设置过进度放款数据，提交后将清空设置，是否继续？": "The progress payment data has been set. After submission, the settings will be cleared. Do you want to continue?"
 }

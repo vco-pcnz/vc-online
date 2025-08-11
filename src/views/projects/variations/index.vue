@@ -23,14 +23,12 @@
       <vco-table-tool>
         <template #right>
           <span>
-            <AddVariations
+            <a-button
               v-if="hasPermission('projects:variations:add')"
-              :currentId="uuid"
-              :project-detail="projectDetail"
-              @update="updateHandle(true)"
-            >
-              <a-button type="dark" class="uppercase">{{ t('添加变更') }}</a-button>
-            </AddVariations>
+              type="dark"
+              class="uppercase"
+              @click="goProgressPage"
+            >{{ t('添加变更') }}</a-button>
           </span>
         </template>
       </vco-table-tool>
@@ -68,7 +66,7 @@
                 <div v-if="Number(record.amount)" :class="{'declined-txt': record.declined}">
                   <div class="flex items-center gap-1 justify-center">
                     <span class="amount-type" :class="{'plus': record.plus, 'declined-txt': record.declined}">{{ record.plus ? '+' : '-' }}</span>
-                    <vco-number :value="record.amount" :precision="2" :color="record.plus ? '#eb4b6d' : '#31bd65'"></vco-number>
+                    <vco-number :value="record.amount" :precision="2" :color="record.plus ? '#31bd65' : '#eb4b6d'"></vco-number>
                   </div>
                   <div class="amout-total">
                     <vco-number :value="getTotal(record)" :precision="2"></vco-number>
@@ -247,6 +245,10 @@ const goDetail = (data) => {
   navigationTo(`/projects/variations-details/about?uuid=${uuid.value}&id=${data.id}`)
 }
 
+const goProgressPage = () => {
+  navigationTo(`/projects/variations/add/?uuid=${uuid.value}`)
+}
+
 const updateHandle = (flag) => {
   userStore.getTaskNumInfo()
   getTableData(flag)
@@ -300,9 +302,9 @@ onMounted(() => {
 
 .amount-type {
   font-size: 16px;
-  color: #31bd65;
+  color: #eb4b6d;
   &.plus {
-    color: #eb4b6d;
+    color: #31bd65;
   }
 }
 

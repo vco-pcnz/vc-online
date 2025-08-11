@@ -10,7 +10,7 @@
 
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="modeRef" class="myMode text-left sys-form-content">
-    <a-modal :width="edit ? 1000 : 900" :open="visible" :title="t('开发成本')" :getContainer="() => $refs.modeRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
+    <a-modal :width="edit ? (isVariation ? 1200 : 1000) : (isVariation ? 1000 : 900)" :open="visible" :title="t('开发成本')" :getContainer="() => $refs.modeRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content">
         <a-form-item-rest>
           <div v-for="(item, p_index) in data.data" :key="item.type" class="mb-5 card">
@@ -34,7 +34,7 @@
                       </a-menu-item>
                     </a-menu>
                   </template>
-                  <a-button type="primary" shape="round" size="small" class="uppercase">{{ t('添加') }}</a-button>
+                  <a-button v-if="isVariation && isPlus || !isVariation" type="primary" shape="round" size="small" class="uppercase">{{ t('添加') }}</a-button>
                 </a-popover>
               </div>
               <a-table :columns="ConstructionColumns" :data-source="item.list" :pagination="false" :scroll="{ x: '100%' }">
@@ -63,7 +63,7 @@
                       <a-input-number
                         v-if="(record.type !== 'Land_gst' && record.type !== 'Build_gst') || column.dataIndex === 'loan'"
                         v-model:value="record[column.dataIndex]"
-                        :disabled="Boolean(record?.status) || (disabledLoan && column.dataIndex === 'loan') || Boolean(record?.list && record?.list.length)"
+                        :disabled="Boolean(record?.status) || (disabledLoan && column.dataIndex === 'loan') || Boolean(record?.list && record?.list.length) || isVariation"
                         @change="initData"
                         :max="99999999999"
                         :min="0"
@@ -138,6 +138,51 @@
                       </a-popconfirm>
                     </div>
                   </template>
+                  <template v-if="column.dataIndex === 'change_value'">
+                    <template v-if="record?.name !== 'Land GST'">
+                      <div v-if="!record?.list || record?.name === 'Construction'" class="flex items-center gap-2">
+                        <i class="iconfont" v-if="isPlus" style="color: #31bd65">&#xe712;</i>
+                        <i class="iconfont" v-else style="color: #eb4b6d">&#xe711;</i>
+                        <a-input-number
+                          v-if="edit"
+                          v-model:value="record.change_value"
+                          :max="record.max_amount"
+                          :min="0"
+                          :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                          :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                        />
+                        <vco-number v-else :value="record.change_value" :precision="2" :color="isPlus ? '#31bd65' : '#eb4b6d'" size="fs_md" :bold="true" :end="true"></vco-number>
+                        <a-tooltip v-if="!isPlus && edit">
+                          <template #title>
+                            <p>{{ t('最大变更值') }}：${{ numberStrFormat(record.max_amount) }}</p>
+                          </template>
+                          <i class="iconfont cursor-pointer">&#xe6b3;</i>
+                        </a-tooltip>
+                      </div>
+                      <div v-else style="height: 28px;"></div>
+                      <template v-if="record?.list && record?.name !== 'Construction'">
+                        <div v-for="(sub, subIndex) in record?.list" :key="subIndex" class="flex items-center gap-2 mt-2">
+                          <i class="iconfont" v-if="isPlus" style="color: #31bd65">&#xe712;</i>
+                        <i class="iconfont" v-else style="color: #eb4b6d">&#xe711;</i>
+                          <a-input-number
+                            v-if="edit"
+                            v-model:value="sub.change_value"
+                            :max="sub.max_amount"
+                            :min="0"
+                            :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                            :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                          />
+                          <vco-number v-else :value="sub.change_value" :precision="2" :color="isPlus ? '#31bd65' : '#eb4b6d'" size="fs_md" :bold="true" :end="true"></vco-number>
+                          <a-tooltip v-if="!isPlus && edit">
+                            <template #title>
+                              <p>{{ t('最大变更值') }}：${{ numberStrFormat(sub.max_amount) }}</p>
+                            </template>
+                            <i class="iconfont cursor-pointer">&#xe6b3;</i>
+                          </a-tooltip>
+                        </div>
+                      </template>
+                    </template>
+                  </template>
                 </template>
               </a-table>
               <div class="flex items-center total-row" :class="[{ myModeEidt: edit }]" v-if="item.list.length">
@@ -151,7 +196,8 @@
                 <div class="amount">
                   <vco-number :value="item.total" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
                 </div>
-                <div class="total" v-if="edit"></div>
+                <div class="total" v-if="edit || (!edit && isVariation)"></div>
+                <div class="total" v-if="isVariation"></div>
               </div>
             </template>
             <!-- 财务成本 -->
@@ -285,13 +331,14 @@
 import { ref, reactive, computed, watch, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
-import tool, { isArrayEqual } from '@/utils/tool';
+import tool, { isArrayEqual, numberStrFormat } from '@/utils/tool';
 import { systemDictData } from '@/api/system';
 import { cloneDeep } from 'lodash';
-import Icon, { PlusCircleOutlined, MinusCircleOutlined } from '@ant-design/icons-vue';
+import { projectLoanGetBuild } from "@/api/process"
+import { PlusCircleOutlined, MinusCircleOutlined } from '@ant-design/icons-vue';
 
 const { t } = useI18n();
-const emits = defineEmits(['update:value', 'update:dataJson', 'update:isRefinancial', 'update:substitutionIds', 'change', 'reChange']);
+const emits = defineEmits(['update:value', 'update:dataJson', 'update:isRefinancial', 'update:substitutionIds', 'change', 'reChange', 'clearBuild']);
 
 const props = defineProps({
   value: {
@@ -339,18 +386,44 @@ const props = defineProps({
   substitutionIds: {
     type: Array,
     default: () => []
+  },
+  isVariation: {
+    type: Boolean,
+    default: false
+  },
+  uuid: {
+    type: String,
+    default: ''
+  },
+  remainLandAmount: {
+    type: Number,
+    default: 0
+  },
+  isPlus: {
+    type: Boolean,
+    default: false
   }
 });
 
 const visible = ref(false);
 
-const ConstructionColumns = reactive([
+const columnsData = [
   { title: t('类型'), dataIndex: 'type', ellipsis: true },
   { title: t('贷款'), dataIndex: 'loan', width: 180, ellipsis: true },
   { title: t('借款人权益'), dataIndex: 'borrower_equity', width: 180, ellipsis: true },
   { title: t('总计'), dataIndex: 'total', width: 180, ellipsis: true },
   { title: t('操作'), dataIndex: 'operation', width: 110, align: 'center', ellipsis: true }
-]);
+]
+
+const ConstructionColumns = reactive(columnsData);
+
+if (props.isVariation) {
+  if (!props.isPlus) {
+    ConstructionColumns.splice(4, 1);
+  }
+  // 在第四个后面插入
+  ConstructionColumns.splice(4, 0, { title: t('变更值'), dataIndex: 'change_value', width: 220, ellipsis: true });
+}
 
 const FinanceColumns = reactive([
   { title: t('类型'), dataIndex: 'type', ellipsis: true },
@@ -438,7 +511,15 @@ const saveDone = () => {
   const doneData = cloneDeep(data.value);
   doneData.data[0].list.forEach((item) => {
     item.name = item.model ? item.type : typesObj.value[item.type] || '';
+
+    if (props.isVariation) {
+      item.change_type = props.isPlus ? 1 : 0
+    }
   });
+
+  if (changeVisible.value) {
+    emits('clearBuild');
+  }
 
   emits('update:value', cloneDeep(doneData.total));
   emits('update:dataJson', cloneDeep([doneData]));
@@ -558,7 +639,65 @@ const initData = () => {
     const objArr = props.refinancialData.filter(item => props.substitutionIds.includes(item.value))
     selectedDatas.value = objArr
   }
+
+  if (props.isVariation && props.uuid && !props.isPlus) {
+    projectLoanGetBuild({ uuid: props.uuid }).then(res => {
+      const use_amount = Number(res.use_amount)
+      let footer_use_amount = 0
+      const summary = res.summary
+
+      data.value.data[0].list.forEach((item) => {
+        if (item.list && item.list.length) {
+          const newObj = {}
+          for (const key in summary) {
+            if (key.indexOf(item.name) > -1) {
+              newObj[key] = summary[key]
+            }
+          }
+
+          item.list.forEach((sub) => {
+            for (const key in newObj) {
+              if (key.indexOf(sub.type) > -1) {
+                sub.use_amount = newObj[key].use_amount
+                sub.max_amount = tool.minus(Number(sub.loan), Number(sub.use_amount))
+                footer_use_amount = tool.plus(footer_use_amount, Number(sub.use_amount))
+              }
+            }
+          })
+        } else {
+          for (const key in summary) {
+            if (key.indexOf(item.name) > -1) {
+              item.use_amount = summary[key].use_amount
+              item.max_amount = tool.minus(Number(item.loan), Number(item.use_amount))
+            }
+          }
+        }
+      })
+
+      const construction_use_amount = tool.minus(use_amount, footer_use_amount)
+
+      const constructionItem = data.value.data[0].list.find(item => item.name === 'Construction')
+      constructionItem.use_amount = construction_use_amount
+      constructionItem.max_amount = tool.minus(Number(constructionItem.loan), Number(constructionItem.use_amount))
+
+      const landItem = data.value.data[0].list.find(item => item.name === 'Land')
+      landItem.use_amount = tool.minus(Number(landItem.loan), Number(props.remainLandAmount))
+      landItem.max_amount = Number(props.remainLandAmount)
+    })
+  }
+
+  if (props.isVariation) {
+    data.value.data[0].list.forEach((item) => {
+      item.is_variation = 1
+      if (item.list && item.list.length) {
+        item.list.forEach((sub) => {
+          sub.is_variation = 1
+        })
+      }
+    })
+  }
 };
+
 const init = () => {
   if (props.disabled && props.edit) return;
   loadType();
@@ -579,8 +718,13 @@ const init = () => {
     initData();
   }
   if (!props.edit) {
-    ConstructionColumns.splice(4, 1);
-    FinanceColumns.splice(4, 1);
+    if (props.isVariation) {
+      ConstructionColumns.splice(5, 1);
+      FinanceColumns.splice(4, 1);
+    } else {
+      ConstructionColumns.splice(4, 1);
+      FinanceColumns.splice(4, 1);
+    }
   }
   visible.value = true;
 };
@@ -589,8 +733,14 @@ const initTypes = computed(() => {
   const selectArr = data.value.data[0].list.map((item) => {
     if (!item.status) return item.type;
   });
+
+  // 变更时，不能选择已变更的类型
+  const variationArr = data.value.data[0].list.map((item) => {
+    if (item.is_variation) return item.type;
+  });
+
   types.value.map((item) => {
-    item['disabled'] = selectArr.includes(item.code);
+    item['disabled'] = selectArr.includes(item.code) || variationArr.includes(item.code);
   });
   return types.value;
 });

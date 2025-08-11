@@ -48,46 +48,11 @@
     </a-modal>
     
     <a-spin :spinning="pageLoading" size="large">
-      <div class="progress-payment-content" :class="{'preview-table': !isSelect}">
+      <div class="progress-payment-content preview-table">
         <template v-if="footerDataCol.length || buildAmount">
-          <div v-if="!isRequests && !isSelect && !pageLoading" class="form-block-content">
-            <div class="title">{{ t('放款统计') }}</div>
-            <a-table
-              :columns="statTableHeader"
-              :data-source="statTableData"
-              bordered
-              :pagination="false"
-            >
-              <template #bodyCell="{ column, record }">
-                <template v-if="column.dataIndex === 'totalAmount'">
-                  <vco-number :value="tableTotal" size="fs_xl" :precision="2" :end="true"></vco-number>
-                </template>
-                <template v-if="column.dataIndex === 'useAmount'">
-                  <vco-number :value="statUseAmount" color="#31bd65" size="fs_xl" :precision="2" :end="true"></vco-number>
-                </template>
-                <template v-if="column.dataIndex === 'userPercent'">
-                  <div style="padding: 0 40px;">
-                    <a-progress
-                      :stroke-color="{
-                        '0%': '#64ec22',
-                        '100%': '#31bd65'
-                      }"
-                      :size="6"
-                      :percent="statUserPercent"
-                    />
-                  </div>
-                  
-                </template>
-                <template v-if="column.dataIndex === 'remainingAmount'">
-                  <vco-number :value="statRemainAmount" :bold="true" size="fs_xl" :precision="2" :end="true"></vco-number>
-                </template>
-              </template>
-            </a-table>
-          </div>
-
-          <div v-if="tableHeader.length && !pageLoading" class="form-block-content" :class="{'mt-10': isSelect}">
-            <div v-if="!isSelect" class="title">{{ t('进度付款阶段') }}</div>
-            <div v-if="isSelect" class="mt-2 mb-2 flex justify-end gap-4">
+          <div v-if="tableHeader.length && !pageLoading" class="form-block-content mt-10">
+            <div class="title">{{ t('进度付款阶段') }}</div>
+            <div v-if="!isView" class="mt-2 mb-2 flex justify-end gap-4">
               <a-button v-if="selectDataHasNum" type="cyan" class="bold uppercase" @click="selectCancelAll">{{ t('取消所有设置') }}</a-button>
               <a-button type="primary" class="bold uppercase" @click="batchSelectHandle">{{ batchSelect ? t('取消批量模式') : t('批量选择') }}</a-button>
               <a-button v-if="batchSelectData.length" type="grey" class="bold uppercase" @click="batchSelectCancel">{{ t('取消已选择')}}</a-button>
@@ -101,7 +66,7 @@
               bordered
               :pagination="false"
               table-layout="fixed"
-              :scroll="{ x: '100%', y: isSelect ? 300 : 600 }"
+              :scroll="{ x: '100%', y: 300 }"
             >
               <template #bodyCell="{ column, record, index }">
                 <template v-if="record.isFixedRow">
@@ -112,28 +77,25 @@
                     <p>--</p>
                   </template>
                   <template v-else-if="column.dataIndex === 'total'">
-                    <template v-if="showProcess">
-                      <div class="select-item disabled">
-                        <vco-number :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
-                        <vco-number :value="tableRemainTotal(advanceAmount, advanceObj?.use_amount || 0)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
-                        <vco-number :value="advanceObj?.use_amount || 0" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
-                        <div class="process-gap"></div>
-                        <div class="item-process-content">
-                          <a-progress
-                            :stroke-color="{
-                              '0%': '#64ec22',
-                              '100%': '#31bd65'
-                            }"
-                            :size="6"
-                            :percent="advanceObj ? advanceObj.percent : 0"
-                          />
-                        </div>
+                    <div class="select-item disabled">
+                      <vco-number :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
+                      <vco-number :value="tableRemainTotal(advanceAmount, advanceObj?.use_amount || 0)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
+                      <vco-number :value="advanceObj?.use_amount || 0" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
+                      <div class="process-gap"></div>
+                      <div class="item-process-content">
+                        <a-progress
+                          :stroke-color="{
+                            '0%': '#64ec22',
+                            '100%': '#31bd65'
+                          }"
+                          :size="6"
+                          :percent="advanceObj ? advanceObj.percent : 0"
+                        />
                       </div>
-                    </template>
-                    <vco-number v-else :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
+                    </div>
                   </template>
                   <template v-else>
-                    <div v-if="showProcess" class="select-item adv" :class="{'hover': isSelect}" @click="itemSetHandle(advanceObj)">
+                    <div class="select-item adv hover" @click="itemSetHandle(advanceObj)">
                       <div class="flex justify-center flex-col items-center" :style="{width: tableHeader.length === 4 ? '265px' : '660px'}">
                         <vco-number :value="advanceAmount" size="fs_xs" :precision="2" :end="true"></vco-number>
                         <vco-number :value="tableRemainTotal(advanceAmount, advanceObj?.use_amount || 0)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
@@ -156,10 +118,6 @@
                         <i class="iconfont selected-icon">&#xe601;</i>
                       </template>
                     </div>
-
-                    <div v-else class="flex justify-center" :style="{width: tableHeader.length === 4 ? '265px' : '660px'}">
-                      <vco-number :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
-                    </div>
                   </template>
                 </template>
 
@@ -170,42 +128,25 @@
                   <p>{{ numberStrFormat(record[column.dataIndex]) }}%</p>
                 </template>
                 <template v-else-if="column.dataIndex === 'total'">
-                  <template v-if="showProcess">
-                    <div class="select-item disabled">
-                      <vco-number :value="record.total" size="fs_md" :precision="2" :end="true"></vco-number>
-                      <vco-number :value="tableRemainTotal(record.total, record.useTotal)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
-                      <vco-number :value="record.useTotal" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
-                      <div class="process-gap"></div>
-                      <div class="item-process-content">
-                        <a-progress
-                          :stroke-color="{
-                            '0%': '#64ec22',
-                            '100%': '#31bd65'
-                          }"
-                          :size="6"
-                          :percent="record.percent"
-                        />
-                      </div>
+                  <div class="select-item disabled">
+                    <vco-number :value="record.total" size="fs_md" :precision="2" :end="true"></vco-number>
+                    <vco-number :value="tableRemainTotal(record.total, record.useTotal)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
+                    <vco-number :value="record.useTotal" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
+                    <div class="process-gap"></div>
+                    <div class="item-process-content">
+                      <a-progress
+                        :stroke-color="{
+                          '0%': '#64ec22',
+                          '100%': '#31bd65'
+                        }"
+                        :size="6"
+                        :percent="record.percent"
+                      />
                     </div>
-                  </template>
-                  <template v-else>
-                    <template v-if="isSelect"> 
-                      <vco-number :value="record[column.dataIndex]" size="fs_md" :precision="2" :end="true"></vco-number>
-                    </template>
-                    <template v-else>
-                      <div class="total-info-txt">Loan<vco-number :value="record[column.dataIndex]" size="fs_xs" :precision="2" :end="true" color="#eb4b6d"></vco-number></div>
-                      <div v-if="record.type === tableData[index + 1]?.type" class="total-info-txt">Borrower Equity
-                        <vco-number :value="tableData[index + 1][column.dataIndex]" size="fs_xs" :precision="2" :end="true" color="#31bd65"></vco-number>
-                      </div>
-                      <div class="flex justify-end">
-                        <vco-number v-if="record.type === tableData[index + 1]?.type" :value="Number(tool.plus(record[column.dataIndex], tableData[index + 1][column.dataIndex]))" size="fs_md" :precision="2" :end="true"></vco-number>
-                        <vco-number v-else :value="record[column.dataIndex]" size="fs_md" :precision="2" :end="true"></vco-number>
-                      </div>
-                    </template>
-                  </template>
+                  </div>
                 </template>
                 <template v-else>
-                  <div v-if="showProcess" class="select-item col" :class="{'hover': isSelect}" @click="itemSetHandle(record[column.dataIndex])">
+                  <div class="select-item col hover" @click="itemSetHandle(record[column.dataIndex])">
                     <vco-number :value="record[column.dataIndex].amount" size="fs_xs" :precision="2" :end="true"></vco-number>
                     <vco-number :value="tableRemainTotal(record[column.dataIndex].amount, record[column.dataIndex]?.use_amount || 0)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
                     <vco-number :value="record[column.dataIndex]?.use_amount || 0" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
@@ -226,7 +167,6 @@
                       <i class="iconfont selected-icon">&#xe601;</i>
                     </template>
                   </div>
-                  <vco-number v-else :value="record[column.dataIndex].amount" size="fs_md" :precision="2" :end="true"></vco-number>
                 </template>
               </template>
               <template #summary>
@@ -238,69 +178,40 @@
                         <p class="total-percent">{{ numberStrFormat(summaryHandle(item.key)) }}%</p>
                       </template>
                       <template v-else-if="item.key === 'total'">
-                        <template v-if="showProcess">
-                          <div class="select-item footer disabled">
-                            <vco-number :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
-                            <vco-number :value="tableRemainTotal(summaryHandle(item.key), tableUseTotal)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
-                            <vco-number :value="tableUseTotal" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
-                            <div class="process-gap"></div>
-                            <div class="item-process-content">
-                              <a-progress
-                                :stroke-color="{
-                                  '0%': '#64ec22',
-                                  '100%': '#31bd65'
-                                }"
-                                :size="6"
-                                :percent="getTotalPercent(tableUseTotal, summaryHandle(item.key))"
-                              />
-                            </div>
+                        <div class="select-item footer disabled">
+                          <vco-number :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
+                          <vco-number :value="tableRemainTotal(summaryHandle(item.key), tableUseTotal)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
+                          <vco-number :value="tableUseTotal" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
+                          <div class="process-gap"></div>
+                          <div class="item-process-content">
+                            <a-progress
+                              :stroke-color="{
+                                '0%': '#64ec22',
+                                '100%': '#31bd65'
+                              }"
+                              :size="6"
+                              :percent="getTotalPercent(tableUseTotal, summaryHandle(item.key))"
+                            />
                           </div>
-                        </template>
-                        <template v-else>
-                          <template v-if="isSelect">
-                            <vco-number :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
-                          </template>
-                          <template v-else>
-                            <div class="total-info-txt">
-                              Loan
-                              <vco-number :value="TableLoanTotal(1)" size="fs_xs" :precision="2" :end="true" color="#eb4b6d"></vco-number>
-                            </div>
-                            <div class="total-info-txt">
-                              Borrower Equity
-                              <vco-number :value="TableLoanTotal(2)" size="fs_xs" :precision="2" :end="true" color="#31bd65"></vco-number>
-                            </div>
-                            <div class="flex justify-end">
-                              <vco-number
-                                :value="summaryHandle(item.key)"
-                                size="fs_md"
-                                :precision="2"
-                                :end="true"
-                              ></vco-number>
-                            </div>
-                          </template>
-                        </template>
+                        </div>
                       </template>
                       <template v-else>
-                        <template v-if="showProcess">
-                          <div class="select-item footer disabled">
-                            <vco-number :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
-                            <vco-number :value="tableRemainTotal(summaryHandle(item.key), summaryHandle(item.key, 'use_amount'))" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
-                            <vco-number :value="summaryHandle(item.key, 'use_amount')" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
-                            <div class="process-gap"></div>
-                            <div class="item-process-content">
-                              <a-progress
-                                :stroke-color="{
-                                  '0%': '#64ec22',
-                                  '100%': '#31bd65'
-                                }"
-                                :size="6"
-                                :percent="getTotalPercent(summaryHandle(item.key, 'use_amount'), summaryHandle(item.key))"
-                              />
-                            </div>
+                        <div class="select-item footer disabled">
+                          <vco-number :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
+                          <vco-number :value="tableRemainTotal(summaryHandle(item.key), summaryHandle(item.key, 'use_amount'))" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
+                          <vco-number :value="summaryHandle(item.key, 'use_amount')" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
+                          <div class="process-gap"></div>
+                          <div class="item-process-content">
+                            <a-progress
+                              :stroke-color="{
+                                '0%': '#64ec22',
+                                '100%': '#31bd65'
+                              }"
+                              :size="6"
+                              :percent="getTotalPercent(summaryHandle(item.key, 'use_amount'), summaryHandle(item.key))"
+                            />
                           </div>
-                          
-                        </template>
-                        <vco-number v-else :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
+                        </div>
                       </template>
                     </a-table-summary-cell>
                   </a-table-summary-row>
@@ -310,15 +221,13 @@
             <div v-if="footerDataCol.length" class="other-table-info" :class="{'page': isPage, 'easy-model': easyModel || !buildAmount}">
               <div
                 v-for="item in footerDataCol" :key="item.type"
-                class="item"
-                :class="{'hover': isSelect}"
+                class="item hover"
                 @click="itemSetHandle(item)"
               >
                 <vco-number :value="item.amount" size="fs_md" :precision="2" :end="true"></vco-number>
-                <vco-number v-if="showProcess" :value="tableRemainTotal(item.amount, item?.use_amount || 0)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
-                <vco-number v-if="showProcess" :value="item?.use_amount || 0" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
+                <vco-number :value="tableRemainTotal(item.amount, item?.use_amount || 0)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
+                <vco-number :value="item?.use_amount || 0" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
                 <a-progress
-                  v-if="showProcess"
                   :stroke-color="{
                     '0%': '#64ec22',
                     '100%': '#31bd65'
@@ -326,7 +235,7 @@
                   :size="6"
                   :percent="item.percent"
                 />
-                <p :class="{'mt-2': !showProcess}">{{ item.name }}</p>
+                <p>{{ item.name }}</p>
                 <div v-if="item.checked" class="selected">{{ `$${numberStrFormat(item.set_amount)}` }}</div>
                 <template v-if="item.selected">
                   <div class="selected-bg"></div>
@@ -341,13 +250,13 @@
               </div>
             </div>
 
-            <div v-if="isSelect" class="mt-10 flex justify-between">
+            <div class="mt-10 flex justify-between">
               <div>
                 <vco-number :value="selectTotalAmount" :bold="true" size="fs_3xl" :precision="2" :end="true"></vco-number>
                 <p style="font-size: 12px; color: #888;">{{ t('已选总额') }}</p>
               </div>
               
-              <a-button type="dark" class="big shadow bold uppercase"
+              <a-button v-if="!isView" type="dark" class="big shadow bold uppercase"
                 @click="selectConfirm"
               >{{ t('确定') }}</a-button>
             </div>
@@ -364,7 +273,8 @@
   import { computed, onMounted, reactive, ref } from "vue"
   import { useI18n } from "vue-i18n";
   import { useRoute } from "vue-router"
-  import { projectAuditStepDetail, projectGetBuild, projectLoanGetBuild, projectDetailApi } from "@/api/process"
+  import { projectDetailApi } from "@/api/process"
+  import { projectVariationInfo } from '@/api/project/variation';
   import { cloneDeep } from "lodash"
   import tool, { numberStrFormat, fixNumber } from "@/utils/tool"
 
@@ -372,14 +282,6 @@
   const route = useRoute();
 
   const props = defineProps({
-    showProcess: {
-      type: Boolean,
-      default: false
-    },
-    isSelect: {
-      type: Boolean,
-      default: false
-    },
     selectedData: {
       type: Array,
       default: () => []
@@ -389,6 +291,14 @@
       default: () => []
     },
     isPage: {
+      type: Boolean,
+      default: false
+    },
+    variationId: {
+      type: [String, Number],
+      default: ''
+    },
+    isView: {
       type: Boolean,
       default: false
     }
@@ -449,6 +359,7 @@
     const keyStr = keyValue || 'amount'
     const arr = tableData.value.filter(item => !item.isFixedRow).map(item => item[key])
     const numArr = isNaN(Number(arr[0])) ? arr.filter(item => item.id).map(item => Number(item[`${keyStr}`])) : arr.map(item => Number(item))
+
     const total = numArr.reduce((total, num) => {
       return Number(tool.plus(total, num))
     }, 0);
@@ -508,17 +419,15 @@
 
   const setTableData = (headerData) => {
     const payment = cloneDeep(setedData.value.payment)
-    const column = cloneDeep(setedData.value.column)
 
     for (const key in payment) {
+      payment[key].amount = Number(tool.times(Number(payment[key].amount), 100))
       if (key === '0$1__payment') {
         delete payment[key]
       }
 
-      if (props.isSelect) {
-        if (key.indexOf('$2') > -1) {
-          delete payment[key]
-        }
+      if (key.indexOf('$2') > -1) {
+        delete payment[key]
       }
     }
 
@@ -545,6 +454,7 @@
       }
       for (let j = 0; j < headerData.length; j++) {
         const amountItem = hadSetData[`${data[i].type}$${data[i].category}__${headerData[j].dataIndex}`] || {}
+
         if (Object.keys(amountItem).length) {
           amountItem.amount = Number(amountItem.amount)
           amountItem.checked = false
@@ -665,76 +575,24 @@
     // 合并第一行数据
     if (tableHeader.value.length > 3) {
       tableHeader.value.forEach((item, index) => {
-        if (!props.isSelect) {
-          item.customCell = (record, _index) => {
-            if (['type', 'total'].includes(item.dataIndex)) {
-              // 跳过第一行（isFixedRow）
-              if (record.isFixedRow) {
-                return {}
-              }
-              
-              // 获取当前行的 type
-              const currentType = record.type
-              
-              // 查找相同 type 的行数
-              let rowSpan = 1
-              for (let i = _index + 1; i < tableData.value.length; i++) {
-                if (tableData.value[i].type === currentType) {
-                  rowSpan++
-                } else {
-                  break
-                }
-              }
-              
-              // 如果是第一行相同 type 的行，返回 rowSpan
-              if (rowSpan > 1) {
-                return { rowSpan }
-              }
-              
-              // 如果是后续相同 type 的行，隐藏单元格
-              if (_index > 0 && tableData.value[_index - 1].type === currentType) {
-                return { rowSpan: 0 }
-              }
-              
-              return {}
-            } else {
-              if (record.isFixedRow) {
-                const mergeStart = 2
-                const mergeEnd = tableHeader.value.length - 2
+        item.customCell = (record) => {
+          if (record.isFixedRow) {
+            const mergeStart = 2
+            const mergeEnd = tableHeader.value.length - 2
 
-                if (index === mergeStart) {
-                  return {
-                    colSpan: mergeEnd - mergeStart + 1
-                  }
-                } else if (index > mergeStart && index <= mergeEnd) {
-                  return {
-                    colSpan: 0
-                  }
-                }
+            if (index === mergeStart) {
+              // 第一个合并单元格的起始位置
+              return {
+                colSpan: mergeEnd - mergeStart + 1 // 要合并多少列
               }
-              return {}
+            } else if (index > mergeStart && index <= mergeEnd) {
+              // 被合并的列
+              return {
+                colSpan: 0
+              }
             }
           }
-        } else {
-          item.customCell = (record) => {
-            if (record.isFixedRow) {
-              const mergeStart = 2
-              const mergeEnd = tableHeader.value.length - 2
-
-              if (index === mergeStart) {
-                // 第一个合并单元格的起始位置
-                return {
-                  colSpan: mergeEnd - mergeStart + 1 // 要合并多少列
-                }
-              } else if (index > mergeStart && index <= mergeEnd) {
-                // 被合并的列
-                return {
-                  colSpan: 0
-                }
-              }
-            }
-            return {}
-          }
+          return {}
         }
       })
     }
@@ -745,139 +603,126 @@
 
   // 请求已设置数据
   const getSetedData = async () => {
-    const params = {
-      uuid: uuid.value
+    const res = variationInfo.value.build || null
+
+    const dataRes = res.data || {}
+    let data = {}
+    for (const key in dataRes) {
+      if (key.indexOf('$1') > -1) {
+        data[key] = dataRes[key]
+      }
     }
 
-    try {
-      const ajaxFn = isRequests.value ? projectGetBuild : projectLoanGetBuild
-      await ajaxFn(params).then(res => {
-        const dataRes = res.data || {}
-        let data = {}
-        if (props.isSelect) {
-          for (const key in dataRes) {
-            if (key.indexOf('$1') > -1) {
-              data[key] = dataRes[key]
-            }
-          }
+    setedData.value = res
+
+    // 首次放款数据
+    if (Object.keys(res.payment).length) {
+      if (res.payment[`0$1__payment`]) {
+        advancePercent.value = res.payment[`0$1__payment`].amount
+      }
+    }
+
+    // footer 数据
+    if (Object.keys(res.summary).length) {
+      if (res.summary[`${advanceKey.value}`]) {
+        advanceAmount.value = res.summary[`${advanceKey.value}`].amount
+
+        const advanceItem = res.summary[`${advanceKey.value}`]
+        advanceItem.amount = Number(advanceItem.amount)
+        advanceItem.checked = false
+        advanceItem.selected = false
+        advanceItem.set_amount = ''
+        advanceItem.set_amount_per = ''
+        if (advanceItem.amount) {
+          const use_amount = advanceItem.use_amount || 0
+          const num = fixNumber(Number(tool.div(Number(use_amount), Number(advanceItem.amount))), 4)
+          advanceItem.percent = Number(tool.times(num, 100))
         } else {
-          data = dataRes
+          advanceItem.percent = 0
         }
-
-        setedData.value = res
-
-        // 首次放款数据
-        if (Object.keys(res.payment).length) {
-          if (res.payment[`0$1__payment`]) {
-            advancePercent.value = res.payment[`0$1__payment`].amount
-          }
-        }
-
-        // footer 数据
-        if (Object.keys(res.summary).length) {
-          if (res.summary[`${advanceKey.value}`]) {
-            advanceAmount.value = res.summary[`${advanceKey.value}`].amount
-
-            const advanceItem = res.summary[`${advanceKey.value}`]
-            advanceItem.amount = Number(advanceItem.amount)
-            advanceItem.checked = false
-            advanceItem.selected = false
-            advanceItem.set_amount = ''
-            advanceItem.set_amount_per = ''
+        
+        // 处理编辑额度
+        if (buildLogDataIds.value.includes(advanceItem.id)) {
+          const logItem = props.buildLogData.find(item => item.build_id === advanceItem.id)
+          if (logItem) {
+            advanceItem.use_amount = tool.minus(advanceItem.use_amount, logItem.amount)
             if (advanceItem.amount) {
-              const use_amount = advanceItem.use_amount || 0
-              const num = fixNumber(Number(tool.div(Number(use_amount), Number(advanceItem.amount))), 4)
+              const num = fixNumber(Number(tool.div(Number(advanceItem.use_amount), Number(advanceItem.amount))), 4)
               advanceItem.percent = Number(tool.times(num, 100))
             } else {
               advanceItem.percent = 0
             }
-            
-            // 处理编辑额度
-            if (buildLogDataIds.value.includes(advanceItem.id)) {
-              const logItem = props.buildLogData.find(item => item.build_id === advanceItem.id)
-              if (logItem) {
-                advanceItem.use_amount = tool.minus(advanceItem.use_amount, logItem.amount)
-                if (advanceItem.amount) {
-                  const num = fixNumber(Number(tool.div(Number(advanceItem.use_amount), Number(advanceItem.amount))), 4)
-                  advanceItem.percent = Number(tool.times(num, 100))
-                } else {
-                  advanceItem.percent = 0
-                }
-              }
-            }
-
-            // 编辑回显数据
-            if (selectedDataIds.value.includes(advanceItem.id)) {
-              const selItem = props.selectedData.find(item => item.build_id === advanceItem.id)
-              if (selItem) {
-                advanceItem.checked = true
-                advanceItem.set_amount = selItem.amount
-                selectData.value.push(advanceItem)
-              }
-            }
-
-            advanceObj.value = advanceItem
           }
+        }
 
-          const footerData = footerDataCol.value.map(item => {
-            const summaryItem = res.summary[`${item.name}`] || {}
-            item.amount = Object.keys(summaryItem).length ? Number(summaryItem.amount) : 0
-            item.checked = false
-            item.selected = false
-            item.set_amount = ''
-            item.set_amount_per = ''
+        // 编辑回显数据
+        if (selectedDataIds.value.includes(advanceItem.id)) {
+          const selItem = props.selectedData.find(item => item.build_id === advanceItem.id)
+          if (selItem) {
+            advanceItem.checked = true
+            advanceItem.set_amount = selItem.amount
+            selectData.value.push(advanceItem)
+          }
+        }
 
-            const mergItem = {
-              loan: item.amount,
-              ...summaryItem,
-              ...item
-            }
+        advanceObj.value = advanceItem
+      }
 
-            if (Number(mergItem.amount)) {
-              const use_amount = mergItem.use_amount || 0
-              const num = fixNumber(Number(tool.div(Number(use_amount), Number(mergItem.amount))), 4)
+      const footerData = footerDataCol.value.map(item => {
+        const summaryItem = res.summary[`${item.name}`] || {}
+        item.amount = Object.keys(summaryItem).length ? Number(summaryItem.amount) : 0
+        item.checked = false
+        item.selected = false
+        item.set_amount = ''
+        item.set_amount_per = ''
+
+        const mergItem = {
+          loan: item.amount,
+          ...summaryItem,
+          ...item
+        }
+
+        if (Number(mergItem.amount)) {
+          const use_amount = mergItem.use_amount || 0
+          const num = fixNumber(Number(tool.div(Number(use_amount), Number(mergItem.amount))), 4)
+          mergItem.percent = Number(tool.times(num, 100))
+        } else {
+          mergItem.percent = 0
+        }
+
+        // 处理编辑额度
+        if (buildLogDataIds.value.includes(mergItem.id)) {
+          const logItem = props.buildLogData.find(item => item.build_id === mergItem.id)
+          if (logItem) {
+            mergItem.use_amount = tool.minus(mergItem.use_amount, logItem.amount)
+            if (mergItem.amount) {
+              const num = fixNumber(Number(tool.div(Number(mergItem.use_amount), Number(mergItem.amount))), 4)
               mergItem.percent = Number(tool.times(num, 100))
             } else {
               mergItem.percent = 0
             }
-
-            // 处理编辑额度
-            if (buildLogDataIds.value.includes(mergItem.id)) {
-              const logItem = props.buildLogData.find(item => item.build_id === mergItem.id)
-              if (logItem) {
-                mergItem.use_amount = tool.minus(mergItem.use_amount, logItem.amount)
-                if (mergItem.amount) {
-                  const num = fixNumber(Number(tool.div(Number(mergItem.use_amount), Number(mergItem.amount))), 4)
-                  mergItem.percent = Number(tool.times(num, 100))
-                } else {
-                  mergItem.percent = 0
-                }
-              }
-            }
-
-            // 编辑回显数据
-            if (selectedDataIds.value.includes(mergItem.id)) {
-              const selItem = props.selectedData.find(item => item.build_id === mergItem.id)
-              if (selItem) {
-                mergItem.checked = true
-                mergItem.set_amount = selItem.amount
-                selectData.value.push(mergItem)
-              }
-            }
-
-            return mergItem
-          })
-          footerDataCol.value = footerData.filter(item => Number(item.amount))
-        } else {
-          footerDataCol.value = []
+          }
         }
 
-        // 统计数据
-        statUseAmount.value = res.use_amount || 0
+        // 编辑回显数据
+        if (selectedDataIds.value.includes(mergItem.id)) {
+          const selItem = props.selectedData.find(item => item.build_id === mergItem.id)
+          if (selItem) {
+            mergItem.checked = true
+            mergItem.set_amount = selItem.amount
+            selectData.value.push(mergItem)
+          }
+        }
+
+        return mergItem
       })
-    } catch (err) {
-      pageLoading.value = false
+      footerDataCol.value = footerData.filter(item => Number(item.amount))
+    } else {
+      footerDataCol.value = []
     }
+
+    // 统计数据
+    statUseAmount.value = res.use_amount || 0
 
     setTableHeader()
   }
@@ -890,59 +735,11 @@
   // 请求项目信息
   const getProjectData = async () => {
     pageLoading.value = true
-    const params = {
-      uuid: uuid.value
-    }
+    const res = await projectDetailApi({uuid: uuid.value});
+    const costModel = Boolean(res.lending.devCostDetail[0].model)
+    easyModel.value = costModel
 
-    try {
-      const ajaxFn = isRequests.value ? projectAuditStepDetail : projectDetailApi
-      await ajaxFn(params).then(res => {
-        emits('done', res)
-
-        const costModel = Boolean(res.lending.devCostDetail[0].model)
-        easyModel.value = costModel
-
-        const list = res.lending.devCostDetail[0].data[0].list
-        const filterType = costModel ? ['Land', 'Refinance', 'Land_gst'] : ['Land', 'Construction', 'Refinance', 'Land_gst']
-        const footerData = list.filter(item => !filterType.includes(item.type)) || []
-
-        // 找到footerData中type为Construction的item, 如果有则把他排到第一位，并且删除原来的Construction
-        const conItem = footerData.find(item => item.type === 'Construction')
-        if (conItem) {
-          footerData.unshift(conItem)
-          footerData.splice(footerData.lastIndexOf(conItem), 1)
-        }
-
-        const dataArr = []
-        for (let i = 0; i < footerData.length; i++) {
-          const item = footerData[i]
-
-          // 把大项也添加到数据中，兼容之前已经存在放款的情况
-          if (item.loan) {
-            dataArr.push(item)
-          }
-
-          if (item.list && item.list.length) {
-            for (let j = 0; j < item.list.length; j++) {
-              const listItem = item.list[j]
-              if (listItem.loan) {
-                listItem.name = `${item.name} [${listItem.type}]`
-                dataArr.push(listItem)
-              }
-            }
-          }
-        }
-
-        footerDataCol.value = dataArr
-
-        const Construction = list.find(item => item.type === 'Construction')
-        buildAmount.value = Construction ? (Number(Construction.loan) || 0) : 0
-      })
-      
-      await getSetedData()
-    } catch (err) {
-      pageLoading.value = false
-    }
+    getVariationDetail()
   }
 
   const selectData = ref([])
@@ -971,6 +768,9 @@
 
   const currentSingleItem = ref()
   const itemSetHandle = (data) => {
+    if (props.isView) {
+      return false
+    }
     if (batchSelect.value) {
       data.selected = !data.selected
       const id = data.id
@@ -985,7 +785,7 @@
         }
       }
     } else {
-      if (props.isSelect && Number(data.amount)) {
+      if (Number(data.amount)) {
         const num = tool.minus(Number(data.amount), Number(data.use_amount))
         if (data.set_amount && !data.set_amount_per) {
           const per = Number(num) ? tool.div(data.set_amount, num) : 0
@@ -1057,6 +857,7 @@
       if (!currentItemInfo.value) {
         return false
       }
+      
       if (Number(currentItemInfo.value.set_amount) > Number(currentItemInfo.value.can_amount) || Number(currentItemInfo.value.set_amount) < 0) {
         currentItemInfo.value.showError = true
       } else {
@@ -1102,51 +903,7 @@
     emits('selectDone', selectInfo)
   }
 
-  const statTableHeader = reactive([
-    {
-      title: t('借款金额'),
-      dataIndex: "totalAmount",
-      width: '25%',
-      align: 'center'
-    },
-    {
-      title: t('已放款额度'),
-      dataIndex: "useAmount",
-      width: '25%',
-      align: 'center'
-    },
-    {
-      title: t('放款比例'),
-      dataIndex: "userPercent",
-      width: '25%',
-      align: 'center'
-    },
-    {
-      title: t('待放款额度'),
-      dataIndex: "remainingAmount",
-      width: '25%',
-      align: 'center'
-    }
-  ])
-
-  const statTableData = ref([{totalAmount: 0, useAmount: 0, userPercent: 0, remainingAmount: 0}])
   const statUseAmount = ref(0)
-  const statUserPercent = computed(() => {
-    let res = 0
-    if (Number(tableTotal.value)) {
-      const perNum = fixNumber(Number(tool.div(statUseAmount.value, tableTotal.value)), 4)
-      res = Number(tool.times(Number(perNum), 100))
-    }
-    return Number(res)
-  })
-  const statRemainAmount = computed(() => {
-    let res = 0
-    if (Number(tableTotal.value)) {
-      res = Number(tool.minus(tableTotal.value, statUseAmount.value)).toFixed(2)
-    }
-    return res
-  })
-
   const batchSelect = ref(false)
   const batchSelectData = ref([])
 
@@ -1222,17 +979,78 @@
     selectData.value = []
   }
 
-  onMounted(async () => {
-    const { path, query } = route
+  const pageError = ref(false)
+  const variationType = ref(0)
+  const isPlusVariation = computed(() => {
+    return [1, 4].includes(variationType.value)
+  })
 
-    if (path === '/requests/details/progress-payment') {
-      isRequests.value = false
-    } else if (path.indexOf('requests') > -1) {
-      isRequests.value = true
-    }
+  // 请求变更详情
+  const variationInfo = ref();
+  const getVariationDetail = () => {
+    projectVariationInfo({
+      uuid: uuid.value,
+      id: props.variationId
+    }).then(async (res) => {
+      if (!res.devCostDetail || !res.devCostDetail.length) {
+        pageError.value = true
+        pageLoading.value = false
+        return false
+      }
+
+      if (res.type) {
+        if (res.type === 3) {
+          pageError.value = true
+          pageLoading.value = false
+          return false
+        } else {
+          variationType.value = res.type
+        }
+      } else {
+        pageError.value = true
+        pageLoading.value = false
+        return false
+      }
+
+      variationInfo.value = res;
+
+      const list = res.devCostDetail[0].data[0].list
+      for (let i = 0; i < list.length; i++) {
+        const item = list[i]
+        const toolFn = isPlusVariation.value ? tool.plus : tool.minus
+        item.loan = Number(toolFn(item.loan || 0, item.change_value || 0))
+        item.total = Number(toolFn(item.total || 0, item.change_value || 0))
+        if (item.list && item.list.length) {
+          for (let j = 0; j < item.list.length; j++) {
+            const childItem = item.list[j]
+            childItem.loan = Number(toolFn(childItem.loan || 0, childItem.change_value || 0))
+            childItem.total = Number(toolFn(childItem.total || 0, childItem.change_value || 0))
+          }
+        }
+      }
+      const filterType = easyModel.value ? ['Land', 'Refinance', 'Land_gst'] : ['Land', 'Construction', 'Refinance', 'Land_gst']
+      const footerData = list.filter(item => !filterType.includes(item.type))
+
+      // 找到footerData中type为Construction的item, 如果有则把他排到第一位，并且删除原来的Construction
+      const conItem = footerData.find(item => item.type === 'Construction')
+      if (conItem) {
+        footerData.unshift(conItem)
+        footerData.splice(footerData.lastIndexOf(conItem), 1)
+      }
+
+      footerDataCol.value = footerData || []
+
+      const Construction = list.find(item => item.type === 'Construction')
+      buildAmount.value = Construction ? (Number(Construction.loan) || 0) : 0
+      await getSetedData()
+    })
+  }
+
+  onMounted(async () => {
+    const { query } = route
     uuid.value = query.uuid
 
-    if (uuid.value) {
+    if (uuid.value && props.variationId) {
       await getProjectData()
     }
   })
@@ -1590,12 +1408,4 @@
       color: rgb(49, 189, 101) !important;
     }
   }
-
-  // .preview-table {
-  //   :deep(.ant-table-wrapper) {
-  //     .ant-table-tbody>tr>td {
-  //       padding: 10px;
-  //     }
-  //   }
-  // }
 </style>

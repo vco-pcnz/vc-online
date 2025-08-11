@@ -1,6 +1,6 @@
 <template>
   <div>
-    <vco-page-panel @back="goBack">
+    <vco-page-panel v-if="!isVariation" @back="goBack">
       <template #title>
         <div class="page-title-content">
           <div v-if="dataInfo?.base?.project_apply_sn" class="tag">{{ `${dataInfo?.product?.name} - ${(dataInfo?.borrower?.organization_name || dataInfo?.base?.project_apply_sn)}` }}</div>
@@ -10,14 +10,14 @@
     </vco-page-panel>
 
     <a-spin :spinning="pageLoading" size="large">
-      <div class="form-block-content">
+      <div class="form-block-content" :class="{'mb-5': isVariation}">
         <a-table
           :columns="formColumns"
           :data-source="formDataSource"
           bordered
           :pagination="false"
           table-layout="fixed"
-          :scroll="{ x: '100%', y: 600 }"
+          :scroll="{ x: '100%', y: isVariation ? (isView ? 400 : 300) : 600 }"
         >
           <template #bodyCell="{ column, record, index }">
             <template v-if="column.dataIndex === 'typology'">
@@ -51,31 +51,107 @@
                     <p>{{ formDataSource.length }}</p>
                   </template>
                   <template v-else-if="item.key === 'typology'">
-                    {{ totalTypology }}
+                    {{ totalTypology() }}
                   </template>
                   <template v-else-if="item.key === 'sqm'">
-                    {{ totalSqm }}
+                    {{ totalSqm() }}
                   </template>
                   <template v-else-if="item.key === 'est_sales_price'">
-                    {{ totalEstSprice }}
+                    {{ totalEstSprice() }}
                   </template>
                   <template v-else-if="item.key === 'amount'">
-                    {{ totalSecurityValue }}
+                    {{ totalSecurityValue() }}
                   </template>
                   <template v-else-if="item.key === 'insurance_value'">
-                    {{ totalInsuranceValue }}
+                    {{ totalInsuranceValue() }}
                   </template>
                   <template v-else-if="item.key === 'sales_price'">
-                    {{ totalSalesPrice }}
+                    {{ totalSalesPrice() }}
                   </template>
                   <template v-else-if="item.key === 'repayment_price'">
-                    {{ totalAmountReceived }}
+                    {{ totalAmountReceived() }}
                   </template>
                   <template v-else-if="item.key === 'net_proceeds_price'">
-                    {{ totalNetIncome }}
+                    {{ totalNetIncome() }}
                   </template>
                   <template v-else-if="item.key === 'dup'">
-                    {{ totalDup }}
+                    {{ totalDup() }}
+                  </template>
+                </a-table-summary-cell>
+              </a-table-summary-row>
+            </a-table-summary>
+          </template>
+        </a-table>
+      </div>
+
+
+      <div v-if="securityData.length" class="mb-2">{{ t('变更抵押物') }}</div>
+      <div v-if="securityData.length" class="form-block-content">
+        <a-table
+          :columns="formColumns"
+          :data-source="securityData"
+          bordered
+          :pagination="false"
+          table-layout="fixed"
+          :scroll="{ x: '100%', y: 400 }"
+        >
+          <template #bodyCell="{ column, record, index }">
+            <template v-if="column.dataIndex === 'typology'">
+              {{ typologyFormat(record) }}
+            </template>
+            <template v-if="column.dataIndex === 'sqm'">
+              {{ `${record.sqm} m²` }}
+            </template>
+            <template v-if="['est_sales_price', 'amount', 'insurance_value', 'sales_price', 'repayment_price', 'net_proceeds_price', 'dup'].includes(column.dataIndex)">
+              <vco-number size="fs_md" :value="record[column.dataIndex]" :precision="2" :end="true"></vco-number>
+            </template>
+            <template v-if="column.dataIndex === 'is_gst'">
+              {{ Number(record.is_gst) ? t('是') : t('否') }}
+            </template>
+            <template v-if="column.dataIndex === 'is_calc'">
+              {{ Number(record.is_calc) ? t('是') : t('否') }}
+            </template>
+            <template v-if="column.dataIndex === 'variance'">
+              {{ `${record.variance}%` }}
+            </template>
+            <template v-if="['insurance_expire_date', 'contract_date', 'settlement_date', 'sunset_date', 'repayment_date'].includes(column.dataIndex)">
+              {{ record[column.dataIndex] ? tool.showDate(record[column.dataIndex]) : '--' }}
+            </template>
+          </template>
+          <template #summary>
+            <a-table-summary fixed>
+              <a-table-summary-row>
+                <a-table-summary-cell v-for="(item, index) in summaryCol" :index="index" :key="item.key" class="text-center">
+                  <template v-if="item.key === 'card_no'">
+                    <p>{{ t('总条数') }}</p>
+                    <p>{{ securityData.length }}</p>
+                  </template>
+                  <template v-else-if="item.key === 'typology'">
+                    {{ totalTypology(securityData) }}
+                  </template>
+                  <template v-else-if="item.key === 'sqm'">
+                    {{ totalSqm(securityData) }}
+                  </template>
+                  <template v-else-if="item.key === 'est_sales_price'">
+                    {{ totalEstSprice(securityData) }}
+                  </template>
+                  <template v-else-if="item.key === 'amount'">
+                    {{ totalSecurityValue(securityData) }}
+                  </template>
+                  <template v-else-if="item.key === 'insurance_value'">
+                    {{ totalInsuranceValue(securityData) }}
+                  </template>
+                  <template v-else-if="item.key === 'sales_price'">
+                    {{ totalSalesPrice(securityData) }}
+                  </template>
+                  <template v-else-if="item.key === 'repayment_price'">
+                    {{ totalAmountReceived(securityData) }}
+                  </template>
+                  <template v-else-if="item.key === 'net_proceeds_price'">
+                    {{ totalNetIncome(securityData) }}
+                  </template>
+                  <template v-else-if="item.key === 'dup'">
+                    {{ totalDup(securityData) }}
                   </template>
                 </a-table-summary-cell>
               </a-table-summary-row>
@@ -104,6 +180,18 @@
     type: {
       type: String,
       default: ""
+    },
+    isVariation: {
+      type: Boolean,
+      default: false
+    },
+    isView: {
+      type: Boolean,
+      default: false
+    },
+    securityData: {
+      type: Array,
+      default: () => []
     }
   })
 
@@ -112,8 +200,8 @@
   const uuid = ref(route.query.uuid)
 
   // 户型统计
-  const totalTypology = computed(() => {
-    const data = cloneDeep(formDataSource.value)
+  const totalTypology = (dataSource = null) => {
+    const data = cloneDeep(dataSource || formDataSource.value)
     const typologyArr = data.filter(item => item.typology).map(item => item.typology)
 
     const calc = typologyArr.reduce((acc, item) => {
@@ -138,71 +226,71 @@
           .map(([key, value]) => `${value} ${key}`)
           .join(', ');
     return txt
-  })
+  }
 
-  // 总面积
-  const totalSqm = computed(() => {
-    const data = cloneDeep(formDataSource.value)
+  // 总面积 - 支持传参数
+  const totalSqm = (dataSource = null) => {
+    const data = cloneDeep(dataSource || formDataSource.value)
     const sqmArr = data.map(item => item.sqm)
     const sum = sqmArr.reduce((acc, cur) => Number(acc) + Number(cur), 0);
     return `${numberStrFormat(sum)} m²`
-  })
+  }
 
   // 总预测销售价
-  const totalEstSprice = computed(() => {
-    const data = cloneDeep(formDataSource.value)
+  const totalEstSprice = (dataSource = null) => {
+    const data = cloneDeep(dataSource || formDataSource.value)
     const sqmArr = data.map(item => item.est_sales_price)
     const sum = sqmArr.reduce((acc, cur) => Number(acc) + Number(cur), 0);
     return `$${numberStrFormat(sum)}`
-  })
+  }
 
   // 总担保价值
-  const totalSecurityValue = computed(() => {
-    const data = cloneDeep(formDataSource.value)
+  const totalSecurityValue = (dataSource = null) => {
+    const data = cloneDeep(dataSource || formDataSource.value)
     const sqmArr = data.map(item => item.amount)
     const sum = sqmArr.reduce((acc, cur) => Number(acc) + Number(cur), 0);
     return `$${numberStrFormat(sum)}`
-  })
+  }
 
   // 总保险价值
-  const totalInsuranceValue = computed(() => {
-    const data = cloneDeep(formDataSource.value)
+  const totalInsuranceValue = (dataSource = null) => {
+    const data = cloneDeep(dataSource || formDataSource.value)
     const sqmArr = data.map(item => item.insurance_value)
     const sum = sqmArr.reduce((acc, cur) => Number(acc) + Number(cur), 0);
     return `$${numberStrFormat(sum)}`
-  })
+  }
 
   // 总销售价格
-  const totalSalesPrice = computed(() => {
-    const data = cloneDeep(formDataSource.value)
+  const totalSalesPrice = (dataSource = null) => {
+    const data = cloneDeep(dataSource || formDataSource.value)
     const sqmArr = data.map(item => item.sales_price)
     const sum = sqmArr.reduce((acc, cur) => Number(acc) + Number(cur), 0);
     return `$${numberStrFormat(sum)}`
-  })
+  }
 
   // 总回款金额
-  const totalAmountReceived = computed(() => {
-    const data = cloneDeep(formDataSource.value)
+  const totalAmountReceived = (dataSource = null) => {
+    const data = cloneDeep(dataSource || formDataSource.value)
     const sqmArr = data.map(item => item.repayment_price)
     const sum = sqmArr.reduce((acc, cur) => Number(acc) + Number(cur), 0);
     return `$${numberStrFormat(sum)}`
-  })
+  }
 
   // 总净收益
-  const totalNetIncome = computed(() => {
-    const data = cloneDeep(formDataSource.value)
+  const totalNetIncome = (dataSource = null) => {
+    const data = cloneDeep(dataSource || formDataSource.value)
     const sqmArr = data.map(item => item.net_proceeds_price)
     const sum = sqmArr.reduce((acc, cur) => Number(acc) + Number(cur), 0);
     return `$${numberStrFormat(sum)}`
-  })
+  }
 
   // 总每单位债务
-  const totalDup = computed(() => {
-    const data = cloneDeep(formDataSource.value)
+  const totalDup = (dataSource = null) => {
+    const data = cloneDeep(dataSource || formDataSource.value)
     const sqmArr = data.map(item => item.dup)
     const sum = sqmArr.reduce((acc, cur) => Number(acc) + Number(cur), 0);
     return `$${numberStrFormat(sum)}`
-  })
+  }
 
   const typologyFormat = (data) => {
     if (data.typology) {

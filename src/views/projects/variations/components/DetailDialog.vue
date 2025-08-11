@@ -11,11 +11,6 @@
             <a-date-picker v-model:value="formState.start_date" :format="selectDateFormat()" :disabledDate="disabledDate" :disabled="detailData.mark == 'variation_overdue_open' || isLate" placeholder="" @change="dateChange" />
             <a-tag v-if="isLate" color="red" class="mt-2">{{ t('延迟变更') }}</a-tag>
           </a-form-item>
-          <!-- <a-form-item :label="t('开发成本')" name="devCost">
-            <DevCostDetail :dataJson="DevCostData.devCostDetail || projectDetail?.base?.devCostDetail" :disabledGST="true" :DevCostDetail="true" @change="saveDevCostData">
-              <a-input-number :value="DevCostData.devCost || projectDetail?.base?.devCost" :max="99999999999" readonly :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
-            </DevCostDetail>
-          </a-form-item> -->
         </a-form>
       </div>
 
@@ -41,14 +36,6 @@
           </div>
         </a-col>
       </a-row>
-      <!-- <a-row :gutter="24">
-        <a-col :span="24" class="mt-2 cursor-pointer">
-          <DevCostDetail :dataJson="DevCostData.devCostDetail || projectDetail?.base?.devCostDetail" :disabledGST="true" @change="saveDevCostData">
-            <p class="color_grey fs_xs">Total Development Cost <i class="iconfont color_coal">&#xe76f;</i></p>
-            <vco-number :value="DevCostData.devCost || projectDetail?.base?.devCost" :bold="true" size="fs_xl" :precision="2"></vco-number>
-          </DevCostDetail>
-        </a-col>
-      </a-row> -->
 
       <div class="mt-10 flex justify-end">
         <a-button type="dark" class="big shadow bold uppercase mb-5 mt-5 w-full" :loading="confirmLoading" @click="openHandle">{{ t('确认') }}</a-button>
@@ -60,15 +47,15 @@
         <a-alert :message="detailData.cancel_reason ? t('退回原因') : t('拒绝原因')" :description="detailData.cancel_reason || detailData.decline_reason" type="error" class="cancel-reason" />
       </a-col>
 
-      <a-col :span="8" class="item-txt">
+      <a-col :span="10" class="item-txt">
         <p>{{ t('变更类型') }}</p>
         <p>{{ detailData.type_name || '--' }}</p>
       </a-col>
-      <a-col :span="8" class="item-txt">
+      <a-col :span="7" class="item-txt">
         <p>{{ t('变更开始日期') }}</p>
         <p>{{ detailData.start_date ? tool.showDate(detailData.start_date) : '--' }}</p>
       </a-col>
-      <a-col :span="8" class="item-txt">
+      <a-col :span="7" class="item-txt">
         <p>{{ t('变更后结束日期') }}</p>
         <div v-if="detailData.end_date" class="change-content">
           <p>{{ tool.showDate(projectDetail.date.end_date) }}</p>
@@ -80,11 +67,7 @@
           <p>({{ t('到期日期') }})</p>
         </div>
       </a-col>
-      <a-col :span="8" class="item-txt">
-        <p>{{ t('变更后首次放款') }}</p>
-        <vco-number :value="detailData.initial_amount" :precision="2"></vco-number>
-      </a-col>
-      <a-col :span="16" class="item-txt">
+      <a-col :span="24" class="item-txt">
         <p>{{ t('变更后借款总金额') }}</p>
         <div class="change-amount">
           <vco-number :value="projectDetail.base.loan_money" color="#888888" :precision="2"></vco-number>
@@ -93,9 +76,49 @@
           <vco-number :value="detailData.amount" color="#F19915" :precision="2"></vco-number>
           <i class="iconfont">&#xe609;</i>
           <div class="total-amount">
-            <vco-number v-if="visible" :value="newTotalAmount" :color="Number(detailData.amount) ? ([1, 4].includes(Number(detailData.type)) ? '#eb4b6d' : '#31bd65') : '#282828'" :precision="2"></vco-number>
+            <vco-number v-if="visible" :value="newTotalAmount" :color="Number(detailData.amount) ? ([1, 4].includes(Number(detailData.type)) ? '#31bd65' : '#eb4b6d') : '#282828'" :precision="2"></vco-number>
             <p v-if="!Number(detailData.amount)">{{ t('借款总金额') }}</p>
           </div>
+        </div>
+      </a-col>
+      <a-col :span="24" class="item-txt">
+        <p>{{ t('变更金额') }}</p>
+        <div class="change-amount">
+          <div class="flex items-center gap-2">
+            <vco-number :value="landChangeNum" :precision="2"></vco-number>
+            <p class="text-xs text-gray-500">({{ t('土地贷款总额') }})</p>
+          </div>
+          <i class="iconfont">&#xe712;</i>
+          <div class="flex items-center gap-2">
+            <vco-number :value="buildChangeNum" :precision="2"></vco-number>
+            <p class="text-xs text-gray-500">({{ t('建筑贷款总额') }})</p>
+          </div>
+          <i class="iconfont">&#xe609;</i>
+          <div v-if="Number(detailData.amount)" class="flex items-center gap-2">
+            <i class="iconfont" v-if="[1, 4].includes(Number(detailData.type))" style="color: #31bd65">&#xe712;</i>
+            <i class="iconfont" v-else style="color: #eb4b6d">&#xe711;</i>
+            <vco-number :value="Number(detailData.amount)" :color="numberColor" :precision="2"></vco-number>
+          </div>
+          <vco-number v-else :value="0" :precision="2"></vco-number>
+        </div>
+      </a-col>
+      <a-col :span="24" class="item-txt">
+        <p>{{ t('变更后首次放款') }}</p>
+        <div class="change-amount">
+          <div class="flex items-center gap-2">
+            <vco-number :value="Number(detailData.initial_land_amount || 0)" :precision="2"></vco-number>
+            <p class="text-xs text-gray-500">({{ t('首次土地贷款放款额') }})</p>
+          </div>
+          <i class="iconfont">&#xe712;</i>
+          <div class="flex items-center gap-2">
+            <vco-number :value="Number(detailData.initial_build_amount || 0)" :precision="2"></vco-number>
+            <p class="text-xs text-gray-500">({{ t('首次建筑贷款放款额') }})</p>
+          </div>
+          <i class="iconfont">&#xe609;</i>
+          <div v-if="Number(detailData.initial_amount)" class="flex items-center gap-2">
+            <vco-number :value="Number(detailData.initial_amount)" :precision="2"></vco-number>
+          </div>
+          <vco-number v-else :value="0" :precision="2"></vco-number>
         </div>
       </a-col>
       <a-col v-if="detailData.note" :span="24" class="item-txt">
@@ -152,7 +175,6 @@ import tool, { selectDateFormat } from '@/utils/tool';
 import { cloneDeep } from 'lodash';
 import RejectDialog from '@/views/process/components/RejectDialog.vue';
 import dayjs from 'dayjs';
-import DevCostDetail from '@/views/process/temp/default/components/DevCostDetail.vue';
 import { saveDevCost } from '@/api/project/project';
 
 const emits = defineEmits(['update:visible', 'done']);
@@ -402,6 +424,50 @@ const dateChange = (date) => {
   }
 };
 
+const numberColor = computed(() => {
+  let color = '282828';
+  if (Number(props.detailData.amount)) {
+    if ([1, 4].includes(Number(props.detailData.type))) {
+      color = '#31bd65';
+    } else {
+      color = '#eb4b6d';
+    }
+  }
+  return color;
+});
+
+const devCostJsonData = computed(() => {
+  return props.detailData.devCostDetail || []
+})
+
+const landChangeNum = computed(() => {
+  const data = cloneDeep(devCostJsonData.value);
+  if (data.length) {
+    const itemData = data[0].data[0].list || []
+    const land = itemData.find(item => item.name === 'Land')
+    if (land) {
+      return land.change_value || 0
+    }
+  } else {
+    return 0;
+  }
+})
+
+const buildChangeNum = computed(() => {
+  const data = cloneDeep(devCostJsonData.value);
+  if (data.length) {
+    const itemData = data[0].data[0].list || []
+    const flatData = itemData.flatMap((item) => item.list || []);
+    const mergeData = [...itemData, ...flatData];
+    const buildList = mergeData.filter(item => !['Land', 'Land GST'].includes(item.name) && !item.list)
+    
+    const changeValue = buildList.reduce((acc, item) => tool.plus(acc, item.change_value || 0), 0);
+    return changeValue
+  } else {
+    return 0;
+  }
+})
+
 watch(
   () => props.visible,
   (val) => {
@@ -447,7 +513,7 @@ watch(
 .change-content {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 10px;
   margin-top: 5px;
   > p {
     font-size: 14px;
@@ -456,7 +522,10 @@ watch(
     }
   }
   > i {
-    font-size: 13px;
+    font-size: 10px;
+  }
+  :deep(.ant-statistic-content) {
+    font-size: 14px !important;
   }
 }
 

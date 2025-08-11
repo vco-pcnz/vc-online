@@ -24,22 +24,22 @@
       <template #message>
         <a-row :gutter="24">
           <a-col :span="8">
-            <div class="label">{{ t('土地余额') }} ({{ tool.formatMoney(tool.plus(projectDetail?.base?.remain_land_amount || 0, editData?.land_money || 0)) }})</div>
+            <div class="label">{{ t('土地余额') }} ({{ tool.formatMoney(tool.plus(projectDetail?.remain_land_amount || 0, editData?.land_money || 0)) }})</div>
             <a-input-number
               v-model:value="formState.land_money"
               @input="change()"
-              :max="tool.plus(projectDetail?.base?.remain_land_amount || 0, editData?.land_money || 0)"
+              :max="tool.plus(projectDetail?.remain_land_amount || 0, editData?.land_money || 0)"
               :min="0"
               :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
               :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
             />
           </a-col>
           <a-col :span="8">
-            <div class="label">{{ t('补充股权') }} ({{ tool.formatMoney(tool.plus(projectDetail?.base?.remain_equity_amount || 0, editData?.equity_money || 0)) }})</div>
+            <div class="label">{{ t('补充股权') }} ({{ tool.formatMoney(tool.plus(projectDetail?.remain_equity_amount || 0, editData?.equity_money || 0)) }})</div>
             <a-input-number
               v-model:value="formState.equity_money"
               @input="change()"
-              :max="tool.plus(projectDetail?.base?.remain_equity_amount || 0, editData?.equity_money || 0)"
+              :max="tool.plus(projectDetail?.remain_equity_amount || 0, editData?.equity_money || 0)"
               :min="0"
               :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
               :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"

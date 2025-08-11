@@ -3,7 +3,7 @@
     <security-list-view v-if="isVariation" type="open" :is-variation="true"></security-list-view>
 
     <!-- 确认弹窗 -->
-    <vco-confirm-alert ref="changeAlertRef" :confirm-txt="confirmTxt" v-model:visible="changeVisible" @submit="submitRquest"></vco-confirm-alert>
+    <vco-confirm-alert ref="changeAlertRef" :confirm-txt="confirmTxt" v-model:visible="changeVisible" @submit="confirmHandle"></vco-confirm-alert>
 
     <!-- 选择弹窗 -->
     <a-modal :open="selectVisible" :title="t('批量设置')" :width="540" :footer="null" :keyboard="false" :maskClosable="false" @cancel="selectVisible = false">
@@ -444,6 +444,10 @@ const props = defineProps({
   securityData: {
     type: Array,
     default: () => []
+  },
+  hasBuild: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -853,7 +857,7 @@ const tableDataInit = async () => {
         sItem.is_calc = sItem.is_calc === 1 ? true : false;
         sItem.checked = true;
         sItem.name = item.card_no || t(`第{0}行`, [index + 1]);
-        sItem.security_uuid = item.uuid;
+        sItem.security_uuid = item.uuid || item.security_uuid;
         sItem.typology.other = sItem.typology.other || [];
         return sItem;
       });
@@ -891,7 +895,7 @@ const tableDataInit = async () => {
         sItem.is_calc = sItem.is_calc === 1 ? true : false;
         sItem.checked = true;
         sItem.name = item.card_no || t(`第{0}行`, [index + 1]);
-        sItem.security_uuid = item.uuid;
+        sItem.security_uuid = item.uuid || item.security_uuid;
         sItem.typology.other = sItem.typology.other || [];
         return sItem;
       });
@@ -1038,6 +1042,46 @@ const checkHandle = (data) => {
   }
 };
 
+const securitySameCheck = (arr1 = [], arr2 = []) => {
+  const beforeData = cloneDeep(arr1)
+  const afterData = cloneDeep(arr2)
+  if (beforeData.length !== afterData.length) {
+    return true
+  }
+  
+
+  for (let i = 0; i < beforeData.length; i++) {
+    const beforeId = beforeData[i]?.security_uuid || null
+    const afterId = afterData[i]?.security_uuid || null
+    if (beforeId !== afterId) {
+      return true
+    }
+  }
+  return false;
+}
+
+const confirmHandle = () => {
+  if (props.isVariation) {
+    variationSubmit()
+  } else {
+    submitRquest()
+  }
+}
+
+const varationParams = ref({})
+const variationSubmit = () => {
+  subLoading.value = true;
+  projectVariationEdit(varationParams.value).then(res => {
+    emits('refresh', res.id);
+    subLoading.value = false
+    changeVisible.value = false
+    changeAlertRef.value.changeLoading(false);
+  }).catch(() => {
+    subLoading.value = false
+    changeAlertRef.value.changeLoading(false);
+  })
+}
+
 const changeAlertRef = ref();
 const changeVisible = ref(false);
 const confirmTxt = ref('');
@@ -1075,7 +1119,6 @@ const submitRquest = () => {
   };
   delete formVal.upd;
 
-  subLoading.value = true;
 
   if (props.isVariation) {
     const params = {
@@ -1087,13 +1130,22 @@ const submitRquest = () => {
       params.id = props.variationId;
     }
 
-    projectVariationEdit(params).then(res => {
-      emits('refresh', res.id);
-      subLoading.value = false
-    }).catch(() => {
-      subLoading.value = false
-    })
+    varationParams.value = cloneDeep(params)
+
+    if (props.hasBuild && securitySameCheck(props.securityData, formData)) {
+      params.build = []
+      params.build_log = []
+      params.initial_build_amount = 0
+
+      varationParams.value = cloneDeep(params)
+      confirmTxt.value = t('已设置过进度放款数据，提交后将清空设置，是否继续？');
+      changeVisible.value = true;
+      return;
+    }
+
+    variationSubmit()
   } else {
+    subLoading.value = true;
     const ajaxFn = props.isOpen ? projectDischargeAddEditSecurity : projectAuditSaveMode;
     ajaxFn(params)
       .then(() => {

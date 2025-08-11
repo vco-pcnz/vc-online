@@ -51,64 +51,64 @@
         <a-col :span="12" class="item-txt">
           <p class="name">{{ t('变更总天数') }}</p>
           <p class="txt" :class="{ plus: Number(changeData.end_date) > 0, reduce: Number(changeData.end_date) < 0 }">
-            <i class="iconfont" v-if="Number(changeData.end_date) > 0" style="color: #eb4b6d">&#xe712;</i>
-            <i class="iconfont" v-if="Number(changeData.end_date) < 0" style="color: #31bd65">&#xe711;</i>
+            <i class="iconfont" v-if="Number(changeData.end_date) > 0" style="color: #31bd65">&#xe712;</i>
+            <i class="iconfont" v-if="Number(changeData.end_date) < 0" style="color: #eb4b6d">&#xe711;</i>
             <span>{{ Math.abs(Number(changeData.end_date)) }}</span>
           </p>
         </a-col>
         <a-col :span="24" class="item-txt">
           <p class="name">{{ t('变更金额') }}</p>
           <p class="txt" :class="{ plus: Number(changeData.loan_money) > 0, reduce: Number(changeData.loan_money) < 0 }">
-            <i class="iconfont" v-if="Number(changeData.loan_money) > 0" style="color: #eb4b6d">&#xe712;</i>
-            <i class="iconfont" v-if="Number(changeData.loan_money) < 0" style="color: #31bd65">&#xe711;</i>
+            <i class="iconfont" v-if="Number(changeData.loan_money) > 0" style="color: #31bd65">&#xe712;</i>
+            <i class="iconfont" v-if="Number(changeData.loan_money) < 0" style="color: #eb4b6d">&#xe711;</i>
             <vco-number :value="Math.abs(changeData.loan_money)" :precision="2"></vco-number>
           </p>
         </a-col>
         <a-col :span="24" class="item-txt">
           <p class="name">{{ t('建立费') }}</p>
           <p class="txt" :class="{ plus: Number(changeData.estabFee) > 0, reduce: Number(changeData.estabFee) < 0 }">
-            <i class="iconfont" v-if="Number(changeData.estabFee) > 0" style="color: #eb4b6d">&#xe712;</i>
-            <i class="iconfont" v-if="Number(changeData.estabFee) < 0" style="color: #31bd65">&#xe711;</i>
+            <i class="iconfont" v-if="Number(changeData.estabFee) > 0" style="color: #31bd65">&#xe712;</i>
+            <i class="iconfont" v-if="Number(changeData.estabFee) < 0" style="color: #eb4b6d">&#xe711;</i>
             <vco-number :value="Math.abs(changeData.estabFee)" :precision="2"></vco-number>
           </p>
         </a-col>
         <a-col :span="24" class="item-txt" v-if="detail?.base?.has_linefee">
           <p class="name">{{ t('额度费') }}</p>
           <p class="txt" :class="{ plus: Number(changeData.lineFee) > 0, reduce: Number(changeData.lineFee) < 0 }">
-            <i class="iconfont" v-if="Number(changeData.lineFee) > 0" style="color: #eb4b6d">&#xe712;</i>
-            <i class="iconfont" v-if="Number(changeData.lineFee) < 0" style="color: #31bd65">&#xe711;</i>
+            <i class="iconfont" v-if="Number(changeData.lineFee) > 0" style="color: #31bd65">&#xe712;</i>
+            <i class="iconfont" v-if="Number(changeData.lineFee) < 0" style="color: #eb4b6d">&#xe711;</i>
             <vco-number :value="Math.abs(changeData.lineFee)" :precision="2"></vco-number>
           </p>
         </a-col>
         <a-col :span="24" class="item-txt">
           <p class="name">{{ t('第二授信额度') }}</p>
           <p class="txt" :class="{ plus: Number(changeData.credit_fc2) > 0, reduce: Number(changeData.credit_fc2) < 0 }">
-            <i class="iconfont" v-if="Number(changeData.credit_fc2) > 0" style="color: #eb4b6d">&#xe712;</i>
-            <i class="iconfont" v-if="Number(changeData.credit_fc2) < 0" style="color: #31bd65">&#xe711;</i>
+            <i class="iconfont" v-if="Number(changeData.credit_fc2) > 0" style="color: #31bd65">&#xe712;</i>
+            <i class="iconfont" v-if="Number(changeData.credit_fc2) < 0" style="color: #eb4b6d">&#xe711;</i>
             <vco-number :value="Math.abs(changeData.credit_fc2)" :precision="2"></vco-number>
           </p>
         </a-col>
         <a-col :span="8" class="item-txt no">
           <p class="name">{{ t('利息') }}</p>
           <p class="txt" :class="{ plus: Number(changeData.interestRate) > 0, reduce: Number(changeData.interestRate) < 0 }">
-            <i class="iconfont" v-if="Number(changeData.interestRate) > 0" style="color: #eb4b6d">&#xe712;</i>
-            <i class="iconfont" v-if="Number(changeData.interestRate) < 0" style="color: #31bd65">&#xe711;</i>
+            <i class="iconfont" v-if="Number(changeData.interestRate) > 0" style="color: #31bd65">&#xe712;</i>
+            <i class="iconfont" v-if="Number(changeData.interestRate) < 0" style="color: #eb4b6d">&#xe711;</i>
             <span>{{ Math.abs(changeData.interestRate) }}%</span>
           </p>
         </a-col>
         <a-col :span="8" class="item-txt no">
           <p class="name">LVR</p>
           <p class="txt" :class="{ plus: Number(changeData.lvr) > 0, reduce: Number(changeData.lvr) < 0 }">
-            <i class="iconfont" v-if="Number(changeData.lvr) > 0" style="color: #eb4b6d">&#xe712;</i>
-            <i class="iconfont" v-if="Number(changeData.lvr) < 0" style="color: #31bd65">&#xe711;</i>
+            <i class="iconfont" v-if="Number(changeData.lvr) > 0" style="color: #31bd65">&#xe712;</i>
+            <i class="iconfont" v-if="Number(changeData.lvr) < 0" style="color: #eb4b6d">&#xe711;</i>
             <span>{{ Math.abs(changeData.lvr) }}%</span>
           </p>
         </a-col>
         <a-col :span="8" class="item-txt no">
           <p class="name">IRR</p>
           <p class="txt" :class="{ plus: Number(changeData.irr) > 0, reduce: Number(changeData.irr) < 0 }">
-            <i class="iconfont" v-if="Number(changeData.irr) > 0" style="color: #eb4b6d">&#xe712;</i>
-            <i class="iconfont" v-if="Number(changeData.irr) < 0" style="color: #31bd65">&#xe711;</i>
+            <i class="iconfont" v-if="Number(changeData.irr) > 0" style="color: #31bd65">&#xe712;</i>
+            <i class="iconfont" v-if="Number(changeData.irr) < 0" style="color: #eb4b6d">&#xe711;</i>
             <span>{{ Math.abs(changeData.irr) }}%</span>
           </p>
         </a-col>
@@ -294,15 +294,15 @@ const afterData = computed(() => {
       align-items: center;
       gap: 2px;
       &.plus {
-        color: #eb4b6d;
-        :deep(.ant-statistic-content) {
-          color: #eb4b6d !important;
-        }
-      }
-      &.reduce {
         color: #31bd65;
         :deep(.ant-statistic-content) {
           color: #31bd65 !important;
+        }
+      }
+      &.reduce {
+        color: #eb4b6d;
+        :deep(.ant-statistic-content) {
+          color: #eb4b6d !important;
         }
       }
       > .iconfont {

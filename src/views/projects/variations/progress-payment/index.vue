@@ -8,7 +8,7 @@
       :confirm-txt="confirmTxt"
       :show-close="changeColseBtn"
       v-model:visible="changeVisible"
-      @submit="submitRquest"
+      @submit="confirmHandle"
     ></vco-confirm-alert>
 
     <a-spin :spinning="pageLoading" size="large">
@@ -794,8 +794,12 @@
   const currentParams = ref()
   const subLoading = ref(false)
 
-  const submitRquest = () => {
+  const submitRquest = (recover = false) => {
     const params = cloneDeep(currentParams.value)
+    if (recover) {
+      params.build_log = []
+      params.initial_build_amount = 0
+    }
 
     subLoading.value = true
 
@@ -811,6 +815,11 @@
       subLoading.value = false
       changeAlertRef.value.changeLoading(false)
     })
+  }
+
+  const hasRecover = ref(false)
+  const confirmHandle = () => {
+    submitRquest(hasRecover.value)
   }
 
   const submitHandle = () => {
@@ -949,11 +958,25 @@
         `$${numberStrFormat(setBeTotal)}`,
         `$${numberStrFormat(diffNum)}`
       ])
-
       changeColseBtn.value = true
       changeVisible.value = true
 
       return
+    }
+
+    const buildLog = variationInfo.value?.build_log || []
+    if (buildLog.length) { // 已经设置过首次放款
+      const setedData = Object.values(variationInfo.value.build.data)
+      for (let i = 0; i < build.length; i++) {
+        const itemId = Number(build[i].id)
+        const setedItem = setedData.find(item => Number(item.id) === itemId)
+        if (Number(setedItem.amount) !== Number(build[i].amount)) {
+          confirmTxt.value = t('已设置有首次建筑贷款放款额，保存后将清空已有设置，是否继续？')
+          changeVisible.value = true
+          hasRecover.value = true
+          return
+        }
+      }
     }
 
     submitRquest()

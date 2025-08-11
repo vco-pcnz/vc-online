@@ -1,6 +1,6 @@
 <template>
   <div>
-    <vco-page-panel @back="backHandle" :title="t('添加变更')"></vco-page-panel>
+    <vco-page-panel @back="backHandle" :title="isEdit ? t('编辑变更') : t('添加变更')"></vco-page-panel>
 
     <!-- 首次放款选择弹窗 -->
     <a-modal
@@ -26,13 +26,14 @@
       :current-id="uuid"
       :security-data="securityData"
       :variation-id="currentVariationId"
+      :has-build="hasBuild"
       @refresh="refreshHandle"
     ></security-dialog>
 
     <div v-if="pageLoading" class="loading-container">
       <a-spin :spinning="pageLoading" size="large"></a-spin>
     </div>
-    <div v-if="uuid && projectInfo" class="project-container">
+    <div v-if="uuid && projectInfo && !pageLoading && canEdit" class="project-container">
       <div class="project-info">
         <base-card :variations="true" :detail="projectInfo"></base-card>
       </div>
@@ -48,16 +49,14 @@
               <a-row :gutter="24">
                 <a-col :span="[1, 2, 3].includes(Number(formState.type)) ? 8 : 24">
                   <a-form-item :label="t('变更开始日期')" name="start_date">
-                    <a-form-item-rest>
-                      <a-date-picker
-                        v-model:value="formState.start_date"
-                        :format="selectDateFormat()"
-                        valueFormat="YYYY-MM-DD"
-                        :disabledDate="disabledDate"
-                        :showToday="false"
-                        @change="dateChange('start_date')"
-                      />
-                    </a-form-item-rest>
+                    <a-date-picker
+                      v-model:value="formState.start_date"
+                      :format="selectDateFormat()"
+                      valueFormat="YYYY-MM-DD"
+                      :disabledDate="disabledDate"
+                      :showToday="false"
+                      @change="dateChange('start_date')"
+                    />
                   </a-form-item>
                 </a-col>
                 <template v-if="[1, 2, 3].includes(Number(formState.type))">
@@ -172,17 +171,19 @@
                 <i class="iconfont" v-else>&#xe711;</i>
               </a-col>
               <a-col :span="7">
-                <a-form-item :label="t('变更值')">
+                <a-form-item :label="t('变更值')" name="changeCost">
                   <DevCostDetail
                     :dataJson="devCostJsonData"
                     :disabledGST="true"
                     :disabledLoan="true"
                     :disabledModel="true"
                     :is-variation="true"
+                    :has-build="hasBuild"
                     :uuid="uuid"
                     :remain-land-amount="Number(projectInfo?.base?.remain_land_amount) || 0"
                     :is-plus="[1, 4].includes(Number(formState.type))"
                     @change="devCostChange"
+                    @clearBuild="clearBuildHandle"
                   >
                     <div class="input-number-container">
                       <a-input-number
@@ -224,10 +225,10 @@
                 <i class="iconfont" v-else>&#xe711;</i>
               </a-col>
               <a-col :span="7">
-                <a-form-item class="w-full-label">
+                <a-form-item class="w-full-label" name="buildChangeNum">
                   <template #label>
                     <div class="w-full flex justify-between items-center">
-                      <p>{{ t('变更值') }}</p>
+                      <p>{{ t('变更值') }} ({{ hasBuild ? t('已设置') : t('未设置') }})</p>
                       <a-button
                         v-if="Number(buildChangeNum)"
                         type="link"
@@ -349,30 +350,75 @@
                   </div>
                 </a-form-item>
               </a-col>
-              <a-col v-if="[1, 2, 4, 5].includes(formState.type)" :span="7">
-                <a-form-item :label="t('变更后首次放款')" name="initial_amount">
-                  <a-select
-                    v-if="initDrawdownSel"
-                    v-model:value="formState.initial_sn"
-                    :options="initDrawdownData"
-                    @change="initDrawdownSelChange"
-                  ></a-select>
+              <template v-if="[1, 2, 4, 5].includes(formState.type)">
+                <a-col :span="7">
+                  <a-form-item class="w-full-label" name="initial_land_amount">
+                    <template #label>
+                      <div class="w-full flex justify-between items-center">
+                        <p>{{ t('首次土地贷款放款额') }}</p>
+                        <p>{{ t('最大值') }}: ${{ numberStrFormat(maxLandAmount) }}</p>
+                      </div>
+                    </template>
 
-                  <div v-else class="input-number-container">
-                    <a-input-number
-                      v-model:value="formState.initial_amount"
-                      :max="99999999999"
-                      :disabled="true"
-                      :formatter="
-                        (value) =>
-                          `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-                      "
-                      :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                    />
-                    <i class="iconfont" @click="selectVisible = true">&#xe8cf;</i>
-                  </div>
-                </a-form-item>
-              </a-col>
+                    <div class="input-number-container">
+                      <a-input-number
+                        v-model:value="formState.initial_land_amount"
+                        :max="maxLandAmount"
+                        :min="0"
+                        :formatter="
+                          (value) =>
+                            `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                        "
+                        :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                        @input="formRef.clearValidate('initial_amount')"
+                      />
+                    </div>
+                  </a-form-item>
+                </a-col>
+                <a-col :span="1" class="plus-txt">
+                  <i class="iconfont">&#xe712;</i>
+                </a-col>
+                <a-col :span="7">
+                  <a-form-item :label="t('首次建筑贷款放款额')" name="initial_build_amount">
+                    <a-select
+                      v-if="initDrawdownSel"
+                      v-model:value="formState.initial_sn"
+                      :options="initDrawdownData"
+                      @change="initDrawdownSelChange"
+                    ></a-select>
+
+                    <div v-else class="input-number-container">
+                      <a-input-number
+                        v-model:value="formState.initial_build_amount"
+                        :max="99999999999"
+                        :disabled="true"
+                        :formatter="
+                          (value) =>
+                            `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                        "
+                        :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                      />
+                      <i class="iconfont" @click="selectVisible = true">&#xe8cf;</i>
+                    </div>
+                  </a-form-item>
+                </a-col>
+                <a-col :span="1" class="plus-txt">
+                  <i class="iconfont">=</i>
+                </a-col>
+                <a-col :span="8">
+                  <a-form-item :label="t('变更后首次放款')" name="initial_amount">
+                    <div class="input-number-container">
+                      <vco-number
+                        :value="initialAmount"
+                        :bold="true"
+                        size="fs_ml"
+                        :precision="2"
+                      ></vco-number>
+                    </div>
+                  </a-form-item>
+                </a-col>
+              </template>
+              
             </template>
 
             <div v-if="colItemsRef.length" class="w-full flex flex-wrap">
@@ -422,6 +468,12 @@
         </a-form>
       </div>
     </div>
+    <div v-if="!pageLoading && canEdit" class="mt-10 flex justify-end">
+      <a-button type="dark" class="big shadow bold uppercase"
+        :loading="submitLoading"
+        @click="submitHandle"
+      >{{ t('提交') }}</a-button>
+    </div>
   </div>
   
 </template>
@@ -430,6 +482,7 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { QuestionCircleOutlined } from '@ant-design/icons-vue';
+import { message } from 'ant-design-vue';
 import { projectDetail } from '@/api/project/project';
 import { systemDictData } from '@/api/system';
 import { projectCreditVariation, projectVariationDrawdownSel, borkerFeeCalc, dischargeStatistics, projectVariationEdit } from '@/api/project/loan';
@@ -437,19 +490,20 @@ import { projectVariationInfo } from '@/api/project/variation';
 import { ruleCredit } from '@/api/process';
 import { useI18n } from 'vue-i18n';
 import DevCostDetail from '@/views/process/temp/default/components/DevCostDetail.vue';
-import { selectDateFormat, numberStrFormat, formatMoneyToNumber } from '@/utils/tool';
+import tool, { navigationTo, selectDateFormat, numberStrFormat, formatMoneyToNumber } from '@/utils/tool';
 import BaseCard from '@/views/projects/about/components/base.vue';
 import dayjs from 'dayjs';
-import tool, { navigationTo } from '@/utils/tool';
 import { cloneDeep } from 'lodash';
 import securityDialog from './components/security-dialog.vue';
 import ViewContent from './components/view-content.vue';
+import { hasPermission } from '@/directives/permission/index';
 
 const { t } = useI18n();
 
 const pageLoading = ref(false);
 const router = useRouter();
-const uuid = ref(useRoute().query.uuid);
+const route = useRoute();
+const uuid = ref(route.query.uuid);
 const typeData = ref([]);
 const projectInfo = ref();
 
@@ -475,7 +529,11 @@ const getProjectDetail = async () => {
   pageLoading.value = true;
   const res = await projectDetail({uuid: uuid.value});
   projectInfo.value = res;
-  pageLoading.value = false;
+
+  if (!currentVariationId.value) {
+    pageLoading.value = false;
+  }
+  
 
   if (!currentVariationId.value) {
     devCostJsonData.value = projectInfo.value.base.devCostDetail;
@@ -526,6 +584,10 @@ const formState = ref({
   amount: '',
   start_date: '',
   end_date: '',
+  changeCost: '',
+  buildChangeNum: '',
+  initial_land_amount: '',
+  initial_build_amount: '',
   initial_amount: '',
   extend_month: '',
   extend_day: '',
@@ -533,18 +595,33 @@ const formState = ref({
   initial_sn: ''
 });
 
+const initialAmount = computed(() => {
+  return Number(tool.plus(formState.value.initial_land_amount, formState.value.initial_build_amount))
+})
+
+const maxLandAmount = computed(() => {
+  const remain_land_amount = Number(projectInfo.value.base.remain_land_amount || 0)
+  const toolFn = [1, 4].includes(Number(formState.value.type)) ? tool.plus : tool.minus
+  const landNum = Number(landChangeNum.value || 0)
+  return toolFn(remain_land_amount, landNum)
+})
+
 const changeCost = computed(() => {
   const data = cloneDeep(devCostJsonData.value);
+  let num = 0;
   if (data.length) {
     const itemData = data[0].data[0].list || []
     // 平铺itemData 并计算change_value 的合
     const flatData = itemData.flatMap((item) => item.list || []);
     const mergeData = [...itemData, ...flatData];
     const changeValue = mergeData.reduce((acc, item) => tool.plus(acc, item.change_value || 0), 0);
-    return changeValue;
-  } else {
-    return 0;
+    num = changeValue;
   }
+
+  formState.value.changeCost = num;
+
+  formRef.value && formRef.value.clearValidate('changeCost')
+  return num;
 });
 
 const changeCostAfter = computed(() => {
@@ -634,12 +711,48 @@ const goProgressPage = () => {
   navigationTo(`/projects/variations/progress-payment/?uuid=${uuid.value}&id=${currentVariationId.value}`)
 }
 
+const validateChangeCost = () => {
+  return (rule, value) => {
+    if (Number(value) === 0) {
+      return Promise.reject(t('请设置') + t('开发成本变更值'));
+    } else {
+      return Promise.resolve();
+    }
+  }
+}
+
+const validateBuildChangeNum = () => {
+  return () => {
+    if (Number(buildChangeNum.value) === 0) {
+      return Promise.resolve();
+    } else {
+      if (!hasBuild.value) {
+        return Promise.reject(t('请设置') + t('进度付款'));
+      } else {
+        return Promise.resolve();
+      }
+    }
+  }
+}
+
+const validateInitialAmount = () => {
+  return () => {
+    if (Number(initialAmount.value) === 0) {
+      return Promise.reject(t('请设置') + t('首次放款总金额'));
+    } else {
+      return Promise.resolve();
+    }
+  }
+}
+
 const formRules = ref({
   type: [{ required: true, message: t('请选择') + t('变更类型'), trigger: 'change' }],
   amount: [{ required: true, message: t('请输入') + t('总金额'), trigger: 'change' }],
   start_date: [{ required: true, message: t('请选择') + t('变更开始日期'), trigger: 'change' }],
   end_date: [{ required: true, message: t('请选择') + t('变更结束日期'), trigger: 'change' }],
-  initial_amount: [{ required: true, message: t('请输入') + t('首次放款总金额'), trigger: 'change' }]
+  changeCost: [{ required: true, validator: validateChangeCost(), trigger: 'change' }],
+  buildChangeNum: [{ required: true, validator: validateBuildChangeNum(), trigger: 'change' }],
+  initial_amount: [{ required: true, validator: validateInitialAmount(), trigger: 'blur' }]
 });
 
 const disabledDate = (current) => {
@@ -661,20 +774,20 @@ const initDrawdownData = ref([]);
 const initDrawdownSelChange = (val) => {
   if (val) {
     const amount = initDrawdownData.value.find((item) => item.value == val)?.label;
-    formState.value.initial_amount = formatMoneyToNumber(amount);
+    formState.value.initial_build_amount = formatMoneyToNumber(amount);
   } else {
-    formState.value.initial_amount = '';
+    formState.value.initial_build_amount = '';
   }
 };
 
 const initDrawdownCheckedChange = () => {
-  formState.value.initial_amount = '';
+  formState.value.initial_build_amount = '';
   formState.value.initial_sn = '';
   selectedData.value = []
 }
 
-const getInitDradownData = (flag = false) => {
-  projectVariationDrawdownSel({
+const getInitDradownData = async (flag = false) => {
+  await projectVariationDrawdownSel({
     uuid: uuid.value,
     date: formState.value.start_date
   }).then((res) => {
@@ -688,8 +801,25 @@ const getInitDradownData = (flag = false) => {
   });
 }
 
+const endDateChange = () => {
+  const end_date = formState.value.end_date
+  if (end_date) {
+    const startDate = projectInfo.value.date.end_date
+    const calcDay = tool.calculateDurationPrecise(startDate, end_date)
+    formState.value.extend_month = calcDay.months
+    formState.value.extend_day = calcDay.days
+  } else {
+    formState.value.extend_month = ''
+    formState.value.extend_day = ''
+  }
+}
 
 const dateChange = (type) => {
+  // 清除当前字段的校验错误
+  if (formRef.value) {
+    formRef.value && formRef.value.clearValidate([type]);
+  }
+  
   const start_date = formState.value.start_date;
   const end_date = formState.value.end_date;
   if (start_date && end_date) {
@@ -718,19 +848,14 @@ const dateChange = (type) => {
     } else {
       initDrawdownData.value = [];
     }
+
+    // 提价时间数据
+    submitSingleRquest('start_date', formState.value.start_date ? startDate.format('YYYY-MM-DD') : '')
   }
 
   if (type == 'end_date') {
-    const end_date = formState.value.end_date
-    if (end_date) {
-      const startDate = projectInfo.value.date.end_date
-      const calcDay = tool.calculateDurationPrecise(startDate, end_date)
-      formState.value.extend_month = calcDay.months
-      formState.value.extend_day = calcDay.days
-    } else {
-      formState.value.extend_month = ''
-      formState.value.extend_day = ''
-    }
+    endDateChange()
+    submitSingleRquest('end_date', formState.value.end_date ? dayjs(formState.value.end_date).format('YYYY-MM-DD') : '')
   }
 };
 
@@ -747,10 +872,12 @@ const getsecurityInfo = () => {
 const securityDialogVisible = ref(false)
 
 const setVariationIdStore = (id) => {
-  currentVariationId.value = id;
-  const obj = JSON.parse(localStorage.getItem('variationId') || '{}');
-  obj[uuid.value] = id;
-  localStorage.setItem('variationId', JSON.stringify(obj));
+  if (!isEdit.value) {
+    currentVariationId.value = id;
+    const obj = JSON.parse(localStorage.getItem('variationId') || '{}');
+    obj[uuid.value] = id;
+    localStorage.setItem('variationId', JSON.stringify(obj));
+  }
 }
 
 const securityData = ref([])
@@ -767,18 +894,37 @@ const changeSecurityAfter = computed(() => {
 })
 
 const currentVariationId = ref('')
+const variationData = ref(null)
 // 请求变更详情
-const getVariationDetail = () => {
-  projectVariationInfo({
+const getVariationDetail = async () => {
+  await projectVariationInfo({
     uuid: uuid.value,
     id: currentVariationId.value
   }).then((res) => {
+    variationData.value = res
     securityData.value = res.security || [];
     formState.value.type = res.type;
+    formState.value.start_date = res.start_date;
+    formState.value.end_date = res.end_date;
+    formState.value.initial_sn = res.initial_sn || ''
+    formState.value.initial_land_amount = res.initial_land_amount || ''
+    formState.value.initial_build_amount = res.initial_build_amount || ''
+    formState.value.note = res.note || ''
+    selectedData.value = res.build_log || []
 
     devCostJsonData.value = res.devCostDetail && res.devCostDetail.length ? res.devCostDetail : projectInfo.value.base.devCostDetail;
   })
 }
+
+const hasBuild = computed(() => {
+  if (variationData.value) {
+    const data = variationData.value?.build || {}
+    const bData = data?.data || {}
+    return Boolean(Object.keys(bData).length > 0)
+  } else {
+    return false
+  }
+})
 
 const refreshHandle = (id) => {
   setVariationIdStore(id);
@@ -790,8 +936,10 @@ const selectedData = ref([])
 const selectDoneHandle = (data) => {
   const build__data = cloneDeep(data.build__data)
   selectedData.value = build__data
-  formState.value.initial_amount = data.total
+  formState.value.initial_build_amount = data.total
   selectVisible.value = false
+
+  formRef.value && formRef.value.clearValidate('initial_amount')
 }
 
 const creditData = ref([]);
@@ -957,28 +1105,37 @@ const getItemsSpan = computed(() => {
 });
 
 const loadingBorkerFeeCalcAmount = ref(false);
+const borkerFeeCalcHandle = () => {
+  loadingBorkerFeeCalcAmount.value = true;
+  borkerFeeCalc({ uuid: uuid.value, start_date: formState.value.start_date })
+    .then((res) => {
+      borkerFeeCalcAmount.value = res;
+      handInput('credit_brokerFeeRate');
+      handInput('credit_estabFeeRate');
+    })
+    .finally(() => {
+      loadingBorkerFeeCalcAmount.value = false;
+    });
+}
 watch(
   type_startDate,
   (val) => {
     // 变更自动计算broker fee
-    if ([1, 2, 3, 4].includes(val.type) && val.start_date) {
-      borkerFeeCalcAmount.value = 0;
-      loadingBorkerFeeCalcAmount.value = true;
-      borkerFeeCalc({ uuid: uuid.value, start_date: val.start_date })
-        .then((res) => {
-          borkerFeeCalcAmount.value = res;
-          handInput('credit_brokerFeeRate');
-          handInput('credit_estabFeeRate');
-        })
-        .finally(() => {
-          loadingBorkerFeeCalcAmount.value = false;
-        });
+    if ([1, 2, 3, 4].includes(val.type)) {
+      if (val.start_date) {
+        borkerFeeCalcAmount.value = 0;
+        borkerFeeCalcHandle()
+      } else {
+        borkerFeeCalcAmount.value = 0
+        handInput('credit_brokerFeeRate');
+        handInput('credit_estabFeeRate');
+      }
     }
   },
   { deep: true }
 );
 
-const calcSameTerminc = (flag = false) => {
+const calcSameTermBroker = (flag = false) => {
   const num = loanMoneyChangeNum.value || 0
   const brokerFeeRate = formState.value.credit_brokerFeeRate || 0
   const credit_brokerFee = formState.value.credit_brokerFee || 0
@@ -993,22 +1150,32 @@ const calcSameTerminc = (flag = false) => {
 }
 
 const calcExtendTermEstab = (flag = false) => {
-  const credit_estabFeeRate = formState.value.credit_estabFeeRate || 0
-  const credit_estabFee = formState.value.credit_estabFee || 0
-  let num = borkerFeeCalcAmountRef.value || 0
+  const credit_estabFeeRate = Number(formState.value.credit_estabFeeRate || 0)
+  const credit_estabFee = Number(formState.value.credit_estabFee || 0)
+  let num = Number(borkerFeeCalcAmountRef.value || 0)
 
   if (formState.value.type !== 4) {
-    num = Number(borkerFeeCalcAmountRef.value || 0)
-      + Number(loanMoneyChangeNum.value || 0)
-      + Number(formState.value.credit_brokerFee)
-      + Number(formState.value.credit_legalFee)
-      + Number(formState.value.credit_otherFee)
+    const legalFee = Number(formState.value.credit_legalFee || 0) > 0 ? Number(formState.value.credit_legalFee || 0) : 0
+    const otherFee = Number(formState.value.credit_otherFee || 0) > 0 ? Number(formState.value.credit_otherFee || 0) : 0
+    const loFee = Number(tool.plus(legalFee, otherFee))
+    const fNum = Number(tool.plus(num, loFee))
+    const cNum = Number(loanMoneyChangeNum.value || 0)
+    const toolFn = [1].includes(formState.value.type) ? tool.plus : tool.minus
+    num = Number(toolFn(fNum, cNum))
   }
 
-  if (flag) {
-    formState.value.credit_estabFee = Number(tool.times(tool.div(credit_estabFeeRate, 100), num)).toFixed(2)
+  if (formState.value.start_date) {
+    if (flag) {
+      formState.value.credit_estabFee = Number(tool.times(tool.div(credit_estabFeeRate, 100), num)).toFixed(2)
+    } else {
+      formState.value.credit_estabFeeRate = Number(tool.times(tool.div(credit_estabFee, num), 100)).toFixed(2)
+    }
   } else {
-    formState.value.credit_estabFeeRate = Number(tool.times(tool.div(credit_estabFee, num), 100)).toFixed(2)
+    if (flag) {
+      formState.value.credit_estabFee = 0
+    } else {
+      formState.value.credit_estabFeeRate = 0
+    }
   }
 }
 
@@ -1016,9 +1183,10 @@ watch(
   () => loanMoneyChangeNum.value,
   () => {
     if ([4].includes(type_startDate.value.type)) {
-      calcSameTerminc(true)
+      calcSameTermBroker(true)
     }
     if ([1, 2, 3].includes(type_startDate.value.type)) {
+      handInput('credit_brokerFeeRate')
       calcExtendTermEstab(true)
     }
   },
@@ -1026,31 +1194,44 @@ watch(
 );
 
 const handInput = (key) => {
-  if (key == 'credit_brokerFeeRate') {
+  // 中介费
+  if (['credit_brokerFeeRate', 'credit_brokerFee'].includes(key)) {
     const credit_brokerFeeRate = formState.value.credit_brokerFeeRate || 0
-    const num = borkerFeeCalcAmountRef.value || 0
-    if (formState.value.type === 4) {
-      calcSameTerminc(true)
-    } else {
-      formState.value.credit_brokerFee = Number(tool.times(tool.div(credit_brokerFeeRate, 100), num)).toFixed(2)
+    const varNum = Number(loanMoneyChangeNum.value || 0)
+    const resNum = Number(borkerFeeCalcAmountRef.value || 0)
+    const toolFn = [1].includes(formState.value.type) ? tool.plus : tool.minus
+    const num = Number(toolFn(resNum, varNum))
+
+    if (key == 'credit_brokerFeeRate') {
+      if (formState.value.type === 4) {
+        calcSameTermBroker(true)
+      } else {
+        if (formState.value.start_date) {
+          formState.value.credit_brokerFee = Number(tool.times(tool.div(credit_brokerFeeRate, 100), num)).toFixed(2)
+        } else {
+          formState.value.credit_brokerFee = 0
+        }
+      }
     }
-  }
-  if (key == 'credit_brokerFee') {
-    const credit_brokerFee = formState.value.credit_brokerFee || 0
-    const num = borkerFeeCalcAmountRef.value || 0
-    if (formState.value.type === 4) {
-      calcSameTerminc(false)
-    } else {
-      formState.value.credit_brokerFeeRate = Number(tool.times(tool.div(credit_brokerFee, num), 100)).toFixed(2)
+    if (key == 'credit_brokerFee') {
+      if (formState.value.type === 4) {
+        calcSameTermBroker(false)
+      } else {
+        if (formState.value.start_date) {
+          formState.value.credit_brokerFeeRate = Number(tool.times(tool.div(credit_brokerFee, num), 100)).toFixed(2)
+        } else {
+          formState.value.credit_brokerFeeRate = 0
+        }
+      }
     }
   }
 
-  if (key === 'credit_estabFeeRate') {
+  // 建立费
+  if (['credit_estabFeeRate', 'credit_estabFee'].includes(key)) {
+    calcExtendTermEstab(key === 'credit_estabFeeRate')
+  }
+  if (['credit_legalFee', 'credit_otherFee'].includes(key) && [1, 2, 3].includes(formState.value.type)) {
     calcExtendTermEstab(true)
-  }
-
-  if (key === 'credit_estabFee') {
-    calcExtendTermEstab(false)
   }
 };
 
@@ -1063,21 +1244,146 @@ const extendCycleInput = () => {
     if (months || days) {
       const endDate = tool.calculateEndDate(dayjs(end_date), months, days)
       formState.value.end_date = endDate
+    } else {
+      formState.value.end_date = ''
     }
+  }
+
+  formRef.value.validateFields('end_date')
+  submitSingleRquest('end_date', formState.value.end_date ? dayjs(formState.value.end_date).format('YYYY-MM-DD') : '')
+}
+
+const submitSingleRquest = (key, value) => {
+  const params = {
+    [key]: value,
+    uuid: uuid.value
+  }
+
+  if (currentVariationId.value) {
+    params.id = currentVariationId.value
+  }
+
+  projectVariationEdit(params).then(res => {
+    setVariationIdStore(res.id);
+    getVariationDetail();
+  })
+}
+
+const clearBuildHandle = () => {
+  submitSingleRquest('build', '')
+  if (!initDrawdownSel.value) {
+    selectedData.value = []
+    formState.value.initial_build_amount = ''
+  }
+}
+
+const submitLoading = ref(false)
+const submitHandle = () => {
+  formRef.value
+    .validate()
+    .then(() => {
+      const params = {
+        uuid: uuid.value,
+        id: currentVariationId.value,
+        do__save: 1,
+        type: formState.value.type,
+        start_date: formState.value.start_date,
+        end_date: formState.value.end_date,
+        initial_sn: formState.value.initial_sn || '',
+        initial_land_amount: formState.value.initial_land_amount || 0,
+        initial_build_amount: formState.value.initial_build_amount || 0,
+        initial_amount: initialAmount.value || 0,
+        land_amount: landChangeAfterNum.value || 0,
+        build_amount: buildChangeAfterNum.value || 0,
+        amount: loanMoneyChangeNum.value || 0,
+        build_log: cloneDeep(selectedData.value) || [],
+        note: formState.value.note || ''
+      }
+      const credit = {};
+      for (let i = 0; i < colItemsRef.value.length; i++) {
+        credit[colItemsRef.value[i].credit_table] = formState.value[colItemsRef.value[i].credit_table]
+        delete params[colItemsRef.value[i].credit_table]
+      }
+
+      params.credit = credit;
+
+      submitLoading.value = true
+      projectVariationEdit(params).then(res => {
+        submitLoading.value = false
+        // 清除已经缓存的数据
+        const obj = JSON.parse(localStorage.getItem('variationId') || '{}');
+        delete obj[uuid.value];
+        localStorage.setItem('variationId', JSON.stringify(obj));
+
+        navigationTo(`/projects/variations-details/about?uuid=${uuid.value}&id=${res.id}`)
+      }).catch(() => {
+        submitLoading.value = false
+      })
+    })
+    .catch((error) => {
+      const { values } = error;
+      let top = 100
+      if (!values.initial_build_amount) {
+        top = 300
+      }
+      if (!values.buildChangeNum) {
+        top = 200
+      }
+
+      window.scrollTo({
+        top,
+        behavior: 'smooth'
+      });
+    });
+}
+
+const isEdit = ref(false);
+const canEdit = computed(() => {
+  if (isEdit.value) {
+    return variationData.value?.state === 0 && hasPermission('projects:variations:edit')
+  }
+  return true
+})
+
+const editDataFull = () => {
+  if (variationData.value.initial_sn) {
+    initDrawdownSel.value = true
+  }
+  const credit = variationData.value.credit
+  for (const key in credit) {
+    formState.value[key] = credit[key]
   }
 }
 
 onMounted(async () => {
   if (uuid.value) {
+    const { id } = route.query;
+    if (id) { // 编辑
+      document.title = t('编辑变更')
+      isEdit.value = true;
+    }
+    const obj = JSON.parse(localStorage.getItem('variationId') || '{}');
+    if (id || obj[uuid.value]) {
+      currentVariationId.value = id || obj[uuid.value];
+    }
+
     await getProjectDetail();
     await getCreditInfo();
     getTypeData();
     getsecurityInfo()
 
-    const obj = JSON.parse(localStorage.getItem('variationId') || '{}');
-    if (obj[uuid.value]) {
-      currentVariationId.value = obj[uuid.value];
-      getVariationDetail();
+    if (id || obj[uuid.value]) {
+      await getVariationDetail();
+      pageLoading.value = false;
+
+      if (formState.value.start_date) {
+        getInitDradownData()
+      }
+      endDateChange()
+
+      if (canEdit.value) {
+        editDataFull()
+      }
     }
   }
 });
@@ -1133,7 +1439,7 @@ onMounted(async () => {
 }
 
 .input-number-container {
-  height: 48px;
+  height: 50px;
   display: flex;
   align-items: center;
   position: relative;

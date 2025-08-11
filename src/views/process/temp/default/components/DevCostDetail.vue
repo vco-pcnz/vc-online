@@ -10,7 +10,7 @@
 
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="modeRef" class="myMode text-left sys-form-content">
-    <a-modal :width="edit ? (isVariation ? 1200 : 1000) : 900" :open="visible" :title="t('开发成本')" :getContainer="() => $refs.modeRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
+    <a-modal :width="edit ? (isVariation ? 1200 : 1000) : (isVariation ? 1000 : 900)" :open="visible" :title="t('开发成本')" :getContainer="() => $refs.modeRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content">
         <a-form-item-rest>
           <div v-for="(item, p_index) in data.data" :key="item.type" class="mb-5 card">
@@ -141,16 +141,18 @@
                   <template v-if="column.dataIndex === 'change_value'">
                     <template v-if="record?.name !== 'Land GST'">
                       <div v-if="!record?.list || record?.name === 'Construction'" class="flex items-center gap-2">
-                        <i class="iconfont" v-if="isPlus">&#xe712;</i>
-                        <i class="iconfont" v-else>&#xe711;</i>
+                        <i class="iconfont" v-if="isPlus" style="color: #31bd65">&#xe712;</i>
+                        <i class="iconfont" v-else style="color: #eb4b6d">&#xe711;</i>
                         <a-input-number
+                          v-if="edit"
                           v-model:value="record.change_value"
                           :max="record.max_amount"
                           :min="0"
                           :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                           :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                         />
-                        <a-tooltip v-if="!isPlus">
+                        <vco-number v-else :value="record.change_value" :precision="2" :color="isPlus ? '#31bd65' : '#eb4b6d'" size="fs_md" :bold="true" :end="true"></vco-number>
+                        <a-tooltip v-if="!isPlus && edit">
                           <template #title>
                             <p>{{ t('最大变更值') }}：${{ numberStrFormat(record.max_amount) }}</p>
                           </template>
@@ -160,16 +162,18 @@
                       <div v-else style="height: 28px;"></div>
                       <template v-if="record?.list && record?.name !== 'Construction'">
                         <div v-for="(sub, subIndex) in record?.list" :key="subIndex" class="flex items-center gap-2 mt-2">
-                          <i class="iconfont" v-if="isPlus">&#xe712;</i>
-                          <i class="iconfont" v-else>&#xe711;</i>
+                          <i class="iconfont" v-if="isPlus" style="color: #31bd65">&#xe712;</i>
+                        <i class="iconfont" v-else style="color: #eb4b6d">&#xe711;</i>
                           <a-input-number
+                            v-if="edit"
                             v-model:value="sub.change_value"
                             :max="sub.max_amount"
                             :min="0"
                             :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                             :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                           />
-                          <a-tooltip v-if="!isPlus">
+                          <vco-number v-else :value="sub.change_value" :precision="2" :color="isPlus ? '#31bd65' : '#eb4b6d'" size="fs_md" :bold="true" :end="true"></vco-number>
+                          <a-tooltip v-if="!isPlus && edit">
                             <template #title>
                               <p>{{ t('最大变更值') }}：${{ numberStrFormat(sub.max_amount) }}</p>
                             </template>
@@ -192,7 +196,7 @@
                 <div class="amount">
                   <vco-number :value="item.total" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
                 </div>
-                <div class="total" v-if="edit"></div>
+                <div class="total" v-if="edit || (!edit && isVariation)"></div>
                 <div class="total" v-if="isVariation"></div>
               </div>
             </template>
@@ -334,7 +338,7 @@ import { projectLoanGetBuild } from "@/api/process"
 import { PlusCircleOutlined, MinusCircleOutlined } from '@ant-design/icons-vue';
 
 const { t } = useI18n();
-const emits = defineEmits(['update:value', 'update:dataJson', 'update:isRefinancial', 'update:substitutionIds', 'change', 'reChange']);
+const emits = defineEmits(['update:value', 'update:dataJson', 'update:isRefinancial', 'update:substitutionIds', 'change', 'reChange', 'clearBuild']);
 
 const props = defineProps({
   value: {
@@ -507,7 +511,15 @@ const saveDone = () => {
   const doneData = cloneDeep(data.value);
   doneData.data[0].list.forEach((item) => {
     item.name = item.model ? item.type : typesObj.value[item.type] || '';
+
+    if (props.isVariation) {
+      item.change_type = props.isPlus ? 1 : 0
+    }
   });
+
+  if (changeVisible.value) {
+    emits('clearBuild');
+  }
 
   emits('update:value', cloneDeep(doneData.total));
   emits('update:dataJson', cloneDeep([doneData]));
@@ -706,8 +718,13 @@ const init = () => {
     initData();
   }
   if (!props.edit) {
-    ConstructionColumns.splice(4, 1);
-    FinanceColumns.splice(4, 1);
+    if (props.isVariation) {
+      ConstructionColumns.splice(5, 1);
+      FinanceColumns.splice(4, 1);
+    } else {
+      ConstructionColumns.splice(4, 1);
+      FinanceColumns.splice(4, 1);
+    }
   }
   visible.value = true;
 };

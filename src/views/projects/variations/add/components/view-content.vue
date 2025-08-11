@@ -52,7 +52,7 @@
         <template v-if="footerDataCol.length || buildAmount">
           <div v-if="tableHeader.length && !pageLoading" class="form-block-content mt-10">
             <div class="title">{{ t('进度付款阶段') }}</div>
-            <div class="mt-2 mb-2 flex justify-end gap-4">
+            <div v-if="!isView" class="mt-2 mb-2 flex justify-end gap-4">
               <a-button v-if="selectDataHasNum" type="cyan" class="bold uppercase" @click="selectCancelAll">{{ t('取消所有设置') }}</a-button>
               <a-button type="primary" class="bold uppercase" @click="batchSelectHandle">{{ batchSelect ? t('取消批量模式') : t('批量选择') }}</a-button>
               <a-button v-if="batchSelectData.length" type="grey" class="bold uppercase" @click="batchSelectCancel">{{ t('取消已选择')}}</a-button>
@@ -256,7 +256,7 @@
                 <p style="font-size: 12px; color: #888;">{{ t('已选总额') }}</p>
               </div>
               
-              <a-button type="dark" class="big shadow bold uppercase"
+              <a-button v-if="!isView" type="dark" class="big shadow bold uppercase"
                 @click="selectConfirm"
               >{{ t('确定') }}</a-button>
             </div>
@@ -297,6 +297,10 @@
     variationId: {
       type: [String, Number],
       default: ''
+    },
+    isView: {
+      type: Boolean,
+      default: false
     }
   })
 
@@ -764,6 +768,9 @@
 
   const currentSingleItem = ref()
   const itemSetHandle = (data) => {
+    if (props.isView) {
+      return false
+    }
     if (batchSelect.value) {
       data.selected = !data.selected
       const id = data.id

@@ -212,10 +212,11 @@
             <p>{{ t('物品信息') }}</p>
             <a-button type="primary" size="small" shape="round" @click="addHandle">{{ t('添加') }}</a-button>
           </div>
-          <a-table :columns="formColumns" :data-source="formDataSource" bordered :pagination="false" table-layout="fixed" :scroll="{ x: '100%', y: 600 }">
+          <a-table :columns="formColumns" :data-source="formDataSource" bordered :pagination="false" table-layout="fixed" :scroll="{ x: '100%', y: 600 }" :row-class-name="getRowClassName">
             <template #bodyCell="{ column, record, index }">
               <template v-if="column.dataIndex === 'card_no'">
                 <a-input v-model:value="record.card_no" />
+                <div v-if="!record.not_variation" class="text-center mt-2">{{ t('变更1') }}</div>
               </template>
               <template v-if="column.dataIndex === 'typology'">
                 <div class="stuff-item-content">
@@ -353,9 +354,13 @@
                 <vco-number :value="record.dup" :precision="2" :end="true" size="fs_md" class="text-center" style="font-weight: 500"></vco-number>
               </template>
               <template v-if="column.dataIndex === 'opt'">
-                <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="itemDelete(index)">
+                <a-popconfirm v-if="(isVariation && !record.not_variation) || !isVariation" :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="itemDelete(index)">
                   <a-button type="link">{{ t('删除') }} </a-button>
                 </a-popconfirm>
+                <template v-if="isVariation && record.not_variation">
+                  <a-button v-if="record.is_delete" type="link" @click="itemBan(index, false)">{{ t('取消禁用') }} </a-button>
+                  <a-button v-else type="link" @click="itemBan(index, true)">{{ t('禁用') }} </a-button>
+                </template>
               </template>
             </template>
             <template #summary>
@@ -394,7 +399,7 @@
                     </template>
                     <template v-else-if="item.key === 'opt'">
                       <p>{{ t('总条数') }}</p>
-                      <p>{{ formDataSource.length }}</p>
+                      <p>{{ props.isVariation ? formDataSource.filter(item => !item.is_delete).length : formDataSource.length }}</p>
                     </template>
                   </a-table-summary-cell>
                 </a-table-summary-row>
@@ -419,6 +424,7 @@ import { useI18n } from 'vue-i18n';
 import { useRouter, useRoute } from 'vue-router';
 import { projectAuditSecurityList, projectDetailApi, projectAuditSaveMode, projectDischargeAddEditSecurity, projectDetailAuditSecurityList } from '@/api/process';
 import { projectVariationEdit } from '@/api/project/loan';
+import { projectVariationSecurityList } from '@/api/project/variation';
 import { systemDictData } from '@/api/system';
 import tool, { selectDateFormat, numberStrFormat, navigationTo } from '@/utils/tool';
 import { cloneDeep } from 'lodash';
@@ -515,7 +521,10 @@ const setAddressInfo = (e) => {
 
 // 户型统计
 const totalTypology = computed(() => {
-  const data = cloneDeep(formDataSource.value);
+  let data = cloneDeep(formDataSource.value);
+  if (props.isVariation) {
+    data = data.filter(item => !item.is_delete)
+  }
   const typologyArr = data.map((item) => item.typology);
 
   const calc = typologyArr.reduce((acc, item) => {
@@ -544,7 +553,10 @@ const totalTypology = computed(() => {
 
 // 总面积
 const totalSqm = computed(() => {
-  const data = cloneDeep(formDataSource.value);
+  let data = cloneDeep(formDataSource.value);
+  if (props.isVariation) {
+    data = data.filter(item => !item.is_delete)
+  }
   const sqmArr = data.map((item) => item.sqm);
   const sum = sqmArr.reduce((acc, cur) => Number(acc) + Number(cur), 0);
   return `${numberStrFormat(sum)} m²`;
@@ -552,7 +564,10 @@ const totalSqm = computed(() => {
 
 // 总预测销售价
 const totalEstSprice = computed(() => {
-  const data = cloneDeep(formDataSource.value);
+  let data = cloneDeep(formDataSource.value);
+  if (props.isVariation) {
+    data = data.filter(item => !item.is_delete)
+  }
   const sqmArr = data.map((item) => item.est_sales_price);
   const sum = sqmArr.reduce((acc, cur) => Number(acc) + Number(cur), 0);
   return `$${numberStrFormat(sum)}`;
@@ -560,7 +575,10 @@ const totalEstSprice = computed(() => {
 
 // 总担保价值
 const totalSecurityValue = computed(() => {
-  const data = cloneDeep(formDataSource.value);
+  let data = cloneDeep(formDataSource.value);
+  if (props.isVariation) {
+    data = data.filter(item => !item.is_delete)
+  }
   const sqmArr = data.map((item) => item.amount);
   const sum = sqmArr.reduce((acc, cur) => Number(acc) + Number(cur), 0);
   return `$${numberStrFormat(sum)}`;
@@ -568,7 +586,10 @@ const totalSecurityValue = computed(() => {
 
 // 总保险价值
 const totalInsuranceValue = computed(() => {
-  const data = cloneDeep(formDataSource.value);
+  let data = cloneDeep(formDataSource.value);
+  if (props.isVariation) {
+    data = data.filter(item => !item.is_delete)
+  }
   const sqmArr = data.map((item) => item.insurance_value);
   const sum = sqmArr.reduce((acc, cur) => Number(acc) + Number(cur), 0);
   return `$${numberStrFormat(sum)}`;
@@ -576,7 +597,10 @@ const totalInsuranceValue = computed(() => {
 
 // 总销售价格
 const totalSalesPrice = computed(() => {
-  const data = cloneDeep(formDataSource.value);
+  let data = cloneDeep(formDataSource.value);
+  if (props.isVariation) {
+    data = data.filter(item => !item.is_delete)
+  }
   const sqmArr = data.map((item) => item.sales_price);
   const sum = sqmArr.reduce((acc, cur) => Number(acc) + Number(cur), 0);
   return `$${numberStrFormat(sum)}`;
@@ -584,7 +608,10 @@ const totalSalesPrice = computed(() => {
 
 // 总回款金额
 const totalAmountReceived = computed(() => {
-  const data = cloneDeep(formDataSource.value);
+  let data = cloneDeep(formDataSource.value);
+  if (props.isVariation) {
+    data = data.filter(item => !item.is_delete)
+  }
   const sqmArr = data.map((item) => item.repayment_price);
   const sum = sqmArr.reduce((acc, cur) => Number(acc) + Number(cur), 0);
   return `$${numberStrFormat(sum)}`;
@@ -592,7 +619,10 @@ const totalAmountReceived = computed(() => {
 
 // 总净收益
 const totalNetIncome = computed(() => {
-  const data = cloneDeep(formDataSource.value);
+  let data = cloneDeep(formDataSource.value);
+  if (props.isVariation) {
+    data = data.filter(item => !item.is_delete)
+  }
   const sqmArr = data.map((item) => item.net_proceeds_price);
   const sum = sqmArr.reduce((acc, cur) => Number(acc) + Number(cur), 0);
   return `$${numberStrFormat(sum)}`;
@@ -600,7 +630,10 @@ const totalNetIncome = computed(() => {
 
 // 总每单位债务
 const totalDup = computed(() => {
-  const data = cloneDeep(formDataSource.value);
+  let data = cloneDeep(formDataSource.value);
+  if (props.isVariation) {
+    data = data.filter(item => !item.is_delete)
+  }
   const sqmArr = data.map((item) => item.dup);
   const sum = sqmArr.reduce((acc, cur) => Number(acc) + Number(cur), 0);
   return `$${numberStrFormat(sum)}`;
@@ -863,25 +896,23 @@ const tableDataInit = async () => {
       // 请求批量数据
       let list = []
       if (props.isVariation) {
-        await projectDetailAuditSecurityList({
-          uuid: route.query.uuid,
+        await projectVariationSecurityList({
+          uuid: route.query.uuid
         }).then(res => {
-          const resList = res.list || []
-          let canList = resList.filter(item => Boolean(item.can_del))
+          const resList = res || []
+          let canList = resList.filter(item => Boolean(item.can_del) && !Boolean(item.status))
+          canList.forEach(item => {
+            item.not_variation = true
+            item.is_delete = false
+          })
           let variationList = []
           if (props.variationId && props.securityData.length) {
             const uuidArr = props.securityData.map(item => item.security_uuid)
             canList = canList.filter(item => !uuidArr.includes(item.uuid))
             variationList = props.securityData
-
-            variationList.forEach(item => {
-              item.is_variation = true
-            })
           }
           list = [...cloneDeep(canList), ...cloneDeep(variationList)]
         })
-
-        
       } else {
         await projectAuditSecurityList({
           uuid: route.query.uuid,
@@ -897,7 +928,7 @@ const tableDataInit = async () => {
       oldData.value = listData;
 
       const formOldData = listData.map((item, index) => {
-        const sItem = cloneDeep(batchitem);
+        let sItem = cloneDeep(batchitem);
         for (const key in sItem) {
           if (item[key]) {
             sItem[key] = item[key];
@@ -909,6 +940,17 @@ const tableDataInit = async () => {
         sItem.name = item.card_no || t(`第{0}行`, [index + 1]);
         sItem.security_uuid = item.uuid || item.security_uuid;
         sItem.typology.other = sItem.typology.other || [];
+        if (props.isVariation) {
+          sItem.not_variation = item.not_variation || false;
+          sItem.is_delete = item.is_delete || false;
+          sItem.status = item.status || 0;
+
+          sItem = {
+            ...item,
+            ...sItem
+          }
+        }
+        
         return sItem;
       });
       data = formOldData;
@@ -957,6 +999,14 @@ const addHandle = () => {
 const itemDelete = (index) => {
   formDataSource.value.splice(index, 1);
 };
+
+const itemBan = (index, flag) => {
+  formDataSource.value[index].is_delete = flag;
+}
+
+const getRowClassName = (record, index) => {
+  return record.is_delete ? 'deleted-row' : '';
+}
 
 const batchAll = computed(() => {
   const cAll = formDataSource.value.every((item) => item.checked);
@@ -1065,7 +1115,7 @@ const securitySameCheck = (arr1 = [], arr2 = []) => {
   for (let i = 0; i < beforeData.length; i++) {
     const beforeId = beforeData[i]?.security_uuid || null
     const afterId = afterData[i]?.security_uuid || null
-    if (beforeId !== afterId) {
+    if (beforeId !== afterId || beforeData[i].is_delete !== afterData[i].is_delete) {
       return true
     }
   }
@@ -1133,6 +1183,12 @@ const submitRquest = () => {
 
 
   if (props.isVariation) {
+    formData.forEach(item => {
+      item.status = item.status || 0
+      item.is_delete = item.is_delete || false
+      item.not_variation = item.not_variation || false
+      item.old_amount = item.old_amount || 0
+    })
     const params = {
       security: formData,
       uuid: route.query.uuid
@@ -1340,6 +1396,12 @@ defineExpose({
       padding-left: 10px;
       padding-right: 10px;
     }
+    .deleted-row {
+      background-color: #dddddd !important;
+      td {
+        background-color: #dddddd !important;
+      }
+    }
     .ant-table-cell-fix-right-first::after,
     * {
       border-color: #272727 !important;
@@ -1358,9 +1420,6 @@ defineExpose({
       .ant-table-header {
         border-radius: 0 !important;
       }
-    }
-    .ant-table-fixed-header .ant-table-container {
-      // border-bottom: 1px solid #272727;
     }
     .ant-table-summary {
       background-color: #f7f9f8 !important;

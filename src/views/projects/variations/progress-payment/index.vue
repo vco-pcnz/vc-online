@@ -219,7 +219,7 @@
     projectLoanGetBuild,
     projectDetailApi
   } from "@/api/process"
-  import { projectVariationInfo } from '@/api/project/variation';
+  import { projectVariationInfo, projectVariationSecurityList } from '@/api/project/variation';
   import { dischargeSecurity, projectVariationEdit } from '@/api/project/loan';
   import { systemDictDataApi } from "@/api/system/index"
   import { cloneDeep } from "lodash"
@@ -395,7 +395,8 @@
         obj.payment = Number(payment)
         obj.total = sum
       } else {
-        obj.payment = Number(data[i].note)
+        // obj.payment = Number(data[i].note)
+        obj.payment = 0
         obj.total = 0
       }
 
@@ -528,25 +529,21 @@
   const securityDataObj = ref()
   const securitySqmObj = ref()
   const getSecurityData = async () => {
-    const params = {
-      uuid: uuid.value,
-      type: 2,
-      is_calc: 1,
-      page: 1,
-      limit: 10000
-    }
-
     try {
-      const { data } = await dischargeSecurity(params)
+      const data = await projectVariationSecurityList({ uuid: uuid.value })
       const resData = data || []
 
       const security = variationInfo.value.security || []
-      security.forEach(item => {
+      const delUuid = security.filter(item => item.is_delete).map(item => item.security_uuid)
+
+      const canData = resData.filter(item => !delUuid.includes(item.uuid))
+      const varData = security.filter(item => !Boolean(item.not_variation))
+      varData.forEach(item => {
         item.uuid = item.security_uuid
         item.is_variation = true
       })
 
-      const dataArr = [...resData, ...security]
+      const dataArr = [...cloneDeep(canData), ...cloneDeep(varData)]
 
       const dataObj = {}
       for (let i = 0; i < dataArr.length; i++) {
@@ -645,7 +642,11 @@
 
   // 请求已设置数据
   const advanceKey = ref('Initial advance to fund deposit')
-  const advanceObj = ref()
+  const advanceObj = ref({
+    use_amount: 0,
+    showError: false,
+    amount: 0
+  })
   const advancePercent = ref(0)
   const advanceAmount = ref(0)
 
@@ -804,6 +805,9 @@
         // 创建Borrower Equity部分的数据
         newData.push(newItem)
       })
+      newData.forEach(item => {
+        item.note = Number(tool.div(item.note, 100))
+      })
       columnsTypeData.value = newData
 
       const obj = {}
@@ -906,7 +910,7 @@
     const summaryData = [{
       id: summaryResData[`${advanceKey.value}`] ? summaryResData[`${advanceKey.value}`].id : 0,
       amount: advanceAmount.value,
-      use_amount: advanceObj.value.use_amount,
+      use_amount: advanceObj.value.use_amount || 0,
       type_name: advanceKey.value,
       security_uuid: '',
       type: 0,
@@ -923,7 +927,7 @@
           summaryData.push({
             id: summaryResData[`${item.name} [${listItem.type}]`] ? summaryResData[`${item.name} [${listItem.type}]`].id : 0,
             amount: listItem.loan,
-            use_amount: listItem.use_amount,
+            use_amount: listItem.use_amount || 0,
             type_name: `${item.name} [${listItem.type}]`,
             security_uuid: '',
             type: 0,
@@ -934,7 +938,7 @@
         summaryData.push({
           id: summaryResData[`${item.name}`] ? summaryResData[`${item.name}`].id : 0,
           amount: item.loan,
-          use_amount: item.use_amount,
+          use_amount: item.use_amount || 0,
           type_name: item.name,
           security_uuid: '',
           type: 0,

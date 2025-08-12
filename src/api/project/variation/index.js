@@ -127,3 +127,13 @@ export const variationUpdFile = (data) =>
     method: 'post',
     data
   });
+
+// 变更流程 - 抵押物
+export const projectVariationSecurityList = (params) =>
+  request({
+    url: 'project/variation/securityList',
+    method: 'get',
+    params
+  });
+
+  

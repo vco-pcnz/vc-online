@@ -149,6 +149,8 @@
               <ads-content></ads-content>
 
               <template v-if="showMoreInfo">
+                <return-log v-if="returnLogData.length" :list-data="returnLogData"></return-log>
+
                 <operation-log
                   :is-details="true"
                   :current-id="currentId"
@@ -194,6 +196,7 @@
   import { navigationTo } from "@/utils/tool";
   import { applyCancelProject, recallProject } from "@/api/process";
 
+  import ReturnLog from "@/views/process/components/ReturnLog.vue";
   import OperationLog from "@/views/process/components/OperationLog.vue";
   import ForecastList from "@/views/process/components/ForecastList.vue";
   import SecurityList from "@/views/process/components/SecurityList.vue";
@@ -227,6 +230,8 @@
   const warrantyData = ref()
   const offerData = ref()
   const confirmData = ref()
+
+  const returnLogData = ref([])
 
   const createdUser = ref({
     avatar: "",
@@ -276,6 +281,8 @@
   };
   
   const getProjectDetail = async (res) => {
+    returnLogData.value = res.base?.cancel_log || []
+    
     currentProduct.value = res.product.code
 
     currentDataInfo.value = res

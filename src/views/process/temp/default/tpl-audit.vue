@@ -123,6 +123,8 @@
         <div v-if="dataInfo && PageBlockObjRef" class="right-content">
           <bind-users :current-id="currentId"></bind-users>
 
+          <return-log v-if="returnLogData.length" :list-data="returnLogData"></return-log>
+
           <operation-log :current-id="currentId"></operation-log>
 
           <security-list
@@ -166,6 +168,7 @@
   import TempFooter from "./components/TempFooter.vue";
   import BindUsers from "./../../components/BindUsers.vue";
   import OperationLog from "./../../components/OperationLog.vue";
+  import ReturnLog from "./../../components/ReturnLog.vue";
   import ForecastList from "./../../components/ForecastList.vue";
   import SecurityList from "./../../components/SecurityList.vue";
   import ConditionsList from "./../../components/ConditionsList.vue";
@@ -576,6 +579,8 @@
     emits('dataDone', data)
   }
 
+  const returnLogData = ref([])
+
   const pageLoading = ref(false)
   const getDataInit = async () => {
     pageLoading.value = true
@@ -585,6 +590,8 @@
       await projectAuditStepDetail({
         uuid: props.currentId
       }).then(res => {
+        console.log('res', res);
+        returnLogData.value = res.base?.cancel_log || []
         infoData = res
       }).catch(() => {
         pageLoading.value = false

@@ -16,7 +16,7 @@
                   <i v-if="item.type === 'delete'" class="iconfont">&#xe8c1;</i>
                 </div>
                 <div class="info">
-                  <p>{{ item.create_time }}</p>
+                  <p>{{ tool.showTime(item.create_time) }}</p>
                   <div>{{ item.create_user_name }} {{ item.message }}</div>
                 </div>
               </div>
@@ -35,6 +35,7 @@
   import { useI18n } from "vue-i18n";
   import { auditHistoryList, projectDetailHistoryList } from "@/api/process";
   import emitter from "@/event"
+  import tool from "@/utils/tool"
 
   const props = defineProps({
     currentId: {

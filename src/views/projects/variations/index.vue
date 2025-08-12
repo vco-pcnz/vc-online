@@ -220,7 +220,7 @@ const projectEndDate = computed(() => {
 
 const getTotal = (data) => {
   const amount = Number(data.amount)
-  const num = Number(projectDetail.value?.base?.loan_money) || 0
+  const num = data.state === 1000 ? Number(data.old_credit.project.loan_money) : Number(projectDetail.value?.base?.loan_money) || 0
   let res = 0
   if (data.plus) {
     res = tool.plus(num, amount)

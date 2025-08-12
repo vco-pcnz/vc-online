@@ -1169,15 +1169,18 @@ const calcSameTermBroker = (flag = false) => {
 }
 
 const calcExtendTermEstab = (flag = false) => {
-  const credit_estabFeeRate = Number(formState.value.credit_estabFeeRate || 0)
-  const credit_estabFee = Number(formState.value.credit_estabFee || 0)
+  const credit_estabFeeRate = Number(formState.value.credit_estabFeeRate || 0) > 0 ? Number(formState.value.credit_estabFeeRate || 0) : 0
+  const credit_estabFee = Number(formState.value.credit_estabFee || 0) > 0 ? Number(formState.value.credit_estabFee || 0) : 0
   let num = Number(borkerFeeCalcAmountRef.value || 0)
 
   if (formState.value.type !== 4) {
     const legalFee = Number(formState.value.credit_legalFee || 0) > 0 ? Number(formState.value.credit_legalFee || 0) : 0
     const otherFee = Number(formState.value.credit_otherFee || 0) > 0 ? Number(formState.value.credit_otherFee || 0) : 0
+    const brokerFee = Number(formState.value.credit_brokerFee || 0) > 0 ? Number(formState.value.credit_brokerFee || 0) : 0
+
     const loFee = Number(tool.plus(legalFee, otherFee))
-    const fNum = Number(tool.plus(num, loFee))
+    const brFee = Number(tool.plus(loFee, brokerFee))
+    const fNum = Number(tool.plus(num, brFee))
     const cNum = Number(loanMoneyChangeNum.value || 0)
     const toolFn = [1].includes(formState.value.type) ? tool.plus : tool.minus
     num = Number(toolFn(fNum, cNum))
@@ -1215,7 +1218,8 @@ watch(
 const handInput = (key) => {
   // 中介费
   if (['credit_brokerFeeRate', 'credit_brokerFee'].includes(key)) {
-    const credit_brokerFeeRate = formState.value.credit_brokerFeeRate || 0
+    const credit_brokerFeeRate = Number(formState.value.credit_brokerFeeRate || 0) > 0 ? Number(formState.value.credit_brokerFeeRate || 0) : 0
+    const credit_brokerFee = Number(formState.value.credit_brokerFee || 0) > 0 ? Number(formState.value.credit_brokerFee || 0) : 0
     const varNum = Number(loanMoneyChangeNum.value || 0)
     const resNum = Number(borkerFeeCalcAmountRef.value || 0)
     const toolFn = [1].includes(formState.value.type) ? tool.plus : tool.minus
@@ -1243,6 +1247,7 @@ const handInput = (key) => {
         }
       }
     }
+    calcExtendTermEstab(true)
   }
 
   // 建立费

@@ -649,7 +649,7 @@
   const advancePercent = ref(0)
   const advanceAmount = ref(0)
 
-  const getSetedData = async () => {
+  const getSetedData = async (footerData = []) => {
     advanceAmount.value = 0
     
     const params = {
@@ -671,6 +671,7 @@
       }
 
       // footer 数据
+      const summary = buildData.summary || {}
       if (Object.keys(buildData.summary).length) {
         if (buildData.summary[`${advanceKey.value}`]) {
           advanceAmount.value = buildData.summary[`${advanceKey.value}`].amount
@@ -679,6 +680,33 @@
           advanceObj.value.showError = false
         }
       }
+
+      footerData.forEach((item) => {
+        if (item.list && item.list.length) {
+          const newObj = {}
+          for (const key in summary) {
+            if (key.indexOf(item.name) > -1) {
+              newObj[key] = summary[key]
+            }
+          }
+
+          item.list.forEach((sub) => {
+            for (const key in newObj) {
+              if (key === `${item.name} [${sub.type}]`) {
+                sub.use_amount = Number(newObj[key].use_amount || 0)
+              }
+            }
+          })
+        } else {
+          for (const key in summary) {
+            if (key === item.name) {
+              item.use_amount = Number(summary[key].use_amount || 0)
+            }
+          }
+        }
+      })
+      
+      footerDataCol.value = footerData
 
       columnsType()
 
@@ -853,7 +881,7 @@
           paymentData.push({
             id: paymentResData[`${item.typeId}$${item.category}__payment`] ? paymentResData[`${item.typeId}$${item.category}__payment`].id : 0,
             amount: Number(item[key]),
-            use_amount: 0,
+            use_amount: item[key].use_amount || 0,
             security_uuid: '',
             type: item.typeId,
             category: item.category,
@@ -878,7 +906,7 @@
     const summaryData = [{
       id: summaryResData[`${advanceKey.value}`] ? summaryResData[`${advanceKey.value}`].id : 0,
       amount: advanceAmount.value,
-      use_amount: 0,
+      use_amount: advanceObj.value.use_amount,
       type_name: advanceKey.value,
       security_uuid: '',
       type: 0,
@@ -895,7 +923,7 @@
           summaryData.push({
             id: summaryResData[`${item.name} [${listItem.type}]`] ? summaryResData[`${item.name} [${listItem.type}]`].id : 0,
             amount: listItem.loan,
-            use_amount: 0,
+            use_amount: listItem.use_amount,
             type_name: `${item.name} [${listItem.type}]`,
             security_uuid: '',
             type: 0,
@@ -906,7 +934,7 @@
         summaryData.push({
           id: summaryResData[`${item.name}`] ? summaryResData[`${item.name}`].id : 0,
           amount: item.loan,
-          use_amount: 0,
+          use_amount: item.use_amount,
           type_name: item.name,
           security_uuid: '',
           type: 0,
@@ -1041,14 +1069,12 @@
         footerData.splice(footerData.lastIndexOf(conItem), 1)
       }
 
-      footerDataCol.value = footerData || []
-
       const Construction = list.find(item => item.type === 'Construction')
       buildAmount.value = Construction ? (Number(Construction.loan) || 0) : 0
 
       borrowerEquity.value = Construction ? (Number(Construction.borrower_equity) || 0) : 0
 
-      await getSetedData()
+      await getSetedData(footerData || [])
     })
   }
 

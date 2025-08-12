@@ -10,7 +10,7 @@
     </vco-page-panel>
 
     <a-spin :spinning="pageLoading" size="large">
-      <div class="form-block-content" :class="{'mb-5': isVariation}">
+      <div v-if="!isVariation" class="form-block-content">
         <a-table
           :columns="formColumns"
           :data-source="formDataSource"
@@ -84,9 +84,7 @@
         </a-table>
       </div>
 
-
-      <div v-if="securityData.length" class="mb-2">{{ t('变更抵押物') }}</div>
-      <div v-if="securityData.length" class="form-block-content">
+      <div v-if="securityData.length && isVariation" class="form-block-content">
         <a-table
           :columns="formColumns"
           :data-source="securityData"

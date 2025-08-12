@@ -1,7 +1,5 @@
 <template>
   <div>
-    <security-list-view v-if="isVariation" type="open" :is-variation="true"></security-list-view>
-
     <!-- 确认弹窗 -->
     <vco-confirm-alert ref="changeAlertRef" :confirm-txt="confirmTxt" v-model:visible="changeVisible" @submit="confirmHandle"></vco-confirm-alert>
 
@@ -419,14 +417,13 @@
 import { onMounted, ref, nextTick, reactive, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter, useRoute } from 'vue-router';
-import { projectAuditSecurityList, projectDetailApi, projectAuditSaveMode, projectDischargeAddEditSecurity } from '@/api/process';
+import { projectAuditSecurityList, projectDetailApi, projectAuditSaveMode, projectDischargeAddEditSecurity, projectDetailAuditSecurityList } from '@/api/process';
 import { projectVariationEdit } from '@/api/project/loan';
 import { systemDictData } from '@/api/system';
 import tool, { selectDateFormat, numberStrFormat, navigationTo } from '@/utils/tool';
 import { cloneDeep } from 'lodash';
 import { QuestionCircleOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue/es';
-import SecurityListView from "@/components/security-list-view/index.vue"
 
 const props = defineProps({
   isOpen: {
@@ -866,10 +863,25 @@ const tableDataInit = async () => {
       // 请求批量数据
       let list = []
       if (props.isVariation) {
-        // 变更不需要请求数据
-        if (props.variationId && props.securityData.length) {
-          list = props.securityData || []
-        }
+        await projectDetailAuditSecurityList({
+          uuid: route.query.uuid,
+        }).then(res => {
+          const resList = res.list || []
+          let canList = resList.filter(item => Boolean(item.can_del))
+          let variationList = []
+          if (props.variationId && props.securityData.length) {
+            const uuidArr = props.securityData.map(item => item.security_uuid)
+            canList = canList.filter(item => !uuidArr.includes(item.uuid))
+            variationList = props.securityData
+
+            variationList.forEach(item => {
+              item.is_variation = true
+            })
+          }
+          list = [...cloneDeep(canList), ...cloneDeep(variationList)]
+        })
+
+        
       } else {
         await projectAuditSecurityList({
           uuid: route.query.uuid,

@@ -8,8 +8,8 @@
     getContainer="body"
     @cancel="updateVisible(false)"
   >
-    <div class="mt-10">{{ t('当前项目是否已完成了所有对账操作？') }}</div>
-    <div class="flex justify-end gap-5 mt-10 mb-1">
+    <div class="mt-10 text-center">{{ t('当前项目是否已完成了所有对账操作？') }}</div>
+    <div class="flex justify-center gap-5 mt-10 mb-1">
       <a-button type="grey" class="big shadow bold uppercase" @click="updateVisible(false)">{{ t('取消') }}</a-button>
       <a-button
         type="dark"

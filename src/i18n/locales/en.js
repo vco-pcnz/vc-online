@@ -1088,5 +1088,6 @@ export default {
   "已设置": "Set",
   "未设置": "Not set",
   "已设置有首次建筑贷款放款额，保存后将清空已有设置，是否继续？": "There is already a initial build amount set. After saving, the existing settings will be cleared. Do you want to continue?",
-  "已设置过进度放款数据，提交后将清空设置，是否继续？": "The progress payment data has been set. After submission, the settings will be cleared. Do you want to continue?"
+  "已设置过进度放款数据，提交后将清空设置，是否继续？": "The progress payment data has been set. After submission, the settings will be cleared. Do you want to continue?",
+  "退回记录": "Return log"
 }

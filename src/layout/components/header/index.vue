@@ -34,13 +34,19 @@
           <router-link to="/profile/about">
             <vco-avatar :src="userInfo?.avatar || ''" :size="26" />
           </router-link>
-          <div @click="navigationTo('/profile/about')" class="link" :class="{ link_active: isUserActive() }">
+          <div class="link" :class="{ link_active: isUserActive() }">
             <div class="user_info">
               <a-space>
-                <span class="user_name">{{ userInfo?.user_name || 'UserName' }}</span>
+                <span class="user_name" @click="navigationTo('/profile/about')">{{ userInfo?.user_name || 'UserName' }}</span>
                 <a-badge @click.stop="navigationTo('/profile/notice')" class="badge" size="small" :count="noticeStore.noticeCount" v-if="!!noticeStore.noticeCount" />
               </a-space>
-              <p>{{ userInfo?.roles || 'Vip' }}</p>
+              <div v-if="userInfo?.roles">
+                <template v-for="item in userInfo?.roles.split('/')" :key="item">
+                  <a-tag color="orange" v-if="item == 'Investor' && userInfo?.roles.split('/').length != 1" @click="toInvestor">{{ item }}</a-tag>
+                  <span v-else>{{ item }}</span>
+                </template>
+              </div>
+              <p v-else>Vip</p>
             </div>
           </div>
         </div>
@@ -160,6 +166,11 @@ const LoadApplyBrokerDetail = () => {
     applyBrokerData.value = res;
   });
 };
+
+const toInvestor = () => {
+  navigationTo('/investor/list', true);
+};
+
 // 组件挂载时启动定时器
 onMounted(() => {
   systemConfigData({ pcode: 'web_config', code: 'notes_interval_time' }).then((res) => {
@@ -234,7 +245,8 @@ onUnmounted(() => {
           font-size: 16px;
           color: #181818;
         }
-        > p {
+        > p,
+        span {
           color: #888;
           font-size: 13px;
         }
@@ -262,12 +274,12 @@ onUnmounted(() => {
     &:hover :deep(.ant-badge .ant-badge-count) {
       background: #ff7875;
     }
-    &:hover,
-    &:focus {
-      &:not(.link_active) {
-        background-color: rgba(@color_black, 0.1);
-      }
-    }
+    // &:hover,
+    // &:focus {
+    //   &:not(.link_active) {
+    //     background-color: rgba(@color_black, 0.1);
+    //   }
+    // }
 
     &_active {
       border-bottom: 3px solid @clr_yellow;

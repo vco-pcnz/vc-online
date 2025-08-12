@@ -8,8 +8,9 @@ export const getUserInfo = () =>
   });
 
 // 获取用户菜单
-export const getMenuList = () =>
+export const getMenuList = (params) =>
   request({
     url: "index/getMenuList",
     method: "get",
+    params
   });

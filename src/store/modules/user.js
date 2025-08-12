@@ -5,6 +5,7 @@ import { getToken, setToken, removeToken } from '@/utils/token-util.js';
 import { login, logout, getSelectUsers } from '@/api/auth';
 import { projectBacklogCount } from '@/api/tasks';
 import router from '@/router';
+import tool from '@/utils/tool';
 
 function extractPaths(routes) {
   const result = [];
@@ -34,6 +35,8 @@ const useUserStore = defineStore('VcOnlineUserInfo', {
     authorities: [],
     // 是否为普通用户
     isNormalUser: true,
+    // 页面角色权限 - 投资人
+    pageRole: '',
     taskInfoParams: {
       status: '0',
       type: undefined
@@ -119,12 +122,27 @@ const useUserStore = defineStore('VcOnlineUserInfo', {
     },
 
     async requestRouterInfo() {
-      const result = await getMenuList().catch(() => {});
+      let params = {};
+      if (window.location.pathname.includes('investor')) {
+        params = { __way__: 'investor' };
+        this.pageRole = 'Investor';
+      }
+      const result = await getMenuList(params).catch(() => {});
       if (!result) {
         console.error('get menus error: ', result);
         return {};
       }
-
+      if (window.location.pathname.includes('investor') || this.userInfo.roles === 'Investor') {
+        this.pageRole = 'Investor';
+        result.map((item) => {
+          if (item.path === '/projects') {
+            item.hide = 1;
+          }
+          if (item.path === '/investor') {
+            item.hide = 0;
+          }
+        });
+      }
       // 用户菜单, 过滤掉按钮、权限目录、接口类型并转为 children 形式
       const { menus, homePath } = formatMenus(
         toTreeData({

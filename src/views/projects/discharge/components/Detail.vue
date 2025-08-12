@@ -67,7 +67,7 @@
       <div class="flex gap-4">
         <!-- <a-button type="brown" shape="round" size="small" @click="navigationTo('/projects/documents?uuid=' + uuid + '&annex_id=' + detail?.annex_id)">{{ t('查看文件') }}</a-button> -->
         <a-button v-if="detail.is_sales" type="brown" shape="round" size="small" @click="infoVisible = true">{{ t('预售数据') }}</a-button>
-        <a-button v-if="hasPermission('projects:discharge:preSale') && !detail.is_sales" type="primary" shape="round" size="small" @click="editVisible = true">{{ t('添加预售数据') }}</a-button>
+        <a-button v-if="hasPermission('projects:discharge:preSale') && !detail.is_sales && pageRole != 'Investor'" type="primary" shape="round" size="small" @click="editVisible = true">{{ t('添加预售数据') }}</a-button>
       </div>
       
       <a-row :gutter="24">
@@ -158,7 +158,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref,computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { navigationTo } from '@/utils/tool';
@@ -169,7 +169,9 @@ import PreSaleInfo from './PreSaleInfo.vue';
 import { dischargeSaveStep, dischargeSaveDStep, dischargeRecall } from '@/api/project/loan';
 import { projectDetailDeleteSecurity } from '@/api/process';
 import EditDialog from './../pre-sale/components/EditDialog.vue';
+import { useUserStore } from '@/store';
 
+const pageRole = computed(() => useUserStore().pageRole);
 const { t } = useI18n();
 const emits = defineEmits(['update', 'itemEdit']);
 

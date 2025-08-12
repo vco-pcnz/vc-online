@@ -196,8 +196,12 @@
                 <div class="amount">
                   <vco-number :value="item.total" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
                 </div>
-                <div class="total" v-if="edit || (!edit && isVariation)"></div>
-                <div class="total" v-if="isVariation"></div>
+                <div class="total" v-if="edit && !isVariation"></div>
+                <div v-if="isVariation" class="change-value-container" :class="{'edit': edit, 'reduce': !isPlus}">
+                  <i class="iconfont" v-if="isPlus" style="color: #31bd65">&#xe712;</i>
+                  <i class="iconfont" v-else style="color: #eb4b6d">&#xe711;</i>
+                  <vco-number :value="changeTotal" :precision="2" size="fs_md" :color="isPlus ? '#31bd65' : '#eb4b6d'" :bold="true" :end="true"></vco-number>
+                </div>
               </div>
             </template>
             <!-- 财务成本 -->
@@ -657,7 +661,7 @@ const initData = () => {
 
           item.list.forEach((sub) => {
             for (const key in newObj) {
-              if (key.indexOf(sub.type) > -1) {
+              if (key === `${item.name} [${sub.type}]`) {
                 sub.use_amount = newObj[key].use_amount
                 sub.max_amount = tool.minus(Number(sub.loan), Number(sub.use_amount))
                 footer_use_amount = tool.plus(footer_use_amount, Number(sub.use_amount))
@@ -666,9 +670,10 @@ const initData = () => {
           })
         } else {
           for (const key in summary) {
-            if (key.indexOf(item.name) > -1) {
+            if (key === item.name) {
               item.use_amount = summary[key].use_amount
               item.max_amount = tool.minus(Number(item.loan), Number(item.use_amount))
+              footer_use_amount = tool.plus(footer_use_amount, Number(item.use_amount))
             }
           }
         }
@@ -816,6 +821,23 @@ const refinancialChange = (data) => {
 
 const devTotal = computed(() => {
   return tool.plus(data.value.total, refinancialAmount.value)
+})
+
+const changeTotal = computed(() => {
+  const dataList = data.value.data[0].list
+  let total = 0
+
+  dataList.forEach(item => {
+    if (item.list && item.list.length) {
+      item.list.forEach(sub => {
+        total = tool.plus(total, Number(sub.change_value || 0))
+      })
+    } else {
+      total = tool.plus(total, Number(item.change_value || 0))
+    }
+  })
+
+  return total
 })
 
 watch(
@@ -1009,6 +1031,20 @@ onMounted(() => {
   }
   .amount {
     width: 274px;
+  }
+}
+
+.change-value-container {
+  flex: 0 0 220px;
+  padding: 0 16px;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  &.edit {
+    flex: 0 0 330px;
+  }
+  &.reduce {
+    flex: 0 0 220px !important;
   }
 }
 </style>

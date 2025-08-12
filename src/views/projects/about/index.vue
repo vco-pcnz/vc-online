@@ -1,6 +1,9 @@
 <template>
   <detail-layout active-tab="about" ref="detailLayoutRef" @getProjectDetail="getProjectDetail">
     <template #content>
+      <!-- 检查是否可以提交变更 -->
+      <check-pass-confirm v-model:visible="checkPassConfirmVisible" :current-id="currentId"></check-pass-confirm>
+
       <a-spin :spinning="loading" size="large">
         <div class="project-container">
           <div class="project-info">
@@ -82,10 +85,7 @@
                 </StartDefault>
                 <a-button v-if="hasPermission('projects:penalty:view') && detail?.base?.penalty" type="brown" shape="round" size="small" @click="navigationTo('/projects/penalty?uuid=' + currentId)">{{ t('罚息') }}</a-button>
 
-                <!-- <AddVariations v-if="hasPermission('projects:variations:add') && !Boolean(detail?.base?.variation)" :currentId="currentId" :project-detail="detail" @update="variationsUpdate">
-                  <a-button type="brown" shape="round" size="small">{{ t('添加变更') }}</a-button>
-                </AddVariations> -->
-                <a-button v-if="hasPermission('projects:variations:add') && !Boolean(detail?.base?.variation)" type="brown" shape="round" size="small" @click="navigationTo('/projects/variations/add?uuid=' + currentId)">{{ t('添加变更') }}</a-button>
+                <a-button v-if="hasPermission('projects:variations:add') && !Boolean(detail?.base?.variation)" type="brown" shape="round" size="small" @click="checkPassConfirmVisible = true">{{ t('添加变更') }}</a-button>
                 <a-button v-if="hasPermission('projects:variations:view') && detail?.base?.variation" type="brown" shape="round" size="small" @click="navigationTo('/projects/variations?uuid=' + currentId)">{{ t('变更1') }}</a-button>
 
                 <Journal v-if="hasPermission('projects:journal:edit') && !detail?.base?.journal" :projectDetail="detail" :currentId="currentId" @update="update">
@@ -127,7 +127,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, nextTick, computed } from 'vue';
+import { ref, computed } from 'vue';
 import { RightOutlined } from '@ant-design/icons-vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
@@ -142,7 +142,6 @@ import MeterStatVip from './components/MeterStatVip.vue';
 import Wash from './components/wash.vue';
 import Journal from '@/views/projects/journal/components/form/Add.vue';
 import StartDefault from '@/views/projects/penalty/components/form/Add.vue';
-import AddVariations from '@/views/projects/variations/components/form/AddVariations.vue';
 import BindUsers from '@/views/process/components/BindUsers.vue';
 import ConditionsList from '@/views/process/components/ConditionsList.vue';
 import { hasPermission } from '@/directives/permission/index';
@@ -151,6 +150,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import Close from './components/Close.vue';
 import CloseCancel from './components/CloseCancel.vue';
 import { useUserStore } from '@/store';
+import CheckPassConfirm from '@/views/projects/variations/add/components/check-pass-confirm.vue';
 
 const { t } = useI18n();
 const userStore = useUserStore();
@@ -226,12 +226,7 @@ const ReOpenFormData = ref([
   }
 ]);
 
-const variationsUpdate = (data) => {
-  update();
-  if (data && data.id) {
-    navigationTo(`/projects/variations-details/about?uuid=${route.query.uuid}&id=${data.id}`);
-  }
-};
+const checkPassConfirmVisible = ref(false);
 </script>
 
 <style scoped lang="less">

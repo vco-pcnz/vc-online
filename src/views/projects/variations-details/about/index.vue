@@ -6,9 +6,14 @@
         <a-alert v-if="projectDetail?.variationInfo?.decline_reason" :message="t('拒绝原因')" :description="projectDetail?.variationInfo?.decline_reason" type="error" class="cancel-reason" />
 
         <div v-if="projectDetail" class="project-container">
-          <div class="project-info">
-            <base-card :variations="true" :detail="projectDetail"></base-card>
+          <div class="project-info-container">
+            <div class="project-info">
+              <base-card :variations="true" :detail="projectDetail"></base-card>
+            </div>
+
+            <return-log v-if="returnLogData.length" :list-data="returnLogData" class="mt-5"></return-log>
           </div>
+          
 
           <div class="project-content">
             <variations-info :uuid="uuid" :id="id" :detail="projectDetail" :credit-items-data="creditItemsData" @update="updateHandle"></variations-info>
@@ -38,6 +43,7 @@ import VariationsInfo from '../components/VariationsInfo.vue';
 import VariationsChangeInfo from '../components/VariationsChangeInfo.vue';
 import VariationDocuments from '../components/VariationDocuments.vue';
 import BaseCard from '@/views/projects/about/components/base.vue';
+import ReturnLog from '@/views/process/components/ReturnLog.vue';
 import { cloneDeep } from 'lodash';
 
 const route = useRoute();
@@ -46,12 +52,13 @@ const { t } = useI18n();
 const uuid = ref(route.query.uuid);
 const id = ref(route.query.id);
 const pageLoading = ref(true);
+const returnLogData = ref([])
 
 const projectDetail = ref();
-const getProjectDetail = async (val) => {
+const getProjectDetail = (val) => {
+  returnLogData.value = val.variationInfo?.cancel_log || []
   projectDetail.value = val;
-
-  await getCreditData();
+  getCreditData();
   pageLoading.value = false;
 };
 
@@ -117,6 +124,15 @@ const updateHandle = () => {
   margin-bottom: 30px;
   :deep(.ant-alert-description) {
     font-size: 12px !important;
+  }
+}
+
+.project-info-container {
+  :deep(.block-item) {
+    border-radius: 12px;
+    border: 1px solid @clr_white;
+    background-color: @clr_white;
+    box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, 0.1);
   }
 }
 </style>

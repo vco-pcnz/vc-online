@@ -53,7 +53,8 @@
                       v-model:value="formState.start_date"
                       :format="selectDateFormat()"
                       valueFormat="YYYY-MM-DD"
-                      :disabledDate="disabledDate"
+                      :disabledDate="[1, 2, 3].includes(Number(formState.type)) ? endDisabledDate : disabledDate"
+                      :defaultPickerValue="[1, 2, 3].includes(Number(formState.type)) ? endDefaultPickerValue : defaultPickerValue"
                       :showToday="false"
                       @change="dateChange('start_date')"
                     />
@@ -561,9 +562,20 @@ const devCostChange = (val) => {
 const typeChange = (val) => {
   createFormItems()
 
+  // 根据变更类型设置默认开始日期
+  let defaultDate = '';
+  if ([1, 2, 3].includes(Number(val))) {
+    // 延期类型使用项目结束日期+1天
+    defaultDate = dayjs(projectInfo.value.date.end_date).add(1, 'day').format('YYYY-MM-DD');
+  } else {
+    // 其他类型使用变更开始日期+1天
+    defaultDate = dayjs(projectInfo.value.date.var_start_date).add(1, 'day').format('YYYY-MM-DD');
+  }
+
   const params = {
     uuid: uuid.value,
     type: val,
+    start_date: defaultDate,
     devCostDetail: []
   }
 
@@ -759,6 +771,10 @@ const disabledDate = (current) => {
   const startDate = dayjs(projectInfo.value.date.var_start_date);
   return (current && current.isBefore(startDate.startOf('day').add(1, 'day')));
 };
+
+const defaultPickerValue = computed(() => {
+  return dayjs(projectInfo.value.date.var_start_date).add(1, 'day');
+});
 
 const endDefaultPickerValue = computed(() => {
   return dayjs(projectInfo.value.date.end_date).add(1, 'day');
@@ -994,6 +1010,9 @@ const createFormItems = () => {
   const keyArr = [];
   for (const key in creditInfo) {
     formState.value[key] = passFormInit(key) ? '' : creditInfo[key];
+    if (['credit_brokerFeeRate', 'credit_estabFeeRate'].includes(key)) {
+      formState.value[key] = 0
+    }
     keyArr.push(key);
   }
 

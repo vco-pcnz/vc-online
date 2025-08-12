@@ -215,7 +215,7 @@
           <a-table :columns="formColumns" :data-source="formDataSource" bordered :pagination="false" table-layout="fixed" :scroll="{ x: '100%', y: 600 }" :row-class-name="getRowClassName">
             <template #bodyCell="{ column, record, index }">
               <template v-if="column.dataIndex === 'card_no'">
-                <a-input v-model:value="record.card_no" />
+                <a-input v-model:value="record.card_no" :disabled="isVariation && record.is_delete" />
                 <div v-if="!record.not_variation" class="text-center mt-2">{{ t('变更1') }}</div>
               </template>
               <template v-if="column.dataIndex === 'typology'">
@@ -223,6 +223,7 @@
                   <div class="stuff-item">
                     <a-auto-complete
                       v-model:value="record.typology.beds"
+                      :disabled="isVariation && record.is_delete"
                       :options="getInputOptions(8, false)"
                     />
                     <p>beds</p>
@@ -230,6 +231,7 @@
                   <div class="stuff-item">
                     <a-auto-complete
                       v-model:value="record.typology.bath"
+                      :disabled="isVariation && record.is_delete"
                       :options="getInputOptions(15, true)"
                     />
                     <p>bath</p>
@@ -237,6 +239,7 @@
                   <div class="stuff-item">
                     <a-auto-complete
                       v-model:value="record.typology.lounge"
+                      :disabled="isVariation && record.is_delete"
                       :options="getInputOptions(5, false)"
                     />
                     <p>lounge</p>
@@ -244,6 +247,7 @@
                   <div class="stuff-item">
                     <a-auto-complete
                       v-model:value="record.typology.garage"
+                      :disabled="isVariation && record.is_delete"
                       :options="getInputOptions(5, false)"
                     />
                     <p>garage</p>
@@ -251,6 +255,7 @@
                   <div class="stuff-item">
                     <a-auto-complete
                       v-model:value="record.typology.carpark"
+                      :disabled="isVariation && record.is_delete"
                       :options="getInputOptions(5, false)"
                     />
                     <p>carpark</p>
@@ -258,6 +263,7 @@
                   <div class="stuff-item">
                     <a-auto-complete
                       v-model:value="record.typology.level"
+                      :disabled="isVariation && record.is_delete"
                       :options="getInputOptions(4, false)"
                     />
                     <p>level</p>
@@ -266,10 +272,11 @@
                     <div v-for="(item, index) in record.typology.other" :key="index" class="stuff-item other">
                       <a-auto-complete
                         v-model:value="item.value"
+                        :disabled="isVariation && record.is_delete"
                         :options="getInputOptions(5, false)"
                       />
                       <a-select show-search v-model:value="item.key" class="type-key">
-                        <a-select-option v-for="_item in otherTypeData" :key="_item.value" :value="_item.label">{{ _item.label }}</a-select-option>
+                        <a-select-option v-for="_item in otherTypeData" :key="_item.value" :value="_item.label" :disabled="isVariation && record.is_delete">{{ _item.label }}</a-select-option>
                       </a-select>
                       <div class="delete-btn" @click="typologyRemove(record, index)">
                         <i class="iconfont">&#xe711;</i>
@@ -282,7 +289,7 @@
                 </div>
               </template>
               <template v-if="column.dataIndex === 'sqm'">
-                <a-input v-model:value="record.sqm" suffix="m²" />
+                <a-input v-model:value="record.sqm" suffix="m²" :disabled="isVariation && record.is_delete" />
               </template>
               <template v-if="column.dataIndex === 'est_sales_price'">
                 <a-input-number
@@ -291,6 +298,7 @@
                   :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                   :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                   @change="salesPriceInput(record)"
+                  :disabled="isVariation && record.is_delete"
                 />
               </template>
               <template v-if="column.dataIndex === 'sales_price'">
@@ -300,16 +308,17 @@
                   :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                   :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                   @change="salesPriceInput(record, true)"
+                  :disabled="isVariation && record.is_delete"
                 />
               </template>
               <template v-if="column.dataIndex === 'repayment_price'">
-                <a-input-number v-model:value="record.repayment_price" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
+                <a-input-number v-model:value="record.repayment_price" :max="99999999999" :disabled="isVariation && record.is_delete" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
               </template>
               <template v-if="column.dataIndex === 'is_gst'">
-                <a-switch v-model:checked="record.is_gst" @change="salesPriceInput(record)" />
+                <a-switch v-model:checked="record.is_gst" @change="salesPriceInput(record)" :disabled="isVariation && record.is_delete" />
               </template>
               <template v-if="column.dataIndex === 'is_calc'">
-                <a-switch v-model:checked="record.is_calc" />
+                <a-switch v-model:checked="record.is_calc" :disabled="isVariation && record.is_delete" />
               </template>
               <template v-if="column.dataIndex === 'amount'">
                 <a-input-number
@@ -318,25 +327,26 @@
                   :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                   :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                   @change="netproceedsPriceInput(record)"
+                  :disabled="isVariation && record.is_delete"
                 />
               </template>
               <template v-if="column.dataIndex === 'insurance_value'">
-                <a-input-number v-model:value="record.insurance_value" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
+                <a-input-number v-model:value="record.insurance_value" :disabled="isVariation && record.is_delete" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
               </template>
               <template v-if="column.dataIndex === 'insurance_expire_date'">
-                <a-date-picker v-model:value="record.insurance_expire_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" />
+                <a-date-picker v-model:value="record.insurance_expire_date" :disabled="isVariation && record.is_delete" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" />
               </template>
               <template v-if="column.dataIndex === 'contract_date'">
-                <a-date-picker v-model:value="record.contract_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" />
+                <a-date-picker v-model:value="record.contract_date" :disabled="isVariation && record.is_delete" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" />
               </template>
               <template v-if="column.dataIndex === 'settlement_date'">
-                <a-date-picker v-model:value="record.settlement_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" />
+                <a-date-picker v-model:value="record.settlement_date" :disabled="isVariation && record.is_delete" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" />
               </template>
               <template v-if="column.dataIndex === 'sunset_date'">
-                <a-date-picker v-model:value="record.sunset_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" />
+                <a-date-picker v-model:value="record.sunset_date" :disabled="isVariation && record.is_delete" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" />
               </template>
               <template v-if="column.dataIndex === 'repayment_date'">
-                <a-date-picker v-model:value="record.repayment_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" />
+                <a-date-picker v-model:value="record.repayment_date" :disabled="isVariation && record.is_delete" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" />
               </template>
               <template v-if="column.dataIndex === 'net_proceeds_price'">
                 <a-input-number
@@ -345,6 +355,7 @@
                   :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                   :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                   @input="netproceedsPriceInput(record)"
+                  :disabled="isVariation && record.is_delete"
                 />
               </template>
               <template v-if="column.dataIndex === 'variance'">
@@ -1073,7 +1084,7 @@ const settingHandle = () => {
   const batchSet = data[0];
   delete batchSet.rowSelect;
   formDataSource.value.forEach((item) => {
-    if (item.checked) {
+    if (item.checked && !item.is_delete) {
       for (const key in batchSet) {
         if (key === 'typology') {
           for (const _key in batchSet[key]) {

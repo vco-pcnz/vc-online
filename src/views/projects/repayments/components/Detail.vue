@@ -14,7 +14,10 @@
 
     <div class="color_grey fs_2xs text-center py-3 text-uppercase uppercase" style="letter-spacing: 1px">{{ t('详情') }}</div>
 
-    <div class="detail">
+    <div class="detail relative">
+      <div style="position: absolute; right: 10px; top: 10px; cursor: pointer" v-if="detail?.cancellog && detail?.cancellog.length">
+        <PushBackLog :data="detail?.cancellog"></PushBackLog>
+      </div>
       <a-alert v-if="Boolean(detail?.cancel_reason)" message="Push back reason" :description="detail?.cancel_reason" type="error" class="cancel-reason" />
 
       <div class="my-3" style="padding-left: 5px">
@@ -63,7 +66,11 @@
             <a-button v-else type="dark" class="big uppercase w-full" @click="detailsVisible = true">{{ t('接受请求') }}</a-button>
           </template>
 
-          <a-popconfirm v-if="!detail?.prev_permission && hasPermission('projects:repayments:revoke') && [0, 1].includes(Number(detail?.status)) && detail?.state > 0 && !['repayment_lm', 'drawdown_lm'].includes(detail.mark)" :title="t('您确定撤销还款吗？')" @confirm="revokeHandle">
+          <a-popconfirm
+            v-if="!detail?.prev_permission && hasPermission('projects:repayments:revoke') && [0, 1].includes(Number(detail?.status)) && detail?.state > 0 && !['repayment_lm', 'drawdown_lm'].includes(detail.mark)"
+            :title="t('您确定撤销还款吗？')"
+            @confirm="revokeHandle"
+          >
             <a-button type="brown" class="big uppercase w-full mt-4">{{ t('撤销还款') }}</a-button>
           </a-popconfirm>
 
@@ -102,6 +109,7 @@ import SecuritiesDialog from './form/SecuritiesDialog.vue';
 import DrawdownRequest from './form/DrawdownRequest.vue';
 import DetailsDialog from './form/DetailsDialog.vue';
 import ReleaseDialog from './form/ReleaseDialog.vue';
+import PushBackLog from '@/views/projects/components/PushBackLog.vue';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);

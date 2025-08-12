@@ -1,7 +1,10 @@
 <template>
   <div class="color_grey fs_2xs text-center py-3 text-uppercase uppercase" style="letter-spacing: 1px">Details</div>
 
-  <div class="detail">
+  <div class="detail relative">
+    <div style="position: absolute; right: 10px; top: 10px; cursor: pointer" v-if="detail?.cancellog && detail?.cancellog.length">
+      <PushBackLog :data="detail?.cancellog"></PushBackLog>
+    </div>
     <!-- <div class="title" :style="{ color: colors[detail?.status_name]?.color || '#272727' }">
       <p style="color: #181818" v-if="detail?.status == 2">PAID</p>
       <p v-else>{{ detail?.status_name }}</p>
@@ -139,6 +142,7 @@ import DrawdownBack from './form/DrawdownBack.vue';
 import AcceptFc from './form/AcceptFc.vue';
 import AddStake from './form/addStake.vue';
 import ReconciliationModal from '@/views/projects/components/ReconciliationModal.vue';
+import PushBackLog from '@/views/projects/components/PushBackLog.vue';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);

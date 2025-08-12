@@ -1,6 +1,9 @@
 <template>
   <detail-layout active-tab="penalty" @getProjectDetail="getProjectDetail">
     <template #content>
+      <!-- 检查是否可以提交变更 -->
+      <check-pass-confirm v-model:visible="checkPassConfirmVisible" :current-id="uuid"></check-pass-confirm>
+
       <!-- 详情弹窗 -->
       <detail-dialog
         v-model:visible="detailVisible"
@@ -27,7 +30,7 @@
               v-if="hasPermission('projects:variations:add')"
               type="dark"
               class="uppercase"
-              @click="goProgressPage"
+              @click="checkPassConfirmVisible = true"
             >{{ t('添加变更') }}</a-button>
           </span>
         </template>
@@ -154,6 +157,7 @@ import { hasPermission } from '@/directives/permission/index';
 import AddVariations from '@/views/projects/variations/components/form/AddVariations.vue';
 import DetailDialog from './components/DetailDialog.vue';
 import { useUserStore } from '@/store';
+import CheckPassConfirm from '@/views/projects/variations/add/components/check-pass-confirm.vue';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -245,14 +249,12 @@ const goDetail = (data) => {
   navigationTo(`/projects/variations-details/about?uuid=${uuid.value}&id=${data.id}`)
 }
 
-const goProgressPage = () => {
-  navigationTo(`/projects/variations/add/?uuid=${uuid.value}`)
-}
-
 const updateHandle = (flag) => {
   userStore.getTaskNumInfo()
   getTableData(flag)
 }
+
+const checkPassConfirmVisible = ref(false);
 
 // 监听 uuid 的变化
 watch(() => route.params.uuid, (newUuid) => {

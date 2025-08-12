@@ -2,7 +2,7 @@
   <div class="form-item-col">
     <div class="title">
       <p>{{ t('变更文件') }}</p>
-      <vco-upload-modal v-model:list="documentList" v-model:value="document">
+      <vco-upload-modal v-if="showUpload" v-model:list="documentList" v-model:value="document">
         <div class="upload-btn">
           <i class="iconfont">&#xe734;</i>
           {{ t('上传文件') }}
@@ -12,12 +12,12 @@
     <div class="file-content">
       <template v-if="documentList.length">
         <div v-for="(item, index) in documentList" :key="index" class="file-item">
-          <vco-file-item :file="item" :showClose="true" @remove="remove(index)"></vco-file-item>
+          <vco-file-item :file="item" :showClose="showUpload" @remove="remove(index)"></vco-file-item>
         </div>
       </template>
       <p v-else>{{ t('暂无数据，请上传') }}</p>
     </div>
-    <div class="flex justify-end mt-5">
+    <div v-if="showUpload" class="flex justify-end mt-5">
       <a-button type="primary" shape="round" :disabled="!documentList.length" class="uppercase" :loading="loading" @click="save">
         {{ t('保存') }}
       </a-button>
@@ -26,11 +26,12 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import { cloneDeep } from 'lodash';
 import { variationUpdFile } from '@/api/project/variation';
+import { hasPermission } from '@/directives/permission/index';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);
@@ -42,6 +43,10 @@ const props = defineProps({
     type: String
   },
   detail: {
+    type: Object,
+    default: () => {}
+  },
+  variationInfo: {
     type: Object,
     default: () => {}
   }
@@ -64,6 +69,14 @@ const save = () => {
       loading.value = false;
     });
 };
+
+const showUpload = computed(() => {
+  return (props.variationInfo?.mark === 'variation_lm' || props.variationInfo?.mark === 'variation_overdue_open') &&
+          props.variationInfo?.has_permission &&
+          props.variationInfo?.state > 0 &&
+          props.variationInfo?.state !== 1 ||
+          (hasPermission('projects:variations:request') && ['PENDING APPLY', 'variation_request'].includes(props.variationInfo?.mark))
+})
 
 watch(
   () => props.detail,

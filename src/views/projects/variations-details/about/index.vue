@@ -21,13 +21,7 @@
               :uuid="uuid"
               :id="id"
               :detail="projectDetail?.variationInfo?.document || {}"
-              v-if="
-                (projectDetail?.variationInfo?.mark === 'variation_lm' || projectDetail?.variationInfo?.mark === 'variation_overdue_open') &&
-                projectDetail?.variationInfo?.has_permission &&
-                projectDetail?.variationInfo?.state > 0 &&
-                projectDetail?.variationInfo?.state !== 1 ||
-                (hasPermission('projects:variations:request') && projectDetail?.variationInfo?.mark === 'PENDING APPLY')
-              "
+              :variation-info="projectDetail?.variationInfo"
               @update="updateHandle"
             ></variation-documents>
             <variations-change-info :detail="projectDetail" :variation-info="projectDetail?.variationInfo"></variations-change-info>
@@ -51,7 +45,6 @@ import VariationDocuments from '../components/VariationDocuments.vue';
 import BaseCard from '@/views/projects/about/components/base.vue';
 import ReturnLog from '@/views/process/components/ReturnLog.vue';
 import { cloneDeep } from 'lodash';
-import { hasPermission } from '@/directives/permission/index';
 
 const route = useRoute();
 const { t } = useI18n();

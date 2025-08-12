@@ -130,13 +130,14 @@
               </a-form-item>
             </a-col>
             <a-col :span="1" class="plus-txt">
-              <i class="iconfont">&#xe712;</i>
+              <i class="iconfont" v-if="securityAmount < 0">&#xe711;</i>
+              <i class="iconfont" v-else>&#xe712;</i>
             </a-col>
             <a-col :span="7">
               <a-form-item :label="t('变更值')">
                 <div class="input-number-container">
                   <a-input-number
-                    v-model:value="securityAmount"
+                    v-model:value="showSecurityAmount"
                     :max="99999999999"
                     :disabled="true"
                     :formatter="
@@ -576,7 +577,8 @@ const typeChange = (val) => {
     uuid: uuid.value,
     type: val,
     start_date: defaultDate,
-    devCostDetail: []
+    devCostDetail: [],
+    build: []
   }
 
   if (currentVariationId.value) {
@@ -899,10 +901,17 @@ const setVariationIdStore = (id) => {
 const securityData = ref([])
 const securityAmount = computed(() => {
   if (securityData.value.length) {
-    return securityData.value.reduce((acc, item) => tool.plus(acc, item.amount), 0);
+    const oldNum = securityData.value.reduce((acc, item) => tool.plus(acc, Number(item.old_amount || 0)), 0);
+
+    const nowData = securityData.value.filter(item => !item.is_delete)
+    const nowNum = nowData.reduce((acc, item) => tool.plus(acc, Number(item.amount || 0)), 0);
+    return tool.minus(nowNum, oldNum);
   } else {
     return 0;
   }
+})
+const showSecurityAmount = computed(() => {
+  return Math.abs(securityAmount.value)
 })
 
 const changeSecurityAfter = computed(() => {

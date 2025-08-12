@@ -766,7 +766,7 @@ const formRules = ref({
   end_date: [{ required: true, message: t('请选择') + t('变更结束日期'), trigger: 'change' }],
   changeCost: [{ required: true, validator: validateChangeCost(), trigger: 'change' }],
   buildChangeNum: [{ required: true, validator: validateBuildChangeNum(), trigger: 'change' }],
-  initial_amount: [{ required: true, validator: validateInitialAmount(), trigger: 'blur' }]
+  // initial_amount: [{ required: true, validator: validateInitialAmount(), trigger: 'blur' }]
 });
 
 const disabledDate = (current) => {
@@ -928,9 +928,9 @@ const getVariationDetail = async () => {
   }).then((res) => {
     variationData.value = res
     securityData.value = res.security || [];
-    formState.value.type = res.type;
-    formState.value.start_date = res.start_date;
-    formState.value.end_date = res.end_date;
+    formState.value.type = res.type || '';
+    formState.value.start_date = res.start_date || '';
+    formState.value.end_date = res.end_date || '';
     formState.value.initial_sn = res.initial_sn || ''
     formState.value.initial_land_amount = res.initial_land_amount || ''
     formState.value.initial_build_amount = res.initial_build_amount || ''

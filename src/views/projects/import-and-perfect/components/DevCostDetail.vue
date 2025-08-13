@@ -142,13 +142,6 @@
             <template v-if="p_index === 3">
               <div class="flex justify-between tabel-type">
                 <p class="bold fs_xl">{{ item.type }}</p>
-                <template v-if="record?.list">
-                  <div v-for="(sub, subIndex) in record?.list" :key="subIndex" class="flex items-center mt-2" style="padding-left: 30px">
-                    <div style="flex: 1">
-                      {{ sub.type }}
-                    </div>
-                  </div>
-                </template>
               </div>
               <a-table :columns="FinanceColumns" :data-source="item.list" :pagination="false" :scroll="{ x: '100%' }">
                 <template #bodyCell="{ column, record }">
@@ -215,6 +208,20 @@
               <div class="total" v-if="edit"></div>
             </div>
           </div>
+          <div class="refinancial-row">
+            <div class="flex gap-4 items-center">
+              <p>{{ t('再融资金额') }}</p>
+            </div>
+
+            <a-input-number
+              v-model:value="refinancialAmount"
+              :min="0"
+              :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+              :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+              style="width: 300px;"
+              :placeholder="t('请输入')"
+            />
+          </div>
         </a-form-item-rest>
         <div class="flex items-center total-row" style="border: none; padding: 0 24px">
           <div class="title bold bold fs_xl text-left">{{ t('总计') }}</div>
@@ -240,7 +247,7 @@
 </template>
 
 <script scoped setup>
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import tool, { numberStrFormat } from '@/utils/tool';
@@ -285,6 +292,9 @@ const props = defineProps({
   hasBuildData: {
     type: Boolean,
     default: false
+  },
+  substitution_amount: {
+    type: [String, Number]
   }
 });
 
@@ -408,17 +418,20 @@ const save = () => {
   const tueLoan = Number(doneData.data[1].loan);
 
   const totalLoan = Number(tool.plus(conLoan, tueLoan));
+  
+  const totalLoanRefi = Number(tool.plus(totalLoan, refinancialAmount.value));
 
-  if (Number(props.loanAmount) !== totalLoan) {
-    const diffNum = tool.minus(props.loanAmount, conLoan);
+  if (Number(props.loanAmount) !== totalLoanRefi) {
+    const diffNum = tool.minus(props.loanAmount, totalLoanRefi);
 
-    errorTxt.value = t(`借款金额为：<span>{0}</span>，设置的建筑成本为：<span>{1}</span>，相差：<span>{2}</span>`, [`$${numberStrFormat(props.loanAmount)}`, `$${numberStrFormat(conLoan)}`, `$${numberStrFormat(diffNum)}`]);
+    errorTxt.value = t(`借款金额为：<span>{0}</span>，设置的建筑成本为：<span>{1}</span>，相差：<span>{2}</span>`, [`$${numberStrFormat(props.loanAmount)}`, `$${numberStrFormat(totalLoanRefi)}`, `$${numberStrFormat(diffNum)}`]);
     errorVisible.value = true;
   } else {
     const params = {
       uuid: props.currentId,
       devCost: doneData.total,
-      devCostDetail: [doneData]
+      devCostDetail: [doneData],
+      substitution_amount: refinancialAmount.value || props.substitution_amount
     };
 
     currentParams.value = params;
@@ -595,6 +608,18 @@ const initItemData = (index) => {
   initData();
 };
 
+const refinancialAmount = ref()
+
+watch(
+  () => props.substitution_amount,
+  (val) => {
+    if (val) {
+      refinancialAmount.value = val;
+    }
+  },
+  { deep: true, immediate: true }
+);
+
 onMounted(() => {
   if (!props.dataJson) {
     emits('update:value', cloneDeep(data.value.total));
@@ -736,5 +761,18 @@ onMounted(() => {
 .disabled {
   color: #999;
   cursor: not-allowed;
+}
+
+.refinancial-row {
+  background: #f1f1f1;
+  padding: 24px;
+  border-radius: 8px;
+  > .items-center {
+    margin-bottom: 15px;
+    > p {
+      font-size: 18px;
+      font-weight: 500;
+    }
+  }
 }
 </style>

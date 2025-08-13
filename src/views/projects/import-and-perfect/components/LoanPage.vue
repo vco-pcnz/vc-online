@@ -4,7 +4,15 @@
 
     <div class="block-item mt-10">
       <vco-process-title :title="t('开发成本')"></vco-process-title>
-      <DevCostDetail v-model:value="devCost" v-model:dataJson="devCostDetail" :current-id="currentId" :loan-amount="loanMoney" :edit="!Boolean(projectDetail?.old.upd_dev)" :has-build-data="projectDetail?.has_build_data" @change="devCostChange">
+      <DevCostDetail
+        v-model:value="devCost"
+        v-model:dataJson="devCostDetail"
+        :current-id="currentId"
+        :loan-amount="loanMoney"
+        :edit="!Boolean(projectDetail?.old.upd_dev)"
+        :has-build-data="projectDetail?.has_build_data"
+        :substitution_amount="substitution_amount"
+        @change="devCostChange">
         <div class="dev-cost">
           <vco-number class="float-left" v-model:value="devCost" :precision="2" :end="true"></vco-number>
           <a-button class="float-left" type="link">
@@ -137,6 +145,8 @@ const openProgress = (flag = false) => {
   }
 };
 
+const substitution_amount = ref()
+
 const dataInit = () => {
   devCost.value = props.projectDetail.devCost;
   devCostDetail.value = props.projectDetail.devCostDetail || [];
@@ -148,6 +158,7 @@ const dataInit = () => {
   };
 
   securityInfo.value = cloneDeep(props.projectDetail.security);
+  substitution_amount.value = props.projectDetail.substitution_amount;
 };
 
 watch(

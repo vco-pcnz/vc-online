@@ -31,14 +31,13 @@
       <div class="profile_content">
         <div class="profile_info">
           <!-- <language-select></language-select> -->
-          <router-link to="/profile/about">
+          <router-link :to="pageRole == 'Investor' ? '/investor/profile/about' : '/profile/about'">
             <vco-avatar :src="userInfo?.avatar || ''" :size="26" />
           </router-link>
           <div class="link" :class="{ link_active: isUserActive() }">
             <div class="user_info">
               <a-space>
-                <span v-if="pageRole == 'Investor'" class="user_name" @click="navigationTo('/investor/profile/about')">{{ userInfo?.user_name || 'UserName' }}</span>
-                <span v-else class="user_name" @click="navigationTo('/profile/about')">{{ userInfo?.user_name || 'UserName' }}</span>
+                <span class="user_name" @click="navigationTo(pageRole == 'Investor' ? '/investor/profile/about' : '/profile/about')">{{ userInfo?.user_name || 'UserName' }}</span>
                 <a-badge @click.stop="navigationTo('/profile/notice')" class="badge" size="small" :count="noticeStore.noticeCount" v-if="!!noticeStore.noticeCount" />
               </a-space>
               <div v-if="userInfo?.roles">
@@ -151,8 +150,8 @@ const isUserActive = () => {
 };
 
 const menuItem = [
-  { label: t('编辑详情'), key: 'edit-profile', to: '/profile/about' },
-  { label: t('修改密码'), key: 'change-pwd', to: '/profile/safe' }
+  { label: t('编辑详情'), key: 'edit-profile', to: pageRole.value == 'Investor' ? '/investor/profile/about' : '/profile/about' },
+  { label: t('修改密码'), key: 'change-pwd', to: pageRole.value == 'Investor' ? '/investor/profile/safe' : '/profile/safe' }
 ];
 
 const goTo = (path) => {

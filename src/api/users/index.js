@@ -101,3 +101,11 @@ export const getUserRelation = (params) =>
     method: 'get',
     params,
   });
+
+
+export const assignProject = (data) =>
+  request({
+    url: 'user/setProject',
+    method: 'post',
+    data
+  });

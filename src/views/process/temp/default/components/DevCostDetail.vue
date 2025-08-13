@@ -146,7 +146,7 @@
                         <a-input-number
                           v-if="edit"
                           v-model:value="record.change_value"
-                          :max="record.max_amount"
+                          :max="isPlus ? 999999999 : Number(record.max_amount || 0)"
                           :min="0"
                           :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                           :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
@@ -167,7 +167,7 @@
                           <a-input-number
                             v-if="edit"
                             v-model:value="sub.change_value"
-                            :max="sub.max_amount"
+                            :max="isPlus ? 999999999 : Number(sub.max_amount || 0)"
                             :min="0"
                             :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                             :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
@@ -518,6 +518,11 @@ const saveDone = () => {
 
     if (props.isVariation) {
       item.change_type = props.isPlus ? 1 : 0
+      if (item.list && item.list.length) {
+        item.list.forEach((sub) => {
+          sub.change_type = props.isPlus ? 1 : 0
+        })
+      }
     }
   });
 

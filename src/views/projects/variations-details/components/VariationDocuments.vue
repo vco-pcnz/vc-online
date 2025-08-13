@@ -75,7 +75,7 @@ const showUpload = computed(() => {
           props.variationInfo?.has_permission &&
           props.variationInfo?.state > 0 &&
           props.variationInfo?.state !== 1 ||
-          (hasPermission('projects:variations:request') && ['PENDING APPLY', 'variation_request'].includes(props.variationInfo?.mark))
+          (hasPermission('projects:variations:document') && ['PENDING APPLY', 'variation_request'].includes(props.variationInfo?.mark))
 })
 
 watch(

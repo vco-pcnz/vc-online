@@ -1401,7 +1401,6 @@ onMounted(async () => {
     }
 
     await getProjectDetail();
-    await getCreditInfo();
     getTypeData();
     getsecurityInfo()
 
@@ -1418,6 +1417,7 @@ onMounted(async () => {
         editDataFull()
       }
     }
+    await getCreditInfo();
   }
 });
 </script>

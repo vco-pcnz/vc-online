@@ -43,14 +43,14 @@
           <a-button v-if="shareSecurityData.length" type="brown" shape="round" @click="shareSecurityVisible = true">{{ t('共享抵押物') }}</a-button>
           <a-button
             type="brown" shape="round" class="pre-sale-enter"
-            @click="navigationTo(`/investor/discharge/security-list?uuid=${uuid}`)"
+            @click="navigationTo(`/investor/projects/discharge/security-list?uuid=${uuid}`)"
           >
             {{ t('抵押物统计数据') }}
             <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px'  }" />
           </a-button>
           <a-button
             v-if="hasPermission('projects:discharge:preSale')" type="brown" shape="round" class="pre-sale-enter"
-            @click="navigationTo(`/investor/discharge/pre-sale?uuid=${uuid}`)"
+            @click="navigationTo(`/investor/projects/discharge/pre-sale?uuid=${uuid}`)"
           >
             {{ t('预售信息') }}
             <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px'  }" />

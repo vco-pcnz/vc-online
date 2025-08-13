@@ -75,7 +75,7 @@
     <div class="flex mb-7">
       <div class="flex-1">
         <p class="RequestDetails-label">{{ t('项目文件') }}</p>
-        <a-button type="brown" shape="round" size="small" class="mt-5" @click="navigationTo('/investor/documents?uuid=' + currentId)">{{ t('查看文件') }}</a-button>
+        <a-button type="brown" shape="round" size="small" class="mt-5" @click="navigationTo('/investor/projects/documents?uuid=' + currentId)">{{ t('查看文件') }}</a-button>
       </div>
       <div class="VerticalDivider"></div>
       <div class="RequestDetails-units">

@@ -120,7 +120,7 @@ const pageTitle = computed(() => {
 });
 
 const back = () => {
-  router.push(`/investor/discharge?uuid=${route.query.uuid}`);
+  router.push(`/investor/projects/discharge?uuid=${route.query.uuid}`);
 };
 
 const columns = reactive([

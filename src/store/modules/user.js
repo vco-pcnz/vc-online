@@ -138,7 +138,7 @@ const useUserStore = defineStore('VcOnlineUserInfo', {
           if (item.path === '/projects') {
             item.hide = 1;
           }
-          if (item.path === '/investor') {
+          if (item.path === '/investor/projects') {
             item.hide = 0;
           }
         });

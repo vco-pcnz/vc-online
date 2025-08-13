@@ -1077,5 +1077,6 @@ export default {
   "银行": "Bank",
   "明细表对账": "Schedule",
   "对账报告详情": "Reconciliation Result Report",
-  "项目管理Investor": "Loans"
+  "项目管理Investor": "Loans",
+  "首页Investor": "Home"
 }

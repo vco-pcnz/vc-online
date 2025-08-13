@@ -248,7 +248,7 @@ const rowClick = (record, index) => {
   return {
     onClick: () => {
       if (pageRole === 'Investor') {
-        navigationTo(`/investor/about?uuid=${record.uuid}`);
+        navigationTo(`/investor/projects/about?uuid=${record.uuid}`);
       } else {
         navigationTo(`/projects/about?uuid=${record.uuid}`);
       }

@@ -37,7 +37,8 @@
           <div class="link" :class="{ link_active: isUserActive() }">
             <div class="user_info">
               <a-space>
-                <span class="user_name" @click="navigationTo('/profile/about')">{{ userInfo?.user_name || 'UserName' }}</span>
+                <span v-if="pageRole == 'Investor'" class="user_name" @click="navigationTo('/investor/profile/about')">{{ userInfo?.user_name || 'UserName' }}</span>
+                <span v-else class="user_name" @click="navigationTo('/profile/about')">{{ userInfo?.user_name || 'UserName' }}</span>
                 <a-badge @click.stop="navigationTo('/profile/notice')" class="badge" size="small" :count="noticeStore.noticeCount" v-if="!!noticeStore.noticeCount" />
               </a-space>
               <div v-if="userInfo?.roles">
@@ -92,6 +93,8 @@ import ApplyBroker from '@/views/profile/apply-broker/form.vue';
 import ApplyBrokerDetail from '@/views/profile/apply-broker/detail.vue';
 import { applyBrokerDetail } from '@/api/tasks';
 import { DownOutlined } from '@ant-design/icons-vue';
+
+const pageRole = computed(() => useUserStore().pageRole);
 
 const { t } = useI18n();
 const router = useRouter();

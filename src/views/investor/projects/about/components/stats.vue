@@ -115,7 +115,7 @@
             <div class="color_grey fs_xs">Total Development Cost</div>
             <div class="flex justify-end items-center gap-2">
               <vco-number :value="data?.right?.devCost" :bold="true" size="fs_xl" :precision="2"></vco-number>
-              <i class="iconfont color_coal">&#xe743;</i>
+              <i class="iconfont color_coal">&#xe776;</i>
             </div>
           </DevCostDetail>
         </a-col>

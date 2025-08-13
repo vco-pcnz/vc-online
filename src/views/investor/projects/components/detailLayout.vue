@@ -40,9 +40,9 @@ const panes = computed(() => {
   const data = userStore.routerInfo || [];
   const dataArr = cloneDeep(data);
 
-  const projectsArr = dataArr.find((item) => item.path === '/investor');
+  const projectsArr = dataArr.find((item) => item.path === '/investor/projects');
   const childArr = projectsArr.children || [];
-  const detailsArr = childArr.find((item) => item.path === '/investor/details');
+  const detailsArr = childArr.find((item) => item.path === '/investor/projects/details');
   const child = detailsArr.children || [];
 
   arr = child
@@ -59,7 +59,7 @@ const panes = computed(() => {
 });
 
 const onChange = (key) => {
-  router.push(`/investor/${key}?uuid=` + route.query.uuid);
+  router.push(`/investor/projects/${key}?uuid=` + route.query.uuid);
 };
 
 const prevBackArr = ['penalty', 'variations', 'journal'];
@@ -74,11 +74,11 @@ const backPrev = (link) => {
 
 const back = () => {
   if (backPrev(route.path)) {
-    router.push(`/investor/about?uuid=${route.query.uuid}`);
+    router.push(`/investor/projects/about?uuid=${route.query.uuid}`);
   } else if (route.path.indexOf('schedule/reconciliation') > -1) {
-    router.push(`/investor/schedule?uuid=${route.query.uuid}`);
+    router.push(`/investor/projects/schedule?uuid=${route.query.uuid}`);
   } else {
-    router.push(`/investor/list`);
+    router.push(`/investor/projects/list`);
   }
 };
 

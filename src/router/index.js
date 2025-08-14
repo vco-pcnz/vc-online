@@ -37,6 +37,12 @@ router.beforeEach(async (to, from, next) => {
       return
     }
 
+    if (!userStore.userInfo) {
+      // 用户信息
+      await userStore.requestUserInfo();
+      noticeStore.setNoticeCount();
+    }
+      
     // 注册动态路由
     if (!userStore.routerInit) {
       const { menus, homePath } = await userStore.requestRouterInfo();
@@ -51,11 +57,6 @@ router.beforeEach(async (to, from, next) => {
         productStore.requestProductInfo()
       }
 
-      if (!userStore.userInfo) {
-        // 用户信息
-        await userStore.requestUserInfo();
-        noticeStore.setNoticeCount();
-      }
   
       if (!Boolean(userStore.userInfo.isNormalUser)) {
         // 待办数据

@@ -1,12 +1,17 @@
 <template>
   <div class="footer-container">
     <div class="Copyright">Copyright © 2022-present Vincent Capital</div>
-    <router-link to="/version" class="version">{{version}}</router-link>
+    <router-link :to="!isNormalUser && pageRole !== 'Investor' ? '/version' : ''" class="version">{{ version }}</router-link>
   </div>
 </template>
 
 <script setup>
-const version = __APP_VERSION__
+import { computed } from 'vue';
+const version = __APP_VERSION__;
+import { useUserStore } from '@/store';
+
+const isNormalUser = computed(() => useUserStore().isNormalUser);
+const pageRole = computed(() => useUserStore().pageRole);
 </script>
 
 <style lang="less" scoped>

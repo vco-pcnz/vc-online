@@ -1093,5 +1093,8 @@ export default {
   "退回记录": "Return log",
   "当前项目是否已完成了所有对账操作？": "Has the current project completed all reconciliation operations?",
   "取消禁用": "Cancel disable",
-  "禁用": "Disable"
+  "禁用": "Disable",
+  "项目管理Investor": "Loans",
+  "首页Investor": "Home",
+  "分配项目": "Assign Projects"
 }

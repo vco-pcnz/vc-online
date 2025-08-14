@@ -21,6 +21,9 @@
           <template #left>
             <a-button type="cyan" :disabled="!rowSelection.length" @click="setOpen(true)" v-if="hasPermission('users:distribute')">
               {{ t('分配角色') }}
+            </a-button>  
+            <a-button type="cyan" :disabled="!rowSelection.length" @click="setOpenProjects(true)" v-if="hasPermission('users:distribute')">
+              {{ t('分配项目') }}
             </a-button>
           </template>
           <template #right>
@@ -43,6 +46,7 @@
   </div>
   <add-user v-model:open="showAdd" :userData="userData" />
   <assign-roles v-model:open="open" :title="t('分配角色')" :uuids="rowSelection" :selectedData="rowSelectionData" />
+  <assign-projects v-model:visible="open_projects" :uuids="rowSelection" :selectedData="rowSelectionData" />
 </template>
 
 <script setup>
@@ -53,12 +57,14 @@ import TableSearch from './UsersSearch.vue';
 import TableBlock from './UsersTable.vue';
 import { useUsersStore } from '@/store';
 import AssignRoles from './AssignRoles.vue';
+import AssignProjects from './AssignProjects.vue';
 import GroupTab from './../components/GroupTab.vue';
 import AddUser from './AddUser.vue';
 
 const { t } = useI18n();
 const usersStore = useUsersStore();
 const open = ref(false);
+const open_projects = ref(false)
 const showAdd = ref(false);
 const userData = ref({});
 
@@ -96,6 +102,10 @@ const showUserModal = (data = {}) => {
 
 const setOpen = (flag) => {
   open.value = flag;
+};
+
+const setOpenProjects= (flag) => {
+  open_projects.value = flag;
 };
 
 const handlePageChange = (current, size) => {

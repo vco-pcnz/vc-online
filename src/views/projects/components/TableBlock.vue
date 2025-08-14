@@ -201,7 +201,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, watch } from 'vue';
+import { ref, reactive, onMounted, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { navigationTo } from '@/utils/tool';
@@ -211,7 +211,9 @@ import dayjs from 'dayjs';
 import { useProjectsStore } from '@/store';
 const pageStore = useProjectsStore();
 const emits = defineEmits(['update:data', 'update:keys', 'change']);
+import { useUserStore } from '@/store';
 
+const pageRole = useUserStore().pageRole;
 const props = defineProps({
   tableData: {
     type: Array,
@@ -245,7 +247,11 @@ const diffInDays = (val) => {
 const rowClick = (record, index) => {
   return {
     onClick: () => {
-      navigationTo(`/projects/about?uuid=${record.uuid}`);
+      if (pageRole === 'Investor') {
+        navigationTo(`/investor/projects/about?uuid=${record.uuid}`);
+      } else {
+        navigationTo(`/projects/about?uuid=${record.uuid}`);
+      }
     }
   };
 };

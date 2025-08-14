@@ -31,16 +31,22 @@
       <div class="profile_content">
         <div class="profile_info">
           <!-- <language-select></language-select> -->
-          <router-link to="/profile/about">
+          <router-link :to="pageRole == 'Investor' ? '/investor/profile/about' : '/profile/about'">
             <vco-avatar :src="userInfo?.avatar || ''" :size="26" />
           </router-link>
-          <div @click="navigationTo('/profile/about')" class="link" :class="{ link_active: isUserActive() }">
+          <div class="link" :class="{ link_active: isUserActive() }">
             <div class="user_info">
               <a-space>
-                <span class="user_name">{{ userInfo?.user_name || 'UserName' }}</span>
+                <span class="user_name" @click="navigationTo(pageRole == 'Investor' ? '/investor/profile/about' : '/profile/about')">{{ userInfo?.user_name || 'UserName' }}</span>
                 <a-badge @click.stop="navigationTo('/profile/notice')" class="badge" size="small" :count="noticeStore.noticeCount" v-if="!!noticeStore.noticeCount" />
               </a-space>
-              <p>{{ userInfo?.roles || 'Vip' }}</p>
+              <div v-if="userInfo?.roles">
+                <template v-for="item in userInfo?.roles.split('/')" :key="item">
+                  <a-tag color="orange" v-if="item == 'Investor' && userInfo?.roles.split('/').length != 1" @click="toInvestor">{{ item }}</a-tag>
+                  <span v-else>{{ item }}</span>
+                </template>
+              </div>
+              <p v-else>Vip</p>
             </div>
           </div>
         </div>
@@ -86,6 +92,8 @@ import ApplyBroker from '@/views/profile/apply-broker/form.vue';
 import ApplyBrokerDetail from '@/views/profile/apply-broker/detail.vue';
 import { applyBrokerDetail } from '@/api/tasks';
 import { DownOutlined } from '@ant-design/icons-vue';
+
+const pageRole = computed(() => useUserStore().pageRole);
 
 const { t } = useI18n();
 const router = useRouter();
@@ -142,8 +150,8 @@ const isUserActive = () => {
 };
 
 const menuItem = [
-  { label: t('编辑详情'), key: 'edit-profile', to: '/profile/about' },
-  { label: t('修改密码'), key: 'change-pwd', to: '/profile/safe' }
+  { label: t('编辑详情'), key: 'edit-profile', to: pageRole.value == 'Investor' ? '/investor/profile/about' : '/profile/about' },
+  { label: t('修改密码'), key: 'change-pwd', to: pageRole.value == 'Investor' ? '/investor/profile/safe' : '/profile/safe' }
 ];
 
 const goTo = (path) => {
@@ -160,6 +168,11 @@ const LoadApplyBrokerDetail = () => {
     applyBrokerData.value = res;
   });
 };
+
+const toInvestor = () => {
+  navigationTo('/investor/list', true);
+};
+
 // 组件挂载时启动定时器
 onMounted(() => {
   systemConfigData({ pcode: 'web_config', code: 'notes_interval_time' }).then((res) => {
@@ -234,7 +247,8 @@ onUnmounted(() => {
           font-size: 16px;
           color: #181818;
         }
-        > p {
+        > p,
+        span {
           color: #888;
           font-size: 13px;
         }
@@ -262,12 +276,12 @@ onUnmounted(() => {
     &:hover :deep(.ant-badge .ant-badge-count) {
       background: #ff7875;
     }
-    &:hover,
-    &:focus {
-      &:not(.link_active) {
-        background-color: rgba(@color_black, 0.1);
-      }
-    }
+    // &:hover,
+    // &:focus {
+    //   &:not(.link_active) {
+    //     background-color: rgba(@color_black, 0.1);
+    //   }
+    // }
 
     &_active {
       border-bottom: 3px solid @clr_yellow;

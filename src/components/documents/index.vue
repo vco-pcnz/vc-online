@@ -53,6 +53,9 @@ const props = defineProps({
   edit: {
     type: Boolean,
     default: true
+  },
+  __way__: {
+    type: String
   }
 });
 
@@ -65,7 +68,7 @@ const showSearch = ref(false);
 
 const loadData = (index, val) => {
   spinning.value = true;
-  getTree({ apply_uuid: props.project_id })
+  getTree({ apply_uuid: props.project_id,__way__: props.__way__})
     .then((res) => {
       tabIndex.value = index || 0;
       folder.value = val || res[tabIndex.value].children[0];

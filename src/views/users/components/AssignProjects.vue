@@ -61,13 +61,18 @@ import { assignProject } from '@/api/users';
 
 import { useTableList } from '@/hooks/useTableList';
 import { useI18n } from 'vue-i18n';
+import { useUsersStore } from '@/store';
 
+const usersStore = useUsersStore();
 const emits = defineEmits(['update:visible', 'done']);
 
 const props = defineProps({
   visible: {
     type: Boolean,
     default: false
+  },
+  selectedData: {
+    type: Array
   },
   uuids: {
     type: Array
@@ -107,6 +112,10 @@ watch(
   (val) => {
     if (val) {
       getTableData(true);
+      console.log(props.selectedData);
+      if (props.selectedData.length == 1) {
+        selectedRowKeys.value = props.selectedData[0].investor_project || [];
+      }
     } else {
       selectedRowKeys.value = []; // 存放UUid
       selectedRows.value = []; // 存放所有选中的选项的所有内容
@@ -161,6 +170,7 @@ const submitHandle = () => {
   };
   assignProject(params)
     .then(() => {
+      usersStore.getUserList();
       submitLoading.value = false;
       updateVisible(false);
     })

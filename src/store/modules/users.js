@@ -28,6 +28,7 @@ const useUsersStore = defineStore('VcOnlineUsers', {
         ...this.searchParams,
         ...data
       };
+      this.pagination.page = 1;
       this.getUserList();
     },
     setPaginate(page, limit) {

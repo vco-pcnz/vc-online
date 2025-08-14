@@ -2,7 +2,7 @@
   <div class="my-12">
     <ProjectDashboard></ProjectDashboard>
   </div>
-  <CashflowForecast :isNav="false"></CashflowForecast>
+  <!-- <CashflowForecast :isNav="false"></CashflowForecast> -->
 </template>
 
 <script setup>

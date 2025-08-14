@@ -21,8 +21,8 @@
           <template #left>
             <a-button type="cyan" :disabled="!rowSelection.length" @click="setOpen(true)" v-if="hasPermission('users:distribute')">
               {{ t('分配角色') }}
-            </a-button>  
-            <a-button type="cyan" :disabled="!rowSelection.length" @click="setOpenProjects(true)" v-if="hasPermission('users:distribute')">
+            </a-button>
+            <a-button type="cyan" :disabled="!rowSelection.length" @click="setOpenProjects(true)" v-if="hasPermission('users:distribute') && usersStore.searchParams.role_cid == 4">
               {{ t('分配项目') }}
             </a-button>
           </template>
@@ -37,7 +37,17 @@
               <table-block :table-data="tableData" v-model:keys="rowSelection" v-model:data="rowSelectionData"></table-block>
             </div>
             <div class="mt-5">
-              <a-pagination size="small" :total="usersStore.total" show-size-changer show-quick-jumper :hideOnSinglePage="true" :show-total="(total) => t('共{0}条', [total])" @change="handlePageChange" />
+              <a-pagination
+                size="small"
+                :total="usersStore.total"
+                :pageSize="usersStore.pagination.limit"
+                :current="usersStore.pagination.page"
+                show-size-changer
+                show-quick-jumper
+                :hideOnSinglePage="true"
+                :show-total="(total) => t('共{0}条', [total])"
+                @change="handlePageChange"
+              />
             </div>
           </a-spin>
         </div>
@@ -64,7 +74,7 @@ import AddUser from './AddUser.vue';
 const { t } = useI18n();
 const usersStore = useUsersStore();
 const open = ref(false);
-const open_projects = ref(false)
+const open_projects = ref(false);
 const showAdd = ref(false);
 const userData = ref({});
 
@@ -104,7 +114,7 @@ const setOpen = (flag) => {
   open.value = flag;
 };
 
-const setOpenProjects= (flag) => {
+const setOpenProjects = (flag) => {
   open_projects.value = flag;
 };
 
@@ -147,9 +157,8 @@ const tabData = ref([
 ]);
 
 const tabChange = () => {
-  usersStore.setSearchParams({ type: currentTab.value?currentTab.value: undefined });
+  usersStore.setSearchParams({ type: currentTab.value ? currentTab.value : undefined });
 };
-
 </script>
 
 <style lang="less" scoped>

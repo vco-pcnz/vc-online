@@ -8,7 +8,7 @@
         <div v-if="projectDetail" class="project-container">
           <div class="project-info-container">
             <div class="project-info">
-              <base-card :variations="true" :detail="projectDetail"></base-card>
+              <base-card :variations="true" :hide-time="true" :detail="projectDetail"></base-card>
             </div>
 
             <return-log v-if="returnLogData.length" :list-data="returnLogData" class="mt-5"></return-log>

@@ -28,8 +28,11 @@
       </p>
       <p class="mt-3">{{ t('借款人') }}</p>
       <p style="color: #181818;">{{ detail?.base.borrower_user_name }}</p>
-      <p v-if="variations" class="mt-3">{{ t('借款周期') }}</p>
-      <p style="color: #181818;">{{ tool.showDate(detail?.date?.start_date) + ' - ' + tool.showDate(detail?.date?.end_date) }}</p>
+      
+      <template v-if="variations && !hideTime">
+        <p class="mt-3">{{ t('借款周期') }}</p>
+        <p style="color: #181818;">{{ tool.showDate(detail?.date?.start_date) + ' - ' + tool.showDate(detail?.date?.end_date) }}</p>
+      </template>
 
       <p class="text-2xl name mt-5">{{ detail?.base.project_name || detail?.base.borrower_user_name }}</p>
       <template v-if="detail?.base?.project_address_other">
@@ -81,6 +84,10 @@ const props = defineProps({
   },
   currentId: {
     type: String
+  },
+  hideTime: {
+    type: Boolean,
+    default: false
   }
 });
 

@@ -214,7 +214,7 @@ const props = defineProps({
   }
 });
 
-const showRelatedSwitch = ref(false)
+const showRelatedSwitch = ref(true)
 
 const visible = ref(false);
 const loading = ref(false);
@@ -496,6 +496,8 @@ const setFormData = () => {
     showRelatedSwitch.value = true
     relatedData.value = cloneDeep(data.security)
     relatedStaticData.value = cloneDeep(data.security)
+  } else {
+    showRelatedSwitch.value = false
   }
 
   if (data.all_repayment) {

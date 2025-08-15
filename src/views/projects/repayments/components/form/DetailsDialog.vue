@@ -71,7 +71,7 @@
           @click="updateVisible(false)"
         >{{ t('关闭') }}</a-button>
 
-        <a-popconfirm :title="t('您确定要接受该请求吗？')" @confirm="accept">
+        <a-popconfirm v-if="isAccept" :title="t('您确定要接受该请求吗？')" @confirm="accept">
           <a-button
             type="dark" class="big shadow bold uppercase mb-5 mt-5"
           >{{ t('接受请求') }}</a-button>
@@ -102,6 +102,10 @@
     detailData: {
       type: Object,
       default: () => {}
+    },
+    isAccept: {
+      type: Boolean,
+      default: false
     }
   });
 

@@ -7,7 +7,7 @@
     <drawdown-request ref="editDialogRef" :uuid="uuid" :data-info="detail" @change="update"></drawdown-request>
 
     <!-- 详情弹窗 -->
-    <details-dialog v-model:visible="detailsVisible" :uuid="uuid" :detail-data="detail" @done="update"></details-dialog>
+    <details-dialog v-model:visible="detailsVisible" :uuid="uuid" :is-accept="detailsAccept" :detail-data="detail" @done="update"></details-dialog>
 
     <!-- 抵押物解压弹窗 -->
     <release-dialog v-model:visible="releaseVisible" :uuid="uuid" :detail-data="detail" @done="update"></release-dialog>
@@ -63,7 +63,7 @@
               <a-button type="cyan" class="big uppercase" style="width: 100%"> {{ t('对账') }} </a-button>
             </ReconciliationModal>
             <!-- 接受请求 -->
-            <a-button v-else type="dark" class="big uppercase w-full" @click="detailsVisible = true">{{ t('接受请求') }}</a-button>
+            <a-button v-else type="dark" class="big uppercase w-full" @click="openDetails(true)">{{ t('接受请求') }}</a-button>
           </template>
 
           <a-popconfirm
@@ -92,6 +92,12 @@
 
           <DrawdownBack v-if="detail?.mark === 'repayment_fc' && detail?.has_permission" :uuid="uuid" :detail="detail" @change="update"></DrawdownBack>
         </div>
+
+        <a-button
+          v-if="!detail?.prev_permission && !(detail?.has_permission || hasPermission('projects:repayments:revoke'))"
+          type="brown" class="big uppercase w-full"
+          @click="openDetails(false)"
+        >{{ t('查看详情') }}</a-button>
       </div>
     </div>
   </div>
@@ -188,6 +194,12 @@ const openEditHandle = () => {
 };
 
 const detailsVisible = ref(false);
+const detailsAccept = ref(false);
+
+const openDetails = (accept) => {
+  detailsAccept.value = accept;
+  detailsVisible.value = true;
+};
 
 const releaseVisible = ref(false);
 </script>

@@ -1096,5 +1096,22 @@ export default {
   "禁用": "Disable",
   "项目管理Investor": "Loans",
   "首页Investor": "Home",
-  "分配项目": "Assign Projects"
+  "分配项目": "Assign Projects",
+  "统计": "Satistics",
+  "已使用": "Used",
+  "总计金额": "Total amount",
+  "可用余额1": "Available",
+  "金额日志": "Amount log",
+  "投资项目": "Investment",
+  "创建投资": "Created investment",
+  "编辑投资": "Edit investment",
+  "投资方": "Investor",
+  "浮动利率": "BKBM rate",
+  "添加记录": "Add log",
+  "导入": "Import",
+  "生成Line fee": "Generate line fee",
+  "绑定项目": "Bind Lone",
+  "取消绑定项目": "Unbind Lone",
+  "确定取消绑定选中的项目吗？": "Are you sure you want to unbind the selected items?"
+
 }

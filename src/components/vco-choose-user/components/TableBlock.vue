@@ -68,7 +68,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { Empty } from 'ant-design-vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
@@ -97,6 +97,9 @@ const props = defineProps({
   },
   data: {
     type: Object
+  },
+  check_uuids: {
+    type: Array
   }
 });
 
@@ -160,6 +163,19 @@ const handlePathChange = () => {
   emits('update:ids', checkedIds.value);
   emits('change');
 };
+
+watch(
+  () => props.check_uuids,
+  (val) => {
+    if (val && val.length) {
+      checkedIds.value = props.check_uuids || [];
+    }
+  },
+  {
+    deep: true,
+    immediate: true
+  }
+);
 </script>
 
 <style lang="less" scoped>

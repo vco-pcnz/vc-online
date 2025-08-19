@@ -1,7 +1,18 @@
 <template>
   <div class="flex">
     <a-input readonly class="input-label" value="Time" />
-    <a-range-picker style="width: 230px" :allowClear="false" inputReadOnly :presets="rangePresets" v-model:value="value" :disabledDate="disabledDateFormat" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" :showToday="false" @change="onChange" />
+    <a-range-picker
+      style="width: 230px"
+      :allowClear="false"
+      inputReadOnly
+      :presets="showPresets ? rangePresets : []"
+      v-model:value="value"
+      :disabledDate="disabledDateFormat"
+      :format="selectDateFormat()"
+      valueFormat="YYYY-MM-DD"
+      :showToday="false"
+      @change="onChange"
+    />
   </div>
 </template>
 
@@ -17,6 +28,10 @@ const value = ref();
 const props = defineProps({
   data: {
     type: Object
+  },
+  showPresets: {
+    type: Boolean,
+    default: true
   }
 });
 

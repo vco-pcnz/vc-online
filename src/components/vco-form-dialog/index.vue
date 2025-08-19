@@ -6,6 +6,17 @@
         <template v-for="(item, index) in initData" :key="index">
           <div class="input-item">
             <div class="label" v-if="item.label" :class="{ err: !trim(formState[item.key]) && validate && item.required }">{{ t(item.label) }}</div>
+            <!-- input -->
+            <template v-if="item.type === 'avatar'">
+              <div class="flex" style="justify-content: center;">
+              <vco-upload-image v-model:value="formState[item.key]" text="Logo" :isAvatar="true"></vco-upload-image>
+
+              </div>
+            </template>
+            <!-- input -->
+            <template v-if="item.type === 'input'">
+              <a-input v-model:value="formState[item.key]" :disabledDate="item.disabledDate" />
+            </template>
             <!-- 日期 -->
             <template v-if="item.type === 'date'">
               <a-date-picker class="datePicker" inputReadOnly v-model:value="formState[item.key]" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" :showToday="false" :disabledDate="item.disabledDate" />

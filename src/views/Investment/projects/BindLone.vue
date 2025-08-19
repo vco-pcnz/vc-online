@@ -1,9 +1,12 @@
 <template>
   <div>
-    <a-modal :open="visible" :title="t('选择项目')" :width="800" :footer="null" :keyboard="false" :maskClosable="false" @cancel="updateVisible(false)">
+    <a-modal :open="visible" :title="t('选择项目')" :width="850" :footer="null" :keyboard="false" :maskClosable="false" @cancel="updateVisible(false)">
       <vco-page-search>
-        <vco-page-search-item :title="t('项目信息')" width="315">
+        <vco-page-search-item :title="t('项目信息')" width="250">
           <vco-type-input v-model="searchForm.project_keyword" v-model:type="searchForm.project_search_type" :type-data="projectsTypeData" :placeholder="t('请输入')"></vco-type-input>
+        </vco-page-search-item>
+        <vco-page-search-item :title="t('借款人信息')" width="250">
+          <vco-type-input v-model="searchForm.borrower_keyword" v-model:type="searchForm.borrower_search_type" :type-data="borrowerTypeData" :placeholder="t('请输入')"></vco-type-input>
         </vco-page-search-item>
 
         <vco-page-search-item>
@@ -57,14 +60,14 @@
 <script setup>
 import { ref, reactive, watch, computed } from 'vue';
 import { selProject } from '@/api/process';
-import { assignProject } from '@/api/users';
+import { bindProject } from '@/api/invest';
 
 import { useTableList } from '@/hooks/useTableList';
 import { useI18n } from 'vue-i18n';
 import { useUsersStore } from '@/store';
 
 const usersStore = useUsersStore();
-const emits = defineEmits(['update:visible', 'done']);
+const emits = defineEmits(['update:visible', 'update']);
 
 const props = defineProps({
   visible: {
@@ -74,7 +77,7 @@ const props = defineProps({
   selectedData: {
     type: Array
   },
-  uuids: {
+  id: {
     type: Array
   }
 });
@@ -112,9 +115,8 @@ watch(
   (val) => {
     if (val) {
       getTableData(true);
-      console.log(props.selectedData);
-      if (props.selectedData.length == 1) {
-        selectedRowKeys.value = props.selectedData[0].investor_project || [];
+      if (props.selectedData.length) {
+        selectedRowKeys.value = props.selectedData || [];
       }
     } else {
       selectedRowKeys.value = []; // 存放UUid
@@ -143,6 +145,25 @@ const projectsTypeData = [
   }
 ];
 
+const borrowerTypeData = [
+  {
+    label: t('全部属性'),
+    value: ''
+  },
+  {
+    label: t('姓名'),
+    value: 'name'
+  },
+  {
+    label: t('电话'),
+    value: 'phone'
+  },
+  {
+    label: t('邮箱'),
+    value: 'email'
+  }
+];
+
 const searchForm = ref({
   project_search_type: '',
   project_keyword: ''
@@ -165,13 +186,14 @@ const submitLoading = ref(false);
 const submitHandle = () => {
   submitLoading.value = true;
   const params = {
-    uuids: props.uuids,
-    p_uuids: selectedRowKeys.value
+    id: props.id,
+    uuids: selectedRowKeys.value
   };
-  assignProject(params)
+  bindProject(params)
     .then(() => {
       usersStore.getUserList();
       submitLoading.value = false;
+      emits('update');
       updateVisible(false);
     })
     .catch((err) => {

@@ -40,7 +40,7 @@
       </div>
 
       <a-spin :spinning="loading" size="large">
-        <TableBlock :isMultiple="isMultiple" :table-data="tableData" :url="urlValue" v-model:list="checkedList" v-model:ids="checkedIds" v-model:data="checkedData" wrapClassName="vco-choose-user-modal" @change="change"></TableBlock>
+        <TableBlock :isMultiple="isMultiple" :table-data="tableData" :url="urlValue" v-model:list="checkedList" v-model:ids="checkedIds" v-model:data="checkedData" :check_uuids="check_uuids" wrapClassName="vco-choose-user-modal" @change="change"></TableBlock>
       </a-spin>
       <template #footer>
         <div class="modal-footer">
@@ -101,6 +101,9 @@ const props = defineProps({
   params: {
     type: Object,
     default: () => {}
+  },
+  check_uuids: {
+    type: Array
   }
 });
 const urlValue = ref('');

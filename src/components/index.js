@@ -34,6 +34,7 @@ import VcoCompanySelect from './vco-company-select/index.vue';
 import VcoMoreLoading from './vco-more-loading/index.vue';
 import VcoTip from './vco-tip/index.vue';
 import VcoSharedSecurities from './vco-shared-securities/index.vue';
+import VcoImport from './vco-import/index.vue';
 
 export default {
   install(Vue) {
@@ -73,5 +74,6 @@ export default {
     Vue.component('VcoMoreLoading', VcoMoreLoading);
     Vue.component('VcoTip', VcoTip);
     Vue.component('VcoSharedSecurities', VcoSharedSecurities);
+    Vue.component('VcoImport', VcoImport);
   }
 };

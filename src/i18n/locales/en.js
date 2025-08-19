@@ -1112,6 +1112,7 @@ export default {
   "生成Line fee": "Generate line fee",
   "绑定项目": "Bind Lone",
   "取消绑定项目": "Unbind Lone",
-  "确定取消绑定选中的项目吗？": "Are you sure you want to unbind the selected items?"
-
+  "确定取消绑定选中的项目吗？": "Are you sure you want to unbind the selected items?",
+  "对账单": "Statement",
+  "账户详情": "Account Details"
 }

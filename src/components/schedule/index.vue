@@ -28,7 +28,7 @@
         <div class="sys-form-content mt-5">
           <a-form ref="adFormRef" layout="vertical" :model="adFormState" :rules="adFormRules">
             <a-form-item :label="t('日期')" name="date">
-              <a-date-picker v-model:value="adFormState.date" :format="selectDateFormat()" :disabledDate="disabledDateFormat" placeholder="" />
+              <a-date-picker v-model:value="adFormState.date" :format="selectDateFormat()" :disabledDate="adDisabledDateFormat" placeholder="" />
             </a-form-item>
           </a-form>
 
@@ -610,6 +610,21 @@ const option = ref({
 const disabledDateFormat = (current) => {
   const startDate = statisticsData.value?.day.sday;
   const endDate = statisticsData.value?.day.eday;
+
+  if (current && current.isBefore(startDate, 'day')) {
+    return true;
+  }
+
+  if (current && current.isAfter(endDate, 'day')) {
+    return true;
+  }
+
+  return false;
+};
+
+const adDisabledDateFormat = (current) => {
+  const startDate = statisticsData.value?.day.sday;
+  const endDate = dayjs(new Date());
 
   if (current && current.isBefore(startDate, 'day')) {
     return true;

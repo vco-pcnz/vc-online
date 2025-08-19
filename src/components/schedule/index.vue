@@ -116,7 +116,7 @@
                       <div class="pt-2 pb-2" @click="downLoadExcel(3)">{{ t('预测表IRR') }}</div>
                     </a-menu-item>
                   </template>
-                  <template v-if="!ptRole">
+                  <template v-if="hasPermission('projects:repayments:adDownload')">
                     <a-menu-item>
                       <div class="pt-2 pb-2" @click="downLoadExcel(4)">{{ t('账户详情') }}</div>
                     </a-menu-item>

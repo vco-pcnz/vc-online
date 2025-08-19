@@ -88,6 +88,13 @@
                 />
               </a-form-item>
             </a-col>
+            <a-col v-if="formState.all_repayment === 1 && formState.apply_date && hasPermission('projects:repayments:adDownload')" :span="24">
+              <a-form-item :label="t('对账单')">
+                <a-button type="dark" class="uppercase shadow bold" :loading="downloadLoading" @click="downloadStatement">
+                  {{ t('下载') }}
+                </a-button>
+              </a-form-item>
+            </a-col>
             <a-col :span="24">
               <a-form-item name="note" class="custom-label">
                 <template #label>
@@ -190,6 +197,7 @@ import { useUserStore } from '@/store'
 import tool, { selectDateFormat, removeDuplicates, numberStrFormat } from '@/utils/tool';
 import SecuritiesDialog from './SecuritiesDialog.vue';
 import { cloneDeep } from "lodash"
+import { hasPermission } from '@/directives/permission/index';
 
 const { t } = useI18n();
 const emits = defineEmits(['change']);
@@ -503,6 +511,22 @@ const setFormData = () => {
   if (data.all_repayment) {
     calAmount();
   }
+}
+
+const downloadLoading = ref(false)
+const downloadStatement = () => {
+  downloadLoading.value = true
+  projectLoanAllRepayment({
+    uuid: props.uuid,
+    date: dayjs(formState.value.apply_date).format('YYYY-MM-DD'),
+    pdf: 1,
+    less: formState.value.reduction_money || 0
+  }).then(res => {
+    downloadLoading.value = false
+    window.open(res);
+  }).catch(() => {
+    downloadLoading.value = false
+  })
 }
 
 const init = () => {

@@ -98,7 +98,7 @@
                 <vco-number :bold="true" :value="irrPercent" prefix="" suffix="%" :precision="2" size="fs_xl" :end="true"></vco-number>
               </a-form-item>
             </a-col>
-            <a-col v-if="formState.date" :span="8">
+            <a-col v-if="formState.date && hasPermission('projects:repayments:adDownload')" :span="8">
               <a-form-item :label="t('对账单')">
                 <a-button type="dark" class="uppercase shadow bold" :loading="downloadLoading" @click="downloadStatement">
                   {{ t('下载') }}
@@ -120,6 +120,7 @@ import { CalendarOutlined } from '@ant-design/icons-vue';
 import { projectLoanAllRepayment, projectLoanCalcIrr } from '@/api/project/loan';
 import tool, { selectDateFormat } from "@/utils/tool"
 import { useUserStore } from '@/store'
+import { hasPermission } from '@/directives/permission/index';
 
 const { t } = useI18n();
 const emits = defineEmits(['change']);

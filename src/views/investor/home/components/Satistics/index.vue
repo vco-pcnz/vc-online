@@ -9,7 +9,7 @@
           <div class="line one"></div>
           <div class="info-content">
             <p>{{ t('总计金额') }}</p>
-            <vco-number class="num" :value="statisticsData?.total" :precision="2" :end="true"></vco-number>
+            <vco-number class="num" :value="statisticsData?.amount" :precision="2" :end="true"></vco-number>
           </div>
         </div>
         <div class="item">
@@ -28,7 +28,7 @@
           <div class="line two"></div>
           <div class="info-content">
             <p>{{ t('已使用') }}</p>
-            <vco-number class="num" :value="statisticsData?.used" :precision="2" :end="true"></vco-number>
+            <vco-number class="num" :value="tool.minus(statisticsData.amount || 0, statisticsData.available || 0)" :precision="2" :end="true"></vco-number>
           </div>
         </div>
         <div class="chart-content">
@@ -37,24 +37,24 @@
       </div>
       <a-row :gutter="16" class="income">
         <a-col :span="6">
-          <p class="color_grey fs_xs">Interest ({{ statisticsData.interestRate }}%)</p>
+          <p class="color_grey fs_xs">Interest ({{ statisticsData.rate || 0 }}%)</p>
           <p class="value">{{ tool.formatMoney(statisticsData.interest) }}</p>
         </a-col>
         <a-col :span="6" class="">
-          <p class="color_grey fs_xs">Line fee ({{ statisticsData.linFeeRate }}%)</p>
-          <p class="value">{{ tool.formatMoney(statisticsData.lineFee) }}</p>
+          <p class="color_grey fs_xs">Line fee ({{ statisticsData.linFeeRate || 0 }}%)</p>
+          <p class="value">{{ tool.formatMoney(statisticsData.linefee) }}</p>
         </a-col>
         <a-col :span="6">
           <p class="color_grey fs_xs">Upfront fee</p>
-          <p class="value">{{ tool.formatMoney(statisticsData.upfrontfee) }}</p>
+          <p class="value">{{ tool.formatMoney(statisticsData.upfrontfee || 0) }}</p>
         </a-col>
         <a-col :span="6">
           <p class="color_grey fs_xs">Average LVR</p>
-          <p class="value">{{ statisticsData.lvr }}%</p>
+          <p class="value">{{ statisticsData.lvr || 0 }}%</p>
         </a-col>
         <a-col :span="6">
           <p class="color_grey fs_xs">Average LTC</p>
-          <p class="value">{{ statisticsData.ltc }}%</p>
+          <p class="value">{{ statisticsData.ltc || 0 }}%</p>
         </a-col>
       </a-row>
     </div>
@@ -64,14 +64,14 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { dashboard } from '@/api/home/index';
 import tool from '@/utils/tool';
+import { scheduleStatistics, userProject } from '@/api/invest/index';
 const { t } = useI18n();
 
 const statisticsData = ref({
-  total: '300000000',
-  available: '150000000',
-  used: '150000000',
+  total: '0',
+  available: '0',
+  used: '0',
   interestRate: '10',
   interest: '3649635',
   linFeeRate: '10',
@@ -117,17 +117,26 @@ const data = ref({});
 
 const loadData = (val) => {
   loading.value = true;
-  dashboard({ upd: val })
+  scheduleStatistics({ invest_id: invest_id.value })
     .then((res) => {
-      data.value = res;
+      statisticsData.value = res;
+      option.value.series[0].data[0].value = tool.minus(res.amount || 0, res.available || 0);
+      option.value.series[0].data[1].value = res.available || 0;
     })
     .finally(() => {
       loading.value = false;
     });
 };
 
+const invest_id = ref('');
+
 onMounted(() => {
-  loadData();
+  userProject().then((res) => {
+    if (res && res.length) {
+      invest_id.value = res[0].id;
+      loadData();
+    }
+  });
 });
 </script>
 

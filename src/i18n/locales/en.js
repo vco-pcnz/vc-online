@@ -1096,5 +1096,7 @@ export default {
   "禁用": "Disable",
   "项目管理Investor": "Loans",
   "首页Investor": "Home",
-  "分配项目": "Assign Projects"
+  "分配项目": "Assign Projects",
+  "对账单": "Statement",
+  "账户详情": "Account Details"
 }

@@ -98,6 +98,13 @@
                 <vco-number :bold="true" :value="irrPercent" prefix="" suffix="%" :precision="2" size="fs_xl" :end="true"></vco-number>
               </a-form-item>
             </a-col>
+            <a-col v-if="formState.date" :span="8">
+              <a-form-item :label="t('对账单')">
+                <a-button type="dark" class="uppercase shadow bold" :loading="downloadLoading" @click="downloadStatement">
+                  {{ t('下载') }}
+                </a-button>
+              </a-form-item>
+            </a-col>
           </a-row>
         </a-form>
       </div>
@@ -233,6 +240,22 @@ const updateVisible = (value) => {
     maxReductionAmount.value = 0
   }
 };
+
+const downloadLoading = ref(false)
+const downloadStatement = () => {
+  downloadLoading.value = true
+  projectLoanAllRepayment({
+    uuid: props.uuid,
+    date: dayjs(formState.value.date).format('YYYY-MM-DD'),
+    pdf: 1,
+    less: reductionAmount.value
+  }).then(res => {
+    downloadLoading.value = false
+    window.open(res);
+  }).catch(() => {
+    downloadLoading.value = false
+  })
+}
 
 const init = () => {
   visible.value = true;

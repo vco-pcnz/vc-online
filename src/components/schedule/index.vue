@@ -24,6 +24,18 @@
         </div>
       </a-modal>
 
+      <a-modal :open="adVisible" :title="t('账户详情')" :width="500" :footer="null" :keyboard="false" :maskClosable="false" @cancel="adVisible = false">
+        <div class="sys-form-content mt-5">
+          <a-form ref="adFormRef" layout="vertical" :model="adFormState" :rules="adFormRules">
+            <a-form-item :label="t('日期')" name="date">
+              <a-date-picker v-model:value="adFormState.date" :format="selectDateFormat()" :disabledDate="disabledDateFormat" placeholder="" />
+            </a-form-item>
+          </a-form>
+
+          <a-button type="dark" class="big shadow bold uppercase w-full mb-5 mt-5" :loading="adLoading" @click="adSubmitHandle">{{ t('下载') }}</a-button>
+        </div>
+      </a-modal>
+
       <div style="min-height: 200px">
         <div v-if="statisticsData && tabData.length" class="flex header-static" :class="{ 'mt-10': itemId }">
           <div class="item-content">
@@ -102,6 +114,11 @@
                   <template v-if="!ptRole">
                     <a-menu-item>
                       <div class="pt-2 pb-2" @click="downLoadExcel(3)">{{ t('预测表IRR') }}</div>
+                    </a-menu-item>
+                  </template>
+                  <template v-if="!ptRole">
+                    <a-menu-item>
+                      <div class="pt-2 pb-2" @click="downLoadExcel(4)">{{ t('账户详情') }}</div>
                     </a-menu-item>
                   </template>
                 </a-menu>
@@ -297,8 +314,7 @@ import {
   projectForecastExportExcelEst
 } from '@/api/process';
 import { projectForecastVaiList, projectVariationStatisticsVai, projectVariationForecastUpd, projectVariationExportExcel } from '@/api/project/variation';
-import { systemDictData } from '@/api/system';
-``;
+import { projectLoanAllRepayment } from '@/api/project/loan';
 import { useUserStore } from '@/store';
 import { navigationTo } from '@/utils/tool';
 import ReconciliationModal from '@/views/projects/components/ReconciliationModal.vue';
@@ -492,8 +508,41 @@ const getDataInfo = (isLate = false) => {
   });
 };
 
+const adVisible = ref(false);
+const adFormRef = ref();
+const adFormState = reactive({
+  date: ''
+});
+const adFormRules = {
+  date: [{ required: true, message: t('请选择') + t('日期'), trigger: 'change' }]
+};
+
+const adLoading = ref(false);
+const adSubmitHandle = () => {
+  adLoading.value = true;
+  adFormRef.value
+    .validate()
+    .then(() => {
+      projectLoanAllRepayment({
+        uuid: props.currentId,
+        date: dayjs(adFormState.date).format('YYYY-MM-DD'),
+        pdf: 2
+      }).then((res) => {
+        adLoading.value = false;
+        window.open(res);
+      }).catch(() => {
+        adLoading.value = false;
+      });
+    });
+};
+
 const downloading = ref(false);
 const downLoadExcel = (type) => {
+  if (type === 4) {
+    adFormState.date = ''
+    adVisible.value = true;
+    return;
+  }
   const ajaxFn = props.itemId ? projectVariationExportExcel : projectForecastExportExcel;
   const params = {
     type,

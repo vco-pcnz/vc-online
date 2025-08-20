@@ -83,3 +83,49 @@ export const userProject = (params) =>
     method: 'get',
     params
   });
+
+
+export const dashboard = (params) =>
+  request({
+    url: '/invest/dashboard',
+    method: 'get',
+    params
+  });
+
+
+export const statistics = (params) =>
+  request({
+    url: '/invest/statistics',
+    method: 'get',
+    params
+  });
+
+export const forecastProjectList = (params) =>
+  request({
+    url: '/invest/forecastProjectList',
+    method: 'get',
+    params
+  });
+
+  
+export const cashFlowForecast = (params) =>
+  request({
+    url: '/invest/cashFlowForecast',
+    method: 'get',
+    params
+  });
+
+  
+export const monthlyCashFlowList = (params) =>
+  request({
+    url: '/invest/monthlyCashFlowList',
+    method: 'get',
+    params
+  });
+  
+export const barSta = (params) =>
+  request({
+    url: '/invest/barSta',
+    method: 'get',
+    params
+  });

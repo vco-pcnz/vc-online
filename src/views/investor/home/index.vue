@@ -15,7 +15,7 @@ import { hasPermission } from '@/directives/permission/index';
 import Satistics from './components/Satistics/index.vue';
 import AmountLog from './components/AmountLog/index1.vue';
 import ProjectDashboard from './components/ProjectDashboard/index.vue';
-import CashflowForecast from '@/views/dashboard/components/CashflowForecast/index.vue';
+import CashflowForecast from './components/CashflowForecast/index.vue';
 const { t } = useI18n();
 </script>
 

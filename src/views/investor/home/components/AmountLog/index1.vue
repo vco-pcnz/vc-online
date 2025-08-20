@@ -14,7 +14,7 @@
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
-import { dashboard } from '@/api/home/index';
+import { barSta } from '@/api/invest';
 import SearchContent from '@/views/dashboard/components/SearchContent/index.vue';
 import dayjs from 'dayjs';
 const { t } = useI18n();
@@ -54,7 +54,6 @@ const option = ref({
       type: 'shadow'
     },
     formatter: function (params) {
-      console.log(params);
       // 定义 tooltip 的 HTML 样式
 
       const bodyStyle = 'font-family: Aeonik, Arial, Helvetica, sans-serif;';
@@ -82,24 +81,24 @@ const data = ref({});
 
 const loadData = (val) => {
   loading.value = true;
-  dashboard(searchForm.value)
+  barSta(searchForm.value)
     .then((res) => {
-      res.data = {
-        bar: [
-          {
-            name: t('可用余额1'),
-            type: 'bar',
-            data: ['244047.57', 0, '-765.75', '243809.28', '244056.65', '244059.47', '244059.47', '244059.47']
-          },
-          {
-            name: t('已使用'),
-            type: 'bar',
-            data: ['237120.16', 0, '817.56', '236661.39', '236661.39', '237963.91', '237963.91', '237963.91']
-          }
-        ],
-        time: ['2025-08-11', '2025-08-12', '2025-08-13', '2025-08-14', '2025-08-15', '2025-08-16', '2025-08-17', '2025-08-18']
-      };
-      option.value.xAxis.data = res.data.time.map((item) => {
+      // res.data = {
+      //   bar: [
+      //     {
+      //       name: t('可用余额1'),
+      //       type: 'bar',
+      //       data: ['244047.57', 0, '-765.75', '243809.28', '244056.65', '244059.47', '244059.47', '244059.47']
+      //     },
+      //     {
+      //       name: t('已使用'),
+      //       type: 'bar',
+      //       data: ['237120.16', 0, '817.56', '236661.39', '236661.39', '237963.91', '237963.91', '237963.91']
+      //     }
+      //   ],
+      //   time: ['2025-08-11', '2025-08-12', '2025-08-13', '2025-08-14', '2025-08-15', '2025-08-16', '2025-08-17', '2025-08-18']
+      // };
+     option.value.xAxis.data = res.data.time.map((item) => {
         if (item.length == '7') {
           return tool.monthYear(item);
         }
@@ -107,12 +106,8 @@ const loadData = (val) => {
           return tool.showDate(item);
         }
       });
-      // let lineArr = cloneDeep(res.data.bar);
-      // lineArr.map((item) => {
-      //   item.type = 'line';
-      //   item['smooth'] = true;
-      // });
       option.value.series = [...res.data.bar];
+      // updateTime.value = res.otherInfo;
     })
     .finally(() => {
       loading.value = false;

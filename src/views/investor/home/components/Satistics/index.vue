@@ -21,14 +21,14 @@
           </div>
           <div class="info-content">
             <p>{{ t('可用余额1') }}</p>
-            <vco-number class="num" :value="statisticsData?.available" :precision="2" :end="true"></vco-number>
+            <vco-number class="num" :value="statisticsData?.available_amount" :precision="2" :end="true"></vco-number>
           </div>
         </div>
         <div class="item">
           <div class="line two"></div>
           <div class="info-content">
             <p>{{ t('已使用') }}</p>
-            <vco-number class="num" :value="tool.minus(statisticsData.amount || 0, statisticsData.available || 0)" :precision="2" :end="true"></vco-number>
+            <vco-number class="num" :value="statisticsData?.use_amount" :precision="2" :end="true"></vco-number>
           </div>
         </div>
         <div class="chart-content">
@@ -38,15 +38,15 @@
       <a-row :gutter="16" class="income">
         <a-col :span="6">
           <p class="color_grey fs_xs">Interest ({{ statisticsData.rate || 0 }}%)</p>
-          <p class="value">{{ tool.formatMoney(statisticsData.interest) }}</p>
+          <p class="value">{{ tool.formatMoney(statisticsData.Interest) }}</p>
         </a-col>
         <a-col :span="6" class="">
-          <p class="color_grey fs_xs">Line fee ({{ statisticsData.linFeeRate || 0 }}%)</p>
-          <p class="value">{{ tool.formatMoney(statisticsData.linefee) }}</p>
+          <p class="color_grey fs_xs">Line fee ({{ statisticsData.lrate || 0 }}%)</p>
+          <p class="value">{{ tool.formatMoney(statisticsData.Linefee) }}</p>
         </a-col>
         <a-col :span="6">
           <p class="color_grey fs_xs">Upfront fee</p>
-          <p class="value">{{ tool.formatMoney(statisticsData.upfrontfee || 0) }}</p>
+          <p class="value">{{ tool.formatMoney(statisticsData.Upfront || 0) }}</p>
         </a-col>
         <a-col :span="6">
           <p class="color_grey fs_xs">Average LVR</p>
@@ -65,22 +65,10 @@
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
-import { scheduleStatistics, userProject } from '@/api/invest/index';
+import { scheduleStatistics, userProject, statistics } from '@/api/invest/index';
 const { t } = useI18n();
 
-const statisticsData = ref({
-  total: '0',
-  available: '0',
-  used: '0',
-  interestRate: '10',
-  interest: '3649635',
-  linFeeRate: '10',
-  lineFee: '3649635',
-  upfrontfee: '3649635',
-  lvr: '10',
-  ltc: '3',
-  irr: '10'
-});
+const statisticsData = ref({});
 
 const option = ref({
   series: [
@@ -113,15 +101,14 @@ const option = ref({
 });
 
 const loading = ref(false);
-const data = ref({});
 
 const loadData = (val) => {
   loading.value = true;
-  scheduleStatistics({ invest_id: invest_id.value })
+  statistics({ id: invest_id.value })
     .then((res) => {
       statisticsData.value = res;
-      option.value.series[0].data[0].value = tool.minus(res.amount || 0, res.available || 0);
-      option.value.series[0].data[1].value = res.available || 0;
+      option.value.series[0].data[0].value = res.use_amount || 0;
+      option.value.series[0].data[1].value = res.available_amount || 0;
     })
     .finally(() => {
       loading.value = false;

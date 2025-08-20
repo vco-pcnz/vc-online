@@ -31,8 +31,7 @@ import { ref, computed, watch, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ChartOne from './ChartOne.vue';
 import ChartTwo from './ChartTwo.vue';
-import { dashboard } from '@/api/home/index';
-import { hasPermission } from '@/directives/permission/index';
+import { dashboard } from '@/api/invest';
 const { t } = useI18n();
 
 const loading = ref(false);

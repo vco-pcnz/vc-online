@@ -2,7 +2,7 @@
   <a-spin :spinning="loading" size="large">
     <div class="flex title items-center gap-5">
       <div class="bold fs_2xl">{{ t('金额日志') }}</div>
-      <SearchContent v-model:value="searchForm" :searchConfig="searchConfig" :open_hidden="true" :showPresets="false" downloadUrl="barSta/briefExport" @change="loadData"></SearchContent>
+      <SearchContent v-model:value="searchForm" :searchConfig="searchConfig" :open_hidden="true" :showPresets="false" downloadUrl="invest/barExport" @change="loadData"></SearchContent>
     </div>
     <div style="height: 350px" class="mt-10">
       <v-chart class="chart2" :option="option" autoresize />

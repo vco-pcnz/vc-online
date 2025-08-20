@@ -45,6 +45,12 @@ const props = defineProps({
   showPresets: {
     type: Boolean,
     default: true
+  },
+  downloadParams: {
+    type: Object,
+    default: () => {
+      return {};
+    }
   }
 });
 
@@ -67,7 +73,7 @@ const report = () => {
   const paramsInfo = {
     url,
     method: 'get',
-    params: searchForm.value
+    params: { ...searchForm.value, ...props.downloadParams }
   };
 
   request(paramsInfo)

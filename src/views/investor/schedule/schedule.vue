@@ -5,9 +5,9 @@
         <FormModal :invest_id="invest_id" :use_date="statisticsData?.use_date" @update="getDataInfo">
           <a-button type="cyan" shape="round">{{ t('添加记录') }}</a-button>
         </FormModal>
-        <!-- <Vco-import type="file">
-        </Vco-import> -->
-        <a-button type="cyan" shape="round" class="ml-5">{{ t('导入') }}</a-button>
+        <vco-import type="file" :params="{id: invest_id}" imporUrl="/invest/schedule/import" @change="getDataInfo">
+          <a-button type="cyan" shape="round" class="ml-5">{{ t('导入') }}</a-button>
+        </vco-import>
       </div>
     </vco-page-panel>
     <div class="flex justify-end" style="margin-top: -50px; margin-bottom: 20px; padding-right: 28px">
@@ -61,9 +61,28 @@
           </div>
 
           <div class="flex flex-col items-center gap-6">
-            <a-button :loading="downloading" type="dark" class="big shadow bold uppercase flex-button" @click="downLoadExcel">
+            <!-- <a-button :loading="downloading" type="dark" class="big shadow bold uppercase flex-button" @click="downLoadExcel">
               {{ t('创建报告') }}
-            </a-button>
+            </a-button> -->
+            <a-dropdown :trigger="['click']">
+              <a-button :loading="downloading" type="dark" class="big shadow bold uppercase flex-button">
+                {{ t('创建报告') }}
+                <DownOutlined />
+              </a-button>
+              <template #overlay>
+                <a-menu>
+                  <a-menu-item>
+                    <div class="pt-2 pb-2" @click="downLoadExcel(1)">Notes register</div>
+                  </a-menu-item>
+                  <a-menu-item>
+                    <div class="pt-2 pb-2" @click="downLoadExcel(2)">Monthly Fee </div>
+                  </a-menu-item>
+                  <a-menu-item>
+                    <div class="pt-2 pb-2" @click="downLoadExcel(3)">Schedule</div>
+                  </a-menu-item>
+                </a-menu>
+              </template>
+            </a-dropdown>
           </div>
         </div>
 
@@ -159,6 +178,7 @@
 import { ref, reactive, onMounted, watch, computed, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import dayjs from 'dayjs';
+import { DownOutlined, RightOutlined } from '@ant-design/icons-vue';
 import tool, { selectDateFormat } from '@/utils/tool';
 import FormModal from './components/FormModal.vue';
 import TableSearch from './components/TableSearch.vue';
@@ -210,7 +230,7 @@ const getDataInfo = (val) => {
 const downloading = ref(false);
 const downLoadExcel = (type) => {
   downloading.value = true;
-  scheduleExportExcel({ invest_id: invest_id.value })
+  scheduleExportExcel({ invest_id: invest_id.value, type: type })
     .then((res) => {
       downloading.value = false;
       window.open(res);

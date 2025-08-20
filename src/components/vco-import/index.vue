@@ -1,6 +1,18 @@
 <template>
   <div>
-    <a-upload ref="uploadRef"  :showUploadList="false" :action="uploadAction" :disabled="disabled" :headers="headers" :beforeUpload="beforeUpload" :data="{ biz: bizPath, ...params }" :name="fileName" :multiple="isMultiple" :accept="accept" @change="handleChange">
+    <a-upload
+      ref="uploadRef"
+      :showUploadList="false"
+      :action="uploadAction"
+      :disabled="disabled"
+      :headers="headers"
+      :beforeUpload="beforeUpload"
+      :data="{ biz: bizPath, ...params }"
+      :name="fileName"
+      :multiple="isMultiple"
+      :accept="accept"
+      @change="handleChange"
+    >
       <!-- directory 文件夹 -->
       <slot>
         <a-button type="cyan" shape="round">{{ t('导入') }}</a-button>
@@ -64,9 +76,9 @@ const props = defineProps({
     required: false,
     default: 100 // 100 MB
   },
-  controller: {
+  imporUrl: {
     type: String,
-    default: '/upload'
+    default: '/upload/uploadFile'
   }
 });
 
@@ -76,9 +88,9 @@ const fileName = ref('file');
 
 // 上传文件类型
 watch(
-  () => props.type,
+  () => props.imporUrl,
   (val) => {
-    uploadAction.value = uploadUrl + props.controller;
+    uploadAction.value = uploadUrl + props.imporUrl;
   },
   {
     immediate: true
@@ -114,7 +126,6 @@ const getFileAccessHttpUrl = (avatar, subStr = '') => {
   }
 };
 
-
 const beforeUpload = (file, tips) => {
   const isLt2M = file.size / 1024 / 1024 < props.maxSize;
   if (!isLt2M) {
@@ -128,37 +139,7 @@ const beforeUpload = (file, tips) => {
 
 // 回传父组件
 const handlePathChange = () => {
-  const uploadFiles = cloneDeep(fileList.value);
-  let item = [];
-  let list = [];
-  if (!props.isMultiple) {
-    item = uploadFiles[uploadFiles.length - 1].response.data;
-  } else {
-    for (var i = 0; i < uploadFiles.length; i++) {
-      const itemData = uploadFiles[i].response.status === 'history' ? uploadFiles[i].uid : uploadFiles[i].response.data;
-      const listItem =
-        uploadFiles[i].response.status === 'history'
-          ? {
-              name: uploadFiles[i].name,
-              type: uploadFiles[i].fileType || getType(uploadFiles[i].url),
-              uuid: uploadFiles[i].uid,
-              size: uploadFiles[i].size,
-              value: uploadFiles[i].url
-            }
-          : {
-              name: uploadFiles[i].name,
-              type: uploadFiles[i].fileType || getType(uploadFiles[i].url),
-              uuid: uploadFiles[i].url,
-              size: uploadFiles[i].size,
-              value: uploadFiles[i].url
-            };
-      item.push(itemData);
-      list.push(listItem);
-    }
-  }
-  emits('update:value', item);
-  emits('update:list', list);
-  emits('change', item);
+  emits('change');
   updateUploading(false);
 };
 
@@ -176,46 +157,12 @@ const handleChange = (info) => {
   }
   if (info.file.status === 'done') {
     if (info.file.response.success) {
-      picUrl.value = true;
-      list = list.map((file) => {
-        if (file.response) {
-          file.url = getFileAccessHttpUrl(file.response.data);
-          file.fileType = file.fileType || getType(file.url);
-        }
-        return file;
-      });
+      handlePathChange();
     } else {
-      list = list.filter((item) => item.uid !== info.file.uid);
       message.error(`${info.file.response.msg}` || ` ${t('上传失败')}.`);
     }
   } else if (info.file.status === 'error') {
-    list = list.filter((item) => item.uid !== info.file.uid);
     message.error(`${info.file.name} ${t('上传失败')}.`);
-  }
-
-  fileList.value = list;
-  if (info.file.status === 'done') {
-    if (list.length === 1) {
-      handlePathChange();
-    } else {
-      const num = list.filter((item) => item.status !== 'uploading').length;
-      if (num === list.length) {
-        handlePathChange();
-      }
-    }
-  }
-  if (info.file.status === 'removed') {
-    handlePathChange();
-  }
-
-  if (info.file && info.fileList.length) {
-    const index = info.fileList.findIndex((item) => item.uid === info.file.uid);
-
-    if (index > -1) {
-      if (!beforeUpload(info.file, false)) {
-        fileList.value?.splice(index, 1);
-      }
-    }
   }
 };
 
@@ -223,7 +170,6 @@ onMounted(() => {
   const token = getToken();
   headers.value = { Authorization: token };
 });
-
 </script>
 
 <style lang="less" scoped>

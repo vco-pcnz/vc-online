@@ -81,7 +81,9 @@ const data = ref({});
 
 const loadData = (val) => {
   loading.value = true;
-  barSta({ id: invest_id.value, ...searchForm.value })
+  let params = searchForm.value;
+  if (val) params = { ...searchForm.value, ...val };
+  barSta({ id: invest_id.value, ...params })
     .then((res) => {
       // res.data = {
       //   bar: [

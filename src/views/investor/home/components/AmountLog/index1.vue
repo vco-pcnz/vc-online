@@ -14,7 +14,7 @@
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
-import { barSta } from '@/api/invest';
+import { userProject, barSta } from '@/api/invest';
 import SearchContent from '@/views/dashboard/components/SearchContent/index.vue';
 import dayjs from 'dayjs';
 const { t } = useI18n();
@@ -81,7 +81,7 @@ const data = ref({});
 
 const loadData = (val) => {
   loading.value = true;
-  barSta(searchForm.value)
+  barSta({ id: invest_id.value, ...searchForm.value })
     .then((res) => {
       // res.data = {
       //   bar: [
@@ -98,7 +98,7 @@ const loadData = (val) => {
       //   ],
       //   time: ['2025-08-11', '2025-08-12', '2025-08-13', '2025-08-14', '2025-08-15', '2025-08-16', '2025-08-17', '2025-08-18']
       // };
-     option.value.xAxis.data = res.data.time.map((item) => {
+      option.value.xAxis.data = res.time.map((item) => {
         if (item.length == '7') {
           return tool.monthYear(item);
         }
@@ -106,7 +106,7 @@ const loadData = (val) => {
           return tool.showDate(item);
         }
       });
-      option.value.series = [...res.data.bar];
+      option.value.series = [...res.bar];
       // updateTime.value = res.otherInfo;
     })
     .finally(() => {
@@ -114,8 +114,15 @@ const loadData = (val) => {
     });
 };
 
+const invest_id = ref('');
+
 onMounted(() => {
-  loadData();
+  userProject().then((res) => {
+    if (res && res.length) {
+      invest_id.value = res[0].id;
+      loadData();
+    }
+  });
 });
 </script>
 

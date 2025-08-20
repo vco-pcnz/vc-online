@@ -65,7 +65,7 @@
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
-import { scheduleStatistics, userProject, statistics } from '@/api/invest/index';
+import { userProject, statistics } from '@/api/invest/index';
 const { t } = useI18n();
 
 const statisticsData = ref({});

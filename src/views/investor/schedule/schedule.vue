@@ -489,7 +489,7 @@ onMounted(() => {
     &:nth-last-child(2),
     &:nth-last-child(3),
     &:nth-last-child(4) {
-      width: 170px;
+      width: 300px;
       text-align: center;
     }
     > p {

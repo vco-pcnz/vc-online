@@ -1,11 +1,11 @@
 <template>
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="JournalRef" class="Journal">
-    <a-modal :width="700" :open="visible" :title="t('编辑金额记录') + ' ' + tool.formatMoney(pData.amount)" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
+    <a-modal :width="800" :open="visible" :title="t('编辑金额记录') + ' ' + tool.formatMoney(pData.amount)" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content">
         <div style="max-height: 500px; overflow-y: auto; padding: 0 10px">
           <ul class="list" v-for="(item, index) in logList" :key="index">
-            <li>{{ tool.showDate(item.update_time, 'DD/MM/YY') }}</li>
+            <li>{{ tool.showDate(item.create_time, 'DD/MM/YY') }}</li>
             <li>
               {{ item.type ? t('减少') : t('增加') }}
             </li>
@@ -13,8 +13,11 @@
               <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.remark" style="width: 130px">{{ item.remark || '--' }}</p>
             </li>
             <li class="flex items-center justify-end">
-              <vco-number color="#569695" v-if="item.type == 0" :value="item.amount" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
-              <vco-number color="#d6a91f" v-if="item.type == 1" :value="item.amount" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
+              <vco-number color="#569695" v-if="item.type == 0" :value="item.amount" :precision="2" size="fs_md"></vco-number>
+              <vco-number color="#d6a91f" v-if="item.type == 1" :value="item.amount" :precision="2" size="fs_md"></vco-number>
+            </li>
+            <li class="flex items-center justify-end">
+              <vco-number :value="item.samount" :precision="2" size="fs_md"></vco-number>
             </li>
           </ul>
         </div>
@@ -39,9 +42,7 @@ import EditAmount from './EditAmount.vue';
 const { t } = useI18n();
 const emits = defineEmits(['update']);
 
-const props = defineProps({
-
-});
+const props = defineProps({});
 
 const visible = ref(false);
 

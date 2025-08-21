@@ -18,8 +18,16 @@
 
           <div class="input-item">
             <div class="label" :class="{ err: !formState.amount && validate }">{{ t('金额，新西兰元') }}</div>
-            <a-input-number v-model:value="formState.amount" :min="0" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
+            <a-input-number
+              v-model:value="formState.amount"
+              :min="0"
+              :max="99999999999"
+              :disabled="Boolean(formState?.id)"
+              :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+              :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+            />
           </div>
+
           <div class="flex gap-5">
             <div class="input-item">
               <div class="label" :class="{ err: !formState.rate && validate }">{{ t('利率') }}</div>
@@ -62,10 +70,7 @@ const { t } = useI18n();
 const emits = defineEmits(['update']);
 
 const props = defineProps({
-  formParams: {
-    type: Object,
-    default: {}
-  }
+  
 });
 
 const visible = ref(false);
@@ -82,6 +87,17 @@ const formState = ref({
   lrate: '',
   remark: ''
 });
+
+const addsubs = ref([
+  {
+    label: t('增加'),
+    value: 1
+  },
+  {
+    label: t('减少'),
+    value: 2
+  }
+]);
 
 const updateVisible = (value) => {
   visible.value = value;
@@ -174,6 +190,12 @@ defineExpose({
 
   .input-item {
     margin-top: 20px;
+  }
+
+  .edit {
+    font-size: 25px;
+    padding-left: 10px;
+    color: #333;
   }
 }
 </style>

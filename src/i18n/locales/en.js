@@ -1101,7 +1101,7 @@ export default {
   "已使用": "Used",
   "总计金额": "Total amount",
   "可用余额1": "Available",
-  "金额日志": "Amount log",
+  "金额日志": "Senior Notes lssued",
   "投资项目": "Investment",
   "创建投资": "Created investment",
   "编辑投资": "Edit investment",
@@ -1114,5 +1114,8 @@ export default {
   "取消绑定项目": "Unbind Lone",
   "确定取消绑定选中的项目吗？": "Are you sure you want to unbind the selected items?",
   "对账单": "Statement",
-  "账户详情": "Account Details"
+  "账户详情": "Account Details",
+  "编辑金额": "Edit amount",
+  "编辑金额记录": "Edit amount history",
+  "贷款概览": "Loan Facility Overview"
 }

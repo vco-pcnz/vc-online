@@ -1,5 +1,6 @@
 <template>
   <vco-choose-user ref="vcoChooseUserRef" :check_uuids="bindUserForm.uuids" :isMultiple="true" @change="checkUser"><div></div> </vco-choose-user>
+  <EditAmountLog ref="editAmountLogRef" @update="update"></EditAmountLog>
 
   <div class="sys-table-content">
     <a-table :columns="columns" :data-source="tableData" :pagination="false" :scroll="{ x: '1500px' }" row-key="uuid" :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }">
@@ -78,11 +79,14 @@
                   <a-menu-item key="3" @click="navigationTo('/Investment/schedule/index?uuid=' + record.id)">
                     {{ t('明细表') }}
                   </a-menu-item>
-                  <a-menu-item key="4">
+                  <a-menu-item key="4" @click="showEditAmountLog(record)">
+                    {{ t('编辑金额记录') }}
+                  </a-menu-item>
+                  <!-- <a-menu-item key="4">
                     <vco-popconfirm :formParams="{ id: record.id }" url="invest/delete" :tip="t('确定删除吗？')" @update="update()">
                       {{ t('删除l') }}
                     </vco-popconfirm>
-                  </a-menu-item>
+                  </a-menu-item> -->
                 </a-menu>
               </template>
             </a-dropdown>
@@ -100,6 +104,7 @@ import tool from '@/utils/tool';
 import { navigationTo } from '@/utils/tool';
 const emits = defineEmits(['update:data', 'update:keys', 'change', 'update', 'showEdit']);
 import { bindUser, investBindData } from '@/api/invest/index';
+import EditAmountLog from './EditAmountLog.vue';
 
 const props = defineProps({
   tableData: {
@@ -201,6 +206,11 @@ const checkUser = (val) => {
 const showEdit = (val) => {
   emits('showEdit', val);
 };
+
+const editAmountLogRef = ref();
+const showEditAmountLog = (val) => {
+  editAmountLogRef.value.init(val)
+}
 
 const update = (id) => {
   emits('update');

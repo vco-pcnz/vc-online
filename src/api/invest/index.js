@@ -84,14 +84,12 @@ export const userProject = (params) =>
     params
   });
 
-
 export const dashboard = (params) =>
   request({
     url: '/invest/dashboard',
     method: 'get',
     params
   });
-
 
 export const statistics = (params) =>
   request({
@@ -107,7 +105,6 @@ export const forecastProjectList = (params) =>
     params
   });
 
-  
 export const cashFlowForecast = (params) =>
   request({
     url: '/invest/cashFlowForecast',
@@ -115,17 +112,23 @@ export const cashFlowForecast = (params) =>
     params
   });
 
-  
 export const monthlyCashFlowList = (params) =>
   request({
     url: '/invest/monthlyCashFlowList',
     method: 'get',
     params
   });
-  
+
 export const barSta = (params) =>
   request({
     url: '/invest/barSta',
     method: 'get',
     params
+  });
+
+export const addAmount = (data) =>
+  request({
+    url: 'invest/addAmount',
+    method: 'post',
+    data
   });

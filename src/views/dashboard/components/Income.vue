@@ -111,6 +111,9 @@ const loadData = (val) => {
         if (item.length == '10') {
           return tool.showDate(item);
         }
+        if (item.length == '4') {
+          return item;
+        }
       });
       // let lineArr = cloneDeep(res.data.bar);
       // lineArr.map((item) => {

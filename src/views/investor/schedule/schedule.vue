@@ -5,7 +5,7 @@
         <FormModal :invest_id="invest_id" :use_date="statisticsData?.use_date" @update="getDataInfo">
           <a-button type="cyan" shape="round">{{ t('添加记录') }}</a-button>
         </FormModal>
-        <vco-import type="file" :params="{id: invest_id}" imporUrl="/invest/schedule/import" @change="getDataInfo">
+        <vco-import type="file" :params="{ id: invest_id }" imporUrl="/invest/schedule/import" @change="getDataInfo">
           <a-button type="cyan" shape="round" class="ml-5">{{ t('导入') }}</a-button>
         </vco-import>
       </div>
@@ -38,7 +38,7 @@
               </div>
               <div class="info-content">
                 <p>{{ t('已使用') }}</p>
-                <vco-number class="num" :value="tool.minus(statisticsData.amount || 0, statisticsData.available || 0)" :precision="2" :end="true"></vco-number>
+                <vco-number class="num" :value="statisticsData.use_amount || 0" :precision="2" :end="true"></vco-number>
               </div>
             </div>
             <div class="chart-content">
@@ -61,9 +61,6 @@
           </div>
 
           <div class="flex flex-col items-center gap-6">
-            <!-- <a-button :loading="downloading" type="dark" class="big shadow bold uppercase flex-button" @click="downLoadExcel">
-              {{ t('创建报告') }}
-            </a-button> -->
             <a-dropdown :trigger="['click']">
               <a-button :loading="downloading" type="dark" class="big shadow bold uppercase flex-button">
                 {{ t('创建报告') }}
@@ -75,7 +72,7 @@
                     <div class="pt-2 pb-2" @click="downLoadExcel(1)">Notes register</div>
                   </a-menu-item>
                   <a-menu-item>
-                    <div class="pt-2 pb-2" @click="downLoadExcel(2)">Monthly Fee </div>
+                    <div class="pt-2 pb-2" @click="downLoadExcel(2)">Monthly Fee</div>
                   </a-menu-item>
                   <a-menu-item>
                     <div class="pt-2 pb-2" @click="downLoadExcel(3)">Schedule</div>
@@ -85,10 +82,16 @@
             </a-dropdown>
           </div>
         </div>
-
+        <vco-popconfirm v-if="showBack" :formParams="{ invest_id: invest_id, ids: checkedIds }" url="invest/schedule/delete" :disabled="!checkedIds.length" :tip="t('确定删除吗？')" @update="getDataInfo()">
+          <a-button :disabled="!checkedIds.length" class="mb-3">
+            {{ t('删除') }}
+          </a-button>
+        </vco-popconfirm>
         <div v-if="tabData.length" class="table-content">
           <div class="col-item th">
-            <div class="item uppercase about"></div>
+            <div class="item about flex items-center" @click="checkedAllHandle">
+              <a-checkbox v-if="showBack" :checked="Boolean(checkedAll)" :indeterminate="Boolean(indeterminate)"></a-checkbox>
+            </div>
             <div class="item uppercase">{{ t('日期') }}</div>
             <div class="item uppercase">{{ t('类型') }}</div>
             <div class="item uppercase">{{ t('说明') }}</div>
@@ -100,10 +103,10 @@
           </div>
 
           <div class="col-content">
-            <!-- <div v-for="(_item, index) in tabData" :key="index" class="col-block" :class="{ passed: item.passed }"> -->
             <div v-for="(_item, _index) in tabData" :key="_item.date" class="col-item">
-              <div class="item about flex items-center">
-                <span class="circle"></span>
+              <div class="item about flex">
+                <a-checkbox v-if="showBack" :checked="checkedIds.includes(_item.id)" @change="itemcheck(_item)"></a-checkbox>
+                <span v-else class="circle"></span>
               </div>
               <div class="item">{{ tool.showDate(_item.date) }}</div>
               <div class="item type">
@@ -130,7 +133,8 @@
                 <vco-number :value="_item.balance" :precision="2" :end="true"></vco-number>
               </div>
               <div class="item ops cursor-pointer" v-if="showBack">
-                <vco-popconfirm :formParams="{ invest_id: invest_id, ids: [_item.id] }" url="invest/schedule/delete" :tip="t('确定删除吗？')" @update="getDataInfo()" v-if="dayjs(_item.date).isAfter(statisticsData.use_date, 'day')">
+                <!--  v-if="dayjs(_item.date).isAfter(statisticsData.use_date, 'day')" -->
+                <vco-popconfirm :formParams="{ invest_id: invest_id, ids: [_item.id] }" url="invest/schedule/delete" :tip="t('确定删除吗？')" @update="getDataInfo()">
                   <i class="iconfont">&#xe8c1;</i>
                 </vco-popconfirm>
               </div>
@@ -166,7 +170,7 @@
         <div class="item">
           <p>{{ t('已使用') }}</p>
           <div class="flex justify-end items-center gap-1">
-            <vco-number :value="tool.minus(statisticsData.amount || 0, statisticsData.available || 0)" color="#ffffff" size="fs_xl" :precision="2" :end="true"></vco-number>
+            <vco-number :value="statisticsData.use_amount" color="#ffffff" size="fs_xl" :precision="2" :end="true"></vco-number>
           </div>
         </div>
       </div>
@@ -194,6 +198,52 @@ const pageLoading = ref(false);
 const tabData = ref([]);
 const statisticsData = ref(null);
 const invest_id = ref();
+
+const checkedList = ref([]); // 原始数据
+const checkedIds = ref([]); // uuid
+
+// 全选状态
+const checkedAll = computed(() => {
+  const currentIds = tabData.value.map((item) => item.id);
+  const currentCheckIds = checkedIds.value.filter((item) => currentIds.includes(item));
+  return currentCheckIds.length && currentCheckIds.length == currentIds.length;
+});
+
+// 半选状态
+const indeterminate = computed(() => {
+  const currentIds = tabData.value.map((item) => item.id);
+  const currentCheckIds = checkedIds.value.filter((item) => currentIds.includes(item));
+  return currentCheckIds.length && currentCheckIds.length !== currentIds.length;
+});
+// 单个复选
+const itemcheck = (item) => {
+  let index = checkedIds.value.indexOf(item.id);
+  if (index < 0) {
+    checkedIds.value.push(item.id);
+    checkedList.value.push(item);
+  } else {
+    checkedIds.value.splice(index, 1);
+    checkedList.value.splice(index, 1);
+  }
+};
+// 全选
+const checkedAllHandle = (val) => {
+  const isCheck = !checkedAll.value;
+  tabData.value.map((item) => {
+    let index = checkedIds.value.indexOf(item.id);
+    if (!isCheck) {
+      if (index !== -1) {
+        checkedIds.value.splice(index, 1);
+        checkedList.value.splice(index, 1);
+      }
+    } else {
+      if (index == -1) {
+        checkedIds.value.push(item.id);
+        checkedList.value.push(item);
+      }
+    }
+  });
+};
 
 const getDataInfo = (val) => {
   pageLoading.value = true;
@@ -300,9 +350,8 @@ onMounted(() => {
 @import '@/styles/variables.less';
 
 .header-static {
-  margin-bottom: 60px;
-  gap: 80px;
   align-items: center;
+  margin-bottom: 40px;
   .item-content {
     display: flex;
     flex: 1;
@@ -401,7 +450,7 @@ onMounted(() => {
       &:nth-child(1) {
         width: 0;
         &.about {
-          width: 60px;
+          width: 40px;
         }
       }
       &:nth-child(2) {

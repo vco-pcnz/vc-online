@@ -1,7 +1,7 @@
 <template>
   <a-spin :spinning="loading" size="large">
     <div class="title">
-      <div class="bold fs_2xl">{{ t('统计') }}</div>
+      <div class="bold fs_2xl">{{ t('贷款概览') }}</div>
     </div>
     <div class="flex header-static mt-10">
       <div class="item-content">
@@ -37,11 +37,11 @@
       </div>
       <a-row :gutter="16" class="income">
         <a-col :span="6">
-          <p class="color_grey fs_xs">Interest ({{ statisticsData.rate || 0 }}%)</p>
+          <p class="color_grey fs_xs">Interest ( {{ statisticsData.rate || 0 }}% + BKBM )</p>
           <p class="value">{{ tool.formatMoney(statisticsData.Interest) }}</p>
         </a-col>
         <a-col :span="6" class="">
-          <p class="color_grey fs_xs">Line fee ({{ statisticsData.lrate || 0 }}%)</p>
+          <p class="color_grey fs_xs">Line fee ( {{ statisticsData.lrate || 0 }}% )</p>
           <p class="value">{{ tool.formatMoney(statisticsData.Linefee) }}</p>
         </a-col>
         <a-col :span="6">
@@ -49,12 +49,12 @@
           <p class="value">{{ tool.formatMoney(statisticsData.Upfront || 0) }}</p>
         </a-col>
         <a-col :span="6">
-          <p class="color_grey fs_xs">Average LVR</p>
-          <p class="value">{{ statisticsData.lvr || 0 }}%</p>
+          <p class="color_grey fs_xs">LTLVR</p>
+          <p class="value">23%</p>
         </a-col>
         <a-col :span="6">
-          <p class="color_grey fs_xs">Average LTC</p>
-          <p class="value">{{ statisticsData.ltc || 0 }}%</p>
+          <p class="color_grey fs_xs">ICR</p>
+          <p class="value">4X</p>
         </a-col>
       </a-row>
     </div>

@@ -1,6 +1,7 @@
 <template>
   <vco-choose-user ref="vcoChooseUserRef" :check_uuids="bindUserForm.uuids" :isMultiple="true" @change="checkUser"><div></div> </vco-choose-user>
   <EditAmountLog ref="editAmountLogRef" @update="update"></EditAmountLog>
+  <EditAmount ref="editAmountgRef" :data="pData" @update="update"></EditAmount>
 
   <div class="sys-table-content">
     <a-table :columns="columns" :data-source="tableData" :pagination="false" :scroll="{ x: '1500px' }" row-key="uuid" :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }">
@@ -49,7 +50,7 @@
           <p class="black">{{ record.lrate || 0 }}%</p>
         </template>
         <template v-if="column.key === 'amount'">
-          <p class="bold black">
+          <p class="bold black" @click="showEditAmountLog(record)">
             <i class="iconfont" style="color: #a9ad57">&#xe75b;</i>
             {{ tool.formatMoney(record.amount) }}
           </p>
@@ -70,6 +71,9 @@
                   <a-menu-item key="0" @click="showEdit(record)">
                     {{ t('编辑') }}
                   </a-menu-item>
+                  <a-menu-item key="4" @click="showEditAmount(record)">
+                    {{ t('编辑金额') }}
+                  </a-menu-item>
                   <a-menu-item key="1" @click="showBindUser(record)">
                     {{ t('绑定用户') }}
                   </a-menu-item>
@@ -78,9 +82,6 @@
                   </a-menu-item>
                   <a-menu-item key="3" @click="navigationTo('/Investment/schedule/index?uuid=' + record.id)">
                     {{ t('明细表') }}
-                  </a-menu-item>
-                  <a-menu-item key="4" @click="showEditAmountLog(record)">
-                    {{ t('编辑金额记录') }}
                   </a-menu-item>
                   <!-- <a-menu-item key="4">
                     <vco-popconfirm :formParams="{ id: record.id }" url="invest/delete" :tip="t('确定删除吗？')" @update="update()">
@@ -105,6 +106,7 @@ import { navigationTo } from '@/utils/tool';
 const emits = defineEmits(['update:data', 'update:keys', 'change', 'update', 'showEdit']);
 import { bindUser, investBindData } from '@/api/invest/index';
 import EditAmountLog from './EditAmountLog.vue';
+import EditAmount from './EditAmount.vue';
 
 const props = defineProps({
   tableData: {
@@ -209,8 +211,15 @@ const showEdit = (val) => {
 
 const editAmountLogRef = ref();
 const showEditAmountLog = (val) => {
-  editAmountLogRef.value.init(val)
-}
+  editAmountLogRef.value.init(val);
+};
+
+const editAmountgRef = ref();
+const pData = ref(null);
+const showEditAmount = (val) => {
+  pData.value = val;
+  editAmountgRef.value.init();
+};
 
 const update = (id) => {
   emits('update');

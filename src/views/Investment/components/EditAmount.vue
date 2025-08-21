@@ -30,13 +30,8 @@
             </div>
             <div class="operator">=</div>
             <div>
-              <div class="fs_md">
-                <template v-if="formState.type == 0">
-                  {{ tool.formatMoney(tool.plus(data.amount || 0, formState.amount || 0)) }}
-                </template>
-                <template v-if="formState.type == 1">
-                  {{ tool.formatMoney(tool.minus(data.amount || 0, formState.amount || 0)) }}
-                </template>
+              <div class="fs_md" :class="{ err: getTotal() < 0 }">
+                {{ tool.formatMoney(getTotal()) }}
               </div>
             </div>
           </div>
@@ -95,7 +90,7 @@ const updateVisible = (value) => {
 
 const save = () => {
   validate.value = true;
-  if (formState.value.amount <= 0) {
+  if (formState.value.amount <= 0 || getTotal() < 0) {
     return;
   }
   loading.value = true;
@@ -123,6 +118,17 @@ const init = (val) => {
   };
 
   visible.value = true;
+};
+
+const getTotal = () => {
+  let num = 0;
+  if (formState.value.type) {
+    num = tool.minus(props.data?.amount || 0, formState.value.amount || 0);
+  } else {
+    num = tool.plus(props.data?.amount || 0, formState.value.amount || 0);
+  }
+
+  return num;
 };
 
 // 暴露方法给父组件
@@ -181,6 +187,11 @@ defineExpose({
   .operator {
     font-size: 14px;
     margin: 0 10px;
+  }
+
+  .err {
+    color: #c1430c;
+    opacity: 1 !important;
   }
 }
 </style>

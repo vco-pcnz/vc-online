@@ -20,11 +20,11 @@
         </div>
 
         <a-empty v-if="!logList || !logList.length" />
-        <div class="pt-5 flex justify-end">
+        <!-- <div class="pt-5 flex justify-end">
           <EditAmount :data="pData" @update="update">
             <a-button type="dark" class="big uppercase fs_2xs">{{ t('编辑金额') }} </a-button>
           </EditAmount>
-        </div>
+        </div> -->
       </div>
     </a-modal>
   </div>

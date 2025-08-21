@@ -320,7 +320,6 @@ tool.showDate = (time, myformat) => {
  * 时间格式
  */
 tool.showTime = (time, myformat) => {
-  
   const locale = i18n.global.locale.value;
   const date = dayjs(time, 'YYYY/MM/DD HH:mm:ss'); // 解析原始日期字符串
   const format = locale === 'en' ? `DD MMM 'YY HH:mm:ss` : 'YYYY/MM/DD HH:mm:ss';
@@ -451,7 +450,7 @@ tool.formatMoney = (value, formatOptions) => {
  * 日期格式本地化
  */
 tool.monthYear = (time) => {
-  if(!time) return ''
+  if (!time) return '';
   const [year, month] = time.split('-');
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const monthIndex = parseInt(month, 10) - 1;
@@ -464,7 +463,7 @@ tool.monthYear = (time) => {
  * 日期格式本地化
  */
 tool.monthYearFull = (time) => {
-  if(!time) return ''
+  if (!time) return '';
   const [year, month] = time.split('-');
   const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   const monthIndex = parseInt(month, 10) - 1;
@@ -476,7 +475,7 @@ tool.monthYearFull = (time) => {
  * 日期格式本地化
  */
 tool.monthYearDay = (time) => {
-  if(!time) return ''
+  if (!time) return '';
   const [year, month, day] = time.split('-');
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const monthIndex = parseInt(month, 10) - 1;
@@ -550,14 +549,18 @@ export const fixNumber = (value, fractionDigits = 2) => {
     return str;
   }
   return value;
-}
+};
 
 /**
  * 日期选择格式化
  */
-export const selectDateFormat = () => {
+export const selectDateFormat = (picker) => {
   const locale = i18n.global.locale.value;
-  return locale === 'en' ? `DD/MM/YYYY` : 'YYYY-MM-DD';
+  if (picker == 'month') {
+    return locale === 'en' ? `MM/YYYY` : 'YYYY-MM';
+  } else {
+    return locale === 'en' ? `DD/MM/YYYY` : 'YYYY-MM-DD';
+  }
 };
 
 /**
@@ -573,7 +576,6 @@ export const expireTimeDefault = (len, arr) => {
   }
   return arr;
 };
-
 
 // 判断两个数组是否相同
 function normalize(val) {
@@ -643,6 +645,6 @@ export const isArrayEqual = (arr1, arr2) => {
   }
 
   return true;
-}
+};
 
 export default tool;

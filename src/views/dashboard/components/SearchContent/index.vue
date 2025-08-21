@@ -1,7 +1,7 @@
 <template>
   <div class="search-content">
     <date-picker v-if="searchConfig.includes('Date')" :data="searchForm.date" @change="change" />
-    <range-picker v-if="searchConfig.includes('Time')" :data="[searchForm.start_date, searchForm.end_date]" :showPresets="showPresets" @change="change" />
+    <range-picker v-if="searchConfig.includes('Time')" :data="[searchForm.start_date, searchForm.end_date]" :showPresets="showPresets" :timepicker="timepicker" @change="change" />
     <select-state v-if="searchConfig.includes('State')" :data="searchForm.search" :open_hidden="open_hidden" @change="changeLm" />
     <select-type v-if="searchConfig.includes('Type')" :data="searchForm.type" @change="change" />
     <select-lm v-if="searchConfig.includes('LM')" @change="changeLm" />
@@ -51,6 +51,9 @@ const props = defineProps({
     default: () => {
       return {};
     }
+  },
+  timepicker: {
+    type: String
   }
 });
 

@@ -2,7 +2,7 @@
   <a-spin :spinning="loading" size="large">
     <div class="flex title items-center gap-5">
       <div class="bold fs_2xl">{{ t('金额日志') }}</div>
-      <SearchContent v-model:value="searchForm" :searchConfig="searchConfig" :open_hidden="true" :downloadParams="{ id: invest_id }" :showPresets="false" downloadUrl="invest/barExport" @change="loadData"></SearchContent>
+      <SearchContent v-model:value="searchForm" timepicker="month" :searchConfig="searchConfig" :open_hidden="true" :downloadParams="{ id: invest_id }" :showPresets="false" downloadUrl="invest/barExport" @change="loadData"></SearchContent>
     </div>
     <div style="height: 350px" class="mt-10">
       <v-chart class="chart2" :option="option" autoresize />
@@ -21,8 +21,8 @@ const { t } = useI18n();
 
 const searchConfig = ref(['Time']);
 const searchForm = ref({
-  start_date: dayjs().subtract(0, 'month').startOf('month').format('YYYY-MM-DD'),
-  end_date: dayjs().subtract(0, 'month').endOf('month').format('YYYY-MM-DD')
+  start_date: dayjs().subtract(12, 'month').startOf('month').format('YYYY-MM'),
+  end_date: dayjs().subtract(0, 'month').endOf('month').format('YYYY-MM')
 });
 
 const option = ref({

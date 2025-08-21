@@ -8,8 +8,9 @@
       :presets="showPresets ? rangePresets : []"
       v-model:value="value"
       :disabledDate="disabledDateFormat"
-      :format="selectDateFormat()"
-      valueFormat="YYYY-MM-DD"
+      :format="selectDateFormat(timepicker)"
+      :picker="timepicker"
+      :valueFormat="timepicker == 'month'?'YYYY-MM':'YYYY-MM-DD'"
       :showToday="false"
       @change="onChange"
     />
@@ -32,6 +33,9 @@ const props = defineProps({
   showPresets: {
     type: Boolean,
     default: true
+  },
+  timepicker: {
+    type: String
   }
 });
 

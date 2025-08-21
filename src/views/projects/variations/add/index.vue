@@ -1026,7 +1026,7 @@ const createFormItems = () => {
   }
 
   let colItems = creditData.value.filter((item) => keyArr.includes(item.credit_table));
-  const has_linefee = Boolean(projectInfo.value.has_linefee);
+  const has_linefee = Boolean(projectInfo.value.base.has_linefee);
   if (!has_linefee) {
     colItems = colItems.filter((item) => !item.is_linefee);
   }

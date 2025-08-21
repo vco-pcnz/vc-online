@@ -32,7 +32,7 @@ const option = ref({
     bottom: 50,
     top: 50
   },
-  color: ['#8eafad', '#e3edea'],
+  color: ['#f1e4b4', '#98c2db', '#d3bcbd', '#bad7d5', '#e3edea'],
   legend: {},
   xAxis: {
     type: 'category',
@@ -60,15 +60,13 @@ const option = ref({
 
       let result = `<div style="color: #333;">${params[0].axisValue}</div>`; // 标题
       params.forEach((item) => {
-        if (item.componentSubType === 'bar') {
-          result += `
+        result += `
           <div style="${bodyStyle} margin-top: 4px;">
             ${item.marker} 
             <span style="">${item.seriesName}:</span> 
             <span style="color: #333;font-weight: bold;">${tool.formatMoney(item.value)}</span>
           </div>
         `;
-        }
       });
       return result;
     }

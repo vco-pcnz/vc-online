@@ -56,8 +56,8 @@
           </p>
         </template>
 
-        <template v-if="column.key === 'start_date'">
-          <span v-if="record.start_date">{{ tool.showDate(record.start_date) }}</span>
+        <template v-if="column.key === 'create_time'">
+          <span v-if="record.create_time">{{ tool.showDate(record.create_time) }}</span>
           <p v-else>--</p>
         </template>
         <template v-if="column.key === 'operation'">
@@ -124,7 +124,7 @@ const columns = reactive([
   { title: t('利率'), key: 'rate', width: 120 },
   { title: t('浮动利率'), key: 'frate', width: 120 },
   { title: t('Line Fee 费率'), key: 'lrate', width: 120 },
-  { title: t('开始日期'), key: 'start_date', width: 120 },
+  { title: t('创建时间'), key: 'create_time', width: 120 },
   { title: t('操作'), fixed: 'right', key: 'operation', align: 'center', width: 80 }
 ]);
 

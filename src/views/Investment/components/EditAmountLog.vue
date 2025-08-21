@@ -13,8 +13,8 @@
               <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.remark" style="width: 130px">{{ item.remark || '--' }}</p>
             </li>
             <li class="flex items-center justify-end">
-              <vco-number color="#569695" v-if="item.type == 1" :value="item.amount" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
-              <vco-number color="#d6a91f" v-if="item.type == 0" :value="item.amount" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
+              <vco-number color="#569695" v-if="item.type == 0" :value="item.amount" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
+              <vco-number color="#d6a91f" v-if="item.type == 1" :value="item.amount" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
             </li>
           </ul>
         </div>

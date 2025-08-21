@@ -245,9 +245,14 @@ const checkedAllHandle = (val) => {
   });
 };
 
+const searchForm = ref({});
+
 const getDataInfo = (val) => {
   pageLoading.value = true;
 
+  if (val) {
+    searchForm.value = val;
+  }
   let params = {
     invest_id: invest_id.value
   };
@@ -280,7 +285,7 @@ const getDataInfo = (val) => {
 const downloading = ref(false);
 const downLoadExcel = (type) => {
   downloading.value = true;
-  scheduleExportExcel({ invest_id: invest_id.value, type: type })
+  scheduleExportExcel({ invest_id: invest_id.value, type: type, ...searchForm.value })
     .then((res) => {
       downloading.value = false;
       window.open(res);

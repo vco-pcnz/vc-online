@@ -1,7 +1,7 @@
 <template>
   <a-spin :spinning="loading" size="large">
     <div class="flex justify-between title">
-      <div class="bold fs_2xl">{{ t('项目仪表板') }}</div>
+      <div class="bold fs_2xl">Eligible Loans Dashboard</div>
       <div class="flex items-center">
         <div v-if="data.date">{{ t('数据更新时间') }}: {{ data.date }}</div>
         <a-button type="cyan ml-3" @click="loadData(1)">{{ t('更新') }}</a-button>

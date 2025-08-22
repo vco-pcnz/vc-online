@@ -11,7 +11,7 @@
                 <div>{{ record.name }}</div>
                 <div class="icon-txt mt-1">
                   <i class="iconfont cer">&#xe632;</i>
-                  <span style="display: block">{{ record.user.user_name }}</span>
+                  <span style="display: block">{{ record.user?.user_name || '--' }}</span>
                 </div>
               </span>
             </template>
@@ -20,18 +20,18 @@
               <p v-else>--</p>
             </template>
             <template v-if="column.dataIndex === 'phone'">
-              <div class="icon-txt" v-if="record.user.mobile">
+              <div class="icon-txt" v-if="record.user?.mobile">
                 <i class="iconfont">&#xe678;</i>
                 <div class="inline-block" style="text-indent: 20px">
-                  <span v-if="record.user.pre"> +{{ record.user.pre }}</span> {{ record.user.mobile }}
+                  <span v-if="record.user?.pre"> +{{ record.user?.pre }}</span> {{ record.user?.mobile }}
                 </div>
               </div>
             </template>
             <template v-if="column.dataIndex === 'email'">
-              <div class="icon-txt" v-if="record.user.email">
+              <div class="icon-txt" v-if="record.user?.email">
                 <i class="iconfont">&#xe66f;</i>
                 <div class="inline-block" style="text-indent: 20px">
-                  {{ record.user.email }}
+                  {{ record.user?.email }}
                 </div>
               </div>
             </template>

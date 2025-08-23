@@ -64,7 +64,7 @@ const props = defineProps({
     right: 0;
     background-color: transparent;
     z-index: 2;
-    padding-top: 80px;
+    padding-top: 40px;
 
     .header {
       width: 56%;
@@ -75,7 +75,7 @@ const props = defineProps({
     }
 
     .content {
-      padding-top: 90px;
+      padding-top: 80px;
       margin: 0 auto;
       max-width: 528px;
     }

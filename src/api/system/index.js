@@ -86,3 +86,12 @@ export const versionList = (params) =>
     method: 'get',
     params
   });
+
+
+// 获取系统公共信息
+export const pub = (params) =>
+  request({
+    url: 'pub',
+    method: 'get',
+    params
+  });

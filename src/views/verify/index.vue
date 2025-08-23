@@ -20,7 +20,7 @@ a
               </router-link>
               <h2 class="title">{{ t('安全验证') }}</h2>
               <div>
-                <p>{{ t('系统刚刚将一个 4 位数的验证码发送到了 {0}', [smsType == 1 ? userStore?.smsVerify?.mobile : userStore?.smsVerify?.email]) }}</p>
+                <p>{{ t('系统刚刚将4位的验证码发送到: {0}', [smsType == 1 ? userStore?.smsVerify?.mobile : userStore?.smsVerify?.email]) }}</p>
                 <div class="flex justify-end" v-if="userStore?.smsVerify?.can_email && userStore?.smsVerify?.can_mobile">
                   <div @click="changeType">
                     <a href="javascript:void(0);">{{ smsType == 0 ? t('短信验证') : t('邮箱验证') }}</a>

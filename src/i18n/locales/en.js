@@ -1130,7 +1130,7 @@ export default {
   "请输入完整的4位验证码": "Please enter the complete 4-digit verification code",
   "验证码已发送": "Verification code sent",
   "发送验证码1": "Send code",
-  "系统刚刚将一个 4 位数的验证码发送到了 {0}": "A 4-digit verification code has just been sent to {0}",
+  "系统刚刚将4位的验证码发送到: {0}": "The system has just sent a 4-digit verification code to: {0}",
   "试试其他方式": "Try other methods",
   "邮箱验证": "Email verification",
   "短信验证": "SMS verification"

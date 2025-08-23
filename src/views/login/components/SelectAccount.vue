@@ -88,9 +88,9 @@ const save = () => {
         uuid,
         code,
       })
-      .then(() => {
+      .then((res) => {
         loading.value = false;
-        emit('loginSuccessCb');
+        emit('loginSuccessCb',res);
         closeModal();
       })
       .catch(() => {

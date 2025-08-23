@@ -29,7 +29,6 @@ router.beforeEach(async (to, from, next) => {
   document.title = toTitle ? `${i18n.global.t(toTitle)} - ${title}` : title
   const token = getToken()
 
-
   // 登录状态下
   if (token) {
     if (to.name === 'login') {

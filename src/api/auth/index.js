@@ -106,3 +106,20 @@ export const getSelectUsers = (data) =>
     method: 'post',
     data
   });
+
+// 重新获取验证码 二次验证
+export const getSmsCode = (data) =>
+  request({
+    url: '/getSmsCode',
+    method: 'post',
+    data
+  });
+
+  // 二次验证登录
+export const loginCode = (data) =>
+  request({
+    url: '/loginCode',
+    method: 'post',
+    data
+  });
+  

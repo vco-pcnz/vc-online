@@ -1117,5 +1117,21 @@ export default {
   "账户详情": "Account Details",
   "编辑金额": "Edit amount",
   "编辑金额记录": "Edit amount history",
-  "贷款概览": "Loan Facility Overview"
+  "贷款概览": "Loan Facility Overview",
+  "校验": "Verify",
+  "请输入验证码": "Please enter the verification code",
+  "没有收到验证码？": "Didn't receive the verification code?",
+  "重新发送": "Resend",
+  "提示：验证码已发送至您的手机": "Tip: The verification code has been sent to your mobile phone",
+  "提示：验证码已发送至您的邮箱": "Tip: The verification code has been sent to your email",
+  "安全验证": "Security Verification",
+  "发送至": "Send to",
+  "验证方式": "Verification method",
+  "请输入完整的4位验证码": "Please enter the complete 4-digit verification code",
+  "验证码已发送": "Verification code sent",
+  "发送验证码1": "Send code",
+  "系统刚刚将一个 4 位数的验证码发送到了 {0}": "A 4-digit verification code has just been sent to {0}",
+  "试试其他方式": "Try other methods",
+  "邮箱验证": "Email verification",
+  "短信验证": "SMS verification"
 }

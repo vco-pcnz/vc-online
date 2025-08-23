@@ -13,63 +13,60 @@
             <span class="online_text">Online</span>
           </h1>
         </div>
-
-        <a-spin :spinning="indexPubLoading" size="large" wrapperClassName="login_loading">
-          <a-form ref="formRef" :model="form" :rules="rules" class="login_form_container">
-            <a-form-item name="type">
-              <a-radio-group v-model:value="form.type" class="login_mode_radio">
-                <a-radio v-for="item in loginModeOptions" :key="item.value" :disabled="item.disabled" :value="item.value">
-                  {{ item.label }}
-                </a-radio>
-              </a-radio-group>
-            </a-form-item>
-            <a-form-item name="email" v-if="form.type === 1">
-              <a-input v-model:value="form.email" :placeholder="t('邮箱')" autoComplete="on" bordered />
-            </a-form-item>
-            <a-form-item name="mobile" v-if="form.type === 2">
-              <vco-mobile-input v-model:value="form.mobile" v-model:areaCode="form.pre" :disabled="false" class="login_form_button"></vco-mobile-input>
-            </a-form-item>
-            <a-form-item name="password" v-if="form.mode === 1">
-              <a-input type="password" v-model:value="form.password" :placeholder="t('密码')" autoComplete="on" @keyup.enter="submit" />
-            </a-form-item>
-            <a-form-item no-style v-if="form.mode === 2 || (openSms && form.type === 2)">
-              <a-row :gutter="8">
-                <a-col :span="18">
-                  <a-form-item name="code">
-                    <a-input v-model:value="form.code" :placeholder="t('验证码V')" />
-                  </a-form-item>
-                </a-col>
-                <a-col :span="6" v-if="!showCountdown">
-                  <a-form-item class="login_form_button">
-                    <a-button block @click="handleVerify()" :disabled="(form.type == 1 && !form.email) || ((form.type == 2 || openSms) && !form.mobile)">
-                      {{ t('验证') }}
-                    </a-button>
-                  </a-form-item>
-                </a-col>
-                <a-col :span="6" v-else>
-                  <a-form-item class="login_form_button">
-                    <vco-countdown v-model:show="showCountdown" class="login_countdown_button" />
-                  </a-form-item>
-                </a-col>
-              </a-row>
-            </a-form-item>
-            <div class="flex justify-between">
-              <p class="forgot">
-                <router-link class="forgot_link" to="/forgot-reset">
-                  {{ t('忘记密码') }}
-                </router-link>
-              </p>
-              <p class="type-text" @click="form.mode = form.mode === 1 ? 2 : 1">
-                {{ form.mode == 2 ? t('密码') : t('验证码') }} <span class="lowercase">{{ t('登录') }}</span>
-              </p>
-            </div>
-            <a-form-item class="login_submit mt-4">
-              <a-button size="large" class="big bold" shape="round" :loading="loading" @click="submit">
-                {{ t('登录') }}
-              </a-button>
-            </a-form-item>
-          </a-form>
-        </a-spin>
+        <a-form ref="formRef" :model="form" :rules="rules" class="login_form_container">
+          <a-form-item name="type">
+            <a-radio-group v-model:value="form.type" class="login_mode_radio">
+              <a-radio v-for="item in loginModeOptions" :key="item.value" :disabled="item.disabled" :value="item.value">
+                {{ item.label }}
+              </a-radio>
+            </a-radio-group>
+          </a-form-item>
+          <a-form-item name="email" v-if="form.type === 1">
+            <a-input v-model:value="form.email" :placeholder="t('邮箱')" autoComplete="on" bordered />
+          </a-form-item>
+          <a-form-item name="mobile" v-if="form.type === 2">
+            <vco-mobile-input v-model:value="form.mobile" v-model:areaCode="form.pre" :disabled="false" class="login_form_button"></vco-mobile-input>
+          </a-form-item>
+          <a-form-item name="password" v-if="form.mode === 1">
+            <a-input type="password" v-model:value="form.password" :placeholder="t('密码')" autoComplete="on" @keyup.enter="submit" />
+          </a-form-item>
+          <a-form-item no-style v-if="form.mode === 2">
+            <a-row :gutter="8">
+              <a-col :span="18">
+                <a-form-item name="code">
+                  <a-input v-model:value="form.code" :placeholder="t('验证码V')" />
+                </a-form-item>
+              </a-col>
+              <a-col :span="6" v-if="!showCountdown">
+                <a-form-item class="login_form_button">
+                  <a-button block @click="handleVerify()" :disabled="(form.type == 1 && !form.email) || (form.type == 2 && !form.mobile)">
+                    {{ t('验证') }}
+                  </a-button>
+                </a-form-item>
+              </a-col>
+              <a-col :span="6" v-else>
+                <a-form-item class="login_form_button">
+                  <vco-countdown v-model:show="showCountdown" class="login_countdown_button" />
+                </a-form-item>
+              </a-col>
+            </a-row>
+          </a-form-item>
+          <div class="flex justify-between">
+            <p class="forgot">
+              <router-link class="forgot_link" to="/forgot-reset">
+                {{ t('忘记密码') }}
+              </router-link>
+            </p>
+            <p class="type-text" @click="form.mode = form.mode === 1 ? 2 : 1">
+              {{ form.mode == 2 ? t('密码') : t('验证码') }} <span class="lowercase">{{ t('登录') }}</span>
+            </p>
+          </div>
+          <a-form-item class="login_submit mt-4">
+            <a-button size="large" class="big bold" shape="round" :loading="loading" @click="submit">
+              {{ t('登录') }}
+            </a-button>
+          </a-form-item>
+        </a-form>
       </div>
     </template>
   </auth-template>
@@ -86,9 +83,7 @@ import { useUserStore } from '@/store';
 import SelectAccount from './components/SelectAccount.vue';
 import { getMobileCode, getEmailCode } from '@/api/auth';
 import { EMAIL_RULE } from '@/constant';
-import { pub } from '@/api/system';
 
-import { systemDictData } from '@/api/system';
 const { t } = useI18n();
 const route = useRoute();
 
@@ -188,7 +183,11 @@ const handleVerify = () => {
   });
 };
 
-const loginSuccessCb = () => {
+const loginSuccessCb = (res) => {
+  if (res.smsVerify) {
+    router.push('/verify');
+    return;
+  }
   loading.value = false;
   goHomeRoute();
   message.success(t('登录成功'));
@@ -202,14 +201,6 @@ const loginParams = () => {
       password
     };
   } else if (form.type === 2 && form.mode == 1) {
-    if (openSms.value) {
-      return {
-        pre,
-        mobile,
-        password,
-        code
-      };
-    }
     return {
       pre,
       mobile,
@@ -245,7 +236,7 @@ const submit = () => {
             open.value = true;
             accountList.value = res.user;
           } else {
-            loginSuccessCb();
+            loginSuccessCb(res);
           }
         })
         .catch(() => {
@@ -262,17 +253,8 @@ watch(open, (newVal, oldVal) => {
   }
 });
 
-const openSms = ref(true);
-const indexPubLoading = ref(true);
 onMounted(() => {
-  indexPubLoading.value = true;
-  pub()
-    .then((res) => {
-      openSms.value = res.openSms == 1;
-    })
-    .finally(() => {
-      indexPubLoading.value = false;
-    });
+  localStorage.clear('smsVerify');
 });
 </script>
 
@@ -280,7 +262,7 @@ onMounted(() => {
 @import '@/styles/variables.less';
 
 .login_content {
-  padding: 20px 84px;
+  padding: 72px 84px;
   color: @clr_white;
 
   @media (max-width: 560px) {
@@ -433,9 +415,5 @@ onMounted(() => {
 .type-text {
   color: #fff;
   cursor: pointer;
-}
-
-:deep(.login_loading) .ant-spin-container::after {
-  background: transparent;
 }
 </style>

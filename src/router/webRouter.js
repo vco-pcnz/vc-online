@@ -13,6 +13,12 @@ const routes = [
     meta: { title: "登录" },
   },
   {
+    name: "verify",
+    path: "/verify",
+    component: () => import("@/views/verify/index.vue"),
+    meta: { title: "校验" },
+  },
+  {
     name: "register",
     path: "/register",
     component: () => import("@/views/register/index.vue"),

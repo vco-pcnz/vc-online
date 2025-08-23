@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { formatMenus, toTreeData } from '@/router/router-utils';
 import { getUserInfo, getMenuList } from '@/api/user';
 import { getToken, setToken, removeToken } from '@/utils/token-util.js';
-import { login, logout, getSelectUsers } from '@/api/auth';
+import { login, logout, getSelectUsers, loginCode } from '@/api/auth';
 import { projectBacklogCount } from '@/api/tasks';
 import router from '@/router';
 import tool from '@/utils/tool';
@@ -59,7 +59,8 @@ const useUserStore = defineStore('VcOnlineUserInfo', {
       wash_num: 0,
       broker_num: 0
     },
-    loadingCount: false
+    loadingCount: false,
+    smsVerify: null
   }),
 
   getters: {
@@ -168,6 +169,22 @@ const useUserStore = defineStore('VcOnlineUserInfo', {
         login(data)
           .then((r) => {
             r.access_token && this.setToken(r.access_token);
+            if (r.smsVerify) {
+              this.smsVerify = r.smsVerify;
+              localStorage.setItem('smsVerify', JSON.stringify(r.smsVerify));
+            }
+            resolve(r);
+          })
+          .catch((e) => {
+            reject(e);
+          });
+      });
+    },
+    loginCode(data) {
+      return new Promise((resolve, reject) => {
+        loginCode(data)
+          .then((r) => {
+            r.access_token && this.setToken(r.access_token);
             resolve(r);
           })
           .catch((e) => {
@@ -180,7 +197,9 @@ const useUserStore = defineStore('VcOnlineUserInfo', {
         getSelectUsers(data)
           .then((r) => {
             this.setToken(r.access_token);
-            resolve();
+            this.smsVerify = r.smsVerify;
+            localStorage.setItem('smsVerify', JSON.stringify(r.smsVerify));
+            resolve(r);
           })
           .catch((e) => {
             reject(e);

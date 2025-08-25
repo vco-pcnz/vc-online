@@ -26,7 +26,7 @@
                 </a-select>
               </a-form-item>
             </a-col>
-            <a-col :span="formState.all_repayment === 1 && maxReductionAmount && !isNormalUser ? 6 :12">
+            <a-col :span="formState.all_repayment === 1 && maxReductionAmount && !isNormalUser ? 8 :12">
               <a-form-item :label="t('还款日期')" name="apply_date">
                 <a-date-picker v-model:value="formState.apply_date" :format="selectDateFormat()" placeholder="" @change="dateChange">
                   <template #suffixIcon>
@@ -37,8 +37,14 @@
               </a-form-item>
             </a-col>
             <template v-if="formState.all_repayment === 1 && maxReductionAmount && !isNormalUser">
-              <a-col :span="6">
-                <a-form-item :label="`${t('标准税率')} (${t('最小值')}:${standardRate}%)`">
+              <a-col :span="8">
+                <a-form-item class="data-col-item">
+                  <template #label>
+                    <div class="flex items-center gap-1">
+                      <span>{{ t('建议标准税率') }}</span>
+                      <span style="color: #31bd65;">{{ `(${t('最小值')}: ${standardRate}%)` }}</span>
+                    </div>
+                  </template>
                   <a-input-number
                     :max="99999999999"
                     :min="Number(standardRate)"
@@ -51,17 +57,11 @@
                     addon-after="%"
                     :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                     @input="standardInputChange"
+                    @blur="standardInputBlur"
                   />
                 </a-form-item>
               </a-col>
-              <a-col :span="6">
-                <a-form-item :label="t('建议标准税率')">
-                  <div class="input-number-content">
-                    <vco-number :bold="true" :value="standardRate" prefix="" :precision="2" suffix="%" size="fs_xl" :end="true"></vco-number>
-                  </div>
-                </a-form-item>
-              </a-col>
-              <a-col :span="6">
+              <a-col :span="8">
                 <a-form-item :label="t('建议最大减少')">
                   <div class="input-number-content">
                     <vco-number :bold="true" :value="standardAmount" :precision="2" size="fs_xl" :end="true"></vco-number>
@@ -81,7 +81,13 @@
               </a-col>
               <a-col :span="1" class="plus-txt"><i class="iconfont">&#xe711;</i></a-col>
               <a-col :span="8">
-                <a-form-item :label="`${t('罚息减免')} (${t('最大值')}:$${numberStrFormat(showMaxReduction)})`" name="reduction_money">
+                <a-form-item name="reduction_money" class="data-col-item">
+                  <template #label>
+                    <div class="flex items-center gap-1">
+                      <span>{{ t('罚息减免') }}</span>
+                      <span style="color: #31bd65;">{{ `(${t('最大值')}: $${numberStrFormat(showMaxReduction)})` }}</span>
+                    </div>
+                  </template>
                   <a-input-number
                     v-model:value="formState.reduction_money"
                     :max="99999999999"
@@ -417,13 +423,18 @@ const standardInputChange = debounce((value) => {
   const num = Number(value)
   if (num > Number(standardRate.value)) {
     calAmount(num)
-  } else {
+  }
+}, 300)
+
+const standardInputBlur = () => {
+  const num = Number(standardRateInput.value) || 0
+  if (num < Number(standardRate.value) || num === Number(standardRate.value)) {
     standardRateInput.value = Number(standardRate.value)
     setTimeout(() => {
       calAmount(standardRateInput.value)
     }, 200)
   }
-}, 300)
+}
 
 const calAmount = (rate) => {
   getLoading.value = true;

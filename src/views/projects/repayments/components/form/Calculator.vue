@@ -46,18 +46,14 @@
               </a-form-item>
             </a-col>
             <template v-if="hasSetStandard && maxReductionAmount && !isNormalUser">
-              <a-col :span="8">
-                <a-form-item :label="t('建议标准税率')">
-                  <vco-number :bold="true" :value="standardRate" prefix="" :precision="2" suffix="%" size="fs_xl" :end="true"></vco-number>
-                </a-form-item>
-              </a-col>
-              <a-col :span="8">
-                <a-form-item :label="t('建议最大减少')">
-                  <vco-number :bold="true" :value="standardAmount" :precision="2" size="fs_xl" :end="true"></vco-number>
-                </a-form-item>
-              </a-col>
-              <a-col :span="8">
-                <a-form-item :label="`${t('标准税率')} (${t('最小值')}:${standardRate}%)`">
+              <a-col :span="10">
+                <a-form-item class="data-col-item">
+                  <template #label>
+                    <div class="flex items-center gap-1">
+                      <span>{{ t('建议标准税率') }}</span>
+                      <span style="color: #31bd65;">{{ `(${t('最小值')}: ${standardRate}%)` }}</span>
+                    </div>
+                  </template>
                   <a-input-number
                     :max="99999999999"
                     :min="Number(standardRate)"
@@ -70,11 +66,22 @@
                     addon-after="%"
                     :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                     @input="standardInputChange"
+                    @blur="standardInputBlur"
                   />
                 </a-form-item>
               </a-col>
-              
+              <a-col :span="7">
+                <a-form-item :label="t('建议最大减少')">
+                  <vco-number :bold="true" :value="standardAmount" :precision="2" size="fs_xl" :end="true"></vco-number>
+                </a-form-item>
+              </a-col>
+              <a-col :span="7">
+                <a-form-item :label="t('罚息减免最大额度')">
+                  <vco-number :bold="true" :value="maxReductionAmount > 0 ? maxReductionAmount : 0" :precision="2" size="fs_xl" color="#31bd65" :end="true"></vco-number>
+                </a-form-item>
+              </a-col>
             </template>
+            
             <a-col v-if="totalAmount" :span="maxReductionAmount && !isNormalUser ? 7 : 12">
               <a-form-item :label="t('还款总额')">
                 <vco-number :bold="true" :value="totalAmount" :precision="2" size="fs_xl" :end="true"></vco-number>
@@ -104,11 +111,6 @@
                   </a-form-item>
                 </a-col>
             </template>
-            <a-col v-if="maxReductionAmount && !isNormalUser" :span="8">
-              <a-form-item :label="t('罚息减免最大额度')">
-                <vco-number :bold="true" :value="maxReductionAmount > 0 ? maxReductionAmount : 0" :precision="2" size="fs_xl" :end="true"></vco-number>
-              </a-form-item>
-            </a-col>
             <a-col v-if="totalAmount" :span="maxReductionAmount && !isNormalUser ? 8 : 12">
               <a-form-item class="w-full-label">
                 <template #label>
@@ -284,15 +286,20 @@ const amountInput = () => {
 // 防抖处理
 const standardInputChange = debounce((value) => {
   const num = Number(value)
-  if (num > Number(standardRate.value)) {
+  if (num > Number(standardRate.value) || num === Number(standardRate.value)) {
     dateChange(dayjs(formState.value.date), num)
-  } else {
+  }
+}, 300)
+
+const standardInputBlur = () => {
+  const num = Number(standardRateInput.value) || 0
+  if (num < Number(standardRate.value) || num === Number(standardRate.value)) {
     standardRateInput.value = Number(standardRate.value)
     setTimeout(() => {
       dateChange(dayjs(formState.value.date), standardRateInput.value)
     }, 200)
   }
-}, 300)
+}
 
 const updateVisible = (value) => {
   visible.value = value;

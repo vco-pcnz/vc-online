@@ -1193,6 +1193,15 @@ const calcExtendTermEstab = (flag = false) => {
     const cNum = Number(loanMoneyChangeNum.value || 0)
     const toolFn = [1].includes(formState.value.type) ? tool.plus : tool.minus
     num = Number(toolFn(fNum, cNum))
+  } else {
+    const legalFee = Number(formState.value.credit_legalFee || 0) > 0 ? Number(formState.value.credit_legalFee || 0) : 0
+    const otherFee = Number(formState.value.credit_otherFee || 0) > 0 ? Number(formState.value.credit_otherFee || 0) : 0
+    const brokerFee = Number(formState.value.credit_brokerFee || 0) > 0 ? Number(formState.value.credit_brokerFee || 0) : 0
+
+    const loFee = Number(tool.plus(legalFee, otherFee))
+    const brFee = Number(tool.plus(loFee, brokerFee))
+    const cNum = Number(loanMoneyChangeNum.value || 0)
+    num = Number(tool.plus(brFee, cNum))
   }
 
   if (formState.value.start_date) {

@@ -1,6 +1,15 @@
 <template>
   <div class="sys-table-content border-top-none" :class="{ copy: hasPermission('projects:copy') }">
-    <a-table :columns="columns" :data-source="tableData" :pagination="false" :scroll="{ x: '1840px' }" :customRow="rowClick" row-key="uuid" :rowClassName="setRowClass" :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }">
+    <a-table
+      :columns="columns"
+      :data-source="tableData"
+      :pagination="false"
+      :scroll="{ x: type == 'closed' ? '1950' : '1840px' }"
+      :customRow="rowClick"
+      row-key="uuid"
+      :rowClassName="setRowClass"
+      :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }"
+    >
       <template #headerCell="{ column }">
         <template v-if="column.key === 'open'">
           <span class="headSortItem" :class="{ active: sort.sort == 'start_date' }" @click="sortChange('start_date')">
@@ -111,6 +120,10 @@
         <template v-if="column.key === 'end_date'">
           <p class="bold black">{{ tool.showDate(record.end_date) }}</p>
           <span class="replenish_text" :class="{ 'color_red-error': diffInDays(record.end_date) < 0 }"> {{ Math.abs(diffInDays(record.end_date)) }} {{ diffInDays(record.end_date) < 0 ? 'days ago' : 'days left' }}</span>
+        </template>
+
+        <template v-if="column.key === 'close_date'">
+          <p class="bold black" v-if="record.close_date">{{ tool.showDate(record.close_date) }}</p>
         </template>
 
         <template v-if="column.key === 'irr'">
@@ -353,6 +366,21 @@ watch(
       sort: 'start_date',
       order: 'desc'
     };
+    const closeDateIndex = columns.findIndex((column) => column.key === 'close_date');
+    if (props.type == 'closed') {
+      if (closeDateIndex == -1) {
+        columns.splice(4, 0, {
+          title: t('结束时间'),
+          key: 'close_date',
+          align: 'center',
+          width: 110
+        });
+      }
+    } else {
+      if (closeDateIndex !== -1) {
+        columns.splice(closeDateIndex, 1);
+      }
+    }
   },
   {
     immediate: true

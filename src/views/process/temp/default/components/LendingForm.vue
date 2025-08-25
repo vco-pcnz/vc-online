@@ -16,7 +16,7 @@
     >
       <view-content
         v-if="selectVisible"
-        :is-select="true"
+        :is-select="!isDetails"
         :show-process="true"
         :selected-data="selectedData"
         @selectDone="selectDoneHandle"
@@ -208,13 +208,13 @@
                 <div class="w-full flex justify-between items-center">
                   <p>{{ t('建筑贷款总额') }}</p>
                   <a-button
-                    v-if="showProgressPayment && !isDetails"
+                    v-if="showProgressPayment"
                     type="link"
                     style="font-size: 12px; height: auto !important;"
                     class="flex items-center"
                     @click="goProgressPage"
                   >
-                    <p>{{ (formState.equity_amount || refinancialAmount) ? t('设置') : t('进度付款') }}</p>
+                    <p>{{ isDetails ? t('详情') : (formState.equity_amount || refinancialAmount) ? t('设置') : t('进度付款') }}</p>
                     <i class="iconfont" style="font-size: 12px;">&#xe602;</i>
                   </a-button>
                 </div>
@@ -338,13 +338,13 @@
                 <div class="w-full flex justify-between items-center" style="height: 22px;">
                   <p style="word-wrap: nowrap;">{{ t('首次建筑贷款放款额') }}</p>
                   <a-button
-                    v-if="!amountDisabled && showProgressPayment"
+                    v-if="showProgressPayment"
                     type="link"
                     style="font-size: 12px; height: auto !important;"
                     class="flex items-center"
                     @click="selectVisible = true"
                   >
-                    <p>{{ t('选择') }}</p>
+                    <p>{{ isDetails ? t('详情') : t('选择') }}</p>
                     <i class="iconfont" style="font-size: 12px;">&#xe602;</i>
                   </a-button>
                 </div>

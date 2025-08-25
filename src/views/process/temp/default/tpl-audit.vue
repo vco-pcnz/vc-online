@@ -590,7 +590,6 @@
       await projectAuditStepDetail({
         uuid: props.currentId
       }).then(res => {
-        console.log('res', res);
         returnLogData.value = res.base?.cancel_log || []
         infoData = res
       }).catch(() => {

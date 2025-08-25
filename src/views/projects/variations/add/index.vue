@@ -1193,6 +1193,15 @@ const calcExtendTermEstab = (flag = false) => {
     const cNum = Number(loanMoneyChangeNum.value || 0)
     const toolFn = [1].includes(formState.value.type) ? tool.plus : tool.minus
     num = Number(toolFn(fNum, cNum))
+  } else {
+    const legalFee = Number(formState.value.credit_legalFee || 0) > 0 ? Number(formState.value.credit_legalFee || 0) : 0
+    const otherFee = Number(formState.value.credit_otherFee || 0) > 0 ? Number(formState.value.credit_otherFee || 0) : 0
+    const brokerFee = Number(formState.value.credit_brokerFee || 0) > 0 ? Number(formState.value.credit_brokerFee || 0) : 0
+
+    const loFee = Number(tool.plus(legalFee, otherFee))
+    const brFee = Number(tool.plus(loFee, brokerFee))
+    const cNum = Number(loanMoneyChangeNum.value || 0)
+    num = Number(tool.plus(brFee, cNum))
   }
 
   if (formState.value.start_date) {
@@ -1216,7 +1225,7 @@ watch(
     if ([4].includes(type_startDate.value.type)) {
       calcSameTermBroker(true)
     }
-    if ([1, 2, 3].includes(type_startDate.value.type)) {
+    if ([1, 2, 3, 4].includes(type_startDate.value.type)) {
       handInput('credit_brokerFeeRate')
       calcExtendTermEstab(true)
     }
@@ -1263,7 +1272,7 @@ const handInput = (key) => {
   if (['credit_estabFeeRate', 'credit_estabFee'].includes(key)) {
     calcExtendTermEstab(key === 'credit_estabFeeRate')
   }
-  if (['credit_legalFee', 'credit_otherFee'].includes(key) && [1, 2, 3].includes(formState.value.type)) {
+  if (['credit_legalFee', 'credit_otherFee'].includes(key) && [1, 2, 3, 4].includes(formState.value.type)) {
     calcExtendTermEstab(true)
   }
 };

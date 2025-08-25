@@ -183,7 +183,7 @@ const beforeData = computed(() => {
       end_date: props.variationInfo.old_credit.project.end_date || '',
       loan_money: props.variationInfo.old_credit.project.loan_money || 0,
       estabFee: props.variationInfo.old_credit.credit_estabFee || 0,
-      lineFee: props.variationInfo.old_credit.credit_lineFee || 0,
+      lineFee: props.variationInfo.old_credit?.project?.all_lineFee || 0,
       credit_fc2: props.variationInfo.old_credit.credit_fc2 || 0,
       interestRate: Number(props.variationInfo.old_credit.credit_loanInterest) || 0,
       lvr: props.variationInfo.old_credit.credit_lvr || 0,

@@ -1225,7 +1225,7 @@ watch(
     if ([4].includes(type_startDate.value.type)) {
       calcSameTermBroker(true)
     }
-    if ([1, 2, 3].includes(type_startDate.value.type)) {
+    if ([1, 2, 3, 4].includes(type_startDate.value.type)) {
       handInput('credit_brokerFeeRate')
       calcExtendTermEstab(true)
     }
@@ -1272,7 +1272,7 @@ const handInput = (key) => {
   if (['credit_estabFeeRate', 'credit_estabFee'].includes(key)) {
     calcExtendTermEstab(key === 'credit_estabFeeRate')
   }
-  if (['credit_legalFee', 'credit_otherFee'].includes(key) && [1, 2, 3].includes(formState.value.type)) {
+  if (['credit_legalFee', 'credit_otherFee'].includes(key) && [1, 2, 3, 4].includes(formState.value.type)) {
     calcExtendTermEstab(true)
   }
 };

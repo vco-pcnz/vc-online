@@ -1133,5 +1133,8 @@ export default {
   "系统刚刚将4位的验证码发送到: {0}": "The system has just sent a 4-digit verification code to: {0}",
   "试试其他方式": "Try other methods",
   "邮箱验证": "Email verification",
-  "短信验证": "SMS verification"
+  "短信验证": "SMS verification",
+  "建议标准税率": "Proposed standard rate",
+  "建议最大减少": "Proposed max reduction",
+  "标准税率": "Standard rate"
 }

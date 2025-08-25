@@ -26,7 +26,7 @@
                 </a-select>
               </a-form-item>
             </a-col>
-            <a-col :span="12">
+            <a-col :span="formState.all_repayment === 1 && maxReductionAmount && !isNormalUser ? 6 :12">
               <a-form-item :label="t('还款日期')" name="apply_date">
                 <a-date-picker v-model:value="formState.apply_date" :format="selectDateFormat()" placeholder="" @change="dateChange">
                   <template #suffixIcon>
@@ -37,10 +37,34 @@
               </a-form-item>
             </a-col>
             <template v-if="formState.all_repayment === 1 && maxReductionAmount && !isNormalUser">
-              <a-col :span="12">
-                <a-form-item :label="t('罚息减免最大额度')">
+              <a-col :span="6">
+                <a-form-item :label="`${t('标准税率')} (${t('最小值')}:${standardRate}%)`">
+                  <a-input-number
+                    :max="99999999999"
+                    :min="Number(standardRate)"
+                    v-model:value="standardRateInput"
+                    :formatter="
+                      (value) =>
+                        `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                    "
+                    :controls="false"
+                    addon-after="%"
+                    :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                    @input="standardInputChange"
+                  />
+                </a-form-item>
+              </a-col>
+              <a-col :span="6">
+                <a-form-item :label="t('建议标准税率')">
                   <div class="input-number-content">
-                    <vco-number :bold="true" :value="maxReductionAmount" :precision="2" :end="true"></vco-number>
+                    <vco-number :bold="true" :value="standardRate" prefix="" :precision="2" suffix="%" size="fs_xl" :end="true"></vco-number>
+                  </div>
+                </a-form-item>
+              </a-col>
+              <a-col :span="6">
+                <a-form-item :label="t('建议最大减少')">
+                  <div class="input-number-content">
+                    <vco-number :bold="true" :value="standardAmount" :precision="2" size="fs_xl" :end="true"></vco-number>
                   </div>
                 </a-form-item>
               </a-col>
@@ -56,8 +80,8 @@
                 </a-form-item>
               </a-col>
               <a-col :span="1" class="plus-txt"><i class="iconfont">&#xe711;</i></a-col>
-              <a-col :span="7">
-                <a-form-item :label="t('罚息减免')" name="reduction_money">
+              <a-col :span="8">
+                <a-form-item :label="`${t('罚息减免')} (${t('最大值')}:$${numberStrFormat(showMaxReduction)})`" name="reduction_money">
                   <a-input-number
                     v-model:value="formState.reduction_money"
                     :max="99999999999"
@@ -69,7 +93,7 @@
                 </a-form-item>
               </a-col>
               <a-col :span="1" class="plus-txt"><i class="iconfont">&#xe609;</i></a-col>
-              <a-col :span="7">
+              <a-col :span="6">
                 <a-form-item :label="t('还款金额1')">
                   <div class="input-number-content">
                     <vco-number :bold="true" :value="repaymentAmount" :precision="2" color="#31bd65" :end="true"></vco-number>
@@ -196,7 +220,7 @@ import dayjs from 'dayjs';
 import { useUserStore } from '@/store'
 import tool, { selectDateFormat, removeDuplicates, numberStrFormat } from '@/utils/tool';
 import SecuritiesDialog from './SecuritiesDialog.vue';
-import { cloneDeep } from "lodash"
+import { cloneDeep, debounce } from "lodash"
 import { hasPermission } from '@/directives/permission/index';
 
 const { t } = useI18n();
@@ -237,6 +261,9 @@ const formState = ref({
 });
 
 const maxReductionAmount = ref(0)
+const showMaxReduction = computed(() => {
+  return Number(maxReductionAmount.value)> 0 ? Number(maxReductionAmount.value) : 0
+})
 
 const document = ref([]);
 
@@ -247,7 +274,7 @@ const repaymentAmount = computed(() => {
   if (formState.value.reduction_money < 0) {
     reduceNum = 0
   } else {
-    reduceNum = formState.value.reduction_money > maxReductionAmount.value ? maxReductionAmount.value : formState.value.reduction_money
+    reduceNum = formState.value.reduction_money > showMaxReduction.value ? showMaxReduction.value : formState.value.reduction_money
   }
 
   const res = tool.minus(formState.value.apply_amount, reduceNum)
@@ -258,7 +285,7 @@ const amountInput = () => {
   if (formState.value.reduction_money < 0) {
     formState.value.reduction_money = 0
   } else {
-    formState.value.reduction_money = formState.value.reduction_money > maxReductionAmount.value ? maxReductionAmount.value : formState.value.reduction_money
+    formState.value.reduction_money = formState.value.reduction_money > showMaxReduction.value ? showMaxReduction.value : formState.value.reduction_money
   }
 }
 
@@ -380,17 +407,55 @@ const submit = () => {
 
 const getLoading = ref(false);
 
-const calAmount = () => {
+const hasSetStandard = ref(false)
+const standardRate = ref(0)
+const standardRateInput = ref(0)
+const standardAmount = ref(0)
+
+// 防抖处理
+const standardInputChange = debounce((value) => {
+  const num = Number(value)
+  if (num > Number(standardRate.value)) {
+    calAmount(num)
+  } else {
+    standardRateInput.value = Number(standardRate.value)
+    setTimeout(() => {
+      calAmount(standardRateInput.value)
+    }, 200)
+  }
+}, 300)
+
+const calAmount = (rate) => {
   getLoading.value = true;
 
+  if (!rate || isNaN(Number(rate))) {
+    hasSetStandard.value = false
+  }
+
   const time = dayjs(formState.value.apply_date).format('YYYY-MM-DD');
-  projectLoanAllRepayment({
+  const params = {
     uuid: props.uuid,
     date: time
-  })
+  }
+
+  if (rate && !isNaN(Number(rate))) {
+    params.StandardRate = Number(rate)
+  }
+
+  
+  projectLoanAllRepayment(params)
     .then((res) => {
       formState.value.apply_amount = Number(res.last_money) ? Number(res.last_money) : 0
       maxReductionAmount.value = Number(res.reduction_money) ? Number(res.reduction_money) : 0
+
+      if (!hasSetStandard.value) {
+        standardRate.value = res.StandardRate
+        standardRateInput.value = res.StandardRate
+        standardAmount.value = res.reduction_money
+
+        hasSetStandard.value = true
+      }
+      formState.value.reduction_money = 0
       getLoading.value = false;
     })
     .catch(() => {

@@ -602,7 +602,8 @@
 
     dataArr.push(obj)
 
-    const calcNum = tool.div(buildAmount.value, totalSqm)
+    const totalNum = Number(tool.plus(buildAmount.value, borrowerEquity.value))
+    const calcNum = tool.div(totalNum, totalSqm)
     amortizedCalc.value = `<em>${t('总条数')}：${amLen.value}</em>($${numberStrFormat(buildAmount.value)}<i>[Loan]</i> + $${numberStrFormat(borrowerEquity.value)}<i class="borrower">[Borrower Equity]</i>) ÷ ${obj.total} ≈ <span>$${numberStrFormat(calcNum)}</span>/m²`
     amortizedData.value = dataArr
   }

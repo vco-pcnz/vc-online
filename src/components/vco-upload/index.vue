@@ -13,17 +13,21 @@
       :multiple="isMultiple"
       :showUploadList="showUploadList"
       :accept="accept"
+      :directory="directory"
       @preview="handlePreview"
       @change="handleChange"
     >
-    <!-- directory 文件夹 -->
-      <slot>
-        <div v-if="(isMultiple && fileList.length < limit && !disabled) || (!isMultiple && !picUrl)" class="upload-slot">
-          <loading-outlined v-if="spinning" />
-          <plus-outlined v-else />
-          <div class="ant-upload-text">{{ t(text || upText) }}</div>
-        </div>
-      </slot>
+      <!-- directory 文件夹 -->
+      <div @click="directory = false">
+        <slot>
+          <div v-if="(isMultiple && fileList.length < limit && !disabled) || (!isMultiple && !picUrl)" class="upload-slot">
+            <loading-outlined v-if="spinning" />
+            <plus-outlined v-else />
+            <div class="ant-upload-text">{{ t(text || upText) }}</div>
+          </div>
+        </slot>
+      </div>
+
       <div style="position: fixed; inset: 0" @click.stop></div>
     </a-upload>
     <div class="delete-img" @click="deleteImg" v-if="type == 'image' && picUrl && limit == 1 && !isMultiple">
@@ -127,6 +131,7 @@ const errTip = ref('');
 const accept = ref('');
 const fileName = ref('file');
 const upText = ref('');
+const directory = ref(true);
 
 const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'jfif', 'heic', 'heif'];
 const fileExtensions = ['xls', 'xlsb', 'xlsx', 'csv', 'json', 'txt', 'doc', 'docx', 'ppt', 'pptx', 'pdf', 'xmind', 'msg', 'eml'];
@@ -336,6 +341,7 @@ const handlePathChange = () => {
   emits('update:value', item);
   emits('update:list', list);
   emits('change', item);
+  directory.value = true;
   updateUploading(false);
 };
 

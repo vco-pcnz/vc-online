@@ -1137,5 +1137,6 @@ export default {
   "建议标准税率": "Proposed standard rate",
   "建议最大减少": "Proposed max reduction",
   "标准税率": "Standard rate",
-  "建设金额": "Amount of construction"
+  "建设金额": "Amount of construction",
+  "导出": "Export"
 }

@@ -126,3 +126,11 @@ export const projectDownSchedule = (data) =>
     method: "post",
     data
   });
+
+export const downBl = (params) =>
+  request({
+    url: 'project/down/bl',
+    method: 'get',
+    params
+  });
+  

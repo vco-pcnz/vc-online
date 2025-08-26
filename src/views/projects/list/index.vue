@@ -1,7 +1,10 @@
 <template>
   <product-tab v-model:current="pageStore.product_uuid" @change="tabChange">
     <div style="flex: 1"></div>
-    <a-button type="cyan" size="small" class="ml-3" shape="round" @click="report" :loading="downloading" v-if="hasPermission('projects:newLoan:download')">{{ t('新开贷款') }}</a-button>
+    <div class="flex">
+      <DateExport :sta="pageStore.sta" v-if="hasPermission('projects:list:export')"></DateExport>
+      <a-button type="cyan" size="small" class="ml-3" shape="round" @click="report" :loading="downloading" v-if="hasPermission('projects:newLoan:download')">{{ t('新开贷款') }}</a-button>
+    </div>
   </product-tab>
   <vco-page-tab class="mt-5" :tabData="tabData" v-model:current="pageStore.sta" @change="tabChange"></vco-page-tab>
 
@@ -35,6 +38,7 @@ import { useProjectsStore } from '@/store';
 import { hasPermission } from '@/directives/permission/index';
 import ProductTab from './../components/ProductTab.vue';
 import { downGs } from '@/api/project/project';
+import DateExport from './components/DateExport.vue';
 
 const { t } = useI18n();
 const pageStore = useProjectsStore();

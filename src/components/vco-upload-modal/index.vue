@@ -5,7 +5,7 @@
         <a-button size="large" type="dark"> {{ t('上传') }}</a-button>
       </slot>
     </div>
-    <a-modal :width="600" v-if="open" :open="open" :title="t('上传')" @cancel="open = false" class="sys-form-content">
+    <a-modal :width="662" v-if="open" :open="open" :title="t('上传')" @cancel="open = false" class="sys-form-content">
       <p class="fs_xs color_grey mt-5 mb-6 pb-1" style="border-bottom: 1px solid #ababab">{{ t('单击或将文件拖到当前页面进行上传') }}</p>
       <vco-upload :controller="controller" :params="params" :type="type" :limit="limit" isMultiple v-model:list="files" v-model:loading="uploading"></vco-upload>
       <template #footer>

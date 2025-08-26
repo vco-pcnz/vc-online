@@ -489,6 +489,7 @@ defineExpose({
     &:hover {
       border-color: @colorPrimary !important;
     }
+
     .anticon-loading,
     .anticon-plus {
       font-size: 18px;
@@ -505,6 +506,14 @@ defineExpose({
     }
   }
 
+  :deep(.ant-upload-list-item-container):nth-child(5n) {
+    margin-right: 0 !important;
+  }
+
+  :deep(.ant-upload-select) {
+    margin-right: 0 !important;
+  }
+  
   :deep(.hide) {
     .ant-upload-select {
       display: none;

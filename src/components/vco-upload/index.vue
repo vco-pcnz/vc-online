@@ -1,5 +1,5 @@
 <template>
-  <div :class="[{ 'images-uploader': listType === 'picture-card' }]">
+  <div :class="[{ 'images-uploader': listType === 'picture-card' }]" @mouseover="directory = true">
     <a-upload
       ref="uploadRef"
       :action="uploadAction"
@@ -16,6 +16,7 @@
       :directory="directory"
       @preview="handlePreview"
       @change="handleChange"
+      :class="{ hide: !((isMultiple && fileList.length < limit && !disabled) || (!isMultiple && !picUrl)) }"
     >
       <!-- directory 文件夹 -->
       <div @click="directory = false">
@@ -275,6 +276,7 @@ const beforeUpload = (file, tips) => {
       return false;
     }
   }
+
   const isLt2M = file.size / 1024 / 1024 < props.maxSize;
   if (!isLt2M) {
     if (tips) {
@@ -282,7 +284,13 @@ const beforeUpload = (file, tips) => {
       return false;
     }
   }
-  return isFileType && isLt2M;
+
+  const isLimit = fileList.value.length <= props.limit;
+  if (!isLimit) {
+    message.error(t('数量不能超过{0}', [`${props.limit}`]));
+    return false;
+  }
+  return isFileType && isLt2M && isLimit;
 };
 
 // 单文件上传删除
@@ -496,6 +504,13 @@ defineExpose({
       flex-direction: column;
     }
   }
+
+  :deep(.hide) {
+    .ant-upload-select {
+      display: none;
+    }
+  }
+
   :deep(.ant-upload-list-item-container) {
     width: 110px !important;
     height: 110px !important;

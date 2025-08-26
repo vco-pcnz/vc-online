@@ -34,6 +34,9 @@ const { t } = useI18n();
 const emits = defineEmits(['change']);
 
 const props = defineProps({
+  searchParams: {
+    type: Object
+  },
   sta: {
     type: [String, Number]
   }
@@ -71,6 +74,7 @@ const save = () => {
     .then(() => {
       const params = {
         ...formState.value,
+        ...props.searchParams,
         sta: props.sta
       };
       loading.value = true;

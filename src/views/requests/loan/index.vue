@@ -358,6 +358,16 @@ watch(tableData, () => {
   }
 });
 
+watch(
+  () => productData.value,
+  (val) => {
+    if (val && val.length) {
+      currentProduct.value = val[0].uuid
+      tabChange()
+    }
+  }
+);
+
 const handleRefreshRequestsList = () => {
   getTableData();
 };

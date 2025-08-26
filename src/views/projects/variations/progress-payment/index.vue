@@ -26,7 +26,7 @@
           </a-table>
           <div class="amortized-text" v-html="amortizedCalc"></div>
           <div class="flex justify-end items-center mt-2">
-            {{ t('贷款总额') }}：
+            {{ t('建设金额') }}：
             <vco-number :value="Number(tool.plus(buildAmount, borrowerEquity))" size="fs_xl" :precision="2" :end="true"></vco-number>
           </div>
         </div>

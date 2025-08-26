@@ -1136,5 +1136,6 @@ export default {
   "短信验证": "SMS verification",
   "建议标准税率": "Proposed standard rate",
   "建议最大减少": "Proposed max reduction",
-  "标准税率": "Standard rate"
+  "标准税率": "Standard rate",
+  "建设金额": "Amount of construction"
 }

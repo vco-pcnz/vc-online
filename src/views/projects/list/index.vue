@@ -2,7 +2,7 @@
   <product-tab v-model:current="pageStore.product_uuid" @change="tabChange">
     <div style="flex: 1"></div>
     <div class="flex">
-      <DateExport :sta="pageStore.sta" v-if="hasPermission('projects:list:export')"></DateExport>
+      <DateExport :sta="pageStore.sta" :searchParams="pageStore.searchParams" v-if="hasPermission('projects:list:export')"></DateExport>
       <a-button type="cyan" size="small" class="ml-3" shape="round" @click="report" :loading="downloading" v-if="hasPermission('projects:newLoan:download')">{{ t('新开贷款') }}</a-button>
     </div>
   </product-tab>

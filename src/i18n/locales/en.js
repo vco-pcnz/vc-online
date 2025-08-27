@@ -1138,5 +1138,6 @@ export default {
   "建议最大减少": "Proposed max reduction",
   "标准税率": "Standard rate",
   "建设金额": "Amount of construction",
-  "导出": "Export"
+  "导出": "Export",
+  "关闭日期": "Closed date"
 }

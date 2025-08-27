@@ -12,7 +12,8 @@
 
   <a-spin :spinning="pageStore.loading" size="large">
     <div class="table-content">
-      <table-block :table-data="pageStore.list" :type="pageStore.sta == 1 ? 'current' : 'closed'"></table-block>
+      <table-block v-if="!isNormalUser" :table-data="pageStore.list" :type="pageStore.sta == 1 ? 'current' : 'closed'"></table-block>
+      <table-block-vip v-if="isNormalUser" :table-data="pageStore.list" :type="pageStore.sta == 1 ? 'current' : 'closed'"></table-block-vip>
     </div>
     <div class="mt-5" v-if="pageStore.total">
       <a-pagination
@@ -30,11 +31,12 @@
 </template>
 
 <script setup name="Projects">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted,computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import TableSearch from '../components/TableSearch.vue';
 import TableBlock from '../components/TableBlock.vue';
-import { useProjectsStore } from '@/store';
+import TableBlockVip from '../components/TableBlockVip.vue';
+import { useProjectsStore,useUserStore } from '@/store';
 import { hasPermission } from '@/directives/permission/index';
 import ProductTab from './../components/ProductTab.vue';
 import { downGs } from '@/api/project/project';
@@ -42,6 +44,8 @@ import DateExport from './components/DateExport.vue';
 
 const { t } = useI18n();
 const pageStore = useProjectsStore();
+const isNormalUser = computed(() => useUserStore().isNormalUser);
+
 
 const tabData = ref([
   {

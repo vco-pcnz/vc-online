@@ -4,7 +4,7 @@
       :columns="columns"
       :data-source="tableData"
       :pagination="false"
-      :scroll="{ x: type == 'closed' ? '1950' : '1840px' }"
+     
       :customRow="rowClick"
       row-key="uuid"
       :rowClassName="setRowClass"
@@ -242,14 +242,9 @@ const columns = reactive([
   { title: t('借款人•贷款经理'), key: '2', width: 140 },
   { title: t('开始日期'), key: 'open', width: 110 },
   { title: t('到期'), key: 'end_date', width: 110 },
-  { title: t('IRR预测'), key: 'irr', width: 140 },
-  { title: 'LVR', key: 'lvr', width: 140 ,hide:true},
-  { title: 'LTC', key: 'ltc', width: 140 },
-  { title: t('收入'), key: 'income', width: 120 },
   { title: t('待提取'), key: 'undrawn', width: 120 },
   { title: t('贷款余额'), key: 'loan_balance', width: 150 },
   { title: t('完成情况'), key: 'bili', width: 80, align: 'center' },
-  { title: t('FC2'), key: 'fc2', width: 130 },
   { title: t('条件'), key: '9', align: 'center' }
 ]);
 

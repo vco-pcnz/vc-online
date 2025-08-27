@@ -26,7 +26,16 @@ watch(
     emits('update:current', currentProduct.value);
     emits('change');
   },
-  { immediate: true, deep: true }
+  { deep: true }
+);
+
+watch(
+  () => productData.value,
+  (val) => {
+    if (val && val.length && !currentProduct.value) {
+      currentProduct.value = val[0].uuid;
+    }
+  }
 );
 </script>
 

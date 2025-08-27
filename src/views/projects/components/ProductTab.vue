@@ -23,10 +23,12 @@ const productChange = (data) => {
 watch(
   () => currentProduct.value,
   (val) => {
-    emits('update:current', currentProduct.value);
-    emits('change');
+    if (val) {
+      emits('update:current', currentProduct.value);
+      emits('change');
+    }
   },
-  { deep: true }
+  { deep: true, immediate: true }
 );
 
 watch(

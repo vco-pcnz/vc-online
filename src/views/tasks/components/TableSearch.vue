@@ -3,7 +3,7 @@
     <vco-page-search @keyup.enter="searchHandle(false)">
       <template v-if="module !== 'other'">
         <vco-page-search-item width="120" :title="t('类型')">
-          <a-select :placeholder="t('请选择')" v-model:value="searchForm.type">
+          <a-select :placeholder="t('请选择')" v-model:value="searchForm.ctype">
             <a-select-option v-for="item in typeData" :key="item.value" :value="item.value">
               {{ item.label }}
             </a-select-option>
@@ -169,7 +169,7 @@ const baseInfoData = [
 ];
 
 const searchForm = ref({
-  type: '',
+  ctype: '',
   borrower_keyword: '',
   borrower_search_type: '',
   project_search_type: '',
@@ -192,7 +192,7 @@ const searchHandle = (flag) => {
 
   if (props.module === 'other') {
     Object.assign(searchForm.value, {
-      type: '',
+      ctype: '',
       borrower_keyword: '',
       borrower_search_type: '',
       project_search_type: '',
@@ -230,7 +230,7 @@ const loadType = () => {
 
 onMounted(() => {
   loadType();
-  searchForm.value.type = route.query.type;
+  searchForm.value.ctype = route.query.type;
   searchHandle();
 });
 

@@ -179,7 +179,7 @@ const props = defineProps({
 const beforeData = computed(() => {
   if (props.variationInfo.state === 1000) {
     return {
-      start_date: props.variationInfo.old_credit.project.var_start_date || '',
+      start_date: props.detail.date.start_date || '',
       end_date: props.variationInfo.old_credit.project.end_date || '',
       loan_money: props.variationInfo.old_credit.project.loan_money || 0,
       estabFee: props.variationInfo.old_credit.credit_estabFee || 0,

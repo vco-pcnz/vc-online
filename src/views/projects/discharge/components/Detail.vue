@@ -65,7 +65,7 @@
       </div>
 
       <div class="flex gap-4">
-        <!-- <a-button type="brown" shape="round" size="small" @click="navigationTo('/projects/documents?uuid=' + uuid + '&annex_id=' + detail?.annex_id)">{{ t('查看文件') }}</a-button> -->
+        <a-button v-if="detail?.document && detail?.document.length" type="brown" shape="round" size="small" @click="navigationTo('/projects/documents?uuid=' + uuid + '&annex_id=' + detail?.annex_id)">{{ t('查看文件') }}</a-button>
         <a-button v-if="detail.is_sales" type="brown" shape="round" size="small" @click="infoVisible = true">{{ t('预售数据') }}</a-button>
         <a-button v-if="hasPermission('projects:discharge:preSale') && !detail.is_sales && pageRole != 'Investor'" type="primary" shape="round" size="small" @click="editVisible = true">{{ t('添加预售数据') }}</a-button>
       </div>
@@ -131,7 +131,7 @@
           </a-popconfirm>
         </div>
 
-        <div v-if="detail.has_permission"  class="mt-10">
+        <div v-if="detail.has_permission && ![0].includes(detail.state)"  class="mt-10">
           <a-popconfirm :title="t('您确定要接受该请求吗？')" @confirm="accept">
             <a-button type="dark" class="big uppercase" style="width: 100%">{{ t('接受请求') }}</a-button>
           </a-popconfirm>
@@ -167,7 +167,6 @@ import DrawdownreQuest from './form/DrawdownRequest.vue';
 import DrawdownBack from './form/DrawdownBack.vue';
 import PreSaleInfo from './PreSaleInfo.vue';
 import { dischargeSaveStep, dischargeSaveDStep, dischargeRecall } from '@/api/project/loan';
-import { projectDetailDeleteSecurity } from '@/api/process';
 import EditDialog from './../pre-sale/components/EditDialog.vue';
 import { useUserStore } from '@/store';
 
@@ -219,25 +218,6 @@ const recall = async () => {
 const update = () => {
   emits('update');
 };
-
-
-const editHandle = () => {
-  emits('itemEdit')
-}
-
-const deleteHandle = async () => {
-  await projectDetailDeleteSecurity({
-    security_uuid: props.detail.uuid,
-    uuid: props.uuid
-  })
-    .then(() => {
-      update()
-      return true;
-    })
-    .catch(() => {
-      return false;
-    });
-}
 
 const infoVisible = ref(false)
 const editVisible = ref(false)

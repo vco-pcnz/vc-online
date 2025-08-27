@@ -20,6 +20,7 @@
 <script setup>
 import { ref,watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { cloneDeep } from 'lodash';
 
 const emits = defineEmits(['update:visible','update:value', 'change']);
 const { t } = useI18n();
@@ -44,7 +45,7 @@ const removeItem = (index) => {
 watch(
   () => uuids.value,
   (val) => {
-    emits('update:value',uuids.value)
+    emits('update:value', uuids.value)
   },
   {
     immediate: true
@@ -53,7 +54,24 @@ watch(
 watch(
   () => props.visible,
   (val) => {
-    emits('update:value',val?uuids.value:[])
+    if (val) {
+      const data = cloneDeep(props.value)
+      if (data && data.length) {
+        uuids.value = data.map(item => item.att_dir)
+        list.value = data.map(item => {
+          return {
+            value: item.att_dir,
+            name: item.name,
+            size: item.att_size,
+            type: item.type,
+            uuid: item.uuid
+          }
+        })
+      }
+    } else {
+      uuids.value = []
+      list.value = []
+    }
   },
   {
     immediate: true

@@ -174,11 +174,16 @@ const save = () => {
 };
 
 const init = () => {
-  updateVisible(true);
+  formState.value.dirname = props.detail.security_name;
+  formState.value.real_amount = props.detail.real_amount || '';
+  formState.value.repayment_date = props.detail.repayment_date || '';
+  formState.value.net_proceeds_price = props.detail.net_proceeds_price || '';
+  formState.value.reason = props.detail.reason || '';
 
+  document.value = props.detail.document || [];
   nextTick(() => {
-    formState.value.dirname = props.detail.security_name;
-  });
+    updateVisible(true);
+  })
 };
 </script>
 <style scoped lang="less">

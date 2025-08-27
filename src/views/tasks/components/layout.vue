@@ -91,7 +91,7 @@ const updateSearchForm = (val) => {
 
 const status_type = computed(() => ({
   status: searchForm.value.status,
-  type: searchForm.value.type
+  ctype: searchForm.value.ctype
 }));
 
 watch(
@@ -99,7 +99,7 @@ watch(
   (val) => {
     userStore.taskInfoParams = {
       status: searchForm.value.status,
-      type: searchForm.value.type
+      ctype: searchForm.value.ctype
     };
     setTimeout(() => {
       userStore.getTaskNumInfo();
@@ -114,7 +114,7 @@ watch(
     let updateData = cloneDeep(searchForm.value);
     if (searchForm.value.module === 'other') {
       Object.assign(updateData, {
-        type: '',
+        ctype: '',
         borrower_keyword: '',
         borrower_search_type: '',
         project_search_type: '',

@@ -584,6 +584,10 @@ const setFormData = () => {
     showRelatedSwitch.value = false
   }
 
+  if (data.document && data.document.length) {
+    document.value = data.document
+  }
+
   if (data.all_repayment) {
     calAmount();
   }

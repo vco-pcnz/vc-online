@@ -13,7 +13,7 @@
 import { useI18n } from 'vue-i18n';
 import { hasPermission } from '@/directives/permission/index';
 import Satistics from './components/Satistics/index.vue';
-import AmountLog from './components/AmountLog/index1.vue';
+import AmountLog from './components/AmountLog/index.vue';
 import ProjectDashboard from './components/ProjectDashboard/index.vue';
 import CashflowForecast from './components/CashflowForecast/index.vue';
 const { t } = useI18n();

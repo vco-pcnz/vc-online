@@ -2,47 +2,10 @@
   <a-spin :spinning="loading" size="large">
     <div class="flex title items-center gap-5">
       <div class="bold fs_2xl">{{ t('金额日志') }}</div>
-      <SearchContent v-model:value="searchForm" :searchConfig="searchConfig" :open_hidden="true" :showPresets="false" downloadUrl="barSta/briefExport" @change="loadData"></SearchContent>
+      <SearchContent v-if="invest_id" v-model:value="searchForm" timepicker="month" :searchConfig="searchConfig" :open_hidden="true" :downloadParams="{ id: invest_id }" :showPresets="false" downloadUrl="invest/barExport" @change="loadData"></SearchContent>
     </div>
-    <div class="hRgViQ chart mt-10">
-      <div class="title">
-        <p></p>
-        <div>
-          <div class="dwFSiw">
-            <div>
-              <div class="fPYWvF"></div>
-              <div>{{t('已使用')}}</div>
-            </div>
-            <div>
-              <div class="hErflg"></div>
-              <div>{{t('可用余额1')}}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="row-bars" style="padding-top: 28px">
-        <div class="ehsbrV" v-for="item in data" :key="item.uuid">
-          <div class="bar_l" :style="{ height: getHeight(item, 'drawdown') }"></div>
-          <div class="bar_r" :style="{ height: getHeight(item, 'repayment') }"></div>
-        </div>
-      </div>
-      <div>
-        <div class="jhVYNA first" style="justify-items: center">
-          <span class="flex-1" v-for="(item, ym) in data" :key="ym"> {{ tool.monthYear(ym) }}</span>
-        </div>
-        <div class="jhVYNA" style="justify-items: center">
-          <div class="fPYWvF"></div>
-          <div class="flex-1" v-for="(item, ym) in data" :key="ym">
-            <vco-number :value="item.drawdown" :bold="true" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
-          </div>
-        </div>
-        <div class="jhVYNA" style="justify-items: center">
-          <div class="hErflg"></div>
-          <div class="flex-1" v-for="(item, ym) in data" :key="ym">
-            <vco-number :value="item.repayment" :bold="true" :precision="2" size="fs_md" prefix="" suffix=""></vco-number>
-          </div>
-        </div>
-      </div>
+    <div style="height: 350px" class="mt-10">
+      <v-chart class="chart2" :option="option" autoresize />
     </div>
   </a-spin>
 </template>
@@ -51,99 +14,103 @@
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
-import { dashboard } from '@/api/home/index';
+import { userProject, barSta } from '@/api/invest';
 import SearchContent from '@/views/dashboard/components/SearchContent/index.vue';
 import dayjs from 'dayjs';
 const { t } = useI18n();
 
 const searchConfig = ref(['Time']);
 const searchForm = ref({
-  start_date: dayjs().subtract(0, 'month').startOf('month').format('YYYY-MM-DD'),
-  end_date: dayjs().subtract(0, 'month').endOf('month').format('YYYY-MM-DD')
+  start_date: dayjs().subtract(12, 'month').startOf('month').format('YYYY-MM'),
+  end_date: dayjs().subtract(0, 'month').endOf('month').format('YYYY-MM')
 });
-const max = ref(0);
-const maxDrawdown = ref(0);
-const maxRepayment = ref(0);
 
-const getHeight = (item, type) => {
-  return ((item[type] / max.value) * 100).toFixed(1) + '%';
-};
-const initData = () => {
-  // 找出 drawdown 的最大值
-  maxDrawdown.value = Object.values(data.value).reduce((max, item) => Math.max(max, item.drawdown), -Infinity) || 1;
+const option = ref({
+  grid: {
+    left: 90,
+    right: 50,
+    bottom: 50,
+    top: 50
+  },
+  color: ['#f1e4b4', '#98c2db', '#d3bcbd', '#bad7d5', '#e3edea'],
+  legend: {},
+  xAxis: {
+    type: 'category',
+    data: []
+  },
+  yAxis: {
+    type: 'value',
+    splitLine: {
+      show: true, // 显示分割线
+      lineStyle: {
+        type: 'dashed', // 设置为虚线
+        color: '#e1eded' // 设置颜色为红色
+      }
+    }
+  },
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'shadow'
+    },
+    formatter: function (params) {
+      // 定义 tooltip 的 HTML 样式
 
-  // 找出 repayment 的最大值
-  maxRepayment.value = Object.values(data.value).reduce((max, item) => Math.max(max, item.repayment), -Infinity) || 1;
-  max.value = Math.max(maxDrawdown.value, maxRepayment.value);
-};
+      const bodyStyle = 'font-family: Aeonik, Arial, Helvetica, sans-serif;';
+
+      let result = `<div style="color: #333;">${params[0].axisValue}</div>`; // 标题
+      params.forEach((item) => {
+        result += `
+          <div style="${bodyStyle} margin-top: 4px;">
+            ${item.marker} 
+            <span style="">${item.seriesName}:</span> 
+            <span style="color: #333;font-weight: bold;">${tool.formatMoney(item.value)}</span>
+          </div>
+        `;
+      });
+      return result;
+    }
+  },
+  series: []
+});
 
 const loading = ref(false);
 const data = ref({});
 
 const loadData = (val) => {
   loading.value = true;
-  dashboard(searchForm.value)
+  let params = searchForm.value;
+  if (val) params = { ...searchForm.value, ...val };
+  barSta({ id: invest_id.value, ...params })
     .then((res) => {
-      // data.value = res;
-      data.value = {
-        '2024-09': {
-          drawdown: '1258309.18',
-          repayment: 0
-        },
-        '2024-10': {
-          drawdown: '1258309.18',
-          repayment: 0
-        },
-        '2024-11': {
-          drawdown: '1258309.18',
-          repayment: 0
-        },
-        '2024-12': {
-          drawdown: '1258309.18',
-          repayment: 0
-        },
-        '2025-01': {
-          drawdown: '1258309.18',
-          repayment: 0
-        },
-        '2025-02': {
-          drawdown: '1258309.18',
-          repayment: 0
-        },
-        '2025-03': {
-          drawdown: '1258309.18',
-          repayment: 0
-        },
-        '2025-04': {
-          drawdown: '1258309.18',
-          repayment: 0
-        },
-        '2025-05': {
-          drawdown: '1258309.18',
-          repayment: 0
-        },
-        '2025-06': {
-          drawdown: '1519648.61',
-          repayment: 0
-        },
-        '2025-07': {
-          drawdown: '1618024.43',
-          repayment: 0
-        },
-        '2025-08': {
-          drawdown: '1618024.43',
-          repayment: 0
+      option.value.xAxis.data = res.time.map((item) => {
+        if (item.length == '7') {
+          return tool.monthYear(item);
         }
-      };
-      initData();
+        if (item.length == '10') {
+          return tool.showDate(item);
+        }
+        if (item.length == '4') {
+          return item;
+        }
+      });
+      option.value.series = [...res.bar];
+      // updateTime.value = res.otherInfo;
     })
     .finally(() => {
       loading.value = false;
     });
 };
 
+const invest_id = ref('');
+
 onMounted(() => {
-  loadData();
+  userProject().then((res) => {
+    if (res && res.length) {
+      invest_id.value = res[0].id;
+      loadData();
+    }
+  });
 });
 </script>
 

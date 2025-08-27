@@ -11,7 +11,7 @@
       </div>
     </vco-page-panel>
     <div class="flex justify-end" style="margin-top: -50px; margin-bottom: 20px; padding-right: 28px">
-      <TableSearch @search="searchHandle"></TableSearch>
+      <TableSearch v-if="showBack || invest_id" @search="searchHandle"></TableSearch>
     </div>
 
     <a-spin :spinning="pageLoading" size="large">

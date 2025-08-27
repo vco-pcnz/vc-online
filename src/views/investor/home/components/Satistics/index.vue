@@ -38,11 +38,11 @@
       <a-row :gutter="16" class="income">
         <a-col :span="6">
           <p class="color_grey fs_xs">Interest ( {{ statisticsData.rate || 0 }}% + BKBM )</p>
-          <p class="value">{{ tool.formatMoney(statisticsData.Interest) }}</p>
+          <p class="value">{{ tool.formatMoney(statisticsData.Interest || 0) }}</p>
         </a-col>
         <a-col :span="6" class="">
           <p class="color_grey fs_xs">Line fee ( {{ statisticsData.lrate || 0 }}% )</p>
-          <p class="value">{{ tool.formatMoney(statisticsData.Linefee) }}</p>
+          <p class="value">{{ tool.formatMoney(statisticsData.Linefee || 0) }}</p>
         </a-col>
         <a-col :span="6">
           <p class="color_grey fs_xs">Upfront fee</p>

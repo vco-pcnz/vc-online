@@ -26,19 +26,19 @@
       </a-col>
       <a-col :span="8" class="item-txt">
         <p>{{ t('合同日期（或无条件日期）') }}</p>
-        <p class="txt">{{ tool.showDate(detailData.contract_date) }}</p>
+        <p class="txt">{{ detailData.contract_date ? tool.showDate(detailData.contract_date) : '--' }}</p>
       </a-col>
       <a-col :span="8" class="item-txt">
         <p>{{ t('预计结算日期') }}</p>
-        <p class="txt">{{ tool.showDate(detailData.settlement_date) }}</p>
+        <p class="txt">{{ detailData.settlement_date ? tool.showDate(detailData.settlement_date) : '--' }}</p>
       </a-col>
       <a-col :span="8" class="item-txt">
         <p>{{ t('日落日期') }}</p>
-        <p class="txt">{{ tool.showDate(detailData.sunset_date) }}</p>
+        <p class="txt">{{ detailData.sunset_date ? tool.showDate(detailData.sunset_date) : '--' }}</p>
       </a-col>
       <a-col :span="8" class="item-txt">
         <p>{{ t('请求：还款日期') }}</p>
-        <p class="txt">{{ tool.showDate(detailData.repayment_date) }}</p>
+        <p class="txt">{{ detailData.repayment_date ? tool.showDate(detailData.repayment_date) : '--' }}</p>
       </a-col>
       <a-col :span="8" class="item-txt">
         <p>{{ t('请求：净收益') }}</p>

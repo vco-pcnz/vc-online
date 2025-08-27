@@ -119,7 +119,7 @@
       <a-row :gutter="24" class="mt-5">
         <a-col :span="12" class="item-txt">
           <p class="name">{{ t('开始日期1') }}</p>
-          <p class="txt">{{ tool.showDate(afterData.start_date) }}</p>
+          <p class="txt">{{ tool.showDate(beforeData.start_date) }}</p>
         </a-col>
         <a-col :span="12" class="item-txt">
           <p class="name">{{ t('结束日期1') }}</p>

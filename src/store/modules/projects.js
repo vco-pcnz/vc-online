@@ -1,11 +1,12 @@
 import { defineStore } from 'pinia';
-import { listProject } from '@/api/project/project';
+import { listProject, umbreListProject } from '@/api/project/project';
+import useUserStore from './user';
 
 const useCloseProjectsStore = defineStore('VcOnlineCloseProjects', {
   state: () => ({
     list: [],
     sta: 1, //类型 1open 2close
-    product_uuid:'',
+    product_uuid: '',
     loading: false,
     searchParams: {},
     total: 0,
@@ -62,11 +63,16 @@ const useCloseProjectsStore = defineStore('VcOnlineCloseProjects', {
       //     facility2: '325500',
       //   },
       // ]
+      const userStore = useUserStore();
+      let ajax = listProject;
+      if (userStore.pageRole == 'Umbrella') {
+        ajax = umbreListProject;
+      }
       const param = this.searchParams;
       const page = this.pagination;
       this.loading = true;
       return new Promise((resolve, reject) => {
-        listProject({
+        ajax({
           sta: this.sta,
           product_uuid: this.product_uuid,
           ...param,

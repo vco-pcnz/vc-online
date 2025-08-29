@@ -31,19 +31,18 @@
       <div class="profile_content">
         <div class="profile_info">
           <!-- <language-select></language-select> -->
-          <router-link :to="pageRole == 'Investor' ? '/investor/profile/about' : '/profile/about'">
-            <vco-avatar :src="userInfo?.avatar || ''" :size="26" />
-          </router-link>
+            <vco-avatar class="cursor-pointer" :src="userInfo?.avatar || ''" :size="26" @click="toProfile('/profile/about')" />
           <div class="link" :class="{ link_active: isUserActive() }">
             <div class="user_info">
               <a-space>
-                <span class="user_name" @click="navigationTo(pageRole == 'Investor' ? '/investor/profile/about' : '/profile/about')">{{ userInfo?.user_name || 'UserName' }}</span>
-                <a-badge @click.stop="navigationTo('/profile/notice')" class="badge" size="small" :count="noticeStore.noticeCount" v-if="!!noticeStore.noticeCount" />
+                <span class="user_name" @click="toProfile('/profile/about')">{{ userInfo?.user_name || 'UserName' }}</span>
+                <a-badge @click.stop="toProfile('/profile/notice')" class="badge" size="small" :count="noticeStore.noticeCount" v-if="!!noticeStore.noticeCount" />
               </a-space>
               <div v-if="userInfo?.roles">
                 <template v-for="item in userInfo?.roles.split('/')" :key="item">
-                  <a-tag color="orange" v-if="item == 'Investor' && userInfo?.roles.split('/').length != 1" @click="toInvestor">{{ item }}</a-tag>
-                  <span v-else>{{ item }}</span>
+                  <a-tag color="orange" v-if="item == 'Funding Partner' && userInfo?.roles.split('/').length != 1" @click="toLoans(item)">{{ item }}</a-tag>
+                  <a-tag color="orange" v-else-if="item == 'Umbrella' && userInfo?.roles.split('/').length != 1" @click="toLoans(item)">{{ item }}</a-tag>
+                  <span class="mr-3" v-else>{{ item }}</span>
                 </template>
               </div>
               <p v-else>Vip</p>
@@ -169,8 +168,18 @@ const LoadApplyBrokerDetail = () => {
   });
 };
 
-const toInvestor = () => {
-  navigationTo('/investor/list', true);
+const toLoans = (val) => {
+  if (val === 'Funding Partner') {
+    navigationTo('/investor/projects', true);
+  }
+  if (val === 'Umbrella') {
+    navigationTo('/umbrella/projects', true);
+  }
+};
+
+const toProfile = (val) => {
+  let mode = pageRole.value ? '/' + pageRole.value.toLowerCase() : '';
+  navigationTo(mode + val);
 };
 
 // 组件挂载时启动定时器

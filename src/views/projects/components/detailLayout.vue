@@ -22,6 +22,10 @@ import { useRouter, useRoute } from 'vue-router';
 import { projectDetail } from '@/api/project/project';
 import { cloneDeep } from 'lodash';
 
+const pageRole = computed(() => useUserStore().pageRole);
+const mode = pageRole.value ? '/' + pageRole.value.toLowerCase() : '';
+console.log(mode);
+
 const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
@@ -43,10 +47,9 @@ const panes = computed(() => {
   let arr = [];
   const data = userStore.routerInfo || [];
   const dataArr = cloneDeep(data);
-
-  const projectsArr = dataArr.find((item) => item.path === '/projects');
+  const projectsArr = dataArr.find((item) => item.path === mode + '/projects');
   const childArr = projectsArr.children || [];
-  const detailsArr = childArr.find((item) => item.path === '/projects/details');
+  const detailsArr = childArr.find((item) => item.path === mode + '/projects/details');
   const child = detailsArr.children || [];
 
   arr = child
@@ -58,13 +61,13 @@ const panes = computed(() => {
         key: item.path.slice(item.path.lastIndexOf('/') + 1)
       };
     });
-  hasImportAndPerfect.value = child.find((item) => item.path === '/projects/import-and-perfect') ? true : false;
+  hasImportAndPerfect.value = child.find((item) => item.path === mode + '/projects/import-and-perfect') ? true : false;
 
   return arr;
 });
 
 const onChange = (key) => {
-  router.push(`/projects/${key}?uuid=` + route.query.uuid);
+  router.push(mode + `/projects/${key}?uuid=` + route.query.uuid);
 };
 
 const prevBackArr = ['penalty', 'variations', 'journal'];
@@ -79,11 +82,11 @@ const backPrev = (link) => {
 
 const back = () => {
   if (backPrev(route.path)) {
-    router.push(`/projects/about?uuid=${route.query.uuid}`);
+    router.push(mode + `/projects/about?uuid=${route.query.uuid}`);
   } else if (route.path.indexOf('schedule/reconciliation') > -1) {
-    router.push(`/projects/schedule?uuid=${route.query.uuid}`);
+    router.push(mode + `/projects/schedule?uuid=${route.query.uuid}`);
   } else {
-    router.push(`/projects/list`);
+    router.push(mode + `/projects/list`);
   }
 };
 

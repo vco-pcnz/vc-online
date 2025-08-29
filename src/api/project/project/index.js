@@ -134,3 +134,10 @@ export const downBl = (params) =>
     params
   });
   
+// 项目列表 - open
+export const umbreListProject = (params) =>
+  request({
+    url: 'umbre/projectList',
+    method: 'get',
+    params
+  });

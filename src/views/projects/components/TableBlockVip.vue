@@ -1,15 +1,6 @@
 <template>
   <div class="sys-table-content border-top-none" :class="{ copy: hasPermission('projects:copy') }">
-    <a-table
-      :columns="columns"
-      :data-source="tableData"
-      :pagination="false"
-     
-      :customRow="rowClick"
-      row-key="uuid"
-      :rowClassName="setRowClass"
-      :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }"
-    >
+    <a-table :columns="columns" :data-source="tableData" :pagination="false" :customRow="rowClick" row-key="uuid" :rowClassName="setRowClass" :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }">
       <template #headerCell="{ column }">
         <template v-if="column.key === 'open'">
           <span class="headSortItem" :class="{ active: sort.sort == 'start_date' }" @click="sortChange('start_date')">
@@ -225,7 +216,7 @@ const pageStore = useProjectsStore();
 const emits = defineEmits(['update:data', 'update:keys', 'change']);
 import { useUserStore } from '@/store';
 
-const pageRole = useUserStore().pageRole;
+const pageRole = computed(() => useUserStore().pageRole);
 const props = defineProps({
   tableData: {
     type: Array,
@@ -254,11 +245,8 @@ const diffInDays = (val) => {
 const rowClick = (record, index) => {
   return {
     onClick: () => {
-      if (pageRole === 'Investor') {
-        navigationTo(`/investor/projects/about?uuid=${record.uuid}`);
-      } else {
-        navigationTo(`/projects/about?uuid=${record.uuid}`);
-      }
+      let mode = pageRole.value ? '/' + pageRole.value.toLowerCase() : '';
+      navigationTo(`${mode}/projects/about?uuid=${record.uuid}`);
     }
   };
 };

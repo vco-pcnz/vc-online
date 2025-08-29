@@ -125,25 +125,33 @@ const useUserStore = defineStore('VcOnlineUserInfo', {
     async requestRouterInfo() {
       let params = {};
       if (window.location.pathname.includes('investor')) {
-        params = { __way__: 'investor' };
         this.pageRole = 'Investor';
+        params = { __way__: 'investor' };
+      }
+      if (window.location.pathname.includes('umbrella')) {
+        this.pageRole = 'Umbrella';
+        params = { __way__: 'umbrella' };
       }
       const result = await getMenuList(params).catch(() => {});
       if (!result) {
         console.error('get menus error: ', result);
         return {};
       }
-      if (window.location.pathname.includes('investor') || this.userInfo.roles === 'Investor') {
-        this.pageRole = 'Investor';
-        result.map((item) => {
-          if (item.path === '/projects') {
-            item.hide = 1;
-          }
-          if (item.path === '/investor/projects') {
+
+      result.map((item) => {
+        if (this.pageRole == 'Investor' || this.userInfo.roles === 'Investor') {
+          item.hide = 1;
+          if (item.path.includes('/investor')) {
             item.hide = 0;
           }
-        });
-      }
+        }
+        if (this.pageRole == 'Umbrella' || this.userInfo.roles === 'Umbrella') {
+          item.hide = 1;
+          if (item.path.includes('/umbrella')) {
+            item.hide = 0;
+          }
+        }
+      });
       // 用户菜单, 过滤掉按钮、权限目录、接口类型并转为 children 形式
       const { menus, homePath } = formatMenus(
         toTreeData({

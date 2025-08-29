@@ -6,14 +6,7 @@
       </h2>
     </div>
     <div class="TabsPanel-Tab">
-      <a-button
-        v-for="item in panes"
-        :key="item.key"
-        @click="onChange(item.key)"
-        :class="`tab-button ${
-          item.key === props.activeTab ? 'active-tab' : ''
-        }`"
-      >
+      <a-button v-for="item in panes" :key="item.key" @click="onChange(item.key)" :class="`tab-button ${item.key === props.activeTab ? 'active-tab' : ''}`">
         {{ item.label }}
         {{ item.extraInfo ? `(${item.extraInfo})` : '' }}
       </a-button>
@@ -26,13 +19,9 @@
           <vco-avatar :size="124" style="margin: auto" :src="avatarSrc" />
         </div>
         <div class="info-detail">
-          <p v-for="(info,index) in baseInfo" :key="index">
+          <p v-for="(info, index) in baseInfo" :key="index">
             <span class="label">
-              <i
-                :class="`iconfont ${info.isVerify ? 'iconfont_yellow' : ''}`"
-                v-html="info.icon"
-                v-if="info.icon"
-              />
+              <i :class="`iconfont ${info.isVerify ? 'iconfont_yellow' : ''}`" v-html="info.icon" v-if="info.icon" />
               {{ info.label }}:
             </span>
             <span class="value">{{ info.value }}</span>
@@ -40,7 +29,7 @@
         </div>
       </div>
       <div class="profile-info-detail">
-        <p v-for="(info,index) in extraInfo" :key="index">
+        <p v-for="(info, index) in extraInfo" :key="index">
           <span class="label">
             <i class="iconfont text-2xl" v-html="info.icon" v-if="info.icon" />
             &nbsp;
@@ -61,7 +50,7 @@
 import { ref, reactive, onMounted, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
-import { useUserDetailStore, useNoticeStore } from '@/store';
+import { useUserDetailStore, useNoticeStore, useUserStore } from '@/store';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -71,80 +60,76 @@ const baseInfo = ref();
 const extraInfo = ref();
 const userName = ref('');
 const avatarSrc = computed(() => userDetailStore.userDetail.avatar);
+const pageRole = computed(() => useUserStore().pageRole);
 
 const props = defineProps(['activeTab']);
 
 const panes = reactive([
   {
     key: 'about',
-    label: t('关于'),
+    label: t('关于')
   },
   {
     key: 'safe',
-    label: t('安全'),
+    label: t('安全')
   },
   {
     key: 'notice',
     label: t('通知'),
-    extraInfo: 0,
+    extraInfo: 0
   },
   {
     key: 'parentTeam',
-    label: t('我的组织'),
+    label: t('我的组织')
   },
   {
     key: 'team',
-    label: t('我的团队'),
-  },
+    label: t('我的团队')
+  }
 ]);
 
 const onChange = (key) => {
   if (noticeStore.showDetail) {
     noticeStore.setShowDetail(false);
   } else {
-    router.push(`/profile/${key}`);
+    if (pageRole.value == 'Umbrella') {
+      router.push(`/umbrella/profile/${key}`);
+    } else {
+      router.push(`/profile/${key}`);
+    }
   }
 };
 
 const setUserInfo = (data) => {
-  const {
-    username,
-    email,
-    email_ok,
-    pre,
-    mobile,
-    mobile_ok,
-    user_name,
-    roles,
-  } = data;
+  const { username, email, email_ok, pre, mobile, mobile_ok, user_name, roles } = data;
   const _baseInfo = [
     {
       label: 'ID',
-      value: username,
+      value: username
     },
     {
       icon: '&#xe73b;',
       label: t('名字'),
-      value: user_name,
+      value: user_name
     },
     {
       icon: '&#xe66f;',
       label: t('邮箱'),
       value: email,
-      isVerify: !!email_ok,
+      isVerify: !!email_ok
     },
     {
       icon: '&#xe61d;',
       label: t('手机号'),
       value: `+${pre} ${mobile}`,
-      isVerify: !!mobile_ok,
-    },
+      isVerify: !!mobile_ok
+    }
   ];
   const _extraInfo = [
     {
       icon: '&#xe8db;',
-      value: roles.join('/'),
-    },
+      value: roles.join('/')
+    }
   ];
   baseInfo.value = _baseInfo;
   extraInfo.value = _extraInfo;
@@ -153,7 +138,6 @@ const setUserInfo = (data) => {
 
 onMounted(() => {
   userDetailStore.getUserInfo();
-
 });
 
 watch(
@@ -177,7 +161,7 @@ watch(
     }
   },
   {
-    immediate: true,
+    immediate: true
   }
 );
 </script>

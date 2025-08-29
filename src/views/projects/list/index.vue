@@ -31,12 +31,12 @@
 </template>
 
 <script setup name="Projects">
-import { ref, onMounted,computed } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import TableSearch from '../components/TableSearch.vue';
 import TableBlock from '../components/TableBlock.vue';
 import TableBlockVip from '../components/TableBlockVip.vue';
-import { useProjectsStore,useUserStore } from '@/store';
+import { useProjectsStore, useUserStore } from '@/store';
 import { hasPermission } from '@/directives/permission/index';
 import ProductTab from './../components/ProductTab.vue';
 import { downGs } from '@/api/project/project';
@@ -45,7 +45,6 @@ import DateExport from './components/DateExport.vue';
 const { t } = useI18n();
 const pageStore = useProjectsStore();
 const isNormalUser = computed(() => useUserStore().isNormalUser);
-
 
 const tabData = ref([
   {
@@ -73,7 +72,6 @@ const tabChange = () => {
   }
 };
 
-onMounted(() => {});
 const downloading = ref(false);
 const report = () => {
   downloading.value = true;

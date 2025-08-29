@@ -225,7 +225,7 @@ const pageStore = useProjectsStore();
 const emits = defineEmits(['update:data', 'update:keys', 'change']);
 import { useUserStore } from '@/store';
 
-const pageRole = useUserStore().pageRole;
+const pageRole = computed(() => useUserStore().pageRole);
 const props = defineProps({
   tableData: {
     type: Array,
@@ -243,7 +243,7 @@ const columns = reactive([
   { title: t('开始日期'), key: 'open', width: 110 },
   { title: t('到期'), key: 'end_date', width: 110 },
   { title: t('IRR预测'), key: 'irr', width: 140 },
-  { title: 'LVR', key: 'lvr', width: 140 ,hide:true},
+  { title: 'LVR', key: 'lvr', width: 140, hide: true },
   { title: 'LTC', key: 'ltc', width: 140 },
   { title: t('收入'), key: 'income', width: 120 },
   { title: t('待提取'), key: 'undrawn', width: 120 },
@@ -259,11 +259,8 @@ const diffInDays = (val) => {
 const rowClick = (record, index) => {
   return {
     onClick: () => {
-      if (pageRole === 'Investor') {
-        navigationTo(`/investor/projects/about?uuid=${record.uuid}`);
-      } else {
-        navigationTo(`/projects/about?uuid=${record.uuid}`);
-      }
+      let mode = pageRole.value ? '/' + pageRole.value.toLowerCase() : '';
+      navigationTo(`${mode}/projects/about?uuid=${record.uuid}`);
     }
   };
 };

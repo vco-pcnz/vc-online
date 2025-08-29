@@ -230,7 +230,7 @@
                 <a-form-item class="w-full-label" name="buildChangeNum">
                   <template #label>
                     <div class="w-full flex justify-between items-center">
-                      <p>{{ t('变更值') }} ({{ hasBuild ? t('已设置') : t('未设置') }})</p>
+                      <p>{{ t('变更值') }} (<span :class="hasBuild ? 'text-green-500' : 'text-red-500'">{{ hasBuild ? t('已设置') : t('未设置') }}</span>)</p>
                       <a-button
                         v-if="Number(buildChangeNum)"
                         type="link"
@@ -578,7 +578,14 @@ const typeChange = (val) => {
     type: val,
     start_date: defaultDate,
     devCostDetail: [],
-    build: []
+    build: [],
+    build_log: [],
+    amount: 0,
+    initial_amount: 0,
+    land_amount: 0,
+    initial_land_amount: 0,
+    build_amount: 0,
+    initial_build_amount: 0
   }
 
   if (currentVariationId.value) {
@@ -945,7 +952,8 @@ const hasBuild = computed(() => {
   if (variationData.value) {
     const data = variationData.value?.build || {}
     const bData = data?.data || {}
-    return Boolean(Object.keys(bData).length > 0)
+    const sData = data?.summary || {}
+    return Boolean(Object.keys(bData).length > 0 || Object.keys(sData).length > 0)
   } else {
     return false
   }

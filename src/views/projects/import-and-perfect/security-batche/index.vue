@@ -515,7 +515,7 @@ const totalTypology = computed(() => {
   const calc = typologyArr.reduce((acc, item) => {
     // 累加固定字段
     ['beds', 'lounge', 'bath', 'garage', 'level', 'carpark'].forEach(key => {
-      acc[key] = (acc[key] || 0) + item[key];
+      acc[key] = (acc[key] || 0) + Number(item[key]);
     });
 
     // 统计 other 里的动态字段，过滤掉没有 key 的数据
@@ -523,7 +523,7 @@ const totalTypology = computed(() => {
       item.other
       .filter(entry => entry.key) // 过滤 key 为空的项
       .forEach(({ key, value }) => {
-          acc[key] = (acc[key] || 0) + value;
+          acc[key] = (acc[key] || 0) + Number(value);
       });
     }
 

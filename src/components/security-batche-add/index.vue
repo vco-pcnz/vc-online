@@ -541,7 +541,7 @@ const totalTypology = computed(() => {
   const calc = typologyArr.reduce((acc, item) => {
     // 累加固定字段
     ['beds', 'bath', 'lounge', 'garage', 'carpark', 'level'].forEach((key) => {
-      acc[key] = (acc[key] || 0) + item[key];
+      acc[key] = (acc[key] || 0) + Number(item[key]);
     });
 
     // 统计 other 里的动态字段，过滤掉没有 key 的数据
@@ -549,7 +549,7 @@ const totalTypology = computed(() => {
       item.other
         .filter((entry) => entry.key) // 过滤 key 为空的项
         .forEach(({ key, value }) => {
-          acc[key] = (acc[key] || 0) + value;
+          acc[key] = (acc[key] || 0) + Number(value);
         });
     }
 
@@ -930,6 +930,10 @@ const tableDataInit = async () => {
           type: baseData.value.type
         }).then(res => {
           list = res.list || []
+
+          list.forEach(item => {
+            item.not_variation = true
+          })
         })
       }
 
@@ -951,8 +955,8 @@ const tableDataInit = async () => {
         sItem.name = item.card_no || t(`第{0}行`, [index + 1]);
         sItem.security_uuid = item.uuid || item.security_uuid;
         sItem.typology.other = sItem.typology.other || [];
+        sItem.not_variation = item.not_variation || false;
         if (props.isVariation) {
-          sItem.not_variation = item.not_variation || false;
           sItem.is_delete = item.is_delete || false;
           sItem.status = item.status || 0;
 
@@ -983,6 +987,7 @@ const tableDataInit = async () => {
       const item = cloneDeep(batchitem);
       item.card_no = props.isOpen ? '' : `Lot ${listData.length + 1}`;
       item.checked = true;
+      item.not_variation = true;
       item.name = props.isOpen ? '' : item.card_no || t(`第{0}行`, [index + 1]);
       item.typology.other = [];
       data.push(item);
@@ -991,6 +996,7 @@ const tableDataInit = async () => {
         const item = cloneDeep(batchitem);
         item.card_no = `Lot ${i + 1}`;
         item.checked = true;
+        item.not_variation = true;
         item.name = item.card_no || t(`第{0}行`, [index + 1]);
         item.typology.other = [];
         data.push(item);

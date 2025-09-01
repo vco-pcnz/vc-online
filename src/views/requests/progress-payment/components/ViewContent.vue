@@ -1225,7 +1225,7 @@
   onMounted(async () => {
     const { path, query } = route
 
-    if (path === '/requests/details/progress-payment') {
+    if (['/requests/details/progress-payment', '/requests/details/about'].includes(path)) {
       isRequests.value = false
     } else if (path.indexOf('requests') > -1) {
       isRequests.value = true

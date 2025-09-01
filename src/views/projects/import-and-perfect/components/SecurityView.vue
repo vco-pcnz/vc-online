@@ -196,8 +196,27 @@
       }
 
       // 转换为字符串格式，并过滤掉 "other" 字段
-      return Object.entries(summary)
-          .filter(([key]) => key !== 'other') // 去掉 "other" 字段
+      const orderedKeys = ['beds', 'lounge', 'bath', 'garage', 'level', 'carpark'];
+      const orderedEntries = [];
+      const otherEntries = [];
+      
+      Object.entries(summary).forEach(([key, value]) => {
+        if (key !== 'other') { // 过滤掉 "other" 字段
+          if (orderedKeys.includes(key)) {
+            orderedEntries.push([key, value]);
+          } else {
+            otherEntries.push([key, value]);
+          }
+        }
+      });
+      
+      // 按照指定顺序排序 orderedEntries
+      orderedEntries.sort(([a], [b]) => orderedKeys.indexOf(a) - orderedKeys.indexOf(b));
+      
+      // 合并有序字段和其他字段
+      const finalEntries = [...orderedEntries, ...otherEntries];
+      
+      return finalEntries
           .map(([key, value]) => `${value} ${key}`)
           .join(', ');
     } else {

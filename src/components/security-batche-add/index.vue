@@ -871,7 +871,6 @@ const batchitem = {
   net_proceeds_price: 0,
   variance: 0,
   dup: '',
-  not_variation: true,
   is_delete: false
 };
 
@@ -1010,6 +1009,7 @@ const tableDataInit = async () => {
 
 const addHandle = () => {
   const item = cloneDeep(batchitem);
+  item.not_variation = props.isVariation ? false : true;
   item.checked = true;
   item.name = item.card_no || t(`第{0}行`, [formDataSource.value.length + 1]);
   formDataSource.value.push(item);

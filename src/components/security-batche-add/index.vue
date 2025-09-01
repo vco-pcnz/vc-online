@@ -870,7 +870,9 @@ const batchitem = {
   repayment_date: '',
   net_proceeds_price: 0,
   variance: 0,
-  dup: ''
+  dup: '',
+  not_variation: true,
+  is_delete: false
 };
 
 const oldData = ref([]);

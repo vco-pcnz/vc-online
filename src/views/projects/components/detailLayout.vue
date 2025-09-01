@@ -24,7 +24,6 @@ import { cloneDeep } from 'lodash';
 
 const pageRole = computed(() => useUserStore().pageRole);
 const mode = pageRole.value ? '/' + pageRole.value.toLowerCase() : '';
-console.log(mode);
 
 const { t } = useI18n();
 const router = useRouter();
@@ -98,6 +97,9 @@ const getProjectDetail = (userId) => {
     projectDetail({ uuid }).then((res) => {
       res['loan'] = res.date;
       detail.value = res;
+      if (pageRole.value == 'Umbrella') {
+        res.base.is_close = 1;
+      }
       emits('getProjectDetail', res);
     });
   }

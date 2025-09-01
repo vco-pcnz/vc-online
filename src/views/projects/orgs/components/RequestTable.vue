@@ -46,7 +46,7 @@
             <p :style="{ color: colors[record.status_name] }">{{ record.status_name || '--' }}</p>
           </template>
           <template v-if="column.dataIndex === 'operation'">
-            <a-button v-if="record.has_permission" type="primary" size="small" shape="round" class="uppercase" @click="openDetail(record)">{{ t('审核') }}</a-button>
+            <a-button v-if="record.has_permission && edit" type="primary" size="small" shape="round" class="uppercase" @click="openDetail(record)">{{ t('审核') }}</a-button>
             <a-button v-else type="brown" size="small" shape="round" class="uppercase" @click="openDetail(record)">{{ t('详情') }}</a-button>
           </template>
         </template>
@@ -89,6 +89,13 @@ const route = useRoute();
 const emits = defineEmits(['check', 'refresh']);
 
 const { t } = useI18n();
+
+const props = defineProps({
+  edit: {
+    type: Boolean,
+    default: false
+  }
+});
 
 const total = ref(0);
 const pagination = ref({

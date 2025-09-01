@@ -31,7 +31,7 @@
 </template>
 
 <script setup name="Projects">
-import { ref, onMounted, computed } from 'vue';
+import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import TableSearch from '../components/TableSearch.vue';
 import TableBlock from '../components/TableBlock.vue';
@@ -62,6 +62,9 @@ const tabData = ref([
 const tableSearchRef = ref();
 
 const tabChange = () => {
+  if (window.location.pathname.includes('umbrella')) {
+    useUserStore().pageRole = 'Umbrella';
+  }
   pageStore.pagination.page = 1;
   pageStore.searchParams['order'] = 'desc';
   pageStore.searchParams['sort'] = 'start_date';

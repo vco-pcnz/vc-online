@@ -1,7 +1,7 @@
 <template>
   <div class="inline" @click="init">
     <slot>
-      <a-button type="cyan" size="small" class="ml-3" shape="round" @click="report" :loading="downloading">{{ t('导出') }}</a-button>
+      <a-button type="cyan" size="small" class="ml-3" shape="round" :loading="loading">{{ t('导出') }}</a-button>
     </slot>
   </div>
   <div @click.stop ref="JournalRef" class="Journal">

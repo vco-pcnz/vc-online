@@ -14,22 +14,26 @@
     </li>
   </ul>
   <div class="mt-5" v-if="hasPermission('projects:orgs:review')">
-    <a-button type="brown" shape="round" @click="navigationTo('/projects/orgs?uuid=' + currentId)" size="small">More</a-button>
+    <a-button type="brown" shape="round" @click="navigationTo(`${mode}/projects/orgs?uuid=` + currentId)" size="small">More</a-button>
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch,computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { projectDetailGetWash } from '@/api/project/wash';
 import { navigationTo } from '@/utils/tool';
 import { hasPermission } from '@/directives/permission/index';
+import { useUserStore } from '@/store';
 
 const { t } = useI18n();
 
 const props = defineProps(['currentId']);
 
 const list = ref([]);
+
+const pageRole = computed(() => useUserStore().pageRole);
+const mode = pageRole.value ? '/' + pageRole.value.toLowerCase() : '';
 
 watch(
   () => props.currentId,

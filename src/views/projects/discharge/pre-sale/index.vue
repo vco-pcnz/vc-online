@@ -97,12 +97,15 @@ import { projectDetail, projectDischargeSales } from '@/api/project/project';
 import { useTableList } from '@/hooks/useTableList';
 import EditDialog from './components/EditDialog.vue';
 import LogDialog from './components/LogDialog.vue';
+import { useUserStore } from '@/store';
 
 const { t } = useI18n();
 
 const route = useRoute();
 const router = useRouter();
 
+const pageRole = computed(() => useUserStore().pageRole);
+const mode = pageRole.value ? '/' + pageRole.value.toLowerCase() : '';
 const uuid = ref(route.query.uuid);
 
 const projectInfo = ref();
@@ -120,7 +123,7 @@ const pageTitle = computed(() => {
 });
 
 const back = () => {
-  router.push(`/projects/discharge?uuid=${route.query.uuid}`);
+  router.push(`${mode}/projects/discharge?uuid=${route.query.uuid}`);
 };
 
 const columns = reactive([

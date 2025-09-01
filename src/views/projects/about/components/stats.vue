@@ -110,11 +110,12 @@
           </div>
         </a-col>
         <a-col :span="14" class="text-right cursor-pointer">
-          <DevCostDetail :dataJson="detail?.base?.devCostDetail" :disabledGST="true" :disabledLoan="true" :disabledModel="true" @change="editSaveDevCost">
+          <DevCostDetail :dataJson="detail?.base?.devCostDetail" :disabledGST="true" :disabledLoan="true" :disabledModel="true" :edit="!detail?.base?.is_close" @change="editSaveDevCost">
             <div class="color_grey fs_xs">Total Development Cost</div>
             <div class="flex justify-end items-center gap-2">
               <vco-number :value="data?.right?.devCost" :bold="true" size="fs_xl" :precision="2"></vco-number>
-              <i class="iconfont color_coal">&#xe743;</i>
+              <i class="iconfont color_coal" v-if="!detail?.base?.is_close">&#xe743;</i>
+              <i class="iconfont color_coal" v-if="detail?.base?.is_close">&#xe776;</i>
             </div>
           </DevCostDetail>
         </a-col>

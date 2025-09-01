@@ -2,7 +2,7 @@
   <detail-layout active-tab="schedule" @getProjectDetail="getProjectDetail">
     <template #content>
       <div class="relative">
-        <a-button v-if="hasPermission('projects:detail:schedule:reconciliation')" type="brown" shape="round" class="pre-sale-enter" @click="navigationTo(`/projects/schedule/reconciliation?uuid=${project_id}`)">
+        <a-button v-if="hasPermission('projects:detail:schedule:reconciliation') && ! projectDetail?.base?.is_close" type="brown" shape="round" class="pre-sale-enter" @click="navigationTo(`/projects/schedule/reconciliation?uuid=${project_id}`)">
           {{ t('对账') }}
           <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px' }" />
         </a-button>

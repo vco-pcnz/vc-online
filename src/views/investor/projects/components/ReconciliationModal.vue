@@ -103,7 +103,7 @@ const props = defineProps({
     type: [String, Number]
   },
   uuid: {
-    type: Object
+    type: [String, Number]
   },
   type: {
     type: [String, Number]

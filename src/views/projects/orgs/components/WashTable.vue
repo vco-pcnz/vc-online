@@ -1,5 +1,5 @@
 <template>
-  <div class="flex gap-5 items-center justify-end">
+  <div class="flex gap-5 items-center justify-end" v-if="edit">
     <template v-if="hasPermission('projects:orgs:edit')">
       <a-popconfirm :title="t('确定通过审核吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" :disabled="Boolean(!selectedRowKeys.length)" @confirm="checkHandle(1)">
         <a-button type="dark" :disabled="Boolean(!selectedRowKeys.length)" shape="round" class="uppercase" :loading="loading && type === 1">
@@ -84,13 +84,15 @@
               <!-- <i class="iconfont" :title="t('有条件')" v-if="Boolean(record.status == 3)">&#xe73a;</i> -->
               <i class="iconfont" :title="t('项目文件')" v-if="Boolean(record.document && record.document.length)" @click="updateVisibleFiles(record)">&#xe690;</i>
               <i class="iconfont" :title="t('审核')" @click="checkOne(record.id)" v-if="record.status != 4 && record.status != 3 && record.document.length">&#xe647;</i>
-              <template v-if="record.status != 4">
-                <i class="iconfont" :title="t('编辑')" @click="showForm(record)">&#xe753;</i>
-                <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.id)" v-if="record.status != 3">
-                  <i class="iconfont" :title="t('删除l')">&#xe8c1;</i>
-                </a-popconfirm>
+              <template v-if="edit">
+                <template v-if="record.status != 4">
+                  <i class="iconfont" :title="t('编辑')" @click="showForm(record)">&#xe753;</i>
+                  <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.id)" v-if="record.status != 3">
+                    <i class="iconfont" :title="t('删除l')">&#xe8c1;</i>
+                  </a-popconfirm>
+                </template>
+                <template v-else><i class="iconfont" :title="t('编辑')" @click="showDetail(record)">&#xe753;</i> </template>
               </template>
-              <template v-else><i class="iconfont" :title="t('编辑')" @click="showDetail(record)">&#xe753;</i> </template>
             </div>
           </template>
         </template>
@@ -135,6 +137,13 @@ const route = useRoute();
 const emits = defineEmits(['check', 'refresh']);
 
 const { t } = useI18n();
+
+const props = defineProps({
+  edit: {
+    type: Boolean,
+    default: false
+  }
+});
 
 const total = ref(0);
 const pagination = ref({

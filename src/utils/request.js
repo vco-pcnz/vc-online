@@ -72,7 +72,7 @@ function createService() {
           return Promise.resolve({
             count,
             data,
-            otherInfo,
+            otherInfo
           });
         } else {
           return Promise.resolve(data);
@@ -84,17 +84,17 @@ function createService() {
         router.push('/403');
         return Promise.reject({
           code,
-          msg,
+          msg
         });
       } else {
         if (!response.config.diyError) {
           message.error({
-            content: msg,
+            content: msg
           });
         }
         return Promise.reject({
           code,
-          msg,
+          msg
         });
       }
     },
@@ -102,7 +102,7 @@ function createService() {
       release();
       const err = (text) => {
         message.error({
-          content: error.response && error.response.data && error.response.data.message ? error.response.data.message : text,
+          content: error.response && error.response.data && error.response.data.message ? error.response.data.message : text
         });
       };
       if (error.response && error.response.data) {
@@ -146,10 +146,13 @@ function throttle(fn, wait = 1500) {
 }
 
 function stringify(data) {
-  return qs.stringify(data, { 
-    allowDots: true, 
+  if (window.location.pathname.includes('umbrella') || useUserStore().pageRole == 'Umbrella') {
+    data = { ...data, __way__: 'umbrella' };
+  }
+  return qs.stringify(data, {
+    allowDots: true,
     encode: true, // 强制编码参数值
-    encoder: (value) => encodeURIComponent(value), // 自定义编码逻辑
+    encoder: (value) => encodeURIComponent(value) // 自定义编码逻辑
   });
   // return qs.stringify(data, { allowDots: true, encode: false });
 }
@@ -165,7 +168,7 @@ function createRequest(service, externalService) {
     const token = getToken();
 
     const headerConfig = {
-      Lang: i18n.global.locale.value === 'zh-cn' ? 'zh_CN' : i18n.global.locale.value,
+      Lang: i18n.global.locale.value === 'zh-cn' ? 'zh_CN' : i18n.global.locale.value
     };
 
     if (token) {
@@ -175,13 +178,13 @@ function createRequest(service, externalService) {
     const configDefault = {
       headers: Object.assign(
         {
-          ...headerConfig,
+          ...headerConfig
         },
         config.headers
       ),
 
       timeout: 600000,
-      data: {},
+      data: {}
     };
 
     delete config.headers;

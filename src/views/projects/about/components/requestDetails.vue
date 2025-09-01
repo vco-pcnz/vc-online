@@ -64,7 +64,7 @@
     <div v-if="hasPermission('projects:detail:editGuarantor')" class="RequestDetails-label flex items-center add">
       <i v-if="showWarrantyTips" class="iconfont iconfont-tips">&#xe60e;</i>
       <span>{{ t('其他安全信息') }}</span>
-      <i class="iconfont" @click="securityVisible = true">&#xe743;</i>
+      <i class="iconfont" v-if="!data?.base?.is_close" @click="securityVisible = true">&#xe743;</i>
     </div>
 
     <div>

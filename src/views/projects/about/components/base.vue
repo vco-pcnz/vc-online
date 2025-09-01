@@ -7,7 +7,7 @@
     <div class="base-card">
       <p class="id_async">
         <span style="color: #181818;">ID {{ detail?.base.project_apply_sn }}</span>
-        <template v-if="!variations && !detail?.base?.ptRole">
+        <template v-if="!variations && !detail?.base?.ptRole && !detail?.base?.is_close">
           <a-statistic-countdown :value="deadline" @finish="onFinish" format="mm:ss" v-if="Boolean(countdown)">
             <template #prefix>
               <span>{{ t('处理') }} (</span>

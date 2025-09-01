@@ -1,10 +1,10 @@
 <template>
-  <detail-layout active-tab="journal">
-    <template #content>
+  <detail-layout active-tab="journal" @getProjectDetail="getProjectDetail">
+    <template #content v-if="projectDetail">
       <vco-page-tab :tabData="tabData" v-model:current="currentTab" class="mb-5"></vco-page-tab>
-      <WashTable v-if="currentTab == 1"></WashTable>
-      <RequestTable v-if="currentTab == 2"></RequestTable>
-      <OrgsTable v-if="currentTab == 3"></OrgsTable>
+      <WashTable v-if="currentTab == 1" :edit="!projectDetail?.base?.is_close"></WashTable>
+      <RequestTable v-if="currentTab == 2" :edit="!projectDetail?.base?.is_close"></RequestTable>
+      <OrgsTable v-if="currentTab == 3" :edit="!projectDetail?.base?.is_close"></OrgsTable>
     </template>
   </detail-layout>
 </template>
@@ -44,6 +44,11 @@ const tabData = ref([
   //   num: 0
   // }
 ]);
+
+const projectDetail = ref();
+const getProjectDetail = (val) => {
+  projectDetail.value = val;
+};
 
 onMounted(() => {
   currentId.value = route.query.uuid;

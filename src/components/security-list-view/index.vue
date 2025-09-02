@@ -205,7 +205,7 @@
     const calc = typologyArr.reduce((acc, item) => {
       // 累加固定字段
       ['beds', 'lounge', 'bath', 'garage', 'level', 'carpark'].forEach(key => {
-        acc[key] = (acc[key] || 0) + item[key];
+        acc[key] = (acc[key] || 0) + Number(item[key]);
       });
 
       // 统计 other 里的动态字段，过滤掉没有 key 的数据
@@ -213,7 +213,7 @@
         item.other
         .filter(entry => entry.key) // 过滤 key 为空的项
         .forEach(({ key, value }) => {
-            acc[key] = (acc[key] || 0) + value;
+            acc[key] = (acc[key] || 0) + Number(value);
         });
       }
 
@@ -304,8 +304,27 @@
       }
 
       // 转换为字符串格式，并过滤掉 "other" 字段
-      return Object.entries(summary)
-          .filter(([key]) => key !== 'other') // 去掉 "other" 字段
+      const orderedKeys = ['beds', 'lounge', 'bath', 'garage', 'level', 'carpark'];
+      const orderedEntries = [];
+      const otherEntries = [];
+      
+      Object.entries(summary).forEach(([key, value]) => {
+        if (key !== 'other') { // 过滤掉 "other" 字段
+          if (orderedKeys.includes(key)) {
+            orderedEntries.push([key, value]);
+          } else {
+            otherEntries.push([key, value]);
+          }
+        }
+      });
+      
+      // 按照指定顺序排序 orderedEntries
+      orderedEntries.sort(([a], [b]) => orderedKeys.indexOf(a) - orderedKeys.indexOf(b));
+      
+      // 合并有序字段和其他字段
+      const finalEntries = [...orderedEntries, ...otherEntries];
+      
+      return finalEntries
           .map(([key, value]) => `${value} ${key}`)
           .join(', ');
     } else {

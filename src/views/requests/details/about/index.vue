@@ -143,6 +143,7 @@
 
               <bind-users
                 :current-id="currentId"
+                :is-details="true"
                 :created-user="createdUser"
               ></bind-users>
 

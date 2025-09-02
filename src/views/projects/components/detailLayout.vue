@@ -97,7 +97,7 @@ const getProjectDetail = (userId) => {
     projectDetail({ uuid }).then((res) => {
       res['loan'] = res.date;
       detail.value = res;
-      if (pageRole.value == 'Umbrella') {
+      if (pageRole.value == 'Umbrella' || userStore.userInfo.roles === 'Guest') {
         res.base.is_close = 1;
       }
       emits('getProjectDetail', res);

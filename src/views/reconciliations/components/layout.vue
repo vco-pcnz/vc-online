@@ -1,7 +1,7 @@
 <template>
   <div>
     <vco-page-nav sup-path="/reconciliations" ref="pageNavRef">
-      <template #action>
+      <template #action v-if="hasPermission('reconciliations:xero:update')">
         <div v-if="res_xero_update_time">{{ t('数据更新时间') }}: {{ tool.showTime(res_xero_update_time) }}</div>
         <img :width="58" :height="14" :src="xeroImg" alt="Xero" />
         <a-statistic-countdown :value="deadline" @finish="onFinish" format="mm:ss" v-if="Boolean(countdown)">
@@ -40,6 +40,7 @@ import { message } from 'ant-design-vue';
 import { useI18n } from 'vue-i18n';
 import { CheckCircleOutlined } from '@ant-design/icons-vue';
 import { systemConfigData } from '@/api/system';
+import { hasPermission } from '@/directives/permission/index';
 import tool from '@/utils/tool';
 import dayjs from 'dayjs';
 const { t } = useI18n();

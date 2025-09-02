@@ -16,7 +16,7 @@
           {{ item.name }}
         </div>
       </div>
-      <div v-if="showCreate" class="handle-content">
+      <div v-if="showCreate && hasPermission('requests:loan:add')" class="handle-content">
         <a-button type="cyan" shape="round" @click="gotoProcess">{{ t('发起借款申请') }}</a-button>
       </div>
     </div>

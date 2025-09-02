@@ -19,14 +19,14 @@
         <p v-if="data.amount < 0">{{ tool.formatMoney(Math.abs(data.amount), { prefix: '' }) }}</p>
         <div class="splitBillBox" v-if="!data.parent_id">
           <template v-if="data?.way == 'api'">
-            <splitBill :item="data" @update="update">
+            <splitBill :item="data" @update="update" v-if="hasPermission('reconciliations:splitBill')">
               <a-button type="primary" shape="round" size="small">{{ t('拆分账单') }}</a-button>
             </splitBill>
-            <MergeBill :item="data" @update="update">
+            <MergeBill :item="data" @update="update" v-if="hasPermission('reconciliations:mergeBills')">
               <a-button type="primary" shape="round" size="small">{{ t('合并账单') }}</a-button>
             </MergeBill>
           </template>
-          <a-popconfirm v-if="data?.way == 'api-split'" :title="t('确定撤销拆分吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="bindRevokeSplit(index)" :disabled="isDisabled">
+          <a-popconfirm v-if="data?.way == 'api-split' && hasPermission('reconciliations:splitBill')" :title="t('确定撤销拆分吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="bindRevokeSplit(index)" :disabled="isDisabled">
             <a-button type="cyan" shape="round" size="small" :loading="loading" :disabled="isDisabled">{{ t('撤销拆分') }}</a-button>
           </a-popconfirm>
           <template v-if="data?.way == 'api-merge'">
@@ -52,6 +52,7 @@ import SplitBill from './SplitBillTable.vue';
 import MergeBill from './MergeBill.vue';
 import MergeDetails from './MergeDetails.vue';
 import { revokeSplit, revokeMerge } from '@/api/reconciliations';
+import { hasPermission } from '@/directives/permission/index';
 
 const emits = defineEmits(['update', 'check']);
 

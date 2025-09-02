@@ -2,7 +2,7 @@
   <a-spin :spinning="loading">
     <ul class="orgs-info">
       <li>
-        <a-button v-if="showEdit" type="cyan" shape="round" class="edit" @click="toEdit">{{ t('编辑') }}</a-button>
+        <a-button v-if="showEdit && hasPermission('orgs:edit')" type="cyan" shape="round" class="edit" @click="toEdit">{{ t('编辑') }}</a-button>
         <div class="avatar-box">
           <vco-avatar :src="detail?.avatar" :size="100"></vco-avatar>
         </div>
@@ -107,6 +107,7 @@ import { trim } from 'lodash';
 import { useRoute } from 'vue-router';
 import { navigationTo } from '@/utils/tool';
 import { getDetail } from '@/api/orgs';
+import { hasPermission } from '@/directives/permission/index';
 const route = useRoute();
 
 const { t } = useI18n();

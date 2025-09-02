@@ -8,7 +8,7 @@
       </template>
     </vco-page-nav> -->
     <GroupTab>
-      <a-button type="cyan" shape="round" @click="showUserModal()">
+      <a-button v-if="hasPermission('users:add')" type="cyan" shape="round" @click="showUserModal()">
         {{ t('新增用户') }}
       </a-button>
     </GroupTab>

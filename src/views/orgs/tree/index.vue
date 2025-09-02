@@ -8,7 +8,7 @@
     </div>
     <div class="orges-tree-right">
       <div class="ops">
-        <a-button type="cyan" shape="round" @click="updateTree">{{ t('更新组织') }}</a-button>
+        <a-button v-if="hasPermission('orgs:tree:update')" type="cyan" shape="round" @click="updateTree">{{ t('更新组织') }}</a-button>
         <a-button type="primary" shape="round" @click="download">{{ t('下载组织') }}</a-button>
       </div>
       <a-spin :spinning="loading" size="large">
@@ -18,7 +18,7 @@
             <!-- 自定义节点内容 -->
             <template v-slot="{ node }">
               <div class="tree-org-node-info">
-                <div class="ops">
+                <div class="ops" v-if="hasPermission('orgs:tree:ops')">
                   <div @click="showForm(node?.$$data, 'add')" v-if="node?.$$data.type !== 20">
                     <PlusCircleOutlined />
                   </div>
@@ -68,6 +68,7 @@ import 'vue3-tree-org/lib/vue3-tree-org.css';
 import { stakeOrgList, stakeOrgDel, updateShareholdingTree } from '@/api/orgs';
 import { PlusCircleOutlined, FormOutlined, DeleteOutlined } from '@ant-design/icons-vue';
 import html2canvas from 'html2canvas';
+import { hasPermission } from '@/directives/permission/index';
 
 const route = useRoute();
 

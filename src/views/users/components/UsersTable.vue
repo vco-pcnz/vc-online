@@ -89,7 +89,7 @@
             <template #overlay>
               <div>
                 <a-menu :selectable="false">
-                  <a-menu-item key="0" @click="toEdit(record)">
+                  <a-menu-item v-if="hasPermission('users:edit')" key="0" @click="toEdit(record)">
                     <span>
                       {{ t('编辑') }}
                     </span>
@@ -117,6 +117,7 @@ import { ref, reactive } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { navigationTo } from '@/utils/tool';
+import { hasPermission } from '@/directives/permission/index';
 
 const emits = defineEmits(['update:data', 'update:keys', 'change']);
 

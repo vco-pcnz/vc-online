@@ -26,7 +26,7 @@
       </div>
 
       <div class="flex gap-4">
-        <a-button type="brown" shape="round" size="small" @click="navigationTo('/projects/documents?uuid=' + uuid + '&annex_id=' + detail?.annex_id)">{{ t('查看文件') }}</a-button>
+        <a-button type="brown" shape="round" size="small" @click="navigationTo(`${mode}/projects/documents?uuid=` + uuid + '&annex_id=' + detail?.annex_id)">{{ t('查看文件') }}</a-button>
         <a-button v-if="detail?.security && detail?.security?.length" type="brown" shape="round" size="small" @click="openSecurity">{{ detail?.is_dis === 1 ? t('已解押抵押物') : t('关联抵押物') }}</a-button>
       </div>
 
@@ -116,7 +116,10 @@ import DrawdownRequest from './form/DrawdownRequest.vue';
 import DetailsDialog from './form/DetailsDialog.vue';
 import ReleaseDialog from './form/ReleaseDialog.vue';
 import PushBackLog from '@/views/projects/components/PushBackLog.vue';
+import { useUserStore } from '@/store';
 
+const pageRole = computed(() => useUserStore().pageRole);
+const mode = pageRole.value ? '/' + pageRole.value.toLowerCase() : '';
 const { t } = useI18n();
 const emits = defineEmits(['update']);
 

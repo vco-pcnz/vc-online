@@ -13,7 +13,7 @@
             </template>
           </template>
         </a-table>
-        <div class="flex justify-end mt-5">
+        <div class="flex justify-end mt-5" v-if="hasPermission('reconciliations:mergeBills')">
           <a-popconfirm :title="t('确定撤销合并吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="bindRevokeMerge()" :disabled="isDisabled">
             <a-button type="cyan" shape="round" size="small" :loading="loading" :disabled="isDisabled">{{ t('撤销合并') }}</a-button>
           </a-popconfirm>
@@ -29,6 +29,7 @@ import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import tool from '@/utils/tool';
 import { revokeMerge } from '@/api/reconciliations';
+import { hasPermission } from '@/directives/permission/index';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);

@@ -68,13 +68,13 @@
               </a>
               <template #overlay>
                 <a-menu :selectable="false">
-                  <a-menu-item key="0" @click="showEdit(record)">
+                  <a-menu-item key="0" @click="showEdit(record)" v-if="hasPermission('Investment:edit')">
                     {{ t('编辑') }}
                   </a-menu-item>
-                  <a-menu-item key="4" @click="showEditAmount(record)">
+                  <a-menu-item key="4" @click="showEditAmount(record)" v-if="hasPermission('Investment:editAmount')">
                     {{ t('编辑金额') }}
                   </a-menu-item>
-                  <a-menu-item key="1" @click="showBindUser(record)">
+                  <a-menu-item key="1" @click="showBindUser(record)" v-if="hasPermission('Investment:bindUser')">
                     {{ t('绑定用户') }}
                   </a-menu-item>
                   <a-menu-item key="2" @click="navigationTo('/Investment/projects?uuid=' + record.id)">
@@ -107,6 +107,7 @@ const emits = defineEmits(['update:data', 'update:keys', 'change', 'update', 'sh
 import { bindUser, investBindData } from '@/api/invest/index';
 import EditAmountLog from './EditAmountLog.vue';
 import EditAmount from './EditAmount.vue';
+import { hasPermission } from '@/directives/permission/index';
 
 const props = defineProps({
   tableData: {

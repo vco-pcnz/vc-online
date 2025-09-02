@@ -6,7 +6,7 @@
           <!-- <MeterStat :uuid="uuid" v-if="Boolean(uuid)" ref="MeterStatRef"></MeterStat> -->
         </div>
         <div class="flex justify-end">
-          <Add v-if="hasPermission('projects:journal:edit')" :currentId="uuid" :projectDetail="projectDetail" @update="reload">
+          <Add v-if="hasPermission('projects:journal:edit') && !projectDetail?.base?.is_close" :currentId="uuid" :projectDetail="projectDetail" @update="reload">
             <a-button type="brown" shape="round" size="small">{{ t('平账') }}</a-button>
           </Add>
         </div>
@@ -70,7 +70,7 @@ const loadData = () => {
 
   journal({ uuid: uuid.value, ...pagination.value })
     .then((res) => {
-      const data = res.data || []
+      const data = res.data || [];
       tableData.value = data;
       total.value = res.count;
     })

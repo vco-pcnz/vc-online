@@ -1,20 +1,11 @@
 <template>
   <div>
     <!-- 预售详情 -->
-    <pre-sale-info
-      v-model:visible="infoVisible"
-      :detail-data="detail"
-    ></pre-sale-info>
+    <pre-sale-info v-model:visible="infoVisible" :detail-data="detail"></pre-sale-info>
 
     <!-- 添加预售数据 -->
-    <edit-dialog
-      v-model:visible="editVisible"
-      :info-data="detail"
-      :uuid="uuid"
-      :is-add="true"
-      @refresh="update()"
-    ></edit-dialog>
-    
+    <edit-dialog v-model:visible="editVisible" :info-data="detail" :uuid="uuid" :is-add="true" @refresh="update()"></edit-dialog>
+
     <div class="color_grey fs_2xs text-center py-3 text-uppercase uppercase" style="letter-spacing: 1px">{{ t('详情') }}</div>
 
     <div class="detail">
@@ -25,18 +16,8 @@
         type="error"
         class="cancel-reason"
       />
-      <a-alert
-        v-if="['discharge_fc', 'discharge_director'].includes(detail.mark) && detail.reason"
-        :message="t('解押说明')"
-        :description="detail.reason"
-        type="info"
-        class="success-reason"
-      />
-      <a-alert
-        v-if="detail.relieve_time"
-        type="success"
-        class="success-reason"
-      >
+      <a-alert v-if="['discharge_fc', 'discharge_director'].includes(detail.mark) && detail.reason" :message="t('解押说明')" :description="detail.reason" type="info" class="success-reason" />
+      <a-alert v-if="detail.relieve_time" type="success" class="success-reason">
         <template #message>
           <a-row :gutter="24">
             <a-col :span="24" class="item-txt no">
@@ -65,11 +46,13 @@
       </div>
 
       <div class="flex gap-4">
-        <a-button v-if="detail?.document && detail?.document.length" type="brown" shape="round" size="small" @click="navigationTo('/projects/documents?uuid=' + uuid + '&annex_id=' + detail?.annex_id)">{{ t('查看文件') }}</a-button>
+        <a-button v-if="detail?.document && detail?.document.length" type="brown" shape="round" size="small" @click="navigationTo(`${mode}/projects/documents?uuid=` + uuid + '&annex_id=' + detail?.annex_id)">{{ t('查看文件') }}</a-button>
         <a-button v-if="detail.is_sales" type="brown" shape="round" size="small" @click="infoVisible = true">{{ t('预售数据') }}</a-button>
-        <a-button v-if="hasPermission('projects:discharge:preSale') && !detail.is_sales && pageRole != 'Investor' && !projectDetail?.base?.is_close" type="primary" shape="round" size="small" @click="editVisible = true">{{ t('添加预售数据') }}</a-button>
+        <a-button v-if="hasPermission('projects:discharge:preSale') && !detail.is_sales && pageRole != 'Investor' && !projectDetail?.base?.is_close" type="primary" shape="round" size="small" @click="editVisible = true">{{
+          t('添加预售数据')
+        }}</a-button>
       </div>
-      
+
       <a-row :gutter="24">
         <a-col :span="12" class="item-txt">
           <p>{{ t('抵押物价值') }}</p>
@@ -109,7 +92,7 @@
         </a-col>
         <a-col :span="24" class="item-txt">
           <p>{{ t('地址') }}</p>
-          <p>{{ detail.card_no +', ' + detail.city }}</p>
+          <p>{{ detail.card_no + ', ' + detail.city }}</p>
         </a-col>
         <a-col v-if="detail.remark" :span="24" class="item-txt">
           <p>{{ t('备注') }}</p>
@@ -118,20 +101,17 @@
       </a-row>
 
       <template v-if="!Boolean(detail?.is_repayment)">
-        <drawdownre-quest 
-          v-if="!projectDetail?.base?.is_close && detail.state === 0 && hasPermission('projects:discharge:review') && !isAdd"
-          :detail="detail" :p-uuid="uuid"
-          @change="update">
+        <drawdownre-quest v-if="!projectDetail?.base?.is_close && detail.state === 0 && hasPermission('projects:discharge:review') && !isAdd" :detail="detail" :p-uuid="uuid" @change="update">
           <a-button type="dark" class="big uppercase mt-5" style="width: 100%">{{ t('解押申请') }}</a-button>
         </drawdownre-quest>
 
-        <div v-if="detail?.prev_permission && !isAdd"  class="mt-10">
+        <div v-if="detail?.prev_permission && !isAdd" class="mt-10">
           <a-popconfirm :title="t('您确实要撤回该请求吗？')" @confirm="recall">
             <a-button type="dark" class="big uppercase" style="width: 100%">{{ t('撤回申请') }}</a-button>
           </a-popconfirm>
         </div>
 
-        <div v-if="detail.has_permission && ![0].includes(detail.state)"  class="mt-10">
+        <div v-if="detail.has_permission && ![0].includes(detail.state)" class="mt-10">
           <a-popconfirm :title="t('您确定要接受该请求吗？')" @confirm="accept">
             <a-button type="dark" class="big uppercase" style="width: 100%">{{ t('接受请求') }}</a-button>
           </a-popconfirm>
@@ -158,7 +138,7 @@
 </template>
 
 <script setup>
-import { ref,computed } from 'vue';
+import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { navigationTo } from '@/utils/tool';
@@ -171,6 +151,8 @@ import EditDialog from './../pre-sale/components/EditDialog.vue';
 import { useUserStore } from '@/store';
 
 const pageRole = computed(() => useUserStore().pageRole);
+const mode = pageRole.value ? '/' + pageRole.value.toLowerCase() : '';
+
 const { t } = useI18n();
 const emits = defineEmits(['update', 'itemEdit']);
 
@@ -192,15 +174,15 @@ const props = defineProps({
 
 // 同意
 const accept = async () => {
-  const ajaxFn = props.isAdd ? dischargeSaveDStep : dischargeSaveStep
+  const ajaxFn = props.isAdd ? dischargeSaveDStep : dischargeSaveStep;
   await ajaxFn({ p_uuid: props.uuid, uuid: props.detail?.uuid })
     .then((res) => {
       update();
-      return true
+      return true;
     })
     .catch(() => {
-      return false
-    })
+      return false;
+    });
 };
 
 // 召回
@@ -208,19 +190,19 @@ const recall = async () => {
   await dischargeRecall({ p_uuid: props.uuid, uuid: props.detail?.uuid })
     .then((res) => {
       update();
-      return true
+      return true;
     })
     .catch(() => {
-      return false
-    })
+      return false;
+    });
 };
 
 const update = () => {
   emits('update');
 };
 
-const infoVisible = ref(false)
-const editVisible = ref(false)
+const infoVisible = ref(false);
+const editVisible = ref(false);
 </script>
 
 <style scoped lang="less">

@@ -54,6 +54,7 @@ import tool from '@/utils/tool.js';
 import TableSearch from './TableSearch.vue';
 import { cloneDeep } from 'lodash';
 import { getStatements, revokeReconciliation, cancelReconciliation, recoverReconciliation } from '@/api/reconciliations';
+import { hasPermission } from '@/directives/permission/index';
 
 const { t } = useI18n();
 
@@ -112,13 +113,6 @@ const columns = reactive([
     dataIndex: 'status',
     key: 'status',
     width: '120px'
-  },
-  {
-    title: t('操作'),
-    dataIndex: 'operation',
-    key: 'operation',
-    align: 'center',
-    width: '100px'
   }
 ]);
 
@@ -256,6 +250,15 @@ const restore = (bank_sn) => {
 };
 
 onMounted(() => {
+  if (hasPermission('reconciliations:statements:edit')) {
+    columns.push({
+      title: t('操作'),
+      dataIndex: 'operation',
+      key: 'operation',
+      align: 'center',
+      width: '100px'
+    });
+  }
   loadData();
 });
 

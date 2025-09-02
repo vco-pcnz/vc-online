@@ -87,7 +87,7 @@ const useUserStore = defineStore('VcOnlineUserInfo', {
     },
 
     async requestUserInfo() {
-       let params = {};
+      let params = {};
       if (window.location.pathname.includes('investor')) {
         this.pageRole = 'Investor';
         params = { __way__: 'investor' };
@@ -103,6 +103,12 @@ const useUserStore = defineStore('VcOnlineUserInfo', {
       // 用户信息
       result.roles = result.roles && result.roles.length ? result.roles.join('/') : '';
       this.userInfo = result;
+      if (this.userInfo.roles === 'Funding Partner') {
+        this.pageRole = 'Investor';
+      }
+      if (this.userInfo.roles === 'Primary') {
+        this.pageRole = 'Umbrella';
+      }
 
       this.isNormalUser = Number(result.ptRole);
 
@@ -148,7 +154,7 @@ const useUserStore = defineStore('VcOnlineUserInfo', {
       }
 
       result.map((item) => {
-        if (this.pageRole == 'Investor' || this.userInfo.roles === 'Investor') {
+        if (this.pageRole == 'Investor' || this.userInfo.roles === 'Funding Partner') {
           item.hide = 1;
           if (item.path.includes('/investor')) {
             item.hide = 0;

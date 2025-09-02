@@ -4,7 +4,7 @@
       <a-spin :spinning="loading" size="large">
         <a-row class="flex justify-between mb-5 pb-5" style="border-bottom: 1px solid #a6a9b0">
           <TableSearch v-model:value="searchParams" @search="search">
-            <div>
+            <div v-if="hasPermission('reconciliations:ok')">
               <a-checkbox :checked="state.checkAll" :indeterminate="state.indeterminate" @change="onCheckAllChange" class="mr-3"></a-checkbox>
               <a-popconfirm :title="t('确定要对账吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="checkMatchBills()" :disabled="!selectedRowKeys.length">
                 <a-button :disabled="!selectedRowKeys.length">
@@ -75,6 +75,7 @@ import { checkMatchBill } from '@/api/reconciliations';
 import { cloneDeep } from 'lodash';
 import { systemDictData } from '@/api/system';
 import dayjs from 'dayjs';
+import { hasPermission } from '@/directives/permission/index';
 const { t } = useI18n();
 
 const layoutRef = ref();

@@ -1,7 +1,7 @@
 <template>
   <div class="flex justify-between items-end" style="margin-top: -30px">
     <TableSearch class="mb-5" ref="tableSearchRef" @search="searchHandle"></TableSearch>
-    <FormModal ref="FormModalRef" @update="getTableData">
+    <FormModal ref="FormModalRef" @update="getTableData" v-if="hasPermission('Investment:add')">
       <a-button type="cyan" shape="round" class="mb-5">{{ t('创建投资') }}</a-button>
     </FormModal>
   </div>
@@ -25,6 +25,7 @@ import TableSearch from './components/TableSearch.vue';
 import FormModal from './components/FormModal.vue';
 import TableBlock from './components/TableBlock.vue';
 import { investList } from '@/api/invest/index';
+import { hasPermission } from '@/directives/permission/index';
 
 const { t } = useI18n();
 

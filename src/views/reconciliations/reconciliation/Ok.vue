@@ -1,10 +1,16 @@
 <template>
   <a-col :span="2" class="content_btn">
-    <a-popconfirm :title="t('确定要对账吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="showTip(item)" :disabled="(!item.transaction.length && (!item['f_date'] || !item['f_fee'] || !item['f_note'])) || !project">
+    <a-popconfirm
+      :title="t('确定要对账吗？')"
+      :cancel-text="t('取消')"
+      :ok-text="t('确定')"
+      @confirm="showTip(item)"
+      :disabled="(!item.transaction.length && (!item['f_date'] || !item['f_fee'] || !item['f_note'])) || !project || !hasPermission('reconciliations:ok')"
+    >
       <a-button
         :loading="ok_loading && formState.id == item.id"
-        :class="{ active: (!item.transaction.length && item['f_date'] && item['f_fee'] && item['f_note'] && project) || item.transaction.length }"
-        :disabled="(!item.transaction.length && (!item['f_date'] || !item['f_fee'] || !item['f_note'])) || !project"
+        :class="{ active: ((!item.transaction.length && item['f_date'] && item['f_fee'] && item['f_note'] && project) || item.transaction.length) && hasPermission('reconciliations:ok') }"
+        :disabled="(!item.transaction.length && (!item['f_date'] || !item['f_fee'] || !item['f_note'])) || !project || !hasPermission('reconciliations:ok')"
       >
         OK
       </a-button>
@@ -20,6 +26,7 @@ const { t } = useI18n();
 import TipModal from './TipModal.vue';
 import { addTransaction, checkMatchBill } from '@/api/reconciliations';
 const emits = defineEmits(['update']);
+import { hasPermission } from '@/directives/permission/index';
 
 const props = defineProps({
   item: {
@@ -37,7 +44,7 @@ const showTip = (val) => {
   formState.value = val;
   if (val.f_date && val.f_date !== val.date) {
     visible.value = true;
-  } else if (val.transaction.length && val.date !== val.transaction[val.check_index].date &&  val.date !== val.f_date) {
+  } else if (val.transaction.length && val.date !== val.transaction[val.check_index].date && val.date !== val.f_date) {
     visible.value = true;
   } else {
     submit();

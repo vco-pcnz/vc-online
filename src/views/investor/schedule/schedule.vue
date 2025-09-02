@@ -2,10 +2,10 @@
   <div>
     <vco-page-panel :isBack="true" :title="t('明细表')" v-if="showBack">
       <div class="flex">
-        <FormModal :invest_id="invest_id" :use_date="statisticsData?.use_date" @update="getDataInfo">
+        <FormModal v-if="hasPermission('Investment:schedule:addLog')" :invest_id="invest_id" :use_date="statisticsData?.use_date" @update="getDataInfo">
           <a-button type="cyan" shape="round">{{ t('添加记录') }}</a-button>
         </FormModal>
-        <vco-import type="file" :params="{ id: invest_id }" imporUrl="/invest/schedule/import" @change="getDataInfo">
+        <vco-import v-if="hasPermission('Investment:schedule:import')" type="file" :params="{ id: invest_id }" imporUrl="/invest/schedule/import" @change="getDataInfo">
           <a-button type="cyan" shape="round" class="ml-5">{{ t('导入') }}</a-button>
         </vco-import>
       </div>
@@ -82,7 +82,14 @@
             </a-dropdown>
           </div>
         </div>
-        <vco-popconfirm v-if="showBack" :formParams="{ invest_id: invest_id, ids: checkedIds }" url="invest/schedule/delete" :disabled="!checkedIds.length" :tip="t('确定删除吗？')" @update="getDataInfo()">
+        <vco-popconfirm
+          v-if="showBack && hasPermission('Investment:schedule:delete')"
+          :formParams="{ invest_id: invest_id, ids: checkedIds }"
+          url="invest/schedule/delete"
+          :disabled="!checkedIds.length"
+          :tip="t('确定删除吗？')"
+          @update="getDataInfo()"
+        >
           <a-button :disabled="!checkedIds.length" class="mb-3">
             {{ t('删除') }}
           </a-button>
@@ -90,7 +97,7 @@
         <div v-if="tabData.length" class="table-content">
           <div class="col-item th">
             <div class="item about flex items-center" @click="checkedAllHandle">
-              <a-checkbox v-if="showBack" :checked="Boolean(checkedAll)" :indeterminate="Boolean(indeterminate)"></a-checkbox>
+              <a-checkbox v-if="showBack && hasPermission('Investment:schedule:delete')" :checked="Boolean(checkedAll)" :indeterminate="Boolean(indeterminate)"></a-checkbox>
             </div>
             <div class="item uppercase">{{ t('日期') }}</div>
             <div class="item uppercase">{{ t('类型') }}</div>
@@ -99,13 +106,13 @@
             <div class="item uppercase">{{ t('放款') }}</div>
             <div class="item uppercase">{{ t('还款') }}</div>
             <div class="item uppercase balance">{{ t('余额') }}</div>
-            <div class="item uppercase ops" v-if="showBack">Ops</div>
+            <div class="item uppercase ops" v-if="showBack && hasPermission('Investment:schedule:delete')">Ops</div>
           </div>
 
           <div class="col-content">
             <div v-for="(_item, _index) in tabData" :key="_item.date" class="col-item">
               <div class="item about flex">
-                <a-checkbox v-if="showBack" :checked="checkedIds.includes(_item.id)" @change="itemcheck(_item)"></a-checkbox>
+                <a-checkbox v-if="showBack && hasPermission('Investment:schedule:delete')" :checked="checkedIds.includes(_item.id)" @change="itemcheck(_item)"></a-checkbox>
                 <span v-else class="circle"></span>
               </div>
               <div class="item">{{ tool.showDate(_item.date) }}</div>
@@ -132,7 +139,7 @@
               <div class="item balance">
                 <vco-number :value="_item.balance" :precision="2" :end="true"></vco-number>
               </div>
-              <div class="item ops cursor-pointer" v-if="showBack">
+              <div class="item ops cursor-pointer" v-if="showBack && hasPermission('Investment:schedule:delete')">
                 <!--  v-if="dayjs(_item.date).isAfter(statisticsData.use_date, 'day')" -->
                 <vco-popconfirm :formParams="{ invest_id: invest_id, ids: [_item.id] }" url="invest/schedule/delete" :tip="t('确定删除吗？')" @update="getDataInfo()">
                   <i class="iconfont">&#xe8c1;</i>
@@ -188,6 +195,7 @@ import FormModal from './components/FormModal.vue';
 import TableSearch from './components/TableSearch.vue';
 import { scheduleList, scheduleStatistics, scheduleExportExcel, userProject } from '@/api/invest/index';
 import { useRoute } from 'vue-router';
+import { hasPermission } from '@/directives/permission/index';
 const route = useRoute();
 
 const props = defineProps({});
@@ -266,7 +274,6 @@ const getDataInfo = (val) => {
   scheduleList(params)
     .then((res) => {
       tabData.value = res.data || [];
-      console.log(tabData.value);
       pageLoading.value = false;
     })
     .catch(() => {

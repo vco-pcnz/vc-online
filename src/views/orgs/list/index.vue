@@ -4,7 +4,7 @@
       <div class="cidBox">
         <div v-for="item in categoryData" :key="item.id" class="cidBoxItem" :class="{ active: cid == item.id }" @click="tabChange(item.id)">{{ item.name }}{{ item.id ? 's' : '' }}</div>
       </div>
-      <a-button type="cyan" shape="round" @click="navigationTo('/orgs/form/add')">{{ t('添加组织') }}</a-button>
+      <a-button v-if="hasPermission('orgs:add')" type="cyan" shape="round" @click="navigationTo('/orgs/form/add')">{{ t('添加组织') }}</a-button>
     </div>
 
     <div class="mt-5">
@@ -98,7 +98,7 @@ const rowSelection = ref([]);
 const rowSelectionData = ref([]);
 
 const remove = () => {
-  orgsStore.remove(rowSelection.value)
+  orgsStore.remove(rowSelection.value);
 };
 
 onMounted(() => {

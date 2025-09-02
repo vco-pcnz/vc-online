@@ -27,7 +27,7 @@
         <template #right>
           <span>
             <a-button
-              v-if="hasPermission('projects:variations:add')"
+              v-if="hasPermission('projects:variations:add') && !projectDetail?.base?.is_close"
               type="dark"
               class="uppercase"
               @click="checkPassConfirmVisible = true"

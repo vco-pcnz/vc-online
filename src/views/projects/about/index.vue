@@ -79,20 +79,19 @@
 
             <PeriodLine :data="detail?.date"></PeriodLine>
             <div class="flex justify-center mt-10 mb-10 btns">
-              <template v-if="Boolean(!detail?.base.is_close)">
-                <StartDefault v-if="hasPermission('projects:penalty:sedit') && !detail?.base?.penalty" :projectDetail="detail" :currentId="currentId" @update="update">
-                  <a-button type="brown" shape="round" size="small">{{ t('罚息开始') }}</a-button>
-                </StartDefault>
-                <a-button v-if="hasPermission('projects:penalty:view') && detail?.base?.penalty" type="brown" shape="round" size="small" @click="navigationTo('/projects/penalty?uuid=' + currentId)">{{ t('罚息') }}</a-button>
+              <StartDefault v-if="hasPermission('projects:penalty:sedit') && !detail?.base?.penalty && Boolean(!detail?.base.is_close)" :projectDetail="detail" :currentId="currentId" @update="update">
+                <a-button type="brown" shape="round" size="small">{{ t('罚息开始') }}</a-button>
+              </StartDefault>
+              <a-button v-if="hasPermission('projects:penalty:view') && detail?.base?.penalty" type="brown" shape="round" size="small" @click="navigationTo('/projects/penalty?uuid=' + currentId)">{{ t('罚息') }}</a-button>
 
-                <a-button v-if="hasPermission('projects:variations:add') && !Boolean(detail?.base?.variation)" type="brown" shape="round" size="small" @click="checkPassConfirmVisible = true">{{ t('添加变更') }}</a-button>
-                <a-button v-if="hasPermission('projects:variations:view') && detail?.base?.variation" type="brown" shape="round" size="small" @click="navigationTo('/projects/variations?uuid=' + currentId)">{{ t('变更1') }}</a-button>
+              <a-button v-if="hasPermission('projects:variations:add') && !Boolean(detail?.base?.variation) && Boolean(!detail?.base.is_close)" type="brown" shape="round" size="small" @click="checkPassConfirmVisible = true">{{ t('添加变更') }}</a-button>
+              <a-button v-if="hasPermission('projects:variations:view') && detail?.base?.variation" type="brown" shape="round" size="small" @click="navigationTo('/projects/variations?uuid=' + currentId)">{{ t('变更1') }}</a-button>
 
-                <Journal v-if="hasPermission('projects:journal:edit') && !detail?.base?.journal" :projectDetail="detail" :currentId="currentId" @update="update">
-                  <a-button type="brown" shape="round" size="small">{{ t('平账') }}</a-button>
-                </Journal>
-                <a-button v-if="hasPermission('projects:journal:view') && detail?.base?.journal" type="brown" shape="round" size="small" @click="navigationTo('/projects/journal?uuid=' + currentId)">{{ t('平账') }}</a-button>
-              </template>
+              <Journal v-if="hasPermission('projects:journal:edit') && !detail?.base?.journal && Boolean(!detail?.base.is_close)" :projectDetail="detail" :currentId="currentId" @update="update">
+                <a-button type="brown" shape="round" size="small">{{ t('平账') }}</a-button>
+              </Journal>
+              <a-button v-if="hasPermission('projects:journal:view') && detail?.base?.journal" type="brown" shape="round" size="small" @click="navigationTo('/projects/journal?uuid=' + currentId)">{{ t('平账') }}</a-button>
+
               <!-- fc  关闭拟关闭 -->
               <vco-form-dialog
                 :title="t('拟关闭')"
@@ -173,7 +172,7 @@ const getProjectDetail = (val) => {
 };
 
 const update = () => {
-  loading.value = true
+  loading.value = true;
   userStore.getTaskNumInfo();
 
   detailLayoutRef.value.getProjectDetail();

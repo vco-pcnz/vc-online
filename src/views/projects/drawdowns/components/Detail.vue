@@ -21,7 +21,7 @@
     </div>
     <!-- <div class="flex items-center"><i class="iconfont mr-2">&#xe774;</i><span class="weight_demiBold">Documents & photos</span></div>
       <p class="color_grey mt-1 mb-3">1 file had been provided: drawdown notice</p> -->
-    <a-button type="brown" v-if="detail?.annex_id" shape="round" size="small" @click="navigationTo('/projects/documents?uuid=' + uuid + '&annex_id=' + detail?.annex_id)">{{ t('查看文件') }}</a-button>
+    <a-button type="brown" v-if="detail?.annex_id" shape="round" size="small" @click="navigationTo(`${mode}/projects/documents?uuid=` + uuid + '&annex_id=' + detail?.annex_id)">{{ t('查看文件') }}</a-button>
 
     <div class="flex items-center box mt-5">
       <i class="iconfont left-icon mr-3">&#xe755;</i>
@@ -129,7 +129,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted,computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { navigationTo } from '@/utils/tool';
@@ -143,7 +143,10 @@ import AcceptFc from './form/AcceptFc.vue';
 import AddStake from './form/addStake.vue';
 import ReconciliationModal from '@/views/projects/components/ReconciliationModal.vue';
 import PushBackLog from '@/views/projects/components/PushBackLog.vue';
+import { useUserStore } from '@/store';
 
+const pageRole = computed(() => useUserStore().pageRole);
+const mode = pageRole.value ? '/' + pageRole.value.toLowerCase() : '';
 const { t } = useI18n();
 const emits = defineEmits(['update']);
 
@@ -158,6 +161,7 @@ const props = defineProps({
     type: Object
   }
 });
+
 const loading = ref(false);
 const accept_loading = ref(false);
 const decline_loading = ref(false);

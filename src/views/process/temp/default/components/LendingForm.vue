@@ -7,7 +7,7 @@
     <a-modal
       :open="selectVisible"
       :title="t('进度付款阶段')"
-      :width="1400"
+      :width="1500"
       :footer="null"
       :keyboard="false"
       :maskClosable="false"
@@ -1028,6 +1028,7 @@
   }
 
   const tableDataRefData = ref()
+  const initLandDefault = ref(true)
 
   const updateFormData = async (tableData) => {
     if (tableData) {
@@ -1051,6 +1052,7 @@
 
         if (creditId.value) {
           emits('done');
+          initLandDefault.value = false
           processStore.setForcastState(true);
 
           // 触发头部模块切换显示
@@ -1075,8 +1077,8 @@
 
     formState.value.land_amount = props.lendingInfo.land_amount || 0;
     
-    formState.value.initial_build_amount = props.lendingInfo.initial_build_amount || 0;
-    formState.value.initial_land_amount = props.lendingInfo.initial_land_amount || 0;
+    formState.value.initial_build_amount = props.lendingInfo.initial_build_amount || 0
+    formState.value.initial_land_amount = props.isDetails ? (props.lendingInfo.initial_land_amount || 0) : initLandDefault.value ? props.lendingInfo.land_amount || 0 : props.lendingInfo.initial_land_amount || 0
     formState.value.initial_equity_amount = props.lendingInfo.initial_equity_amount || 0;
 
     formState.value.devCost = props.lendingInfo.devCost

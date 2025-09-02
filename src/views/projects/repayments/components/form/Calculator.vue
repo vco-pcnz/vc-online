@@ -2,7 +2,7 @@
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="drawdownRequestRef" class="drawdown-request">
     <a-modal
-      :width="600"
+      :width="700"
       :open="visible"
       :title="t('还款计算器')"
       :getContainer="() => $refs.drawdownRequestRef"
@@ -71,12 +71,12 @@
                 </a-form-item>
               </a-col>
               <a-col :span="7">
-                <a-form-item :label="t('建议最大减少')">
+                <a-form-item :label="t('罚息减免最大额度')">
                   <vco-number :bold="true" :value="standardAmount" :precision="2" size="fs_xl" :end="true"></vco-number>
                 </a-form-item>
               </a-col>
               <a-col :span="7">
-                <a-form-item :label="t('罚息减免最大额度')">
+                <a-form-item :label="t('罚息减免额度')">
                   <vco-number :bold="true" :value="maxReductionAmount > 0 ? maxReductionAmount : 0" :precision="2" size="fs_xl" color="#31bd65" :end="true"></vco-number>
                 </a-form-item>
               </a-col>
@@ -90,7 +90,7 @@
             <template v-if="maxReductionAmount && !isNormalUser">
               <a-col :span="1" class="plus-txt"><i class="iconfont">&#xe711;</i></a-col>
               <a-col :span="7">
-                  <a-form-item :label="t('罚息减免')">
+                  <a-form-item :label="t('减免额度')">
                     <a-input-number
                       :max="99999999999"
                       v-model:value="reductionAmount"

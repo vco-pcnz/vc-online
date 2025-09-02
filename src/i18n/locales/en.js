@@ -1141,5 +1141,7 @@ export default {
   "导出": "Export",
   "关闭日期": "Closed date",
   "项目管理Umbrella": "Loans",
-  "可用额度1": "Remaining amount"
+  "可用额度1": "Remaining amount",
+  "罚息减免额度": "Proposed default deduction",
+  "减免额度": "Deduction"
 }

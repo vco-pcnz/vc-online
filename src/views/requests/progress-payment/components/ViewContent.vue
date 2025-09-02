@@ -16,7 +16,7 @@
         </a-col>
         <a-col :span="8">
           <div class="info-content">
-            <p class="name">{{ t('可用额度') }}</p>
+            <p class="name">{{ t('可用额度1') }}</p>
             <vco-number :value="currentItemInfo.can_amount" color="#ea3535" size="fs_md" :precision="2"></vco-number>
           </div>
         </a-col>
@@ -28,6 +28,7 @@
               :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
               :parser="value => value.replace(/\$\s?|(,*)/g, '')"
               @input="() => currentItemInput(true)"
+              @keyup.enter="selectSureHandle" 
             />
             <p v-if="currentItemInfo.showError" class="input-error">{{ t('取值范围: {0} - {1}', ['$0.00', `$${numberStrFormat(currentItemInfo.can_amount)}`]) }}</p>
           </div>
@@ -35,7 +36,7 @@
         <a-col :span="8">
           <div class="info-content sys-form-content">
             <p class="name mb-2">{{ t('可用额度比例') }}</p>
-            <a-input v-model:value="currentItemInfo.set_amount_per" suffix="%" @input="() => currentItemInput(false)" />
+            <a-input v-model:value="currentItemInfo.set_amount_per" suffix="%" @input="() => currentItemInput(false)" @keyup.enter="selectSureHandle" />
             <p v-if="currentItemInfo.showError" class="input-error">{{ `0.00% - ${numberStrFormat(currentItemInfo.can_amount_per)}%`}}</p>
           </div>
         </a-col>

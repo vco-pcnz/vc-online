@@ -4,7 +4,7 @@
   <op-other ref="opOtherRef" @update="opUpdate"></op-other>
   <div>
     <layout :currentTotal="pageObj.total" :tableLoading="tableLoading" @search="reload"></layout>
-    <div class="flex gap-3 mt-4 send-box" v-if="currentParams?.status === '10'">
+    <div class="flex gap-3 mt-4 send-box" v-if="currentParams?.status === '10' && hasPermission('task:send')">
       <a-popconfirm :title="t('确定发送通知吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" :disabled="Boolean(!selectedRowKeys.length)" @confirm="send('1')">
         <a-button type="cyan" :disabled="Boolean(!selectedRowKeys.length)" class="uppercase" :loading="loading && type === '1'">
           {{ t('发送通知') }}
@@ -159,6 +159,7 @@ import tool from '@/utils/tool';
 import { useTableList } from '@/hooks/useTableList';
 import { projectBacklogList, backlogNotify } from '@/api/tasks';
 import { useUserStore } from '@/store';
+import { hasPermission } from '@/directives/permission/index';
 
 import layout from './components/layout.vue';
 import OpProject from './components/Operation/Project.vue';

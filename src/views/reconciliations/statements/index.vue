@@ -2,7 +2,7 @@
   <layout ref="layoutRef" @update="reload">
     <template #content>
       <div class="flex justify-between items-end mb-5 pb-5" style="border-bottom: 1px solid #a6a9b0">
-        <div class="actions">
+        <div class="actions" v-if="hasPermission('reconciliations:statements:edit')">
           <a-popconfirm v-if="searchParams.status != '-1'" :title="t('确定要删除勾选的数据吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="onRemove()" :disabled="!selectedRowKeys.length">
             <a-button :disabled="!selectedRowKeys.length">
               {{ t('删除重做') }}

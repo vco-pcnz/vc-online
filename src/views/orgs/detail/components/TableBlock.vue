@@ -38,7 +38,7 @@
                 <i class="iconfont">&#xe632;</i>
                 <span>{{ record.user_username }}</span>
               </p>
-              <div @click.stop>
+              <div @click.stop v-if="hasPermission('orgs:unbindUser')">
                 <a-popconfirm :title="'Are you sure ' + t('解绑用户')" ok-text="Yes" cancel-text="No" @confirm="orgsDetailStore.stakeUnbind(record.uuid)">
                   <span class="cer ml-2"><DisconnectOutlined /></span>
                 </a-popconfirm>
@@ -56,7 +56,7 @@
               </span>
             </p>
           </div>
-          <a-button v-else type="brown" shape="round" size="small" @click="showBindUser(record.uuid)">{{ t('绑定用户') }}</a-button>
+          <a-button v-else-if="hasPermission('orgs:bindUser')" type="brown" shape="round" size="small" @click="showBindUser(record.uuid)">{{ t('绑定用户') }}</a-button>
         </template>
         <template v-if="column.key === '4'">
           <p v-if="record.user_roles.length">
@@ -114,17 +114,20 @@
                   <a-menu-item key="0" @click="toDetail(record)">
                     <span>{{ t('查看详情') }}</span>
                   </a-menu-item>
-                  <a-menu-item key="1" @click="toEdit(record)">
+                  <a-menu-item key="1" @click="toEdit(record)" v-if="hasPermission('orgs:edit')">
                     <span>{{ t('编辑') }}</span>
                   </a-menu-item>
-                  <a-popconfirm v-if="record.has_user" :title="'Are you sure ' + t('解绑用户')" ok-text="Yes" cancel-text="No" @confirm="orgsDetailStore.stakeUnbind(record.uuid)">
-                    <a-menu-item key="2" @click.stop>
-                      <span>{{ t('解绑用户') }}</span>
+
+                  <template v-if="hasPermission('orgs:bindUser')">
+                    <a-popconfirm v-if="record.has_user" :title="'Are you sure ' + t('解绑用户')" ok-text="Yes" cancel-text="No" @confirm="orgsDetailStore.stakeUnbind(record.uuid)">
+                      <a-menu-item key="2" @click.stop>
+                        <span>{{ t('解绑用户') }}</span>
+                      </a-menu-item>
+                    </a-popconfirm>
+                    <a-menu-item key="2" v-if="!record.has_user" @click="showBindUser(record.uuid)">
+                      <span>{{ t('绑定用户') }}</span>
                     </a-menu-item>
-                  </a-popconfirm>
-                  <a-menu-item key="2" v-if="!record.has_user" @click="showBindUser(record.uuid)">
-                    <span>{{ t('绑定用户') }}</span>
-                  </a-menu-item>
+                  </template>
                 </a-menu>
               </div>
             </template>
@@ -147,6 +150,7 @@ import tool from '@/utils/tool';
 import { navigationTo } from '@/utils/tool';
 import { useOrgsDetailStore } from '@/store';
 import { DisconnectOutlined } from '@ant-design/icons-vue';
+import { hasPermission } from '@/directives/permission/index';
 
 const orgsDetailStore = useOrgsDetailStore();
 

@@ -1,10 +1,10 @@
 <template>
   <div class="orgsDetail">
     <vco-page-panel :title="detail?.name" :isBack="true">
-      <a-button type="cyan" shape="round" @click="update">
+      <a-button v-if="hasPermission('orgs:detail:update')" type="cyan" shape="round" @click="update">
         {{ t('更新') }}
       </a-button>
-      <a-button v-if="!detail?.pid" type="cyan" shape="round" @click="navigationTo({ path: '/orgs/form/add', query: { uuid: detail.uuid } })">
+      <a-button v-if="!detail?.pid && hasPermission('orgs:detail:addMember')" type="cyan" shape="round" @click="navigationTo({ path: '/orgs/form/add', query: { uuid: detail.uuid } })">
         {{ t('添加人员') }}
       </a-button>
     </vco-page-panel>
@@ -64,6 +64,7 @@ import { navigationTo } from '@/utils/tool';
 import { useOrgsDetailStore } from '@/store';
 import { useRoute } from 'vue-router';
 import { stakeChildMebSync } from '@/api/orgs';
+import { hasPermission } from '@/directives/permission/index';
 const route = useRoute();
 
 const { t } = useI18n();

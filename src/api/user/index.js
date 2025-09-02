@@ -1,10 +1,11 @@
 import { request } from "@/utils/request";
 
 // 获取用户信息
-export const getUserInfo = () =>
+export const getUserInfo = (params) =>
   request({
     url: "/index/getUserInfo",
     method: "get",
+    params
   });
 
 // 获取用户菜单

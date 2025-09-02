@@ -1,38 +1,11 @@
 <template>
   <div class="RequestDetails">
-    <a-modal
-      :open="borrowerVisible"
-      :title="t('修改借款人信息')"
-      :width="900"
-      :footer="null"
-      :keyboard="false"
-      @update:open="borrowerVisible = false"
-    >
-      <borrower-info-form
-        v-if="borrowerVisible"
-        :check="true"
-        :is-open="true"
-        :info-data="data?.borrower"
-        :current-id="currentId"
-        @checkDone="saveDone"
-      ></borrower-info-form>
+    <a-modal :open="borrowerVisible" :title="t('修改借款人信息')" :width="900" :footer="null" :keyboard="false" @update:open="borrowerVisible = false">
+      <borrower-info-form v-if="borrowerVisible" :check="true" :is-open="true" :info-data="data?.borrower" :current-id="currentId" @checkDone="saveDone"></borrower-info-form>
     </a-modal>
 
-    <a-modal
-      :open="securityVisible"
-      :title="t('其他安全信息')"
-      :width="900"
-      :footer="null"
-      :keyboard="false"
-      @update:open="securityVisible = false"
-    >
-      <guarantor-info-form
-        v-if="securityVisible"
-        :current-id="currentId"
-        :is-open="true"
-        :guarantor-info="data?.warranty"
-        @refresh="saveDone"
-      ></guarantor-info-form>
+    <a-modal :open="securityVisible" :title="t('其他安全信息')" :width="900" :footer="null" :keyboard="false" @update:open="securityVisible = false">
+      <guarantor-info-form v-if="securityVisible" :current-id="currentId" :is-open="true" :guarantor-info="data?.warranty" @refresh="saveDone"></guarantor-info-form>
     </a-modal>
 
     <p class="RequestDetails-amount flex items-center">Requested <vco-number :value="data?.base.loan_money" size="fs_xl" class="ml-3" :bold="true" :precision="2"></vco-number></p>
@@ -51,7 +24,7 @@
           <i v-if="hasPermission('projects:detail:editBorrower')" class="iconfont" @click="openBorrower">&#xe743;</i>
         </div>
         <div>{{ data?.base.borrower_user_name }}</div>
-        <div style=" word-break: break-all;">{{ data?.base.borrower_email }}</div>
+        <div style="word-break: break-all">{{ data?.base.borrower_email }}</div>
         <div>
           <span v-if="data?.base.borrower_phone_prefix">+{{ data?.base.borrower_phone_prefix }}</span> {{ data?.base.borrower_phone }}
         </div>
@@ -75,12 +48,12 @@
     <div class="flex mb-7">
       <div class="flex-1">
         <p class="RequestDetails-label">{{ t('项目文件') }}</p>
-        <a-button type="brown" shape="round" size="small" class="mt-5" @click="navigationTo('/projects/documents?uuid=' + currentId)">{{ t('查看文件') }}</a-button>
+        <a-button type="brown" shape="round" size="small" class="mt-5" @click="navigationTo(`${mode}/projects/documents?uuid=` + currentId)">{{ t('查看文件') }}</a-button>
       </div>
       <div class="VerticalDivider"></div>
       <div class="RequestDetails-units">
         <p class="RequestDetails-label">{{ t('数量') }}</p>
-        <div>{{data?.base.building_num}}</div>
+        <div>{{ data?.base.building_num }}</div>
       </div>
     </div>
 
@@ -97,30 +70,33 @@ import tool from '@/utils/tool';
 import { navigationTo } from '@/utils/tool';
 import { hasPermission } from '@/directives/permission/index';
 import { useI18n } from 'vue-i18n';
-import BorrowerInfoForm from "@/views/process/temp/default/tpl-one.vue";
-import GuarantorInfoForm from "@/views/process/temp/default/components/GuarantorInfo.vue";
+import BorrowerInfoForm from '@/views/process/temp/default/tpl-one.vue';
+import GuarantorInfoForm from '@/views/process/temp/default/components/GuarantorInfo.vue';
+import { useUserStore } from '@/store';
+
+const pageRole = computed(() => useUserStore().pageRole);
+const mode = pageRole.value ? '/' + pageRole.value.toLowerCase() : '';
 
 const { t } = useI18n();
 
 const props = defineProps(['data', 'currentId']);
-const emits = defineEmits(['update'])
+const emits = defineEmits(['update']);
 
 const showWarrantyTips = computed(() => {
-  return hasPermission('projects:detail:editGuarantor') && !props.data?.warranty?.main_contractor && !props.data?.warranty?.security_package.length
-})
+  return hasPermission('projects:detail:editGuarantor') && !props.data?.warranty?.main_contractor && !props.data?.warranty?.security_package.length;
+});
 
-const borrowerVisible = ref(false)
-const securityVisible = ref(false)
+const borrowerVisible = ref(false);
+const securityVisible = ref(false);
 const openBorrower = () => {
-  borrowerVisible.value = true
-}
+  borrowerVisible.value = true;
+};
 
 const saveDone = () => {
-  securityVisible.value = false
-  borrowerVisible.value = false
-  emits('update')
-}
-
+  securityVisible.value = false;
+  borrowerVisible.value = false;
+  emits('update');
+};
 </script>
 
 <style scoped lang="less">

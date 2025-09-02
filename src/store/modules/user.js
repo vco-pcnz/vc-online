@@ -87,7 +87,16 @@ const useUserStore = defineStore('VcOnlineUserInfo', {
     },
 
     async requestUserInfo() {
-      const result = await getUserInfo().catch(() => {});
+       let params = {};
+      if (window.location.pathname.includes('investor')) {
+        this.pageRole = 'Investor';
+        params = { __way__: 'investor' };
+      }
+      if (window.location.pathname.includes('umbrella')) {
+        this.pageRole = 'Umbrella';
+        params = { __way__: 'umbrella' };
+      }
+      const result = await getUserInfo(params).catch(() => {});
       if (!result) {
         return {};
       }
@@ -145,7 +154,7 @@ const useUserStore = defineStore('VcOnlineUserInfo', {
             item.hide = 0;
           }
         }
-        if (this.pageRole == 'Umbrella' || this.userInfo.roles === 'Umbrella') {
+        if (this.pageRole == 'Umbrella' || this.userInfo.roles === 'Primary') {
           item.hide = 1;
           if (item.path.includes('/umbrella')) {
             item.hide = 0;

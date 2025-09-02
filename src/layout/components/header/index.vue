@@ -31,7 +31,7 @@
       <div class="profile_content">
         <div class="profile_info">
           <!-- <language-select></language-select> -->
-            <vco-avatar class="cursor-pointer" :src="userInfo?.avatar || ''" :size="26" @click="toProfile('/profile/about')" />
+          <vco-avatar class="cursor-pointer" :src="userInfo?.avatar || ''" :size="26" @click="toProfile('/profile/about')" />
           <div class="link" :class="{ link_active: isUserActive() }">
             <div class="user_info">
               <a-space>
@@ -41,7 +41,7 @@
               <div v-if="userInfo?.roles">
                 <template v-for="item in userInfo?.roles.split('/')" :key="item">
                   <a-tag color="orange" v-if="item == 'Funding Partner' && userInfo?.roles.split('/').length != 1" @click="toLoans(item)">{{ item }}</a-tag>
-                  <a-tag color="orange" v-else-if="item == 'Umbrella' && userInfo?.roles.split('/').length != 1" @click="toLoans(item)">{{ item }}</a-tag>
+                  <a-tag color="orange" v-else-if="item == 'Primary' && userInfo?.roles.split('/').length != 1" @click="toLoans(item)">{{ item }}</a-tag>
                   <span class="mr-3" v-else>{{ item }}</span>
                 </template>
               </div>
@@ -172,7 +172,7 @@ const toLoans = (val) => {
   if (val === 'Funding Partner') {
     navigationTo('/investor/projects', true);
   }
-  if (val === 'Umbrella') {
+  if (val === 'Primary') {
     navigationTo('/umbrella/projects', true);
   }
 };

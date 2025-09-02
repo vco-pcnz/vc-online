@@ -11,7 +11,7 @@
     <a-modal
       :open="selectVisible"
       :title="t('进度付款阶段')"
-      :width="1400"
+      :width="1500"
       :footer="null"
       :keyboard="false"
       :maskClosable="false"

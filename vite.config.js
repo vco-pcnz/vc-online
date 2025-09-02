@@ -29,6 +29,12 @@ export default ({ mode }) => {
     build: {
       outDir: 'build',
       chunkSizeWarningLimit: 1500,
+      // 在非开发环境移除console
+      minify: mode !== 'development' ? 'esbuild' : false,
+      esbuildOptions: mode !== 'development' ? {
+        drop: ['console', 'debugger'],
+        legalComments: 'none'
+      } : {},
       // rollupOptions: {
       //   output: {
       //     manualChunks(id) {

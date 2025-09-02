@@ -13,11 +13,17 @@ import screenShort from "vue-web-screen-shot";
 
 import globalComponents from "@/components";
 
+// 导入console控制工具
+import { initConsoleControl } from "@/utils/console";
+
 // 样式
 import "ant-design-vue/dist/reset.css";
 import "./assets/iconfont/iconfont.css";
 import "./styles/index.css";
 import "./styles/global.less";
+
+// 初始化console控制 - 在应用创建前执行
+initConsoleControl();
 
 const app = createApp(App);
 

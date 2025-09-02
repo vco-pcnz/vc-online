@@ -139,7 +139,7 @@ export default {
   "步骤十一": "Step 11",
   "步骤十二": "Step 12",
   "个人": "Individual",
-  "机构": "Organizations",
+  "机构": "Organization",
   "组织": "Company",
   "新增用户": "Add User",
   "类型": "Type",
@@ -536,7 +536,7 @@ export default {
   "预测撤回": "forecasted withdrawn",
   "方差": "variance",
   "积分": "points",
-  "已反馈": "Feedback received",
+  "已反馈": "Documents received",
   "处理人": "Handler",
   "搜索利益相关者": "Org search",
   "反洗钱说明": "Notes",
@@ -902,7 +902,7 @@ export default {
   "更新建筑贷款金额": "Update build amount",
   "最新均摊值": "Latest amortized value",
   "意见反馈": "Feedback",
-  "待通知": "Awaiting notify",
+  "待通知": "Awaiting notification",
   "确定更新吗？": "Are you sure to update?",
   "变更文件": "Variations documents",
   "概括": "Summary",
@@ -1139,5 +1139,6 @@ export default {
   "标准税率": "Standard rate",
   "建设金额": "Amount of construction",
   "导出": "Export",
-  "关闭日期": "Closed date"
+  "关闭日期": "Closed date",
+  "可用额度1": "Remaining amount"
 }

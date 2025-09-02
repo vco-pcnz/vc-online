@@ -62,7 +62,7 @@
                 </a-form-item>
               </a-col>
               <a-col :span="8">
-                <a-form-item :label="t('建议最大减少')">
+                <a-form-item :label="t('罚息减免最大额度')">
                   <div class="input-number-content">
                     <vco-number :bold="true" :value="standardAmount" :precision="2" size="fs_xl" :end="true"></vco-number>
                   </div>
@@ -84,7 +84,7 @@
                 <a-form-item name="reduction_money" class="data-col-item">
                   <template #label>
                     <div class="flex items-center gap-1">
-                      <span>{{ t('罚息减免') }}</span>
+                      <span>{{ t('减免额度') }}</span>
                       <span style="color: #31bd65;">{{ `(${t('最大值')}: $${numberStrFormat(showMaxReduction)})` }}</span>
                     </div>
                   </template>

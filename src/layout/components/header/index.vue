@@ -40,9 +40,10 @@
               </a-space>
               <div v-if="userInfo?.roles">
                 <template v-for="item in userInfo?.roles.split('/')" :key="item">
-                  <a-tag color="orange" v-if="item == 'Funding Partner' && userInfo?.roles.split('/').length != 1" @click="toLoans(item)">{{ item }}</a-tag>
+                  <!-- <a-tag color="orange" v-if="item == 'Funding Partner' && userInfo?.roles.split('/').length != 1" @click="toLoans(item)">{{ item }}</a-tag>
                   <a-tag color="orange" v-else-if="item == 'Primary' && userInfo?.roles.split('/').length != 1" @click="toLoans(item)">{{ item }}</a-tag>
-                  <span class="mr-3" v-else>{{ item }}</span>
+                  <span class="mr-3" v-else>{{ item }}</span> -->
+                  <a-tag color="orange" @click="toLoans(item)">{{ item }}</a-tag>
                 </template>
               </div>
               <p v-else>Vip</p>
@@ -63,7 +64,7 @@
                   <div class="user-hanle-item">{{ t('申请中介') }}</div>
                 </ApplyBrokerDetail>
               </a-menu-item>
-              <a-menu-item v-for="item in menuItem" :key="item.key" @click="goTo(`${item.to}`)">
+              <a-menu-item v-for="item in menuItem" :key="item.key" @click="toProfile(`${item.to}`)">
                 <div class="user-hanle-item">{{ item.label }}</div>
               </a-menu-item>
               <a-menu-item>
@@ -149,8 +150,8 @@ const isUserActive = () => {
 };
 
 const menuItem = [
-  { label: t('编辑详情'), key: 'edit-profile', to: pageRole.value == 'Investor' ? '/investor/profile/about' : '/profile/about' },
-  { label: t('修改密码'), key: 'change-pwd', to: pageRole.value == 'Investor' ? '/investor/profile/safe' : '/profile/safe' }
+  { label: t('编辑详情'), key: 'edit-profile', to: '/profile/about' },
+  { label: t('修改密码'), key: 'change-pwd', to: '/profile/safe' }
 ];
 
 const goTo = (path) => {
@@ -169,11 +170,13 @@ const LoadApplyBrokerDetail = () => {
 };
 
 const toLoans = (val) => {
+  window.close();
   if (val === 'Funding Partner') {
     navigationTo('/investor/projects', true);
-  }
-  if (val === 'Primary') {
+  } else if (val === 'Primary') {
     navigationTo('/umbrella/projects', true);
+  } else {
+    navigationTo('/', true);
   }
 };
 

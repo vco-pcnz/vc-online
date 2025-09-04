@@ -232,6 +232,14 @@ export const projectListApi = (params) =>
     params
   });
 
+// 项目列表
+export const umbreProjectListApi = (params) =>
+  request({
+    url: "/umbre/applyProjectList",
+    method: "get",
+    params
+  });
+
 // 获取补充信息
 export const getApproveTemp = (params) =>
   request({

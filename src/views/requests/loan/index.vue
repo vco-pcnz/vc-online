@@ -9,10 +9,7 @@
     </vco-page-nav> -->
     <div class="page-tab-content">
       <div class="nav-content">
-        <div v-for="item in productData" :key="item.uuid"
-          class="nav-link" :class="{'active': item.uuid === currentProduct}"
-          @click="productChange(item)"
-        >
+        <div v-for="item in productData" :key="item.uuid" class="nav-link" :class="{ active: item.uuid === currentProduct }" @click="productChange(item)">
           {{ item.name }}
         </div>
       </div>
@@ -55,14 +52,14 @@
                 <template #bodyCell="{ column, record }">
                   <template v-if="column.dataIndex === 'project_image'">
                     <template v-if="record.imgsArr.length">
-                      <div class="flex justify-center cursor-pointer" @click="navigationTo(`/requests/details/about?uuid=${record.uuid}`)">
+                      <div class="flex justify-center cursor-pointer" @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">
                         <vco-avatar :src="record.imgsArr[0]" :radius="true" :round="false"></vco-avatar>
                       </div>
                     </template>
                     <p v-else>--</p>
                   </template>
                   <template v-if="column.dataIndex === 'project_info'">
-                    <span class="cursor-pointer" @click="navigationTo(`/requests/details/about?uuid=${record.uuid}`)">
+                    <span class="cursor-pointer" @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">
                       <div :title="record.project_name" class="black bold">{{ record.project_name || t('项目名称') }}</div>
                       <div>ID: {{ record.project_apply_sn }}</div>
                       <div v-if="record.project_city && record.project_city.length > 3" class="icon-txt mt-1">
@@ -72,23 +69,23 @@
                     </span>
                   </template>
                   <template v-if="column.dataIndex === 'loan_money'">
-                    <span class="cursor-pointer" @click="navigationTo(`/requests/details/about?uuid=${record.uuid}`)">
+                    <span class="cursor-pointer" @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">
                       <vco-number v-if="record.loan_money" :value="record.loan_money" :precision="2"></vco-number>
                       <p v-else>--</p>
                     </span>
                   </template>
                   <template v-if="column.dataIndex === 'borrower_info'">
-                    <div class="icon-txt cursor-pointer" @click="navigationTo(`/requests/details/about?uuid=${record.uuid}`)">
+                    <div class="icon-txt cursor-pointer" @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">
                       <i class="iconfont cer">{{ record.borrower_type === 1 ? '&#xe632;' : '&#xe683;' }}</i>
                       <span :title="record.showName" class="cer text-ellipsis overflow-hidden whitespace-normal line-clamp-1">{{ record.showName || '--' }}</span>
                     </div>
-                    <div class="icon-txt mt-1.5 cursor-pointer" @click="navigationTo(`/requests/details/about?uuid=${record.uuid}`)">
+                    <div class="icon-txt mt-1.5 cursor-pointer" @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">
                       <i class="iconfont" :class="{ cer: record.borrower_ver }">&#xe66f;</i>
                       <span :class="{ cer: record.borrower_ver }" :title="record.borrower_email" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-1">
                         {{ record.borrower_email || '--' }}
                       </span>
                     </div>
-                    <div class="icon-txt cursor-pointer" @click="navigationTo(`/requests/details/about?uuid=${record.uuid}`)">
+                    <div class="icon-txt cursor-pointer" @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">
                       <i class="iconfont" :class="{ cer: record.borrower_ver }">&#xe678;</i>
                       <span :class="{ cer: record.borrower_ver }" :title="record.borrower_phone" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-1">
                         {{ record.borrower_phone || '--' }}
@@ -96,13 +93,19 @@
                     </div>
                   </template>
                   <template v-if="column.dataIndex === 'lm'">
-                    <div class="user-content cursor-pointer" v-if="record.lm_list && record.lm_list.length" @click="navigationTo(`/requests/details/about?uuid=${record.uuid}`)">
+                    <div class="user-content cursor-pointer" v-if="record.lm_list && record.lm_list.length" @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">
                       <vco-user-item v-for="(item, index) in record.lm_list" :key="index" :data="item"></vco-user-item>
                     </div>
                     <p v-else>--</p>
                   </template>
                   <template v-if="column.dataIndex === 'term'">
-                    <vco-time-line class="cursor-pointer" v-if="record.start_date && record.end_date" :open-date="record.start_date" :maturity-date="record.end_date" @click="navigationTo(`/requests/details/about?uuid=${record.uuid}`)" ></vco-time-line>
+                    <vco-time-line
+                      class="cursor-pointer"
+                      v-if="record.start_date && record.end_date"
+                      :open-date="record.start_date"
+                      :maturity-date="record.end_date"
+                      @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)"
+                    ></vco-time-line>
                     <p v-else>--</p>
                   </template>
                   <!-- <template v-if="column.dataIndex === 'lvr'">
@@ -110,7 +113,7 @@
                     <p v-else>--</p>
                   </template> -->
                   <template v-if="column.dataIndex === 'create_time'">
-                    <span v-if="record.create_time" class="cursor-pointer" @click="navigationTo(`/requests/details/about?uuid=${record.uuid}`)">{{ tool.showDate(record.create_time) }}</span>
+                    <span v-if="record.create_time" class="cursor-pointer" @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">{{ tool.showDate(record.create_time) }}</span>
                     <p v-else>--</p>
                   </template>
                   <template v-if="column.dataIndex === 'status'">
@@ -131,7 +134,7 @@
                       <template #overlay>
                         <a-menu :selectable="false">
                           <a-menu-item key="0">
-                            <a @click="navigationTo(`/requests/details/about?uuid=${record.uuid}`)">{{ t('查看详情') }}</a>
+                            <a @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">{{ t('查看详情') }}</a>
                           </a-menu-item>
                           <a-menu-item key="1" :disabled="key.includes(record.mark)">
                             <vco-popconfirm url="/project/project/copyProject" :formParams="{ uuid: record.uuid }" :tip="t('确定要复制{0}', [record.project_name])" :disabled="key.includes(record.mark)" @update="toCopyDetail">
@@ -164,38 +167,38 @@ import { useTableList } from '@/hooks/useTableList';
 import TableSearch from './components/TableSearch.vue';
 import GridBlock from './components/GridBlock.vue';
 import { navigationTo } from '@/utils/tool';
-import { projectListApi, associateSystemConfig } from '@/api/process';
+import { projectListApi, associateSystemConfig, umbreProjectListApi } from '@/api/process';
 import tool from '@/utils/tool';
 import { processRoutes } from '@/constant';
 import emitter from '@/event';
 import BindUsersDialog from '@/views/process/components/BindUsersDialog.vue';
 import useUserStore from '@/store/modules/user';
-import useProductStore from '@/store/modules/product'
+import useProductStore from '@/store/modules/product';
 
 const { t } = useI18n();
 
-const tableSearchRef = ref()
-
-const { currentParams, tableRef, tableLoading, pageObj, tableData, otherInfo, pageChange, getTableData } = useTableList(projectListApi, {}, false);
-
+const tableSearchRef = ref();
 const userStore = useUserStore();
 const isNormalUser = computed(() => userStore.isNormalUser);
+const pageRole = computed(() => userStore.pageRole);
+const mode = pageRole.value ? '/' + pageRole.value.toLowerCase() : '';
 
 const productStore = useProductStore();
-const productData = computed(() => productStore.productData)
-const openProductData = computed(() => productStore.openProductData)
+const productData = computed(() => productStore.productData);
+const openProductData = computed(() => productStore.openProductData);
+const currentProduct = ref(productData.value.length ? productData.value[0].uuid : '');
 
-const currentProduct = ref(productData.value.length ? productData.value[0].uuid : '')
+const { currentParams, tableRef, tableLoading, pageObj, tableData, otherInfo, pageChange, getTableData } = useTableList(pageRole.value == 'Umbrella' ? umbreProjectListApi : projectListApi , {}, false);
 
 const currentTypeMark = computed(() => {
-  const obj = productData.value.find(item => item.uuid === currentProduct.value)
-  return obj ? obj.mark : ''
-})
+  const obj = productData.value.find((item) => item.uuid === currentProduct.value);
+  return obj ? obj.mark : '';
+});
 
 const showCreate = computed(() => {
-  const obj = productData.value.find(item => item.uuid === currentProduct.value)
-  return obj ? Boolean(obj.status) : false
-})
+  const obj = productData.value.find((item) => item.uuid === currentProduct.value);
+  return obj ? Boolean(obj.status) : false;
+});
 
 const tabLayout = ref(0);
 const currentTab = ref('1');
@@ -222,7 +225,7 @@ const tabData = ref([
   }
 ]);
 
-const key = ref(['step_borrower_info','step_project_info','step_project_cert','step_loan_info','CANCELED'])
+const key = ref(['step_borrower_info', 'step_project_info', 'step_project_cert', 'step_loan_info', 'CANCELED']);
 const sortType = ref('desc');
 const sortValue = ref('');
 const sortTypeData = [
@@ -289,16 +292,16 @@ const tabChange = () => {
     const params = cloneDeep(currentParams.value) || {};
     params.status = '';
     params.sta = currentTab.value;
-    params.product_uuid = currentProduct.value
+    params.product_uuid = currentProduct.value;
     getTableData(params);
   }
 };
 
 const productChange = (data) => {
-  currentProduct.value = data.uuid
-  currentTab.value = '1'
-  tableSearchRef.value.searchHandle(true)
-}
+  currentProduct.value = data.uuid;
+  currentTab.value = '1';
+  tableSearchRef.value.searchHandle(true);
+};
 
 const searchHandle = (data = {}) => {
   const params = {
@@ -362,8 +365,8 @@ watch(
   () => productData.value,
   (val) => {
     if (val && val.length) {
-      currentProduct.value = val[0].uuid
-      tabChange()
+      currentProduct.value = val[0].uuid;
+      tabChange();
     }
   }
 );
@@ -383,12 +386,11 @@ const toCopyDetail = (val) => {
 
 const gotoProcess = () => {
   if (openProductData.value.length === 1) {
-    navigationTo(`/process/one`)
+    navigationTo(`/process/one`);
   } else {
-    navigationTo(`/process/one?p=${currentTypeMark.value}`)
+    navigationTo(`/process/one?p=${currentTypeMark.value}`);
   }
-  
-}
+};
 
 const itemHandle = (data) => {
   const href = processRoutes[data.next_index - 1];

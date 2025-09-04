@@ -174,7 +174,7 @@ const toLoans = (val) => {
   if (val === 'Funding Partner') {
     navigationTo('/investor/projects', true);
   } else if (val === 'Primary') {
-    navigationTo('/umbrella/projects', true);
+    navigationTo('/umbrella/requests/loan', true);
   } else {
     navigationTo('/', true);
   }

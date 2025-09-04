@@ -30,6 +30,8 @@ const router = useRouter();
 const route = useRoute();
 const userStore = useUserStore();
 const pageLoading = ref(false)
+const pageRole = computed(() => userStore.pageRole);
+const mode = pageRole.value ? '/' + pageRole.value.toLowerCase() : '';
 
 const props = defineProps(['title', 'activeTab']);
 const emits = defineEmits(['getProjectDetail']);
@@ -39,9 +41,9 @@ const panes = computed(() => {
   const data = userStore.routerInfo || [];
   const dataArr = cloneDeep(data);
 
-  const projectsArr = dataArr.find((item) => item.path === '/requests');
+  const projectsArr = dataArr.find((item) => item.path === `${mode}/requests`);
   const childArr = projectsArr.children || [];
-  const detailsArr = childArr.find((item) => item.path === '/requests/details');
+  const detailsArr = childArr.find((item) => item.path === `${mode}/requests/details`);
   const child = detailsArr.children || []
 
   arr = child
@@ -57,11 +59,11 @@ const panes = computed(() => {
 });
 
 const onChange = (key) => {
-  router.push(`/requests/details/${key}?uuid=${route.query.uuid}`);
+  router.push(`${mode}/requests/details/${key}?uuid=${route.query.uuid}`);
 };
 
 const back = () => {
-  router.push(`/requests/loan`);
+  router.push(`${mode}/requests/loan`);
 };
 
 const detail = ref(null);

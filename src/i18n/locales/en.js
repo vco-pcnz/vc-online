@@ -1143,5 +1143,6 @@ export default {
   "项目管理Umbrella": "Loans",
   "可用额度1": "Remaining amount",
   "罚息减免额度": "Proposed default deduction",
-  "减免额度": "Default deduction"
+  "减免额度": "Default deduction",
+  "请求管理Umbrella": "Applications"
 }

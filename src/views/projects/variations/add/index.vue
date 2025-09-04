@@ -367,6 +367,7 @@
                         v-model:value="formState.initial_land_amount"
                         :max="maxLandAmount"
                         :min="0"
+                        :disabled="initDrawdownSel"
                         :formatter="
                           (value) =>
                             `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -585,7 +586,8 @@ const typeChange = (val) => {
     land_amount: 0,
     initial_land_amount: 0,
     build_amount: 0,
-    initial_build_amount: 0
+    initial_build_amount: 0,
+    initial_sn: ''
   }
 
   if (currentVariationId.value) {
@@ -806,6 +808,7 @@ const initDrawdownSelChange = (val) => {
 };
 
 const initDrawdownCheckedChange = () => {
+  formState.value.initial_land_amount = 0
   formState.value.initial_build_amount = '';
   formState.value.initial_sn = '';
   selectedData.value = []

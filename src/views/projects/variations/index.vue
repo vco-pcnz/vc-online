@@ -164,6 +164,9 @@ const route = useRoute();
 const uuid = ref(route.query.uuid);
 const userStore = useUserStore();
 
+const pageRole = computed(() => useUserStore().pageRole);
+const mode = pageRole.value ? '/' + pageRole.value.toLowerCase() : '';
+
 const colors = ref({
   'FC REVIEW': '#d3a631',
   'FC PENDING REVIEW': '#d3a631',
@@ -246,7 +249,7 @@ const openDetail = (data, flag) => {
 }
 
 const goDetail = (data) => {
-  navigationTo(`/projects/variations-details/about?uuid=${uuid.value}&id=${data.id}`)
+  navigationTo(`${mode}/projects/variations-details/about?uuid=${uuid.value}&id=${data.id}`)
 }
 
 const updateHandle = (flag) => {

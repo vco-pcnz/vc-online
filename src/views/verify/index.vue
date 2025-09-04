@@ -73,7 +73,9 @@ a
                   <template v-if="userStore?.smsVerify?.mobile_do || userStore?.smsVerify?.email_do">
                     <a href="javascript:void(0);" v-if="!showCountdown" @click="resendCode">{{ t('重新发送') }}</a>
                     <div v-show="showCountdown">
-                      <vco-countdown v-model:show="showCountdown" :targetTimestamp="smsType == 0 ? userStore?.smsVerify?.email_time : userStore?.smsVerify?.mobile_time" class="login_countdown" /><a href="javascript:void(0);">s</a>
+                      Resend in 
+                      <vco-countdown v-model:show="showCountdown" :targetTimestamp="smsType == 0 ? userStore?.smsVerify?.email_time : userStore?.smsVerify?.mobile_time" class="login_countdown" /> 
+                       seconds
                     </div>
                   </template>
                 </div>
@@ -291,7 +293,7 @@ onMounted(() => {
 
 .login_countdown {
   background: transparent;
-  color: #bf9425;
+  color: #181818;
   width: auto;
   border: none;
   padding: 0;

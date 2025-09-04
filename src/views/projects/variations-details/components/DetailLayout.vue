@@ -24,6 +24,9 @@ import { projectDetail } from '@/api/project/project';
 import { projectVariationInfo } from '@/api/project/variation';
 import { cloneDeep } from 'lodash';
 
+const pageRole = computed(() => useUserStore().pageRole);
+const mode = pageRole.value ? '/' + pageRole.value.toLowerCase() : '';
+
 const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
@@ -37,12 +40,12 @@ const panes = computed(() => {
   const data = userStore.routerInfo || [];
   const dataArr = cloneDeep(data);
 
-  const projectsArr = dataArr.find((item) => item.path === '/projects');
+  const projectsArr = dataArr.find((item) => item.path === `${mode}/projects`);
   const childArr = projectsArr.children || [];
-  const detailsArr = childArr.find((item) => item.path === '/projects/details');
+  const detailsArr = childArr.find((item) => item.path === `${mode}/projects/details`);
   const child = detailsArr.children || [];
 
-  const variationsDetails = child.find((item) => item.path === '/projects/variations-details');
+  const variationsDetails = child.find((item) => item.path === `${mode}/projects/variations-details`);
   const variationsChild = variationsDetails.children || [];
 
   arr = variationsChild
@@ -58,11 +61,11 @@ const panes = computed(() => {
 });
 
 const onChange = (key) => {
-  router.push(`/projects/variations-details/${key}?uuid=${route.query.uuid}&id=${route.query.id}`);
+  router.push(`${mode}/projects/variations-details/${key}?uuid=${route.query.uuid}&id=${route.query.id}`);
 };
 
 const back = () => {
-  router.push(`/projects/variations?uuid=${route.query.uuid}`);
+  router.push(`${mode}/projects/variations?uuid=${route.query.uuid}`);
 };
 
 const detail = ref(null);
@@ -79,6 +82,9 @@ const getProjectDetail = async (userId) => {
     projectDetail({ uuid }).then((res) => {
       res['loan'] = res.date;
       res['variationInfo'] = variationInfo;
+      if (pageRole.value == 'Umbrella' || userStore.userInfo.roles === 'Guest') {
+        res.base.is_close = 1;
+      }
       detail.value = res;
       emits('getProjectDetail', res);
     });

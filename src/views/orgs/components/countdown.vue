@@ -7,7 +7,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 
-const countdown = ref(59);
+const countdown = ref(29);
 let intervalId = null;
 
 const emit = defineEmits(['update:show']);

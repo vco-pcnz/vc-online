@@ -38,7 +38,7 @@
         <div v-if="!itemId && false" class="item uppercase">{{ t('绩效指标预测') }}</div>
         <div class="item uppercase">{{ t('说明') }}</div>
         <div v-if="!itemId" class="item uppercase history">{{ t('历史') }}</div>
-        <div v-else class="item uppercase opt text-right">{{ t('操作') }}</div>
+        <div v-else-if="Boolean(!projectDetail?.base?.is_close)" class="item uppercase opt text-right">{{ t('操作') }}</div>
       </div>
 
       <div class="col-content">
@@ -100,7 +100,7 @@
               <i class="iconfont nav-icon" v-if="!item.first">&#xe794;</i>
               <i class="iconfont grace-icon" v-if="(item.is_grace && hasPermission('projects:forecast:grace')) || (item.status == 0 && hasPermission('projects:forecast:delete'))" @click.stop="removeHandle(item, item.is_grace)">&#xe8c1;</i>
             </div>
-            <div v-else class="item opt">
+            <div v-else-if="Boolean(!projectDetail?.base?.is_close)" class="item opt">
               <i v-if="item.first || item.status != 0" class="iconfont disabled">&#xe8cf;</i>
               <Add v-else :uuid="uuid" :item-id="itemId" :projectDetail="projectDetail" :item-date="item" @update="update">
                 <i class="iconfont">&#xe8cf;</i>

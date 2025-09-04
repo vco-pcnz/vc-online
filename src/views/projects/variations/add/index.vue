@@ -594,6 +594,9 @@ const typeChange = (val) => {
     params.id = currentVariationId.value;
   }
 
+  initDrawdownSel.value = false
+  initDrawdownData.value = []
+
   projectVariationEdit(params).then(res => {
     setVariationIdStore(res.id);
     getVariationDetail();
@@ -878,7 +881,24 @@ const dateChange = (type) => {
     }
 
     // 提价时间数据
-    submitSingleRquest('start_date', formState.value.start_date ? startDate.format('YYYY-MM-DD') : '')
+    const params = {
+      uuid: uuid.value,
+      start_date: formState.value.start_date ? startDate.format('YYYY-MM-DD') : '',
+      build_log: [],
+      initial_amount: 0,
+      initial_land_amount: 0,
+      initial_build_amount: 0,
+      initial_sn: ''
+    }
+
+    if (currentVariationId.value) {
+      params.id = currentVariationId.value;
+    }
+
+    projectVariationEdit(params).then(res => {
+      setVariationIdStore(res.id);
+      getVariationDetail();
+    })
   }
 
   if (type == 'end_date') {
@@ -948,6 +968,11 @@ const getVariationDetail = async () => {
     selectedData.value = res.build_log || []
 
     devCostJsonData.value = res.devCostDetail && res.devCostDetail.length ? res.devCostDetail : projectInfo.value.base.devCostDetail;
+
+    const credit = res.credit || {}
+    for (const key in credit) {
+      formState.value[key] = credit[key]
+    }
   })
 }
 
@@ -1029,9 +1054,11 @@ const createFormItems = () => {
 
   const keyArr = [];
   for (const key in creditInfo) {
-    formState.value[key] = passFormInit(key) ? '' : creditInfo[key];
-    if (['credit_brokerFeeRate', 'credit_estabFeeRate'].includes(key)) {
-      formState.value[key] = 0
+    if (!variationData.value?.credit) {
+      formState.value[key] = passFormInit(key) ? '' : creditInfo[key];
+      if (['credit_brokerFeeRate', 'credit_estabFeeRate'].includes(key)) {
+        formState.value[key] = 0
+      }
     }
     keyArr.push(key);
   }

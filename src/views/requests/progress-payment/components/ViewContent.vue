@@ -1225,11 +1225,10 @@
 
   onMounted(async () => {
     const { path, query } = route
-
-    if (['/requests/details/progress-payment','/umbrella/requests/details/progress-payment', '/requests/details/about','/umbrella/requests/details/about'].includes(path)) {
-      isRequests.value = false
-    } else if (path.indexOf('requests') > -1) {
+    if (['/requests/progress-payment'].includes(path) || path.indexOf('/process') > -1) {
       isRequests.value = true
+    } else {
+      isRequests.value = false
     }
     uuid.value = query.uuid
 

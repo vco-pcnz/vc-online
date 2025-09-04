@@ -16,7 +16,7 @@
     >
       <view-content
         v-if="selectVisible"
-        :is-select="!isDetails"
+        :is-select="!isDetails && !amountDisabled"
         :show-process="true"
         :selected-data="selectedData"
         @selectDone="selectDoneHandle"
@@ -214,7 +214,7 @@
                     class="flex items-center"
                     @click="goProgressPage"
                   >
-                    <p>{{ isDetails ? t('详情') : (formState.equity_amount || refinancialAmount) ? t('设置') : t('进度付款') }}</p>
+                    <p>{{ isDetails ? t('详情') : (formState.equity_amount || refinancialAmount) ? (amountDisabled ? t('详情') : t('设置')) : t('进度付款') }}</p>
                     <i class="iconfont" style="font-size: 12px;">&#xe602;</i>
                   </a-button>
                 </div>
@@ -344,7 +344,7 @@
                     class="flex items-center"
                     @click="selectVisible = true"
                   >
-                    <p>{{ isDetails ? t('详情') : t('选择') }}</p>
+                    <p>{{ isDetails ? t('详情') : (amountDisabled ? t('详情') : t('选择')) }}</p>
                     <i class="iconfont" style="font-size: 12px;">&#xe602;</i>
                   </a-button>
                 </div>
@@ -572,7 +572,7 @@
   const goProgressPage = () => {
     const path = route.path
     let href = ''
-    if (path === '/requests/details/about') {
+    if (path.indexOf('/requests/details/about') > -1) {
       href = '/requests/details/progress-payment'
     } else if (path.indexOf('process') > -1) {
       href = '/requests/progress-payment'

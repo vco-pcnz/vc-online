@@ -6,6 +6,7 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
+import { pub } from '@/api/system';
 const props = defineProps({
   targetTimestamp: {
     type: Number
@@ -15,7 +16,7 @@ const props = defineProps({
 const countdown = ref(29);
 let intervalId = null;
 
-const emit = defineEmits(['update:show']);
+const emit = defineEmits(['update:show','change']);
 const startCountdown = () => {
   intervalId = setInterval(() => {
     if (countdown.value > 0) {
@@ -53,13 +54,16 @@ watch(
   (val) => {
     if (val) {
       stopCountdown();
-      if (props.targetTimestamp > Math.floor(Date.now() / 1000)) {
-        countdown.value = props.targetTimestamp - Math.floor(Date.now() / 1000);
-        emit('update:show', true);
-        startCountdown();
-      } else {
-        emit('update:show', false);
-      }
+      pub().then((res) => {
+        if (props.targetTimestamp > res.server_time) {
+          countdown.value = props.targetTimestamp - res.server_time;
+          emit('update:show', true);
+          startCountdown();
+        } else {
+          emit('update:show', false);
+          emit('change');
+        }
+      });
     }
   },
   { deep: true, immediate: true }

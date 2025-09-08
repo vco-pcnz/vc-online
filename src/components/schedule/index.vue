@@ -28,7 +28,12 @@
         <div class="sys-form-content mt-5">
           <a-form ref="adFormRef" layout="vertical" :model="adFormState" :rules="adFormRules">
             <a-form-item :label="t('日期')" name="date">
-              <a-date-picker v-model:value="adFormState.date" :format="selectDateFormat()" :disabledDate="adDisabledDateFormat" placeholder="" />
+              <a-range-picker
+                v-model:value="adFormState.date"
+                :format="selectDateFormat()"
+                :placeholder="[t('开放日期'), t('到期日期')]"
+                :disabledDate="adDisabledDateFormat" placeholder=""
+              />
             </a-form-item>
           </a-form>
 
@@ -511,36 +516,61 @@ const getDataInfo = (isLate = false) => {
 const adVisible = ref(false);
 const adFormRef = ref();
 const adFormState = reactive({
-  date: ''
+  date: []
 });
 const adFormRules = {
   date: [{ required: true, message: t('请选择') + t('日期'), trigger: 'change' }]
 };
 
 const adLoading = ref(false);
-const adSubmitHandle = () => {
+
+const adSubmitRequest = () => {
   adLoading.value = true;
+  const params = {
+    uuid: props.currentId,
+    pdf: props.isClose ? 3 : 2
+  }
+  if (!props.isClose) {
+    params.s_date = dayjs(adFormState.date[0]).format('YYYY-MM-DD');
+    params.date = dayjs(adFormState.date[1]).format('YYYY-MM-DD');
+  }
+
+  projectLoanAllRepayment(params).then((res) => {
+    adLoading.value = false;
+    adVisible.value = false
+    window.open(res);
+
+  }).catch(() => {
+    adLoading.value = false;
+  });
+}
+
+const adSubmitHandle = () => {
   adFormRef.value
     .validate()
     .then(() => {
-      projectLoanAllRepayment({
-        uuid: props.currentId,
-        date: dayjs(adFormState.date).format('YYYY-MM-DD'),
-        pdf: 2
-      }).then((res) => {
-        adLoading.value = false;
-        window.open(res);
-      }).catch(() => {
-        adLoading.value = false;
-      });
+      adSubmitRequest()
     });
 };
+
+watch(() => adVisible.value, (val) => {
+  if (!val) {
+    adLoading.value = false;
+    adFormRef.value.clearValidate();
+    adFormRef.value.resetFields();
+    adFormState.date = [];
+  }
+})
 
 const downloading = ref(false);
 const downLoadExcel = (type) => {
   if (type === 4) {
-    adFormState.date = ''
-    adVisible.value = true;
+    if (props.isClose) {
+      adSubmitRequest()
+    } else {
+      adFormState.date = []
+      adVisible.value = true;
+    }
     return;
   }
   const ajaxFn = props.itemId ? projectVariationExportExcel : projectForecastExportExcel;

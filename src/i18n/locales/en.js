@@ -1144,5 +1144,9 @@ export default {
   "可用额度1": "Remaining amount",
   "罚息减免额度": "Proposed default deduction",
   "减免额度": "Default deduction",
-  "请求管理Umbrella": "Applications"
+  "请求管理Umbrella": "Applications",
+  "是否允许超额放款": "Allow excess drawdown",
+  "放款金额不能小于{0}": "Drawdown amount cannot be less than {0}",
+  "已超额: {0}": "Exceeded: {0}",
+  "包含预计数据": "Include estimated data"
 }

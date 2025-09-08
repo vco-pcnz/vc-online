@@ -30,14 +30,20 @@
               @input="() => currentItemInput(true)"
               @keyup.enter="selectSureHandle" 
             />
-            <p v-if="currentItemInfo.showError" class="input-error">{{ t('取值范围: {0} - {1}', ['$0.00', `$${numberStrFormat(currentItemInfo.can_amount)}`]) }}</p>
+            <template v-if="currentItemInfo.showError">
+              <p v-if="allowExcess" class="input-error">{{ t('放款金额不能小于{0}', ['0']) }}</p>
+              <p v-else class="input-error">{{ t('取值范围: {0} - {1}', ['$0.00', `$${numberStrFormat(currentItemInfo.can_amount)}`]) }}</p>
+            </template>
           </div>
         </a-col>
         <a-col :span="8">
           <div class="info-content sys-form-content">
             <p class="name mb-2">{{ t('可用额度比例') }}</p>
             <a-input v-model:value="currentItemInfo.set_amount_per" suffix="%" @input="() => currentItemInput(false)" @keyup.enter="selectSureHandle" />
-            <p v-if="currentItemInfo.showError" class="input-error">{{ `0.00% - ${numberStrFormat(currentItemInfo.can_amount_per)}%`}}</p>
+            <template v-if="currentItemInfo.showError">
+              <p v-if="allowExcess" class="input-error">{{ t('放款金额不能小于{0}', ['0']) }}</p>
+              <p v-else class="input-error">{{ `0.00% - ${numberStrFormat(currentItemInfo.can_amount_per)}%`}}</p>
+            </template>
           </div>
         </a-col>
       </a-row>
@@ -68,32 +74,39 @@
                 </template>
                 <template v-if="column.dataIndex === 'userPercent'">
                   <div style="padding: 0 40px;">
-                    <a-progress
-                      :stroke-color="{
-                        '0%': '#64ec22',
-                        '100%': '#31bd65'
-                      }"
-                      :size="6"
-                      :percent="statUserPercent"
-                    />
+                    <vco-excess-process :percent="statUserPercent" />
+
+                    <a-tooltip v-if="Number(statRemainAmount) < 0" placement="top">
+                      <template #title>
+                        <span>{{ t('已超额: {0}', [`$${numberStrFormat(Math.abs(statRemainAmount))}`])}}</span>
+                      </template>
+                      <i class="iconfont excess-icon">&#xe750;</i>
+                    </a-tooltip>
                   </div>
                   
                 </template>
                 <template v-if="column.dataIndex === 'remainingAmount'">
-                  <vco-number :value="statRemainAmount" :bold="true" size="fs_xl" :precision="2" :end="true"></vco-number>
+                  <vco-number :value="statRemainAmount < 0 ? 0 : statRemainAmount" :bold="true" size="fs_xl" :precision="2" :end="true"></vco-number>
                 </template>
               </template>
             </a-table>
           </div>
 
           <div v-if="tableHeader.length && !pageLoading" class="form-block-content" :class="{'mt-10': isSelect}">
-            <div v-if="!isSelect" class="title">{{ t('进度付款阶段') }}</div>
-            <div v-if="isSelect" class="mt-2 mb-2 flex justify-end gap-4">
-              <a-button v-if="selectDataHasNum" type="cyan" class="bold uppercase" @click="selectCancelAll">{{ t('取消所有设置') }}</a-button>
-              <a-button type="primary" class="bold uppercase" @click="batchSelectHandle">{{ batchSelect ? t('取消批量模式') : t('批量选择') }}</a-button>
-              <a-button v-if="batchSelectData.length" type="grey" class="bold uppercase" @click="batchSelectCancel">{{ t('取消已选择')}}</a-button>
-              <a-button v-if="batchSelect" type="dark" :disabled="!batchSelectData.length" class="bold uppercase" @click="batchSelectSet">{{ t('批量设置1') }} ({{ batchSelectData.length }})</a-button>
+            <div class="flex items-center justify-between">
+              <div v-if="!isSelect" class="title">{{ t('进度付款阶段') }}</div>
+              <div v-else class="flex items-center gap-2">
+                <p>{{ t('是否允许超额放款') }}</p>
+                <a-switch v-model:checked="allowExcess" />
+              </div>
+              <div v-if="isSelect" class="mt-2 mb-2 flex justify-end gap-4">
+                <a-button v-if="selectDataHasNum" type="cyan" class="bold uppercase" @click="selectCancelAll">{{ t('取消所有设置') }}</a-button>
+                <a-button type="primary" class="bold uppercase" @click="batchSelectHandle">{{ batchSelect ? t('取消批量模式') : t('批量选择') }}</a-button>
+                <a-button v-if="batchSelectData.length" type="grey" class="bold uppercase" @click="batchSelectCancel">{{ t('取消已选择')}}</a-button>
+                <a-button v-if="batchSelect" type="dark" :disabled="!batchSelectData.length" class="bold uppercase" @click="batchSelectSet">{{ t('批量设置1') }} ({{ batchSelectData.length }})</a-button>
+              </div>
             </div>
+            
             <p v-if="batchSelect" class="text-right mb-2">{{ t('点击下方表格，选择需要批量操作的数据')}}</p>
             <a-table
               v-if="!easyModel && buildAmount"
@@ -116,18 +129,18 @@
                     <template v-if="showProcess">
                       <div class="select-item disabled">
                         <vco-number :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
-                        <vco-number :value="tableRemainTotal(advanceAmount, advanceObj?.use_amount || 0)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
+                        <vco-number :value="tableRemainTotal(advanceAmount, advanceObj?.use_amount || 0) < 0 ? 0 : tableRemainTotal(advanceAmount, advanceObj?.use_amount || 0)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
                         <vco-number :value="advanceObj?.use_amount || 0" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
                         <div class="process-gap"></div>
                         <div class="item-process-content">
-                          <a-progress
-                            :stroke-color="{
-                              '0%': '#64ec22',
-                              '100%': '#31bd65'
-                            }"
-                            :size="6"
-                            :percent="advanceObj ? advanceObj.percent : 0"
-                          />
+                          <vco-excess-process :percent="advanceObj ? advanceObj.percent : 0" />
+
+                          <a-tooltip v-if="tableRemainTotal(advanceAmount, advanceObj?.use_amount || 0) < 0" placement="top">
+                            <template #title>
+                              <span>{{ t('已超额: {0}', [`$${numberStrFormat(Math.abs(tableRemainTotal(advanceAmount, advanceObj?.use_amount || 0)))}`])}}</span>
+                            </template>
+                            <i class="iconfont excess-icon">&#xe750;</i>
+                          </a-tooltip>
                         </div>
                       </div>
                     </template>
@@ -141,17 +154,17 @@
                         <vco-number :value="advanceObj?.use_amount || 0" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
                         <div class="process-gap"></div>
                         <div class="init-progress">
-                          <a-progress
-                            :stroke-color="{
-                              '0%': '#64ec22',
-                              '100%': '#31bd65'
-                            }"
-                            :size="6"
-                            :percent="advanceObj.percent"
-                          />
+                          <vco-excess-process :percent="record.percent" />
+
+                          <a-tooltip v-if="Number(advanceObj.excess_amount)" placement="top">
+                            <template #title>
+                              <span>{{ t('已超额: {0}', [`$${numberStrFormat(advanceObj.excess_amount)}`])}}</span>
+                            </template>
+                            <i class="iconfont excess-icon">&#xe750;</i>
+                          </a-tooltip>
                         </div>
                       </div>
-                      <div v-if="advanceObj.checked" class="selected">{{ `$${numberStrFormat(advanceObj?.set_amount)}` }}</div>
+                      <div v-if="advanceObj.checked" class="selected" :class="{'excess': Number(advanceObj.excess_amount)}">{{ `$${numberStrFormat(advanceObj?.set_amount)}` }}</div>
                       <template v-if="advanceObj.selected">
                         <div class="selected-bg"></div>
                         <i class="iconfont selected-icon">&#xe601;</i>
@@ -174,18 +187,17 @@
                   <template v-if="showProcess">
                     <div class="select-item disabled">
                       <vco-number :value="record.total" size="fs_md" :precision="2" :end="true"></vco-number>
-                      <vco-number :value="tableRemainTotal(record.total, record.useTotal)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
+                      <vco-number :value="tableRemainTotal(record.total, record.useTotal) < 0 ? 0 : tableRemainTotal(record.total, record.useTotal)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
                       <vco-number :value="record.useTotal" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
                       <div class="process-gap"></div>
                       <div class="item-process-content">
-                        <a-progress
-                          :stroke-color="{
-                            '0%': '#64ec22',
-                            '100%': '#31bd65'
-                          }"
-                          :size="6"
-                          :percent="record.percent"
-                        />
+                        <a-tooltip v-if="tableRemainTotal(record.total, record.useTotal) < 0" placement="top">
+                          <template #title>
+                            <span>{{ t('已超额: {0}', [`$${numberStrFormat(Math.abs(tableRemainTotal(record.total, record.useTotal)))}`])}}</span>
+                          </template>
+                          <i class="iconfont excess-icon">&#xe750;</i>
+                        </a-tooltip>
+                        <vco-excess-process :percent="record.percent" />
                       </div>
                     </div>
                   </template>
@@ -208,20 +220,30 @@
                 <template v-else>
                   <div v-if="showProcess" class="select-item col" :class="{'hover': isSelect}" @click="itemSetHandle(record[column.dataIndex])">
                     <vco-number :value="record[column.dataIndex].amount" size="fs_xs" :precision="2" :end="true"></vco-number>
-                    <vco-number :value="tableRemainTotal(record[column.dataIndex].amount, record[column.dataIndex]?.use_amount || 0)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
+                    <vco-number
+                      :value="tableRemainTotal(record[column.dataIndex].amount, record[column.dataIndex]?.use_amount || 0) < 0 ? 0 : tableRemainTotal(record[column.dataIndex].amount, record[column.dataIndex]?.use_amount || 0)"
+                      size="fs_xs" color="#ea3535" :precision="2" :end="true"
+                    ></vco-number>
                     <vco-number :value="record[column.dataIndex]?.use_amount || 0" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
                     <div class="process-gap"></div>
                     <div class="item-process-content">
-                      <a-progress
-                        :stroke-color="{
-                          '0%': '#64ec22',
-                          '100%': '#31bd65'
-                        }"
-                        :size="6"
-                        :percent="record[column.dataIndex].percent"
-                      />
+                      <a-tooltip v-if="tableRemainTotal(record[column.dataIndex].amount, record[column.dataIndex]?.use_amount || 0) < 0" placement="top">
+                        <template #title>
+                          <span>{{ t('已超额: {0}', [`$${numberStrFormat(Math.abs(tableRemainTotal(record[column.dataIndex].amount, record[column.dataIndex]?.use_amount || 0)))}`])}}</span>
+                        </template>
+                        <i class="iconfont excess-icon">&#xe750;</i>
+                      </a-tooltip>
+                      <vco-excess-process :percent="record[column.dataIndex].percent" />
                     </div>
-                    <div v-if="record[column.dataIndex].checked" class="selected">{{ `$${numberStrFormat(record[column.dataIndex].set_amount)}` }}</div>
+
+                    <a-tooltip v-if="Number(record[column.dataIndex].excess_amount)" placement="top">
+                      <template #title>
+                        <span>{{ t('已超额: {0}', [`$${numberStrFormat(record[column.dataIndex].excess_amount)}`])}}</span>
+                      </template>
+                      <i class="iconfont excess-icon">&#xe750;</i>
+                    </a-tooltip>
+
+                    <div v-if="record[column.dataIndex].checked" class="selected" :class="{'excess': Number(record[column.dataIndex].excess_amount)}">{{ `$${numberStrFormat(record[column.dataIndex].set_amount)}` }}</div>
                     <template v-if="record[column.dataIndex].selected">
                       <div class="selected-bg"></div>
                       <i class="iconfont selected-icon">&#xe601;</i>
@@ -242,18 +264,18 @@
                         <template v-if="showProcess">
                           <div class="select-item footer disabled">
                             <vco-number :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
-                            <vco-number :value="tableRemainTotal(summaryHandle(item.key), tableUseTotal)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
+                            <vco-number :value="tableRemainTotal(summaryHandle(item.key), tableUseTotal) < 0 ? 0 : tableRemainTotal(summaryHandle(item.key), tableUseTotal)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
                             <vco-number :value="tableUseTotal" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
                             <div class="process-gap"></div>
                             <div class="item-process-content">
-                              <a-progress
-                                :stroke-color="{
-                                  '0%': '#64ec22',
-                                  '100%': '#31bd65'
-                                }"
-                                :size="6"
-                                :percent="getTotalPercent(tableUseTotal, summaryHandle(item.key))"
-                              />
+                              <vco-excess-process :percent="getTotalPercent(tableUseTotal, summaryHandle(item.key))" />
+
+                              <a-tooltip v-if="tableRemainTotal(summaryHandle(item.key), tableUseTotal) < 0" placement="top">
+                                <template #title>
+                                  <span>{{ t('已超额: {0}', [`$${numberStrFormat(Math.abs(tableRemainTotal(summaryHandle(item.key), tableUseTotal)))}`])}}</span>
+                                </template>
+                                <i class="iconfont excess-icon">&#xe750;</i>
+                              </a-tooltip>
                             </div>
                           </div>
                         </template>
@@ -285,18 +307,20 @@
                         <template v-if="showProcess">
                           <div class="select-item footer disabled">
                             <vco-number :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
-                            <vco-number :value="tableRemainTotal(summaryHandle(item.key), summaryHandle(item.key, 'use_amount'))" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
+                            <vco-number
+                              :value="tableRemainTotal(summaryHandle(item.key), summaryHandle(item.key, 'use_amount')) < 0 ? 0 :tableRemainTotal(summaryHandle(item.key), summaryHandle(item.key, 'use_amount'))"
+                              size="fs_xs" color="#ea3535" :precision="2" :end="true"
+                            ></vco-number>
                             <vco-number :value="summaryHandle(item.key, 'use_amount')" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
                             <div class="process-gap"></div>
                             <div class="item-process-content">
-                              <a-progress
-                                :stroke-color="{
-                                  '0%': '#64ec22',
-                                  '100%': '#31bd65'
-                                }"
-                                :size="6"
-                                :percent="getTotalPercent(summaryHandle(item.key, 'use_amount'), summaryHandle(item.key))"
-                              />
+                              <a-tooltip v-if="tableRemainTotal(summaryHandle(item.key), summaryHandle(item.key, 'use_amount')) < 0" placement="top">
+                                <template #title>
+                                  <span>{{ t('已超额: {0}', [`$${numberStrFormat(Math.abs(tableRemainTotal(summaryHandle(item.key), summaryHandle(item.key, 'use_amount'))))}`])}}</span>
+                                </template>
+                                <i class="iconfont excess-icon">&#xe750;</i>
+                              </a-tooltip>
+                              <vco-excess-process :percent="getTotalPercent(summaryHandle(item.key, 'use_amount'), summaryHandle(item.key))" />
                             </div>
                           </div>
                           
@@ -316,19 +340,27 @@
                 @click="itemSetHandle(item)"
               >
                 <vco-number :value="item.amount" size="fs_md" :precision="2" :end="true"></vco-number>
-                <vco-number v-if="showProcess" :value="tableRemainTotal(item.amount, item?.use_amount || 0)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
+                <vco-number v-if="showProcess" :value="tableRemainTotal(item.amount, item?.use_amount || 0) < 0 ? 0 : tableRemainTotal(item.amount, item?.use_amount || 0)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
                 <vco-number v-if="showProcess" :value="item?.use_amount || 0" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
-                <a-progress
-                  v-if="showProcess"
-                  :stroke-color="{
-                    '0%': '#64ec22',
-                    '100%': '#31bd65'
-                  }"
-                  :size="6"
-                  :percent="item.percent"
-                />
+
+                <a-tooltip v-if="Number(item.excess_amount)" placement="top">
+                  <template #title>
+                    <span>{{ t('已超额: {0}', [`$${numberStrFormat(item.excess_amount)}`])}}</span>
+                  </template>
+                  <i class="iconfont excess-icon">&#xe750;</i>
+                </a-tooltip>
+
+                <a-tooltip v-if="tableRemainTotal(item.amount, item?.use_amount || 0) < 0" placement="top">
+                  <template #title>
+                    <span>{{ t('已超额: {0}', [`$${numberStrFormat(Math.abs(tableRemainTotal(item.amount, item?.use_amount || 0)))}`])}}</span>
+                  </template>
+                  <i class="iconfont excess-icon">&#xe750;</i>
+                </a-tooltip>
+
+                <vco-excess-process v-if="showProcess" :percent="item.percent" />
+                
                 <p :class="{'mt-2': !showProcess}">{{ item.name }}</p>
-                <div v-if="item.checked" class="selected">{{ `$${numberStrFormat(item.set_amount)}` }}</div>
+                <div v-if="item.checked" class="selected" :class="{'excess': Number(item.excess_amount)}">{{ `$${numberStrFormat(item.set_amount)}` }}</div>
                 <template v-if="item.selected">
                   <div class="selected-bg"></div>
                   <i class="iconfont selected-icon">&#xe601;</i>
@@ -348,9 +380,12 @@
                 <p style="font-size: 12px; color: #888;">{{ t('已选总额') }}</p>
               </div>
               
-              <a-button type="dark" class="big shadow bold uppercase"
-                @click="selectConfirm"
-              >{{ t('确定') }}</a-button>
+              <div class="flex items-center gap-5">
+                <p v-if="Number(excessTotal)" class="text-red-500">{{ t('已超额: {0}', [`$${numberStrFormat(excessTotal)}`])}}</p>
+                <a-button type="dark" class="big shadow bold uppercase"
+                  @click="selectConfirm"
+                >{{ t('确定') }}</a-button>
+              </div>
             </div>
           </div>
         </template>
@@ -392,11 +427,23 @@
     isPage: {
       type: Boolean,
       default: false
+    },
+    excess: {
+      type: Boolean,
+      default: false
     }
   })
 
   const emits = defineEmits(['done', 'selectDone'])
 
+  const allowExcess = ref(false)
+  const excessTotal = computed(() => {
+    const excessAmount = selectData.value.reduce((total, item) => {
+      return Number(tool.plus(total, Number(item.excess_amount || 0)))
+    }, 0)
+    return excessAmount
+  })
+  
   const uuid = ref('')
 
   const pageLoading = ref(false)
@@ -578,8 +625,18 @@
           if (selectedDataIds.value.includes(amountItem.id)) {
             const selItem = props.selectedData.find(item => item.build_id === amountItem.id)
             if (selItem) {
+              const itemAmount = Number(amountItem.amount || 0)
+              const itemUseAmount = Number(amountItem.use_amount || 0)
+              const itemTotalAmount = Number(tool.plus(Number(selItem.amount), itemUseAmount))
+              const itemExcessAmount = Number(tool.minus(itemTotalAmount, itemAmount))
+              let excess_amount = 0
+              if (itemExcessAmount > 0) {
+                excess_amount = itemExcessAmount
+              }
+
               amountItem.checked = true
               amountItem.set_amount = selItem.amount
+              amountItem.excess_amount = selItem.excess_amount || excess_amount
               selectData.value.push(amountItem)
             }
           }
@@ -811,8 +868,19 @@
             if (selectedDataIds.value.includes(advanceItem.id)) {
               const selItem = props.selectedData.find(item => item.build_id === advanceItem.id)
               if (selItem) {
+                const itemAmount = Number(advanceItem.amount || 0)
+                const itemUseAmount = Number(advanceItem.use_amount || 0)
+
+                const itemTotalAmount = Number(tool.plus(Number(selItem.amount), itemUseAmount))
+                const itemExcessAmount = Number(tool.minus(itemTotalAmount, itemAmount))
+                let excess_amount = 0
+                if (itemExcessAmount > 0) {
+                  excess_amount = itemExcessAmount
+                }
+
                 advanceItem.checked = true
                 advanceItem.set_amount = selItem.amount
+                advanceItem.excess_amount = selItem.excess_amount || excess_amount
                 selectData.value.push(advanceItem)
               }
             }
@@ -860,8 +928,19 @@
             if (selectedDataIds.value.includes(mergItem.id)) {
               const selItem = props.selectedData.find(item => item.build_id === mergItem.id)
               if (selItem) {
+                const itemAmount = Number(mergItem.amount || 0)
+                const itemUseAmount = Number(mergItem.use_amount || 0)
+
+                const itemTotalAmount = Number(tool.plus(Number(selItem.amount), itemUseAmount))
+                const itemExcessAmount = Number(tool.minus(itemTotalAmount, itemAmount))
+                let excess_amount = 0
+                if (itemExcessAmount > 0) {
+                  excess_amount = itemExcessAmount
+                }
+
                 mergItem.checked = true
                 mergItem.set_amount = selItem.amount
+                mergItem.excess_amount = selItem.excess_amount || itemExcessAmount
                 selectData.value.push(mergItem)
               }
             }
@@ -1004,85 +1083,127 @@
 
   const selectSureHandle = () => {
     if (batchSelect.value) {
-      if (Number(currentItemInfo.value.set_amount) > Number(currentItemInfo.value.can_amount) || Number(currentItemInfo.value.set_amount) < 0) {
-        currentItemInfo.value.showError = true
+      if (allowExcess.value) {
+        if (Number(currentItemInfo.value.set_amount) < 0) {
+          currentItemInfo.value.showError = true
+          return false
+        }
       } else {
-        const setPercent = tool.div(Number(currentItemInfo.value.set_amount_per), 100)
-        currentItemInfo.value.showError = false
-
-        // 批量设置的使用额度
-        const setTotalAmount = currentItemInfo.value.set_amount
-
-        // 计算每个项目的基础金额
-        const baseAmounts = batchSelectData.value.map(item => {
-          const canAmount = Number(tool.minus(Number(item.amount), Number(item.use_amount))).toFixed(2)
-          return {
-            id: item.id,
-            canAmount: Number(canAmount),
-            baseAmount: Number(tool.times(Number(canAmount), Number(setPercent))).toFixed(2)
-          }
-        })
-
-        // 计算基础金额总和
-        const baseTotal = baseAmounts.reduce((sum, item) => Number(tool.plus(sum, Number(item.baseAmount))), 0)
-
-        // 计算差额
-        const diff = Number(tool.minus(setTotalAmount, baseTotal))
-
-        // 设置每个项目的金额，最后一个项目补偿差额
-        batchSelectData.value.forEach((item, index) => {
-          let setAmount = baseAmounts[index].baseAmount
-          
-          // 对最后一个项目进行补偿
-          if (index === batchSelectData.value.length - 1) {
-            setAmount = Number(tool.plus(Number(setAmount), diff)).toFixed(2)
-          }
-
-          item.set_amount = setAmount
-          item.checked = Boolean(Number(setAmount))
-          item.selected = false
-
-          const obj = selectData.value.find(_item => _item.id === item.id)
-          if (obj) {
-            obj.set_amount = item.set_amount
-            obj.set_amount_per = ''
-          } else {
-            selectData.value.push(item)
-          }
-        })
-        itemVisible.value = false
-        batchSelect.value = false
-        batchSelectData.value = []
+        if (Number(currentItemInfo.value.set_amount) > Number(currentItemInfo.value.can_amount) || Number(currentItemInfo.value.set_amount) < 0) {
+          currentItemInfo.value.showError = true
+          return false
+        }
       }
+
+      const setPercent = tool.div(Number(currentItemInfo.value.set_amount_per), 100)
+      currentItemInfo.value.showError = false
+
+      // 批量设置的使用额度
+      const setTotalAmount = currentItemInfo.value.set_amount
+
+      // 计算每个项目的基础金额
+      const baseAmounts = batchSelectData.value.map(item => {
+        const canAmount = Number(tool.minus(Number(item.amount), Number(item.use_amount))).toFixed(2)
+        return {
+          id: item.id,
+          canAmount: Number(canAmount),
+          baseAmount: Number(tool.times(Number(canAmount), Number(setPercent))).toFixed(2)
+        }
+      })
+
+      // 计算基础金额总和
+      const baseTotal = baseAmounts.reduce((sum, item) => Number(tool.plus(sum, Number(item.baseAmount))), 0)
+
+      // 计算差额
+      const diff = Number(tool.minus(setTotalAmount, baseTotal))
+
+      // 设置每个项目的金额，最后一个项目补偿差额
+      batchSelectData.value.forEach((item, index) => {
+        let setAmount = baseAmounts[index].baseAmount
+        
+        // 对最后一个项目进行补偿
+        if (index === batchSelectData.value.length - 1) {
+          setAmount = Number(tool.plus(Number(setAmount), diff)).toFixed(2)
+        }
+
+        item.set_amount = setAmount
+        item.checked = Boolean(Number(setAmount))
+        item.selected = false
+
+        const obj = selectData.value.find(_item => _item.id === item.id)
+        if (obj) {
+          obj.set_amount = item.set_amount
+          obj.set_amount_per = ''
+        } else {
+          selectData.value.push(item)
+        }
+
+        const amount = Number(item.amount || 0)
+        const use_amount = Number(item.use_amount || 0)
+        const total_amount = Number(tool.plus(setAmount, use_amount))
+        if (total_amount > amount) {
+          const excess_amount = Number(tool.minus(Number(total_amount), amount))
+          item.excess_amount = excess_amount
+        } else {
+          item.excess_amount = 0
+        }
+      })
+      itemVisible.value = false
+      batchSelect.value = false
+      batchSelectData.value = []
     } else {
       if (!currentItemInfo.value) {
         return false
       }
-      if (Number(currentItemInfo.value.set_amount) > Number(currentItemInfo.value.can_amount) || Number(currentItemInfo.value.set_amount) < 0) {
-        currentItemInfo.value.showError = true
-      } else {
-        currentItemInfo.value.checked = Boolean(Number(currentItemInfo.value.set_amount))
-        const data = cloneDeep(currentItemInfo.value)
-        if (selectIdData.value.includes(data.id)) {
-          const obj = selectData.value.find(item => item.id === data.id)
-          if (obj) {
-            obj.set_amount = data.set_amount
-          }
-        } else {
-          selectData.value.push(data)
+      if (allowExcess.value) {
+        if (Number(currentItemInfo.value.set_amount) < 0) {
+          currentItemInfo.value.showError = true
+          return false
         }
-
-        itemVisible.value = false
-        currentItemInfo.value.showError = false
-        const { checked, set_amount, set_amount_per } = currentItemInfo.value
-        
-        currentSingleItem.value.checked = checked
-        currentSingleItem.value.set_amount = set_amount
-        currentSingleItem.value.set_amount_per = set_amount_per
-
-        currentItemInfo.value = {}
-        currentSingleItem.value = {}
+      } else {
+        if (Number(currentItemInfo.value.set_amount) > Number(currentItemInfo.value.can_amount) || Number(currentItemInfo.value.set_amount) < 0) {
+          currentItemInfo.value.showError = true
+          return false
+        }
       }
+
+      currentItemInfo.value.showError = false
+      currentItemInfo.value.checked = Boolean(Number(currentItemInfo.value.set_amount))
+      const data = cloneDeep(currentItemInfo.value) 
+      const { checked, set_amount, set_amount_per } = data
+      
+      currentSingleItem.value.checked = checked
+      currentSingleItem.value.set_amount = set_amount
+      currentSingleItem.value.set_amount_per = set_amount_per
+
+      const amount = Number(data.amount || 0)
+      const use_amount = Number(data.use_amount || 0)
+      const total_amount = Number(tool.plus(set_amount, use_amount))
+      const excess_amount = Number(tool.minus(Number(total_amount), amount))
+
+      if (excess_amount > 0) {
+        data.excess_amount = excess_amount
+        currentSingleItem.value.excess_amount = excess_amount
+        currentItemInfo.value.excess_amount = excess_amount
+      } else {
+        data.excess_amount = 0
+        currentSingleItem.value.excess_amount = 0
+        currentItemInfo.value.excess_amount = 0
+      }
+
+      if (selectIdData.value.includes(data.id)) {
+        const obj = selectData.value.find(item => item.id === data.id)
+        if (obj) {
+          obj.set_amount = data.set_amount
+        }
+      } else {
+        selectData.value.push(data)
+      }
+
+      itemVisible.value = false
+
+      currentItemInfo.value = {}
+      currentSingleItem.value = {}
     }
 
     // 删除没有设置金额的数据
@@ -1093,7 +1214,8 @@
     const data = selectData.value.map(item => {
       return {
         build_id: item.id,
-        amount: item.set_amount
+        amount: item.set_amount,
+        excess_amount: item.excess_amount || 0
       }
     })
     const selectInfo = {
@@ -1191,8 +1313,8 @@
       use_amount: useTotalAmount,
       can_amount: num,
       set_amount: setTotalAmount,
-      set_amount_per: Number(tool.times(tool.div(setTotalAmount, num), 100)).toFixed(2),
-      can_amount_per: Number(tool.times(tool.div(Number(num), Number(totalAmount)), 100)).toFixed(2),
+      set_amount_per: Number(num) ? Number(tool.times(tool.div(setTotalAmount, Number(num)), 100)).toFixed(2) : 0,
+      can_amount_per: Number(totalAmount) ? Number(tool.times(tool.div(Number(num), Number(totalAmount)), 100)).toFixed(2) : 0,
       showError: false
     }
 
@@ -1211,6 +1333,7 @@
       for (const key in tableData.value[i]) {
         if (key.indexOf('-') > -1) {
           tableData.value[i][key].set_amount = ''
+          tableData.value[i][key].excess_amount = 0
           tableData.value[i][key].checked = false
         }
       }
@@ -1218,6 +1341,7 @@
 
     for (let i = 0; i < footerDataCol.value.length; i++) {
       footerDataCol.value[i].set_amount = ''
+      footerDataCol.value[i].excess_amount = 0
       footerDataCol.value[i].checked = false
     }
     selectData.value = []
@@ -1231,6 +1355,10 @@
       isRequests.value = false
     }
     uuid.value = query.uuid
+
+    if (props.excess) {
+      allowExcess.value = true
+    }
 
     if (uuid.value) {
       await getProjectData()
@@ -1422,6 +1550,9 @@
         right: 0;
         font-size: 11px;
         padding: 0 5px;
+        &.excess {
+          background-color: rgba(235, 75, 109, 0.8)
+        }
       }
 
       .selected-bg {
@@ -1525,6 +1656,9 @@
       left: 0;
       font-size: 11px;
       padding: 0 5px;
+      &.excess {
+        background-color: rgba(235, 75, 109, 0.8)
+      }
     }
     .selected-bg {
       position: absolute;
@@ -1588,6 +1722,26 @@
   .borrowr-amount {
     :deep(.ant-statistic-content) {
       color: rgb(49, 189, 101) !important;
+    }
+  }
+
+  .excess-number {
+    font-size: 12px;
+    &.exceed {
+      color: #eb4b6d;
+    }
+  }
+
+  :deep(.excess-icon) {
+    color: #eb4b6d;
+    position: absolute;
+    bottom: 15px;
+    right: 5px;
+    z-index: 2;
+    font-size: 18px;
+    cursor: pointer;
+    &:hover {
+      color: #e2274f;
     }
   }
 

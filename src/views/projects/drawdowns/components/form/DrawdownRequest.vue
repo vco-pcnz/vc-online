@@ -183,6 +183,11 @@ const submit = () => {
     ajax = loanDchange;
   }
 
+  // 删除超额数据
+  params.build__data.forEach(item => {
+    delete item.excess_amount
+  })
+
   loading.value = true;
 
   ajax(params)

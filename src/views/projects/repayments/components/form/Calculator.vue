@@ -40,7 +40,12 @@
                 </a-date-picker>
               </a-form-item>
             </a-col>
-            <a-col :span="12">
+            <a-col :span="6">
+              <a-form-item :label="t('包含预计数据')">
+                <a-switch v-model:checked="hasEstimated" class="mt-4" @change="standardInputChange" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="6">
               <a-form-item :label="t('到期日期')">
                 <div class="show-date">{{ tool.showDate(projectDetail?.date?.end_date) }}</div>
               </a-form-item>
@@ -173,6 +178,8 @@ const props = defineProps({
 
 const visible = ref(false);
 
+const hasEstimated = ref(false)
+
 const formRef = ref()
 const formState = ref({
   date: ''
@@ -217,7 +224,8 @@ const dateChange = (date, rate) => {
 
     const params = {
       uuid: props.uuid,
-      date: time
+      date: time,
+      do__est: hasEstimated.value ? 1 : 0
     }
 
     if (rate && !isNaN(Number(rate))) {
@@ -252,7 +260,8 @@ const refreshIrr = () => {
   const params = {
     uuid: props.uuid,
     date: dayjs(formState.value.date).format('YYYY-MM-DD'),
-    last_money: repaymentAmount.value
+    last_money: repaymentAmount.value,
+    do__est: hasEstimated.value ? 1 : 0
   }
   projectLoanCalcIrr(params).then(res => {
     irrPercent.value = Number(res.irr || 0)
@@ -284,8 +293,8 @@ const amountInput = () => {
 }
 
 // 防抖处理
-const standardInputChange = debounce((value) => {
-  const num = Number(value)
+const standardInputChange = debounce(() => {
+  const num = Number(standardRateInput.value) || 0
   if (num > Number(standardRate.value) || num === Number(standardRate.value)) {
     dateChange(dayjs(formState.value.date), num)
   }
@@ -324,7 +333,8 @@ const downloadStatement = () => {
     uuid: props.uuid,
     date: dayjs(formState.value.date).format('YYYY-MM-DD'),
     pdf: 1,
-    less: reductionAmount.value
+    less: reductionAmount.value,
+    do__est: hasEstimated.value ? 1 : 0
   }).then(res => {
     downloadLoading.value = false
     window.open(res);

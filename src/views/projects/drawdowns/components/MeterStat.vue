@@ -1,52 +1,56 @@
 <template>
   <a-spin :spinning="loading" size="large">
-  <div class="indicatorsGrid">
-    <div class="MeterStat MeterStat_type_charcoal">
-      <div class="MeterStat-Meter"></div>
-      <div>
-        <p>{{t('贷款提取')}}</p>
-        <vco-number :bold="true" :value="statistics?.loanWithdrawal" :precision="2" style="margin-bottom: 2px"></vco-number>
-        <p class="color_grey flex">
-          <vco-number :value="statistics?.available" :precision="2" size="fs_xs" color="#888" class="mr-2"></vco-number> {{t('可用余额')}}</p>
+    <div class="indicatorsGrid">
+      <div class="MeterStat MeterStat_type_charcoal">
+        <div class="MeterStat-Meter"></div>
+        <div>
+          <p>{{ t('贷款提取') }}</p>
+          <vco-number :bold="true" :value="statistics?.loanWithdrawal" :precision="2" style="margin-bottom: 2px"></vco-number>
+          <div v-if="statistics?.available >= 0" class="color_grey flex"><vco-number :value="statistics?.available" :precision="2" size="fs_xs" color="#888" class="mr-2"></vco-number> {{ t('可用余额') }}</div>
+          <div v-else class="color_red-error flex">
+            {{ t('已超额: {0}', [tool.formatMoney(Math.abs(statistics?.available))]) }}
+          </div>
+        </div>
+      </div>
+      <div class="MeterStat MeterStat_type_dotsBlack">
+        <div class="MeterStat-Dots">
+          <div class="MeterStat-Dot"></div>
+          <div class="MeterStat-Dot"></div>
+          <div class="MeterStat-Dot"></div>
+          <div class="MeterStat-Dot"></div>
+        </div>
+        <div>
+          <p class="color_grey" style="margin-bottom: 2px">{{ t('待提款') }}</p>
+          <vco-number :bold="true" :value="statistics?.pendingDrawdown" :precision="2"></vco-number>
+          <p style="opacity: 0">.</p>
+        </div>
+      </div>
+      <div class="chart">
+        <v-chart class="chart2" :option="option" autoresize />
+      </div>
+      <div class="MeterStat MeterStat_type_transparent text-right">
+        <div>
+          <p>{{ t('借款信息') }}</p>
+          <vco-number :bold="true" :value="statistics?.loan" :precision="2"></vco-number>
+          <p class="color_grey">{{ t('不包括利息和费用') }}</p>
+        </div>
+        <div class="MeterStat-Meter"></div>
       </div>
     </div>
-    <div class="MeterStat MeterStat_type_dotsBlack">
-      <div class="MeterStat-Dots">
-        <div class="MeterStat-Dot"></div>
-        <div class="MeterStat-Dot"></div>
-        <div class="MeterStat-Dot"></div>
-        <div class="MeterStat-Dot"></div>
-      </div>
-      <div>
-        <p class="color_grey" style="margin-bottom: 2px">{{t('待提款')}}</p>
-        <vco-number :bold="true" :value="statistics?.pendingDrawdown" :precision="2"></vco-number>
-        <p style="opacity: 0">.</p>
-      </div>
-    </div>
-    <div class="chart">
-      <v-chart class="chart2" :option="option" autoresize />
-    </div>
-    <div class="MeterStat MeterStat_type_transparent text-right">
-      <div>
-        <p>{{t('借款信息')}}</p>
-        <vco-number :bold="true" :value="statistics?.loan" :precision="2"></vco-number>
-        <p class="color_grey">{{t('不包括利息和费用')}}</p>
-      </div>
-      <div class="MeterStat-Meter"></div>
-    </div>
-  </div>
   </a-spin>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import tool from '@/utils/tool';
 import { loanDstatistics } from '@/api/project/loan';
 
 const { t } = useI18n();
 
+const emits = defineEmits(['update:statisticsData']);
 const props = defineProps(['uuid']);
-const loading = ref(false)
+const loading = ref(false);
 // 初始化图表
 const option = ref({
   autoFit: false,
@@ -58,7 +62,7 @@ const option = ref({
       type: 'pie',
       center: ['50%', '50%'],
       radius: '100%',
-      color: ['#181818','#f3ede5'],
+      color: ['#181818', '#f3ede5'],
       label: {
         show: false
       },
@@ -85,17 +89,20 @@ const option = ref({
 const statistics = ref();
 
 const loadData = () => {
-  loading.value = true
-  loanDstatistics({ uuid: props.uuid }).then((res) => {
-    statistics.value = res;
-    option.value.series[0].data = [{ value: statistics.value.loanWithdrawal }, { value: statistics.value.available }]
-  }).finally(_ => {
-    loading.value = false
-  });
-}
+  loading.value = true;
+  loanDstatistics({ uuid: props.uuid })
+    .then((res) => {
+      statistics.value = res;
+      option.value.series[0].data = [{ value: statistics.value.loanWithdrawal }, { value: statistics.value.available }];
+      emits('update:statisticsData', statistics.value);
+    })
+    .finally((_) => {
+      loading.value = false;
+    });
+};
 
 onMounted(() => {
-  loadData()
+  loadData();
 });
 
 // 暴露方法给父组件

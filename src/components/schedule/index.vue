@@ -27,6 +27,25 @@
       <a-modal :open="adVisible" :title="t('账户详情')" :width="500" :footer="null" :keyboard="false" :maskClosable="false" @cancel="adVisible = false">
         <div class="sys-form-content mt-5">
           <a-form ref="adFormRef" layout="vertical" :model="adFormState" :rules="adFormRules">
+            <a-form-item :label="t('项目周期')">
+              <div class="flex items-center gap-2">
+                <p>{{ tool.showDate(statisticsData.day.sday) }}</p>
+                ～
+                <p>{{ tool.showDate(statisticsData.day.eday) }}</p>
+              </div>
+            </a-form-item>
+            <a-form-item :label="t('快捷选择')">
+              <a-select v-model:value="quickDate" style="width: 100%" @change="quickDateChange">
+                <a-select-option v-for="item in quickDateData" :key="item.value" :value="item.value">
+                  <p>{{ item.label }}</p>
+                  <div class="flex items-center gap-2 text-gray-500 mt-0.5">
+                    <p>{{ tool.showDate(item.startDate) }}</p>
+                    ～
+                    <p>{{ tool.showDate(item.endDate) }}</p>
+                  </div>
+                </a-select-option>
+              </a-select>
+            </a-form-item>
             <a-form-item :label="t('开始日期2')" name="s_date">
               <a-date-picker
                 v-model:value="adFormState.s_date"
@@ -795,6 +814,86 @@ const showReconciliationModal = async (val) => {
   await nextTick(); // Wait for DOM and reactivity updates
   reconciliationModalRef.value.init();
 };
+
+const quickDate = ref('');
+const quickDateData = ref([
+  {
+    label: t('本月'),
+    value: 'month'
+  },
+  {
+    label: t('本季度'),
+    value: 'quarter'
+  },
+  {
+    label: t('本财政年度'),
+    value: 'year'
+  },
+  {
+    label: t('上月'),
+    value: 'lastMonth'
+  },
+  {
+    label: t('上季度'),
+    value: 'lastQuarter'
+  },
+  {
+    label: t('上财政年度'),
+    value: 'lastYear'
+  }
+])
+
+quickDateData.value.forEach(item => {
+  if (item.value === 'month') {
+    // 获取本月开始日期和当前日期
+    const monthRange = tool.getMonthRange();
+    item.startDate = monthRange.start;
+    item.endDate = monthRange.currentDate;
+  } else if (item.value === 'quarter') {
+    const quarterRange = tool.getQuarterRange();
+    item.startDate = quarterRange.start;
+    item.endDate = quarterRange.currentDate;
+  } else if (item.value === 'year') {
+    const yearRange = tool.getYearRange();
+    item.startDate = yearRange.start;
+    item.endDate = yearRange.currentDate;
+  } else if (item.value === 'lastMonth') {
+    const lastMonthRange = tool.getLastMonthRange();
+    item.startDate = lastMonthRange.start;
+    item.endDate = lastMonthRange.end;
+  } else if (item.value === 'lastQuarter') {
+    const lastQuarterRange = tool.getLastQuarter();
+    item.startDate = lastQuarterRange.start;
+    item.endDate = lastQuarterRange.end;
+  } else if (item.value === 'lastYear') {
+    const lastYearRange = tool.getLastYearRange();
+    item.startDate = lastYearRange.start;
+    item.endDate = lastYearRange.end;
+  }
+})
+
+const quickDateChange = (value) => {
+  const item = quickDateData.value.find(item => item.value === value);
+  const { startDate, endDate } = item;
+
+  let selectSdate = startDate;
+  let selectEdate = endDate;
+
+  // 如果startDate 在 statisticsData.value.day.sday 之前，则 selectSdate 为statisticsData.value.day.sday 否则为startDate
+  if (dayjs(startDate).isBefore(dayjs(statisticsData.value.day.sday), 'day')) {
+    selectSdate = statisticsData.value.day.sday;
+  }
+
+  // 如果endDate 在 statisticsData.value.day.eday 之后，则 selectEdate 为statisticsData.value.day.eday 否则为endDate, 如果在 statisticsData.value.day.sday 之前则为今天
+  if (dayjs(endDate).isAfter(dayjs(statisticsData.value.day.eday), 'day')) {
+    selectEdate = statisticsData.value.day.eday;
+  } else if (dayjs(endDate).isBefore(dayjs(statisticsData.value.day.sday), 'day')) {
+    selectEdate = dayjs().format('YYYY-MM-DD'); // 今天
+  }
+
+  adFormState.s_date = dayjs(selectSdate);
+  adFormState.date = dayjs(selectEdate);
+}
 
 watch(
   () => visible.value,

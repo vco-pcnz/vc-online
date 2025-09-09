@@ -6,12 +6,12 @@
           <TableSearch @search="search"></TableSearch>
           <a-button type="dark" :loading="downloading" class="" @click="report">Create report</a-button>
         </div>
-        <a-table :data-source="dataSource" :columns="columns" :pagination="false" :scroll="{ x: '100%' }">
+        <a-table :data-source="dataSource" :columns="columns" :pagination="false" :scroll="{ x: '1500px' }">
           <template #bodyCell="{ column, record }">
             <template v-if="column.dataIndex === 'lm_list'">
               <div class="flex items-center gap-3" v-for="(item, index) in record?.lm_list" :key="index">
-                <vco-avatar :src="item.avatar" :size="30"></vco-avatar>
-                <p :title="item.name">LM</p>
+                <vco-avatar :src="item.avatar" :size="30" style="flex: 0 0 30px"></vco-avatar>
+                <p :title="item.name">{{ item.name }}</p>
               </div>
             </template>
             <template v-if="column.dataIndex === 'project'">
@@ -39,6 +39,14 @@
             <template v-if="column.dataIndex === 'total'">
               <p><span class="label">VCO</span>: {{ record?.vco_transaction_count }}</p>
               <p><span class="label">Xero</span>: {{ record?.xero_bill_count }}</p>
+            </template>
+            <template v-if="column.dataIndex === 'Last_synced'">
+              <p v-if="record?.last_synced">{{ tool.showTime(record?.last_synced) }}</p>
+              <p v-else>--</p>
+            </template>
+            <template v-if="column.dataIndex === 'Last_transaction'">
+              <p v-if="record?.last_transaction">{{ tool.showTime(record?.last_transaction) }}</p>
+              <p v-else>--</p>
             </template>
 
             <template v-if="column.dataIndex === 'netting_amount'">
@@ -106,9 +114,21 @@ const columns = reactive([
     width: '150px'
   },
   {
+    title: t('上次同步'),
+    dataIndex: 'Last_synced',
+    width: '170px'
+  },
+  {
+    title: t('上次交易'),
+    dataIndex: 'Last_transaction',
+    width: '170px'
+  },
+  {
     title: t('操作1'),
     dataIndex: 'Operation',
-    width: '80px'
+    fixed: 'right',
+    align: 'center',
+    width: '60px'
   }
 ]);
 

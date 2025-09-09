@@ -5,7 +5,7 @@
       <div class="menu_content">
         <router-link v-for="link in menuData" :key="link.path" :to="link.path" class="link" :class="{ link_active: isActive(link.path) }">
           <a-badge v-if="link.path === '/tasks'" :count="taskInfo.total">
-            <p class="router-name">{{ t(link.title) }}</p>
+            <p class="router-name" @click="handleClick(link.path)">{{ t(link.title) }}</p>
           </a-badge>
 
           <a-dropdown v-else-if="link.path === '/dashboard'">
@@ -24,7 +24,7 @@
               </a-menu>
             </template>
           </a-dropdown>
-          <p class="router-name" v-else>{{ t(link.title) }}</p>
+          <p class="router-name" v-else @click="handleClick(link.path)">{{ t(link.title) }}</p>
         </router-link>
       </div>
 
@@ -183,6 +183,14 @@ const toLoans = (val) => {
 const toProfile = (val) => {
   let mode = pageRole.value ? '/' + pageRole.value.toLowerCase() : '';
   navigationTo(mode + val);
+};
+
+const handleClick = (path) => {
+  if ((route.path === '/tasks' && path === '/tasks') || (route.path === '/loanRequests/drawdown' && path === '/loanRequests')) {
+    window.location.reload();
+  } else {
+    navigationTo(path);
+  }
 };
 
 // 组件挂载时启动定时器

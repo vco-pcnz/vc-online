@@ -3,38 +3,34 @@
     <template #content>
       <div class="ProjectDrawdowns">
         <div class="flex justify-end mb-5 gap-4">
-          <a-button
-            v-if="showProcessEdit"
-            type="brown" shape="round" class="pre-sale-enter"
-            @click="navigationTo(`/projects/progress-payment/edit?uuid=${uuid}`)"
-          >
+          <a-button v-if="showProcessEdit" type="brown" shape="round" class="pre-sale-enter" @click="navigationTo(`/projects/progress-payment/edit?uuid=${uuid}`)">
             {{ t('编辑进度付款') }}
-            <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px'  }" />
+            <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px' }" />
           </a-button>
-          <a-button
-            v-if="showProcessView"
-            type="brown" shape="round" class="pre-sale-enter"
-            @click="navigationTo(`/projects/progress-payment/view?uuid=${uuid}`)"
-          >
+          <a-button v-if="showProcessView" type="brown" shape="round" class="pre-sale-enter" @click="navigationTo(`/projects/progress-payment/view?uuid=${uuid}`)">
             {{ t('查看进度付款') }}
-            <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px'  }" />
+            <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px' }" />
           </a-button>
         </div>
 
         <div :class="{ grid: hasPermission('projects:drawdowns:add') || (hasPermission('projects:drawdowns:add:lm') && projectDetail && !projectDetail?.base?.is_close) }" class="mb-12">
-          <MeterStat :uuid="uuid" v-if="Boolean(uuid)" ref="MeterStatRef"></MeterStat>
+          <MeterStat :uuid="uuid" v-if="Boolean(uuid)" v-model:statistics-data="statisticsData" ref="MeterStatRef"></MeterStat>
           <template v-if="projectDetail && !projectDetail?.base?.is_close">
             <div class="HelpBorrower" v-if="hasPermission('projects:drawdowns:add:lm')">
-              <div class="flex items-center"><i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">{{t('帮助借款人')}}</span></div>
-              <p class="color_grey mt-1 mb-3">{{t('您可以帮助他们创建提款。')}}</p>
-              <drawdownre-quest :uuid="uuid" :projectDetail="projectDetail" @change="update(true)">
+              <div class="flex items-center">
+                <i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">{{ t('帮助借款人') }}</span>
+              </div>
+              <p class="color_grey mt-1 mb-3">{{ t('您可以帮助他们创建提款。') }}</p>
+              <drawdownre-quest :uuid="uuid" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update(true)">
                 <a-button type="brown" shape="round" size="small">{{ t('创建放款') }}</a-button>
               </drawdownre-quest>
             </div>
             <div class="HelpBorrower" v-else-if="hasPermission('projects:drawdowns:add')">
-              <div class="flex items-center"><i class="iconfont mr-2">&#xe755;</i><span class="weight_demiBold">{{ t('放款申请') }}</span></div>
+              <div class="flex items-center">
+                <i class="iconfont mr-2">&#xe755;</i><span class="weight_demiBold">{{ t('放款申请') }}</span>
+              </div>
               <p class="color_grey mt-1 mb-3">{{ t('点击下方按钮创建放款申请') }}</p>
-              <drawdownre-quest :uuid="uuid" :projectDetail="projectDetail" @change="update(true)">
+              <drawdownre-quest :uuid="uuid" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update(true)">
                 <a-button type="brown" shape="round" size="small">{{ t('创建放款') }}</a-button>
               </drawdownre-quest>
             </div>
@@ -50,7 +46,7 @@
             </div>
           </a-spin>
           <div>
-            <Detail ref="detailRef" :projectDetail="projectDetail" :uuid="uuid" :detail="detail_info" v-if="Boolean(uuid && detail_info && detail_info.id)" @update="update(false)"></Detail>
+            <Detail ref="detailRef" :projectDetail="projectDetail" :uuid="uuid" :detail="detail_info" :statisticsData="statisticsData" v-if="Boolean(uuid && detail_info && detail_info.id)" @update="update(false)"></Detail>
           </div>
         </div>
       </div>
@@ -72,15 +68,15 @@ import { hasPermission } from '@/directives/permission/index';
 import { loanDrawdown } from '@/api/project/loan';
 import { useRoute } from 'vue-router';
 import { useUserStore } from '@/store';
-import { navigationTo } from '@/utils/tool'
+import { navigationTo } from '@/utils/tool';
 
 const route = useRoute();
 
 const { t } = useI18n();
 const userStore = useUserStore();
 
-const showProcessEdit = computed(() => userStore.hasRouteInfo('/projects/progress-payment/edit'))
-const showProcessView = computed(() => userStore.hasRouteInfo('/projects/progress-payment/view'))
+const showProcessEdit = computed(() => userStore.hasRouteInfo('/projects/progress-payment/edit'));
+const showProcessView = computed(() => userStore.hasRouteInfo('/projects/progress-payment/view'));
 
 const uuid = ref('');
 const detail_info = ref(null);
@@ -88,6 +84,7 @@ const total = ref(0);
 const loading = ref(true);
 const detailRef = ref();
 const MeterStatRef = ref();
+const statisticsData = ref(null);
 const pagination = ref({
   page: 1,
   limit: 5
@@ -101,17 +98,17 @@ const setPaginate = (page, limit) => {
   loadData();
 };
 
-const detailLayoutRef = ref(null)
+const detailLayoutRef = ref(null);
 
 const update = (val) => {
-  userStore.getTaskNumInfo()
+  userStore.getTaskNumInfo();
   if (val) {
     pagination.value.page = 1;
   }
   loadData();
   detailRef.value.loadData();
   MeterStatRef.value.loadData();
-  detailLayoutRef.value.getProjectDetail()
+  detailLayoutRef.value.getProjectDetail();
 };
 
 const tableData = ref([]);

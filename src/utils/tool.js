@@ -647,4 +647,137 @@ export const isArrayEqual = (arr1, arr2) => {
   return true;
 };
 
+// 通过dayjs获取季度开始时间和结束日期，默认为本季度， 可以传参数获取具体季度的开始、结束日期
+tool.getQuarterRange = (year, quarter) => {
+  // 如果没有传参数，使用当前时间
+  const now = dayjs();
+  const targetYear = year || now.year();
+  const targetQuarter = quarter || Math.ceil((now.month() + 1) / 3);
+
+  // 确保quarter在1-4的范围内
+  const validQuarter = Math.max(1, Math.min(4, targetQuarter));
+  
+  // 计算季度开始月份（1季度=1月，2季度=4月，3季度=7月，4季度=10月）
+  const startMonth = (validQuarter - 1) * 3 + 1;
+  
+  // 季度开始日期（每季度第一天）
+  const startDate = dayjs().year(targetYear).month(startMonth - 1).date(1).startOf('day');
+  
+  // 季度结束日期（下季度第一天的前一天）
+  const endDate = startDate.add(3, 'month').subtract(1, 'day').endOf('day');
+  
+  return {
+    start: startDate.format('YYYY-MM-DD'),
+    end: endDate.format('YYYY-MM-DD'),
+    startTime: startDate.format('YYYY-MM-DD HH:mm:ss'),
+    endTime: endDate.format('YYYY-MM-DD HH:mm:ss'),
+    quarter: validQuarter,
+    year: targetYear,
+    // 季度名称
+    quarterName: `Q${validQuarter} ${targetYear}`,
+    // 月份范围
+    months: [startMonth, startMonth + 1, startMonth + 2],
+    // 当前日期
+    currentDate: now.format('YYYY-MM-DD')
+  };
+};
+
+// 获取上一季度
+tool.getLastQuarter = () => {
+  const now = dayjs();
+  const currentQuarter = Math.ceil((now.month() + 1) / 3);
+  
+  if (currentQuarter === 1) {
+    // 如果当前是第1季度，上一季度是去年第4季度
+    return tool.getQuarterRange(now.year() - 1, 4);
+  } else {
+    // 否则是当年的上一季度
+    return tool.getQuarterRange(now.year(), currentQuarter - 1);
+  }
+};
+
+// 获取下一季度
+tool.getNextQuarter = () => {
+  const now = dayjs();
+  const currentQuarter = Math.ceil((now.month() + 1) / 3);
+  
+  if (currentQuarter === 4) {
+    // 如果当前是第4季度，下一季度是明年第1季度
+    return tool.getQuarterRange(now.year() + 1, 1);
+  } else {
+    // 否则是当年的下一季度
+    return tool.getQuarterRange(now.year(), currentQuarter + 1);
+  }
+};
+
+// 获取本月开始日期到月末日期
+tool.getMonthRange = () => {
+  const now = dayjs();
+  const start = now.startOf('month');
+  const end = now.endOf('month'); // 结束日期为月末
+  return { 
+    start: start.format('YYYY-MM-DD'),
+    end: end.format('YYYY-MM-DD'),
+    currentDate: now.format('YYYY-MM-DD') // 当前日期
+  };
+};
+
+// 获取上个月开始日期和结束日期
+tool.getLastMonthRange = () => {
+  const now = dayjs();
+  const lastMonth = now.subtract(1, 'month');
+  
+  const start = lastMonth.startOf('month');
+  const end = lastMonth.endOf('month');
+  
+  return {
+    start: start.format('YYYY-MM-DD'),
+    end: end.format('YYYY-MM-DD'),
+    startTime: start.format('YYYY-MM-DD HH:mm:ss'),
+    endTime: end.format('YYYY-MM-DD HH:mm:ss'),
+    month: lastMonth.month() + 1, // dayjs的月份是0-11，需要+1
+    year: lastMonth.year(),
+    monthName: lastMonth.format('YYYY年MM月'),
+    currentDate: now.format('YYYY-MM-DD')
+  };
+};
+
+// 获取上年度开始日期和结束日期
+tool.getLastYearRange = () => {
+  const now = dayjs();
+  const lastYear = now.subtract(1, 'year');
+  
+  const start = lastYear.startOf('year');
+  const end = lastYear.endOf('year');
+  
+  return {
+    start: start.format('YYYY-MM-DD'),
+    end: end.format('YYYY-MM-DD'),
+    startTime: start.format('YYYY-MM-DD HH:mm:ss'),
+    endTime: end.format('YYYY-MM-DD HH:mm:ss'),
+    year: lastYear.year(),
+    yearName: `${lastYear.year()}年`,
+    currentDate: now.format('YYYY-MM-DD')
+  };
+};
+
+// 获取本年度开始日期和结束日期
+tool.getYearRange = (year) => {
+  const now = dayjs();
+  const targetYear = year || now.year();
+  
+  const start = dayjs().year(targetYear).startOf('year');
+  const end = dayjs().year(targetYear).endOf('year');
+  
+  return {
+    start: start.format('YYYY-MM-DD'),
+    end: end.format('YYYY-MM-DD'),
+    startTime: start.format('YYYY-MM-DD HH:mm:ss'),
+    endTime: end.format('YYYY-MM-DD HH:mm:ss'),
+    year: targetYear,
+    yearName: `${targetYear}年`,
+    currentDate: now.format('YYYY-MM-DD')
+  };
+};
+
 export default tool;

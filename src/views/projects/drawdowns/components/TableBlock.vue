@@ -11,7 +11,7 @@
     </ul>
     <div v-if="tableData.length" class="table-body">
       <template v-for="(item, index) in tableData" :key="item.id">
-        <ul class="table-col tr" :class="{ active: active_id == item.id, declined: item.status_name === 'DECLINED DRAWDOWN', 'all-overdue': isOverdue(item) }" @click="viewDetail(item)">
+        <ul class="table-col tr" :class="{ active: active_id == item.id, declined: item.status_name === 'DECLINED DRAWDOWN', 'all-overdue': isOverdue(item), exceeded: Number(item?.over_money) > 0 }" @click="viewDetail(item)">
           <li><div class="circle" :class="{ solid: item.status == 2 }"></div></li>
           <li>
             <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.name" style="width: 200px">
@@ -169,7 +169,9 @@ watch(
         border-bottom: 1px solid #e2e5e2;
       }
     }
-
+    &.exceeded {
+      background-color: rgba(255, 77, 79, 0.2);
+    }
     &.declined {
       opacity: 0.5;
     }

@@ -95,10 +95,14 @@
           <div v-if="tableHeader.length && !pageLoading" class="form-block-content" :class="{'mt-10': isSelect}">
             <div class="flex items-center justify-between">
               <div v-if="!isSelect" class="title">{{ t('进度付款阶段') }}</div>
-              <div v-else class="flex items-center gap-2">
-                <p>{{ t('是否允许超额放款') }}</p>
-                <a-switch v-model:checked="allowExcess" />
-              </div>
+              <template v-else>
+                <div v-if="showExcess" class="flex items-center gap-2">
+                  <p>{{ t('是否允许超额放款') }}</p>
+                  <a-switch v-model:checked="allowExcess" />
+                </div>
+                <p v-else></p>
+              </template>
+              
               <div v-if="isSelect" class="mt-2 mb-2 flex justify-end gap-4">
                 <a-button v-if="selectDataHasNum" type="cyan" class="bold uppercase" @click="selectCancelAll">{{ t('取消所有设置') }}</a-button>
                 <a-button type="primary" class="bold uppercase" @click="batchSelectHandle">{{ batchSelect ? t('取消批量模式') : t('批量选择') }}</a-button>
@@ -425,6 +429,10 @@
       default: () => []
     },
     isPage: {
+      type: Boolean,
+      default: false
+    },
+    showExcess: {
       type: Boolean,
       default: false
     },
@@ -1212,11 +1220,14 @@
 
   const selectConfirm = () => {
     const data = selectData.value.map(item => {
-      return {
+      const obj = {
         build_id: item.id,
-        amount: item.set_amount,
-        excess_amount: item.excess_amount || 0
+        amount: item.set_amount
       }
+      if (Number(item.excess_amount)) {
+        obj.excess_amount = item.excess_amount
+      }
+      return obj
     })
     const selectInfo = {
       build__data: data,

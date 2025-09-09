@@ -68,6 +68,7 @@
       </div>
     </a-modal>
   </div>
+  <vco-confirm-alert v-model:visible="visibleTip" :confirmTxt="confirmTxt" @submit="submit"></vco-confirm-alert>
 </template>
 
 <script scoped setup>
@@ -97,6 +98,9 @@ const props = defineProps({
   },
   detail: {
     type: Object
+  },
+  statisticsData: {
+    type: Object
   }
 });
 
@@ -104,6 +108,8 @@ const visible = ref(false);
 const loading = ref(false);
 const validate = ref(false);
 const formModal2 = ref([]);
+const visibleTip = ref(false);
+const confirmTxt = ref('');
 const formModal3 = ref([]);
 
 const formState = ref({
@@ -151,7 +157,7 @@ const disabledDateFormat = (current) => {
   return false;
 };
 
-const save = () => {
+const save = (tip) => {
   validate.value = true;
   formState.value.uuid = props.uuid;
   formState.value.d_file = formModal2.value.filter((item) => {
@@ -167,6 +173,23 @@ const save = () => {
     amount = formState.value.vip_amount || 0;
   }
   if (!formState.value.name || !formState.value.note || !formState.value.d_file.length || !formState.value.apply_date || amount == 0) return;
+
+  let excess_amount = 0;
+  if (formState.value.build__data && formState.value.build__data.length) {
+    formState.value.build__data.map((item) => {
+      excess_amount = tool.plus(excess_amount, item.excess_amount || 0);
+    });
+  }
+
+  if (Number(amount) > Number(props.statisticsData?.available)) {
+    visibleTip.value = true;
+    confirmTxt.value = t('放款金额 {0},可用金额 {1},超出金额 {2} 是否继续放款?', [tool.formatMoney(amount), tool.formatMoney(props.statisticsData?.available), tool.formatMoney(tool.minus(amount, props.statisticsData?.available))]);
+    return;
+  } else if (excess_amount > 0) {
+    visibleTip.value = true;
+    confirmTxt.value = t('进度放款中超出金额 {0} 是否继续放款?', [tool.formatMoney(excess_amount)]);
+    return;
+  }
   submit();
 };
 
@@ -184,9 +207,9 @@ const submit = () => {
   }
 
   // 删除超额数据
-  params.build__data.forEach(item => {
-    delete item.excess_amount
-  })
+  // params.build__data.forEach((item) => {
+  //   delete item.excess_amount;
+  // });
 
   loading.value = true;
 
@@ -199,6 +222,7 @@ const submit = () => {
     })
     .finally((_) => {
       loading.value = false;
+      visibleTip.value = false;
     });
 };
 

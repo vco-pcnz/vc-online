@@ -722,4 +722,62 @@ tool.getMonthRange = () => {
   };
 };
 
+// 获取上个月开始日期和结束日期
+tool.getLastMonthRange = () => {
+  const now = dayjs();
+  const lastMonth = now.subtract(1, 'month');
+  
+  const start = lastMonth.startOf('month');
+  const end = lastMonth.endOf('month');
+  
+  return {
+    start: start.format('YYYY-MM-DD'),
+    end: end.format('YYYY-MM-DD'),
+    startTime: start.format('YYYY-MM-DD HH:mm:ss'),
+    endTime: end.format('YYYY-MM-DD HH:mm:ss'),
+    month: lastMonth.month() + 1, // dayjs的月份是0-11，需要+1
+    year: lastMonth.year(),
+    monthName: lastMonth.format('YYYY年MM月'),
+    currentDate: now.format('YYYY-MM-DD')
+  };
+};
+
+// 获取上年度开始日期和结束日期
+tool.getLastYearRange = () => {
+  const now = dayjs();
+  const lastYear = now.subtract(1, 'year');
+  
+  const start = lastYear.startOf('year');
+  const end = lastYear.endOf('year');
+  
+  return {
+    start: start.format('YYYY-MM-DD'),
+    end: end.format('YYYY-MM-DD'),
+    startTime: start.format('YYYY-MM-DD HH:mm:ss'),
+    endTime: end.format('YYYY-MM-DD HH:mm:ss'),
+    year: lastYear.year(),
+    yearName: `${lastYear.year()}年`,
+    currentDate: now.format('YYYY-MM-DD')
+  };
+};
+
+// 获取本年度开始日期和结束日期
+tool.getYearRange = (year) => {
+  const now = dayjs();
+  const targetYear = year || now.year();
+  
+  const start = dayjs().year(targetYear).startOf('year');
+  const end = dayjs().year(targetYear).endOf('year');
+  
+  return {
+    start: start.format('YYYY-MM-DD'),
+    end: end.format('YYYY-MM-DD'),
+    startTime: start.format('YYYY-MM-DD HH:mm:ss'),
+    endTime: end.format('YYYY-MM-DD HH:mm:ss'),
+    year: targetYear,
+    yearName: `${targetYear}年`,
+    currentDate: now.format('YYYY-MM-DD')
+  };
+};
+
 export default tool;

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-end mb-5">
+  <div class="flex justify-end mb-5" style="padding-right: 30px;">
     <a-tooltip placement="top">
       <template #title>
         <div class="flex items-center">

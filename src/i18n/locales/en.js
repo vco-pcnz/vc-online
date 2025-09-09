@@ -1163,6 +1163,6 @@ export default {
   "上月": "Last month",
   "上季度": "Last quarter",
   "上财政年度": "Last financial year",
-  "放款对账情况": "Drawdown reconciliation",
-  "还款对账情况": "Repayment reconciliation"
+  "放款对账情况": "Drawdown synced",
+  "还款对账情况": "Repayment synced"
 }

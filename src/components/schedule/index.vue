@@ -35,10 +35,10 @@
               </div>
             </a-form-item>
             <a-form-item :label="t('快捷选择')">
-              <a-select v-model:value="quickDate" style="width: 100%">
+              <a-select v-model:value="quickDate" style="width: 100%" @change="quickDateChange">
                 <a-select-option v-for="item in quickDateData" :key="item.value" :value="item.value">
                   <p>{{ item.label }}</p>
-                  <div class="flex items-center gap-2 text-gray-500">
+                  <div class="flex items-center gap-2 text-gray-500 mt-0.5">
                     <p>{{ tool.showDate(item.startDate) }}</p>
                     ～
                     <p>{{ tool.showDate(item.endDate) }}</p>
@@ -51,6 +51,7 @@
                 v-model:value="adFormState.s_date"
                 :format="selectDateFormat()"
                 :disabledDate="adDisabledSdateFormat"
+                @change="quickDate = ''"
               />
             </a-form-item>
             <a-form-item :label="t('结束日期2')" name="date">
@@ -58,6 +59,7 @@
                 v-model:value="adFormState.date"
                 :format="selectDateFormat()"
                 :disabledDate="adDisabledDateFormat"
+                @change="quickDate = ''"
               />
             </a-form-item>
           </a-form>
@@ -469,7 +471,7 @@ const getDataInfo = (isLate = false) => {
             } else if (item.type === 4) {
               item.repayment = tool.formatMoney(item.amount);
               if (item.first === 1) {
-                item.name = `${item.name}(${t('全额还款')})`;
+                item.name = `${item.name} (${t('全额还款')})`;
               }
             } else {
               if (item.is_fee) {
@@ -853,8 +855,47 @@ quickDateData.value.forEach(item => {
     const quarterRange = tool.getQuarterRange();
     item.startDate = quarterRange.start;
     item.endDate = quarterRange.currentDate;
+  } else if (item.value === 'year') {
+    const yearRange = tool.getYearRange();
+    item.startDate = yearRange.start;
+    item.endDate = yearRange.currentDate;
+  } else if (item.value === 'lastMonth') {
+    const lastMonthRange = tool.getLastMonthRange();
+    item.startDate = lastMonthRange.start;
+    item.endDate = lastMonthRange.end;
+  } else if (item.value === 'lastQuarter') {
+    const lastQuarterRange = tool.getLastQuarter();
+    item.startDate = lastQuarterRange.start;
+    item.endDate = lastQuarterRange.end;
+  } else if (item.value === 'lastYear') {
+    const lastYearRange = tool.getLastYearRange();
+    item.startDate = lastYearRange.start;
+    item.endDate = lastYearRange.end;
   }
 })
+
+const quickDateChange = (value) => {
+  const item = quickDateData.value.find(item => item.value === value);
+  const { startDate, endDate } = item;
+
+  let selectSdate = startDate;
+  let selectEdate = endDate;
+
+  // 如果startDate 在 statisticsData.value.day.sday 之前，则 selectSdate 为statisticsData.value.day.sday 否则为startDate
+  if (dayjs(startDate).isBefore(dayjs(statisticsData.value.day.sday), 'day')) {
+    selectSdate = statisticsData.value.day.sday;
+  }
+
+  // 如果endDate 在 statisticsData.value.day.eday 之后，则 selectEdate 为statisticsData.value.day.eday 否则为endDate，如果在statisticsData.value.day.sday 之前则为statisticsData.value.day.sday
+  if (dayjs(endDate).isAfter(dayjs(statisticsData.value.day.eday), 'day')) {
+    selectEdate = statisticsData.value.day.eday;
+  } else if (dayjs(endDate).isBefore(dayjs(statisticsData.value.day.sday), 'day')) {
+    selectEdate = statisticsData.value.day.sday
+  }
+
+  adFormState.s_date = dayjs(selectSdate);
+  adFormState.date = dayjs(selectEdate);
+}
 
 watch(
   () => visible.value,
@@ -994,7 +1035,6 @@ onMounted(() => {
       }
       &:nth-child(3) {
         width: 180px;
-        word-break: break-all;
       }
       &:nth-child(4) {
         width: 220px;

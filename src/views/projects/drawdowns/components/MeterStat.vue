@@ -7,7 +7,9 @@
           <p>{{ t('贷款提取') }}</p>
           <vco-number :bold="true" :value="statistics?.loanWithdrawal" :precision="2" style="margin-bottom: 2px"></vco-number>
           <div v-if="statistics?.available >= 0" class="color_grey flex"><vco-number :value="statistics?.available" :precision="2" size="fs_xs" color="#888" class="mr-2"></vco-number> {{ t('可用余额') }}</div>
-          <div v-else class="color_red-error flex"><vco-number :value="statistics?.available" :precision="2" size="fs_xs" color="#c1430c" class="mr-2"></vco-number> {{ t('可用余额') }}</div>
+          <div v-else class="color_red-error flex">
+            {{ t('已超额: {0}', [tool.formatMoney(Math.abs(statistics?.available))]) }}
+          </div>
         </div>
       </div>
       <div class="MeterStat MeterStat_type_dotsBlack">
@@ -41,6 +43,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import tool from '@/utils/tool';
 import { loanDstatistics } from '@/api/project/loan';
 
 const { t } = useI18n();

@@ -1153,5 +1153,7 @@ export default {
   "包含预计数据": "Include estimated data",
   "上次同步": "Last Synced",
   "上次交易": "Last Transaction",
-  "进度放款超额: {0}": "Progress drawdown exceeded amount: {0}"
+  "进度放款超额: {0}": "Progress drawdown exceeded amount: {0}",
+  "开始日期2": "Start date",
+  "结束日期2": "End date"
 }

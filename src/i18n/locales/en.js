@@ -1150,5 +1150,8 @@ export default {
   "是否允许超额放款": "Allow excess drawdown",
   "放款金额不能小于{0}": "Drawdown amount cannot be less than {0}",
   "已超额: {0}": "Exceeded: {0}",
-  "包含预计数据": "Include estimated data"
+  "包含预计数据": "Include estimated data",
+  "上次同步": "Last Synced",
+  "上次交易": "Last Transaction",
+  "进度放款超额: {0}": "Progress drawdown exceeded amount: {0}"
 }

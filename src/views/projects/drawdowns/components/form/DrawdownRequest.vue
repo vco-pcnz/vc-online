@@ -207,9 +207,9 @@ const submit = () => {
   }
 
   // 删除超额数据
-  params.build__data.forEach((item) => {
-    delete item.excess_amount;
-  });
+  // params.build__data.forEach((item) => {
+  //   delete item.excess_amount;
+  // });
 
   loading.value = true;
 

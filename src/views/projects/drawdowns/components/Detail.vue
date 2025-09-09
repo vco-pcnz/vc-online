@@ -30,11 +30,20 @@
           <vco-number :value="detail?.amount" :precision="2" :bold="true" size="fs_2xl"></vco-number>
           <span class="unit">nzd</span>
           <!-- <DrawdownAmount :uuid="uuid" :detail="detail" :projectDetail="projectDetail" @change="update" v-if="detail?.mark === 'drawdown_lm' && hasPermission('projects:drawdowns:edit')"><i class="iconfont edit">&#xe8cf;</i></DrawdownAmount> -->
-          <DrawdownRequest :uuid="uuid" :detail="detail" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update" v-if="detail?.mark === 'drawdown_lm' && hasPermission('projects:drawdowns:edit')"><i class="iconfont edit">&#xe8cf;</i></DrawdownRequest>
+          <DrawdownRequest :uuid="uuid" :detail="detail" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update" v-if="detail?.mark === 'drawdown_lm' && hasPermission('projects:drawdowns:edit')"
+            ><i class="iconfont edit">&#xe8cf;</i></DrawdownRequest
+          >
 
           <DrawdownAmount v-else-if="!hasPermission('projects:drawdowns:add')" :uuid="uuid" :detail="detail" :projectDetail="projectDetail" :isEdit="false" @change="update"><i class="iconfont edit">&#xe776;</i></DrawdownAmount>
+          <a-tooltip v-if="Number(detail?.excess_amount) > 0" placement="top">
+            <template #title>
+              <span>{{ t('进度放款超额: {0}', [tool.formatMoney(Math.abs(detail?.excess_amount))]) }}</span>
+            </template>
+            <i class="iconfont excess-icon">&#xe750;</i>
+          </a-tooltip>
         </div>
         <p class="bold color_grey fs_2xs">{{ t('申请金额') }}: {{ detail?.apply_amount > 0 ? tool.formatMoney(detail?.apply_amount) : tool.formatMoney(detail?.vip_amount) }}</p>
+        <p class="bold color_red-error fs_2xs" v-if="Number(detail?.over_money) > 0">{{ t('已超额: {0}', [tool.formatMoney(detail?.over_money)]) }}</p>
       </div>
     </div>
     <div class="flex items-center box frist mt-2">
@@ -129,7 +138,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted,computed } from 'vue';
+import { ref, watch, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { navigationTo } from '@/utils/tool';
@@ -370,6 +379,17 @@ defineExpose({
   }
   :deep(.ant-alert-description) {
     font-size: 12px !important;
+  }
+}
+
+:deep(.excess-icon) {
+  color: #eb4b6d;
+  margin-left: 15px;
+  z-index: 2;
+  font-size: 18px;
+  cursor: pointer;
+  &:hover {
+    color: #e2274f;
   }
 }
 </style>

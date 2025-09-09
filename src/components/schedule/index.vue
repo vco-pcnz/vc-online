@@ -471,7 +471,7 @@ const getDataInfo = (isLate = false) => {
             } else if (item.type === 4) {
               item.repayment = tool.formatMoney(item.amount);
               if (item.first === 1) {
-                item.name = `${item.name}(${t('全额还款')})`;
+                item.name = `${item.name} (${t('全额还款')})`;
               }
             } else {
               if (item.is_fee) {

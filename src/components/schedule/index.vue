@@ -1035,7 +1035,6 @@ onMounted(() => {
       }
       &:nth-child(3) {
         width: 180px;
-        word-break: break-all;
       }
       &:nth-child(4) {
         width: 220px;

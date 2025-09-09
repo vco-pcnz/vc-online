@@ -27,12 +27,18 @@
       <a-modal :open="adVisible" :title="t('账户详情')" :width="500" :footer="null" :keyboard="false" :maskClosable="false" @cancel="adVisible = false">
         <div class="sys-form-content mt-5">
           <a-form ref="adFormRef" layout="vertical" :model="adFormState" :rules="adFormRules">
-            <a-form-item :label="t('日期')" name="date">
-              <a-range-picker
+            <a-form-item :label="t('开始日期2')" name="s_date">
+              <a-date-picker
+                v-model:value="adFormState.s_date"
+                :format="selectDateFormat()"
+                :disabledDate="adDisabledSdateFormat"
+              />
+            </a-form-item>
+            <a-form-item :label="t('结束日期2')" name="date">
+              <a-date-picker
                 v-model:value="adFormState.date"
                 :format="selectDateFormat()"
-                :placeholder="[t('开放日期'), t('到期日期')]"
-                :disabledDate="adDisabledDateFormat" placeholder=""
+                :disabledDate="adDisabledDateFormat"
               />
             </a-form-item>
           </a-form>
@@ -397,6 +403,7 @@ const currentMonth = dayjs();
 const statisticsData = ref(null);
 
 const getDataInfo = (isLate = false) => {
+  tabData.value = []
   pageLoading.value = true;
 
   const params = {
@@ -516,10 +523,11 @@ const getDataInfo = (isLate = false) => {
 const adVisible = ref(false);
 const adFormRef = ref();
 const adFormState = reactive({
-  date: []
+  s_date: '',
+  date: ''
 });
 const adFormRules = {
-  date: [{ required: true, message: t('请选择') + t('日期'), trigger: 'change' }]
+  date: [{ required: true, message: t('请选择') + t('结束日期2'), trigger: 'change' }]
 };
 
 const adLoading = ref(false);
@@ -531,8 +539,8 @@ const adSubmitRequest = () => {
     pdf: props.isClose ? 3 : 2
   }
   if (!props.isClose) {
-    params.s_date = dayjs(adFormState.date[0]).format('YYYY-MM-DD');
-    params.date = dayjs(adFormState.date[1]).format('YYYY-MM-DD');
+    params.s_date = adFormState.s_date ? dayjs(adFormState.s_date).format('YYYY-MM-DD') : '';
+    params.date = adFormState.date ? dayjs(adFormState.date).format('YYYY-MM-DD') : '';
   }
 
   projectLoanAllRepayment(params).then((res) => {
@@ -558,7 +566,8 @@ watch(() => adVisible.value, (val) => {
     adLoading.value = false;
     adFormRef.value.clearValidate();
     adFormRef.value.resetFields();
-    adFormState.date = [];
+    adFormState.date = '';
+    adFormState.s_date = '';
   }
 })
 
@@ -568,7 +577,8 @@ const downLoadExcel = (type) => {
     if (props.isClose) {
       adSubmitRequest()
     } else {
-      adFormState.date = []
+      adFormState.date = dayjs(new Date());
+      adFormState.s_date = '';
       adVisible.value = true;
     }
     return;
@@ -652,8 +662,23 @@ const disabledDateFormat = (current) => {
   return false;
 };
 
-const adDisabledDateFormat = (current) => {
+const adDisabledSdateFormat = (current) => {
   const startDate = statisticsData.value?.day.sday;
+  const endDate = adFormState.date ? dayjs(adFormState.date) : dayjs(new Date());
+
+  if (current && current.isBefore(startDate, 'day')) {
+    return true;
+  }
+
+  if (current && current.isAfter(endDate, 'day')) {
+    return true;
+  }
+
+  return false;
+};
+
+const adDisabledDateFormat = (current) => {
+  const startDate = adFormState.s_date ? dayjs(adFormState.s_date) : statisticsData.value?.day.sday;
   const endDate = dayjs(new Date());
 
   if (current && current.isBefore(startDate, 'day')) {

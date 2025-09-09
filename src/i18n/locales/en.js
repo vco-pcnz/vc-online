@@ -1148,5 +1148,7 @@ export default {
   "是否允许超额放款": "Allow excess drawdown",
   "放款金额不能小于{0}": "Drawdown amount cannot be less than {0}",
   "已超额: {0}": "Exceeded: {0}",
-  "包含预计数据": "Include estimated data"
+  "包含预计数据": "Include estimated data",
+  "开始日期2": "Start date",
+  "结束日期2": "End date"
 }

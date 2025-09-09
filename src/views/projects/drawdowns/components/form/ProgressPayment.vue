@@ -1,6 +1,6 @@
 <template>
   <a-modal :open="selectVisible" :title="t('进度付款阶段')" :width="1400" :footer="null" :keyboard="false" :maskClosable="false" class="middle-position" @cancel="selectVisible = false">
-    <view-content v-if="selectVisible" :selectedData="selectedData" :buildLogData="buildLogData" :is-select="isEdit" :show-process="true" @selectDone="selectDoneHandle"></view-content>
+    <view-content v-if="selectVisible" :selectedData="selectedData" :buildLogData="buildLogData" :showExcess="true" :is-select="isEdit" :show-process="true" @selectDone="selectDoneHandle"></view-content>
   </a-modal>
   <div class="input-item" style="margin-top: 16px" v-if="!keepShowOther">
     <div class="label" :class="{ err: !formState.build_money && validate && !showOther }">{{ t('进度款') }}</div>

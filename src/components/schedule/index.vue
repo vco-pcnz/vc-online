@@ -27,6 +27,25 @@
       <a-modal :open="adVisible" :title="t('账户详情')" :width="500" :footer="null" :keyboard="false" :maskClosable="false" @cancel="adVisible = false">
         <div class="sys-form-content mt-5">
           <a-form ref="adFormRef" layout="vertical" :model="adFormState" :rules="adFormRules">
+            <a-form-item :label="t('项目周期')">
+              <div class="flex items-center gap-2">
+                <p>{{ tool.showDate(statisticsData.day.sday) }}</p>
+                ～
+                <p>{{ tool.showDate(statisticsData.day.eday) }}</p>
+              </div>
+            </a-form-item>
+            <a-form-item :label="t('快捷选择')">
+              <a-select v-model:value="quickDate" style="width: 100%">
+                <a-select-option v-for="item in quickDateData" :key="item.value" :value="item.value">
+                  <p>{{ item.label }}</p>
+                  <div class="flex items-center gap-2 text-gray-500">
+                    <p>{{ tool.showDate(item.startDate) }}</p>
+                    ～
+                    <p>{{ tool.showDate(item.endDate) }}</p>
+                  </div>
+                </a-select-option>
+              </a-select>
+            </a-form-item>
             <a-form-item :label="t('开始日期2')" name="s_date">
               <a-date-picker
                 v-model:value="adFormState.s_date"
@@ -795,6 +814,47 @@ const showReconciliationModal = async (val) => {
   await nextTick(); // Wait for DOM and reactivity updates
   reconciliationModalRef.value.init();
 };
+
+const quickDate = ref('');
+const quickDateData = ref([
+  {
+    label: t('本月'),
+    value: 'month'
+  },
+  {
+    label: t('本季度'),
+    value: 'quarter'
+  },
+  {
+    label: t('本财政年度'),
+    value: 'year'
+  },
+  {
+    label: t('上月'),
+    value: 'lastMonth'
+  },
+  {
+    label: t('上季度'),
+    value: 'lastQuarter'
+  },
+  {
+    label: t('上财政年度'),
+    value: 'lastYear'
+  }
+])
+
+quickDateData.value.forEach(item => {
+  if (item.value === 'month') {
+    // 获取本月开始日期和当前日期
+    const monthRange = tool.getMonthRange();
+    item.startDate = monthRange.start;
+    item.endDate = monthRange.currentDate;
+  } else if (item.value === 'quarter') {
+    const quarterRange = tool.getQuarterRange();
+    item.startDate = quarterRange.start;
+    item.endDate = quarterRange.currentDate;
+  }
+})
 
 watch(
   () => visible.value,

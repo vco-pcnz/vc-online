@@ -1146,5 +1146,9 @@ export default {
   "减免额度": "Default deduction",
   "请求管理Umbrella": "Applications",
   "进度放款中超出金额 {0} 是否继续放款?": 'Progress drawdown exceeded amount <span>{0}</span> Do you want to continue the drawdown?',
-  "放款金额 {0},可用金额 {1},超出金额 {2} 是否继续放款?": 'Drawdown amount <span>{0}</span>, available amount <span>{1}</span>, excess amount <span>{2}</span> Do you want to continue the drawdown?'
+  "放款金额 {0},可用金额 {1},超出金额 {2} 是否继续放款?": 'Drawdown amount <span>{0}</span>, available amount <span>{1}</span>, excess amount <span>{2}</span> Do you want to continue the drawdown?',
+  "是否允许超额放款": "Allow excess drawdown",
+  "放款金额不能小于{0}": "Drawdown amount cannot be less than {0}",
+  "已超额: {0}": "Exceeded: {0}",
+  "包含预计数据": "Include estimated data"
 }

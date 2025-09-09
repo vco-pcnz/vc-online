@@ -51,6 +51,7 @@
                 v-model:value="adFormState.s_date"
                 :format="selectDateFormat()"
                 :disabledDate="adDisabledSdateFormat"
+                @change="quickDate = ''"
               />
             </a-form-item>
             <a-form-item :label="t('结束日期2')" name="date">
@@ -58,6 +59,7 @@
                 v-model:value="adFormState.date"
                 :format="selectDateFormat()"
                 :disabledDate="adDisabledDateFormat"
+                @change="quickDate = ''"
               />
             </a-form-item>
           </a-form>
@@ -884,11 +886,11 @@ const quickDateChange = (value) => {
     selectSdate = statisticsData.value.day.sday;
   }
 
-  // 如果endDate 在 statisticsData.value.day.eday 之后，则 selectEdate 为statisticsData.value.day.eday 否则为endDate, 如果在 statisticsData.value.day.sday 之前则为今天
+  // 如果endDate 在 statisticsData.value.day.eday 之后，则 selectEdate 为statisticsData.value.day.eday 否则为endDate，如果在statisticsData.value.day.sday 之前则为statisticsData.value.day.sday
   if (dayjs(endDate).isAfter(dayjs(statisticsData.value.day.eday), 'day')) {
     selectEdate = statisticsData.value.day.eday;
   } else if (dayjs(endDate).isBefore(dayjs(statisticsData.value.day.sday), 'day')) {
-    selectEdate = dayjs().format('YYYY-MM-DD'); // 今天
+    selectEdate = statisticsData.value.day.sday
   }
 
   adFormState.s_date = dayjs(selectSdate);

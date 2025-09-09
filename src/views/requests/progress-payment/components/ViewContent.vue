@@ -948,7 +948,7 @@
 
                 mergItem.checked = true
                 mergItem.set_amount = selItem.amount
-                mergItem.excess_amount = selItem.excess_amount || itemExcessAmount
+                mergItem.excess_amount = selItem.excess_amount || excess_amount
                 selectData.value.push(mergItem)
               }
             }

@@ -178,6 +178,7 @@ const save = (tip) => {
   let excess_amount = props.detail?.id ? props.detail?.excess_amount : 0;
   if (formState.value.build__data && formState.value.build__data.length) {
     formState.value.build__data.map((item) => {
+      item.excess_amount = item.excess_amount || 0;
       excess_amount = tool.plus(excess_amount, item.excess_amount || 0);
     });
   }

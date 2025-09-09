@@ -19,7 +19,7 @@
     </div>
     <div v-else>
       <a-button
-        v-if="previousStep && currentStep.examine"
+        v-if="previousStep && currentStep.examine && showHandleBtn"
         type="danger" shape="round" class="big shadow bold uppercase"
         @click="rejectHandle(1)"
       >{{ t('拒绝申请') }}</a-button>
@@ -32,18 +32,20 @@
         @click="previousHandle"
       >{{ t('上一步') }}</a-button>
 
-      <a-button
-        v-if="previousStep && currentStep.examine"
-        type="grey" shape="round" class="big shadow bold uppercase"
-        @click="rejectHandle(2)"
-      >{{ t('退回重新修改') }}</a-button>
+      <template v-if="showHandleBtn">
+        <a-button
+          v-if="previousStep && currentStep.examine"
+          type="grey" shape="round" class="big shadow bold uppercase"
+          @click="rejectHandle(2)"
+        >{{ t('退回重新修改') }}</a-button>
 
-      <a-button
-        type="dark" shape="round" class="big shadow bold uppercase"
-        @click="submitHandle"
-        :loading="subLoading"
-        :disabled="subDisabled"
-      >{{ t(submitText) }}</a-button>
+        <a-button
+          type="dark" shape="round" class="big shadow bold uppercase"
+          @click="submitHandle"
+          :loading="subLoading"
+          :disabled="subDisabled"
+        >{{ t(submitText) }}</a-button>
+      </template>
     </div>
   </div>
 </template>
@@ -119,6 +121,14 @@
     currnetType.value = type
     rejectVisible.value = true
   }
+
+  const showHandleBtn = computed(() => {
+    const mark = props.currentStep?.mark || ''
+    if (mark && ['step_aml_check'].includes(mark)) {
+      return hasPermission('requests:aml:check')
+    }
+    return true
+  })
 
   const submitText = computed(() => {
     let txt = ''

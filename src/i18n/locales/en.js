@@ -1150,5 +1150,12 @@ export default {
   "已超额: {0}": "Exceeded: {0}",
   "包含预计数据": "Include estimated data",
   "开始日期2": "Start date",
-  "结束日期2": "End date"
+  "结束日期2": "End date",
+  "快捷选择": "Quick selection",
+  "本月": "This month",
+  "本季度": "This quarter",
+  "本财政年度": "This financial year",
+  "上月": "Last month",
+  "上季度": "Last quarter",
+  "上财政年度": "Last financial year"
 }

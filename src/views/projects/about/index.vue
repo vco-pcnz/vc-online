@@ -74,7 +74,7 @@
             <!-- 取消关账流程 -->
             <CloseCancel v-else :currentId="currentId" :toBeClosedFormData="ReOpenFormData" :detail="detail" @update="update"></CloseCancel>
 
-            <MeterStat :data="detail?.credit" v-if="!detail?.base?.ptRole"></MeterStat>
+            <MeterStat :data="detail?.credit" :base="detail?.base" v-if="!detail?.base?.ptRole"></MeterStat>
             <MeterStatVip :data="detail?.credit" v-if="detail?.base?.ptRole"></MeterStatVip>
 
             <PeriodLine :data="detail?.date"></PeriodLine>
@@ -304,6 +304,7 @@ const checkPassConfirmVisible = ref(false);
   .project-content {
     border-radius: 12px;
     padding: 30px;
+    padding-top: 0;
   }
 
   .btns {

@@ -6,7 +6,7 @@
     <a-image v-if="detail?.base.project_image" :src="detail?.base.project_image" height="313.67px" width="100%" />
     <div class="base-card">
       <p class="id_async">
-        <span style="color: #181818;">ID {{ detail?.base.project_apply_sn }}</span>
+        <span style="color: #181818">ID {{ detail?.base.project_apply_sn }}</span>
         <template v-if="!variations && !detail?.base?.ptRole && !detail?.base?.is_close">
           <a-statistic-countdown :value="deadline" @finish="onFinish" format="mm:ss" v-if="Boolean(countdown)">
             <template #prefix>
@@ -17,7 +17,18 @@
             </template>
           </a-statistic-countdown>
           <a-spin :spinning="loading" v-else>
-            <a-popconfirm :title="t('您确定要与 Xero 同步项目交易吗？')" okText="confirm" @confirm="update">
+            <a-tooltip placement="top" v-if="detail?.base?.xero_time">
+              <template #title>
+                <span>{{ t('数据更新时间') }}: {{ tool.showTime(detail?.base?.xero_time) }}</span>
+              </template>
+              <a-popconfirm :title="t('您确定要与 Xero 同步项目交易吗？')" okText="confirm" @confirm="update">
+                <template #icon>
+                  <CheckCircleOutlined :style="{ color: '#a9ad57' }" />
+                </template>
+                <img :width="58" :height="14" class="cursor-pointer" :src="xeroImg" alt="Xero" />
+              </a-popconfirm>
+            </a-tooltip>
+            <a-popconfirm v-else :title="t('您确定要与 Xero 同步项目交易吗？')" okText="confirm" @confirm="update">
               <template #icon>
                 <CheckCircleOutlined :style="{ color: '#a9ad57' }" />
               </template>
@@ -27,11 +38,11 @@
         </template>
       </p>
       <p class="mt-3">{{ t('借款人') }}</p>
-      <p style="color: #181818;">{{ detail?.base.borrower_user_name }}</p>
-      
+      <p style="color: #181818">{{ detail?.base.borrower_user_name }}</p>
+
       <template v-if="variations && !hideTime">
         <p class="mt-3">{{ t('借款周期') }}</p>
-        <p style="color: #181818;">{{ tool.showDate(detail?.date?.start_date) + ' - ' + tool.showDate(detail?.date?.end_date) }}</p>
+        <p style="color: #181818">{{ tool.showDate(detail?.date?.start_date) + ' - ' + tool.showDate(detail?.date?.end_date) }}</p>
       </template>
 
       <p class="text-2xl name mt-5">{{ detail?.base.project_name || detail?.base.borrower_user_name }}</p>

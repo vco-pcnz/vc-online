@@ -1,4 +1,38 @@
 <template>
+  <div class="flex justify-end mb-5">
+    <a-tooltip placement="top">
+      <template #title>
+        <div class="flex items-center">
+          <span class="xt_label">Vco: </span>
+          <vco-number :value="Math.abs(base?.vcoSpendAmount)" color="#fff" size="fs_md" :precision="2"></vco-number>
+        </div>
+        <div class="flex items-center">
+          <span class="xt_label">Xero: </span>
+          <vco-number :value="Math.abs(base?.xeroSpendAmount)" color="#fff" size="fs_md" :precision="2"></vco-number>
+        </div>
+      </template>
+      <div class="flex cursor-pointer">
+        <span class="mr-3"> {{ t('放款对账情况') }} diff: </span>
+        <vco-number color="#F19915" :value="Math.abs(tool.minus(base?.vcoSpendAmount, base?.xeroSpendAmount))" size="fs_md" :precision="2"></vco-number>
+      </div>
+    </a-tooltip>
+    <a-tooltip placement="top" class="ml-5">
+      <template #title>
+        <div class="flex items-center">
+          <span class="xt_label">Vco: </span>
+          <vco-number :value="Math.abs(base?.vcoReceivedAmount)" color="#fff" size="fs_md" :precision="2"></vco-number>
+        </div>
+        <div class="flex items-center">
+          <span class="xt_label">Xero: </span>
+          <vco-number :value="Math.abs(base?.xeroReceivedAmount)" color="#fff" size="fs_md" :precision="2"></vco-number>
+        </div>
+      </template>
+      <div class="flex cursor-pointer">
+        <span class="mr-3"> {{ t('还款对账情况') }} diff: </span>
+        <vco-number color="#F19915" :value="Math.abs(tool.minus(base?.vcoReceivedAmount, base?.xeroReceivedAmount))" size="fs_md" :precision="2"></vco-number>
+      </div>
+    </a-tooltip>
+  </div>
   <div class="indicatorsGrid">
     <div class="chart">
       <v-chart :option="option" autoresize />
@@ -32,7 +66,7 @@
           <vco-number :value="data?.totalBalance" :precision="2"></vco-number>
           <div class="color_grey flex items-center gap-2">
             <vco-number :value="data?.accruedInterest" :precision="2" color="#888" size="fs_md" class="mr-2"></vco-number>
-            Accrued interest
+            <p style="font-size: 10px">Accrued interest</p>
             <div class="efSGMs">
               <i class="iconfont">&#xe6b3;</i>
               <div class="tips">
@@ -72,18 +106,56 @@
         </div>
       </div>
     </div>
+
+    <!-- <div class="MeterStat-row" style="border-left: 1px solid #ccc; padding-left: 20px">
+      <div class="MeterStat MeterStat_type_transparent one">
+        <div>
+          <p>{{ t('放款对账情况') }}</p>
+          <div class="flex items-center">
+            <span class="xt_label">Vco: </span>
+            <vco-number :value="Math.abs(base?.vcoSpendAmount)" size="fs_md" :precision="2"></vco-number>
+          </div>
+          <div class="flex items-center">
+            <span class="xt_label">Xero: </span>
+            <vco-number :value="Math.abs(base?.xeroSpendAmount)" size="fs_md" :precision="2"></vco-number>
+          </div>
+          <div class="flex items-center">
+            <span class="xt_label">Diff: </span>
+            <vco-number :value="Math.abs(tool.minus(base?.vcoSpendAmount, base?.xeroSpendAmount))" size="fs_md" :precision="2"></vco-number>
+          </div>
+        </div>
+      </div>
+      <div class="MeterStat MeterStat_type_cyan four">
+        <div>
+          <p>{{ t('还款对账情况') }}</p>
+          <div class="flex items-center">
+            <span class="xt_label">Vco: </span>
+            <vco-number :value="Math.abs(base?.vcoReceivedAmount)" size="fs_md" :precision="2"></vco-number>
+          </div>
+          <div class="flex items-center">
+            <span class="xt_label">Xero: </span>
+            <vco-number :value="Math.abs(base?.xeroReceivedAmount)" size="fs_md" :precision="2"></vco-number>
+          </div>
+          <div class="flex items-center">
+            <span class="xt_label">Diff: </span>
+            <vco-number :value="Math.abs(tool.minus(base?.vcoReceivedAmount, base?.xeroReceivedAmount))" size="fs_md" :precision="2"></vco-number>
+          </div>
+        </div>
+      </div>
+      <div class="MeterStat MeterStat_type_dotsBlack four"></div>
+    </div> -->
   </div>
 </template>
 
 <script setup>
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { selectDateFormat } from '@/utils/tool';
+import tool, { selectDateFormat } from '@/utils/tool';
 import dayjs, { Dayjs } from 'dayjs';
 
 const { t } = useI18n();
 
-const props = defineProps(['data']);
+const props = defineProps(['data', 'base']);
 
 const option = ref({
   series: [
@@ -141,13 +213,15 @@ watch(
   align-items: center;
   display: grid;
   gap: 12px;
-  grid-template-columns: 1fr 1fr 1fr;
+  // grid-template-columns: 1.2fr 1fr 1fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr;
   margin-bottom: 40px;
 }
 
 .chart {
   position: relative;
   height: 100%;
+  margin-right: 30px;
   .chart2 {
     position: absolute;
     left: 50%;
@@ -252,5 +326,12 @@ watch(
       display: block;
     }
   }
+}
+
+.xt_label {
+  color: #888;
+  width: 33px;
+  text-align: right;
+  margin-right: 5px;
 }
 </style>

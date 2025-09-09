@@ -160,6 +160,7 @@ const disabledDateFormat = (current) => {
 const save = (tip) => {
   validate.value = true;
   formState.value.uuid = props.uuid;
+  console.log(formModal2.value);
   formState.value.d_file = formModal2.value.filter((item) => {
     return item.files && item.files.length;
   });
@@ -174,16 +175,27 @@ const save = (tip) => {
   }
   if (!formState.value.name || !formState.value.note || !formState.value.d_file.length || !formState.value.apply_date || amount == 0) return;
 
-  let excess_amount = 0;
+  let excess_amount = props.detail?.id ? props.detail?.excess_amount : 0;
   if (formState.value.build__data && formState.value.build__data.length) {
     formState.value.build__data.map((item) => {
+      item.excess_amount = item.excess_amount || 0;
       excess_amount = tool.plus(excess_amount, item.excess_amount || 0);
     });
   }
 
-  if (Number(amount) > Number(props.statisticsData?.available)) {
+  let available = props.statisticsData?.available;
+  if (props.detail?.id) {
+    let detail_amount = tool.plus(tool.plus(props.detail.build_money || 0, props.detail.land_money || 0), tool.plus(props.detail.equity_money || 0, props.detail.other_money || 0));
+    if (hasPermission('projects:drawdowns:add')) {
+      // vip
+      detail_amount = props.detail.vip_amount || 0;
+    }
+    available = tool.plus(Number(props.statisticsData?.available), Number(detail_amount));
+  }
+
+  if (Number(amount) > Number(available)) {
     visibleTip.value = true;
-    confirmTxt.value = t('放款金额 {0},可用金额 {1},超出金额 {2} 是否继续放款?', [tool.formatMoney(amount), tool.formatMoney(props.statisticsData?.available), tool.formatMoney(tool.minus(amount, props.statisticsData?.available))]);
+    confirmTxt.value = t('放款金额 {0},可用金额 {1},超出金额 {2} 是否继续放款?', [tool.formatMoney(amount), tool.formatMoney(available), tool.formatMoney(tool.minus(amount, available))]);
     return;
   } else if (excess_amount > 0) {
     visibleTip.value = true;
@@ -250,6 +262,8 @@ const loadType = (reset) => {
 
 const init = () => {
   validate.value = false;
+  formModal2.value = [];
+  formModal3.value = [];
   if (props.detail) {
     initData();
   } else {

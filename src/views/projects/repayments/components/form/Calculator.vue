@@ -42,7 +42,7 @@
             </a-col>
             <a-col :span="6">
               <a-form-item :label="t('包含预计数据')">
-                <a-switch v-model:checked="hasEstimated" class="mt-4" @change="standardInputChange" />
+                <a-switch v-model:checked="hasEstimated" :disabled="!Boolean(formState.date)" class="mt-4" @change="standardInputChange" />
               </a-form-item>
             </a-col>
             <a-col :span="6">

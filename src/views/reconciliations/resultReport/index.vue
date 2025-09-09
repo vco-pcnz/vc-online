@@ -41,11 +41,11 @@
               <p><span class="label">Xero</span>: {{ record?.xero_bill_count }}</p>
             </template>
             <template v-if="column.dataIndex === 'Last_synced'">
-              <p v-if="record?.last_synced">{{ tool.showTime(record?.last_synced) }}</p>
+              <p v-if="record?.last_synced">{{ record?.last_synced }}</p>
               <p v-else>--</p>
             </template>
             <template v-if="column.dataIndex === 'Last_transaction'">
-              <p v-if="record?.last_transaction">{{ tool.showTime(record?.last_transaction) }}</p>
+              <p v-if="record?.last_transaction">{{ record?.last_transaction }}</p>
               <p v-else>--</p>
             </template>
 
@@ -116,7 +116,7 @@ const columns = reactive([
   {
     title: t('上次同步'),
     dataIndex: 'Last_synced',
-    width: '170px'
+    width: '200px'
   },
   {
     title: t('上次交易'),

@@ -30,7 +30,7 @@
           <vco-number :value="detail?.amount" :precision="2" :bold="true" size="fs_2xl"></vco-number>
           <span class="unit">nzd</span>
           <!-- <DrawdownAmount :uuid="uuid" :detail="detail" :projectDetail="projectDetail" @change="update" v-if="detail?.mark === 'drawdown_lm' && hasPermission('projects:drawdowns:edit')"><i class="iconfont edit">&#xe8cf;</i></DrawdownAmount> -->
-          <DrawdownRequest :uuid="uuid" :detail="detail" :projectDetail="projectDetail" @change="update" v-if="detail?.mark === 'drawdown_lm' && hasPermission('projects:drawdowns:edit')"><i class="iconfont edit">&#xe8cf;</i></DrawdownRequest>
+          <DrawdownRequest :uuid="uuid" :detail="detail" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update" v-if="detail?.mark === 'drawdown_lm' && hasPermission('projects:drawdowns:edit')"><i class="iconfont edit">&#xe8cf;</i></DrawdownRequest>
 
           <DrawdownAmount v-else-if="!hasPermission('projects:drawdowns:add')" :uuid="uuid" :detail="detail" :projectDetail="projectDetail" :isEdit="false" @change="update"><i class="iconfont edit">&#xe776;</i></DrawdownAmount>
         </div>
@@ -158,6 +158,9 @@ const props = defineProps({
     type: Object
   },
   projectDetail: {
+    type: Object
+  },
+  statisticsData: {
     type: Object
   }
 });

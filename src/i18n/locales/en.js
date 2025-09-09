@@ -1144,5 +1144,7 @@ export default {
   "可用额度1": "Remaining amount",
   "罚息减免额度": "Proposed default deduction",
   "减免额度": "Default deduction",
-  "请求管理Umbrella": "Applications"
+  "请求管理Umbrella": "Applications",
+  "进度放款中超出金额 {0} 是否继续放款?": 'Progress drawdown exceeded amount <span>{0}</span> Do you want to continue the drawdown?',
+  "放款金额 {0},可用金额 {1},超出金额 {2} 是否继续放款?": 'Drawdown amount <span>{0}</span>, available amount <span>{1}</span>, excess amount <span>{2}</span> Do you want to continue the drawdown?'
 }

@@ -68,6 +68,7 @@
       </div>
     </a-modal>
   </div>
+  <vco-confirm-alert v-model:visible="visibleTip" :confirmTxt="confirmTxt" @confirm="submit"></vco-confirm-alert>
 </template>
 
 <script scoped setup>
@@ -97,6 +98,9 @@ const props = defineProps({
   },
   detail: {
     type: Object
+  },
+  statisticsData: {
+    type: Object
   }
 });
 
@@ -104,6 +108,8 @@ const visible = ref(false);
 const loading = ref(false);
 const validate = ref(false);
 const formModal2 = ref([]);
+const visibleTip = ref(false);
+const confirmTxt = ref('');
 const formModal3 = ref([]);
 
 const formState = ref({
@@ -151,7 +157,7 @@ const disabledDateFormat = (current) => {
   return false;
 };
 
-const save = () => {
+const save = (tip) => {
   validate.value = true;
   formState.value.uuid = props.uuid;
   formState.value.d_file = formModal2.value.filter((item) => {
@@ -167,6 +173,16 @@ const save = () => {
     amount = formState.value.vip_amount || 0;
   }
   if (!formState.value.name || !formState.value.note || !formState.value.d_file.length || !formState.value.apply_date || amount == 0) return;
+
+  if (Number(amount) > Number(props.statisticsData?.available)) {
+    visibleTip.value = true;
+    confirmTxt.value = t('放款金额 {0},可用金额 {1},超出金额 {2} 是否继续放款?', [tool.formatMoney(amount), tool.formatMoney(props.statisticsData?.available), tool.formatMoney(tool.minus(amount, props.statisticsData?.available))]);
+    return;
+  } else if (true) {
+    visibleTip.value = true;
+    confirmTxt.value = t('进度放款中超出金额 {0} 是否继续放款?', [tool.formatMoney(tool.minus(amount, props.statisticsData?.available))]);
+    return;
+  }
   submit();
 };
 

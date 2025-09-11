@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-end mb-5" style="padding-right: 30px;">
+  <div class="flex justify-end mb-5" style="padding-right: 30px">
     <a-tooltip placement="top">
       <template #title>
         <div class="flex items-center">
@@ -90,7 +90,10 @@
         <div>
           <p>Drawn amount</p>
           <vco-number :value="data?.loanWithdrawal" :precision="2"></vco-number>
-          <p class="color_grey flex"><vco-number :value="data?.loanWithdrawalAvailable" :precision="2" color="#888" size="fs_md" class="mr-2"></vco-number> available</p>
+          <p v-if="data?.loanWithdrawalAvailable >= 0" class="color_grey flex"><vco-number :value="data?.loanWithdrawalAvailable" :precision="2" color="#888" size="fs_md" class="mr-2"></vco-number> available</p>
+          <div v-else class="color_red-error flex">
+            {{ t('{0} 已超额', [tool.formatMoney(Math.abs(data?.loanWithdrawalAvailable))]) }}
+          </div>
         </div>
       </div>
       <div class="MeterStat MeterStat_type_dotsBlack four">

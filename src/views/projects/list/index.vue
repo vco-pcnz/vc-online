@@ -94,7 +94,7 @@ const report = () => {
 const downloadingSchedule = ref(false);
 const reportSchedule = () => {
   downloadingSchedule.value = true;
-  downSc(pageStore.searchParams)
+  downSc({ ...pageStore.searchParams, sta: pageStore.sta })
     .then((res) => {
       window.open(res);
     })

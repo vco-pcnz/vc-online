@@ -1,38 +1,43 @@
 <template>
-  <div class="flex justify-end mb-5" style="padding-right: 30px">
-    <a-tooltip placement="top">
-      <template #title>
-        <div class="flex items-center">
-          <span class="xt_label">Vco: </span>
-          <vco-number :value="Math.abs(base?.vcoSpendAmount)" color="#fff" size="fs_md" :precision="2"></vco-number>
-        </div>
-        <div class="flex items-center">
-          <span class="xt_label">Xero: </span>
-          <vco-number :value="Math.abs(base?.xeroSpendAmount)" color="#fff" size="fs_md" :precision="2"></vco-number>
-        </div>
-      </template>
-      <div class="flex cursor-pointer">
-        <span class="mr-3"> {{ t('放款对账情况') }} diff: </span>
-        <vco-number color="#F19915" :value="Math.abs(tool.minus(base?.vcoSpendAmount, base?.xeroSpendAmount))" size="fs_md" :precision="2"></vco-number>
+  <a-alert type="info" closable class="mb-5 synced-diff" style="margin-top: -45px" v-if="Math.abs(tool.minus(base?.vcoSpendAmount, base?.xeroSpendAmount)) || Math.abs(tool.minus(base?.vcoReceivedAmount, base?.xeroReceivedAmount))">
+    <template #description>
+      <div class="flex">
+        <a-tooltip placement="top">
+          <template #title>
+            <div class="flex items-center">
+              <span class="xt_label">Vco: </span>
+              <vco-number :value="Math.abs(base?.vcoSpendAmount)" color="#fff" size="fs_md" :precision="2"></vco-number>
+            </div>
+            <div class="flex items-center">
+              <span class="xt_label">Xero: </span>
+              <vco-number :value="Math.abs(base?.xeroSpendAmount)" color="#fff" size="fs_md" :precision="2"></vco-number>
+            </div>
+          </template>
+          <div class="flex cursor-pointer">
+            <span class="mr-3"> {{ t('放款对账情况') }} diff: </span>
+            <vco-number color="#F19915" :value="Math.abs(tool.minus(base?.vcoSpendAmount, base?.xeroSpendAmount))" size="fs_md" :precision="2"></vco-number>
+          </div>
+        </a-tooltip>
+        <a-tooltip placement="top" class="ml-5">
+          <template #title>
+            <div class="flex items-center">
+              <span class="xt_label">Vco: </span>
+              <vco-number :value="Math.abs(base?.vcoReceivedAmount)" color="#fff" size="fs_md" :precision="2"></vco-number>
+            </div>
+            <div class="flex items-center">
+              <span class="xt_label">Xero: </span>
+              <vco-number :value="Math.abs(base?.xeroReceivedAmount)" color="#fff" size="fs_md" :precision="2"></vco-number>
+            </div>
+          </template>
+          <div class="flex cursor-pointer">
+            <span class="mr-3"> {{ t('还款对账情况') }} diff: </span>
+            <vco-number color="#F19915" :value="Math.abs(tool.minus(base?.vcoReceivedAmount, base?.xeroReceivedAmount))" size="fs_md" :precision="2"></vco-number>
+          </div>
+        </a-tooltip>
       </div>
-    </a-tooltip>
-    <a-tooltip placement="top" class="ml-5">
-      <template #title>
-        <div class="flex items-center">
-          <span class="xt_label">Vco: </span>
-          <vco-number :value="Math.abs(base?.vcoReceivedAmount)" color="#fff" size="fs_md" :precision="2"></vco-number>
-        </div>
-        <div class="flex items-center">
-          <span class="xt_label">Xero: </span>
-          <vco-number :value="Math.abs(base?.xeroReceivedAmount)" color="#fff" size="fs_md" :precision="2"></vco-number>
-        </div>
-      </template>
-      <div class="flex cursor-pointer">
-        <span class="mr-3"> {{ t('还款对账情况') }} diff: </span>
-        <vco-number color="#F19915" :value="Math.abs(tool.minus(base?.vcoReceivedAmount, base?.xeroReceivedAmount))" size="fs_md" :precision="2"></vco-number>
-      </div>
-    </a-tooltip>
-  </div>
+    </template>
+  </a-alert>
+
   <div class="indicatorsGrid">
     <div class="chart">
       <v-chart :option="option" autoresize />
@@ -336,5 +341,9 @@ watch(
   width: 33px;
   text-align: right;
   margin-right: 5px;
+}
+
+.synced-diff {
+    padding-block: 10px;
 }
 </style>

@@ -113,15 +113,22 @@ const formState = ref({
 });
 
 const defaultPickerValue = computed(() => {
-  const startDate = props.itemId ? props.projectDetail.variationInfo.start_date : props.projectDetail.loan.start_date;
+  let startDate = props.itemId ? props.projectDetail.variationInfo.start_date : props.projectDetail.loan.start_date;
+  if (props.projectDetail.variationInfo.is_late && props.itemId) {
+    startDate = props.projectDetail.variationInfo.show_date;
+  }
   return dayjs(startDate).add(1, 'day');
 });
 
 const disabledDateFormat = (current) => {
-  const startDate = props.itemId ? props.projectDetail.variationInfo.start_date : props.projectDetail.loan.start_date;
+  let startDate = props.itemId ? props.projectDetail.variationInfo.start_date : props.projectDetail.loan.start_date;
+  if (props.projectDetail.variationInfo.is_late && props.itemId) {
+    startDate = props.projectDetail.variationInfo.show_date;
+  }
   if (current && current.isBefore(startDate, 'day')) {
     return true;
   }
+
   if (formState.value.type == '4' || props.itemId) {
     const endDate = props.itemId ? props.projectDetail.variationInfo.end_date : props.projectDetail.loan.end_date;
     if (formState.value.date && dayjs(formState.value.date).isAfter(dayjs(endDate))) {

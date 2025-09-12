@@ -384,6 +384,18 @@
                   </a-tooltip>
                 </template>
                 <a-input-number
+                  v-if="item.is_static"
+                  v-model:value="formState[item.credit_table]"
+                  :disabled="item.disabled"
+                  :formatter="
+                    (value) =>
+                      `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                  "
+                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                  @input="() => dollarInput(item.credit_table)"
+                />
+                <a-input-number
+                  v-else
                   v-model:value="formState[item.credit_table]"
                   :disabled="inputDisabled(item.editMark) || item.disabled"
                   :formatter="
@@ -440,7 +452,7 @@
   import { RightOutlined } from '@ant-design/icons-vue';
   import { useI18n } from 'vue-i18n';
   import { useRoute } from 'vue-router';
-  import { cloneDeep } from 'lodash';
+  import { cloneDeep, debounce } from 'lodash';
   import { message } from 'ant-design-vue/es';
   import { QuestionCircleOutlined } from '@ant-design/icons-vue'
   import { useUserStore } from '@/store';
@@ -453,6 +465,7 @@
     projectAuditSubstitution,
     projectDetailSubstitution
   } from '@/api/process';
+  import { establishCalculate } from '@/api/vsl';
   import emitter from '@/event';
   import useProcessStore from '@/store/modules/process';
   import tool, { navigationTo, numberStrFormat, selectDateFormat } from '@/utils/tool';
@@ -699,6 +712,20 @@
     }
   }
 
+  const validateInt = (rule, value) => {
+    if (value === null || value === undefined || value === '') {
+      return Promise.resolve();
+    }
+    
+    const num = Number(value);
+    // 检查是否为整数
+    if (!Number.isInteger(num)) {
+      return Promise.reject(t('请输入整数'));
+    }
+    
+    return Promise.resolve();
+  };
+
   const formRef = ref();
   const formState = ref({
     build_amount: '',
@@ -865,10 +892,45 @@
     }
   }
 
+  const establishCalculateHandle = (key) => {
+    const { build_amount, land_amount, equity_amount, credit_loanInterest, credit_legalFee, credit_brokerFee, credit_otherFee, credit_frontFee, credit_estabFee, credit_estabFeeRate } = formState.value
+    
+    const params = {
+      uuid: props.currentId,
+      build_amount: Number(build_amount || 0),
+      land_amount: Number(land_amount || 0),
+      equity_amount: Number(equity_amount || 0),
+      loanInterest: Number(credit_loanInterest || 0),
+      legal_fee: Number(credit_legalFee || 0),
+      broker_fee: Number(credit_brokerFee || 0),
+      other_fee: Number(credit_otherFee || 0),
+      application_fee: Number(credit_frontFee || 0)
+    }
+
+    if (key === 'credit_estabFee') {
+      params.estab_fee = Number(credit_estabFee || 0)
+    } else {
+      params.esTab_fee_rate = Number(credit_estabFeeRate || 0)
+    }
+
+    establishCalculate(params).then(res => {
+      formState.value['credit_estabFee'] = res.estab_fee
+      formState.value['credit_estabFeeRate'] = res.esTab_fee_rate
+    })
+  }
+
+  // 防抖版本的计算方法
+  const debouncedEstablishCalculate = debounce(establishCalculateHandle, 300)
+
   const percentInput = (key) => {
     // 中介费率修改
     if (key === 'credit_brokerFeeRate') {
       calcBrokerFee()
+    }
+
+    // 建立费、建立费率计算
+    if (key !== 'drawdown_term') {
+      debouncedEstablishCalculate(key)
     }
   }
 
@@ -877,6 +939,26 @@
     if (key === 'credit_brokerFee') {
       calcBrokerFeeRate()
     }
+
+    // 建立费、建立费率计算
+    if (key !== 'drawdown_term') {
+      debouncedEstablishCalculate(key)
+    }
+  }
+
+  const resetBocRule = () => {
+    const drawdown_term = formRules.value.drawdown_term
+    const drawdownItems = dollarItems.value.find(item => item.credit_table === 'drawdown_term')
+    if (drawdownItems) {
+      drawdownItems.max = formState.value.term
+    }
+    if (drawdown_term) {
+      drawdown_term[0] = { validator: getValidateInfo(drawdownItems), trigger: 'blur' }
+    }
+
+    if (formState.value['drawdown_term'] > formState.value.term) {
+      formState.value['drawdown_term'] = 0
+    }
   }
 
   const getFormItems = async () => {
@@ -884,6 +966,23 @@
 
     await ruleCredit({ type: creditCate, uuid: props.currentId }).then(async (res) => {
       const data = res || [];
+
+      // 增加BOC放款月份
+      const bocPeriod = {
+        min: 0,
+        max: 0,
+        credit_name: 'BOC loan month',
+        credit_table: 'drawdown_term',
+        is_req: 1,
+        value: 0,
+        is_static: true,
+        disabled: !Boolean(props.blockInfo.showEdit),
+        is_write: 1,
+        is_ratio: false,
+        is_int: true
+      }
+      data.push(bocPeriod)
+
       const writeData = data.filter((item) => item.is_write);
 
       staticWriteData.value = writeData
@@ -916,6 +1015,10 @@
             }
           );
         }
+        // 整数
+        if (writeData[i].is_int) {
+          rulesData[writeData[i].credit_table].push({ validator: validateInt, trigger: 'blur' })
+        }
       }
 
       formRules.value = { ...formRules.value, ...rulesData };
@@ -927,7 +1030,7 @@
       changeBackItemsStore.value = cloneDeep(backData);
       showNumItemsStore.value = cloneDeep(showNumItemsData);
       
-      await updateFormData(res);
+      await updateFormData(data);
     });
   };
 
@@ -939,6 +1042,9 @@
       formState.value.term = calcDay.months
       formState.value.days = calcDay.days
       formState.value.totalDay = calcDay.gapDay
+
+      // 修改BOC放款月份校验方式
+      resetBocRule()
     } else {
       formState.value.term = ''
       formState.value.days = ''
@@ -959,6 +1065,9 @@
         formState.value.time_date = [dayjs(startDate), dayjs(endDate)]
         const calcDay = tool.calculateDurationPrecise(dayjs(startDate).format('YYYY-MM-DD'), dayjs(endDate).format('YYYY-MM-DD'))
         formState.value.totalDay = calcDay.gapDay
+
+        // 修改BOC放款月份校验方式
+        resetBocRule()
       } else {
         formState.value.time_date = []
         formState.value.totalDay = 0

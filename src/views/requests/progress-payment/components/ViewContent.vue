@@ -1,5 +1,12 @@
 <template>
   <div>
+    <vco-confirm-alert
+      ref="confirmAlertRef"
+      :confirm-txt="confirmTxt"
+      v-model:visible="confirmAlertVisible"
+      @submit="confirmAlertHandle"
+    ></vco-confirm-alert>
+
     <a-modal :open="itemVisible" :title="t('进度付款阶段')" :width="500" :footer="null" :keyboard="false" :maskClosable="false" @cancel="setDialogCancel">
       <a-row :gutter="24" class="mt-10">
         <a-col :span="8">
@@ -34,13 +41,16 @@
               <p v-if="allowExcess" class="input-error">{{ t('放款金额不能小于{0}', ['0']) }}</p>
               <p v-else class="input-error">{{ t('取值范围: {0} - {1}', ['$0.00', `$${numberStrFormat(currentItemInfo.can_amount)}`]) }}</p>
             </template>
+            <template v-if="currentItemInfo.showExcessError">
+              <p class="input-error">{{ t('已超额: {0}', [`$${numberStrFormat(Math.abs(currentItemInfo.excess_amount))}`]) }}</p>
+            </template>
           </div>
         </a-col>
         <a-col :span="8">
           <div class="info-content sys-form-content">
-            <p class="name mb-2">{{ t('可用额度比例') }}</p>
-            <a-input v-model:value="currentItemInfo.set_amount_per" suffix="%" @input="() => currentItemInput(false)" @keyup.enter="selectSureHandle" />
-            <template v-if="currentItemInfo.showError">
+            <p class="name mb-2">{{ allowExcess ? t('已放款额度比例') : t('可用额度比例') }}</p>
+            <a-input v-model:value="currentItemInfo.set_amount_per" :disabled="allowExcess" suffix="%" @input="() => currentItemInput(false)" @keyup.enter="selectSureHandle" />
+            <template v-if="currentItemInfo.showError && !allowExcess">
               <p v-if="allowExcess" class="input-error">{{ t('放款金额不能小于{0}', ['0']) }}</p>
               <p v-else class="input-error">{{ `0.00% - ${numberStrFormat(currentItemInfo.can_amount_per)}%`}}</p>
             </template>
@@ -94,9 +104,9 @@
 
           <div v-if="tableHeader.length && !pageLoading" class="form-block-content" :class="{'mt-10': isSelect}">
             <div class="flex items-center justify-between">
-              <div v-if="!isSelect" class="title">{{ t('进度付款阶段') }}</div>
+              <div v-if="!isSelect" class="title text-info">{{ t('进度付款阶段') }}</div>
               <template v-else>
-                <div v-if="showExcess" class="flex items-center gap-2">
+                <div v-if="showExcess" class="flex items-center gap-2 text-info">
                   <p>{{ t('是否允许超额放款') }}</p>
                   <a-switch v-model:checked="allowExcess" />
                 </div>
@@ -105,7 +115,7 @@
               
               <div v-if="isSelect" class="mt-2 mb-2 flex justify-end gap-4">
                 <a-button v-if="selectDataHasNum" type="cyan" class="bold uppercase" @click="selectCancelAll">{{ t('取消所有设置') }}</a-button>
-                <a-button type="primary" class="bold uppercase" @click="batchSelectHandle">{{ batchSelect ? t('取消批量模式') : t('批量选择') }}</a-button>
+                <a-button v-if="!allowExcess" type="primary" class="bold uppercase" @click="batchSelectHandle">{{ batchSelect ? t('取消批量模式') : t('批量选择') }}</a-button>
                 <a-button v-if="batchSelectData.length" type="grey" class="bold uppercase" @click="batchSelectCancel">{{ t('取消已选择')}}</a-button>
                 <a-button v-if="batchSelect" type="dark" :disabled="!batchSelectData.length" class="bold uppercase" @click="batchSelectSet">{{ t('批量设置1') }} ({{ batchSelectData.length }})</a-button>
               </div>
@@ -451,6 +461,10 @@
     }, 0)
     return excessAmount
   })
+
+  const confirmAlertRef = ref()
+  const confirmTxt = ref('')
+  const confirmAlertVisible = ref(false)
   
   const uuid = ref('')
 
@@ -639,6 +653,7 @@
               const itemExcessAmount = Number(tool.minus(itemTotalAmount, itemAmount))
               let excess_amount = 0
               if (itemExcessAmount > 0) {
+                allowExcess.value = true
                 excess_amount = itemExcessAmount
               }
 
@@ -883,6 +898,7 @@
                 const itemExcessAmount = Number(tool.minus(itemTotalAmount, itemAmount))
                 let excess_amount = 0
                 if (itemExcessAmount > 0) {
+                  allowExcess.value = true
                   excess_amount = itemExcessAmount
                 }
 
@@ -943,6 +959,7 @@
                 const itemExcessAmount = Number(tool.minus(itemTotalAmount, itemAmount))
                 let excess_amount = 0
                 if (itemExcessAmount > 0) {
+                  allowExcess.value = true
                   excess_amount = itemExcessAmount
                 }
 
@@ -1047,8 +1064,21 @@
 
   const currentItemInput = (flag) => {
     if (flag) {
-      const per = Number(currentItemInfo.value.can_amount) ? tool.div(currentItemInfo.value.set_amount, currentItemInfo.value.can_amount) : 0
-      currentItemInfo.value.set_amount_per = Number(tool.times(per, 100)).toFixed(2)
+      if (allowExcess.value) {
+        const amount = Number(currentItemInfo.value.amount)
+        const set_amount = Number(currentItemInfo.value.set_amount)
+        const use_amount = Number(currentItemInfo.value.use_amount)
+        const can_amount = Number(currentItemInfo.value.can_amount)
+        const gapNum = Number(tool.minus(can_amount, set_amount))
+        currentItemInfo.value.excess_amount = gapNum
+        currentItemInfo.value.showExcessError = gapNum < 0
+
+        const totalNum = Number(tool.plus(set_amount, use_amount))
+        currentItemInfo.value.set_amount_per = fixNumber(Number(tool.times(tool.div(totalNum, amount), 100)), 2)
+      } else {
+        const per = Number(currentItemInfo.value.can_amount) ? tool.div(currentItemInfo.value.set_amount, currentItemInfo.value.can_amount) : 0
+        currentItemInfo.value.set_amount_per = Number(tool.times(per, 100)).toFixed(2)
+      }
     } else {
       if (!isNaN(currentItemInfo.value.set_amount_per)){
         const per = tool.div(currentItemInfo.value.set_amount_per, 100)
@@ -1082,11 +1112,56 @@
         data.can_amount = num
         data.can_amount_per = Number(data.amount) ? tool.times(tool.div(Number(num), Number(data.amount)), 100) : 0
         data.showError = false
+        data.showExcessError = data.excess_amount
+        if (allowExcess.value) {
+          data.set_amount_per = fixNumber(Number(tool.times(tool.div(Number(data.use_amount), Number(data.amount)), 100)), 2)
+        }
         currentSingleItem.value = data
         currentItemInfo.value = cloneDeep(data)
         itemVisible.value = true
       }
     }
+  }
+
+  
+  const signleItemSelected = () => {
+    currentItemInfo.value.showError = false
+    currentItemInfo.value.checked = Boolean(Number(currentItemInfo.value.set_amount))
+    const data = cloneDeep(currentItemInfo.value) 
+    const { checked, set_amount, set_amount_per } = data
+    
+    currentSingleItem.value.checked = checked
+    currentSingleItem.value.set_amount = set_amount
+    currentSingleItem.value.set_amount_per = set_amount_per
+
+    const amount = Number(data.amount || 0)
+    const use_amount = Number(data.use_amount || 0)
+    const total_amount = Number(tool.plus(set_amount, use_amount))
+    const excess_amount = Number(tool.minus(Number(total_amount), amount))
+
+    if (excess_amount > 0) {
+      data.excess_amount = excess_amount
+      currentSingleItem.value.excess_amount = excess_amount
+      currentItemInfo.value.excess_amount = excess_amount
+    } else {
+      data.excess_amount = 0
+      currentSingleItem.value.excess_amount = 0
+      currentItemInfo.value.excess_amount = 0
+    }
+
+    if (selectIdData.value.includes(data.id)) {
+      const obj = selectData.value.find(item => item.id === data.id)
+      if (obj) {
+        obj.set_amount = data.set_amount
+      }
+    } else {
+      selectData.value.push(data)
+    }
+
+    itemVisible.value = false
+
+    currentItemInfo.value = {}
+    currentSingleItem.value = {}
   }
 
   const selectSureHandle = () => {
@@ -1175,47 +1250,22 @@
         }
       }
 
-      currentItemInfo.value.showError = false
-      currentItemInfo.value.checked = Boolean(Number(currentItemInfo.value.set_amount))
-      const data = cloneDeep(currentItemInfo.value) 
-      const { checked, set_amount, set_amount_per } = data
-      
-      currentSingleItem.value.checked = checked
-      currentSingleItem.value.set_amount = set_amount
-      currentSingleItem.value.set_amount_per = set_amount_per
-
-      const amount = Number(data.amount || 0)
-      const use_amount = Number(data.use_amount || 0)
-      const total_amount = Number(tool.plus(set_amount, use_amount))
-      const excess_amount = Number(tool.minus(Number(total_amount), amount))
-
-      if (excess_amount > 0) {
-        data.excess_amount = excess_amount
-        currentSingleItem.value.excess_amount = excess_amount
-        currentItemInfo.value.excess_amount = excess_amount
+      if (currentItemInfo.value.excess_amount < 0) {
+        confirmTxt.value = t('已超额{0}，确定设置吗？', [`$${numberStrFormat(Math.abs(currentItemInfo.value.excess_amount))}`])
+        confirmAlertVisible.value = true
       } else {
-        data.excess_amount = 0
-        currentSingleItem.value.excess_amount = 0
-        currentItemInfo.value.excess_amount = 0
+        signleItemSelected()
       }
-
-      if (selectIdData.value.includes(data.id)) {
-        const obj = selectData.value.find(item => item.id === data.id)
-        if (obj) {
-          obj.set_amount = data.set_amount
-        }
-      } else {
-        selectData.value.push(data)
-      }
-
-      itemVisible.value = false
-
-      currentItemInfo.value = {}
-      currentSingleItem.value = {}
     }
 
     // 删除没有设置金额的数据
     selectData.value = selectData.value.filter(item => Number(item.set_amount))
+  }
+
+  const confirmAlertHandle = () => {
+    confirmAlertRef.value.changeLoading(false)
+    confirmAlertVisible.value = false
+    signleItemSelected()
   }
 
   const selectConfirm = () => {
@@ -1390,6 +1440,9 @@
 
   .form-block-content {
     margin-bottom: 30px;
+    .text-info {
+      height: 46px;
+    }
     > .title {
       font-weight: 500;
       color: #666;

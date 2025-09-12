@@ -1164,5 +1164,7 @@ export default {
   "上季度": "Last quarter",
   "上财政年度": "Last financial year",
   "放款对账情况": "Drawdown synced",
-  "还款对账情况": "Repayment synced"
+  "还款对账情况": "Repayment synced",
+  "已放款额度比例": "Disbursed Ratio",
+  "已超额{0}，确定设置吗？": "Exceeded {0}, are you sure to set it?"
 }

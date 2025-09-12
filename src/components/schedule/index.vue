@@ -700,13 +700,8 @@ const adDisabledSdateFormat = (current) => {
 
 const adDisabledDateFormat = (current) => {
   const startDate = adFormState.s_date ? dayjs(adFormState.s_date) : statisticsData.value?.day.sday;
-  const endDate = dayjs(new Date());
 
   if (current && current.isBefore(startDate, 'day')) {
-    return true;
-  }
-
-  if (current && current.isAfter(endDate, 'day')) {
     return true;
   }
 
@@ -850,15 +845,15 @@ quickDateData.value.forEach(item => {
     // 获取本月开始日期和当前日期
     const monthRange = tool.getMonthRange();
     item.startDate = monthRange.start;
-    item.endDate = monthRange.currentDate;
+    item.endDate = monthRange.end;
   } else if (item.value === 'quarter') {
     const quarterRange = tool.getQuarterRange();
     item.startDate = quarterRange.start;
-    item.endDate = quarterRange.currentDate;
+    item.endDate = quarterRange.end;
   } else if (item.value === 'year') {
-    const yearRange = tool.getYearRange();
+    const yearRange = tool.getYearRange(4);
     item.startDate = yearRange.start;
-    item.endDate = yearRange.currentDate;
+    item.endDate = yearRange.end;
   } else if (item.value === 'lastMonth') {
     const lastMonthRange = tool.getLastMonthRange();
     item.startDate = lastMonthRange.start;
@@ -868,7 +863,7 @@ quickDateData.value.forEach(item => {
     item.startDate = lastQuarterRange.start;
     item.endDate = lastQuarterRange.end;
   } else if (item.value === 'lastYear') {
-    const lastYearRange = tool.getLastYearRange();
+    const lastYearRange = tool.getLastYearRange(4);
     item.startDate = lastYearRange.start;
     item.endDate = lastYearRange.end;
   }
@@ -884,13 +879,6 @@ const quickDateChange = (value) => {
   // 如果startDate 在 statisticsData.value.day.sday 之前，则 selectSdate 为statisticsData.value.day.sday 否则为startDate
   if (dayjs(startDate).isBefore(dayjs(statisticsData.value.day.sday), 'day')) {
     selectSdate = statisticsData.value.day.sday;
-  }
-
-  // 如果endDate 在 statisticsData.value.day.eday 之后，则 selectEdate 为statisticsData.value.day.eday 否则为endDate，如果在statisticsData.value.day.sday 之前则为statisticsData.value.day.sday
-  if (dayjs(endDate).isAfter(dayjs(statisticsData.value.day.eday), 'day')) {
-    selectEdate = statisticsData.value.day.eday;
-  } else if (dayjs(endDate).isBefore(dayjs(statisticsData.value.day.sday), 'day')) {
-    selectEdate = statisticsData.value.day.sday
   }
 
   adFormState.s_date = dayjs(selectSdate);

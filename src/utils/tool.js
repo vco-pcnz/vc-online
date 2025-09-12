@@ -743,31 +743,47 @@ tool.getLastMonthRange = () => {
 };
 
 // 获取上年度开始日期和结束日期
-tool.getLastYearRange = () => {
+tool.getLastYearRange = (month) => {
   const now = dayjs();
-  const lastYear = now.subtract(1, 'year');
+  const startMonth = month || 1; // 默认从1月开始，传入4就是从4月开始
   
-  const start = lastYear.startOf('year');
-  const end = lastYear.endOf('year');
+  // 计算上年度的年份
+  const lastYear = now.year() - 1;
+  
+  // 从上年度的指定月份1号开始
+  const start = dayjs().year(lastYear).month(startMonth - 1).date(1).startOf('day');
+  
+  // 结束时间是本年度同一月份的前一个月的最后一天
+  // 比如从4月开始，结束就是本年的3月31号
+  const endMonth = startMonth === 1 ? 12 : startMonth - 1;
+  const endYear = startMonth === 1 ? lastYear : now.year();
+  const end = dayjs().year(endYear).month(endMonth - 1).endOf('month');
   
   return {
     start: start.format('YYYY-MM-DD'),
     end: end.format('YYYY-MM-DD'),
     startTime: start.format('YYYY-MM-DD HH:mm:ss'),
     endTime: end.format('YYYY-MM-DD HH:mm:ss'),
-    year: lastYear.year(),
-    yearName: `${lastYear.year()}年`,
+    year: lastYear,
+    startMonth: startMonth,
+    yearName: `${lastYear}年`,
     currentDate: now.format('YYYY-MM-DD')
   };
 };
 
 // 获取本年度开始日期和结束日期
-tool.getYearRange = (year) => {
+tool.getYearRange = (month) => {
   const now = dayjs();
-  const targetYear = year || now.year();
+  const targetYear = now.year();
+  const startMonth = month || 1; // 默认从1月开始，传入4就是从4月开始
   
-  const start = dayjs().year(targetYear).startOf('year');
-  const end = dayjs().year(targetYear).endOf('year');
+  // 从指定年份的指定月份1号开始
+  const start = dayjs().year(targetYear).month(startMonth - 1).date(1).startOf('day');
+  
+  // 结束时间是下一年同一月份的前一个月的最后一天
+  // 比如从4月开始，结束就是下一年的3月31号
+  const endMonth = startMonth === 1 ? 12 : startMonth - 1;
+  const end = dayjs().year(targetYear + 1).month(endMonth - 1).endOf('month');
   
   return {
     start: start.format('YYYY-MM-DD'),
@@ -775,6 +791,7 @@ tool.getYearRange = (year) => {
     startTime: start.format('YYYY-MM-DD HH:mm:ss'),
     endTime: end.format('YYYY-MM-DD HH:mm:ss'),
     year: targetYear,
+    startMonth: startMonth,
     yearName: `${targetYear}年`,
     currentDate: now.format('YYYY-MM-DD')
   };

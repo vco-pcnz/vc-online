@@ -47,11 +47,11 @@ const checkVersion = async () => {
 
     // 如果本地存储的版本不存在或与当前版本不一致，且服务器版本更新
     if (!savedVersion || savedVersion !== data.version_code) {
-      // if (savedVersion && savedVersion !== data.version_code) {
-      //   // 版本更新了
-      //   updateAvailable.value = true;
-      // }
-      refreshApp();
+      if (savedVersion && savedVersion !== data.version_code) {
+        // 版本更新了
+        updateAvailable.value = true;
+        refreshApp();
+      }
       // 更新本地存储的版本
       localStorage.setItem('app-version', data.version_code);
     }

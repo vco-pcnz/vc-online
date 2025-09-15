@@ -417,7 +417,9 @@
   const itemInput = (data, item) => {
     const amountArr = extractAmounts(data, '-')
     if (amountArr.length) {
-      const sum = amountArr.reduce((total, num) => total + num, 0);
+      const sum = amountArr.reduce((total, num) => {
+        return Number(tool.plus(total, num))
+      }, 0);
       const payment = tool.div(sum, calcBuildAmount.value)
 
       data.payment = Number(tool.times(Number(payment), 100)).toFixed(2)

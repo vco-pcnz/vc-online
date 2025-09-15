@@ -721,7 +721,7 @@ export default {
   "变更详情": "Variations Details",
   "关闭": "Close",
   "您可以点击下面的按钮来拒绝请求。": "You can decline the request by clicking the button below.",
-  "操作成功": "Operation successful",
+  "操作成功": "Success",
   "解押申请": "Discharge Request",
   "添加申请": "Add Request",
   "文件夹名称": "Folder Name",

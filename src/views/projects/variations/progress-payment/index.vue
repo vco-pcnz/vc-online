@@ -337,7 +337,9 @@
   const itemInput = (data, item) => {
     const amountArr = extractAmounts(data, '-')
     if (amountArr.length) {
-      const sum = amountArr.reduce((total, num) => total + num, 0);
+      const sum = amountArr.reduce((total, num) => {
+        return Number(tool.plus(total, num))
+      }, 0);
       const payment = tool.div(sum, calcBuildAmount.value)
 
       data.payment = Number(payment)
@@ -966,7 +968,7 @@
     changeColseBtn.value = false
 
     const setLoanTotal = TableLoanTotal.value(1)
-    const setBeTotal =TableLoanTotal.value(2)
+    const setBeTotal = TableLoanTotal.value(2)
 
     if ((setLoanTotal !== buildAmount.value) && !easyModel.value) {
       const diffNum = tool.minus(buildAmount.value, setLoanTotal)

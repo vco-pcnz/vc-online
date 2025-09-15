@@ -721,7 +721,7 @@ export default {
   "变更详情": "Variations Details",
   "关闭": "Close",
   "您可以点击下面的按钮来拒绝请求。": "You can decline the request by clicking the button below.",
-  "操作成功": "Operation successful",
+  "操作成功": "Success",
   "解押申请": "Discharge Request",
   "添加申请": "Add Request",
   "文件夹名称": "Folder Name",
@@ -1165,5 +1165,9 @@ export default {
   "上财政年度": "Last financial year",
   "放款对账情况": "Drawdown synced",
   "还款对账情况": "Repayment synced",
-  "请输入整数": "Please enter an integer"
+  "请输入整数": "Please enter an integer",
+  "{0} 已超额": "{0} Exceeded",
+  "超额放款": 'Excess drawdown',
+  "已放款额度比例": "Disbursed Ratio",
+  "已超额{0}，确定设置吗？": "Exceeded {0}, are you sure to set it?"
 }

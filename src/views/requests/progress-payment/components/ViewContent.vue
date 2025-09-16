@@ -168,7 +168,7 @@
                         <vco-number :value="advanceObj?.use_amount || 0" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
                         <div class="process-gap"></div>
                         <div class="init-progress">
-                          <vco-excess-process :percent="record.percent" />
+                          <vco-excess-process :percent="advanceObj.percent" />
 
                           <a-tooltip v-if="Number(advanceObj.excess_amount)" placement="top">
                             <template #title>

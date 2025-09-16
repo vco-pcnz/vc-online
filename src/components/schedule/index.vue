@@ -531,7 +531,7 @@ const getDataInfo = (isLate = false) => {
       statisticsData.value.last.repaid = res.last.repaid ? Math.abs(Number(res.last.repaid)) : 0;
 
       if (res.last.is_overtime) {
-        statisticsData.value.last.days = tool.diffDate(res.day.sday, res.day.eday);
+        statisticsData.value.last.days = tool.diffDate(res.day.sday, res.day.eday) + 1;
       }
       statisticsData.value.isBegain = dayjs().isAfter(dayjs(res.day.sday));
 

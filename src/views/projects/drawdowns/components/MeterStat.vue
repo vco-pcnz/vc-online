@@ -8,7 +8,7 @@
           <vco-number :bold="true" :value="statistics?.loanWithdrawal" :precision="2" style="margin-bottom: 2px"></vco-number>
           <div v-if="statistics?.available >= 0" class="color_grey flex"><vco-number :value="statistics?.available" :precision="2" size="fs_xs" color="#888" class="mr-2"></vco-number> {{ t('可用余额') }}</div>
           <div v-else class="color_red-error flex">
-            {{ t('{0} 已超额', [tool.formatMoney(Math.abs(statistics?.available))]) }}
+            {{ t('{0} 已超额', [tool.formatMoney(Math.abs(statistics?.available || 0))]) }}
           </div>
         </div>
       </div>

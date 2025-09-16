@@ -599,7 +599,7 @@ const setFormData = () => {
 
   if (data.all_repayment) {
     standardRateInput.value = data.reduction_rate || 0
-    calAmount(false, true);
+    calAmount(false, Boolean(standardRateInput.value));
   }
 }
 

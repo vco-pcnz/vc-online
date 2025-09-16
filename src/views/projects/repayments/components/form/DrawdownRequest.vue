@@ -467,8 +467,8 @@ const calAmount = (rate, flag = false) => {
         standardRate.value = res.min_StandardRate
         if (!flag) {
           standardRateInput.value = res.StandardRate
+          standardAmount.value = res.reduction_money
         }
-        standardAmount.value = res.reduction_money
 
         hasSetStandard.value = true
       }
@@ -598,6 +598,15 @@ const setFormData = () => {
   }
 
   if (data.all_repayment) {
+    const time = dayjs(formState.value.apply_date).format('YYYY-MM-DD');
+    const params = {
+      uuid: props.uuid,
+      date: time
+    }
+    projectLoanAllRepayment(params).then(res => {
+      standardAmount.value = res.reduction_money
+    })
+
     standardRateInput.value = data.reduction_rate || 0
     calAmount(data.reduction_rate, Boolean(standardRateInput.value));
   }

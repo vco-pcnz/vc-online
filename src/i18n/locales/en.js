@@ -1169,5 +1169,10 @@ export default {
   "{0} 已超额": "{0} Exceeded",
   "超额放款": 'Excess drawdown',
   "已放款额度比例": "Disbursed Ratio",
-  "已超额{0}，确定设置吗？": "Exceeded {0}, are you sure to set it?"
+  "已超额{0}，确定设置吗？": "Exceeded {0}, are you sure to set it?",
+  "所属": "Belong",
+  "VS放款": "VS drawdown",
+  "BOC放款": "BOC drawdown",
+  "总共": "Total",
+  "还差": "Remaining"
 }

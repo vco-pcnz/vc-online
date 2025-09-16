@@ -1132,6 +1132,9 @@
     formState.value.devCost = props.lendingInfo.devCost
     formState.value.devCostDetail = props.lendingInfo.devCostDetail
 
+    // BOC 贷款周期
+    formState.value.drawdown_term = props.lendingInfo.drawdown_term || 0
+
     // 项目周期
     formState.value.time_date = [dayjs(props.lendingInfo.start_date), dayjs(props.lendingInfo.end_date)]
     timeChange(formState.value.time_date)
@@ -1328,6 +1331,9 @@
           credit__data
         };
 
+        params.drawdown_term = params.credit__data.drawdown_term
+        delete params.credit__data.drawdown_term
+
         if (creditId.value) {
           params.credit__data.id = creditId.value;
         }
@@ -1384,7 +1390,8 @@
           Number(val.initial_equity_amount) !== Number(formState.value.initial_equity_amount) ||
           Number(val.has_linefee) !== Number(formState.value.has_linefee) ||
           val.start_date !== staticFormData.value.start_date ||
-          val.end_date !== staticFormData.value.end_date
+          val.end_date !== staticFormData.value.end_date ||
+          val.drawdown_term !== formState.value.drawdown_term
         ) {
           updateFormData()
         }

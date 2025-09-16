@@ -46,6 +46,12 @@
               <a-select-option :value="4">{{ t('还款') }}</a-select-option>
             </a-select>
           </a-form-item>
+          <a-form-item v-if="showBelong" :label="t('所属')" name="source">
+            <a-select v-model:value="formState.source">
+              <a-select-option :value="0">VS</a-select-option>
+              <a-select-option :value="1">BOC</a-select-option>
+            </a-select>
+          </a-form-item>
           <a-form-item :label="t('日期')" name="date">
             <a-date-picker v-model:value="formState.date" :disabled="disabledDateSelcet" :format="selectDateFormat()" :disabledDate="disabledDateFormat" placeholder="" />
           </a-form-item>
@@ -109,24 +115,26 @@
       <a-spin :spinning="tabLoading" size="large">
         <div class="table-content">
           <div class="col-item th">
-            <div class="item uppercase">{{ t('日期') }}</div>
-            <div class="item uppercase">{{ t('类型') }}</div>
-            <div class="item uppercase">{{ t('金额') }}</div>
-            <div v-if="!isDetails && blockInfo.showEdit" class="item uppercase">{{ t('操作1') }}</div>
+            <div class="item uppercase one">{{ t('日期') }}</div>
+            <div class="item uppercase two">{{ t('类型') }}</div>
+            <div v-if="showBelong" class="item uppercase five">{{ t('所属') }}</div>
+            <div class="item uppercase three">{{ t('金额') }}</div>
+            <div v-if="!isDetails && blockInfo.showEdit" class="item uppercase four">{{ t('操作1') }}</div>
             <div v-else class="empty"></div>
           </div>
 
           <div class="col-content">
             <div v-for="(item, index) in tabData" :key="index" class="col-block">
               <div v-for="(_item, _index) in item" :key="_item.date" class="col-item">
-                <div class="item">{{ tool.showDate(_item.date) }}</div>
-                <div class="item">{{ _item.name }}</div>
-                <div class="item">
+                <div class="item one">{{ tool.showDate(_item.date) }}</div>
+                <div class="item two">{{ _item.name }}</div>
+                <div v-if="showBelong" class="item five">{{ getBelongTxt(_item.source) }}</div>
+                <div class="item three">
                   <vco-number :value="_item.amount" :precision="2" :end="true"></vco-number>
                 </div>
-                <div v-if="!isDetails && blockInfo.showEdit" class="item ops">
-                  <i class="iconfont" :class="{ disabled: _item.first || Boolean(_item.source) }" @click="addEditHandle(_item, index, _index)">&#xe8cf;</i>
-                  <i class="iconfont" :class="{ disabled: _item.first || Boolean(_item.source) }" @click="removeHandle(_item)">&#xe8c1;</i>
+                <div v-if="!isDetails && blockInfo.showEdit" class="item ops four">
+                  <i class="iconfont" :class="{ disabled: _item.first }" @click="addEditHandle(_item, index, _index)">&#xe8cf;</i>
+                  <i class="iconfont" :class="{ disabled: _item.first }" @click="removeHandle(_item)">&#xe8c1;</i>
                 </div>
                 <div v-else class="empty"></div>
               </div>
@@ -134,37 +142,36 @@
           </div>
         </div>
         <div v-if="tabData.length" class="forecast-total mt-5">
-          <p>
-            {{ cTimes }}
-            <span class="pl-1">{{ t('笔放款') }}</span>
-          </p>
-          <div :class="{ error: errorColor }">
-            <vco-number :value="cMoney" :precision="2" :end="true"></vco-number>
-            <p v-if="showTips">{{ showTips }}</p>
-            <!-- <div v-if="showTips" class="flex justify-end mt-2">
-              <a-button
-                type="primary" shape="round"
-                class="uppercase flex items-center justify-center"
-                @click="changeVisible = true"
-              >
-                {{ t('修改') }}
-                <a-tooltip>
-                  <template #title>
-                    <span>{{ t('将借款金额修改为{0}', [cMoney]) }}</span>
-                  </template>
-                  <QuestionCircleOutlined />
-                </a-tooltip>
-              </a-button>
-            </div> -->
+          <div class="flex justify-between items-start">
+            <p>{{ t('VS放款') }}</p>
+            <div class="flex flex-col items-end">
+              <vco-number :value="vsMoney" :precision="2" :end="true" class="total"></vco-number>
+              <div v-if="vsRemainMoney" class="flex items-center justify-end error">
+                <p>{{ t('还差') }}</p>
+                <vco-number :value="vsRemainMoney" :precision="2" :end="true" class="remain"></vco-number>
+              </div>
+            </div>
           </div>
-        </div>
-        <div v-if="Number(pTimes)" class="forecast-total mt-1">
-          <p>
-            <i class="iconfont">&#xe757;</i>
-            {{ pTimes }}
-            <span class="pl-1">{{ t('笔还款') }}</span>
-          </p>
-          <vco-number :value="pMoney" :precision="2" :end="true"></vco-number>
+          <div class="flex justify-between mt-2">
+            <p>{{ t('BOC放款') }}</p>
+            <div class="flex flex-col items-end">
+              <vco-number :value="bocMoney" :precision="2" :end="true" class="total"></vco-number>
+              <div v-if="bocRemainMoney" class="flex items-center justify-end error">
+                <p>{{ t('还差') }}</p>
+                <vco-number :value="bocRemainMoney" :precision="2" :end="true" class="remain"></vco-number>
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-between mt-3">
+            <p>{{ t('总共') }}</p>
+            <div class="flex flex-col items-end">
+              <vco-number :value="loanMoney" :precision="2" :end="true" class="loan"></vco-number>
+              <div v-if="loanRemainMoney" class="flex items-center justify-end error">
+                <p>{{ t('还差') }}</p>
+                <vco-number :value="loanRemainMoney" :precision="2" :end="true" class="remain"></vco-number>
+              </div>
+            </div>
+          </div>
         </div>
       </a-spin>
     </div>
@@ -216,6 +223,12 @@ const sMoney = ref(0);
 const loanMoney = ref(0);
 const errorColor = ref(false);
 
+const vsMoney = ref(0)
+const vsRemainMoney = ref(0)
+const bocMoney = ref(0)
+const bocRemainMoney = ref(0)
+const loanRemainMoney = ref(0)
+
 const tabFlatData = ref([])
 
 const visible = ref(false);
@@ -244,6 +257,20 @@ const disabledDates = computed(() => {
   const timeArr = data.map((item) => item.date);
   return timeArr;
 });
+
+const showBelong = computed(() => {
+  const productCode = props.infoData?.base?.productCode || '';
+  return ['vsl'].includes(productCode.toLowerCase());
+});
+
+const getBelongTxt = (source) => {
+  const num = Number(source || 0);
+  if (num === 0) {
+    return 'VS'
+  } else if (num === 1) {
+    return 'BOC'
+  }
+};
 
 const disabledDateFormat = (current) => {
   const startDate = props.infoData.lending.start_date;
@@ -278,11 +305,13 @@ const formState = reactive({
   amount: '',
   note: '',
   first: '',
+  source: '',
 });
 const changeType = ref(undefined);
 
 const formRules = {
   type: [{ required: true, message: t('请选择') + t('类型'), trigger: 'change' }],
+  source: [{ required: true, message: t('请选择') + t('所属'), trigger: 'change' }],
   date: [{ required: true, message: t('请选择') + t('日期'), trigger: 'change' }],
   amount: [{ required: true, message: t('请输入') + t('金额'), trigger: 'blur' }],
 };
@@ -312,6 +341,12 @@ const getTableData = () => {
       sMoney.value = Number(res.data.settlementMoney);
 
       loanMoney.value = Number(res.data.loanMoney);
+      loanRemainMoney.value = Number(res.data.remainDrawDownMoney);
+
+      vsMoney.value = Number(res.data.vsDrawDownAmount);
+      vsRemainMoney.value = Number(res.data.vsRemainDrawDownMoney);
+      bocMoney.value = Number(res.data.bocDrawDownAmount);
+      bocRemainMoney.value = Number(res.data.bocRemainDrawDownMoney);
 
       tabFlatData.value = dataArr.flat(Infinity).filter(item => item.type === 2)
       tabData.value = dataArr;
@@ -336,7 +371,9 @@ const addEditHandle = (data, index, _index) => {
     formState.amount = Math.abs(data.amount);
     formState.note = data.note;
     formState.first = data.first;
+    formState.source = data.source;
   } else {
+    formState.source = '';
     formState.id = 0;
     formState.type = 2;
     formState.date = '';
@@ -486,7 +523,7 @@ const submitHandle = () => {
   formRef.value
     .validate()
     .then(() => {
-      const { id, type, date, amount, note, first, initial_land_amount, initial_build_amount } = formState;
+      const { id, type, date, amount, note, first, initial_land_amount, initial_build_amount, source } = formState;
       const params = {
         id,
         type,
@@ -497,6 +534,10 @@ const submitHandle = () => {
         initial_build_amount,
         apply_uuid: props.currentId,
       };
+
+      if (showBelong.value) {
+        params.source = source;
+      }
 
       currentParams.value = params;
 
@@ -588,23 +629,27 @@ onUnmounted(() => {
       word-break: break-all;
       font-size: 12px !important;
       line-height: 22px;
-      &:nth-child(1) {
+      &.one {
         width: 80px;
       }
-      &:nth-child(2) {
+      &.two {
         text-align: center;
-        width: 100px;
+        width: 90px;
       }
-      &:nth-child(3) {
+      &.three {
         text-align: center;
         flex: 1;
       }
-      &:last-child {
+      &.four {
         width: 40px;
         text-align: right;
         &.empty {
           width: 0;
         }
+      }
+      &.five {
+        width: 50px;
+        text-align: center;
       }
       &.ops {
         display: flex;
@@ -655,26 +700,30 @@ onUnmounted(() => {
 }
 
 .forecast-total {
-  display: flex;
-  justify-content: space-between;
-  padding: 0 10px;
-  > p {
-    width: 30%;
-    line-height: 38px;
-    > i {
-      font-size: 13px;
-      margin-right: 7px;
-    }
-  }
-  > div {
-    width: 70%;
-    text-align: right;
-  }
   .error {
+    gap: 5px;
+    > p {
+      font-size: 12px;
+    }
     :deep(.ant-statistic-content) {
       color: @color_red-error !important;
     }
     color: @color_red-error !important;
+  }
+  .total {
+    :deep(.ant-statistic-content) {
+      font-size: 18px;
+    }
+  }
+  .remain {
+    :deep(.ant-statistic-content) {
+      font-size: 14px;
+    }
+  }
+  > .flex {
+    > p {
+      line-height: 28px;
+    }
   }
 }
 

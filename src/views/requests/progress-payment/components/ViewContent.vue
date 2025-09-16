@@ -106,7 +106,7 @@
             <div class="flex items-center justify-between">
               <div v-if="!isSelect" class="title text-info">{{ t('进度付款阶段') }}</div>
               <template v-else>
-                <div v-if="showExcess" class="flex items-center gap-2 text-info">
+                <div v-if="showExcess && !batchSelect" class="flex items-center gap-2 text-info">
                   <p>{{ t('是否允许超额放款') }}</p>
                   <a-switch v-model:checked="allowExcess" />
                 </div>

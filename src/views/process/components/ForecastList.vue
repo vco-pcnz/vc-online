@@ -146,7 +146,10 @@
         <div v-if="tabData.length" class="forecast-total mt-5">
           <template v-if="isVsl">
             <div class="flex justify-between items-start">
-              <p>{{ t('VS放款') }}</p>
+              <div>
+                <p>{{ t('VS放款') }}</p>
+                <p class="fs_xs" style="color: #999;">{{ `${vsDrawDownNum} ${t('笔放款')}` }}</p>
+              </div>
               <div class="flex flex-col items-end">
                 <vco-number :value="vsMoney" :precision="2" :end="true" class="total"></vco-number>
                 <div v-if="vsRemainMoney" class="flex items-center justify-end error">
@@ -156,7 +159,10 @@
               </div>
             </div>
             <div class="flex justify-between mt-2">
-              <p>{{ t('BOC放款') }}</p>
+              <div>
+                <p>{{ t('BOC放款') }}</p>
+                <p class="fs_xs" style="color: #999;">{{ `${bocDrawDownNum} ${t('笔放款')}` }}</p>
+              </div>
               <div class="flex flex-col items-end">
                 <vco-number :value="bocMoney" :precision="2" :end="true" class="total"></vco-number>
                 <div v-if="bocRemainMoney" class="flex items-center justify-end error">
@@ -166,7 +172,10 @@
               </div>
             </div>
             <div class="flex justify-between mt-3">
-              <p>{{ t('总共') }}</p>
+              <div>
+                <p>{{ t('总共') }}</p>
+                <p class="fs_xs" style="color: #999;">{{ `${cTimes} ${t('笔放款')}` }}</p>
+              </div>
               <div class="flex flex-col items-end">
                 <vco-number :value="loanMoney" :precision="2" :end="true" class="loan"></vco-number>
                 <div v-if="loanRemainMoney" class="flex items-center justify-end error">
@@ -232,6 +241,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  productType: {
+    type: String,
+    default: '',
+  },
 });
 
 const { t } = useI18n();
@@ -281,8 +294,16 @@ const disabledDates = computed(() => {
 });
 
 const isVsl = computed(() => {
-  const productCode = props.infoData?.base?.productCode || '';
+  const productCode = props.infoData?.base?.productCode || props.productType || '';
   return productCode.toLowerCase() === 'vsl';
+});
+
+const vsDrawDownNum = computed(() => {
+  return tabFlatData.value.filter(item => item.source === 0).length;
+});
+
+const bocDrawDownNum = computed(() => {
+  return tabFlatData.value.filter(item => item.source === 1).length;
 });
 
 const getBelongTxt = (source) => {
@@ -619,6 +640,12 @@ const submitHandle = () => {
         saveLoading.value = true;
         sureHandle();
       } else {
+        if (isVsl.value && source === 1) {
+          changeType.value = 2;
+          saveLoading.value = true;
+          sureHandle();
+          return false
+        }
         tipsVisible.value = true;
         changeType.value = undefined;
       }

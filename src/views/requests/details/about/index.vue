@@ -171,6 +171,7 @@
                   :is-details="true"
                   :show-list="true"
                   :block-info="{showEdit: false}"
+                  :product-type="currentProduct"
                 ></forecast-list>
 
                 <conditions-list

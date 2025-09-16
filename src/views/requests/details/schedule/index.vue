@@ -7,6 +7,7 @@
             v-if="showSch && !pageLoading"
             :currentId="uuid"
             :is-details="true"
+            :is-process="true"
             :current-product="currentProduct"
           ></schedule>
           <a-empty v-if="!showSch && !pageLoading" />

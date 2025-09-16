@@ -132,10 +132,3 @@ export const addAmount = (data) =>
     method: 'post',
     data
   });
-
-export const cashFlowForecastExport = (params) =>
-  request({
-    url: 'invest/cashFlowForecastExport',
-    method: 'get',
-    params
-  });

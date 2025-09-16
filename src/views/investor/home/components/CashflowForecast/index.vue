@@ -8,7 +8,7 @@
       <div class="flex-1 fs_2xl cursor-pointer">Cashflow forecast</div>
     </template>
     <SearchContent v-model:value="searchForm" :searchConfig="searchConfig" @change="loadData"></SearchContent>
-    <CashFlowForecastExportModal :searchParams="searchForm"></CashFlowForecastExportModal>
+    <CashFlowForecastExportModal :searchParams="searchForm" downloadUrl="invest/cashFlowForecastExport"></CashFlowForecastExportModal>
   </div>
   <a-spin :spinning="loading" size="large">
     <div class="CashflowForecastChart">
@@ -106,7 +106,7 @@ import { cashFlowForecast } from '@/api/invest';
 import Forecast from './ForecastModal.vue';
 import VcoNumberNew from './vco-number-new.vue';
 import LineLabel from './line-label.vue';
-import CashFlowForecastExportModal from './cashFlowForecastExport.vue';
+import CashFlowForecastExportModal from '@/views/dashboard/components/CashflowForecast/cashFlowForecastExport.vue';
 import { useUserStore } from '@/store';
 import SearchContent from './SearchContent/index.vue';
 

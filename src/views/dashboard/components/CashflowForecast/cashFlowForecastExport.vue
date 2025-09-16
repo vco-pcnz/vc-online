@@ -29,9 +29,9 @@
 <script scoped setup>
 import { ref, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { cashFlowForecastExport } from '@/api/invest';
 import dayjs from 'dayjs';
 import { selectDateFormat } from '@/utils/tool';
+import { request } from '@/utils/request';
 
 const { t } = useI18n();
 const emits = defineEmits(['change']);
@@ -39,6 +39,9 @@ const emits = defineEmits(['change']);
 const props = defineProps({
   searchParams: {
     type: Object
+  },
+  downloadUrl: {
+    type: String
   }
 });
 
@@ -131,13 +134,15 @@ const save = () => {
   formRef.value
     .validate()
     .then(() => {
-      const params = {
-        ...formState.value,
-        ...props.searchParams
+      const url = props.downloadUrl;
+      const paramsInfo = {
+        url,
+        method: 'get',
+        params: { ...formState.value, ...props.searchParams }
       };
       loading.value = true;
 
-      cashFlowForecastExport(params)
+      request(paramsInfo)
         .then((res) => {
           window.open(res);
           loading.value = false;

@@ -1174,5 +1174,8 @@ export default {
   "VS放款": "VS drawdown",
   "BOC放款": "BOC drawdown",
   "总共": "Total",
-  "还差": "Remaining"
+  "还差": "Remaining",
+  "借款人姓名": "Borrower name",
+  "借款人电话": "Borrower phone",
+  "借款人邮箱": "Borrower email"
 }

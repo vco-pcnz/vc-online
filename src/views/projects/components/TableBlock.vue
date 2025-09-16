@@ -71,6 +71,19 @@
             {{ column.title }}
           </span>
         </template>
+
+        <template v-if="column.key === '1'">
+          <span class="headSortItem" :class="{ active: sort.sort == 'project_name' }" @click="sortChange('project_name')">
+            <i class="iconfont" :class="{ asc: sort.order == 'asc' && sort.sort == 'project_name' }">&#xe74d;</i>
+            {{ column.title }}
+          </span>
+        </template>
+        <template v-if="column.key === 'close_date'">
+          <span class="headSortItem" :class="{ active: sort.sort == 'close_date' }" @click="sortChange('close_date')">
+            <i class="iconfont" :class="{ asc: sort.order == 'asc' && sort.sort == 'close_date' }">&#xe74d;</i>
+            {{ column.title }}
+          </span>
+        </template>
       </template>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === '1'">
@@ -239,7 +252,7 @@ const props = defineProps({
 const { t } = useI18n();
 const columns = reactive([
   { title: t('项目•类型'), key: '1', width: 280 },
-  { title: t('借款人•贷款经理'), key: '2', width: 140 },
+  { title: t('借款人•贷款经理'), key: '2', width: 200 },
   { title: t('开始日期'), key: 'open', width: 110 },
   { title: t('到期'), key: 'end_date', width: 110 },
   { title: t('IRR预测'), key: 'irr', width: 140 },

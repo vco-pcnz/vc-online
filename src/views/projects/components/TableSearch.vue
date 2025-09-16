@@ -2,12 +2,12 @@
   <div>
     <vco-page-search @keyup.enter="searchHandle(false)">
       <vco-page-search-item :title="t('项目信息')" width="266">
-        <vco-type-input v-model="searchForm.project_keyword" v-model:type="searchForm.project_search_type" :type-data="projectsTypeData" :placeholder="t('请输入')"></vco-type-input>
+        <vco-type-input v-model="searchForm.project_keyword" v-model:type="searchForm.project_search_type" :type-data="projectsTypeData" :placeholder="t('请输入')" :typeWidth="135"></vco-type-input>
       </vco-page-search-item>
 
-      <vco-page-search-item :title="t('借款人信息')" width="240">
+      <!-- <vco-page-search-item :title="t('借款人信息')" width="240">
         <vco-type-input v-model="searchForm.borrower_keyword" v-model:type="searchForm.borrower_search_type" :type-data="borrowerTypeData" :placeholder="t('请输入')"></vco-type-input>
-      </vco-page-search-item>
+      </vco-page-search-item> -->
 
       <vco-page-search-item :title="t('开始日期1')" width="266">
         <div class="flex items-center gap-2">
@@ -16,19 +16,26 @@
           <a-date-picker v-model:value="searchForm.start_date_e" :format="selectDateFormat()" :disabledDate="disabledDateFormatAfter" :placeholder="t('结束日期2')" />
         </div>
       </vco-page-search-item>
-      <template v-if="isExpand"
-        ><vco-page-search-item :title="t('结束日期1')" width="266">
-          <div class="flex items-center gap-2">
-            <a-date-picker v-model:value="searchForm.end_date_s" :format="selectDateFormat()" :placeholder="t('开始日期2')" @change="searchForm.end_date = ''" />
-            <p>-</p>
-            <a-date-picker v-model:value="searchForm.end_date_e" :format="selectDateFormat()" :disabledDate="disabledDateFormatAfter2" :placeholder="t('结束日期2')" />
-          </div>
-        </vco-page-search-item>
-      </template>
-
+      <vco-page-search-item :title="t('结束日期1')" width="266">
+        <div class="flex items-center gap-2">
+          <a-date-picker v-model:value="searchForm.end_date_s" :format="selectDateFormat()" :placeholder="t('开始日期2')" @change="searchForm.end_date = ''" />
+          <p>-</p>
+          <a-date-picker v-model:value="searchForm.end_date_e" :format="selectDateFormat()" :disabledDate="disabledDateFormatAfter2" :placeholder="t('结束日期2')" />
+        </div>
+      </vco-page-search-item>
       <vco-page-search-item :title="t('客户经理')" width="170">
         <a-input v-model:value="searchForm.lm_name" :placeholder="t('请输入')" />
       </vco-page-search-item>
+
+      <template v-if="isExpand">
+        <vco-page-search-item :title="t('借款金额')" width="264">
+          <div class="flex items-center gap-2">
+            <a-input-number v-model:value="searchForm.min_loan_money" :min="1" :placeholder="t('最小值')" />
+            <p>-</p>
+            <a-input-number v-model:value="searchForm.max_loan_money" :min="searchForm.min_loan_money" :placeholder="t('最大值')" />
+          </div>
+        </vco-page-search-item>
+      </template>
 
       <template v-if="!isExpand">
         <vco-page-search-item>
@@ -42,22 +49,15 @@
     </vco-page-search>
 
     <div class="flex justify-between items-end mt-3" v-if="isExpand">
-      <vco-page-search-item :title="t('借款金额')" width="264">
-        <div class="flex items-center gap-2">
-          <a-input-number v-model:value="searchForm.min_loan_money" :min="1" :placeholder="t('最小值')" />
-          <p>-</p>
-          <a-input-number v-model:value="searchForm.max_loan_money" :min="searchForm.min_loan_money" :placeholder="t('最大值')" />
-        </div>
-      </vco-page-search-item>
+      <div class="mt-5">
+        <p class="num" v-if="type == 'closed'">{{ pageStore.total }} {{ t('已关闭项目') }}</p>
+        <p class="num" v-if="type == 'open'">{{ pageStore.total }} {{ t('项目') }}</p>
+      </div>
       <div class="flex gap-2">
         <div class="search_expand isExpand" @click="isExpand = !isExpand">{{ t('收起') }}<DoubleRightOutlined class="icon" /></div>
         <a-button type="dark" @click="searchHandle(false)"><i class="iconfont">&#xe756;</i>{{ t('搜索') }}</a-button>
         <a-button type="dark-line" @click="searchHandle(true)"><i class="iconfont">&#xe757;</i>{{ t('重置') }}</a-button>
       </div>
-    </div>
-    <div class="mt-5">
-      <p class="num" v-if="type == 'closed'">{{ pageStore.total }} {{ t('已关闭项目') }}</p>
-      <p class="num" v-if="type == 'open'">{{ pageStore.total }} {{ t('项目') }}</p>
     </div>
   </div>
 </template>
@@ -103,16 +103,29 @@ const projectsTypeData = [
     value: ''
   },
   {
-    label: t('名称'),
+    label: t('项目名称'),
     value: 'name'
   },
   {
-    label: t('ID'),
+    label: t('项目ID'),
     value: 'apply_sn'
   },
   {
-    label: t('地址'),
+    label: t('项目地址'),
     value: 'address'
+  },
+
+  {
+    label: t('借款人姓名'),
+    value: 'borrower_name'
+  },
+  {
+    label: t('借款人电话'),
+    value: 'borrower_phone'
+  },
+  {
+    label: t('借款人邮箱'),
+    value: 'borrower_email'
   }
 ];
 
@@ -174,5 +187,8 @@ defineExpose({
   font-size: 20px;
   font-weight: 600;
   line-height: 1.2;
+}
+.page-search-content {
+  gap: 24px;
 }
 </style>

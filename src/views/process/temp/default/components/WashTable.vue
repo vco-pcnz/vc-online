@@ -114,6 +114,11 @@
                   <i class="iconfont" :title="t('项目文件')" v-if="Boolean(record.document && record.document.length)" @click="updateVisibleFiles(record)">&#xe690;</i>
                   <template v-if="blockInfo.showEdit">
                     <i class="iconfont" :title="t('审核')" @click="checkOne(record.id)" v-if="record.status != 4 && record.status != 3 && record.document && record.document.length && hasPermission('requests:aml:check')"> &#xe647; </i>
+                    <div v-if="record.status == 4 && hasPermission('requests:aml:check')" class="relative">
+                      <i class="iconfont" :title="t('取消审核')" @click="cancelCheckOne(record.id)"> &#xe647; </i>
+                      <div class="close_line"></div>
+                    </div>
+
                     <i class="iconfont" :title="t('编辑')" @click="showForm(record)">&#xe753;</i>
                     <a-popconfirm :title="t('确定删除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record)">
                       <template #description>
@@ -163,7 +168,7 @@ import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool.js';
 import { navigationTo } from '@/utils/tool';
 import { auditLmCheckStatus } from '@/api/process';
-import { getWash, projectDetailGetWash, washCheck, sendEmail, sendSms, washRemove, washUpdate } from '@/api/project/wash';
+import { getWash, projectDetailGetWash, washCheck, sendEmail, sendSms, washRemove, washUpdate, cancelCheck } from '@/api/project/wash';
 import WashTableAddEdit from './WashTableAddEdit.vue';
 import { hasPermission } from '@/directives/permission/index';
 import emitter from '@/event';
@@ -264,15 +269,16 @@ const onSelectAll = (type) => {
   }
 };
 
-const batchRemoveDoc = ref(true)
+const batchRemoveDoc = ref(true);
 const loading = ref(false);
 const type = ref();
 const checkHandle = async (val) => {
   let ajaxFn = null;
   type.value = val;
   const params = {
-    id: selectAll.value == 'all' ? 'all' : selectedRowKeys.value, uuid: props.currentId
-  }
+    id: selectAll.value == 'all' ? 'all' : selectedRowKeys.value,
+    uuid: props.currentId
+  };
   if (val === 1) {
     ajaxFn = washCheck;
   } else if (val === 2) {
@@ -281,7 +287,7 @@ const checkHandle = async (val) => {
     ajaxFn = sendSms;
   } else if (val === 4) {
     ajaxFn = washRemove;
-    params.del_file = batchRemoveDoc.value ? 1 : 0
+    params.del_file = batchRemoveDoc.value ? 1 : 0;
   }
 
   if (ajaxFn) {
@@ -312,9 +318,20 @@ const checkOne = (id) => {
     });
 };
 
+const cancelCheckOne = (id) => {
+  loading.value = true;
+  cancelCheck({ id: [id], uuid: props.currentId })
+    .then((res) => {
+      loadData();
+    })
+    .finally((_) => {
+      loading.value = false;
+    });
+};
+
 const remove = (data) => {
   loading.value = true;
-  const del_file = data.removeDoc ? 1 : 0
+  const del_file = data.removeDoc ? 1 : 0;
   washRemove({ id: [data.id], uuid: props.currentId, del_file })
     .then((res) => {
       loadData();
@@ -361,10 +378,10 @@ const loadData = () => {
 
   ajaxFn({ uuid: props.currentId, ...pagination.value })
     .then((res) => {
-      const data = res.data || []
-      data.forEach(item => {
-        item.removeDoc = true
-      })
+      const data = res.data || [];
+      data.forEach((item) => {
+        item.removeDoc = true;
+      });
       tableData.value = data;
       total.value = res.count;
       if (selectAll.value == 'all') {
@@ -418,7 +435,7 @@ onUnmounted(() => {
 
 defineExpose({
   tableData
-})
+});
 </script>
 
 <style lang="less" scoped>
@@ -463,5 +480,14 @@ defineExpose({
   margin-top: 10px;
   margin-bottom: 20px;
   font-size: 13px;
+}
+
+.close_line {
+  width: 8px;
+  border-top: 1.5px solid #f19915;
+  position: absolute;
+  top: 10px;
+  right: 4.5px;
+  rotate: 45deg;
 }
 </style>

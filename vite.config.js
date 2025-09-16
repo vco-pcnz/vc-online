@@ -1,12 +1,11 @@
-import { defineConfig, loadEnv } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import VueSetupExtend from "vite-plugin-vue-setup-extend"
-import { resolve } from 'path'
-import vueJsx from '@vitejs/plugin-vue-jsx'
-import packageJson from './package.json'
+import { defineConfig, loadEnv } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import VueSetupExtend from 'vite-plugin-vue-setup-extend';
+import { resolve } from 'path';
+import vueJsx from '@vitejs/plugin-vue-jsx';
 export default ({ mode }) => {
-  const env = loadEnv(mode, process.cwd())
-  const proxyPrefix = env.VITE_APP_PROXY_PREFIX
+  const env = loadEnv(mode, process.cwd());
+  const proxyPrefix = env.VITE_APP_PROXY_PREFIX;
 
   return defineConfig({
     base: env.VITE_APP_BASE,
@@ -16,14 +15,12 @@ export default ({ mode }) => {
       VueSetupExtend(),
       vueJsx()
     ],
-    define: {
-      '__APP_VERSION__': JSON.stringify(packageJson.version)
-    },
+    define: {},
     resolve: {
       alias: {
         '@': resolve(__dirname, 'src'),
-        'vue-i18n': 'vue-i18n/dist/vue-i18n.cjs.js',
-      },
+        'vue-i18n': 'vue-i18n/dist/vue-i18n.cjs.js'
+      }
     },
 
     build: {
@@ -31,10 +28,13 @@ export default ({ mode }) => {
       chunkSizeWarningLimit: 1500,
       // 在非开发环境移除console
       minify: mode !== 'development' ? 'esbuild' : false,
-      esbuildOptions: mode !== 'development' ? {
-        drop: ['console', 'debugger'],
-        legalComments: 'none'
-      } : {},
+      esbuildOptions:
+        mode !== 'development'
+          ? {
+              drop: ['console', 'debugger'],
+              legalComments: 'none'
+            }
+          : {}
       // rollupOptions: {
       //   output: {
       //     manualChunks(id) {
@@ -55,9 +55,9 @@ export default ({ mode }) => {
           changeOrigin: true,
           ws: true,
           toProxy: true,
-          rewrite: path => path.replace(new RegExp(`^${proxyPrefix}`), ''),
+          rewrite: (path) => path.replace(new RegExp(`^${proxyPrefix}`), '')
         }
-      },
-    },
-  })
-}
+      }
+    }
+  });
+};

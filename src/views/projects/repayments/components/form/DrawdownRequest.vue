@@ -381,7 +381,11 @@ const submit = () => {
     security: []
   };
 
-  if (!params.all_repayment) {
+  if (params.all_repayment) {
+    params.reduction_rate = standardRateInput.value
+    params.reduction_rate_old = standardRate.value
+    params.reduction_money_old = showMaxReduction.value
+  } else {
     delete params.reduction_money
   }
 
@@ -436,7 +440,7 @@ const standardInputBlur = () => {
   }
 }
 
-const calAmount = (rate) => {
+const calAmount = (rate, flag = false) => {
   getLoading.value = true;
 
   if (!rate || isNaN(Number(rate))) {
@@ -461,12 +465,17 @@ const calAmount = (rate) => {
 
       if (!hasSetStandard.value) {
         standardRate.value = res.StandardRate
-        standardRateInput.value = res.StandardRate
+        if (!flag) {
+          standardRateInput.value = res.StandardRate
+        }
         standardAmount.value = res.reduction_money
 
         hasSetStandard.value = true
       }
-      formState.value.reduction_money = 0
+
+      if (!flag) {
+        formState.value.reduction_money = 0
+      }
       getLoading.value = false;
     })
     .catch(() => {
@@ -589,7 +598,8 @@ const setFormData = () => {
   }
 
   if (data.all_repayment) {
-    calAmount();
+    standardRateInput.value = data.reduction_rate || 0
+    calAmount(false, true);
   }
 }
 

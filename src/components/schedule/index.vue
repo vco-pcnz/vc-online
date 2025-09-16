@@ -143,7 +143,7 @@
                   <a-menu-item v-if="!ptRole">
                     <div class="pt-2 pb-2" @click="downLoadExcel(3)">{{ t('预测表IRR') }}</div>
                   </a-menu-item>
-                  <a-menu-item v-if="hasPermission('projects:repayments:adDownload') && !isDetails">
+                  <a-menu-item v-if="hasPermission('projects:repayments:adDownload') && !isProcess">
                     <div class="pt-2 pb-2" @click="downLoadExcel(4)">{{ t('账户详情') }}</div>
                   </a-menu-item>
                 </a-menu>
@@ -350,6 +350,10 @@ const props = defineProps({
     default: ''
   },
   isDetails: {
+    type: Boolean,
+    default: false
+  },
+  isProcess: {
     type: Boolean,
     default: false
   },

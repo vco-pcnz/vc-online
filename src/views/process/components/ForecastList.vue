@@ -20,12 +20,14 @@
           <a-radio :value="2" class="mt-4">
             <p class="tips-txt">{{ t('保持所有未来预测不变。') }}</p>
           </a-radio>
-          <a-radio :value="1" class="mt-4">
-            <p class="tips-txt">{{ t('保持手动编辑的预测不变，并按比例调整剩余预测。') }}</p>
-          </a-radio>
-          <a-radio :value="0" class="mt-4">
-            <p class="tips-txt">{{ t('按比例调整所有未来预测，并覆盖所有手动输入。') }}</p>
-          </a-radio>
+          <template v-if="currentParams.source !== 1">
+            <a-radio :value="1" class="mt-4">
+              <p class="tips-txt">{{ t('保持手动编辑的预测不变，并按比例调整剩余预测。') }}</p>
+            </a-radio>
+            <a-radio :value="0" class="mt-4">
+              <p class="tips-txt">{{ t('按比例调整所有未来预测，并覆盖所有手动输入。') }}</p>
+            </a-radio>
+          </template>
         </a-radio-group>
 
         <div class="mt-5 flex justify-between gap-5">
@@ -46,7 +48,7 @@
               <a-select-option :value="4">{{ t('还款') }}</a-select-option>
             </a-select>
           </a-form-item>
-          <a-form-item v-if="showBelong" :label="t('所属')" name="source">
+          <a-form-item v-if="isVsl" :label="t('所属')" name="source">
             <a-select v-model:value="formState.source">
               <a-select-option :value="0">VS</a-select-option>
               <a-select-option :value="1">BOC</a-select-option>
@@ -117,7 +119,7 @@
           <div class="col-item th">
             <div class="item uppercase one">{{ t('日期') }}</div>
             <div class="item uppercase two">{{ t('类型') }}</div>
-            <div v-if="showBelong" class="item uppercase five">{{ t('所属') }}</div>
+            <div v-if="isVsl" class="item uppercase five">{{ t('所属') }}</div>
             <div class="item uppercase three">{{ t('金额') }}</div>
             <div v-if="!isDetails && blockInfo.showEdit" class="item uppercase four">{{ t('操作1') }}</div>
             <div v-else class="empty"></div>
@@ -128,7 +130,7 @@
               <div v-for="(_item, _index) in item" :key="_item.date" class="col-item">
                 <div class="item one">{{ tool.showDate(_item.date) }}</div>
                 <div class="item two">{{ _item.name }}</div>
-                <div v-if="showBelong" class="item five">{{ getBelongTxt(_item.source) }}</div>
+                <div v-if="isVsl" class="item five">{{ getBelongTxt(_item.source) }}</div>
                 <div class="item three">
                   <vco-number :value="_item.amount" :precision="2" :end="true"></vco-number>
                 </div>
@@ -142,36 +144,56 @@
           </div>
         </div>
         <div v-if="tabData.length" class="forecast-total mt-5">
-          <div class="flex justify-between items-start">
-            <p>{{ t('VS放款') }}</p>
-            <div class="flex flex-col items-end">
-              <vco-number :value="vsMoney" :precision="2" :end="true" class="total"></vco-number>
-              <div v-if="vsRemainMoney" class="flex items-center justify-end error">
-                <p>{{ t('还差') }}</p>
-                <vco-number :value="vsRemainMoney" :precision="2" :end="true" class="remain"></vco-number>
+          <template v-if="isVsl">
+            <div class="flex justify-between items-start">
+              <p>{{ t('VS放款') }}</p>
+              <div class="flex flex-col items-end">
+                <vco-number :value="vsMoney" :precision="2" :end="true" class="total"></vco-number>
+                <div v-if="vsRemainMoney" class="flex items-center justify-end error">
+                  <p>{{ vsRemainMoney > 0 ? t('还差') : t('超额') }}</p>
+                  <vco-number :value="Math.abs(vsRemainMoney)" :precision="2" :end="true" class="remain"></vco-number>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="flex justify-between mt-2">
-            <p>{{ t('BOC放款') }}</p>
-            <div class="flex flex-col items-end">
-              <vco-number :value="bocMoney" :precision="2" :end="true" class="total"></vco-number>
-              <div v-if="bocRemainMoney" class="flex items-center justify-end error">
-                <p>{{ t('还差') }}</p>
-                <vco-number :value="bocRemainMoney" :precision="2" :end="true" class="remain"></vco-number>
+            <div class="flex justify-between mt-2">
+              <p>{{ t('BOC放款') }}</p>
+              <div class="flex flex-col items-end">
+                <vco-number :value="bocMoney" :precision="2" :end="true" class="total"></vco-number>
+                <div v-if="bocRemainMoney" class="flex items-center justify-end error">
+                  <p>{{ bocRemainMoney > 0 ? t('还差') : t('超额') }}</p>
+                  <vco-number :value="Math.abs(bocRemainMoney)" :precision="2" :end="true" class="remain"></vco-number>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="flex justify-between mt-3">
-            <p>{{ t('总共') }}</p>
-            <div class="flex flex-col items-end">
-              <vco-number :value="loanMoney" :precision="2" :end="true" class="loan"></vco-number>
-              <div v-if="loanRemainMoney" class="flex items-center justify-end error">
-                <p>{{ t('还差') }}</p>
-                <vco-number :value="loanRemainMoney" :precision="2" :end="true" class="remain"></vco-number>
+            <div class="flex justify-between mt-3">
+              <p>{{ t('总共') }}</p>
+              <div class="flex flex-col items-end">
+                <vco-number :value="loanMoney" :precision="2" :end="true" class="loan"></vco-number>
+                <div v-if="loanRemainMoney" class="flex items-center justify-end error">
+                  <p>{{ loanRemainMoney > 0 ? t('还差') : t('超额') }}</p>
+                  <vco-number :value="Math.abs(loanRemainMoney)" :precision="2" :end="true" class="remain"></vco-number>
+                </div>
               </div>
             </div>
-          </div>
+          </template>
+          <template v-else>
+            <p>
+              {{ cTimes }}
+              <span class="pl-1">{{ t('笔放款') }}</span>
+            </p>
+            <div :class="{ error: errorColor }">
+              <vco-number :value="cMoney" :precision="2" :end="true"></vco-number>
+              <p v-if="showTips">{{ showTips }}</p>
+            </div>
+          </template>
+        </div>
+        <div v-if="Number(pTimes) && !isVsl" class="forecast-total mt-1">
+          <p>
+            <i class="iconfont">&#xe757;</i>
+            {{ pTimes }}
+            <span class="pl-1">{{ t('笔还款') }}</span>
+          </p>
+          <vco-number :value="pMoney" :precision="2" :end="true"></vco-number>
         </div>
       </a-spin>
     </div>
@@ -258,9 +280,9 @@ const disabledDates = computed(() => {
   return timeArr;
 });
 
-const showBelong = computed(() => {
+const isVsl = computed(() => {
   const productCode = props.infoData?.base?.productCode || '';
-  return ['vsl'].includes(productCode.toLowerCase());
+  return productCode.toLowerCase() === 'vsl';
 });
 
 const getBelongTxt = (source) => {
@@ -402,11 +424,12 @@ const delAlertRef = ref();
 const delVisible = ref(false);
 
 const removeHandle = (data) => {
-  const { id, date, type } = data;
+  const { id, date, type, source } = data;
   const params = {
     apply_uuid: props.currentId,
     id: [id],
     date,
+    source
   };
 
   currentParams.value = params;
@@ -431,34 +454,84 @@ const sureHandle = () => {
     if (currentParams.value.id) { // 编辑
       // 判断总额是否超出
       if (currentParams.value.type === 2) {
-        const dataArr = tabFlatData.value.filter(item => item.id !== currentParams.value.id).map(item => Number(item.amount))
-        const num = dataArr.reduce((total, num) => {
-          return Number(tool.plus(total, num))
-        }, 0);
-        const total = Number(tool.plus(num, currentParams.value.amount))
-        if (total > loanMoney.value) {
-          const diffNum = Number(tool.minus(total, loanMoney.value))
-          errorTxt.value = t(`借款总金额为：<span>{0}</span>，当前放款总金额为：<span>{1}</span>，超出了：<span>{2}</span>`, [
-            `$${numberStrFormat(loanMoney.value)}`,
-            `$${numberStrFormat(total)}`,
-            `$${numberStrFormat(diffNum)}`
-          ])
-          errorVisible.value = true
-          return false
+        if (isVsl.value) {
+          const vsArr = tabFlatData.value.filter(item => item.id !== currentParams.value.id && item.source === 0).map(item => Number(item.amount))
+          const bocArr = tabFlatData.value.filter(item => item.id !== currentParams.value.id && item.source === 1).map(item => Number(item.amount))
+
+          const dataArr = formState.source === 0 ? vsArr : bocArr
+          const num = dataArr.reduce((total, num) => {
+            return Number(tool.plus(total, num))
+          }, 0);
+          const total = Number(tool.plus(num, currentParams.value.amount))
+          const loanTotal = formState.source === 0 ? vsMoney.value : bocMoney.value
+          if (total > loanTotal) {
+            const diffNum = Number(tool.minus(total, loanTotal))
+            const tipsTxt = formState.source === 0 ?
+              'VS放款总金额为：<span>{0}</span>，当前放款总额为：<span>{1}</span>，超出了：<span>{2}</span>' :
+              'BOC放款总金额为：<span>{0}</span>，当前放款总额为：<span>{1}</span>，超出了：<span>{2}</span>'
+            errorTxt.value = t(tipsTxt, [
+              `$${numberStrFormat(loanTotal)}`,
+              `$${numberStrFormat(total)}`,
+              `$${numberStrFormat(diffNum)}`
+            ])
+            errorVisible.value = true
+            return false
+          }
+        } else {
+          const dataArr = tabFlatData.value.filter(item => item.id !== currentParams.value.id).map(item => Number(item.amount))
+          const num = dataArr.reduce((total, num) => {
+            return Number(tool.plus(total, num))
+          }, 0);
+          const total = Number(tool.plus(num, currentParams.value.amount))
+          if (total > loanMoney.value) {
+            const diffNum = Number(tool.minus(total, loanMoney.value))
+            errorTxt.value = t(`借款总金额为：<span>{0}</span>，当前放款总金额为：<span>{1}</span>，超出了：<span>{2}</span>`, [
+              `$${numberStrFormat(loanMoney.value)}`,
+              `$${numberStrFormat(total)}`,
+              `$${numberStrFormat(diffNum)}`
+            ])
+            errorVisible.value = true
+            return false
+          }
         }
       }
     } else { // 新增
       if (currentParams.value.type === 2) {
-        const total = Number(tool.plus(cMoney.value, currentParams.value.amount))
-        if (total > loanMoney.value) {
-          const diffNum = Number(tool.minus(total, loanMoney.value))
-          errorTxt.value = t(`借款总金额为：<span>{0}</span>，当前放款总金额为：<span>{1}</span>，超出了：<span>{2}</span>`, [
-            `$${numberStrFormat(loanMoney.value)}`,
-            `$${numberStrFormat(total)}`,
-            `$${numberStrFormat(diffNum)}`
-          ])
-          errorVisible.value = true
-          return false
+        if (isVsl.value) {
+          const vsArr = tabFlatData.value.filter(item => item.source === 0).map(item => Number(item.amount))
+          const bocArr = tabFlatData.value.filter(item => item.source === 1).map(item => Number(item.amount))
+
+          const dataArr = formState.source === 0 ? vsArr : bocArr
+          const num = dataArr.reduce((total, num) => {
+            return Number(tool.plus(total, num))
+          }, 0);
+          const total = Number(tool.plus(num, currentParams.value.amount))
+          const loanTotal = formState.source === 0 ? vsMoney.value : bocMoney.value
+          if (total > loanTotal) {
+            const diffNum = Number(tool.minus(total, loanTotal))
+            const tipsTxt = formState.source === 0 ?
+              'VS放款总金额为：<span>{0}</span>，当前放款总额为：<span>{1}</span>，超出了：<span>{2}</span>' :
+              'BOC放款总金额为：<span>{0}</span>，当前放款总额为：<span>{1}</span>，超出了：<span>{2}</span>'
+            errorTxt.value = t(tipsTxt, [
+              `$${numberStrFormat(loanTotal)}`,
+              `$${numberStrFormat(total)}`,
+              `$${numberStrFormat(diffNum)}`
+            ])
+            errorVisible.value = true
+            return false
+          }
+        } else {
+          const total = Number(tool.plus(cMoney.value, currentParams.value.amount))
+          if (total > loanMoney.value) {
+            const diffNum = Number(tool.minus(total, loanMoney.value))
+            errorTxt.value = t(`借款总金额为：<span>{0}</span>，当前放款总金额为：<span>{1}</span>，超出了：<span>{2}</span>`, [
+              `$${numberStrFormat(loanMoney.value)}`,
+              `$${numberStrFormat(total)}`,
+              `$${numberStrFormat(diffNum)}`
+            ])
+            errorVisible.value = true
+            return false
+          }
         }
       }
     }
@@ -535,7 +608,7 @@ const submitHandle = () => {
         apply_uuid: props.currentId,
       };
 
-      if (showBelong.value) {
+      if (isVsl.value) {
         params.source = source;
       }
 

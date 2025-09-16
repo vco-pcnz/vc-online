@@ -1177,5 +1177,8 @@ export default {
   "还差": "Remaining",
   "借款人姓名": "Borrower name",
   "借款人电话": "Borrower phone",
-  "借款人邮箱": "Borrower email"
+  "借款人邮箱": "Borrower email",
+  "VS放款总金额为：<span>{0}</span>，当前放款总额为：<span>{1}</span>，超出了：<span>{2}</span>": "VS drawdown total amount is: <span>{0}</span>, current drawdown total amount is: <span>{1}</span>, which exceeds: <span>{2}</span>",
+  "BOC放款总金额为：<span>{0}</span>，当前放款总额为：<span>{1}</span>，超出了：<span>{2}</span>": "BOC drawdown total amount is: <span>{0}</span>, current drawdown total amount is: <span>{1}</span>, which exceeds: <span>{2}</span>",
+  "超额": "Exceeded"
 }

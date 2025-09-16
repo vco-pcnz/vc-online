@@ -63,36 +63,36 @@ const rangePresets = ref([
   //   ]
   // },
   {
-    label: 'Previous Week',
+    label: 'Next Week',
     cycle: '',
     value: [
-      dayjs().subtract(1, 'week').startOf('week').add(1, 'day'), // 上周的第一天（周一）
-      dayjs().subtract(1, 'week').endOf('week').add(1, 'day') // 上周的最后一天（周日）
+      dayjs(),
+      dayjs().add(1, 'week') // 上周的最后一天（周日）
     ]
   },
   {
-    label: 'Previous 2 Weeks',
+    label: 'Next 2 Weeks',
     cycle: '',
     value: [
-      dayjs().subtract(2, 'week').startOf('week').add(1, 'day'), // 上上周的第一天
-      dayjs().subtract(1, 'week').endOf('week').add(1, 'day') // 上周的最后一天
+      dayjs(),
+      dayjs().add(2, 'week') // 上周的最后一天
     ]
   },
   // 按月选项
   {
-    label: 'Previous Month',
+    label: 'Next Month',
     cycle: 'm',
-    value: [dayjs().subtract(1, 'month').startOf('month'), dayjs().subtract(1, 'month').endOf('month')]
+    value: [dayjs(), dayjs().add(1, 'month')]
   },
   {
-    label: 'Previous 2 Months',
+    label: 'Next 2 Months',
     cycle: '2m',
-    value: [dayjs().subtract(2, 'month').startOf('month'), dayjs().subtract(1, 'month').endOf('month')]
+    value: [dayjs(), dayjs().add(2, 'month')]
   },
   {
-    label: 'Previous 3 Months',
+    label: 'Next 3 Months',
     cycle: '3m',
-    value: [dayjs().subtract(3, 'month').startOf('month'), dayjs().subtract(1, 'month').endOf('month')]
+    value: [dayjs(), dayjs().add(3, 'month')]
   }
 ]);
 const formRef = ref();
@@ -138,7 +138,7 @@ const save = () => {
       const paramsInfo = {
         url,
         method: 'get',
-        params: { ...formState.value, ...props.searchParams }
+        params: { ...props.searchParams, ...formState.value }
       };
       loading.value = true;
 

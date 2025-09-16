@@ -131,28 +131,21 @@
               </a-button>
               <template #overlay>
                 <a-menu>
-                  <template v-if="!ptRole && !hideForcast">
-                    <a-menu-item v-if="!isOld">
-                      <div class="pt-2 pb-2" @click="downLoadExcel(0)">{{ t('额度费用计算时间表') }}</div>
-                    </a-menu-item>
-                    <a-menu-item v-if="!ptRole && !hideForcast && !isOld">
-                      <div class="pt-2 pb-2" @click="downLoadExcel(1)">{{ t('预测放款时间表') }}</div>
-                    </a-menu-item>
-                  </template>
-
+                  <a-menu-item v-if="!ptRole && !hideForcast && !isOld">
+                    <div class="pt-2 pb-2" @click="downLoadExcel(0)">{{ t('额度费用计算时间表') }}</div>
+                  </a-menu-item>
+                  <a-menu-item v-if="!ptRole && !hideForcast && !isOld">
+                    <div class="pt-2 pb-2" @click="downLoadExcel(1)">{{ t('预测放款时间表') }}</div>
+                  </a-menu-item>
                   <a-menu-item>
                     <div class="pt-2 pb-2" @click="downLoadExcel(2)">{{ t('放款时间表') }}</div>
                   </a-menu-item>
-                  <template v-if="!ptRole">
-                    <a-menu-item>
-                      <div class="pt-2 pb-2" @click="downLoadExcel(3)">{{ t('预测表IRR') }}</div>
-                    </a-menu-item>
-                  </template>
-                  <template v-if="hasPermission('projects:repayments:adDownload')">
-                    <a-menu-item>
-                      <div class="pt-2 pb-2" @click="downLoadExcel(4)">{{ t('账户详情') }}</div>
-                    </a-menu-item>
-                  </template>
+                  <a-menu-item v-if="!ptRole">
+                    <div class="pt-2 pb-2" @click="downLoadExcel(3)">{{ t('预测表IRR') }}</div>
+                  </a-menu-item>
+                  <a-menu-item v-if="hasPermission('projects:repayments:adDownload') && !isDetails">
+                    <div class="pt-2 pb-2" @click="downLoadExcel(4)">{{ t('账户详情') }}</div>
+                  </a-menu-item>
                 </a-menu>
               </template>
             </a-dropdown>

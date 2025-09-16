@@ -14,8 +14,8 @@ const useProductStore = defineStore('VcOnlineProductData', {
   },
 
   actions: {
-    requestProductInfo() {
-      productSel().then(res => {
+    async requestProductInfo() {
+      await productSel().then(res => {
         const data = res || []
         this.productData = data
         this.openProductData = data.filter(item => item.status)

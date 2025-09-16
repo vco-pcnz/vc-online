@@ -84,6 +84,12 @@
             {{ column.title }}
           </span>
         </template>
+        <template v-if="column.key === '2'">
+          <span class="headSortItem" :class="{ active: sort.sort == 'borrower_user_name' }" @click="sortChange('borrower_user_name')">
+            <i class="iconfont" :class="{ asc: sort.order == 'asc' && sort.sort == 'borrower_user_name' }">&#xe74d;</i>
+            {{ column.title }}
+          </span>
+        </template>
       </template>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === '1'">

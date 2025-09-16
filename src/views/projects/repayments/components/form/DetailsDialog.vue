@@ -25,14 +25,14 @@
         <p>{{ t('还款金额') }}</p>
         <vco-number :value="detailData.apply_amount" :precision="2"></vco-number>
       </a-col>
-      <template v-if="reductionAmount">
+      <template v-if="detailData.all_repayment">
         <a-col :span="12" class="item-txt">
-          <p>{{ t('罚息减免最大额度') }}</p>
-          <vco-number :value="reductionAmount" :precision="2"></vco-number>
+          <p>{{ t('建议标准税率') }} <span class="pl-2">{{ `(${t('最小值')}: ${detailData.reduction_rate_old}%)` }}</span></p>
+          <vco-number :value="detailData.reduction_rate" prefix="" suffix="%" :precision="2" ></vco-number>
         </a-col>
         <a-col :span="12" class="item-txt">
-          <p>{{ t('罚息减免') }}</p>
-          <vco-number :value="detailData.reduction_money" :precision="2" color="#31bd65"></vco-number>
+          <p>{{ t('减免额度') }} <span class="pl-2">{{ `(${t('最大值')}: $${numberStrFormat(detailData.reduction_money_old)})` }}</span></p>
+          <vco-number :value="detailData.reduction_money" :precision="2" ></vco-number>
         </a-col>
       </template>
       <a-col :span="24" class="item-txt">
@@ -84,7 +84,7 @@
 <script setup>
   import { ref, watch, reactive } from "vue";
   import { useI18n } from "vue-i18n";
-  import tool from '@/utils/tool';
+  import tool, { numberStrFormat } from '@/utils/tool';
   import { projectLoanAllRepayment } from '@/api/project/loan';
   import { loanRsaveStep } from '@/api/project/loan';
 
@@ -191,6 +191,9 @@
       font-size: 14px;
       margin-top: 5px;
       word-break: break-all;
+    }
+    > span {
+      color: #31bd65;
     }
   }
   :deep(.ant-statistic-content) {

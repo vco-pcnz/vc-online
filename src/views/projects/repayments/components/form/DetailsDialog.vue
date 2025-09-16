@@ -26,12 +26,12 @@
         <vco-number :value="detailData.apply_amount" :precision="2"></vco-number>
       </a-col>
       <template v-if="detailData.all_repayment">
-        <a-col :span="12" class="item-txt">
-          <p>{{ t('建议标准税率') }} <span class="pl-2">{{ `(${t('最小值')}: ${detailData.reduction_rate_old}%)` }}</span></p>
+        <a-col v-if="detailData.reduction_rate" :span="12" class="item-txt">
+          <p>{{ t('建议标准税率') }} <span v-if="detailData.reduction_rate_old" class="pl-2">{{ `(${t('最小值')}: ${detailData.reduction_rate_old}%)` }}</span></p>
           <vco-number :value="detailData.reduction_rate" prefix="" suffix="%" :precision="2" ></vco-number>
         </a-col>
-        <a-col :span="12" class="item-txt">
-          <p>{{ t('减免额度') }} <span class="pl-2">{{ `(${t('最大值')}: $${numberStrFormat(detailData.reduction_money_old)})` }}</span></p>
+        <a-col v-if="detailData.reduction_money" :span="12" class="item-txt">
+          <p>{{ t('减免额度') }} <span v-if="detailData.reduction_money_old" class="pl-2">{{ `(${t('最大值')}: $${numberStrFormat(detailData.reduction_money_old)})` }}</span></p>
           <vco-number :value="detailData.reduction_money" :precision="2" ></vco-number>
         </a-col>
       </template>

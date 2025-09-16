@@ -464,7 +464,7 @@ const calAmount = (rate, flag = false) => {
       maxReductionAmount.value = Number(res.reduction_money) ? Number(res.reduction_money) : 0
 
       if (!hasSetStandard.value) {
-        standardRate.value = res.StandardRate
+        standardRate.value = res.min_StandardRate
         if (!flag) {
           standardRateInput.value = res.StandardRate
         }
@@ -599,7 +599,7 @@ const setFormData = () => {
 
   if (data.all_repayment) {
     standardRateInput.value = data.reduction_rate || 0
-    calAmount(false, true);
+    calAmount(data.reduction_rate, Boolean(standardRateInput.value));
   }
 }
 

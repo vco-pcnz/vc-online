@@ -1,9 +1,9 @@
 <template>
   <div class="type-input-content">
-    <a-select v-model:value="typeValue" class="input-select" @change="selectChange">
+    <a-select v-model:value="typeValue" class="input-select" @change="selectChange" :style="{ width: `${typeWidth}px!important` }">
       <a-select-option v-for="(item, index) in typeData" :key="item.value || index" :value="item.value">{{ item.label }}</a-select-option>
     </a-select>
-    <a-input v-model:value="value" :placeholder="placeholder" @input="inputChange" />
+    <a-input v-model:value="value" :placeholder="placeholder" @input="inputChange" :style="{ paddingLeft: `${typeWidth + 10}px!important` }" />
   </div>
 </template>
 
@@ -27,6 +27,10 @@ const props = defineProps({
   typeData: {
     type: Array,
     default: () => []
+  },
+  typeWidth: {
+    type: Number,
+    default: 100
   }
 })
 
@@ -61,7 +65,7 @@ watch(
 
   :deep(.ant-select) {
     position: absolute !important;
-    width: 100px !important;
+    // width: 100px !important;
     z-index: 9;
     top: 1px;
     left: 1px;
@@ -78,8 +82,8 @@ watch(
   :deep(.input-select.ant-select-open) .ant-select-selector {
     box-shadow: none !important;
   }
-  :deep(.ant-input) {
-    padding-left: 110px;
-  }
+  // :deep(.ant-input) {
+  //   padding-left: 110px;
+  // }
 }
 </style>

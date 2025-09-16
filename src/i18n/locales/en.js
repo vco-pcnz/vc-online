@@ -1168,5 +1168,8 @@ export default {
   "{0} 已超额": "{0} Exceeded",
   "超额放款": 'Excess drawdown',
   "已放款额度比例": "Disbursed Ratio",
-  "已超额{0}，确定设置吗？": "Exceeded {0}, are you sure to set it?"
+  "已超额{0}，确定设置吗？": "Exceeded {0}, are you sure to set it?",
+  "借款人姓名": "Borrower name",
+  "借款人电话": "Borrower phone",
+  "借款人邮箱": "Borrower email"
 }

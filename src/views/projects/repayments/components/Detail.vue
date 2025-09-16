@@ -137,14 +137,7 @@ const props = defineProps({
 const accept_loading = ref(false);
 
 const repaymentAmount = computed(() => {
-  const reduction_money = Number(props.detail?.reduction_money);
-  if (reduction_money) {
-    const apply_amount = Number(props.detail?.apply_amount);
-    const res = tool.minus(apply_amount, reduction_money);
-    return res;
-  } else {
-    return props.detail?.apply_amount;
-  }
+  return props.detail?.apply_amount;
 });
 
 // 拒绝

@@ -581,6 +581,7 @@ const sureHandle = () => {
     }
   }
 
+  saveLoading.value = true;
   subLoading.value = true;
 
   ajaxFn(params)
@@ -637,12 +638,10 @@ const submitHandle = () => {
 
       if (type === 4) {
         changeType.value = 2;
-        saveLoading.value = true;
         sureHandle();
       } else {
         if (isVsl.value && source === 1) {
           changeType.value = 2;
-          saveLoading.value = true;
           sureHandle();
           return false
         }

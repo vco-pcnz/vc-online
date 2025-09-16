@@ -23,7 +23,7 @@
         <p class="fs_xs color_grey" v-else>Maturity</p>
       </div>
     </div>
-    <p class="fs_xs color_grey text-center" style="margin-top: -16px">{{ data?.sdaysDiff + 1 }} days</p>
+    <p class="fs_xs color_grey text-center" style="margin-top: -16px">{{ data?.sdaysDiff }} days</p>
     <div class="fs_xs color_grey text-center" v-if="base?.is_close && base?.close_date">{{ t('关账') }}: {{ tool.showDate(base?.close_date) }}</div>
   </div>
 </template>

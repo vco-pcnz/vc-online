@@ -39,7 +39,7 @@ let versionCheckInterval;
 const checkVersion = async () => {
   try {
     // 添加时间戳防止缓存
-    const response = await fetch(`../../../package.json?t=${Date.now()}`);
+    const response = await fetch(`/version.json?t=${Date.now()}`);
     if (!response.ok) throw new Error('Failed to fetch version');
     const data = await response.json();
 

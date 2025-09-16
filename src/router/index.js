@@ -41,6 +41,11 @@ router.beforeEach(async (to, from, next) => {
       await userStore.requestUserInfo();
       noticeStore.setNoticeCount();
     }
+
+    // 产品数据
+    if (!productStore.productData.length) {
+      await productStore.requestProductInfo()
+    }
       
     // 注册动态路由
     if (!userStore.routerInit) {
@@ -51,12 +56,6 @@ router.beforeEach(async (to, from, next) => {
         return
       }
     } else { // 动态路由已注册完成
-      // 产品数据
-      if (!productStore.productData.length) {
-        productStore.requestProductInfo()
-      }
-
-  
       if (!Boolean(userStore.userInfo.isNormalUser)) {
         // 待办数据
         userStore.getTaskNumInfo()

@@ -98,7 +98,6 @@ const disabledDateFormat = (current) => {
 };
 
 const onChange = (dates) => {
-  console.log(dates);
   if (!dates || dates.length !== 2) {
     searchForm.value.start_date = '';
     searchForm.value.end_date = '';

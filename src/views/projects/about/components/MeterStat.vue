@@ -97,7 +97,7 @@
           <vco-number :value="data?.loanWithdrawal" :precision="2"></vco-number>
           <p v-if="data?.loanWithdrawalAvailable >= 0" class="color_grey flex"><vco-number :value="data?.loanWithdrawalAvailable" :precision="2" color="#888" size="fs_md" class="mr-2"></vco-number> available</p>
           <div v-else class="color_red-error flex">
-            {{ t('{0} 已超额', [tool.formatMoney(Math.abs(data?.loanWithdrawalAvailable))]) }}
+            {{ t('{0} 已超额', [tool.formatMoney(Math.abs(data?.loanWithdrawalAvailable || 0))]) }}
           </div>
         </div>
       </div>

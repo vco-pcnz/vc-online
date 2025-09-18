@@ -950,8 +950,10 @@ const changeSecurityAfter = computed(() => {
 
 const currentVariationId = ref('')
 const variationData = ref(null)
+const firstLoad = ref(false)
 // 请求变更详情
 const getVariationDetail = async () => {
+  firstLoad.value = true
   await projectVariationInfo({
     uuid: uuid.value,
     id: currentVariationId.value
@@ -1176,8 +1178,12 @@ const borkerFeeCalcHandle = () => {
   borkerFeeCalc({ uuid: uuid.value, start_date: formState.value.start_date })
     .then((res) => {
       borkerFeeCalcAmount.value = res;
-      handInput('credit_brokerFeeRate');
-      handInput('credit_estabFeeRate');
+      if (firstLoad.value) {
+        firstLoad.value = false
+      } else {
+        handInput('credit_brokerFeeRate');
+        handInput('credit_estabFeeRate');
+      }
     })
     .finally(() => {
       loadingBorkerFeeCalcAmount.value = false;
@@ -1272,6 +1278,7 @@ watch(
 );
 
 const handInput = (key) => {
+  console.log('fdsa');
   // 中介费
   if (['credit_brokerFeeRate', 'credit_brokerFee'].includes(key)) {
     const credit_brokerFeeRate = Number(formState.value.credit_brokerFeeRate || 0) > 0 ? Number(formState.value.credit_brokerFeeRate || 0) : 0

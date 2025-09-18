@@ -4,7 +4,7 @@
   <EditAmount ref="editAmountgRef" :data="pData" @update="update"></EditAmount>
 
   <div class="sys-table-content">
-    <a-table :columns="columns" :data-source="tableData" :pagination="false" :scroll="{ x: '1500px' }" row-key="uuid" :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }">
+    <a-table :columns="columns" :data-source="tableData" :pagination="false" :scroll="{ x: '1500px' }" row-key="uuid" :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }" :customRow="rowClick">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'name'">
           <a-space>
@@ -50,7 +50,7 @@
           <p class="black">{{ record.lrate || 0 }}%</p>
         </template>
         <template v-if="column.key === 'amount'">
-          <p class="bold black" @click="showEditAmountLog(record)">
+          <p class="bold black" @click.stop="showEditAmountLog(record)">
             <i class="iconfont" style="color: #a9ad57">&#xe75b;</i>
             {{ tool.formatMoney(record.amount) }}
           </p>
@@ -77,6 +77,9 @@
                   <a-menu-item key="1" @click="showBindUser(record)" v-if="hasPermission('Investment:bindUser')">
                     {{ t('绑定用户') }}
                   </a-menu-item>
+                  <!-- <a-menu-item key="2" @click="navigationTo('/Investment/home?uuid=' + record.id)">
+                    {{ t('数据统计') }}
+                  </a-menu-item> -->
                   <a-menu-item key="2" @click="navigationTo('/Investment/projects?uuid=' + record.id)">
                     {{ t('项目信息') }}
                   </a-menu-item>
@@ -173,6 +176,14 @@ const rowSelection = ref({
     disabled: Boolean(parseInt(r.open_count) + parseInt(r.close_count) + parseInt(r.apply_count))
   })
 });
+
+const rowClick = (record, index) => {
+  return {
+    onClick: () => {
+      navigationTo(`/Investment/home?uuid=${record.id}`);
+    }
+  };
+};
 
 const handlePathChange = () => {
   emits('update:data', selectedRows.value);

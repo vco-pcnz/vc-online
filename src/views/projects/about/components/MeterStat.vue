@@ -1,5 +1,5 @@
 <template>
-  <a-alert type="info" closable class="mb-5 synced-diff" style="margin-top: -45px" >
+  <a-alert type="info" closable class="mb-5 synced-diff">
     <template #description>
       <div class="flex">
         <a-tooltip placement="top">
@@ -13,7 +13,7 @@
               <vco-number :value="Math.abs(base?.xeroSpendAmount)" color="#fff" size="fs_md" :precision="2"></vco-number>
             </div>
           </template>
-          <div class="flex cursor-pointer">
+          <div class="flex cursor-pointer items-center">
             <span class="mr-3"> {{ t('放款对账情况') }} diff: </span>
             <vco-number color="#F19915" :value="Math.abs(tool.minus(base?.vcoSpendAmount, base?.xeroSpendAmount))" size="fs_md" :precision="2"></vco-number>
           </div>
@@ -29,7 +29,7 @@
               <vco-number :value="Math.abs(base?.xeroReceivedAmount)" color="#fff" size="fs_md" :precision="2"></vco-number>
             </div>
           </template>
-          <div class="flex cursor-pointer">
+          <div class="flex cursor-pointer items-center">
             <span class="mr-3"> {{ t('还款对账情况') }} diff: </span>
             <vco-number color="#F19915" :value="Math.abs(tool.minus(base?.vcoReceivedAmount, base?.xeroReceivedAmount))" size="fs_md" :precision="2"></vco-number>
           </div>
@@ -344,6 +344,6 @@ watch(
 }
 
 .synced-diff {
-    padding-block: 10px;
+  padding-block: 10px;
 }
 </style>

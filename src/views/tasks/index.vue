@@ -3,7 +3,7 @@
   <op-loan ref="opLoanRef" @update="opUpdate"></op-loan>
   <op-other ref="opOtherRef" @update="opUpdate"></op-other>
   <div>
-    <layout :currentTotal="pageObj.total" :tableLoading="tableLoading" @search="reload"></layout>
+    <layout :tab_num="otherInfo?otherInfo.num:null" :tableLoading="tableLoading" @search="reload"></layout>
     <div class="flex gap-3 mt-4 send-box" v-if="currentParams?.status === '10' && hasPermission('task:send')">
       <a-popconfirm :title="t('确定发送通知吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" :disabled="Boolean(!selectedRowKeys.length)" @confirm="send('1')">
         <a-button type="cyan" :disabled="Boolean(!selectedRowKeys.length)" class="uppercase" :loading="loading && type === '1'">
@@ -168,7 +168,7 @@ import OpOther from './components/Operation/Other.vue';
 
 const { t } = useI18n();
 
-const { tableRef, pageObj, currentParams, tableLoading, pageChange, tableData, getTableData } = useTableList(projectBacklogList, { size: 10 }, false);
+const { tableRef, pageObj, currentParams, tableLoading, pageChange, tableData, getTableData, otherInfo } = useTableList(projectBacklogList, { size: 10 }, false);
 
 const typeData = reactive({
   drawdown: t('提款'),

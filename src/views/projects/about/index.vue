@@ -304,6 +304,7 @@ const checkPassConfirmVisible = ref(false);
   .project-content {
     border-radius: 12px;
     padding: 30px;
+    padding-top: 0;
   }
 
   .btns {

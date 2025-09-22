@@ -1,7 +1,7 @@
 <template>
-  <div style="margin-top: -30px" class="mb-5">
+  <div>
     <template v-if="(detail?.closeCancel?.has_permission || hasPermission('projects:about:close:revoke')) && (detail?.closeCancel?.cancel_reason || detail?.closeCancel?.decline_reason)">
-      <a-alert type="error" :message="t('重新打开') + ' ' + (detail?.closeCancel?.cancel_reason ? t('退回原因') : t('拒绝原因'))" class="mb-5 cancel-reason" style="margin-top: -30px">
+      <a-alert type="error" :message="t('重新打开') + ' ' + (detail?.closeCancel?.cancel_reason ? t('退回原因') : t('拒绝原因'))" class="mb-5 cancel-reason">
         <template #description>
           {{ detail?.closeCancel?.cancel_reason || detail?.closeCancel?.decline_reason }}
         </template>
@@ -9,7 +9,7 @@
     </template>
 
     <template v-if="detail?.closeCancel?.has_permission">
-      <a-alert type="info" :message="t('重新打开')">
+      <a-alert type="info" :message="t('重新打开')" class="mb-5">
         <template #description>
           <div>
             <span class="bold"> {{ t('日期') }}</span

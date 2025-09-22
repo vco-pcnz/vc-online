@@ -27,19 +27,25 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ChartOne from './ChartOne.vue';
 import ChartTwo from './ChartTwo.vue';
 import { dashboard } from '@/api/invest';
 const { t } = useI18n();
 
+const props = defineProps({
+  invest_id: {
+    type: String
+  }
+});
+
 const loading = ref(false);
 const data = ref({});
 
 const loadData = (val) => {
   loading.value = true;
-  dashboard({ upd: val })
+  dashboard({ upd: val, invest_id: props.invest_id })
     .then((res) => {
       data.value = res;
     })
@@ -48,9 +54,17 @@ const loadData = (val) => {
     });
 };
 
-onMounted(() => {
-  loadData();
-});
+watch(
+  () => props.invest_id,
+  (val) => {
+    if (val) {
+      loadData();
+    }
+  },
+  {
+    immediate: true
+  }
+);
 </script>
 
 <style lang="less" scoped>

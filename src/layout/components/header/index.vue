@@ -241,8 +241,8 @@ onUnmounted(() => {
       justify-content: flex-end;
 
       .link {
-        padding-left: 10px;
-        padding-right: 10px;
+        padding-left: 6px;
+        padding-right: 6px;
       }
     }
 

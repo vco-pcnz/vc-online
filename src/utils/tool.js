@@ -540,13 +540,20 @@ export const removeDuplicates = (arr, key) => {
 // 保留小数点后n位 ，默认2
 export const fixNumber = (value, fractionDigits = 2) => {
   if (typeof value === 'number') {
-    // 先转换为字符串，如果有小数则字符串截取，没有小数则返回原值
     const str = value.toString();
+    
+    // 检查是否为科学计数法格式
+    if (str.includes('e') || str.includes('E')) {
+      // 科学计数法情况，使用 toFixed 然后转换为数字
+      return parseFloat(value.toFixed(fractionDigits));
+    }
+    
+    // 非科学计数法，使用字符串截取来避免舍入问题
     const index = str.indexOf('.');
     if (index !== -1) {
       return Number(str.slice(0, index + fractionDigits + 1));
     }
-    return str;
+    return value; // 修复：返回原数值而不是字符串
   }
   return value;
 };

@@ -77,7 +77,7 @@
             <MeterStat :data="detail?.credit" :base="detail?.base" v-if="!detail?.base?.ptRole"></MeterStat>
             <MeterStatVip :data="detail?.credit" v-if="detail?.base?.ptRole"></MeterStatVip>
 
-            <PeriodLine :data="detail?.date"></PeriodLine>
+            <PeriodLine :data="detail?.date" :base="detail?.base"></PeriodLine>
             <div class="flex justify-center mt-10 mb-10 btns">
               <StartDefault v-if="hasPermission('projects:penalty:sedit') && !detail?.base?.penalty && Boolean(!detail?.base.is_close)" :projectDetail="detail" :currentId="currentId" @update="update">
                 <a-button type="brown" shape="round" size="small">{{ t('罚息开始') }}</a-button>
@@ -304,7 +304,6 @@ const checkPassConfirmVisible = ref(false);
   .project-content {
     border-radius: 12px;
     padding: 30px;
-    padding-top: 0;
   }
 
   .btns {

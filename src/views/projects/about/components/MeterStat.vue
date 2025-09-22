@@ -1,38 +1,43 @@
 <template>
-  <div class="flex justify-end mb-5" style="padding-right: 30px;">
-    <a-tooltip placement="top">
-      <template #title>
-        <div class="flex items-center">
-          <span class="xt_label">Vco: </span>
-          <vco-number :value="Math.abs(base?.vcoSpendAmount)" color="#fff" size="fs_md" :precision="2"></vco-number>
-        </div>
-        <div class="flex items-center">
-          <span class="xt_label">Xero: </span>
-          <vco-number :value="Math.abs(base?.xeroSpendAmount)" color="#fff" size="fs_md" :precision="2"></vco-number>
-        </div>
-      </template>
-      <div class="flex cursor-pointer">
-        <span class="mr-3"> {{ t('放款对账情况') }} diff: </span>
-        <vco-number color="#F19915" :value="Math.abs(tool.minus(base?.vcoSpendAmount, base?.xeroSpendAmount))" size="fs_md" :precision="2"></vco-number>
+  <a-alert type="info" closable class="mb-5 synced-diff" style="margin-top: -45px" >
+    <template #description>
+      <div class="flex">
+        <a-tooltip placement="top">
+          <template #title>
+            <div class="flex items-center">
+              <span class="xt_label">Vco: </span>
+              <vco-number :value="Math.abs(base?.vcoSpendAmount)" color="#fff" size="fs_md" :precision="2"></vco-number>
+            </div>
+            <div class="flex items-center">
+              <span class="xt_label">Xero: </span>
+              <vco-number :value="Math.abs(base?.xeroSpendAmount)" color="#fff" size="fs_md" :precision="2"></vco-number>
+            </div>
+          </template>
+          <div class="flex cursor-pointer">
+            <span class="mr-3"> {{ t('放款对账情况') }} diff: </span>
+            <vco-number color="#F19915" :value="Math.abs(tool.minus(base?.vcoSpendAmount, base?.xeroSpendAmount))" size="fs_md" :precision="2"></vco-number>
+          </div>
+        </a-tooltip>
+        <a-tooltip placement="top" class="ml-5">
+          <template #title>
+            <div class="flex items-center">
+              <span class="xt_label">Vco: </span>
+              <vco-number :value="Math.abs(base?.vcoReceivedAmount)" color="#fff" size="fs_md" :precision="2"></vco-number>
+            </div>
+            <div class="flex items-center">
+              <span class="xt_label">Xero: </span>
+              <vco-number :value="Math.abs(base?.xeroReceivedAmount)" color="#fff" size="fs_md" :precision="2"></vco-number>
+            </div>
+          </template>
+          <div class="flex cursor-pointer">
+            <span class="mr-3"> {{ t('还款对账情况') }} diff: </span>
+            <vco-number color="#F19915" :value="Math.abs(tool.minus(base?.vcoReceivedAmount, base?.xeroReceivedAmount))" size="fs_md" :precision="2"></vco-number>
+          </div>
+        </a-tooltip>
       </div>
-    </a-tooltip>
-    <a-tooltip placement="top" class="ml-5">
-      <template #title>
-        <div class="flex items-center">
-          <span class="xt_label">Vco: </span>
-          <vco-number :value="Math.abs(base?.vcoReceivedAmount)" color="#fff" size="fs_md" :precision="2"></vco-number>
-        </div>
-        <div class="flex items-center">
-          <span class="xt_label">Xero: </span>
-          <vco-number :value="Math.abs(base?.xeroReceivedAmount)" color="#fff" size="fs_md" :precision="2"></vco-number>
-        </div>
-      </template>
-      <div class="flex cursor-pointer">
-        <span class="mr-3"> {{ t('还款对账情况') }} diff: </span>
-        <vco-number color="#F19915" :value="Math.abs(tool.minus(base?.vcoReceivedAmount, base?.xeroReceivedAmount))" size="fs_md" :precision="2"></vco-number>
-      </div>
-    </a-tooltip>
-  </div>
+    </template>
+  </a-alert>
+
   <div class="indicatorsGrid">
     <div class="chart">
       <v-chart :option="option" autoresize />
@@ -90,7 +95,10 @@
         <div>
           <p>Drawn amount</p>
           <vco-number :value="data?.loanWithdrawal" :precision="2"></vco-number>
-          <p class="color_grey flex"><vco-number :value="data?.loanWithdrawalAvailable" :precision="2" color="#888" size="fs_md" class="mr-2"></vco-number> available</p>
+          <p v-if="data?.loanWithdrawalAvailable >= 0" class="color_grey flex"><vco-number :value="data?.loanWithdrawalAvailable" :precision="2" color="#888" size="fs_md" class="mr-2"></vco-number> available</p>
+          <div v-else class="color_red-error flex">
+            {{ t('{0} 已超额', [tool.formatMoney(Math.abs(data?.loanWithdrawalAvailable || 0))]) }}
+          </div>
         </div>
       </div>
       <div class="MeterStat MeterStat_type_dotsBlack four">
@@ -333,5 +341,9 @@ watch(
   width: 33px;
   text-align: right;
   margin-right: 5px;
+}
+
+.synced-diff {
+    padding-block: 10px;
 }
 </style>

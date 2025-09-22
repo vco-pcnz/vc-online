@@ -2,13 +2,9 @@
   <div>
     <a-modal :open="visible" :title="t('选择项目')" :width="850" :footer="null" :keyboard="false" :maskClosable="false" @cancel="updateVisible(false)">
       <vco-page-search>
-        <vco-page-search-item :title="t('项目信息')" width="250">
-          <vco-type-input v-model="searchForm.project_keyword" v-model:type="searchForm.project_search_type" :type-data="projectsTypeData" :placeholder="t('请输入')"></vco-type-input>
+        <vco-page-search-item :title="t('项目信息')" width="400">
+          <vco-type-input v-model="searchForm.project_keyword" v-model:type="searchForm.project_search_type" :type-data="projectsTypeData" :placeholder="t('请输入')" :typeWidth="150"></vco-type-input>
         </vco-page-search-item>
-        <vco-page-search-item :title="t('借款人信息')" width="250">
-          <vco-type-input v-model="searchForm.borrower_keyword" v-model:type="searchForm.borrower_search_type" :type-data="borrowerTypeData" :placeholder="t('请输入')"></vco-type-input>
-        </vco-page-search-item>
-
         <vco-page-search-item>
           <div class="flex items-center gap-2">
             <a-button type="dark" @click="searchHandle(false)"><i class="iconfont">&#xe756;</i>{{ t('搜索') }}</a-button>
@@ -132,37 +128,32 @@ const projectsTypeData = [
     value: ''
   },
   {
-    label: t('名称'),
+    label: t('项目名称'),
     value: 'name'
   },
   {
-    label: t('ID'),
+    label: t('项目ID'),
     value: 'apply_sn'
   },
   {
-    label: t('地址'),
+    label: t('项目地址'),
     value: 'address'
+  },
+
+  {
+    label: t('借款人姓名'),
+    value: 'borrower_name'
+  },
+  {
+    label: t('借款人电话'),
+    value: 'borrower_phone'
+  },
+  {
+    label: t('借款人邮箱'),
+    value: 'borrower_email'
   }
 ];
 
-const borrowerTypeData = [
-  {
-    label: t('全部属性'),
-    value: ''
-  },
-  {
-    label: t('姓名'),
-    value: 'name'
-  },
-  {
-    label: t('电话'),
-    value: 'phone'
-  },
-  {
-    label: t('邮箱'),
-    value: 'email'
-  }
-];
 
 const searchForm = ref({
   project_search_type: '',

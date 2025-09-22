@@ -95,7 +95,7 @@ export const kpiList = (params) =>
     method: 'get',
     params
   });
-  
+
 // 同步账单数据
 export const syncProjectBill = (data) =>
   request({
@@ -109,21 +109,27 @@ export const downGs = () =>
     url: 'project/down/gs',
     method: 'get'
   });
-  
+
+export const downSc = (params) =>
+  request({
+    url: 'project/down/sc',
+    method: 'get',
+    params
+  });
 
 // 预算-预测表-重置-生成预测表
 export const scheduleSaveTemp = (data) =>
   request({
-    url: "/project/down/scheduleSaveTemp",
-    method: "post",
+    url: '/project/down/scheduleSaveTemp',
+    method: 'post',
     data
   });
-  
+
 // 预算-预测表-重置
 export const projectDownSchedule = (data) =>
   request({
-    url: "/project/down/schedule",
-    method: "post",
+    url: '/project/down/schedule',
+    method: 'post',
     data
   });
 
@@ -133,7 +139,7 @@ export const downBl = (params) =>
     method: 'get',
     params
   });
-  
+
 // 项目列表 - open
 export const umbreListProject = (params) =>
   request({

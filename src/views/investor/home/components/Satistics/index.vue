@@ -62,11 +62,17 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { userProject, statistics } from '@/api/invest/index';
 const { t } = useI18n();
+
+const props = defineProps({
+  invest_id: {
+    type: String
+  }
+});
 
 const statisticsData = ref({});
 
@@ -104,7 +110,7 @@ const loading = ref(false);
 
 const loadData = (val) => {
   loading.value = true;
-  statistics({ id: invest_id.value })
+  statistics({ id: props.invest_id })
     .then((res) => {
       statisticsData.value = res;
       option.value.series[0].data[0].value = res.use_amount || 0;
@@ -115,16 +121,17 @@ const loadData = (val) => {
     });
 };
 
-const invest_id = ref('');
-
-onMounted(() => {
-  userProject().then((res) => {
-    if (res && res.length) {
-      invest_id.value = res[0].id;
+watch(
+  () => props.invest_id,
+  (val) => {
+    if (val) {
       loadData();
     }
-  });
-});
+  },
+  {
+    immediate: true
+  }
+);
 </script>
 
 <style lang="less" scoped>

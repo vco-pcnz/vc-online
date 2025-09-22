@@ -95,3 +95,11 @@ export const washUpdate = (params) =>
     method: 'get',
     params
   });
+  
+// 反洗钱-删除
+export const cancelCheck = (data) =>
+  request({
+    url: 'project/wash/cancelCheck',
+    method: 'post',
+    data
+  });

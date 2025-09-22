@@ -245,7 +245,6 @@ const removeHandle = (data, is_grace) => {
   if (is_grace) {
     delVisible.value = true;
   } else {
-    console.log(data.amount);
     if (type === 4 || data.amount == '0.00') {
       changeType.value = 2;
       delVisible.value = true;

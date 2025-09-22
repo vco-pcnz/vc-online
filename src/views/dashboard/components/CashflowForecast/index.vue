@@ -7,7 +7,8 @@
     <template v-else>
       <div class="flex-1 fs_2xl cursor-pointer">Cashflow forecast</div>
     </template>
-    <SearchContent v-model:value="searchForm" :searchConfig="searchConfig" downloadUrl="project/forecast/cashFlowForecastExport" @change="loadData"></SearchContent>
+    <SearchContent v-model:value="searchForm" :searchConfig="searchConfig" @change="loadData"></SearchContent>
+    <CashFlowForecastExportModal :searchParams="searchForm" downloadUrl="project/forecast/cashFlowForecastExport"></CashFlowForecastExportModal>
   </div>
   <a-spin :spinning="loading" size="large">
     <div class="CashflowForecastChart">
@@ -107,6 +108,7 @@ import VcoNumberNew from './vco-number-new.vue';
 import LineLabel from './line-label.vue';
 import { useUserStore } from '@/store';
 import SearchContent from '../SearchContent/index.vue';
+import CashFlowForecastExportModal from './cashFlowForecastExport.vue';
 
 const { t } = useI18n();
 

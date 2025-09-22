@@ -1102,7 +1102,7 @@ export default {
   "总计金额": "Total amount",
   "可用余额1": "Available",
   "金额日志": "Senior Notes lssued",
-  "投资项目": "Investment",
+  "投资项目": "Funding Partner ",
   "创建投资": "Created investment",
   "编辑投资": "Edit investment",
   "投资方": "Investor",
@@ -1110,8 +1110,8 @@ export default {
   "添加记录": "Add log",
   "导入": "Import",
   "生成Line fee": "Generate line fee",
-  "绑定项目": "Bind Lone",
-  "取消绑定项目": "Unbind Lone",
+  "绑定项目": "Bind Loan",
+  "取消绑定项目": "Unbind Loan",
   "确定取消绑定选中的项目吗？": "Are you sure you want to unbind the selected items?",
   "对账单": "Statement",
   "账户详情": "Account Details",
@@ -1165,6 +1165,11 @@ export default {
   "上财政年度": "Last financial year",
   "放款对账情况": "Drawdown synced",
   "还款对账情况": "Repayment synced",
+  "{0} 已超额": "{0} Exceeded",
+  "超额放款": 'Excess drawdown',
   "已放款额度比例": "Disbursed Ratio",
-  "已超额{0}，确定设置吗？": "Exceeded {0}, are you sure to set it?"
+  "已超额{0}，确定设置吗？": "Exceeded {0}, are you sure to set it?",
+  "借款人姓名": "Borrower name",
+  "借款人电话": "Borrower phone",
+  "借款人邮箱": "Borrower email"
 }

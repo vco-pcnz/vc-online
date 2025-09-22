@@ -56,6 +56,9 @@ const props = defineProps({
   },
   params: {
     type: Object
+  },
+  invest_id: {
+    type: String
   }
 });
 
@@ -93,7 +96,7 @@ const onSelect = (val) => {
 
 const loadData = () => {
   loading.value = true;
-  forecastProjectList({ ...pagination.value, ...searchForm.value, ...params.value })
+  forecastProjectList({ ...pagination.value, ...searchForm.value, ...params.value, invest_id: props.invest_id })
     .then((res) => {
       data.value = res.data;
       total.value = res.count;
@@ -125,10 +128,6 @@ const searchHandle = (flag) => {
   loadData();
 };
 
-onMounted(() => {
-  loadData();
-});
-
 watch(
   () => checkedAll.value,
   (val) => {
@@ -136,6 +135,17 @@ watch(
   }
 );
 
+watch(
+  () => props.invest_id,
+  (val) => {
+    if (val) {
+      loadData();
+    }
+  },
+  {
+    immediate: true
+  }
+);
 const params = ref({
   lm_uuids: '',
   search: ''

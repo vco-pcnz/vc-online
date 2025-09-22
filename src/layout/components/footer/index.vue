@@ -6,12 +6,28 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
-const version = __APP_VERSION__;
+import { computed, onMounted, ref } from 'vue';
+const version = ref();
 import { useUserStore } from '@/store';
 
 const isNormalUser = computed(() => useUserStore().isNormalUser);
 const pageRole = computed(() => useUserStore().pageRole);
+
+const getVersion = async () => {
+  try {
+    // 添加时间戳防止缓存
+    const response = await fetch(`/version.json?t=${Date.now()}`);
+    if (!response.ok) throw new Error('Failed to fetch version');
+    const data = await response.json();
+    version.value = data.version;
+  } catch (error) {
+    console.error('检查版本更新失败:', error);
+  }
+};
+
+onMounted(() => {
+  getVersion();
+});
 </script>
 
 <style lang="less" scoped>

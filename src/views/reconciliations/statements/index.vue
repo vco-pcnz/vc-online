@@ -29,8 +29,8 @@
             </template>
 
             <template v-if="column.key === 'operation'">
-              <a-popconfirm :title="t('您确定要撤回该对账吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="revoke(record.bank_sn)" :disabled="!record.status || record.children" v-if="record.status != -1">
-                <a-button type="danger" shap="round" :disabled="!record.status || record.children"> {{ t('撤回') }}</a-button>
+              <a-popconfirm :title="t('您确定要撤回该对账吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="revoke(record.bank_sn)" :disabled="!record.status || (record.children && record.way === 'api-split')" v-if="record.status != -1">
+                <a-button type="danger" shap="round" :disabled="!record.status || (record.children && record.way === 'api-split')"> {{ t('撤回') }}</a-button>
               </a-popconfirm>
               <a-popconfirm :title="t('您确定要恢复该对账吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="restore(record.bank_sn)" v-else>
                 <a-button type="danger" shap="round"> {{ t('恢复') }}</a-button>

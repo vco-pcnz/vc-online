@@ -34,7 +34,10 @@
       <a-divider />
       <a-row :gutter="16" class="income">
         <a-col :span="24">
-          <p class="color_grey fs_xs">Interest</p>
+          <p class="color_grey fs_xs">
+            Interest
+            <template v-if="data?.middle?.interestDay">(to {{ dayjs(data?.middle?.interestDay).format(selectDateFormat()) }})</template>
+          </p>
           <vco-number :value="data?.middle?.interest" :bold="true" :precision="2" size="fs_2xl"></vco-number>
         </a-col>
         <a-col :span="24">
@@ -43,7 +46,11 @@
           <p class="fs_xs color_grey"></p>
         </a-col>
         <a-col :span="24" v-if="detail?.base?.has_linefee">
-          <p class="color_grey fs_xs">Line fee</p>
+          <p class="color_grey fs_xs">
+            Line fee
+
+            <template v-if="data?.middle?.lineFeeDay">(to {{ dayjs(data?.middle?.lineFeeDay).format(selectDateFormat()) }})</template>
+          </p>
           <vco-number :value="data?.middle?.lineFee" :bold="true" :precision="2" size="fs_2xl"></vco-number>
         </a-col>
         <a-col :span="24" v-if="hasPermission('projects:about:bonus')">
@@ -149,6 +156,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import DevCostDetail from '@/views/process/temp/default/components/DevCostDetail.vue';
 import { edit } from '@/api/project/annex';
 import { saveDevCost } from '@/api/project/project';
+import tool from '@/utils/tool';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);

@@ -697,8 +697,13 @@ const adDisabledSdateFormat = (current) => {
 
 const adDisabledDateFormat = (current) => {
   const startDate = adFormState.s_date ? dayjs(adFormState.s_date) : statisticsData.value?.day.sday;
+  const endDate = dayjs(new Date());
 
   if (current && current.isBefore(startDate, 'day')) {
+    return true;
+  }
+
+  if (current && current.isAfter(endDate, 'day')) {
     return true;
   }
 

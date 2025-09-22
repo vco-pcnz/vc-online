@@ -111,7 +111,7 @@
           </a-popconfirm>
         </div>
 
-        <div v-if="detail.has_permission && ![0].includes(detail.state)" class="mt-10">
+        <div v-if="detail.has_permission && (isAdd ? Number(detail.state2) > 0 : ![0].includes(detail.state))" class="mt-10">
           <a-popconfirm :title="t('您确定要接受该请求吗？')" @confirm="accept">
             <a-button type="dark" class="big uppercase" style="width: 100%">{{ t('接受请求') }}</a-button>
           </a-popconfirm>

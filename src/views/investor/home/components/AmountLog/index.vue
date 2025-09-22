@@ -2,7 +2,17 @@
   <a-spin :spinning="loading" size="large">
     <div class="flex title items-center gap-5">
       <div class="bold fs_2xl">{{ t('金额日志') }}</div>
-      <SearchContent v-if="invest_id" v-model:value="searchForm" timepicker="month" :searchConfig="searchConfig" :open_hidden="true" :downloadParams="{ id: invest_id }" :showPresets="false" downloadUrl="invest/barExport" @change="loadData"></SearchContent>
+      <SearchContent
+        v-if="invest_id"
+        v-model:value="searchForm"
+        timepicker="month"
+        :searchConfig="searchConfig"
+        :open_hidden="true"
+        :downloadParams="{ id: invest_id }"
+        :showPresets="false"
+        downloadUrl="invest/barExport"
+        @change="loadData"
+      ></SearchContent>
     </div>
     <div style="height: 350px" class="mt-10">
       <v-chart class="chart2" :option="option" autoresize />
@@ -11,13 +21,19 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { userProject, barSta } from '@/api/invest';
 import SearchContent from '@/views/dashboard/components/SearchContent/index.vue';
 import dayjs from 'dayjs';
 const { t } = useI18n();
+
+const props = defineProps({
+  invest_id: {
+    type: String
+  }
+});
 
 const searchConfig = ref(['Time']);
 const searchForm = ref({
@@ -81,7 +97,7 @@ const loadData = (val) => {
   loading.value = true;
   let params = searchForm.value;
   if (val) params = { ...searchForm.value, ...val };
-  barSta({ id: invest_id.value, ...params })
+  barSta({ id: props.invest_id, ...params })
     .then((res) => {
       option.value.xAxis.data = res.time.map((item) => {
         if (item.length == '7') {
@@ -102,16 +118,17 @@ const loadData = (val) => {
     });
 };
 
-const invest_id = ref('');
-
-onMounted(() => {
-  userProject().then((res) => {
-    if (res && res.length) {
-      invest_id.value = res[0].id;
+watch(
+  () => props.invest_id,
+  (val) => {
+    if (val) {
       loadData();
     }
-  });
-});
+  },
+  {
+    immediate: true
+  }
+);
 </script>
 
 <style lang="less" scoped>

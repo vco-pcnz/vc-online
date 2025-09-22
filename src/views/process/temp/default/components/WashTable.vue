@@ -115,8 +115,8 @@
                   <template v-if="blockInfo.showEdit">
                     <i class="iconfont" :title="t('审核')" @click="checkOne(record.id)" v-if="record.status != 4 && record.status != 3 && record.document && record.document.length && hasPermission('requests:aml:check')"> &#xe647; </i>
                     <div v-if="record.status == 4 && hasPermission('requests:aml:check')" class="relative">
-                      <i class="iconfont" :title="t('取消审核')" @click="cancelCheckOne(record.id)"> &#xe647; </i>
-                      <div class="close_line"></div>
+                      <i class="iconfont" :title="t('取消审核')" @click="cancelCheckOne(record.id)"> &#xe9a2; </i>
+                      <!-- <div class="close_line"></div> -->
                     </div>
 
                     <i class="iconfont" :title="t('编辑')" @click="showForm(record)">&#xe753;</i>

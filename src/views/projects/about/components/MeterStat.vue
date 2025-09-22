@@ -1,5 +1,5 @@
 <template>
-  <a-alert type="info" closable class="mb-5 synced-diff" style="margin-top: -45px" v-if="Math.abs(tool.minus(base?.vcoSpendAmount, base?.xeroSpendAmount)) || Math.abs(tool.minus(base?.vcoReceivedAmount, base?.xeroReceivedAmount))">
+  <a-alert type="info" closable class="mb-5 synced-diff" style="margin-top: -45px" >
     <template #description>
       <div class="flex">
         <a-tooltip placement="top">

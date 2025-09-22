@@ -449,6 +449,10 @@
     excess: {
       type: Boolean,
       default: false
+    },
+    hideSelf: {
+      type: Boolean,
+      default: false
     }
   })
 
@@ -585,7 +589,7 @@
         delete payment[key]
       }
 
-      if (props.isSelect) {
+      if (props.isSelect || props.hideSelf) {
         if (key.indexOf('$2') > -1) {
           delete payment[key]
         }
@@ -835,7 +839,7 @@
       await ajaxFn(params).then(res => {
         const dataRes = res.data || {}
         let data = {}
-        if (props.isSelect) {
+        if (props.isSelect || props.hideSelf) {
           for (const key in dataRes) {
             if (key.indexOf('$1') > -1) {
               data[key] = dataRes[key]

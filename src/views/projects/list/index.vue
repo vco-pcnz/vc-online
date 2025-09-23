@@ -49,17 +49,19 @@ import DateExport from './components/DateExport.vue';
 const { t } = useI18n();
 const pageStore = useProjectsStore();
 const isNormalUser = computed(() => useUserStore().isNormalUser);
+const current_num = computed(() => pageStore.otherInfo['1']);
+const closed_num = computed(() => pageStore.otherInfo['2']);
 
 const tabData = ref([
   {
     label: t('当前项目'),
     value: 1,
-    num: 0
+    num: current_num
   },
   {
     label: t('已关闭的项目'),
     value: 2,
-    num: 0
+    num: closed_num
   }
 ]);
 
@@ -73,7 +75,7 @@ const tabChange = () => {
   pageStore.searchParams['order'] = 'desc';
   pageStore.searchParams['sort'] = 'start_date';
   if (tableSearchRef.value) {
-    tableSearchRef.value.searchHandle(true);
+    tableSearchRef.value.searchHandle();
   } else {
     pageStore.getList();
   }

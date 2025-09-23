@@ -1,5 +1,5 @@
 <template>
-  <div style="margin-top: -30px" class="mb-5">
+  <div>
     <template v-if="(detail?.close?.has_permission || hasPermission('projects:about:add:closeFc')) && detail?.close?.cancel_reason">
       <a-alert type="error" :message="t('拟关闭') + ' ' + t('退回原因')" class="mb-5 cancel-reason">
         <template #description>
@@ -9,7 +9,7 @@
     </template>
 
     <template v-if="detail?.close?.has_permission && detail?.base?.is_open == 2">
-      <a-alert type="info" :message="t('关账')">
+      <a-alert type="info" :message="t('关账')" class="mb-5">
         <template #description>
           <div>
             <span class="bold"> {{ t('日期') }}</span

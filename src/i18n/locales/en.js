@@ -272,8 +272,8 @@ export default {
   "项目借款周期": "Loan dates",
   "借款周期": "Loan term",
   "天数": "Days",
-  "开放日期": "Open Date",
-  "到期日期": "Maturity Date",
+  "开放日期": "Open date",
+  "到期日期": "Maturity date",
   "月": "months",
   "天": "days",
   "请输入正整数": "Please enter a positive integer",
@@ -975,7 +975,7 @@ export default {
   "设置": "Set",
   "点击下方表格，选择需要批量操作的数据": "Click the table below to select the data to be operated in batch",
   "版本记录": "Version record",
-  "开发成本中的借款人出资为：<span>{0}</span>，当前设置值为：<span>{1}</span>，相差：<span>{2}</span>": "The borrower's contribution in the development cost is: <span>{0}</span>, the current setting value is: <span>{1}</span>, the difference is: <span>{2}</span>",
+  "开发成本中的借款人出资为：<span>{0}</span>，当前设置值为：<span>{1}</span>，相差：<span>{2}</span>": "The borrower's equity in the development cost is: <span>{0}</span>, the current setting value is: <span>{1}</span>, the difference is: <span>{2}</span>",
   "取消批量模式": "Cancel batch mode",
   "批量设置1": "Batch set",
   "取消已选择": "Cancel selected",
@@ -1180,5 +1180,9 @@ export default {
   "借款人邮箱": "Borrower email",
   "VS放款总金额为：<span>{0}</span>，当前放款总额为：<span>{1}</span>，超出了：<span>{2}</span>": "VS drawdown total amount is: <span>{0}</span>, current drawdown total amount is: <span>{1}</span>, which exceeds: <span>{2}</span>",
   "BOC放款总金额为：<span>{0}</span>，当前放款总额为：<span>{1}</span>，超出了：<span>{2}</span>": "BOC drawdown total amount is: <span>{0}</span>, current drawdown total amount is: <span>{1}</span>, which exceeds: <span>{2}</span>",
-  "超额": "Exceeded"
+  "超额": "Exceeded",
+  "放款记录": "Drawdown record",
+  "逾期天数": "Days overdue",
+  "投资人首页": "Dashboard",
+  "剩余总额度": "Remaining total amount"
 }

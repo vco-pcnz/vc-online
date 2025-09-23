@@ -10,6 +10,10 @@ const useCloseProjectsStore = defineStore('VcOnlineCloseProjects', {
     loading: false,
     searchParams: {},
     total: 0,
+    otherInfo: {
+      1: 0,
+      2: 0
+    },
     pagination: {
       page: 1,
       limit: 10
@@ -81,6 +85,7 @@ const useCloseProjectsStore = defineStore('VcOnlineCloseProjects', {
           .then((r) => {
             this.list = r.data;
             this.total = r.count;
+            this.otherInfo = r.otherInfo?.num;
             this.loading = false;
             resolve(r.data);
           })

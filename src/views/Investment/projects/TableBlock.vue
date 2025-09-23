@@ -4,7 +4,7 @@
       :columns="columns"
       :data-source="tableData"
       :pagination="false"
-      :scroll="{ x: type == 'closed' ? '1950' : '1840px' }"
+      :scroll="{ x: type == 'closed' ? '2000' : '1900px' }"
       :customRow="rowClick"
       row-key="uuid"
       :rowClassName="setRowClass"
@@ -140,7 +140,10 @@
         </template>
 
         <template v-if="column.key === 'close_date'">
-          <p class="bold black" v-if="record.close_date">{{ tool.showDate(record.close_date) }}</p>
+          <template v-if="record.close_date">
+            <p class="bold black">{{ tool.showDate(record.close_date) }}</p>
+            <span class="replenish_text color_red-error" v-if="record.end_close_day">{{ record.end_close_day }} days</span>
+          </template>
         </template>
 
         <template v-if="column.key === 'irr'">
@@ -259,7 +262,7 @@ const columns = reactive([
   { title: t('项目•类型'), key: '1', width: 280 },
   { title: t('借款人•贷款经理'), key: '2', width: 200 },
   { title: t('开始日期'), key: 'open', width: 110 },
-  { title: t('到期'), key: 'end_date', width: 110 },
+  { title: t('到期'), key: 'end_date', width: 140 },
   { title: t('IRR预测'), key: 'irr', width: 140 },
   { title: 'LVR', key: 'lvr', width: 140 },
   { title: 'LTC', key: 'ltc', width: 140 },
@@ -390,7 +393,7 @@ watch(
           title: t('关闭日期'),
           key: 'close_date',
           align: 'center',
-          width: 110
+          width: 140
         });
       }
     } else {

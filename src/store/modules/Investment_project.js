@@ -9,6 +9,10 @@ const useInvestment_projectStore = defineStore('Investment_projectStore', {
     loading: false,
     searchParams: {},
     total: 0,
+    otherInfo: {
+      1: 0,
+      2: 0
+    },
     pagination: {
       page: 1,
       limit: 10
@@ -75,6 +79,7 @@ const useInvestment_projectStore = defineStore('Investment_projectStore', {
           .then((r) => {
             this.list = r.data;
             this.total = r.count;
+            this.otherInfo = r.otherInfo?.num;
             this.loading = false;
             resolve(r.data);
           })

@@ -428,7 +428,45 @@
               <a-col :span="24"><div class="pt-5" style="border-top: 1px dashed #282828"></div></a-col>
               <template v-if="colItemsRef.length">
                 <template v-for="item in colItemsRef" :key="item.credit_table">
-                  <a-col :span="getItemsSpan">
+                  <a-col :span="4">
+                    <a-form-item :name="item.credit_table">
+                      <template #label>
+                        {{ item.credit_name }}
+                        <a-tooltip v-if="item.tips" placement="topLeft">
+                          <template #title>
+                            <span>{{ item.tips }}</span>
+                          </template>
+                          <QuestionCircleOutlined class="ml-2" />
+                        </a-tooltip>
+                      </template>
+                      <a-input
+                        v-if="item.is_ratio"
+                        v-model:value="formState[item.credit_table]"
+                        :suffix="item.credit_unit"
+                        :disabled="item.credit_table === 'credit_brokerFeeRate' && (!borkerFeeCalcAmount && formState.type !== 4)"
+                        :loading="item.credit_table === 'credit_brokerFeeRate' && loadingBorkerFeeCalcAmount"
+                        @input="handInput(item.credit_table)"
+                      />
+                      <a-input-number
+                        v-else
+                        @input="handInput(item.credit_table)"
+                        :disabled="item.credit_table === 'credit_brokerFee' && (!borkerFeeCalcAmount && formState.type !== 4)"
+                        :loading="item.credit_table === 'credit_brokerFee' && loadingBorkerFeeCalcAmount"
+                        v-model:value="formState[item.credit_table]"
+                        :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                        :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                      />
+                    </a-form-item>
+                  </a-col>
+                </template>
+              </template>
+            </div>
+
+            <div v-if="secColItemsRef.length" class="w-full flex flex-wrap">
+              <a-col :span="24"><div class="pt-5" style="border-top: 1px dashed #282828"></div></a-col>
+              <template v-if="secColItemsRef.length">
+                <template v-for="item in secColItemsRef" :key="item.credit_table">
+                  <a-col :span="6">
                     <a-form-item :name="item.credit_table">
                       <template #label>
                         {{ item.credit_name }}
@@ -1006,9 +1044,6 @@ const selectDoneHandle = (data) => {
 }
 
 const creditData = ref([]);
-const creditItemsData = ref([]);
-const percentItems = ref([]);
-const dollarItems = ref([]);
 
 const creditVariationinfo = ref({});
 
@@ -1043,6 +1078,7 @@ const getValidateInfo = (data) => {
 };
 
 const colItemsRef = ref([])
+const secColItemsRef = ref([])
 const createFormItems = () => {
   const creditInfo = cloneDeep(creditVariationinfo.value);
 
@@ -1083,7 +1119,7 @@ const createFormItems = () => {
     }
   }
 
-  const ascArr = ['credit_estabFeeRate', 'credit_estabFee', 'credit_brokerFeeRate', 'credit_brokerFee'];
+  const ascArr = ['credit_loanInterest', 'credit_LineFeeRate', 'credit_brokerFeeRate', 'credit_brokerFee', 'credit_legalFee', 'credit_otherFee', 'credit_estabFeeRate', 'credit_estabFee'];
   
   // 按照 ascArr 顺序重新排列 colItems
   const orderedItems = [];
@@ -1099,16 +1135,14 @@ const createFormItems = () => {
   
   // 再添加剩余的项
   orderedItems.push(...remainingItems);
-  colItems = orderedItems;
 
-  colItemsRef.value = colItems;
-  creditItemsData.value = colItems.map((item) => item.credit_table);
+  const secItems = ['credit_estabFeeRate', 'credit_estabFee']
 
-  const perData = colItems.filter((item) => item.is_ratio);
-  const dolData = colItems.filter((item) => !item.is_ratio);
+  const firColItems = colItems.filter((item) => !secItems.includes(item.credit_table));
+  const secColItems = colItems.filter((item) => secItems.includes(item.credit_table));
 
-  percentItems.value = perData;
-  dollarItems.value = dolData;
+  colItemsRef.value = firColItems;
+  secColItemsRef.value = secColItems;
 
   formRules.value = { ...formRules.value, ...rulesData };
 };
@@ -1150,27 +1184,6 @@ const type_startDate = computed(() => ({
   type: formState.value.type,
   start_date: formState.value.start_date
 }));
-
-const getItemsSpan = computed(() => {
-  const num = creditItemsData.value.length;
-  if (num === 1) {
-    return 24;
-  } else if (num === 2) {
-    return 12;
-  } else if (num === 3) {
-    return 8;
-  } else if (num === 4 || num === 7) {
-    return 6;
-  } else {
-    if (num % 4 === 0) {
-      return 6;
-    } else if (num % 3 === 0) {
-      return 8;
-    } else {
-      return 8;
-    }
-  }
-});
 
 const loadingBorkerFeeCalcAmount = ref(false);
 const borkerFeeCalcHandle = () => {
@@ -1278,7 +1291,6 @@ watch(
 );
 
 const handInput = (key) => {
-  console.log('fdsa');
   // 中介费
   if (['credit_brokerFeeRate', 'credit_brokerFee'].includes(key)) {
     const credit_brokerFeeRate = Number(formState.value.credit_brokerFeeRate || 0) > 0 ? Number(formState.value.credit_brokerFeeRate || 0) : 0
@@ -1390,6 +1402,10 @@ const submitHandle = () => {
       for (let i = 0; i < colItemsRef.value.length; i++) {
         credit[colItemsRef.value[i].credit_table] = formState.value[colItemsRef.value[i].credit_table]
         delete params[colItemsRef.value[i].credit_table]
+      }
+      for (let i = 0; i < secColItemsRef.value.length; i++) {
+        credit[secColItemsRef.value[i].credit_table] = formState.value[secColItemsRef.value[i].credit_table]
+        delete params[secColItemsRef.value[i].credit_table]
       }
 
       params.credit = credit;

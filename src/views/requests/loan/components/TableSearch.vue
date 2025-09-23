@@ -2,11 +2,7 @@
   <div>
     <vco-page-search @keyup.enter="searchHandle(false)">
       <vco-page-search-item :title="t('项目信息')" width="250">
-        <vco-type-input v-model="searchForm.project_keyword" v-model:type="searchForm.project_search_type" :type-data="projectsTypeData" :placeholder="t('请输入')"></vco-type-input>
-      </vco-page-search-item>
-
-      <vco-page-search-item :title="t('借款人信息')" width="250">
-        <vco-type-input v-model="searchForm.borrower_keyword" v-model:type="searchForm.borrower_search_type" :type-data="borrowerTypeData" :placeholder="t('请输入')"></vco-type-input>
+        <vco-type-input v-model="searchForm.project_keyword" :typeWidth="135" v-model:type="searchForm.project_search_type" :type-data="projectsTypeData" :placeholder="t('请输入')"></vco-type-input>
       </vco-page-search-item>
 
       <vco-page-search-item :title="t('项目周期')" width="266">
@@ -16,33 +12,18 @@
           <a-date-picker v-model:value="searchForm.end_date" :format="selectDateFormat()" :disabledDate="disabledDateFormatAfter" :placeholder="t('到期日期')" />
         </div>
       </vco-page-search-item>
-        <vco-page-search-item :title="t('客户经理')" width="180">
-          <a-input v-model:value="searchForm.lm_name" :placeholder="t('请输入')" />
-        </vco-page-search-item>
+      <vco-page-search-item :title="t('客户经理')" width="180">
+        <a-input v-model:value="searchForm.lm_name" :placeholder="t('请输入')" />
+      </vco-page-search-item>
 
+      <vco-page-search-item :title="t('借款金额')" width="264">
+        <div class="flex items-center gap-2">
+          <a-input-number v-model:value="searchForm.min_loan_money" :min="1" :placeholder="t('最小值')" />
+          <p>-</p>
+          <a-input-number v-model:value="searchForm.max_loan_money" :min="searchForm.min_loan_money" :placeholder="t('最大值')" />
+        </div>
+      </vco-page-search-item>
       <template v-if="isExpand">
-
-        <vco-page-search-item :title="t('借款金额')" width="264">
-          <div class="flex items-center gap-2">
-            <a-input-number v-model:value="searchForm.min_loan_money" :min="1" :placeholder="t('最小值')" />
-            <p>-</p>
-            <a-input-number v-model:value="searchForm.max_loan_money" :min="searchForm.min_loan_money" :placeholder="t('最大值')" />
-          </div>
-        </vco-page-search-item>
-      </template>
-      <template v-else>
-        <vco-page-search-item>
-          <div class="flex items-center gap-2">
-          <div class="search_expand" v-if="!isExpand" @click="isExpand = !isExpand">{{ t('展开') }}<DoubleRightOutlined class="icon" /></div>
-            <a-button type="dark" @click="searchHandle(false)"><i class="iconfont">&#xe756;</i>{{ t('搜索') }}</a-button>
-            <a-button type="dark-line" @click="searchHandle(true)"><i class="iconfont">&#xe757;</i>{{ t('重置') }}</a-button>
-          </div>
-        </vco-page-search-item>
-      </template>
-    </vco-page-search>
-
-    <div class="flex justify-between mt-5 items-end" v-if="isExpand">
-      <div>
         <vco-page-search-item width="140" :title="t('状态')" v-if="current < 3 && hasPermission('requests:search:status')">
           <a-select placeholder="t('请选择')" v-model:value="searchForm.status">
             <a-select-option value="">
@@ -55,12 +36,23 @@
             </template>
           </a-select>
         </vco-page-search-item>
-      </div>
+      </template>
+      <vco-page-search-item v-if="!isExpand || current >= 3">
         <div class="flex items-center gap-2">
-        <div class="search_expand isExpand" @click="isExpand = !isExpand">{{ t('收起') }}<DoubleRightOutlined class="icon" /></div>
+          <div class="search_expand" v-if="!isExpand && current < 3 && hasPermission('requests:search:status')" @click="isExpand = !isExpand">{{ t('展开') }}<DoubleRightOutlined class="icon" /></div>
           <a-button type="dark" @click="searchHandle(false)"><i class="iconfont">&#xe756;</i>{{ t('搜索') }}</a-button>
           <a-button type="dark-line" @click="searchHandle(true)"><i class="iconfont">&#xe757;</i>{{ t('重置') }}</a-button>
         </div>
+      </vco-page-search-item>
+    </vco-page-search>
+
+    <div class="flex justify-between mt-5 items-end" v-if="isExpand && current < 3">
+      <div></div>
+      <div class="flex items-center gap-2">
+        <div class="search_expand isExpand" @click="isExpand = !isExpand">{{ t('收起') }}<DoubleRightOutlined class="icon" /></div>
+        <a-button type="dark" @click="searchHandle(false)"><i class="iconfont">&#xe756;</i>{{ t('搜索') }}</a-button>
+        <a-button type="dark-line" @click="searchHandle(true)"><i class="iconfont">&#xe757;</i>{{ t('重置') }}</a-button>
+      </div>
     </div>
   </div>
 </template>
@@ -87,24 +79,6 @@ const props = defineProps({
 });
 
 const isExpand = ref(false);
-const borrowerTypeData = [
-  {
-    label: t('全部属性'),
-    value: ''
-  },
-  {
-    label: t('姓名'),
-    value: 'name'
-  },
-  {
-    label: t('电话'),
-    value: 'phone'
-  },
-  {
-    label: t('邮箱'),
-    value: 'email'
-  }
-];
 
 const projectsTypeData = [
   {
@@ -112,16 +86,29 @@ const projectsTypeData = [
     value: ''
   },
   {
-    label: t('名称'),
+    label: t('项目名称'),
     value: 'name'
   },
   {
-    label: t('ID'),
+    label: t('项目ID'),
     value: 'apply_sn'
   },
   {
-    label: t('地址'),
+    label: t('项目地址'),
     value: 'address'
+  },
+
+  {
+    label: t('借款人姓名'),
+    value: 'borrower_name'
+  },
+  {
+    label: t('借款人电话'),
+    value: 'borrower_phone'
+  },
+  {
+    label: t('借款人邮箱'),
+    value: 'borrower_email'
   }
 ];
 
@@ -188,3 +175,10 @@ defineExpose({
   searchHandle
 });
 </script>
+
+
+<style lang="less" scoped>
+.page-search-content {
+  gap: 28px;
+}
+</style>

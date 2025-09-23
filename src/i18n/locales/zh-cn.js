@@ -1172,5 +1172,6 @@ export default {
   "借款人邮箱": "借款人邮箱",
   "VS放款总金额为：<span>{0}</span>，当前放款总额为：<span>{1}</span>，超出了：<span>{2}</span>": "VS放款总金额为：<span>{0}</span>，当前放款总额为：<span>{1}</span>，超出了：<span>{2}</span>",
   "BOC放款总金额为：<span>{0}</span>，当前放款总额为：<span>{1}</span>，超出了：<span>{2}</span>": "BOC放款总金额为：<span>{0}</span>，当前放款总额为：<span>{1}</span>，超出了：<span>{2}</span>",
-  "超额": "超额"
+  "超额": "超额",
+  "贷款方": "贷款方"
 }

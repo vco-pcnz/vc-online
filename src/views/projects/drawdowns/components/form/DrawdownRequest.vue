@@ -35,8 +35,8 @@
               <vco-tip style="padding-bottom: 5px" :tip="t('此消息针对 FC 的批准评论')"
                 ><div class="label" style="padding: 0">{{ t('消息') }}</div></vco-tip
               >
-              <a-textarea  v-if="projectDetail.product.code === 'vsl'" v-model:value="formState.remark" :rows="hasPermission('projects:drawdowns:add') ? 18 : 14" />
-              <a-textarea  v-else v-model:value="formState.remark" :rows="hasPermission('projects:drawdowns:add') ? 14 : 10" />
+              <a-textarea v-if="projectDetail.product.code === 'vsl'" v-model:value="formState.remark" :rows="hasPermission('projects:drawdowns:add') ? 18 : 14" />
+              <a-textarea v-else v-model:value="formState.remark" :rows="hasPermission('projects:drawdowns:add') ? 14 : 10" />
             </div>
           </a-col>
           <a-col :span="24" v-if="!hasPermission('projects:drawdowns:add')">
@@ -121,11 +121,11 @@ const formModal3 = ref([]);
 const LenderData = ref([
   {
     label: 'VS',
-    value: '0'
+    value: 0
   },
   {
     label: 'BOC',
-    value: '1'
+    value: 1
   }
 ]);
 
@@ -360,7 +360,9 @@ const initData = () => {
   isEdit.value = true;
   let keys = ['name', 'note', 'remark', 'other_note', 'apply_date', 'other_type', 'build_money', 'land_money', 'equity_money', 'other_money', 'vip_amount'];
   const newData = pick(props.detail, keys);
+  newData['source'] = props.detail?.forecast?.source;
   Object.assign(formState.value, newData);
+  console.log(formState.value)
   if (props.detail?.buildlog) {
     formState.value.build__data = props.detail?.buildlog;
     if (ProgressPaymentRef.value) ProgressPaymentRef.value.init();

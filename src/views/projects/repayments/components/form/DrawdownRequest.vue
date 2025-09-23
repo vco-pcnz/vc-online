@@ -118,7 +118,12 @@
                 />
               </a-form-item>
             </a-col>
-            <a-col v-if="formState.all_repayment === 1 && formState.apply_date && hasPermission('projects:repayments:adDownload')" :span="24">
+            <a-col v-if="overdueDays" :span="4">
+              <a-form-item :label="t('逾期天数')">
+                <div class="show-date">{{ overdueDays }}</div>
+              </a-form-item>
+            </a-col>
+            <a-col v-if="formState.all_repayment === 1 && formState.apply_date && hasPermission('projects:repayments:adDownload')" :span="overdueDays ? 20 : 24">
               <a-form-item :label="t('对账单')">
                 <a-button type="dark" class="uppercase shadow bold" :loading="downloadLoading" @click="downloadStatement">
                   {{ t('下载') }}
@@ -285,6 +290,16 @@ const repaymentAmount = computed(() => {
 
   const res = tool.minus(formState.value.apply_amount, reduceNum)
   return res
+})
+
+const overdueDays = computed(() => {
+  const selectDate = formState.value.apply_date
+  const endDate = props.projectDetail?.date?.end_date
+  if (selectDate && endDate && dayjs(endDate).isBefore(dayjs(selectDate))) {
+    return tool.diffDate(endDate, selectDate)
+  }
+
+  return 0
 })
 
 const amountInput = () => {

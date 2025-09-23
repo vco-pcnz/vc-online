@@ -2,7 +2,7 @@
   <div>
     <vco-page-search @keyup.enter="searchHandle(false)">
       <template v-if="module !== 'other'">
-        <vco-page-search-item width="120" :title="t('类型')">
+        <vco-page-search-item width="130" :title="t('类型')">
           <a-select :placeholder="t('请选择')" v-model:value="searchForm.ctype">
             <a-select-option v-for="item in typeData" :key="item.value" :value="item.value">
               {{ item.label }}
@@ -10,12 +10,8 @@
           </a-select>
         </vco-page-search-item>
 
-        <vco-page-search-item :title="t('项目信息')" width="250">
-          <vco-type-input v-model="searchForm.project_keyword" v-model:type="searchForm.project_search_type" :type-data="projectsTypeData" :placeholder="t('请输入')"></vco-type-input>
-        </vco-page-search-item>
-
-        <vco-page-search-item :title="t('借款人信息')" width="250">
-          <vco-type-input v-model="searchForm.borrower_keyword" v-model:type="searchForm.borrower_search_type" :type-data="borrowerTypeData" :placeholder="t('请输入')"></vco-type-input>
+        <vco-page-search-item :title="t('项目信息')" width="280">
+          <vco-type-input v-model="searchForm.project_keyword" v-model:type="searchForm.project_search_type" :type-data="projectsTypeData" :placeholder="t('请输入')" :typeWidth="135"></vco-type-input>
         </vco-page-search-item>
       </template>
 
@@ -107,41 +103,35 @@ const typeData = ref([
   // }
 ]);
 
-const borrowerTypeData = [
-  {
-    label: t('全部属性'),
-    value: ''
-  },
-  {
-    label: t('姓名'),
-    value: 'name'
-  },
-  {
-    label: t('电话'),
-    value: 'phone'
-  },
-  {
-    label: t('邮箱'),
-    value: 'email'
-  }
-];
-
 const projectsTypeData = [
   {
     label: t('全部属性'),
     value: ''
   },
   {
-    label: t('名称'),
+    label: t('项目名称'),
     value: 'name'
   },
   {
-    label: t('ID'),
+    label: t('项目ID'),
     value: 'apply_sn'
   },
   {
-    label: t('地址'),
+    label: t('项目地址'),
     value: 'address'
+  },
+
+  {
+    label: t('借款人姓名'),
+    value: 'borrower_name'
+  },
+  {
+    label: t('借款人电话'),
+    value: 'borrower_phone'
+  },
+  {
+    label: t('借款人邮箱'),
+    value: 'borrower_email'
   }
 ];
 

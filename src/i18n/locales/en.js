@@ -1173,5 +1173,6 @@ export default {
   "借款人电话": "Borrower phone",
   "借款人邮箱": "Borrower email",
   "放款记录": "Drawdown record",
-  "逾期天数": "Days overdue"
+  "逾期天数": "Days overdue",
+  "投资人首页": "Dashboard"
 }

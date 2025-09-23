@@ -272,8 +272,8 @@ export default {
   "项目借款周期": "Loan dates",
   "借款周期": "Loan term",
   "天数": "Days",
-  "开放日期": "Open Date",
-  "到期日期": "Maturity Date",
+  "开放日期": "Open date",
+  "到期日期": "Maturity date",
   "月": "months",
   "天": "days",
   "请输入正整数": "Please enter a positive integer",
@@ -1171,5 +1171,7 @@ export default {
   "已超额{0}，确定设置吗？": "Exceeded {0}, are you sure to set it?",
   "借款人姓名": "Borrower name",
   "借款人电话": "Borrower phone",
-  "借款人邮箱": "Borrower email"
+  "借款人邮箱": "Borrower email",
+  "放款记录": "Drawdown record",
+  "逾期天数": "Days overdue"
 }

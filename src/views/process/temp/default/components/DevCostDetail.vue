@@ -10,7 +10,7 @@
 
   <div class="inline" @click="init"><slot></slot></div>
   <div @click.stop ref="modeRef" class="myMode text-left sys-form-content">
-    <a-modal :width="edit ? (isVariation ? 1200 : 1000) : (isVariation ? 1000 : 900)" :open="visible" :title="t('开发成本')" :getContainer="() => $refs.modeRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
+    <a-modal :width="edit ? (isVariation ? 1200 : 1000) : 1000" :open="visible" :title="t('开发成本')" :getContainer="() => $refs.modeRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content">
         <a-form-item-rest>
           <div v-for="(item, p_index) in data.data" :key="item.type" class="mb-5 card">
@@ -280,32 +280,101 @@
               <a-switch v-if="edit" v-model:checked="isRefinancialChecked" @change="changeRefinancial" />
             </div>
 
-            <div v-if="isRefinancialChecked" class="refinancial-select">
-              <a-select
-                v-model:value="refinancialIds"
-                mode="multiple"
-                :options="refinancialData"
-                :filter-option="filterOption"
-                :placeholder="t('请选择项目')"
-                :disabled="!edit"
-                @change="(value, option) => refinancialChange(option)"
-              >
-                <template #option="{ label, value, item }">
-                  <p>{{ label }}</p>
-                  <vco-number
-                    :value="Number(item.amount)"
-                    :precision="2"
-                    size="fs_xs"
-                    :end="true"
-                    color="#666666"
-                  ></vco-number>
-                </template>
-              </a-select>
+            <template v-if="isRefinancialChecked">
+              <div class="refinancial-select">
+                <a-select
+                  v-model:value="refinancialIds"
+                  mode="multiple"
+                  :options="refinancialData"
+                  :filter-option="filterOption"
+                  :placeholder="t('请选择项目')"
+                  :disabled="!edit"
+                  @change="(value, option) => refinancialChange(option)"
+                >
+                  <template #option="{ label, value, item }">
+                    <p>{{ label }}</p>
+                    <div class="flex items-center gap-2">
+                      <p style="color: #666; font-size: 12px;">{{ t('剩余总额度') }}</p>
+                      <vco-number
+                        :value="Number(item.allRepayment.last_money)"
+                        :precision="2"
+                        size="fs_xs"
+                        :end="true"
+                        color="#666666"
+                      ></vco-number>
+                    </div>
+                    
+                  </template>
+                </a-select>
 
-              <div class="amount">
-                <vco-number :value="refinancialAmount" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
+                <div class="amount">
+                  <vco-number :value="refinancialAmount" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
+                </div>
               </div>
-            </div>
+              <div v-if="selectedDatas.length" class="refinancial-table">
+                <div class="th col-item">
+                  <div>{{ t('建议标准税率') }}(%)</div>
+                  <div>{{ t('罚息减免最大额度') }}</div>
+                  <div>{{ t('还款总额') }}</div>
+                  <div>{{ t('减免额度') }}</div>
+                  <div>{{ t('还款金额1') }}</div>
+                  <div>Loan IRR</div>
+                </div>
+                <div v-for="col in selectedDatas" :key="col.value" class="col-item tr">
+                  <div>
+                    <a-input-number
+                      :max="99999999999"
+                      :min="col.item.allRepayment.min_StandardRate"
+                      v-model:value="col.item.allRepayment.StandardRate"
+                      :formatter="
+                        (value) =>
+                          `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                      "
+                      :controls="false"
+                      :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                      :disabled="!edit"
+                      @input="() => refinancialInputChange(col)"
+                      @blur="() => refinancialInputBlur(col)"
+                    >
+                      <template #addonAfter>
+                        <a-tooltip placement="top">
+                          <template #title>
+                            <p>{{ col.label }}</p>
+                            <p>{{ `${t('最小值')}: ${col.item.allRepayment.min_StandardRate}%` }}</p>
+                          </template>
+                          <i class="iconfont limit-icon">&#xe6b3;</i>
+                        </a-tooltip>
+                      </template>
+                    </a-input-number>
+                  </div>
+                  <div>{{ `$${numberStrFormat(col.item.allRepayment.reduction_money)}` }}</div>
+                  <div class="row">
+                    <div>{{ `$${numberStrFormat(col.item.allRepayment.last_money)}` }}</div>
+                    <i class="iconfont">&#xe711;</i>
+                  </div>
+                  <div class="input">
+                    <a-input-number
+                      :max="Number(col.item.allRepayment.reduction_money)"
+                      v-model:value="col.item.allRepayment.reduction_money_input"
+                      :formatter="
+                        (value) =>
+                          `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                      "
+                      :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                      :controls="false"
+                      :disabled="!edit"
+                      @input="() => refinancialCaclIrr(col)"
+                    >
+                    </a-input-number>
+                  </div>
+                  <div>{{ repaymentAmount(col) }}</div>
+                  <div class="row gap-2">
+                    {{ col.item.allRepayment.new_irr }}
+                    <p>({{ col.item.allRepayment.irr }})</p>
+                  </div>
+                </div>
+              </div>
+            </template>
           </div>
         </a-form-item-rest>
         <div class="flex items-center total-row" style="border: none; padding: 0 24px">
@@ -334,12 +403,15 @@
 <script scoped setup>
 import { ref, reactive, computed, watch, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import dayjs from 'dayjs';
 import { message } from 'ant-design-vue/es';
 import tool, { isArrayEqual, numberStrFormat } from '@/utils/tool';
 import { systemDictData } from '@/api/system';
 import { cloneDeep } from 'lodash';
 import { projectLoanGetBuild } from "@/api/process"
+import { projectLoanAllRepayment, projectLoanCalcIrr } from '@/api/project/loan';
 import { PlusCircleOutlined, MinusCircleOutlined } from '@ant-design/icons-vue';
+import { debounce } from 'lodash';
 
 const { t } = useI18n();
 const emits = defineEmits(['update:value', 'update:dataJson', 'update:isRefinancial', 'update:substitutionIds', 'change', 'reChange', 'clearBuild']);
@@ -387,6 +459,10 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
+  selectedRefinancialObj: {
+    type: Object,
+    default: () => {}
+  },
   substitutionIds: {
     type: Array,
     default: () => []
@@ -406,6 +482,10 @@ const props = defineProps({
   isPlus: {
     type: Boolean,
     default: false
+  },
+  loanDate: {
+    type: Array,
+    default: () => []
   }
 });
 
@@ -811,18 +891,98 @@ const changeRefinancial = (value) => {
 }
 
 const refinancialAmount = computed(() => {
-  if (refinancialIds.value.length) {
-    const objArr = props.refinancialData.filter(item => refinancialIds.value.includes(item.item.uuid))
-    const dataArr = objArr.map(item => Number(item.item.amount))
+  if (selectedDatas.value.length) {
+    const dataArr = selectedDatas.value.map(item => Number(item.item.allRepayment.repayment_money))
     const sum = dataArr.reduce((acc, cur) => acc + cur, 0)
     return sum
   }
   return 0
 })
 
+const repaymentAmount = computed(() => {
+  return (data) => {
+    const last_money = Number(data.item.allRepayment.last_money)
+    const money = Number(data.item.allRepayment.reduction_money_input)
+    const num = Number(tool.minus(last_money, money))
+    data.item.allRepayment.repayment_money = num
+    return num
+  }
+})
+
 const refinancialChange = (data) => {
+  data.forEach(item => {
+    item.item.allRepayment.reduction_money = Number(item.item.allRepayment.reduction_money || 0)
+    item.item.allRepayment.reduction_money_input = 0
+    item.item.allRepayment.new_irr = item.item.allRepayment.irr
+  })
   selectedDatas.value = data
 }
+
+const refinancialInputChange = debounce((data) => {
+  const StandardRate = data.item.allRepayment.StandardRate
+  const min_StandardRate = data.item.allRepayment.min_StandardRate
+  if (StandardRate < min_StandardRate) {
+    return;
+  } else {
+    if (props.loanDate && props.loanDate.length) {
+      const start_date = props.loanDate[0]
+      const start_date_time = dayjs(start_date).format('YYYY-MM-DD')
+
+      const params = {
+        uuid: data.value,
+        date: start_date_time,
+        StandardRate
+      }
+      projectLoanAllRepayment(params).then(res => {
+        data.item.allRepayment.reduction_money = Number(res.reduction_money) < 0 ? 0 : Number(res.reduction_money)
+        data.item.allRepayment.reduction_money_input = 0
+        data.item.allRepayment.new_irr = data.item.allRepayment.irr
+      })
+    }
+  }
+}, 300)
+
+const refinancialInputBlur = (data) => {
+  const StandardRate = data.item.allRepayment.StandardRate
+  const min_StandardRate = data.item.allRepayment.min_StandardRate
+  if (StandardRate > min_StandardRate) {
+    return;
+  } else {
+    data.item.allRepayment.StandardRate = min_StandardRate
+    data.item.allRepayment.reduction_money_input = 0
+
+    if (props.loanDate && props.loanDate.length) {
+      const start_date = props.loanDate[0]
+      const start_date_time = dayjs(start_date).format('YYYY-MM-DD')
+
+      const params = {
+        uuid: data.value,
+        date: start_date_time,
+        StandardRate: min_StandardRate
+      }
+      projectLoanAllRepayment(params).then(res => {
+        data.item.allRepayment.reduction_money = Number(res.reduction_money) < 0 ? 0 : Number(res.reduction_money)
+      })
+    }
+  }
+}
+
+const refinancialCaclIrr = debounce((data) => {
+  if (props.loanDate && props.loanDate.length) {
+    const start_date = props.loanDate[0]
+    const start_date_time = dayjs(start_date).format('YYYY-MM-DD')
+
+    const params = {
+      uuid: data.value,
+      date: start_date_time,
+      last_money: data.item.allRepayment.repayment_money
+    }
+    projectLoanCalcIrr(params).then(res => {
+      data.item.allRepayment.new_irr = res.irr || 0
+    })
+  }
+
+}, 300)
 
 const devTotal = computed(() => {
   return tool.plus(data.value.total, refinancialAmount.value)
@@ -845,6 +1005,8 @@ const changeTotal = computed(() => {
   return total
 })
 
+const refinancialHasInit = ref(false)
+
 watch(
   () => props.isRefinancial,
   (newVal) => {
@@ -858,6 +1020,12 @@ watch(
     refinancialIds.value = newVal;
     if (newVal && newVal.length) {
       const objArr = props.refinancialData.filter(item => newVal.includes(item.value))
+      if (!refinancialHasInit.value) {
+        objArr.forEach(item => {
+          item.item.allRepayment = props.selectedRefinancialObj[item.value]
+        })
+        refinancialHasInit.value = true
+      }
       selectedDatas.value = objArr
     }
   }
@@ -1050,6 +1218,88 @@ onMounted(() => {
   }
   &.reduce {
     flex: 0 0 220px !important;
+  }
+}
+
+.refinancial-table {
+  margin-top: 15px;
+  border: 1px solid #d9d9d9;
+  background-color: #f7f9f8;
+  > .col-item {
+    display: flex;
+    align-items: center;
+    :deep(.ant-input-number) {
+      border-color: #272727 !important;
+      border-top-right-radius: 0 !important;
+      border-bottom-right-radius: 0 !important;
+    }
+    &.th {
+      border-bottom: 1px solid #e2e5e2;
+      > div {
+        font-size: 12px;
+        font-weight: 600;
+        color: #888;
+        &:nth-child(6) {
+          align-items: flex-start;
+        }
+      }
+    }
+    &.tr {
+      > div {
+        height: 48px;
+      }
+    }
+    > div {
+      height: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 5px;
+      &:nth-child(1) {
+        width: 162px;
+      }
+      &:nth-child(2) {
+        width: 145px;
+      }
+      &:nth-child(3) {
+        width: 160px;
+      }
+      &:nth-child(4) {
+        width: 145px
+      }
+      &:nth-child(5) {
+        width: 130px;
+        align-items: flex-start;
+      }
+      &:nth-child(6) {
+        flex: 1;
+        > p {
+          font-size: 12px;
+          color: #888;
+        }
+      }
+      &.row {
+        flex-direction: row;
+        justify-content: flex-start;
+        > div {
+          text-align: center;
+          flex: 1;
+        }
+      }
+      &.input {
+        :deep(.ant-input-number) {
+          border-top-right-radius: 4px !important;
+          border-bottom-right-radius: 4px !important;
+        }
+      }
+    }
+  }
+}
+.limit-icon {
+  cursor: pointer;
+  &:hover {
+    opacity: 0.8;
   }
 }
 </style>

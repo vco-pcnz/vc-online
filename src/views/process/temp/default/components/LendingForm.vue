@@ -31,6 +31,14 @@
       @submit="submitRquest"
     ></vco-confirm-alert>
 
+    <!-- 质押提示弹窗 -->
+    <vco-confirm-alert
+      ref="substitutionAlertRef"
+      :confirm-txt="substitutionTxt"
+      v-model:visible="substitutionVisible"
+      @submit="saveRequeset"
+    ></vco-confirm-alert>
+
     <vco-process-title :title="t('放款信息')">
       <div v-if="!isDetails" class="flex gap-5 items-center">
         <a-button
@@ -125,6 +133,8 @@
                 :has-build="Boolean(lendingInfo.has_build)"
                 :showRefinancial="((refinancialData.length && blockInfo.showEdit) || isRefinancial || isDetails) && refinancialShow"
                 :refinancialData="formattedRefinancialData"
+                :selectedRefinancialObj="selectedRefinancialObj"
+                :loan-date="formState.time_date"
                 v-model:value="formState.devCost"
                 v-model:dataJson="formState.devCostDetail"
                 v-model:isRefinancial="isRefinancial"
@@ -611,13 +621,21 @@
     return option.label.toLowerCase().includes(input.toLowerCase());
   };
 
+  const selectedRefinancialObj = ref({})
   const refinancialChange = (data) => {
     if (data.length) {
-      const dataArr = data.map(item => Number(item.item.amount))
+      const dataArr = data.map(item => Number(item.item.allRepayment.repayment_money))
       const sum = dataArr.reduce((acc, cur) => acc + cur, 0)
       refinancialAmount.value = sum
+
+      let obj = {}
+      for (let i = 0; i < data.length; i++) {
+        obj[data[i].value] = data[i].item.allRepayment
+      }
+      selectedRefinancialObj.value = obj
     } else {
       refinancialAmount.value = 0
+      selectedRefinancialObj.value = {}
     }
   }
 
@@ -1190,6 +1208,8 @@
     await projectAuditSaveMode(formParams)
       .then(() => {
         subLoading.value = false;
+        substitutionAlertRef.value.changeLoading(false)
+        substitutionVisible.value = false
 
         emits('refresh');
         // 操作记录
@@ -1204,8 +1224,14 @@
       })
       .catch(() => {
         subLoading.value = false;
+        substitutionAlertRef.value.changeLoading(false)
+        substitutionVisible.value = false
       });
   }
+
+  const substitutionAlertRef = ref()
+  const substitutionVisible = ref(false)
+  const substitutionTxt = ref('')
 
   const saveHandle = async () => {
     formRef.value
@@ -1284,6 +1310,15 @@
           params.credit__data.id = creditId.value;
         }
 
+        if (formState.value.substitution_ids.length && staticFormData.value.start_date !== params.start_date) {
+          params.substitution_ids = []
+          params.substitution_amount = 0
+          params.substitution_data = {}
+          saveParams.value = params
+          substitutionTxt.value = t('项目周期有改动，保存后将重置再融资数据')
+          substitutionVisible.value = true
+          return false
+        }
         saveParams.value = params
 
         await saveRequeset()
@@ -1318,6 +1353,7 @@
       set__devCost: 1,
       substitution_ids: formState.value.substitution_ids || [],
       substitution_amount: refinancialAmount.value || 0,
+      substitution_data: selectedRefinancialObj.value
     })
   }
 
@@ -1328,6 +1364,7 @@
         formState.value.substitution_ids = val.substitution_ids || []
         isRefinancial.value = Boolean(val.substitution_ids && val?.substitution_ids?.length)
         refinancialAmount.value = val.substitution_amount || 0
+        selectedRefinancialObj.value = tool.getObjType(val.substitution_data) === 'array' ? {} : (val.substitution_data || {})
 
         if (Number(val.land_amount) !== Number(formState.value.land_amount) ||
           Number(val.build_amount) !== Number(formState.value.build_amount) ||
@@ -1403,6 +1440,7 @@ const goHandle = (page) => {
   onMounted(() => {
     isRefinancial.value = Boolean(props.lendingInfo.substitution_ids && props.lendingInfo?.substitution_ids?.length)
     refinancialAmount.value = props.lendingInfo?.substitution_amount || 0
+    selectedRefinancialObj.value = tool.getObjType(props.lendingInfo.substitution_data) === 'array' ? {} : (props.lendingInfo.substitution_data || {})
 
     getRefinancialList()
     getFormItems();

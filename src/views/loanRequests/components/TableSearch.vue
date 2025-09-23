@@ -33,15 +33,9 @@
           </a-select>
         </vco-page-search-item>
 
-        <vco-page-search-item :title="t('项目信息')" width="210">
-          <vco-type-input v-model="searchForm.project_keyword" v-model:type="searchForm.project_search_type" :type-data="projectsTypeData" :placeholder="t('请输入')"></vco-type-input>
+        <vco-page-search-item :title="t('项目信息')" width="280">
+          <vco-type-input v-model="searchForm.project_keyword" v-model:type="searchForm.project_search_type" :type-data="projectsTypeData" :placeholder="t('请输入')" :typeWidth="135"></vco-type-input>
         </vco-page-search-item>
-
-        <template v-if="isExpand || roterName !== 'LoanRequestsRepayment'">
-          <vco-page-search-item :title="t('借款人信息')" width="210">
-            <vco-type-input v-model="searchForm.borrower_keyword" v-model:type="searchForm.borrower_search_type" :type-data="borrowerTypeData" :placeholder="t('请输入')"></vco-type-input>
-          </vco-page-search-item>
-        </template>
       </template>
 
       <template v-else>
@@ -50,20 +44,13 @@
         </vco-page-search-item>
       </template>
 
-      <vco-page-search-item width="100%" v-if="!isExpand">
+      <vco-page-search-item width="100%">
         <div class="flex items-center gap-2">
-          <div class="search_expand" v-if="roterName =='LoanRequestsRepayment'" @click="isExpand = !isExpand">{{ t('展开') }}<DoubleRightOutlined class="icon" /></div>
           <a-button type="dark" @click="searchHandle(false)"><i class="iconfont">&#xe756;</i>{{ t('搜索') }}</a-button>
           <a-button type="dark-line" @click="searchHandle(true)"><i class="iconfont">&#xe757;</i>{{ t('重置') }}</a-button>
         </div>
       </vco-page-search-item>
     </vco-page-search>
-
-    <div class="flex items-center gap-2 justify-end mt-5" v-if="isExpand">
-      <div class="search_expand isExpand" @click="isExpand = !isExpand">{{ t('收起') }}<DoubleRightOutlined class="icon" /></div>
-      <a-button type="dark" @click="searchHandle(false)"><i class="iconfont">&#xe756;</i>{{ t('搜索') }}</a-button>
-      <a-button type="dark-line" @click="searchHandle(true)"><i class="iconfont">&#xe757;</i>{{ t('重置') }}</a-button>
-    </div>
   </div>
 </template>
 
@@ -78,7 +65,6 @@ import { DoubleRightOutlined } from '@ant-design/icons-vue';
 const route = useRoute();
 
 const emits = defineEmits(['search']);
-const isExpand = ref(false);
 const props = defineProps({
   currentTab: {
     type: String
@@ -96,41 +82,35 @@ const props = defineProps({
 
 const { t } = useI18n();
 
-const borrowerTypeData = [
-  {
-    label: t('全部属性'),
-    value: ''
-  },
-  {
-    label: t('姓名'),
-    value: 'name'
-  },
-  {
-    label: t('电话'),
-    value: 'phone'
-  },
-  {
-    label: t('邮箱'),
-    value: 'email'
-  }
-];
-
 const projectsTypeData = [
   {
     label: t('全部属性'),
     value: ''
   },
   {
-    label: t('名称'),
+    label: t('项目名称'),
     value: 'name'
   },
   {
-    label: t('ID'),
+    label: t('项目ID'),
     value: 'apply_sn'
   },
   {
-    label: t('地址'),
+    label: t('项目地址'),
     value: 'address'
+  },
+
+  {
+    label: t('借款人姓名'),
+    value: 'borrower_name'
+  },
+  {
+    label: t('借款人电话'),
+    value: 'borrower_phone'
+  },
+  {
+    label: t('借款人邮箱'),
+    value: 'borrower_email'
   }
 ];
 

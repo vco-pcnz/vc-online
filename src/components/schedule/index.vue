@@ -131,7 +131,7 @@
               </a-button>
               <template #overlay>
                 <a-menu>
-                  <a-menu-item v-if="!ptRole && !hideForcast && !isOld">
+                  <a-menu-item v-if="!ptRole && !hideForcast && !isOld && !hideLinefee">
                     <div class="pt-2 pb-2" @click="downLoadExcel(0)">{{ t('额度费用计算时间表') }}</div>
                   </a-menu-item>
                   <a-menu-item v-if="!ptRole && !hideForcast && !isOld">
@@ -143,7 +143,7 @@
                   <a-menu-item v-if="!ptRole">
                     <div class="pt-2 pb-2" @click="downLoadExcel(3)">{{ t('预测表IRR') }}</div>
                   </a-menu-item>
-                  <a-menu-item v-if="hasPermission('projects:repayments:adDownload') && !isProcess">
+                  <a-menu-item v-if="hasPermission('projects:repayments:adDownload') && !isProcess && !hideAccountDetails">
                     <div class="pt-2 pb-2" @click="downLoadExcel(4)">{{ t('账户详情') }}</div>
                   </a-menu-item>
                 </a-menu>
@@ -413,6 +413,10 @@ const hideForcast = computed(() => {
 
 const hideLinefee = computed(() => {
   return ['lendr', 'vsl'].includes(props.currentProduct);
+});
+
+const hideAccountDetails = computed(() => {
+  return ['vsl'].includes(props.currentProduct);
 });
 
 const pageLoading = ref(false);

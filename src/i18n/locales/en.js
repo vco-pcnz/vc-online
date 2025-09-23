@@ -1184,5 +1184,6 @@ export default {
   "放款记录": "Drawdown record",
   "逾期天数": "Days overdue",
   "投资人首页": "Dashboard",
-  "剩余总额度": "Remaining total amount"
+  "剩余总额度": "Remaining total amount",
+  "贷款方": "Lender"
 }

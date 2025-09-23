@@ -13,6 +13,12 @@
               <div class="label" :class="{ err: !formState.apply_date && validate }">{{ t('日期') }}</div>
               <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.apply_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" :showToday="false" />
             </div>
+
+            <div v-if="projectDetail.product.code === 'vsl'" class="input-item" style="margin: 15.5px 0">
+              <div class="label" :class="{ err: !formState.source && validate }">{{ t('贷款方') }}</div>
+              <a-select :loading="loading_type" style="width: 100%" v-model:value="formState.source" :options="LenderData"></a-select>
+            </div>
+
             <div class="input-item">
               <vco-tip style="padding-bottom: 5px" :tip="t('此说明内容将显示在交易记录中')">
                 <div class="label" style="padding: 0" :class="{ err: !formState.note && validate }">{{ t('说明') }}</div>
@@ -29,7 +35,8 @@
               <vco-tip style="padding-bottom: 5px" :tip="t('此消息针对 FC 的批准评论')"
                 ><div class="label" style="padding: 0">{{ t('消息') }}</div></vco-tip
               >
-              <a-textarea v-model:value="formState.remark" :rows="hasPermission('projects:drawdowns:add') ? 14 : 10" />
+              <a-textarea v-if="projectDetail.product.code === 'vsl'" v-model:value="formState.remark" :rows="hasPermission('projects:drawdowns:add') ? 18 : 14" />
+              <a-textarea v-else v-model:value="formState.remark" :rows="hasPermission('projects:drawdowns:add') ? 14 : 10" />
             </div>
           </a-col>
           <a-col :span="24" v-if="!hasPermission('projects:drawdowns:add')">
@@ -111,10 +118,21 @@ const formModal2 = ref([]);
 const visibleTip = ref(false);
 const confirmTxt = ref('');
 const formModal3 = ref([]);
+const LenderData = ref([
+  {
+    label: 'VS',
+    value: 0
+  },
+  {
+    label: 'BOC',
+    value: 1
+  }
+]);
 
 const formState = ref({
   uuid: '',
   name: '',
+  source: '',
   note: '',
   remark: '',
   other_note: '',
@@ -160,13 +178,16 @@ const disabledDateFormat = (current) => {
 const save = (tip) => {
   validate.value = true;
   formState.value.uuid = props.uuid;
-  console.log(formModal2.value);
   formState.value.d_file = formModal2.value.filter((item) => {
     return item.files && item.files.length;
   });
   formState.value.p_file = formModal3.value.filter((item) => {
     return item.files && item.files.length;
   });
+
+  if (props.projectDetail.product.code === 'vsl') {
+    if (!formState.value.source) return;
+  }
 
   let amount = tool.plus(tool.plus(formState.value.build_money || 0, formState.value.land_money || 0), tool.plus(formState.value.equity_money || 0, formState.value.other_money || 0));
   if (hasPermission('projects:drawdowns:add')) {
@@ -268,6 +289,7 @@ const init = () => {
     initData();
   } else {
     formState.value.name = '';
+    formState.value.source = '';
     formState.value.note = 'Development Drawdown';
     formState.value.remark = '';
     formState.value.apply_date = '';
@@ -338,7 +360,9 @@ const initData = () => {
   isEdit.value = true;
   let keys = ['name', 'note', 'remark', 'other_note', 'apply_date', 'other_type', 'build_money', 'land_money', 'equity_money', 'other_money', 'vip_amount'];
   const newData = pick(props.detail, keys);
+  newData['source'] = props.detail?.forecast?.source;
   Object.assign(formState.value, newData);
+  console.log(formState.value)
   if (props.detail?.buildlog) {
     formState.value.build__data = props.detail?.buildlog;
     if (ProgressPaymentRef.value) ProgressPaymentRef.value.init();

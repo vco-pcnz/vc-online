@@ -48,7 +48,7 @@
               <a-select-option :value="4">{{ t('还款') }}</a-select-option>
             </a-select>
           </a-form-item>
-          <a-form-item v-if="isVsl" :label="t('所属')" name="source">
+          <a-form-item v-if="isVsl" :label="t('贷款方')" name="source">
             <a-select v-model:value="formState.source">
               <a-select-option :value="0">VS</a-select-option>
               <a-select-option :value="1">BOC</a-select-option>
@@ -119,7 +119,7 @@
           <div class="col-item th">
             <div class="item uppercase one">{{ t('日期') }}</div>
             <div class="item uppercase two">{{ t('类型') }}</div>
-            <div v-if="isVsl" class="item uppercase five">{{ t('所属') }}</div>
+            <div v-if="isVsl" class="item uppercase five">{{ t('贷款方') }}</div>
             <div class="item uppercase three">{{ t('金额') }}</div>
             <div v-if="!isDetails && blockInfo.showEdit" class="item uppercase four">{{ t('操作1') }}</div>
             <div v-else class="empty"></div>
@@ -354,7 +354,7 @@ const changeType = ref(undefined);
 
 const formRules = {
   type: [{ required: true, message: t('请选择') + t('类型'), trigger: 'change' }],
-  source: [{ required: true, message: t('请选择') + t('所属'), trigger: 'change' }],
+  source: [{ required: true, message: t('请选择') + t('贷款方'), trigger: 'change' }],
   date: [{ required: true, message: t('请选择') + t('日期'), trigger: 'change' }],
   amount: [{ required: true, message: t('请输入') + t('金额'), trigger: 'blur' }],
 };

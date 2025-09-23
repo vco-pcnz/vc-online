@@ -63,11 +63,40 @@
         >{{ t('确定') }}</a-button>
       </div>
     </a-modal>
+
+    <a-modal :open="logInfoVisible" :title="t('放款记录')" :width="500" :footer="null" :keyboard="false" :maskClosable="false" @cancel="setLogInfoCancel">
+      <a-row v-if="logInfoData" :gutter="24" class="mt-10">
+        <a-col :span="8">
+          <div class="info-content">
+            <p class="name">{{ t('总额度') }}</p>
+            <vco-number :value="logInfoData.amount" size="fs_md" :precision="2"></vco-number>
+          </div>
+        </a-col>
+        <a-col :span="8">
+          <div class="info-content">
+            <p class="name">{{ t('已用额度') }}</p>
+            <vco-number :value="logInfoData.use_amount" size="fs_md" :precision="2"></vco-number>
+          </div>
+        </a-col>
+        <a-col :span="8">
+          <div class="info-content">
+            <p class="name">{{ t('可用额度1') }}</p>
+            <vco-number :value="logInfoData.can_amount" color="#ea3535" size="fs_md" :precision="2"></vco-number>
+          </div>
+        </a-col>
+      </a-row>
+      <div v-if="logInfoData && logInfoData.logs.length" class="log-info-content">
+        <div class="item" v-for="(item, i) in logInfoData.logs" :key="i">
+          <div class="time">{{ item.create_time }}</div>
+          <div class="amount">{{ `$${numberStrFormat(item.amount)}` }}</div>
+        </div>
+      </div>
+    </a-modal>
     
     <a-spin :spinning="pageLoading" size="large">
       <div class="progress-payment-content" :class="{'preview-table': !isSelect}">
         <template v-if="footerDataCol.length || buildAmount">
-          <div v-if="!isRequests && !isSelect && !pageLoading" class="form-block-content">
+          <div v-if="!isRequests && !isSelect && !pageLoading && !logDate" class="form-block-content">
             <div class="title">{{ t('放款统计') }}</div>
             <a-table
               :columns="statTableHeader"
@@ -183,6 +212,9 @@
                         <div class="selected-bg"></div>
                         <i class="iconfont selected-icon">&#xe601;</i>
                       </template>
+                      <div v-if="advanceObj.logs.length && !isSelect" class="log-icon" @click="showLogInfo(advanceObj)">
+                        <i class="iconfont">&#xe76c;</i>
+                      </div>
                     </div>
 
                     <div v-else class="flex justify-center" :style="{width: tableHeader.length === 4 ? '265px' : '660px'}">
@@ -262,6 +294,10 @@
                       <div class="selected-bg"></div>
                       <i class="iconfont selected-icon">&#xe601;</i>
                     </template>
+
+                    <div v-if="record[column.dataIndex].logs.length && !isSelect" class="log-icon" @click="showLogInfo(record[column.dataIndex])">
+                      <i class="iconfont">&#xe76c;</i>
+                    </div>
                   </div>
                   <vco-number v-else :value="record[column.dataIndex].amount" size="fs_md" :precision="2" :end="true"></vco-number>
                 </template>
@@ -353,6 +389,10 @@
                 :class="{'hover': isSelect}"
                 @click="itemSetHandle(item)"
               >
+                <div v-if="item.logs.length && !isSelect" class="log-icon" @click="showLogInfo(item)">
+                  <i class="iconfont">&#xe76c;</i>
+                </div>
+
                 <vco-number :value="item.amount" size="fs_md" :precision="2" :end="true"></vco-number>
                 <vco-number v-if="showProcess" :value="tableRemainTotal(item.amount, item?.use_amount || 0) < 0 ? 0 : tableRemainTotal(item.amount, item?.use_amount || 0)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
                 <vco-number v-if="showProcess" :value="item?.use_amount || 0" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
@@ -453,6 +493,10 @@
     hideSelf: {
       type: Boolean,
       default: false
+    },
+    logDate: {
+      type: String,
+      default: ''
     }
   })
 
@@ -621,6 +665,7 @@
         const amountItem = hadSetData[`${data[i].type}$${data[i].category}__${headerData[j].dataIndex}`] || {}
         if (Object.keys(amountItem).length) {
           amountItem.amount = Number(amountItem.amount)
+          amountItem.logs = amountItem.logs || []
           amountItem.checked = false
           amountItem.selected = false
           amountItem.set_amount = ''
@@ -638,7 +683,8 @@
           if (buildLogDataIds.value.includes(amountItem.id)) {
             const logItem = props.buildLogData.find(item => item.build_id === amountItem.id)
             if (logItem) {
-              amountItem.use_amount = tool.minus(amountItem?.use_amount || 0, logItem.amount)
+              const doneUseAmount = props.logDate ? amountItem.old_use_amount : amountItem.use_amount
+              amountItem.use_amount = tool.minus(doneUseAmount, logItem.amount)
               if (amountItem.amount) {
                 const num = fixNumber(Number(tool.div(Number(amountItem.use_amount), Number(amountItem.amount))), 4)
                 amountItem.percent = Number(tool.times(num, 100))
@@ -835,6 +881,10 @@
     }
 
     try {
+      if (props.logDate) {
+        params.log__time = props.logDate
+      }
+
       const ajaxFn = isRequests.value ? projectGetBuild : projectLoanGetBuild
       await ajaxFn(params).then(res => {
         const dataRes = res.data || {}
@@ -865,6 +915,7 @@
 
             const advanceItem = res.summary[`${advanceKey.value}`]
             advanceItem.amount = Number(advanceItem.amount)
+            advanceItem.logs = advanceItem.logs || []
             advanceItem.checked = false
             advanceItem.selected = false
             advanceItem.set_amount = ''
@@ -881,7 +932,8 @@
             if (buildLogDataIds.value.includes(advanceItem.id)) {
               const logItem = props.buildLogData.find(item => item.build_id === advanceItem.id)
               if (logItem) {
-                advanceItem.use_amount = tool.minus(advanceItem.use_amount, logItem.amount)
+                const doneUseAmount = props.logDate ? advanceItem.old_use_amount : advanceItem.use_amount
+                advanceItem.use_amount = tool.minus(doneUseAmount, logItem.amount)
                 if (advanceItem.amount) {
                   const num = fixNumber(Number(tool.div(Number(advanceItem.use_amount), Number(advanceItem.amount))), 4)
                   advanceItem.percent = Number(tool.times(num, 100))
@@ -942,7 +994,8 @@
             if (buildLogDataIds.value.includes(mergItem.id)) {
               const logItem = props.buildLogData.find(item => item.build_id === mergItem.id)
               if (logItem) {
-                mergItem.use_amount = tool.minus(mergItem.use_amount, logItem.amount)
+                const doneUseAmount = props.logDate ? mergItem.old_use_amount : mergItem.use_amount
+                mergItem.use_amount = tool.minus(doneUseAmount, logItem.amount)
                 if (mergItem.amount) {
                   const num = fixNumber(Number(tool.div(Number(mergItem.use_amount), Number(mergItem.amount))), 4)
                   mergItem.percent = Number(tool.times(num, 100))
@@ -970,6 +1023,7 @@
                 mergItem.checked = true
                 mergItem.set_amount = selItem.amount
                 mergItem.excess_amount = selItem.excess_amount || excess_amount
+                mergItem.logs = mergItem.logs || []
                 selectData.value.push(mergItem)
               }
             }
@@ -1412,6 +1466,18 @@
     selectData.value = []
   }
 
+  const logInfoVisible = ref(false)
+  const logInfoData = ref(null)
+  const showLogInfo = (data) => {
+    logInfoVisible.value = true
+    logInfoData.value = data
+  }
+  
+  const setLogInfoCancel = () => {
+    logInfoData.value = null
+    logInfoVisible.value = false
+  }
+
   onMounted(async () => {
     const { path, query } = route
     if (['/requests/progress-payment'].includes(path) || path.indexOf('/process') > -1) {
@@ -1650,6 +1716,17 @@
       :deep(.ant-progress-text) {
         font-size: 11px !important;
       }
+
+      .log-icon {
+        position: absolute;
+        top: 20px;
+        right: 5px;
+        cursor: pointer;
+        color: #F19915;
+        &:hover {
+          color: #e08906;
+        }
+      }
     }
   }
 
@@ -1745,6 +1822,16 @@
     &.disabled {
       background-color: #f2f2f2;
     }
+    .log-icon {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      cursor: pointer;
+      color: #F19915;
+      &:hover {
+        color: #e08906;
+      }
+    }
   }
 
   .info-content {
@@ -1813,11 +1900,26 @@
     }
   }
 
-  // .preview-table {
-  //   :deep(.ant-table-wrapper) {
-  //     .ant-table-tbody>tr>td {
-  //       padding: 10px;
-  //     }
-  //   }
-  // }
+  .log-info-content {
+    border: 1px solid rgba(5, 5, 5, 0.06);
+    > .item {
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid rgba(5, 5, 5, 0.06);
+      &:last-child {
+        border-bottom: none;
+      }
+      > .time {
+        background-color: rgba(0, 0, 0, 0.02);
+        padding: 10px 15px;
+        border-right: 1px solid rgba(5, 5, 5, 0.06);
+        width: 172px;
+      }
+      > .amount {
+        flex: 1;
+        padding: 10px 15px;
+        font-weight: 500;
+      }
+    }
+  }
 </style>

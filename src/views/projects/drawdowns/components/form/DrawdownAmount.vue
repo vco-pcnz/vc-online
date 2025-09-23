@@ -8,7 +8,7 @@
           <a-input-number v-model:value="amount" :max="99999999999" :min="0" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
         </div> -->
 
-        <ProgressPayment :visible="visible" :validate="validate" :data="formState" :projectDetail="projectDetail" :isEdit="isEdit" @change="updateformState"></ProgressPayment>
+        <ProgressPayment :visible="visible" :validate="validate" :data="formState" :projectDetail="projectDetail" :isEdit="isEdit" :log-date="logDate" @change="updateformState"></ProgressPayment>
 
         <div class="flex justify-center" v-if="isEdit">
           <a-button @click="save" type="dark" class="save big uppercase" :loading="loading">
@@ -21,7 +21,7 @@
 </template>
 
 <script scoped setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import tool from '@/utils/tool';
@@ -53,6 +53,10 @@ const loading = ref(false);
 const validate = ref(false);
 
 const amount = ref('');
+
+const logDate = computed(() => {
+  return props.detail?.open_date || props.detail?.date || props.detail?.date || props.detail?.apply_date || props.detail?.create_time
+});
 
 const updateVisible = (value) => {
   visible.value = value;

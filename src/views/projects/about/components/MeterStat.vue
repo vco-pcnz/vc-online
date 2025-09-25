@@ -1,5 +1,5 @@
 <template>
-  <a-alert type="info" closable class="mb-5 synced-diff" v-if="!base.is_close">
+  <a-alert type="info" closable class="mb-5 synced-diff" v-if="!base?.is_close">
     <template #description>
       <div class="flex">
         <a-tooltip placement="top">

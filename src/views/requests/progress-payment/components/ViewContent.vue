@@ -683,7 +683,7 @@
           if (buildLogDataIds.value.includes(amountItem.id)) {
             const logItem = props.buildLogData.find(item => item.build_id === amountItem.id)
             if (logItem) {
-              const doneUseAmount = props.logDate ? amountItem.old_use_amount : amountItem.use_amount
+              const doneUseAmount = props.isSelect ? amountItem.use_amount : (props.logDate ? amountItem.logs_use_amount : amountItem.use_amount)
               amountItem.use_amount = tool.minus(doneUseAmount, logItem.amount)
               if (amountItem.amount) {
                 const num = fixNumber(Number(tool.div(Number(amountItem.use_amount), Number(amountItem.amount))), 4)
@@ -932,7 +932,7 @@
             if (buildLogDataIds.value.includes(advanceItem.id)) {
               const logItem = props.buildLogData.find(item => item.build_id === advanceItem.id)
               if (logItem) {
-                const doneUseAmount = props.logDate ? advanceItem.old_use_amount : advanceItem.use_amount
+                const doneUseAmount = props.isSelect ? advanceItem.use_amount : (props.logDate ? advanceItem.logs_use_amount : advanceItem.use_amount)
                 advanceItem.use_amount = tool.minus(doneUseAmount, logItem.amount)
                 if (advanceItem.amount) {
                   const num = fixNumber(Number(tool.div(Number(advanceItem.use_amount), Number(advanceItem.amount))), 4)
@@ -994,7 +994,7 @@
             if (buildLogDataIds.value.includes(mergItem.id)) {
               const logItem = props.buildLogData.find(item => item.build_id === mergItem.id)
               if (logItem) {
-                const doneUseAmount = props.logDate ? mergItem.old_use_amount : mergItem.use_amount
+                const doneUseAmount = props.isSelect ? mergItem.use_amount : (props.logDate ? mergItem.logs_use_amount : mergItem.use_amount)
                 mergItem.use_amount = tool.minus(doneUseAmount, logItem.amount)
                 if (mergItem.amount) {
                   const num = fixNumber(Number(tool.div(Number(mergItem.use_amount), Number(mergItem.amount))), 4)

@@ -39,11 +39,8 @@
                 <a-badge @click.stop="toProfile('/profile/notice')" class="badge" size="small" :count="noticeStore.noticeCount" v-if="!!noticeStore.noticeCount" />
               </a-space>
               <div v-if="userInfo?.roles">
-                <template v-for="item in userInfo?.roles.split('/')" :key="item">
-                  <!-- <a-tag color="orange" v-if="item == 'Funding Partner' && userInfo?.roles.split('/').length != 1" @click="toLoans(item)">{{ item }}</a-tag>
-                  <a-tag color="orange" v-else-if="item == 'Primary' && userInfo?.roles.split('/').length != 1" @click="toLoans(item)">{{ item }}</a-tag>
-                  <span class="mr-3" v-else>{{ item }}</span> -->
-                  <a-tag color="orange" @click="toLoans(item)">{{ item }}</a-tag>
+                <template v-for="(item, index) in userInfo?.roles.split('/')" :key="item">
+                  <a-tag color="orange" :title="userInfo?.full_roles[index]" @click="toLoans(item)">{{ item }}</a-tag>
                 </template>
               </div>
               <p v-else>Vip</p>

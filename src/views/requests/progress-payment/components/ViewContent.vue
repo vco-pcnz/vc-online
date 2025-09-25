@@ -552,10 +552,15 @@
   const extractAmounts = (obj, keyword, keyValue) => {
     const result = [];
 
+    let useKeyValue = keyValue
+    if (keyValue === 'use_amount') {
+      useKeyValue = props.isSelect ? 'use_amount' : (props.logDate ? 'logs_use_amount' : 'use_amount')
+    }
+
     for (const key in obj) {
       if (key.includes(keyword) && obj[key] && typeof obj[key] === 'object') {
-        if (keyValue in obj[key]) {
-          result.push(obj[key][`${keyValue}`]);
+        if (useKeyValue in obj[key]) {
+          result.push(obj[key][`${useKeyValue}`]);
         }
       }
     }
@@ -564,7 +569,10 @@
   }
 
   const summaryHandle = (key, keyValue) => {
-    const keyStr = keyValue || 'amount'
+    let keyStr = keyValue || 'amount'
+    if (keyValue === 'use_amount') {
+      keyStr = props.isSelect ? 'use_amount' : (props.logDate ? 'logs_use_amount' : 'use_amount')
+    }
     const arr = tableData.value.filter(item => !item.isFixedRow).map(item => item[key])
     const numArr = isNaN(Number(arr[0])) ? arr.filter(item => item.id).map(item => Number(item[`${keyStr}`])) : arr.map(item => Number(item))
     const total = numArr.reduce((total, num) => {
@@ -602,7 +610,9 @@
     const total = arr.reduce((total, num) => {
       return Number(tool.plus(total, num))
     }, 0);
-    const totalAll = tool.plus(Number(total), advanceObj.value?.use_amount || 0)
+
+    const doneUseAmount = props.isSelect ? advanceObj.value.use_amount : (props.logDate ? advanceObj.value.logs_use_amount : advanceObj.value.use_amount)
+    const totalAll = tool.plus(Number(total), doneUseAmount || 0)
     return totalAll
   })
 
@@ -672,7 +682,7 @@
           amountItem.set_amount_per = ''
 
           if (amountItem.amount) {
-            const use_amount = amountItem?.use_amount || 0
+            const use_amount = props.isSelect ? amountItem.use_amount : (props.logDate ? amountItem.logs_use_amount : amountItem.use_amount)
             const num = fixNumber(Number(tool.div(Number(use_amount), Number(amountItem.amount))), 4)
             amountItem.percent = Number(tool.times(num, 100))
           } else {
@@ -921,7 +931,7 @@
             advanceItem.set_amount = ''
             advanceItem.set_amount_per = ''
             if (advanceItem.amount) {
-              const use_amount = advanceItem.use_amount || 0
+              const use_amount = props.isSelect ? advanceItem.use_amount : (props.logDate ? advanceItem.logs_use_amount : advanceItem.use_amount)
               const num = fixNumber(Number(tool.div(Number(use_amount), Number(advanceItem.amount))), 4)
               advanceItem.percent = Number(tool.times(num, 100))
             } else {
@@ -983,7 +993,7 @@
             }
 
             if (Number(mergItem.amount)) {
-              const use_amount = mergItem.use_amount || 0
+              const use_amount = props.isSelect ? mergItem.use_amount : (props.logDate ? mergItem.logs_use_amount : mergItem.use_amount)
               const num = fixNumber(Number(tool.div(Number(use_amount), Number(mergItem.amount))), 4)
               mergItem.percent = Number(tool.times(num, 100))
             } else {

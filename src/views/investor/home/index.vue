@@ -1,5 +1,4 @@
 <template>
-  <vco-page-panel v-if="showBack" :isBack="true" :title="t('数据统计')"> </vco-page-panel>
   <Satistics :invest_id="invest_id"></Satistics>
   <div class="my-12">
     <AmountLog :invest_id="invest_id"></AmountLog>
@@ -24,12 +23,10 @@ const { t } = useI18n();
 
 const invest_id = ref('');
 const route = useRoute();
-const showBack = ref(false);
 
 onMounted(() => {
   if (route.query.uuid) {
     invest_id.value = route.query.uuid;
-    showBack.value = true;
   } else {
     userProject().then((res) => {
       if (res && res.length) {

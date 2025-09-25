@@ -1031,6 +1031,17 @@ watch(
   }
 )
 
+watch(
+  () => visible.value,
+  (newVal) => {
+    if (newVal) {
+      if (!isRefinancialChecked.value) {
+        selectedDatas.value = []
+      }
+    }
+  }
+)
+
 onMounted(() => {
   if (!props.dataJson) {
     emits('update:value', cloneDeep(data.value.total));

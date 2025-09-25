@@ -697,7 +697,7 @@
     } else {
       const mark = props?.currentStep?.mark
       if (props?.blockInfo?.showEdit) {
-        if (['step_lm_audit', 'step_open'].includes(mark)) {
+        if (['step_lm_audit', 'step_lm_check', 'step_open'].includes(mark)) {
           return true
         } else {
           return isRefinancial.value
@@ -1119,7 +1119,10 @@
 
     emits('openData', {
       table: tableDataRefData.value,
-      data: formState.value
+      data: {
+        ...formState.value,
+        substitution_data: props.lendingInfo.substitution_data || {}
+      }
     })
 
     // 需要退回的对比数据

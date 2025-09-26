@@ -44,6 +44,12 @@ const tabData = computed(() => {
       num: props.tabNum ? props.tabNum['2'] : 0
     },
     {
+      label: t('生效'),
+      value: '4',
+      num: props.tabNum ? props.tabNum['4'] : 0,
+      hide: route.name !== 'LoanRequestsVariation'
+    },
+    {
       label: route.name == 'LoanRequestsDrawdown' ? 'PAID' : 'REPAID',
       value: '4',
       num: props.tabNum ? props.tabNum['4'] : 0,
@@ -53,12 +59,6 @@ const tabData = computed(() => {
       label: t('已拒绝'),
       value: '3',
       num: props.tabNum ? props.tabNum['3'] : 0
-    },
-    {
-      label: t('生效'),
-      value: '4',
-      num: props.tabNum ? props.tabNum['4'] : 0,
-      hide: route.name !== 'LoanRequestsVariation'
     }
   ];
   return arr.filter((item) => !item.hide);

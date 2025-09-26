@@ -132,7 +132,7 @@
         <div class="info">{{ data?.drawdowns2 }} drawdowns</div>
       </div>
       <div class="item sec-item mr-5">
-        <p class="item-title">estimated drawdowns</p>
+        <p class="item-title">estimated available draw amount</p>
         <div class="flex justify-end items-center gap-1">
           <!-- <i class="iconfont" style="color: #7dc1c1">&#xe78b;</i> -->
           <vco-number :value="data?.estimated || 0" color="#7dc1c1" size="fs_xl" :precision="2"></vco-number>

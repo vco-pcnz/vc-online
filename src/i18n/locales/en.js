@@ -1184,5 +1184,6 @@ export default {
   "设置的再融资项目：{0}， 罚息减免为：{1}，已达到了{2}下的全额减免额度：{3}": "The set refinancing project: {0} has a penalty interest waiver of <span>{1}</span>. The full waiver amount under <span>{2}</span> has been reached: <span>{3}</span>.",
   "设置的再融资项目：{0}， 罚息减免为：{1}，已达到了{2}下的全额减免额度：{3}1": "The set refinancing project: {0} has a penalty interest waiver of {1}. The full waiver amount under {2} has been reached: {3}.",
   "设置的再融资项目：{0}， 在{1}下不存在": "The set refinancing project: {0} does not exist under {1}.",
-  "需要退回并重新设置审核后，才能进行下一步操作": "You need to return and reset the review before you can proceed to the next step"
+  "需要退回并重新设置审核后，才能进行下一步操作": "You need to return and reset the review before you can proceed to the next step",
+  "生效": "EFFECTIVE"
 }

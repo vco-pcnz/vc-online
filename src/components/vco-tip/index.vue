@@ -47,6 +47,7 @@ const props = defineProps({
     font-weight: 500;
     line-height: 1.5;
     display: none;
+    z-index: 10;
   }
   .iconfont {
     

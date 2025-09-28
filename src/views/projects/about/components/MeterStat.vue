@@ -71,13 +71,7 @@
           <vco-number :value="data?.totalBalance" :precision="2"></vco-number>
           <div class="color_grey flex items-center gap-2">
             <vco-number :value="data?.accruedInterest" :precision="2" color="#888" size="fs_md" class="mr-2"></vco-number>
-            <p style="font-size: 10px">Accrued interest</p>
-            <div class="efSGMs">
-              <i class="iconfont">&#xe6b3;</i>
-              <div class="tips">
-                <p>Estimated covering {{ dayjs(data?.s_day).format(selectDateFormat()) }} - {{ dayjs(data?.e_day).format(selectDateFormat()) }}</p>
-              </div>
-            </div>
+            <vco-tip w="280px" :tip="'Estimated covering ' + dayjs(data?.s_day).format(selectDateFormat()) + '-' + dayjs(data?.e_day).format(selectDateFormat())"> <p style="font-size: 10px">Accrued interest</p></vco-tip>
           </div>
         </div>
       </div>

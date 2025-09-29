@@ -375,7 +375,6 @@
     sureLoading.value = true
     await normalRequest(currentForParams.value, true)
 
-    emitter.emit('refreshRefinancial', true)
     emitter.emit('refreshForecastList')
 
     sureLoading.value = false

@@ -98,6 +98,8 @@
           type="brown" class="big uppercase w-full"
           @click="openDetails(false)"
         >{{ t('查看详情') }}</a-button>
+
+        <p class="download-btn" v-if="all_repayment">{{ t('对账单') }}, <span @click="downloadStatement">{{ t('点击下载') }}</span></p>
       </div>
     </div>
   </div>
@@ -109,7 +111,7 @@ import { useI18n } from 'vue-i18n';
 import tool, { navigationTo } from '@/utils/tool';
 import { hasPermission } from '@/directives/permission/index';
 import DrawdownBack from './form/DrawdownBack.vue';
-import { loanRdeclinel, loanRsaveStep, loanRrecall, loanRrevoke } from '@/api/project/loan';
+import { loanRdeclinel, loanRsaveStep, loanRrecall, loanRrevoke, projectLoanAllRepayment } from '@/api/project/loan';
 import ReconciliationModal from '@/views/projects/components/ReconciliationModal.vue';
 import SecuritiesDialog from './form/SecuritiesDialog.vue';
 import DrawdownRequest from './form/DrawdownRequest.vue';
@@ -117,6 +119,7 @@ import DetailsDialog from './form/DetailsDialog.vue';
 import ReleaseDialog from './form/ReleaseDialog.vue';
 import PushBackLog from '@/views/projects/components/PushBackLog.vue';
 import { useUserStore } from '@/store';
+import dayjs from 'dayjs';
 
 const pageRole = computed(() => useUserStore().pageRole);
 const mode = pageRole.value ? '/' + pageRole.value.toLowerCase() : '';
@@ -139,6 +142,10 @@ const accept_loading = ref(false);
 const repaymentAmount = computed(() => {
   return props.detail?.apply_amount;
 });
+
+const all_repayment = computed(() => {
+  return Number(props.detail?.all_repayment || 0) === 1 ? true : false;
+})
 
 // 拒绝
 const decline = async () => {
@@ -198,6 +205,17 @@ const openDetails = (accept) => {
 };
 
 const releaseVisible = ref(false);
+
+const downloadStatement = () => {
+  projectLoanAllRepayment({
+    uuid: props.uuid,
+    date: dayjs(props.detail.apply_date).format('YYYY-MM-DD'),
+    pdf: 1,
+    less: props.detail.reduction_money || 0
+  }).then(res => {
+    window.open(res);
+  })
+}
 </script>
 
 <style scoped lang="less">
@@ -292,6 +310,19 @@ const releaseVisible = ref(false);
   }
   :deep(.ant-alert-description) {
     font-size: 12px !important;
+  }
+}
+
+.download-btn {
+  font-size: 13px;
+  text-align: center;
+  margin-top: 10px;
+  span {
+    color: #f19915;
+    cursor: pointer;
+    &:hover {
+      color: #f19915;
+    }
   }
 }
 </style>

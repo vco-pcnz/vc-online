@@ -1455,13 +1455,11 @@
     getFormItems();
     emitter.on('refreshIRR', handleRefreshIRR);
     emitter.on('blockShowTarget', blockShowTargetHandle)
-    emitter.on('refreshRefinancial', getRefinancialList)
   });
 
   onUnmounted(() => {
     emitter.off('refreshIRR', handleRefreshIRR);
     emitter.off('blockShowTarget', blockShowTargetHandle)
-    emitter.off('refreshRefinancial', getRefinancialList)
   })
 </script>
 

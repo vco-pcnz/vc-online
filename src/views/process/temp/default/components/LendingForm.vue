@@ -131,10 +131,9 @@
                 :disabled="amountDisabled || inputADis"
                 :edit="!isDetails"
                 :has-build="Boolean(lendingInfo.has_build)"
-                :showRefinancial="((refinancialData.length && blockInfo.showEdit) || isRefinancial || isDetails) && refinancialShow"
-                :refinancialData="formattedRefinancialData"
                 :selectedRefinancialObj="selectedRefinancialObj"
                 :loan-date="formState.time_date"
+                :uuid="currentId"
                 v-model:value="formState.devCost"
                 v-model:dataJson="formState.devCostDetail"
                 v-model:isRefinancial="isRefinancial"
@@ -293,35 +292,6 @@
             </a-form-item>
           </a-col>
           <a-col :span="24"><div class="form-line"></div></a-col>
-          <!-- <a-col v-if="((refinancialData.length && blockInfo.showEdit) || isRefinancial) && refinancialShow" :span="24">
-            <div v-if="!refinancialDisabled" class="flex gap-2 mb-5">
-              <p>{{ t('是否需要再融资') }}</p>
-              <a-switch v-model:checked="isRefinancial"></a-switch>
-            </div>
-            <a-form-item v-if="isRefinancial" :label="refinancialDisabled ? t('再融资项目') : ''" name="substitution_ids">
-              <a-select
-                v-model:value="formState.substitution_ids"
-                mode="multiple"
-                :options="formattedRefinancialData"
-                :filter-option="filterOption"
-                :placeholder="t('请选择项目')"
-                style="width: 52.58%;"
-                :disabled="refinancialDisabled"
-                @change="(value, option) => refinancialChange(option)"
-              >
-                <template #option="{ label, value, item }">
-                  <p>{{ label }}</p>
-                  <vco-number
-                    :value="Number(item.amount)"
-                    :precision="2"
-                    size="fs_xs"
-                    :end="true"
-                    color="#666666"
-                  ></vco-number>
-                </template>
-              </a-select>
-            </a-form-item>
-          </a-col> -->
           <a-col :span="formState.equity_amount ? 5 : 7">
             <a-form-item
               :label="t('首次土地贷款放款额')"
@@ -571,9 +541,6 @@
   const isRefinancial = ref(false)
   const refinancialAmount = ref(0)
 
-  // 请求可以置换的项目
-  const refinancialData = ref([])
-
   // 是否显示进度付款
   const showProgressPayment = computed(() => {
     return Number(props.dataInfo.security.count) && Number(props.dataInfo.lending.build_amount) && !isNormalUser.value
@@ -592,34 +559,6 @@
       navigationTo(`${href}?uuid=${props.currentId}`)
     }
   }
-
-  const getRefinancialList = (flag = false) => {
-    if (flag) {
-      refinancialAmount.value = 0
-      formState.value.substitution_ids = []
-      emits('refresh');
-    }
-
-    const ajaxFn = props.isDetails ? projectDetailSubstitution : projectAuditSubstitution
-    ajaxFn({
-      uuid: props.currentId
-    }).then(res => {
-      refinancialData.value = res || []
-    })
-  }
-
-  const formattedRefinancialData = computed(() => {
-    const data = refinancialData.value || []
-    return data.map(item => ({
-      label: item.project_name,
-      value: item.uuid,
-      item: item
-    }))
-  })
-
-  const filterOption = (input, option) => {
-    return option.label.toLowerCase().includes(input.toLowerCase());
-  };
 
   const selectedRefinancialObj = ref({})
   const refinancialChange = (data) => {
@@ -691,37 +630,9 @@
     }
   })
 
-  const refinancialShow = computed(() => {
-    if (props.isDetails) {
-      return true
-    } else {
-      const mark = props?.currentStep?.mark
-      if (props?.blockInfo?.showEdit) {
-        if (['step_lm_audit', 'step_lm_check', 'step_open'].includes(mark)) {
-          return true
-        } else {
-          return isRefinancial.value
-        }
-      } else {
-        return isRefinancial.value
-      }
-    }
-  })
-
   const showCompare = computed(() => {
     const mark = props?.currentStep?.mark
     return ['step_lm_audit', 'step_lm_review'].includes(mark)
-  })
-
-  const refinancialDisabled = computed(() => {
-    return amountDisabled.value
-    // const mark = props?.currentStep?.mark
-
-    // if (props?.blockInfo?.showEdit) {
-    //   return amountDisabled.value || !['step_lm_audit', 'step_fc_audit'].includes(mark)
-    // } else {
-    //   return amountDisabled.value
-    // }
   })
 
   const changeAlertRef = ref()
@@ -1178,25 +1089,6 @@
     }
   }
 
-  const saveDataTxtArr = ref([])
-
-  const saveReturnRea = computed(() => {
-    const txtArr = []
-    for (let i = 0; i < saveDataTxtArr.value.length; i++) {
-      txtArr.push(t('{0}由{1}修改为了{2}', [saveDataTxtArr.value[i].name, saveDataTxtArr.value[i].before, saveDataTxtArr.value[i].now]))
-    }
-    return txtArr.join(', ')
-  })
-
-  const saveDataTxt = computed(() => {
-    let txt = '保存后将退回审核'
-    if (props.currentStep?.mark === 'step_lm_check') {
-      txt = '保存后将退回到上一步审核'
-    }
-
-    return `${saveReturnRea.value}，${t(txt)}`
-  })
-
   const saveParams = ref()
   const subLoading = ref(false);
 
@@ -1445,17 +1337,14 @@ const goHandle = (page) => {
     refinancialAmount.value = props.lendingInfo?.substitution_amount || 0
     selectedRefinancialObj.value = tool.getObjType(props.lendingInfo.substitution_data) === 'array' ? {} : (props.lendingInfo.substitution_data || {})
 
-    getRefinancialList()
     getFormItems();
     emitter.on('refreshIRR', handleRefreshIRR);
     emitter.on('blockShowTarget', blockShowTargetHandle)
-    emitter.on('refreshRefinancial', getRefinancialList)
   });
 
   onUnmounted(() => {
     emitter.off('refreshIRR', handleRefreshIRR);
     emitter.off('blockShowTarget', blockShowTargetHandle)
-    emitter.off('refreshRefinancial', getRefinancialList)
   })
 </script>
 

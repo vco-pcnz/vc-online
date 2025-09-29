@@ -289,21 +289,12 @@
                   :filter-option="filterOption"
                   :placeholder="t('请选择项目')"
                   :disabled="!edit"
+                  :loading="refinancialLoading"
                   @change="(value, option) => refinancialChange(option)"
                 >
                   <template #option="{ label, value, item }">
                     <p>{{ label }}</p>
-                    <div class="flex items-center gap-2">
-                      <p style="color: #666; font-size: 12px;">{{ t('剩余总额度') }}</p>
-                      <vco-number
-                        :value="Number(item.allRepayment.last_money)"
-                        :precision="2"
-                        size="fs_xs"
-                        :end="true"
-                        color="#666666"
-                      ></vco-number>
-                    </div>
-                    
+                    <p style="color: #666; font-size: 12px;">{{ item.project_apply_sn }}</p>
                   </template>
                 </a-select>
 
@@ -408,7 +399,7 @@ import { message } from 'ant-design-vue/es';
 import tool, { isArrayEqual, numberStrFormat } from '@/utils/tool';
 import { systemDictData } from '@/api/system';
 import { cloneDeep } from 'lodash';
-import { projectLoanGetBuild } from "@/api/process"
+import { projectLoanGetBuild, projectAuditSubstitution, projectDetailSubstitution } from "@/api/process"
 import { projectLoanAllRepayment, projectLoanCalcIrr } from '@/api/project/loan';
 import { PlusCircleOutlined, MinusCircleOutlined } from '@ant-design/icons-vue';
 import { debounce } from 'lodash';
@@ -451,14 +442,6 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  showRefinancial: {
-    type: Boolean,
-    default: false
-  },
-  refinancialData: {
-    type: Array,
-    default: () => []
-  },
   selectedRefinancialObj: {
     type: Object,
     default: () => {}
@@ -498,6 +481,18 @@ const columnsData = [
   { title: t('总计'), dataIndex: 'total', width: 180, ellipsis: true },
   { title: t('操作'), dataIndex: 'operation', width: 110, align: 'center', ellipsis: true }
 ]
+
+const isDetails = computed(() => {
+  return !props.edit
+})
+
+const showRefinancial = computed(() => {
+  if (isDetails.value) {
+    return props.selectedRefinancialObj ? Object.keys(props.selectedRefinancialObj).length : false
+  } else {
+    return refinancialData.value.length
+  }
+})
 
 const ConstructionColumns = reactive(columnsData);
 
@@ -725,8 +720,8 @@ const initData = () => {
   if (props.substitutionIds && props.substitutionIds.length) {
     refinancialIds.value = props.substitutionIds
 
-    const objArr = props.refinancialData.filter(item => props.substitutionIds.includes(item.value))
-    selectedDatas.value = objArr
+    // const objArr = props.refinancialData.filter(item => props.substitutionIds.includes(item.value))
+    // selectedDatas.value = objArr
   }
 
   if (props.isVariation && props.uuid && !props.isPlus) {
@@ -909,13 +904,63 @@ const repaymentAmount = computed(() => {
   }
 })
 
-const refinancialChange = (data) => {
-  data.forEach(item => {
-    item.item.allRepayment.reduction_money = Number(item.item.allRepayment.reduction_money || 0)
-    item.item.allRepayment.reduction_money_input = 0
-    item.item.allRepayment.new_irr = item.item.allRepayment.irr
-  })
-  selectedDatas.value = data
+const refinancialLoading = ref(false)
+const refinancialChange = async (data) => {
+  if (data.length) {
+    const selectUuids = selectedDatas.value.map(item => item.value)
+    const dataUuids = data.map(item => item.value)
+
+    const delUuids = selectUuids.filter(item => !dataUuids.includes(item))
+
+    // 移除已删除选项
+    for (let i = 0; i < delUuids.length; i++) {
+      const itemUuid = delUuids[i]
+      const index = selectedDatas.value.findIndex(item => item.value === itemUuid)
+      if (index > -1) {
+        selectedDatas.value.splice(index, 1)
+      }
+    }
+
+    // 添加新选项
+    for (let i = 0; i < data.length; i++) {
+      const item = data[i]
+      const itemUuid = item.value
+      // 新选项
+      if (!selectUuids.includes(itemUuid)) {
+
+        refinancialLoading.value = true
+        await projectAuditSubstitution({
+          uuid: props.uuid,
+          substitution_uuids: [itemUuid]
+        }).then(res => {
+          const resData = res.length ? res[0] : null
+          if (resData) {
+            const itemIndex = selectUuids.findIndex(item => item === itemUuid)
+            if (itemIndex === -1) {
+              const obj = cloneDeep(item)
+              
+              obj.item.allRepayment = obj.item.allRepayment || cloneDeep(resData.allRepayment)
+              obj.item.allRepayment.reduction_money = Number(resData.allRepayment.reduction_money || 0)
+              obj.item.allRepayment.reduction_money_input = 0
+              obj.item.allRepayment.new_irr = resData.allRepayment.irr
+              selectedDatas.value.push(obj)
+            }
+          }
+          refinancialLoading.value = false
+        }).catch(() => {
+          // 如果不满足条件将本项移除
+          const itemIndex = refinancialIds.value.findIndex(item => item === itemUuid)
+          if (itemIndex > -1) {
+            refinancialIds.value.splice(itemIndex, 1)
+          }
+          refinancialLoading.value = false
+        })
+        
+      }
+    }
+  } else {
+    selectedDatas.value = []
+  }
 }
 
 const refinancialInputChange = debounce((data) => {
@@ -1005,7 +1050,40 @@ const changeTotal = computed(() => {
   return total
 })
 
-const refinancialHasInit = ref(false)
+const hasInitSelectedDatas = ref(false)
+const setSelectedDatas = () => {
+  if (!hasInitSelectedDatas.value) {
+    const idsArr = cloneDeep(props.substitutionIds)
+    const resArr = cloneDeep(refinancialData.value)
+    if (idsArr && idsArr.length && resArr && resArr.length) {
+      const objArr = resArr.filter(item => idsArr.includes(item.value))
+      objArr.forEach(item => {
+        item.item.allRepayment = props.selectedRefinancialObj[item.value]
+      })
+      selectedDatas.value = objArr
+      hasInitSelectedDatas.value = true
+    }
+  }
+}
+const refinancialData = ref([])
+
+const getRefinancialList = () => {
+  const ajaxFn = isDetails.value ? projectDetailSubstitution : projectAuditSubstitution
+  ajaxFn({
+    uuid: props.uuid
+  }).then(res => {
+    const data = res || []
+    const dataArr = data.map(item => {
+      return {
+        label: item.project_name,
+        value: item.uuid,
+        item: item
+      }
+    })
+    refinancialData.value = dataArr
+    setSelectedDatas()
+  })
+}
 
 watch(
   () => props.isRefinancial,
@@ -1019,14 +1097,7 @@ watch(
   (newVal) => {
     refinancialIds.value = newVal;
     if (newVal && newVal.length) {
-      const objArr = props.refinancialData.filter(item => newVal.includes(item.value))
-      if (!refinancialHasInit.value) {
-        objArr.forEach(item => {
-          item.item.allRepayment = props.selectedRefinancialObj[item.value]
-        })
-        refinancialHasInit.value = true
-      }
-      selectedDatas.value = objArr
+      setSelectedDatas()
     }
   }
 )
@@ -1037,7 +1108,11 @@ watch(
     if (newVal) {
       if (!isRefinancialChecked.value) {
         selectedDatas.value = []
+      } else {
+        setSelectedDatas()
       }
+    } else {
+      hasInitSelectedDatas.value = false
     }
   }
 )
@@ -1046,6 +1121,10 @@ onMounted(() => {
   if (!props.dataJson) {
     emits('update:value', cloneDeep(data.value.total));
     emits('update:dataJson', cloneDeep([data.value]));
+  }
+
+  if (props.uuid) {
+    getRefinancialList()
   }
 });
 </script>

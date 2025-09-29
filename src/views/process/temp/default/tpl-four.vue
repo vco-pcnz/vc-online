@@ -375,7 +375,6 @@
     sureLoading.value = true
     await normalRequest(currentForParams.value, true)
 
-    emitter.emit('refreshRefinancial', true)
     emitter.emit('refreshForecastList')
 
     sureLoading.value = false
@@ -447,9 +446,6 @@
           //   currentForParams.value = params
           //   tipsVisible.value = true
           // } else {
-          //   if (props.infoData.apply_start_date !== params.apply_start_date || props.infoData.apply_end_date !== params.apply_end_date) {
-          //     emitter.emit('refreshRefinancial', true)
-          //   }
 
           //   await normalRequest(params, true)
           // }

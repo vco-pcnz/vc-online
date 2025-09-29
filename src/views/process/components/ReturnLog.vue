@@ -1,7 +1,7 @@
 <template>
   <div class="block-item sec">
     <vco-process-title :title="t('退回记录')"></vco-process-title>
-    <div class="list-content">
+    <div ref="listContentRef" class="list-content">
       <div class="list-item" v-for="(item, index) in listData" :key="index">
         <h3>{{ item.name }}</h3>
         <p>{{ item.message }}</p>
@@ -15,6 +15,7 @@
 </template>
 
 <script setup>
+  import { ref, onMounted } from "vue";
   import { useI18n } from "vue-i18n";
   import tool from "@/utils/tool"
 
@@ -26,12 +27,20 @@
       default: () => []
     }
   })
+
+  const listContentRef = ref()
+
+  onMounted(() => {
+    if (props.listData.length > 3) {
+      listContentRef.value.style.height = '300px'
+    }
+  })
 </script>
 
 <style lang="less" scoped>
   .list-content {
     width: 100%;
-    height: 300px;
+    // height: 300px;
     overflow-y: scroll;
     overflow-x: hidden;
     margin-top: 10px;

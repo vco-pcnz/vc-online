@@ -1182,5 +1182,8 @@ export default {
   "BOC放款总金额为：<span>{0}</span>，当前放款总额为：<span>{1}</span>，超出了：<span>{2}</span>": "BOC drawdown total amount is: <span>{0}</span>, current drawdown total amount is: <span>{1}</span>, which exceeds: <span>{2}</span>",
   "超额": "Exceeded",
   "贷款方": "Lender",
-  '放款金额 {0},可用金额 {1},{2}超出金额 {3} 是否继续放款?': 'Drawdown amount <span>{0}</span>, {1}available amount <span>{2}</span>, excess amount <span>{3}</span> Do you want to continue the drawdown?'
+  "放款金额 {0},可用金额 {1},{2}超出金额 {3} 是否继续放款?": "Drawdown amount <span>{0}</span>, {1}available amount <span>{2}</span>, excess amount <span>{3}</span> Do you want to continue the drawdown?",
+  "还款分配": "Payment Allocation",
+  "本金优先分配": "Principal-First Allocation",
+  "利息优先分配": "Interest-First Allocation"
 }

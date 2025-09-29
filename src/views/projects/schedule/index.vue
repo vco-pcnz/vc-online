@@ -1,6 +1,13 @@
 <template>
   <detail-layout active-tab="schedule" @getProjectDetail="getProjectDetail">
     <template #content>
+      <vco-page-tab
+        v-if="projectDetail.product.code === 'vsl' && (!hasPermission('projects:schedule:vs_schedule') || hasPermission('projects:schedule:boc_schedule'))"
+        class="mt-5"
+        :tabData="tabData"
+        v-model:current="tab_id"
+        @change="tabChange"
+      ></vco-page-tab>
       <div class="relative">
         <a-button v-if="hasPermission('projects:detail:schedule:reconciliation') && !projectDetail?.base?.is_close" type="brown" shape="round" class="pre-sale-enter" @click="navigationTo(`/projects/schedule/reconciliation?uuid=${project_id}`)">
           {{ t('对账') }}
@@ -17,6 +24,7 @@
         :ptRole="!!projectDetail?.base?.ptRole"
         :is-old="isOld"
         :is-reset="true"
+        :tab_id="tab_id"
       ></schedule>
     </template>
   </detail-layout>
@@ -44,6 +52,26 @@ const getProjectDetail = (val) => {
   currentProduct.value = val.product.code;
   projectDetail.value = val;
 };
+
+const tab_id = ref('');
+const tabData = ref([
+  {
+    label: 'Overall',
+    value: ''
+  },
+  {
+    label: 'VS Schedule',
+    value: 1,
+    hide: hasPermission('projects:schedule:vs_schedule')
+  },
+  {
+    label: 'BOC Schedule',
+    value: 2,
+    hide: hasPermission('projects:schedule:boc_schedule')
+  }
+]);
+
+const tabChange = () => {};
 
 onMounted(() => {
   project_id.value = route.query.uuid;

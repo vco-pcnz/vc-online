@@ -1185,5 +1185,15 @@ export default {
   "逾期天数": "Days overdue",
   "投资人首页": "Dashboard",
   "剩余总额度": "Remaining total amount",
-  "贷款方": "Lender"
+  "贷款方": "Lender",
+  "项目周期有改动，保存后将重置再融资数据": "The project Loan dates has been changed, and the refinancing data will be reset after saving",
+  "设置的再融资项目：{0}， 为罚息全额减免：{1}，{2}的全额减免额度为：{3}": "The set refinancing project: {0} has a full penalty interest waiver of <span>{1}</span>. The full waiver amount for <span>{2}</span> is <span>{3}</span>.",
+  "设置的再融资项目：{0}， 为罚息全额减免：{1}，{2}的全额减免额度为：{3}1": "The set refinancing project: {0} has a full penalty interest waiver of {1}. The full waiver amount for {2} is {3}.",
+  "设置的再融资项目：{0}， 罚息减免为：{1}，已超出{2}下的最大减免额度：{3}": "The set refinancing project: {0} has a penalty interest waiver of <span>{1}</span>. The maximum waiver amount under <span>{2}</span> has been exceeded: <span>{3}</span>.",
+  "设置的再融资项目：{0}， 罚息减免为：{1}，已超出{2}下的最大减免额度：{3}1": "The set refinancing project: {0} has a penalty interest waiver of {1}. The maximum waiver amount under {2} has been exceeded: {3}.",
+  "设置的再融资项目：{0}， 罚息减免为：{1}，已达到了{2}下的全额减免额度：{3}": "The set refinancing project: {0} has a penalty interest waiver of <span>{1}</span>. The full waiver amount under <span>{2}</span> has been reached: <span>{3}</span>.",
+  "设置的再融资项目：{0}， 罚息减免为：{1}，已达到了{2}下的全额减免额度：{3}1": "The set refinancing project: {0} has a penalty interest waiver of {1}. The full waiver amount under {2} has been reached: {3}.",
+  "设置的再融资项目：{0}， 在{1}下不存在": "The set refinancing project: {0} does not exist under {1}.",
+  "需要退回并重新设置审核后，才能进行下一步操作": "You need to return and reset the review before you can proceed to the next step",
+  "生效": "Effective"
 }

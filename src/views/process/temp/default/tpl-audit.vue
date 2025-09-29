@@ -26,6 +26,7 @@
       :block-info="PageBlockObjRef"
       :info-data="currentDataInfo"
       :lending-info="lendingDataInfo"
+      :compare-back-obj="compareBackObj"
       :type="currentMark"
       v-model:visible="openVisible"
       @done="subDone"
@@ -287,7 +288,7 @@
     for (let i = 0; i < saveDataTxtArr.value.length; i++) {
       txtArr.push(t('{0}由{1}修改为了{2}1', [saveDataTxtArr.value[i].name, saveDataTxtArr.value[i].before, saveDataTxtArr.value[i].now]))
     }
-    return txtArr.join('---')
+    return txtArr.join(', ')
   })
 
   const saveDataTxt = computed(() => {

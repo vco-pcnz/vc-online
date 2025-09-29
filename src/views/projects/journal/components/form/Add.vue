@@ -24,6 +24,7 @@
           <div class="label" :class="{ err: !formState.amount && validate }">{{ t('金额，新西兰元') }}</div>
           <a-input-number v-model:value="formState.amount" min="0" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
         </div>
+
         <div class="input-item">
           <div class="label" :class="{ err: !formState.note && validate }">{{ t('声明说明') }}</div>
           <a-input v-model:value="formState.note" />
@@ -32,7 +33,21 @@
           <div class="label" :class="{ err: !formState.remark && validate }">{{ t('审阅意见') }}</div>
           <a-textarea v-model:value="formState.remark" placeholder="Basic usage" :rows="4" />
         </div>
+        <div class="input-item relative">
+          <div class="label">{{ t('文件') }}</div>
+          <vco-upload-modal v-model:list="documentList" v-model:value="formState.document">
+            <a-button class="upload_btn" type="brown" shape="round" size="small"> {{ t('上传') }}</a-button>
+          </vco-upload-modal>
 
+          <div class="file-content">
+            <template v-if="documentList.length">
+              <div v-for="(item, index) in documentList" :key="index" class="file-item">
+                <vco-file-item :file="item" :showClose="true" @remove="remove(index)"></vco-file-item>
+              </div>
+            </template>
+            <p v-if="!documentList.length">{{ t('暂无数据，请上传') }}</p>
+          </div>
+        </div>
         <div class="flex justify-center">
           <a-button @click="save" type="dark" class="save big uppercase" :loading="loading">
             {{ t('确认') }}
@@ -105,7 +120,8 @@ const formState = ref({
   date: '',
   amount: '',
   note: '',
-  remark: ''
+  remark: '',
+  document: []
 });
 
 const customFilter = (input, option) => {
@@ -124,6 +140,12 @@ const disabledDateFormat = (current) => {
   }
 
   return false;
+};
+
+const documentList = ref([]);
+// 删除文件
+const remove = (index) => {
+  documentList.value.splice(index, 1);
 };
 
 const save = () => {
@@ -223,5 +245,23 @@ const init = () => {
   .input-item {
     margin-top: 20px;
   }
+}
+
+.file-content {
+  border: 1px solid #272727 !important;
+  border-radius: 10px !important;
+  background-color: #f7f9f8;
+  padding: 15px;
+  > p {
+    text-align: center;
+    font-size: 14px;
+    color: #999;
+  }
+}
+
+.upload_btn {
+  position: absolute;
+  top: -4px;
+  right: 0;
 }
 </style>

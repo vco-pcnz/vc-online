@@ -33,6 +33,10 @@
         <p>{{ t('审阅意见') }}</p>
         <p>{{ detail.remark }}</p>
       </a-col>
+      <a-col v-if="detail.annex_id" :span="24" class="item-txt">
+        <p>{{ t('文件') }}</p>
+        <a-button type="brown" class="mt-2" shape="round" size="small" @click="navigationTo(`/projects/documents?uuid=` + uuid + '&annex_id=' + detail?.annex_id)">{{ t('查看文件') }}</a-button>
+      </a-col>
     </a-row>
 
     <div v-if="detail?.prev_permission" class="mt-10">
@@ -62,6 +66,7 @@
 import { watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
+import { navigationTo } from '@/utils/tool'
 import { hasPermission } from '@/directives/permission/index';
 import Back from './form/Back.vue';
 import { saveStep, recall, decline } from '@/api/project/journal';

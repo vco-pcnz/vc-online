@@ -1,5 +1,14 @@
 <template>
   <a-modal :open="visible" :title="t('项目Open')" :width="500" :footer="null" :keyboard="false" :maskClosable="false" @cancel="updateVisible(false)">
+
+    <!-- 再融资项目改动后弹窗 -->
+    <vco-confirm-alert
+      ref="changeRefinancialRef"
+      :confirm-txt="saveDataTxt"
+      v-model:visible="backStepVisible"
+      @submit="backStepHandle"
+    ></vco-confirm-alert>
+
     <div class="sys-form-content mt-5">
       <a-row :gutter="24">
         <a-col :span="24">
@@ -7,6 +16,7 @@
             <p class="name mb-2 required">{{ t('开放日期') }}</p>
             <a-date-picker v-model:value="openDate" :format="selectDateFormat()" :disabledDate="disabledDate" placeholder="" @change="openDateChange" />
           </div>
+          <div class="error-tips">{{ backReasonTxt }}</div>
         </a-col>
         <a-col :span="10" class="mt-2">
           <div class="info-content">
@@ -59,10 +69,10 @@
 <script setup>
 import { ref, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import tool, { selectDateFormat } from '@/utils/tool';
+import tool, { selectDateFormat, navigationTo } from '@/utils/tool';
 import dayjs from 'dayjs';
 import { message } from 'ant-design-vue';
-import { projectAuditSaveMode, projectAuditSaveStep } from '@/api/process';
+import { projectAuditSaveMode, projectAuditSaveStep, projectAuditSubstitution, projectAuditGoback } from '@/api/process';
 
 const emits = defineEmits(['update:visible', 'done']);
 
@@ -90,6 +100,9 @@ const props = defineProps({
   blockInfo: {
     type: Object,
     default: () => {}
+  },
+  compareBackObj: {
+    type: Object,
   },
   type: {
     type: String,
@@ -137,11 +150,106 @@ const submitRquest = () => {
       changeLoading(false);
     });
 };
+
+const currentBackSetp = ref('')
+
+const changeRefinancialRef = ref()
+const backStepVisible = ref(false)
+
+const backStepHandle = async () => {
+  try {
+    const loadParams = {
+      start_date: startDate.value,
+      end_date: endDate.value,
+      substitution_ids: [],
+      substitution_amount: 0,
+      substitution_data: {},
+      uuid: props.uuid,
+      code: props.blockInfo.loan.code
+    };
+
+    await projectAuditSaveMode(loadParams)
+
+    const params = {
+      uuid: props.uuid,
+      cancel_reason: cancelReasonTxt.value,
+      back_reason: backReasonTxt.value,
+      again_check: 0,
+      back_step: 'step_lm_audit' // 固定返回到LM提交
+      // back_step: currentBackSetp.value
+    }
+
+    projectAuditGoback(params).then(() => {
+      changeRefinancialRef.value.changeLoading(false)
+      navigationTo(`/requests/details?uuid=${props.uuid}`)
+    }).catch(() => {
+      changeRefinancialRef.value.changeLoading(false)
+    })
+  } catch {
+    changeRefinancialRef.value.changeLoading(false)
+  }
+};
+
+const cancelReasonArr = ref([])
+const backReasonArr = ref([])
+
+const cancelReasonTxt = computed(() => {
+  return cancelReasonArr.value.join(', ')
+})
+const backReasonTxt = computed(() => {
+  return backReasonArr.value.join(', ')
+})
+const saveDataTxt = computed(() => {
+  let txt = '需要退回并重新设置审核后，才能进行下一步操作'
+  return `${cancelReasonTxt.value}，${t(txt)}`
+})
+
+const getRefinancialInfo = async () => {
+  const isRefinancial = props.lendingInfo?.data?.substitution_ids && props.lendingInfo?.data?.substitution_ids.length;
+
+  if (props.infoData.lending.start_date !== startDate.value && Boolean(isRefinancial)) {
+    const subList =  await projectAuditSubstitution({
+      start_date: startDate.value,
+      uuid: props.uuid
+    })
+
+    const setData = props.lendingInfo.data.substitution_data || {}
+    for (const key in setData) {
+      const obj = setData[key]
+      const item = subList.find(item => item.uuid === key)
+      const cancelTips = []
+      const backTips = []
+
+      if (item) {
+        const repaymentObj = item.allRepayment
+        if (Number(obj.reduction_money_input) && Number(obj.reduction_money_input) === Number(obj.reduction_money)) {
+          cancelTips.push(t(`设置的再融资项目：{0}， 为罚息全额减免：{1}，{2}的全额减免额度为：{3}`, [item.project_name, obj.reduction_money_input, startDate.value, repaymentObj.reduction_money]))
+          backTips.push(t(`设置的再融资项目：{0}， 为罚息全额减免：{1}，{2}的全额减免额度为：{3}1`, [item.project_name, obj.reduction_money_input, startDate.value, repaymentObj.reduction_money]))
+        } else {
+          if (Number(obj.reduction_money_input) > Number(repaymentObj.reduction_money)) {
+            cancelTips.push(t(`设置的再融资项目：{0}， 罚息减免为：{1}，已超出{2}下的最大减免额度：{3}`, [item.project_name, obj.reduction_money_input, startDate.value, repaymentObj.reduction_money]))
+            backTips.push(t(`设置的再融资项目：{0}， 罚息减免为：{1}，已超出{2}下的最大减免额度：{3}1`, [item.project_name, obj.reduction_money_input, startDate.value, repaymentObj.reduction_money]))
+          }
+
+          if (Number(obj.reduction_money_input) && Number(obj.reduction_money_input) === Number(repaymentObj.reduction_money)) {
+            cancelTips.push(t(`设置的再融资项目：{0}， 罚息减免为：{1}，已达到了{2}下的全额减免额度：{3}`, [item.project_name, obj.reduction_money_input, startDate.value, repaymentObj.reduction_money]))
+            backTips.push(t(`设置的再融资项目：{0}， 罚息减免为：{1}，已达到了{2}下的全额减免额度：{3}1`, [item.project_name, obj.reduction_money_input, startDate.value, repaymentObj.reduction_money]))
+          }
+        }
+      } else {
+        cancelTips.push(t(`设置的再融资项目：{0}， 在{1}下不存在`, [item.project_name, startDate.value]))
+        backTips.push(t(`设置的再融资项目：{0}， 在{1}下不存在1`, [item.project_name, startDate.value]))
+      }
+      cancelReasonArr.value = cancelTips
+      backReasonArr.value = backTips
+    }
+  }
+}
+
 const submitHandle = async () => {
   if (!openDate.value) {
     message.error(t('请选择') + t('开放日期'));
   } else {
-    changeLoading(true);
 
     const loadParams = {
       start_date: startDate.value,
@@ -153,15 +261,27 @@ const submitHandle = async () => {
 
     const isRefinancial = props.lendingInfo?.data?.substitution_ids && props.lendingInfo?.data?.substitution_ids.length;
 
-    if (props.infoData.lending.start_date !== startDate.value || Boolean(isRefinancial)) {
-      await projectAuditSaveMode(loadParams)
+    if (props.infoData.lending.start_date !== startDate.value) {
+      if (Boolean(isRefinancial) && backReasonArr.value.length) {
+        const backObj = props.compareBackObj || {}
+        const backArr = backObj[props.type] || []
+        if (backArr.length) {
+          const back_step = backArr[0]
+          currentBackSetp.value = back_step
+          backStepVisible.value = true
+        }
+      } else {
+        changeLoading(true);
+        await projectAuditSaveMode(loadParams)
         .then(() => {
           submitRquest();
         })
         .catch(() => {
           changeLoading(false);
         });
+      }
     } else {
+      changeLoading(true);
       submitRquest();
     }
   }
@@ -187,6 +307,8 @@ const openDateChange = (date) => {
       startDate.value = dayjs(date).format('YYYY-MM-DD');
       endDate.value = endDateStr;
     }
+
+    getRefinancialInfo()
   }
 };
 
@@ -323,5 +445,11 @@ watch(
   font-family: SimSun, sans-serif;
   line-height: 1;
   content: '*';
+}
+
+.error-tips {
+  font-size: 12px;
+  color: #ff4d4f;
+  margin-top: 5px;
 }
 </style>

@@ -77,15 +77,12 @@
                   <a-menu-item key="1" @click="showBindUser(record)" v-if="hasPermission('Investment:bindUser')">
                     {{ t('绑定用户') }}
                   </a-menu-item>
-                  <!-- <a-menu-item key="2" @click="navigationTo('/Investment/home?uuid=' + record.id)">
-                    {{ t('数据统计') }}
-                  </a-menu-item> -->
-                  <a-menu-item key="2" @click="navigationTo('/Investment/projects?uuid=' + record.id)">
+                  <!-- <a-menu-item key="2" @click="navigationTo('/Investment/detail/projects?uuid=' + record.id)">
                     {{ t('项目信息') }}
                   </a-menu-item>
-                  <a-menu-item key="3" @click="navigationTo('/Investment/schedule/index?uuid=' + record.id)">
+                  <a-menu-item key="3" @click="navigationTo('/Investment/detail/schedule/index?uuid=' + record.id)">
                     {{ t('明细表') }}
-                  </a-menu-item>
+                  </a-menu-item> -->
                   <!-- <a-menu-item key="4">
                     <vco-popconfirm :formParams="{ id: record.id }" url="invest/delete" :tip="t('确定删除吗？')" @update="update()">
                       {{ t('删除l') }}
@@ -180,7 +177,7 @@ const rowSelection = ref({
 const rowClick = (record, index) => {
   return {
     onClick: () => {
-      navigationTo(`/Investment/home?uuid=${record.id}`);
+      navigationTo(`/Investment/detail/home?uuid=${record.id}`);
     }
   };
 };

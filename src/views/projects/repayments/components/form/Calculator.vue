@@ -349,7 +349,8 @@ const downloadStatement = () => {
     date: dayjs(formState.value.date).format('YYYY-MM-DD'),
     pdf: 1,
     less: reductionAmount.value,
-    do__est: hasEstimated.value ? 1 : 0
+    do__est: hasEstimated.value ? 1 : 0,
+    watermark: 0
   }).then(res => {
     downloadLoading.value = false
     window.open(res);

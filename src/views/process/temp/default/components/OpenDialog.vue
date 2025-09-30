@@ -653,6 +653,7 @@ const resetSelectedDatas = () => {
             selectedItem.item.allRepayment.StandardRate = Number(selectedItem.item.allRepayment.StandardRate) < Number(itemObj.item.allRepayment.StandardRate) ?  Number(itemObj.item.allRepayment.StandardRate) : Number(selectedItem.item.allRepayment.StandardRate)
             selectedItem.item.allRepayment.reduction_money = Number(itemObj.item.allRepayment.reduction_money)
             selectedItem.item.allRepayment.repayment_money = Number(itemObj.item.allRepayment.repayment_money)
+            selectedItem.item.allRepayment.last_money = Number(itemObj.item.allRepayment.last_money)
             selectedItem.item.allRepayment.min_StandardRate = Number(itemObj.item.allRepayment.min_StandardRate)
             selectedItem.item.allRepayment.reduction_money_input = Number(selectedItem.item.allRepayment.reduction_money_input) > Number(itemObj.item.allRepayment.reduction_money) ? Number(itemObj.item.allRepayment.reduction_money) : Number(selectedItem.item.allRepayment.reduction_money_input)
             selectedItem.item.allRepayment.irr = itemObj.item.allRepayment.irr
@@ -791,6 +792,9 @@ watch(
       openDate.value = '';
       confirmForm.value = {};
       fonfirmTable.value = [];
+
+      refinancialIds.value = []
+      selectedDatas.value = []
     } else {
       startDate.value = props.infoData.lending.start_date;
       endDate.value = props.infoData.lending.end_date;

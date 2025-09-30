@@ -1108,6 +1108,7 @@ watch(
     if (newVal) {
       if (!isRefinancialChecked.value) {
         selectedDatas.value = []
+        refinancialIds.value = []
       } else {
         setSelectedDatas()
       }

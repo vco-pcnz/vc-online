@@ -314,7 +314,7 @@
                 <div v-for="col in selectedDatas" :key="col.value" class="col-item tr">
                   <div>
                     <a-input-number
-                      :max="99999999999"
+                      :max="100"
                       :min="col.item.allRepayment.min_StandardRate"
                       v-model:value="col.item.allRepayment.StandardRate"
                       :formatter="
@@ -323,7 +323,7 @@
                       "
                       :controls="false"
                       :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                      :disabled="!edit"
+                      :disabled="!edit || !(Number(col.item.allRepayment.min_StandardRate) > 0)"
                       @input="() => refinancialInputChange(col)"
                       @blur="() => refinancialInputBlur(col)"
                     >
@@ -353,7 +353,7 @@
                       "
                       :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                       :controls="false"
-                      :disabled="!edit"
+                      :disabled="!edit || !(Number(col.item.allRepayment.reduction_money) > 0)"
                       @input="() => refinancialCaclIrr(col)"
                     >
                     </a-input-number>
@@ -483,7 +483,7 @@ const columnsData = [
 ]
 
 const isDetails = computed(() => {
-  return !props.edit
+  return !props.edit || props.isVariation
 })
 
 const showRefinancial = computed(() => {

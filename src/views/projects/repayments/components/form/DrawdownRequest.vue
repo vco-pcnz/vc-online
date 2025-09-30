@@ -634,7 +634,8 @@ const downloadStatement = () => {
     uuid: props.uuid,
     date: dayjs(formState.value.apply_date).format('YYYY-MM-DD'),
     pdf: 1,
-    less: formState.value.reduction_money || 0
+    less: formState.value.reduction_money || 0,
+    watermark: 0
   }).then(res => {
     downloadLoading.value = false
     window.open(res);

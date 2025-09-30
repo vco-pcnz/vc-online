@@ -384,6 +384,7 @@ const compareRefinancial = () => {
       if (bItem) {
         const nItemObj = nItem.item.allRepayment
         const bItemObj = bItem.item.allRepayment
+
         if (nItemObj.StandardRate !== bItemObj.StandardRate) {
           cancelTips.push(t(`再融资项目：{0}， 罚息减免比例由{1}修改为{2}`, [nItem.label, bItemObj.StandardRate, nItemObj.StandardRate]))
           backTips.push(t(`再融资项目：{0}， 罚息减免比例由{1}修改为{2}1`, [nItem.label, bItemObj.StandardRate, nItemObj.StandardRate]))
@@ -422,8 +423,8 @@ const submitHandle = async () => {
       compareRefinancial()
     }
 
-    if (props.infoData.lending.start_date !== startDate.value) {
-      if (Boolean(isRefinancial) && backReasonArr.value.length) {
+    if (Boolean(isRefinancial)) { // 有置换
+      if (backReasonArr.value.length) { // 置换数据有变化
         const backObj = props.compareBackObj || {}
         const backArr = backObj[props.type] || []
         if (backArr.length) {
@@ -442,8 +443,19 @@ const submitHandle = async () => {
         });
       }
     } else {
-      changeLoading(true);
-      submitRquest();
+      if (props.infoData.lending.start_date !== startDate.value) {
+        changeLoading(true);
+        await projectAuditSaveMode(loadParams)
+        .then(() => {
+          submitRquest();
+        })
+        .catch(() => {
+          changeLoading(false);
+        });
+      } else {
+        changeLoading(true);
+        submitRquest();
+      }
     }
   }
 };

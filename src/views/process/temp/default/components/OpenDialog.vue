@@ -630,10 +630,11 @@ const refinancialChange = async (data) => {
 const setSelectedDatas = () => {
   const idsArr = cloneDeep(props.lendingInfo.data.substitution_ids)
   const resArr = cloneDeep(refinancialData.value)
+  const substitution_data = cloneDeep(props.lendingInfo.data.substitution_data)
   if (idsArr && idsArr.length && resArr && resArr.length) {
     const objArr = resArr.filter(item => idsArr.includes(item.value))
     objArr.forEach(item => {
-      item.item.allRepayment = props.lendingInfo.data.substitution_data[item.value]
+      item.item.allRepayment = substitution_data[item.value]
     })
     selectedDatas.value = objArr
     selectedStaticDatas.value = cloneDeep(objArr)
@@ -775,7 +776,6 @@ const getRefinancialList = (start_date = '') => {
     }
     
     refinancialData.value = dataArr
-
     if (start_date) {
       resetSelectedDatas()
     } else {
@@ -800,7 +800,7 @@ watch(
       endDate.value = props.infoData.lending.end_date;
 
       if (hasRefinancialInfo.value) {
-        refinancialIds.value = props.lendingInfo.data.substitution_ids
+        refinancialIds.value = cloneDeep(props.lendingInfo.data.substitution_ids)
         getRefinancialList()
       }
 

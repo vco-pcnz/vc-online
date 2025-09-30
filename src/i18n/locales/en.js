@@ -1196,7 +1196,10 @@ export default {
   "再融资项目：{0}， 罚息减免比例由{1}修改为{2}1": "Refinancing project: {0}, penalty interest reduction ratio changed from {1} to {2}",
   "再融资项目：{0}， 罚息减免额度由{1}修改为{2}": "Refinancing project: <span>{0}</span>, penalty interest waiver amount changed from <span>{1}</span> to <span>{2}</span>",
   "再融资项目：{0}， 罚息减免额度由{1}修改为{2}1": "Refinancing project: {0}, penalty interest waiver amount changed from {1} to {2}",
+  "再融资项目：{0}， 还款金额由{1}修改为{2}": "Refinancing project: <span>{0}</span>, repayment amount changed from <span>{1}</span> to <span>{2}</span>",
+  "再融资项目：{0}， 还款金额由{1}修改为{2}1": "Refinancing project: {0}, repayment amount changed from {1} to {2}",
   "需要退回并重新设置审核后，才能进行下一步操作": "You need to return and reset the review before you can proceed to the next step",
   "最初设定值": "Initial setting value",
-  "点击下载": "Click to download"
+  "点击下载": "Click to download",
+  "此数据为老数据，请移除后，重新选择": "This data is old data, please delete it and select again"
 }

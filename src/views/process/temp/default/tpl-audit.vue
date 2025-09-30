@@ -443,7 +443,7 @@
         })
       }
 
-      if ((staticFormData?.substitution_amount || staticFormData?.substitution_amount === 0) && Number(obj?.substitution_amount) !== Number(staticFormData?.substitution_amount)) {
+      if ((staticFormData?.substitution_amount || Number(staticFormData?.substitution_amount) === 0) && Number(obj?.substitution_amount) !== Number(staticFormData?.substitution_amount)) {
         arr.unshift({
           name: t('再融资金额'),
           before: `$${numberStrFormat(Number(staticFormData?.substitution_amount))}`,
@@ -451,7 +451,7 @@
         })
       }
 
-      if ((staticFormData?.equity_amount || staticFormData?.equity_amount === 0) && Number(obj?.equity_amount) !== Number(staticFormData?.equity_amount)) {
+      if ((staticFormData?.equity_amount || Number(staticFormData?.equity_amount) === 0) && Number(obj?.equity_amount) !== Number(staticFormData?.equity_amount)) {
         arr.unshift({
           name: t('补充股权'),
           before: `$${numberStrFormat(Number(staticFormData?.equity_amount))}`,

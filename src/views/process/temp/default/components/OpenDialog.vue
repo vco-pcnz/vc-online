@@ -384,6 +384,7 @@ const compareRefinancial = () => {
       if (bItem) {
         const nItemObj = nItem.item.allRepayment
         const bItemObj = bItem.item.allRepayment
+
         if (nItemObj.StandardRate !== bItemObj.StandardRate) {
           cancelTips.push(t(`再融资项目：{0}， 罚息减免比例由{1}修改为{2}`, [nItem.label, bItemObj.StandardRate, nItemObj.StandardRate]))
           backTips.push(t(`再融资项目：{0}， 罚息减免比例由{1}修改为{2}1`, [nItem.label, bItemObj.StandardRate, nItemObj.StandardRate]))
@@ -422,8 +423,8 @@ const submitHandle = async () => {
       compareRefinancial()
     }
 
-    if (props.infoData.lending.start_date !== startDate.value) {
-      if (Boolean(isRefinancial) && backReasonArr.value.length) {
+    if (Boolean(isRefinancial)) { // 有置换
+      if (backReasonArr.value.length) { // 置换数据有变化
         const backObj = props.compareBackObj || {}
         const backArr = backObj[props.type] || []
         if (backArr.length) {
@@ -442,8 +443,19 @@ const submitHandle = async () => {
         });
       }
     } else {
-      changeLoading(true);
-      submitRquest();
+      if (props.infoData.lending.start_date !== startDate.value) {
+        changeLoading(true);
+        await projectAuditSaveMode(loadParams)
+        .then(() => {
+          submitRquest();
+        })
+        .catch(() => {
+          changeLoading(false);
+        });
+      } else {
+        changeLoading(true);
+        submitRquest();
+      }
     }
   }
 };
@@ -641,6 +653,7 @@ const resetSelectedDatas = () => {
             selectedItem.item.allRepayment.StandardRate = Number(selectedItem.item.allRepayment.StandardRate) < Number(itemObj.item.allRepayment.StandardRate) ?  Number(itemObj.item.allRepayment.StandardRate) : Number(selectedItem.item.allRepayment.StandardRate)
             selectedItem.item.allRepayment.reduction_money = Number(itemObj.item.allRepayment.reduction_money)
             selectedItem.item.allRepayment.repayment_money = Number(itemObj.item.allRepayment.repayment_money)
+            selectedItem.item.allRepayment.last_money = Number(itemObj.item.allRepayment.last_money)
             selectedItem.item.allRepayment.min_StandardRate = Number(itemObj.item.allRepayment.min_StandardRate)
             selectedItem.item.allRepayment.reduction_money_input = Number(selectedItem.item.allRepayment.reduction_money_input) > Number(itemObj.item.allRepayment.reduction_money) ? Number(itemObj.item.allRepayment.reduction_money) : Number(selectedItem.item.allRepayment.reduction_money_input)
             selectedItem.item.allRepayment.irr = itemObj.item.allRepayment.irr
@@ -779,6 +792,9 @@ watch(
       openDate.value = '';
       confirmForm.value = {};
       fonfirmTable.value = [];
+
+      refinancialIds.value = []
+      selectedDatas.value = []
     } else {
       startDate.value = props.infoData.lending.start_date;
       endDate.value = props.infoData.lending.end_date;

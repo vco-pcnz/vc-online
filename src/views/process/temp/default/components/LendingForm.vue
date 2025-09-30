@@ -134,6 +134,7 @@
                 :selectedRefinancialObj="selectedRefinancialObj"
                 :loan-date="formState.time_date"
                 :uuid="currentId"
+                :lendingInfo="lendingInfo"
                 v-model:value="formState.devCost"
                 v-model:dataJson="formState.devCostDetail"
                 v-model:isRefinancial="isRefinancial"

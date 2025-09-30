@@ -35,13 +35,13 @@
             <p class="txt">{{ showTotalDay }}</p>
           </div>
         </a-col>
-        <a-col :span="24">
+        <a-col v-if="selectedStaticDatas.length" :span="24">
           <div class="info-content">
             <div class="name mb-2 flex justify-between items-center">
               <p>{{ t('再融资项目') }}</p>
               <a-popover :title="t('最初设定值')" trigger="click">
                 <template #content>
-                  <div v-if="selectedStaticDatas.length" class="refinancial-table">
+                  <div class="refinancial-table">
                     <div class="th col-item">
                       <div>{{ t('建议标准税率') }}(%)</div>
                       <div>{{ t('罚息减免最大额度') }}</div>
@@ -311,17 +311,37 @@ const currentBackSetp = ref('')
 const changeRefinancialRef = ref()
 const backStepVisible = ref(false)
 
+const refinancialAmount = computed(() => {
+  if (selectedDatas.value.length) {
+    const dataArr = selectedDatas.value.map(item => Number(item.item.allRepayment.repayment_money))
+    const sum = dataArr.reduce((acc, cur) => acc + cur, 0)
+    return sum
+  }
+  return 0
+})
+
 const backStepHandle = async () => {
   try {
     const loadParams = {
       start_date: startDate.value,
       end_date: endDate.value,
-      substitution_ids: [],
-      substitution_amount: 0,
-      substitution_data: {},
       uuid: props.uuid,
       code: props.blockInfo.loan.code
     };
+
+    // 如果为置换项目
+    if (refinancialIds.value.length) {
+      loadParams.substitution_ids = refinancialIds.value
+      loadParams.substitution_amount = refinancialAmount.value
+
+      const scData = cloneDeep(selectedDatas.value)
+      const obj = {}
+      for (let i = 0; i < scData.length; i++) {
+        const item = scData[i]
+        obj[item.value] = item.item.allRepayment
+      }
+      loadParams.substitution_data = obj
+    }
 
     await projectAuditSaveMode(loadParams)
 
@@ -376,7 +396,6 @@ const compareRefinancial = () => {
     }
   }
 
-
   for (let i = 0; i < nData.length; i++) {
     const nItem = nData[i]
     if (bIdsArr.includes(nItem.value)) {
@@ -393,6 +412,11 @@ const compareRefinancial = () => {
         if (nItemObj.reduction_money_input !== bItemObj.reduction_money_input) {
           cancelTips.push(t(`再融资项目：{0}， 罚息减免额度由{1}修改为{2}`, [nItem.label, bItemObj.reduction_money_input, nItemObj.reduction_money_input]))
           backTips.push(t(`再融资项目：{0}， 罚息减免额度由{1}修改为{2}1`, [nItem.label, bItemObj.reduction_money_input, nItemObj.reduction_money_input]))
+        }
+
+        if (nItemObj.repayment_money !== bItemObj.repayment_money) {
+          cancelTips.push(t(`再融资项目：{0}， 还款金额由{1}修改为{2}`, [nItem.label, bItemObj.repayment_money, nItemObj.repayment_money]))
+          backTips.push(t(`再融资项目：{0}， 还款金额由{1}修改为{2}1`, [nItem.label, bItemObj.repayment_money, nItemObj.repayment_money]))
         }
       }
     } else {

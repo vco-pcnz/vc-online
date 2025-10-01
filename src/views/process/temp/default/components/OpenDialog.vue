@@ -341,6 +341,9 @@ const backStepHandle = async () => {
         obj[item.value] = item.item.allRepayment
       }
       loadParams.substitution_data = obj
+
+      loadParams.code = 'lending'
+      loadParams.set_devCost = 1
     }
 
     await projectAuditSaveMode(loadParams)
@@ -617,7 +620,7 @@ const refinancialChange = async (data) => {
 
         refinancialLoading.value = true
         await projectAuditSubstitution({
-          date: startDate.value,
+          start_date: startDate.value,
           uuid: props.uuid,
           substitution_uuids: [itemUuid]
         }).then(res => {

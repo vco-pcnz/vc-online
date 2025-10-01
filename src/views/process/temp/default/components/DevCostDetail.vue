@@ -330,10 +330,13 @@
                       <template #addonAfter>
                         <a-tooltip placement="top">
                           <template #title>
-                            <p>{{ col.label }}</p>
-                            <p>{{ `${t('最小值')}: ${col.item.allRepayment.min_StandardRate}%` }}</p>
+                            <p v-if="col.item.allRepayment.isOld">{{ t('此数据为老数据，请移除后，重新选择') }}</p>
+                            <template v-else>
+                              <p>{{ col.label }}</p>
+                              <p>{{ `${t('最小值')}: ${col.item.allRepayment.min_StandardRate}%` }}</p>
+                            </template>
                           </template>
-                          <i class="iconfont limit-icon">&#xe6b3;</i>
+                          <i class="iconfont limit-icon" :class="{'old': col.item.allRepayment.isOld}">&#xe6b3;</i>
                         </a-tooltip>
                       </template>
                     </a-input-number>
@@ -469,6 +472,10 @@ const props = defineProps({
   loanDate: {
     type: Array,
     default: () => []
+  },
+  lendingInfo: {
+    type: Object,
+    default: () => null
   }
 });
 
@@ -488,7 +495,9 @@ const isDetails = computed(() => {
 
 const showRefinancial = computed(() => {
   if (isDetails.value) {
-    return props.selectedRefinancialObj ? Object.keys(props.selectedRefinancialObj).length : false
+    // 兼容之前已经置换的项目，之前的没有减免额度等数据
+    // return props.selectedRefinancialObj ? Object.keys(props.selectedRefinancialObj).length : false
+    return true
   } else {
     return refinancialData.value.length
   }
@@ -886,6 +895,11 @@ const changeRefinancial = (value) => {
 }
 
 const refinancialAmount = computed(() => {
+  const oldData = props.lendingInfo && props.lendingInfo?.substitution_amount && props.lendingInfo?.substitution_ids?.length && !props.lendingInfo?.substitution_data
+  // 老数据详情
+  if (oldData && isDetails.value) {
+    return props.lendingInfo?.substitution_amount
+  }
   if (selectedDatas.value.length) {
     const dataArr = selectedDatas.value.map(item => Number(item.item.allRepayment.repayment_money))
     const sum = dataArr.reduce((acc, cur) => acc + cur, 0)
@@ -898,9 +912,20 @@ const repaymentAmount = computed(() => {
   return (data) => {
     const last_money = Number(data.item.allRepayment.last_money)
     const money = Number(data.item.allRepayment.reduction_money_input)
-    const num = Number(tool.minus(last_money, money))
-    data.item.allRepayment.repayment_money = num
-    return num
+    // 兼容老数据
+    if (!last_money && !money && !data.item.allRepayment.StandardRate && !data.item.allRepayment.min_StandardRate) {
+      if (isDetails.value) {
+        return data.item.allRepayment.repayment_money || '--'
+      } else {
+        const num = Number(tool.minus(last_money, money))
+        data.item.allRepayment.repayment_money = num
+        return num
+      }
+    } else {
+      const num = Number(tool.minus(last_money, money))
+      data.item.allRepayment.repayment_money = num
+      return num
+    }
   }
 })
 
@@ -1055,10 +1080,18 @@ const setSelectedDatas = () => {
   if (!hasInitSelectedDatas.value) {
     const idsArr = cloneDeep(props.substitutionIds)
     const resArr = cloneDeep(refinancialData.value)
+    const fObj = cloneDeep(props.selectedRefinancialObj)
     if (idsArr && idsArr.length && resArr && resArr.length) {
       const objArr = resArr.filter(item => idsArr.includes(item.value))
       objArr.forEach(item => {
-        item.item.allRepayment = props.selectedRefinancialObj[item.value]
+        if (fObj[item.value]) {
+          item.item.allRepayment = fObj[item.value]
+        } else {
+          item.item.allRepayment = {
+            min_StandardRate: 0,
+            isOld: true
+          }
+        }
       })
       selectedDatas.value = objArr
       hasInitSelectedDatas.value = true
@@ -1389,6 +1422,9 @@ onMounted(() => {
 }
 .limit-icon {
   cursor: pointer;
+  &.old {
+    color: #ff4d4f;
+  }
   &:hover {
     opacity: 0.8;
   }

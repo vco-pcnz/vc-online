@@ -1071,6 +1071,11 @@
       return false
     }
 
+    if (hasChangeDevCost.value) {
+      message.error(t('再融资项目有变动，请先保存'))
+      return false
+    }
+
     if (flag) {
       const params = {
         uuid: props.currentId,
@@ -1116,6 +1121,8 @@
         emitter.emit('refreshBouns')
         // 出发抵押物刷新
         emitter.emit('refreshSecurityList')
+
+        hasChangeDevCost.value = false
         updateFormData()
       })
       .catch(() => {
@@ -1224,8 +1231,27 @@
       });
   };
 
+  // 判断两个数组是否相等，元素顺序可以不一样
+  const isArrayEqual = (arr1, arr2) => {
+    if (arr1.length !== arr2.length) {
+      return false
+    }
+    return arr1.every((item, index) => item === arr2[index])
+  }
+
+  const hasChangeDevCost = ref(false)
   const setSingleFormData = (params) => {
     projectAuditSaveMode(params).then(() => {
+      hasChangeDevCost.value = true
+
+      const lendingSubIds = cloneDeep(props.lendingInfo.substitution_ids || [])
+      const ledningSubstitutionAmount = Number(props.lendingInfo.substitution_amount || 0)
+
+      // 判断是否修改了置换数据
+      if (Number(params.substitution_amount) !== ledningSubstitutionAmount || !isArrayEqual(params.substitution_ids, lendingSubIds)) {
+        hasChangeDevCost.value = true
+      }
+
       emits('refresh')
 
       // 操作记录

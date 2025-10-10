@@ -470,7 +470,9 @@ const submitHandle = async () => {
         });
       }
     } else {
-      if (props.infoData.lending.start_date !== startDate.value) {
+      const s_end_date = endDate.value
+      const endBeforeToday = dayjs(s_end_date).isBefore(dayjs()) && !dayjs(s_end_date).isSame(dayjs(), 'day')
+      if (props.infoData.lending.start_date !== startDate.value || endBeforeToday) {
         changeLoading(true);
         await projectAuditSaveMode(loadParams)
         .then(() => {

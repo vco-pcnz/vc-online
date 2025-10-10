@@ -1061,7 +1061,26 @@ const getValidateInfo = (data) => {
     const min = data.min ? Number(data.min) : 0;
     const max = data.max ? Number(data.max) : 0;
 
-    const num = Number(value);
+    // 处理空值情况
+    if (value === null || value === undefined || value === '') {
+      return Promise.resolve();
+    }
+
+    // 转换为字符串进行处理
+    const stringValue = String(value).trim();
+    
+    // 检查是否有前导零（但不是单独的0或0.开头的小数）
+    if (/^0\d/.test(stringValue)) {
+      return Promise.reject(t('请输入正确格式的数字'));
+    }
+    
+    // 使用正则表达式验证标准数字格式，不允许前导零
+    const numberRegex = /^-?(0|[1-9]\d*)(\.\d+)?$/;
+    if (!numberRegex.test(stringValue)) {
+      return Promise.reject(t('请输入数字'));
+    }
+
+    const num = Number(stringValue);
     if (isNaN(num)) {
       return Promise.reject(t('请输入数字'));
     } else {

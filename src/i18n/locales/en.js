@@ -1192,5 +1192,6 @@ export default {
   "最初设定值": "Initial setting value",
   "点击下载": "Click to download",
   "此数据为老数据，请移除后，重新选择": "This data is old data, please delete it and select again",
-  "再融资项目有变动，请先保存": "The refinancing project has changed, please save first"
+  "再融资项目有变动，请先保存": "The refinancing project has changed, please save first",
+  "请输入正确格式的数字": "Please enter the correct format of number"
 }

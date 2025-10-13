@@ -484,7 +484,10 @@ const calAmount = (rate, flag = false) => {
     params.StandardRate = Number(rate)
   }
 
-  
+  if (props.dataInfo?.id) {
+    params.verify_id = props.dataInfo?.id
+  }
+
   projectLoanAllRepayment(params)
     .then((res) => {
       formState.value.apply_amount = Number(res.last_money) ? Number(res.last_money) : 0

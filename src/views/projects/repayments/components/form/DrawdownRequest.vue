@@ -465,7 +465,8 @@ const calAmount = (rate, flag = false) => {
   const time = dayjs(formState.value.apply_date).format('YYYY-MM-DD');
   const params = {
     uuid: props.uuid,
-    date: time
+    date: time,
+    verify: 1
   }
 
   if (rate && !isNaN(Number(rate))) {

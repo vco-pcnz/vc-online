@@ -1,5 +1,5 @@
 <template>
-  <div class="inline" @click="init"><slot></slot></div>
+  <div class="inline" @click="init(false)"><slot></slot></div>
   <div @click.stop ref="drawdownRequestRef" class="drawdown-request">
     <!-- 抵押物选择弹窗 -->
     <securities-dialog
@@ -9,10 +9,24 @@
       @done="securitiesDone"
     ></securities-dialog>
 
-    <a-modal :width="800" :open="visible" :title="t('还款申请')" :getContainer="() => $refs.drawdownRequestRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
+    <!-- 确认弹窗 -->
+    <vco-confirm-alert
+      ref="changeAlertRef"
+      :confirm-txt="t('此操作保存后，将会使本笔还款申请退回到FC审核，是否继续？')"
+      v-model:visible="changeVisible"
+      @submit="submit"
+    ></vco-confirm-alert>
+
+    <a-modal :width="800" :open="visible" :title="isAllCancel ? t('修改全额还款') : t('还款申请')" :getContainer="() => $refs.drawdownRequestRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
           <a-row :gutter="24">
+            <a-col v-if="isAllCancel" :span="24">
+              <a-form-item :label="t('修改全额还款理由')" name="cancel_reason">
+                <a-textarea v-model:value="formState.cancel_reason" :rows="2" />
+              </a-form-item>
+            </a-col>
+
             <a-col :span="12">
               <a-form-item :label="t('还款标题')" name="name">
                 <a-input v-model:value="formState.name" />
@@ -20,7 +34,7 @@
             </a-col>
             <a-col :span="12">
               <a-form-item :label="t('还款方式')" name="all_repayment">
-                <a-select v-model:value="formState.all_repayment" @change="typeChange">
+                <a-select v-model:value="formState.all_repayment" :disabled="isAllCancel" @change="typeChange">
                   <a-select-option :value="0">{{ t('部分还款') }}</a-select-option>
                   <a-select-option :value="1">{{ t('全额还款') }}</a-select-option>
                 </a-select>
@@ -93,8 +107,8 @@
                     :max="99999999999"
                     :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                     :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                    @input="amountInput"
-                    @blur="amountInput"
+                    @input="() => amountInput(false)"
+                    @blur="() => amountInput(true)"
                   />
                 </a-form-item>
               </a-col>
@@ -118,12 +132,17 @@
                 />
               </a-form-item>
             </a-col>
+            <a-col v-if="formState.all_repayment === 1" :span="4">
+              <a-form-item label="Loan IRR">
+                <vco-number :value="irrPercent" prefix="" suffix="%" :precision="2" size="fs_md" :end="true"></vco-number>
+              </a-form-item>
+            </a-col>
             <a-col v-if="overdueDays" :span="4">
               <a-form-item :label="t('逾期天数')">
                 <div class="show-date">{{ overdueDays }}</div>
               </a-form-item>
             </a-col>
-            <a-col v-if="formState.all_repayment === 1 && formState.apply_date && hasPermission('projects:repayments:adDownload')" :span="overdueDays ? 20 : 24">
+            <a-col v-if="formState.all_repayment === 1 && formState.apply_date && hasPermission('projects:repayments:adDownload')" :span="overdueDays ? 16 : 20">
               <a-form-item :label="t('对账单')">
                 <a-button type="dark" class="uppercase shadow bold" :loading="downloadLoading" @click="downloadStatement">
                   {{ t('下载') }}
@@ -159,9 +178,8 @@
                   <div class="w-full flex justify-between items-center">
                       <div class="flex gap-2 items-center">
                         <span>{{ t('关联抵押物') }}</span>
-                        <a-switch v-model:checked="showRelatedSwitch" size="small" @click.stop></a-switch>
+                        <a-switch v-model:checked="showRelatedSwitch" size="small"></a-switch>
                       </div>
-                    
                     <a-button v-if="showRelatedSwitch" type="brown" shape="round" size="small" @click="securitiesVisible = true"> {{ t('选择') }}</a-button>
                   </div>
                 </template>
@@ -206,7 +224,7 @@
               </a-form-item>
             </a-col>
             <a-col v-if="visible" :span="24">
-              <documents-upload v-model:value="document">
+              <documents-upload v-model:value="documentInfo">
                 <div class="upload-title">{{ t('文件') }}</div>
               </documents-upload>
             </a-col>
@@ -224,9 +242,9 @@
 </template>
 
 <script scoped setup>
-import { ref, computed, reactive } from 'vue';
+import { ref, computed, watch, reactive } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { loanRDedit, projectLoanAllRepayment, loanDelSecurity } from '@/api/project/loan';
+import { loanRDedit, projectLoanAllRepayment, loanDelSecurity, loanRgoBack, projectLoanCalcIrr } from '@/api/project/loan';
 import { systemDictData } from '@/api/system'
 import { CalendarOutlined } from '@ant-design/icons-vue';
 import DocumentsUpload from './../../../discharge/components/form/DocumentsUpload.vue';
@@ -272,15 +290,38 @@ const formState = ref({
   apply_date: '',
   apply_amount: '',
   note: '',
-  reduction_money: ''
+  reduction_money: '',
+  cancel_reason: ''
 });
+
+const oldIrrNumber = ref(0)
+const irrPercent = ref(0)
+
+const refreshIrr = () => {
+  const params = {
+    uuid: props.uuid,
+    date: dayjs(formState.value.apply_date).format('YYYY-MM-DD'),
+    last_money: repaymentAmount.value,
+    do__est: 0
+  }
+
+  if (extraData.value) {
+    params.last_money = extraData.value.finalRepaymentAmount
+    params.extra = extraData.value.data
+    params.extra_amount = Number(extraData.value.extraAmount || 0)
+  }
+
+  projectLoanCalcIrr(params).then(res => {
+    irrPercent.value = res.irr || 0
+  })
+}
 
 const maxReductionAmount = ref(0)
 const showMaxReduction = computed(() => {
   return Number(maxReductionAmount.value)> 0 ? Number(maxReductionAmount.value) : 0
 })
 
-const document = ref([]);
+const documentInfo = ref([]);
 
 const formRef = ref();
 
@@ -306,11 +347,15 @@ const overdueDays = computed(() => {
   return 0
 })
 
-const amountInput = () => {
+const amountInput = (flag = false) => {
   if (formState.value.reduction_money < 0) {
     formState.value.reduction_money = 0
   } else {
     formState.value.reduction_money = formState.value.reduction_money > showMaxReduction.value ? showMaxReduction.value : formState.value.reduction_money
+  }
+
+  if (flag) {
+    refreshIrr()
   }
 }
 
@@ -357,6 +402,7 @@ const validateRed = () => {
 }
 
 const formRules = ref({
+  cancel_reason: [{ required: true, message: t('请输入') + t('修改全额还款理由'), trigger: 'blur' }],
   name: [{ required: true, message: t('请输入') + t('还款标题'), trigger: 'blur' }],
   all_repayment: [{ required: true, message: t('请选择') + t('还款方式'), trigger: 'change' }],
   apply_date: [{ required: true, message: t('请选择') + t('还款日期'), trigger: 'change' }],
@@ -376,40 +422,66 @@ const updateVisible = (value) => {
     });
     relatedData.value = []
     showRelatedSwitch.value = false
-    document.value = []
+    documentInfo.value = []
   }
 };
+
+const changeAlertRef = ref()
+const changeVisible = ref(false)
+
+const goBackHandle = () => {
+
+}
 
 const save = () => {
   formRef.value
     .validate()
     .then(() => {
-      submit();
+      if (isAllCancel.value) {
+        changeVisible.value = true
+      } else {
+        submit();
+      }
     })
     .catch((error) => {
-      console.log('error', error);
+      const { errorFields } = error
+      const names = errorFields.map(item => item.name)
+      const namesFlat = names.flat()
+      if (['cancel_reason', 'name', 'all_repayment', 'apply_date', 'apply_amount'].includes(namesFlat[0])) {
+        const dom = document.querySelector('.ant-modal-wrap')
+        if (dom) {
+          dom.scrollTo(0, 0)
+        }
+      }
     });
 };
 
 const submit = () => {
+  const formStateObj = cloneDeep(formState.value)
   const params = {
-    ...formState.value,
+    ...formStateObj,
     apply_date: dayjs(formState.value.apply_date).format('YYYY-MM-DD'),
     uuid: props.uuid,
-    document: document.value,
+    document: documentInfo.value,
     security: []
   };
+
+  // 删除全额还款理由
+  delete params.cancel_reason
 
   if (params.all_repayment) {
     params.reduction_rate = standardRateInput.value
     params.reduction_rate_old = standardRate.value
     params.reduction_money_old = showMaxReduction.value
 
+    params.reduction_irr = irrPercent.value
+    params.reduction_irr_old = oldIrrNumber.value
+    
     // 如果是全额还款且设置了额外款项，则需要设置额外款项
     if (extraData.value && extraData.value.data && extraData.value.data.length) {
       params.extra = extraData.value.data
       params.extra_amount = Number(extraData.value.extraAmount || 0)
-      params.apply_amount = Number(extraData.value.finalRepaymentAmount || 0)
+      params.apply_amount = tool.plus(Number(formState.value.apply_amount || 0), Number(extraData.value.extraAmount || 0))
     }
   } else {
     delete params.reduction_money
@@ -428,13 +500,20 @@ const submit = () => {
   if (props.dataInfo?.id) {
     params.id = props.dataInfo?.id
   }
-  loading.value = true;
+
+  if (!isAllCancel.value) {
+    loading.value = true;
+  }
 
   loanRDedit(params)
     .then(() => {
-      loading.value = false;
-      updateVisible(false);
-      emits('change');
+      if (isAllCancel.value) {
+        goBackHandle()
+      } else {
+        loading.value = false;
+        updateVisible(false);
+        emits('change');
+      }
     })
     .catch(() => {
       loading.value = false;
@@ -486,6 +565,9 @@ const calAmount = (rate, flag = false) => {
 
   if (props.dataInfo?.id) {
     params.verify_id = props.dataInfo?.id
+    if (isAllCancel.value) {
+      params.edit = 1
+    }
   }
 
   projectLoanAllRepayment(params)
@@ -503,6 +585,14 @@ const calAmount = (rate, flag = false) => {
         hasSetStandard.value = true
       }
 
+      if (isRestIrr.value) {
+        isRestIrr.value = false
+        oldIrrNumber.value = res.irr
+        irrPercent.value = res.irr
+      } else {
+        refreshIrr()
+      }
+
       if (!flag) {
         formState.value.reduction_money = 0
       }
@@ -513,8 +603,11 @@ const calAmount = (rate, flag = false) => {
     });
 };
 
+const isRestIrr = ref(false)
+
 const dateChange = (date) => {
   if (date && formState.value.all_repayment === 1) {
+    isRestIrr.value = true
     calAmount();
   } else {
     formState.value.apply_amount = 0;
@@ -524,6 +617,7 @@ const dateChange = (date) => {
 
 const typeChange = () => {
   if (formState.value.apply_date && formState.value.all_repayment === 1) {
+    isRestIrr.value = true
     calAmount();
   } else {
     formState.value.apply_amount = 0;
@@ -624,10 +718,23 @@ const setFormData = () => {
   }
 
   if (data.document && data.document.length) {
-    document.value = data.document
+    documentInfo.value = data.document
   }
 
   if (data.all_repayment) {
+    // 额外款项回显
+    if (data.extra && data.extra.length) {
+      extraData.value = {
+        data: data.extra,
+        extraAmount: Number(data.extra_amount || 0),
+        finalRepaymentAmount: Number(data.apply_amount || 0),
+        recovery: true
+      }
+    }
+
+    irrPercent.value = Number(data.reduction_irr || 0)
+    oldIrrNumber.value = Number(data.reduction_irr_old || 0)
+
     const time = dayjs(formState.value.apply_date).format('YYYY-MM-DD');
     const params = {
       uuid: props.uuid,
@@ -645,13 +752,20 @@ const setFormData = () => {
 const downloadLoading = ref(false)
 const downloadStatement = () => {
   downloadLoading.value = true
-  projectLoanAllRepayment({
+  const params = {
     uuid: props.uuid,
     date: dayjs(formState.value.apply_date).format('YYYY-MM-DD'),
     pdf: 1,
     less: formState.value.reduction_money || 0,
     watermark: 0
-  }).then(res => {
+  }
+
+  if (extraData.value && extraData.value.data && extraData.value.data.length) {
+    params.extra = extraData.value.data
+    params.extra_amount = Number(extraData.value.extraAmount || 0)
+  }
+
+  projectLoanAllRepayment(params).then(res => {
     downloadLoading.value = false
     window.open(res);
   }).catch(() => {
@@ -662,7 +776,19 @@ const downloadStatement = () => {
 // 额外款项
 const extraData = ref(null)
 
-const init = () => {
+// 创建防抖函数
+const debouncedRefreshIrr = debounce(() => {
+  refreshIrr()
+}, 500)
+
+watch(() => extraData.value, () => {
+  debouncedRefreshIrr()
+})
+
+const isAllCancel = ref(false)
+const init = (allCancel = false) => {
+  isAllCancel.value = allCancel
+
   visible.value = true;
   if (!props.dataInfo?.id) {
     setDefaultTitle()

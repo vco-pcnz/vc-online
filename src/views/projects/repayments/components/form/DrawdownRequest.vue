@@ -296,8 +296,10 @@ const formState = ref({
 
 const oldIrrNumber = ref(0)
 const irrPercent = ref(0)
+const irrLoading = ref(false)
 
 const refreshIrr = () => {
+  irrLoading.value = true
   const params = {
     uuid: props.uuid,
     date: dayjs(formState.value.apply_date).format('YYYY-MM-DD'),
@@ -317,6 +319,9 @@ const refreshIrr = () => {
 
   projectLoanCalcIrr(params).then(res => {
     irrPercent.value = res.irr || 0
+    irrLoading.value = false
+  }).catch(() => {
+    irrLoading.value = false
   })
 }
 
@@ -418,7 +423,7 @@ const formRules = ref({
 const updateVisible = (value) => {
   visible.value = value;
 
-  if (!value) {
+  if (!value && !irrLoading.value) {
     formRef.value.clearValidate();
     formRef.value.resetFields();
     Object.keys(formState.value).forEach((key) => {

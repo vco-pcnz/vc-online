@@ -40,7 +40,11 @@
       <div style="position: absolute; right: 10px; top: 10px; cursor: pointer" v-if="detail?.cancellog && detail?.cancellog.length">
         <PushBackLog :data="detail?.cancellog"></PushBackLog>
       </div>
-      <a-alert v-if="Boolean(detail?.cancel_reason)" message="Push back reason" :description="detail?.cancel_reason" type="error" class="cancel-reason" />
+      <a-alert
+        v-if="Boolean(detail?.cancel_reason)"
+        :message="detail?.do_cancel === 1 ? t('取消全额还款理由') : 'Push back reason'"
+        :description="detail?.cancel_reason" type="error" class="cancel-reason"
+      />
 
       <div class="my-3" style="padding-left: 5px">
         <div class="bold fs_xl">{{ detail?.name }}</div>
@@ -124,7 +128,7 @@
             </div>
           </div>
 
-          <DrawdownBack v-if="['repayment_fc', 'repayment_lc'].includes(detail?.mark) && detail?.has_permission" :uuid="uuid" :detail="detail" @change="update"></DrawdownBack>
+          <DrawdownBack v-if="['repayment_fc', 'repayment_lc'].includes(detail?.mark) && detail?.has_permission && detail?.do_cancel !== 1" :uuid="uuid" :detail="detail" @change="update"></DrawdownBack>
         </div>
 
         <a-button

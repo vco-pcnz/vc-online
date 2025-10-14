@@ -787,6 +787,7 @@ const downloadStatement = () => {
   if (isAllCancel.value) {
     params.edit = 1
     params.verify = 1
+    params.verify_id = props.dataInfo?.id
   }
 
   projectLoanAllRepayment(params).then(res => {

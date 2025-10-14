@@ -163,7 +163,7 @@ const initObjectFileList = (data) => {
   emits('update:value', idArr);
 };
 
-const fileType = ref(['jpg', 'jpeg', 'png', 'gif', 'bmp', 'jfif', 'heic', 'heif']);
+const fileType = ref(['jpg', 'jpeg', 'png', 'gif', 'bmp', 'jfif', 'heic', 'heif', 'webp']);
 
 const beforeUpload = (file, tips) => {
   const fileExtension = file.name.split('.').pop().toLowerCase();

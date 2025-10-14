@@ -784,6 +784,10 @@ const downloadStatement = () => {
     params.extra_amount = Number(extraData.value.extraAmount || 0)
   }
 
+  if (isAllCancel.value) {
+    params.edit = 1
+  }
+
   projectLoanAllRepayment(params).then(res => {
     downloadLoading.value = false
     window.open(res);

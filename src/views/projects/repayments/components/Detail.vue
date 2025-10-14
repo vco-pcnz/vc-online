@@ -100,7 +100,7 @@
             </div>
           </div>
 
-          <DrawdownBack v-if="detail?.mark === 'repayment_fc' && detail?.has_permission" :uuid="uuid" :detail="detail" @change="update"></DrawdownBack>
+          <DrawdownBack v-if="['repayment_fc', 'repayment_lc'].includes(detail?.mark) && detail?.has_permission" :uuid="uuid" :detail="detail" @change="update"></DrawdownBack>
         </div>
 
         <a-button

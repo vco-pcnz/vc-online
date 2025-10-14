@@ -43,6 +43,9 @@
         <p>{{ t('还款说明') }}</p>
         <p>{{ detailData.note || '--' }}</p>
       </a-col>
+      <a-col :span="24" v-if="detailData.all_repayment && extraData" class="mt-2">
+        <extra-item v-model="extraData" :repayment-amount="extraRepaymentAmount" :is-details="true"></extra-item>
+      </a-col>
       <a-col :span="24" v-if="detailData.security && detailData.security.length" class="item-txt">
         <p>{{ t('关联抵押物') }}</p>
         <div class="table-content sys-table-content related-content mt-2">
@@ -67,9 +70,6 @@
           </a-table>
         </div>
       </a-col>
-      <a-col :span="24" v-if="detailData.all_repayment && extraData" class="mt-2">
-        <extra-item v-model="extraData" :repayment-amount="detailData.apply_amount" :is-details="true"></extra-item>
-      </a-col>
     </a-row>
     <div class="mt-10 mb-5">
       <div class="flex justify-end gap-5">
@@ -89,7 +89,7 @@
 </template>
 
 <script setup>
-  import { ref, watch, reactive } from "vue";
+  import { ref, watch, reactive, computed } from "vue";
   import { useI18n } from "vue-i18n";
   import tool, { numberStrFormat } from '@/utils/tool';
   import { projectLoanAllRepayment } from '@/api/project/loan';
@@ -128,6 +128,10 @@
     updateVisible(false)
     emits('done')
   }
+
+  const extraRepaymentAmount = computed(() => {
+    return tool.minus(Number(props.detailData?.apply_amount || 0), Number(props.detailData?.extra_amount || 0))
+  })
 
   const reductionAmount = ref(0)
   const calAmount = () => {

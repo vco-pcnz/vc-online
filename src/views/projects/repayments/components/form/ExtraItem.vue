@@ -53,7 +53,6 @@
                 "
                 :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                 :controls="false"
-                @input="getSetData"
               >
               </a-input-number>
             </template>
@@ -278,10 +277,17 @@ watch(() => props.modelValue, async (val) => {
   }
 }, { immediate: true })
 
+watch(() => finalRepaymentAmount.value, () => {
+  getSetData()
+})
+
 onMounted(() => {
   setColumnsData()
-  getTypeData()
-  getProjectData()
+
+  if (!props.isDetails) {
+    getTypeData()
+    getProjectData()
+  }
 })
 </script>
 

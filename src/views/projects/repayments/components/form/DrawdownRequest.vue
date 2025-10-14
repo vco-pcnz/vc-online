@@ -311,6 +311,10 @@ const refreshIrr = () => {
     params.extra_amount = Number(extraData.value.extraAmount || 0)
   }
 
+  if (isAllCancel.value) {
+    params.edit = 1
+  }
+
   projectLoanCalcIrr(params).then(res => {
     irrPercent.value = res.irr || 0
   })

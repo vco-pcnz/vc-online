@@ -135,8 +135,8 @@ watch(
       case 'image':
         accept.value = 'image/*';
         uploadAction.value = uploadUrl + props.controller + '/uploadImage';
-        fileType.value = ['jpg', 'jpeg', 'png', 'gif', 'bmp'];
-        errTip.value = t('上传图片的格式不正确，不是JPG、JPEG、GIF、PNG、BMP');
+        fileType.value = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+        errTip.value = t('上传图片的格式不正确，不是JPG、JPEG、GIF、PNG、BMP、WEBP');
         fileName.value = 'file';
         upText.value = '上传图片';
         break;

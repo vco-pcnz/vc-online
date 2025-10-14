@@ -205,10 +205,11 @@
           @refresh="dataRefresh"
           @done="doneHandle('lendingDone')"
           @openData="openDataHanle"
+          @compareDone="compareDoneHandle"
         ></lending-form>
       </template>
 
-      <template v-else-if="item === 'bonus'">
+      <template v-else-if="item === 'bonus' && !isAlm">
         <bouns-form
           :current-id="currentId"
           :current-step="currentStep"
@@ -226,6 +227,7 @@
           :block-info="blockInfo.security"
           :project-info="dataInfo.project"
           :security-info="dataInfo.security"
+          :lending-info="lendingInfo"
           @refresh="dataRefresh"
         ></security-items>
       </template>
@@ -263,16 +265,6 @@
           @refresh="dataRefresh"
         ></confirm-form>
       </template>
-
-      <template v-else-if="item === 'boc'">
-        <boc-form
-          :current-id="currentId"
-          :current-step="currentStep"
-          :block-info="blockInfo.boc"
-          :boc-info="dataInfo.boc"
-          @refresh="dataRefresh"
-        ></boc-form>
-      </template>
     </template>
   </div>
 </template>
@@ -294,13 +286,14 @@ import SecurityItems from "./SecurityItems.vue";
 import GuarantorInfo from "./GuarantorInfo.vue";
 import OfferForm from "./OfferForm.vue";
 import ConfirmForm from "./ConfirmForm.vue";
-import BocForm from "./BocForm.vue";
 
 import { projectAuditCheckMode } from "@/api/process"
 import emitter from '@/event';
 
+import { useUserStore } from '@/store';
+
 const { t } = useI18n();
-const emits = defineEmits(['refresh', 'lendingDone', 'openData']);
+const emits = defineEmits(['refresh', 'lendingDone', 'openData', 'compareDone']);
 
 const props = defineProps({
   blockArr: {
@@ -326,6 +319,12 @@ const props = defineProps({
     type: Boolean,
     default: false
   }
+})
+
+const userStore = useUserStore();
+const isAlm = computed(() => {
+  const roles = userStore.userInfo.roles;
+  return roles.length === 1 && (roles[0].name.toLowerCase()) === 'aml';
 })
 
 const borrowerTarget = ref(true)
@@ -399,6 +398,10 @@ const doneHandle = (type) => {
 
 const openDataHanle = (data) => {
   emits('openData', data)
+}
+
+const compareDoneHandle = (data) => {
+  emits('compareDone', data)
 }
 
 const blockShowTargetHandle = (flag) => {

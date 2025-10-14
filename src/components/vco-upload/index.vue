@@ -134,7 +134,7 @@ const fileName = ref('file');
 const upText = ref('');
 const directory = ref(true);
 
-const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'jfif', 'heic', 'heif'];
+const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'jfif', 'heic', 'heif', 'webp'];
 const fileExtensions = ['xls', 'xlsb', 'xlsx', 'csv', 'json', 'txt', 'doc', 'docx', 'ppt', 'pptx', 'pdf', 'xmind', 'msg', 'eml'];
 const videoExtensions = ['mp4', 'rmvb', 'wmv', 'avi', 'mpeg', 'mpg', 'mov', '3gp', 'flv', 'mkv', 'm4v'];
 
@@ -145,7 +145,7 @@ watch(
     // 不同类型 上传地址处理
     switch (val) {
       case 'image':
-        accept.value = 'image/*,image/heic,image/heif';
+        accept.value = 'image/*,image/heic,image/heif,image/webp';
         uploadAction.value = uploadUrl + props.controller + '/uploadImage';
         fileType.value = imageExtensions;
         errTip.value = t('上传格式不正确，不是{0}', [imageExtensions]);

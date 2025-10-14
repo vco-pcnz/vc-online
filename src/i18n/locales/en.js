@@ -1203,5 +1203,9 @@ export default {
   "点击下载": "Click to download",
   "此数据为老数据，请移除后，重新选择": "This data is old data, please delete it and select again",
   "再融资项目有变动，请先保存": "The refinancing project has changed, please save first",
-  "请输入正确格式的数字": "Please enter the correct format of number"
+  "请输入正确格式的数字": "Please enter the correct format of number",
+  "额外款项": "Extra payments",
+  "请选择类型": "Please select type",
+  "最终还款金额": "Final repayment amount",
+  "款项名称": "Payment name"
 }

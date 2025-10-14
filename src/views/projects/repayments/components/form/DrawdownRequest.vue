@@ -130,6 +130,9 @@
                 </a-button>
               </a-form-item>
             </a-col>
+            <a-col v-if="formState.all_repayment === 1" :span="24">
+              <extra-item v-model="extraData" :repayment-amount="repaymentAmount"></extra-item>
+            </a-col>
             <a-col :span="24">
               <a-form-item name="note" class="custom-label">
                 <template #label>
@@ -154,10 +157,10 @@
               <a-form-item class="custom-label related">
                 <template #label>
                   <div class="w-full flex justify-between items-center">
-                    <div class="flex gap-2 items-center">
-                      <span>{{ t('关联抵押物') }}</span>
-                      <a-switch v-model:checked="showRelatedSwitch" size="small"></a-switch>
-                    </div>
+                      <div class="flex gap-2 items-center">
+                        <span>{{ t('关联抵押物') }}</span>
+                        <a-switch v-model:checked="showRelatedSwitch" size="small" @click.stop></a-switch>
+                      </div>
                     
                     <a-button v-if="showRelatedSwitch" type="brown" shape="round" size="small" @click="securitiesVisible = true"> {{ t('选择') }}</a-button>
                   </div>
@@ -231,6 +234,7 @@ import dayjs from 'dayjs';
 import { useUserStore } from '@/store'
 import tool, { selectDateFormat, removeDuplicates, numberStrFormat } from '@/utils/tool';
 import SecuritiesDialog from './SecuritiesDialog.vue';
+import ExtraItem from './ExtraItem.vue';
 import { cloneDeep, debounce } from "lodash"
 import { hasPermission } from '@/directives/permission/index';
 
@@ -400,6 +404,13 @@ const submit = () => {
     params.reduction_rate = standardRateInput.value
     params.reduction_rate_old = standardRate.value
     params.reduction_money_old = showMaxReduction.value
+
+    // 如果是全额还款且设置了额外款项，则需要设置额外款项
+    if (extraData.value && extraData.value.data && extraData.value.data.length) {
+      params.extra = extraData.value.data
+      params.extra_amount = Number(extraData.value.extraAmount || 0)
+      params.apply_amount = Number(extraData.value.finalRepaymentAmount || 0)
+    }
   } else {
     delete params.reduction_money
   }
@@ -473,7 +484,10 @@ const calAmount = (rate, flag = false) => {
     params.StandardRate = Number(rate)
   }
 
-  
+  if (props.dataInfo?.id) {
+    params.verify_id = props.dataInfo?.id
+  }
+
   projectLoanAllRepayment(params)
     .then((res) => {
       formState.value.apply_amount = Number(res.last_money) ? Number(res.last_money) : 0
@@ -644,6 +658,9 @@ const downloadStatement = () => {
     downloadLoading.value = false
   })
 }
+
+// 额外款项
+const extraData = ref(null)
 
 const init = () => {
   visible.value = true;

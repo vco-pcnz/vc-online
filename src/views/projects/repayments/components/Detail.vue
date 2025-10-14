@@ -12,6 +12,28 @@
     <!-- 抵押物解压弹窗 -->
     <release-dialog v-model:visible="releaseVisible" :uuid="uuid" :detail-data="detail" @done="update"></release-dialog>
 
+    <!-- 取消全额还款 -->
+    <a-modal :width="486" :open="cancelAllVisible" :title="t('取消全额还款')" :maskClosable="false" :footer="false">
+      <div class="content sys-form-content">
+        <a-form
+          ref="cAllformRef"
+          layout="vertical"
+          :model="cAllformState"
+          :rules="cAllformRules"
+        >
+          <a-form-item :label="t('取消全额还款理由')" name="cancel_reason">
+            <a-textarea v-model:value="cAllformState.cancel_reason" :rows="6" />
+          </a-form-item>
+        </a-form>
+
+        <div class="flex justify-center">
+          <a-button type="dark" class="save big uppercase" :loading="cancelAllLoading" @click="cancelAllHandle">
+            {{ t('确定') }}
+          </a-button>
+        </div>
+      </div>
+    </a-modal>
+
     <div class="color_grey fs_2xs text-center py-3 text-uppercase uppercase" style="letter-spacing: 1px">{{ t('详情') }}</div>
 
     <div class="detail relative">
@@ -78,7 +100,9 @@
             <a-button
               type="brown"
               class="big uppercase w-full mt-4"
+              @click="cancelAllVisible = true"
             >{{ t('取消全额还款') }}</a-button>
+
             <div class="mt-4 flex justify-center">
               <a-button type="danger" size="small" shape="round" @click="openEditHandle(true)">{{ t('修改全额还款') }}</a-button>
             </div>
@@ -121,7 +145,7 @@ import { useI18n } from 'vue-i18n';
 import tool, { navigationTo } from '@/utils/tool';
 import { hasPermission } from '@/directives/permission/index';
 import DrawdownBack from './form/DrawdownBack.vue';
-import { loanRdeclinel, loanRsaveStep, loanRrecall, loanRrevoke, projectLoanAllRepayment } from '@/api/project/loan';
+import { loanRdeclinel, loanRsaveStep, loanRrecall, loanRrevoke, projectLoanAllRepayment, loanRgoBack } from '@/api/project/loan';
 import ReconciliationModal from '@/views/projects/components/ReconciliationModal.vue';
 import SecuritiesDialog from './form/SecuritiesDialog.vue';
 import DrawdownRequest from './form/DrawdownRequest.vue';
@@ -232,6 +256,41 @@ const downloadStatement = () => {
   projectLoanAllRepayment(params).then(res => {
     window.open(res);
   })
+}
+
+const cAllformRef = ref()
+const cancelAllVisible = ref(false);
+const cAllformState = ref({
+  cancel_reason: ''
+})
+const cAllformRules = ref({
+  cancel_reason: [{ required: true, message: t('请输入') + t('取消全额还款理由'), trigger: 'blur' }]
+})
+const cancelAllLoading = ref(false)
+const cancelAllHandle = () => {
+  cAllformRef.value
+    .validate()
+    .then(() => {
+      const params = {
+        cancel_reason: cAllformState.value.cancel_reason,
+        uuid: props.uuid,
+        id: props.detail?.id,
+        back_step: 'repayment_fc',
+        do_cancel: 1
+      }
+
+      cancelAllLoading.value = true
+      loanRgoBack(params).then(() => {
+        cancelAllLoading.value = false
+        cancelAllVisible.value = false
+        update()
+      }).catch(() => {
+        cancelAllLoading.value = false
+      })
+    })
+    .catch((error) => {
+      console.log('error', error);
+    });
 }
 </script>
 

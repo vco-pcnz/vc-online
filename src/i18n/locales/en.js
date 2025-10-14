@@ -1211,5 +1211,6 @@ export default {
   "修改全额还款": "Modify Full Repayment",
   "修改全额还款理由": "Modify Full Repayment Reason",
   "此操作保存后，将会使本笔还款申请退回到FC审核，是否继续？": "Saving this operation will return this repayment request to the FC for review. Do you wish to proceed?",
-  "取消全额还款": "Cancel Full Repayment"
+  "取消全额还款": "Cancel Full Repayment",
+  "取消全额还款理由": "Cancel Full Repayment Reason"
 }

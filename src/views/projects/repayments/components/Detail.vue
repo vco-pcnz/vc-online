@@ -13,7 +13,7 @@
     <release-dialog v-model:visible="releaseVisible" :uuid="uuid" :detail-data="detail" @done="update"></release-dialog>
 
     <!-- 取消全额还款 -->
-    <a-modal :width="486" :open="cancelAllVisible" :title="t('取消全额还款')" :maskClosable="false" :footer="false">
+    <a-modal :width="486" :open="cancelAllVisible" :title="t('取消全额还款')" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <a-form
           ref="cAllformRef"
@@ -296,6 +296,15 @@ const cancelAllHandle = () => {
       console.log('error', error);
     });
 }
+
+const updateVisible = (value) => {
+  if (!value && !cancelAllLoading.value) {
+    cAllformRef.value.clearValidate();
+    cAllformRef.value.resetFields();
+    cAllformState.value.cancel_reason = ''
+  }
+  cancelAllVisible.value = value;
+};
 </script>
 
 <style scoped lang="less">

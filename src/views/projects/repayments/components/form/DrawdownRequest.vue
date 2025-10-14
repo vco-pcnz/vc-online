@@ -434,7 +434,20 @@ const changeAlertRef = ref()
 const changeVisible = ref(false)
 
 const goBackHandle = () => {
+  const params = {
+    cancel_reason: formState.value.cancel_reason,
+    uuid: props.uuid,
+    id: props.dataInfo?.id,
+    back_step: 'repayment_fc'
+  }
 
+  loanRgoBack(params).then(() => {
+    changeVisible.value = false
+    updateVisible(false);
+    emits('change');
+  }).catch(() => {
+    changeVisible.value = false
+  })
 }
 
 const save = () => {
@@ -507,6 +520,8 @@ const submit = () => {
 
   if (!isAllCancel.value) {
     loading.value = true;
+  } else {
+    params.do__edit = 1
   }
 
   loanRDedit(params)

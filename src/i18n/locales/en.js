@@ -1185,5 +1185,9 @@ export default {
   "放款金额 {0},可用金额 {1},{2}超出金额 {3} 是否继续放款?": "Drawdown amount <span>{0}</span>, {1}available amount <span>{2}</span>, excess amount <span>{3}</span> Do you want to continue the drawdown?",
   "还款分配": "Payment Allocation",
   "本金优先分配": "Principal-First Allocation",
-  "利息优先分配": "Interest-First Allocation"
+  "利息优先分配": "Interest-First Allocation",
+  "本金/利息": "Principal/Interest",
+  "放款账户": "Drawdown account",
+  "请完善数据": "Please complete the data"
+
 }

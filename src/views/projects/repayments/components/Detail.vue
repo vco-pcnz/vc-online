@@ -4,7 +4,8 @@
     <securities-dialog v-model:visible="securitiesVisible" :select-data="relatedData" :is-details="true"></securities-dialog>
 
     <!-- 信息编辑弹窗 -->
-    <drawdown-request ref="editDialogRef" :uuid="uuid" :data-info="detail" @change="update"></drawdown-request>
+    <drawdown-request ref="editDialogRef" :uuid="uuid" :data-info="detail" :projectDetail="projectDetail" @change="update"></drawdown-request>
+    <drawdown-request-vsl ref="editVslDialogRef" :uuid="uuid" :data-info="detail" :projectDetail="projectDetail" @change="update"></drawdown-request-vsl>
 
     <!-- 详情弹窗 -->
     <details-dialog v-model:visible="detailsVisible" :uuid="uuid" :is-accept="detailsAccept" :detail-data="detail" @done="update"></details-dialog>
@@ -93,11 +94,7 @@
           <DrawdownBack v-if="detail?.mark === 'repayment_fc' && detail?.has_permission" :uuid="uuid" :detail="detail" @change="update"></DrawdownBack>
         </div>
 
-        <a-button
-          v-if="!detail?.prev_permission && !(detail?.has_permission || hasPermission('projects:repayments:revoke'))"
-          type="brown" class="big uppercase w-full"
-          @click="openDetails(false)"
-        >{{ t('查看详情') }}</a-button>
+        <a-button v-if="!detail?.prev_permission && !(detail?.has_permission || hasPermission('projects:repayments:revoke'))" type="brown" class="big uppercase w-full" @click="openDetails(false)">{{ t('查看详情') }}</a-button>
       </div>
     </div>
   </div>
@@ -113,6 +110,7 @@ import { loanRdeclinel, loanRsaveStep, loanRrecall, loanRrevoke } from '@/api/pr
 import ReconciliationModal from '@/views/projects/components/ReconciliationModal.vue';
 import SecuritiesDialog from './form/SecuritiesDialog.vue';
 import DrawdownRequest from './form/DrawdownRequest.vue';
+import DrawdownRequestVsl from './form/DrawdownRequestVsl.vue';
 import DetailsDialog from './form/DetailsDialog.vue';
 import ReleaseDialog from './form/ReleaseDialog.vue';
 import PushBackLog from '@/views/projects/components/PushBackLog.vue';
@@ -185,8 +183,13 @@ const update = () => {
 };
 
 const editDialogRef = ref();
+const editVslDialogRef = ref();
 const openEditHandle = () => {
-  editDialogRef.value && editDialogRef.value.init();
+  if (props.projectDetail.product.code === 'vsl') {
+    editVslDialogRef.value && editVslDialogRef.value.init();
+  } else {
+    editDialogRef.value && editDialogRef.value.init();
+  }
 };
 
 const detailsVisible = ref(false);

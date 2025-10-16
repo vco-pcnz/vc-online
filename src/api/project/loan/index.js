@@ -367,3 +367,28 @@ export const reconciliation = (data) =>
     method: 'post',
     data
   });
+
+// 删除
+export const drawDownSelected = (params) =>
+  request({
+    url: '/project/loan/drawDownSelected',
+    method: 'get',
+    params
+  });
+
+  
+// 删除
+export const drawDownLists = (params) =>
+  request({
+    url: '/project/loan/drawDownLists',
+    method: 'get',
+    params
+  });
+  
+// 删除
+export const repaymentDetail = (params) =>
+  request({
+    url: '/project/loan/repaymentDetail',
+    method: 'get',
+    params
+  });

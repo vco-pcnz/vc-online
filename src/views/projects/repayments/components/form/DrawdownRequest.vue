@@ -254,6 +254,7 @@
 <script scoped setup>
 import { ref, computed, watch, reactive } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { message } from 'ant-design-vue/es';
 import { loanRDedit, projectLoanAllRepayment, loanDelSecurity, loanRgoBack, projectLoanCalcIrr } from '@/api/project/loan';
 import { systemDictData } from '@/api/system'
 import { CalendarOutlined } from '@ant-design/icons-vue';
@@ -541,7 +542,7 @@ const save = () => {
         if (dataComparisonHandle()) {
           changeVisible.value = true
         } else {
-          submit();
+          message.error(t('数据未做任何修改，无需提交'))
         }
       } else {
         submit();

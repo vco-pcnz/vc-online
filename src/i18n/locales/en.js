@@ -1225,5 +1225,6 @@ export default {
   "售价": "Sale Price",
   "不包含": "Exclusive",
   "包含": "Inclusive",
-  "文件有变动": "Documents have changed"
+  "文件有变动": "Documents have changed",
+  "数据未做任何修改，无需提交": "No changes have been made, no need to submit"
 }

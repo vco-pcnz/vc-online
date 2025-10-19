@@ -478,8 +478,6 @@ const dataComparisonHandle = () => {
   const newExtrData = cloneDeep(extraData.value)
   const documentInfoS = cloneDeep(documentInfo.value)
   const relatedDataIS = cloneDeep(relatedData.value)
-  const standardRateS = cloneDeep(standardRate.value)
-
   const errArr = []
 
   if (oldData.name !== newData.name) {
@@ -490,11 +488,11 @@ const dataComparisonHandle = () => {
     errArr.push(t('还款日期由{0}修改为{1}', [tool.showDate(oldData.apply_date), tool.showDate(newApplyDate)]))
   }
 
-  if (Number(standardRateS) !== Number(standardRateInput.value)) {
-    errArr.push(t('建议标准税率由{0}修改为{1}', [`${standardRateS}%`, `${standardRateInput.value}%`]))
+  if (Number(oldData.reduction_rate) !== Number(standardRateInput.value)) {
+    errArr.push(t('建议标准税率由{0}修改为{1}', [`${numberStrFormat(oldData.reduction_rate)}%`, `${Number(standardRateInput.value)}%`]))
   }
 
-  if (oldData.reduction_money !== newData.reduction_money) {
+  if (Number(oldData.reduction_money) !== Number(newData.reduction_money)) {
     errArr.push(t('减免额度由{0}修改为{1}', [`$${numberStrFormat(oldData.reduction_money)}`, `$${numberStrFormat(newData.reduction_money)}`]))
   }
 

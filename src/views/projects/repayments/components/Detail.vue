@@ -254,7 +254,9 @@ const downloadStatement = () => {
     uuid: props.uuid,
     date: dayjs(props.detail.apply_date).format('YYYY-MM-DD'),
     pdf: 1,
-    less: props.detail.reduction_money || 0
+    less: props.detail.reduction_money || 0,
+    verify: 1,
+    verify_id: props.detail?.id
   }
 
   if (props.detail.extra && props.detail.extra.length) {

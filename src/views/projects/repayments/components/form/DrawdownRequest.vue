@@ -489,19 +489,19 @@ const dataComparisonHandle = () => {
     errArr.push(t('还款日期由{0}修改为{1}', [tool.showDate(oldData.apply_date), tool.showDate(newApplyDate)]))
   }
 
-  if (Number(oldData.reduction_rate) !== Number(standardRateInput.value)) {
-    errArr.push(t('建议标准税率由{0}修改为{1}', [`${numberStrFormat(oldData.reduction_rate)}%`, `${Number(standardRateInput.value)}%`]))
+  if (Number(oldData.reduction_rate || 0) !== Number(standardRateInput.value || 0)) {
+    errArr.push(t('建议标准税率由{0}修改为{1}', [`${numberStrFormat(oldData.reduction_rate || 0)}%`, `${Number(standardRateInput.value || 0)}%`]))
   }
 
-  if (Number(oldData.reduction_money) !== Number(newData.reduction_money)) {
-    errArr.push(t('减免额度由{0}修改为{1}', [`$${numberStrFormat(oldData.reduction_money)}`, `$${numberStrFormat(newData.reduction_money)}`]))
+  if (Number(oldData.reduction_money || 0) !== Number(newData.reduction_money || 0)) {
+    errArr.push(t('减免额度由{0}修改为{1}', [`$${numberStrFormat(oldData.reduction_money || 0)}`, `$${numberStrFormat(newData.reduction_money || 0)}`]))
   }
 
-  if (Number(oldData.extra_amount) !== Number(newExtrData.extraAmount)) {
-    errArr.push(t('额外款项总金额由{0}修改为{1}', [`$${numberStrFormat(oldData.extra_amount)}`, `$${numberStrFormat(newExtrData.extraAmount)}`]))
+  if (Number(oldData.extra_amount || 0) !== Number(newExtrData?.extraAmount || 0)) {
+    errArr.push(t('额外款项总金额由{0}修改为{1}', [`$${numberStrFormat(oldData.extra_amount || 0)}`, `$${numberStrFormat(newExtrData?.extraAmount || 0)}`]))
   } else {
     const str1 = JSON.stringify(oldExtrData)
-    const str2 = JSON.stringify(newExtrData.data)
+    const str2 = JSON.stringify(newExtrData?.data || [])
     if (str1 !== str2) {
       errArr.push(t('额外款项有变动'))
     }
@@ -902,6 +902,7 @@ watch(() => extraData.value, () => {
 
 const isAllCancel = ref(false)
 const init = (allCancel = false) => {
+  console.log('fds', props.dataInfo);
   isAllCancel.value = allCancel
 
   visible.value = true;

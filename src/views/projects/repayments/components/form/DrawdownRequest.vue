@@ -450,7 +450,7 @@ const changeVisible = ref(false)
 
 const goBackHandle = () => {
   const params = {
-    cancel_reason: `${formState.value.cancel_reason} | ${fullErrMsgStr.value}`,
+    cancel_reason: `${formState.value.cancel_reason}<br/>${fullErrMsg.value}`,
     uuid: props.uuid,
     id: props.dataInfo?.id,
     back_step: 'repayment_fc',
@@ -469,9 +469,6 @@ const goBackHandle = () => {
 const fullErrArr = ref([])
 const fullErrMsg = computed(() => {
   return fullErrArr.value.join('<br/>')
-})
-const fullErrMsgStr = computed(() => {
-  return fullErrArr.value.join('; ')
 })
 const dataComparisonHandle = () => {
   const oldData = cloneDeep(props.dataInfo)
@@ -512,7 +509,7 @@ const dataComparisonHandle = () => {
   }
 
   if (oldData.note !== newData.note) {
-    errArr.push(t('还款说明由{0}修改为{1}', [oldData.not, newData.not]))
+    errArr.push(t('还款说明由{0}修改为{1}', [oldData.note, newData.note]))
   }
 
   if (oldData.security.length !== relatedDataIS.length) {

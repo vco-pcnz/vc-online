@@ -39,6 +39,7 @@
           </li>
           <div v-if="item.all_repayment" class="tips normal-back">{{ t('全额还款') }}</div>
           <div v-if="item.all_repayment && Number(item.do_edit) === 1" class="tips edit-back">{{ t('编辑') }}</div>
+          <div v-if="item.all_repayment && Number(item.do_cancel) === 1" class="tips edit-back cancel">{{ t('取消') }}</div>
         </ul>
       </template>
     </div>
@@ -172,8 +173,11 @@ watch(
           display: flex;
           align-items: center;
           justify-content: center;
-          background-color: #c1430c;
+          background-color: #1b79f9;
           color: #fff;
+          &.cancel {
+            background-color: #f45954;
+          }
         }
         &.normal-back {
           font-size: 11px;

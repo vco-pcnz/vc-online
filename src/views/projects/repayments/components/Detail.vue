@@ -43,8 +43,13 @@
       <a-alert
         v-if="Boolean(detail?.cancel_reason)"
         :message="detail?.do_cancel === 1 ? t('取消全额还款理由') : 'Push back reason'"
-        :description="detail?.cancel_reason" type="error" class="cancel-reason"
-      />
+        type="error"
+        class="cancel-reason"
+      >
+        <template #description>
+          <div v-html="detail?.cancel_reason"></div>
+        </template>
+      </a-alert>
 
       <div class="my-3" style="padding-left: 5px">
         <div class="bold fs_xl">{{ detail?.name }}</div>

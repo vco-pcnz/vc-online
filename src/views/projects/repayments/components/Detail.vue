@@ -104,11 +104,11 @@
             <a-button
               type="brown"
               class="big uppercase w-full mt-4"
-              @click="cancelAllVisible = true"
-            >{{ t('取消全额还款') }}</a-button>
+              @click="openEditHandle(true)"
+            >{{ t('修改全额还款') }}</a-button>
 
             <div class="mt-4 flex justify-center">
-              <a-button type="danger" size="small" shape="round" @click="openEditHandle(true)">{{ t('修改全额还款') }}</a-button>
+              <a-button type="danger" size="small" shape="round" @click="cancelAllVisible = true">{{ t('取消全额还款') }}</a-button>
             </div>
           </template>
           

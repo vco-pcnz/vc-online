@@ -12,12 +12,12 @@
     <!-- 确认弹窗 -->
     <vco-confirm-alert
       ref="changeAlertRef"
-      :confirm-txt="t('此操作保存后，将会使本笔还款申请退回到FC审核，是否继续？')"
+      :confirm-txt="fullErrMsg + '<br/>' + t('此操作保存后，将会使本笔还款申请退回到FC审核，是否继续？')"
       v-model:visible="changeVisible"
       @submit="submit"
     ></vco-confirm-alert>
 
-    <a-modal :width="800" :open="visible" :title="isAllCancel ? t('修改全额还款') : t('还款申请')" :getContainer="() => $refs.drawdownRequestRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
+    <a-modal :width="900" :open="visible" :title="isAllCancel ? t('修改全额还款') : t('还款申请')" :getContainer="() => $refs.drawdownRequestRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
           <a-row :gutter="24">
@@ -132,17 +132,23 @@
                 />
               </a-form-item>
             </a-col>
-            <a-col v-if="formState.all_repayment === 1" :span="4">
-              <a-form-item label="Loan IRR">
+            <a-col v-if="formState.all_repayment === 1" :span="6">
+              <a-form-item>
+                <template #label>
+                  <div class="flex items-center gap-1">
+                    <span>Loan IRR</span>
+                    <span style="color: #31bd65;">{{ `(${numberStrFormat(oldIrrNumber)}%)` }}</span>
+                  </div>
+                </template>
                 <vco-number :value="irrPercent" prefix="" suffix="%" :precision="2" size="fs_md" :end="true"></vco-number>
               </a-form-item>
             </a-col>
-            <a-col v-if="overdueDays" :span="4">
+            <a-col v-if="overdueDays" :span="6">
               <a-form-item :label="t('逾期天数')">
                 <div class="show-date">{{ overdueDays }}</div>
               </a-form-item>
             </a-col>
-            <a-col v-if="formState.all_repayment === 1 && formState.apply_date && hasPermission('projects:repayments:adDownload')" :span="overdueDays ? 16 : 20">
+            <a-col v-if="formState.all_repayment === 1 && formState.apply_date && hasPermission('projects:repayments:adDownload')" :span="overdueDays ? 12 : 16">
               <a-form-item :label="t('对账单')">
                 <a-button type="dark" class="uppercase shadow bold" :loading="downloadLoading" @click="downloadStatement">
                   {{ t('下载') }}
@@ -197,6 +203,10 @@
                       </template>
                       <template v-if="column.dataIndex === 'amount'">
                         <vco-number size="fs_md" :value="record.amount" :precision="2"></vco-number>
+                      </template>
+                      <template v-if="column.dataIndex === 'is_gst'">
+                        <span v-if="Number(record.is_gst) === 1">{{ t('包含') }}</span>
+                        <span v-else>{{ t('不包含') }}</span>
                       </template>
                       <template v-if="column.dataIndex === 'real_amount'">
                         <a-input-number
@@ -318,7 +328,7 @@ const refreshIrr = () => {
   }
 
   projectLoanCalcIrr(params).then(res => {
-    irrPercent.value = res.irr || 0
+    irrPercent.value = Number(res.irr || 0) < 0 ? 0 : Number(res.irr || 0)
     irrLoading.value = false
   }).catch(() => {
     irrLoading.value = false
@@ -440,10 +450,11 @@ const changeVisible = ref(false)
 
 const goBackHandle = () => {
   const params = {
-    cancel_reason: formState.value.cancel_reason,
+    cancel_reason: `${formState.value.cancel_reason} | ${fullErrMsgStr.value}`,
     uuid: props.uuid,
     id: props.dataInfo?.id,
-    back_step: 'repayment_fc'
+    back_step: 'repayment_fc',
+    do_edit: 1
   }
 
   loanRgoBack(params).then(() => {
@@ -455,12 +466,88 @@ const goBackHandle = () => {
   })
 }
 
+const fullErrArr = ref([])
+const fullErrMsg = computed(() => {
+  return fullErrArr.value.join('<br/>')
+})
+const fullErrMsgStr = computed(() => {
+  return fullErrArr.value.join('; ')
+})
+const dataComparisonHandle = () => {
+  const oldData = cloneDeep(props.dataInfo)
+  const newData = cloneDeep(formState.value)
+  const newApplyDate = dayjs(newData.apply_date).format('YYYY-MM-DD')
+  const oldExtrData = cloneDeep(oldData.extra)
+  const newExtrData = cloneDeep(extraData.value)
+  const documentInfoS = cloneDeep(documentInfo.value)
+  const relatedDataIS = cloneDeep(relatedData.value)
+  const standardRateS = cloneDeep(standardRate.value)
+
+  const errArr = []
+
+  if (oldData.name !== newData.name) {
+    errArr.push(t('还款标题由{0}修改为{1}', [oldData.name, newData.name]))
+  }
+
+  if (oldData.apply_date !== newApplyDate) {
+    errArr.push(t('还款日期由{0}修改为{1}', [tool.showDate(oldData.apply_date), tool.showDate(newApplyDate)]))
+  }
+
+  if (Number(standardRateS) !== Number(standardRateInput.value)) {
+    errArr.push(t('建议标准税率由{0}修改为{1}', [`${standardRateS}%`, `${standardRateInput.value}%`]))
+  }
+
+  if (oldData.reduction_money !== newData.reduction_money) {
+    errArr.push(t('减免额度由{0}修改为{1}', [`$${numberStrFormat(oldData.reduction_money)}`, `$${numberStrFormat(newData.reduction_money)}`]))
+  }
+
+  if (Number(oldData.extra_amount) !== Number(newExtrData.extraAmount)) {
+    errArr.push(t('额外款项总金额由{0}修改为{1}', [`$${numberStrFormat(oldData.extra_amount)}`, `$${numberStrFormat(newExtrData.extraAmount)}`]))
+  } else {
+    const str1 = JSON.stringify(oldExtrData)
+    const str2 = JSON.stringify(newExtrData.data)
+    if (str1 !== str2) {
+      errArr.push(t('额外款项有变动'))
+    }
+  }
+
+  if (oldData.note !== newData.note) {
+    errArr.push(t('还款说明由{0}修改为{1}', [oldData.not, newData.not]))
+  }
+
+  if (oldData.security.length !== relatedDataIS.length) {
+    errArr.push(t('关联抵押物数据有变动'))
+  } else {
+    const str1 = JSON.stringify(oldData.security)
+    const str2 = JSON.stringify(relatedDataIS)
+    if (str1 !== str2) {
+      errArr.push(t('关联抵押物数据有变动'))
+    }
+  }
+
+  if (oldData.document.length !== documentInfoS.length) {
+    errArr.push(t('文件有变动'))
+  } else {
+    const str1 = JSON.stringify(oldData.document)
+    const str2 = JSON.stringify(documentInfoS)
+    if (str1 !== str2) {
+      errArr.push(t('文件有变动'))
+    }
+  }
+  fullErrArr.value = errArr
+  return errArr.length
+}
+
 const save = () => {
   formRef.value
     .validate()
     .then(() => {
       if (isAllCancel.value) {
-        changeVisible.value = true
+        if (dataComparisonHandle()) {
+          changeVisible.value = true
+        } else {
+          submit();
+        }
       } else {
         submit();
       }
@@ -531,7 +618,7 @@ const submit = () => {
 
   loanRDedit(params)
     .then(() => {
-      if (isAllCancel.value) {
+      if (isAllCancel.value && fullErrArr.value.length) {
         goBackHandle()
       } else {
         loading.value = false;
@@ -653,11 +740,12 @@ const typeChange = () => {
 const securitiesVisible = ref(false)
 
 const relatedColumns = reactive([
-  { title: t('名称'), dataIndex: 'security_name', width: 140 },
-  { title: t('产权编号'), dataIndex: 'card_no', width: 100 },
+  { title: t('名称'), dataIndex: 'security_name', width: 100 },
+  { title: t('产权编号'), dataIndex: 'card_no', width: 90 },
   { title: t('类型'), dataIndex: 'type_name', width: 90 },
-  { title: t('抵押物价值'), dataIndex: 'amount', width: 150 },
-  { title: t('当前抵押物价值'), dataIndex: 'real_amount', width: 170 },
+  { title: t('抵押物价值'), dataIndex: 'amount', width: 140 },
+  { title: t('消费税'), dataIndex: 'is_gst', width: 100 },
+  { title: t('售价'), dataIndex: 'real_amount', width: 170 },
   { title: t('操作1'), dataIndex: 'operation', fixed: 'right', align: 'center', width: 50}
 ]);
 
@@ -755,7 +843,6 @@ const setFormData = () => {
         recovery: true
       }
     }
-
     irrPercent.value = Number(data.reduction_irr || 0)
     oldIrrNumber.value = Number(data.reduction_irr_old || 0)
 

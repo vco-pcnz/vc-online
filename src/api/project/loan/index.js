@@ -281,11 +281,11 @@ export const dischargeDdecline = (data) =>
   });
 
 // 全额还款金额试算
-export const projectLoanAllRepayment = (params) =>
+export const projectLoanAllRepayment = (data) =>
   request({
     url: 'project/loan/allRepayment',
-    method: 'get',
-    params
+    method: 'post',
+    data
   });
 
 // 计算irr

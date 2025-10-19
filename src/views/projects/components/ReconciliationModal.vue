@@ -100,7 +100,7 @@ const emits = defineEmits(['update']);
 
 const props = defineProps({
   detail: {
-    type: [String, Number]
+    type: Object
   },
   uuid: {
     type: [String, Number]

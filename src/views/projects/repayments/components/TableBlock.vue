@@ -37,7 +37,9 @@
             <vco-number :value="Math.abs(item.open_amount)" :precision="2" size="fs_xs"></vco-number>
             <p class="fs_xs color_grey" v-if="item.open_date">{{ tool.showDate(item.open_date) }}</p>
           </li>
-          <div v-if="item.all_repayment" class="tips">{{ t('全额还款') }}</div>
+          <div v-if="item.all_repayment" class="tips normal-back">{{ t('全额还款') }}</div>
+          <div v-if="item.all_repayment && Number(item.do_edit) === 1" class="tips edit-back">{{ t('编辑') }}</div>
+          <div v-if="item.all_repayment && Number(item.do_cancel) === 1" class="tips edit-back cancel">{{ t('取消') }}</div>
         </ul>
       </template>
     </div>
@@ -159,12 +161,31 @@ watch(
       .tips {
         position: absolute;
         background-color: @colorPrimary;
-        font-size: 11px;
-        padding: 2px 20px;
         top: 0;
-        right: 0;
-        border-bottom-left-radius: 12px;
-        border-top-right-radius: 12px;
+        &.edit-back {
+          width: 20px;
+          height: 100%;
+          overflow: hidden;
+          left: 0;
+          border-top-left-radius: 12px;
+          border-bottom-left-radius: 12px;
+          writing-mode: vertical-rl;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: #1b79f9;
+          color: #fff;
+          &.cancel {
+            background-color: #f45954;
+          }
+        }
+        &.normal-back {
+          font-size: 11px;
+          padding: 2px 20px;
+          right: 0;
+          border-bottom-left-radius: 12px;
+          border-top-right-radius: 12px;
+        }
       }
     }
 

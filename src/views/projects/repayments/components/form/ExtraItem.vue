@@ -3,9 +3,9 @@
     <div class="w-full flex justify-between items-center">
       <div class="flex gap-2 items-center">
         <span class="item-title">{{ t('额外款项') }}</span>
-        <a-switch v-model:checked="showExtraSwitch" size="small"></a-switch>
+        <a-switch v-if="!isDetails" v-model:checked="showExtraSwitch" size="small" @change="() => showExtraSwitchChange()"></a-switch>
       </div>
-      <a-button v-if="showExtraSwitch" type="brown" shape="round" size="small" @click="addExtraItem"> {{ t('添加') }}</a-button>
+      <a-button v-if="showExtraSwitch && !isDetails" type="brown" shape="round" size="small" @click="addExtraItem"> {{ t('添加') }}</a-button>
     </div>
 
     <template v-if="showExtraSwitch">
@@ -18,29 +18,41 @@
         >
           <template #bodyCell="{ column, record, index }">
             <template v-if="column.dataIndex === 'type'">
-              <a-select v-model:value="record.type" style="width: 100%" :options="typeData" @change="() => typeDataChange(record)"></a-select>
+              <span v-if="isDetails">{{ record.type }}</span>
+              <a-select v-else v-model:value="record.type" style="width: 100%" :options="typeData" @change="() => typeDataChange(record)"></a-select>
             </template>
             <template v-if="column.dataIndex === 'name'">
-              <a-select v-if="selectArr.includes(record.type)" v-model:value="record.name" style="width: 100%" :options="nameObjData[record.type]" @change="() => nameChange(record)"></a-select>
-              <template v-else-if="!selectArr.includes(record.type) && record.type">
-                <a-select v-model:value="record.project_uuid" style="width: 100%" show-search :filter-option="filterOption" :options="projectData" @change="() => projectChange(record)"></a-select>
+              <template v-if="isDetails">
+                <span v-if="selectArr.includes(record.type)">{{ record.name_str }}</span>
+                <a-tooltip v-else placement="top">
+                  <template #title>
+                    <span>{{ record.project_name }}</span>
+                  </template>
+                  <span>{{ record.project_name }}</span>
+                </a-tooltip>
               </template>
               <template v-else>
-                <span>{{ t('请选择类型') }}</span>
+                <a-select v-if="selectArr.includes(record.type)" v-model:value="record.name" style="width: 100%" :options="nameObjData[record.type]" @change="() => nameChange(record)"></a-select>
+                <template v-else-if="!selectArr.includes(record.type) && record.type">
+                  <a-select v-model:value="record.project_uuid" style="width: 100%" show-search :filter-option="filterOption" :options="projectData" @change="() => projectChange(record)"></a-select>
+                </template>
+                <template v-else>
+                  <span>{{ t('请选择类型') }}</span>
+                </template>
               </template>
             </template>
             <template v-if="column.dataIndex === 'amount'">
+              <vco-number v-if="isDetails" :value="record.amount" size="fs_md" :precision="2"></vco-number>
               <a-input-number
-                v-if="record.name || record.project_uuid"
+                v-if="(record.name || record.project_uuid) && !isDetails"
                 v-model:value="record.amount"
-                :min="0"
+                :min="record.type === 'journal_type' ? -99999999999 : 0"
                 :formatter="
                   (value) =>
                     `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                 "
                 :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                 :controls="false"
-                @input="getSetData"
               >
               </a-input-number>
             </template>
@@ -56,13 +68,11 @@
         <vco-number :bold="true" :value="finalRepaymentAmount" :precision="2" color="#31bd65" :end="true"></vco-number>
       </div>
     </template>
-
-    
   </div>
 </template>
 
 <script scoped setup>
-import { ref, reactive, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { useI18n } from 'vue-i18n';
 import { cloneDeep } from 'lodash';
 import { systemDictData } from '@/api/system';
@@ -80,9 +90,12 @@ const props = defineProps({
   },
   modelValue: {
     type: Object
+  },
+  isDetails: {
+    type: Boolean,
+    default: false
   }
 })
-
 
 const showExtraSwitch = ref(false)
 
@@ -97,12 +110,14 @@ const finalRepaymentAmount = computed(() => {
   return total
 })
 
-const extraColumns = reactive([
-  { title: t('类型'), dataIndex: 'type', width: 140 },
-  { title: t('款项名称'), dataIndex: 'name', width: 140 },
+const columnsData = [
+  { title: t('类型'), dataIndex: 'type', width: 140, ellipsis: true },
+  { title: t('款项名称'), dataIndex: 'name', width: 140, ellipsis: true },
   { title: t('金额'), dataIndex: 'amount', width: 140 },
-  { title: t('操作'), dataIndex: 'operation', width: 50, fixed: 'right', align: 'center' },
-]);
+  { title: t('操作'), dataIndex: 'operation', width: 50, fixed: 'right', align: 'center' }
+]
+
+const extraColumns = ref([])
 
 const extraItemData = {
   type: '',
@@ -209,18 +224,70 @@ const getSetData = () => {
   const selData = cloneDeep(extraData.value)
   const data = selData.filter((item) => item.amount)
 
-  const extraSetData = {
+  const extraSetData = data.length ? {
     data,
     finalRepaymentAmount: finalRepaymentAmount.value,
     extraAmount: extraAmount.value
-  }
+  } : null
 
   emits('update:modelValue', extraSetData)
 }
 
+const showExtraSwitchChange = () => {
+  if (showExtraSwitch.value) {
+    getSetData()
+  } else {
+    emits('update:modelValue', null)
+  }
+}
+
+const recoveryGetNameData = async (data) => {
+  for (let i = 0; i < data.length; i++) {
+    const item = data[i]
+    if (selectArr.includes(item.type) && (!nameObjData.value[item.type] || !nameObjData.value[item.type].length)) {
+      await systemDictData(item.type).then((res) => {
+        const data = res.map((item) => {
+          return {
+            label: item.name,
+            value: item.code
+          };
+        });
+        nameObjData.value[item.type] = data || []
+      });
+    }
+  }
+}
+
+const setColumnsData = () => {
+  const data = cloneDeep(columnsData)
+  if (props.isDetails) {
+    data.splice(3, 1)
+    extraColumns.value = data
+  } else {
+    extraColumns.value = data
+  }
+}
+
+watch(() => props.modelValue, async (val) => {
+  if (val && val.recovery) {
+    const setData = cloneDeep(val.data)
+    await recoveryGetNameData(setData)
+    showExtraSwitch.value = true
+    extraData.value = setData
+  }
+}, { immediate: true })
+
+watch(() => finalRepaymentAmount.value, () => {
+  getSetData()
+})
+
 onMounted(() => {
-  getTypeData()
-  getProjectData()
+  setColumnsData()
+
+  if (!props.isDetails) {
+    getTypeData()
+    getProjectData()
+  }
 })
 </script>
 

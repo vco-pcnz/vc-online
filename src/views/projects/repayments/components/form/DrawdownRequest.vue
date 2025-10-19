@@ -475,7 +475,7 @@ const dataComparisonHandle = () => {
   const oldData = cloneDeep(props.dataInfo)
   const newData = cloneDeep(formState.value)
   const newApplyDate = dayjs(newData.apply_date).format('YYYY-MM-DD')
-  const oldExtrData = cloneDeep(oldData.extra)
+  const oldExtrData = cloneDeep(oldData.extra || [])
   const newExtrData = cloneDeep(extraData.value)
   const documentInfoS = cloneDeep(documentInfo.value)
   const relatedDataIS = cloneDeep(relatedData.value)
@@ -511,20 +511,22 @@ const dataComparisonHandle = () => {
     errArr.push(t('还款说明由{0}修改为{1}', [oldData.note, newData.note]))
   }
 
-  if (oldData.security.length !== relatedDataIS.length) {
+  const securityData = oldData.security || []
+  if (securityData.length !== relatedDataIS.length) {
     errArr.push(t('关联抵押物数据有变动'))
   } else {
-    const str1 = JSON.stringify(oldData.security)
+    const str1 = JSON.stringify(securityData)
     const str2 = JSON.stringify(relatedDataIS)
     if (str1 !== str2) {
       errArr.push(t('关联抵押物数据有变动'))
     }
   }
 
-  if (oldData.document.length !== documentInfoS.length) {
+  const documentData = oldData.document || []
+  if (documentData.length !== documentInfoS.length) {
     errArr.push(t('文件有变动'))
   } else {
-    const str1 = JSON.stringify(oldData.document)
+    const str1 = JSON.stringify(documentData)
     const str2 = JSON.stringify(documentInfoS)
     if (str1 !== str2) {
       errArr.push(t('文件有变动'))

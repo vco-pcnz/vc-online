@@ -61,12 +61,12 @@ const tabData = ref([
   },
   {
     label: 'VS Schedule',
-    value: 1,
+    value: 'VS',
     hide: hasPermission('projects:schedule:vs_schedule')
   },
   {
     label: 'BOC Schedule',
-    value: 2,
+    value: 'BOC',
     hide: hasPermission('projects:schedule:boc_schedule')
   }
 ]);

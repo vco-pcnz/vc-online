@@ -424,7 +424,7 @@ const getDataInfo = (isLate = false) => {
 
   const params = {
     uuid: props.currentId,
-    tab_id: props.tab_id,
+    lender: props.tab_id,
     limit: 5000
   };
 
@@ -500,7 +500,7 @@ const getDataInfo = (isLate = false) => {
 
   const staticParams = {
     uuid: props.currentId,
-    tab_id: props.tab_id
+    lender: props.tab_id
   };
 
   let staticAjaxFn = props.isDetails ? projectDetailStatistics : projectForecastStatistics;
@@ -606,7 +606,7 @@ const downLoadExcel = (type) => {
   const ajaxFn = props.itemId ? projectVariationExportExcel : projectForecastExportExcel;
   const params = {
     type,
-    tab_id: props.tab_id,
+    lender: props.tab_id,
     uuid: props.currentId
   };
   if (props.itemId) {
@@ -628,7 +628,7 @@ const budgetExport = () => {
   downloading.value = true;
   projectForecastExportExcelEst({
     uuid: props.currentId,
-    tab_id: props.tab_id
+    lender: props.tab_id
   })
     .then((res) => {
       downloading.value = false;

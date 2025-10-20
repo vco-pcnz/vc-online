@@ -8,7 +8,7 @@
       </a-alert>
     </template>
 
-    <template v-if="detail?.close?.has_permission && detail?.base?.is_open == 2">
+    <template v-if="(detail?.close?.has_permission || detail?.close?.prev_permission || hasPermission('projects:about:add:closeFc')) && detail?.base?.is_open == 2">
       <a-alert type="info" :message="t('关账')" class="mb-5">
         <template #description>
           <div>
@@ -20,10 +20,11 @@
             >: {{ detail?.close?.data?.close_note }}
           </div>
           <div class="mt-3 flex items-center justify-end">
-            <vco-popconfirm :tip="t('您确定要接受该请求吗？')" @update="update()" :formParams="{ uuid: currentId, id: detail?.close?.process__id }" url="projectDetail/gsaveStep">
-              <a-button type="dark" size="small">{{ t('接受请求') }}</a-button>
+            <vco-popconfirm :tip="t('您确定要接受该请求吗？')" v-if="detail?.close?.has_permission" @update="update()" :formParams="{ uuid: currentId, id: detail?.close?.process__id }" url="projectDetail/gsaveStep">
+              <a-button type="dark" size="small" class="mx-3">{{ t('接受请求') }}</a-button>
             </vco-popconfirm>
             <vco-form-dialog
+              v-if="detail?.close?.has_permission"
               :title="t('退回请求')"
               :initData="[
                 {
@@ -37,7 +38,7 @@
               url="projectDetail/ggoBack"
               @update="update"
             >
-              <a-button type="danger" size="small" class="ml-3">{{ t('退回请求') }}</a-button>
+              <a-button type="danger" size="small">{{ t('退回请求') }}</a-button>
             </vco-form-dialog>
           </div>
         </template>

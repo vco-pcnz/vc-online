@@ -1226,5 +1226,6 @@ export default {
   "不包含": "Exclusive",
   "包含": "Inclusive",
   "文件有变动": "Documents have changed",
-  "数据未做任何修改，无需提交": "No changes have been made, no need to submit"
+  "数据未做任何修改，无需提交": "No changes have been made, no need to submit",
+  "退回到进件": "Return to request"
 }

@@ -182,7 +182,7 @@ const submitHandle = () => {
       const params = {
         process__info: {
           dirname: formState.value.dirname,
-          docuemnt: formState.value.documents || []
+          document: formState.value.documents || []
         },
         p_uuid: props.uuid,
         repayment_date: formState.value.repayment_date || '',

@@ -699,7 +699,7 @@ const drawdownListInspection = ref(false);
 const loadDrawdown = () => {
   if (formState.value.apply_date && formState.value.drawdown_account && formState.value.drawdown_account.length) {
     drawdownListLoading.value = true;
-    drawDownLists({ uuid: props.uuid, date: formState.value.apply_date, ids: formState.value.drawdown_account.join() })
+    drawDownLists({ uuid: props.uuid, date: dayjs(formState.value.apply_date).format('YYYY-MM-DD'), ids: formState.value.drawdown_account.join() })
       .then((res) => {
         drawdownList.value = res.drawDown;
       })

@@ -2,7 +2,7 @@
   <detail-layout active-tab="schedule" @getProjectDetail="getProjectDetail">
     <template #content>
       <vco-page-tab
-        v-if="projectDetail.product.code === 'vsl' && (!hasPermission('projects:schedule:vs_schedule') || hasPermission('projects:schedule:boc_schedule'))"
+        v-if="projectDetail.product.code === 'vsl' && (hasPermission('projects:schedule:vs_schedule') || hasPermission('projects:schedule:boc_schedule'))"
         class="mt-5"
         :tabData="tabData"
         v-model:current="tab_id"
@@ -62,12 +62,12 @@ const tabData = ref([
   {
     label: 'VS Schedule',
     value: 'VS',
-    hide: hasPermission('projects:schedule:vs_schedule')
+    hide: !hasPermission('projects:schedule:vs_schedule')
   },
   {
     label: 'BOC Schedule',
     value: 'BOC',
-    hide: hasPermission('projects:schedule:boc_schedule')
+    hide: !hasPermission('projects:schedule:boc_schedule')
   }
 ]);
 

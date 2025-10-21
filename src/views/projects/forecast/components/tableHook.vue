@@ -57,7 +57,7 @@
             </div>
             <div class="item">{{ item.name }}</div>
             <!-- <div class="item flex items-center" v-show="false"><vco-avatar :size="30"></vco-avatar></div> -->
-            <div class="item" v-if="projectDetail?.product?.code === 'vsl'">{{ item.source ? 'VS' : 'BOC' }}</div>
+            <div class="item" v-if="projectDetail?.product?.code === 'vsl'">{{ item.source ? 'BOC' : 'VS' }}</div>
             <div class="item">
               <div class="flex items-center justify-between" v-if="item?.forecast_log?.length && item.status != 0">
                 <span class="mr-3 color_grey fs_xs">{{ tool.showDate(item.forecast_log[item.forecast_log.length - 1].create_time, 'DD/MM') }}</span>

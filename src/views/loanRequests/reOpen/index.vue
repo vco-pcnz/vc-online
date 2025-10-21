@@ -42,6 +42,9 @@
                 </div>
               </template>
             </template>
+            <template v-if="column.dataIndex === 'reason'">
+              <span :title="record.data.reason" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-3">{{ record.data.reason }} </span>
+            </template>
 
             <template v-if="column.dataIndex === 'status_name'">
               <div :style="{ color: colors[record.status_name] }">{{ record.status_name }}</div>
@@ -85,6 +88,7 @@ const columns = reactive([
   { title: t('项目图片'), dataIndex: 'project_image', width: 80, align: 'center' },
   { title: t('项目信息'), dataIndex: 'project_info', width: 200, align: 'left' },
   { title: t('借款人'), dataIndex: 'borrower', width: 200, align: 'left' },
+  { title: t('原因'), dataIndex: 'reason', width: 200, align: 'left' },
   { title: t('状态t'), dataIndex: 'status_name', width: 220, align: 'center' },
   { title: t('创建时间'), dataIndex: 'create_time', width: 120, align: 'center' }
 ]);
@@ -120,7 +124,7 @@ const colors = ref({
 const rowClick = (record, index) => {
   return {
     onClick: () => {
-      navigationTo(`/projects/about?uuid=${record.project.uuid}`,true);
+      navigationTo(`/projects/about?uuid=${record.project.uuid}`, true);
     }
   };
 };

@@ -8,7 +8,7 @@
       </a-alert>
     </template>
 
-    <template v-if="detail?.reopen?.has_permission || detail?.reopen?.prev_permission || hasPermission('projects:about:reopen')">
+    <template v-if="detail?.reopen?.has_permission || detail?.reopen?.prev_permission || (hasPermission('projects:about:reopen') && detail?.reopen?.state > 0)">
       <a-alert type="info" :message="t('退回到进件')" class="mb-5">
         <template #description>
           <div v-if="detail?.reopen?.data?.reason">

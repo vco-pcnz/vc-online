@@ -8,7 +8,7 @@
       </a-alert>
     </template>
 
-    <template v-if="detail?.closeCancel?.has_permission || detail?.closeCancel?.prev_permission || (hasPermission('projects:about:close:revoke') && detail?.closeCancel?.data?.close_cancel_date)">
+    <template v-if="detail?.closeCancel?.has_permission || detail?.closeCancel?.prev_permission || (hasPermission('projects:about:close:revoke') && detail?.closeCancel?.state > 0)">
       <a-alert type="info" :message="t('重新打开')" class="mb-5">
         <template #description>
           <div>

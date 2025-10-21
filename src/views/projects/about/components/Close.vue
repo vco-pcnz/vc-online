@@ -8,7 +8,7 @@
       </a-alert>
     </template>
 
-    <template v-if="(detail?.close?.has_permission || detail?.close?.prev_permission || hasPermission('projects:about:add:closeFc')) && detail?.base?.is_open == 2">
+    <template v-if="detail?.close?.has_permission || detail?.close?.prev_permission || (hasPermission('projects:about:add:closeFc') && detail?.base?.is_open == 2)">
       <a-alert type="info" :message="t('关账')" class="mb-5">
         <template #description>
           <div>

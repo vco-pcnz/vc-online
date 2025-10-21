@@ -971,7 +971,7 @@
       const bocPeriod = {
         min: 0,
         max: 0,
-        credit_name: 'BOC loan month',
+        credit_name: 'No. of BOC drawdown',
         credit_table: 'drawdown_term',
         is_req: 1,
         value: 0,

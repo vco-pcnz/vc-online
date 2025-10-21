@@ -8,7 +8,7 @@
       <div class="MeterStat MeterStat_type_stone3 one">
         <div class="MeterStat-Meter"></div>
         <div>
-          <p>Facility limit 2</p>
+          <vco-tip tip="Facility limit 1 plus establishment fee, line fee, and estimated interest"><p>Facility limit 2</p></vco-tip>
           <vco-number :value="data?.credit_fc2" :precision="2"></vco-number>
         </div>
       </div>
@@ -47,7 +47,7 @@
       <div class="MeterStat MeterStat_type_transparent one">
         <div class="MeterStat-Meter"></div>
         <div>
-          <p>Facility limit 1</p>
+          <vco-tip tip="Principal Drawdown including legal and brokerage fees" w="180px"><p>Facility limit 1</p></vco-tip>
           <vco-number :value="data?.credit_fc1" :precision="2"></vco-number>
         </div>
       </div>

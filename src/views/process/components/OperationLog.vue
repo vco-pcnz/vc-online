@@ -5,7 +5,7 @@
         <vco-process-title :title="t('操作记录')"></vco-process-title>
 
         <a-spin :spinning="pageLoading" size="large">
-          <div class="log-content" :class="{'no-data': !listData.length}" @scroll="scrollHandle">
+          <div ref="logContentRef" class="log-content" :class="{'no-data': !listData.length}" @scroll="scrollHandle">
             <template v-if="listData.length">
               <div v-for="(item, index) in listData" :key="index" class="log-item">
                 <div class="icon">
@@ -31,7 +31,7 @@
 </template>
 
 <script setup>
-  import { ref, reactive, onMounted, onUnmounted } from "vue";
+  import { ref, reactive, onMounted, onUnmounted, nextTick } from "vue";
   import { useI18n } from "vue-i18n";
   import { auditHistoryList, projectDetailHistoryList } from "@/api/process";
   import emitter from "@/event"
@@ -58,6 +58,8 @@
   const loading = ref(false)
   const hasMore = ref(true)
   const pageLoading = ref(false)
+
+  const logContentRef = ref()
 
   const getListData = (flag) => {
     if (flag) {
@@ -88,6 +90,12 @@
       pageInfo.page += 1
       hasMore.value = total > listData.value.length
 
+      nextTick(() => {
+        if (total > 3) {
+          logContentRef.value.style.height = '300px'
+        }
+      })
+      
     }).catch(() => {
       pageLoading.value = false
       loading.value = false
@@ -127,7 +135,7 @@
 <style lang="less" scoped>
   .log-content {
     width: 100%;
-    height: 300px;
+    // height: 300px;
     overflow-y: scroll;
     overflow-x: hidden;
     margin-top: 10px;
@@ -149,8 +157,8 @@
         left: 14px;
         z-index: 1;
       }
+      &:nth-last-child(2),
       &:last-child {
-        padding-bottom: 0;
         &::after {
           display: none;
         }

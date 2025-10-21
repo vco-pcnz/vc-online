@@ -406,7 +406,7 @@ const saveLoading = ref(false);
 const save = () => {
   const doneData = cloneDeep(data.value);
   doneData.data[0].list.forEach((item) => {
-    item.name = typesObj.value[item.type] || '';
+    item.name = item.model ? item.type : typesObj.value[item.type] || '';
   });
 
   if (!validateTypes(doneData.data[0])) {

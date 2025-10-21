@@ -44,7 +44,13 @@ const tabData = computed(() => {
       num: props.tabNum ? props.tabNum['2'] : 0
     },
     {
-      label:  route.name == 'LoanRequestsDrawdown'?'PAID':'REPAID',
+      label: t('生效'),
+      value: '4',
+      num: props.tabNum ? props.tabNum['4'] : 0,
+      hide: route.name !== 'LoanRequestsVariation'
+    },
+    {
+      label: route.name == 'LoanRequestsDrawdown' ? 'PAID' : 'REPAID',
       value: '4',
       num: props.tabNum ? props.tabNum['4'] : 0,
       hide: route.name !== 'LoanRequestsDrawdown' && route.name !== 'LoanRequestsRepayment'
@@ -55,8 +61,7 @@ const tabData = computed(() => {
       num: props.tabNum ? props.tabNum['3'] : 0
     }
   ];
-  console.log(route.name)
-  return arr.filter(item => !item.hide);
+  return arr.filter((item) => !item.hide);
 });
 
 const searchOldData = ref({});
@@ -277,7 +282,11 @@ onMounted(() => {
 watch(
   () => currentTab.value,
   (val) => {
-    emits('search', { sta: currentTab.value, ...searchOldData.value, ...props.params });
+    let params = { sta: currentTab.value, ...searchOldData.value, ...props.params };
+    if (currentTab.value !== '1') {
+      params['state'] = '';
+    }
+    emits('search', params);
   },
   { deep: true, immediate: true }
 );

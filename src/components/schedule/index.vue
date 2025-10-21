@@ -133,7 +133,7 @@
                   <a-menu-item v-if="!ptRole">
                     <div class="pt-2 pb-2" @click="downLoadExcel(3)">{{ t('预测表IRR') }}</div>
                   </a-menu-item>
-                  <a-menu-item v-if="hasPermission('projects:repayments:adDownload') && !isProcess && !hideAccountDetails">
+                  <a-menu-item v-if="hasPermission('projects:repayments:adDownload') && !isProcess && !hideAccountDetails && !isVariation">
                     <div class="pt-2 pb-2" @click="downLoadExcel(4)">{{ t('账户详情') }}</div>
                   </a-menu-item>
                 </a-menu>
@@ -412,6 +412,9 @@ const hideLinefee = computed(() => {
 const hideAccountDetails = computed(() => {
   return ['vsl'].includes(props.currentProduct);
 });
+const isVariation = computed(() => {
+  return Object.keys(props.variationInfo).length > 0
+})
 
 const pageLoading = ref(false);
 const tabData = ref([]);

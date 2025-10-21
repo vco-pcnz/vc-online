@@ -5,7 +5,7 @@
       <div class="content sys-form-content">
         <div class="input-item">
           <div class="label" :class="{ err: !formState.type && validate }">{{ t('类型') }}</div>
-          <a-select v-model:value="formState.type" style="width: 100%">
+          <a-select v-model:value="formState.type" style="width: 100%" @change="typeChange()">
             <a-select-option :value="2">{{ t('放款') }}</a-select-option>
             <a-select-option :value="4">{{ t('还款') }}</a-select-option>
           </a-select>
@@ -184,7 +184,7 @@ const save = () => {
 const init = () => {
   formState.value.date = '';
   formState.value.amount = '';
-  formState.value.note = '';
+  formState.value.note = 'Estimated transaction (drawdown)';
 
   if (props.itemDate) {
     formState.value = cloneDeep({
@@ -197,6 +197,14 @@ const init = () => {
     });
   }
   visible.value = true;
+};
+
+const typeChange = () => {
+  if (formState.value.type == 2) {
+    formState.value.note = 'Estimated transaction (drawdown)';
+  } else {
+    formState.value.note = 'Estimated transaction (repayment)';
+  }
 };
 </script>
 <style scoped lang="less">

@@ -26,6 +26,7 @@
       :block-info="PageBlockObjRef"
       :info-data="currentDataInfo"
       :lending-info="lendingDataInfo"
+      :compare-back-obj="compareBackObj"
       :type="currentMark"
       v-model:visible="openVisible"
       @done="subDone"
@@ -287,7 +288,7 @@
     for (let i = 0; i < saveDataTxtArr.value.length; i++) {
       txtArr.push(t('{0}由{1}修改为了{2}1', [saveDataTxtArr.value[i].name, saveDataTxtArr.value[i].before, saveDataTxtArr.value[i].now]))
     }
-    return txtArr.join('---')
+    return txtArr.join(', ')
   })
 
   const saveDataTxt = computed(() => {
@@ -442,7 +443,7 @@
         })
       }
 
-      if ((staticFormData?.substitution_amount || staticFormData?.substitution_amount === 0) && Number(obj?.substitution_amount) !== Number(staticFormData?.substitution_amount)) {
+      if ((staticFormData?.substitution_amount || Number(staticFormData?.substitution_amount) === 0) && Number(obj?.substitution_amount) !== Number(staticFormData?.substitution_amount)) {
         arr.unshift({
           name: t('再融资金额'),
           before: `$${numberStrFormat(Number(staticFormData?.substitution_amount))}`,
@@ -450,7 +451,7 @@
         })
       }
 
-      if ((staticFormData?.equity_amount || staticFormData?.equity_amount === 0) && Number(obj?.equity_amount) !== Number(staticFormData?.equity_amount)) {
+      if ((staticFormData?.equity_amount || Number(staticFormData?.equity_amount) === 0) && Number(obj?.equity_amount) !== Number(staticFormData?.equity_amount)) {
         arr.unshift({
           name: t('补充股权'),
           before: `$${numberStrFormat(Number(staticFormData?.equity_amount))}`,
@@ -545,7 +546,7 @@
         if (pass) {
           submitRquest(params)
         } else {
-          message.error(t('请完善每条数据的文件信息'))
+          message.error(t('请确保在提交之前提供所有反洗钱信息'))
         }
       } else {
         submitRquest(params)

@@ -24,7 +24,7 @@
                 </template>
               </a-alert>
             </a-col>
-            <a-col :span="12">
+            <a-col :span="overdueDays ? 8 : 12">
               <a-form-item :label="t('还款日期')" name="date">
                 <a-date-picker
                   v-model:value="formState.date"
@@ -48,6 +48,11 @@
             <a-col :span="6">
               <a-form-item :label="t('到期日期')">
                 <div class="show-date">{{ tool.showDate(projectDetail?.date?.end_date) }}</div>
+              </a-form-item>
+            </a-col>
+            <a-col v-if="overdueDays" :span="4">
+              <a-form-item :label="t('逾期天数')">
+                <div class="show-date">{{ overdueDays }}</div>
               </a-form-item>
             </a-col>
             <template v-if="hasSetStandard && maxReductionAmount && !isNormalUser">
@@ -200,6 +205,16 @@ const disabledDateFormat = (current) => {
   return false;
 }
 
+const overdueDays = computed(() => {
+  const selectDate = formState.value.date
+  const endDate = props.projectDetail?.date?.end_date
+  if (selectDate && endDate && dayjs(endDate).isBefore(dayjs(selectDate))) {
+    return tool.diffDate(endDate, selectDate)
+  }
+
+  return 0
+})
+
 const hasSetStandard = ref(false)
 const standardRate = ref(0)
 const standardAmount = ref(0)
@@ -334,7 +349,8 @@ const downloadStatement = () => {
     date: dayjs(formState.value.date).format('YYYY-MM-DD'),
     pdf: 1,
     less: reductionAmount.value,
-    do__est: hasEstimated.value ? 1 : 0
+    do__est: hasEstimated.value ? 1 : 0,
+    watermark: 0
   }).then(res => {
     downloadLoading.value = false
     window.open(res);

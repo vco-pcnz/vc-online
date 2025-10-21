@@ -14,7 +14,7 @@
                 label: t('其他'),
                 hiden: false,
                 value: 'other',
-                num: searchForm.module == 'other' && !tableLoading ? currentTotal : userStore.taskInfo.other
+                num: tab_num?.other
               }
             ]
           : [])
@@ -41,8 +41,15 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  currentTotal: {
-    type: [String, Number]
+  tab_num: {
+    type: Object,
+    default: () => {
+      return {
+        loan: 2,
+        request: 1,
+        other: 0
+      };
+    }
   }
 });
 
@@ -58,17 +65,17 @@ const moduleData = computed(() => {
     {
       label: t('全部'),
       value: '',
-      num: !searchForm.value.module && !props.tableLoading ? props.currentTotal : userStore.taskInfo.all
+      num: props.tab_num?.loan + props.tab_num?.request + props.tab_num?.other
     },
     {
       label: t('借款'),
       value: 'loan',
-      num: searchForm.value.module == 'loan' && !props.tableLoading ? props.currentTotal : userStore.taskInfo.project
+      num: props.tab_num?.loan
     },
     {
       label: t('请求1'),
       value: 'request',
-      num: searchForm.value.module == 'request' && !props.tableLoading ? props.currentTotal : userStore.taskInfo.request
+      num: props.tab_num?.request
     }
   ];
 });

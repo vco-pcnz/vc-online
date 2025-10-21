@@ -13,13 +13,34 @@
     <!-- 抵押物解压弹窗 -->
     <release-dialog v-model:visible="releaseVisible" :uuid="uuid" :detail-data="detail" @done="update"></release-dialog>
 
+    <!-- 取消全额还款 -->
+    <a-modal :width="486" :open="cancelAllVisible" :title="t('取消全额还款')" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
+      <div class="content sys-form-content">
+        <a-form ref="cAllformRef" layout="vertical" :model="cAllformState" :rules="cAllformRules">
+          <a-form-item :label="t('取消全额还款理由')" name="cancel_reason">
+            <a-textarea v-model:value="cAllformState.cancel_reason" :rows="6" />
+          </a-form-item>
+        </a-form>
+
+        <div class="flex justify-center">
+          <a-button type="dark" class="save big uppercase" :loading="cancelAllLoading" @click="cancelAllHandle">
+            {{ t('确定') }}
+          </a-button>
+        </div>
+      </div>
+    </a-modal>
+
     <div class="color_grey fs_2xs text-center py-3 text-uppercase uppercase" style="letter-spacing: 1px">{{ t('详情') }}</div>
 
     <div class="detail relative">
       <div style="position: absolute; right: 10px; top: 10px; cursor: pointer" v-if="detail?.cancellog && detail?.cancellog.length">
         <PushBackLog :data="detail?.cancellog"></PushBackLog>
       </div>
-      <a-alert v-if="Boolean(detail?.cancel_reason)" message="Push back reason" :description="detail?.cancel_reason" type="error" class="cancel-reason" />
+      <a-alert v-if="Boolean(detail?.cancel_reason)" :message="detail?.do_cancel === 1 ? t('取消全额还款理由') : 'Push back reason'" type="error" class="cancel-reason">
+        <template #description>
+          <div v-html="detail?.cancel_reason"></div>
+        </template>
+      </a-alert>
 
       <div class="my-3" style="padding-left: 5px">
         <div class="bold fs_xl">{{ detail?.name }}</div>
@@ -44,7 +65,7 @@
         <div>
           <div class="flex">
             <vco-number :value="repaymentAmount" :precision="2" :bold="true" size="fs_2xl" :color="Number(detail?.reduction_money) ? '#31bd65' : '#282828'"></vco-number>
-            <i v-if="hasPermission('projects:repayments:edit') && detail?.mark === 'repayment_lm'" @click="openEditHandle" class="iconfont edit">&#xe8cf;</i>
+            <i v-if="hasPermission('projects:repayments:edit') && detail?.mark === 'repayment_lm'" @click="openEditHandle(false)" class="iconfont edit">&#xe8cf;</i>
           </div>
           <p class="bold color_grey fs_2xs">{{ t('申请金额') }}: {{ tool.formatMoney(detail?.apply_amount) }}</p>
         </div>
@@ -68,14 +89,22 @@
           </template>
 
           <a-popconfirm
-            v-if="!detail?.prev_permission && hasPermission('projects:repayments:revoke') && [0, 1].includes(Number(detail?.status)) && detail?.state > 0 && !['repayment_lm', 'drawdown_lm'].includes(detail.mark)"
+            v-if="!detail?.prev_permission && hasPermission('projects:repayments:revoke') && [0, 1].includes(Number(detail?.status)) && detail?.state > 0 && !['repayment_lm', 'drawdown_lm'].includes(detail.mark) && !detail?.all_repayment"
             :title="t('您确定撤销还款吗？')"
             @confirm="revokeHandle"
           >
             <a-button type="brown" class="big uppercase w-full mt-4">{{ t('撤销还款') }}</a-button>
           </a-popconfirm>
 
-          <div v-if="detail?.has_permission && (detail?.mark == 'repayment_lm' || detail?.mark == 'repayment_fc' || detail?.mark == 'repayment_director')" class="mt-4">
+          <template v-if="detail?.all_repayment && hasPermission('projects:repayments:all_repayment_cancel') && [0, 1].includes(Number(detail?.status)) && detail?.state > 0 && ['repayment_lm_recon'].includes(detail.mark)">
+            <a-button type="brown" class="big uppercase w-full mt-4" @click="openEditHandle(true)">{{ t('修改全额还款') }}</a-button>
+
+            <div class="mt-4 flex justify-center">
+              <a-button type="danger" size="small" shape="round" @click="cancelAllVisible = true">{{ t('取消全额还款') }}</a-button>
+            </div>
+          </template>
+
+          <div v-if="detail?.has_permission && (detail?.mark == 'repayment_lm' || detail?.mark == 'repayment_fc' || detail?.mark == 'repayment_lc' || detail?.mark == 'repayment_director')" class="mt-4">
             <p class="text-center color_grey fs_xs my-3">{{ t('您可以点击下面的按钮来拒绝还款请求。') }}</p>
             <div class="flex justify-center">
               <a-popconfirm :title="t('确定要拒绝该请求吗？')" @confirm="decline">
@@ -91,10 +120,14 @@
             </div>
           </div>
 
-          <DrawdownBack v-if="detail?.mark === 'repayment_fc' && detail?.has_permission" :uuid="uuid" :detail="detail" @change="update"></DrawdownBack>
+          <DrawdownBack v-if="['repayment_fc', 'repayment_lc'].includes(detail?.mark) && detail?.has_permission && detail?.do_cancel !== 1" :uuid="uuid" :detail="detail" @change="update"></DrawdownBack>
         </div>
 
         <a-button v-if="!detail?.prev_permission && !(detail?.has_permission || hasPermission('projects:repayments:revoke'))" type="brown" class="big uppercase w-full" @click="openDetails(false)">{{ t('查看详情') }}</a-button>
+
+        <p class="download-btn" v-if="all_repayment">
+          {{ t('对账单') }}, <span @click="downloadStatement">{{ t('点击下载') }}</span>
+        </p>
       </div>
     </div>
   </div>
@@ -106,7 +139,7 @@ import { useI18n } from 'vue-i18n';
 import tool, { navigationTo } from '@/utils/tool';
 import { hasPermission } from '@/directives/permission/index';
 import DrawdownBack from './form/DrawdownBack.vue';
-import { loanRdeclinel, loanRsaveStep, loanRrecall, loanRrevoke } from '@/api/project/loan';
+import { loanRdeclinel, loanRsaveStep, loanRrecall, loanRrevoke, projectLoanAllRepayment, loanRgoBack } from '@/api/project/loan';
 import ReconciliationModal from '@/views/projects/components/ReconciliationModal.vue';
 import SecuritiesDialog from './form/SecuritiesDialog.vue';
 import DrawdownRequest from './form/DrawdownRequest.vue';
@@ -115,6 +148,7 @@ import DetailsDialog from './form/DetailsDialog.vue';
 import ReleaseDialog from './form/ReleaseDialog.vue';
 import PushBackLog from '@/views/projects/components/PushBackLog.vue';
 import { useUserStore } from '@/store';
+import dayjs from 'dayjs';
 
 const pageRole = computed(() => useUserStore().pageRole);
 const mode = pageRole.value ? '/' + pageRole.value.toLowerCase() : '';
@@ -136,6 +170,10 @@ const accept_loading = ref(false);
 
 const repaymentAmount = computed(() => {
   return props.detail?.apply_amount;
+});
+
+const all_repayment = computed(() => {
+  return Number(props.detail?.all_repayment || 0) === 1 ? true : false;
 });
 
 // 拒绝
@@ -184,11 +222,17 @@ const update = () => {
 
 const editDialogRef = ref();
 const editVslDialogRef = ref();
-const openEditHandle = () => {
+// const openEditHandle = () => {
+//   if (props.projectDetail.product.code === 'vsl') {
+//     editVslDialogRef.value && editVslDialogRef.value.init();
+//   } else {
+//     editDialogRef.value && editDialogRef.value.init();
+//   }
+const openEditHandle = (allCancel = false) => {
   if (props.projectDetail.product.code === 'vsl') {
     editVslDialogRef.value && editVslDialogRef.value.init();
   } else {
-    editDialogRef.value && editDialogRef.value.init();
+    editDialogRef.value && editDialogRef.value.init(allCancel);
   }
 };
 
@@ -201,6 +245,72 @@ const openDetails = (accept) => {
 };
 
 const releaseVisible = ref(false);
+
+const downloadStatement = () => {
+  const params = {
+    uuid: props.uuid,
+    date: dayjs(props.detail.apply_date).format('YYYY-MM-DD'),
+    pdf: 1,
+    less: props.detail.reduction_money || 0,
+    verify: 1,
+    verify_id: props.detail?.id
+  };
+
+  if (props.detail.extra && props.detail.extra.length) {
+    params.extra = props.detail.extra;
+    params.extra_amount = Number(props.detail.extra_amount || 0);
+  }
+
+  projectLoanAllRepayment(params).then((res) => {
+    window.open(res);
+  });
+};
+
+const cAllformRef = ref();
+const cancelAllVisible = ref(false);
+const cAllformState = ref({
+  cancel_reason: ''
+});
+const cAllformRules = ref({
+  cancel_reason: [{ required: true, message: t('请输入') + t('取消全额还款理由'), trigger: 'blur' }]
+});
+const cancelAllLoading = ref(false);
+const cancelAllHandle = () => {
+  cAllformRef.value
+    .validate()
+    .then(() => {
+      const params = {
+        cancel_reason: cAllformState.value.cancel_reason,
+        uuid: props.uuid,
+        id: props.detail?.id,
+        back_step: 'repayment_fc',
+        do_cancel: 1
+      };
+
+      cancelAllLoading.value = true;
+      loanRgoBack(params)
+        .then(() => {
+          cancelAllLoading.value = false;
+          cancelAllVisible.value = false;
+          update();
+        })
+        .catch(() => {
+          cancelAllLoading.value = false;
+        });
+    })
+    .catch((error) => {
+      console.log('error', error);
+    });
+};
+
+const updateVisible = (value) => {
+  if (!value && !cancelAllLoading.value) {
+    cAllformRef.value.clearValidate();
+    cAllformRef.value.resetFields();
+    cAllformState.value.cancel_reason = '';
+  }
+  cancelAllVisible.value = value;
+};
 </script>
 
 <style scoped lang="less">
@@ -295,6 +405,19 @@ const releaseVisible = ref(false);
   }
   :deep(.ant-alert-description) {
     font-size: 12px !important;
+  }
+}
+
+.download-btn {
+  font-size: 13px;
+  text-align: center;
+  margin-top: 10px;
+  span {
+    color: #f19915;
+    cursor: pointer;
+    &:hover {
+      color: #f19915;
+    }
   }
 }
 </style>

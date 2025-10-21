@@ -73,6 +73,8 @@
             <Close v-if="detail?.base?.is_open != 3" :currentId="currentId" :toBeClosedFormData="toBeClosedFormData" :detail="detail" @update="update"></Close>
             <!-- 取消关账流程 -->
             <CloseCancel v-else :currentId="currentId" :toBeClosedFormData="ReOpenFormData" :detail="detail" @update="update"></CloseCancel>
+            <!-- 退回到open流程 -->
+            <BackOpen  :currentId="currentId" :toBeClosedFormData="BackOpenFormData" :detail="detail" @update="update"></BackOpen>
 
             <MeterStat :data="detail?.credit" :base="detail?.base" v-if="!detail?.base?.ptRole"></MeterStat>
             <MeterStatVip :data="detail?.credit" v-if="detail?.base?.ptRole"></MeterStatVip>
@@ -117,6 +119,18 @@
               >
                 <a-button type="brown" shape="round" size="small">{{ t('重新打开') }}</a-button>
               </vco-form-dialog>
+
+              <!-- 退回到open -->
+              <vco-form-dialog
+                :title="t('退回到进件')"
+                :initData="BackOpenFormData"
+                :formParams="{ uuid: currentId, process__id: detail?.reopen?.process__id }"
+                url="projectDetail/reopen"
+                @update="update"
+                v-if="hasPermission('projects:about:reopen') && detail?.base?.is_open == 1 && detail?.reopen?.state <= 0"
+              >
+                <a-button type="brown" shape="round" size="small">{{ t('退回到进件') }}</a-button>
+              </vco-form-dialog>
             </div>
 
             <Stats v-if="!detail?.base?.ptRole" :data="detail?.credit" :detail="detail" :currentId="currentId" @update="update"></Stats>
@@ -152,6 +166,7 @@ import Close from './components/Close.vue';
 import CloseCancel from './components/CloseCancel.vue';
 import { useUserStore } from '@/store';
 import CheckPassConfirm from '@/views/projects/variations/add/components/check-pass-confirm.vue';
+import BackOpen from './components/BackOpen.vue';
 
 const { t } = useI18n();
 const userStore = useUserStore();
@@ -225,6 +240,15 @@ const ReOpenFormData = ref([
     type: 'upload',
     label: '文件',
     key: 'close_cancel_document',
+    required: false
+  }
+]);
+
+const BackOpenFormData = ref([
+  {
+    type: 'textarea',
+    label: '原因',
+    key: 'reason',
     required: false
   }
 ]);
@@ -304,6 +328,7 @@ const checkPassConfirmVisible = ref(false);
   .project-content {
     border-radius: 12px;
     padding: 30px;
+    padding-top: 0;
   }
 
   .btns {

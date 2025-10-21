@@ -48,12 +48,12 @@
       </template>
     </vco-page-search>
 
-    <div class="flex justify-between items-end mt-3" v-if="isExpand">
+    <div class="flex justify-between items-end mt-3">
       <div class="mt-5">
         <p class="num" v-if="type == 'closed'">{{ pageStore.total }} {{ t('已关闭项目') }}</p>
         <p class="num" v-if="type == 'open'">{{ pageStore.total }} {{ t('项目') }}</p>
       </div>
-      <div class="flex gap-2">
+      <div class="flex gap-2" v-if="isExpand">
         <div class="search_expand isExpand" @click="isExpand = !isExpand">{{ t('收起') }}<DoubleRightOutlined class="icon" /></div>
         <a-button type="dark" @click="searchHandle(false)"><i class="iconfont">&#xe756;</i>{{ t('搜索') }}</a-button>
         <a-button type="dark-line" @click="searchHandle(true)"><i class="iconfont">&#xe757;</i>{{ t('重置') }}</a-button>

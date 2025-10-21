@@ -147,3 +147,11 @@ export const umbreListProject = (params) =>
     method: 'get',
     params
   });
+
+// 退回到进件列表
+export const reopenIndex = (params) =>
+  request({
+    url: 'projectDetail/reopenIndex',
+    method: 'get',
+    params
+  });

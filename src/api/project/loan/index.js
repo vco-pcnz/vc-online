@@ -224,6 +224,14 @@ export const dischargeSecurity = (params) =>
     params
   });
 
+// 解押-编辑
+export const dischargeEedit = (data) =>
+  request({
+    url: 'project/discharge/eedit',
+    method: 'post',
+    data
+  });
+
 // 解押添加-列表
 export const dischargeApplySecurity = (params) =>
   request({
@@ -236,6 +244,14 @@ export const dischargeApplySecurity = (params) =>
 export const dischargeEdit = (data) =>
   request({
     url: 'project/discharge/edit',
+    method: 'post',
+    data
+  });
+
+// 解押-批量申请提交
+export const dischargeBatchEdit = (data) =>
+  request({
+    url: 'project/discharge/nedit',
     method: 'post',
     data
   });
@@ -281,11 +297,11 @@ export const dischargeDdecline = (data) =>
   });
 
 // 全额还款金额试算
-export const projectLoanAllRepayment = (params) =>
+export const projectLoanAllRepayment = (data) =>
   request({
     url: 'project/loan/allRepayment',
-    method: 'get',
-    params
+    method: 'post',
+    data
   });
 
 // 计算irr

@@ -1227,5 +1227,12 @@ export default {
   "包含": "Inclusive",
   "文件有变动": "Documents have changed",
   "数据未做任何修改，无需提交": "No changes have been made, no need to submit",
-  "退回到进件": "Return to request"
+  "退回到进件": "Return to request",
+  "新增申请": "Add application",
+  "编辑申请": "Edit application",
+  "解押申请1": "Discharge application",
+  "编辑中": "Editing",
+  "解押中": "Discharging",
+  "清除选择": "Clear selection",
+  "请设置第{0}行的当前抵押物价值": "Please set the current value of the {0} row"
 }

@@ -407,17 +407,17 @@ const compareRefinancial = () => {
         const nItemObj = nItem.item.allRepayment
         const bItemObj = bItem.item.allRepayment
 
-        if (nItemObj.StandardRate !== bItemObj.StandardRate) {
+        if (Number(nItemObj.StandardRate) !== Number(bItemObj.StandardRate)) {
           cancelTips.push(t(`再融资项目：{0}， 罚息减免比例由{1}修改为{2}`, [nItem.label, bItemObj.StandardRate, nItemObj.StandardRate]))
           backTips.push(t(`再融资项目：{0}， 罚息减免比例由{1}修改为{2}1`, [nItem.label, bItemObj.StandardRate, nItemObj.StandardRate]))
         }
         
-        if (nItemObj.reduction_money_input !== bItemObj.reduction_money_input) {
+        if (Number(nItemObj.reduction_money_input) !== Number(bItemObj.reduction_money_input)) {
           cancelTips.push(t(`再融资项目：{0}， 罚息减免额度由{1}修改为{2}`, [nItem.label, bItemObj.reduction_money_input, nItemObj.reduction_money_input]))
           backTips.push(t(`再融资项目：{0}， 罚息减免额度由{1}修改为{2}1`, [nItem.label, bItemObj.reduction_money_input, nItemObj.reduction_money_input]))
         }
 
-        if (nItemObj.repayment_money !== bItemObj.repayment_money) {
+        if (Number(nItemObj.repayment_money) !== Number(bItemObj.repayment_money)) {
           cancelTips.push(t(`再融资项目：{0}， 还款金额由{1}修改为{2}`, [nItem.label, bItemObj.repayment_money, nItemObj.repayment_money]))
           backTips.push(t(`再融资项目：{0}， 还款金额由{1}修改为{2}1`, [nItem.label, bItemObj.repayment_money, nItemObj.repayment_money]))
         }

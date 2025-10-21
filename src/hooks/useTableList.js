@@ -1,5 +1,4 @@
 import { computed, onMounted, ref } from "vue"
-import { cloneDeep } from "lodash"
 import tool from "@/utils/tool"
 
 export function useTableList(ajaxFn, params = {}, immediate = true) {
@@ -8,7 +7,7 @@ export function useTableList(ajaxFn, params = {}, immediate = true) {
   const pageNum = ref(1)
   const pageSize = ref(10)
   const pageTotal = ref(0)
-  const tableLoading = ref(true)
+  const tableLoading = ref(false)
   const paramsRef = ref()
   const tableData = ref([])
   const tableOtherData = ref(null)

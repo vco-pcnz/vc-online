@@ -8,7 +8,7 @@
       </a-alert>
     </template>
 
-    <template v-if="detail?.closeCancel?.has_permission">
+    <template v-if="detail?.closeCancel?.has_permission || detail?.closeCancel?.prev_permission || (hasPermission('projects:about:close:revoke') && detail?.closeCancel?.state > 0)">
       <a-alert type="info" :message="t('重新打开')" class="mb-5">
         <template #description>
           <div>
@@ -31,10 +31,17 @@
                 <a-button type="dark" size="small">{{ t('撤回申请') }}</a-button>
               </vco-popconfirm>
             </template>
-            <vco-popconfirm :tip="t('您确定要接受该请求吗？')" @update="update()" :formParams="{ uuid: detail?.closeCancel?.data?.uuid || currentId, id: detail?.closeCancel?.process__id }" url="projectDetail/csaveStep">
+            <vco-popconfirm
+              v-if="detail?.closeCancel?.has_permission"
+              :tip="t('您确定要接受该请求吗？')"
+              @update="update()"
+              :formParams="{ uuid: detail?.closeCancel?.data?.uuid || currentId, id: detail?.closeCancel?.process__id }"
+              url="projectDetail/csaveStep"
+            >
               <a-button type="dark" size="small" class="ml-3">{{ t('接受请求') }}</a-button>
             </vco-popconfirm>
             <vco-form-dialog
+              v-if="detail?.closeCancel?.has_permission"
               :title="t('拒绝请求')"
               :initData="[
                 {
@@ -51,6 +58,7 @@
               <a-button type="danger" size="small" class="ml-3">{{ t('拒绝请求') }}</a-button>
             </vco-form-dialog>
             <vco-form-dialog
+              v-if="detail?.closeCancel?.has_permission"
               :title="t('退回请求')"
               :initData="[
                 {

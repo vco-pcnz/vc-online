@@ -47,20 +47,10 @@
               </a-select>
             </a-form-item>
             <a-form-item :label="t('开始日期2')" name="s_date">
-              <a-date-picker
-                v-model:value="adFormState.s_date"
-                :format="selectDateFormat()"
-                :disabledDate="adDisabledSdateFormat"
-                @change="quickDate = ''"
-              />
+              <a-date-picker v-model:value="adFormState.s_date" :format="selectDateFormat()" :disabledDate="adDisabledSdateFormat" @change="quickDate = ''" />
             </a-form-item>
             <a-form-item :label="t('结束日期2')" name="date">
-              <a-date-picker
-                v-model:value="adFormState.date"
-                :format="selectDateFormat()"
-                :disabledDate="adDisabledDateFormat"
-                @change="quickDate = ''"
-              />
+              <a-date-picker v-model:value="adFormState.date" :format="selectDateFormat()" :disabledDate="adDisabledDateFormat" @change="quickDate = ''" />
             </a-form-item>
           </a-form>
 
@@ -400,6 +390,10 @@ const props = defineProps({
   isReconciliation: {
     type: Boolean,
     default: false
+  },
+  tab_id: {
+    type: [Number, String],
+    default: ''
   }
 });
 
@@ -428,11 +422,12 @@ const currentMonth = dayjs();
 const statisticsData = ref(null);
 
 const getDataInfo = (isLate = false) => {
-  tabData.value = []
+  tabData.value = [];
   pageLoading.value = true;
 
   const params = {
     uuid: props.currentId,
+    lender: props.tab_id,
     limit: 5000
   };
 
@@ -507,7 +502,8 @@ const getDataInfo = (isLate = false) => {
     });
 
   const staticParams = {
-    uuid: props.currentId
+    uuid: props.currentId,
+    lender: props.tab_id
   };
 
   let staticAjaxFn = props.isDetails ? projectDetailStatistics : projectForecastStatistics;
@@ -562,45 +558,47 @@ const adSubmitRequest = () => {
   const params = {
     uuid: props.currentId,
     pdf: props.isClose ? 3 : 2
-  }
+  };
   if (!props.isClose) {
     params.s_date = adFormState.s_date ? dayjs(adFormState.s_date).format('YYYY-MM-DD') : '';
     params.date = adFormState.date ? dayjs(adFormState.date).format('YYYY-MM-DD') : '';
   }
 
-  projectLoanAllRepayment(params).then((res) => {
-    adLoading.value = false;
-    adVisible.value = false
-    window.open(res);
-
-  }).catch(() => {
-    adLoading.value = false;
-  });
-}
-
-const adSubmitHandle = () => {
-  adFormRef.value
-    .validate()
-    .then(() => {
-      adSubmitRequest()
+  projectLoanAllRepayment(params)
+    .then((res) => {
+      adLoading.value = false;
+      adVisible.value = false;
+      window.open(res);
+    })
+    .catch(() => {
+      adLoading.value = false;
     });
 };
 
-watch(() => adVisible.value, (val) => {
-  if (!val) {
-    adLoading.value = false;
-    adFormRef.value.clearValidate();
-    adFormRef.value.resetFields();
-    adFormState.date = '';
-    adFormState.s_date = '';
+const adSubmitHandle = () => {
+  adFormRef.value.validate().then(() => {
+    adSubmitRequest();
+  });
+};
+
+watch(
+  () => adVisible.value,
+  (val) => {
+    if (!val) {
+      adLoading.value = false;
+      adFormRef.value.clearValidate();
+      adFormRef.value.resetFields();
+      adFormState.date = '';
+      adFormState.s_date = '';
+    }
   }
-})
+);
 
 const downloading = ref(false);
 const downLoadExcel = (type) => {
   if (type === 4) {
     if (props.isClose) {
-      adSubmitRequest()
+      adSubmitRequest();
     } else {
       adFormState.date = dayjs(new Date());
       adFormState.s_date = '';
@@ -611,6 +609,7 @@ const downLoadExcel = (type) => {
   const ajaxFn = props.itemId ? projectVariationExportExcel : projectForecastExportExcel;
   const params = {
     type,
+    lender: props.tab_id,
     uuid: props.currentId
   };
   if (props.itemId) {
@@ -631,7 +630,8 @@ const downLoadExcel = (type) => {
 const budgetExport = () => {
   downloading.value = true;
   projectForecastExportExcelEst({
-    uuid: props.currentId
+    uuid: props.currentId,
+    lender: props.tab_id
   })
     .then((res) => {
       downloading.value = false;
@@ -847,9 +847,9 @@ const quickDateData = ref([
     label: t('上财政年度'),
     value: 'lastYear'
   }
-])
+]);
 
-quickDateData.value.forEach(item => {
+quickDateData.value.forEach((item) => {
   if (item.value === 'month') {
     // 获取本月开始日期和当前日期
     const monthRange = tool.getMonthRange();
@@ -876,10 +876,10 @@ quickDateData.value.forEach(item => {
     item.startDate = lastYearRange.start;
     item.endDate = lastYearRange.end;
   }
-})
+});
 
 const quickDateChange = (value) => {
-  const item = quickDateData.value.find(item => item.value === value);
+  const item = quickDateData.value.find((item) => item.value === value);
   const { startDate, endDate } = item;
 
   let selectSdate = startDate;
@@ -892,7 +892,7 @@ const quickDateChange = (value) => {
 
   adFormState.s_date = dayjs(selectSdate);
   adFormState.date = dayjs(selectEdate);
-}
+};
 
 watch(
   () => visible.value,
@@ -917,6 +917,13 @@ onMounted(() => {
     }
   }
 });
+
+watch(
+  () => props.tab_id,
+  (val) => {
+    getDataInfo(Number(lateTabActiveKey.value) === 1);
+  }
+);
 </script>
 
 <style lang="less" scoped>

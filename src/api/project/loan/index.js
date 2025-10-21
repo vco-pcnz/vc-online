@@ -224,6 +224,14 @@ export const dischargeSecurity = (params) =>
     params
   });
 
+// 解押-编辑
+export const dischargeEedit = (data) =>
+  request({
+    url: 'project/discharge/eedit',
+    method: 'post',
+    data
+  });
+
 // 解押添加-列表
 export const dischargeApplySecurity = (params) =>
   request({
@@ -236,6 +244,14 @@ export const dischargeApplySecurity = (params) =>
 export const dischargeEdit = (data) =>
   request({
     url: 'project/discharge/edit',
+    method: 'post',
+    data
+  });
+
+// 解押-批量申请提交
+export const dischargeBatchEdit = (data) =>
+  request({
+    url: 'project/discharge/nedit',
     method: 'post',
     data
   });
@@ -366,4 +382,29 @@ export const reconciliation = (data) =>
     url: 'project/forecast/reconciliation',
     method: 'post',
     data
+  });
+
+// 删除
+export const drawDownSelected = (params) =>
+  request({
+    url: '/project/loan/drawDownSelected',
+    method: 'get',
+    params
+  });
+
+  
+// 删除
+export const drawDownLists = (params) =>
+  request({
+    url: '/project/loan/drawDownLists',
+    method: 'get',
+    params
+  });
+  
+// 删除
+export const repaymentDetail = (params) =>
+  request({
+    url: '/project/loan/repaymentDetail',
+    method: 'get',
+    params
   });

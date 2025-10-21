@@ -57,7 +57,7 @@
           </a-button>
         </div>
         
-        <div :class="{ grid: hasPermission('projects:securities:aer') &&  projectDetail && !projectDetail?.base?.is_close}" class="mb-12">
+        <div :class="{ grid: hasPermission('projects:securities:aer') &&  projectDetail && !projectDetail?.base?.is_close}" class="mb-2">
           <MeterStat :uuid="uuid" :projectDetail="projectDetail" v-if="Boolean(uuid)" ref="MeterStatRef"></MeterStat>
           <template v-if="projectDetail && !projectDetail?.base?.is_close && hasPermission('projects:securities:aer')">
             <div class="HelpBorrower">
@@ -82,9 +82,12 @@
           </template>
         </div>
 
-        <vco-page-tab :tabData="tabData" v-model:current="currentTab" @change="tabChange(false)"></vco-page-tab>
+        <!-- table内容 -->
+        <table-content :projectDetail="projectDetail"></table-content>
 
-        <div :class="{ grid: tableData.length }">
+        <!-- <vco-page-tab :tabData="tabData" v-model:current="currentTab" @change="tabChange(false)"></vco-page-tab> -->
+
+        <!-- <div :class="{ grid: tableData.length }">
           <a-spin :spinning="loading" size="large">
             <div class="table-content">
               <TableBlock :tableData="tableData" :is-add="currentTab === 1" @change="change"></TableBlock>
@@ -106,7 +109,7 @@
             >
             </Detail>
           </div>
-        </div>
+        </div> -->
       </div>
     </template>
   </detail-layout>
@@ -124,6 +127,7 @@ import { hasPermission } from '@/directives/permission/index';
 import { dischargeSecurity, dischargeApplySecurity } from '@/api/project/loan';
 import { useRoute } from 'vue-router';
 import SecurityAddEdit from '@/views/process/temp/default/components/SecurityAddEdit.vue';
+import TableContent from './table-content/index.vue';
 import { useUserStore } from '@/store';
 import { navigationTo } from '@/utils/tool'
 
@@ -139,17 +143,17 @@ const loading = ref(true);
 const detailRef = ref();
 const MeterStatRef = ref();
 
-const currentTab = ref(0)
-const tabData = ref([
-  {
-    label: t('解押申请'),
-    value: 0
-  },
-  {
-    label: t('添加申请'),
-    value: 1
-  }
-])
+// const currentTab = ref(0)
+// const tabData = ref([
+//   {
+//     label: t('解押申请'),
+//     value: 0
+//   },
+//   {
+//     label: t('添加申请'),
+//     value: 1
+//   }
+// ])
 
 const tabChange = (flag) => {
   if (flag) {
@@ -161,44 +165,44 @@ const tabChange = (flag) => {
   loadData()
 };
 
-const update = () => {
-  userStore.getTaskNumInfo()
-  loadData()
-}
+// const update = () => {
+//   userStore.getTaskNumInfo()
+//   loadData()
+// }
 
-const pagination = ref({
-  page: 1,
-  limit: 5
-});
+// const pagination = ref({
+//   page: 1,
+//   limit: 5
+// });
 
-const setPaginate = (page, limit) => {
-  pagination.value = {
-    page,
-    limit
-  };
-  loadData();
-};
+// const setPaginate = (page, limit) => {
+//   pagination.value = {
+//     page,
+//     limit
+//   };
+//   loadData();
+// };
 
-const tableData = ref([]);
+// const tableData = ref([]);
 
-const loadData = () => {
-  loading.value = true;
+// const loadData = () => {
+//   loading.value = true;
 
-  const ajaxFn = currentTab.value ? dischargeApplySecurity : dischargeSecurity
-  ajaxFn({ uuid: uuid.value, ...pagination.value })
-    .then((res) => {
-      const data = res.data || []
-      tableData.value = data;
-      total.value = res.count;
-    })
-    .finally(() => {
-      loading.value = false;
-    });
-};
+//   const ajaxFn = currentTab.value ? dischargeApplySecurity : dischargeSecurity
+//   ajaxFn({ uuid: uuid.value, ...pagination.value })
+//     .then((res) => {
+//       const data = res.data || []
+//       tableData.value = data;
+//       total.value = res.count;
+//     })
+//     .finally(() => {
+//       loading.value = false;
+//     });
+// };
 
-const change = (val) => {
-  detail_info.value = val;
-};
+// const change = (val) => {
+//   detail_info.value = val;
+// };
 
 const projectDetail = ref();
 const getProjectDetail = (val) => {
@@ -240,11 +244,11 @@ const openAddEdit = (data, flag = false) => {
 
 onMounted(() => {
   uuid.value = route.query.uuid;
-  const type = route.query.type
-  if (type) {
-    currentTab.value = Number(type)
-  }
-  loadData();
+  // const type = route.query.type
+  // if (type) {
+  //   currentTab.value = Number(type)
+  // }
+  // loadData();
 });
 </script>
 

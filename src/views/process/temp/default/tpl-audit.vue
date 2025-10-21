@@ -546,7 +546,7 @@
         if (pass) {
           submitRquest(params)
         } else {
-          message.error(t('请完善每条数据的文件信息'))
+          message.error(t('请确保在提交之前提供所有反洗钱信息'))
         }
       } else {
         submitRquest(params)

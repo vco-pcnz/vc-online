@@ -142,7 +142,7 @@ const todoHandle = (data) => {
     navigationTo(`/projects/variations?uuid=${data.project.uuid}`);
   } else if (data.process_type === 'journal') {
     navigationTo(`/projects/journal?uuid=${data.project.uuid}`);
-  } else if (['closed', 'closed-cancel'].includes(data.process_type)) {
+  } else if (['closed', 'closed-cancel','reopen'].includes(data.process_type)) {
     navigationTo(`/projects/about?uuid=${data.project.uuid}`);
   } else if (data.process_type === 'aml') {
     navigationTo(`/projects/orgs?uuid=${data.project.uuid}&type=2`);

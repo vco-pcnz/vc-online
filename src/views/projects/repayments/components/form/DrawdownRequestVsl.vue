@@ -124,14 +124,14 @@
                         </template>
                         <template v-if="column.dataIndex === 'all_repayment'">
                           <a-select v-model:value="record.all_repayment" class="mini">
-                            <a-select-option :value="0">{{ t('部分还款') }}</a-select-option>
-                            <a-select-option :value="1">{{ t('全额还款') }}</a-select-option>
+                            <a-select-option :title="t('部分还款')" :value="0">{{ t('部分还款') }}</a-select-option>
+                            <a-select-option :title="t('全额还款')" :value="1">{{ t('全额还款') }}</a-select-option>
                           </a-select>
                         </template>
                         <template v-if="column.dataIndex === 're_type'">
                           <a-select v-model:value="record.re_type" class="mini">
-                            <a-select-option :value="1">{{ t('本金优先分配') }}</a-select-option>
-                            <a-select-option :value="2">{{ t('利息优先分配') }}</a-select-option>
+                            <a-select-option :title="t('本金优先分配')" :value="1">{{ t('本金优先分配') }}</a-select-option>
+                            <a-select-option :title="t('利息优先分配')" :value="2">{{ t('利息优先分配') }}</a-select-option>
                           </a-select>
                         </template>
                         <template v-if="column.dataIndex === 'amount1'">

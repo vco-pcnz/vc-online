@@ -17,8 +17,8 @@
             <div v-if="projectDetail.product.code === 'vsl'" class="input-item" style="margin: 15.5px 0">
               <div class="label">
                 <span class="label mr-3" :class="{ err: !formState.source && validate }">{{ t('贷款方') }}</span>
-                <span v-if="formState.source == '0'">VS {{ t('可用余额') }} {{ tool.formatMoney(tool.plus(projectDetail.vslInfo.vs_remaining_loan_money, detail_amount)) }}</span>
-                <span v-else>BOC {{ t('可用余额') }} {{ tool.formatMoney(tool.plus(projectDetail.vslInfo.boc_remaining_loan_money, detail_amount)) }}</span>
+                <span v-if="formState.source == '0'">VS {{ t('可用余额') }} {{ tool.formatMoney(tool.plus(projectDetail?.vslInfo?.vs_remaining_loan_money, detail_amount)) }}</span>
+                <span v-else>BOC {{ t('可用余额') }} {{ tool.formatMoney(tool.plus(projectDetail?.vslInfo?.boc_remaining_loan_money, detail_amount)) }}</span>
               </div>
               <a-select :loading="loading_type" style="width: 100%" v-model:value="formState.source" :options="LenderData"></a-select>
             </div>

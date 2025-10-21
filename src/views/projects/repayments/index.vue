@@ -25,12 +25,12 @@
                 <template v-else>
                   <div class="flex items-center"><i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">{{ t('帮助借款人') }}</span></div>
                   <p class="color_grey mt-1 mb-3">{{ t('您可以帮助他们创建还款请求') }}</p>
-                  <drawdownre-quest-vsl v-if="projectDetail.product.code === 'vsl'" :uuid="uuid" :projectDetail="projectDetail" :count="total" @change="update">
+                  <drawdown-request-vsl v-if="projectDetail.product.code === 'vsl'" :uuid="uuid" :projectDetail="projectDetail" :count="total" @change="update">
                     <a-button type="brown" shape="round" size="small">{{ t('创建还款') }}</a-button>
-                  </drawdownre-quest-vsl>
-                  <drawdownre-quest v-else :uuid="uuid" :projectDetail="projectDetail" :count="total" @change="update">
+                  </drawdown-request-vsl>
+                  <drawdown-request v-else :uuid="uuid" :projectDetail="projectDetail" :count="total" @change="update">
                     <a-button type="brown" shape="round" size="small">{{ t('创建还款') }}</a-button>
-                  </drawdownre-quest>
+                  </drawdown-request>
                 </template>
               </template>
               <template v-else>
@@ -65,7 +65,7 @@ import detailLayout from '../components/detailLayout.vue';
 import MeterStat from './components/MeterStat.vue';
 import TableBlock from './components/TableBlock.vue';
 import Detail from './components/Detail.vue';
-import DrawdownreQuest from './components/form/DrawdownRequest.vue';
+import DrawdownRequest from './components/form/DrawdownRequest.vue';
 import DrawdownRequestVsl from './components/form/DrawdownRequestVsl.vue';
 import Calculator from './components/form/Calculator.vue';
 import { hasPermission } from '@/directives/permission/index';

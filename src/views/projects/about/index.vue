@@ -247,7 +247,7 @@ const ReOpenFormData = ref([
 const BackOpenFormData = ref([
   {
     type: 'textarea',
-    label: '说明',
+    label: '原因',
     key: 'reason',
     required: false
   }

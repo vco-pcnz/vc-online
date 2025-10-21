@@ -12,7 +12,7 @@
       <a-alert type="info" :message="t('退回到进件')" class="mb-5">
         <template #description>
           <div v-if="detail?.reopen?.data?.reason">
-            <span class="bold"> {{ t('说明') }}</span
+            <span class="bold"> {{ t('原因') }}</span
             >: {{ detail?.reopen?.data?.reason }}
           </div>
           <div class="mt-3 flex items-center justify-end">

@@ -12,6 +12,7 @@ export function useTableList(ajaxFn, params = {}, immediate = true) {
   const tableData = ref([])
   const tableOtherData = ref(null)
   const otherInfo = ref(null)
+  const currentAjaxFn = ref(ajaxFn)
 
   if (params && params.size) {
     pageSize.value = params.size
@@ -36,7 +37,7 @@ export function useTableList(ajaxFn, params = {}, immediate = true) {
       page: pageNum.value
     }
 
-    await ajaxFn(argObj)
+    await currentAjaxFn.value(argObj)
       .then((res) => {
         tableData.value = res.data || []
         pageTotal.value = res.count || 0
@@ -48,6 +49,10 @@ export function useTableList(ajaxFn, params = {}, immediate = true) {
       .catch(() => {
         tableLoading.value = false
       })
+  }
+
+  const updateApi = (newApiFn) => {
+    currentAjaxFn.value = newApiFn
   }
 
   // 分页参数
@@ -91,6 +96,7 @@ export function useTableList(ajaxFn, params = {}, immediate = true) {
     otherInfo,
     pageChange,
     searchReset,
-    getTableData
+    getTableData,
+    updateApi
   }
 }

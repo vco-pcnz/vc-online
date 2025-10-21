@@ -1234,5 +1234,7 @@ export default {
   "编辑中": "Editing",
   "解押中": "Discharging",
   "清除选择": "Clear selection",
-  "请设置第{0}行的当前抵押物价值": "Please set the current value of the {0} row"
+  "请设置第{0}行的当前抵押物价值": "Please set the current value of the {0} row",
+  "编辑抵押物": "Edit Security",
+  "解押旧的": "Discharge old"
 }

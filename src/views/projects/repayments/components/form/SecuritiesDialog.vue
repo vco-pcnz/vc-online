@@ -61,7 +61,7 @@
 </template>
 
 <script setup>
-  import { ref, watch, reactive, computed } from "vue";
+  import { ref, watch, nextTick, computed } from "vue";
   import { useI18n } from "vue-i18n";
   import { useTableList } from '@/hooks/useTableList';
   import { projectDischargeSelSecurity } from '@/api/project/loan';
@@ -84,12 +84,16 @@
     isDetails: {
       type: Boolean,
       default: false
+    },
+    isDischarge: {
+      type: Boolean,
+      default: false
     }
   });
 
   const { t } = useI18n();
 
-  const { tableRef, tableLoading, tableData, pageObj, pageChange, getTableData } = useTableList(projectDischargeSelSecurity, {uuid: props.uuid}, false);
+  const { tableRef, tableLoading, tableData, pageObj, pageChange, getTableData } = useTableList(projectDischargeSelSecurity, {}, false);
   const columns = computed(() => {
     const data = [
       { title: t('名称'), dataIndex: 'security_name', width: 140 },
@@ -164,7 +168,9 @@
             selectedRows.value = []
             selectedRowKeys.value = []
           }
-          getTableData(true)
+          nextTick(() => {
+            getTableData({uuid: props.uuid})
+          })
         } else {
           tableLoading.value = false
         }

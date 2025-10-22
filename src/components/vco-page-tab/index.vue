@@ -24,13 +24,21 @@ const props = defineProps({
   current: {
     type: [String, Number],
     default: ''
+  },
+  customActions: {
+    type: Boolean,
+    default: false
   }
 })
 
 const tabChange = (data) => {
-  if (data.value !== props.current) {
-    emits('update:current', data.value)
+  if (props.customActions) {
     emits('change', data)
+  } else {
+    if (data.value !== props.current) {
+      emits('update:current', data.value)
+      emits('change', data)
+    }
   }
 }
 </script>

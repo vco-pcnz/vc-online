@@ -224,7 +224,15 @@ export const dischargeSecurity = (params) =>
     params
   });
 
-// 解押-编辑
+// 抵押物详情
+export const dischargeInfo = (params) =>
+  request({
+    url: 'project/discharge/info',
+    method: 'get',
+    params
+  });
+
+// 抵押物编辑接口
 export const dischargeEedit = (data) =>
   request({
     url: 'project/discharge/eedit',
@@ -232,7 +240,7 @@ export const dischargeEedit = (data) =>
     data
   });
 
-// 解押添加-列表
+// 抵押物新增列表
 export const dischargeApplySecurity = (params) =>
   request({
     url: 'project/discharge/applySecurity',

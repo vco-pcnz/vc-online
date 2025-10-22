@@ -902,7 +902,6 @@ watch(() => extraData.value, () => {
 
 const isAllCancel = ref(false)
 const init = (allCancel = false) => {
-  console.log('fds', props.dataInfo);
   isAllCancel.value = allCancel
 
   visible.value = true;

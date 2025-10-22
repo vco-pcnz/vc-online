@@ -35,11 +35,11 @@
             type="primary"
           >{{ t('审核') }}</a-button>
         </a-popconfirm>
-        <!-- <a-button
+        <a-button
           v-if="hasPermission('projects:securities:aer') && showStatus?.key === 2"
           type="dark"
           @click="securityEditDialogVisible = true"
-        >{{ t('重新编辑') }}</a-button> -->
+        >{{ t('重新编辑') }}</a-button>
       </div>
     </vco-page-panel>
 
@@ -75,16 +75,6 @@
               <a-col :span="6" class="item-txt">
                 <p class="name">{{ t('抵押物价值') }}</p>
                 <vco-number :value="securityDetailInfo?.amount" :precision="2"></vco-number>
-              </a-col>
-              <a-col :span="6" class="item-txt">
-                <p class="name">{{ t('当前抵押物价值') }}</p>
-                <vco-number v-if="[2, 3].includes(showStatus?.key)" :value="securityDetailInfo?.real_amount" :precision="2"></vco-number>
-                <p v-else>--</p>
-              </a-col>
-              <a-col :span="6" class="item-txt">
-                <p class="name">{{ t('净收益') }}</p>
-                <vco-number v-if="[2, 3].includes(showStatus?.key)" :value="securityDetailInfo?.net_proceeds_price" :precision="2"></vco-number>
-                <p v-else>--</p>
               </a-col>
               <a-col :span="6" class="item-txt">
                 <p class="name">{{ t('保险价值') }}</p>
@@ -229,6 +219,12 @@ const showStatus = computed(() => {
         color: 'error',
         key: 2
       }
+    } else {
+      return {
+        title: securityDetailInfo.value.status_name,
+        color: 'grey',
+        key: 3
+      }
     }
   } else {
     return null
@@ -319,7 +315,7 @@ onMounted(async () => {
     position: relative;
     .status-txt {
       position: absolute;
-      right: 25px;
+      right: 43px;
       top: 15px;
       z-index: 9;
     }

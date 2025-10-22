@@ -14,7 +14,7 @@
       :projectDetail="projectDetail"
       :infoData="itemDataInfo"
       :re-edit="true"
-      @done="getTableData(true)"
+      @done="getTableData"
     ></security-edit-dialog>
 
     <div class="table-content sys-table-content mt-5">
@@ -58,11 +58,11 @@
                 type="primary" size="small" shape="round" class="uppercase"
                 @click="checkHandle(record)"
               >{{ t('审核') }}</a-button>
-              <!-- <a-button
+              <a-button
                 v-if="hasPermission('projects:securities:aer') && record.mark === 'DECLINED'"
                 type="dark" size="small" shape="round" class="uppercase"
                 @click="securityEditHandle(record)"
-              >{{ t('重新编辑') }}</a-button> -->
+              >{{ t('重新编辑') }}</a-button>
               <a-button
                 type="brown" size="small" shape="round" class="uppercase"
                 @click="navigationTo(`/projects/discharge/details/add?p_uuid=${uuid}&uuid=${record.uuid}`)"

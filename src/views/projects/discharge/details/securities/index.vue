@@ -304,7 +304,7 @@ onMounted(async () => {
     position: relative;
     .status-txt {
       position: absolute;
-      right: 25px;
+      right: 43px;
       top: 15px;
       z-index: 9;
     }

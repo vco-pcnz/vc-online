@@ -2,9 +2,9 @@
   <div>
     <vco-page-tab :tabData="tabData" v-model:current="currentTab" :custom-actions="true" @change="tabChange"></vco-page-tab>
     <securities-table :uuid="uuid" :projectDetail="projectDetail" v-if="currentTab === 1" />
-    <add-table :uuid="uuid" v-if="currentTab === 2" />
-    <edit-table :uuid="uuid" v-if="currentTab === 3" />
-    <discharge-table :uuid="uuid" v-if="currentTab === 4" />
+    <add-table :uuid="uuid" :projectDetail="projectDetail" v-if="currentTab === 2" />
+    <edit-table :uuid="uuid" :projectDetail="projectDetail" v-if="currentTab === 3" />
+    <discharge-table :uuid="uuid" :projectDetail="projectDetail" v-if="currentTab === 4" />
   </div>
 </template>
 

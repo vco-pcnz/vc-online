@@ -1239,5 +1239,10 @@ export default {
   "审核抵押物新增申请": "Review add application",
   "重新编辑": "Re-edit",
   "重新提交": "Re-submit",
-  "添加详情": "Add application details"
+  "添加详情": "Add application details",
+  "审核抵押物编辑申请": "Review edit application",
+  "抵押物编辑申请详情": "Edit application details",
+  "解押详情": "Discharge details",
+  "重新申请": "Re-apply",
+  "审核抵押物解押申请": "Review discharge application"
 }

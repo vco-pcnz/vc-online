@@ -154,7 +154,7 @@
 
       <div class="flex gap-4 mb-5 mt-5 justify-end">
         <a-button type="grey" class="big shadow bold uppercase" @click="updateVisible(false)">{{ t('取消') }}</a-button>
-        <a-button type="dark" class="big shadow bold uppercase" :loading="subLoading" @click="submitHandle">{{ t('保存') }}</a-button>
+        <a-button type="dark" class="big shadow bold uppercase" :loading="subLoading" @click="submitHandle">{{ reEdit ? t('重新提交') : t('保存') }}</a-button>
       </div>
     </div>
   </a-modal>
@@ -169,6 +169,7 @@ import tool, { selectDateFormat } from '@/utils/tool';
 import { message } from 'ant-design-vue/es';
 import { systemDictData } from "@/api/system"
 import { dischargeEedit } from '@/api/project/loan';
+import { projectDischargeAddEditSecurity } from '@/api/process';
 
 const emits = defineEmits(['update:visible', 'done']);
 const props = defineProps({
@@ -187,6 +188,14 @@ const props = defineProps({
   projectDetail: {
     type: Object,
     default: () => {}
+  },
+  reEdit: {
+    type: Boolean,
+    default: false
+  },
+  reapplyEdit: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -332,14 +341,36 @@ const subLoading = ref(false);
 
 const submitRquest = () => {
   if (currentParams.value) {
+    let params = {};
+    let ajaxFn = null;
+    if (props.reEdit) {
+      params = {
+        uuid: props?.uuid,
+        security_uuid: props.infoData.uuid,
+        security__data: currentParams.value
+      }
+      ajaxFn = projectDischargeAddEditSecurity
+    } else if (props.reapplyEdit) {
+      ajaxFn = dischargeEedit
+      params = {
+        p_uuid: props?.uuid,
+        uuid: props.infoData.uuid,
+        process__id: props.infoData.process__id,
+        old__data: props.infoData,
+        ...currentParams.value
+      }
+    } else {
+      ajaxFn = dischargeEedit
+      params = {
+        p_uuid: props?.uuid,
+        uuid: props.infoData.uuid,
+        old__data: props.infoData,
+        ...currentParams.value
+      }
+    }
     subLoading.value = true;
-    const params = {
-      p_uuid: props?.uuid,
-      uuid: props.infoData.uuid,
-      ...currentParams.value
-    };
 
-    dischargeEedit(params)
+    ajaxFn(params)
       .then(() => {
         currentParams.value = null;
         subLoading.value = false;

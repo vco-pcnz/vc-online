@@ -224,7 +224,47 @@ export const dischargeSecurity = (params) =>
     params
   });
 
-// 解押-编辑
+// 抵押物申请编辑-列表
+export const dischargeApplySecurityEdit = (params) =>
+  request({
+    url: 'project/discharge/applySecurityEdit',
+    method: 'get',
+    params
+  });
+
+// 抵押物解押申请-列表
+export const dischargeApplyDischarge = (params) =>
+  request({
+    url: 'project/discharge/applyDischarge',
+    method: 'get',
+    params
+  });
+
+// 抵押物详情
+export const dischargeInfo = (params) =>
+  request({
+    url: 'project/discharge/info',
+    method: 'get',
+    params
+  });
+
+// 抵押物编辑审核详情
+export const dischargeEinfo = (params) =>
+  request({
+    url: 'project/discharge/einfo',
+    method: 'get',
+    params
+  });
+
+// 抵押物解押审核详情
+export const dischargeNinfo = (params) =>
+  request({
+    url: 'project/discharge/ninfo',
+    method: 'get',
+    params
+  });
+
+// 抵押物提交编辑申请
 export const dischargeEedit = (data) =>
   request({
     url: 'project/discharge/eedit',
@@ -232,7 +272,7 @@ export const dischargeEedit = (data) =>
     data
   });
 
-// 解押添加-列表
+// 抵押物新增列表
 export const dischargeApplySecurity = (params) =>
   request({
     url: 'project/discharge/applySecurity',
@@ -272,6 +312,22 @@ export const dischargeSaveDStep = (data) =>
     data
   });
 
+// 抵押物编辑-同意申请
+export const dischargeSaveEStep = (data) =>
+  request({
+    url: 'project/discharge/esaveStep',
+    method: 'post',
+    data
+  });
+
+// 抵押解押-同意申请
+export const dischargeSaveNStep = (data) =>
+  request({
+    url: 'project/discharge/nsaveStep',
+    method: 'post',
+    data
+  });
+
 // 解押-召回申请
 export const dischargeRecall = (data) =>
   request({
@@ -292,6 +348,22 @@ export const dischargeGoback = (data) =>
 export const dischargeDdecline = (data) =>
   request({
     url: 'project/discharge/ddecline',
+    method: 'post',
+    data
+  });
+
+// 解押申请-拒绝
+export const dischargeNdecline = (data) =>
+  request({
+    url: 'project/discharge/ndecline',
+    method: 'post',
+    data
+  });
+
+// 抵押物编辑-拒绝
+export const dischargeEdecline = (data) =>
+  request({
+    url: 'project/discharge/edecline',
     method: 'post',
     data
   });

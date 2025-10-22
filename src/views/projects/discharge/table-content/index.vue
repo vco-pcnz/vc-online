@@ -1,10 +1,10 @@
 <template>
   <div>
-    <vco-page-tab :tabData="tabData" v-model:current="currentTab" @change="tabChange"></vco-page-tab>
+    <vco-page-tab :tabData="tabData" v-model:current="currentTab" :custom-actions="true" @change="tabChange"></vco-page-tab>
     <securities-table :uuid="uuid" :projectDetail="projectDetail" v-if="currentTab === 1" />
-    <add-table :uuid="uuid" v-if="currentTab === 2" />
-    <edit-table :uuid="uuid" v-if="currentTab === 3" />
-    <discharge-table :uuid="uuid" v-if="currentTab === 4" />
+    <add-table :uuid="uuid" :projectDetail="projectDetail" v-if="currentTab === 2" />
+    <edit-table :uuid="uuid" :projectDetail="projectDetail" v-if="currentTab === 3" />
+    <discharge-table :uuid="uuid" :projectDetail="projectDetail" v-if="currentTab === 4" />
   </div>
 </template>
 
@@ -16,6 +16,7 @@ import SecuritiesTable from './components/SecuritiesTable.vue';
 import AddTable from './components/AddTable.vue';
 import EditTable from './components/EditTable.vue';
 import DischargeTable from './components/DischargeTable.vue';
+import { navigationTo } from '@/utils/tool';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -52,6 +53,7 @@ const tabChange = (val) => {
   const { value } = val
   if (currentTab.value !== value) {
     currentTab.value = value
+    navigationTo(`/projects/discharge?uuid=${uuid.value}&type=${value}`)
   }
 }
 

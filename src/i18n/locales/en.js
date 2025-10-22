@@ -1242,5 +1242,18 @@ export default {
   "编辑中": "Editing",
   "解押中": "Discharging",
   "清除选择": "Clear selection",
-  "请设置第{0}行的当前抵押物价值": "Please set the current value of the {0} row"
+  "请设置第{0}行的当前抵押物价值": "Please set the current value of the {0} row",
+  "编辑抵押物": "Edit Security",
+  "解押旧的": "Discharge old",
+  "抵押物详情": "Security details",
+  "房屋信息": "House information",
+  "审核抵押物新增申请": "Review add application",
+  "重新编辑": "Re-edit",
+  "重新提交": "Re-submit",
+  "添加详情": "Add application details",
+  "审核抵押物编辑申请": "Review edit application",
+  "抵押物编辑申请详情": "Edit application details",
+  "解押详情": "Discharge details",
+  "重新申请": "Re-apply",
+  "审核抵押物解押申请": "Review discharge application"
 }

@@ -154,7 +154,7 @@
 
       <div class="flex gap-4 mb-5 mt-5 justify-end">
         <a-button type="grey" class="big shadow bold uppercase" @click="updateVisible(false)">{{ t('取消') }}</a-button>
-        <a-button type="dark" class="big shadow bold uppercase" :loading="subLoading" @click="submitHandle">{{ t('保存') }}</a-button>
+        <a-button type="dark" class="big shadow bold uppercase" :loading="subLoading" @click="submitHandle">{{ reEdit ? t('重新提交') : t('保存') }}</a-button>
       </div>
     </div>
   </a-modal>
@@ -187,6 +187,10 @@ const props = defineProps({
   projectDetail: {
     type: Object,
     default: () => {}
+  },
+  reEdit: {
+    type: Boolean,
+    default: false
   }
 });
 

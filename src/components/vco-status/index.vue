@@ -12,7 +12,7 @@
       type: String,
       default: 'Title'
     },
-    // primary | success | error | grey
+    // primary | success | error | grey | blue | cyan | green
     type: {
       type: String,
       default: ''
@@ -62,6 +62,24 @@
       color: grey;
       &::before {
         background-color: grey;
+      }
+    }
+    &.blue {
+      color: #1890ff;
+      &::before {
+        background-color: #1890ff;
+      }
+    }
+    &.cyan {
+      color: #13c2c2;
+      &::before {
+        background-color: #13c2c2;
+      }
+    }
+    &.green {
+      color: #52c41a;
+      &::before {
+        background-color: #52c41a;
       }
     }
   }

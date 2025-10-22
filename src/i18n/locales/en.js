@@ -1236,5 +1236,11 @@ export default {
   "清除选择": "Clear selection",
   "请设置第{0}行的当前抵押物价值": "Please set the current value of the {0} row",
   "编辑抵押物": "Edit Security",
-  "解押旧的": "Discharge old"
+  "解押旧的": "Discharge old",
+  "抵押物详情": "Security details",
+  "房屋信息": "House information",
+  "审核抵押物新增申请": "Review add application",
+  "重新编辑": "Re-edit",
+  "重新提交": "Re-submit",
+  "添加详情": "Add application details"
 }

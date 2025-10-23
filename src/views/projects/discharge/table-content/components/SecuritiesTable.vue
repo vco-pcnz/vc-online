@@ -15,78 +15,81 @@
       :uuid="uuid"
       :projectDetail="projectDetail"
       :info-data="selectData"
-      @done="() => handleGetTableData(true)"
+      @done="dischargeDone"
     ></security-discharge-dialog>
 
-    <a-spin :spinning="tableLoading" size="large">
-      <div class="flex items-center gap-5 mt-5">
-        <a-button
-          type="primary"
-          :disabled="!selectData.length"
-          @click="securityDischargeDialogVisible = true"
-        >{{ t('解押申请') }}<span v-if="selectData.length" class="pl-2">({{ selectData.length }})</span></a-button>
-        
-        <a-button
-          type="default"
-          :disabled="!selectData.length"
-          @click="clearAllSelection"
-        >{{ t('清除选择') }}</a-button>
-      </div>
-      <div class="table-content sys-table-content mt-2">
-          <a-table
-            ref="tableRef"
-            rowKey="uuid"
-            :row-selection="rowSelection"
-            :columns="columns"
-            :data-source="tableDataRef"
-            table-layout="fixed"
-            :pagination="false"
-          >
-            <template #bodyCell="{ column, record }">
-              <template v-if="column.dataIndex === 'is_gst'">
-                <span v-if="Number(record.is_gst) === 1">{{ t('包含') }}</span>
-                <span v-else>{{ t('不包含') }}</span>
-              </template>
-              <template v-if="column.dataIndex === 'amount'">
-                <vco-number size="fs_md" :value="record.amount" :precision="2" :end="true"></vco-number>
-              </template>
-              <template v-if="column.dataIndex === 'showStatusObj'">
-                <a-tag :color="record.showStatusObj?.color">{{ record.showStatusObj?.title }}</a-tag>
-              </template>
-              <template v-if="column.dataIndex === 'operation'">
-                <div class="flex items-center justify-center gap-3">
-                  <a-button
-                      v-if="record.showStatusObj?.key === 4"
-                      type="primary" size="small" shape="round" class="uppercase"
-                      @click="openSecurityEditDialog(record)"
-                    >{{ t('编辑') }}</a-button>
-                  <a-button
-                    type="brown" size="small" shape="round" class="uppercase"
-                  >{{ t('详情') }}</a-button>
-                </div>
-              </template>
-            </template>
-          </a-table>
-        </div>
-        <div v-if="tableData.length" class="mt-5">
-          <a-pagination
-            size="small"
-            :total="pageObj.total"
-            :current="pageObj.currentPage"
-            :page-size="pageObj.pageSize"
-            show-size-changer
-            show-quick-jumper
-            :show-total="(total) => t('共{0}条', [total])"
-            @change="pageChange"
-          />
-        </div>
-    </a-spin>
+    <div v-if="hasPermission('projects:securities:discharge:request')" class="flex items-center gap-5 mt-5">
+      <a-button
+        type="primary"
+        :disabled="!selectData.length"
+        @click="securityDischargeDialogVisible = true"
+      >{{ t('解押申请') }}<span v-if="selectData.length" class="pl-2">({{ selectData.length }})</span></a-button>
+      
+      <a-button
+        type="default"
+        :disabled="!selectData.length"
+        @click="clearAllSelection"
+      >{{ t('清除选择') }}</a-button>
+    </div>
+    <div class="table-content sys-table-content mt-5">
+      <a-table
+        ref="tableRef"
+        rowKey="uuid"
+        :row-selection="hasPermission('projects:securities:discharge:request') ? rowSelection : null"
+        :columns="columns"
+        :data-source="tableDataRef"
+        table-layout="fixed"
+        :loading="tableLoading"
+        :pagination="false"
+        :scroll="{ x: 1330 }"
+      >
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.dataIndex === 'is_gst'">
+            <span v-if="Number(record.is_gst) === 1">{{ t('包含') }}</span>
+            <span v-else>{{ t('不包含') }}</span>
+          </template>
+          <template v-if="column.dataIndex === 'amount'">
+            <vco-number size="fs_md" :value="record.amount" :precision="2" :end="true"></vco-number>
+          </template>
+          <template v-if="column.dataIndex === 'showStatusObj'">
+            <a-tag :color="record.showStatusObj?.color">{{ record.showStatusObj?.title }}</a-tag>
+          </template>
+          <template v-if="column.dataIndex === 'operation'">
+            <div class="flex items-center justify-center gap-3">
+              <a-button
+                  v-if="record.showStatusObj?.key === 4 && hasPermission('projects:securities:edit')"
+                  type="primary" size="small" shape="round" class="uppercase"
+                  @click="openSecurityEditDialog(record)"
+                >{{ t('编辑') }}</a-button>
+              <a-button
+                type="brown" size="small" shape="round" class="uppercase"
+                @click="navigationTo(`/projects/discharge/details/securities?p_uuid=${uuid}&uuid=${record.uuid}`)"
+              >{{ t('详情') }}</a-button>
+            </div>
+          </template>
+        </template>
+      </a-table>
+    </div>
+    <div v-if="tableData.length" class="mt-5">
+      <a-pagination
+        size="small"
+        :total="pageObj.total"
+        :current="pageObj.currentPage"
+        :page-size="pageObj.pageSize"
+        show-size-changer
+        show-quick-jumper
+        :show-total="(total) => t('共{0}条', [total])"
+        @change="pageChange"
+      />
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, watch, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { hasPermission } from '@/directives/permission/index';
+import { navigationTo } from '@/utils/tool';
 import { useTableList } from '@/hooks/useTableList';
 import { dischargeSecurity } from '@/api/project/loan';
 import SecurityEditDialog from './SecurityEditDialog.vue';
@@ -116,7 +119,7 @@ const columns = ref([
     dataIndex: 'operation',
     fixed: 'right',
     align: 'center',
-    width: 110
+    width: 130
   }
 ])
 
@@ -266,6 +269,11 @@ const handleGetTableData = async (reset = false) => {
   }
   
   await getTableData(reset)
+}
+
+const dischargeDone = () => {
+  clearAllSelection()
+  getTableData()
 }
 
 onMounted(() => {

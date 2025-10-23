@@ -44,7 +44,15 @@
             </template>
 
             <template v-if="column.dataIndex === 'type'">
-              <span class="status-txt">{{ record.state2 === 1000 ? t('解押') : t('添加抵押物') }}</span>
+              <span class="status-txt" v-if="record.type == 16">
+                {{ t('编辑抵押物') }}
+              </span>
+              <span class="status-txt" v-else-if="record.type == 14">
+                {{ t('解押') }}
+              </span>
+              <span class="status-txt" v-else>
+                {{ record.state2 === 1000 ? t('解押') : t('添加抵押物') }}
+              </span>
             </template>
 
             <template v-if="column.dataIndex === 'amount'">
@@ -77,13 +85,13 @@ import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { useTableList } from '@/hooks/useTableList';
 import { navigationTo } from '@/utils/tool';
-import { projectDischarge } from '@/api/project/loanRequests';
+import { projectDischarge, applyIndex, applyEditIndex } from '@/api/project/loanRequests';
 import layout from '../components/layout.vue';
 
 const { t } = useI18n();
-
-const { tableRef, pageObj, otherInfo, tableLoading, pageChange, tableData, getTableData } = useTableList(
-  projectDischarge,
+const ajaxApi = ref(projectDischarge); // 使用 ref
+const { tableRef, pageObj, otherInfo, tableLoading, pageChange, tableData, getTableData, updateApi } = useTableList(
+  ajaxApi,
   {
     limit: 10
   },
@@ -132,16 +140,23 @@ const rowClick = (record, index) => {
     onClick: () => {
       if (record.state2 === 1000) {
         // 解押
-        navigationTo(`/projects/discharge?uuid=${record.project.uuid}`,true);
+        navigationTo(`/projects/discharge?uuid=${record.project.uuid}`, true);
       } else {
         // 添加抵押物
-        navigationTo(`/projects/discharge?uuid=${record.project.uuid}&type=1`,true);
+        navigationTo(`/projects/discharge?uuid=${record.project.uuid}&type=1`, true);
       }
     }
   };
 };
 
 const reload = (val) => {
+  if (val.cate == 3) {
+    updateApi(applyEditIndex);
+  } else if (val.cate == 4) {
+    updateApi(applyIndex);
+  } else {
+    updateApi(projectDischarge);
+  }
   getTableData(val);
 };
 </script>

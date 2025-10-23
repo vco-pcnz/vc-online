@@ -57,7 +57,7 @@ const showPrefix = computed(() => {
   return res;
 });
 const showValue = computed(() => {
-  return Math.abs(Number(props.value));
+  return Number(props.value);
 });
 
 const setNumberColor = () => {

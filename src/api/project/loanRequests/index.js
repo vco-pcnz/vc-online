@@ -24,6 +24,22 @@ export const projectDischarge = (params) =>
     params
   });
 
+//解押&抵押物申请请求-列表
+export const applyIndex = (params) =>
+  request({
+    url: 'project/discharge/applyIndex',
+    method: 'get',
+    params
+  });
+  
+//解押&抵押物申请请求-列表
+export const applyEditIndex = (params) =>
+  request({
+    url: 'project/discharge/applyEditIndex',
+    method: 'get',
+    params
+  });
+
 //平账请求-列表
 export const projectJournal = (params) =>
   request({

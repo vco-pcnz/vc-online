@@ -73,7 +73,7 @@ const update = () => {
   emits('update');
 };
 const updateSuc = () => {
-  if (props.detail?.reopen?.mark === 'reopen_director') {
+  if (props.detail?.reopen?.mark === 'return_request_director') {
     router.push(`/projects/list`);
     return;
   }

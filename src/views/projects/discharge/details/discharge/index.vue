@@ -20,7 +20,7 @@
 
     <vco-page-panel :title="$t('解押详情')" @back="goBack">
       <div
-        v-if="((hasPermission('projects:securities:discharge:check') || hasPermission('projects:securities:discharge:request')))"
+        v-if="((hasPermission('projects:securities:discharge:check') || hasPermission('projects:securities:discharge:request')) && !isClose)"
           class="flex justify-end items-center gap-5">
         <a-button
           v-if="hasPermission('projects:securities:discharge:check') && securityDetailInfo?.mark === 'discharge_security_fc'"
@@ -147,6 +147,10 @@ const currentId = ref('');
 
 const projectDetailInfo = ref(null);
 const securityDetailInfo = ref(null);
+
+const isClose = computed(() => {
+  return Number(projectDetailInfo.value?.base?.is_close) === 1 || false
+})
 
 // 获取项目详情
 const getProjectDetail = async () => {

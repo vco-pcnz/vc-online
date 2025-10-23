@@ -17,7 +17,7 @@
       >
         <div class="share-security-content">
           <div class="flex items-center justify-end mb-4">
-            <a-button v-if="hasPermission('projects:securities:shared')" type="brown" shape="round" @click="sharedVisible = true">{{ t('选择') }}</a-button>
+            <a-button v-if="hasPermission('projects:securities:shared') && !isClose" type="brown" shape="round" @click="sharedVisible = true">{{ t('选择') }}</a-button>
           </div>
           <a-table
             :dataSource="shareSecurityData"
@@ -72,9 +72,9 @@
           </a-button>
         </div>
         
-        <div :class="{ grid: hasPermission('projects:securities:aer') &&  projectDetail && !projectDetail?.base?.is_close}" class="mb-2">
+        <div :class="{ grid: hasPermission('projects:securities:aer') &&  projectDetail && !isClose}" class="mb-2">
           <MeterStat :uuid="uuid" :projectDetail="projectDetail" v-if="Boolean(uuid)" ref="MeterStatRef"></MeterStat>
-          <template v-if="projectDetail && !projectDetail?.base?.is_close && hasPermission('projects:securities:aer')">
+          <template v-if="projectDetail && !isClose && hasPermission('projects:securities:aer')">
             <div class="HelpBorrower">
               <div class="flex items-center"><i class="iconfont mr-2">&#xe614;</i><span class="weight_demiBold">{{ t('抵押物信息') }}</span></div>
               <p class="color_grey mt-1 mb-3">{{ t('您可以点击下方按钮添加抵押物') }}</p>
@@ -98,7 +98,7 @@
         </div>
 
         <!-- table内容 -->
-        <table-content :projectDetail="projectDetail"></table-content>
+        <table-content :projectDetail="projectDetail" :isClose="isClose"></table-content>
       </div>
     </template>
   </detail-layout>
@@ -126,6 +126,10 @@ const { t } = useI18n();
 const uuid = ref('');
 const MeterStatRef = ref();
 const sharedVisible = ref(false)
+
+const isClose = computed(() => {
+  return Number(projectDetail.value?.base?.is_close) === 1 || false
+})
 
 
 const tabChange = (flag) => {
@@ -168,7 +172,7 @@ const columns = computed(() => {
     { title: t('直接绑定'), dataIndex: 'is_direct_bind', width: 100 }
   ]
 
-  if (hasPermission('projects:securities:shared')) {
+  if (hasPermission('projects:securities:shared') && !isClose.value) {
     data.push({ title: t('操作1'), dataIndex: 'operation', width: 100, align: 'center' })
   }
   return data;

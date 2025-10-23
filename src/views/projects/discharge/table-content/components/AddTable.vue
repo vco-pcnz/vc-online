@@ -54,12 +54,12 @@
           <template v-if="column.dataIndex === 'operation'">
             <div class="flex items-center justify-center gap-3">
               <a-button
-                v-if="hasPermission('projects:securities:add:check') && record.mark === 'security_fc'"
+                v-if="hasPermission('projects:securities:add:check') && record.mark === 'security_fc' && !isClose"
                 type="primary" size="small" shape="round" class="uppercase"
                 @click="checkHandle(record)"
               >{{ t('审核') }}</a-button>
               <a-button
-                v-if="hasPermission('projects:securities:aer') && record.mark === 'DECLINED'"
+                v-if="hasPermission('projects:securities:aer') && record.mark === 'DECLINED' && !isClose"
                 type="dark" size="small" shape="round" class="uppercase"
                 @click="securityEditHandle(record)"
               >{{ t('重新编辑') }}</a-button>
@@ -106,6 +106,10 @@ const props = defineProps({
   projectDetail: {
     type: Object,
     default: () => {}
+  },
+  isClose: {
+    type: Boolean,
+    default: false
   }
 });
 

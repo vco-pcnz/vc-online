@@ -78,8 +78,8 @@
                 <p class="txt">{{ securityDetailInfo?.data?.reason || '--' }}</p>
               </a-col>
               <a-col :span="6" class="item-txt">
-                <p class="name">{{ t('还款金额') }}</p>
-                <vco-number :value="securityDetailInfo?.repayment_amount || 0" :precision="2"></vco-number>
+                <p class="name">{{ t('还款金额1') }}</p>
+                <vco-number class="number" :value="securityDetailInfo?.repayment_amount || 0" :precision="2"></vco-number>
               </a-col>
               <a-col v-if="tableData.length" :span="24" class="item-txt">
                 <p class="name">{{ t('抵押物信息') }}</p>
@@ -177,7 +177,7 @@ const showStatus = computed(() => {
     } else {
       return {
         title: securityDetailInfo.value.status_name,
-        color: 'grey',
+        color: 'green',
         key: 3
       }
     }
@@ -285,6 +285,10 @@ onMounted(async () => {
           font-weight: normal;
           color: #999;
         }
+      }
+      :deep(.number .ant-statistic-content) {
+        font-size: 18px !important;
+        font-weight: 500 !important;
       }
       .txt-box {
         display: flex;

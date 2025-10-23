@@ -18,13 +18,17 @@
     >
       <div class="project-content">
         <a-row :gutter="24">
-          <a-col :span="18" class="item-txt">
+          <a-col :span="14" class="item-txt">
             <p class="name">{{ t('文件夹名称') }}</p>
             <p class="txt">{{ infoData?.info?.dirname || '--' }}</p>
           </a-col>
-          <a-col :span="6" class="item-txt">
+          <a-col :span="5" class="item-txt">
             <p class="name">{{ t('还款日期') }}</p>
             <p class="txt">{{ infoData?.data?.repayment_date ? tool.showDate(infoData?.data?.repayment_date) : '--' }}</p>
+          </a-col>
+          <a-col :span="5" class="item-txt">
+            <p class="name">{{ t('还款金额') }}</p>
+            <vco-number class="number" :value="infoData?.repayment_amount || 0" :precision="2"></vco-number>
           </a-col>
           <a-col :span="24" class="item-txt">
             <p class="name">{{ t('解押说明') }}</p>
@@ -173,6 +177,10 @@ const rejectVisible = ref(false)
         font-weight: 500;
         color: #181818;
       }
+    }
+    :deep(.number .ant-statistic-content) {
+      font-size: 18px !important;
+      font-weight: 500 !important;
     }
     .txt-box {
       display: flex;

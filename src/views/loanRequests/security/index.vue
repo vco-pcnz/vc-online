@@ -43,6 +43,15 @@
               </template>
             </template>
 
+            <template v-if="column.dataIndex === 'card_no'">
+              <template v-if="cate == 4">
+                {{ record?.data?.list.length }}
+              </template>
+              <template v-else>
+                {{ record.card_no || record.data.card_no }}
+              </template>
+            </template>
+
             <template v-if="column.dataIndex === 'type'">
               <span class="status-txt" v-if="record.type == 16">
                 {{ t('编辑抵押物') }}
@@ -56,7 +65,12 @@
             </template>
 
             <template v-if="column.dataIndex === 'amount'">
-              <vco-number :value="record.amount" :precision="2" size="fs_md" :end="true"></vco-number>
+              <template v-if="cate == 4">
+                <vco-number :value="record.data.repayment_amount" :precision="2" size="fs_md" :end="true"></vco-number>
+              </template>
+              <template v-else>
+                <vco-number :value="record.amount || record.data.amount" :precision="2" size="fs_md" :end="true"></vco-number>
+              </template>
             </template>
 
             <template v-if="column.dataIndex === 'status_name'">
@@ -89,7 +103,7 @@ import { projectDischarge, applyIndex, applyEditIndex } from '@/api/project/loan
 import layout from '../components/layout.vue';
 
 const { t } = useI18n();
-const ajaxApi = ref(projectDischarge); // 使用 ref
+const ajaxApi = ref(applyIndex); // 使用 ref
 const { tableRef, pageObj, otherInfo, tableLoading, pageChange, tableData, getTableData, updateApi } = useTableList(
   ajaxApi,
   {
@@ -97,6 +111,7 @@ const { tableRef, pageObj, otherInfo, tableLoading, pageChange, tableData, getTa
   },
   false
 );
+const cate = ref('');
 
 const columns = reactive([
   { title: t('项目图片'), dataIndex: 'project_image', width: 80, align: 'center' },
@@ -138,24 +153,38 @@ const colors = ref({
 const rowClick = (record, index) => {
   return {
     onClick: () => {
-      if (record.state2 === 1000) {
-        // 解押
-        navigationTo(`/projects/discharge?uuid=${record.project.uuid}`, true);
+      if (record.type == 16) {
+        navigationTo(`/projects/discharge/details/edit?p_uuid=${record.project.uuid}&id=${record.id}`);
+      } else if (record.type == 14) {
+        navigationTo(`/projects/discharge/details/discharge?p_uuid=${record.project.uuid}&id=${record.id}`);
       } else {
-        // 添加抵押物
-        navigationTo(`/projects/discharge?uuid=${record.project.uuid}&type=1`, true);
+        if (record.state2 === 1000) {
+          // 解押
+          navigationTo(`/projects/discharge?uuid=${record.project.uuid}`, true);
+        } else {
+          // 添加抵押物
+          navigationTo(`/projects/discharge/details/add?p_uuid=${record.project.uuid}&uuid=${record.uuid}`);
+        }
       }
     }
   };
 };
 
 const reload = (val) => {
-  if (val.cate == 3) {
+  cate.value = val.cate || 4;
+  if (cate.value == 3) {
     updateApi(applyEditIndex);
-  } else if (val.cate == 4) {
+  } else if (cate.value == 4) {
     updateApi(applyIndex);
   } else {
     updateApi(projectDischarge);
+  }
+  if (cate.value == 4) {
+    columns[3].title = t('抵押物数量');
+    columns[5].title = t('还款金额1');
+  } else {
+    columns[3].title = t('产权编号');
+    columns[5].title = t('抵押物价值');
   }
   getTableData(val);
 };

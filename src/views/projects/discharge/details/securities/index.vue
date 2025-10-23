@@ -20,7 +20,7 @@
 
     <vco-page-panel :title="$t('抵押物详情')" w="200px" @back="goBack">
       <div
-        v-if="(hasPermission('projects:securities:discharge:request') || hasPermission('projects:securities:edit')) && showStatus?.key === 4"
+        v-if="(hasPermission('projects:securities:discharge:request') || hasPermission('projects:securities:edit')) && showStatus?.key === 4 && !isClose"
           class="flex justify-end items-center gap-5">
         <a-button
           v-if="hasPermission('projects:securities:discharge:request')"
@@ -185,6 +185,10 @@ const securityUuid = ref('');
 
 const projectDetailInfo = ref(null);
 const securityDetailInfo = ref(null);
+
+const isClose = computed(() => {
+  return Number(projectDetailInfo.value?.base?.is_close) === 1 || false
+})
 
 // 获取项目详情
 const getProjectDetail = async () => {

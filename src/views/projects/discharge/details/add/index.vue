@@ -19,7 +19,7 @@
 
     <vco-page-panel :title="$t('添加详情')" @back="goBack">
       <div
-        v-if="((hasPermission('projects:securities:add:check') || hasPermission('projects:securities:aer'))) && Number(securityDetailInfo?.state) !== 1000"
+        v-if="((hasPermission('projects:securities:add:check') || hasPermission('projects:securities:aer'))) && Number(securityDetailInfo?.state) !== 1000 && !isClose"
           class="flex justify-end items-center gap-5">
         <a-button
           v-if="hasPermission('projects:securities:add:check') && showStatus?.key === 1"
@@ -192,6 +192,10 @@ const securityUuid = ref('');
 
 const projectDetailInfo = ref(null);
 const securityDetailInfo = ref(null);
+
+const isClose = computed(() => {
+  return Number(projectDetailInfo.value?.base?.is_close) === 1 || false
+})
 
 // 获取项目详情
 const getProjectDetail = async () => {

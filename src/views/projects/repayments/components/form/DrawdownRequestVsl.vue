@@ -3,6 +3,8 @@
   <div @click.stop ref="drawdownRequestRef" class="drawdown-request">
     <!-- 抵押物选择弹窗 -->
     <securities-dialog v-model:visible="securitiesVisible" :uuid="uuid" :select-data="relatedData" @done="securitiesDone"></securities-dialog>
+    <!-- 提示弹窗 -->
+    <vco-confirm-alert v-model:visible="visibleTip" :showClose="true" :confirmTxt="confirmTxt"></vco-confirm-alert>
 
     <a-modal :width="860" :open="visible" :title="t('还款申请')" :getContainer="() => $refs.drawdownRequestRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
@@ -13,25 +15,28 @@
                 <a-input v-model:value="formState.name" />
               </a-form-item>
             </a-col>
-            <a-col :span="12" v-if="projectDetail.product.code === 'vsl'">
-              <a-form-item :label="t('放款账户')" name="drawdown_account">
-                <a-spin :spinning="drawDownSelectedListLoading">
-                  <a-select v-model:value="formState.drawdown_account" mode="multiple" :maxTagCount="1" @change="loadDrawdown">
-                    <template v-for="(item, index) in drawDownSelectedList" :key="index">
-                      <a-select-option :value="item.id">{{ item.name }}</a-select-option>
-                    </template>
-                  </a-select>
-                </a-spin>
-              </a-form-item>
-            </a-col>
+
             <a-col :span="formState.all_repayment === 1 && maxReductionAmount && !isNormalUser ? 8 : 12">
               <a-form-item :label="t('还款日期')" name="apply_date">
-                <a-date-picker v-model:value="formState.apply_date" :format="selectDateFormat()" placeholder="" @change="loadDrawdown">
+                <a-date-picker v-model:value="formState.apply_date" :format="selectDateFormat()" placeholder="" @change="loadDrawdowns">
                   <template #suffixIcon>
                     <a-spin v-if="getLoading"></a-spin>
                     <CalendarOutlined v-else />
                   </template>
                 </a-date-picker>
+              </a-form-item>
+            </a-col>
+            <a-col :span="12" v-if="projectDetail.product.code === 'vsl'">
+              <a-form-item :label="t('还款金额1')" name="apply_amount">
+                <!--  -->
+                <a-input-number v-model:value="formState.apply_amount" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
+                <!-- <a-spin :spinning="drawDownSelectedListLoading">
+                  <a-select v-model:value="formState.drawdown_account" mode="multiple" :maxTagCount="1" @change="loadDrawdown">
+                    <template v-for="(item, index) in drawDownSelectedList" :key="index">
+                      <a-select-option :value="item.id">{{ item.name }}</a-select-option>
+                    </template>
+                  </a-select>
+                </a-spin> -->
               </a-form-item>
             </a-col>
             <template v-if="formState.all_repayment === 1 && maxReductionAmount && !isNormalUser">
@@ -107,14 +112,22 @@
             <a-col :span="24">
               <a-form-item class="custom-label related">
                 <template #label>
-                  <span>{{ t('放款') }}</span>
+                  <div class="w-full flex justify-between items-center">
+                    <span>{{ t('还款分配1') }}</span>
+                    <a-button type="brown" shape="round" size="small" @click="addDrawdownColumnsItem()"> {{ t('添加') }}</a-button>
+                  </div>
                 </template>
                 <div class="table-content sys-table-content related-content no-top-line" :class="drawdownListInspection ? 'drawdownListInspection' : ''">
                   <a-spin :spinning="drawdownListLoading" size="large">
                     <a-table rowKey="uuid" :columns="DrawdownColumns" :data-source="drawdownList" :pagination="false" table-layout="fixed">
                       <template #bodyCell="{ column, record, index }">
                         <template v-if="column.dataIndex === 'name'">
-                          <p :title="record.name" class="sec-name">{{ record.name }}</p>
+                          <!-- <p :title="record.name" class="sec-name">{{ record.name }}</p> -->
+                          <a-select v-model:value="record.id" :maxTagCount="1" class="mini" @change="loadDrawdown($event, index)">
+                            <template v-for="(item, index) in drawDownSelectedList" :key="index">
+                              <a-select-option :value="item.id" :disabled="disabledIds.includes(item.id)" :title="item.name">{{ item.name }}</a-select-option>
+                            </template>
+                          </a-select>
                         </template>
                         <template v-if="column.dataIndex === 'amount'">
                           <div class="text-center">
@@ -152,6 +165,11 @@
                             :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                             class="mini"
                           />
+                        </template>
+                        <template v-if="column.dataIndex === 'operation'">
+                          <a-popconfirm :title="t('确定删除吗？')" @confirm="deleteDrawdownColumnsItem(index)">
+                            <i class="iconfont remove-icon">&#xe8c1;</i>
+                          </a-popconfirm>
                         </template>
                       </template>
                     </a-table>
@@ -278,6 +296,8 @@ const showRelatedSwitch = ref(true);
 const visible = ref(false);
 const loading = ref(false);
 const uploadVisible = ref(false);
+const visibleTip = ref(false);
+const confirmTxt = ref('');
 
 const formState = ref({
   name: '',
@@ -362,10 +382,10 @@ const validateRed = () => {
 const formRules = ref({
   name: [{ required: true, message: t('请输入') + t('还款标题'), trigger: 'blur' }],
   all_repayment: [{ required: true, message: t('请选择') + t('还款方式'), trigger: 'change' }],
-  drawdown_account: [{ required: true, message: t('请选择') + t('放款账户'), trigger: 'change' }],
+  // drawdown_account: [{ required: true, message: t('请选择') + t('放款账户'), trigger: 'change' }],
   re_type: [{ required: true, message: t('请选择') + t('还款分配'), trigger: 'change' }],
   apply_date: [{ required: true, message: t('请选择') + t('还款日期'), trigger: 'change' }],
-  apply_amount: [{ required: true, validator: getValidateInfo(), trigger: 'blur' }],
+  apply_amount: [{ required: true, message: t('请输入') + t('还款金额1'), validator: getValidateInfo(), trigger: 'blur' }],
   reduction_money: [{ validator: validateRed(), trigger: 'blur' }],
   note: [{ required: true, message: t('请输入') + t('还款说明'), trigger: 'blur' }]
 });
@@ -448,9 +468,14 @@ const submit = () => {
     drawdownListInspection.value = true;
     return;
   }
-  params.apply_amount = params.repayment.reduce((sum, item) => {
+  let apply_amount_total = params.repayment.reduce((sum, item) => {
     return tool.plus(sum, item.amount || 0); // 使用 || 0 防止 NaN
   }, 0);
+  if (Number(apply_amount_total) !== Number(params.apply_amount)) {
+    visibleTip.value = true;
+    confirmTxt.value = t('还款金额 {0},还款分配金额总计 {1},相差 {2},请调整金额', [tool.formatMoney(params.apply_amount), tool.formatMoney(apply_amount_total), tool.formatMoney(tool.minus(params.apply_amount, apply_amount_total))]);
+    return
+  }
   loading.value = true;
 
   loanRDedit(params)
@@ -543,11 +568,12 @@ const relatedColumns = reactive([
 ]);
 
 const DrawdownColumns = reactive([
-  { title: t('名称'), dataIndex: 'name', width: 140 },
+  { title: t('账号'), dataIndex: 'name', width: 140 },
   { title: t('本金/利息'), dataIndex: 'amount' },
   { title: t('还款方式'), dataIndex: 'all_repayment', width: 140 },
   { title: t('还款分配'), dataIndex: 're_type', width: 140 },
-  { title: t('还款金额1'), dataIndex: 'amount1' }
+  { title: t('还款金额1'), dataIndex: 'amount1' },
+  { title: t('操作1'), dataIndex: 'operation', fixed: 'right', align: 'center', width: 50 }
 ]);
 
 const relatedData = ref([]);
@@ -623,6 +649,7 @@ const setFormData = (dataDetail) => {
       formState.value[key] = data[key];
     }
   }
+  formState.value.apply_amount = Math.abs(formState.value.apply_amount);
 
   if (data.security && data.security.length) {
     showRelatedSwitch.value = true;
@@ -695,13 +722,15 @@ const loadDrawDownSelected = () => {
 const drawdownList = ref([]);
 const drawdownListLoading = ref(false);
 const drawdownListInspection = ref(false);
+const disabledIds = ref([]);
 
-const loadDrawdown = () => {
-  if (formState.value.apply_date && formState.value.drawdown_account && formState.value.drawdown_account.length) {
+const loadDrawdown = (e, index) => {
+  if (formState.value.apply_date && e) {
     drawdownListLoading.value = true;
-    drawDownLists({ uuid: props.uuid, date: dayjs(formState.value.apply_date).format('YYYY-MM-DD'), ids: formState.value.drawdown_account.join() })
+    drawDownLists({ uuid: props.uuid, date: dayjs(formState.value.apply_date).format('YYYY-MM-DD'), ids: e })
       .then((res) => {
-        drawdownList.value = res.drawDown;
+        drawdownList.value[index] = res.drawDown[0];
+        drawdownList.value[index];
       })
       .finally(() => {
         drawdownListLoading.value = false;
@@ -709,9 +738,34 @@ const loadDrawdown = () => {
   }
 };
 
+const addDrawdownColumnsItem = () => {
+  drawdownList.value.push({
+    amount: '',
+    id: '',
+    interest: '',
+    interest_day: 0,
+    name: '',
+    rate: '',
+    total_amount: 0
+  });
+};
+
+const deleteDrawdownColumnsItem = (index) => {
+  drawdownList.value.splice(index, 1);
+};
+
+const loadDrawdowns = () => {
+  drawdownList.value.map((item, index) => {
+    if (item.id) {
+      loadDrawdown(item.id, index);
+    }
+  });
+};
+
 watch(
   () => drawdownList.value,
   (val) => {
+    disabledIds.value = val.filter((item) => item.id != null && item.id !== '').map((item) => item.id);
     if (drawdownListInspection.value) {
       const params_repayment = drawdownList.value.map((item) => {
         return {

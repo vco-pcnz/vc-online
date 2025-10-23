@@ -1243,6 +1243,8 @@ export default {
   "解押中": "Discharging",
   "清除选择": "Clear selection",
   "请设置第{0}行的当前抵押物价值": "Please set the current value of the {0} row",
+  "还款分配1": "Repayment allocation",
+  "还款金额 {0},还款分配金额总计 {1},相差 {2},请调整金额": "Repayment amount: {0}, total allocated amount: {1}. The difference is {2}. Please adjust the amounts.",
   "编辑抵押物": "Edit Security",
   "解押旧的": "Discharge old",
   "抵押物详情": "Security details",

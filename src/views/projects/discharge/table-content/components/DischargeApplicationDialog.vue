@@ -28,7 +28,7 @@
           </a-col>
           <a-col :span="5" class="item-txt">
             <p class="name">{{ t('还款金额') }}</p>
-            <vco-number class="number" :value="infoData?.repayment_amount || 0" :precision="2"></vco-number>
+            <vco-number class="number" :value="infoData?.data?.repayment_amount || 0" :precision="2"></vco-number>
           </a-col>
           <a-col :span="24" class="item-txt">
             <p class="name">{{ t('解押说明') }}</p>

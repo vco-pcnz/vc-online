@@ -1232,6 +1232,7 @@ export default {
   "解押申请1": "Discharge application",
   "编辑中": "Editing",
   "解押中": "Discharging",
+  "待解押": "Await discharge",
   "清除选择": "Clear selection",
   "请设置第{0}行的当前抵押物价值": "Please set the current value of the {0} row",
   "抵押物详情": "Security details",

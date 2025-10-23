@@ -619,7 +619,7 @@ export default {
   "公司": "Company",
   "解押": "Discharge",
   "未解押": "Unreleased",
-  "已解押": "Released",
+  "已解押": "Discharged",
   "解押时间": "Release time",
   "解押说明": "Notes",
   "解押标题": "Release Title",

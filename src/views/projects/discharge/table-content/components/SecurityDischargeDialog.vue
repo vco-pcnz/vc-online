@@ -32,7 +32,7 @@
               </a-form-item>
             </a-col>
             <a-col :span="5">
-              <a-form-item :label="t('还款金额')">
+              <a-form-item :label="t('还款金额1')">
                 <a-input-number
                   v-model:value="formState.repayment_amount"
                   :max="99999999999"

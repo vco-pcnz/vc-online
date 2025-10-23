@@ -138,13 +138,6 @@ const getShowStatus = (data) => {
       disabled: true,
       key: 1
     }
-  } else if (Number(data.is_repayment) === 1 || Number(data.repayment_id) > 0) {
-    return {
-      title: t('解押中'),
-      color: 'cyan',
-      disabled: true,
-      key: 2
-    }
   } else if (Number(data.status) === 1) {
     return {
       title: t('已解押'),
@@ -152,7 +145,14 @@ const getShowStatus = (data) => {
       disabled: true,
       key: 3
     }
-  } else {
+  }  else if (Number(data.is_repayment) === 1 || Number(data.repayment_id) > 0) {
+    return {
+      title: t('解押中'),
+      color: 'cyan',
+      disabled: true,
+      key: 2
+    }
+  }else {
     return {
       title: t('待解押'),
       color: '',

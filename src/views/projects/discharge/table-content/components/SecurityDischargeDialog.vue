@@ -26,9 +26,20 @@
                 <a-input v-model:value="formState.dirname" :placeholder="t('请输入')" :rows="3" />
               </a-form-item>
             </a-col>
-            <a-col :span="10">
+            <a-col :span="5">
               <a-form-item :label="t('还款日期')">
                 <a-date-picker class="datePicker" inputReadOnly v-model:value="formState.repayment_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" :showToday="false" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="5">
+              <a-form-item :label="t('还款金额')">
+                <a-input-number
+                  v-model:value="formState.repayment_amount"
+                  :max="99999999999"
+                  :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                  :controls="false"
+                />
               </a-form-item>
             </a-col>
             <a-col :span="24">
@@ -159,6 +170,7 @@ const formRef = ref()
 const formState = ref({
   dirname: '',
   repayment_date: '',
+  repayment_amount: undefined,
   reason: '',
   documents: []
 })
@@ -258,6 +270,7 @@ const submitHandle = () => {
         },
         p_uuid: props.uuid,
         repayment_date: formState.value.repayment_date || '',
+        repayment_amount: formState.value.repayment_amount || '',
         reason: formState.value.reason || '',
         list: tableData.value.map(item => ({
           uuid: item.uuid,
@@ -297,6 +310,8 @@ watch(
       Object.keys(formState.value).forEach((key) => {
         if (key === 'documents') {
           formState.value[key] = [];
+        } else if (key === 'repayment_amount') {
+          formState.value[key] = undefined;
         } else {
           formState.value[key] = '';
         }

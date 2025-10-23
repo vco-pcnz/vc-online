@@ -154,7 +154,7 @@ const getShowStatus = (data) => {
     }
   } else {
     return {
-      title: t('未解押'),
+      title: t('待解押'),
       color: '',
       disabled: false,
       key: 4

@@ -79,7 +79,7 @@
               </a-col>
               <a-col :span="6" class="item-txt">
                 <p class="name">{{ t('还款金额1') }}</p>
-                <vco-number class="number" :value="securityDetailInfo?.repayment_amount || 0" :precision="2"></vco-number>
+                <vco-number class="number" :value="securityDetailInfo?.data?.repayment_amount || 0" :precision="2"></vco-number>
               </a-col>
               <a-col v-if="tableData.length" :span="24" class="item-txt">
                 <p class="name">{{ t('抵押物信息') }}</p>

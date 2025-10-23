@@ -47,6 +47,7 @@
                 <i class="iconfont cursor-pointer" style="color: #ff4d4f;">&#xe60e;</i>
               </a-tooltip>
             </div>
+            <a-tag v-if="record.mark === 'APPROVED'" color="green">{{ record.status_name }}</a-tag>
           </template>
           <template v-if="column.dataIndex === 'create_time'">
             <span>{{ tool.showDate(record.create_time) }}</span>

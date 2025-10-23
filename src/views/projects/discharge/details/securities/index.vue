@@ -206,21 +206,21 @@ const showStatus = computed(() => {
         color: 'blue',
         key: 1
       }
-    } else if (Number(securityDetailInfo.value.is_repayment) === 1 || Number(securityDetailInfo.value.repayment_id) > 0) {
-      return {
-        title: t('解押中'),
-        color: 'cyan',
-        key: 2
-      }
     } else if (Number(securityDetailInfo.value.status) === 1) {
       return {
         title: t('已解押'),
         color: 'green',
         key: 3
       }
+    } else if (Number(securityDetailInfo.value.is_repayment) === 1 || Number(securityDetailInfo.value.repayment_id) > 0) {
+      return {
+        title: t('解押中'),
+        color: 'cyan',
+        key: 2
+      }
     } else {
       return {
-        title: t('未解押'),
+        title: t('待解押'),
         color: 'grey',
         key: 4
       }

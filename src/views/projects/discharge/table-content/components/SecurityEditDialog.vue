@@ -466,6 +466,10 @@ const dataInit = () => {
       if (['is_sales', 'is_gst'].includes(key)) {
         formState.value[key] = props.infoData[key] ? true : false;
       }
+
+      if (key === 'sales_price') {
+        formState.value[key] = props.infoData.est_sales_price || 0;
+      }
     }
     setAddressVal.value = props.infoData.city;
   }

@@ -113,12 +113,12 @@
             </div>
           </div>
 
-          <div v-if="detail?.status >= 2 && hasPermission('projects:repayments:release') && detail?.is_dis !== 1" class="mt-4">
+          <!-- <div v-if="detail?.status >= 2 && hasPermission('projects:repayments:release') && detail?.is_dis !== 1" class="mt-4">
             <p class="text-center color_grey fs_xs my-3">{{ t('您可以点击下面的按钮来释放抵押物。') }}</p>
             <div class="flex justify-center">
               <a-button type="dark" size="small" shape="round" @click="releaseVisible = true">{{ t('抵押物解押') }}</a-button>
             </div>
-          </div>
+          </div> -->
 
           <DrawdownBack v-if="['repayment_fc', 'repayment_lc'].includes(detail?.mark) && detail?.has_permission && detail?.do_cancel !== 1" :uuid="uuid" :detail="detail" @change="update"></DrawdownBack>
         </div>

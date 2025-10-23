@@ -36,16 +36,16 @@ const tabData = ref([
     value: 1
   },
   {
+    label: t('解押申请1'),
+    value: 4
+  },
+  {
     label: t('新增申请'),
     value: 2
   },
   {
     label: t('编辑申请'),
     value: 3
-  },
-  {
-    label: t('解押申请1'),
-    value: 4
   }
 ])
 

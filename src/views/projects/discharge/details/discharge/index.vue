@@ -73,9 +73,13 @@
                 <p class="name">{{ t('还款日期') }}</p>
                 <p class="txt">{{ securityDetailInfo?.data?.repayment_date ? tool.showDate(securityDetailInfo?.data?.repayment_date) : '--' }}</p>
               </a-col>
-              <a-col :span="24" class="item-txt">
+              <a-col :span="18" class="item-txt">
                 <p class="name">{{ t('解押说明') }}</p>
                 <p class="txt">{{ securityDetailInfo?.data?.reason || '--' }}</p>
+              </a-col>
+              <a-col :span="6" class="item-txt">
+                <p class="name">{{ t('还款金额1') }}</p>
+                <vco-number class="number" :value="securityDetailInfo?.data?.repayment_amount || 0" :precision="2"></vco-number>
               </a-col>
               <a-col v-if="tableData.length" :span="24" class="item-txt">
                 <p class="name">{{ t('抵押物信息') }}</p>
@@ -173,7 +177,7 @@ const showStatus = computed(() => {
     } else {
       return {
         title: securityDetailInfo.value.status_name,
-        color: 'grey',
+        color: 'green',
         key: 3
       }
     }
@@ -183,14 +187,14 @@ const showStatus = computed(() => {
 })
 
 const tableColumns = reactive([
-  { title: t('名称'), dataIndex: 'security_name', width: 100, ellipsis: true },
+  { title: t('名称'), dataIndex: 'security_name', width: 100, align: 'center', ellipsis: true },
   { title: t('产权编号'), dataIndex: 'card_no', width: 90 },
   { title: t('类型'), dataIndex: 'type_name', width: 80, align: 'center' },
-  { title: t('地址'), dataIndex: 'city', width: 120, align: 'center', ellipsis: true },
-  { title: t('抵押物价值'), dataIndex: 'amount', width: 110, align: 'center' },
-  { title: t('消费税'), dataIndex: 'is_gst', width: 100, align: 'center' },
-  { title: t('当前抵押物价值'), dataIndex: 'real_amount', width: 120, align: 'center' },
-  { title: t('净收益'), dataIndex: 'net_proceeds_price', width: 120, align: 'center' }
+  { title: t('地址'), dataIndex: 'city', width: 110, align: 'center', ellipsis: true },
+  { title: t('抵押物价值'), dataIndex: 'amount', width: 105, align: 'center' },
+  { title: t('消费税'), dataIndex: 'is_gst', width: 90, align: 'center' },
+  { title: t('当前抵押物价值'), dataIndex: 'real_amount', width: 140, align: 'center' },
+  { title: t('净收益'), dataIndex: 'net_proceeds_price', width: 100, align: 'center' }
 ]);
 
 const tableData = computed(() => {
@@ -282,6 +286,10 @@ onMounted(async () => {
           color: #999;
         }
       }
+      :deep(.number .ant-statistic-content) {
+        font-size: 18px !important;
+        font-weight: 500 !important;
+      }
       .txt-box {
         display: flex;
         align-items: center;
@@ -313,6 +321,10 @@ onMounted(async () => {
         border-radius: 10px;
         padding: 10px 15px;
         margin-top: 10px;
+        :deep(.ant-table-thead > tr > th) {
+          padding-left: 0 !important;
+          padding-right: 0 !important;
+        }
       }
     }
   }

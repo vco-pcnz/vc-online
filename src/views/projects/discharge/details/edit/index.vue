@@ -20,7 +20,7 @@
 
     <vco-page-panel :title="$t('抵押物编辑申请详情')" @back="goBack">
       <div
-        v-if="((hasPermission('projects:securities:edit:check') || hasPermission('projects:securities:edit')))"
+        v-if="((hasPermission('projects:securities:edit:check') || hasPermission('projects:securities:edit')) && !isClose)"
           class="flex justify-end items-center gap-5">
         <a-button
           v-if="hasPermission('projects:securities:edit:check') && securityDetailInfo?.mark === 'security_edit_fc'"
@@ -234,6 +234,10 @@ const itemDataInfo = computed(() => {
     process__id: securityDetailInfo.value?.id,
     ...newData.value
   }
+})
+
+const isClose = computed(() => {
+  return Number(projectDetailInfo.value?.base?.is_close) === 1 || false
 })
 
 // 获取项目详情

@@ -18,7 +18,7 @@
       @done="dischargeDone"
     ></security-discharge-dialog>
 
-    <div v-if="hasPermission('projects:securities:discharge:request')" class="flex items-center gap-5 mt-5">
+    <div v-if="hasPermission('projects:securities:discharge:request') && !isClose" class="flex items-center gap-5 mt-5">
       <a-button
         type="primary"
         :disabled="!selectData.length"
@@ -35,7 +35,7 @@
       <a-table
         ref="tableRef"
         rowKey="uuid"
-        :row-selection="hasPermission('projects:securities:discharge:request') ? rowSelection : null"
+        :row-selection="hasPermission('projects:securities:discharge:request') && !isClose ? rowSelection : null"
         :columns="columns"
         :data-source="tableDataRef"
         table-layout="fixed"
@@ -57,7 +57,7 @@
           <template v-if="column.dataIndex === 'operation'">
             <div class="flex items-center justify-center gap-3">
               <a-button
-                  v-if="record.showStatusObj?.key === 4 && hasPermission('projects:securities:edit')"
+                  v-if="record.showStatusObj?.key === 4 && hasPermission('projects:securities:edit') && !isClose"
                   type="primary" size="small" shape="round" class="uppercase"
                   @click="openSecurityEditDialog(record)"
                 >{{ t('编辑') }}</a-button>
@@ -104,6 +104,10 @@ const props = defineProps({
   projectDetail: {
     type: Object,
     default: () => {}
+  },
+  isClose: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -138,13 +142,6 @@ const getShowStatus = (data) => {
       disabled: true,
       key: 1
     }
-  } else if (Number(data.is_repayment) === 1 || Number(data.repayment_id) > 0) {
-    return {
-      title: t('解押中'),
-      color: 'cyan',
-      disabled: true,
-      key: 2
-    }
   } else if (Number(data.status) === 1) {
     return {
       title: t('已解押'),
@@ -152,9 +149,16 @@ const getShowStatus = (data) => {
       disabled: true,
       key: 3
     }
-  } else {
+  }  else if (Number(data.is_repayment) === 1 || Number(data.repayment_id) > 0) {
     return {
-      title: t('未解押'),
+      title: t('解押中'),
+      color: 'cyan',
+      disabled: true,
+      key: 2
+    }
+  }else {
+    return {
+      title: t('待解押'),
       color: '',
       disabled: false,
       key: 4

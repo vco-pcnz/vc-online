@@ -47,6 +47,7 @@
                 <i class="iconfont cursor-pointer" style="color: #ff4d4f;">&#xe60e;</i>
               </a-tooltip>
             </div>
+            <a-tag v-if="record.mark === 'APPROVED'" color="green">{{ record.status_name }}</a-tag>
           </template>
           <template v-if="column.dataIndex === 'create_time'">
             <span>{{ tool.showDate(record.create_time) }}</span>
@@ -55,12 +56,12 @@
           <template v-if="column.dataIndex === 'operation'">
             <div class="flex items-center justify-center gap-3">
               <a-button
-                v-if="hasPermission('projects:securities:discharge:check') && record.mark === 'discharge_security_fc'"
+                v-if="hasPermission('projects:securities:discharge:check') && record.mark === 'discharge_security_fc' && !isClose"
                 type="primary" size="small" shape="round" class="uppercase"
                 @click="dischargeApplicationHandle(record)"
               >{{ t('审核') }}</a-button>
               <a-button
-                v-if="hasPermission('projects:securities:discharge:request') && record.mark === 'DECLINED'"
+                v-if="hasPermission('projects:securities:discharge:request') && record.mark === 'DECLINED' && !isClose"
                 type="dark" size="small" shape="round" class="uppercase"
                 @click="securityDischargeHandle(record)"
               >{{ t('重新申请') }}</a-button>
@@ -107,6 +108,10 @@ const props = defineProps({
   projectDetail: {
     type: Object,
     default: () => {}
+  },
+  isClose: {
+    type: Boolean,
+    default: false
   }
 });
 

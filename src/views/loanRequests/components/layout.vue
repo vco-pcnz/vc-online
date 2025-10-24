@@ -227,9 +227,13 @@ const typeData = computed(() => {
       break;
     case 'LoanRequestsSecurity':
       arr = [
+        // {
+        //   label: t('解押旧的'),
+        //   value: '1'
+        // },
         {
-          label: t('解押旧的'),
-          value: '1'
+          label: t('解押'),
+          value: '4'
         },
         {
           label: t('添加抵押物'),
@@ -238,10 +242,6 @@ const typeData = computed(() => {
         {
           label: t('编辑抵押物'),
           value: '3'
-        },
-        {
-          label: t('解押'),
-          value: '4'
         }
       ];
       break;

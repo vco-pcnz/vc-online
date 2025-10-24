@@ -20,7 +20,7 @@
 
     <vco-page-panel :title="$t('抵押物详情')" w="200px" @back="goBack">
       <div
-        v-if="(hasPermission('projects:securities:discharge:request') || hasPermission('projects:securities:edit')) && showStatus?.key === 4"
+        v-if="(hasPermission('projects:securities:discharge:request') || hasPermission('projects:securities:edit')) && showStatus?.key === 4 && !isClose"
           class="flex justify-end items-center gap-5">
         <a-button
           v-if="hasPermission('projects:securities:discharge:request')"
@@ -186,6 +186,10 @@ const securityUuid = ref('');
 const projectDetailInfo = ref(null);
 const securityDetailInfo = ref(null);
 
+const isClose = computed(() => {
+  return Number(projectDetailInfo.value?.base?.is_close) === 1 || false
+})
+
 // 获取项目详情
 const getProjectDetail = async () => {
   const res = await projectDetail({ uuid: projectUuid.value });
@@ -206,21 +210,21 @@ const showStatus = computed(() => {
         color: 'blue',
         key: 1
       }
-    } else if (Number(securityDetailInfo.value.is_repayment) === 1 || Number(securityDetailInfo.value.repayment_id) > 0) {
-      return {
-        title: t('解押中'),
-        color: 'cyan',
-        key: 2
-      }
     } else if (Number(securityDetailInfo.value.status) === 1) {
       return {
         title: t('已解押'),
         color: 'green',
         key: 3
       }
+    } else if (Number(securityDetailInfo.value.is_repayment) === 1 || Number(securityDetailInfo.value.repayment_id) > 0) {
+      return {
+        title: t('解押中'),
+        color: 'cyan',
+        key: 2
+      }
     } else {
       return {
-        title: t('未解押'),
+        title: t('待解押'),
         color: 'grey',
         key: 4
       }

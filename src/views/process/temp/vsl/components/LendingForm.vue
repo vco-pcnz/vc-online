@@ -361,6 +361,62 @@
               </a-form-item>
             </a-col>
           </template>
+          <a-col v-if="estabItems.length" :span="24">
+            <div class="form-line"></div>
+          </a-col>
+
+          <template v-if="estabItems.length">
+            <a-col :span="8">
+              <a-form-item :label="t('建立费计算标准')" name="estab_type">
+                <a-select
+                  v-model:value="formState.estab_type"
+                  style="width: 100%"
+                  :disabled="isDetails"
+                  :options="estabTypeData"
+                ></a-select>
+              </a-form-item>
+            </a-col>
+
+            <a-col
+              v-for="item in estabItems"
+              :key="item.credit_table"
+              :span="8"
+            >
+              <a-form-item
+                :name="item.credit_table"
+              >
+                <template #label>
+                  {{ item.credit_name }}
+                  <a-tooltip v-if="item.tips" placement="topLeft">
+                    <template #title>
+                      <span>{{ item.tips }}</span>
+                    </template>
+                    <QuestionCircleOutlined class="ml-2" />
+                  </a-tooltip>
+                </template>
+
+                <a-input
+                  v-if="item.is_ratio"
+                  v-model:value="formState[item.credit_table]"
+                  :disabled="inputDisabled(item.editMark) || item.disabled"
+                  :suffix="item.credit_unit"
+                  @input="() => percentInput(item.credit_table)"
+                />
+                <a-input-number
+                  v-else
+                  v-model:value="formState[item.credit_table]"
+                  :disabled="inputDisabled(item.editMark) || item.disabled"
+                  :formatter="
+                    (value) =>
+                      `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                  "
+                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                  @input="() => dollarInput(item.credit_table)"
+                />
+              </a-form-item>
+            </a-col>
+          </template>
+
           <a-col v-if="dollarItems.length" :span="24">
             <div class="form-line"></div>
           </a-col>
@@ -512,6 +568,17 @@
 
   const isRefinancial = ref(false)
   const refinancialAmount = ref(0)
+
+  const estabTypeData = ref([
+    {
+      label: t('建立费率'),
+      value: 1
+    },
+    {
+      label: t('建立费'),
+      value: 2
+    }
+  ])
 
   // 请求可以置换的项目
   const refinancialData = ref([])
@@ -728,6 +795,7 @@
 
   const formRef = ref();
   const formState = ref({
+    estab_type: 1,
     build_amount: '',
     land_amount: '',
     initial_build_amount: '',
@@ -758,11 +826,13 @@
 
   const percentItems = ref([]);
   const dollarItems = ref([]);
+  const estabItems = ref([]);
   const changeBackItems = ref([])
   const showNumItems = ref([]);
 
   const percentItemsStore = ref([]);
   const dollarItemsStore = ref([]);
+  const estabItemsStore = ref([]);
   const changeBackItemsStore = ref([])
   const showNumItemsStore = ref([]);
 
@@ -829,18 +899,21 @@
   const linefeeFilter = () => {
     let percentData = cloneDeep(percentItemsStore.value)
     let dollarData = cloneDeep(dollarItemsStore.value)
+    let estabData = cloneDeep(estabItemsStore.value)
     let changeBack = cloneDeep(changeBackItemsStore.value)
     let showNum = cloneDeep(showNumItemsStore.value)
 
     if (formState.value.has_linefee === 0) {
       percentData = percentData.filter(item => !item.is_linefee)
       dollarData = dollarData.filter(item => !item.is_linefee)
+      estabData = estabData.filter(item => !item.is_linefee)
       changeBack = changeBack.filter(item => !item.is_linefee)
       showNum = showNum.filter(item => !item.is_linefee)
     }
 
     percentItems.value = percentData
     dollarItems.value = dollarData;
+    estabItems.value = estabData;
     changeBackItems.value = changeBack
     showNumItems.value = showNum
   }
@@ -907,10 +980,10 @@
       application_fee: Number(credit_frontFee || 0)
     }
 
-    if (key === 'credit_estabFee') {
-      params.estab_fee = Number(credit_estabFee || 0)
-    } else {
+    if (formState.value.estab_type === 1) {
       params.esTab_fee_rate = Number(credit_estabFeeRate || 0)
+    } else {
+      params.estab_fee = Number(credit_estabFee || 0)
     }
 
     establishCalculate(params).then(res => {
@@ -991,6 +1064,19 @@
       const dolData = writeData.filter((item) => !item.is_ratio);
       const backData = writeData.filter((item) => item.backMark);
 
+      // vsl 建立费、建立费率
+      const estabData = []
+      const estabFeeRateIndex = perData.findIndex(item => item.credit_table === 'credit_estabFeeRate')
+      if (estabFeeRateIndex > -1) {
+        estabData.push(perData[estabFeeRateIndex])
+        perData.splice(estabFeeRateIndex, 1)
+      }
+      const estabFeeIndex = dolData.findIndex(item => item.credit_table === 'credit_estabFee')
+      if (estabFeeIndex > -1) {
+        estabData.push(dolData[estabFeeIndex])
+        dolData.splice(estabFeeIndex, 1)
+      }
+
       // 如果存在中介费率，则中介费不可输入只是做展示
       const brokerFeeRate = perData.find(item => item.credit_table === 'credit_brokerFeeRate')
       if (brokerFeeRate) {
@@ -1027,6 +1113,7 @@
 
       percentItemsStore.value = cloneDeep(perData);
       dollarItemsStore.value = cloneDeep(dolData);
+      estabItemsStore.value = cloneDeep(estabData);
       changeBackItemsStore.value = cloneDeep(backData);
       showNumItemsStore.value = cloneDeep(showNumItemsData);
       
@@ -1134,6 +1221,9 @@
 
     // BOC 贷款周期
     formState.value.drawdown_term = props.lendingInfo.drawdown_term || 0
+
+    // 计算标准
+    formState.value.estab_type = props.lendingInfo.estab_type ? Number(props.lendingInfo.estab_type) : 1;
 
     // 项目周期
     formState.value.time_date = [dayjs(props.lendingInfo.start_date), dayjs(props.lendingInfo.end_date)]
@@ -1316,6 +1406,7 @@
         const params = {
           code: props.blockInfo.code,
           uuid: props.currentId,
+          estab_type: Number(formState.value.estab_type),
           build_amount: formState.value.build_amount || 0,
           land_amount: formState.value.land_amount || 0,
           equity_amount: formState.value.equity_amount || 0,

@@ -1,6 +1,9 @@
 <template>
   <layout ref="layoutRef">
     <template #content>
+      <div class="flex justify-end">
+        <a-button v-if="hasPermission('reconciliation:resultReport:resultXeroExport')" type="cyan" size="small" class="ml-3" shape="round" @click="reportIds" :loading="downIdsloading">{{t('XeroID')}}</a-button>
+      </div>
       <a-spin :spinning="loading" size="large">
         <div class="flex justify-between items-end mb-5">
           <TableSearch @search="search"></TableSearch>
@@ -70,9 +73,10 @@
 import { ref, reactive, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import layout from '../components/layout.vue';
+import { hasPermission } from '@/directives/permission/index';
 import tool from '@/utils/tool.js';
 import { navigationTo } from '@/utils/tool';
-import { resultReport, reportExport } from '@/api/reconciliations';
+import { resultReport, reportExport, resultXeroExport } from '@/api/reconciliations';
 import TableSearch from './TableSearch.vue';
 import { cloneDeep } from 'lodash';
 
@@ -194,6 +198,18 @@ const report = () => {
     })
     .finally(() => {
       downloading.value = false;
+    });
+};
+
+const downIdsloading = ref(false);
+const reportIds = () => {
+  downIdsloading.value = true;
+  resultXeroExport()
+    .then((res) => {
+      window.open(res);
+    })
+    .finally(() => {
+      downIdsloading.value = false;
     });
 };
 

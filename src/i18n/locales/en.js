@@ -1248,5 +1248,6 @@ export default {
   "抵押物编辑申请详情": "Edit application details",
   "解押详情": "Discharge details",
   "重新申请": "Re-apply",
-  "审核抵押物解押申请": "Review discharge application"
+  "审核抵押物解押申请": "Review discharge application",
+  "XeroID": "XeroID"
 }

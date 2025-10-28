@@ -78,7 +78,10 @@
                 <QuestionCircleOutlined class="ml-2" />
               </a-tooltip>
             </template>
-
+            <template v-if="column.dataIndex === 'is_late'">
+              <a-tag v-if="Number(record.is_late) === 1" color="red" style="margin-inline-end: 0 !important">{{ t('延迟变更') }}</a-tag>
+              <a-tag v-else color="green" style="margin-inline-end: 0 !important">{{ t('正常变更') }}</a-tag>
+            </template>
             <template v-if="column.dataIndex === 'create_time'">
               <span v-if="record.create_time">{{ tool.showDate(record.create_time) }}</span>
               <p v-else>--</p>
@@ -98,7 +101,7 @@
 import { ref, reactive, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
-import { QuestionCircleOutlined } from '@ant-design/icons-vue'
+import { QuestionCircleOutlined } from '@ant-design/icons-vue';
 import { useTableList } from '@/hooks/useTableList';
 import { navigationTo } from '@/utils/tool';
 import { projectVariation } from '@/api/project/loanRequests';
@@ -106,7 +109,7 @@ import layout from '../components/layout.vue';
 
 const { t } = useI18n();
 
-const { tableRef, pageObj,otherInfo, tableLoading, pageChange, tableData, getTableData } = useTableList(
+const { tableRef, pageObj, otherInfo, tableLoading, pageChange, tableData, getTableData } = useTableList(
   projectVariation,
   {
     limit: 10
@@ -119,6 +122,7 @@ const columns = reactive([
   { title: t('项目信息'), dataIndex: 'project_info', width: 200, align: 'left' },
   { title: t('借款人'), dataIndex: 'borrower', width: 200, align: 'left' },
   { title: t('变更类型'), dataIndex: 'type_name', width: 180, align: 'center' },
+  { title: t('类型'), dataIndex: 'is_late', width: 120, align: 'center' },
   { title: t('变更金额'), dataIndex: 'amount', width: 140, align: 'center' },
   { title: t('变更开始日期'), dataIndex: 'start_date', width: 160, align: 'center' },
   { title: t('状态'), dataIndex: 'status_name', width: 165, align: 'center' },
@@ -160,7 +164,7 @@ const colors = ref({
 const rowClick = (record, index) => {
   return {
     onClick: () => {
-      navigationTo(`/projects/variations-details/about?uuid=${record.project.uuid}&id=${record.id}`,true);
+      navigationTo(`/projects/variations-details/about?uuid=${record.project.uuid}&id=${record.id}`, true);
     }
   };
 };

@@ -22,7 +22,7 @@
         v-if="selectVisible"
         :is-view="true"
         :variation-id="id"
-        :selected-data="selectedData"
+        :selected-data="hasSetData ? selectedData : []"
       ></view-content>
     </a-modal>
 
@@ -125,6 +125,7 @@
           <i class="iconfont">&#xe712;</i>
           <div class="flex items-center gap-2">
             <vco-number :value="buildChangeNum" :precision="2"></vco-number>
+            <i v-if="Number(variationsInfo.amount) && variationsInfo?.build?.data" class="iconfont view-icon" @click="showSelectData(false)">&#xe63e;</i>
             <p class="text-xs text-gray-500">({{ t('建筑贷款总额') }})</p>
           </div>
           <i class="iconfont">&#xe609;</i>
@@ -146,7 +147,7 @@
           <i class="iconfont">&#xe712;</i>
           <div class="flex items-center gap-2">
             <vco-number :value="Number(variationsInfo.initial_build_amount || 0)" :precision="2"></vco-number>
-            <i v-if="variationsInfo.build_log && variationsInfo.build_log?.length" class="iconfont view-icon" @click="selectVisible = true">&#xe63e;</i>
+            <i v-if="variationsInfo.build_log && variationsInfo.build_log?.length" class="iconfont view-icon" @click="showSelectData(true)">&#xe63e;</i>
             <p class="text-xs text-gray-500">({{ t('首次建筑贷款放款额') }})</p>
           </div>
           <i class="iconfont">&#xe609;</i>
@@ -308,6 +309,12 @@ const selectVisible = ref(false)
 const selectedData = computed(() => {
   return variationsInfo.value.build_log || []
 })
+
+const hasSetData = ref(false)
+const showSelectData = (type) => {
+  hasSetData.value = type
+  selectVisible.value = true
+}
 
 onMounted(() => {
   getsecurityInfo()

@@ -344,10 +344,18 @@ const showOpenDialog = () => {
   const currentDate = dayjs();
   const startDateDay = dayjs(props.detailData.start_date);
 
-  if (startDateDay.isAfter(currentDate)) {
-    formState.value.start_date = currentDate
+  if ([1, 2, 3].includes(Number(props.detailData.type))) {
+    if (startDateDay.isAfter(currentDate)) {
+      formState.value.start_date = ''
+    } else {
+      formState.value.start_date = startDateDay
+    }
   } else {
-    formState.value.start_date = startDateDay
+    if (startDateDay.isAfter(currentDate)) {
+      formState.value.start_date = currentDate
+    } else {
+      formState.value.start_date = startDateDay
+    }
   }
   endDate.value = props.detailData.end_date;
 };
@@ -401,8 +409,14 @@ const openHandleSubmit = (params) => {
 };
 
 const disabledDate = (currentDate) => {
-  const startDate = dayjs(props.projectDetail.date.var_start_date);
-  return currentDate && currentDate.isBefore(startDate.startOf('day').add(1, 'day')) || currentDate.valueOf() > Date.now();
+  if ([1, 2, 3].includes(Number(props.detailData.type))) {
+    const endDate = dayjs(props.projectDetail.date.end_date);
+    // 禁用“今天之前”的日期，及“endDate 之后”的日期
+    return currentDate && currentDate.isBefore(endDate.endOf('day')) || currentDate.valueOf() > Date.now();
+  } else {
+    const startDate = dayjs(props.projectDetail.date.var_start_date);
+    return currentDate && currentDate.isBefore(startDate.startOf('day').add(1, 'day')) || currentDate.valueOf() > Date.now();
+  }
 };
 
 const dateChange = (date) => {

@@ -171,3 +171,11 @@ export const reportExport = (params) =>
     method: 'get',
     params
   });
+
+// 报告明细导出
+export const resultXeroExport = (params) =>
+  request({
+    url: '/reconciliation/resultXeroExport',
+    method: 'get',
+    params
+  });

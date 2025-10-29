@@ -4,7 +4,9 @@
     <div class="efSGMs">
       <i class="iconfont">&#xe6b3;</i>
       <div class="tips" :style="{ width: w }">
-        <p>{{ tip }} </p>
+        <slot name="content">
+          <p>{{ tip }} </p>
+        </slot>
       </div>
     </div>
   </div>
@@ -50,8 +52,7 @@ const props = defineProps({
     z-index: 10;
   }
   .iconfont {
-    
-    color: #F19915;
+    color: #f19915;
     font-size: 14px;
   }
   &:hover {

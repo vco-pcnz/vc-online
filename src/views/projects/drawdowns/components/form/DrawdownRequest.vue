@@ -15,12 +15,27 @@
             </div>
 
             <div v-if="projectDetail.product.code === 'vsl'" class="input-item" style="margin: 15.5px 0">
-              <div class="label">
-                <span class="label mr-3" :class="{ err: !formState.source && validate }">{{ t('贷款方') }}</span>
-                <span v-if="formState.source == '0'">VS {{ t('可用余额') }} {{ tool.formatMoney(tool.plus(projectDetail?.vslInfo?.vs_remaining_loan_money, detail_amount)) }}</span>
-                <span v-else>BOC {{ t('可用余额') }} {{ tool.formatMoney(tool.plus(projectDetail?.vslInfo?.boc_remaining_loan_money, detail_amount)) }}</span>
+              <div class="label flex items-center">
+                <span class="label mr-3" style="padding-bottom: 0;" :class="{ err: !formState.source && validate }">{{ t('贷款方') }}</span>
+                <vco-tip w="200px">
+                  <span class="">{{ t('可用余额') }}</span>
+                  <template #content>
+                    <p>VS : {{ tool.formatMoney(tool.plus(projectDetail?.vslInfo?.vs_remaining_loan_money, detail_amount)) }}</p>
+                    <p>BOC : {{ tool.formatMoney(tool.plus(projectDetail?.vslInfo?.boc_remaining_loan_money, detail_amount)) }}</p>
+                  </template>
+                </vco-tip>
               </div>
-              <a-select :loading="loading_type" style="width: 100%" v-model:value="formState.source" :options="LenderData"></a-select>
+              <a-select :loading="loading_type" style="width: 100%" v-model:value="formState.source">
+                <a-select-option :value="item.value" v-for="item in LenderData" :key="item.value">
+                  <div class="flex items-center">
+                    <span class="mr-3">{{ t(item.label) }}</span>
+                    <div style="font-size: 10px;opacity: .6;">
+                      <p v-if="item.value == 0">{{ t('可用余额') }}: {{ tool.formatMoney(tool.plus(projectDetail?.vslInfo?.vs_remaining_loan_money, detail_amount)) }}</p>
+                      <p v-else>{{ t('可用余额') }}: {{ tool.formatMoney(tool.plus(projectDetail?.vslInfo?.boc_remaining_loan_money, detail_amount)) }}</p>
+                    </div>
+                  </div>
+                </a-select-option>
+              </a-select>
             </div>
 
             <div class="input-item">
@@ -36,9 +51,9 @@
           </a-col>
           <a-col :span="12">
             <div class="input-item">
-              <vco-tip style="padding-bottom: 5px" :tip="t('此消息针对 FC 的批准评论')"
-                ><div class="label" style="padding: 0">{{ t('消息') }}</div></vco-tip
-              >
+              <vco-tip style="padding-bottom: 5px" :tip="t('此消息针对 FC 的批准评论')">
+                <div class="label" style="padding: 0">{{ t('消息') }}</div>
+              </vco-tip>
               <a-textarea v-if="projectDetail.product.code === 'vsl'" v-model:value="formState.remark" :rows="hasPermission('projects:drawdowns:add') ? 18 : 14" />
               <a-textarea v-else v-model:value="formState.remark" :rows="hasPermission('projects:drawdowns:add') ? 14 : 10" />
             </div>

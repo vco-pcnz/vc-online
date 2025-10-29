@@ -9,6 +9,7 @@
 
     <!-- 详情弹窗 -->
     <details-dialog v-model:visible="detailsVisible" :uuid="uuid" :is-accept="detailsAccept" :detail-data="detail" @done="update"></details-dialog>
+    <details-dialog-vsl v-model:visible="detailsVisibleVsl" :uuid="uuid" :is-accept="detailsAccept" :detail-data="detail" @done="update"></details-dialog-vsl>
 
     <!-- 抵押物解压弹窗 -->
     <release-dialog v-model:visible="releaseVisible" :uuid="uuid" :detail-data="detail" @done="update"></release-dialog>
@@ -145,6 +146,7 @@ import SecuritiesDialog from './form/SecuritiesDialog.vue';
 import DrawdownRequest from './form/DrawdownRequest.vue';
 import DrawdownRequestVsl from './form/DrawdownRequestVsl.vue';
 import DetailsDialog from './form/DetailsDialog.vue';
+import DetailsDialogVsl from './form/DetailsDialogVsl.vue';
 import ReleaseDialog from './form/ReleaseDialog.vue';
 import PushBackLog from '@/views/projects/components/PushBackLog.vue';
 import { useUserStore } from '@/store';
@@ -237,11 +239,16 @@ const openEditHandle = (allCancel = false) => {
 };
 
 const detailsVisible = ref(false);
+const detailsVisibleVsl = ref(false);
 const detailsAccept = ref(false);
 
 const openDetails = (accept) => {
   detailsAccept.value = accept;
-  detailsVisible.value = true;
+  if (props.projectDetail.product.code === 'vsl') {
+    detailsVisibleVsl.value = true;
+  } else {
+    detailsVisible.value = true;
+  }
 };
 
 const releaseVisible = ref(false);

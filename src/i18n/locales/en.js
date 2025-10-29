@@ -1259,5 +1259,6 @@ export default {
   "解押详情": "Discharge details",
   "重新申请": "Re-apply",
   "审核抵押物解押申请": "Review discharge application",
+  "建立费计算标准": "Establishment fee calculation standard",
   "XeroID": "XeroID"
 }

@@ -304,8 +304,7 @@ const formState = ref({
   apply_amount: '',
   apply_date: '',
   note: '',
-  reduction_money: '',
-  drawdown_account: []
+  reduction_money: ''
 });
 
 const maxReductionAmount = ref(0);
@@ -401,7 +400,7 @@ const updateVisible = (value) => {
     Object.keys(formState.value).forEach((key) => {
       formState.value[key] = ''; // 清空每个字段
     });
-    formState.value.drawdown_account = [];
+    // formState.value.drawdown_account = [];
     relatedData.value = [];
     showRelatedSwitch.value = false;
     document.value = [];
@@ -677,9 +676,9 @@ const setFormData = (dataDetail) => {
     calAmount(data.reduction_rate, Boolean(standardRateInput.value));
   }
 
-  formState.value.drawdown_account = data.drawDown.map((item) => {
-    return item.id;
-  });
+  // formState.value.drawdown_account = data.drawDown.map((item) => {
+  //   return item.id;
+  // });
 
   drawdownList.value = data.drawDown;
 

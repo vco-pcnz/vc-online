@@ -1260,5 +1260,6 @@ export default {
   "重新申请": "Re-apply",
   "审核抵押物解押申请": "Review discharge application",
   "建立费计算标准": "Establishment fee calculation standard",
-  "XeroID": "XeroID"
+  "XeroID": "XeroID",
+  "BOC剩余金额是{0},确定要进行VS放款吗？": "BOC available draw amount is <span>{0}</span>. Are you sure VS drawdown is correct?"
 }

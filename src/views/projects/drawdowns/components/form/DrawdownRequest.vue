@@ -16,7 +16,7 @@
 
             <div v-if="projectDetail.product.code === 'vsl'" class="input-item" style="margin: 15.5px 0">
               <div class="label flex items-center">
-                <span class="label mr-3" style="padding-bottom: 0;" :class="{ err: !formState.source && validate }">{{ t('贷款方') }}</span>
+                <span class="label mr-3" style="padding-bottom: 0" :class="{ err: !formState.source && validate }">{{ t('贷款方') }}</span>
                 <vco-tip w="200px">
                   <span class="">{{ t('可用余额') }}</span>
                   <template #content>
@@ -29,7 +29,7 @@
                 <a-select-option :value="item.value" v-for="item in LenderData" :key="item.value">
                   <div class="flex items-center">
                     <span class="mr-3">{{ t(item.label) }}</span>
-                    <div style="font-size: 10px;opacity: .6;">
+                    <div style="font-size: 10px; opacity: 0.6">
                       <p v-if="item.value == 0">{{ t('可用余额') }}: {{ tool.formatMoney(tool.plus(projectDetail?.vslInfo?.vs_remaining_loan_money, detail_amount)) }}</p>
                       <p v-else>{{ t('可用余额') }}: {{ tool.formatMoney(tool.plus(projectDetail?.vslInfo?.boc_remaining_loan_money, detail_amount)) }}</p>
                     </div>
@@ -229,11 +229,26 @@ const save = (tip) => {
   }
 
   if (props.projectDetail.product.code === 'vsl') {
-    let vsl_available = formState.source == '0' ? props.projectDetail?.vslInfo.vs_remaining_loan_money : props.projectDetail?.vslInfo.boc_remaining_loan_money;
-    if (Number(amount) > Number(vsl_available)) {
+    let vsl_available = formState.value.source == '0' ? props.projectDetail?.vslInfo.vs_remaining_loan_money : props.projectDetail?.vslInfo.boc_remaining_loan_money;
+
+    if (Number(amount) > Number(vsl_available) && formState.value.source == '0' && tool.plus(props.projectDetail?.vslInfo?.boc_remaining_loan_money, detail_amount.value) > 0) {
+      visibleTip.value = true;
+      confirmTxt.value =
+        '<div style="text-align:left;text-indent: 2rem;">' +
+        t('BOC剩余金额是{0},确定要进行VS放款吗？', [tool.formatMoney(tool.plus(props.projectDetail?.vslInfo?.boc_remaining_loan_money, detail_amount.value))]) +
+        '<br/>' +
+        '<div style="text-indent: 2rem;">' +
+        t('放款金额 {0},可用金额 {1},{2}超出金额 {3} 是否继续放款?', [tool.formatMoney(amount), formState.value.source == '0' ? 'VS ' : 'BOC ', tool.formatMoney(vsl_available), tool.formatMoney(tool.minus(amount, vsl_available))]);
+      +'<div>' + '<div>';
+      return;
+    } else if (Number(amount) > Number(vsl_available)) {
       vsl_available = tool.plus(vsl_available, detail_amount.value);
       visibleTip.value = true;
-      confirmTxt.value = t('放款金额 {0},可用金额 {1},{2}超出金额 {3} 是否继续放款?', [tool.formatMoney(amount), formState.source == '0' ? 'VS' : 'BOC', tool.formatMoney(vsl_available), tool.formatMoney(tool.minus(amount, vsl_available))]);
+      confirmTxt.value = t('放款金额 {0},可用金额 {1},{2}超出金额 {3} 是否继续放款?', [tool.formatMoney(amount), formState.value.source == '0' ? 'VS' : 'BOC', tool.formatMoney(vsl_available), tool.formatMoney(tool.minus(amount, vsl_available))]);
+      return;
+    } else if (formState.value.source == '0' && tool.plus(props.projectDetail?.vslInfo?.boc_remaining_loan_money, detail_amount.value) > 0) {
+      visibleTip.value = true;
+      confirmTxt.value = t('BOC剩余金额是{0},确定要进行VS放款吗？', [tool.formatMoney(tool.plus(props.projectDetail?.vslInfo?.boc_remaining_loan_money, detail_amount.value))]);
       return;
     }
   }

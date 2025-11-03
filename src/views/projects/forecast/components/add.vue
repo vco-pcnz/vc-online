@@ -10,6 +10,10 @@
             <a-select-option :value="4">{{ t('还款') }}</a-select-option>
           </a-select>
         </div>
+        <div class="input-item" v-if="projectDetail.product.code === 'vsl'">
+          <div class="label" :class="{ err: !formState.source && validate }">{{ t('贷款方') }}</div>
+          <a-select style="width: 100%" v-model:value="formState.source" :options="LenderData"> </a-select>
+        </div>
 
         <div class="input-item">
           <div class="label" :class="{ err: !formState.date && validate }">{{ t('日期') }}</div>
@@ -109,8 +113,19 @@ const formState = ref({
   date: '',
   amount: '',
   change: 2,
-  note: ''
+  note: '',
+  source: ''
 });
+const LenderData = ref([
+  {
+    label: 'VS',
+    value: '0'
+  },
+  {
+    label: 'BOC',
+    value: '1'
+  }
+]);
 
 const defaultPickerValue = computed(() => {
   let startDate = props.itemId ? props.projectDetail.variationInfo?.start_date : props.projectDetail.loan.start_date;
@@ -161,6 +176,10 @@ const save = () => {
   validate.value = true;
   if (formState.value.amount === '' || !formState.value.date) return;
 
+  if (props.projectDetail.product.code === 'vsl') {
+    if (!formState.value.source) return;
+  }
+
   let params = { ...formState.value, apply_uuid: props.uuid };
   const ajaxFn = props.itemId ? projectVariationAddf : addf;
   if (props.itemId) {
@@ -185,7 +204,6 @@ const init = () => {
   formState.value.date = '';
   formState.value.amount = '';
   formState.value.note = 'Estimated transaction (drawdown)';
-
   if (props.itemDate) {
     formState.value = cloneDeep({
       ...formState.value,
@@ -193,6 +211,7 @@ const init = () => {
       id: props.itemDate.id,
       date: props.itemDate.date,
       note: props.itemDate.note,
+      source: props.itemDate.source === undefined ? '' : String(props.itemDate.source),
       amount: Math.abs(props.itemDate.amount)
     });
   }

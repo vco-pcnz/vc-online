@@ -25,7 +25,7 @@
                   </template>
                 </vco-tip>
               </div>
-              <a-select :loading="loading_type" style="width: 100%" v-model:value="formState.source">
+              <a-select style="width: 100%" v-model:value="formState.source">
                 <a-select-option :value="item.value" v-for="item in LenderData" :key="item.value">
                   <div class="flex items-center">
                     <span class="mr-3">{{ t(item.label) }}</span>

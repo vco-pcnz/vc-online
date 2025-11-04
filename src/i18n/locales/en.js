@@ -1249,5 +1249,6 @@ export default {
   "解押详情": "Discharge details",
   "重新申请": "Re-apply",
   "审核抵押物解押申请": "Review discharge application",
-  "XeroID": "XeroID"
+  "XeroID": "XeroID",
+  "点击“保存”按钮后，预测结果将重新生成。您确定吗？": 'After clicking the "Save" button, the forecast will be regenerated. Are you sure?'
 }

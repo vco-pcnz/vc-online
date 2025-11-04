@@ -1224,7 +1224,12 @@
         }
         saveParams.value = params
 
-        await saveRequeset()
+        if (processStore.hasForcast) {
+          substitutionTxt.value = t('点击“保存”按钮后，预测结果将重新生成。您确定吗？')
+          substitutionVisible.value = true
+        } else {
+          await saveRequeset()
+        }
       })
       .catch((error) => {
         console.log('error', error);

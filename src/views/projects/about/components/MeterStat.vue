@@ -48,7 +48,7 @@
         <div class="MeterStat-Meter"></div>
         <div>
           <vco-tip tip="Facility limit 1 plus establishment fee, line fee, and estimated interest"><p>Facility limit 2</p></vco-tip>
-          <vco-number :value="data?.credit_fc2" :precision="2"></vco-number>
+          <vco-number :value="data?.credit_forecastFc2" :precision="2"></vco-number>
         </div>
       </div>
       <div class="MeterStat MeterStat_type_charcoal four">

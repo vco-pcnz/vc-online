@@ -5,36 +5,38 @@
         <vco-type-input v-model="searchForm.project_keyword" :typeWidth="135" v-model:type="searchForm.project_search_type" :type-data="projectsTypeData" :placeholder="t('请输入')"></vco-type-input>
       </vco-page-search-item>
 
-      <vco-page-search-item :title="t('项目周期')" width="266">
+      <!-- <vco-page-search-item :title="t('项目周期')" width="266">
         <div class="flex items-center gap-2">
           <a-date-picker v-model:value="searchForm.start_date" :format="selectDateFormat()" :placeholder="t('开放日期')" @change="searchForm.end_date = ''" />
           <p>-</p>
           <a-date-picker v-model:value="searchForm.end_date" :format="selectDateFormat()" :disabledDate="disabledDateFormatAfter" :placeholder="t('到期日期')" />
+        </div>
+      </vco-page-search-item> -->
+      <vco-page-search-item :title="t('开始日期1')" width="266">
+        <div class="flex items-center gap-2">
+          <a-date-picker v-model:value="searchForm.start_date_s" :format="selectDateFormat()" :placeholder="t('开始日期2')" @change="searchForm.end_date = ''" />
+          <p>-</p>
+          <a-date-picker v-model:value="searchForm.start_date_e" :format="selectDateFormat()" :disabledDate="disabledDateFormatAfter" :placeholder="t('结束日期2')" />
+        </div>
+      </vco-page-search-item>
+      <vco-page-search-item :title="t('结束日期1')" width="266">
+        <div class="flex items-center gap-2">
+          <a-date-picker v-model:value="searchForm.end_date_s" :format="selectDateFormat()" :placeholder="t('开始日期2')" @change="searchForm.end_date = ''" />
+          <p>-</p>
+          <a-date-picker v-model:value="searchForm.end_date_e" :format="selectDateFormat()" :disabledDate="disabledDateFormatAfter2" :placeholder="t('结束日期2')" />
         </div>
       </vco-page-search-item>
       <vco-page-search-item :title="t('客户经理')" width="180">
         <a-input v-model:value="searchForm.lm_name" :placeholder="t('请输入')" />
       </vco-page-search-item>
 
-      <vco-page-search-item :title="t('借款金额')" width="264">
-        <div class="flex items-center gap-2">
-          <a-input-number v-model:value="searchForm.min_loan_money" :min="1" :placeholder="t('最小值')" />
-          <p>-</p>
-          <a-input-number v-model:value="searchForm.max_loan_money" :min="searchForm.min_loan_money" :placeholder="t('最大值')" />
-        </div>
-      </vco-page-search-item>
       <template v-if="isExpand">
-        <vco-page-search-item width="140" :title="t('状态')" v-if="current < 3 && hasPermission('requests:search:status')">
-          <a-select placeholder="t('请选择')" v-model:value="searchForm.status">
-            <a-select-option value="">
-              {{ t('全部') }}
-            </a-select-option>
-            <template v-for="item in stepArr">
-              <a-select-option :key="item.stateCode" :value="item.stateCode" v-if="key[current].includes(item.mark)">
-                {{ t(item.name) }}
-              </a-select-option>
-            </template>
-          </a-select>
+        <vco-page-search-item :title="t('借款金额')" width="264">
+          <div class="flex items-center gap-2">
+            <a-input-number v-model:value="searchForm.min_loan_money" :min="1" :placeholder="t('最小值')" />
+            <p>-</p>
+            <a-input-number v-model:value="searchForm.max_loan_money" :min="searchForm.min_loan_money" :placeholder="t('最大值')" />
+          </div>
         </vco-page-search-item>
       </template>
       <vco-page-search-item v-if="!isExpand || current >= 3">
@@ -47,7 +49,22 @@
     </vco-page-search>
 
     <div class="flex justify-between mt-5 items-end" v-if="isExpand && current < 3">
-      <div></div>
+      <div>
+        <template v-if="isExpand">
+          <vco-page-search-item width="140" :title="t('状态')" v-if="current < 3 && hasPermission('requests:search:status')">
+            <a-select placeholder="t('请选择')" v-model:value="searchForm.status">
+              <a-select-option value="">
+                {{ t('全部') }}
+              </a-select-option>
+              <template v-for="item in stepArr">
+                <a-select-option :key="item.stateCode" :value="item.stateCode" v-if="key[current].includes(item.mark)">
+                  {{ t(item.name) }}
+                </a-select-option>
+              </template>
+            </a-select>
+          </vco-page-search-item>
+        </template>
+      </div>
       <div class="flex items-center gap-2">
         <div class="search_expand isExpand" @click="isExpand = !isExpand">{{ t('收起') }}<DoubleRightOutlined class="icon" /></div>
         <a-button type="dark" @click="searchHandle(false)"><i class="iconfont">&#xe756;</i>{{ t('搜索') }}</a-button>
@@ -115,8 +132,10 @@ const projectsTypeData = [
 const searchForm = ref({
   borrower_keyword: '',
   borrower_search_type: '',
-  start_date: '',
-  end_date: '',
+  start_date_s: '',
+  start_date_e: '',
+  end_date_s: '',
+  end_date_e: '',
   project_search_type: '',
   project_keyword: '',
   lm_name: '',
@@ -126,7 +145,12 @@ const searchForm = ref({
 });
 
 const disabledDateFormatAfter = (current) => {
-  const targetDate = new Date(searchForm.value.start_date).setHours(0, 0, 0, 0);
+  const targetDate = new Date(searchForm.value.start_date_s).setHours(0, 0, 0, 0);
+  return current && current < targetDate;
+};
+
+const disabledDateFormatAfter2 = (current) => {
+  const targetDate = new Date(searchForm.value.end_date_s).setHours(0, 0, 0, 0);
   return current && current < targetDate;
 };
 
@@ -137,11 +161,17 @@ const searchHandle = (flag) => {
     }
   }
   const data = cloneDeep(searchForm.value);
-  if (data.start_date) {
-    data.start_date = dayjs(data.start_date).format('YYYY-MM-DD');
+  if (data.start_date_s) {
+    data.start_date_s = dayjs(data.start_date_s).format('YYYY-MM-DD');
   }
-  if (data.end_date) {
-    data.end_date = dayjs(data.end_date).format('YYYY-MM-DD');
+  if (data.start_date_e) {
+    data.start_date_e = dayjs(data.start_date_e).format('YYYY-MM-DD');
+  }
+  if (data.end_date_s) {
+    data.end_date_s = dayjs(data.end_date_s).format('YYYY-MM-DD');
+  }
+  if (data.end_date_e) {
+    data.end_date_e = dayjs(data.end_date_e).format('YYYY-MM-DD');
   }
   emits('search', data);
 };
@@ -175,7 +205,6 @@ defineExpose({
   searchHandle
 });
 </script>
-
 
 <style lang="less" scoped>
 .page-search-content {

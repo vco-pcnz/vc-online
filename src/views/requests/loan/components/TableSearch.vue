@@ -39,16 +39,16 @@
           </div>
         </vco-page-search-item>
       </template>
-      <vco-page-search-item v-if="!isExpand || current >= 3">
+      <vco-page-search-item v-if="!isExpand">
         <div class="flex items-center gap-2">
-          <div class="search_expand" v-if="!isExpand && current < 3 && hasPermission('requests:search:status')" @click="isExpand = !isExpand">{{ t('展开') }}<DoubleRightOutlined class="icon" /></div>
+          <div class="search_expand" @click="isExpand = !isExpand">{{ t('展开') }}<DoubleRightOutlined class="icon" /></div>
           <a-button type="dark" @click="searchHandle(false)"><i class="iconfont">&#xe756;</i>{{ t('搜索') }}</a-button>
           <a-button type="dark-line" @click="searchHandle(true)"><i class="iconfont">&#xe757;</i>{{ t('重置') }}</a-button>
         </div>
       </vco-page-search-item>
     </vco-page-search>
 
-    <div class="flex justify-between mt-5 items-end" v-if="isExpand && current < 3">
+    <div class="flex justify-between mt-5 items-end" v-if="isExpand">
       <div>
         <template v-if="isExpand">
           <vco-page-search-item width="140" :title="t('状态')" v-if="current < 3 && hasPermission('requests:search:status')">

@@ -13,7 +13,7 @@
         <div class="MeterStat-Meter LB"></div>
         <div>
           <p>Repayment</p>
-          <vco-number :value="data?.real_repayment" :precision="2"></vco-number>
+          <vco-number :value="Math.abs(data?.real_repayment)" :precision="2"></vco-number>
         </div>
       </div>
       <div class="MeterStat">
@@ -26,7 +26,7 @@
               <div class="tips"><p>Full Facility = Facility + Establishment fee + Estimated Line Fee + Estimated Interest</p></div>
             </div>
           </div>
-          <vco-number :value="data?.credit_fc1" :precision="2"></vco-number>
+          <vco-number :value="data?.credit_forecastFc2" :precision="2"></vco-number>
         </div>
       </div>
     </div>
@@ -69,7 +69,7 @@
             </div>
             Loan
           </div>
-          <vco-number :value="data?.credit_fc2" :precision="2"></vco-number>
+          <vco-number :value="data?.credit_fc1" :precision="2"></vco-number>
         </div>
         <div class="MeterStat-Meter RC"></div>
       </div>

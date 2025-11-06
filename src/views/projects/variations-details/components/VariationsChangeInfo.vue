@@ -208,7 +208,7 @@ const changeData = computed(() => {
   const gapDay = tool.calculateDurationPrecise(beforeData.value.end_date, props.detail.variationInfo.end_date);
   const estabFee = tool.minus(props.detail.variationInfo.project_credit.credit_estabFee, beforeData.value.estabFee);
   const lineFee = tool.minus(props.detail.variationInfo.all_lineFee, beforeData.value.lineFee);
-  const credit_fc2 = tool.minus(props.detail.variationInfo.project_credit.credit_fc2, beforeData.value.credit_fc2);
+  const credit_fc2 = tool.minus(props.detail.variationInfo.project_credit.credit_forecastFc2, beforeData.value.credit_fc2);
   const interestRate = tool.minus(props.detail.variationInfo.project_credit.credit_loanInterest, beforeData.value.interestRate);
   const lvr = tool.minus(props.detail.variationInfo.project_credit.credit_lvr, beforeData.value.lvr);
   const irr = tool.minus(props.detail.variationInfo.project_credit.credit_irrPreset, beforeData.value.irr);
@@ -244,7 +244,7 @@ const afterData = computed(() => {
     loan_money: loan_money,
     estabFee: props.detail.variationInfo.project_credit.credit_estabFee || 0,
     lineFee: props.detail.variationInfo.all_lineFee || 0,
-    credit_fc2: props.detail.variationInfo.project_credit.credit_fc2 || 0,
+    credit_fc2: props.detail.variationInfo.project_credit.credit_forecastFc2 || 0,
     interestRate: props.detail.variationInfo.project_credit.credit_loanInterest || 0,
     lvr: props.detail.variationInfo.project_credit.credit_lvr || 0,
     irr: props.detail.variationInfo.project_credit.credit_irrPreset || 0,

@@ -3,14 +3,16 @@
     <div style="min-height: 200px;">
       <template v-if="tree">
         <Tab v-model:active="tabIndex" v-model:folder="folder" :data="tree" :apply_uuid="project_id" :annex_id="annex_id" :edit="edit" v-model:showSearch="showSearch"></Tab>
-        <div class="content" :class="{ grid: tree && tree[tabIndex] && tree[tabIndex].children }" v-if="!showSearch">
-          <template v-if="tree && tree[tabIndex].children">
+        <div class="content" :class="{ grid: tree }" v-if="!showSearch">
+          <!--   && tree[tabIndex] && tree[tabIndex].children -->
+          <!--  && tree[tabIndex].children -->
+          <template v-if="tree">
             <Folders
               v-model:folder="folder"
               :pid="tree[tabIndex].id"
               :apply_uuid="project_id"
               :tabIndex="tabIndex"
-              :data="tree[tabIndex].children"
+              :data="tree[tabIndex].children|| []"
               :edit="edit"
               @change="(val) => loadData(tabIndex, val)"
             ></Folders>

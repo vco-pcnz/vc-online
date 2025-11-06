@@ -244,7 +244,7 @@ const afterData = computed(() => {
     loan_money: loan_money,
     estabFee: props.detail.variationInfo.project_credit.credit_estabFee || 0,
     lineFee: props.detail.variationInfo.all_lineFee || 0,
-    credit_fc2: props.detail.variationInfo.project_credit.credit_forecastFc2 || 0,
+    credit_fc2: props.detail.variationInfo.project_credit.credit_fc2 || 0,
     interestRate: props.detail.variationInfo.project_credit.credit_loanInterest || 0,
     lvr: props.detail.variationInfo.project_credit.credit_lvr || 0,
     irr: props.detail.variationInfo.project_credit.credit_irrPreset || 0,

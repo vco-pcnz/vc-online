@@ -2,15 +2,19 @@
   <a-alert type="info" closable class="mb-5 synced-diff" v-if="!base?.is_close">
     <template #description>
       <div class="flex">
-        <a-tooltip placement="top">
+        <a-tooltip placement="top" width="400px">
           <template #title>
             <div class="flex items-center">
-              <span class="xt_label">Vco: </span>
+              <span class="xt_label">VCO: </span>
               <vco-number :value="Math.abs(base?.vcoSpendAmount)" color="#fff" size="fs_md" :precision="2"></vco-number>
             </div>
             <div class="flex items-center">
-              <span class="xt_label">Xero: </span>
+              <span class="xt_label">Reconciled (Xero): </span>
               <vco-number :value="Math.abs(base?.xeroSpendAmount)" color="#fff" size="fs_md" :precision="2"></vco-number>
+            </div>
+            <div class="flex items-center">
+              <span class="xt_label">Reconciled (Manual): </span>
+              <vco-number :value="Math.abs(base?.unvcoSpendAmount)" color="#fff" size="fs_md" :precision="2"></vco-number>
             </div>
           </template>
           <div class="flex cursor-pointer items-center">
@@ -21,12 +25,16 @@
         <a-tooltip placement="top" class="ml-5">
           <template #title>
             <div class="flex items-center">
-              <span class="xt_label">Vco: </span>
+              <span class="xt_label">VCO: </span>
               <vco-number :value="Math.abs(base?.vcoReceivedAmount)" color="#fff" size="fs_md" :precision="2"></vco-number>
             </div>
             <div class="flex items-center">
-              <span class="xt_label">Xero: </span>
+              <span class="xt_label">Reconciled (Xero): </span>
               <vco-number :value="Math.abs(base?.xeroReceivedAmount)" color="#fff" size="fs_md" :precision="2"></vco-number>
+            </div>
+            <div class="flex items-center">
+              <span class="xt_label">Reconciled (Manual): </span>
+              <vco-number :value="Math.abs(base?.unvcoReceivedAmount)" color="#fff" size="fs_md" :precision="2"></vco-number>
             </div>
           </template>
           <div class="flex cursor-pointer items-center">
@@ -332,7 +340,7 @@ watch(
 
 .xt_label {
   color: #888;
-  width: 33px;
+  // width: 33px;
   text-align: right;
   margin-right: 5px;
 }

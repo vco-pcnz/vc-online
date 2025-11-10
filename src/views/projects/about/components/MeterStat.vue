@@ -2,7 +2,7 @@
   <a-alert type="info" closable class="mb-5 synced-diff" v-if="!base?.is_close">
     <template #description>
       <div class="flex">
-        <a-tooltip placement="top" width="400px">
+        <a-tooltip placement="top" :overlay-style="{ maxWidth: 'none' }">
           <template #title>
             <div class="flex items-center">
               <span class="xt_label">VCO: </span>
@@ -19,10 +19,10 @@
           </template>
           <div class="flex cursor-pointer items-center">
             <span class="mr-3"> {{ t('放款对账情况') }} diff: </span>
-            <vco-number color="#F19915" :value="Math.abs(tool.minus(base?.vcoSpendAmount, base?.xeroSpendAmount))" size="fs_md" :precision="2"></vco-number>
+            <vco-number color="#F19915" :value="Math.abs(tool.minus(tool.minus(base?.vcoSpendAmount, base?.unvcoSpendAmount), base?.xeroSpendAmount))" size="fs_md" :precision="2"></vco-number>
           </div>
         </a-tooltip>
-        <a-tooltip placement="top" class="ml-5">
+        <a-tooltip placement="top" class="ml-5" :overlay-style="{ maxWidth: 'none' }">
           <template #title>
             <div class="flex items-center">
               <span class="xt_label">VCO: </span>
@@ -39,7 +39,7 @@
           </template>
           <div class="flex cursor-pointer items-center">
             <span class="mr-3"> {{ t('还款对账情况') }} diff: </span>
-            <vco-number color="#F19915" :value="Math.abs(tool.minus(base?.vcoReceivedAmount, base?.xeroReceivedAmount))" size="fs_md" :precision="2"></vco-number>
+            <vco-number color="#F19915" :value="Math.abs(tool.minus(tool.minus(base?.vcoReceivedAmount, base?.unvcoReceivedAmount), base?.xeroReceivedAmount))" size="fs_md" :precision="2"></vco-number>
           </div>
         </a-tooltip>
       </div>
@@ -343,6 +343,7 @@ watch(
   // width: 33px;
   text-align: right;
   margin-right: 5px;
+  white-space: nowrap;
 }
 
 .synced-diff {

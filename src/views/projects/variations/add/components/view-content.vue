@@ -1039,7 +1039,27 @@
         footerData.splice(footerData.lastIndexOf(conItem), 1)
       }
 
-      footerDataCol.value = footerData || []
+      const dataArr = []
+      for (let i = 0; i < footerData.length; i++) {
+        const item = footerData[i]
+
+        // 把大项也添加到数据中，兼容之前已经存在放款的情况
+        if (item.loan) {
+          dataArr.push(item)
+        }
+
+        if (item.list && item.list.length) {
+          for (let j = 0; j < item.list.length; j++) {
+            const listItem = item.list[j]
+            if (listItem.loan) {
+              listItem.name = `${item.name} [${listItem.type}]`
+              dataArr.push(listItem)
+            }
+          }
+        }
+      }
+
+      footerDataCol.value = dataArr || []
 
       const Construction = list.find(item => item.type === 'Construction')
       buildAmount.value = Construction ? (Number(Construction.loan) || 0) : 0

@@ -185,8 +185,8 @@ watch(
       .tips {
         position: absolute;
         background-color: @colorPrimary;
-        font-size: 11px;
-        padding: 2px 20px;
+        font-size: 10px;
+        padding: 1px 20px;
         top: 0;
         right: 0;
         border-bottom-left-radius: 12px;

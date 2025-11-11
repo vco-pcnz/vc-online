@@ -120,7 +120,7 @@ const validate = ref(false);
 
 const options = ref([
   {
-    label: t('不对账'),
+    label: t('手动对账'),
     value: 1
   },
   {

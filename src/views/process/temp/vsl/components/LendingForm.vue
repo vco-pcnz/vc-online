@@ -398,14 +398,14 @@
                 <a-input
                   v-if="item.is_ratio"
                   v-model:value="formState[item.credit_table]"
-                  :disabled="inputDisabled(item.editMark) || item.disabled"
+                  :disabled="inputDisabled(item.editMark) || item.disabled || formState.estab_type === 2"
                   :suffix="item.credit_unit"
                   @input="() => percentInput(item.credit_table)"
                 />
                 <a-input-number
                   v-else
                   v-model:value="formState[item.credit_table]"
-                  :disabled="inputDisabled(item.editMark) || item.disabled"
+                  :disabled="inputDisabled(item.editMark) || item.disabled || formState.estab_type === 1"
                   :formatter="
                     (value) =>
                       `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -571,11 +571,11 @@
 
   const estabTypeData = ref([
     {
-      label: t('建立费率'),
+      label: t('建立费率为准'),
       value: 1
     },
     {
-      label: t('建立费'),
+      label: t('建立费为准'),
       value: 2
     }
   ])
@@ -626,10 +626,6 @@
     }))
   })
 
-  const filterOption = (input, option) => {
-    return option.label.toLowerCase().includes(input.toLowerCase());
-  };
-
   const refinancialChange = (data) => {
     if (data.length) {
       const dataArr = data.map(item => Number(item.item.amount))
@@ -646,25 +642,6 @@
   const confirmTxt = computed(() => {
     let res = ''
     if (!props.isDetails) {
-      const {land_amount, build_amount} = props.dataInfo.security
-      const landDiff = tool.minus(Number(formState.value.land_amount), land_amount)
-      const buildDiff = tool.minus(Number(formState.value.build_amount), build_amount)
-
-      // let landTxt,buildTxt = ''
-      // if (landDiff > 0) {
-      //   landTxt = t('抵押物土地总额为{0}，土地贷款总额为{1}，差{2}', [land_amount, formState.value.land_amount, landDiff])
-      // }
-
-      // if (buildDiff > 0) {
-      //   buildTxt = t('抵押物建筑总额为{0}，建筑贷款总额为{1}，差{2}', [build_amount, formState.value.build_amount, buildDiff])
-      // }
-
-      // const txt = landTxt && buildTxt ? `${landTxt}, ${buildTxt}` : landTxt || buildTxt
-
-      // if (txt) {
-      //   res = `${txt}, ${t('确认通过审核吗？')}`
-      // }
-      
       const securityTotal = props.dataInfo.security.total_money || 0
       const totalAmount = tool.plus(Number(formState.value.land_amount), Number(formState.value.build_amount))
 
@@ -707,22 +684,6 @@
         return isRefinancial.value
       }
     }
-  })
-
-  const showCompare = computed(() => {
-    const mark = props?.currentStep?.mark
-    return ['step_lm_audit', 'step_lm_review'].includes(mark)
-  })
-
-  const refinancialDisabled = computed(() => {
-    return amountDisabled.value
-    // const mark = props?.currentStep?.mark
-
-    // if (props?.blockInfo?.showEdit) {
-    //   return amountDisabled.value || !['step_lm_audit', 'step_fc_audit'].includes(mark)
-    // } else {
-    //   return amountDisabled.value
-    // }
   })
 
   const changeAlertRef = ref()
@@ -852,7 +813,6 @@
     const initial_land_amount = formState.value.initial_land_amount || 0;
     const initial_equity_amount = formState.value.initial_equity_amount || 0;
     const initial_total_amount = tool.plus(tool.plus(initial_build_amount, initial_land_amount), initial_equity_amount);
-    // return tool.minus(initial_total_amount, refinancialAmount.value);
     return initial_total_amount
   });
 
@@ -1413,7 +1373,6 @@
           initial_build_amount: formState.value.initial_build_amount || 0,
           initial_land_amount: formState.value.initial_land_amount || 0,
           initial_equity_amount: formState.value.initial_equity_amount || 0,
-          // substitution_ids: formState.value.substitution_ids || [],
           substitution_amount: refinancialAmount.value || 0,
           has_linefee: Number(formState.value.has_linefee),
           do__est: Number(formState.value.do__est),
@@ -1649,7 +1608,7 @@
 
 .block-item {
   :deep(.ant-input[disabled]),
-  :deep(.ant-input-number-disabled) {
+  :deep(.ant-input-number-disabled input) {
     color: #999 !important;
   }
 }

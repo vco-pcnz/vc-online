@@ -13,7 +13,8 @@
     <!-- 费改动后弹窗 -->
     <vco-confirm-alert
       ref="changeFeeRef"
-      :confirm-txt="saveDataTxt"
+      :confirm-txt="tipsTxt || saveDataTxt"
+      :show-close="!!tipsTxt"
       v-model:visible="saveTipsVisible"
       @submit="backStepHandle"
     ></vco-confirm-alert>
@@ -137,6 +138,7 @@
           </security-list>
 
           <forecast-list
+            ref="forecastListRef"
             v-if="showForecast && PageBlockObjRef.lending"
             :current-id="currentId"
             :info-data="currentDataInfo"
@@ -227,7 +229,7 @@
 
   const { t } = useI18n();
   const footerRef = ref()
-
+  const forecastListRef = ref()
   const PageBlockObjRef = ref(null)
   const PageBlockArrRef = ref([])
 
@@ -508,10 +510,14 @@
 
   const washTableRef = ref()
 
+  const tipsTxt = ref('')
+
   const submitHandle = () => {
     if (subDisabled.value) {
       return false
     }
+
+    tipsTxt.value = ''
 
     if (needInsMark.includes(currentMark.value)) { // 通过审核填写批语
       resovleVisible.value = true;
@@ -522,6 +528,7 @@
 
       if (changeBackItems.value.length && Object.keys(nowChangeData.value).length && dataInfo.value.base?.old) {
         if (compareHandle()) {
+          tipsTxt.value = ''
           saveTipsVisible.value = true
           return false
         }
@@ -546,6 +553,35 @@
           submitRquest(params)
         } else {
           message.error(t('请确保在提交之前提供所有反洗钱信息'))
+        }
+      } else if (currentMark.value === 'step_lm_audit') {
+        if (!forecastListRef.value?.dataDone) {
+          message.error(t('请等待预测表数据加载完成，再进行提交'))
+          return false
+        }
+        if (forecastListRef.value?.remainInfo) {
+          const { loanRemainMoney, vsRemainMoney, bocRemainMoney } = forecastListRef.value?.remainInfo
+          if (loanRemainMoney) {
+            let txt = ''
+            if (vsRemainMoney) {
+              const flag = vsRemainMoney > 0 ? t('还差') : t('超额')
+              txt += `${t('VS放款')} ${flag} $${numberStrFormat(vsRemainMoney)}; `
+            }
+            if (bocRemainMoney) {
+              const flag = bocRemainMoney > 0 ? t('还差') : t('超额')
+              txt += `${t('BOC放款')} ${flag} $${numberStrFormat(bocRemainMoney)}; `
+            }
+            const flag = loanRemainMoney > 0 ? t('还差') : t('超额')
+            txt += `${t('总共')} ${flag} $${numberStrFormat(loanRemainMoney)}`
+            
+            tipsTxt.value = txt
+            saveTipsVisible.value = true
+            return false
+          } else {
+            submitRquest(params)
+          }
+        } else {
+          submitRquest(params)
         }
       } else {
         submitRquest(params)
@@ -638,6 +674,11 @@
 
   // 退回操作
   const backStepHandle = () => {
+    if (tipsTxt.value) {
+      tipsTxt.value = ''
+      return false
+    }
+
     const backStepArr = ['step_lm_audit', 'step_fc_audit', 'step_director_audit', 'step_lm_check', 'step_aml_audit']
     const params = {
       uuid: props.currentId,

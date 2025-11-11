@@ -1263,5 +1263,6 @@ export default {
   "XeroID": "XeroID",
   "BOC剩余金额是{0},确定要进行VS放款吗？": "BOC available draw amount is <span>{0}</span>. Are you sure VS drawdown is correct?",
   "XeroID": "XeroID",
-  "点击“保存”按钮后，预测结果将重新生成。您确定吗？": 'After clicking the "Save" button, the forecast will be regenerated. Are you sure?'
+  "点击“保存”按钮后，预测结果将重新生成。您确定吗？": 'After clicking the "Save" button, the forecast will be regenerated. Are you sure?',
+  "手动对账": "Reconciled (Manual)"
 }

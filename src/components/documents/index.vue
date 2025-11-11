@@ -1,19 +1,13 @@
 <template>
   <a-spin :spinning="spinning" size="large">
-    <div style="min-height: 200px;">
+    <div style="min-height: 200px">
       <template v-if="tree">
         <Tab v-model:active="tabIndex" v-model:folder="folder" :data="tree" :apply_uuid="project_id" :annex_id="annex_id" :edit="edit" v-model:showSearch="showSearch"></Tab>
-        <div class="content" :class="{ grid: tree && tree[tabIndex] && tree[tabIndex].children }" v-if="!showSearch">
-          <template v-if="tree && tree[tabIndex].children">
-            <Folders
-              v-model:folder="folder"
-              :pid="tree[tabIndex].id"
-              :apply_uuid="project_id"
-              :tabIndex="tabIndex"
-              :data="tree[tabIndex].children"
-              :edit="edit"
-              @change="(val) => loadData(tabIndex, val)"
-            ></Folders>
+        <div class="content" :class="{ grid: tree }" v-if="!showSearch">
+          <!--   && tree[tabIndex] && tree[tabIndex].children -->
+          <!--  && tree[tabIndex].children -->
+          <template v-if="tree">
+            <Folders v-model:folder="folder" :pid="tree[tabIndex].id" :apply_uuid="project_id" :tabIndex="tabIndex" :data="tree[tabIndex].children || []" :edit="edit" @change="(val) => loadData(tabIndex, val)"></Folders>
           </template>
           <FileList
             :tree="tree"
@@ -48,7 +42,7 @@ const props = defineProps({
     type: String
   },
   annex_id: {
-    type: [String,Number]
+    type: [String, Number]
   },
   edit: {
     type: Boolean,
@@ -68,10 +62,10 @@ const showSearch = ref(false);
 
 const loadData = (index, val) => {
   spinning.value = true;
-  getTree({ apply_uuid: props.project_id,__way__: props.__way__})
+  getTree({ apply_uuid: props.project_id, __way__: props.__way__ })
     .then((res) => {
       tabIndex.value = index || 0;
-      folder.value = val || res[tabIndex.value].children[0];
+      folder.value = val || res[tabIndex.value].children ? res[tabIndex.value].children[0] : null;
       tree.value = res;
       getFiles();
     })

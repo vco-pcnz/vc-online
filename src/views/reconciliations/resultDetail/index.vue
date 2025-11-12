@@ -36,28 +36,40 @@
         <a-table :data-source="data?.data" :columns="columns" :pagination="false" :scroll="{ x: '100%' }">
           <template #bodyCell="{ column, record }">
             <template v-if="column.dataIndex === 'date'">
-              <p><span class="label">VCO</span>: {{ record?.vco_date ? tool.showDate(record?.vco_date) : '' }}</p>
-              <p><span class="label">Xero</span>: {{ record?.xero_date ? tool.showDate(record?.xero_date) : '' }}</p>
+              <p><span class="label">VCO</span></p>
+              <p>{{ record?.vco_date ? tool.showDate(record?.vco_date) : '-' }}</p>
+              <p><span class="label">Xero</span></p>
+              <p>{{ record?.xero_date ? tool.showDate(record?.xero_date) : '-' }}</p>
             </template>
             <template v-if="column.dataIndex === 'spend'">
-              <p><span class="label">VCO</span>: {{ tool.formatMoney(Math.abs(record?.vco_spend_amount)) }}</p>
-              <p><span class="label">Xero</span>: {{ tool.formatMoney(Math.abs(record?.xero_spend_amount)) }}</p>
+              <p><span class="label">VCO</span></p>
+              <p>{{ tool.formatMoney(Math.abs(record?.vco_spend_amount)) }}</p>
+              <p><span class="label">Xero</span></p>
+              <p>{{ tool.formatMoney(Math.abs(record?.xero_spend_amount)) }}</p>
             </template>
             <template v-if="column.dataIndex === 'received'">
-              <p><span class="label">VCO</span>: {{ tool.formatMoney(Math.abs(record?.vco_received_amount)) }}</p>
-              <p><span class="label">Xero</span>: {{ tool.formatMoney(Math.abs(record?.xero_received_amount)) }}</p>
+              <p><span class="label">VCO</span></p>
+              <p>{{ tool.formatMoney(Math.abs(record?.vco_received_amount)) }}</p>
+              <p><span class="label">Xero</span></p>
+              <p>{{ tool.formatMoney(Math.abs(record?.xero_received_amount)) }}</p>
             </template>
             <template v-if="column.dataIndex === 'reference'">
-              <p><span class="label">VCO</span>: {{ record?.vco_reference }}</p>
-              <p><span class="label">Xero</span>: {{ record?.xero_reference }}</p>
+              <p><span class="label">VCO</span></p>
+              <p :title="record?.vco_reference" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-1">{{ record?.vco_reference || '-' }}</p>
+              <p><span class="label">Xero</span></p>
+              <p :title="record?.xero_reference" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-1">{{ record?.xero_reference || '-' }}</p>
             </template>
             <template v-if="column.dataIndex === 'description'">
-              <p><span class="label">VCO</span>: {{ record?.vco_note }}</p>
-              <p><span class="label">Xero</span>: {{ record?.xero_description }}</p>
+              <p><span class="label">VCO</span></p>
+              <p :title="record?.vco_note" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-1">{{ record?.vco_note || '-' }}</p>
+              <p><span class="label">Xero</span></p>
+              <p :title="record?.xero_description" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-1">{{ record?.xero_description || '-' }}</p>
             </template>
             <template v-if="column.dataIndex === 'status'">
-              <p><span class="label">VCO</span>: {{ record?.vco_status == 1 ? t('未对账') : t('已对账') }}</p>
-              <p><span class="label">Xero</span>: {{ record?.xero_status == 1 ? t('已对账') : t('未对账') }}</p>
+              <p><span class="label">VCO</span></p>
+              <p>{{ record?.vco_status == 1 ? t('未对账') : t('已对账') }}</p>
+              <p><span class="label">Xero</span></p>
+              <p>{{ record?.xero_status == 1 ? t('已对账') : t('未对账') }}</p>
             </template>
           </template>
         </a-table>
@@ -84,15 +96,18 @@ const route = useRoute();
 const columns = reactive([
   {
     title: t('日期'),
-    dataIndex: 'date'
+    dataIndex: 'date',
+    width: '140px'
   },
   {
     title: t('支出'),
-    dataIndex: 'spend'
+    dataIndex: 'spend',
+    width: '160px'
   },
   {
     title: t('已收到'),
-    dataIndex: 'received'
+    dataIndex: 'received',
+    width: '160px'
   },
   {
     title: t('参考'),
@@ -181,6 +196,7 @@ onMounted(() => {
   display: inline-block;
   // width: 33px;
   text-align: right;
+  font-size: 10px;
 }
 
 .nav-icon {

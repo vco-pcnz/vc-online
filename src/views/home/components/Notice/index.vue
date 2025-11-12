@@ -1,5 +1,5 @@
 <template>
-  <a-spin :spinning="loading" size="large">
+  <a-spin :spinning="loading" size="large" wrapperClassName="noticeWrapper">
     <div class="flex justify-between title items-center">
       <div class="bold fs_2xl">
         {{ t('通知') }}
@@ -44,7 +44,7 @@ const open = ref(false);
 
 const geList = () => {
   loading.value = true;
-  getNotices({ sta: '0', limit: 3, key: 'unread' })
+  getNotices({ sta: '0', limit: 5, key: 'unread' })
     .then((res) => {
       list.value = res.data;
     })
@@ -74,12 +74,23 @@ onMounted(() => {
 
 <style lang="less" scoped>
 @import '@/styles/variables.less';
+.noticeWrapper {
+  height: 100%;
+  position: relative;
+  :deep(.ant-spin-container) {
+    height: 100%;
+  }
+}
 .title {
   border-bottom: 1px solid #dbdbdb;
   padding: 8px 15px;
 }
 .wrapper {
   padding: 10px;
+  position: absolute;
+  top: 46.8px;
+  bottom: 0;
+  overflow-y: auto;
   .item {
     flex: 1;
     background-color: #fbfbfb;
@@ -87,9 +98,9 @@ onMounted(() => {
     border-radius: 10px;
     padding: 6px 10px;
     margin-bottom: 10px;
-    &:nth-child(3n) {
-      margin-bottom: 0;
-    }
+    // &:nth-child(3n) {
+    //   margin-bottom: 0;
+    // }
 
     .tit {
       font-weight: 600;

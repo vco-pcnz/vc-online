@@ -2,7 +2,7 @@
   <layout ref="layoutRef">
     <template #content>
       <div class="flex justify-end">
-        <a-button v-if="hasPermission('reconciliation:resultReport:resultXeroExport')" type="cyan" size="small" class="ml-3" shape="round" @click="reportIds" :loading="downIdsloading">{{t('XeroID')}}</a-button>
+        <a-button v-if="hasPermission('reconciliation:resultReport:resultXeroExport')" type="cyan" size="small" class="ml-3" shape="round" @click="reportIds" :loading="downIdsloading">{{ t('XeroID') }}</a-button>
       </div>
       <a-spin :spinning="loading" size="large">
         <div class="flex justify-between items-end mb-5">
@@ -26,17 +26,29 @@
             <template v-if="column.dataIndex === 'spend'">
               <p><span class="label">VCO</span>: {{ tool.formatMoney(Math.abs(record?.vco_spend_money)) }}</p>
               <p><span class="label">Xero</span>: {{ tool.formatMoney(Math.abs(record?.xero_spend_amount)) }}</p>
+
+              <p>
+                <span class="label"> Manual </span>:
+                {{ tool.formatMoney(Math.abs(record?.un_vco_spend_money)) }}
+              </p>
               <p>
                 <span class="label">{{ t('差额') }}</span
-                >: {{ tool.formatMoney(Math.abs(record?.spend_amount_diff)) }}
+                >:
+                {{ tool.formatMoney(Math.abs(record?.spend_amount_diff)) }}
               </p>
             </template>
             <template v-if="column.dataIndex === 'received'">
               <p><span class="label">VCO</span>: {{ tool.formatMoney(Math.abs(record?.vco_received_amount)) }}</p>
               <p><span class="label">Xero</span>: {{ tool.formatMoney(Math.abs(record?.xero_received_amount)) }}</p>
+
+              <p>
+                <span class="label"> Manual </span>:
+                {{ tool.formatMoney(Math.abs(record?.un_vco_received_amount)) }}
+              </p>
               <p>
                 <span class="label">{{ t('差额') }}</span
-                >: {{ tool.formatMoney(Math.abs(record?.received_amount_diff)) }}
+                >:
+                {{ tool.formatMoney(Math.abs(record?.received_amount_diff)) }}
               </p>
             </template>
             <template v-if="column.dataIndex === 'total'">
@@ -228,7 +240,7 @@ onMounted(() => {
 .label {
   color: #888;
   display: inline-block;
-  width: 33px;
+  width: 50px;
 }
 
 .nav-icon {

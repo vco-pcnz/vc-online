@@ -43,15 +43,15 @@
             </template>
             <template v-if="column.dataIndex === 'spend'">
               <p><span class="label">VCO</span></p>
-              <p>{{ tool.formatMoney(Math.abs(record?.vco_spend_amount)) }}</p>
+              <p>{{ record?.vco_spend_amount ? tool.formatMoney(Math.abs(record?.vco_spend_amount)) : '-' }}</p>
               <p><span class="label">Xero</span></p>
-              <p>{{ tool.formatMoney(Math.abs(record?.xero_spend_amount)) }}</p>
+              <p>{{ record?.xero_spend_amount ? tool.formatMoney(Math.abs(record?.xero_spend_amount)) : '-' }}</p>
             </template>
             <template v-if="column.dataIndex === 'received'">
               <p><span class="label">VCO</span></p>
-              <p>{{ tool.formatMoney(Math.abs(record?.vco_received_amount)) }}</p>
+              <p>{{ record?.vco_received_amount ? tool.formatMoney(Math.abs(record?.vco_received_amount)) : '-' }}</p>
               <p><span class="label">Xero</span></p>
-              <p>{{ tool.formatMoney(Math.abs(record?.xero_received_amount)) }}</p>
+              <p>{{ record?.xero_received_amount ? tool.formatMoney(Math.abs(record?.xero_received_amount)) : '-' }}</p>
             </template>
             <template v-if="column.dataIndex === 'reference'">
               <p><span class="label">VCO</span></p>
@@ -67,9 +67,9 @@
             </template>
             <template v-if="column.dataIndex === 'status'">
               <p><span class="label">VCO</span></p>
-              <p>{{ record?.vco_status == 1 ? t('未对账') : t('已对账') }}</p>
+              <p>{{ record?.vco_date ? (record?.vco_status <= 1 ? t('未对账') : t('已对账')) : '-' }}</p>
               <p><span class="label">Xero</span></p>
-              <p>{{ record?.xero_status == 1 ? t('已对账') : t('未对账') }}</p>
+              <p>{{ record?.xero_date ? (record?.xero_status == 1 ? t('已对账') : t('未对账')) : '-' }}</p>
             </template>
           </template>
         </a-table>

@@ -124,7 +124,7 @@ const columns = reactive([
   {
     title: t('对账日期'),
     width: '200px',
-    dataIndex: 'reconciliation_date',
+    dataIndex: 'reconcile_date',
     customRender: ({ text }) => {
       return text ? tool.showDate(text) : '';
     }

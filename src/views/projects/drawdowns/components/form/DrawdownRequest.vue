@@ -15,8 +15,27 @@
             </div>
 
             <div v-if="projectDetail.product.code === 'vsl'" class="input-item" style="margin: 15.5px 0">
-              <div class="label" :class="{ err: !formState.source && validate }">{{ t('贷款方') }}</div>
-              <a-select :loading="loading_type" style="width: 100%" v-model:value="formState.source" :options="LenderData"></a-select>
+              <div class="label flex items-center">
+                <span class="label mr-3" style="padding-bottom: 0" :class="{ err: !formState.source && validate }">{{ t('贷款方') }}</span>
+                <vco-tip w="200px">
+                  <span class="">{{ t('可用余额') }}</span>
+                  <template #content>
+                    <p>VS : {{ tool.formatMoney(tool.plus(projectDetail?.vslInfo?.vs_remaining_loan_money, detail_amount)) }}</p>
+                    <p>BOC : {{ tool.formatMoney(tool.plus(projectDetail?.vslInfo?.boc_remaining_loan_money, detail_amount)) }}</p>
+                  </template>
+                </vco-tip>
+              </div>
+              <a-select style="width: 100%" v-model:value="formState.source">
+                <a-select-option :value="item.value" v-for="item in LenderData" :key="item.value">
+                  <div class="flex items-center">
+                    <span class="mr-3">{{ t(item.label) }}</span>
+                    <div style="font-size: 10px; opacity: 0.6">
+                      <p v-if="item.value == 0">{{ t('可用余额') }}: {{ tool.formatMoney(tool.plus(projectDetail?.vslInfo?.vs_remaining_loan_money, detail_amount)) }}</p>
+                      <p v-else>{{ t('可用余额') }}: {{ tool.formatMoney(tool.plus(projectDetail?.vslInfo?.boc_remaining_loan_money, detail_amount)) }}</p>
+                    </div>
+                  </div>
+                </a-select-option>
+              </a-select>
             </div>
 
             <div class="input-item">
@@ -32,9 +51,9 @@
           </a-col>
           <a-col :span="12">
             <div class="input-item">
-              <vco-tip style="padding-bottom: 5px" :tip="t('此消息针对 FC 的批准评论')"
-                ><div class="label" style="padding: 0">{{ t('消息') }}</div></vco-tip
-              >
+              <vco-tip style="padding-bottom: 5px" :tip="t('此消息针对 FC 的批准评论')">
+                <div class="label" style="padding: 0">{{ t('消息') }}</div>
+              </vco-tip>
               <a-textarea v-if="projectDetail.product.code === 'vsl'" v-model:value="formState.remark" :rows="hasPermission('projects:drawdowns:add') ? 18 : 14" />
               <a-textarea v-else v-model:value="formState.remark" :rows="hasPermission('projects:drawdowns:add') ? 14 : 10" />
             </div>
@@ -121,11 +140,11 @@ const formModal3 = ref([]);
 const LenderData = ref([
   {
     label: 'VS',
-    value: 0
+    value: '0'
   },
   {
     label: 'BOC',
-    value: 1
+    value: '1'
   }
 ]);
 
@@ -206,12 +225,32 @@ const save = (tip) => {
 
   let available = props.statisticsData?.available;
   if (props.detail?.id) {
-    let detail_amount = tool.plus(tool.plus(props.detail.build_money || 0, props.detail.land_money || 0), tool.plus(props.detail.equity_money || 0, props.detail.other_money || 0));
-    if (hasPermission('projects:drawdowns:add')) {
-      // vip
-      detail_amount = props.detail.vip_amount || 0;
+    available = tool.plus(Number(props.statisticsData?.available), Number(detail_amount.value));
+  }
+
+  if (props.projectDetail.product.code === 'vsl') {
+    let vsl_available = formState.value.source == '0' ? props.projectDetail?.vslInfo.vs_remaining_loan_money : props.projectDetail?.vslInfo.boc_remaining_loan_money;
+
+    if (Number(amount) > Number(vsl_available) && formState.value.source == '0' && tool.plus(props.projectDetail?.vslInfo?.boc_remaining_loan_money, detail_amount.value) > 0) {
+      visibleTip.value = true;
+      confirmTxt.value =
+        '<div style="text-align:left;text-indent: 2rem;">' +
+        t('BOC剩余金额是{0},确定要进行VS放款吗？', [tool.formatMoney(tool.plus(props.projectDetail?.vslInfo?.boc_remaining_loan_money, detail_amount.value))]) +
+        '<br/>' +
+        '<div style="text-indent: 2rem;">' +
+        t('放款金额 {0},可用金额 {1},{2}超出金额 {3} 是否继续放款?', [tool.formatMoney(amount), formState.value.source == '0' ? 'VS ' : 'BOC ', tool.formatMoney(vsl_available), tool.formatMoney(tool.minus(amount, vsl_available))]);
+      +'<div>' + '<div>';
+      return;
+    } else if (Number(amount) > Number(vsl_available)) {
+      vsl_available = tool.plus(vsl_available, detail_amount.value);
+      visibleTip.value = true;
+      confirmTxt.value = t('放款金额 {0},可用金额 {1},{2}超出金额 {3} 是否继续放款?', [tool.formatMoney(amount), formState.value.source == '0' ? 'VS' : 'BOC', tool.formatMoney(vsl_available), tool.formatMoney(tool.minus(amount, vsl_available))]);
+      return;
+    } else if (formState.value.source == '0' && tool.plus(props.projectDetail?.vslInfo?.boc_remaining_loan_money, detail_amount.value) > 0) {
+      visibleTip.value = true;
+      confirmTxt.value = t('BOC剩余金额是{0},确定要进行VS放款吗？', [tool.formatMoney(tool.plus(props.projectDetail?.vslInfo?.boc_remaining_loan_money, detail_amount.value))]);
+      return;
     }
-    available = tool.plus(Number(props.statisticsData?.available), Number(detail_amount));
   }
 
   if (Number(amount) > Number(available)) {
@@ -285,6 +324,7 @@ const init = () => {
   validate.value = false;
   formModal2.value = [];
   formModal3.value = [];
+  detail_amount.value = 0;
   if (props.detail) {
     initData();
   } else {
@@ -354,18 +394,24 @@ const init = () => {
 };
 
 // edit
+const detail_amount = ref(0); //编辑总金额
 const isEdit = ref(false);
 const ProgressPaymentRef = ref(null);
 const initData = () => {
   isEdit.value = true;
   let keys = ['name', 'note', 'remark', 'other_note', 'apply_date', 'other_type', 'build_money', 'land_money', 'equity_money', 'other_money', 'vip_amount'];
   const newData = pick(props.detail, keys);
-  newData['source'] = props.detail?.forecast?.source;
+  newData['source'] = props.detail?.forecast?.source + '';
   Object.assign(formState.value, newData);
-  console.log(formState.value)
   if (props.detail?.buildlog) {
     formState.value.build__data = props.detail?.buildlog;
     if (ProgressPaymentRef.value) ProgressPaymentRef.value.init();
+  }
+
+  detail_amount.value = tool.plus(tool.plus(props.detail.build_money || 0, props.detail.land_money || 0), tool.plus(props.detail.equity_money || 0, props.detail.other_money || 0));
+  if (hasPermission('projects:drawdowns:add')) {
+    // vip
+    detail_amount.value = props.detail.vip_amount || 0;
   }
 };
 

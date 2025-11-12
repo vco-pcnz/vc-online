@@ -13,7 +13,7 @@
     <a-modal :width="edit ? (isVariation ? 1200 : 1000) : (isVariation ? 1000 : 900)" :open="visible" :title="t('开发成本')" :getContainer="() => $refs.modeRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content">
         <a-form-item-rest>
-          <div v-for="(item, p_index) in data.data" :key="item.type" class="mb-5 card">
+          <div v-for="(item, p_index) in data.data" :key="item.type" class="mb-5 card" :class="{'hidden': p_index === 1 || p_index === 2}">
             <!-- 建筑成本 -->
             <template v-if="p_index === 0">
               <div class="flex justify-between tabel-type">
@@ -233,46 +233,6 @@
                 <div class="total" v-if="edit"></div>
               </div>
             </template>
-            <!-- 净商品与服务税 -->
-            <div v-if="p_index === 1 || p_index === 2" class="flex items-center total-row">
-              <div class="title bold bold fs_xl text-left" style="padding: 0">{{ item.type }}</div>
-              <template v-if="edit">
-                <div class="amount">
-                  <a-input-number
-                    v-model:value="item.loan"
-                    :disabled="disabledGST"
-                    :max="99999999999"
-                    :min="-99999999999"
-                    :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                    :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                    @change="initData"
-                  />
-                </div>
-                <div class="amount">
-                  <a-input-number
-                    v-model:value="item.borrower_equity"
-                    :disabled="disabledGST || p_index == 1"
-                    :max="99999999999"
-                    :min="-99999999999"
-                    :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                    :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                    @change="initData"
-                  />
-                </div>
-              </template>
-              <template v-else>
-                <div class="amount">
-                  <vco-number :value="item.loan" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
-                </div>
-                <div class="amount">
-                  <vco-number :value="item.borrower_equity" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
-                </div>
-              </template>
-              <div class="amount">
-                <vco-number :value="item.total" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
-              </div>
-              <div class="total" v-if="edit"></div>
-            </div>
           </div>
           <div v-if="showRefinancial" class="refinancial-row">
             <div class="flex gap-4 items-center">

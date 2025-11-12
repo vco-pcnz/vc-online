@@ -361,6 +361,62 @@
               </a-form-item>
             </a-col>
           </template>
+          <a-col v-if="estabItems.length" :span="24">
+            <div class="form-line"></div>
+          </a-col>
+
+          <template v-if="estabItems.length">
+            <a-col :span="8">
+              <a-form-item :label="t('建立费计算标准')" name="estab_type">
+                <a-select
+                  v-model:value="formState.estab_type"
+                  style="width: 100%"
+                  :disabled="isDetails"
+                  :options="estabTypeData"
+                ></a-select>
+              </a-form-item>
+            </a-col>
+
+            <a-col
+              v-for="item in estabItems"
+              :key="item.credit_table"
+              :span="8"
+            >
+              <a-form-item
+                :name="item.credit_table"
+              >
+                <template #label>
+                  {{ item.credit_name }}
+                  <a-tooltip v-if="item.tips" placement="topLeft">
+                    <template #title>
+                      <span>{{ item.tips }}</span>
+                    </template>
+                    <QuestionCircleOutlined class="ml-2" />
+                  </a-tooltip>
+                </template>
+
+                <a-input
+                  v-if="item.is_ratio"
+                  v-model:value="formState[item.credit_table]"
+                  :disabled="inputDisabled(item.editMark) || item.disabled || formState.estab_type === 2"
+                  :suffix="item.credit_unit"
+                  @input="() => percentInput(item.credit_table)"
+                />
+                <a-input-number
+                  v-else
+                  v-model:value="formState[item.credit_table]"
+                  :disabled="inputDisabled(item.editMark) || item.disabled || formState.estab_type === 1"
+                  :formatter="
+                    (value) =>
+                      `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                  "
+                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                  @input="() => dollarInput(item.credit_table)"
+                />
+              </a-form-item>
+            </a-col>
+          </template>
+
           <a-col v-if="dollarItems.length" :span="24">
             <div class="form-line"></div>
           </a-col>
@@ -513,6 +569,17 @@
   const isRefinancial = ref(false)
   const refinancialAmount = ref(0)
 
+  const estabTypeData = ref([
+    {
+      label: t('建立费率为准'),
+      value: 1
+    },
+    {
+      label: t('建立费为准'),
+      value: 2
+    }
+  ])
+
   // 请求可以置换的项目
   const refinancialData = ref([])
 
@@ -559,10 +626,6 @@
     }))
   })
 
-  const filterOption = (input, option) => {
-    return option.label.toLowerCase().includes(input.toLowerCase());
-  };
-
   const refinancialChange = (data) => {
     if (data.length) {
       const dataArr = data.map(item => Number(item.item.amount))
@@ -579,25 +642,6 @@
   const confirmTxt = computed(() => {
     let res = ''
     if (!props.isDetails) {
-      const {land_amount, build_amount} = props.dataInfo.security
-      const landDiff = tool.minus(Number(formState.value.land_amount), land_amount)
-      const buildDiff = tool.minus(Number(formState.value.build_amount), build_amount)
-
-      // let landTxt,buildTxt = ''
-      // if (landDiff > 0) {
-      //   landTxt = t('抵押物土地总额为{0}，土地贷款总额为{1}，差{2}', [land_amount, formState.value.land_amount, landDiff])
-      // }
-
-      // if (buildDiff > 0) {
-      //   buildTxt = t('抵押物建筑总额为{0}，建筑贷款总额为{1}，差{2}', [build_amount, formState.value.build_amount, buildDiff])
-      // }
-
-      // const txt = landTxt && buildTxt ? `${landTxt}, ${buildTxt}` : landTxt || buildTxt
-
-      // if (txt) {
-      //   res = `${txt}, ${t('确认通过审核吗？')}`
-      // }
-      
       const securityTotal = props.dataInfo.security.total_money || 0
       const totalAmount = tool.plus(Number(formState.value.land_amount), Number(formState.value.build_amount))
 
@@ -640,22 +684,6 @@
         return isRefinancial.value
       }
     }
-  })
-
-  const showCompare = computed(() => {
-    const mark = props?.currentStep?.mark
-    return ['step_lm_audit', 'step_lm_review'].includes(mark)
-  })
-
-  const refinancialDisabled = computed(() => {
-    return amountDisabled.value
-    // const mark = props?.currentStep?.mark
-
-    // if (props?.blockInfo?.showEdit) {
-    //   return amountDisabled.value || !['step_lm_audit', 'step_fc_audit'].includes(mark)
-    // } else {
-    //   return amountDisabled.value
-    // }
   })
 
   const changeAlertRef = ref()
@@ -728,6 +756,7 @@
 
   const formRef = ref();
   const formState = ref({
+    estab_type: 1,
     build_amount: '',
     land_amount: '',
     initial_build_amount: '',
@@ -758,11 +787,13 @@
 
   const percentItems = ref([]);
   const dollarItems = ref([]);
+  const estabItems = ref([]);
   const changeBackItems = ref([])
   const showNumItems = ref([]);
 
   const percentItemsStore = ref([]);
   const dollarItemsStore = ref([]);
+  const estabItemsStore = ref([]);
   const changeBackItemsStore = ref([])
   const showNumItemsStore = ref([]);
 
@@ -782,7 +813,6 @@
     const initial_land_amount = formState.value.initial_land_amount || 0;
     const initial_equity_amount = formState.value.initial_equity_amount || 0;
     const initial_total_amount = tool.plus(tool.plus(initial_build_amount, initial_land_amount), initial_equity_amount);
-    // return tool.minus(initial_total_amount, refinancialAmount.value);
     return initial_total_amount
   });
 
@@ -829,18 +859,21 @@
   const linefeeFilter = () => {
     let percentData = cloneDeep(percentItemsStore.value)
     let dollarData = cloneDeep(dollarItemsStore.value)
+    let estabData = cloneDeep(estabItemsStore.value)
     let changeBack = cloneDeep(changeBackItemsStore.value)
     let showNum = cloneDeep(showNumItemsStore.value)
 
     if (formState.value.has_linefee === 0) {
       percentData = percentData.filter(item => !item.is_linefee)
       dollarData = dollarData.filter(item => !item.is_linefee)
+      estabData = estabData.filter(item => !item.is_linefee)
       changeBack = changeBack.filter(item => !item.is_linefee)
       showNum = showNum.filter(item => !item.is_linefee)
     }
 
     percentItems.value = percentData
     dollarItems.value = dollarData;
+    estabItems.value = estabData;
     changeBackItems.value = changeBack
     showNumItems.value = showNum
   }
@@ -907,10 +940,10 @@
       application_fee: Number(credit_frontFee || 0)
     }
 
-    if (key === 'credit_estabFee') {
-      params.estab_fee = Number(credit_estabFee || 0)
-    } else {
+    if (formState.value.estab_type === 1) {
       params.esTab_fee_rate = Number(credit_estabFeeRate || 0)
+    } else {
+      params.estab_fee = Number(credit_estabFee || 0)
     }
 
     establishCalculate(params).then(res => {
@@ -971,7 +1004,7 @@
       const bocPeriod = {
         min: 0,
         max: 0,
-        credit_name: 'BOC loan month',
+        credit_name: 'No. of BOC drawdown',
         credit_table: 'drawdown_term',
         is_req: 1,
         value: 0,
@@ -990,6 +1023,19 @@
       const perData = writeData.filter((item) => item.is_ratio);
       const dolData = writeData.filter((item) => !item.is_ratio);
       const backData = writeData.filter((item) => item.backMark);
+
+      // vsl 建立费、建立费率
+      const estabData = []
+      const estabFeeRateIndex = perData.findIndex(item => item.credit_table === 'credit_estabFeeRate')
+      if (estabFeeRateIndex > -1) {
+        estabData.push(perData[estabFeeRateIndex])
+        perData.splice(estabFeeRateIndex, 1)
+      }
+      const estabFeeIndex = dolData.findIndex(item => item.credit_table === 'credit_estabFee')
+      if (estabFeeIndex > -1) {
+        estabData.push(dolData[estabFeeIndex])
+        dolData.splice(estabFeeIndex, 1)
+      }
 
       // 如果存在中介费率，则中介费不可输入只是做展示
       const brokerFeeRate = perData.find(item => item.credit_table === 'credit_brokerFeeRate')
@@ -1027,6 +1073,7 @@
 
       percentItemsStore.value = cloneDeep(perData);
       dollarItemsStore.value = cloneDeep(dolData);
+      estabItemsStore.value = cloneDeep(estabData);
       changeBackItemsStore.value = cloneDeep(backData);
       showNumItemsStore.value = cloneDeep(showNumItemsData);
       
@@ -1134,6 +1181,9 @@
 
     // BOC 贷款周期
     formState.value.drawdown_term = props.lendingInfo.drawdown_term || 0
+
+    // 计算标准
+    formState.value.estab_type = props.lendingInfo.estab_type ? Number(props.lendingInfo.estab_type) : 1;
 
     // 项目周期
     formState.value.time_date = [dayjs(props.lendingInfo.start_date), dayjs(props.lendingInfo.end_date)]
@@ -1316,13 +1366,13 @@
         const params = {
           code: props.blockInfo.code,
           uuid: props.currentId,
+          estab_type: Number(formState.value.estab_type),
           build_amount: formState.value.build_amount || 0,
           land_amount: formState.value.land_amount || 0,
           equity_amount: formState.value.equity_amount || 0,
           initial_build_amount: formState.value.initial_build_amount || 0,
           initial_land_amount: formState.value.initial_land_amount || 0,
           initial_equity_amount: formState.value.initial_equity_amount || 0,
-          // substitution_ids: formState.value.substitution_ids || [],
           substitution_amount: refinancialAmount.value || 0,
           has_linefee: Number(formState.value.has_linefee),
           do__est: Number(formState.value.do__est),
@@ -1558,7 +1608,7 @@
 
 .block-item {
   :deep(.ant-input[disabled]),
-  :deep(.ant-input-number-disabled) {
+  :deep(.ant-input-number-disabled input) {
     color: #999 !important;
   }
 }

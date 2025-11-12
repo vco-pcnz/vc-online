@@ -264,6 +264,14 @@ const bocMoney = ref(0)
 const bocRemainMoney = ref(0)
 const loanRemainMoney = ref(0)
 
+const remainInfo = computed(() => {
+  return {
+    vsRemainMoney: vsRemainMoney.value,
+    bocRemainMoney: bocRemainMoney.value,
+    loanRemainMoney: loanRemainMoney.value
+  }
+})
+
 const tabFlatData = ref([])
 
 const visible = ref(false);
@@ -359,6 +367,7 @@ const formRules = {
   amount: [{ required: true, message: t('请输入') + t('金额'), trigger: 'blur' }],
 };
 
+const dataDone = ref(false)
 const getTableData = () => {
   tabLoading.value = true;
   const ajaxFn = props.isDetails ? projectDetailDarwDownList : projectForecastDarwDownList;
@@ -394,9 +403,12 @@ const getTableData = () => {
       tabFlatData.value = dataArr.flat(Infinity).filter(item => item.type === 2)
       tabData.value = dataArr;
       tabLoading.value = false;
+
+      dataDone.value = true;
     })
     .catch(() => {
       tabLoading.value = false;
+      dataDone.value = true;
     });
 };
 
@@ -702,6 +714,11 @@ onMounted(() => {
 onUnmounted(() => {
   emitter.off('refreshForecastList', handleRefreshForecast);
 });
+
+defineExpose({
+  remainInfo,
+  dataDone
+})
 </script>
 
 <style lang="less" scoped>

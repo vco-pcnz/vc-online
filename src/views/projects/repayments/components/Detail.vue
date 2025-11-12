@@ -4,10 +4,12 @@
     <securities-dialog v-model:visible="securitiesVisible" :select-data="relatedData" :is-details="true"></securities-dialog>
 
     <!-- 信息编辑弹窗 -->
-    <drawdown-request ref="editDialogRef" :uuid="uuid" :data-info="detail" @change="update"></drawdown-request>
+    <drawdown-request ref="editDialogRef" :uuid="uuid" :data-info="detail" :projectDetail="projectDetail" @change="update"></drawdown-request>
+    <drawdown-request-vsl ref="editVslDialogRef" :uuid="uuid" :data-info="detail" :projectDetail="projectDetail" @change="update"></drawdown-request-vsl>
 
     <!-- 详情弹窗 -->
     <details-dialog v-model:visible="detailsVisible" :uuid="uuid" :is-accept="detailsAccept" :detail-data="detail" @done="update"></details-dialog>
+    <details-dialog-vsl v-model:visible="detailsVisibleVsl" :uuid="uuid" :is-accept="detailsAccept" :detail-data="detail" @done="update"></details-dialog-vsl>
 
     <!-- 抵押物解压弹窗 -->
     <release-dialog v-model:visible="releaseVisible" :uuid="uuid" :detail-data="detail" @done="update"></release-dialog>
@@ -15,12 +17,7 @@
     <!-- 取消全额还款 -->
     <a-modal :width="486" :open="cancelAllVisible" :title="t('取消全额还款')" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
-        <a-form
-          ref="cAllformRef"
-          layout="vertical"
-          :model="cAllformState"
-          :rules="cAllformRules"
-        >
+        <a-form ref="cAllformRef" layout="vertical" :model="cAllformState" :rules="cAllformRules">
           <a-form-item :label="t('取消全额还款理由')" name="cancel_reason">
             <a-textarea v-model:value="cAllformState.cancel_reason" :rows="6" />
           </a-form-item>
@@ -40,12 +37,7 @@
       <div style="position: absolute; right: 10px; top: 10px; cursor: pointer" v-if="detail?.cancellog && detail?.cancellog.length">
         <PushBackLog :data="detail?.cancellog"></PushBackLog>
       </div>
-      <a-alert
-        v-if="Boolean(detail?.cancel_reason)"
-        :message="detail?.do_cancel === 1 ? t('取消全额还款理由') : 'Push back reason'"
-        type="error"
-        class="cancel-reason"
-      >
+      <a-alert v-if="Boolean(detail?.cancel_reason)" :message="detail?.do_cancel === 1 ? t('取消全额还款理由') : 'Push back reason'" type="error" class="cancel-reason">
         <template #description>
           <div v-html="detail?.cancel_reason"></div>
         </template>
@@ -106,17 +98,13 @@
           </a-popconfirm>
 
           <template v-if="detail?.all_repayment && hasPermission('projects:repayments:all_repayment_cancel') && [0, 1].includes(Number(detail?.status)) && detail?.state > 0 && ['repayment_lm_recon'].includes(detail.mark)">
-            <a-button
-              type="brown"
-              class="big uppercase w-full mt-4"
-              @click="openEditHandle(true)"
-            >{{ t('修改全额还款') }}</a-button>
+            <a-button type="brown" class="big uppercase w-full mt-4" @click="openEditHandle(true)">{{ t('修改全额还款') }}</a-button>
 
             <div class="mt-4 flex justify-center">
               <a-button type="danger" size="small" shape="round" @click="cancelAllVisible = true">{{ t('取消全额还款') }}</a-button>
             </div>
           </template>
-          
+
           <div v-if="detail?.has_permission && (detail?.mark == 'repayment_lm' || detail?.mark == 'repayment_fc' || detail?.mark == 'repayment_lc' || detail?.mark == 'repayment_director')" class="mt-4">
             <p class="text-center color_grey fs_xs my-3">{{ t('您可以点击下面的按钮来拒绝还款请求。') }}</p>
             <div class="flex justify-center">
@@ -136,13 +124,11 @@
           <DrawdownBack v-if="['repayment_fc', 'repayment_lc'].includes(detail?.mark) && detail?.has_permission && detail?.do_cancel !== 1" :uuid="uuid" :detail="detail" @change="update"></DrawdownBack>
         </div>
 
-        <a-button
-          v-if="!detail?.prev_permission && !(detail?.has_permission || hasPermission('projects:repayments:revoke'))"
-          type="brown" class="big uppercase w-full"
-          @click="openDetails(false)"
-        >{{ t('查看详情') }}</a-button>
+        <a-button v-if="!detail?.prev_permission && !(detail?.has_permission || hasPermission('projects:repayments:revoke'))" type="brown" class="big uppercase w-full" @click="openDetails(false)">{{ t('查看详情') }}</a-button>
 
-        <p class="download-btn" v-if="all_repayment">{{ t('对账单') }}, <span @click="downloadStatement">{{ t('点击下载') }}</span></p>
+        <p class="download-btn" v-if="all_repayment">
+          {{ t('对账单') }}, <span @click="downloadStatement">{{ t('点击下载') }}</span>
+        </p>
       </div>
     </div>
   </div>
@@ -158,7 +144,9 @@ import { loanRdeclinel, loanRsaveStep, loanRrecall, loanRrevoke, projectLoanAllR
 import ReconciliationModal from '@/views/projects/components/ReconciliationModal.vue';
 import SecuritiesDialog from './form/SecuritiesDialog.vue';
 import DrawdownRequest from './form/DrawdownRequest.vue';
+import DrawdownRequestVsl from './form/DrawdownRequestVsl.vue';
 import DetailsDialog from './form/DetailsDialog.vue';
+import DetailsDialogVsl from './form/DetailsDialogVsl.vue';
 import ReleaseDialog from './form/ReleaseDialog.vue';
 import PushBackLog from '@/views/projects/components/PushBackLog.vue';
 import { useUserStore } from '@/store';
@@ -188,7 +176,7 @@ const repaymentAmount = computed(() => {
 
 const all_repayment = computed(() => {
   return Number(props.detail?.all_repayment || 0) === 1 ? true : false;
-})
+});
 
 // 拒绝
 const decline = async () => {
@@ -235,16 +223,32 @@ const update = () => {
 };
 
 const editDialogRef = ref();
+const editVslDialogRef = ref();
+// const openEditHandle = () => {
+//   if (props.projectDetail.product.code === 'vsl') {
+//     editVslDialogRef.value && editVslDialogRef.value.init();
+//   } else {
+//     editDialogRef.value && editDialogRef.value.init();
+//   }
 const openEditHandle = (allCancel = false) => {
-  editDialogRef.value && editDialogRef.value.init(allCancel);
+  if (props.projectDetail.product.code === 'vsl') {
+    editVslDialogRef.value && editVslDialogRef.value.init();
+  } else {
+    editDialogRef.value && editDialogRef.value.init(allCancel);
+  }
 };
 
 const detailsVisible = ref(false);
+const detailsVisibleVsl = ref(false);
 const detailsAccept = ref(false);
 
 const openDetails = (accept) => {
   detailsAccept.value = accept;
-  detailsVisible.value = true;
+  if (props.projectDetail.product.code === 'vsl') {
+    detailsVisibleVsl.value = true;
+  } else {
+    detailsVisible.value = true;
+  }
 };
 
 const releaseVisible = ref(false);
@@ -257,27 +261,27 @@ const downloadStatement = () => {
     less: props.detail.reduction_money || 0,
     verify: 1,
     verify_id: props.detail?.id
-  }
+  };
 
   if (props.detail.extra && props.detail.extra.length) {
-    params.extra = props.detail.extra
-    params.extra_amount = Number(props.detail.extra_amount || 0)
+    params.extra = props.detail.extra;
+    params.extra_amount = Number(props.detail.extra_amount || 0);
   }
 
-  projectLoanAllRepayment(params).then(res => {
+  projectLoanAllRepayment(params).then((res) => {
     window.open(res);
-  })
-}
+  });
+};
 
-const cAllformRef = ref()
+const cAllformRef = ref();
 const cancelAllVisible = ref(false);
 const cAllformState = ref({
   cancel_reason: ''
-})
+});
 const cAllformRules = ref({
   cancel_reason: [{ required: true, message: t('请输入') + t('取消全额还款理由'), trigger: 'blur' }]
-})
-const cancelAllLoading = ref(false)
+});
+const cancelAllLoading = ref(false);
 const cancelAllHandle = () => {
   cAllformRef.value
     .validate()
@@ -288,27 +292,29 @@ const cancelAllHandle = () => {
         id: props.detail?.id,
         back_step: 'repayment_fc',
         do_cancel: 1
-      }
+      };
 
-      cancelAllLoading.value = true
-      loanRgoBack(params).then(() => {
-        cancelAllLoading.value = false
-        cancelAllVisible.value = false
-        update()
-      }).catch(() => {
-        cancelAllLoading.value = false
-      })
+      cancelAllLoading.value = true;
+      loanRgoBack(params)
+        .then(() => {
+          cancelAllLoading.value = false;
+          cancelAllVisible.value = false;
+          update();
+        })
+        .catch(() => {
+          cancelAllLoading.value = false;
+        });
     })
     .catch((error) => {
       console.log('error', error);
     });
-}
+};
 
 const updateVisible = (value) => {
   if (!value && !cancelAllLoading.value) {
     cAllformRef.value.clearValidate();
     cAllformRef.value.resetFields();
-    cAllformState.value.cancel_reason = ''
+    cAllformState.value.cancel_reason = '';
   }
   cancelAllVisible.value = value;
 };

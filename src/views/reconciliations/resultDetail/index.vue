@@ -71,6 +71,9 @@
               <p><span class="label">Xero</span></p>
               <p>{{ record?.xero_date ? (record?.xero_status == 1 ? t('已对账') : t('未对账')) : '-' }}</p>
             </template>
+            <template v-if="column.dataIndex === 'reconcile_date'">
+              <div v-if="record.is_manual" class="tips">{{ t('手动对账') }}</div>
+            </template>
           </template>
         </a-table>
       </a-spin>
@@ -123,7 +126,8 @@ const columns = reactive([
   },
   {
     title: t('对账日期'),
-    width: '200px',
+    width: '200px', 
+    align: 'center',
     dataIndex: 'reconcile_date',
     customRender: ({ text }) => {
       return text ? tool.showDate(text) : '';
@@ -214,5 +218,15 @@ onMounted(() => {
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
   background-color: #f5f5f5;
   border: 1px solid #dddddd;
+}
+
+.tips {
+  position: absolute;
+  background-color: @colorPrimary;
+  font-size: 10px;
+  padding: 1px 20px;
+  top: 0;
+  right: 0;
+  border-bottom-left-radius: 12px;
 }
 </style>

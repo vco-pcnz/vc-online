@@ -11,7 +11,7 @@
     </ul>
     <div v-if="tableData.length" class="table-body">
       <template v-for="(item, index) in tableData" :key="item.id">
-        <ul class="table-col tr" :class="{ active: active_id == item.id, declined: item.status_name === 'DECLINED REPAYMENT', 'all-repayment': item.all_repayment }" @click="viewDetail(item)">
+        <ul class="table-col tr all-repayment" :class="{ active: active_id == item.id, declined: item.status_name === 'DECLINED REPAYMENT' }" @click="viewDetail(item)">
           <li><div class="circle" :class="{ done: item.status === 2 }"></div></li>
           <li>
             <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.name" style="width: 200px">
@@ -37,7 +37,10 @@
             <vco-number :value="Math.abs(item.open_amount)" :precision="2" size="fs_xs"></vco-number>
             <p class="fs_xs color_grey" v-if="item.open_date">{{ tool.showDate(item.open_date) }}</p>
           </li>
-          <div v-if="item.all_repayment" class="tips normal-back">{{ t('全额还款') }}</div>
+          <div class="tipWrapper" v-if="item.all_repayment || (item.status == 2 && item.reconcile_date != null)">
+            <div v-if="item.all_repayment" class="tips normal-back">{{ t('全额还款') }}</div>
+            <div v-if="item.status == 2 && item.reconcile_date != null" class="tips">{{ t('手动对账') }}</div>
+          </div>
           <div v-if="item.all_repayment && Number(item.do_edit) === 1" class="tips edit-back">{{ t('编辑') }}</div>
           <div v-if="item.all_repayment && Number(item.do_cancel) === 1" class="tips edit-back cancel">{{ t('取消') }}</div>
         </ul>
@@ -159,10 +162,11 @@ watch(
     &.all-repayment {
       position: relative;
       .tips {
-        position: absolute;
-        background-color: @colorPrimary;
-        top: 0;
+        padding: 1px 5px;
         &.edit-back {
+          padding: 0;
+          position: absolute;
+          top: 0;
           width: 20px;
           height: 100%;
           overflow: hidden;
@@ -176,15 +180,9 @@ watch(
           background-color: #1b79f9;
           color: #fff;
           &.cancel {
+            padding: 0;
             background-color: #f45954;
           }
-        }
-        &.normal-back {
-          font-size: 11px;
-          padding: 2px 20px;
-          right: 0;
-          border-bottom-left-radius: 12px;
-          border-top-right-radius: 12px;
         }
       }
     }
@@ -247,5 +245,21 @@ watch(
   margin-right: 5px;
   color: #888;
   font-size: 12px;
+}
+
+.tipWrapper {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  padding: 2px 15px;
+  background-color: @colorPrimary;
+  font-size: 10px;
+  border-bottom-left-radius: 12px;
+  border-top-right-radius: 12px;
+  line-height: 1;
+  .tips:not(:last-child) {
+    border-right: 1px solid #f8f8f8;
+  }
 }
 </style>

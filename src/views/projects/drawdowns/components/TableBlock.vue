@@ -42,11 +42,12 @@
             <vco-number :value="item.open_amount" :precision="2" size="fs_xs"></vco-number>
             <p class="fs_xs color_grey" v-if="item.open_date">{{ tool.showDate(item.open_date) }}</p>
           </li>
-          <div v-if="Number(item?.over_money) > 0 && isOverdue(item)" class="tips">{{ t('超时放款') }}<span style="border-right: 1px solid #f8f8f8; margin: 0 10px"></span>{{ t('超额放款') }}</div>
-          <template v-else>
+
+          <div class="tipWrapper" v-if="isOverdue(item) || Number(item?.over_money) > 0 || (item.status == 2 && item.reconcile_date != null)">
             <div v-if="isOverdue(item)" class="tips">{{ t('超时放款') }}</div>
             <div v-if="Number(item?.over_money) > 0" class="tips">{{ t('超额放款') }}</div>
-          </template>
+            <div v-if="item.status == 2 && item.reconcile_date != null" class="tips">{{ t('手动对账') }}</div>
+          </div>
         </ul>
       </template>
     </div>
@@ -183,14 +184,7 @@ watch(
     &.all-overdue {
       position: relative;
       .tips {
-        position: absolute;
-        background-color: @colorPrimary;
-        font-size: 10px;
-        padding: 1px 20px;
-        top: 0;
-        right: 0;
-        border-bottom-left-radius: 12px;
-        border-top-right-radius: 12px;
+        padding: 1px 5px;
       }
     }
 
@@ -254,5 +248,21 @@ watch(
   margin-right: 5px;
   color: #888;
   font-size: 12px;
+}
+
+.tipWrapper {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  padding: 2px 15px;
+  background-color: @colorPrimary;
+  font-size: 10px;
+  border-bottom-left-radius: 12px;
+  border-top-right-radius: 12px;
+  line-height: 1;
+  .tips:not(:last-child) {
+    border-right: 1px solid #f8f8f8;
+  }
 }
 </style>

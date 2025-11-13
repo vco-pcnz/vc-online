@@ -1266,5 +1266,6 @@ export default {
   "手动对账": "Reconciled (Manual)",
   "建立费率为准": "Calculated by Rate",
   "建立费为准": "Fixed Fee",
-  "请等待预测表数据加载完成，再进行提交": "Please wait for the forecast table data to load before submitting"
+  "请等待预测表数据加载完成，再进行提交": "Please wait for the forecast table data to load before submitting",
+  "手动对账说明": "Manual notes"
 }

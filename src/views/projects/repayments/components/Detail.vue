@@ -45,7 +45,8 @@
 
       <div class="my-3" style="padding-left: 5px">
         <div class="bold fs_xl">{{ detail?.name }}</div>
-        <div class="color_grey fs_xs mt-2">{{ detail?.note }}</div>
+        <div class="color_grey fs_xs mt-2" v-if="detail?.note">{{ t('说明') }}: {{ detail?.note }}</div>
+        <div class="color_grey fs_xs" v-if="detail?.remark">{{ t('手动对账说明') }}: {{ detail?.remark }}</div>
       </div>
 
       <div class="flex gap-4">

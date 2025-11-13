@@ -69,6 +69,23 @@
             </a-dropdown>
           </div>
         </template>
+        <template v-else>
+          <div class="label flex items-end justify-between mt-3">
+            {{ t('文件') }}
+            <vco-upload-modal v-model:list="documentList" v-model:value="formState.document">
+              <a-button class="upload_btn" type="brown" shape="round" size="small"> {{ t('上传') }}</a-button>
+            </vco-upload-modal>
+          </div>
+
+          <div class="file-content">
+            <template v-if="documentList.length">
+              <div v-for="(item, index) in documentList" :key="index" class="file-item">
+                <vco-file-item :file="item" :showClose="true" @remove="remove(index)"></vco-file-item>
+              </div>
+            </template>
+            <p v-if="!documentList.length">{{ t('暂无数据，请上传') }}</p>
+          </div>
+        </template>
         <div class="input-item">
           <div class="label">{{ t('说明') }}</div>
           <a-textarea v-model:value="formState.remark" placeholder="Basic usage" :rows="4" />
@@ -94,6 +111,7 @@ import tool from '@/utils/tool';
 import { Empty } from 'ant-design-vue';
 const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE;
 import { DownOutlined } from '@ant-design/icons-vue';
+import { fadd } from '@/api/project/annex';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);
@@ -134,7 +152,8 @@ const formState = ref({
   ctype: 2,
   bank_type: '',
   bank_sn: '',
-  remark: ''
+  remark: '',
+  document: []
 });
 
 const updateVisible = (value) => {
@@ -159,6 +178,13 @@ const loadType = () => {
       loading_type.value = false;
     });
 };
+
+const documentList = ref([]);
+// 删除文件
+const remove = (index) => {
+  documentList.value.splice(index, 1);
+};
+
 const save = () => {
   validate.value = true;
   if (formState.value.ctype == 2 && (!formState.value.bank_type || !formState.value.bank_sn)) {
@@ -344,6 +370,17 @@ defineExpose({
       background-color: #f7f9f8;
       padding: 5px 20px;
     }
+  }
+}
+.file-content {
+  border: 1px solid #272727 !important;
+  border-radius: 10px !important;
+  background-color: #f7f9f8;
+  padding: 15px;
+  > p {
+    text-align: center;
+    font-size: 14px;
+    color: #999;
   }
 }
 </style>

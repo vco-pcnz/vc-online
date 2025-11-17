@@ -403,6 +403,61 @@
               </a-form-item>
             </a-col>
           </template>
+          <a-col v-if="estabItems.length" :span="24">
+            <div class="form-line"></div>
+          </a-col>
+          <template v-if="estabItems.length">
+            <a-col :span="8">
+              <a-form-item :label="t('建立费计算标准')" name="estab_type">
+                <a-select
+                  v-model:value="formState.estab_type"
+                  style="width: 100%"
+                  :disabled="isDetails"
+                  :options="estabTypeData"
+                ></a-select>
+              </a-form-item>
+            </a-col>
+
+            <a-col
+              v-for="item in estabItems"
+              :key="item.credit_table"
+              :span="8"
+            >
+              <a-form-item
+                :name="item.credit_table"
+              >
+                <template #label>
+                  {{ item.credit_name }}
+                  <a-tooltip v-if="item.tips" placement="topLeft">
+                    <template #title>
+                      <span>{{ item.tips }}</span>
+                    </template>
+                    <QuestionCircleOutlined class="ml-2" />
+                  </a-tooltip>
+                </template>
+
+                <a-input
+                  v-if="item.is_ratio"
+                  v-model:value="formState[item.credit_table]"
+                  :disabled="inputDisabled(item.editMark) || item.disabled || formState.estab_type === 2"
+                  :suffix="item.credit_unit"
+                  @input="() => percentInput(item.credit_table)"
+                />
+                <a-input-number
+                  v-else
+                  v-model:value="formState[item.credit_table]"
+                  :disabled="inputDisabled(item.editMark) || item.disabled || formState.estab_type === 1"
+                  :formatter="
+                    (value) =>
+                      `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                  "
+                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                  @input="() => dollarInput(item.credit_table)"
+                />
+              </a-form-item>
+            </a-col>
+          </template>
+
           <a-col v-if="dollarItems.length" :span="24">
             <div class="form-line"></div>
           </a-col>
@@ -482,7 +537,7 @@
   import { RightOutlined } from '@ant-design/icons-vue';
   import { useI18n } from 'vue-i18n';
   import { useRoute } from 'vue-router';
-  import { cloneDeep } from 'lodash';
+  import { cloneDeep, debounce } from 'lodash';
   import { message } from 'ant-design-vue/es';
   import { QuestionCircleOutlined } from '@ant-design/icons-vue'
   import { useUserStore } from '@/store';
@@ -491,9 +546,7 @@
     creditInfo,
     projectAuditSaveMode,
     projectAuditCheckMode,
-    projectAuditGoback,
-    projectAuditSubstitution,
-    projectDetailSubstitution
+    vclEstabCalc
   } from '@/api/process';
   import emitter from '@/event';
   import useProcessStore from '@/store/modules/process';
@@ -690,8 +743,20 @@
     }
   }
 
+  const estabTypeData = ref([
+    {
+      label: t('建立费率为准'),
+      value: 1
+    },
+    {
+      label: t('建立费为准'),
+      value: 2
+    }
+  ])
+
   const formRef = ref();
   const formState = ref({
+    estab_type: 1,
     build_amount: '',
     land_amount: '',
     initial_build_amount: '',
@@ -724,6 +789,7 @@
   const dollarItems = ref([]);
   const changeBackItems = ref([])
   const showNumItems = ref([]);
+  const estabItems = ref([]); // 建立费
 
   const percentItemsStore = ref([]);
   const dollarItemsStore = ref([]);
@@ -801,6 +867,42 @@
       dollarData = dollarData.filter(item => !item.is_linefee)
       changeBack = changeBack.filter(item => !item.is_linefee)
       showNum = showNum.filter(item => !item.is_linefee)
+
+      // 建立费、建立费率
+      const estabData = []
+      const estabFeeRateIndex = percentData.findIndex(item => item.credit_table === 'credit_estabFeeRate')
+      if (estabFeeRateIndex > -1) {
+        estabData.push(percentData[estabFeeRateIndex])
+      }
+      const estabFeeIndex = showNum.findIndex(item => item.credit_table === 'credit_estabFee')
+      if (estabFeeIndex > -1) {
+        const estabItem = cloneDeep(showNum[estabFeeIndex])
+        estabItem.editMark = percentData[estabFeeRateIndex].editMark
+        formState.value['credit_estabFee'] = showNum[estabFeeIndex].value
+        estabData.push(estabItem)
+      }
+      if (!formRules.value['credit_estabFee']) {
+        formRules.value['credit_estabFee'] = [
+          {
+            required: true,
+            message: t('请输入') + '建立费',
+            trigger: 'blur',
+          }
+        ]
+      }
+      estabItems.value = estabData
+
+      // 没有lineFee, 建立费输入
+      percentData = percentData.filter(item => item.credit_table !== 'credit_estabFeeRate')
+      showNum = showNum.filter(item => item.credit_table !== 'credit_estabFee')
+    } else {
+      estabItems.value = []
+
+      formState.value['credit_estabFee'] = ''
+
+      if (formRules.value['credit_estabFee']) {
+        delete formRules.value['credit_estabFee']
+      }
     }
 
     percentItems.value = percentData
@@ -856,11 +958,77 @@
     }
   }
 
+  const establishCalculateHandle = () => {
+    if (formState.value.has_linefee) {
+      return false;
+    }
+    const {
+      time_date,
+      estab_type,
+      build_amount,
+      land_amount,
+      equity_amount,
+      substitution_amount,
+      credit_loanInterest,
+      credit_legalFee,
+      credit_brokerFee,
+      credit_brokerFeeRate,
+      credit_otherFee,
+      credit_frontFee,
+      credit_estabFee,
+      credit_estabFeeRate,
+      initial_build_amount,
+      initial_land_amount,
+      initial_equity_amount
+    } = formState.value
+    
+    const params = {
+      uuid: props.currentId,
+      project: {
+        estab_type,
+        start_date: dayjs(time_date[0]).format('YYYY-MM-DD'),
+        end_date: dayjs(time_date[1]).format('YYYY-MM-DD'),
+        land_amount: Number(land_amount || 0),
+        build_amount: Number(build_amount || 0),
+        equity_amount: Number(equity_amount || 0),
+        substitution_amount: Number(substitution_amount || 0),
+        initial_build_amount: Number(initial_build_amount || 0),
+        initial_land_amount: Number(initial_land_amount || 0),
+        initial_equity_amount: Number(initial_equity_amount || 0),
+        loan_money: Number(totalAmountRef.value || 0),
+        initial_amount: Number(totalInitialAmountRef.value || 0)
+      },
+      credit: {
+        credit_brokerFee: Number(credit_brokerFee || 0),
+        credit_brokerFeeRate: Number(credit_brokerFeeRate || 0),
+        credit_estabFee: Number(credit_estabFee || 0),
+        credit_estabFeeRate: Number(credit_estabFeeRate || 0),
+        credit_loanInterest: Number(credit_loanInterest || 0),
+        credit_legalFee: Number(credit_legalFee || 0),
+        credit_otherFee: Number(credit_otherFee || 0),
+        credit_frontFee: Number(credit_frontFee || 0),
+      }
+    }
+
+    console.log('params', params);
+
+    vclEstabCalc(params).then(res => {
+      formState.value['credit_estabFee'] = res.estab_fee
+      formState.value['credit_estabFeeRate'] = res.esTab_fee_rate
+    })
+  }
+
+   // 防抖版本的计算方法
+  const debouncedEstablishCalculate = debounce(establishCalculateHandle, 300)
+
   const percentInput = (key) => {
     // 中介费率修改
     if (key === 'credit_brokerFeeRate') {
       calcBrokerFee()
     }
+
+    // 建立费、建立费率计算
+    debouncedEstablishCalculate()
   }
 
   const dollarInput = (key) => {
@@ -868,6 +1036,9 @@
     if (key === 'credit_brokerFee') {
       calcBrokerFeeRate()
     }
+
+    // 建立费、建立费率计算
+    debouncedEstablishCalculate()
   }
 
   const getFormItems = async () => {
@@ -975,6 +1146,8 @@
             formState.value[key] = res[key] || '0';
           }
         }
+
+        formState.value.estab_type = res.estab_type || 1;
         for (let i = 0; i < showNumItemsStore.value.length; i++) {
           showNumItemsStore.value[i].value = res[showNumItemsStore.value[i].credit_table];
         }
@@ -1190,10 +1363,12 @@
         delete credit__data.term
         delete credit__data.days
         delete credit__data.totalDay
+        delete credit__data.estab_type
 
         const params = {
           code: props.blockInfo.code,
           uuid: props.currentId,
+          estab_type: Number(formState.value.estab_type),
           build_amount: formState.value.build_amount || 0,
           land_amount: formState.value.land_amount || 0,
           equity_amount: formState.value.equity_amount || 0,
@@ -1475,7 +1650,7 @@ const goHandle = (page) => {
 
 .block-item {
   :deep(.ant-input[disabled]),
-  :deep(.ant-input-number-disabled) {
+  :deep(.ant-input-number-disabled input) {
     color: #999 !important;
   }
 }

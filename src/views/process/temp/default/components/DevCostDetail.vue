@@ -140,7 +140,7 @@
                   </template>
                   <template v-if="column.dataIndex === 'change_value'">
                     <template v-if="record?.name !== 'Land GST'">
-                      <div v-if="!record?.list || record?.name === 'Construction'" class="flex items-center gap-2">
+                      <div v-if="!record?.list || !record?.list?.length || record?.name === 'Construction'" class="flex items-center gap-2">
                         <i class="iconfont" v-if="isPlus" style="color: #31bd65">&#xe712;</i>
                         <i class="iconfont" v-else style="color: #eb4b6d">&#xe711;</i>
                         <a-input-number
@@ -160,10 +160,10 @@
                         </a-tooltip>
                       </div>
                       <div v-else style="height: 28px;"></div>
-                      <template v-if="record?.list && record?.name !== 'Construction'">
+                      <template v-if="record?.list && record?.list?.length && record?.name !== 'Construction'">
                         <div v-for="(sub, subIndex) in record?.list" :key="subIndex" class="flex items-center gap-2 mt-2">
                           <i class="iconfont" v-if="isPlus" style="color: #31bd65">&#xe712;</i>
-                        <i class="iconfont" v-else style="color: #eb4b6d">&#xe711;</i>
+                          <i class="iconfont" v-else style="color: #eb4b6d">&#xe711;</i>
                           <a-input-number
                             v-if="edit"
                             v-model:value="sub.change_value"

@@ -1010,11 +1010,12 @@
       }
     }
 
-    console.log('params', params);
-
     vclEstabCalc(params).then(res => {
-      formState.value['credit_estabFee'] = res.estab_fee
-      formState.value['credit_estabFeeRate'] = res.esTab_fee_rate
+      if (estab_type === 1) {
+        formState.value['credit_estabFee'] = res
+      } else {
+        formState.value['credit_estabFeeRate'] = res
+      }
     })
   }
 
@@ -1147,7 +1148,6 @@
           }
         }
 
-        formState.value.estab_type = res.estab_type || 1;
         for (let i = 0; i < showNumItemsStore.value.length; i++) {
           showNumItemsStore.value[i].value = res[showNumItemsStore.value[i].credit_table];
         }
@@ -1195,6 +1195,8 @@
     if (props.lendingInfo.buildlog && props.lendingInfo.buildlog.length) {
       selectedData.value = props.lendingInfo.buildlog
     }
+
+    formState.value.estab_type = props.lendingInfo.estab_type || 1;
 
     staticFormData.value = cloneDeep({
       ...formState.value,

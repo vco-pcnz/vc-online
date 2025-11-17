@@ -768,3 +768,11 @@ export const shareSaveProject = (data) =>
     method: "post",
     data
   });
+
+// vcl - 进件--建立费、建立费率计算
+export const vclEstabCalc = (data) =>
+  request({
+    url: "/project/audit/estabCalc",
+    method: "post",
+    data
+  });

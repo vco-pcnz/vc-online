@@ -104,8 +104,8 @@ const columns = reactive([
   },
   {
     title: t('参考'),
-    dataIndex: 'type',
-    key: 'type',
+    dataIndex: 'type_name',
+    key: 'type_name',
     width: '12%'
   },
   {

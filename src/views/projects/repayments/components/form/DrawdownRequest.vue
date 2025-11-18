@@ -329,7 +329,8 @@ const refreshIrr = () => {
   }
 
   projectLoanCalcIrr(params).then(res => {
-    irrPercent.value = Number(res.irr || 0) < 0 ? 0 : Number(res.irr || 0)
+    // irrPercent.value = Number(res.irr || 0) < 0 ? 0 : Number(res.irr || 0)
+    irrPercent.value = res.irr
     irrLoading.value = false
   }).catch(() => {
     irrLoading.value = false

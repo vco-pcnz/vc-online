@@ -1,16 +1,10 @@
 <template>
   <a-col :span="2" class="content_btn">
-    <a-popconfirm
-      :title="t('确定要对账吗？')"
-      :cancel-text="t('取消')"
-      :ok-text="t('确定')"
-      @confirm="showTip(item)"
-      :disabled="(!item.transaction.length && (!item['f_date'] || !item['f_fee'] || !item['f_note'])) || !project || !hasPermission('reconciliations:ok')"
-    >
+    <a-popconfirm :title="t('确定要对账吗？')" :cancel-text="t('取消')" :ok-text="t('确定')" @confirm="showTip(item)" :disabled="isDisabled">
       <a-button
         :loading="ok_loading && formState.id == item.id"
-        :class="{ active: ((!item.transaction.length && item['f_date'] && item['f_fee'] && item['f_note'] && project) || item.transaction.length) && hasPermission('reconciliations:ok') }"
-        :disabled="(!item.transaction.length && (!item['f_date'] || !item['f_fee'] || !item['f_note'])) || !project || !hasPermission('reconciliations:ok')"
+        :class="{ active: ((!item.transaction.length && item['f_date'] && item['f_fee'] && item['f_note'] && project) || item.transaction.length) && hasPermission('reconciliations:ok') && !isDisabled }"
+        :disabled="isDisabled"
       >
         OK
       </a-button>
@@ -20,7 +14,7 @@
 </template>
 
 <script scoped setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 import TipModal from './TipModal.vue';
@@ -85,6 +79,15 @@ const submit = () => {
       ok_loading.value = false;
     });
 };
+
+const isDisabled = computed(() => {
+  return (
+    (!props.item.transaction.length && (!item['f_date'] || !item['f_fee'] || !item['f_note'])) ||
+    !props.project ||
+    !hasPermission('reconciliations:ok') ||
+    (props.item.transaction[props.item.check_index].type == 4 && props.item.transaction[props.item.check_index].first == 1 && props.item.transaction[props.item.check_index].date !== props.item.date)
+  );
+});
 </script>
 <style scoped lang="less">
 @import '@/styles/variables.less';

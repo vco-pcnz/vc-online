@@ -1477,7 +1477,8 @@
           Number(val.initial_equity_amount) !== Number(formState.value.initial_equity_amount) ||
           Number(val.has_linefee) !== Number(formState.value.has_linefee) ||
           val.start_date !== staticFormData.value.start_date ||
-          val.end_date !== staticFormData.value.end_date
+          val.end_date !== staticFormData.value.end_date ||
+          Number(val.estab_type) !== Number(formState.value.estab_type)
         ) {
           updateFormData()
         }

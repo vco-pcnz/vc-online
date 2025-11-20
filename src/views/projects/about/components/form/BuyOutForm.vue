@@ -130,6 +130,7 @@ const init = () => {
     document: [],
     note: ''
   };
+  validate.value = false;
   visible.value = true;
 };
 </script>

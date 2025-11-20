@@ -114,9 +114,10 @@
                 <template #label>
                   <div class="w-full flex justify-between items-center">
                     <span>{{ t('还款分配1') }}</span>
-                    <a-button type="brown" shape="round" size="small" @click="addDrawdownColumnsItem()"> {{ t('添加') }}</a-button>
                   </div>
+                  <a-button v-if="drawdownList.length < drawDownSelectedList.length" type="brown" shape="round" size="small" @click.stop="addDrawdownColumnsItem()"> {{ t('添加') }}</a-button>
                 </template>
+
                 <div class="table-content sys-table-content related-content no-top-line" :class="drawdownListInspection ? 'drawdownListInspection' : ''">
                   <a-spin :spinning="drawdownListLoading" size="large">
                     <a-table rowKey="uuid" :columns="DrawdownColumns" :data-source="drawdownList" :pagination="false" table-layout="fixed">
@@ -473,7 +474,7 @@ const submit = () => {
   if (Number(apply_amount_total) !== Number(params.apply_amount)) {
     visibleTip.value = true;
     confirmTxt.value = t('还款金额 {0},还款分配金额总计 {1},相差 {2},请调整金额', [tool.formatMoney(params.apply_amount), tool.formatMoney(apply_amount_total), tool.formatMoney(tool.minus(params.apply_amount, apply_amount_total))]);
-    return
+    return;
   }
   loading.value = true;
 
@@ -724,12 +725,11 @@ const drawdownListInspection = ref(false);
 const disabledIds = ref([]);
 
 const loadDrawdown = (e, index) => {
-  if (formState.value.apply_date && e) {
+  if (formState.value.apply_date && e !== '') {
     drawdownListLoading.value = true;
     drawDownLists({ uuid: props.uuid, date: dayjs(formState.value.apply_date).format('YYYY-MM-DD'), ids: e })
       .then((res) => {
         drawdownList.value[index] = res.drawDown[0];
-        drawdownList.value[index];
       })
       .finally(() => {
         drawdownListLoading.value = false;

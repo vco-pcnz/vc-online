@@ -18,7 +18,7 @@
 
             <a-col :span="formState.all_repayment === 1 && maxReductionAmount && !isNormalUser ? 8 : 12">
               <a-form-item :label="t('还款日期')" name="apply_date">
-                <a-date-picker v-model:value="formState.apply_date" :format="selectDateFormat()" placeholder="" @change="loadDrawdowns">
+                <a-date-picker v-model:value="formState.apply_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" @change="loadDrawdowns">
                   <template #suffixIcon>
                     <a-spin v-if="getLoading"></a-spin>
                     <CalendarOutlined v-else />
@@ -39,68 +39,6 @@
                 </a-spin> -->
               </a-form-item>
             </a-col>
-            <template v-if="formState.all_repayment === 1 && maxReductionAmount && !isNormalUser">
-              <a-col :span="8">
-                <a-form-item class="data-col-item">
-                  <template #label>
-                    <div class="flex items-center gap-1">
-                      <span>{{ t('建议标准税率') }}</span>
-                      <span style="color: #31bd65">{{ `(${t('最小值')}: ${standardRate}%)` }}</span>
-                    </div>
-                  </template>
-                  <a-input-number
-                    :max="99999999999"
-                    :min="Number(standardRate)"
-                    v-model:value="standardRateInput"
-                    :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                    :controls="false"
-                    addon-after="%"
-                    :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                    @input="standardInputChange"
-                    @blur="standardInputBlur"
-                  />
-                </a-form-item>
-              </a-col>
-              <a-col :span="8">
-                <a-form-item :label="t('罚息减免最大额度')">
-                  <div class="input-number-content">
-                    <vco-number :bold="true" :value="standardAmount" :precision="2" size="fs_xl" :end="true"></vco-number>
-                  </div>
-                </a-form-item>
-              </a-col>
-              <a-col :span="7">
-                <a-form-item :label="t('还款总额')">
-                  <a-input-number v-model:value="formState.apply_amount" disabled :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
-                </a-form-item>
-              </a-col>
-              <a-col :span="1" class="plus-txt"><i class="iconfont">&#xe711;</i></a-col>
-              <a-col :span="8">
-                <a-form-item name="reduction_money" class="data-col-item">
-                  <template #label>
-                    <div class="flex items-center gap-1">
-                      <span>{{ t('减免额度') }}</span>
-                      <span style="color: #31bd65">{{ `(${t('最大值')}: $${numberStrFormat(showMaxReduction)})` }}</span>
-                    </div>
-                  </template>
-                  <a-input-number
-                    v-model:value="formState.reduction_money"
-                    :max="99999999999"
-                    :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                    :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                    @input="amountInput"
-                    @blur="amountInput"
-                  />
-                </a-form-item>
-              </a-col>
-              <a-col :span="1" class="plus-txt"><i class="iconfont">&#xe609;</i></a-col>
-              <a-col :span="6">
-                <a-form-item :label="t('还款金额1')">
-                  <div class="input-number-content">
-                    <vco-number :bold="true" :value="repaymentAmount" :precision="2" color="#31bd65" :end="true"></vco-number>
-                  </div>
-                </a-form-item>
-              </a-col>
-            </template>
 
             <a-col v-if="formState.all_repayment === 1 && formState.apply_date && hasPermission('projects:repayments:adDownload')" :span="24">
               <a-form-item :label="t('对账单')">
@@ -143,7 +81,7 @@
                           </a-select>
                         </template>
                         <template v-if="column.dataIndex === 're_type'">
-                          <a-select v-model:value="record.re_type" class="mini">
+                          <a-select v-model:value="record.re_type" class="mini" :disabled="Boolean(record.all_repayment)">
                             <a-select-option :title="t('本金优先分配')" :value="1">{{ t('本金优先分配') }}</a-select-option>
                             <a-select-option :title="t('利息优先分配')" :value="2">{{ t('利息优先分配') }}</a-select-option>
                           </a-select>
@@ -179,6 +117,69 @@
               </a-form-item>
               <p style="color: #ff4d4f; position: absolute; bottom: 0px" v-if="drawdownListInspection">{{ t('请完善数据') }}</p>
             </a-col>
+            <!-- (formState.all_repayment === 1 && maxReductionAmount && !isNormalUser) -->
+            <template v-if="showPenaltyInterest">
+              <a-col :span="8">
+                <a-form-item class="data-col-item">
+                  <template #label>
+                    <div class="flex items-center gap-1">
+                      <span>{{ t('建议标准税率') }}</span>
+                      <span style="color: #31bd65">{{ `(${t('最小值')}: ${standardRate}%)` }}</span>
+                    </div>
+                  </template>
+                  <a-input-number
+                    :max="99999999999"
+                    :min="Number(standardRate)"
+                    v-model:value="standardRateInput"
+                    :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                    :controls="false"
+                    addon-after="%"
+                    :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                    @input="standardInputChange"
+                    @blur="standardInputBlur"
+                  />
+                </a-form-item>
+              </a-col>
+              <a-col :span="16">
+                <a-form-item :label="t('罚息减免最大额度')">
+                  <div class="input-number-content">
+                    <vco-number :bold="true" :value="standardAmount" :precision="2" size="fs_xl" :end="true"></vco-number>
+                  </div>
+                </a-form-item>
+              </a-col>
+              <a-col :span="7">
+                <a-form-item :label="t('还款总额')">
+                  <a-input-number v-model:value="formState.apply_amount" :disabled="true" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
+                </a-form-item>
+              </a-col>
+              <a-col :span="1" class="plus-txt"><i class="iconfont">&#xe711;</i></a-col>
+              <a-col :span="8">
+                <a-form-item name="reduction_money" class="data-col-item">
+                  <template #label>
+                    <div class="flex items-center gap-1">
+                      <span>{{ t('减免额度') }}</span>
+                      <span style="color: #31bd65">{{ `(${t('最大值')}: $${numberStrFormat(showMaxReduction)})` }}</span>
+                    </div>
+                  </template>
+                  <a-input-number
+                    v-model:value="formState.reduction_money"
+                    :max="99999999999"
+                    :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                    :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                    @input="amountInput"
+                    @blur="amountInput"
+                  />
+                </a-form-item>
+              </a-col>
+              <a-col :span="1" class="plus-txt"><i class="iconfont">&#xe609;</i></a-col>
+              <a-col :span="6">
+                <a-form-item :label="t('还款金额1')">
+                  <div class="input-number-content">
+                    <vco-number :bold="true" :value="repaymentAmount" :precision="2" color="#31bd65" :end="true"></vco-number>
+                  </div>
+                </a-form-item>
+              </a-col>
+            </template>
             <a-col :span="24">
               <a-form-item name="note" class="custom-label">
                 <template #label>
@@ -423,7 +424,7 @@ const save = () => {
 const submit = () => {
   const params = {
     ...formState.value,
-    apply_date: dayjs(formState.value.apply_date).format('YYYY-MM-DD'),
+    apply_date: formState.value.apply_date,
     uuid: props.uuid,
     document: document.value,
     security: []
@@ -521,7 +522,7 @@ const calAmount = (rate, flag = false) => {
     hasSetStandard.value = false;
   }
 
-  const time = dayjs(formState.value.apply_date).format('YYYY-MM-DD');
+  const time = formState.value.apply_date;
   const params = {
     uuid: props.uuid,
     date: time
@@ -664,7 +665,7 @@ const setFormData = (dataDetail) => {
   }
 
   if (data.all_repayment) {
-    const time = dayjs(formState.value.apply_date).format('YYYY-MM-DD');
+    const time = formState.value.apply_date;
     const params = {
       uuid: props.uuid,
       date: time
@@ -691,7 +692,7 @@ const downloadStatement = () => {
   downloadLoading.value = true;
   projectLoanAllRepayment({
     uuid: props.uuid,
-    date: dayjs(formState.value.apply_date).format('YYYY-MM-DD'),
+    date: formState.value.apply_date,
     pdf: 1,
     less: formState.value.reduction_money || 0
   })
@@ -727,7 +728,7 @@ const disabledIds = ref([]);
 const loadDrawdown = (e, index) => {
   if (formState.value.apply_date && e !== '') {
     drawdownListLoading.value = true;
-    drawDownLists({ uuid: props.uuid, date: dayjs(formState.value.apply_date).format('YYYY-MM-DD'), ids: e })
+    drawDownLists({ uuid: props.uuid, date: formState.value.apply_date, ids: e })
       .then((res) => {
         drawdownList.value[index] = res.drawDown[0];
       })
@@ -802,6 +803,34 @@ const init = () => {
   getNotesType();
   loadDrawDownSelected();
 };
+
+// 监听是否显示罚息减免
+const showPenaltyInterest = ref(false);
+const drawdownList_date = computed(() => ({
+  drawdownList: drawdownList.value,
+  apply_date: formState.value.apply_date
+}));
+
+watch(
+  drawdownList_date,
+  (val) => {
+    const isExceedDate = dayjs(props.projectDetail.date.end_date).isBefore(dayjs(val.apply_date));
+    let all_repayment = false;
+    if (val.drawdownList.length) {
+      all_repayment = val.drawdownList[0].all_repayment == 1;
+    } else {
+      all_repayment = false;
+    }
+    if (isExceedDate && all_repayment) {
+      formState.value.apply_amount = val.drawdownList[0].total_amount;
+      console.log('显示罚息');
+      showPenaltyInterest.value = true;
+    } else {
+      showPenaltyInterest.value = false;
+    }
+  },
+  { deep: true }
+);
 
 defineExpose({
   init

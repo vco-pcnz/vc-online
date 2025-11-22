@@ -258,7 +258,7 @@
             >
               <a-input-number
                 :max="99999999999"
-                :disabled="amountDisabled"
+                :disabled="true"
                 v-model:value="formState.initial_land_amount"
                 :formatter="
                   (value) =>
@@ -277,7 +277,7 @@
                 <div class="w-full flex justify-between items-center" style="height: 22px;">
                   <p style="word-wrap: nowrap;">{{ t('首次建筑贷款放款额') }}</p>
                   <a-button
-                    v-if="showProgressPayment"
+                    v-if="showProgressPayment && !Boolean(Number(formState.initial_land_amount))"
                     type="link"
                     style="font-size: 12px; height: auto !important;"
                     class="flex items-center"
@@ -1123,7 +1123,6 @@
   }
 
   const tableDataRefData = ref()
-  const initLandDefault = ref(true)
 
   const updateFormData = async (tableData) => {
     if (tableData) {
@@ -1147,7 +1146,6 @@
 
         if (creditId.value) {
           emits('done');
-          initLandDefault.value = false
           processStore.setForcastState(true);
 
           // 触发头部模块切换显示
@@ -1173,7 +1171,19 @@
     formState.value.land_amount = props.lendingInfo.land_amount || 0;
     
     formState.value.initial_build_amount = props.lendingInfo.initial_build_amount || 0
-    formState.value.initial_land_amount = props.isDetails ? (props.lendingInfo.initial_land_amount || 0) : initLandDefault.value ? props.lendingInfo.land_amount || 0 : props.lendingInfo.initial_land_amount || 0
+    // formState.value.initial_land_amount = props.isDetails ? (props.lendingInfo.initial_land_amount || 0) : initLandDefault.value ? props.lendingInfo.land_amount || 0 : props.lendingInfo.initial_land_amount || 0
+    // vsl首次土地放款
+    if (props.isDetails) {
+      formState.value.initial_land_amount = props.lendingInfo.initial_land_amount || props.lendingInfo.land_amount || 0
+    } else {
+      if (!Number(props.lendingInfo.initial_land_amount)) {
+        formState.value.initial_land_amount = props.lendingInfo.land_amount || 0
+      } else {
+        formState.value.initial_land_amount = props.lendingInfo.initial_land_amount || 0
+      }
+    }
+    
+
     formState.value.initial_equity_amount = props.lendingInfo.initial_equity_amount || 0;
 
     formState.value.devCost = props.lendingInfo.devCost

@@ -1267,5 +1267,11 @@ export default {
   "手动对账": "Reconciled (Manual)",
   "建立费率为准": "Calculated by Rate",
   "建立费为准": "Fixed Fee",
-  "请等待预测表数据加载完成，再进行提交": "Please wait for the forecast table data to load before submitting"
+  "请等待预测表数据加载完成，再进行提交": "Please wait for the forecast table data to load before submitting",
+  "BOC拆分": "BOC split",
+  "BOC放款期数": "BOC drawdown term",
+  "第{0}期": "Issue {0}",
+  "VSL放款": "VSL drawdown",
+  "[{0}]请填写BOC放款期数": "Please fill in the BOC drawdown term for [{0}]",
+  "BOC总计": "BOC total"
 }

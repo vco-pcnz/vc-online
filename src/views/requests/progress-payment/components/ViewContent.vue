@@ -260,6 +260,8 @@
                         <vco-number v-if="record.type === tableData[index + 1]?.type" :value="Number(tool.plus(record[column.dataIndex], tableData[index + 1][column.dataIndex]))" size="fs_md" :precision="2" :end="true"></vco-number>
                         <vco-number v-else :value="record[column.dataIndex]" size="fs_md" :precision="2" :end="true"></vco-number>
                       </div>
+
+                      <div>fdsafdsa</div>
                     </template>
                   </template>
                 </template>
@@ -350,6 +352,8 @@
                                 :end="true"
                               ></vco-number>
                             </div>
+
+                            <div>fdsafdsa</div>
                           </template>
                         </template>
                       </template>
@@ -611,7 +615,7 @@
       return Number(tool.plus(total, num))
     }, 0);
 
-    const doneUseAmount = props.isSelect ? advanceObj.value.use_amount : (props.logDate ? advanceObj.value.logs_use_amount : advanceObj.value.use_amount)
+    const doneUseAmount = props.isSelect ? advanceObj.value?.use_amount : (props.logDate ? advanceObj.value?.logs_use_amount : advanceObj.value?.use_amount)
     const totalAll = tool.plus(Number(total), doneUseAmount || 0)
     return totalAll
   })
@@ -636,7 +640,6 @@
 
   const setTableData = (headerData) => {
     const payment = cloneDeep(setedData.value.payment)
-    const column = cloneDeep(setedData.value.column)
 
     for (const key in payment) {
       if (key === '0$1__payment') {
@@ -766,6 +769,8 @@
   const advanceObj = ref()
   const advancePercent = ref(0)
   const advanceAmount = ref(0)
+
+  const bocSplitObjRef = ref({})
 
   const setTableHeader = () => {
     const rowData = setedData.value.row
@@ -1047,6 +1052,25 @@
 
         // 统计数据
         statUseAmount.value = res.use_amount || 0
+
+        // vsl 产品
+        if (!isVsl.value) {
+          const progress = cloneDeep(res.progress || {})
+          const obj = {}
+
+          for (const key in progress) {
+            const item = progress[key]
+            const bocObj = item.find(_item => _item.source)
+            const vslObj = item.find(_item => !_item.source)
+
+            obj[key] = {
+              boc: {...bocObj},
+              vsl: {...vslObj}
+            }
+          }
+
+          bocSplitObjRef.value = obj
+        }
       })
     } catch (err) {
       pageLoading.value = false
@@ -1057,6 +1081,8 @@
 
   // 是否为简易模式
   const easyModel = ref(true)
+  // 是否为vsl产品
+  const isVsl = ref(false)
 
   const buildAmount = ref(0)
 
@@ -1070,6 +1096,9 @@
     try {
       const ajaxFn = isRequests.value ? projectAuditStepDetail : projectDetailApi
       await ajaxFn(params).then(res => {
+        isVsl.value = String(res.base.productCode).toLowerCase() === 'vsl'
+        // 详情里面暂时没有返回
+
         emits('done', res)
 
         const costModel = Boolean(res.lending.devCostDetail[0].model)
@@ -1105,6 +1134,14 @@
             }
           }
         }
+
+        dataArr.forEach(item => {
+          if (item.list && item.list.length) {
+            item.list.forEach(listItem => {
+              listItem.name = `${item.name}&${listItem.type}`
+            })
+          }
+        })
 
         footerDataCol.value = dataArr
 

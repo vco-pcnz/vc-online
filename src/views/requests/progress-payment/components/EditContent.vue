@@ -219,10 +219,11 @@
                     >{{ t('BOC拆分') }}</div>
                   </div>
                   <div class="flex justify-between">
-                    <h2 class="font-bold">{{ `No.${bocSplitObjRef[record.type].boc.term}` }}</h2>
-                    <div class="flex flex-col items-end">
-                      <vco-number :value="bocSplitTotal(bocSplitObjRef[record.type].boc.term)" size="fs_xs" :precision="2" :end="true"></vco-number>
+                    <h2 v-if="bocSplitObjRef[record.type].boc.term" class="font-bold">{{ `No.${bocSplitObjRef[record.type].boc.term}` }}</h2>
+                    <p v-else></p>
+                    <div class="flex items-center gap-2">
                       <p class="text-xs text-gray-700">{{ t('BOC总计') }}</p>
+                      <vco-number :value="bocSplitTotal(bocSplitObjRef[record.type].boc.term)" size="fs_xs" :precision="2" :end="true"></vco-number>
                     </div>
                   </div>
                 </div>
@@ -298,7 +299,7 @@
                       <vco-number :value="childItem.total" size="fs_xs" :precision="2" :end="true"></vco-number>
                     </div>
                   </div>
-                  <div v-if="isVsl && bocSplitObjRef[childItem.name]" class="flex justify-end items-start gap-4 footer-split-info">
+                  <div v-if="isVsl && Number(childItem.total) && bocSplitObjRef[childItem.name]" class="flex justify-end items-start gap-4 footer-split-info">
                     <div class="boc-split-info footer">
                       <div class="flex justify-between gap-4">
                         <div class="flex flex-col items-start">
@@ -314,8 +315,8 @@
                         <div v-if="bocSplitObjRef[childItem.name].boc.term" class="flex justify-between items-center gap-3">
                           <h2 class="font-bold">{{ `No.${bocSplitObjRef[childItem.name].boc.term}` }}</h2>
                           <div class="flex flex-col items-start">
-                            <vco-number :value="bocSplitTotal(bocSplitObjRef[childItem.name].boc.term)" size="fs_xs" :precision="2" :end="true"></vco-number>
                             <p class="text-xs text-gray-700">{{ t('BOC总计') }}</p>
+                            <vco-number :value="bocSplitTotal(bocSplitObjRef[childItem.name].boc.term)" size="fs_xs" :precision="2" :end="true"></vco-number>
                           </div>
                         </div>
                         <p v-else></p>
@@ -340,7 +341,7 @@
                     <vco-number :value="item.total" size="fs_md" :precision="2" :end="true" :bold="true"></vco-number>
                   </div>
                 </div>
-                <div v-if="isVsl && (!item.list || !item.list.length) && bocSplitObjRef[item.name]" class="flex justify-end items-start gap-4 footer-split-info">
+                <div v-if="isVsl && Number(item.total) && (!item.list || !item.list.length) && bocSplitObjRef[item.name]" class="flex justify-end items-start gap-4 footer-split-info">
                   <div class="boc-split-info footer">
                     <div class="flex justify-between gap-4">
                       <div class="flex flex-col items-start">
@@ -356,8 +357,8 @@
                       <div v-if="bocSplitObjRef[item.name].boc.term" class="flex justify-between items-center gap-3">
                         <h2 class="font-bold">{{ `No.${bocSplitObjRef[item.name].boc.term}` }}</h2>
                         <div class="flex flex-col items-start">
-                          <vco-number :value="bocSplitTotal(bocSplitObjRef[item.name].boc.term)" size="fs_xs" :precision="2" :end="true"></vco-number>
                           <p class="text-xs text-gray-700">{{ t('BOC总计') }}</p>
+                          <vco-number :value="bocSplitTotal(bocSplitObjRef[item.name].boc.term)" size="fs_xs" :precision="2" :end="true"></vco-number>
                         </div>
                       </div>
                       <p v-else></p>
@@ -373,12 +374,19 @@
             </div>
             <div class="item total">
               <p>Total Cost to Complete</p>
-              <div class="total-item flex justify-end items-center gap-2">
-                <vco-number :value="loanTotal" size="fs_md" :precision="2" :end="true" color="#eb4b6d"></vco-number>
-                <span>{{ Number(borrowerEquityTotal) < 0 ? '-' : '+' }}</span>
-                <vco-number :value="Math.abs(borrowerEquityTotal)" size="fs_md" :precision="2" :end="true" color="#31bd65"></vco-number>
-                <span>=</span>
-                <vco-number :value="tableTotal" size="fs_xl" :precision="2" :end="true" :bold="true"></vco-number>
+              <div>
+                <div class="total-item flex justify-end items-center gap-2">
+                  <vco-number :value="loanTotal" size="fs_md" :precision="2" :end="true" color="#eb4b6d"></vco-number>
+                  <span>{{ Number(borrowerEquityTotal) < 0 ? '-' : '+' }}</span>
+                  <vco-number :value="Math.abs(borrowerEquityTotal)" size="fs_md" :precision="2" :end="true" color="#31bd65"></vco-number>
+                  <span>=</span>
+                  <vco-number :value="tableTotal" size="fs_xl" :precision="2" :end="true" :bold="true"></vco-number>
+                </div>
+
+                <div v-if="isVsl" class="boc-split-info footer total">
+                  <p class="text-xs text-gray-700">{{ t('BOC总计') }}</p>
+                  <vco-number :value="bocSplitTotalAmount" size="fs_md" :precision="2" :end="true" :bold="true" color="#eb4b6d"></vco-number>
+                </div>
               </div>
             </div>
           </div>
@@ -472,6 +480,13 @@
       }, 0);
       return total
     }
+  })
+
+  // boc放款总金额
+  const bocSplitTotalAmount = computed(() => {
+    return bocSplitArrData.value.reduce((total, item) => {
+      return Number(tool.plus(total, item.amount))
+    }, 0);
   })
 
   const summaryHandle = computed(() => {
@@ -1658,7 +1673,7 @@
     const type_name = isItem ? record.name : record.type
     const obj = bocSplitObjRef.value[type_name]
     if (obj) {
-      obj.total_amount = record.total
+      obj.total_amount = isItem ? record.loan : record.total
       obj.type = type_name
       currentSplitObj.value = cloneDeep(obj)
       bocSplitVisible.value = true
@@ -1992,6 +2007,10 @@
         margin-bottom: 0;
         gap: 20px;
       }
+    }
+    &.total {
+      justify-content: space-between;
+      gap: 15px;
     }
     .split-term {
       display: flex;

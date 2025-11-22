@@ -1276,5 +1276,9 @@ export default {
   "手动对账说明": "Manual notes",
   "买断": "Buy out",
   "Boc总余额": "Boc total balance",
-  "Boc剩余还款金额": "Boc balance"
+  "Boc剩余还款金额": "Boc balance",
+  "VSL额度": "VSL amount",
+  "已使用&已设置": "Used & set",
+  "项名称": "Item name",
+  "设置的累计放款金额已超出VSL总额度": "The cumulative drawdown amount exceeds the VSL total amount"
 }

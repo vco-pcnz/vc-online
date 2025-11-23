@@ -1280,5 +1280,6 @@ export default {
   "VSL额度": "VSL amount",
   "已使用&已设置": "Used & set",
   "项名称": "Item name",
-  "设置的累计放款金额已超出VSL总额度": "The cumulative drawdown amount exceeds the VSL total amount"
+  "设置的累计放款金额已超出VSL总额度": "The cumulative drawdown amount exceeds the VSL total amount",
+  "BOC放款详情": "BOC drawdown details"
 }

@@ -199,7 +199,8 @@
                   <vco-number v-if="record.type === tableData[index + 1]?.type" :value="Number(tool.plus(record[column.dataIndex], tableData[index + 1][column.dataIndex]))" size="fs_md" :precision="2" :end="true"></vco-number>
                   <vco-number v-else :value="record[column.dataIndex]" size="fs_md" :precision="2" :end="true"></vco-number>
                 </div>
-                <div v-if="isVsl" class="boc-split-info">
+                <div v-if="isVsl && Number(record[column.dataIndex])" class="boc-split-info" :class="{'done': bocSplitObjRef[record.type].boc.isDone}">
+                  <i class="done-vsl iconfont icon-duigou"></i>
                   <div class="flex justify-between items-center split-term">
                     <div v-if="bocSplitObjRef[record.type].boc.term" class="">
                       <div class="flex items-center gap-1">
@@ -213,6 +214,7 @@
                     </div>
                     <p v-else></p>
                     <div
+                      v-if="!bocSplitObjRef[record.type].boc.isDone"
                       class="vsl-split-btn"
                       :class="{'disabled': !record[column.dataIndex]}"
                       @click="bocSplitHandle(record)"
@@ -300,7 +302,8 @@
                     </div>
                   </div>
                   <div v-if="isVsl && Number(childItem.total) && bocSplitObjRef[childItem.name]" class="flex justify-end items-start gap-4 footer-split-info">
-                    <div class="boc-split-info footer">
+                    <div class="boc-split-info footer" :class="{'done': bocSplitObjRef[childItem.name].boc.isDone}">
+                      <i class="done-vsl iconfont icon-duigou"></i>
                       <div class="flex justify-between gap-4">
                         <div class="flex flex-col items-start">
                           <p class="text-xs text-gray-700">VSL</p>
@@ -321,10 +324,12 @@
                         </div>
                         <p v-else></p>
                         <div
+                          v-if="!bocSplitObjRef[childItem.name].boc.isDone"
                           class="vsl-split-btn"
                           :class="{'disabled': !childItem.loan}"
                           @click="bocSplitHandle(childItem, true)"
                         >{{ t('BOC拆分') }}</div>
+                        <div v-else></div>
                       </div>
                     </div>
                   </div>
@@ -342,7 +347,8 @@
                   </div>
                 </div>
                 <div v-if="isVsl && Number(item.total) && (!item.list || !item.list.length) && bocSplitObjRef[item.name]" class="flex justify-end items-start gap-4 footer-split-info">
-                  <div class="boc-split-info footer">
+                  <div class="boc-split-info footer" :class="{'done': bocSplitObjRef[item.name].boc.isDone}">
+                    <i class="done-vsl iconfont icon-duigou"></i>
                     <div class="flex justify-between gap-4">
                       <div class="flex flex-col items-start">
                         <p class="text-xs text-gray-700">VSL</p>
@@ -363,10 +369,12 @@
                       </div>
                       <p v-else></p>
                       <div
+                        v-if="!bocSplitObjRef[item.name].boc.isDone"
                         class="vsl-split-btn"
                         :class="{'disabled': !item.loan}"
                         @click="bocSplitHandle(item, true)"
                       >{{ t('BOC拆分') }}</div>
+                      <div v-else></div>
                     </div>
                   </div>
                 </div>
@@ -1003,7 +1011,11 @@
     try {
       const ajaxFn = isRequests.value ? projectAuditStepDetail : projectDetailApi
       await ajaxFn(params).then(res => {
-        isVsl.value = String(res.base.productCode).toLowerCase() === 'vsl'
+        if (isRequests.value) {
+          isVsl.value = String(res.base.productCode).toLowerCase() === 'vsl'
+        } else {
+          isVsl.value = String(res.product.code).toLowerCase() === 'vsl'
+        }
 
         if (isVsl.value) {
           hasLandAmount.value = Boolean(res.lending.land_amount)
@@ -1307,7 +1319,6 @@
 
         const setedDataObj = cloneDeep(setedData.value)
         const progressData = setedDataObj.progress || {}
-
         for (const key in progressData) {
           const item = progressData[key]
           const bocObj = bocSplitObjRef.value[key]
@@ -1317,10 +1328,12 @@
               bocObj.boc.term = Number(itemObj.term || 0)
               bocObj.boc.amount = Number(itemObj.amount || 0)
               bocObj.boc.use_amount = Number(itemObj.use_amount || 0)
+              bocObj.boc.isDone = Boolean(Number(itemObj.amount) === Number(itemObj.use_amount))
             } else {
               bocObj.vsl.term = Number(itemObj.term || 0)
               bocObj.vsl.amount = Number(itemObj.amount || 0)
               bocObj.vsl.use_amount = Number(itemObj.use_amount || 0)
+              bocObj.vsl.isDone = Boolean(Number(itemObj.amount) === Number(itemObj.use_amount))
             }
           }
         }
@@ -1986,6 +1999,7 @@
     &.disabled {
       background-color: #666 !important;;
       cursor: not-allowed;
+      pointer-events: none;
     }
   }
 
@@ -2011,6 +2025,33 @@
     &.total {
       justify-content: space-between;
       gap: 15px;
+    }
+    &.done {
+      position: relative;
+      overflow: hidden;
+      &::after {
+        content: '';
+        position: absolute;
+        top: -25px;
+        right: -25px;
+        width: 50px;
+        height: 50px;
+        background-color: #31bd65;
+        z-index: 1;
+        transform: rotate(-45deg);
+      }
+      .done-vsl {
+        opacity: 1;
+      }
+    }
+    .done-vsl {
+      color: #fff;
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      z-index: 2;
+      font-size: 14px;
+      opacity: 0;
     }
     .split-term {
       display: flex;

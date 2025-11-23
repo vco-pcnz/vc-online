@@ -22,6 +22,24 @@
         @selectDone="selectDoneHandle"
       ></view-content>
     </a-modal>
+
+    <!-- vsl 首次BOC放款详情 -->
+    <a-modal
+      :open="bocDetailVisible"
+      :title="t('BOC放款详情')"
+      :width="1000"
+      :footer="null"
+      :keyboard="false"
+      :maskClosable="false"
+      class="middle-position"
+      @cancel="bocDetailVisible = false"
+    >
+      <boc-content
+        v-if="bocDetailVisible"
+        :step-number="1"
+        @done="bocDetailVisible = false"
+      ></boc-content>
+    </a-modal>
     
     <!-- 确认弹窗 -->
     <vco-confirm-alert
@@ -277,13 +295,13 @@
                 <div class="w-full flex justify-between items-center" style="height: 22px;">
                   <p style="word-wrap: nowrap;">{{ t('首次建筑贷款放款额') }}</p>
                   <a-button
-                    v-if="showProgressPayment && !Boolean(Number(formState.initial_land_amount))"
+                    v-if="Boolean(Number(formState.initial_build_amount))"
                     type="link"
                     style="font-size: 12px; height: auto !important;"
                     class="flex items-center"
-                    @click="selectVisible = true"
+                    @click="bocDetailVisible = true"
                   >
-                    <p>{{ isDetails ? t('详情') : (amountDisabled ? t('详情') : t('选择')) }}</p>
+                    <p>{{ t('详情') }}</p>
                     <i class="iconfont" style="font-size: 12px;">&#xe602;</i>
                   </a-button>
                 </div>
@@ -527,6 +545,7 @@
   import tool, { navigationTo, numberStrFormat, selectDateFormat } from '@/utils/tool';
   import DevCostDetail from './DevCostDetail.vue';
   import ViewContent from '@/views/requests/progress-payment/components/ViewContent.vue';
+  import BocContent from '@/views/requests/progress-payment/components/BocContent.vue';
   import dayjs from 'dayjs';
 
   const processStore = useProcessStore();
@@ -1506,6 +1525,8 @@
       set__initial: 1
     })
   }
+
+  const bocDetailVisible = ref(false)
   
   onMounted(() => {
     isRefinancial.value = Boolean(props.lendingInfo.substitution_ids && props.lendingInfo?.substitution_ids?.length)

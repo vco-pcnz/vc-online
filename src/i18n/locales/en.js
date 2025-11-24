@@ -1267,5 +1267,19 @@ export default {
   "建立费率为准": "Calculated by Rate",
   "建立费为准": "Fixed Fee",
   "请等待预测表数据加载完成，再进行提交": "Please wait for the forecast table data to load before submitting",
-  "手动对账说明": "Manual notes"
+  "BOC拆分": "BOC split",
+  "BOC放款期数": "BOC drawdown term",
+  "第{0}期": "Issue {0}",
+  "VSL放款": "VSL drawdown",
+  "[{0}]请填写BOC放款期数": "Please fill in the BOC drawdown term for [{0}]",
+  "BOC总计": "BOC total",
+  "手动对账说明": "Manual notes",
+  "买断": "Buy out",
+  "Boc总余额": "Boc total balance",
+  "Boc剩余还款金额": "Boc balance",
+  "VSL额度": "VSL amount",
+  "已使用&已设置": "Used & set",
+  "项名称": "Item name",
+  "设置的累计放款金额已超出VSL总额度": "The cumulative drawdown amount exceeds the VSL total amount",
+  "BOC放款详情": "BOC drawdown details"
 }

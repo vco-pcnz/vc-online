@@ -9,6 +9,52 @@
       @submit="submitRquest"
     ></vco-confirm-alert>
 
+    <a-modal :open="bocSplitVisible" :title="t('BOC拆分')" :width="500" :footer="null" :keyboard="false" :maskClosable="false" @cancel="setDialogCancel">
+      <a-row v-if="currentSplitObj?.total_amount" :gutter="24" class="mt-10">
+        <a-col :span="12">
+          <div class="info-content">
+            <p class="name">{{ t('贷款总额') }}</p>
+            <vco-number :value="currentSplitObj.total_amount" size="fs_md" :precision="2"></vco-number>
+          </div>
+        </a-col>
+        <a-col :span="12">
+          <div class="info-content">
+            <p class="name">{{ t('VSL放款') }}</p>
+            <vco-number :value="currentSplitObj.vsl.amount" size="fs_md" :precision="2"></vco-number>
+          </div>
+        </a-col>
+        <a-col :span="12">
+          <div class="info-content sys-form-content">
+            <p class="name mb-2">{{ t('BOC放款期数') }}</p>
+            <a-select
+              class="w-full"
+              :options="bocTermOptions"
+              v-model:value="currentSplitObj.boc.term"
+            ></a-select>
+          </div>
+        </a-col>
+        <a-col :span="12">
+          <div class="info-content sys-form-content">
+            <p class="name mb-2">{{ t('BOC放款') }}</p>
+            <a-input-number
+              v-model:value="currentSplitObj.boc.amount"
+              :min="0"
+              :max="currentSplitObj.total_amount"
+              :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+              :parser="value => value.replace(/\$\s?|(,*)/g, '')"
+              @input="() => currentSplitInput()"
+              @blur="() => currentSplitInput()"
+            />
+          </div>
+        </a-col>
+      </a-row>
+      <div class="mt-5 flex justify-center">
+        <a-button type="dark" class="big shadow bold uppercase"
+          @click="selectSureHandle"
+        >{{ t('确定') }}</a-button>
+      </div>
+    </a-modal>
+
     <a-spin :spinning="pageLoading" size="large">
       <div class="progress-payment-content"> 
         <div v-if="amortizedData.length && !easyModel" class="form-block-content">
@@ -149,9 +195,39 @@
                 <div v-if="record.type === tableData[index + 1]?.type" class="total-info-txt">Borrower Equity
                   <vco-number :value="tableData[index + 1][column.dataIndex]" size="fs_xs" :precision="2" :end="true" color="#31bd65"></vco-number>
                 </div>
-                <div class="flex justify-end">
+                <div class="flex justify-end items-center">
                   <vco-number v-if="record.type === tableData[index + 1]?.type" :value="Number(tool.plus(record[column.dataIndex], tableData[index + 1][column.dataIndex]))" size="fs_md" :precision="2" :end="true"></vco-number>
                   <vco-number v-else :value="record[column.dataIndex]" size="fs_md" :precision="2" :end="true"></vco-number>
+                </div>
+                <div v-if="isVsl && Number(record[column.dataIndex])" class="boc-split-info" :class="{'done': bocSplitObjRef[record.type].boc.isDone}">
+                  <i class="done-vsl iconfont icon-duigou"></i>
+                  <div class="flex justify-between items-center split-term">
+                    <div v-if="bocSplitObjRef[record.type].boc.term" class="">
+                      <div class="flex items-center gap-1">
+                        <div class="text-xs text-gray-700" style="width: 30px;">BOC</div>
+                        <vco-number :value="bocSplitObjRef[record.type].boc.amount || 0" size="fs_md" :precision="2" :end="true" color="#eb3b6d" style="line-height: 1 !important;"></vco-number>
+                      </div>
+                      <div class="flex items-center gap-1">
+                        <div class="text-xs text-gray-700" style="width: 30px;">VSL</div>
+                        <vco-number :value="bocSplitObjRef[record.type].vsl.amount || 0" size="fs_xs" :precision="2" :end="true" style="line-height: 1 !important;"></vco-number>
+                      </div>
+                    </div>
+                    <p v-else></p>
+                    <div
+                      v-if="!bocSplitObjRef[record.type].boc.isDone"
+                      class="vsl-split-btn"
+                      :class="{'disabled': !record[column.dataIndex]}"
+                      @click="bocSplitHandle(record)"
+                    >{{ t('BOC拆分') }}</div>
+                  </div>
+                  <div class="flex justify-between">
+                    <h2 v-if="bocSplitObjRef[record.type].boc.term" class="font-bold">{{ `No.${bocSplitObjRef[record.type].boc.term}` }}</h2>
+                    <p v-else></p>
+                    <div class="flex items-center gap-2">
+                      <p class="text-xs text-gray-700">{{ t('BOC总计') }}</p>
+                      <vco-number :value="bocSplitTotal(bocSplitObjRef[record.type].boc.term)" size="fs_xs" :precision="2" :end="true"></vco-number>
+                    </div>
+                  </div>
                 </div>
               </template>
               <template v-else>
@@ -215,35 +291,110 @@
             <div v-for="item in footerDataCol" :key="item.type" class="item">
               <div v-if="item.list && item.list.length" class="child-content">
                 <div class="child-item" v-for="childItem in item.list" :key="childItem.type">
-                  <p>{{ childItem.type }}</p>
-                  <div class="flex justify-end items-center gap-2 flex-1">
-                  <vco-number :value="childItem.loan" size="fs_xs" :precision="2" :end="true" color="#eb4b6d"></vco-number>
-                    <span>{{ Number(childItem.borrower_equity) < 0 ? '-' : '+' }}</span>
-                    <vco-number :value="Math.abs(childItem.borrower_equity)" size="fs_xs" :precision="2" :end="true" color="#31bd65"></vco-number>
-                    <span>=</span>
-                    <vco-number :value="childItem.total" size="fs_xs" :precision="2" :end="true"></vco-number>
+                  <div class="flex justify-between items-center">
+                    <p>{{ childItem.type }}</p>
+                    <div class="flex justify-end items-center gap-2 flex-1">
+                      <vco-number :value="childItem.loan" size="fs_xs" :precision="2" :end="true" color="#eb4b6d"></vco-number>
+                      <span>{{ Number(childItem.borrower_equity) < 0 ? '-' : '+' }}</span>
+                      <vco-number :value="Math.abs(childItem.borrower_equity)" size="fs_xs" :precision="2" :end="true" color="#31bd65"></vco-number>
+                      <span>=</span>
+                      <vco-number :value="childItem.total" size="fs_xs" :precision="2" :end="true"></vco-number>
+                    </div>
+                  </div>
+                  <div v-if="isVsl && Number(childItem.total) && bocSplitObjRef[childItem.name]" class="flex justify-end items-start gap-4 footer-split-info">
+                    <div class="boc-split-info footer" :class="{'done': bocSplitObjRef[childItem.name].boc.isDone}">
+                      <i class="done-vsl iconfont icon-duigou"></i>
+                      <div class="flex justify-between gap-4">
+                        <div class="flex flex-col items-start">
+                          <p class="text-xs text-gray-700">VSL</p>
+                          <vco-number :value="bocSplitObjRef[childItem.name].vsl.amount || 0" size="fs_xs" :precision="2" :end="true"></vco-number>
+                        </div>
+                        <div class="flex flex-col items-end">
+                          <p class="text-xs text-gray-700">BOC</p>
+                          <vco-number :value="bocSplitObjRef[childItem.name].boc.amount || 0" size="fs_md" :precision="2" :end="true" color="#eb4b6d" :bold="true"></vco-number>
+                        </div>
+                      </div>
+                      <div class="split-term">
+                        <div v-if="bocSplitObjRef[childItem.name].boc.term" class="flex justify-between items-center gap-3">
+                          <h2 class="font-bold">{{ `No.${bocSplitObjRef[childItem.name].boc.term}` }}</h2>
+                          <div class="flex flex-col items-start">
+                            <p class="text-xs text-gray-700">{{ t('BOC总计') }}</p>
+                            <vco-number :value="bocSplitTotal(bocSplitObjRef[childItem.name].boc.term)" size="fs_xs" :precision="2" :end="true"></vco-number>
+                          </div>
+                        </div>
+                        <p v-else></p>
+                        <div
+                          v-if="!bocSplitObjRef[childItem.name].boc.isDone"
+                          class="vsl-split-btn"
+                          :class="{'disabled': !childItem.loan}"
+                          @click="bocSplitHandle(childItem, true)"
+                        >{{ t('BOC拆分') }}</div>
+                        <div v-else></div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
               <div class="item-info">
-                <p>{{ item.name }}</p>
-                <div class="total-item flex justify-end items-center gap-2">
-                  <vco-number :value="item.loan" size="fs_md" :precision="2" :end="true" color="#eb4b6d"></vco-number>
-                  <span>{{ Number(item.borrower_equity) < 0 ? '-' : '+' }}</span>
-                  <vco-number :value="Math.abs(item.borrower_equity)" size="fs_md" :precision="2" :end="true" color="#31bd65"></vco-number>
-                  <span>=</span>
-                  <vco-number :value="item.total" size="fs_md" :precision="2" :end="true" :bold="true"></vco-number>
+                <div class="flex justify-between items-center">
+                  <p>{{ item.name }}</p>
+                  <div class="total-item flex justify-end items-center gap-2">
+                    <vco-number :value="item.loan" size="fs_md" :precision="2" :end="true" color="#eb4b6d"></vco-number>
+                    <span>{{ Number(item.borrower_equity) < 0 ? '-' : '+' }}</span>
+                    <vco-number :value="Math.abs(item.borrower_equity)" size="fs_md" :precision="2" :end="true" color="#31bd65"></vco-number>
+                    <span>=</span>
+                    <vco-number :value="item.total" size="fs_md" :precision="2" :end="true" :bold="true"></vco-number>
+                  </div>
+                </div>
+                <div v-if="isVsl && Number(item.total) && (!item.list || !item.list.length) && bocSplitObjRef[item.name]" class="flex justify-end items-start gap-4 footer-split-info">
+                  <div class="boc-split-info footer" :class="{'done': bocSplitObjRef[item.name].boc.isDone}">
+                    <i class="done-vsl iconfont icon-duigou"></i>
+                    <div class="flex justify-between gap-4">
+                      <div class="flex flex-col items-start">
+                        <p class="text-xs text-gray-700">VSL</p>
+                        <vco-number :value="bocSplitObjRef[item.name].vsl.amount || 0" size="fs_xs" :precision="2" :end="true"></vco-number>
+                      </div>
+                      <div class="flex flex-col items-end">
+                        <p class="text-xs text-gray-700">BOC</p>
+                        <vco-number :value="bocSplitObjRef[item.name].boc.amount || 0" size="fs_md" :precision="2" :end="true" color="#eb4b6d" :bold="true"></vco-number>
+                      </div>
+                    </div>
+                    <div class="split-term">
+                      <div v-if="bocSplitObjRef[item.name].boc.term" class="flex justify-between items-center gap-3">
+                        <h2 class="font-bold">{{ `No.${bocSplitObjRef[item.name].boc.term}` }}</h2>
+                        <div class="flex flex-col items-start">
+                          <p class="text-xs text-gray-700">{{ t('BOC总计') }}</p>
+                          <vco-number :value="bocSplitTotal(bocSplitObjRef[item.name].boc.term)" size="fs_xs" :precision="2" :end="true"></vco-number>
+                        </div>
+                      </div>
+                      <p v-else></p>
+                      <div
+                        v-if="!bocSplitObjRef[item.name].boc.isDone"
+                        class="vsl-split-btn"
+                        :class="{'disabled': !item.loan}"
+                        @click="bocSplitHandle(item, true)"
+                      >{{ t('BOC拆分') }}</div>
+                      <div v-else></div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
             <div class="item total">
               <p>Total Cost to Complete</p>
-              <div class="total-item flex justify-end items-center gap-2">
-                <vco-number :value="loanTotal" size="fs_md" :precision="2" :end="true" color="#eb4b6d"></vco-number>
-                <span>{{ Number(borrowerEquityTotal) < 0 ? '-' : '+' }}</span>
-                <vco-number :value="Math.abs(borrowerEquityTotal)" size="fs_md" :precision="2" :end="true" color="#31bd65"></vco-number>
-                <span>=</span>
-                <vco-number :value="tableTotal" size="fs_xl" :precision="2" :end="true" :bold="true"></vco-number>
+              <div>
+                <div class="total-item flex justify-end items-center gap-2">
+                  <vco-number :value="loanTotal" size="fs_md" :precision="2" :end="true" color="#eb4b6d"></vco-number>
+                  <span>{{ Number(borrowerEquityTotal) < 0 ? '-' : '+' }}</span>
+                  <vco-number :value="Math.abs(borrowerEquityTotal)" size="fs_md" :precision="2" :end="true" color="#31bd65"></vco-number>
+                  <span>=</span>
+                  <vco-number :value="tableTotal" size="fs_xl" :precision="2" :end="true" :bold="true"></vco-number>
+                </div>
+
+                <div v-if="isVsl" class="boc-split-info footer total">
+                  <p class="text-xs text-gray-700">{{ t('BOC总计') }}</p>
+                  <vco-number :value="bocSplitTotalAmount" size="fs_md" :precision="2" :end="true" :bold="true" color="#eb4b6d"></vco-number>
+                </div>
               </div>
             </div>
           </div>
@@ -277,11 +428,12 @@
     projectDetailApi
   } from "@/api/process"
   import { dischargeSecurity } from '@/api/project/loan';
-  import { systemDictDataApi } from "@/api/system/index"
+  import { systemDictDataApi, systemConfigData } from "@/api/system/index"
   import { cloneDeep } from "lodash"
   import tool, { numberStrFormat, goBack } from "@/utils/tool"
   import { exportTableToExcel } from "@/utils/export-excel"
   import * as XLSX from 'xlsx'
+  import { message } from 'ant-design-vue/es';
 
   const { t } = useI18n();
   const route = useRoute();
@@ -314,6 +466,36 @@
   const tableData = ref([])
   const summaryCol = ref([])
   const footerDataCol = ref([])
+
+  // boc放款数据
+  const bocSplitArrData = computed(() => {
+    const obj = cloneDeep(bocSplitObjRef.value)
+    const arr = []
+    for (const key in obj) {
+      if (obj[key].boc.amount) {
+        arr.push(obj[key].boc)
+      }
+    }
+    return arr
+  })
+
+  // boc放款某次总金额
+  const bocSplitTotal = computed(() => {
+    return (term) => {
+      const arr = bocSplitArrData.value.filter(item => item.term === term).map(item => item.amount)
+      const total = arr.reduce((total, num) => {
+        return Number(tool.plus(total, num))
+      }, 0);
+      return total
+    }
+  })
+
+  // boc放款总金额
+  const bocSplitTotalAmount = computed(() => {
+    return bocSplitArrData.value.reduce((total, item) => {
+      return Number(tool.plus(total, item.amount))
+    }, 0);
+  })
 
   const summaryHandle = computed(() => {
     return (key) => {
@@ -414,7 +596,16 @@
     return result;
   }
 
+  const resetBocSplitByType = (type) => {
+    const obj = bocSplitObjRef.value ? bocSplitObjRef.value[type] : null
+    if (!obj) return
+    obj.vsl.amount = 0
+    obj.boc.amount = 0
+    obj.boc.term = ''
+  }
+
   const itemInput = (data, item) => {
+    const prevTotal = Number(data.total || 0)
     const amountArr = extractAmounts(data, '-')
     if (amountArr.length) {
       const sum = amountArr.reduce((total, num) => {
@@ -424,6 +615,9 @@
 
       data.payment = Number(tool.times(Number(payment), 100)).toFixed(2)
       data.total = sum
+      if (sum !== prevTotal && isVsl.value) {
+        resetBocSplitByType(data.type)
+      }
     }
 
     if (props.isOpen) {
@@ -520,6 +714,8 @@
       }
     }
 
+    const totalWidth = isVsl.value ? 200 : 180
+
     tableHeader.value = [{
       title: t('类型'),
       dataIndex: "type",
@@ -533,7 +729,7 @@
       align: 'center',
       fixed: 'left'
     }, ...headerData,
-    { title: t('总计'), dataIndex: 'total', width: 180, align: 'center', fixed: 'right' }]
+    { title: t('总计'), dataIndex: 'total', width: totalWidth, align: 'center', fixed: 'right' }]
 
     // 合并第一行数据
     if (tableHeader.value.length > 3) {
@@ -771,7 +967,7 @@
         }
       })
 
-      columnsType()
+      await columnsType()
 
       await getSecurityData()
     } catch (err) {
@@ -781,6 +977,27 @@
 
   // 是否为简易模式
   const easyModel = ref(true)
+  // 是否为vsl产品
+  const isVsl = ref(false)
+
+  const bocTermOptions = ref([])
+
+  const hasLandAmount = ref(false)
+  // 请求boc放款期数数据
+  const bocTermData = () => {
+    systemConfigData({ pcode: 'project_config', code: 'boc_drawdown_term' }).then((res) => {
+      const num = Number(res.boc_drawdown_term || 0)
+      if (num) {
+        const data = Array.from({ length: num }, (_, i) => ({
+          label: `${t('第{0}期', [i + 1])}`,
+          value: i + 1,
+          disabled: hasLandAmount.value && i === 0
+        }))
+
+        bocTermOptions.value = data
+      }
+    });
+  }
 
   // 请求项目信息
   const projectDetail = ref()
@@ -794,6 +1011,17 @@
     try {
       const ajaxFn = isRequests.value ? projectAuditStepDetail : projectDetailApi
       await ajaxFn(params).then(res => {
+        if (isRequests.value) {
+          isVsl.value = String(res.base.productCode).toLowerCase() === 'vsl'
+        } else {
+          isVsl.value = String(res.product.code).toLowerCase() === 'vsl'
+        }
+
+        if (isVsl.value) {
+          hasLandAmount.value = Boolean(res.lending.land_amount)
+          bocTermData()
+        }
+
         projectDetail.value = res
 
         emits('done', res)
@@ -809,6 +1037,14 @@
           footerData.unshift(conItem)
           footerData.splice(footerData.lastIndexOf(conItem), 1)
         }
+
+        footerData.forEach(item => {
+          if (item.list && item.list.length) {
+            item.list.forEach(listItem => {
+              listItem.name = `${item.name}&${listItem.type}`
+            })
+          }
+        })
 
         footerDataCol.value = footerData || []
         
@@ -926,7 +1162,12 @@
           tableData.value[i].payment = Number(tool.times(Number(paymentStr), 100)).toFixed(2)
         }
         
-        tableData.value[i].total = tableTotal ? itemAmountTotal : itemTotal
+        const newTotal = tableTotal ? itemAmountTotal : itemTotal
+        const prevTotal = Number(tableData.value[i].total || 0)
+        tableData.value[i].total = newTotal
+        if (!tableData.value[i].isFixedRow && newTotal !== prevTotal) {
+          resetBocSplitByType(tableData.value[i].type)
+        }
       }
 
       if (!flag) {
@@ -943,20 +1184,52 @@
   // 项数据
   const columnsTypeData = ref([])
   const columnsTypeObj = ref({})
-  const columnsType = () => {
+
+  const bocSplitObjRef = ref({})
+  const columnsType = async () => {
     // 计算borrowerEquity占比
     const borrowerEquityPercent = calcBuildAmount.value ? tool.times(tool.div(borrowerEquity.value, calcBuildAmount.value), 100) : 0
     let remainingPercent = borrowerEquityPercent
 
-    systemDictDataApi({
-      code: 'build_type',
+    let typeCode = 'build_type'
+    if (isVsl.value) {
+      typeCode = 'build_type_vsl'
+    }
+
+    await systemDictDataApi({
+      code: typeCode,
       is_note: 1
     }).then(res => {
       const data = res || []
       // 在每一项后面添加复制数据
       const newData = []
+
+      // boc拆分数据初始化
+      const bocSplitObj = {}
       data.forEach(item => {
         const code = item.code
+
+        if (isVsl) {
+          bocSplitObj[item.name] = {
+            vsl: {
+              amount: 0,
+              type: code,
+              type_name: item.name,
+              source: 0,
+              term: 0,
+              use_amount: 0
+            },
+            boc: {
+              amount: 0,
+              type: code,
+              type_name: item.name,
+              source: 1,
+              term: '',
+              use_amount: 0
+            }
+          }
+        }
+        
         item.code = code + '$1'
         item.defaultNote = item.note
         item.note = item.note ? Number(item.note) : 0
@@ -992,6 +1265,80 @@
         // 创建Borrower Equity部分的数据
         newData.push(newItem)
       })
+
+      if (isVsl) {
+        const footerCopyData = cloneDeep(footerDataCol.value);
+        const footerCopyObj = {}
+        for (let i = 0; i < footerCopyData.length; i++) {
+          const item = footerCopyData[i]
+          if (item.list && item.list.length) {
+            for (let j = 0; j < item.list.length; j++) {
+              const listItem = item.list[j]
+              const listName = `${item.name}&${listItem.type}`
+              footerCopyObj[listName] = {
+                vsl: {
+                  amount: 0,
+                  type: listItem.type,
+                  type_name: listName,
+                  source: 0,
+                  term: 0,
+                  use_amount: 0
+                },
+                boc: {
+                  amount: 0,
+                  type: listItem.type,
+                  type_name: listName,
+                  source: 1,
+                  term: '',
+                  use_amount: 0
+                }
+              }
+            }
+          } else {
+            footerCopyObj[item.name] = {
+              vsl: {
+                amount: 0,
+                type: item.type,
+                type_name: item.name,
+                source: 0,
+                term: 0,
+                use_amount: 0
+              },
+              boc: {
+                amount: 0,
+                type: item.type,
+                type_name: item.name,
+                source: 1,
+                term: '',
+                use_amount: 0
+              }
+            }
+          }
+        }
+        bocSplitObjRef.value = {...cloneDeep(bocSplitObj), ...cloneDeep(footerCopyObj)}
+
+        const setedDataObj = cloneDeep(setedData.value)
+        const progressData = setedDataObj.progress || {}
+        for (const key in progressData) {
+          const item = progressData[key]
+          const bocObj = bocSplitObjRef.value[key]
+          for (let i = 0; i < item.length; i++) {
+            const itemObj = item[i]
+            if (itemObj.source) { // boc数据
+              bocObj.boc.term = Number(itemObj.term || 0)
+              bocObj.boc.amount = Number(itemObj.amount || 0)
+              bocObj.boc.use_amount = Number(itemObj.use_amount || 0)
+              bocObj.boc.isDone = Boolean(Number(itemObj.amount) === Number(itemObj.use_amount))
+            } else {
+              bocObj.vsl.term = Number(itemObj.term || 0)
+              bocObj.vsl.amount = Number(itemObj.amount || 0)
+              bocObj.vsl.use_amount = Number(itemObj.use_amount || 0)
+              bocObj.vsl.isDone = Boolean(Number(itemObj.amount) === Number(itemObj.use_amount))
+            }
+          }
+        }
+      }
+      
       columnsTypeData.value = newData
 
       const obj = {}
@@ -1143,6 +1490,26 @@
       summary: summaryData,
       construction: construction,
       clear: 0
+    }
+
+    if (isVsl.value) {
+      const arr = []
+      const bocSplitObj = cloneDeep(bocSplitObjRef.value)
+      for (const key in bocSplitObj) {
+        for (const key2 in bocSplitObj[key]) {
+          if (bocSplitObj[key][key2].amount > 0) {
+            if (bocSplitObj[key][key2].source && !bocSplitObj[key][key2].term) {
+              message.error(t('[{0}]请填写BOC放款期数', [bocSplitObj[key][key2].type_name]))
+              return false
+            }
+            const item = cloneDeep(bocSplitObj[key][key2])
+            item.type = 0
+            arr.push(item)
+          }
+        }
+      }
+
+      params.progress = arr
     }
 
     currentParams.value = cloneDeep(params)
@@ -1311,6 +1678,51 @@
     })
 
     initHandle(true, true)
+  }
+
+  const currentSplitObj = ref({})
+
+  const bocSplitHandle = (record, isItem = false) => {
+    const type_name = isItem ? record.name : record.type
+    const obj = bocSplitObjRef.value[type_name]
+    if (obj) {
+      obj.total_amount = isItem ? record.loan : record.total
+      obj.type = type_name
+      currentSplitObj.value = cloneDeep(obj)
+      bocSplitVisible.value = true
+      currentSplitInput()
+    }
+  }
+
+  const bocSplitVisible = ref(false)
+  const setDialogCancel = () => {
+    currentSplitObj.value = {}
+    bocSplitVisible.value = false
+  }
+
+  const currentSplitInput = () => {
+    if (currentSplitObj.value.boc.amount > currentSplitObj.value.total_amount) {
+      currentSplitObj.value.boc.amount = currentSplitObj.value.total_amount
+    }
+
+    if (currentSplitObj.value.boc.amount < 0) {
+      currentSplitObj.value.boc.amount = 0
+    }
+
+    currentSplitObj.value.vsl.amount = Number(tool.minus(currentSplitObj.value.total_amount, currentSplitObj.value.boc.amount))
+  }
+
+  const selectSureHandle = () => {
+    const obj = cloneDeep(currentSplitObj.value)
+    const type = obj.type
+    const bocAmount = obj.boc.amount
+    const vslAmount = obj.vsl.amount
+    const term = obj.boc.term
+
+    bocSplitObjRef.value[type].boc.amount = bocAmount
+    bocSplitObjRef.value[type].boc.term = term
+    bocSplitObjRef.value[type].vsl.amount = vslAmount
+    setDialogCancel()
   }
 
   onMounted(async () => {
@@ -1522,10 +1934,7 @@
         padding: 0 10px;
         border-radius: 5px;
         margin-bottom: 10px;
-        > .child-item {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
+        .child-item {
           border-bottom: 1px solid #ddd;
           padding: 10px 0;
           &:last-child {
@@ -1535,11 +1944,6 @@
             color: #444;
           }
         }
-      }
-      > .item-info {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
       }
       .total-item {
         display: flex;
@@ -1577,5 +1981,112 @@
     justify-content: space-between;
     gap: 4px;
     font-size: 10px;
+  }
+
+  .vsl-split-btn {
+    font-size: 11px;
+    padding: 2px 5px;
+    border-radius: 4px;
+    background-color: #f19915;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 0 rgba(255, 195, 5, 0.1);
+    transition: all 0.3s ease;
+    &:hover {
+      background-color: #faba54;
+    }
+    &.disabled {
+      background-color: #666 !important;;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+  }
+
+  .boc-split-info {
+    background-color: #f7f9f8;
+    margin-top: 5px;
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #282828;
+    &.footer {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 5px 10px;
+      .split-term {
+        border-bottom: none;
+        border-left: 1px dashed #424242;
+        padding-left: 15px;
+        margin-bottom: 0;
+        gap: 20px;
+      }
+    }
+    &.total {
+      justify-content: space-between;
+      gap: 15px;
+    }
+    &.done {
+      position: relative;
+      overflow: hidden;
+      &::after {
+        content: '';
+        position: absolute;
+        top: -25px;
+        right: -25px;
+        width: 50px;
+        height: 50px;
+        background-color: #31bd65;
+        z-index: 1;
+        transform: rotate(-45deg);
+      }
+      .done-vsl {
+        opacity: 1;
+      }
+    }
+    .done-vsl {
+      color: #fff;
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      z-index: 2;
+      font-size: 14px;
+      opacity: 0;
+    }
+    .split-term {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px dashed #424242;
+      margin-bottom: 5px;
+      padding-bottom: 5px;
+      gap: 5px;
+      > .text-xs {
+        flex: 1;
+      }
+      :deep(.ant-select) {
+        width: 90px;
+        .ant-select-selection-item {
+          font-size: 13px;
+        }
+        .ant-select-selector {
+          padding: 0 5px !important;
+        }
+      }
+    }
+  }
+
+  .info-content {
+    margin-bottom: 22px;
+    .name {
+      font-size: 12px;
+      color: #666;
+    }
+  }
+
+  .footer-split-info {
+    border-top: 1px dashed #ddd;
+    margin-top: 10px;
+    padding-top: 5px;
   }
 </style>

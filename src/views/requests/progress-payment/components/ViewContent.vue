@@ -7,8 +7,30 @@
       @submit="confirmAlertHandle"
     ></vco-confirm-alert>
 
-    <a-modal :open="itemVisible" :title="t('进度付款阶段')" :width="500" :footer="null" :keyboard="false" :maskClosable="false" @cancel="setDialogCancel">
+    <a-modal :open="itemVisible" :title="t('进度付款阶段')" :width="540" :footer="null" :keyboard="false" :maskClosable="false" @cancel="setDialogCancel">
       <a-row :gutter="24" class="mt-10">
+        <a-col v-if="currentItemInfo.split" :span="24">
+          <div class="split-info-content">
+            <div class="info-item">
+              <p class="name">{{ t('项名称') }}</p>
+              <div class="txt">{{ currentItemInfo.split_type }}</div>
+            </div>
+            <div class="flex justify-between items-center">
+              <div class="info-content">
+                <p class="name">{{ t('VSL额度') }}</p>
+                <vco-number :value="currentItemInfo.vsl_amount" size="fs_md" :precision="2"></vco-number>
+              </div>
+              <div class="info-content">
+                <p class="name">{{ t('已使用&已设置') }}</p>
+                <vco-number :value="currentItemInfo.vsl_consume_amount" color="#1d9434" size="fs_md" :precision="2"></vco-number>
+              </div>
+              <div class="info-content">
+                <p class="name">{{ t('可用额度1') }}</p>
+                <vco-number :value="currentItemInfo.vsl_can_amount" color="#ea3535" size="fs_md" :precision="2"></vco-number>
+              </div>
+            </div>
+          </div>
+        </a-col>
         <a-col :span="8">
           <div class="info-content">
             <p class="name">{{ t('总额度') }}</p>
@@ -144,7 +166,7 @@
               
               <div v-if="isSelect" class="mt-2 mb-2 flex justify-end gap-4">
                 <a-button v-if="selectDataHasNum" type="cyan" class="bold uppercase" @click="selectCancelAll">{{ t('取消所有设置') }}</a-button>
-                <a-button v-if="!allowExcess" type="primary" class="bold uppercase" @click="batchSelectHandle">{{ batchSelect ? t('取消批量模式') : t('批量选择') }}</a-button>
+                <a-button v-if="!allowExcess && !isVsl" type="primary" class="bold uppercase" @click="batchSelectHandle">{{ batchSelect ? t('取消批量模式') : t('批量选择') }}</a-button>
                 <a-button v-if="batchSelectData.length" type="grey" class="bold uppercase" @click="batchSelectCancel">{{ t('取消已选择')}}</a-button>
                 <a-button v-if="batchSelect" type="dark" :disabled="!batchSelectData.length" class="bold uppercase" @click="batchSelectSet">{{ t('批量设置1') }} ({{ batchSelectData.length }})</a-button>
               </div>
@@ -232,6 +254,16 @@
                 <template v-else-if="column.dataIndex === 'total'">
                   <template v-if="showProcess">
                     <div class="select-item disabled">
+                      <div v-if="isVsl && bocSplitObjRef[record.type]" class="vsl-split-info">
+                        <div class="flex flex-col items-start">
+                          <p class="text-xs text-gray-700">VSL</p>
+                          <vco-number :value="bocSplitObjRef[record.type].vsl.amount" size="fs_xs" :bold="true" :precision="2" color="#ea3535" :end="true"></vco-number>
+                        </div>
+                        <div class="flex flex-col items-end">
+                          <p class="text-xs text-gray-700">{{ t('已用额度')}}</p>
+                          <vco-number :value="bocSplitObjRef[record.type].vsl.use_amount" size="fs_xs" :precision="2" color="#31bd65" :end="true"></vco-number>
+                        </div>
+                      </div>
                       <vco-number :value="record.total" size="fs_md" :precision="2" :end="true"></vco-number>
                       <vco-number :value="tableRemainTotal(record.total, record.useTotal) < 0 ? 0 : tableRemainTotal(record.total, record.useTotal)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
                       <vco-number :value="record.useTotal" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
@@ -260,11 +292,28 @@
                         <vco-number v-if="record.type === tableData[index + 1]?.type" :value="Number(tool.plus(record[column.dataIndex], tableData[index + 1][column.dataIndex]))" size="fs_md" :precision="2" :end="true"></vco-number>
                         <vco-number v-else :value="record[column.dataIndex]" size="fs_md" :precision="2" :end="true"></vco-number>
                       </div>
+
+                      <div v-if="isVsl && bocSplitObjRef[record.type]" class="boc-split-info">
+                        <div class="flex justify-between items-center">
+                          <div class="flex flex-col items-start">
+                            <p class="font-bold">{{ `No.${bocSplitObjRef[record.type].boc.term}` }}</p>
+                            <vco-number :value="bocSplitObjRef[record.type].boc.amount" size="fs_xs" :precision="2" color="#eb4b6d" :bold="true" :end="true"></vco-number>
+                          </div>
+                          <div class="flex flex-col items-end">
+                            <p class="text-xs text-gray-700">{{ t('BOC总计') }}</p>
+                            <vco-number :value="bocSplitTotal(bocSplitObjRef[record.type].boc.term)" size="fs_xs" :precision="2" :end="true"></vco-number>
+                          </div>
+                        </div>
+                        <div class="flex justify-between items-center vsl">
+                          <p class="text-xs text-gray-700">VSL</p>
+                          <vco-number :value="bocSplitObjRef[record.type].vsl.amount" size="fs_xs" :precision="2"  :end="true"></vco-number>
+                        </div>
+                      </div>
                     </template>
                   </template>
                 </template>
                 <template v-else>
-                  <div v-if="showProcess" class="select-item col" :class="{'hover': isSelect}" @click="itemSetHandle(record[column.dataIndex])">
+                  <div v-if="showProcess" class="select-item col" :class="{'hover': isSelect, 'vsl': isVsl && bocSplitObjRef[record.type]}" @click="itemSetHandle(record[column.dataIndex], record)">
                     <vco-number :value="record[column.dataIndex].amount" size="fs_xs" :precision="2" :end="true"></vco-number>
                     <vco-number
                       :value="tableRemainTotal(record[column.dataIndex].amount, record[column.dataIndex]?.use_amount || 0) < 0 ? 0 : tableRemainTotal(record[column.dataIndex].amount, record[column.dataIndex]?.use_amount || 0)"
@@ -386,7 +435,7 @@
               <div
                 v-for="item in footerDataCol" :key="item.type"
                 class="item"
-                :class="{'hover': isSelect}"
+                :class="{'hover': isSelect, 'vsl': isVsl}"
                 @click="itemSetHandle(item)"
               >
                 <div v-if="item.logs.length && !isSelect" class="log-icon" @click="showLogInfo(item)">
@@ -413,18 +462,58 @@
 
                 <vco-excess-process v-if="showProcess" :percent="item.percent" />
                 
-                <p :class="{'mt-2': !showProcess}">{{ item.name }}</p>
+                <p :title="item.name" :class="{'mt-2': !showProcess}">{{ item.name }}</p>
                 <div v-if="item.checked" class="selected" :class="{'excess': Number(item.excess_amount)}">{{ `$${numberStrFormat(item.set_amount)}` }}</div>
                 <template v-if="item.selected">
                   <div class="selected-bg"></div>
                   <i class="iconfont selected-icon">&#xe601;</i>
                 </template>
+
+                <div v-if="isVsl && isSelect && bocSplitObjRef[item.type]" class="vsl-split-info">
+                  <div class="flex flex-col items-start">
+                    <p class="text-xs text-gray-700">VSL</p>
+                    <vco-number :value="bocSplitObjRef[item.type].vsl.amount" size="fs_xs" :bold="true" color="#ea3535" :precision="2"  :end="true"></vco-number>
+                  </div>
+                  <div class="flex flex-col items-end">
+                    <p class="text-xs text-gray-700">{{ t('已用额度')}}</p>
+                    <vco-number :value="bocSplitObjRef[item.type].vsl.use_amount" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
+                  </div>
+                </div>
+
+                <div v-if="isVsl && !isSelect && bocSplitObjRef[item.type]" class="boc-split-info w-full">
+                  <div class="flex justify-between items-center">
+                    <div class="flex flex-col items-start">
+                      <p class="font-bold">{{ `No.${bocSplitObjRef[item.type].boc.term}` }}</p>
+                      <vco-number :value="bocSplitObjRef[item.type].boc.amount" size="fs_xs" :precision="2" color="#eb4b6d" :bold="true" :end="true"></vco-number>
+                    </div>
+                    <div class="flex flex-col items-end">
+                      <p class="text-xs text-gray-700">{{ t('BOC总计') }}</p>
+                      <vco-number :value="bocSplitTotal(bocSplitObjRef[item.type].boc.term)" size="fs_xs" :precision="2" :end="true"></vco-number>
+                    </div>
+                  </div>
+                  <div class="flex justify-between items-center vsl">
+                    <p class="text-xs text-gray-700">VSL</p>
+                    <vco-number :value="bocSplitObjRef[item.type].vsl.amount" size="fs_xs" :precision="2"  :end="true"></vco-number>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="table-total-content">
               <p>Total Cost to Complete</p>
-              <div class="total-item">
-                <vco-number :value="tableTotal" :bold="true" size="fs_xl" :precision="2" :end="true"></vco-number>
+              <div class="flex flex-col items-end">
+                <div class="total-item">
+                  <vco-number :value="tableTotal" :bold="true" size="fs_xl" :precision="2" :end="true"></vco-number>
+                </div>
+                <div v-if="isVsl" class="boc-split-info total">
+                  <div>
+                    <p class="text-xs text-gray-700">{{ t('VSL总计') }}</p>
+                    <vco-number :value="Number(tool.minus(tableTotal, bocSplitTotalAmount))" size="fs_md" :precision="2" :end="true" :bold="true" color="#31bd65"></vco-number>
+                  </div>
+                  <div>
+                    <p class="text-xs text-gray-700">{{ t('BOC总计') }}</p>
+                    <vco-number :value="bocSplitTotalAmount" size="fs_md" :precision="2" :end="true" :bold="true" color="#eb4b6d"></vco-number>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -457,6 +546,7 @@
   import { projectAuditStepDetail, projectGetBuild, projectLoanGetBuild, projectDetailApi } from "@/api/process"
   import { cloneDeep } from "lodash"
   import tool, { numberStrFormat, fixNumber } from "@/utils/tool"
+  import { message } from 'ant-design-vue/es';
 
   const { t } = useI18n();
   const route = useRoute();
@@ -528,6 +618,36 @@
   const selectedDataIds = computed(() => {
     const data = props.selectedData.map(item => item.build_id) || []
     return data
+  })
+
+  // boc放款数据
+  const bocSplitArrData = computed(() => {
+    const obj = cloneDeep(bocSplitObjRef.value)
+    const arr = []
+    for (const key in obj) {
+      if (obj[key].boc.amount) {
+        arr.push(obj[key].boc)
+      }
+    }
+    return arr
+  })
+
+  // boc放款某次总金额
+  const bocSplitTotal = computed(() => {
+    return (term) => {
+      const arr = bocSplitArrData.value.filter(item => item.term === term).map(item => item.amount)
+      const total = arr.reduce((total, num) => {
+        return Number(tool.plus(total, num))
+      }, 0);
+      return total
+    }
+  })
+
+  // boc放款总金额
+  const bocSplitTotalAmount = computed(() => {
+    return bocSplitArrData.value.reduce((total, item) => {
+      return Number(tool.plus(total, item.amount))
+    }, 0);
   })
 
   // 是否为进件阶段
@@ -611,7 +731,7 @@
       return Number(tool.plus(total, num))
     }, 0);
 
-    const doneUseAmount = props.isSelect ? advanceObj.value.use_amount : (props.logDate ? advanceObj.value.logs_use_amount : advanceObj.value.use_amount)
+    const doneUseAmount = props.isSelect ? advanceObj.value?.use_amount : (props.logDate ? advanceObj.value?.logs_use_amount : advanceObj.value?.use_amount)
     const totalAll = tool.plus(Number(total), doneUseAmount || 0)
     return totalAll
   })
@@ -636,7 +756,6 @@
 
   const setTableData = (headerData) => {
     const payment = cloneDeep(setedData.value.payment)
-    const column = cloneDeep(setedData.value.column)
 
     for (const key in payment) {
       if (key === '0$1__payment') {
@@ -766,6 +885,8 @@
   const advanceObj = ref()
   const advancePercent = ref(0)
   const advanceAmount = ref(0)
+
+  const bocSplitObjRef = ref({})
 
   const setTableHeader = () => {
     const rowData = setedData.value.row
@@ -1047,6 +1168,24 @@
 
         // 统计数据
         statUseAmount.value = res.use_amount || 0
+
+        // vsl 产品
+        if (isVsl.value) {
+          const progress = cloneDeep(res.progress || {})
+          const obj = {}
+
+          for (const key in progress) {
+            const item = progress[key]
+            const bocObj = item.find(_item => _item.source)
+            const vslObj = item.find(_item => !_item.source)
+
+            obj[key] = {
+              boc: {...bocObj},
+              vsl: {...vslObj}
+            }
+          }
+          bocSplitObjRef.value = obj
+        }
       })
     } catch (err) {
       pageLoading.value = false
@@ -1057,6 +1196,8 @@
 
   // 是否为简易模式
   const easyModel = ref(true)
+  // 是否为vsl产品
+  const isVsl = ref(false)
 
   const buildAmount = ref(0)
 
@@ -1070,6 +1211,12 @@
     try {
       const ajaxFn = isRequests.value ? projectAuditStepDetail : projectDetailApi
       await ajaxFn(params).then(res => {
+        if (isRequests.value) {
+          isVsl.value = String(res.base.productCode).toLowerCase() === 'vsl'
+        } else {
+          isVsl.value = String(res.product.code).toLowerCase() === 'vsl'
+        }
+
         emits('done', res)
 
         const costModel = Boolean(res.lending.devCostDetail[0].model)
@@ -1105,6 +1252,14 @@
             }
           }
         }
+
+        dataArr.forEach(item => {
+          if (item.list && item.list.length) {
+            item.list.forEach(listItem => {
+              listItem.name = `${item.name}&${listItem.type}`
+            })
+          }
+        })
 
         footerDataCol.value = dataArr
 
@@ -1156,7 +1311,7 @@
   }
 
   const currentSingleItem = ref()
-  const itemSetHandle = (data) => {
+  const itemSetHandle = (data, record = null) => {
     if (batchSelect.value) {
       data.selected = !data.selected
       const id = data.id
@@ -1183,6 +1338,33 @@
         data.showExcessError = data.excess_amount
         if (allowExcess.value) {
           data.set_amount_per = fixNumber(Number(tool.times(tool.div(Number(data.use_amount), Number(data.amount)), 100)), 2)
+        }
+        if (isVsl.value) {
+          const splitType = record && record.type ? record.type : data.type_name
+          if (bocSplitObjRef.value[splitType]) {
+            data.split_type = splitType
+            data.split = true
+            data.vsl_amount = Number(bocSplitObjRef.value[splitType].vsl.amount || 0)
+
+            const use_amount = Number(bocSplitObjRef.value[splitType].vsl.use_amount || 0)
+            let set_amount = 0
+
+            if (record) {
+              const security_uuid = data.security_uuid
+              const cRecord = cloneDeep(record)
+              delete cRecord[security_uuid]
+
+              const setArr = extractAmounts(cRecord, '-', 'set_amount')
+              const setTotal = setArr.reduce((total, num) => {
+                return Number(tool.plus(total, Number(num || 0)))
+              }, 0);
+              set_amount = Number(setTotal || 0)
+            }
+
+            const consume = Number(tool.plus(use_amount, set_amount))
+            data.vsl_consume_amount = consume
+            data.vsl_can_amount = Number(tool.minus(data.vsl_amount, consume))
+          }
         }
         currentSingleItem.value = data
         currentItemInfo.value = cloneDeep(data)
@@ -1318,11 +1500,20 @@
         }
       }
 
-      if (currentItemInfo.value.excess_amount < 0) {
-        confirmTxt.value = t('已超额{0}，确定设置吗？', [`$${numberStrFormat(Math.abs(currentItemInfo.value.excess_amount))}`])
-        confirmAlertVisible.value = true
+      if (currentItemInfo.value.split) {
+        if (currentItemInfo.value.set_amount > currentItemInfo.value.vsl_can_amount) {
+          message.error(t('设置的累计放款金额已超出VSL总额度'))
+          return false
+        } else {
+          signleItemSelected()
+        }
       } else {
-        signleItemSelected()
+        if (currentItemInfo.value.excess_amount < 0) {
+          confirmTxt.value = t('已超额{0}，确定设置吗？', [`$${numberStrFormat(Math.abs(currentItemInfo.value.excess_amount))}`])
+          confirmAlertVisible.value = true
+        } else {
+          signleItemSelected()
+        }
       }
     }
 
@@ -1551,8 +1742,7 @@
         border-color: #272727 !important;
       }
       .ant-table-tbody>tr>td {
-        padding-left: 10px;
-        padding-right: 10px;
+        padding: 10px;
       }
       .ant-table-expanded-row-fixed::after {
         border-color: #272727 !important;
@@ -1673,10 +1863,32 @@
           background-color: rgba(241, 153, 21, .2)
         }
       }
+      &.vsl {
+        :deep(.ant-progress-line) {
+          position: relative;
+          top: -5px;
+        }
+        :deep(.vco-number) {
+          height: 14px !important;
+        }
+        > p {
+          position: relative;
+          top: -8px;
+        }
+        .vsl-split-info {
+          width: 100%;
+          max-width: 240px;
+          position: relative;
+          top: -8px;
+        }
+      }
       > p {
         font-size: 12px;
         color: #282828;
-        word-break: break-all;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: 100%;
         text-align: center;
       }
       .total-item {
@@ -1719,8 +1931,8 @@
         z-index: 2;
       }
 
-      .ant-progress-line {
-        margin: -5px;
+      :deep(.ant-progress-line) {
+        margin: 0 !important;
       }
 
       :deep(.ant-progress-text) {
@@ -1772,10 +1984,10 @@
   .select-item {
     position: relative;
     overflow: hidden;
-    margin: -16px -10px;
-    padding: 16px 10px;
+    margin: -10px -10px;
+    padding: 10px 10px;
     &.footer {
-      margin: -16px -5px;
+      margin: -10px -5px;
     }
     &.hover {
       cursor: pointer;
@@ -1802,6 +2014,13 @@
       .selected-icon {
         right: 2px;
         bottom: 2px;
+      }
+    }
+    &.vsl {
+      padding-top: 33px;
+      padding-bottom: 33px;
+      .item-process-content {
+        bottom: 15px !important;
       }
     }
     > .selected {
@@ -1929,6 +2148,75 @@
         flex: 1;
         padding: 10px 15px;
         font-weight: 500;
+      }
+    }
+  }
+
+  .boc-split-info {
+    background-color: #f7f9f8;
+    margin-top: 5px;
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #282828;
+    &.total {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      padding: 5px 10px;
+      > div {
+        > p {
+          margin-bottom: 2px;
+        }
+        &:last-child {
+          border-left: 1px dashed #282828;
+          padding-left: 15px;
+        }
+      }
+    }
+    > .vsl {
+      border-top: 1px dashed #424242;
+      margin-top: 5px;
+      padding-top: 5px;
+    }
+  }
+
+  .vsl-split-info {
+    background-color: #f7f9f8;
+    margin-bottom: 5px;
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #282828;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .split-info-content {
+    background-color: #f7f9f8;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px dashed #282828;
+    > .info-item {
+      .name {
+        font-size: 12px;
+        color: #666;
+      }
+      .txt {
+        font-size: 13px;
+        line-height: 16px;
+        margin-top: 5px;
+      }
+    }
+    > .flex {
+      padding-top: 5px;
+      margin-top: 10px;
+      display: flex;
+      border-top: 1px dashed #282828;
+      > .info-content {
+        width: 33.33333%;
+        margin-bottom: 0;
       }
     }
   }

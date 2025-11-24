@@ -101,7 +101,7 @@ const save = () => {
 
 const init = () => {
   visible.value = true;
-  formState.value.date = dayjs().format('YYYY-MM-DD');
+  formState.value.date = '';
   nextTick(() => {
     formRef.value.clearValidate();
     formRef.value.resetFields();

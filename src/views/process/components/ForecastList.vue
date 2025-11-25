@@ -218,6 +218,7 @@ import { cloneDeep } from 'lodash';
 import { projectForecastDarwDownList, projectDetailDarwDownList, projectForecastAdd, projectForecastDelete, projectAuditUpdLoanAmount } from '@/api/process';
 import tool, { numberStrFormat, navigationTo, selectDateFormat } from '@/utils/tool';
 import emitter from '@/event';
+import useProcessStore from "@/store/modules/process"
 import { message } from 'ant-design-vue/es';
 
 const props = defineProps({
@@ -246,6 +247,8 @@ const props = defineProps({
     default: '',
   },
 });
+
+const processStore = useProcessStore()
 
 const { t } = useI18n();
 const tabData = ref([]);
@@ -405,6 +408,7 @@ const getTableData = () => {
       tabLoading.value = false;
 
       dataDone.value = true;
+      processStore.setBocForcastDone(true);
     })
     .catch(() => {
       tabLoading.value = false;
@@ -700,6 +704,13 @@ watch(
     }
   }
 );
+
+watch(
+  () => remainInfo.value,
+  (val) => {
+    processStore.setBocRemainInfo(val)
+  }
+)
 
 const handleRefreshForecast = () => {
   getTableData();

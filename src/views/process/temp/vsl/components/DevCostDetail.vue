@@ -234,7 +234,7 @@
               </div>
             </template>
           </div>
-          <div v-if="showRefinancial" class="refinancial-row">
+          <!-- <div v-if="showRefinancial" class="refinancial-row">
             <div class="flex gap-4 items-center">
               <p>{{ t('是否需要再融资') }}</p>
               <a-switch v-if="edit" v-model:checked="isRefinancialChecked" @change="changeRefinancial" />
@@ -266,7 +266,7 @@
                 <vco-number :value="refinancialAmount" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
               </div>
             </div>
-          </div>
+          </div> -->
         </a-form-item-rest>
         <div class="flex items-center total-row" style="border: none; padding: 0 24px">
           <div class="title bold bold fs_xl text-left">{{ t('总计') }}</div>

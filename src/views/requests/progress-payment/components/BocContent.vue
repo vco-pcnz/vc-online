@@ -10,7 +10,7 @@
           <div class="name">{{ item.type_name }}</div>
         </div>
       </div>
-      <div class="flex justify-between items-center">
+      <div class="flex justify-between items-center mt-5">
         <div>
           <p class="font-bold">Total</p>
           <vco-number :value="totalNumber" size="fs_xl" :precision="2" :end="true" color="#eb4b6d" :bold="true"></vco-number>
@@ -59,7 +59,7 @@ const showDrowndownData = computed(() => {
 })
 
 const totalNumber = computed(() => {
-  return bocSplitData.value.reduce((total, item) => {
+  return showDrowndownData.value.reduce((total, item) => {
     return Number(tool.plus(total, Number(item.amount)))
   }, 0);
 })

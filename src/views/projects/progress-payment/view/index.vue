@@ -10,7 +10,6 @@
   </div>
 </template>
 
-
 <script setup>
   import { ref, onMounted, computed } from "vue";
   import { useRoute } from "vue-router";

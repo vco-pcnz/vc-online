@@ -254,16 +254,36 @@
                 <template v-else-if="column.dataIndex === 'total'">
                   <template v-if="showProcess">
                     <div class="select-item disabled">
-                      <div v-if="isVsl && bocSplitObjRef[record.type]" class="vsl-split-info">
-                        <div class="flex flex-col items-start">
-                          <p class="text-xs text-gray-700">VSL</p>
-                          <vco-number :value="bocSplitObjRef[record.type].vsl.amount" size="fs_xs" :bold="true" :precision="2" color="#ea3535" :end="true"></vco-number>
+                      <template v-if="isVsl && bocSplitObjRef[record.type]">
+                        <div v-if="isPage" class="boc-split-info mb-2" :class="{'done': bocSplitObjRef[record.type].boc.isDone}">
+                          <i v-if="bocSplitObjRef[record.type].boc.isDone" class="done-vsl iconfont icon-duigou"></i>
+                          <div class="flex justify-between items-center">
+                            <div class="flex flex-col items-start">
+                              <p class="font-bold">{{ `No.${bocSplitObjRef[record.type].boc.term}` }}</p>
+                              <vco-number :value="bocSplitObjRef[record.type].boc.amount" size="fs_xs" :precision="2" color="#eb4b6d" :bold="true" :end="true"></vco-number>
+                            </div>
+                            <div class="flex flex-col items-end">
+                              <p class="text-xs text-gray-700">{{ t('BOC总计') }}</p>
+                              <vco-number :value="bocSplitTotal(bocSplitObjRef[record.type].boc.term)" size="fs_xs" :precision="2" :end="true"></vco-number>
+                            </div>
+                          </div>
+                          <div class="flex justify-between items-center vsl">
+                            <p class="text-xs text-gray-700">VSL</p>
+                            <vco-number :value="bocSplitObjRef[record.type].vsl.amount" size="fs_xs" :precision="2"  :end="true"></vco-number>
+                          </div>
                         </div>
-                        <div class="flex flex-col items-end">
-                          <p class="text-xs text-gray-700">{{ t('已用额度')}}</p>
-                          <vco-number :value="bocSplitObjRef[record.type].vsl.use_amount" size="fs_xs" :precision="2" color="#31bd65" :end="true"></vco-number>
+                        <div v-else class="vsl-split-info">
+                          <div class="flex flex-col items-start">
+                            <p class="text-xs text-gray-700">VSL</p>
+                            <vco-number :value="bocSplitObjRef[record.type].vsl.amount" size="fs_xs" :bold="true" :precision="2" color="#ea3535" :end="true"></vco-number>
+                          </div>
+                          <div class="flex flex-col items-end">
+                            <p class="text-xs text-gray-700">{{ t('已用额度')}}</p>
+                            <vco-number :value="bocSplitObjRef[record.type].vsl.use_amount" size="fs_xs" :precision="2" color="#31bd65" :end="true"></vco-number>
+                          </div>
                         </div>
-                      </div>
+                      </template>
+                      
                       <vco-number :value="record.total" size="fs_md" :precision="2" :end="true"></vco-number>
                       <vco-number :value="tableRemainTotal(record.total, record.useTotal) < 0 ? 0 : tableRemainTotal(record.total, record.useTotal)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
                       <vco-number :value="record.useTotal" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
@@ -293,7 +313,8 @@
                         <vco-number v-else :value="record[column.dataIndex]" size="fs_md" :precision="2" :end="true"></vco-number>
                       </div>
 
-                      <div v-if="isVsl && bocSplitObjRef[record.type]" class="boc-split-info">
+                      <div v-if="isVsl && bocSplitObjRef[record.type]" class="boc-split-info" :class="{'done': bocSplitObjRef[record.type].boc.isDone}">
+                        <i v-if="bocSplitObjRef[record.type].boc.isDone" class="done-vsl iconfont icon-duigou"></i>
                         <div class="flex justify-between items-center">
                           <div class="flex flex-col items-start">
                             <p class="font-bold">{{ `No.${bocSplitObjRef[record.type].boc.term}` }}</p>
@@ -422,7 +443,6 @@
                               <vco-excess-process :percent="getTotalPercent(summaryHandle(item.key, 'use_amount'), summaryHandle(item.key))" />
                             </div>
                           </div>
-                          
                         </template>
                         <vco-number v-else :value="summaryHandle(item.key)" size="fs_md" :precision="2" :end="true"></vco-number>
                       </template>
@@ -480,7 +500,8 @@
                   </div>
                 </div>
 
-                <div v-if="isVsl && !isSelect && bocSplitObjRef[item.type]" class="boc-split-info w-full">
+                <div v-if="isVsl && !isSelect && bocSplitObjRef[item.type]" class="boc-split-info w-full" :class="{'done': bocSplitObjRef[item.type].boc.isDone}">
+                  <i v-if="bocSplitObjRef[item.type].boc.isDone" class="done-vsl iconfont icon-duigou"></i>
                   <div class="flex justify-between items-center">
                     <div class="flex flex-col items-start">
                       <p class="font-bold">{{ `No.${bocSplitObjRef[item.type].boc.term}` }}</p>
@@ -504,14 +525,20 @@
                 <div class="total-item">
                   <vco-number :value="tableTotal" :bold="true" size="fs_xl" :precision="2" :end="true"></vco-number>
                 </div>
-                <div v-if="isVsl" class="boc-split-info total">
-                  <div>
-                    <p class="text-xs text-gray-700">{{ t('VSL总计') }}</p>
-                    <vco-number :value="Number(tool.minus(tableTotal, bocSplitTotalAmount))" size="fs_md" :precision="2" :end="true" :bold="true" color="#31bd65"></vco-number>
+                <div v-if="isVsl">
+                  <div class="boc-split-info total">
+                    <div>
+                      <p class="text-xs text-gray-700">{{ t('VSL总计') }}</p>
+                      <vco-number :value="Number(tool.minus(tableTotal, bocSplitTotalAmount))" size="fs_md" :precision="2" :end="true" :bold="true" color="#31bd65"></vco-number>
+                    </div>
+                    <div>
+                      <p class="text-xs text-gray-700">{{ t('BOC总计') }}</p>
+                      <vco-number :value="bocSplitTotalAmount" size="fs_md" :precision="2" :end="true" :bold="true" color="#eb4b6d"></vco-number>
+                    </div>
                   </div>
-                  <div>
-                    <p class="text-xs text-gray-700">{{ t('BOC总计') }}</p>
-                    <vco-number :value="bocSplitTotalAmount" size="fs_md" :precision="2" :end="true" :bold="true" color="#eb4b6d"></vco-number>
+                  <div class="flex justify-between items-center w-full mt-2">
+                    <p class="text-xs text-gray-700">{{ t('BOC总放款') }}</p>
+                    <vco-number :value="bocSplitTotalDrawdown" size="fs_md" :precision="2" :end="true" :bold="true" color="#31bd65"></vco-number>
                   </div>
                 </div>
               </div>
@@ -648,6 +675,16 @@
     return bocSplitArrData.value.reduce((total, item) => {
       return Number(tool.plus(total, item.amount))
     }, 0);
+  })
+
+  // boc放款总放款
+  const bocSplitTotalDrawdown = computed(() => {
+    const data = cloneDeep(bocSplitArrData.value)
+    const arr = data.filter(item => item.isDone)
+    const total = arr.reduce((total, item) => {
+      return Number(tool.plus(total, item.amount))
+    }, 0);
+    return total
   })
 
   // 是否为进件阶段
@@ -1179,6 +1216,7 @@
             const bocObj = item.find(_item => _item.source)
             const vslObj = item.find(_item => !_item.source)
 
+            bocObj.isDone = Boolean(Number(bocObj.amount) === Number(bocObj.use_amount))
             obj[key] = {
               boc: {...bocObj},
               vsl: {...vslObj}
@@ -1987,7 +2025,7 @@
     margin: -10px -10px;
     padding: 10px 10px;
     &.footer {
-      margin: -10px -5px;
+      margin: -15px -5px;
     }
     &.hover {
       cursor: pointer;
@@ -2173,6 +2211,36 @@
           padding-left: 15px;
         }
       }
+    }
+    &.done {
+      position: relative;
+      overflow: hidden;
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -25px;
+        right: -25px;
+        width: 50px;
+        height: 50px;
+        background-color: #31bd65;
+        z-index: 1;
+        transform: rotate(45deg);
+      }
+      .done-vsl {
+        opacity: 1;
+      }
+      > .vsl {
+        padding-right: 25px;
+      }
+    }
+    .done-vsl {
+      color: #fff;
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      z-index: 2;
+      font-size: 14px;
+      opacity: 0;
     }
     > .vsl {
       border-top: 1px dashed #424242;

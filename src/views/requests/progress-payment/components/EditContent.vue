@@ -1504,6 +1504,7 @@
             }
             const item = cloneDeep(bocSplitObj[key][key2])
             item.type = 0
+            delete item.isDone
             arr.push(item)
           }
         }

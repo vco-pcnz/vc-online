@@ -1,5 +1,5 @@
 <template>
-  <DetailLayout :title="t('项目信息')" active-tab="projects"></DetailLayout>
+  <DetailLayout :title="t('项目')" active-tab="projects"></DetailLayout>
 
   <product-tab v-model:current="pageStore.product_uuid" @change="tabChange">
     <div class="flex justify-end flex-1">

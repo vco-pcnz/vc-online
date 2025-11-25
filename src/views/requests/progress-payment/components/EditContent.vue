@@ -397,8 +397,14 @@
                 </div>
 
                 <div v-if="isVsl" class="boc-split-info footer total">
-                  <p class="text-xs text-gray-700">{{ t('BOC总计') }}</p>
-                  <vco-number :value="bocSplitTotalAmount" size="fs_md" :precision="2" :end="true" :bold="true" color="#eb4b6d"></vco-number>
+                  <div class="flex justify-between items-center w-full">
+                    <p class="text-xs text-gray-700">{{ t('BOC总计') }}</p>
+                    <vco-number :value="bocSplitTotalAmount" size="fs_md" :precision="2" :end="true" :bold="true" color="#eb4b6d"></vco-number>
+                  </div>
+                  <div class="flex justify-between items-center w-full">
+                    <p class="text-xs text-gray-700">{{ t('BOC总放款') }}</p>
+                    <vco-number :value="bocSplitTotalDrawdown" size="fs_md" :precision="2" :end="true" :bold="true" color="#31bd65"></vco-number>
+                  </div>
                 </div>
               </div>
             </div>
@@ -500,6 +506,16 @@
     return bocSplitArrData.value.reduce((total, item) => {
       return Number(tool.plus(total, item.amount))
     }, 0);
+  })
+
+  // boc放款总放款
+  const bocSplitTotalDrawdown = computed(() => {
+    const data = cloneDeep(bocSplitArrData.value)
+    const arr = data.filter(item => item.isDone)
+    const total = arr.reduce((total, item) => {
+      return Number(tool.plus(total, item.amount))
+    }, 0);
+    return total
   })
 
   const summaryHandle = computed(() => {
@@ -2044,8 +2060,7 @@
       }
     }
     &.total {
-      justify-content: space-between;
-      gap: 15px;
+      display: block;
     }
     &.done {
       position: relative;

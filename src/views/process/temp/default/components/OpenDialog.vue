@@ -348,12 +348,13 @@ const backStepHandle = async () => {
 
     await projectAuditSaveMode(loadParams)
 
+    const backStep = refinancialIds.value.length ? 'step_lm_audit' : 'step_fc_audit'
     const params = {
       uuid: props.uuid,
       cancel_reason: cancelReasonTxt.value,
       back_reason: backReasonTxt.value,
       again_check: 0,
-      back_step: 'step_lm_audit' // 固定返回到LM提交
+      back_step: backStep // 置换返回FC，其他返回到LM提交
       // back_step: currentBackSetp.value
     }
 

@@ -2,10 +2,7 @@
   <product-tab v-model:current="pageStore.product_uuid" @change="tabChange">
     <div style="flex: 1"></div>
     <div class="flex">
-      <a-tooltip placement="top" class="ml-5">
-        <template #title> Export transaction details for all loans under filter conditions </template>
-        <a-button type="cyan" size="small" class="ml-3" shape="round" @click="reportSchedule" :loading="downloadingSchedule" v-if="hasPermission('projects:schedule:download')">{{ t('明细表') }}</a-button>
-      </a-tooltip>
+      <ScheduleExport :sta="pageStore.sta" :searchParams="pageStore.searchParams" v-if="hasPermission('projects:schedule:download')"></ScheduleExport>
       <DateExport :sta="pageStore.sta" :searchParams="pageStore.searchParams" v-if="hasPermission('projects:list:export')"></DateExport>
       <a-button type="cyan" size="small" class="ml-3" shape="round" @click="report" :loading="downloading" v-if="hasPermission('projects:newLoan:download')">{{ t('新开贷款') }}</a-button>
     </div>
@@ -43,8 +40,9 @@ import TableBlockVip from '../components/TableBlockVip.vue';
 import { useProjectsStore, useUserStore } from '@/store';
 import { hasPermission } from '@/directives/permission/index';
 import ProductTab from './../components/ProductTab.vue';
-import { downGs, downSc } from '@/api/project/project';
+import { downGs } from '@/api/project/project';
 import DateExport from './components/DateExport.vue';
+import ScheduleExport from './components/ScheduleExport.vue';
 
 const { t } = useI18n();
 const pageStore = useProjectsStore();
@@ -90,18 +88,6 @@ const report = () => {
     })
     .finally(() => {
       downloading.value = false;
-    });
-};
-
-const downloadingSchedule = ref(false);
-const reportSchedule = () => {
-  downloadingSchedule.value = true;
-  downSc({ ...pageStore.searchParams, sta: pageStore.sta })
-    .then((res) => {
-      window.open(res);
-    })
-    .finally(() => {
-      downloadingSchedule.value = false;
     });
 };
 </script>

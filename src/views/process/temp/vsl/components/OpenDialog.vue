@@ -147,13 +147,14 @@ const submitHandle = async () => {
       start_date: startDate.value,
       end_date: endDate.value,
       uuid: props.uuid,
-      code: props.blockInfo.loan.code,
+      // code: props.blockInfo.loan.code,
+      code: 'lending',
       do__open: 1
     };
 
-    const isRefinancial = props.lendingInfo?.data?.substitution_ids && props.lendingInfo?.data?.substitution_ids.length;
+    // const isRefinancial = props.lendingInfo?.data?.substitution_ids && props.lendingInfo?.data?.substitution_ids.length;
 
-    if (props.infoData.lending.start_date !== startDate.value || Boolean(isRefinancial)) {
+    if (props.infoData.lending.start_date !== startDate.value) {
       await projectAuditSaveMode(loadParams)
         .then(() => {
           submitRquest();

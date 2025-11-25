@@ -347,7 +347,7 @@ export default {
   "FC2": "FACILITY LIMIT 2",
   "UPD": "UPD",
   "选择利益相关者": "Select stakeholders",
-  "项目": "projects",
+  "项目": "Projects",
   "项目文件": "Documents",
   "文件": "Documents",
   "预测": "Forecast",

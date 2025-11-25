@@ -561,7 +561,7 @@
         }
         if (forecastListRef.value?.remainInfo) {
           const { loanRemainMoney, vsRemainMoney, bocRemainMoney } = forecastListRef.value?.remainInfo
-          if (loanRemainMoney) {
+          if (vsRemainMoney || bocRemainMoney || loanRemainMoney) {
             let txt = ''
             if (vsRemainMoney) {
               const flag = vsRemainMoney > 0 ? t('还差') : t('超额')
@@ -571,8 +571,10 @@
               const flag = bocRemainMoney > 0 ? t('还差') : t('超额')
               txt += `${t('BOC放款')} ${flag} $${numberStrFormat(bocRemainMoney)}; `
             }
-            const flag = loanRemainMoney > 0 ? t('还差') : t('超额')
-            txt += `${t('总共')} ${flag} $${numberStrFormat(loanRemainMoney)}`
+            if (loanRemainMoney) {
+              const flag = loanRemainMoney > 0 ? t('还差') : t('超额')
+              txt += `${t('总共')} ${flag} $${numberStrFormat(loanRemainMoney)}`
+            }
             
             tipsTxt.value = txt
             saveTipsVisible.value = true

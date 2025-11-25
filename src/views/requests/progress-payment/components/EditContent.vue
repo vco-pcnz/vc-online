@@ -28,6 +28,7 @@
             <p class="name mb-2">{{ t('BOC放款期数') }}</p>
             <a-select
               class="w-full"
+              allowClear
               :options="bocTermOptions"
               v-model:value="currentSplitObj.boc.term"
             ></a-select>
@@ -38,6 +39,7 @@
             <p class="name mb-2">{{ t('BOC放款') }}</p>
             <a-input-number
               v-model:value="currentSplitObj.boc.amount"
+              :controls="false"
               :min="0"
               :max="currentSplitObj.total_amount"
               :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
@@ -48,7 +50,10 @@
           </div>
         </a-col>
       </a-row>
-      <div class="mt-5 flex justify-center">
+      <div class="mt-5 flex justify-center gap-5">
+        <a-button type="grey" class="big shadow bold uppercase"
+          @click="selectClearHandle"
+        >{{ t('清除') }}</a-button>
         <a-button type="dark" class="big shadow bold uppercase"
           @click="selectSureHandle"
         >{{ t('确定') }}</a-button>
@@ -1713,12 +1718,27 @@
     currentSplitObj.value.vsl.amount = Number(tool.minus(currentSplitObj.value.total_amount, currentSplitObj.value.boc.amount))
   }
 
+  const selectClearHandle = () => {
+    currentSplitObj.value.boc.amount = 0
+    currentSplitObj.value.boc.term = ''
+  }
+
   const selectSureHandle = () => {
     const obj = cloneDeep(currentSplitObj.value)
     const type = obj.type
     const bocAmount = obj.boc.amount
     const vslAmount = obj.vsl.amount
     const term = obj.boc.term
+
+    if (bocAmount && !term) {
+      message.error(t('请选择BOC放款期数'))
+      return false
+    }
+
+    if (term && !bocAmount) {
+      message.error(t('请填写BOC放款金额'))
+      return false
+    }
 
     bocSplitObjRef.value[type].boc.amount = bocAmount
     bocSplitObjRef.value[type].boc.term = term

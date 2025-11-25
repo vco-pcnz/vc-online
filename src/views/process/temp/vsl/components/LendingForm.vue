@@ -44,7 +44,8 @@
     <!-- 确认弹窗 -->
     <vco-confirm-alert
       ref="changeAlertRef"
-      :confirm-txt="confirmTxt"
+      :confirm-txt="tipsTxt || confirmTxt"
+      :show-close="!!tipsTxt"
       v-model:visible="changeVisible"
       @submit="submitRquest"
     ></vco-confirm-alert>
@@ -558,6 +559,8 @@
   const userStore = useUserStore();
 
   const isNormalUser = computed(() => userStore.isNormalUser);
+  const bocRemainInfo = computed(() => processStore.bocRemainInfo)
+  const bocForcastDone = computed(() => processStore.bocForcastDone)
 
   const props = defineProps({
     lendingInfo: {
@@ -949,6 +952,7 @@
     
     const params = {
       uuid: props.currentId,
+      estab_type: formState.value.estab_type,
       build_amount: Number(build_amount || 0),
       land_amount: Number(land_amount || 0),
       equity_amount: Number(equity_amount || 0),
@@ -972,7 +976,7 @@
   }
 
   // 防抖版本的计算方法
-  const debouncedEstablishCalculate = debounce(establishCalculateHandle, 300)
+  const debouncedEstablishCalculate = debounce(establishCalculateHandle, 1000)
 
   const percentInput = (key) => {
     // 中介费率修改
@@ -1020,20 +1024,20 @@
       const data = res || [];
 
       // 增加BOC放款月份
-      const bocPeriod = {
-        min: 0,
-        max: 0,
-        credit_name: 'No. of BOC drawdown',
-        credit_table: 'drawdown_term',
-        is_req: 1,
-        value: 0,
-        is_static: true,
-        disabled: !Boolean(props.blockInfo.showEdit),
-        is_write: 1,
-        is_ratio: false,
-        is_int: true
-      }
-      data.push(bocPeriod)
+      // const bocPeriod = {
+      //   min: 0,
+      //   max: 0,
+      //   credit_name: 'No. of BOC drawdown',
+      //   credit_table: 'drawdown_term',
+      //   is_req: 1,
+      //   value: 0,
+      //   is_static: true,
+      //   disabled: !Boolean(props.blockInfo.showEdit),
+      //   is_write: 1,
+      //   is_ratio: false,
+      //   is_int: true
+      // }
+      // data.push(bocPeriod)
 
       const writeData = data.filter((item) => item.is_write);
 
@@ -1255,16 +1259,49 @@
   };
 
   const submitRquest = async () => {
+    if (tipsTxt.value) {
+      tipsTxt.value = ''
+      return false
+    }
+
     await checkHandle(true)
     changeAlertRef.value.changeLoading(false)
     changeVisible.value = false
   }
+
+  const tipsTxt = ref('')
 
   const checkHandle = async (flag = false) => {
     const build_amount = Number(props.dataInfo.lending.build_amount)
     const hasBuild = Boolean(Number(props.lendingInfo.has_build))
     if (build_amount && !hasBuild) {
       message.error(t('请先设置建筑贷款总额的进度付款信息'))
+      return false
+    }
+
+    if (!bocForcastDone.value) {
+      message.error(t('请等待预测表数据加载完成'))
+      return false
+    }
+
+    const { loanRemainMoney, vsRemainMoney, bocRemainMoney } = bocRemainInfo.value
+    if (vsRemainMoney || bocRemainMoney || loanRemainMoney) {
+      let txt = ''
+      if (vsRemainMoney) {
+        const flag = vsRemainMoney > 0 ? t('还差') : t('超额')
+        txt += `${t('VS放款')} ${flag} $${numberStrFormat(vsRemainMoney)}; `
+      }
+      if (bocRemainMoney) {
+        const flag = bocRemainMoney > 0 ? t('还差') : t('超额')
+        txt += `${t('BOC放款')} ${flag} $${numberStrFormat(bocRemainMoney)}; `
+      }
+      if (loanRemainMoney) {
+        const flag = loanRemainMoney > 0 ? t('还差') : t('超额')
+        txt += `${t('总共')} ${flag} $${numberStrFormat(loanRemainMoney)}`
+      }
+      
+      tipsTxt.value = txt
+      changeVisible.value = true
       return false
     }
 

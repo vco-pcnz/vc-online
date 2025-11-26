@@ -22,16 +22,6 @@
               </div>
               <p class="color_grey mt-1 mb-3">{{ t('您可以帮助他们创建提款。') }}</p>
 
-              <drawdown-request :uuid="uuid" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update(true)">
-                <a-button type="brown" shape="round" size="small">{{ t('创建放款') }}</a-button>
-              </drawdown-request>
-            </div>
-            <div class="HelpBorrower" v-else-if="hasPermission('projects:drawdowns:add')">
-              <div class="flex items-center">
-                <i class="iconfont mr-2">&#xe755;</i><span class="weight_demiBold">{{ t('放款申请') }}</span>
-              </div>
-              <p class="color_grey mt-1 mb-3">{{ t('点击下方按钮创建放款申请') }}</p>
-
               <template v-if="projectDetail.product.code === 'vsl'">
                 <drawdown-request-vsl :uuid="uuid" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update(true)">
                   <a-button type="brown" shape="round" size="small">{{ t('创建放款') }}</a-button>
@@ -42,6 +32,15 @@
                   <a-button type="brown" shape="round" size="small">{{ t('创建放款') }}</a-button>
                 </drawdown-request>
               </template>
+            </div>
+            <div class="HelpBorrower" v-else-if="hasPermission('projects:drawdowns:add')">
+              <div class="flex items-center">
+                <i class="iconfont mr-2">&#xe755;</i><span class="weight_demiBold">{{ t('放款申请') }}</span>
+              </div>
+              <p class="color_grey mt-1 mb-3">{{ t('点击下方按钮创建放款申请') }}</p>
+              <drawdown-request :uuid="uuid" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update(true)">
+                <a-button type="brown" shape="round" size="small">{{ t('创建放款') }}</a-button>
+              </drawdown-request>
             </div>
           </template>
         </div>

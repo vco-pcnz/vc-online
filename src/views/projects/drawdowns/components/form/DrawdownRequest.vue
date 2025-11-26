@@ -14,30 +14,6 @@
               <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.apply_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" :showToday="false" />
             </div>
 
-            <div v-if="projectDetail.product.code === 'vsl'" class="input-item" style="margin: 15.5px 0">
-              <div class="label flex items-center">
-                <span class="label mr-3" style="padding-bottom: 0" :class="{ err: !formState.source && validate }">{{ t('贷款方') }}</span>
-                <vco-tip w="200px">
-                  <span class="">{{ t('可用余额') }}</span>
-                  <template #content>
-                    <p>VS : {{ tool.formatMoney(tool.plus(projectDetail?.vslInfo?.vs_remaining_loan_money, detail_amount)) }}</p>
-                    <p>BOC : {{ tool.formatMoney(tool.plus(projectDetail?.vslInfo?.boc_remaining_loan_money, detail_amount)) }}</p>
-                  </template>
-                </vco-tip>
-              </div>
-              <a-select style="width: 100%" v-model:value="formState.source">
-                <a-select-option :value="item.value" v-for="item in LenderData" :key="item.value">
-                  <div class="flex items-center">
-                    <span class="mr-3">{{ t(item.label) }}</span>
-                    <div style="font-size: 10px; opacity: 0.6">
-                      <p v-if="item.value == 0">{{ t('可用余额') }}: {{ tool.formatMoney(tool.plus(projectDetail?.vslInfo?.vs_remaining_loan_money, detail_amount)) }}</p>
-                      <p v-else>{{ t('可用余额') }}: {{ tool.formatMoney(tool.plus(projectDetail?.vslInfo?.boc_remaining_loan_money, detail_amount)) }}</p>
-                    </div>
-                  </div>
-                </a-select-option>
-              </a-select>
-            </div>
-
             <div class="input-item">
               <vco-tip style="padding-bottom: 5px" :tip="t('此说明内容将显示在交易记录中')">
                 <div class="label" style="padding: 0" :class="{ err: !formState.note && validate }">{{ t('说明') }}</div>
@@ -54,8 +30,7 @@
               <vco-tip style="padding-bottom: 5px" :tip="t('此消息针对 FC 的批准评论')">
                 <div class="label" style="padding: 0">{{ t('消息') }}</div>
               </vco-tip>
-              <a-textarea v-if="projectDetail.product.code === 'vsl'" v-model:value="formState.remark" :rows="hasPermission('projects:drawdowns:add') ? 18 : 14" />
-              <a-textarea v-else v-model:value="formState.remark" :rows="hasPermission('projects:drawdowns:add') ? 14 : 10" />
+              <a-textarea v-model:value="formState.remark" :rows="hasPermission('projects:drawdowns:add') ? 14 : 10" />
             </div>
           </a-col>
           <a-col :span="24" v-if="!hasPermission('projects:drawdowns:add')">
@@ -151,7 +126,6 @@ const LenderData = ref([
 const formState = ref({
   uuid: '',
   name: '',
-  source: '',
   note: '',
   remark: '',
   other_note: '',
@@ -200,13 +174,10 @@ const save = (tip) => {
   formState.value.d_file = formModal2.value.filter((item) => {
     return item.files && item.files.length;
   });
+  
   formState.value.p_file = formModal3.value.filter((item) => {
     return item.files && item.files.length;
   });
-
-  if (props.projectDetail.product.code === 'vsl') {
-    if (!formState.value.source) return;
-  }
 
   let amount = tool.plus(tool.plus(formState.value.build_money || 0, formState.value.land_money || 0), tool.plus(formState.value.equity_money || 0, formState.value.other_money || 0));
   if (hasPermission('projects:drawdowns:add')) {
@@ -226,31 +197,6 @@ const save = (tip) => {
   let available = props.statisticsData?.available;
   if (props.detail?.id) {
     available = tool.plus(Number(props.statisticsData?.available), Number(detail_amount.value));
-  }
-
-  if (props.projectDetail.product.code === 'vsl') {
-    let vsl_available = formState.value.source == '0' ? props.projectDetail?.vslInfo.vs_remaining_loan_money : props.projectDetail?.vslInfo.boc_remaining_loan_money;
-
-    if (Number(amount) > Number(vsl_available) && formState.value.source == '0' && tool.plus(props.projectDetail?.vslInfo?.boc_remaining_loan_money, detail_amount.value) > 0) {
-      visibleTip.value = true;
-      confirmTxt.value =
-        '<div style="text-align:left;text-indent: 2rem;">' +
-        t('BOC剩余金额是{0},确定要进行VS放款吗？', [tool.formatMoney(tool.plus(props.projectDetail?.vslInfo?.boc_remaining_loan_money, detail_amount.value))]) +
-        '<br/>' +
-        '<div style="text-indent: 2rem;">' +
-        t('放款金额 {0},可用金额 {1},{2}超出金额 {3} 是否继续放款?', [tool.formatMoney(amount), formState.value.source == '0' ? 'VS ' : 'BOC ', tool.formatMoney(vsl_available), tool.formatMoney(tool.minus(amount, vsl_available))]);
-      +'<div>' + '<div>';
-      return;
-    } else if (Number(amount) > Number(vsl_available)) {
-      vsl_available = tool.plus(vsl_available, detail_amount.value);
-      visibleTip.value = true;
-      confirmTxt.value = t('放款金额 {0},可用金额 {1},{2}超出金额 {3} 是否继续放款?', [tool.formatMoney(amount), formState.value.source == '0' ? 'VS' : 'BOC', tool.formatMoney(vsl_available), tool.formatMoney(tool.minus(amount, vsl_available))]);
-      return;
-    } else if (formState.value.source == '0' && tool.plus(props.projectDetail?.vslInfo?.boc_remaining_loan_money, detail_amount.value) > 0) {
-      visibleTip.value = true;
-      confirmTxt.value = t('BOC剩余金额是{0},确定要进行VS放款吗？', [tool.formatMoney(tool.plus(props.projectDetail?.vslInfo?.boc_remaining_loan_money, detail_amount.value))]);
-      return;
-    }
   }
 
   if (Number(amount) > Number(available)) {
@@ -329,7 +275,6 @@ const init = () => {
     initData();
   } else {
     formState.value.name = '';
-    formState.value.source = '';
     formState.value.note = 'Development Drawdown';
     formState.value.remark = '';
     formState.value.apply_date = '';
@@ -401,7 +346,6 @@ const initData = () => {
   isEdit.value = true;
   let keys = ['name', 'note', 'remark', 'other_note', 'apply_date', 'other_type', 'build_money', 'land_money', 'equity_money', 'other_money', 'vip_amount'];
   const newData = pick(props.detail, keys);
-  newData['source'] = props.detail?.forecast?.source + '';
   Object.assign(formState.value, newData);
   if (props.detail?.buildlog) {
     formState.value.build__data = props.detail?.buildlog;

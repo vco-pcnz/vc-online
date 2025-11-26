@@ -132,7 +132,7 @@
                 />
               </a-form-item>
             </a-col>
-            <a-col v-if="formState.all_repayment === 1" :span="6">
+            <a-col v-if="formState.all_repayment === 1 && !isNormalUser" :span="6">
               <a-form-item>
                 <template #label>
                   <div class="flex items-center gap-1">
@@ -155,7 +155,7 @@
                 </a-button>
               </a-form-item>
             </a-col>
-            <a-col v-if="formState.all_repayment === 1" :span="24">
+            <a-col v-if="formState.all_repayment === 1 && !isNormalUser" :span="24">
               <extra-item v-model="extraData" :repayment-amount="repaymentAmount"></extra-item>
             </a-col>
             <a-col :span="24">
@@ -329,8 +329,7 @@ const refreshIrr = () => {
   }
 
   projectLoanCalcIrr(params).then(res => {
-    // irrPercent.value = Number(res.irr || 0) < 0 ? 0 : Number(res.irr || 0)
-    irrPercent.value = res.irr
+    irrPercent.value = Number(res.irr || 0) < 0 ? 0 : Number(res.irr || 0)
     irrLoading.value = false
   }).catch(() => {
     irrLoading.value = false

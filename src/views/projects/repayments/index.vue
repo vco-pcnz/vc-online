@@ -15,12 +15,10 @@
                 <template v-if="isNormalUser">
                   <div class="flex items-center"><i class="iconfont mr-2">&#xe757;</i><span class="weight_demiBold">{{ t('还款申请') }}</span></div>
                   <p class="color_grey mt-1 mb-3">{{ t('点击下方按钮创建还款申请') }}</p>
-                  <Drawdown-request-vsl v-if="projectDetail.product.code === 'vsl'" :uuid="uuid" :projectDetail="projectDetail" @change="update">
+                  
+                  <drawdown-request :uuid="uuid" :projectDetail="projectDetail" @change="update">
                     <a-button type="brown" shape="round" size="small">{{ t('创建还款') }}</a-button>
-                  </Drawdown-request-vsl>
-                  <drawdownre-quest v-else :uuid="uuid" :projectDetail="projectDetail" @change="update">
-                    <a-button type="brown" shape="round" size="small">{{ t('创建还款') }}</a-button>
-                  </drawdownre-quest>
+                  </drawdown-request>
                 </template>
                 <template v-else>
                   <div class="flex items-center"><i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">{{ t('帮助借款人') }}</span></div>

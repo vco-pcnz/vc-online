@@ -21,16 +21,10 @@
                 <i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">{{ t('帮助借款人') }}</span>
               </div>
               <p class="color_grey mt-1 mb-3">{{ t('您可以帮助他们创建提款。') }}</p>
-              <template v-if="projectDetail.product.code === 'vsl'">
-                <drawdown-Request-vsl :uuid="uuid" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update(true)">
-                  <a-button type="brown" shape="round" size="small">{{ t('创建放款') }}</a-button>
-                </drawdown-Request-vsl>
-              </template>
-              <template v-else>
-                <drawdown-Request :uuid="uuid" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update(true)">
-                  <a-button type="brown" shape="round" size="small">{{ t('创建放款') }}</a-button>
-                </drawdown-Request>
-              </template>
+
+              <drawdown-request :uuid="uuid" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update(true)">
+                <a-button type="brown" shape="round" size="small">{{ t('创建放款') }}</a-button>
+              </drawdown-request>
             </div>
             <div class="HelpBorrower" v-else-if="hasPermission('projects:drawdowns:add')">
               <div class="flex items-center">
@@ -39,14 +33,14 @@
               <p class="color_grey mt-1 mb-3">{{ t('点击下方按钮创建放款申请') }}</p>
 
               <template v-if="projectDetail.product.code === 'vsl'">
-                <drawdown-Request-vsl :uuid="uuid" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update(true)">
+                <drawdown-request-vsl :uuid="uuid" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update(true)">
                   <a-button type="brown" shape="round" size="small">{{ t('创建放款') }}</a-button>
-                </drawdown-Request-vsl>
+                </drawdown-request-vsl>
               </template>
               <template v-else>
-                <drawdown-Request :uuid="uuid" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update(true)">
+                <drawdown-request :uuid="uuid" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update(true)">
                   <a-button type="brown" shape="round" size="small">{{ t('创建放款') }}</a-button>
-                </drawdown-Request>
+                </drawdown-request>
               </template>
             </div>
           </template>

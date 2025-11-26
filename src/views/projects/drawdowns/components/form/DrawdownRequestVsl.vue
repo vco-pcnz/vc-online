@@ -14,7 +14,7 @@
               <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.apply_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" :showToday="false" />
             </div>
 
-            <div v-if="projectDetail.product.code === 'vsl'" class="input-item" style="margin: 15.5px 0">
+            <div v-if="projectDetail.product.code === 'vsl' && !hasPermission('projects:drawdowns:add')" class="input-item" style="margin: 15.5px 0">
               <div class="label flex items-center">
                 <span class="label mr-3" style="padding-bottom: 0" :class="{ err: !formState.source && validate }">{{ t('贷款方') }}</span>
                 <vco-tip w="200px">
@@ -71,7 +71,7 @@
               <vco-tip style="padding-bottom: 5px" :tip="t('此消息针对 FC 的批准评论')">
                 <div class="label" style="padding: 0">{{ t('消息') }}</div>
               </vco-tip>
-              <a-textarea v-if="projectDetail.product.code === 'vsl'" v-model:value="formState.remark" :rows="hasPermission('projects:drawdowns:add') ? 18 : 14" />
+              <a-textarea v-if="projectDetail.product.code === 'vsl'" v-model:value="formState.remark" :rows="hasPermission('projects:drawdowns:add') ? 14 : 14" />
               <a-textarea v-else v-model:value="formState.remark" :rows="hasPermission('projects:drawdowns:add') ? 14 : 10" />
             </div>
           </a-col>
@@ -236,7 +236,7 @@ const save = (tip) => {
     return item.files && item.files.length;
   });
 
-  if (props.projectDetail.product.code === 'vsl') {
+  if (props.projectDetail.product.code === 'vsl' && !hasPermission('projects:drawdowns:add')) {
     if (!formState.value.source) return;
     if (formState.value.source == 1 && !formState.value.draw_term) return;
   }
@@ -471,7 +471,6 @@ const sourceChange = () => {
     formState.value.build_money = 0;
   }
 };
-
 </script>
 <style scoped lang="less">
 @import '@/styles/variables.less';

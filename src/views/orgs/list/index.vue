@@ -143,7 +143,7 @@ watch([sortType, sortValue], ([newSortType, newSortValue]) => {
 .cidBox {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 20px;
   .cidBoxItem {
     display: block;
     background-color: #f3ede5;

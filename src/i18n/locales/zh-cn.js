@@ -1279,5 +1279,6 @@ export default {
   "请选择BOC放款期数": "请选择BOC放款期数",
   "请填写BOC放款金额": "请填写BOC放款金额",
   "VSL总计": "VSL总计",
-  "BOC总放款": "BOC总放款"
+  "BOC总放款": "BOC总放款",
+  "BOC放款金额": "BOC放款金额"
 }

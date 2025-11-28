@@ -6,39 +6,20 @@
     <!-- 首次放款选择弹窗 -->
     <a-modal
       :open="selectVisible"
-      :title="t('进度付款阶段')"
-      :width="1500"
+      :title="t('BOC放款')"
+      :width="1200"
       :footer="null"
       :keyboard="false"
       :maskClosable="false"
       class="middle-position"
       @cancel="selectVisible = false"
     >
-      <view-content
+      <boc-view-content
         v-if="selectVisible"
         :is-select="!isDetails && !amountDisabled"
-        :show-process="true"
         :selected-data="selectedData"
         @selectDone="selectDoneHandle"
-      ></view-content>
-    </a-modal>
-
-    <!-- vsl 首次BOC放款详情 -->
-    <a-modal
-      :open="bocDetailVisible"
-      :title="t('BOC放款详情')"
-      :width="1000"
-      :footer="null"
-      :keyboard="false"
-      :maskClosable="false"
-      class="middle-position"
-      @cancel="bocDetailVisible = false"
-    >
-      <boc-content
-        v-if="bocDetailVisible"
-        :step-number="1"
-        @done="bocDetailVisible = false"
-      ></boc-content>
+      ></boc-view-content>
     </a-modal>
     
     <!-- 确认弹窗 -->
@@ -300,9 +281,9 @@
                     type="link"
                     style="font-size: 12px; height: auto !important;"
                     class="flex items-center"
-                    @click="bocDetailVisible = true"
+                    @click="selectVisible = true"
                   >
-                    <p>{{ t('详情') }}</p>
+                    <p>{{ isDetails ? t('详情') : (amountDisabled ? t('详情') : t('选择')) }}</p>
                     <i class="iconfont" style="font-size: 12px;">&#xe602;</i>
                   </a-button>
                 </div>
@@ -545,8 +526,7 @@
   import useProcessStore from '@/store/modules/process';
   import tool, { navigationTo, numberStrFormat, selectDateFormat } from '@/utils/tool';
   import DevCostDetail from './DevCostDetail.vue';
-  import ViewContent from '@/views/requests/progress-payment/components/ViewContent.vue';
-  import BocContent from '@/views/requests/progress-payment/components/BocContent.vue';
+  import BocViewContent from '@/views/requests/progress-payment/components/BocViewContent.vue';
   import dayjs from 'dayjs';
 
   const processStore = useProcessStore();
@@ -1223,8 +1203,8 @@
     timeChange(formState.value.time_date)
 
     // 首次放款建筑费用
-    if (props.lendingInfo.buildlog && props.lendingInfo.buildlog.length) {
-      selectedData.value = props.lendingInfo.buildlog
+    if (props.lendingInfo.progressLog && props.lendingInfo.progressLog.length) {
+      selectedData.value = props.lendingInfo.progressLog
     }
 
     staticFormData.value = cloneDeep({
@@ -1351,7 +1331,7 @@
 
     const formParams = cloneDeep(saveParams.value)
     if (selectedData.value) {
-      formParams.build__data = selectedData.value
+      formParams.progress__data = selectedData.value
     }
 
     await projectAuditSaveMode(formParams)
@@ -1546,15 +1526,15 @@
 
   const selectVisible = ref(false)
   const selectDoneHandle = (data) => {
-    const build__data = cloneDeep(data.build__data)
-    selectedData.value = build__data
+    const progress__data = cloneDeep(data.progress__data)
+    selectedData.value = progress__data
     formState.value.initial_build_amount = data.total
     selectVisible.value = false
 
     setSingleFormData({
       code: props.blockInfo.code,
       uuid: props.currentId,
-      build__data,
+      progress__data,
       initial_build_amount: data.total || 0,
       initial_land_amount: formState.value.initial_land_amount || 0,
       initial_equity_amount: formState.value.initial_equity_amount || 0,
@@ -1562,8 +1542,6 @@
       set__initial: 1
     })
   }
-
-  const bocDetailVisible = ref(false)
   
   onMounted(() => {
     isRefinancial.value = Boolean(props.lendingInfo.substitution_ids && props.lendingInfo?.substitution_ids?.length)

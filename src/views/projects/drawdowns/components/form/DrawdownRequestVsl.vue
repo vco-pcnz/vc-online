@@ -57,28 +57,8 @@
               <a-textarea v-else v-model:value="formState.remark" :rows="hasPermission('projects:drawdowns:add') ? 14 : 10" />
             </div>
           </a-col>
-          <a-col :span="24" v-if="formState.source == 1">
-            <div class="input-item" style="margin: 15.5px 0" v-if="formState.source == 1">
-              <div class="label">
-                {{ t('BOC放款金额') }}
-              </div>
-
-              <div class="flex gap-2 items-center">
-                <a-input-number
-                  @click="selectVisible = true"
-                  :readonly="true"
-                  v-model:value="formState.build_money"
-                  :max="99999999999"
-                  :min="0"
-                  :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                />
-                <a-button type="brown" style="min-width: 80px; padding: 0; border-radius: 10px" class="big" size="small" @click="bocDetailVisible = true">{{ t('选择') }}</a-button>
-              </div>
-            </div>
-          </a-col>
-          <a-col :span="24" v-if="!hasPermission('projects:drawdowns:add') && formState.source != 1">
-            <ProgressPayment ref="ProgressPaymentRef" :visible="visible" :validate="validate" :data="formState" @change="updateformState" :projectDetail="projectDetail"></ProgressPayment>
+          <a-col :span="24" v-if="!hasPermission('projects:drawdowns:add')">
+            <ProgressPayment ref="ProgressPaymentRef" :visible="visible" :validate="validate" :data="formState" :source="formState.source" @change="updateformState" :projectDetail="projectDetail"></ProgressPayment>
           </a-col>
         </a-row>
         <p class="my-5 bold fs_xl">Documents</p>
@@ -114,10 +94,6 @@
     </a-modal>
   </div>
   <vco-confirm-alert v-model:visible="visibleTip" :confirmTxt="confirmTxt" @submit="submit"></vco-confirm-alert>
-  <!-- vsl BOC放款详情 -->
-  <a-modal v-if="bocDetailVisible" :open="bocDetailVisible" :title="t('BOC放款详情')" :width="1000" :footer="null" :keyboard="false" :maskClosable="false" class="middle-position" @cancel="bocDetailVisible = false">
-    <boc-content v-if="bocDetailVisible" :step-number="1" @done="bocDetailVisible = false"></boc-content>
-  </a-modal>
 </template>
 
 <script scoped setup>
@@ -161,7 +137,6 @@ const formModal2 = ref([]);
 const visibleTip = ref(false);
 const confirmTxt = ref('');
 const formModal3 = ref([]);
-const bocDetailVisible = ref(false);
 const LenderData = ref([
   {
     label: 'VS',
@@ -188,6 +163,7 @@ const formState = ref({
   other_money: 0,
   vip_amount: '',
   build__data: [],
+  progress__data: [],
   p_file: [],
   d_file: []
 });
@@ -369,6 +345,7 @@ const init = () => {
     formState.value.other_money = '';
     formState.value.vip_amount = '';
     formState.value.build__data = [];
+    formState.value.progress__data = [];
   }
 
   annexSel({ apply_uuid: props.uuid, type: 2 }).then((res) => {
@@ -430,6 +407,11 @@ const initData = () => {
   Object.assign(formState.value, newData);
   if (props.detail?.buildlog) {
     formState.value.build__data = props.detail?.buildlog;
+    if (ProgressPaymentRef.value) ProgressPaymentRef.value.init();
+  }
+
+  if (props.detail?.progress_log) {
+    formState.value.progress__data = props.detail?.progress_log;
     if (ProgressPaymentRef.value) ProgressPaymentRef.value.init();
   }
 

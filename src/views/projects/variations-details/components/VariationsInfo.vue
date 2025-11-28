@@ -274,7 +274,7 @@ const changeCostAfter = computed(() => {
   if ([2, 5].includes(Number(variationsInfo.value.type))) {
     resNum = tool.minus(props.detail?.credit?.right?.devCost || 0, changeNum)
   }
-
+  
   if ([3].includes(Number(variationsInfo.value.type))) {
     resNum = props.detail?.credit?.right?.devCost || 0
   }

@@ -96,7 +96,7 @@
           <template v-if="!isDetails">
             <a-col :span="8">
               <a-form-item :label="t('是否有Linefee')" name="has_linefee">
-                <a-switch :disabled="amountDisabled || inputADis" v-model:checked="formState.has_linefee" :checkedValue="1" :unCheckedValue="0" @change="linefeeFilter" />
+                <a-switch :disabled="amountDisabled || inputADis" v-model:checked="formState.has_linefee" :checkedValue="1" :unCheckedValue="0" @change="linefeeSwitchChange" />
               </a-form-item>
             </a-col>
             <template v-if="showCompare">
@@ -533,7 +533,7 @@
 </template>
 
 <script setup>
-  import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
+  import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue';
   import { RightOutlined } from '@ant-design/icons-vue';
   import { useI18n } from 'vue-i18n';
   import { useRoute } from 'vue-router';
@@ -862,48 +862,28 @@
     let changeBack = cloneDeep(changeBackItemsStore.value)
     let showNum = cloneDeep(showNumItemsStore.value)
 
-    if (formState.value.has_linefee === 0) {
-      percentData = percentData.filter(item => !item.is_linefee)
-      dollarData = dollarData.filter(item => !item.is_linefee)
-      changeBack = changeBack.filter(item => !item.is_linefee)
-      showNum = showNum.filter(item => !item.is_linefee)
+    percentData = percentData.filter(item => !item.is_linefee)
+    dollarData = dollarData.filter(item => !item.is_linefee)
+    changeBack = changeBack.filter(item => !item.is_linefee)
+    showNum = showNum.filter(item => !item.is_linefee)
 
-      // 建立费、建立费率
-      const estabData = []
-      const estabFeeRateIndex = percentData.findIndex(item => item.credit_table === 'credit_estabFeeRate')
-      if (estabFeeRateIndex > -1) {
-        estabData.push(percentData[estabFeeRateIndex])
-      }
-      const estabFeeIndex = showNum.findIndex(item => item.credit_table === 'credit_estabFee')
-      if (estabFeeIndex > -1) {
-        const estabItem = cloneDeep(showNum[estabFeeIndex])
-        estabItem.editMark = percentData[estabFeeRateIndex].editMark
-        formState.value['credit_estabFee'] = showNum[estabFeeIndex].value
-        estabData.push(estabItem)
-      }
-      if (!formRules.value['credit_estabFee']) {
-        formRules.value['credit_estabFee'] = [
-          {
-            required: true,
-            message: t('请输入') + '建立费',
-            trigger: 'blur',
-          }
-        ]
-      }
-      estabItems.value = estabData
-
-      // 没有lineFee, 建立费输入
-      percentData = percentData.filter(item => item.credit_table !== 'credit_estabFeeRate')
-      showNum = showNum.filter(item => item.credit_table !== 'credit_estabFee')
-    } else {
-      estabItems.value = []
-
-      formState.value['credit_estabFee'] = ''
-
-      if (formRules.value['credit_estabFee']) {
-        delete formRules.value['credit_estabFee']
-      }
+    // 建立费、建立费率
+    const estabData = []
+    const estabFeeRateIndex = percentData.findIndex(item => item.credit_table === 'credit_estabFeeRate')
+    if (estabFeeRateIndex > -1) {
+      estabData.push(percentData[estabFeeRateIndex])
     }
+    const estabFeeIndex = dollarData.findIndex(item => item.credit_table === 'credit_estabFee')
+    if (estabFeeIndex > -1) {
+      const estabItem = cloneDeep(dollarData[estabFeeIndex])
+      estabItem.editMark = percentData[estabFeeRateIndex].editMark
+      estabData.push(estabItem)
+    }
+    estabItems.value = estabData
+
+    // 建立费输入
+    percentData = percentData.filter(item => item.credit_table !== 'credit_estabFeeRate')
+    dollarData = dollarData.filter(item => item.credit_table !== 'credit_estabFee')
 
     percentItems.value = percentData
     dollarItems.value = dollarData;
@@ -959,9 +939,6 @@
   }
 
   const establishCalculateHandle = () => {
-    if (formState.value.has_linefee) {
-      return false;
-    }
     const {
       time_date,
       estab_type,
@@ -986,6 +963,7 @@
       uuid: props.currentId,
       project: {
         estab_type,
+        has_linefee: formState.value.has_linefee,
         start_date: dayjs(time_date[0]).format('YYYY-MM-DD'),
         end_date: dayjs(time_date[1]).format('YYYY-MM-DD'),
         land_amount: Number(land_amount || 0),
@@ -1021,6 +999,13 @@
 
    // 防抖版本的计算方法
   const debouncedEstablishCalculate = debounce(establishCalculateHandle, 300)
+
+  const linefeeSwitchChange = () => {
+    linefeeFilter()
+    nextTick(() => {
+      debouncedEstablishCalculate()
+    })
+  }
 
   const percentInput = (key) => {
     // 中介费率修改
@@ -1066,7 +1051,7 @@
 
       const rulesData = {};
       for (let i = 0; i < writeData.length; i++) {
-        formState.value[writeData[i].credit_table] = writeData[i].value;
+        formState.value[writeData[i].credit_table] = writeData[i].value || '';
         rulesData[writeData[i].credit_table] = [
           { validator: getValidateInfo(writeData[i]), trigger: 'blur' },
         ];

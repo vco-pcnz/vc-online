@@ -136,4 +136,10 @@ export const projectVariationSecurityList = (params) =>
     params
   });
 
-  
+// 变更流程 - BOC建立费计算
+export const projectVariationEstablishCalculate = (data) =>
+  request({
+    url: 'project/variation/establishCalculate?',
+    method: 'post',
+    data
+  });

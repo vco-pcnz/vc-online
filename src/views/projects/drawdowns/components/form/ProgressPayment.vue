@@ -12,6 +12,17 @@
       @selectDone="selectDoneHandle"
     ></view-content>
   </a-modal>
+
+  <!-- boc放款选择 -->
+  <a-modal :open="bocVisible" :title="t('BOC放款')" :width="1000" :footer="null" :keyboard="false" :maskClosable="false" class="middle-position" @cancel="bocVisible = false">
+    <boc-view-content
+      v-if="bocVisible"
+      :selected-data="bocSelectedData"
+      :is-select="isEdit"
+      @selectDone="bocSelectDoneHandle"
+    ></boc-view-content>
+  </a-modal>
+
   <div class="input-item" style="margin-top: 16px" v-if="!keepShowOther">
     <div class="label" :class="{ err: !formState.build_money && validate && !showOther }">{{ t('进度款') }}</div>
     <div class="flex gap-2 items-center">
@@ -25,6 +36,7 @@
         :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
       />
       <a-button type="brown" style="min-width: 80px; padding: 0; border-radius: 10px" class="big" size="small" @click="selectVisible = true">{{ t('选择') }}</a-button>
+      <!-- <a-button type="brown" style="min-width: 80px; padding: 0; border-radius: 10px" class="big" size="small" @click="bocVisible = true">{{ t('选择') }}</a-button> -->
       <i class="iconfont add" v-if="isEdit" :style="{ transform: showOther ? 'rotate(0deg)' : 'rotate(45deg)' }" @click="updateShowOther()">&#xe781;</i>
     </div>
   </div>
@@ -115,6 +127,7 @@ import { ref, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import ViewContent from '@/views/requests/progress-payment/components/ViewContent.vue';
+import BocViewContent from '@/views/requests/progress-payment/components/BocViewContent.vue';
 import { cloneDeep } from 'lodash';
 import { pick } from 'lodash';
 
@@ -189,6 +202,15 @@ const getTotal = () => {
 };
 
 const editData = ref(null);
+
+// boc 放款选择
+const bocVisible = ref(false);
+const bocSelectedData = ref([]);
+const bocSelectDoneHandle = (data) => {
+  bocVisible.value = false;
+  bocSelectedData.value = data.progress__data;
+}
+
 watch(
   () => props.visible,
   (val) => {

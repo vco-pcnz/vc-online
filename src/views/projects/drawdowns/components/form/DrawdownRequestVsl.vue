@@ -13,7 +13,6 @@
               <div class="label" :class="{ err: !formState.apply_date && validate }">{{ t('日期') }}</div>
               <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.apply_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" :showToday="false" />
             </div>
-
             <div v-if="projectDetail.product.code === 'vsl' && !hasPermission('projects:drawdowns:add')" class="input-item" style="margin: 15.5px 0">
               <div class="label flex items-center">
                 <span class="label mr-3" style="padding-bottom: 0" :class="{ err: !formState.source && validate }">{{ t('贷款方') }}</span>
@@ -38,24 +37,7 @@
               </a-select>
             </div>
 
-            <div class="input-item" style="margin: 15.5px 0" v-if="formState.source == 1">
-              <div class="label flex justify-between" :class="{ err: !formState.draw_term && validate }">
-                {{ t('BOC放款期数') }}
-                <span class="cursor-pointer colorPrimary" v-if="formState.draw_term" @click="bocDetailVisible = true">{{ t('详情') }}</span>
-              </div>
-              <a-select style="width: 100%" v-model:value="formState.draw_term" @change="bocDrawDownChange">
-                <a-select-option :value="item.value" v-for="item in projectDetail?.vslInfo?.bocDrawDown" :disabled="item.draw_status" :key="item.term">
-                  <div class="flex items-center">
-                    <span class="mr-3" style="opacity: 0.6; font-size: 10px">{{ `No.${item.term}` }}</span>
-                    <div>
-                      {{ tool.formatMoney(item.amount) }}
-                    </div>
-                  </div>
-                </a-select-option>
-              </a-select>
-            </div>
-
-            <div class="input-item" v-if="formState.source != 1">
+            <div class="input-item">
               <vco-tip style="padding-bottom: 5px" :tip="t('此说明内容将显示在交易记录中')">
                 <div class="label" style="padding: 0" :class="{ err: !formState.note && validate }">{{ t('说明') }}</div>
               </vco-tip>
@@ -75,16 +57,8 @@
               <a-textarea v-else v-model:value="formState.remark" :rows="hasPermission('projects:drawdowns:add') ? 14 : 10" />
             </div>
           </a-col>
-          <a-col :span="24" v-if="formState.source == 1">
-            <div class="input-item">
-              <vco-tip style="padding-bottom: 5px" :tip="t('此说明内容将显示在交易记录中')">
-                <div class="label" style="padding: 0" :class="{ err: !formState.note && validate }">{{ t('说明') }}</div>
-              </vco-tip>
-              <a-textarea :rows="3" v-model:value="formState.note" />
-            </div>
-          </a-col>
-          <a-col :span="24" v-if="!hasPermission('projects:drawdowns:add') && formState.source != 1">
-            <ProgressPayment ref="ProgressPaymentRef" :visible="visible" :validate="validate" :data="formState" @change="updateformState" :projectDetail="projectDetail"></ProgressPayment>
+          <a-col :span="24" v-if="!hasPermission('projects:drawdowns:add')">
+            <ProgressPayment ref="ProgressPaymentRef" :visible="visible" :validate="validate" :data="formState" :source="formState.source" @change="updateformState" :projectDetail="projectDetail"></ProgressPayment>
           </a-col>
         </a-row>
         <p class="my-5 bold fs_xl">Documents</p>
@@ -120,10 +94,6 @@
     </a-modal>
   </div>
   <vco-confirm-alert v-model:visible="visibleTip" :confirmTxt="confirmTxt" @submit="submit"></vco-confirm-alert>
-  <!-- vsl BOC放款详情 -->
-  <a-modal v-if="bocDetailVisible" :open="bocDetailVisible" :title="t('BOC放款详情')" :width="1000" :footer="null" :keyboard="false" :maskClosable="false" class="middle-position" @cancel="bocDetailVisible = false">
-    <boc-content v-if="bocDetailVisible" :step-number="formState.draw_term" @done="bocDetailVisible = false"></boc-content>
-  </a-modal>
 </template>
 
 <script scoped setup>
@@ -167,7 +137,6 @@ const formModal2 = ref([]);
 const visibleTip = ref(false);
 const confirmTxt = ref('');
 const formModal3 = ref([]);
-const bocDetailVisible = ref(false);
 const LenderData = ref([
   {
     label: 'VS',
@@ -194,9 +163,9 @@ const formState = ref({
   other_money: 0,
   vip_amount: '',
   build__data: [],
+  progress__data: [],
   p_file: [],
-  d_file: [],
-  draw_term: ''
+  d_file: []
 });
 
 const updateVisible = (value) => {
@@ -238,7 +207,6 @@ const save = (tip) => {
 
   if (props.projectDetail.product.code === 'vsl' && !hasPermission('projects:drawdowns:add')) {
     if (!formState.value.source) return;
-    if (formState.value.source == 1 && !formState.value.draw_term) return;
   }
 
   let amount = tool.plus(tool.plus(formState.value.build_money || 0, formState.value.land_money || 0), tool.plus(formState.value.equity_money || 0, formState.value.other_money || 0));
@@ -377,6 +345,7 @@ const init = () => {
     formState.value.other_money = '';
     formState.value.vip_amount = '';
     formState.value.build__data = [];
+    formState.value.progress__data = [];
   }
 
   annexSel({ apply_uuid: props.uuid, type: 2 }).then((res) => {
@@ -432,12 +401,17 @@ const isEdit = ref(false);
 const ProgressPaymentRef = ref(null);
 const initData = () => {
   isEdit.value = true;
-  let keys = ['name', 'note', 'remark', 'other_note', 'apply_date', 'other_type', 'build_money', 'land_money', 'equity_money', 'other_money', 'vip_amount', 'draw_term'];
+  let keys = ['name', 'note', 'remark', 'other_note', 'apply_date', 'other_type', 'build_money', 'land_money', 'equity_money', 'other_money', 'vip_amount'];
   const newData = pick(props.detail, keys);
   newData['source'] = props.detail?.forecast?.source + '';
   Object.assign(formState.value, newData);
   if (props.detail?.buildlog) {
     formState.value.build__data = props.detail?.buildlog;
+    if (ProgressPaymentRef.value) ProgressPaymentRef.value.init();
+  }
+
+  if (props.detail?.progress_log) {
+    formState.value.progress__data = props.detail?.progress_log;
     if (ProgressPaymentRef.value) ProgressPaymentRef.value.init();
   }
 
@@ -452,21 +426,8 @@ const updateformState = (val) => {
   formState.value = { ...formState.value, ...val };
 };
 
-const bocDrawDownChange = () => {
-  let arr = props.projectDetail?.vslInfo?.bocDrawDown;
-  let index = arr.findIndex((item) => item.term === formState.value.draw_term);
-  if (formState.value.draw_term == 1 && props.projectDetail?.base?.land_amount) {
-    formState.value.land_money = arr[index].amount;
-    formState.value.build_money = '';
-  } else {
-    formState.value.build_money = arr[index].amount;
-    formState.value.land_money = '';
-  }
-};
-
 const sourceChange = () => {
   if (formState.value.source != 1) {
-    formState.value.draw_term = '';
     formState.value.land_money = 0;
     formState.value.build_money = 0;
   }

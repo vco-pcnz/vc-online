@@ -53,11 +53,13 @@ const uuid = ref(route.query.uuid);
 const id = ref(route.query.id);
 const pageLoading = ref(true);
 const returnLogData = ref([])
+const isVsl = ref(false);
 
 const projectDetail = ref();
 const getProjectDetail = (val) => {
   returnLogData.value = val.variationInfo?.cancel_log || []
   projectDetail.value = val;
+  isVsl.value = String(val.product.code).toLowerCase() === 'vsl';
   getCreditData();
   pageLoading.value = false;
 };
@@ -78,6 +80,17 @@ const getCreditVal = () => {
 
   const perData = colItems.filter((item) => item.is_ratio);
   const dolData = colItems.filter((item) => !item.is_ratio);
+
+  if (isVsl.value) {
+    dolData.push({
+      credit_name: t('VS建立费'),
+      credit_table: 'vs_estab_fee'
+    })
+    dolData.push({
+      credit_name: t('BOC建立费'),
+      credit_table: 'boc_estab_fee'
+    })
+  }
 
   creditItemsData.value = [...perData, ...dolData];
 };

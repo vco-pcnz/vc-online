@@ -1287,5 +1287,10 @@ export default {
   "请选择BOC放款期数": "Please select the BOC drawdown term",
   "请填写BOC放款金额": "Please fill in the BOC drawdown amount",
   "VSL总计": "VSL total",
-  "BOC总放款": "BOC total drawdown"
+  "BOC总放款": "BOC total drawdown",
+  "BOC放款金额": "BOC drawdown amount",
+  "BOC建立费": "BOC establishment fee",
+  "已放款": "Disbursed",
+  "全额放款": "Full drawdown",
+  "VS建立费": "VS establishment fee"
 }

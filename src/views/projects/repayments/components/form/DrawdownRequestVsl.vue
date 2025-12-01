@@ -7,7 +7,6 @@
     <vco-confirm-alert v-model:visible="visibleTip" :showClose="true" :confirmTxt="confirmTxt"></vco-confirm-alert>
 
     <a-modal :width="860" :open="visible" :title="t('还款申请')" :getContainer="() => $refs.drawdownRequestRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
-      {{ all_repayment }}
       <div class="content sys-form-content">
         <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
           <a-row :gutter="24">

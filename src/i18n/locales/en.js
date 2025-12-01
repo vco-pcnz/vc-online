@@ -1291,5 +1291,6 @@ export default {
   "BOC放款金额": "BOC drawdown amount",
   "BOC建立费": "BOC establishment fee",
   "已放款": "Disbursed",
-  "全额放款": "Full drawdown"
+  "全额放款": "Full drawdown",
+  "VS建立费": "VS establishment fee"
 }

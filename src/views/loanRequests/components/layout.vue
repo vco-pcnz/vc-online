@@ -1,5 +1,7 @@
 <template>
-  <vco-page-nav sup-path="/loanRequests"></vco-page-nav>
+  <div class="pageNavMini">
+    <vco-page-nav sup-path="/loanRequests"></vco-page-nav>
+  </div>
   <div class="flex justify-between items-end mt-5" v-if="route.name !== 'Project_requestBe_roker'">
     <vco-page-tab :tabData="tabData" v-model:current="currentTab"></vco-page-tab>
     <TableSearch :currentTab="currentTab" :roterName="route.name" :typeData="typeData" :statusData="statusData" @search="updateSearchForm"></TableSearch>
@@ -313,5 +315,13 @@ watch(
   right: 0;
   border-top-right-radius: 12px;
   border-bottom-left-radius: 12px;
+}
+
+.pageNavMini {
+  .page-nav-content {
+    .nav-content {
+      gap: 10px;
+    }
+  }
 }
 </style>

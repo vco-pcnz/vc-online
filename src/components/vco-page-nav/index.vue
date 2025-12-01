@@ -99,6 +99,7 @@ defineExpose({
     display: flex;
     align-items: center;
     gap: 20px;
+    flex-wrap: wrap;
     .nav-link {
       display: block;
       background-color: #f3ede5;

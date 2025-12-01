@@ -11,19 +11,28 @@
   <div class="input-item" style="margin-top: 16px" v-if="!keepShowOther">
     <div class="label" :class="{ err: !formState.build_money && validate && !showOther }">{{ source == 1 ? t('BOC放款金额') : t('进度款') }}</div>
     <div class="flex gap-2 items-center">
-      <a-input-number
-        @click="selectVisible = true"
-        :readonly="true"
-        v-model:value="formState.build_money"
-        :max="99999999999"
-        :min="0"
-        :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-        :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-      />
       <template v-if="source == 1">
+        <a-input-number
+          @click="bocVisible = true"
+          :readonly="true"
+          v-model:value="formState.build_money"
+          :max="99999999999"
+          :min="0"
+          :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+          :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+        />
         <a-button type="brown" style="min-width: 80px; padding: 0; border-radius: 10px" class="big" size="small" @click="bocVisible = true">{{ t('选择') }}</a-button>
       </template>
       <template v-else>
+        <a-input-number
+          @click="selectVisible = true"
+          :readonly="true"
+          v-model:value="formState.build_money"
+          :max="99999999999"
+          :min="0"
+          :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+          :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+        />
         <a-button type="brown" style="min-width: 80px; padding: 0; border-radius: 10px" class="big" size="small" @click="selectVisible = true">{{ t('选择') }}</a-button>
         <i class="iconfont add" v-if="isEdit" :style="{ transform: showOther ? 'rotate(0deg)' : 'rotate(45deg)' }" @click="updateShowOther()">&#xe781;</i>
       </template>

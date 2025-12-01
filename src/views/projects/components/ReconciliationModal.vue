@@ -3,7 +3,7 @@
   <div @click.stop ref="JournalRef" class="Journal">
     <a-modal :width="600" :open="visible" :title="t('对账')" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
-        <div class="input-item">
+        <div class="input-item" v-if="hasPermission('projects:reconciled:manual')">
           <div class="label" :class="{ err: !formState.ctype && validate }">{{ t('类型') }}</div>
           <a-select style="width: 100%" v-model:value="formState.ctype" show-search :options="options"></a-select>
         </div>
@@ -112,6 +112,7 @@ import { Empty } from 'ant-design-vue';
 const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE;
 import { DownOutlined } from '@ant-design/icons-vue';
 import { fadd } from '@/api/project/annex';
+import { hasPermission } from '@/directives/permission';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);

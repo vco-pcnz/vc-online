@@ -1049,6 +1049,7 @@ const getVariationDetail = async () => {
     variationData.value = res
     securityData.value = res.security || [];
     formState.value.type = res.type || '';
+    formState.value.estab_type = res.estab_type || 1;
     formState.value.start_date = res.start_date || '';
     formState.value.end_date = res.end_date || '';
     formState.value.initial_sn = res.initial_sn || ''

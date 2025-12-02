@@ -6,27 +6,27 @@
     <!-- 首次放款选择弹窗 -->
     <a-modal
       :open="selectVisible"
-      :title="t('进度付款阶段')"
-      :width="1500"
+      :title="t('BOC放款')"
+      :width="1200"
       :footer="null"
       :keyboard="false"
       :maskClosable="false"
       class="middle-position"
       @cancel="selectVisible = false"
     >
-      <view-content
+      <boc-view-content
         v-if="selectVisible"
         :is-select="!isDetails && !amountDisabled"
-        :show-process="true"
         :selected-data="selectedData"
         @selectDone="selectDoneHandle"
-      ></view-content>
+      ></boc-view-content>
     </a-modal>
     
     <!-- 确认弹窗 -->
     <vco-confirm-alert
       ref="changeAlertRef"
-      :confirm-txt="confirmTxt"
+      :confirm-txt="tipsTxt || confirmTxt"
+      :show-close="!!tipsTxt"
       v-model:visible="changeVisible"
       @submit="submitRquest"
     ></vco-confirm-alert>
@@ -258,7 +258,7 @@
             >
               <a-input-number
                 :max="99999999999"
-                :disabled="amountDisabled"
+                :disabled="true"
                 v-model:value="formState.initial_land_amount"
                 :formatter="
                   (value) =>
@@ -277,7 +277,7 @@
                 <div class="w-full flex justify-between items-center" style="height: 22px;">
                   <p style="word-wrap: nowrap;">{{ t('首次建筑贷款放款额') }}</p>
                   <a-button
-                    v-if="showProgressPayment"
+                    v-if="Boolean(Number(formState.initial_build_amount))"
                     type="link"
                     style="font-size: 12px; height: auto !important;"
                     class="flex items-center"
@@ -526,7 +526,7 @@
   import useProcessStore from '@/store/modules/process';
   import tool, { navigationTo, numberStrFormat, selectDateFormat } from '@/utils/tool';
   import DevCostDetail from './DevCostDetail.vue';
-  import ViewContent from '@/views/requests/progress-payment/components/ViewContent.vue';
+  import BocViewContent from '@/views/requests/progress-payment/components/BocViewContent.vue';
   import dayjs from 'dayjs';
 
   const processStore = useProcessStore();
@@ -539,6 +539,8 @@
   const userStore = useUserStore();
 
   const isNormalUser = computed(() => userStore.isNormalUser);
+  const bocRemainInfo = computed(() => processStore.bocRemainInfo)
+  const bocForcastDone = computed(() => processStore.bocForcastDone)
 
   const props = defineProps({
     lendingInfo: {
@@ -930,6 +932,7 @@
     
     const params = {
       uuid: props.currentId,
+      estab_type: formState.value.estab_type,
       build_amount: Number(build_amount || 0),
       land_amount: Number(land_amount || 0),
       equity_amount: Number(equity_amount || 0),
@@ -953,7 +956,7 @@
   }
 
   // 防抖版本的计算方法
-  const debouncedEstablishCalculate = debounce(establishCalculateHandle, 300)
+  const debouncedEstablishCalculate = debounce(establishCalculateHandle, 1000)
 
   const percentInput = (key) => {
     // 中介费率修改
@@ -1001,20 +1004,20 @@
       const data = res || [];
 
       // 增加BOC放款月份
-      const bocPeriod = {
-        min: 0,
-        max: 0,
-        credit_name: 'No. of BOC drawdown',
-        credit_table: 'drawdown_term',
-        is_req: 1,
-        value: 0,
-        is_static: true,
-        disabled: !Boolean(props.blockInfo.showEdit),
-        is_write: 1,
-        is_ratio: false,
-        is_int: true
-      }
-      data.push(bocPeriod)
+      // const bocPeriod = {
+      //   min: 0,
+      //   max: 0,
+      //   credit_name: 'No. of BOC drawdown',
+      //   credit_table: 'drawdown_term',
+      //   is_req: 1,
+      //   value: 0,
+      //   is_static: true,
+      //   disabled: !Boolean(props.blockInfo.showEdit),
+      //   is_write: 1,
+      //   is_ratio: false,
+      //   is_int: true
+      // }
+      // data.push(bocPeriod)
 
       const writeData = data.filter((item) => item.is_write);
 
@@ -1123,7 +1126,6 @@
   }
 
   const tableDataRefData = ref()
-  const initLandDefault = ref(true)
 
   const updateFormData = async (tableData) => {
     if (tableData) {
@@ -1147,7 +1149,6 @@
 
         if (creditId.value) {
           emits('done');
-          initLandDefault.value = false
           processStore.setForcastState(true);
 
           // 触发头部模块切换显示
@@ -1173,7 +1174,19 @@
     formState.value.land_amount = props.lendingInfo.land_amount || 0;
     
     formState.value.initial_build_amount = props.lendingInfo.initial_build_amount || 0
-    formState.value.initial_land_amount = props.isDetails ? (props.lendingInfo.initial_land_amount || 0) : initLandDefault.value ? props.lendingInfo.land_amount || 0 : props.lendingInfo.initial_land_amount || 0
+    // formState.value.initial_land_amount = props.isDetails ? (props.lendingInfo.initial_land_amount || 0) : initLandDefault.value ? props.lendingInfo.land_amount || 0 : props.lendingInfo.initial_land_amount || 0
+    // vsl首次土地放款
+    if (props.isDetails) {
+      formState.value.initial_land_amount = props.lendingInfo.initial_land_amount || props.lendingInfo.land_amount || 0
+    } else {
+      if (!Number(props.lendingInfo.initial_land_amount)) {
+        formState.value.initial_land_amount = props.lendingInfo.land_amount || 0
+      } else {
+        formState.value.initial_land_amount = props.lendingInfo.initial_land_amount || 0
+      }
+    }
+    
+
     formState.value.initial_equity_amount = props.lendingInfo.initial_equity_amount || 0;
 
     formState.value.devCost = props.lendingInfo.devCost
@@ -1190,8 +1203,8 @@
     timeChange(formState.value.time_date)
 
     // 首次放款建筑费用
-    if (props.lendingInfo.buildlog && props.lendingInfo.buildlog.length) {
-      selectedData.value = props.lendingInfo.buildlog
+    if (props.lendingInfo.progressLog && props.lendingInfo.progressLog.length) {
+      selectedData.value = props.lendingInfo.progressLog
     }
 
     staticFormData.value = cloneDeep({
@@ -1226,16 +1239,49 @@
   };
 
   const submitRquest = async () => {
+    if (tipsTxt.value) {
+      tipsTxt.value = ''
+      return false
+    }
+
     await checkHandle(true)
     changeAlertRef.value.changeLoading(false)
     changeVisible.value = false
   }
+
+  const tipsTxt = ref('')
 
   const checkHandle = async (flag = false) => {
     const build_amount = Number(props.dataInfo.lending.build_amount)
     const hasBuild = Boolean(Number(props.lendingInfo.has_build))
     if (build_amount && !hasBuild) {
       message.error(t('请先设置建筑贷款总额的进度付款信息'))
+      return false
+    }
+
+    if (!bocForcastDone.value) {
+      message.error(t('请等待预测表数据加载完成'))
+      return false
+    }
+
+    const { loanRemainMoney, vsRemainMoney, bocRemainMoney } = bocRemainInfo.value
+    if (vsRemainMoney || bocRemainMoney || loanRemainMoney) {
+      let txt = ''
+      if (vsRemainMoney) {
+        const flag = vsRemainMoney > 0 ? t('还差') : t('超额')
+        txt += `${t('VS放款')} ${flag} $${numberStrFormat(vsRemainMoney)}; `
+      }
+      if (bocRemainMoney) {
+        const flag = bocRemainMoney > 0 ? t('还差') : t('超额')
+        txt += `${t('BOC放款')} ${flag} $${numberStrFormat(bocRemainMoney)}; `
+      }
+      if (loanRemainMoney) {
+        const flag = loanRemainMoney > 0 ? t('还差') : t('超额')
+        txt += `${t('总共')} ${flag} $${numberStrFormat(loanRemainMoney)}`
+      }
+      
+      tipsTxt.value = txt
+      changeVisible.value = true
       return false
     }
 
@@ -1285,7 +1331,7 @@
 
     const formParams = cloneDeep(saveParams.value)
     if (selectedData.value) {
-      formParams.build__data = selectedData.value
+      formParams.progress__data = selectedData.value
     }
 
     await projectAuditSaveMode(formParams)
@@ -1480,15 +1526,15 @@
 
   const selectVisible = ref(false)
   const selectDoneHandle = (data) => {
-    const build__data = cloneDeep(data.build__data)
-    selectedData.value = build__data
+    const progress__data = cloneDeep(data.progress__data)
+    selectedData.value = progress__data
     formState.value.initial_build_amount = data.total
     selectVisible.value = false
 
     setSingleFormData({
       code: props.blockInfo.code,
       uuid: props.currentId,
-      build__data,
+      progress__data,
       initial_build_amount: data.total || 0,
       initial_land_amount: formState.value.initial_land_amount || 0,
       initial_equity_amount: formState.value.initial_equity_amount || 0,

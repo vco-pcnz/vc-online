@@ -25,13 +25,14 @@
         :is-old="isOld"
         :is-reset="true"
         :tab_id="tab_id"
+        :isVSL="isVSL"
       ></schedule>
     </template>
   </detail-layout>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted,computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import detailLayout from '../components/detailLayout.vue';
 import schedule from '@/components/schedule/index.vue';
@@ -71,7 +72,13 @@ const tabData = ref([
   }
 ]);
 
-const tabChange = () => {};
+const tabChange = () => { };
+
+
+const isVSL = computed(() => {
+  return projectDetail.value?.product?.code === 'vsl';
+});
+
 
 onMounted(() => {
   project_id.value = route.query.uuid;

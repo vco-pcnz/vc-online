@@ -21,18 +21,26 @@
                 <i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">{{ t('帮助借款人') }}</span>
               </div>
               <p class="color_grey mt-1 mb-3">{{ t('您可以帮助他们创建提款。') }}</p>
-              <drawdownre-quest :uuid="uuid" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update(true)">
-                <a-button type="brown" shape="round" size="small">{{ t('创建放款') }}</a-button>
-              </drawdownre-quest>
+
+              <template v-if="projectDetail.product.code === 'vsl'">
+                <drawdown-request-vsl :uuid="uuid" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update(true)">
+                  <a-button type="brown" shape="round" size="small">{{ t('创建放款') }}</a-button>
+                </drawdown-request-vsl>
+              </template>
+              <template v-else>
+                <drawdown-request :uuid="uuid" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update(true)">
+                  <a-button type="brown" shape="round" size="small">{{ t('创建放款') }}</a-button>
+                </drawdown-request>
+              </template>
             </div>
             <div class="HelpBorrower" v-else-if="hasPermission('projects:drawdowns:add')">
               <div class="flex items-center">
                 <i class="iconfont mr-2">&#xe755;</i><span class="weight_demiBold">{{ t('放款申请') }}</span>
               </div>
               <p class="color_grey mt-1 mb-3">{{ t('点击下方按钮创建放款申请') }}</p>
-              <drawdownre-quest :uuid="uuid" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update(true)">
+              <drawdown-request :uuid="uuid" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update(true)">
                 <a-button type="brown" shape="round" size="small">{{ t('创建放款') }}</a-button>
-              </drawdownre-quest>
+              </drawdown-request>
             </div>
           </template>
         </div>
@@ -63,7 +71,8 @@ import detailLayout from '../components/detailLayout.vue';
 import MeterStat from './components/MeterStat.vue';
 import TableBlock from './components/TableBlock.vue';
 import Detail from './components/Detail.vue';
-import DrawdownreQuest from './components/form/DrawdownRequest.vue';
+import DrawdownRequest from './components/form/DrawdownRequest.vue';
+import DrawdownRequestVsl from './components/form/DrawdownRequestVsl.vue';
 import { hasPermission } from '@/directives/permission/index';
 import { loanDrawdown } from '@/api/project/loan';
 import { useRoute } from 'vue-router';

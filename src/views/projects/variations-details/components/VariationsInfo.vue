@@ -200,8 +200,21 @@ const props = defineProps({
   }
 });
 
+const isVsl = ref(false)
+
 const variationsInfo = computed(() => {
-  return props.detail?.variationInfo || {};
+  isVsl.value = String(props.detail?.product?.code).toLowerCase() === 'vsl';
+  if (isVsl.value) {
+    const data = cloneDeep(props.detail?.variationInfo || {});
+    data.credit = {
+      ...data.credit,
+      vs_estab_fee: data?.vsl_info?.vs_estab_fee || 0,
+      boc_estab_fee: data?.vsl_info?.boc_estab_fee || 0
+    }
+    return data;
+  } else {
+    return props.detail?.variationInfo || {};
+  }
 });
 
 const securityData = computed(() => {

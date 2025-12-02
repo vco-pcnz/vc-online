@@ -42,7 +42,7 @@
           <a-row :gutter="24">
             <a-col :span="[1, 2, 3].includes(Number(formState.type)) ? 8 : 12">
               <a-form-item :label="t('变更类型')" name="type">
-                <a-select v-model:value="formState.type" :options="typeData" @change="typeChange"></a-select>
+                <a-select v-model:value="formState.type" :options="typeDataRef" @change="typeChange"></a-select>
               </a-form-item>
             </a-col>
             <a-col :span="[1, 2, 3].includes(Number(formState.type)) ? 16 : 12">
@@ -497,6 +497,15 @@
                     </a-form-item>
                   </a-col>
                 </template>
+                <template v-if="isVsl">
+                  <a-col :span="6">
+                    <a-form-item :label="t('BOC建立费')">
+                      <div style="height: 50px;" class="flex items-center">
+                        <vco-number :value="bocEstabFee" :precision="2"></vco-number>
+                      </div>
+                    </a-form-item>
+                  </a-col>
+                </template>
               </template>
             </div>
 
@@ -527,14 +536,14 @@ import { message } from 'ant-design-vue';
 import { projectDetail } from '@/api/project/project';
 import { systemDictData } from '@/api/system';
 import { projectCreditVariation, projectVariationDrawdownSel, borkerFeeCalc, dischargeStatistics, projectVariationEdit } from '@/api/project/loan';
-import { projectVariationInfo } from '@/api/project/variation';
+import { projectVariationInfo, projectVariationEstablishCalculate } from '@/api/project/variation';
 import { ruleCredit } from '@/api/process';
 import { useI18n } from 'vue-i18n';
 import DevCostDetail from '@/views/process/temp/default/components/DevCostDetail.vue';
 import tool, { navigationTo, selectDateFormat, numberStrFormat, formatMoneyToNumber } from '@/utils/tool';
 import BaseCard from '@/views/projects/about/components/base.vue';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, debounce } from 'lodash';
 import securityDialog from './components/security-dialog.vue';
 import ViewContent from './components/view-content.vue';
 import { hasPermission } from '@/directives/permission/index';
@@ -547,6 +556,16 @@ const route = useRoute();
 const uuid = ref(route.query.uuid);
 const typeData = ref([]);
 const projectInfo = ref();
+
+const typeDataRef = computed(() => {
+  const data = cloneDeep(typeData.value)
+  data.forEach(item => {
+    item.disabled = isVsl.value ? item.value !== 3 : false
+  })
+
+  const resData = data.filter(item => ![4, 5].includes(item.value))
+  return resData
+})
 
 const getTypeData = () => {
   systemDictData('variation_type').then((res) => {
@@ -565,10 +584,15 @@ const backHandle = () => {
 }
 
 const devCostJsonData = ref([]);
+const isVsl = ref(false)
 
 const getProjectDetail = async () => {
   pageLoading.value = true;
   const res = await projectDetail({uuid: uuid.value});
+
+  // 是否为vsl产品
+  isVsl.value = String(res.product.code).toLowerCase() === 'vsl'
+
   projectInfo.value = res;
 
   if (!currentVariationId.value) {
@@ -1239,6 +1263,15 @@ watch(
   { deep: true }
 );
 
+watch(
+  () => formState.value.credit_brokerFee,
+  () => {
+    if (isVsl.value) {
+      debouncedVslCalcEstab()
+    }
+  }
+)
+
 const calcSameTermBroker = (flag = false) => {
   const num = loanMoneyChangeNum.value || 0
   const brokerFeeRate = formState.value.credit_brokerFeeRate || 0
@@ -1295,6 +1328,44 @@ const calcExtendTermEstab = (flag = false) => {
   }
 }
 
+const bocEstabFee = ref(0);
+
+const vslCalcEstab = (isFee = true) => {
+  const legalFee = Number(formState.value.credit_legalFee || 0) > 0 ? Number(formState.value.credit_legalFee || 0) : 0
+  const otherFee = Number(formState.value.credit_otherFee || 0) > 0 ? Number(formState.value.credit_otherFee || 0) : 0
+  const brokerFee = Number(formState.value.credit_brokerFee || 0) > 0 ? Number(formState.value.credit_brokerFee || 0) : 0
+
+  const loFee = Number(tool.plus(legalFee, otherFee))
+  const credit_fc1 = Number(tool.plus(loFee, brokerFee))
+
+  const esRate = Number(formState.value.credit_estabFeeRate || 0) > 0 ? Number(formState.value.credit_estabFeeRate || 0) : 0
+  const esFee = Number(formState.value.credit_estabFee || 0) > 0 ? Number(formState.value.credit_estabFee || 0) : 0
+
+  const params = {
+    uuid: uuid.value,
+    credit: {
+        credit_fc1: credit_fc1,
+        credit_estabFee: esFee,
+        credit_estabFeeRate: esRate
+    },
+    estab_type: isFee ? 1 : 2
+  }
+
+  if (credit_fc1 > 0) {
+    projectVariationEstablishCalculate(params).then(res => {
+      if (isFee) {
+        formState.value.credit_estabFee = res.estab_fee
+      } else {
+        formState.value.credit_estabFeeRate = res.estab_fee_rate
+      }
+      bocEstabFee.value = res.boc_estab_fee
+    })
+  }
+}
+
+// 防抖版本的计算方法
+const debouncedVslCalcEstab = debounce(vslCalcEstab, 500)
+
 watch(
   () => loanMoneyChangeNum.value,
   () => {
@@ -1303,7 +1374,11 @@ watch(
     }
     if ([1, 2, 3, 4].includes(type_startDate.value.type)) {
       handInput('credit_brokerFeeRate')
-      calcExtendTermEstab(true)
+      if (isVsl.value) {
+        debouncedVslCalcEstab()
+      } else {
+        calcExtendTermEstab(true)
+      }
     }
   },
   { deep: true }
@@ -1341,15 +1416,26 @@ const handInput = (key) => {
         }
       }
     }
-    calcExtendTermEstab(true)
+
+    if (!isVsl.value) {
+      calcExtendTermEstab(true)
+    }
   }
 
   // 建立费
   if (['credit_estabFeeRate', 'credit_estabFee'].includes(key)) {
-    calcExtendTermEstab(key === 'credit_estabFeeRate')
+    if (isVsl.value) {
+      debouncedVslCalcEstab(key === 'credit_estabFeeRate')
+    } else {
+      calcExtendTermEstab(key === 'credit_estabFeeRate')
+    }
   }
   if (['credit_legalFee', 'credit_otherFee'].includes(key) && [1, 2, 3, 4].includes(formState.value.type)) {
-    calcExtendTermEstab(true)
+    if (isVsl.value) {
+      debouncedVslCalcEstab()
+    } else {
+      calcExtendTermEstab(true)
+    }
   }
 };
 

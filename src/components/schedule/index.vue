@@ -171,21 +171,22 @@
         </a-tabs>
 
         <div v-if="tabData.length" class="table-content">
-          <div class="col-item th">
-            <div class="item uppercase" :class="{ about: isAbout }"></div>
+          <div class="col-item th" :class="{ isAbout: isAbout, isVSL: isVSL, isReconciliation: isReconciliation }">
+            <div class="item uppercase"></div>
             <div class="item uppercase">{{ t('日期') }}</div>
             <div class="item uppercase">{{ t('类型') }}</div>
+            <div class="item uppercase text-center" v-if="isVSL">{{ t('贷款方') }}</div>
             <div class="item uppercase">{{ t('说明') }}</div>
-            <div class="item uppercase">{{ t('利息、费用') }}</div>
-            <div class="item uppercase">{{ t('放款') }}</div>
-            <div class="item uppercase">{{ t('还款') }}</div>
-            <div class="item uppercase balance">{{ t('余额') }}</div>
+            <div class="item uppercase text-center">{{ t('利息、费用') }}</div>
+            <div class="item uppercase text-center">{{ t('放款') }}</div>
+            <div class="item uppercase text-center">{{ t('还款') }}</div>
+            <div class="item uppercase balance text-center">{{ t('余额') }}</div>
             <div class="item uppercase ops" v-if="isReconciliation">RC/NR</div>
           </div>
 
           <div class="col-content">
             <div v-for="(item, index) in tabData" :key="index" class="col-block" :class="{ passed: item.passed }">
-              <div v-for="(_item, _index) in item.list" :key="_item.date" class="col-item">
+              <div v-for="_item in item.list" :key="_item.date" class="col-item" :class="{ isAbout: isAbout, isVSL: isVSL, isReconciliation: isReconciliation }">
                 <div v-if="isAbout" class="item about flex items-center">
                   <span class="circle" :style="{ background: _item.status > 1 || (_item.passed && _item.is_fee) ? '#181818' : '#b4d8d8' }"></span>
                 </div>
@@ -199,12 +200,13 @@
                   </div>
                   <p v-else>{{ _item.name }}</p>
                 </div>
+                <li class="item text-center" v-if="isVSL">{{ _item.source ? (_item.source > 0 ? 'BOC' : '') : 'VS' }}</li>
                 <div class="item">
                   <p class="note">{{ _item.note }}</p>
                 </div>
-                <div class="item">{{ _item.fee }}</div>
-                <div class="item drawdown">{{ _item.drawdown }}</div>
-                <div class="item">{{ _item.repayment }}</div>
+                <div class="item text-center">{{ _item.fee }}</div>
+                <div class="item drawdown text-center">{{ _item.drawdown }}</div>
+                <div class="item text-center">{{ _item.repayment }}</div>
                 <div class="item balance">
                   <vco-number :value="_item.balance" :precision="2" :end="true"></vco-number>
                 </div>
@@ -244,7 +246,7 @@
           </div>
         </div>
 
-        <div v-if="statisticsData && tabData.length && !ptRole" class="static-block flex">
+        <div v-if="statisticsData && tabData.length && !ptRole && !tab_id" class="static-block flex">
           <div class="item flex">
             <div class="day-box">
               <p>{{ t('估计总数') }}</p>
@@ -394,6 +396,10 @@ const props = defineProps({
   tab_id: {
     type: [Number, String],
     default: ''
+  },
+  isVSL: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -413,8 +419,8 @@ const hideAccountDetails = computed(() => {
   return ['vsl'].includes(props.currentProduct);
 });
 const isVariation = computed(() => {
-  return Object.keys(props.variationInfo).length > 0
-})
+  return Object.keys(props.variationInfo).length > 0;
+});
 
 const pageLoading = ref(false);
 const tabData = ref([]);
@@ -1020,7 +1026,25 @@ watch(
   padding-top: 15px;
   .col-item {
     width: 100%;
-    display: flex;
+    // display: flex;
+    display: grid;
+
+    grid-template-columns: 0 1.5fr 1.8fr 2.2fr 1.7fr 1.7fr 1.7fr 2.1fr;
+
+    &.isAbout {
+      grid-template-columns: 0.6fr 1.5fr 1.8fr 2.2fr 1.7fr 1.7fr 1.7fr 2.1fr;
+      &.isReconciliation {
+        grid-template-columns: 0.6fr 1.5fr 1.8fr 2.2fr 1.7fr 1.7fr 1.7fr 2.1fr 0.5fr;
+      }
+    }
+
+    &.isVSL {
+      grid-template-columns: 0.6fr 1.2fr 1.8fr 0.6fr 2.2fr 1.7fr 1.7fr 1.7fr 2.1fr;
+      &.isReconciliation {
+        grid-template-columns: 0.6fr 1.2fr 1.8fr 0.6fr 2.2fr 1.7fr 1.7fr 1.7fr 2.1fr 0.5fr;
+      }
+    }
+
     &.th {
       font-weight: bold;
       font-size: 10px;
@@ -1028,33 +1052,12 @@ watch(
     }
     > .item {
       padding: 0 15px;
-      &:nth-child(1) {
-        width: 0;
-        &.about {
-          width: 60px;
-        }
-      }
-      &:nth-child(2) {
-        width: 150px;
-      }
-      &:nth-child(3) {
-        width: 180px;
-      }
-      &:nth-child(4) {
-        width: 220px;
-      }
-      &:nth-child(5),
-      &:nth-child(6),
-      &:nth-child(7) {
-        width: 170px;
-        text-align: center;
-      }
+    
+
       &.balance {
-        flex: 1;
         text-align: right;
       }
       &.ops {
-        width: 50px;
         text-align: center;
       }
       .note {
@@ -1101,7 +1104,6 @@ watch(
         flex-direction: column;
         justify-content: center;
         &.ops {
-          width: 50px;
           text-align: center;
           .iconfont {
             color: @colorPrimary;

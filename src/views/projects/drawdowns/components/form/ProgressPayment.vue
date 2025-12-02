@@ -1,31 +1,41 @@
 <template>
   <a-modal :open="selectVisible" :title="t('进度付款阶段')" :width="1400" :footer="null" :keyboard="false" :maskClosable="false" class="middle-position" @cancel="selectVisible = false">
-    <view-content
-      v-if="selectVisible"
-      :selectedData="selectedData"
-      :buildLogData="buildLogData"
-      :showExcess="true"
-      :is-select="isEdit"
-      :show-process="true"
-      :hide-self="!isEdit"
-      :log-date="logDate"
-      @selectDone="selectDoneHandle"
-    ></view-content>
+    <view-content v-if="selectVisible" :selectedData="selectedData" :buildLogData="buildLogData" :showExcess="true" :is-select="isEdit" :show-process="true" :hide-self="!isEdit" :log-date="logDate" @selectDone="selectDoneHandle"></view-content>
   </a-modal>
+
+  <!-- boc放款选择 -->
+  <a-modal :open="bocVisible" :title="t('BOC放款')" :width="1000" :footer="null" :keyboard="false" :maskClosable="false" class="middle-position" @cancel="bocVisible = false">
+    <boc-view-content v-if="bocVisible" :selected-data="bocSelectedData" :is-select="isEdit" @selectDone="bocSelectDoneHandle"></boc-view-content>
+  </a-modal>
+
   <div class="input-item" style="margin-top: 16px" v-if="!keepShowOther">
-    <div class="label" :class="{ err: !formState.build_money && validate && !showOther }">{{ t('进度款') }}</div>
+    <div class="label" :class="{ err: !formState.build_money && validate && !showOther }">{{ source == 1 ? t('BOC放款金额') : t('进度款') }}</div>
     <div class="flex gap-2 items-center">
-      <a-input-number
-        @click="selectVisible = true"
-        :readonly="true"
-        v-model:value="formState.build_money"
-        :max="99999999999"
-        :min="0"
-        :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-        :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-      />
-      <a-button type="brown" style="min-width: 80px; padding: 0; border-radius: 10px" class="big" size="small" @click="selectVisible = true">{{ t('选择') }}</a-button>
-      <i class="iconfont add" v-if="isEdit" :style="{ transform: showOther ? 'rotate(0deg)' : 'rotate(45deg)' }" @click="updateShowOther()">&#xe781;</i>
+      <template v-if="source == 1">
+        <a-input-number
+          @click="bocVisible = true"
+          :readonly="true"
+          v-model:value="formState.build_money"
+          :max="99999999999"
+          :min="0"
+          :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+          :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+        />
+        <a-button type="brown" style="min-width: 80px; padding: 0; border-radius: 10px" class="big" size="small" @click="bocVisible = true">{{ t('选择') }}</a-button>
+      </template>
+      <template v-else>
+        <a-input-number
+          @click="selectVisible = true"
+          :readonly="true"
+          v-model:value="formState.build_money"
+          :max="99999999999"
+          :min="0"
+          :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+          :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+        />
+        <a-button type="brown" style="min-width: 80px; padding: 0; border-radius: 10px" class="big" size="small" @click="selectVisible = true">{{ t('选择') }}</a-button>
+        <i class="iconfont add" v-if="isEdit" :style="{ transform: showOther ? 'rotate(0deg)' : 'rotate(45deg)' }" @click="updateShowOther()">&#xe781;</i>
+      </template>
     </div>
   </div>
   <div class="vip_amount_tip" v-if="!showOther && !keepShowOther && data.vip_amount > 0">
@@ -115,6 +125,7 @@ import { ref, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import ViewContent from '@/views/requests/progress-payment/components/ViewContent.vue';
+import BocViewContent from '@/views/requests/progress-payment/components/BocViewContent.vue';
 import { cloneDeep } from 'lodash';
 import { pick } from 'lodash';
 
@@ -141,6 +152,10 @@ const props = defineProps({
   logDate: {
     type: String,
     default: ''
+  },
+  source: {
+    type: String,
+    default: ''
   }
 });
 
@@ -152,7 +167,8 @@ const formState = ref({
   equity_money: 0,
   other_money: 0,
   other_note: '',
-  build__data: []
+  build__data: [],
+  progress__data: []
 });
 const selectDoneHandle = (data) => {
   selectVisible.value = false;
@@ -189,17 +205,32 @@ const getTotal = () => {
 };
 
 const editData = ref(null);
+
+// boc 放款选择
+const bocVisible = ref(false);
+const bocSelectedData = ref([]);
+const bocSelectDoneHandle = (data) => {
+  bocVisible.value = false;
+  bocSelectedData.value = data.progress__data;
+  formState.value.progress__data = data.progress__data;
+  formState.value.build_money = data.total;
+  change();
+};
+
 watch(
   () => props.visible,
   (val) => {
     if (val && props.data) {
-      let keys = ['build_money', 'land_money', 'equity_money', 'other_money', 'other_note', 'build__data'];
+      let keys = ['build_money', 'land_money', 'equity_money', 'other_money', 'other_note', 'build__data', 'progress__data'];
       const newData = pick(props.data, keys);
       editData.value = cloneDeep(newData);
       formState.value = cloneDeep(newData);
       if (props.data?.build__data) {
         selectedData.value = cloneDeep(props.data?.build__data);
         buildLogData.value = cloneDeep(props.data?.build__data);
+      }
+      if (props.data?.progress__data) {
+        bocSelectedData.value = cloneDeep(props.data?.progress__data);
       }
       if (tool.plus(props.data?.land_money || 0, tool.plus(props.data?.equity_money || 0, props.data?.other_money || 0)) > 0) {
         showOther.value = true;

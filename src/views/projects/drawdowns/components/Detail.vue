@@ -30,9 +30,18 @@
           <vco-number :value="detail?.amount" :precision="2" :bold="true" size="fs_2xl"></vco-number>
           <span class="unit">nzd</span>
           <!-- <DrawdownAmount :uuid="uuid" :detail="detail" :projectDetail="projectDetail" @change="update" v-if="detail?.mark === 'drawdown_lm' && hasPermission('projects:drawdowns:edit')"><i class="iconfont edit">&#xe8cf;</i></DrawdownAmount> -->
-          <DrawdownRequest :uuid="uuid" :detail="detail" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update" v-if="detail?.mark === 'drawdown_lm' && hasPermission('projects:drawdowns:edit')"
-            ><i class="iconfont edit">&#xe8cf;</i></DrawdownRequest
-          >
+          <template v-if="detail?.mark === 'drawdown_lm' && hasPermission('projects:drawdowns:edit')">
+            <template v-if="projectDetail.product.code === 'vsl'">
+              <DrawdownRequestVsl :uuid="uuid" :detail="detail" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update">
+                <i class="iconfont edit">&#xe8cf;</i>
+              </DrawdownRequestVsl>
+            </template>
+            <template v-else>
+              <DrawdownRequest :uuid="uuid" :detail="detail" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update">
+                <i class="iconfont edit">&#xe8cf;</i>
+              </DrawdownRequest>
+            </template>
+          </template>
 
           <DrawdownAmount v-else-if="!hasPermission('projects:drawdowns:add')" :uuid="uuid" :detail="detail" :projectDetail="projectDetail" :isEdit="false" @change="update"><i class="iconfont edit">&#xe776;</i></DrawdownAmount>
           <a-tooltip v-if="Number(detail?.excess_amount) > 0" placement="top">
@@ -147,6 +156,7 @@ import { hasPermission } from '@/directives/permission/index';
 import { forecastDarwdown, loanDsel, loanDdeclinel, loanDsaveStep, loanDrecall, loanDrevoke } from '@/api/project/loan';
 import DrawdownAmount from './form/DrawdownAmount.vue';
 import DrawdownRequest from './form/DrawdownRequest.vue';
+import DrawdownRequestVsl from './form/DrawdownRequestVsl.vue';
 import DrawdownBack from './form/DrawdownBack.vue';
 import AcceptFc from './form/AcceptFc.vue';
 import AddStake from './form/addStake.vue';

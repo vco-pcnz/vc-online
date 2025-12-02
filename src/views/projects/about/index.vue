@@ -74,7 +74,9 @@
             <!-- 取消关账流程 -->
             <CloseCancel v-else :currentId="currentId" :toBeClosedFormData="ReOpenFormData" :detail="detail" @update="update"></CloseCancel>
             <!-- 退回到open流程 -->
-            <BackOpen  :currentId="currentId" :toBeClosedFormData="BackOpenFormData" :detail="detail" @update="update"></BackOpen>
+            <BackOpen :currentId="currentId" :toBeClosedFormData="BackOpenFormData" :detail="detail" @update="update"></BackOpen>
+            <!-- vsl买断流程 -->
+            <BuyOut :currentId="currentId" :detail="detail" @update="update"></BuyOut>
 
             <MeterStat :data="detail?.credit" :base="detail?.base" v-if="!detail?.base?.ptRole"></MeterStat>
             <MeterStatVip :data="detail?.credit" v-if="detail?.base?.ptRole"></MeterStatVip>
@@ -131,6 +133,14 @@
               >
                 <a-button type="brown" shape="round" size="small">{{ t('退回到进件') }}</a-button>
               </vco-form-dialog>
+
+              <!-- vsl买断 -->
+              <BuyOutForm v-if="detail?.product?.code === 'vsl' && hasPermission('projects:about:buyout') && detail?.buyout?.state <= 0" :uuid="currentId" :data="detail?.buyout.data" @update="update">
+                <a-button type="brown" shape="round" size="small">{{ t('买断') }}</a-button>
+              </BuyOutForm>
+              <BuyOutDetail v-if="detail?.buyout?.state == 1000" :data="detail?.buyout?.data">
+                <a-button type="brown" shape="round" size="small">{{ t('买断') }}</a-button>
+              </BuyOutDetail>
             </div>
 
             <Stats v-if="!detail?.base?.ptRole" :data="detail?.credit" :detail="detail" :currentId="currentId" @update="update"></Stats>
@@ -167,6 +177,9 @@ import CloseCancel from './components/CloseCancel.vue';
 import { useUserStore } from '@/store';
 import CheckPassConfirm from '@/views/projects/variations/add/components/check-pass-confirm.vue';
 import BackOpen from './components/BackOpen.vue';
+import BuyOutForm from './components/form/BuyOutForm.vue';
+import BuyOut from './components/BuyOut.vue';
+import BuyOutDetail from './components/BuyOutDetail.vue';
 
 const { t } = useI18n();
 const userStore = useUserStore();

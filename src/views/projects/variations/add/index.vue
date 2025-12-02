@@ -1507,7 +1507,11 @@ const handInput = (key) => {
   const has_linefee = Boolean(projectInfo.value.base.has_linefee);
   // 没有lineFee 利息变动请求建立费
   if (!has_linefee && !isVsl.value && ['credit_loanInterest'].includes(key)) {
-    calcExtendTermEstab()
+    if (Number(formState.value.credit_loanInterest) > 100) {
+      return
+    } else {
+      calcExtendTermEstab()
+    }
   }
 };
 

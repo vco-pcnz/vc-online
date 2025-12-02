@@ -497,6 +497,7 @@
                       <a-input-number
                         v-else
                         @input="handInput(item.credit_table)"
+                        :controls="false"
                         :disabled="item.credit_table === 'credit_brokerFee' && (!borkerFeeCalcAmount && formState.type !== 4) || formState.estab_type === 1"
                         :loading="item.credit_table === 'credit_brokerFee' && loadingBorkerFeeCalcAmount"
                         v-model:value="formState[item.credit_table]"

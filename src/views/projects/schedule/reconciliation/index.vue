@@ -12,13 +12,14 @@
         :is-old="isOld"
         :is-reset="true"
         :is-reconciliation="true"
+        :isVSL="isVSL"
       ></schedule>
     </template>
   </detail-layout>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import detailLayout from '../../components/detailLayout.vue';
 import schedule from '@/components/schedule/index.vue';
 import { useRoute } from 'vue-router';
@@ -34,6 +35,10 @@ const getProjectDetail = (val) => {
   currentProduct.value = val.product.code;
   projectDetail.value = val;
 };
+
+const isVSL = computed(() => {
+  return projectDetail.value?.product?.code === 'vsl';
+});
 
 onMounted(() => {
   project_id.value = route.query.uuid;

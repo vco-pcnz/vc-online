@@ -2,7 +2,7 @@
   <detail-layout active-tab="repayments" @getProjectDetail="getProjectDetail">
     <template #content>
       <div class="ProjectDrawdowns">
-        <div :class="{ grid: (hasPermission('projects:repayments:add') || hasPermission('projects:repayments:calculator')) &&  projectDetail && !projectDetail?.base?.is_close}" class="mb-12">
+        <div :class="{ grid: (hasPermission('projects:repayments:add') || hasPermission('projects:repayments:calculator')) && projectDetail && !projectDetail?.base?.is_close }" class="mb-12">
           <MeterStat :uuid="uuid" :projectDetail="projectDetail" v-if="Boolean(uuid)" ref="MeterStatRef"></MeterStat>
           <template v-if="projectDetail && !projectDetail?.base?.is_close && (hasPermission('projects:repayments:add') || hasPermission('projects:repayments:calculator'))">
             <div class="HelpBorrower">
@@ -13,14 +13,18 @@
               </calculator>
               <template v-if="hasPermission('projects:repayments:add')">
                 <template v-if="isNormalUser">
-                  <div class="flex items-center"><i class="iconfont mr-2">&#xe757;</i><span class="weight_demiBold">{{ t('还款申请') }}</span></div>
+                  <div class="flex items-center">
+                    <i class="iconfont mr-2">&#xe757;</i><span class="weight_demiBold">{{ t('还款申请') }}</span>
+                  </div>
                   <p class="color_grey mt-1 mb-3">{{ t('点击下方按钮创建还款申请') }}</p>
                   <drawdown-request :uuid="uuid" :projectDetail="projectDetail" @change="update">
                     <a-button type="brown" shape="round" size="small">{{ t('创建还款') }}</a-button>
                   </drawdown-request>
                 </template>
                 <template v-else>
-                  <div class="flex items-center"><i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">{{ t('帮助借款人') }}</span></div>
+                  <div class="flex items-center">
+                    <i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">{{ t('帮助借款人') }}</span>
+                  </div>
                   <p class="color_grey mt-1 mb-3">{{ t('您可以帮助他们创建还款请求') }}</p>
                   <drawdown-request-vsl v-if="projectDetail.product.code === 'vsl'" :uuid="uuid" :projectDetail="projectDetail" :count="total" @change="update">
                     <a-button type="brown" shape="round" size="small">{{ t('创建还款') }}</a-button>
@@ -31,7 +35,9 @@
                 </template>
               </template>
               <template v-else>
-                <div class="flex items-center"><i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">{{ t('还款计算器') }}</span></div>
+                <div class="flex items-center">
+                  <i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">{{ t('还款计算器') }}</span>
+                </div>
                 <p class="color_grey mt-1 mb-3">{{ t('您可以通过还款计算器计算还款金额') }}</p>
               </template>
             </div>
@@ -40,7 +46,7 @@
         <div :class="{ grid: tableData.length }">
           <a-spin :spinning="loading" size="large">
             <div class="table-content">
-              <TableBlock :tableData="tableData" :pagination="pagination" :total="total" @change="change"></TableBlock>
+              <TableBlock :tableData="tableData" :pagination="pagination" :projectDetail="projectDetail" :total="total" @change="change"></TableBlock>
             </div>
             <div class="mt-5" v-if="total">
               <a-pagination size="small" :total="total" :pageSize="pagination.limit" :current="pagination.page" :show-size-changer="false" show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
@@ -75,7 +81,7 @@ const route = useRoute();
 const { t } = useI18n();
 
 const userStore = useUserStore();
-const isNormalUser = computed(() => userStore.isNormalUser)
+const isNormalUser = computed(() => userStore.isNormalUser);
 
 const uuid = ref('');
 const detail_info = ref(null);
@@ -97,7 +103,7 @@ const setPaginate = (page, limit) => {
 };
 
 const update = () => {
-  userStore.getTaskNumInfo()
+  userStore.getTaskNumInfo();
   pagination.value.page = 1;
   loadData();
   MeterStatRef.value.loadData();
@@ -109,11 +115,11 @@ const loadData = () => {
   loading.value = true;
   loanRepayment({ uuid: uuid.value, ...pagination.value })
     .then((res) => {
-      const data = res.data || []
-      data.forEach(item => {
-        item.amount = Math.abs(Number(item.amount))
-        item.apply_amount = Math.abs(Number(item.apply_amount))
-      })
+      const data = res.data || [];
+      data.forEach((item) => {
+        item.amount = Math.abs(Number(item.amount));
+        item.apply_amount = Math.abs(Number(item.apply_amount));
+      });
       tableData.value = data;
       total.value = res.count;
     })

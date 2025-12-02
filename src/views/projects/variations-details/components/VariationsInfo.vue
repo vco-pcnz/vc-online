@@ -117,29 +117,30 @@
 
       <a-col :span="24" class="item-txt">
         <p class="name">{{ t('变更金额') }}</p>
-        <div class="txt-box line-info-box">
+        <div v-if="Number(landChangeNum) || Number(buildChangeNum)" class="txt-box line-info-box">
           <div class="flex items-center gap-2">
-            <vco-number :value="landChangeNum" :precision="2"></vco-number>
+            <vco-number :value="landChangeNum" :color="numberColor" :precision="2"></vco-number>
             <p class="text-xs text-gray-500">({{ t('土地贷款总额') }})</p>
           </div>
           <i class="iconfont">&#xe712;</i>
           <div class="flex items-center gap-2">
-            <vco-number :value="buildChangeNum" :precision="2"></vco-number>
+            <vco-number :value="buildChangeNum" :color="numberColor" :precision="2"></vco-number>
             <i v-if="Number(variationsInfo.amount) && variationsInfo?.build?.data" class="iconfont view-icon" @click="showSelectData(false)">&#xe63e;</i>
             <p class="text-xs text-gray-500">({{ t('建筑贷款总额') }})</p>
           </div>
           <i class="iconfont">&#xe609;</i>
           <div v-if="Number(variationsInfo.amount)" class="flex items-center gap-2">
-            <i class="iconfont" v-if="[1, 4].includes(Number(variationsInfo.type))" style="color: #31bd65">&#xe712;</i>
-            <i class="iconfont" v-else style="color: #eb4b6d">&#xe711;</i>
+            <!-- <i class="iconfont" v-if="[1, 4].includes(Number(variationsInfo.type))" style="color: #31bd65">&#xe712;</i>
+            <i class="iconfont" v-else style="color: #eb4b6d">&#xe711;</i> -->
             <vco-number :value="Number(variationsInfo.amount)" :color="numberColor" :precision="2"></vco-number>
           </div>
           <vco-number v-else :value="0" :precision="2"></vco-number>
         </div>
+        <vco-number v-else :value="Number(variationsInfo.amount)" :color="numberColor" :precision="2"></vco-number>
       </a-col>
       <a-col :span="24" class="item-txt">
         <p class="name">{{ t('变更后首次放款') }}</p>
-        <div class="txt-box line-info-box">
+        <div v-if="Number(variationsInfo.initial_land_amount) || Number(variationsInfo.initial_build_amount)" class="txt-box line-info-box">
           <div class="flex items-center gap-2">
             <vco-number :value="Number(variationsInfo.initial_land_amount || 0)" :precision="2"></vco-number>
             <p class="text-xs text-gray-500">({{ t('首次土地贷款放款额') }})</p>
@@ -156,6 +157,7 @@
           </div>
           <vco-number v-else :value="0" :precision="2"></vco-number>
         </div>
+        <vco-number v-else :value="Number(variationsInfo.initial_amount)" :precision="2"></vco-number>
       </a-col>
       <a-col :span="24" class="item-txt">
         <p class="name">{{ t('说明') }}</p>

@@ -1,29 +1,31 @@
 <template>
-  <div class="table-block">
-    <ul class="table-col header">
+  <div class="table-block text-center">
+    <ul class="table-col header" :class="{ isVsl: isVSL }">
       <li></li>
-      <li>{{ t('还款') }}</li>
+      <li class="text-left" ref="title">{{ t('还款') }}</li>
+      <li v-if="isVSL">{{ t('贷款方') }}</li>
       <li>{{ t('请求数据') }}</li>
-      <li>{{ t('状态t') }}</li>
+      <li class="status">{{ t('状态t') }}</li>
       <li>{{ t('已批准') }}</li>
       <li>{{ t('创建日期') }}</li>
       <li>{{ t('对账') }}</li>
     </ul>
     <div v-if="tableData.length" class="table-body">
       <template v-for="(item, index) in tableData" :key="item.id">
-        <ul class="table-col tr all-repayment" :class="{ active: active_id == item.id, declined: item.status_name === 'DECLINED REPAYMENT' }" @click="viewDetail(item)">
+        <ul class="table-col tr all-repayment" :class="{ active: active_id == item.id, declined: item.status_name === 'DECLINED REPAYMENT', isVsl: isVSL }" @click="viewDetail(item)">
           <li><div class="circle" :class="{ done: item.status === 2 }"></div></li>
-          <li>
-            <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.name" style="width: 200px">
+          <li class="text-left">
+            <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.name" :style="{ width: isVSL ? '164px' : '210px' }">
               <span class="index-num">{{ total - (pagination.page - 1) * pagination.limit - index }}</span>
               {{ item.name }}
             </p>
           </li>
+          <li v-if="isVSL">{{ item.source ? (item.source > 0 ? 'BOC' : '') : 'VS' }}</li>
           <li>
             <vco-number :value="item.apply_amount" :precision="2" size="fs_md" :end="true"></vco-number>
             <p class="fs_xs color_grey" v-if="item.apply_date">{{ tool.showDate(item.apply_date) }}</p>
           </li>
-          <li :style="{ color: setStatusColor(item) }">
+          <li class="status" :style="{ color: setStatusColor(item) }">
             {{ item.state === 1000 && item.status > 1 ? 'REPAID' : item.status_name }}
           </li>
           <li>
@@ -51,7 +53,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 
@@ -69,6 +71,9 @@ const props = defineProps({
         limit: 5
       };
     }
+  },
+  projectDetail: {
+    type: Object
   },
   total: {
     type: Number,
@@ -95,6 +100,10 @@ const setStatusColor = (val) => {
   }
 };
 
+const isVSL = computed(() => {
+  return props.projectDetail?.product?.code === 'vsl';
+});
+
 watch(
   () => props.tableData,
   (val) => {
@@ -118,10 +127,14 @@ watch(
 @import '@/styles/variables.less';
 
 .table-col {
-  display: flex;
+  display: grid;
+  grid-template-columns: 0.15fr 2fr 1.2fr 2fr 1.2fr 1fr 1.2fr;
   padding: 12px 24px;
   font-size: 14px;
   color: @color_coal;
+  &.isVsl {
+    grid-template-columns: 0.15fr 1.6fr 0.6fr 1.2fr 2fr 1.2fr 1fr 1.2fr;
+  }
 
   &.header {
     font-weight: bold;
@@ -214,29 +227,10 @@ watch(
         background-color: #181818;
       }
     }
-    &:nth-child(1) {
-      text-align: center;
-      width: 40px;
-    }
-    &:nth-child(2) {
-      flex: 1;
-    }
-    &:nth-child(3) {
-      width: 120px;
-      text-align: center;
-    }
-    &:nth-child(4) {
-      text-align: center;
-      width: 210px;
-    }
-    &:nth-child(6) {
-      text-align: center;
-      width: 100px;
-    }
-    &:nth-child(5),
-    &:nth-child(7) {
-      text-align: center;
-      width: 120px;
+
+    &.status {
+      font-weight: 500;
+      text-transform: uppercase;
     }
   }
 }

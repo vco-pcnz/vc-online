@@ -8,7 +8,7 @@
           <a-select style="width: 100%" v-model:value="formState.ctype" show-search :options="options"></a-select>
         </div>
         <template v-if="formState.ctype == 2">
-          <div class="input-item">
+          <div class="input-item" v-if="hasPermission('projects:reconciled:manual')">
             <div class="label" :class="{ err: !formState.bank_type && validate }">{{ t('银行') }}</div>
             <a-select style="width: 100%" v-model:value="formState.bank_type" show-search :options="types" :fieldNames="{ label: 'name', value: 'code' }" @change="resetReconciliationItem"></a-select>
           </div>

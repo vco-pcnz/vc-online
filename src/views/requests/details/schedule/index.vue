@@ -8,6 +8,7 @@
             :currentId="uuid"
             :is-details="true"
             :is-process="true"
+            :isVSL="isVSL"
             :current-product="currentProduct"
           ></schedule>
           <a-empty v-if="!showSch && !pageLoading" />
@@ -46,6 +47,11 @@
 
     return res
   })
+  
+const isVSL = computed(() => {
+  return projectDetail.value?.product?.code === 'vsl';
+});
+
 </script>
 
 <style lang="less" scoped>

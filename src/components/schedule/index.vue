@@ -200,7 +200,7 @@
                   </div>
                   <p v-else>{{ _item.name }}</p>
                 </div>
-                <li class="item text-center" v-if="isVSL">{{ item.source ? (item.source > 0 ? 'BOC' : '') : 'VS' }}</li>
+                <li class="item text-center" v-if="isVSL">{{ _item.source ? (_item.source > 0 ? 'BOC' : '') : 'VS' }}</li>
                 <div class="item">
                   <p class="note">{{ _item.note }}</p>
                 </div>

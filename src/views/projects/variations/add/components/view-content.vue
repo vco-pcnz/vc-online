@@ -739,7 +739,6 @@
     const res = await projectDetailApi({uuid: uuid.value});
     const costModel = Boolean(res.lending.devCostDetail[0].model)
     easyModel.value = costModel
-
     getVariationDetail()
   }
 

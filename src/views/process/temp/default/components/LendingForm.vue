@@ -862,10 +862,12 @@
     let changeBack = cloneDeep(changeBackItemsStore.value)
     let showNum = cloneDeep(showNumItemsStore.value)
 
-    percentData = percentData.filter(item => !item.is_linefee)
-    dollarData = dollarData.filter(item => !item.is_linefee)
-    changeBack = changeBack.filter(item => !item.is_linefee)
-    showNum = showNum.filter(item => !item.is_linefee)
+    if (formState.value.has_linefee === 0) {
+      percentData = percentData.filter(item => !item.is_linefee)
+      dollarData = dollarData.filter(item => !item.is_linefee)
+      changeBack = changeBack.filter(item => !item.is_linefee)
+      showNum = showNum.filter(item => !item.is_linefee)
+    }
 
     // 建立费、建立费率
     const estabData = []

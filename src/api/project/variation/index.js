@@ -143,3 +143,11 @@ export const projectVariationEstablishCalculate = (data) =>
     method: 'post',
     data
   });
+
+// 变更流程 - VCL建立费计算
+export const projectVariationEstabCalc = (data) =>
+  request({
+    url: 'project/variation/estabCalc?',
+    method: 'post',
+    data
+  });

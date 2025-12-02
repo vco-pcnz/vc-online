@@ -465,6 +465,15 @@
             <div v-if="secColItemsRef.length" class="w-full flex flex-wrap">
               <a-col :span="24"><div class="pt-5" style="border-top: 1px dashed #282828"></div></a-col>
               <template v-if="secColItemsRef.length">
+                <a-col :span="6">
+                  <a-form-item :label="t('建立费计算标准')" name="estab_type">
+                    <a-select
+                      v-model:value="formState.estab_type"
+                      style="width: 100%"
+                      :options="estabTypeData"
+                    ></a-select>
+                  </a-form-item>
+                </a-col>
                 <template v-for="item in secColItemsRef" :key="item.credit_table">
                   <a-col :span="6">
                     <a-form-item :name="item.credit_table">
@@ -481,14 +490,14 @@
                         v-if="item.is_ratio"
                         v-model:value="formState[item.credit_table]"
                         :suffix="item.credit_unit"
-                        :disabled="item.credit_table === 'credit_brokerFeeRate' && (!borkerFeeCalcAmount && formState.type !== 4)"
+                        :disabled="item.credit_table === 'credit_brokerFeeRate' && (!borkerFeeCalcAmount && formState.type !== 4) || formState.estab_type === 2"
                         :loading="item.credit_table === 'credit_brokerFeeRate' && loadingBorkerFeeCalcAmount"
                         @input="handInput(item.credit_table)"
                       />
                       <a-input-number
                         v-else
                         @input="handInput(item.credit_table)"
-                        :disabled="item.credit_table === 'credit_brokerFee' && (!borkerFeeCalcAmount && formState.type !== 4)"
+                        :disabled="item.credit_table === 'credit_brokerFee' && (!borkerFeeCalcAmount && formState.type !== 4) || formState.estab_type === 1"
                         :loading="item.credit_table === 'credit_brokerFee' && loadingBorkerFeeCalcAmount"
                         v-model:value="formState[item.credit_table]"
                         :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
@@ -536,7 +545,7 @@ import { message } from 'ant-design-vue';
 import { projectDetail } from '@/api/project/project';
 import { systemDictData } from '@/api/system';
 import { projectCreditVariation, projectVariationDrawdownSel, borkerFeeCalc, dischargeStatistics, projectVariationEdit } from '@/api/project/loan';
-import { projectVariationInfo, projectVariationEstablishCalculate } from '@/api/project/variation';
+import { projectVariationInfo, projectVariationEstablishCalculate, projectVariationEstabCalc } from '@/api/project/variation';
 import { ruleCredit } from '@/api/process';
 import { useI18n } from 'vue-i18n';
 import DevCostDetail from '@/views/process/temp/default/components/DevCostDetail.vue';
@@ -559,13 +568,28 @@ const projectInfo = ref();
 
 const typeDataRef = computed(() => {
   const data = cloneDeep(typeData.value)
-  data.forEach(item => {
-    item.disabled = isVsl.value ? item.value !== 3 : false
-  })
+  if (isVsl.value) {
+    data.forEach(item => {
+      item.disabled = isVsl.value ? item.value !== 3 : false
+    })
 
-  const resData = data.filter(item => ![4, 5].includes(item.value))
-  return resData
+    const resData = data.filter(item => ![4, 5].includes(item.value))
+    return resData
+  } else {
+    return data
+  }
 })
+
+const estabTypeData = ref([
+  {
+    label: t('建立费率为准'),
+    value: 1
+  },
+  {
+    label: t('建立费为准'),
+    value: 2
+  }
+])
 
 const getTypeData = () => {
   systemDictData('variation_type').then((res) => {
@@ -668,6 +692,7 @@ const typeChange = (val) => {
 const formRef = ref();
 
 const formState = ref({
+  estab_type: 1,
   type: '',
   amount: '',
   start_date: '',
@@ -1286,51 +1311,90 @@ const calcSameTermBroker = (flag = false) => {
   }
 }
 
-const calcExtendTermEstab = (flag = false) => {
-  const credit_estabFeeRate = Number(formState.value.credit_estabFeeRate || 0) > 0 ? Number(formState.value.credit_estabFeeRate || 0) : 0
-  const credit_estabFee = Number(formState.value.credit_estabFee || 0) > 0 ? Number(formState.value.credit_estabFee || 0) : 0
-  let num = Number(borkerFeeCalcAmountRef.value || 0)
-
-  if (formState.value.type !== 4) {
-    const legalFee = Number(formState.value.credit_legalFee || 0) > 0 ? Number(formState.value.credit_legalFee || 0) : 0
-    const otherFee = Number(formState.value.credit_otherFee || 0) > 0 ? Number(formState.value.credit_otherFee || 0) : 0
-    const brokerFee = Number(formState.value.credit_brokerFee || 0) > 0 ? Number(formState.value.credit_brokerFee || 0) : 0
-
-    const loFee = Number(tool.plus(legalFee, otherFee))
-    const brFee = Number(tool.plus(loFee, brokerFee))
-    const fNum = Number(tool.plus(num, brFee))
-    const cNum = Number(loanMoneyChangeNum.value || 0)
-    const toolFn = [1].includes(formState.value.type) ? tool.plus : tool.minus
-    num = Number(toolFn(fNum, cNum))
-  } else {
-    const legalFee = Number(formState.value.credit_legalFee || 0) > 0 ? Number(formState.value.credit_legalFee || 0) : 0
-    const otherFee = Number(formState.value.credit_otherFee || 0) > 0 ? Number(formState.value.credit_otherFee || 0) : 0
-    const brokerFee = Number(formState.value.credit_brokerFee || 0) > 0 ? Number(formState.value.credit_brokerFee || 0) : 0
-
-    const loFee = Number(tool.plus(legalFee, otherFee))
-    const brFee = Number(tool.plus(loFee, brokerFee))
-    const cNum = Number(loanMoneyChangeNum.value || 0)
-    num = Number(tool.plus(brFee, cNum))
+const calcVclEstab = () => {
+  const params = {
+    uuid: uuid.value,
+    id: currentVariationId.value,
+    type: formState.value.type,
+    estab_type: formState.value.estab_type,
+    start_date: formState.value.start_date,
+    end_date: formState.value.end_date,
+    initial_sn: formState.value.initial_sn || '',
+    initial_land_amount: formState.value.initial_land_amount || 0,
+    initial_build_amount: formState.value.initial_build_amount || 0,
+    initial_amount: initialAmount.value || 0,
+    land_amount: landChangeAfterNum.value || 0,
+    build_amount: buildChangeAfterNum.value || 0,
+    amount: loanMoneyChangeNum.value || 0,
+    build_log: cloneDeep(selectedData.value) || [],
+    note: formState.value.note || ''
+  }
+  const credit = {};
+  for (let i = 0; i < colItemsRef.value.length; i++) {
+    credit[colItemsRef.value[i].credit_table] = formState.value[colItemsRef.value[i].credit_table]
+    delete params[colItemsRef.value[i].credit_table]
+  }
+  for (let i = 0; i < secColItemsRef.value.length; i++) {
+    credit[secColItemsRef.value[i].credit_table] = formState.value[secColItemsRef.value[i].credit_table]
+    delete params[secColItemsRef.value[i].credit_table]
   }
 
-  if (formState.value.start_date) {
-    if (flag) {
-      formState.value.credit_estabFee = Number(tool.times(tool.div(credit_estabFeeRate, 100), num)).toFixed(2)
+  params.credit = credit;
+
+  projectVariationEstabCalc(params).then(res => {
+    if (formState.value.estab_type === 1) {
+      formState.value.credit_estabFee = res
     } else {
-      formState.value.credit_estabFeeRate = Number(tool.times(tool.div(credit_estabFee, num), 100)).toFixed(2)
+      formState.value.credit_estabFeeRate = res
     }
-  } else {
-    if (flag) {
-      formState.value.credit_estabFee = 0
-    } else {
-      formState.value.credit_estabFeeRate = 0
-    }
-  }
+  })
+}
+
+// 防抖版本的计算VCL建立费
+const debouncedCalcVclEstab = debounce(calcVclEstab, 500)
+
+const calcExtendTermEstab = () => {
+  debouncedCalcVclEstab()
+  // const credit_estabFeeRate = Number(formState.value.credit_estabFeeRate || 0) > 0 ? Number(formState.value.credit_estabFeeRate || 0) : 0
+  // const credit_estabFee = Number(formState.value.credit_estabFee || 0) > 0 ? Number(formState.value.credit_estabFee || 0) : 0
+  // let num = Number(borkerFeeCalcAmountRef.value || 0)
+
+  // const legalFee = Number(formState.value.credit_legalFee || 0) > 0 ? Number(formState.value.credit_legalFee || 0) : 0
+  // const otherFee = Number(formState.value.credit_otherFee || 0) > 0 ? Number(formState.value.credit_otherFee || 0) : 0
+  // const brokerFee = Number(formState.value.credit_brokerFee || 0) > 0 ? Number(formState.value.credit_brokerFee || 0) : 0
+
+  // if (formState.value.type !== 4) {
+  //   const loFee = Number(tool.plus(legalFee, otherFee))
+  //   const brFee = Number(tool.plus(loFee, brokerFee))
+  //   const fNum = Number(tool.plus(num, brFee))
+  //   const cNum = Number(loanMoneyChangeNum.value || 0)
+  //   const toolFn = [1].includes(formState.value.type) ? tool.plus : tool.minus
+  //   num = Number(toolFn(fNum, cNum))
+  // } else {
+  //   const loFee = Number(tool.plus(legalFee, otherFee))
+  //   const brFee = Number(tool.plus(loFee, brokerFee))
+  //   const cNum = Number(loanMoneyChangeNum.value || 0)
+  //   num = Number(tool.plus(brFee, cNum))
+  // }
+
+  // if (formState.value.start_date) {
+  //   if (formState.value.estab_type === 1) {
+  //     formState.value.credit_estabFee = Number(tool.times(tool.div(credit_estabFeeRate, 100), num)).toFixed(2)
+  //   } else {
+  //     formState.value.credit_estabFeeRate = Number(tool.times(tool.div(credit_estabFee, num), 100)).toFixed(6)
+  //   }
+  // } else {
+  //   if (formState.value.estab_type === 1) {
+  //     formState.value.credit_estabFee = 0
+  //   } else {
+  //     formState.value.credit_estabFeeRate = 0
+  //   }
+  // }
 }
 
 const bocEstabFee = ref(0);
 
-const vslCalcEstab = (isFee = true) => {
+const vslCalcEstab = () => {
   const legalFee = Number(formState.value.credit_legalFee || 0) > 0 ? Number(formState.value.credit_legalFee || 0) : 0
   const otherFee = Number(formState.value.credit_otherFee || 0) > 0 ? Number(formState.value.credit_otherFee || 0) : 0
   const brokerFee = Number(formState.value.credit_brokerFee || 0) > 0 ? Number(formState.value.credit_brokerFee || 0) : 0
@@ -1348,12 +1412,12 @@ const vslCalcEstab = (isFee = true) => {
         credit_estabFee: esFee,
         credit_estabFeeRate: esRate
     },
-    estab_type: isFee ? 1 : 2
+    estab_type: formState.value.estab_type
   }
 
   if (credit_fc1 > 0) {
     projectVariationEstablishCalculate(params).then(res => {
-      if (isFee) {
+      if (formState.value.estab_type === 1) {
         formState.value.credit_estabFee = res.estab_fee
       } else {
         formState.value.credit_estabFeeRate = res.estab_fee_rate
@@ -1377,7 +1441,7 @@ watch(
       if (isVsl.value) {
         debouncedVslCalcEstab()
       } else {
-        calcExtendTermEstab(true)
+        calcExtendTermEstab()
       }
     }
   },
@@ -1418,24 +1482,30 @@ const handInput = (key) => {
     }
 
     if (!isVsl.value) {
-      calcExtendTermEstab(true)
+      calcExtendTermEstab()
     }
   }
 
   // 建立费
   if (['credit_estabFeeRate', 'credit_estabFee'].includes(key)) {
     if (isVsl.value) {
-      debouncedVslCalcEstab(key === 'credit_estabFeeRate')
+      debouncedVslCalcEstab()
     } else {
-      calcExtendTermEstab(key === 'credit_estabFeeRate')
+      calcExtendTermEstab()
     }
   }
   if (['credit_legalFee', 'credit_otherFee'].includes(key) && [1, 2, 3, 4].includes(formState.value.type)) {
     if (isVsl.value) {
       debouncedVslCalcEstab()
     } else {
-      calcExtendTermEstab(true)
+      calcExtendTermEstab()
     }
+  }
+
+  const has_linefee = Boolean(projectInfo.value.base.has_linefee);
+  // 没有lineFee 利息变动请求建立费
+  if (!has_linefee && !isVsl.value && ['credit_loanInterest'].includes(key)) {
+    calcExtendTermEstab()
   }
 };
 
@@ -1491,6 +1561,7 @@ const submitHandle = () => {
         id: currentVariationId.value,
         do__save: 1,
         type: formState.value.type,
+        estab_type: formState.value.estab_type,
         start_date: formState.value.start_date,
         end_date: formState.value.end_date,
         initial_sn: formState.value.initial_sn || '',
@@ -1623,6 +1694,11 @@ onMounted(async () => {
     border: 1px solid @clr_white;
     background-color: @clr_white;
     box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, 0.1);
+  }
+
+  :deep(.ant-input[disabled]),
+  :deep(.ant-input-number-disabled input) {
+    color: #999 !important;
   }
 }
 

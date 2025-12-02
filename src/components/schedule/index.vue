@@ -244,7 +244,7 @@
           </div>
         </div>
 
-        <div v-if="statisticsData && tabData.length && !ptRole" class="static-block flex">
+        <div v-if="statisticsData && tabData.length && !ptRole && !tab_id" class="static-block flex">
           <div class="item flex">
             <div class="day-box">
               <p>{{ t('估计总数') }}</p>

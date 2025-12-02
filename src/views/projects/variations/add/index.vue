@@ -1343,13 +1343,15 @@ const calcVclEstab = () => {
 
   params.credit = credit;
 
-  projectVariationEstabCalc(params).then(res => {
-    if (formState.value.estab_type === 1) {
-      formState.value.credit_estabFee = res
-    } else {
-      formState.value.credit_estabFeeRate = res
-    }
-  })
+  if (params.type && params.start_date) {
+    projectVariationEstabCalc(params).then(res => {
+      if (formState.value.estab_type === 1) {
+        formState.value.credit_estabFee = res
+      } else {
+        formState.value.credit_estabFeeRate = res
+      }
+    })
+  }
 }
 
 // 防抖版本的计算VCL建立费

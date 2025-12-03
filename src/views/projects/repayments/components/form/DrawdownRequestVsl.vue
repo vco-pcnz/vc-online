@@ -108,7 +108,7 @@
               <p style="color: #ff4d4f; position: absolute; bottom: 0px" v-if="drawdownListInspection">{{ t('请完善数据') }}</p>
             </a-col>
             <!-- (formState.all_repayment === 1 && maxReductionAmount ) -->
-            <template v-if="formState.all_repayment === 1 && maxReductionAmount && !isNormalUser">
+            <template v-if="formState.all_repayment === 1 && maxReductionAmount && !isNormalUser && false">
               <a-col :span="8">
                 <a-form-item class="data-col-item">
                   <template #label>

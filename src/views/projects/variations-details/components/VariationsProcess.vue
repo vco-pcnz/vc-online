@@ -126,7 +126,12 @@ const requesetCancel = async () => {
     id: props.id
   };
   await projectVariationDelete(params)
-    .then((res) => {
+    .then(() => {
+      // 清除已经缓存的数据
+      const obj = JSON.parse(localStorage.getItem('variationId') || '{}');
+      delete obj[uuid.value];
+      localStorage.setItem('variationId', JSON.stringify(obj));
+
       router.push(`/projects/variations?uuid=${props.uuid}`);
       return false;
     })

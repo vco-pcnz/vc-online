@@ -76,7 +76,7 @@
             <!-- 退回到open流程 -->
             <BackOpen :currentId="currentId" :toBeClosedFormData="BackOpenFormData" :detail="detail" @update="update"></BackOpen>
             <!-- vsl买断流程 -->
-            <BuyOut :currentId="currentId" :detail="detail" @update="update"></BuyOut>
+            <BuyOut v-if="detail?.buyout?.state != 1000" :currentId="currentId" :detail="detail" @update="update"></BuyOut>
 
             <MeterStat :data="detail?.credit" :base="detail?.base" v-if="!detail?.base?.ptRole"></MeterStat>
             <MeterStatVip :data="detail?.credit" v-if="detail?.base?.ptRole"></MeterStatVip>

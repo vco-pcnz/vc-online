@@ -37,7 +37,7 @@
                   {{ record.all_repayment == 1 ? t('本金优先分配') : t('利息优先分配') }}
                 </template>
                 <template v-if="column.dataIndex === 'amount1'">
-                  {{ tool.formatMoney(record.total_amount) }}
+                  {{ tool.formatMoney(record.apply_rep_amount) }}
                 </template>
               </template>
             </a-table>

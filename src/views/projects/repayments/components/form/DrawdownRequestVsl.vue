@@ -529,6 +529,7 @@ const submit = () => {
     confirmTxt.value = t('还款金额 {0},还款分配金额总计 {1},相差 {2},请调整金额', [tool.formatMoney(params.apply_amount), tool.formatMoney(apply_amount_total), tool.formatMoney(tool.minus(params.apply_amount, apply_amount_total))]);
     return;
   }
+  params.all_repayment = params.all_repayment ? 1 : 0;
   loading.value = true;
 
   loanRDedit(params)

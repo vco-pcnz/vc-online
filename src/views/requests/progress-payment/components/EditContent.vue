@@ -9,6 +9,42 @@
       @submit="submitRquest"
     ></vco-confirm-alert>
 
+    <!-- 新增BOC放款项弹窗 -->
+    <a-modal :open="addBocVisible" :title="t('新增BOC放款项')" :width="500" :footer="null" :keyboard="false" :maskClosable="false" @cancel="addBocCancelHandle">
+      <a-row :gutter="24" class="mt-10">
+        <a-col :span="24">
+          <div class="info-content sys-form-content">
+            <p class="name mb-2">{{ t('类型名称') }}</p>
+            <a-input v-model:value="addBocFormstate.type" />
+          </div>
+        </a-col>
+        <a-col :span="12">
+          <div class="info-content sys-form-content">
+            <p class="name mb-2">{{ t('所占比例') }}</p>
+            <a-input v-model:value="addBocFormstate.payment" suffix="%" />
+          </div>
+        </a-col>
+        <a-col :span="12">
+          <div class="info-content sys-form-content">
+            <p class="name mb-2">{{ t('金额') }}</p>
+            <a-input-number
+              v-model:value="addBocFormstate.amount"
+              :controls="false"
+              :min="0"
+              :max="99999999999"
+              :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+              :parser="value => value.replace(/\$\s?|(,*)/g, '')"
+            />
+          </div>
+        </a-col>
+      </a-row>
+      <div class="mt-5 flex">
+        <a-button type="dark" class="big shadow bold uppercase w-full"
+          @click="addBocSureHandle"
+        >{{ t('确定') }}</a-button>
+      </div>
+    </a-modal>
+
     <a-modal :open="bocSplitVisible" :title="t('BOC拆分')" :width="500" :footer="null" :keyboard="false" :maskClosable="false" @cancel="setDialogCancel">
       <a-row v-if="currentSplitObj?.total_amount" :gutter="24" class="mt-10">
         <a-col :span="12">
@@ -85,6 +121,13 @@
             <div class="title">{{ t('进度付款阶段') }}</div>
             <template v-if="!easyModel && calcBuildAmount">
               <div v-if="!isOpen" class="flex gap-5">
+                <!-- <a-button v-if="isVsl" type="cyan"
+                  class="uppercase flex items-center"
+                  @click="addBocDrawdownHandle"
+                >
+                  {{ t('新增BOC放款项') }}
+                </a-button> -->
+
                 <a-button type="dark" class="uppercase flex items-center" @click="exportHandle">
                   {{ t('下载') }}
                   <a-tooltip>
@@ -152,16 +195,37 @@
             <template #bodyCell="{ column, record, index }">
               <template v-if="record.isFixedRow">
                 <template v-if="column.dataIndex === 'type'">
-                  <p>{{ record.type }}</p>
+                  <template v-if="record.isBocAdd">
+                    fdsa
+                  </template>
+                  <p v-else>{{ record.type }}</p>
                 </template>
                 <template v-else-if="column.dataIndex === 'payment'">
-                  <p>--</p>
+                  <template v-if="record.isBocAdd">
+                    <a-input v-model:value="record.payment" suffix="%" />
+                  </template>
+                  <p v-else>--</p>
                 </template>
                 <template v-else-if="column.dataIndex === 'total'">
-                  <vco-number :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
+                  <template v-if="record.isBocAdd">
+                    <vco-number :value="record.amount" size="fs_md" :precision="2" :end="true"></vco-number>
+                  </template>
+                  <vco-number v-else :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
                 </template>
                 <template v-else>
-                  <div class="flex justify-center flex-col items-center" :style="{width: amLen === 1 ? '340px' : '710px'}">
+                  <template v-if="record.isBocAdd">
+                    <div class="flex justify-center flex-col items-center" :style="{width: amLen === 1 ? '340px' : '710px'}">
+                      <a-input-number
+                        v-model:value="record.amount"
+                        :min="0"
+                        :max="99999999999"
+                        :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                        :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                        style="width: 200px;"
+                      />
+                    </div>
+                  </template>
+                  <div v-else class="flex justify-center flex-col items-center" :style="{width: amLen === 1 ? '340px' : '710px'}">
                     <a-input-number
                       v-model:value="advanceAmount"
                       :min="0"
@@ -1760,6 +1824,36 @@
     bocSplitObjRef.value[type].boc.term = term
     bocSplitObjRef.value[type].vsl.amount = vslAmount
     setDialogCancel()
+  }
+
+  const addBocItem = {
+    type: '',
+    payment: '',
+    amount: '',
+    isBocAdd: true,
+    isFixedRow: true
+  }
+
+  const addBocFormstate = ref({})
+  const addBocVisible = ref(false)
+
+  const addBocDrawdownHandle = () => {
+    const obj = cloneDeep(addBocItem)
+    addBocFormstate.value = obj
+    addBocVisible.value = true
+  }
+
+  const addBocCancelHandle = () => {
+    addBocFormstate.value = {}
+    addBocVisible.value = false
+  }
+
+  const addBocSureHandle = () => {
+    const obj = cloneDeep(addBocFormstate.value)
+    const addArr = tableData.value.filter(item => item.isBocAdd)
+    const addIndex = addArr.length + 1
+    tableData.value.splice(addIndex, 0, obj)
+    addBocCancelHandle()
   }
 
   onMounted(async () => {

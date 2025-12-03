@@ -475,7 +475,7 @@
                   </a-form-item>
                 </a-col>
                 <template v-for="item in secColItemsRef" :key="item.credit_table">
-                  <a-col :span="6">
+                  <a-col :span="isVsl ? 4 : 6">
                     <a-form-item :name="item.credit_table">
                       <template #label>
                         {{ item.credit_name }}
@@ -508,7 +508,14 @@
                   </a-col>
                 </template>
                 <template v-if="isVsl">
-                  <a-col :span="6">
+                  <a-col :span="5">
+                    <a-form-item :label="t('VSL建立费')">
+                      <div style="height: 50px;" class="flex items-center">
+                        <vco-number :value="vslEstabFee" :precision="2"></vco-number>
+                      </div>
+                    </a-form-item>
+                  </a-col>
+                  <a-col :span="5">
                     <a-form-item :label="t('BOC建立费')">
                       <div style="height: 50px;" class="flex items-center">
                         <vco-number :value="bocEstabFee" :precision="2"></vco-number>
@@ -1397,6 +1404,7 @@ const calcExtendTermEstab = () => {
 }
 
 const bocEstabFee = ref(0);
+const vslEstabFee = ref(0);
 
 const vslCalcEstab = () => {
   const legalFee = Number(formState.value.credit_legalFee || 0) > 0 ? Number(formState.value.credit_legalFee || 0) : 0
@@ -1419,16 +1427,15 @@ const vslCalcEstab = () => {
     estab_type: formState.value.estab_type
   }
 
-  if (credit_fc1 > 0) {
-    projectVariationEstablishCalculate(params).then(res => {
-      if (formState.value.estab_type === 1) {
-        formState.value.credit_estabFee = res.estab_fee
-      } else {
-        formState.value.credit_estabFeeRate = res.estab_fee_rate
-      }
-      bocEstabFee.value = res.boc_estab_fee
-    })
-  }
+  projectVariationEstablishCalculate(params).then(res => {
+    if (formState.value.estab_type === 1) {
+      formState.value.credit_estabFee = res.estab_fee
+    } else {
+      formState.value.credit_estabFeeRate = res.estab_fee_rate
+    }
+    bocEstabFee.value = res.boc_estab_fee
+    vslEstabFee.value = res.vs_estab_fee
+  })
 }
 
 // 防抖版本的计算方法
@@ -1669,6 +1676,11 @@ onMounted(async () => {
 
       if (canEdit.value) {
         editDataFull()
+      }
+    } else {
+      if (isVsl.value) {
+        formState.value.type = 3
+        typeChange(3)
       }
     }
     await getCreditInfo();

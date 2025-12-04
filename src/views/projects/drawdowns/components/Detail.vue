@@ -103,7 +103,7 @@
       </a-popconfirm>
 
       <!-- 审核 -->
-      <template v-if="detail?.has_permission">
+      <template v-if="detail?.has_permission && detail?.amount > 0">
         <AcceptFc v-if="detail?.mark === 'drawdown_fc'" :uuid="uuid" :detail="detail" :projectDetail="projectDetail" @change="update">
           <a-button type="dark" class="big uppercase" style="width: 100%" :loading="accept_loading"> {{ t('接受请求') }} </a-button>
         </AcceptFc>

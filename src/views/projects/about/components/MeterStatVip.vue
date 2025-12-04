@@ -6,27 +6,20 @@
         <div>
           <p>Current balance</p>
           <div class="fs_3xl bold" style="margin-bottom: 2px"><vco-number :value="data?.currentBalance" :precision="2"></vco-number></div>
-          <p class="color_grey flex"><vco-number :value="data?.currentBalanceAvailable" :precision="2" color="#888" size="fs_md" class="mr-2"></vco-number> available</p>
         </div>
       </div>
       <div class="MeterStat MeterStat_type_stone3">
         <div class="MeterStat-Meter LB"></div>
         <div>
-          <p>Repayment</p>
-          <vco-number :value="Math.abs(data?.real_repayment)" :precision="2"></vco-number>
+          <p>Accrued interest</p>
+          <vco-number :value="Math.abs(data?.accruedInterest)" :precision="2"></vco-number>
         </div>
       </div>
       <div class="MeterStat">
         <div class="MeterStat-Meter LC"></div>
         <div>
-          <div class="flex items-center gap-2">
-            Full facility
-            <div class="efSGMs">
-              <i class="iconfont">&#xe6b3;</i>
-              <div class="tips"><p>Full Facility = Facility + Establishment fee + Estimated Line Fee + Estimated Interest</p></div>
-            </div>
-          </div>
-          <vco-number :value="data?.credit_forecastFc2" :precision="2"></vco-number>
+          <p>Est. Payoff (Today)</p>
+          <vco-number :value="tool.plus(data?.currentBalance || 0, data?.accruedInterest || 0)" :precision="2"></vco-number>
         </div>
       </div>
     </div>
@@ -49,14 +42,13 @@
         <div>
           <p>Drawn amount</p>
           <vco-number :value="data?.loanWithdrawal" :precision="2"></vco-number>
-          <p class="color_grey flex"><vco-number :value="data?.loanWithdrawalAvailable" :precision="2" color="#888" size="fs_md" class="mr-2"></vco-number> available</p>
         </div>
         <div class="MeterStat-Meter RA"></div>
       </div>
       <div class="MeterStat justify-end text-right">
         <div>
-          <p class="color_grey" style="margin-bottom: 2px">Pending drawdown</p>
-          <vco-number :value="data?.pendingDrawdown" :precision="2"></vco-number>
+          <p>Available to draw</p>
+          <vco-number :value="data?.loanWithdrawalAvailable" :precision="2"></vco-number>
         </div>
         <div class="MeterStat-Meter RB"></div>
       </div>
@@ -67,7 +59,7 @@
               <i class="iconfont">&#xe6b3;</i>
               <div class="tips" style="right: 50%; left: auto"><p>Loan = Approved LoanAmount + Legal fee + Brokerfee + Otherfee</p></div>
             </div>
-            Loan
+            Loan amount
           </div>
           <vco-number :value="data?.credit_fc1" :precision="2"></vco-number>
         </div>
@@ -80,6 +72,7 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import tool from '@/utils/tool';
 
 const { t } = useI18n();
 

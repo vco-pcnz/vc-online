@@ -768,7 +768,7 @@ const drawDownSelectedList = ref([]);
 const drawDownSelectedListLoading = ref(false);
 const loadDrawDownSelected = () => {
   drawDownSelectedListLoading.value = true;
-  drawDownSelected({ uuid: props.uuid, appy_id: props.dataInfo?.id })
+  drawDownSelected({ uuid: props.uuid, apply_id: props.dataInfo?.id })
     .then((res) => {
       drawDownSelectedList.value = res;
     })

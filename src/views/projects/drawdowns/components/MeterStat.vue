@@ -1,18 +1,21 @@
 <template>
   <a-spin :spinning="loading" size="large">
     <div class="indicatorsGrid">
-      <div class="MeterStat MeterStat_type_charcoal">
+      <div :class="['MeterStat', 'MeterStat_type_charcoal', { 'MeterStat_external': isExternalUser }]">
         <div class="MeterStat-Meter"></div>
         <div>
-          <p>{{ t('贷款提取') }}</p>
+          <p>{{ isExternalUser ? t('已提取金额') : t('贷款提取') }}</p>
           <vco-number :bold="true" :value="statistics?.loanWithdrawal" :precision="2" style="margin-bottom: 2px"></vco-number>
-          <div v-if="statistics?.available >= 0" class="color_grey flex"><vco-number :value="statistics?.available" :precision="2" size="fs_xs" color="#888" class="mr-2"></vco-number> {{ t('可用余额') }}</div>
-          <div v-else class="color_red-error flex">
-            {{ t('{0} 已超额', [tool.formatMoney(Math.abs(statistics?.available || 0))]) }}
-          </div>
+          <template v-if="!isExternalUser">
+            <div v-if="statistics?.available >= 0" class="color_grey flex"><vco-number :value="statistics?.available" :precision="2" size="fs_xs" color="#888" class="mr-2"></vco-number> {{ t('可用余额') }}</div>
+            <div v-else class="color_red-error flex">
+              {{ t('{0} 已超额', [tool.formatMoney(Math.abs(statistics?.available || 0))]) }}
+            </div>
+          </template>
+          <p v-else style="opacity: 0">.</p>
         </div>
       </div>
-      <div class="MeterStat MeterStat_type_dotsBlack">
+      <div :class="['MeterStat', 'MeterStat_type_dotsBlack', { 'MeterStat_external': isExternalUser }]">
         <div class="MeterStat-Dots">
           <div class="MeterStat-Dot"></div>
           <div class="MeterStat-Dot"></div>
@@ -20,19 +23,19 @@
           <div class="MeterStat-Dot"></div>
         </div>
         <div>
-          <p class="color_grey" style="margin-bottom: 2px">{{ t('待提款') }}</p>
-          <vco-number :bold="true" :value="statistics?.pendingDrawdown" :precision="2"></vco-number>
+          <p class="color_grey" style="margin-bottom: 2px">{{ isExternalUser ? t('可提取金额') : t('待提款') }}</p>
+          <vco-number :bold="true" :value="isExternalUser ? statistics?.available || 0 : statistics?.pendingDrawdown" :precision="2"></vco-number>
           <p style="opacity: 0">.</p>
         </div>
       </div>
       <div class="chart">
         <v-chart class="chart2" :option="option" autoresize />
       </div>
-      <div class="MeterStat MeterStat_type_transparent text-right">
+      <div :class="['MeterStat', 'MeterStat_type_transparent', 'text-right', { 'MeterStat_external': isExternalUser }]">
         <div>
-          <p>{{ t('借款信息') }}</p>
+          <p>{{ isExternalUser ? t('借款金额') : t('借款信息') }}</p>
           <vco-number :bold="true" :value="statistics?.loan" :precision="2"></vco-number>
-          <p class="color_grey">{{ t('不包括利息和费用') }}</p>
+          <p class="color_grey" v-if="!isExternalUser">{{ t('不包括利息和费用') }}</p>
         </div>
         <div class="MeterStat-Meter"></div>
       </div>
@@ -41,12 +44,16 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { loanDstatistics } from '@/api/project/loan';
+import { useUserStore } from '@/store';
 
 const { t } = useI18n();
+const userStore = useUserStore();
+// isNormalUser 为真表示外部用户，为假表示内部用户
+const isExternalUser = computed(() => !!userStore.isNormalUser);
 
 const emits = defineEmits(['update:statisticsData']);
 const props = defineProps(['uuid']);
@@ -133,6 +140,9 @@ defineExpose({
   font-weight: 500;
   gap: 24px;
   flex: 1;
+}
+.MeterStat_external {
+  height: 58px;
 }
 .MeterStat-Meter {
   border: 1px solid;

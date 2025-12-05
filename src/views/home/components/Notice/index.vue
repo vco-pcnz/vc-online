@@ -90,6 +90,9 @@ onMounted(() => {
   position: absolute;
   top: 46.8px;
   bottom: 0;
+  left: 0;
+  right: 0;
+  
   overflow-y: auto;
   .item {
     flex: 1;

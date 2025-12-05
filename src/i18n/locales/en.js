@@ -1296,5 +1296,6 @@ export default {
   "新增BOC放款项": "Add BOC drawdown",
   "类型名称": "Type name",
   "所占比例": "Payment ratio",
-  "VSL建立费": "VSL establishment fee"
+  "VSL建立费": "VSL establishment fee",
+  "贷款期限": "Loan duration"
 }

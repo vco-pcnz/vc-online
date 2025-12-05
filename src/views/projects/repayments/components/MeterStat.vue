@@ -1,11 +1,11 @@
 <template>
   <a-spin :spinning="loading" size="large">
-  <div class="indicatorsGrid">
+  <div class="indicatorsGrid" :class="{ 'indicatorsGrid-compact': isNormalUser }">
     <div class="MeterStat MeterStat_type_charcoal">
       <div class="MeterStat-Meter"></div>
       <div>
-        <p>{{ t('还款1') }}</p>
-        <vco-number :bold="true" :value="statistics?.loanRepaid" :precision="2" style="margin-bottom: 2px"></vco-number>
+        <p>{{ isNormalUser ? t('当前余额') : t('还款1') }}</p>
+        <vco-number :bold="true" :value="isNormalUser? statistics?.currentBalance : statistics?.loanRepaid" :precision="2" style="margin-bottom: 2px"></vco-number>
       </div>
     </div>
     <div class="MeterStat MeterStat_type_dotsBlack">
@@ -16,8 +16,8 @@
         <div class="MeterStat-Dot"></div>
       </div>
       <div>
-        <p class="color_grey" style="margin-bottom: 2px">{{ t('待还款') }}</p>
-        <vco-number :bold="true" :value="statistics?.pendingRepayment" :precision="2"></vco-number>
+        <p class="color_grey" style="margin-bottom: 2px">{{ isNormalUser ? t('应计利息') : t('待还款') }}</p>
+        <vco-number :bold="true" :value="isNormalUser? statistics?.accruedInterest : statistics?.pendingRepayment" :precision="2"></vco-number>
         <p style="opacity: 0">.</p>
       </div>
     </div>
@@ -27,9 +27,9 @@
     <div class="MeterStat MeterStat_type_transparent text-right">
       <div>
         <div>
-          <p>{{ t('贷款余额1') }}</p>
-          <vco-number :bold="true" :value="statistics?.loanBalance" :precision="2"></vco-number>
-          <p class="color_grey">{{ t('包括利息和费用') }}</p>
+          <p>{{ isNormalUser ? t('预计还款今天') : t('贷款余额1') }}</p>
+          <vco-number :bold="true" :value="isNormalUser ? estPayoffToday : statistics?.loanBalance" :precision="2"></vco-number>
+          <p v-if="!isNormalUser" class="color_grey">{{ t('包括利息和费用') }}</p>
         </div>
       </div>
       <div class="MeterStat-Meter"></div>
@@ -42,8 +42,18 @@
 import { ref, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { loanRstatistics } from '@/api/project/loan';
+import useUserStore from '@/store/modules/user';
+import tool from '@/utils/tool';
 
 const { t } = useI18n();
+const userStore = useUserStore();
+// isNormalUser 为真表示外部用户
+const isNormalUser = computed(() => userStore.isNormalUser);
+
+// 外部用户预计还款金额 = 当前余额 + 应计利息
+const estPayoffToday = computed(() => {
+  return tool.plus(statistics.value?.currentBalance || 0, statistics.value?.accruedInterest || 0);
+});
 
 const props = defineProps({
   uuid: {
@@ -103,8 +113,19 @@ const loadData = () => {
     statistics.value = res;
 
     const num = 100
-    const rate = res.rate || 0
+    let rate = res.rate || 0
 
+    // 外部用户：rate = currentBalance / estPayoffToday * 100
+    if (isNormalUser.value) {
+      const currentBalance = res.currentBalance || 0
+      const accruedInterest = res.accruedInterest || 0
+      const payoff = tool.plus(currentBalance, accruedInterest) // estPayoffToday
+      if (Number(payoff) > 0) {
+        rate = Number(tool.times(tool.div(currentBalance, payoff), 100))
+      } else {
+        rate = 0
+      }
+    }
 
     option.value.series[0].data = [{ value: rate }, { value: num - rate }]
   }).finally(_ => {
@@ -149,6 +170,12 @@ defineExpose({
   border: 1px solid;
   border-radius: 4px;
   width: 6px;
+}
+.indicatorsGrid-compact .MeterStat-Meter {
+  height: 58px;
+}
+.indicatorsGrid-compact .MeterStat-Dots {
+  height: 58px;
 }
 .MeterStat_type_transparent > .MeterStat-Meter {
   background-color: #f3ede5;

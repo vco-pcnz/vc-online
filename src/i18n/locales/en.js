@@ -1297,5 +1297,6 @@ export default {
   "类型名称": "Type name",
   "所占比例": "Payment ratio",
   "VSL建立费": "VSL establishment fee",
-  "贷款期限": "Loan duration"
+  "贷款期限": "Loan duration",
+  "预计还款今天": "Est. payoff (today)"
 }

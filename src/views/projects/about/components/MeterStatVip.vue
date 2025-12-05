@@ -18,7 +18,7 @@
       <div class="MeterStat">
         <div class="MeterStat-Meter LC"></div>
         <div>
-          <p>Est. Payoff (Today)</p>
+          <p>{{ t('预计还款今天') }}</p>
           <vco-number :value="tool.plus(data?.currentBalance || 0, data?.accruedInterest || 0)" :precision="2"></vco-number>
         </div>
       </div>
@@ -30,7 +30,7 @@
       <a-progress type="circle" class="progress" :size="280" strokeColor="rgba(169, 173, 87, 0.7)" :strokeWidth="6" :percent="data?.fkrate || 0">
         <template #format="percent">
           <div class="progress-value">
-            <p>drawn</p>
+            <p>Drawn amount</p>
             <span class="num">{{ percent }}%</span>
           </div>
         </template>
@@ -118,8 +118,14 @@ watch(
   () => props.data,
   (val) => {
     if (val) {
-      option.value.series[0].data = [{ value: props.data.currentBalance }, { value: props.data.accruedInterest }, { value: props.data.currentBalanceAvailable }];
-      option2.value.series[0].data = [{ value: props.data.loanWithdrawal }, { value: props.data.pendingDrawdown }, { value: props.data.loanWithdrawalAvailable }];
+      const currentBalance = props.data?.currentBalance || 0;
+      const accruedInterest = props.data?.accruedInterest || 0;
+      const payoff = tool.plus(currentBalance, accruedInterest); // estPayoffToday
+      if (Number(payoff) > 0) {
+        props.data.hkrate = Number(tool.times(tool.div(currentBalance, payoff), 100));
+      } else {
+        props.data.hkrate = 0;
+      }
     }
   },
   {

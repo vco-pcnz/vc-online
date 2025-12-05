@@ -1298,5 +1298,7 @@ export default {
   "所占比例": "Payment ratio",
   "VSL建立费": "VSL establishment fee",
   "贷款期限": "Loan duration",
-  "预计还款今天": "Est. payoff (today)"
+  "预计还款今天": "Est. payoff (today)",
+  "已提取金额": "Drawn amount",
+  "可提取金额": "Available to draw"
 }

@@ -1,17 +1,22 @@
 <template>
-  <div class="vco-avatar" :class="{'radius': radius, 'round': round}" :style="{width: size + 'px', height: size + 'px'}">
+  <div class="vco-avatar" :class="{'radius': radius, 'round': round}" :style="{width: size + 'px', height: size + 'px', fontSize: size * 0.4 + 'px'}">
     <div class="vco-avatar-content" :class="{'loaded': loaded}">
       <img v-if="isSuc" :src="src" :class="{'height-fixed': heightFixed}">
+      <div v-else-if="nameInitial" class="vco-avatar-initial">{{ nameInitial }}</div>
       <img v-else src="./../../assets/images/user.svg" alt="">
     </div>
   </div>
 </template>
 
 <script setup>
-  import { ref, watch } from 'vue'
+  import { ref, watch, computed } from 'vue'
   
   const props = defineProps({
     src: {
+      type: String,
+      default: ''
+    },
+    name: {
       type: String,
       default: ''
     },
@@ -27,6 +32,14 @@
       type: Number,
       default: 50
     }
+  })
+
+  // 计算 name 的首字母
+  const nameInitial = computed(() => {
+    if (props.name && props.name.trim()) {
+      return props.name.trim().charAt(0).toUpperCase()
+    }
+    return ''
   })
 
   const loaded = ref(false)
@@ -93,6 +106,17 @@
           height: 100% !important;
           width: auto !important;
         }
+      }
+      > .vco-avatar-initial {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #e5e5e5;
+        color: #666;
+        font-weight: 600;
+        user-select: none;
       }
     }
   }

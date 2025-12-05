@@ -31,19 +31,18 @@
       <div class="profile_content">
         <div class="profile_info">
           <!-- <language-select></language-select> -->
-          <vco-avatar class="cursor-pointer" :src="userInfo?.avatar || ''" :size="26" @click="toProfile('/profile/about')" />
+          <vco-avatar class="cursor-pointer" :src="userInfo?.avatar || ''" :name="userInfo?.user_name || ''" :size="26" @click="toProfile('/profile/about')" />
           <div class="link" :class="{ link_active: isUserActive() }">
             <div class="user_info">
               <a-space>
                 <span class="user_name" @click="toProfile('/profile/about')">{{ userInfo?.user_name || 'UserName' }}</span>
                 <a-badge @click.stop="toProfile('/profile/notice')" class="badge" size="small" :count="noticeStore.noticeCount" v-if="!!noticeStore.noticeCount" />
               </a-space>
-              <div v-if="userInfo?.roles">
+              <div v-if="userInfo?.roles && !isNormalUser">
                 <template v-for="(item, index) in userInfo?.roles.split('/')" :key="item">
                   <a-tag color="orange" :title="userInfo?.full_roles[index]" @click="toLoans(item)">{{ item }}</a-tag>
                 </template>
               </div>
-              <p v-else>Vip</p>
             </div>
           </div>
         </div>
@@ -89,6 +88,7 @@ import ApplyBroker from '@/views/profile/apply-broker/form.vue';
 import ApplyBrokerDetail from '@/views/profile/apply-broker/detail.vue';
 import { applyBrokerDetail } from '@/api/tasks';
 import { DownOutlined } from '@ant-design/icons-vue';
+import { name } from 'dayjs/locale/en';
 
 const pageRole = computed(() => useUserStore().pageRole);
 
@@ -99,6 +99,7 @@ const route = useRoute();
 const userStore = useUserStore();
 const userInfo = computed(() => userStore.userInfo);
 const taskInfo = computed(() => userStore.taskInfo);
+const isNormalUser = computed(() => userStore.isNormalUser);
 
 const noticeStore = useNoticeStore();
 

@@ -81,6 +81,10 @@ const props = defineProps({
     default: () => {
       return {};
     }
+  },
+  saveUrl: {
+    type: String,
+    default: '/transfer/injectData'
   }
 });
 
@@ -108,7 +112,7 @@ const isNumericString = (str) => {
 const save = () => {
   loading.value = true;
   const paramsInfo = {
-    url: '/transfer/injectData',
+    url: props.saveUrl,
     method: 'post',
     params: { type: type.value, key: props.data?.key }
   };

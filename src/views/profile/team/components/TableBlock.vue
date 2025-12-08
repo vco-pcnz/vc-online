@@ -38,7 +38,7 @@
 
         <template v-else-if="column.key === 'child_sta'">
           <span class="type_text green" v-if="record.child_sta">{{ t('成功') }}</span>
-          <span class="type_text cre" v-else>{{ t('待审核') }}</span>
+          <span class="type_text cre" v-else>{{ t('Awaiting Review') }}</span>
         </template>
         <template v-if="column.key === 'operation'">
           <a-popconfirm :title="t('确定要移除吗？')" :ok-text="t('确定')" :cancel-text="t('取消')" @confirm="remove(record.uuid)">

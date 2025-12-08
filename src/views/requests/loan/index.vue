@@ -119,7 +119,7 @@
                   <template v-if="column.dataIndex === 'status'">
                     <template v-if="record.status_name === 'LC Assign LM'">
                       <a-button v-if="hasPermission('requests:loan:allocateLm')" type="primary" shape="round" @click="bindHandle(record)">{{ t('分配LM') }}</a-button>
-                      <p v-else>{{ isNormalUser ? t('待审核') : t('等待分配LM') }}</p>
+                      <p v-else>{{ isNormalUser ? t('Under Review') : t('等待分配LM') }}</p>
                     </template>
                     <template v-else>
                       <a-button v-if="record.has_permission" type="primary" shape="round" @click="itemHandle(record)">{{ t(record.status_name) }}</a-button>

@@ -151,7 +151,7 @@ const getVcteamData = () => {
 };
 
 const todoHandle = (data) => {
-  if (data.status_name === 'LC 分配 LM') {
+  if (data.status_name === 'LC Assign LM') {
     bindHandle(data)
   } else {
     const href = processRoutes[data.next_index - 1];

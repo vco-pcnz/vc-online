@@ -283,7 +283,7 @@ export default {
   "借款人姓名": "Borrower's name",
   "To Be Submitted": "To Be Submitted",
   "Awaiting Review": "Awaiting Review",
-  "Under Review": "Under review",
+  "Under Review": "Under Review",
   "继续填写": "Continue",
   "取消审核": "Close",
   "拒绝申请": "Decline",

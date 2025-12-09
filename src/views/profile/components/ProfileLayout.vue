@@ -81,7 +81,7 @@ const allPanes = reactive([
   },
   {
     key: 'notice',
-    label: t('通知'),
+    label: t('消息t'),
     extraInfo: 0
   },
   {

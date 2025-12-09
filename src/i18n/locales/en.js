@@ -1303,5 +1303,6 @@ export default {
   "可提取金额": "Available to draw",
   "申请已提交": "Application Submitted",
   "感谢您！您的贷款申请已提交成功。我们的贷款团队将尽快审核。": "Thank you! Your loan application has been successfully submitted. Our Lending Team will review it shortly.",
-  "授权用户": "Authorized users"
+  "授权用户": "Authorized users",
+  "交易": "Transaction"
 }

@@ -394,8 +394,7 @@ onMounted(() => {
           overflow: hidden;
           position: relative;
           background-color: #fff;
-          &:first-child,
-          &:nth-child(5n) {
+          &:nth-child(4n + 1) {
             margin-left: 0;
           }
           &:nth-child(-n + 4) {

@@ -1300,5 +1300,7 @@ export default {
   "贷款期限": "Loan duration",
   "预计还款今天": "Est. payoff (today)",
   "已提取金额": "Drawn amount",
-  "可提取金额": "Available to draw"
+  "可提取金额": "Available to draw",
+  "BOC初始拆分比例": "BOC initial split ratio",
+  "比例范围为{0}-{1}": "Ratio range is {0}-{1}"
 }

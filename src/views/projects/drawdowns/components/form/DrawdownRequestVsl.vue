@@ -62,7 +62,7 @@
           </a-col>
         </a-row>
         <p class="my-5 bold fs_xl">Documents</p>
-        <p class="label" style="margin-top: -15px; opacity: 0" :class="{ err: !formState.d_file.length && validate }">Provide at least one of these documents</p>
+        <p class="label" style="margin-top: -15px; opacity: 0" :class="{ err: !formState.d_file.length && validate }">Provide at least one of these documents{{ docNames ? ` (${docNames})` : '' }}</p>
 
         <template v-for="item in formModal2" :key="item.id">
           <documents-upload v-if="!item.children" v-model:value="item['files']" v-model:list="item['list']">
@@ -97,7 +97,7 @@
 </template>
 
 <script scoped setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import { annexSel } from '@/api/project/annex';
@@ -166,6 +166,13 @@ const formState = ref({
   progress__data: [],
   p_file: [],
   d_file: []
+});
+
+const docNames = computed(() => {
+  return formModal2.value
+    .map((item) => item?.name)
+    .filter(Boolean)
+    .join(', ');
 });
 
 const updateVisible = (value) => {

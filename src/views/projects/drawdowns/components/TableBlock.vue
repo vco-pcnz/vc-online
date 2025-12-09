@@ -8,7 +8,7 @@
       <li class="status">{{ t('状态t') }}</li>
       <li>{{ t('已批准') }}</li>
       <li class="time">{{ t('创建时间') }}</li>
-      <li>{{ t('对账') }}</li>
+      <li>{{ isExternalUser ? t('交易') : t('对账') }}</li>
     </ul>
     <div v-if="tableData.length" class="table-body">
       <template v-for="(item, index) in tableData" :key="item.id">
@@ -61,6 +61,7 @@
 import { ref, watch, computed } from 'vue';
 import { Empty } from 'ant-design-vue';
 import { useI18n } from 'vue-i18n';
+import { useUserStore } from '@/store';
 import tool from '@/utils/tool';
 import dayjs from 'dayjs';
 
@@ -89,6 +90,9 @@ const props = defineProps({
 });
 
 const { t } = useI18n();
+const userStore = useUserStore();
+// isNormalUser 为真表示外部用户
+const isExternalUser = computed(() => !!userStore.isNormalUser);
 
 const setStatusColor = (val) => {
   if (val.state == 1000 && val.status > 1) {

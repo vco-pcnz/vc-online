@@ -8,7 +8,7 @@
       <li class="status">{{ t('状态t') }}</li>
       <li>{{ t('已批准') }}</li>
       <li>{{ t('创建日期') }}</li>
-      <li>{{ t('对账') }}</li>
+      <li>{{ isExternalUser ? t('交易') : t('对账') }}</li>
     </ul>
     <div v-if="tableData.length" class="table-body">
       <template v-for="(item, index) in tableData" :key="item.id">
@@ -55,6 +55,7 @@
 <script setup>
 import { ref, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useUserStore } from '@/store';
 import tool from '@/utils/tool';
 
 const emit = defineEmits(['change']);
@@ -82,6 +83,9 @@ const props = defineProps({
 });
 
 const { t } = useI18n();
+const userStore = useUserStore();
+// isNormalUser 为真表示外部用户
+const isExternalUser = computed(() => !!userStore.isNormalUser);
 
 const active_id = ref('');
 

@@ -41,7 +41,7 @@
       <div class="success-modal">
         <p class="success-modal__title">{{ t('申请已提交') }}</p>
         <p class="success-modal__desc">
-          {{ t('贷款提交成功提示语') }}
+          {{ t('感谢您！您的贷款申请已提交成功。我们的贷款团队将尽快审核。') }}
         </p>
         <a-button
           type="dark"

@@ -27,7 +27,7 @@
     <div class="chart">
       <!-- <v-chart :option="option" autoresize />
       <v-chart class="chart2" :option="option2" autoresize /> -->
-      <a-progress type="circle" class="progress" :size="280" strokeColor="rgba(169, 173, 87, 0.7)" :strokeWidth="6" :percent="data?.fkrate || 0">
+      <a-progress type="circle" class="progress" :size="280" strokeColor="#c5dfd6" :strokeWidth="6" :percent="data?.fkrate || 0">
         <template #format="percent">
           <div class="progress-value">
             <p>Drawn amount</p>
@@ -35,7 +35,7 @@
           </div>
         </template>
       </a-progress>
-      <a-progress type="circle" class="progress" :size="180" strokeColor="#c5dfd6" :strokeWidth="9" :percent="data?.hkrate || 12" :showInfo="false"> </a-progress>
+      <a-progress type="circle" class="progress" :size="180" strokeColor="rgba(169, 173, 87, 0.7)" :strokeWidth="9" :percent="data?.hkrate || 12" :showInfo="false"> </a-progress>
     </div>
     <div class="MeterStat-row">
       <div class="MeterStat justify-end text-right">

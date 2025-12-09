@@ -1,4 +1,3 @@
-a
 <template>
   <auth-template>
     <template #header>

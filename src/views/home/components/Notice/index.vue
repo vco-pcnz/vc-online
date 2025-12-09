@@ -2,7 +2,7 @@
   <a-spin :spinning="loading" size="large" wrapperClassName="noticeWrapper">
     <div class="flex justify-between title items-center">
       <div class="bold fs_2xl">
-        {{ t('通知') }}
+        {{ t('消息t') }}
       </div>
       <div class="cursor-pointer" @click="navigationTo('/profile/notice')">{{ t('更多') }}</div>
     </div>

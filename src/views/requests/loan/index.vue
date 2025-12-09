@@ -70,7 +70,7 @@
                   </template>
                   <template v-if="column.dataIndex === 'loan_money'">
                     <span class="cursor-pointer" @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">
-                      <vco-number v-if="record.loan_money" :value="record.loan_money" :precision="2"></vco-number>
+                      <vco-number v-if="getLoanMoney(record)" :value="getLoanMoney(record)" :precision="2"></vco-number>
                       <p v-else>--</p>
                     </span>
                   </template>
@@ -117,9 +117,9 @@
                     <p v-else>--</p>
                   </template>
                   <template v-if="column.dataIndex === 'status'">
-                    <template v-if="record.status_name === 'LC 分配 LM'">
+                    <template v-if="record.status_name === 'LC Assign LM'">
                       <a-button v-if="hasPermission('requests:loan:allocateLm')" type="primary" shape="round" @click="bindHandle(record)">{{ t('分配LM') }}</a-button>
-                      <p v-else>{{ isNormalUser ? t('待审核') : t('等待分配LM') }}</p>
+                      <p v-else>{{ isNormalUser ? t('Under Review') : t('等待分配LM') }}</p>
                     </template>
                     <template v-else>
                       <a-button v-if="record.has_permission" type="primary" shape="round" @click="itemHandle(record)">{{ t(record.status_name) }}</a-button>
@@ -398,6 +398,8 @@ const itemHandle = (data) => {
     navigationTo(`${href}?uuid=${data.uuid}`);
   }
 };
+
+const getLoanMoney = (record) => (isNormalUser.value ? record.old_loan_money : record.loan_money);
 
 onMounted(() => {
   if (hasPermission('projects:copy')) {

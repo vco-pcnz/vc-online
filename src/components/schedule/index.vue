@@ -1072,6 +1072,9 @@ watch(
       .note {
         font-size: 12px;
         color: #666;
+        word-break: break-word;
+        overflow-wrap: anywhere; // 避免长数字或连续字符撑破布局
+        white-space: pre-wrap;
       }
       .iconfont {
         font-size: 14px;

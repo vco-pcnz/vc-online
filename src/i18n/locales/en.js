@@ -1308,5 +1308,6 @@ export default {
   "授权用户": "Authorized users",
   "交易": "Transaction",
   "消息t": "Messages",
-  "系统维护中": "System under maintenance"
+  "系统维护中": "System under maintenance",
+  "BOC第{0}期放款": "BOC drawdown No.{0}"
 }

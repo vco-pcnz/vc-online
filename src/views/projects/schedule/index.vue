@@ -2,7 +2,7 @@
   <detail-layout active-tab="schedule" @getProjectDetail="getProjectDetail">
     <template #content>
       <vco-page-tab
-        v-if="projectDetail.product.code === 'vsl' && (hasPermission('projects:schedule:vs_schedule') || hasPermission('projects:schedule:boc_schedule'))"
+        v-if="projectDetail?.product.code === 'vsl' && projectDetail?.vslInfo?.vs_is_import != 1 && (hasPermission('projects:schedule:vs_schedule') || hasPermission('projects:schedule:boc_schedule'))"
         class="mt-5"
         :tabData="tabData"
         v-model:current="tab_id"
@@ -32,7 +32,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted,computed } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import detailLayout from '../components/detailLayout.vue';
 import schedule from '@/components/schedule/index.vue';
@@ -72,13 +72,11 @@ const tabData = ref([
   }
 ]);
 
-const tabChange = () => { };
-
+const tabChange = () => {};
 
 const isVSL = computed(() => {
   return projectDetail.value?.product?.code === 'vsl';
 });
-
 
 onMounted(() => {
   project_id.value = route.query.uuid;

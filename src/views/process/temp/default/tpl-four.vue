@@ -28,6 +28,31 @@
       </div>
     </a-modal>
 
+    <a-modal
+      v-if="isNormalUser"
+      :open="submitSuccessVisible"
+      :title="null"
+      :width="480"
+      :footer="null"
+      :closable="false"
+      :maskClosable="false"
+      @cancel="handleSubmitSuccessClose"
+    >
+      <div class="success-modal">
+        <p class="success-modal__title">{{ t('申请已提交') }}</p>
+        <p class="success-modal__desc">
+          {{ t('感谢您！您的贷款申请已提交成功。我们的贷款团队将尽快审核。') }}
+        </p>
+        <a-button
+          type="dark"
+          class="big shadow bold uppercase w-full mt-8"
+          @click="handleSubmitSuccessClose"
+        >
+          {{ t('确定') }}
+        </a-button>
+      </div>
+    </a-modal>
+
     <a-spin :spinning="pageLoading" size="large">
       <div v-if="currentInfo && currentInfo.cancel_reason && !check" class="block-item details process-fail mt-5">
         <p class="title">{{ t('拒绝原因') }}</p>
@@ -191,8 +216,10 @@
   import useProcessStore from "@/store/modules/process"
   import { hasPermission } from "@/directives/permission/index"
   import useProductStore from '@/store/modules/product'
+  import useUserStore from '@/store/modules/user'
 
   const productStore = useProductStore();
+  const userStore = useUserStore();
   const route = useRoute()
 
   const processStore = useProcessStore()
@@ -250,6 +277,8 @@
   const formRef = ref()
   const footerRef = ref()
   const bindUsersRef = ref();
+
+  const isNormalUser = computed(() => userStore.isNormalUser)
 
   const bindUserPermission = computed(() => {
     return hasPermission('requests:loan:bind:vcTeam') || hasPermission('requests:loan:bind:broker') || hasPermission('requests:loan:bind:user')
@@ -371,6 +400,8 @@
   const currentForParams = ref(null)
   const tipsVisible = ref(false)
   const sureLoading = ref(false)
+  const submitSuccessVisible = ref(false)
+  const successResult = ref(null)
   const sureHandle = async () => {
     sureLoading.value = true
     await normalRequest(currentForParams.value, true)
@@ -378,6 +409,14 @@
     emitter.emit('refreshForecastList')
 
     sureLoading.value = false
+  }
+
+  const handleSubmitSuccessClose = () => {
+    submitSuccessVisible.value = false
+    if (successResult.value) {
+      footerRef.value?.nextHandle(successResult.value)
+      successResult.value = null
+    }
   }
 
   const needBindUser = ref(false);
@@ -404,7 +443,12 @@
         // 触发列表数据刷新
         emitter.emit('refreshRequestsList')
 
-        footerRef.value.nextHandle(res)
+        if (isNormalUser.value) {
+          successResult.value = res
+          submitSuccessVisible.value = true
+        } else {
+          footerRef.value.nextHandle(res)
+        }
       }
 
       subLoading.value = false
@@ -686,6 +730,29 @@
       font-size: 14px;
       font-weight: 500;
       line-height: 50px;
+    }
+  }
+
+  .success-modal {
+    text-align: center;
+    padding: 10px 15px 0;
+
+    &__title {
+      font-size: 22px;
+      font-weight: 600;
+    }
+
+    &__subtitle {
+      font-size: 18px;
+      margin-top: 8px;
+      font-weight: 500;
+    }
+
+    &__desc {
+      font-size: 14px;
+      margin-top: 16px;
+      color: #666;
+      line-height: 1.6;
     }
   }
 </style>

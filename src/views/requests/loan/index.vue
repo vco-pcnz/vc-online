@@ -70,7 +70,7 @@
                   </template>
                   <template v-if="column.dataIndex === 'loan_money'">
                     <span class="cursor-pointer" @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">
-                      <vco-number v-if="record.loan_money" :value="record.loan_money" :precision="2"></vco-number>
+                      <vco-number v-if="getLoanMoney(record)" :value="getLoanMoney(record)" :precision="2"></vco-number>
                       <p v-else>--</p>
                     </span>
                   </template>
@@ -398,6 +398,8 @@ const itemHandle = (data) => {
     navigationTo(`${href}?uuid=${data.uuid}`);
   }
 };
+
+const getLoanMoney = (record) => (isNormalUser.value ? record.old_loan_money : record.loan_money);
 
 onMounted(() => {
   if (hasPermission('projects:copy')) {

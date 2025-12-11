@@ -1,6 +1,7 @@
 import axios from 'axios';
 import i18n from '@/i18n';
 import { message } from 'ant-design-vue/es';
+import { Modal } from 'ant-design-vue';
 import { getToken, removeToken } from '@/utils/token-util.js';
 import { isEmpty } from 'lodash';
 import { useUserStore } from '@/store';
@@ -38,6 +39,7 @@ function createExternalService() {
 function createService() {
   // 创建一个 axios 实例
   const service = axios.create();
+  let maintenanceModalOpen = false;
 
   // HTTP request 拦截器
   service.interceptors.request.use(
@@ -82,6 +84,30 @@ function createService() {
         userStore.logout();
       } else if (code === 403) {
         router.push('/403');
+        return Promise.reject({
+          code,
+          msg
+        });
+      } else if (code === 5004) {
+        // 系统维护，当前页居中弹框提示
+        if (!maintenanceModalOpen) {
+          maintenanceModalOpen = true;
+          Modal.warning({
+            title: i18n.global.t('系统维护中'),
+            content: msg || i18n.global.t('系统维护中'),
+            centered: true,
+            maskClosable: false,
+            okText: i18n.global.t('刷新'),
+            onOk: () => {
+              maintenanceModalOpen = false;
+              window.location.reload();
+            },
+            onCancel: () => {
+              maintenanceModalOpen = false;
+              window.location.reload();
+            }
+          });
+        }
         return Promise.reject({
           code,
           msg

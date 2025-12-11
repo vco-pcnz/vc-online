@@ -1,7 +1,7 @@
 <template>
   <a-spin :spinning="loading" size="large">
     <div class="indicatorsGrid">
-      <div :class="['MeterStat', 'MeterStat_type_charcoal', { 'MeterStat_external': isExternalUser }]">
+      <div :class="['MeterStat', 'MeterStat_type_charcoal', { MeterStat_external: isExternalUser }]">
         <div class="MeterStat-Meter"></div>
         <div>
           <p>{{ isExternalUser ? t('已提取金额') : t('贷款提取') }}</p>
@@ -15,7 +15,7 @@
           <p v-else style="opacity: 0">.</p>
         </div>
       </div>
-      <div :class="['MeterStat', 'MeterStat_type_dotsBlack', { 'MeterStat_external': isExternalUser }]">
+      <div :class="['MeterStat', 'MeterStat_type_dotsBlack', { MeterStat_external: isExternalUser }]">
         <div class="MeterStat-Dots">
           <div class="MeterStat-Dot"></div>
           <div class="MeterStat-Dot"></div>
@@ -24,14 +24,14 @@
         </div>
         <div>
           <p class="color_grey" style="margin-bottom: 2px">{{ isExternalUser ? t('可提取金额') : t('待提款') }}</p>
-          <vco-number :bold="true" :value="isExternalUser ? statistics?.availableVip || 0 : statistics?.pendingDrawdown" :precision="2"></vco-number>
+          <vco-number :bold="true" :value="isExternalUser ? statistics?.available || 0 : statistics?.pendingDrawdown" :precision="2"></vco-number>
           <p style="opacity: 0">.</p>
         </div>
       </div>
       <div class="chart">
         <v-chart class="chart2" :option="option" autoresize />
       </div>
-      <div :class="['MeterStat', 'MeterStat_type_transparent', 'text-right', { 'MeterStat_external': isExternalUser }]">
+      <div :class="['MeterStat', 'MeterStat_type_transparent', 'text-right', { MeterStat_external: isExternalUser }]">
         <div>
           <p>{{ isExternalUser ? t('借款金额') : t('借款信息') }}</p>
           <vco-number :bold="true" :value="statistics?.loan" :precision="2"></vco-number>
@@ -100,7 +100,7 @@ const loadData = () => {
   loanDstatistics({ uuid: props.uuid })
     .then((res) => {
       statistics.value = res;
-      option.value.series[0].data = [{ value: statistics.value.loanWithdrawal }, { value: statistics.value.availableVip }];
+      option.value.series[0].data = [{ value: statistics.value.loanWithdrawal }, { value: tool.minus(statistics.value?.loan, statistics.value?.loanWithdrawal) }];
       emits('update:statisticsData', statistics.value);
     })
     .finally((_) => {

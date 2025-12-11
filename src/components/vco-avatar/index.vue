@@ -2,7 +2,7 @@
   <div class="vco-avatar" :class="{'radius': radius, 'round': round}" :style="{width: size + 'px', height: size + 'px', fontSize: size * 0.4 + 'px'}">
     <div class="vco-avatar-content" :class="{'loaded': loaded}">
       <img v-if="isSuc" :src="src" :class="{'height-fixed': heightFixed}">
-      <div v-else-if="nameInitial" class="vco-avatar-initial">{{ nameInitial }}</div>
+      <div v-else-if="nameInitial" class="vco-avatar-initial" :style="initialStyle">{{ nameInitial }}</div>
       <img v-else src="./../../assets/images/user.svg" alt="">
     </div>
   </div>
@@ -45,6 +45,11 @@
   const loaded = ref(false)
   const isSuc = ref(false)
   const heightFixed = ref(false)
+
+  // 首字母显示时使用稍大的字号
+  const initialStyle = computed(() => ({
+    fontSize: `${Math.round(props.size * 0.6)}px`
+  }))
 
   const setImageSize = () => {
     if (props.src) {

@@ -24,7 +24,7 @@
         </div>
         <div>
           <p class="color_grey" style="margin-bottom: 2px">{{ isExternalUser ? t('可提取金额') : t('待提款') }}</p>
-          <vco-number :bold="true" :value="isExternalUser ? statistics?.available || 0 : statistics?.pendingDrawdown" :precision="2"></vco-number>
+          <vco-number :bold="true" :value="isExternalUser ? statistics?.availableVip || 0 : statistics?.pendingDrawdown" :precision="2"></vco-number>
           <p style="opacity: 0">.</p>
         </div>
       </div>
@@ -100,7 +100,7 @@ const loadData = () => {
   loanDstatistics({ uuid: props.uuid })
     .then((res) => {
       statistics.value = res;
-      option.value.series[0].data = [{ value: statistics.value.loanWithdrawal }, { value: statistics.value.available }];
+      option.value.series[0].data = [{ value: statistics.value.loanWithdrawal }, { value: statistics.value.availableVip }];
       emits('update:statisticsData', statistics.value);
     })
     .finally((_) => {

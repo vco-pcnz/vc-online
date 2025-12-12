@@ -94,6 +94,11 @@ const open = ref(false);
 const accountList = ref(false);
 const showCountdown = ref(false);
 const showRegisterBtn = ref(false);
+// 移动端跳转地址（可通过环境变量覆盖）
+// dev
+const mobileRedirectUrl = 'https://dev.app.new.vincentcapital.co.nz/#/pages/login/index';
+// 线上
+// const mobileRedirectUrl = 'https://vco.m.new.vincentcapital.co.nz/#/pages/login/index';
 
 const loginModeOptions = [
   {
@@ -257,6 +262,24 @@ const requestRegisterSwitch = () => {
     .catch(() => {});
 };
 
+const isMobileDevice = () => {
+  if (typeof navigator === 'undefined') return false;
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+};
+
+const redirectIfMobile = () => {
+  if (!mobileRedirectUrl || !isMobileDevice()) return;
+  try {
+    const target = new URL(mobileRedirectUrl, window.location.href);
+    const isAlreadyOnTarget = window.location.href.startsWith(target.href);
+    if (!isAlreadyOnTarget) {
+      window.location.replace(target.href);
+    }
+  } catch (error) {
+    // 如果配置了无效的 URL，静默跳过
+  }
+};
+
 watch(open, (newVal, oldVal) => {
   if (!newVal && oldVal) {
     showCountdown.value = false;
@@ -265,6 +288,7 @@ watch(open, (newVal, oldVal) => {
 });
 
 onMounted(() => {
+  redirectIfMobile();
   localStorage.clear('smsVerify');
   requestRegisterSwitch();
 });

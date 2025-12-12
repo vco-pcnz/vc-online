@@ -2,21 +2,21 @@
   <div class="indicatorsGrid">
     <div class="MeterStat-row">
       <div class="MeterStat MeterStat_type_charcoal">
-        <div class="MeterStat-Meter LA"></div>
+        <div class="MeterStat-Meter  RA"></div>
         <div>
           <p>Current balance</p>
           <div class="fs_3xl bold" style="margin-bottom: 2px"><vco-number :value="data?.currentBalance" :precision="2"></vco-number></div>
         </div>
       </div>
       <div class="MeterStat MeterStat_type_stone3">
-        <div class="MeterStat-Meter LB"></div>
+        <div class="MeterStat-Meter RB"></div>
         <div>
           <p>Accrued interest</p>
           <vco-number :value="Math.abs(data?.accruedInterest)" :precision="2"></vco-number>
         </div>
       </div>
       <div class="MeterStat">
-        <div class="MeterStat-Meter LC"></div>
+        <div class="MeterStat-Meter RC"></div>
         <div>
           <p>{{ t('预计还款今天') }}</p>
           <vco-number :value="tool.plus(data?.currentBalance || 0, data?.accruedInterest || 0)" :precision="2"></vco-number>
@@ -27,7 +27,7 @@
     <div class="chart">
       <!-- <v-chart :option="option" autoresize />
       <v-chart class="chart2" :option="option2" autoresize /> -->
-      <a-progress type="circle" class="progress" :size="280" strokeColor="#c5dfd6" :strokeWidth="6" :percent="data?.fkrate || 0">
+      <a-progress type="circle" class="progress" :size="180" strokeColor="rgba(169, 173, 87, 0.7)" :strokeWidth="9" :percent="data?.fkrate || 0">
         <template #format="percent">
           <div class="progress-value">
             <p>Drawn amount</p>
@@ -35,7 +35,7 @@
           </div>
         </template>
       </a-progress>
-      <a-progress type="circle" class="progress" :size="180" strokeColor="rgba(169, 173, 87, 0.7)" :strokeWidth="9" :percent="data?.hkrate || 12" :showInfo="false"> </a-progress>
+      <a-progress type="circle" class="progress" :size="280" strokeColor="#c5dfd6" :strokeWidth="6" :percent="data?.hkrate || 12" :showInfo="false"> </a-progress>
     </div>
     <div class="MeterStat-row">
       <div class="MeterStat justify-end text-right">
@@ -43,14 +43,14 @@
           <p>Drawn amount</p>
           <vco-number :value="data?.loanWithdrawal" :precision="2"></vco-number>
         </div>
-        <div class="MeterStat-Meter RA"></div>
+        <div class="MeterStat-Meter LA"></div>
       </div>
       <div class="MeterStat justify-end text-right">
         <div>
           <p>Available to draw</p>
           <vco-number :value="data?.loanWithdrawalAvailable" :precision="2"></vco-number>
         </div>
-        <div class="MeterStat-Meter RB"></div>
+        <div class="MeterStat-Meter LB"></div>
       </div>
       <div class="MeterStat justify-end text-right">
         <div>
@@ -63,7 +63,7 @@
           </div>
           <vco-number :value="data?.credit_fc1" :precision="2"></vco-number>
         </div>
-        <div class="MeterStat-Meter RC"></div>
+        <div class="MeterStat-Meter LC"></div>
       </div>
     </div>
   </div>
@@ -200,7 +200,7 @@ watch(
 }
 
 .progress-value {
-  color: #3f695b;
+  color: #6d7b1f;
   font-size: 16px;
   .num {
     font-size: 24px;

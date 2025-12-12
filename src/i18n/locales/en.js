@@ -1306,5 +1306,7 @@ export default {
   "授权用户": "Authorized users",
   "交易": "Transaction",
   "消息t": "Messages",
-  "系统维护中": "System under maintenance"
+  "系统维护中": "System under maintenance",
+  "请求数据1": "Requested",
+  "已支付": "Paid"
 }

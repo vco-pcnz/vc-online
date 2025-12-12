@@ -1290,15 +1290,7 @@
             }
           }
         }
-
-        dataArr.forEach(item => {
-          if (item.list && item.list.length) {
-            item.list.forEach(listItem => {
-              listItem.name = `${item.name}&${listItem.type}`
-            })
-          }
-        })
-
+        
         footerDataCol.value = dataArr
 
         const Construction = list.find(item => item.type === 'Construction')
@@ -1890,7 +1882,7 @@
       &:nth-child(-n+5) {
         border-top: none;
       }
-      &:nth-child(5n),
+      &:nth-child(6n),
       &:last-child {
         border-right: none;
       }

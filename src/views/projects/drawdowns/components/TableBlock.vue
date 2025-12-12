@@ -45,7 +45,7 @@
             <p class="fs_xs color_grey" v-if="item.open_date">{{ tool.showDate(item.open_date) }}</p>
           </li>
 
-          <div class="tipWrapper" v-if="isOverdue(item) || Number(item?.over_money) > 0 || (item.status == 2 && item.reconcile_date != null)">
+          <div class="tipWrapper" v-if="isOverdue(item) || Number(item?.over_money) > 0 || (item.status == 2 && item.reconcile_date != null) && isExternalUser">
             <div v-if="isOverdue(item)" class="tips">{{ t('超时放款') }}</div>
             <div v-if="Number(item?.over_money) > 0" class="tips">{{ t('超额放款') }}</div>
             <div v-if="item.status == 2 && item.reconcile_date != null" class="tips">{{ t('手动对账') }}</div>

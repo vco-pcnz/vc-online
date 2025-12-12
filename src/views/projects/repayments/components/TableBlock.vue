@@ -4,11 +4,11 @@
       <li></li>
       <li class="text-left" ref="title">{{ t('还款') }}</li>
       <li v-if="isVSL">{{ t('贷款方') }}</li>
-      <li>{{ t('请求数据') }}</li>
+      <li>{{ t('请求数据1') }}</li>
       <li class="status">{{ t('状态t') }}</li>
       <li>{{ t('已批准') }}</li>
       <li>{{ t('创建日期') }}</li>
-      <li>{{ isExternalUser ? t('交易') : t('对账') }}</li>
+      <li>{{ isExternalUser ? t('已支付') : t('对账') }}</li>
     </ul>
     <div v-if="tableData.length" class="table-body">
       <template v-for="(item, index) in tableData" :key="item.id">

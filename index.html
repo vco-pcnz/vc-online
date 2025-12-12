@@ -40,7 +40,7 @@
         const origin = window.location.origin || '';
         let mobileRedirectUrl = '';
         // 生产域访问，跳转生产移动端
-        if (origin.includes('vco.new.vincentcapital.co.nz')) {
+        if (origin.includes('https://vco.new.vincentcapital.co.nz')) {
           mobileRedirectUrl = 'https://vco.m.new.vincentcapital.co.nz/#/pages/login/index';
         } else {
           // 本地或 dev 环境访问，跳转 dev 移动端

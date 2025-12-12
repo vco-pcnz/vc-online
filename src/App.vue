@@ -28,32 +28,6 @@ const lang = ref(tool.local.get('vc-online-language') || 'en');
 
 dayjs.locale(lang);
 
-// 移动端访问跳转的外部链接（请填入目标地址）
-// dev
-const mobileRedirectUrl = 'https://dev.app.new.vincentcapital.co.nz/#/pages/login/index';
-// 线上
-// const mobileRedirectUrl = 'https://vco.m.new.vincentcapital.co.nz/#/pages/login/index';
-
-// 简单的移动端判断
-const isMobile = () => {
-  const ua = navigator.userAgent || navigator.vendor || window.opera || '';
-  return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(ua.toLowerCase());
-};
-
-// 如需跳转则执行
-const handleMobileRedirect = () => {
-  if (!mobileRedirectUrl) return; // 未配置则不跳
-  if (!isMobile()) return; // 仅移动端
-  // 避免重复跳到同一个地址
-  if (window.location.href === mobileRedirectUrl) return;
-  window.location.replace(mobileRedirectUrl);
-};
-
-// 页面加载最早阶段触发移动端跳转
-if (typeof window !== 'undefined') {
-  handleMobileRedirect();
-}
-
 // 版本号变化刷新
 
 // 从环境变量或导入的包中获取当前构建版本（需在构建脚本中注入）

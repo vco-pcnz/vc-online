@@ -25,7 +25,7 @@
           <p class="txt">{{ data.project_postcode }}</p>
         </div>
       </a-col>
-      <a-col :span="8">
+      <a-col v-if="!isNormalUser" :span="8">
         <div class="info-content cursor-pointer">
           <DevCostDetail :edit="false" v-model:dataJson="data.devCostDetail">
             <p class="name">{{ t('开发成本') }} <i class="iconfont color_coal">&#xe76f;</i></p>
@@ -68,8 +68,10 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
+import useUserStore from '@/store/modules/user';
 import DevCostDetail from './DevCostDetail.vue';
 
 const props = defineProps({
@@ -78,6 +80,9 @@ const props = defineProps({
     default: () => {}
   }
 });
+
+const userStore = useUserStore();
+const isNormalUser = computed(() => userStore.isNormalUser);
 
 const { t } = useI18n();
 </script>

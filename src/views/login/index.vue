@@ -1,7 +1,7 @@
 <template>
   <auth-template>
     <template #header>
-      <router-link to="/register">
+      <router-link v-if="showRegisterBtn" to="/register">
         <a-button type="cyan" shape="round">{{ t('注册') }}</a-button>
       </router-link>
     </template>
@@ -83,6 +83,7 @@ import { useUserStore } from '@/store';
 import SelectAccount from './components/SelectAccount.vue';
 import { getMobileCode, getEmailCode } from '@/api/auth';
 import { EMAIL_RULE } from '@/constant';
+import { pub } from '@/api/system';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -92,6 +93,7 @@ const userStore = useUserStore();
 const open = ref(false);
 const accountList = ref(false);
 const showCountdown = ref(false);
+const showRegisterBtn = ref(false);
 
 const loginModeOptions = [
   {
@@ -246,6 +248,15 @@ const submit = () => {
     .catch(() => {});
 };
 
+const requestRegisterSwitch = () => {
+  pub()
+    .then((res) => {
+      if (!res) return;
+      showRegisterBtn.value = res.register_open == 1;
+    })
+    .catch(() => {});
+};
+
 watch(open, (newVal, oldVal) => {
   if (!newVal && oldVal) {
     showCountdown.value = false;
@@ -255,6 +266,7 @@ watch(open, (newVal, oldVal) => {
 
 onMounted(() => {
   localStorage.clear('smsVerify');
+  requestRegisterSwitch();
 });
 </script>
 

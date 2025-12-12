@@ -59,7 +59,7 @@
       </a-modal>
 
       <div style="min-height: 200px">
-        <div v-if="statisticsData && tabData.length" class="flex header-static" :class="{ 'mt-10': itemId }">
+        <div v-if="statisticsData && tabData.length && !userStore.isNormalUser" class="flex header-static" :class="{ 'mt-10': itemId }">
           <div class="item-content">
             <div class="item">
               <div class="line one"></div>
@@ -170,7 +170,7 @@
           <a-tab-pane key="2" :tab="t('原本变更')"></a-tab-pane>
         </a-tabs>
 
-        <div v-if="tabData.length" class="table-content">
+        <div v-if="tabData.length" class="table-content" :class="{ 'no-border': userStore.isNormalUser }">
           <div class="col-item th" :class="{ isAbout: isAbout, isVSL: isVSL, isReconciliation: isReconciliation }">
             <div class="item uppercase"></div>
             <div class="item uppercase">{{ t('日期') }}</div>
@@ -218,7 +218,11 @@
 
         <div v-if="statisticsData && tabData.length" class="static-block flex">
           <div class="item">
-            <p>
+            <p v-if="userStore.isNormalUser">
+              {{ t('贷款期限') }}
+              <span>(as of {{ statisticsData.now.day }})</span>
+            </p>
+            <p v-else>
               {{ t('目前总计') }}
               <span>{{ statisticsData.now.day }}</span>
             </p>
@@ -1024,6 +1028,11 @@ watch(
   min-height: 300px;
   border-top: 1px solid #808080;
   padding-top: 15px;
+  &.no-border {
+    border-top: none;
+    padding-top: 0;
+    margin-top: -24px;
+  }
   .col-item {
     width: 100%;
     // display: flex;
@@ -1063,6 +1072,9 @@ watch(
       .note {
         font-size: 12px;
         color: #666;
+        word-break: break-word;
+        overflow-wrap: anywhere; // 避免长数字或连续字符撑破布局
+        white-space: pre-wrap;
       }
       .iconfont {
         font-size: 14px;

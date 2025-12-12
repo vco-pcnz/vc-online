@@ -1290,7 +1290,6 @@
             }
           }
         }
-        
         footerDataCol.value = dataArr
 
         const Construction = list.find(item => item.type === 'Construction')

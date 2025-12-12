@@ -1292,5 +1292,19 @@ export default {
   "BOC建立费": "BOC establishment fee",
   "已放款": "Disbursed",
   "全额放款": "Full drawdown",
-  "VS建立费": "VS establishment fee"
+  "VS建立费": "VS establishment fee",
+  "新增BOC放款项": "Add BOC drawdown",
+  "类型名称": "Type name",
+  "所占比例": "Payment ratio",
+  "VSL建立费": "VSL establishment fee",
+  "贷款期限": "Loan duration",
+  "预计还款今天": "Est. payoff (today)",
+  "已提取金额": "Drawn amount",
+  "可提取金额": "Available to draw",
+  "申请已提交": "Application Submitted",
+  "感谢您！您的贷款申请已提交成功。我们的贷款团队将尽快审核。": "Thank you! Your loan application has been successfully submitted. Our Lending Team will review it shortly.",
+  "授权用户": "Authorized users",
+  "交易": "Transaction",
+  "消息t": "Messages",
+  "系统维护中": "System under maintenance"
 }

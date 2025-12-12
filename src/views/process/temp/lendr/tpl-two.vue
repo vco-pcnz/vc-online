@@ -12,12 +12,12 @@
                       <a-input v-model:value="formState.project_name" />
                     </a-form-item>
                   </a-col>
-                  <a-col :span="10">
+                  <a-col :span="isNormalUser ? 16 : 10">
                     <a-form-item :label="t('项目类型')" name="project_type">
                       <a-select v-model:value="formState.project_type" :options="projectTypeData"></a-select>
                     </a-form-item>
                   </a-col>
-                  <a-col :span="10">
+                  <a-col :span="10" v-if="!isNormalUser">
                     <a-form-item :label="t('开发成本')" name="devCost">
                       <DevCostDetail v-model:value="formState.devCost" :disabled="check" v-model:dataJson="formState.devCostDetail">
                         <a-input-number
@@ -31,7 +31,7 @@
                       </DevCostDetail>
                     </a-form-item>
                   </a-col>
-                  <a-col :span="4">
+                  <a-col :span="isNormalUser ? 8 : 4">
                     <a-form-item :label="t('楼栋数')" name="building_num">
                       <a-input-number min="1" v-model:value="formState.building_num" />
                     </a-form-item>
@@ -100,9 +100,13 @@ import { hasPermission } from '@/directives/permission/index';
 import DevCostDetail from './components/DevCostDetail.vue';
 import AddressList from './components/AddressList/index.vue';
 import useProductStore from '@/store/modules/product';
+import { useUserStore } from '@/store';
 
 const productStore = useProductStore();
+const userStore = useUserStore();
 const route = useRoute();
+
+const isNormalUser = computed(() => userStore.isNormalUser);
 
 const emits = defineEmits(['checkDone', 'dataDone']);
 

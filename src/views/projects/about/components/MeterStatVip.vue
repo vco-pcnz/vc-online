@@ -6,27 +6,20 @@
         <div>
           <p>Current balance</p>
           <div class="fs_3xl bold" style="margin-bottom: 2px"><vco-number :value="data?.currentBalance" :precision="2"></vco-number></div>
-          <p class="color_grey flex"><vco-number :value="data?.currentBalanceAvailable" :precision="2" color="#888" size="fs_md" class="mr-2"></vco-number> available</p>
         </div>
       </div>
       <div class="MeterStat MeterStat_type_stone3">
         <div class="MeterStat-Meter LB"></div>
         <div>
-          <p>Repayment</p>
-          <vco-number :value="Math.abs(data?.real_repayment)" :precision="2"></vco-number>
+          <p>Accrued interest</p>
+          <vco-number :value="Math.abs(data?.accruedInterest)" :precision="2"></vco-number>
         </div>
       </div>
       <div class="MeterStat">
         <div class="MeterStat-Meter LC"></div>
         <div>
-          <div class="flex items-center gap-2">
-            Full facility
-            <div class="efSGMs">
-              <i class="iconfont">&#xe6b3;</i>
-              <div class="tips"><p>Full Facility = Facility + Establishment fee + Estimated Line Fee + Estimated Interest</p></div>
-            </div>
-          </div>
-          <vco-number :value="data?.credit_forecastFc2" :precision="2"></vco-number>
+          <p>{{ t('预计还款今天') }}</p>
+          <vco-number :value="tool.plus(data?.currentBalance || 0, data?.accruedInterest || 0)" :precision="2"></vco-number>
         </div>
       </div>
     </div>
@@ -34,29 +27,28 @@
     <div class="chart">
       <!-- <v-chart :option="option" autoresize />
       <v-chart class="chart2" :option="option2" autoresize /> -->
-      <a-progress type="circle" class="progress" :size="280" strokeColor="rgba(169, 173, 87, 0.7)" :strokeWidth="6" :percent="data?.fkrate || 0">
+      <a-progress type="circle" class="progress" :size="280" strokeColor="#c5dfd6" :strokeWidth="6" :percent="data?.fkrate || 0">
         <template #format="percent">
           <div class="progress-value">
-            <p>drawn</p>
+            <p>Drawn amount</p>
             <span class="num">{{ percent }}%</span>
           </div>
         </template>
       </a-progress>
-      <a-progress type="circle" class="progress" :size="180" strokeColor="#c5dfd6" :strokeWidth="9" :percent="data?.hkrate || 12" :showInfo="false"> </a-progress>
+      <a-progress type="circle" class="progress" :size="180" strokeColor="rgba(169, 173, 87, 0.7)" :strokeWidth="9" :percent="data?.hkrate || 12" :showInfo="false"> </a-progress>
     </div>
     <div class="MeterStat-row">
       <div class="MeterStat justify-end text-right">
         <div>
           <p>Drawn amount</p>
           <vco-number :value="data?.loanWithdrawal" :precision="2"></vco-number>
-          <p class="color_grey flex"><vco-number :value="data?.loanWithdrawalAvailable" :precision="2" color="#888" size="fs_md" class="mr-2"></vco-number> available</p>
         </div>
         <div class="MeterStat-Meter RA"></div>
       </div>
       <div class="MeterStat justify-end text-right">
         <div>
-          <p class="color_grey" style="margin-bottom: 2px">Pending drawdown</p>
-          <vco-number :value="data?.pendingDrawdown" :precision="2"></vco-number>
+          <p>Available to draw</p>
+          <vco-number :value="data?.loanWithdrawalAvailable" :precision="2"></vco-number>
         </div>
         <div class="MeterStat-Meter RB"></div>
       </div>
@@ -67,7 +59,7 @@
               <i class="iconfont">&#xe6b3;</i>
               <div class="tips" style="right: 50%; left: auto"><p>Loan = Approved LoanAmount + Legal fee + Brokerfee + Otherfee</p></div>
             </div>
-            Loan
+            Loan amount
           </div>
           <vco-number :value="data?.credit_fc1" :precision="2"></vco-number>
         </div>
@@ -80,6 +72,7 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import tool from '@/utils/tool';
 
 const { t } = useI18n();
 
@@ -125,8 +118,14 @@ watch(
   () => props.data,
   (val) => {
     if (val) {
-      option.value.series[0].data = [{ value: props.data.currentBalance }, { value: props.data.accruedInterest }, { value: props.data.currentBalanceAvailable }];
-      option2.value.series[0].data = [{ value: props.data.loanWithdrawal }, { value: props.data.pendingDrawdown }, { value: props.data.loanWithdrawalAvailable }];
+      const currentBalance = props.data?.currentBalance || 0;
+      const accruedInterest = props.data?.accruedInterest || 0;
+      const payoff = tool.plus(currentBalance, accruedInterest); // estPayoffToday
+      if (Number(payoff) > 0) {
+        props.data.hkrate = Number(tool.times(tool.div(currentBalance, payoff), 100));
+      } else {
+        props.data.hkrate = 0;
+      }
     }
   },
   {

@@ -54,8 +54,13 @@ const panes = computed(() => {
   arr = child
     .filter((item) => !item.meta.hide)
     .map((item) => {
+      let title = t(item.meta.title);
+      // 如果是普通用户且 title 是 schedule，则改为 Transactions
+      if (title.toLowerCase() === 'schedule' && userStore.isNormalUser) {
+        title = 'Transactions';
+      }
       return {
-        title: t(item.meta.title),
+        title: title,
         path: item.path,
         key: item.path.slice(item.path.lastIndexOf('/') + 1)
       };

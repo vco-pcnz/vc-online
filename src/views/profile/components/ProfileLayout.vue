@@ -14,9 +14,9 @@
   </div>
   <div class="profile-container">
     <div class="profile-info">
-      <div class="profile-info-header">
+      <div class="profile-info-header" :style="{ borderBottom: isExternalUser ? 'none' : '' }">
         <div class="avatar">
-          <vco-avatar :size="124" style="margin: auto" :src="avatarSrc" />
+          <vco-avatar :size="124" style="margin: auto" :src="avatarSrc" :name="userName" />
         </div>
         <div class="info-detail">
           <p v-for="(info, index) in baseInfo" :key="index">
@@ -28,7 +28,7 @@
           </p>
         </div>
       </div>
-      <div class="profile-info-detail">
+      <div class="profile-info-detail" v-if="!isExternalUser">
         <p v-for="(info, index) in extraInfo" :key="index">
           <span class="label">
             <i class="iconfont text-2xl" v-html="info.icon" v-if="info.icon" />
@@ -59,12 +59,18 @@ const noticeStore = useNoticeStore();
 const baseInfo = ref();
 const extraInfo = ref();
 const userName = ref('');
+const userStore = useUserStore();
 const avatarSrc = computed(() => userDetailStore.userDetail.avatar);
-const pageRole = computed(() => useUserStore().pageRole);
+const pageRole = computed(() => userStore.pageRole);
+// isNormalUser 为真表示外部用户，为假表示内部用户
+const isNormalUser = computed(() => userStore.isNormalUser);
 
 const props = defineProps(['activeTab']);
 
-const panes = reactive([
+// 外部用户判断 (isNormalUser 为真)
+const isExternalUser = computed(() => !!isNormalUser.value);
+
+const allPanes = reactive([
   {
     key: 'about',
     label: t('关于')
@@ -75,7 +81,7 @@ const panes = reactive([
   },
   {
     key: 'notice',
-    label: t('通知'),
+    label: t('消息t'),
     extraInfo: 0
   },
   {
@@ -87,6 +93,14 @@ const panes = reactive([
     label: t('我的团队')
   }
 ]);
+
+// 外部用户隐藏"我的组织"和"我的团队"
+const panes = computed(() => {
+  if (isExternalUser.value) {
+    return allPanes.filter((item) => !['parentTeam', 'team'].includes(item.key));
+  }
+  return allPanes;
+});
 
 const onChange = (key) => {
   if (noticeStore.showDetail) {
@@ -153,7 +167,7 @@ watch(
   () => noticeStore.noticeCount,
   (val) => {
     if (val) {
-      panes.forEach((item) => {
+      allPanes.forEach((item) => {
         if (item.key === 'notice') {
           item.extraInfo = val;
         }

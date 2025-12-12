@@ -11,7 +11,7 @@
                 <template #header>
                   <div class="associate-content">
                     <i class="iconfont" style="font-size: 14px">&#xe720;</i>
-                    <span class="title">{{ t('关联用户') }}</span>
+                    <span class="title">{{ t('授权用户') }}</span>
                   </div>
                 </template>
                 <bind-users :current-id="currentId" :is-close="Boolean(detail?.base.is_close)" :about="true"></bind-users>

@@ -38,13 +38,11 @@
             </a-col>
 
             <a-col :span="24">
-              <a-form-item class="custom-label related">
+              <a-form-item class="custom-label">
                 <template #label>
-                  <div class="w-full flex justify-between items-center">
-                    <span>{{ t('还款分配1') }}</span>
-                  </div>
-                  <a-button v-if="drawdownList.length < drawDownSelectedList.length" type="brown" shape="round" size="small" @click.stop="addDrawdownColumnsItem()"> {{ t('添加') }}</a-button>
+                  <span>{{ t('还款分配1') }}</span>
                 </template>
+                <a-button style="position: absolute; top: -32px; right: 0" v-if="drawdownList.length < drawDownSelectedList.length" type="brown" shape="round" size="small" @click.stop="addDrawdownColumnsItem()"> {{ t('添加') }}</a-button>
 
                 <div class="table-content sys-table-content related-content no-top-line" :class="drawdownListInspection ? 'drawdownListInspection' : ''">
                   <a-spin :spinning="drawdownListLoading" size="large">
@@ -108,7 +106,7 @@
               <p style="color: #ff4d4f; position: absolute; bottom: 0px" v-if="drawdownListInspection">{{ t('请完善数据') }}</p>
             </a-col>
             <!-- (formState.all_repayment === 1 && maxReductionAmount ) -->
-            <template v-if="formState.all_repayment === 1 && maxReductionAmount && !isNormalUser">
+            <template v-if="formState.all_repayment === 1 && maxReductionAmount && !isNormalUser && false">
               <a-col :span="8">
                 <a-form-item class="data-col-item">
                   <template #label>
@@ -318,7 +316,7 @@ const confirmTxt = ref('');
 
 const formState = ref({
   name: '',
-  all_repayment: '',
+  all_repayment: 0,
   apply_amount: '',
   apply_date: '',
   note: '',
@@ -509,6 +507,7 @@ const submit = () => {
     return {
       id: item.id,
       re_type: item.re_type,
+      source: item.source,
       all_repayment: item.all_repayment,
       amount: item.all_repayment == 1 ? item.total_amount : item.apply_rep_amount
     };
@@ -530,6 +529,7 @@ const submit = () => {
     confirmTxt.value = t('还款金额 {0},还款分配金额总计 {1},相差 {2},请调整金额', [tool.formatMoney(params.apply_amount), tool.formatMoney(apply_amount_total), tool.formatMoney(tool.minus(params.apply_amount, apply_amount_total))]);
     return;
   }
+  params.all_repayment = params.all_repayment ? 1 : 0;
   loading.value = true;
 
   loanRDedit(params)
@@ -804,6 +804,7 @@ const addDrawdownColumnsItem = () => {
     interest_day: 0,
     name: '',
     rate: '',
+    source: '',
     total_amount: 0
   });
 };

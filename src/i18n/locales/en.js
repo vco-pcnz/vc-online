@@ -1308,5 +1308,6 @@ export default {
   "消息t": "Messages",
   "系统维护中": "System under maintenance",
   "请求数据1": "Requested",
-  "已支付": "Paid"
+  "已支付": "Paid",
+  "Approved": "Approved"
 }

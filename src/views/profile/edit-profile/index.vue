@@ -12,7 +12,7 @@
             </a-col>
           </a-row>
           <a-row :gutter="8">
-            <a-col :span="24">
+            <a-col :span="24" v-if="!isNormalUser">
               <a-form-item :label="t('类型')" name="type">
                 <a-select v-model:value="form.type" :placeholder="t('类型')">
                   <a-select-option :value="0">
@@ -120,7 +120,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch } from 'vue';
+import { ref, reactive, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { EMAIL_RULE, VERIFY_KEY } from '@/constant';
 import useFormData from '@/utils/use-form-data';
@@ -138,6 +138,8 @@ const loading = ref(false);
 
 const userDetailStore = useUserDetailStore();
 const userStore = useUserStore();
+// isNormalUser 为真表示外部用户，为假表示内部用户
+const isNormalUser = computed(() => userStore.isNormalUser);
 
 const verifyEmail = reactive({
   showCode: false,

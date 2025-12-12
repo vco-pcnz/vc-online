@@ -1309,5 +1309,8 @@ export default {
   "交易": "Transaction",
   "消息t": "Messages",
   "系统维护中": "System under maintenance",
-  "BOC第{0}期放款": "BOC drawdown No.{0}"
+  "BOC第{0}期放款": "BOC drawdown No.{0}",
+  "请求数据1": "Requested",
+  "已支付": "Paid",
+  "Approved": "Approved"
 }

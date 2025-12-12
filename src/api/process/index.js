@@ -776,3 +776,19 @@ export const vclEstabCalc = (data) =>
     method: "post",
     data
   });
+
+// vcl - 进件--进件--建立费、建立费率计算
+export const getProgressInfo = (params) =>
+  request({
+    url: "/project/progress/getProgressInfo",
+    method: "get",
+    params
+  });
+
+// vcl - 进件--进件--保存BOC的放款progress
+export const saveProgressInfo = (data) =>
+  request({
+    url: "/project/progress/saveProgressInfo",
+    method: "post",
+    data
+  });

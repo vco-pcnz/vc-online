@@ -972,12 +972,17 @@
       }
 
       for (let i = 0; i < tableData.value.length; i++) {
-        let payment = columnsTypeObj.value[`${tableData.value[i].typeId}$${tableData.value[i].category}`]
-        if (flag) {
-          const itemPayment = Number(tableData.value[i].payment)
-          payment = isNaN(itemPayment) ? 0 : itemPayment
-        }
-        const itemPer = Number(payment) / 100
+        // 计算使用的 payment：计算使用原始精度，展示时再四舍五入，避免因显示四舍五入导致总额偏差
+        const originPayment = columnsTypeObj.value[`${tableData.value[i].typeId}$${tableData.value[i].category}`]
+        const paymentForCalc = flag
+          ? Number(tableData.value[i].payment)
+          : Number(originPayment || 0)
+        const paymentDisplay = Number(paymentForCalc).toFixed(2)
+
+        // 保存高精度原始值，供后续拆分/重算使用
+        tableData.value[i].payment_raw = paymentForCalc
+
+        const itemPer = paymentForCalc / 100
         const itemTotal = Number(Number(tool.times(itemPer, calcBuildAmount.value)).toFixed(2))
 
         const amountArr = extractArrData(tableData.value[i], '-')
@@ -1016,7 +1021,7 @@
           }
         }
         if (!flag) {
-          tableData.value[i].payment = Number(payment).toFixed(2)
+          tableData.value[i].payment = paymentDisplay
         }
 
         if (tableTotal) {
@@ -1504,8 +1509,10 @@
     const recalcRow = (row) => {
       if (!row) return
 
-      const payment = Number(row.payment) || 0
-      const itemPer = Number(payment) / 100
+      // 优先使用高精度原始值（initHandle 保存的 payment_raw），否则退回显示值
+      const payment = Number(row.payment_raw ?? row.payment) || 0
+      // 使用高精度计算占比，保持与 initHandle 一致的精度（30 位）
+      const itemPer = Number(Number(tool.div(payment, 100)).toFixed(30))
       const itemTotal = Number(Number(tool.times(itemPer, calcBuildAmount.value)).toFixed(2))
       const amountArr = extractArrData(row, '-')
       const sqmObj = cloneDeep(securitySqmObj.value)
@@ -1525,53 +1532,28 @@
 
       if (!amountArr.length) return
 
-      // 先计算未取整金额，再统一处理尾差，避免小数累加超额
-      const rawAmounts = []
-      let sumRaw = 0
+      // 与 initHandle 同步的拆分逻辑：先按占比取两位小数，尾差补在最后一项
+      let distributed = 0
       for (let j = 0; j < amountArr.length; j++) {
         if (j === amountArr.length - 1) {
-          rawAmounts.push(Number(Number(tool.minus(itemTotal, sumRaw)).toFixed(6)))
+          // 最后一项承担尾差，确保总和等于 itemTotal
+          let lastAmount = Number(Number(tool.minus(itemTotal, distributed)).toFixed(2))
+          // 如果因浮点误差导致负数或多余，进行一次补差
+          const finalSum = Number(tool.plus(distributed, lastAmount))
+          const diff = Number(Number(tool.minus(itemTotal, finalSum)).toFixed(2))
+          if (diff !== 0) {
+            lastAmount = Number(Number(tool.plus(lastAmount, diff)).toFixed(2))
+          }
+          row[amountArr[j]].amount = lastAmount
         } else {
           const per = sqmObj[amountArr[j]] || 0
-          const raw = Number(Number(tool.times(per, itemTotal)).toFixed(6))
-          rawAmounts.push(raw)
-          sumRaw = tool.plus(sumRaw, raw)
+          const amount = Number(Number(tool.times(per, itemTotal)).toFixed(2))
+          distributed = Number(tool.plus(distributed, amount))
+          row[amountArr[j]].amount = amount
         }
       }
 
-      const rounded = []
-      let roundedSum = 0
-      for (let j = 0; j < rawAmounts.length - 1; j++) {
-        const val = Number(rawAmounts[j].toFixed(2))
-        rounded.push(val)
-        roundedSum += val
-      }
-
-      let lastRounded = Number(Number(tool.minus(itemTotal, roundedSum)).toFixed(2))
-
-      // 如果因四舍五入导致超额，向前一项回退差值
-      if (lastRounded < 0 && rounded.length) {
-        const maxIdx = rounded.reduce((m, v, idx) => (v > rounded[m] ? idx : m), 0)
-        const backVal = Number(Number(rounded[maxIdx] + lastRounded).toFixed(2))
-        rounded[maxIdx] = Math.max(backVal, 0)
-        roundedSum = rounded.reduce((t, n) => Number(tool.plus(t, n)), 0)
-        lastRounded = Number(Number(tool.minus(itemTotal, roundedSum)).toFixed(2))
-      }
-
-      // 再次消除尾差，优先落在最后一项
-      const finalTotal = rounded.reduce((t, n) => Number(tool.plus(t, n)), 0) + lastRounded
-      const diff = Number(Number(tool.minus(itemTotal, finalTotal)).toFixed(2))
-      if (diff !== 0) {
-        lastRounded = Number(Number(tool.plus(lastRounded, diff)).toFixed(2))
-      }
-
-      // 写回金额
-      for (let j = 0; j < amountArr.length - 1; j++) {
-        row[amountArr[j]].amount = rounded[j]
-      }
-      row[amountArr[amountArr.length - 1]].amount = lastRounded
-
-      row.total = Number(itemTotal.toFixed(2))
+      row.total = Number(Number(itemTotal).toFixed(2))
     }
 
     recalcRow(tableData.value[startIndex])

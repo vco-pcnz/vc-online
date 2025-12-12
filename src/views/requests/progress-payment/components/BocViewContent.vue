@@ -54,7 +54,7 @@
 
     <a-spin :spinning="pageLoading" size="large">
       <div class="drawdown-content">
-        <div class="term-group-content">
+        <div v-if="bocSplitData.length" class="term-group-content">
           <div class="flex items-center justify-between header">
             <h2 class="font-bold">{{ t('BOC第{0}期放款', [step]) }}</h2>
             <div v-if="isSelect" class="mt-2 mb-2 flex justify-end gap-4">
@@ -105,12 +105,14 @@
             </div>
           </div>
         </div>
+        <a-empty v-if="!bocSplitData.length && !pageLoading" />
       </div>
       <div class="flex justify-between items-center mt-5">
-        <div>
+        <div v-if="bocSplitData.length">
           <p class="font-bold">Total</p>
           <vco-number :value="selectTotalAmount" size="fs_xl" :precision="2" :end="true" color="#eb4b6d" :bold="true"></vco-number>
         </div>
+        <p v-else></p>
         <a-button type="dark" class="big shadow bold uppercase"
           @click="doneHandle"
         >{{ t('确定') }}</a-button>

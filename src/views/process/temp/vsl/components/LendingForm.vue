@@ -279,6 +279,7 @@
                 <div class="w-full flex justify-between items-center" style="height: 22px;">
                   <p style="word-wrap: nowrap;">{{ t('首次建筑贷款放款额') }}</p>
                   <a-button
+                    v-if="!Boolean(Number(formState.initial_land_amount))"
                     type="link"
                     style="font-size: 12px; height: auto !important;"
                     class="flex items-center"
@@ -1483,6 +1484,8 @@
       // 操作记录
       emitter.emit('refreshAuditHisList');
 
+      getProgressInfoHandle()
+
       // 更新补充股权
       const tueLoan = formState.value.devCostDetail[0].data[1].loan
       if (tueLoan !== formState.value.equity_amount) {
@@ -1565,36 +1568,37 @@
       selectVisible.value = false
     } else {
       const progress__data = cloneDeep(data.progress__data)
-      if (selectStep.value === 1) {
-        formState.value.initial_build_amount = data.total
-        setSingleFormData({
-          code: props.blockInfo.code,
-          uuid: props.currentId,
-          progress__data,
-          initial_build_amount: data.total || 0,
-          initial_land_amount: formState.value.initial_land_amount || 0,
-          initial_equity_amount: formState.value.initial_equity_amount || 0,
-          substitution_amount: refinancialAmount.value || 0,
-          set__initial: 1
-        })
-      }
-
-      // 保存进度付款信息
-      const progress = progress__data.map(item => {
-        return {
-          progress_id: item.progress_id,
-          amount: item.amount
+      if (progress__data.length) {
+        if (selectStep.value === 1) {
+          formState.value.initial_build_amount = data.total
+          setSingleFormData({
+            code: props.blockInfo.code,
+            uuid: props.currentId,
+            progress__data,
+            initial_build_amount: data.total || 0,
+            initial_land_amount: formState.value.initial_land_amount || 0,
+            initial_equity_amount: formState.value.initial_equity_amount || 0,
+            substitution_amount: refinancialAmount.value || 0,
+            set__initial: 1
+          })
         }
-      })
-      const params = {
-        uuid: props.currentId,
-        term: selectStep.value,
-        progress
+
+        // 保存进度付款信息
+        const progress = progress__data.map(item => {
+          return {
+            progress_id: item.progress_id,
+            amount: item.amount
+          }
+        })
+        const params = {
+          uuid: props.currentId,
+          term: selectStep.value,
+          progress
+        }
+
+        await saveProgressInfo(params)
+        getProgressInfoHandle()
       }
-
-      await saveProgressInfo(params)
-      getProgressInfoHandle()
-
       selectVisible.value = false
     }
     

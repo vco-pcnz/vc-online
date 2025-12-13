@@ -18,6 +18,7 @@
         <span class="fs_xs color_grey">{{ t('施工进度') }}</span
         >: {{ detail.progress }}%
       </div> -->
+      <a-alert v-if="detail?.is_manual == 1" type="warning" show-icon class="manual-alert" :message="t('手动对账')" />
     </div>
     <!-- <div class="flex items-center"><i class="iconfont mr-2">&#xe774;</i><span class="weight_demiBold">Documents & photos</span></div>
       <p class="color_grey mt-1 mb-3">1 file had been provided: drawdown notice</p> -->
@@ -401,5 +402,8 @@ defineExpose({
   &:hover {
     color: #e2274f;
   }
+}
+.manual-alert {
+  margin-top: 12px;
 }
 </style>

@@ -43,6 +43,7 @@
           <li>
             <vco-number :value="item.open_amount" :precision="2" size="fs_xs"></vco-number>
             <p class="fs_xs color_grey" v-if="item.open_date">{{ tool.showDate(item.open_date) }}</p>
+            {{ t('手动对账') }}
           </li>
 
           <div class="tipWrapper" v-if="(isOverdue(item) || Number(item?.over_money) > 0 || (item.status == 2 && item.reconcile_date != null)) && !isExternalUser">
@@ -50,6 +51,7 @@
             <div v-if="Number(item?.over_money) > 0" class="tips">{{ t('超额放款') }}</div>
             <div v-if="item.status == 2 && item.reconcile_date != null" class="tips">{{ t('手动对账') }}</div>
           </div>
+          <div class="tips is_manual" v-if="item.is_manual && !isExternalUser">{{ t('手动') }}</div>
         </ul>
       </template>
     </div>
@@ -249,6 +251,26 @@ watch(
   line-height: 1;
   .tips:not(:last-child) {
     border-right: 1px solid #f8f8f8;
+  }
+}
+.tips {
+  padding: 1px 5px;
+  &.is_manual {
+    padding: 0;
+    position: absolute;
+    top: 0;
+    width: 20px;
+    height: 100%;
+    overflow: hidden;
+    left: 0;
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+    writing-mode: vertical-rl;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #bf9425;
+    color: #fff;
   }
 }
 </style>

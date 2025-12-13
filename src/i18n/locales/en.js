@@ -1309,5 +1309,6 @@ export default {
   "系统维护中": "System under maintenance",
   "请求数据1": "Requested",
   "已支付": "Paid",
-  "Approved": "Approved"
+  "Approved": "Approved",
+  "手动": "Manual"
 }

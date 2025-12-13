@@ -43,8 +43,11 @@
             <div v-if="item.all_repayment" class="tips normal-back">{{ t('全额还款') }}</div>
             <div v-if="item.status == 2 && item.reconcile_date != null" class="tips">{{ t('手动对账') }}</div>
           </div>
-          <div v-if="item.all_repayment && Number(item.do_edit) === 1" class="tips edit-back">{{ t('编辑') }}</div>
-          <div v-if="item.all_repayment && Number(item.do_cancel) === 1" class="tips edit-back cancel">{{ t('取消') }}</div>
+          <template v-if="!isExternalUser">
+            <div v-if="item.all_repayment && Number(item.do_edit) === 1" class="tips edit-back">{{ t('编辑') }}</div>
+            <div v-if="item.all_repayment && Number(item.do_cancel) === 1" class="tips edit-back cancel">{{ t('取消') }}</div>
+            <div class="tips edit-back is_manual" v-if="item.is_manual">{{ t('手动') }}</div>
+          </template>
         </ul>
       </template>
     </div>
@@ -199,6 +202,9 @@ watch(
           &.cancel {
             padding: 0;
             background-color: #f45954;
+          }
+          &.is_manual {
+            background-color: #bf9425;
           }
         }
       }

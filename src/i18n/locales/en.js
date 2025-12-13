@@ -1312,5 +1312,6 @@ export default {
   "BOC第{0}期放款": "BOC drawdown No.{0}",
   "请求数据1": "Requested",
   "已支付": "Paid",
-  "Approved": "Approved"
+  "Approved": "Approved",
+  "手动": "Manual"
 }

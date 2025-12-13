@@ -43,7 +43,6 @@
           <li>
             <vco-number :value="item.open_amount" :precision="2" size="fs_xs"></vco-number>
             <p class="fs_xs color_grey" v-if="item.open_date">{{ tool.showDate(item.open_date) }}</p>
-            {{ t('手动对账') }}
           </li>
 
           <div class="tipWrapper" v-if="(isOverdue(item) || Number(item?.over_money) > 0 || (item.status == 2 && item.reconcile_date != null)) && !isExternalUser">

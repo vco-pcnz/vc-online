@@ -1,6 +1,6 @@
 <template>
   <div>
-    <a-modal :open="itemVisible" :title="t('进度付款阶段')" :width="540" :footer="null" :keyboard="false" :maskClosable="false" @cancel="setDialogCancel">
+    <a-modal :open="itemVisible" :title="isSetting ? t('进度付款阶段') : t('BOC放款')" :width="540" :footer="null" :keyboard="false" :maskClosable="false" @cancel="setDialogCancel">
       <a-row :gutter="24" class="mt-10">
         <a-col :span="8">
           <div class="info-content">
@@ -56,7 +56,8 @@
       <div class="drawdown-content">
         <div v-if="bocSplitData.length" class="term-group-content">
           <div class="flex items-center justify-between header">
-            <h2 class="font-bold">{{ t('BOC第{0}期放款', [step]) }}</h2>
+            <h2 v-if="isSetting" class="font-bold">{{ t('BOC第{0}期放款', [step]) }}</h2>
+            <h2 v-else class="font-bold">{{ t('放款选择') }}</h2>
             <div v-if="isSelect" class="mt-2 mb-2 flex justify-end gap-4">
               <a-button v-if="selectDataHasNum" type="cyan" class="bold uppercase" @click="selectCancelAll">{{ t('取消所有设置') }}</a-button>
               <a-button type="primary" class="bold uppercase" @click="batchSelectHandle">{{ batchSelect ? t('取消批量模式') : t('批量选择') }}</a-button>
@@ -68,11 +69,11 @@
             <div
               v-for="item in bocSplitData" :key="`${item.term}-${item.type_name}`"
               class="item-content-item"
-              :class="{'hover': isSelect, 'done': Number(item.amount) === Number(item.use_amount)}"
+              :class="{'hover': isSelect, 'done': (Number(item.amount) === Number(item.use_amount) && isSelect)}"
               @click="itemClickHandle(item)"
             >
-              <i v-if="Number(item.amount) === Number(item.use_amount)" class="done-icon iconfont icon-duigou"></i>
-              <div v-if="Number(item.amount) !== Number(item.use_amount) && Number(item.set_amount)" class="selected-amount">
+              <i v-if="Number(item.amount) === Number(item.use_amount) && isSelect" class="done-icon iconfont icon-duigou"></i>
+              <div v-if="Number(item.set_amount)" class="selected-amount">
                 {{  `$${numberStrFormat(Number(item.set_amount))}` }}
               </div>
 

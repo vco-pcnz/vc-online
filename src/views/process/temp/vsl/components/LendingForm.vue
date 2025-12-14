@@ -1568,7 +1568,7 @@
       selectVisible.value = false
     } else {
       const progress__data = cloneDeep(data.progress__data)
-      if (progress__data.length) {
+      if (progress__data.length && props.blockInfo.showEdit) {
         if (selectStep.value === 1) {
           formState.value.initial_build_amount = data.total
           setSingleFormData({
@@ -1652,6 +1652,12 @@
             item.amount = termAmountMap[item.value] || 0
             item.data = res[item.value] || []
           }
+        }
+      } else {
+        for (let i = 0; i < bocTermData.value.length; i++) {
+          const item = bocTermData.value[i]
+          item.amount = 0
+          item.data = []
         }
       }
     })

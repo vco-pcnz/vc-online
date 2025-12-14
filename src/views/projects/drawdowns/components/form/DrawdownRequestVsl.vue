@@ -13,7 +13,7 @@
               <div class="label" :class="{ err: !formState.apply_date && validate }">{{ t('日期') }}</div>
               <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.apply_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" :showToday="false" />
             </div>
-            <div v-if="projectDetail.product.code === 'vsl' && !hasPermission('projects:drawdowns:add')" class="input-item" style="margin: 15.5px 0">
+            <div v-if="isVsl && !hasPermission('projects:drawdowns:add')" class="input-item" style="margin: 15.5px 0">
               <div class="label flex items-center">
                 <span class="label mr-3" style="padding-bottom: 0" :class="{ err: !formState.source && validate }">{{ t('贷款方') }}</span>
                 <vco-tip w="200px">
@@ -53,12 +53,21 @@
               <vco-tip style="padding-bottom: 5px" :tip="t('此消息针对 FC 的批准评论')">
                 <div class="label" style="padding: 0">{{ t('消息') }}</div>
               </vco-tip>
-              <a-textarea v-if="projectDetail.product.code === 'vsl'" v-model:value="formState.remark" :rows="hasPermission('projects:drawdowns:add') ? 14 : 14" />
+              <a-textarea v-if="isVsl" v-model:value="formState.remark" :rows="hasPermission('projects:drawdowns:add') ? 14 : 14" />
               <a-textarea v-else v-model:value="formState.remark" :rows="hasPermission('projects:drawdowns:add') ? 14 : 10" />
             </div>
           </a-col>
           <a-col :span="24" v-if="!hasPermission('projects:drawdowns:add')">
-            <ProgressPayment ref="ProgressPaymentRef" :visible="visible" :validate="validate" :data="formState" :source="formState.source" @change="updateformState" :projectDetail="projectDetail"></ProgressPayment>
+            <ProgressPayment
+              ref="ProgressPaymentRef"
+              :is-vsl="isVsl"
+              :visible="visible"
+              :validate="validate"
+              :data="formState"
+              :source="formState.source"
+              @change="updateformState"
+              :projectDetail="projectDetail"
+            ></ProgressPayment>
           </a-col>
         </a-row>
         <p class="my-5 bold fs_xl">Documents</p>
@@ -106,7 +115,6 @@ import { selectDateFormat } from '@/utils/tool';
 import DocumentsUpload from './DocumentsUpload.vue';
 import { systemDictData } from '@/api/system';
 import ProgressPayment from './ProgressPayment.vue';
-import BocContent from '@/views/requests/progress-payment/components/BocContent.vue';
 import tool from '@/utils/tool';
 import dayjs from 'dayjs';
 import { hasPermission } from '@/directives/permission/index';
@@ -128,6 +136,10 @@ const props = defineProps({
   statisticsData: {
     type: Object
   }
+});
+
+const isVsl = computed(() => {
+  return String(props.projectDetail.product.code).toLowerCase() === 'vsl';
 });
 
 const visible = ref(false);
@@ -212,7 +224,7 @@ const save = (tip) => {
     return item.files && item.files.length;
   });
 
-  if (props.projectDetail.product.code === 'vsl' && !hasPermission('projects:drawdowns:add')) {
+  if (isVsl.value && !hasPermission('projects:drawdowns:add')) {
     if (!formState.value.source) return;
   }
 
@@ -236,7 +248,7 @@ const save = (tip) => {
     available = tool.plus(Number(props.statisticsData?.available), Number(detail_amount.value));
   }
 
-  if (props.projectDetail.product.code === 'vsl') {
+  if (isVsl.value) {
     let vsl_available = formState.value.source == '0' ? props.projectDetail?.vslInfo.vs_remaining_loan_money : props.projectDetail?.vslInfo.boc_remaining_loan_money;
 
     if (Number(amount) > Number(vsl_available) && formState.value.source == '0' && tool.plus(props.projectDetail?.vslInfo?.boc_remaining_loan_money, detail_amount.value) > 0) {
@@ -426,6 +438,11 @@ const initData = () => {
   if (hasPermission('projects:drawdowns:add')) {
     // vip
     detail_amount.value = props.detail.vip_amount || 0;
+  }
+
+  // BOC 放款
+  if (Number(props.detail?.source) > 0) {
+    formState.value.source = '1'
   }
 };
 

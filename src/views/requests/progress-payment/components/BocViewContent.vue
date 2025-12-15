@@ -115,6 +115,7 @@
         </div>
         <p v-else></p>
         <a-button type="dark" class="big shadow bold uppercase"
+          :loading="selectSureLoading"
           @click="doneHandle"
         >{{ t('确定') }}</a-button>
       </div>
@@ -123,7 +124,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from "vue"
+import { computed, onMounted, onUnmounted, ref } from "vue"
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router"
 import { projectGetBuild, projectLoanGetBuild, getProgressInfo } from "@/api/process"
@@ -421,7 +422,12 @@ const batchSelectSet = () => {
   itemVisible.value = true
 }
 
+const selectSureLoading = ref(false)
 const doneHandle = () => {
+  if (props.isSetting) {
+    selectSureLoading.value = true
+  }
+  
   const data = setSelectedData.value.map(item => {
     const obj = {
       progress_id: item.id,
@@ -488,6 +494,10 @@ onMounted(async () => {
       getProgressInfoHandle()
     }
   }
+})
+
+onUnmounted(() => {
+  selectSureLoading.value = false
 })
 </script>
 

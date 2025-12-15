@@ -2,6 +2,7 @@
   <product-tab v-model:current="pageStore.product_uuid" @change="tabChange">
     <div style="flex: 1"></div>
     <div class="flex">
+      <a-button type="cyan" size="small" class="ml-3" shape="round" @click="buildProgressReport" :loading="buildProgressDownloading" v-if="hasPermission('projects:buildProgress:download')">{{ t('建筑进度') }}</a-button>
       <ScheduleExport :sta="pageStore.sta" :searchParams="pageStore.searchParams" v-if="hasPermission('projects:schedule:download')"></ScheduleExport>
       <DateExport :sta="pageStore.sta" :searchParams="pageStore.searchParams" v-if="hasPermission('projects:list:export')"></DateExport>
       <a-button type="cyan" size="small" class="ml-3" shape="round" @click="report" :loading="downloading" v-if="hasPermission('projects:newLoan:download')">{{ t('新开贷款') }}</a-button>
@@ -40,7 +41,7 @@ import TableBlockVip from '../components/TableBlockVip.vue';
 import { useProjectsStore, useUserStore } from '@/store';
 import { hasPermission } from '@/directives/permission/index';
 import ProductTab from './../components/ProductTab.vue';
-import { downGs } from '@/api/project/project';
+import { downGs, buildProgressIndex } from '@/api/project/project';
 import DateExport from './components/DateExport.vue';
 import ScheduleExport from './components/ScheduleExport.vue';
 
@@ -88,6 +89,18 @@ const report = () => {
     })
     .finally(() => {
       downloading.value = false;
+    });
+};
+
+const buildProgressDownloading = ref(false);
+const buildProgressReport = () => {
+  buildProgressDownloading.value = true;
+  buildProgressIndex()
+    .then((res) => {
+      window.open(res);
+    })
+    .finally(() => {
+      buildProgressDownloading.value = false;
     });
 };
 </script>

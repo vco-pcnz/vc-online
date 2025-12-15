@@ -1310,5 +1310,6 @@ export default {
   "请求数据1": "Requested",
   "已支付": "Paid",
   "Approved": "Approved",
-  "手动": "Manual"
+  "手动": "Manual",
+  "建筑进度": "Build progress"
 }

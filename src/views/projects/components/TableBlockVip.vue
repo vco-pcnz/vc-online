@@ -68,7 +68,7 @@
           <a-space>
             <vco-avatar :src="record.project_image" :radius="true" :round="false" :size="48" />
             <div class="ml-3">
-              <p :title="record.project_name" class="bold black text-ellipsis overflow-hidden text-nowrap" style="width: 200px; font-size: 16px">{{ record.project_name }}</p>
+              <p :title="record.project_name" class="bold black text-ellipsis overflow-hidden text-nowrap" style="width: 320px; font-size: 16px">{{ record.project_name }}</p>
               <p class="replenish_text mt-1" style="line-height: 1">ID: {{ record.project_apply_sn }}</p>
               <span class="replenish_text">
                 {{ record.loan_type_name }}
@@ -229,13 +229,13 @@ const props = defineProps({
 });
 const { t } = useI18n();
 const columns = reactive([
-  { title: t('项目•类型'), key: '1', width: 280 },
-  { title: t('借款人•贷款经理'), key: '2', width: 140 },
+  { title: t('项目•类型'), key: '1', width: 320 },
+  { title: t('借款人•贷款经理'), key: '2', width: 200 },
   { title: t('开始日期'), key: 'open', width: 110 },
   { title: t('到期'), key: 'end_date', width: 110 },
-  { title: t('待提取'), key: 'undrawn', width: 120 },
-  { title: t('贷款余额'), key: 'loan_balance', width: 150 },
-  { title: t('完成情况'), key: 'bili', width: 80, align: 'center' },
+  { title: t('待提取'), key: 'undrawn', width: 160 },
+  { title: t('贷款余额'), key: 'loan_balance', width: 180 },
+  { title: t('完成情况'), key: 'bili', width: 120, align: 'center' },
   { title: t('条件'), key: '9', align: 'center' }
 ]);
 

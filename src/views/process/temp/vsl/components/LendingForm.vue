@@ -16,6 +16,8 @@
     >
       <boc-view-content
         v-if="selectVisible"
+        :step="selectStep"
+        :is-setting="true"
         :is-select="!isDetails && !amountDisabled"
         :selected-data="selectedData"
         @selectDone="selectDoneHandle"
@@ -277,11 +279,11 @@
                 <div class="w-full flex justify-between items-center" style="height: 22px;">
                   <p style="word-wrap: nowrap;">{{ t('首次建筑贷款放款额') }}</p>
                   <a-button
-                    v-if="Boolean(Number(formState.initial_build_amount))"
+                    v-if="!Boolean(Number(formState.initial_land_amount))"
                     type="link"
                     style="font-size: 12px; height: auto !important;"
                     class="flex items-center"
-                    @click="selectVisible = true"
+                    @click="showDrowdownSelect(1, initSelectedData)"
                   >
                     <p>{{ isDetails ? t('详情') : (amountDisabled ? t('详情') : t('选择')) }}</p>
                     <i class="iconfont" style="font-size: 12px;">&#xe602;</i>
@@ -330,6 +332,38 @@
               ></vco-number>
             </a-form-item>
           </a-col>
+
+          <template v-if="bocTermData.length">
+            <a-col :span="getBocColSpan(bocTermData.length)" v-for="item in bocTermData" :key="item.label" class="w-full-label">
+              <a-form-item>
+                <template #label>
+                  <div class="w-full flex justify-between items-center" style="height: 22px;">
+                    <p style="word-wrap: nowrap;">{{ item.label }}</p>
+                    <a-button
+                      type="link"
+                      style="font-size: 12px; height: auto !important;"
+                      class="flex items-center"
+                      @click="showDrowdownSelect(item.value, item.data)"
+                    >
+                      <p>{{ isDetails ? t('详情') : (amountDisabled ? t('详情') : t('选择')) }}</p>
+                      <i class="iconfont" style="font-size: 12px;">&#xe602;</i>
+                    </a-button>
+                  </div>
+                </template>
+                <a-input-number
+                  :max="99999999999"
+                  :disabled="true"
+                  v-model:value="item.amount"
+                  :formatter="
+                    (value) =>
+                      `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                  "
+                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                />
+              </a-form-item>
+            </a-col>
+          </template>
+
           <a-col v-if="percentItems.length" :span="24">
             <div class="form-line"></div>
           </a-col>
@@ -505,7 +539,6 @@
 
 <script setup>
   import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
-  import { RightOutlined } from '@ant-design/icons-vue';
   import { useI18n } from 'vue-i18n';
   import { useRoute } from 'vue-router';
   import { cloneDeep, debounce } from 'lodash';
@@ -517,13 +550,14 @@
     creditInfo,
     projectAuditSaveMode,
     projectAuditCheckMode,
-    projectAuditGoback,
     projectAuditSubstitution,
     projectDetailSubstitution
   } from '@/api/process';
   import { establishCalculate } from '@/api/vsl';
+  import { systemConfigData } from "@/api/system/index"
   import emitter from '@/event';
   import useProcessStore from '@/store/modules/process';
+  import { saveProgressInfo, getProgressInfo } from "@/api/process"
   import tool, { navigationTo, numberStrFormat, selectDateFormat } from '@/utils/tool';
   import DevCostDetail from './DevCostDetail.vue';
   import BocViewContent from '@/views/requests/progress-payment/components/BocViewContent.vue';
@@ -1204,7 +1238,7 @@
 
     // 首次放款建筑费用
     if (props.lendingInfo.progressLog && props.lendingInfo.progressLog.length) {
-      selectedData.value = props.lendingInfo.progressLog
+      initSelectedData.value = props.lendingInfo.progressLog
     }
 
     staticFormData.value = cloneDeep({
@@ -1330,8 +1364,8 @@
     subLoading.value = true;
 
     const formParams = cloneDeep(saveParams.value)
-    if (selectedData.value) {
-      formParams.progress__data = selectedData.value
+    if (initSelectedData.value) {
+      formParams.progress__data = initSelectedData.value
     }
 
     await projectAuditSaveMode(formParams)
@@ -1450,6 +1484,8 @@
       // 操作记录
       emitter.emit('refreshAuditHisList');
 
+      getProgressInfoHandle()
+
       // 更新补充股权
       const tueLoan = formState.value.devCostDetail[0].data[1].loan
       if (tueLoan !== formState.value.equity_amount) {
@@ -1521,31 +1557,122 @@
     lendingTarget.value = flag
   }
 
-  // 首次建筑放款数据
+  // 选择放款已选数据
   const selectedData = ref([])
-
+  // 首次建筑放款数据
+  const initSelectedData = ref([])
+  const selectStep = ref(0)
   const selectVisible = ref(false)
-  const selectDoneHandle = (data) => {
-    const progress__data = cloneDeep(data.progress__data)
-    selectedData.value = progress__data
-    formState.value.initial_build_amount = data.total
-    selectVisible.value = false
+  const selectDoneHandle = async (data) => {
+    if (props.isDetails) {
+      selectVisible.value = false
+    } else {
+      const progress__data = cloneDeep(data.progress__data)
+      if (progress__data.length && props.blockInfo.showEdit) {
+        if (selectStep.value === 1) {
+          formState.value.initial_build_amount = data.total
+          setSingleFormData({
+            code: props.blockInfo.code,
+            uuid: props.currentId,
+            progress__data,
+            initial_build_amount: data.total || 0,
+            initial_land_amount: formState.value.initial_land_amount || 0,
+            initial_equity_amount: formState.value.initial_equity_amount || 0,
+            substitution_amount: refinancialAmount.value || 0,
+            set__initial: 1
+          })
+        }
 
-    setSingleFormData({
-      code: props.blockInfo.code,
-      uuid: props.currentId,
-      progress__data,
-      initial_build_amount: data.total || 0,
-      initial_land_amount: formState.value.initial_land_amount || 0,
-      initial_equity_amount: formState.value.initial_equity_amount || 0,
-      substitution_amount: refinancialAmount.value || 0,
-      set__initial: 1
+        // 保存进度付款信息
+        const progress = progress__data.map(item => {
+          return {
+            progress_id: item.progress_id,
+            amount: item.amount
+          }
+        })
+        const params = {
+          uuid: props.currentId,
+          term: selectStep.value,
+          progress
+        }
+
+        await saveProgressInfo(params)
+        getProgressInfoHandle()
+      }
+      selectVisible.value = false
+    }
+    
+  }
+
+  const showDrowdownSelect = (step, data) => {
+    selectStep.value = step
+
+    selectedData.value = cloneDeep(data)
+    selectVisible.value = true
+  }
+
+  const bocTermData = ref([])
+  // 请求boc放款期数数据
+  const getBocTermData = async () => {
+    await systemConfigData({ pcode: 'project_config', code: 'boc_drawdown_term' }).then((res) => {
+      const num = Number(res.boc_drawdown_term || 0)
+      if (num) {
+        const otherNum = num - 1
+        const data = Array.from({ length: otherNum }, (_, i) => ({
+          label: `${t('BOC第{0}期放款', [i + 2])}`,
+          value: i + 2,
+          data: [],
+          amount: 0
+        }))
+        bocTermData.value = data
+      } else {
+        bocTermData.value = []
+      }
+    });
+  }
+
+  const getProgressInfoHandle = () => { 
+    getProgressInfo({
+      uuid: props.currentId
+    }).then(res => {
+      if (tool.getObjType(res) === 'object' && Object.keys(res).length) {
+        // 按 term 汇总各数组的 amount，得到如 {1: 2000, 2: 3000}
+        const termAmountMap = Object.keys(res).reduce((acc, key) => {
+          const list = res[key] || []
+          const total = list.reduce((sum, item) => {
+            return Number(tool.plus(sum, Number(item?.amount || 0)))
+          }, 0)
+          acc[key] = total
+          return acc
+        }, {})
+
+        for (let i = 0; i < bocTermData.value.length; i++) {
+          const item = bocTermData.value[i]
+          if (termAmountMap[item.value]) {
+            item.amount = termAmountMap[item.value] || 0
+            item.data = res[item.value] || []
+          }
+        }
+      } else {
+        for (let i = 0; i < bocTermData.value.length; i++) {
+          const item = bocTermData.value[i]
+          item.amount = 0
+          item.data = []
+        }
+      }
     })
   }
+
+  const getBocColSpan = (len) => {
+    return Math.floor(24 / len)
+  }
   
-  onMounted(() => {
+  onMounted(async () => {
     isRefinancial.value = Boolean(props.lendingInfo.substitution_ids && props.lendingInfo?.substitution_ids?.length)
     refinancialAmount.value = props.lendingInfo?.substitution_amount || 0
+
+    await getBocTermData()
+    getProgressInfoHandle()
 
     getRefinancialList()
     getFormItems();

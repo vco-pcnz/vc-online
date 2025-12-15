@@ -4,18 +4,18 @@
       <li></li>
       <li class="text-left" ref="title">{{ t('放款') }}</li>
       <li v-if="isVSL">{{ t('贷款方') }}</li>
-      <li>{{ t('请求数据') }}</li>
+      <li>{{ t('请求数据1') }}</li>
       <li class="status">{{ t('状态t') }}</li>
       <li>{{ t('已批准') }}</li>
       <li class="time">{{ t('创建时间') }}</li>
-      <li>{{ isExternalUser ? t('交易') : t('对账') }}</li>
+      <li>{{ isExternalUser ? t('已支付') : t('对账') }}</li>
     </ul>
     <div v-if="tableData.length" class="table-body">
       <template v-for="(item, index) in tableData" :key="item.id">
         <ul class="table-col tr all-overdue" :class="{ active: active_id == item.id, declined: item.status_name === 'DECLINED DRAWDOWN', exceeded: Number(item?.over_money) > 0, isVsl: isVSL }" @click="viewDetail(item)">
           <li><div class="circle" :class="{ solid: item.status == 2 }"></div></li>
           <li class="text-left">
-            <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.name" :style="{ width: isVSL?'164px':'210px' }">
+            <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.name" :style="{ width: isVSL ? '164px' : '210px' }">
               <span class="index-num">{{ total - (pagination.page - 1) * pagination.limit - index }}</span
               >{{ item.name }}
             </p>
@@ -45,11 +45,12 @@
             <p class="fs_xs color_grey" v-if="item.open_date">{{ tool.showDate(item.open_date) }}</p>
           </li>
 
-          <div class="tipWrapper" v-if="isOverdue(item) || Number(item?.over_money) > 0 || (item.status == 2 && item.reconcile_date != null)">
+          <div class="tipWrapper" v-if="(isOverdue(item) || Number(item?.over_money) > 0 || (item.status == 2 && item.reconcile_date != null)) && !isExternalUser">
             <div v-if="isOverdue(item)" class="tips">{{ t('超时放款') }}</div>
             <div v-if="Number(item?.over_money) > 0" class="tips">{{ t('超额放款') }}</div>
             <div v-if="item.status == 2 && item.reconcile_date != null" class="tips">{{ t('手动对账') }}</div>
           </div>
+          <div class="tips is_manual" v-if="item.is_manual && !isExternalUser">{{ t('手动') }}</div>
         </ul>
       </template>
     </div>
@@ -222,7 +223,7 @@ watch(
         background: #181818;
       }
     }
-    
+
     &.status {
       font-weight: 500;
       text-transform: uppercase;
@@ -249,6 +250,26 @@ watch(
   line-height: 1;
   .tips:not(:last-child) {
     border-right: 1px solid #f8f8f8;
+  }
+}
+.tips {
+  padding: 1px 5px;
+  &.is_manual {
+    padding: 0;
+    position: absolute;
+    top: 0;
+    width: 20px;
+    height: 100%;
+    overflow: hidden;
+    left: 0;
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+    writing-mode: vertical-rl;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #bf9425;
+    color: #fff;
   }
 }
 </style>

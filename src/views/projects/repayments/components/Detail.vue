@@ -47,6 +47,7 @@
         <div class="bold fs_xl">{{ detail?.name }}</div>
         <div class="color_grey fs_xs mt-2" v-if="detail?.note">{{ t('说明') }}: {{ detail?.note }}</div>
         <div class="color_grey fs_xs" v-if="detail?.remark">{{ t('消息') }}: {{ detail?.remark }}</div>
+        <a-alert v-if="detail?.is_manual == 1" type="warning" show-icon class="manual-alert" :message="t('手动对账')" />
       </div>
 
       <div class="flex gap-4">
@@ -106,7 +107,7 @@
             </div>
           </template>
 
-          <div v-if="detail?.has_permission && (detail?.mark == 'repayment_lm' || detail?.mark == 'repayment_fc' || detail?.mark == 'repayment_lc' || detail?.mark == 'repayment_director')" class="mt-4">
+          <div v-if="detail?.has_permission && (detail?.mark == 'repayment_lm' || detail?.mark == 'repayment_fc' || detail?.mark == 'repayment_lc' || detail?.mark == 'repayment_director' || detail?.mark == 'repayment_director_recon')" class="mt-4">
             <p class="text-center color_grey fs_xs my-3">{{ t('您可以点击下面的按钮来拒绝还款请求。') }}</p>
             <div class="flex justify-center">
               <a-popconfirm :title="t('确定要拒绝该请求吗？')" @confirm="decline">
@@ -122,7 +123,7 @@
             </div>
           </div> -->
 
-          <DrawdownBack v-if="['repayment_fc', 'repayment_lc'].includes(detail?.mark) && detail?.has_permission && detail?.do_cancel !== 1" :uuid="uuid" :detail="detail" @change="update"></DrawdownBack>
+          <DrawdownBack v-if="['repayment_fc', 'repayment_lc', 'repayment_director_recon'].includes(detail?.mark) && detail?.has_permission && detail?.do_cancel !== 1" :uuid="uuid" :detail="detail" @change="update"></DrawdownBack>
         </div>
 
         <a-button v-if="!detail?.prev_permission && !(detail?.has_permission || hasPermission('projects:repayments:revoke'))" type="brown" class="big uppercase w-full" @click="openDetails(false)">{{ t('查看详情') }}</a-button>

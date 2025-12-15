@@ -3,7 +3,8 @@
     <vco-page-panel :title="pageTitle" @back="goBack"></vco-page-panel>
 
     <template v-if="currentId && currentTemp">
-      <view-content :show-process="true" :is-page="true" :hide-self="true" @done="getProjectInfo"></view-content>
+      <boc-view-all-content v-if="isVsl" :is-page="true" @done="getProjectInfo"></boc-view-all-content>
+      <view-content v-else :show-process="true" :is-page="true" :hide-self="true" @done="getProjectInfo"></view-content>
     </template>
 
     <a-empty v-if="!currentTemp && !pageLoading" />
@@ -18,12 +19,14 @@
   import { goBack } from "@/utils/tool"
   import { useProductStore } from "@/store"
   import ViewContent from "@/views/requests/progress-payment/components/ViewContent.vue";
+  import BocViewAllContent from "@/views/requests/progress-payment/components/BocViewAllContent.vue";
   
   const { t } = useI18n();
   const route = useRoute();
   const productStore = useProductStore()
   const productData = computed(() => productStore.productData)
   const currentTemp = ref('')
+  const isVsl = ref(false)
 
   const pageLoading = ref(true)
   const currentId = ref()
@@ -43,6 +46,7 @@ const getProjectInfo = (data) => {
       if (!code) {
         pageLoading.value = false
       } else {
+        isVsl.value = String(code).toLowerCase() === 'vsl'
         currentTemp.value = code
         const obj = productData.value.find(item => item.code === code)
         const rType = obj ? `${obj.name} - ` : ''

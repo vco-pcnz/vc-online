@@ -4,11 +4,11 @@
       <li></li>
       <li class="text-left" ref="title">{{ t('还款') }}</li>
       <li v-if="isVSL">{{ t('贷款方') }}</li>
-      <li>{{ t('请求数据') }}</li>
+      <li>{{ t('请求数据1') }}</li>
       <li class="status">{{ t('状态t') }}</li>
       <li>{{ t('已批准') }}</li>
       <li>{{ t('创建日期') }}</li>
-      <li>{{ isExternalUser ? t('交易') : t('对账') }}</li>
+      <li>{{ isExternalUser ? t('已支付') : t('对账') }}</li>
     </ul>
     <div v-if="tableData.length" class="table-body">
       <template v-for="(item, index) in tableData" :key="item.id">
@@ -39,12 +39,15 @@
             <vco-number :value="Math.abs(item.open_amount)" :precision="2" size="fs_xs"></vco-number>
             <p class="fs_xs color_grey" v-if="item.open_date">{{ tool.showDate(item.open_date) }}</p>
           </li>
-          <div class="tipWrapper" v-if="item.all_repayment || (item.status == 2 && item.reconcile_date != null)">
+          <div class="tipWrapper" v-if="(item.all_repayment || (item.status == 2 && item.reconcile_date != null)) && !isExternalUser">
             <div v-if="item.all_repayment" class="tips normal-back">{{ t('全额还款') }}</div>
             <div v-if="item.status == 2 && item.reconcile_date != null" class="tips">{{ t('手动对账') }}</div>
           </div>
-          <div v-if="item.all_repayment && Number(item.do_edit) === 1" class="tips edit-back">{{ t('编辑') }}</div>
-          <div v-if="item.all_repayment && Number(item.do_cancel) === 1" class="tips edit-back cancel">{{ t('取消') }}</div>
+          <template v-if="!isExternalUser">
+            <div v-if="item.all_repayment && Number(item.do_edit) === 1" class="tips edit-back">{{ t('编辑') }}</div>
+            <div v-if="item.all_repayment && Number(item.do_cancel) === 1" class="tips edit-back cancel">{{ t('取消') }}</div>
+            <div class="tips edit-back is_manual" v-if="item.is_manual">{{ t('手动') }}</div>
+          </template>
         </ul>
       </template>
     </div>
@@ -199,6 +202,9 @@ watch(
           &.cancel {
             padding: 0;
             background-color: #f45954;
+          }
+          &.is_manual {
+            background-color: #bf9425;
           }
         }
       }

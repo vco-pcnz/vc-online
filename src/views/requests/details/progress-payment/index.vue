@@ -3,7 +3,8 @@
     <vco-page-panel :title="pageTitle" @back="goBack"></vco-page-panel>
 
     <template v-if="currentId && currentTemp">
-      <view-content :is-page="true" @done="getProjectInfo"></view-content>
+      <boc-view-all-content v-if="isVsl" :is-page="true" @done="getProjectInfo"></boc-view-all-content>
+      <view-content v-else :is-page="true" @done="getProjectInfo"></view-content>
     </template>
 
     <a-empty v-if="!currentTemp && !pageLoading" />
@@ -19,6 +20,7 @@
   import { goBack } from "@/utils/tool"
   import { useProductStore } from "@/store"
   import ViewContent from "@/views/requests/progress-payment/components/ViewContent.vue";
+  import BocViewAllContent from "@/views/requests/progress-payment/components/BocViewAllContent.vue";
   
   const { t } = useI18n();
   const route = useRoute();
@@ -29,6 +31,7 @@
   const pageLoading = ref(true)
   const currentId = ref()
   const typeStr = ref('')
+  const isVsl = ref(false)
 
   const pageTitle = ref(t('进度付款阶段'))
 
@@ -44,6 +47,7 @@
       if (!code) {
         pageLoading.value = false
       } else {
+        isVsl.value = String(code).toLowerCase() === 'vsl'
         currentTemp.value = code
         const obj = productData.value.find(item => item.code === code)
         const rType = obj ? `${obj.name} - ` : ''

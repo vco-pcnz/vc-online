@@ -8,7 +8,17 @@
           <a-input-number v-model:value="amount" :max="99999999999" :min="0" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
         </div> -->
 
-        <ProgressPayment :visible="visible" :validate="validate" :data="formState" :projectDetail="projectDetail" :isEdit="isEdit" :log-date="logDate" @change="updateformState"></ProgressPayment>
+        <ProgressPayment
+          :visible="visible"
+          :validate="validate"
+          :data="formState"
+          :projectDetail="projectDetail"
+          :isEdit="isEdit"
+          :source="Number(detail?.source || 0)"
+          :log-date="logDate"
+          :detail="detail"
+          @change="updateformState"
+        ></ProgressPayment>
 
         <div class="flex justify-center" v-if="isEdit">
           <a-button @click="save" type="dark" class="save big uppercase" :loading="loading">

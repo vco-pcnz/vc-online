@@ -880,7 +880,7 @@
         }
       })
 
-      columnsType()
+      await columnsType()
 
       await getSecurityData()
     } catch (err) {
@@ -1086,12 +1086,12 @@
   // 项数据
   const columnsTypeData = ref([])
   const columnsTypeObj = ref({})
-  const columnsType = () => {
+  const columnsType = async () => {
     // 计算borrowerEquity占比
     const borrowerEquityPercent = calcBuildAmount.value ? tool.times(tool.div(borrowerEquity.value, calcBuildAmount.value), 100) : 0
     let remainingPercent = borrowerEquityPercent
 
-    systemDictDataApi({
+    await systemDictDataApi({
       code: 'build_type_vsl',
       is_note: 1
     }).then(res => {

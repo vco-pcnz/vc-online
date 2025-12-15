@@ -1478,13 +1478,13 @@
   };
 
   const setSingleFormData = (params) => {
-    projectAuditSaveMode(params).then(() => {
+    projectAuditSaveMode(params).then(async () => {
       emits('refresh')
 
       // 操作记录
       emitter.emit('refreshAuditHisList');
 
-      getProgressInfoHandle()
+      await getProgressInfoHandle()
 
       // 更新补充股权
       const tueLoan = formState.value.devCostDetail[0].data[1].loan
@@ -1571,7 +1571,8 @@
       if (progress__data.length && props.blockInfo.showEdit) {
         if (selectStep.value === 1) {
           formState.value.initial_build_amount = data.total
-          setSingleFormData({
+          initSelectedData.value = progress__data
+          await setSingleFormData({
             code: props.blockInfo.code,
             uuid: props.currentId,
             progress__data,
@@ -1597,11 +1598,10 @@
         }
 
         await saveProgressInfo(params)
-        getProgressInfoHandle()
+        await getProgressInfoHandle()
       }
       selectVisible.value = false
     }
-    
   }
 
   const showDrowdownSelect = (step, data) => {
@@ -1631,8 +1631,8 @@
     });
   }
 
-  const getProgressInfoHandle = () => { 
-    getProgressInfo({
+  const getProgressInfoHandle = async () => { 
+    await getProgressInfo({
       uuid: props.currentId
     }).then(res => {
       if (tool.getObjType(res) === 'object' && Object.keys(res).length) {
@@ -1647,10 +1647,9 @@
         }, {})
 
         for (let i = 0; i < bocTermData.value.length; i++) {
-          const item = bocTermData.value[i]
-          if (termAmountMap[item.value]) {
-            item.amount = termAmountMap[item.value] || 0
-            item.data = res[item.value] || []
+          if (termAmountMap[bocTermData.value[i].value]) {
+            bocTermData.value[i].amount = termAmountMap[bocTermData.value[i].value] || 0
+            bocTermData.value[i].data = res[bocTermData.value[i].value] || []
           }
         }
       } else {
@@ -1672,7 +1671,7 @@
     refinancialAmount.value = props.lendingInfo?.substitution_amount || 0
 
     await getBocTermData()
-    getProgressInfoHandle()
+    await getProgressInfoHandle()
 
     getRefinancialList()
     getFormItems();

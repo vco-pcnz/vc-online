@@ -1477,8 +1477,8 @@
       });
   };
 
-  const setSingleFormData = (params) => {
-    projectAuditSaveMode(params).then(async () => {
+  const setSingleFormData = async (params) => {
+    await projectAuditSaveMode(params).then(async () => {
       emits('refresh')
 
       // 操作记录

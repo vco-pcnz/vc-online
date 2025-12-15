@@ -1079,6 +1079,7 @@
   }
 
   const bocSplitObjRef = ref({})
+  const bocSplitOldInfo = ref({})
 
   // 项数据
   const columnsTypeData = ref([])
@@ -1211,6 +1212,8 @@
           }
         }
       }
+
+      bocSplitOldInfo.value = cloneDeep(bocSplitObjRef.value);
       columnsTypeData.value = newData
 
       const obj = {}
@@ -1253,6 +1256,16 @@
   const dataHasChanged = (arr1, arr2) => {
     for (let i = 0; i < arr1.length; i++) {
       if (Number(arr1[i]) !== Number(arr2[i])) {
+        return true
+      }
+    }
+    return false
+  }
+
+  // boc数据是否有变化
+  const bocDataChanged = () => {
+    for (const key in bocSplitOldInfo.value) {
+      if (Number(bocSplitOldInfo.value[key].amount) !== Number(bocSplitObjRef.value[key].amount)) {
         return true
       }
     }
@@ -1368,7 +1381,11 @@
     const bocSplitObj = cloneDeep(bocSplitObjRef.value)
     for (const key in bocSplitObj) {
       if (bocSplitObj[key].amount > 0) {
-        arr.push(bocSplitObj[key])
+        const bocItemInfo = cloneDeep(bocSplitObj[key])
+        if (bocItemInfo.logs) {
+          delete bocItemInfo.logs
+        }
+        arr.push(bocItemInfo)
       }
     }
     params.progress = arr
@@ -1430,6 +1447,10 @@
         if (rLen) {
           if (dataHasChanged(arr1, arr2)) {
             confirmTxt.value = t(`数据设置有变动，保存后会重置首次建筑贷款放款额`)
+            currentParams.value.clear = 1
+            changeVisible.value = true
+          } else if (bocDataChanged()) {
+            confirmTxt.value = t(`BOC数据有变动，保存后会重置首次建筑贷款放款额`)
             currentParams.value.clear = 1
             changeVisible.value = true
           } else {

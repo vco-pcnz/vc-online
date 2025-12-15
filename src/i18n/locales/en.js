@@ -1314,5 +1314,6 @@ export default {
   "已支付": "Paid",
   "Approved": "Approved",
   "手动": "Manual",
-  "放款选择": "Drawdown selection"
+  "放款选择": "Drawdown selection",
+  "BOC数据有变动，保存后会重置首次建筑贷款放款额": "BOC data has changed, saving will reset the first construction loan drawdown amount"
 }

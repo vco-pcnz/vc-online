@@ -212,6 +212,13 @@ const getSetedData = async () => {
           const selectedItem = props.selectedData.find(_item => _item.progress_id === item[i].id)
           if (selectedItem) {
             item[i].set_amount = selectedItem.amount || 0
+            if (item[i].logs && item[i].logs.length && props.isSelect) {
+              const logsArr = item[i].logs.filter(_item => _item.apply_id === selectedItem.apply_id)
+              const setLogsAmount = logsArr.reduce((total, _item) => {
+                return Number(tool.plus(total, Number(_item.amount || 0)))
+              }, 0)
+              item[i].use_amount = Number(tool.minus(Number(item[i].use_amount), Number(setLogsAmount)))
+            }
           }
           item[i].selected = false
           arr.push(cloneDeep(item[i]))

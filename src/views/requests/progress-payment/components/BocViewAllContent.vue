@@ -692,7 +692,7 @@
         amount: Number(bocItem.amount || 0),
         use_amount: Number(bocUseAmount || 0),
         logs_use_amount: Number(bocItem.logs_use_amount || 0),
-        percent: bocItem.percent !== undefined ? bocItem.percent : Number(tool.times(Number(bocItem.per || 0), 100)),
+        percent: Number(tool.div(Number(bocUseAmount), Number(bocItem.amount))) * 100,
         logs: bocItem.logs || [],
         checked: false,
         selected: false,
@@ -947,19 +947,23 @@
         setedData.value = res
         const progressData = res.progress || {}
         const progressMap = {}
+        let progressUseAmount = 0
         for (const key in progressData) {
           const list = progressData[key] || []
           list.forEach(item => {
             if (!item) return
             const mapKey = item.type || item.type_name
             const use_amount = props.isSelect ? item.use_amount : (props.logDate ? item.logs_use_amount : item.use_amount)
+
+            progressUseAmount = Number(tool.plus(progressUseAmount, Number(item.use_amount || 0)))
+
             if (mapKey) {
               progressMap[mapKey] = {
                 ...item,
                 amount: Number(item.amount || 0),
                 use_amount: Number(use_amount || 0),
                 logs_use_amount: Number(item.logs_use_amount || 0),
-                percent: Number(tool.times(Number(item.per || item.percent || 0), 100)),
+                percent: Number(tool.div(Number(use_amount), Number(item.amount))) * 100,
                 logs: item.logs || [],
                 checked: false,
                 selected: false,
@@ -1114,7 +1118,7 @@
         }
 
         // 统计数据
-        statUseAmount.value = res.use_amount || 0
+        statUseAmount.value = Number(tool.plus(progressUseAmount, Number(res.use_amount || 0)))
       })
     } catch (err) {
       pageLoading.value = false

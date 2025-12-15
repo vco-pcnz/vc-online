@@ -60,7 +60,6 @@
           <a-col :span="24" v-if="!hasPermission('projects:drawdowns:add')">
             <ProgressPayment
               ref="ProgressPaymentRef"
-              :is-vsl="isVsl"
               :visible="visible"
               :validate="validate"
               :data="formState"

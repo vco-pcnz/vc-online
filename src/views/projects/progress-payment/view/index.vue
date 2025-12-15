@@ -3,7 +3,7 @@
     <vco-page-panel :title="pageTitle" @back="goBack"></vco-page-panel>
 
     <template v-if="currentId && currentTemp">
-      <boc-view-all-content v-if="isVsl" :is-page="true" @done="getProjectInfo"></boc-view-all-content>
+      <boc-view-all-content v-if="isVsl" :show-process="true" :is-page="true" :hide-self="true" @done="getProjectInfo"></boc-view-all-content>
       <view-content v-else :show-process="true" :is-page="true" :hide-self="true" @done="getProjectInfo"></view-content>
     </template>
 

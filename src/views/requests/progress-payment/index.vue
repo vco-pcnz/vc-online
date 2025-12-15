@@ -5,6 +5,7 @@
     <template v-if="currentId && currentTemp">
       <template v-if="isVsl">
         <boc-edit-content v-if="hasPermission('requests:load:progressPayment')" @done="getProjectInfo"></boc-edit-content>
+        <boc-view-all-content v-else :is-page="true" @done="getProjectInfo"></boc-view-all-content>
       </template>
       <template v-else>
         <edit-content v-if="hasPermission('requests:load:progressPayment')" @done="getProjectInfo"></edit-content>
@@ -27,6 +28,7 @@
   import { hasPermission } from "@/directives/permission"
   import EditContent from "./components/EditContent.vue";
   import BocEditContent from "./components/BocEditContent.vue";
+  import BocViewAllContent from "./components/BocViewAllContent.vue";
   import ViewContent from "./components/ViewContent.vue";
   
   const { t } = useI18n();

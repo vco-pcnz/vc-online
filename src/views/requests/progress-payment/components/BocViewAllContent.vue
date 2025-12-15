@@ -305,7 +305,12 @@
               <template #summary>
                 <a-table-summary fixed>
                   <a-table-summary-row>
-                    <a-table-summary-cell v-for="(item, index) in summaryCol" :index="index" :key="item.key" class="text-center">
+                    <a-table-summary-cell
+                      v-for="(item, index) in summaryCol"
+                      :index="index"
+                      :key="item.key"
+                      :class="['text-center', item.key === 'boc-payment-amount' ? 'boc-payment-col' : '']"
+                    >
                       <template v-if="item.key === 'type'">Construction</template>
                       <template v-else-if="item.key === 'payment'">
                         <p class="total-percent">{{ numberStrFormat(summaryHandle(item.key)) }}%</p>
@@ -419,6 +424,31 @@
                   <div class="selected-bg"></div>
                   <i class="iconfont selected-icon">&#xe601;</i>
                 </template>
+
+                <div v-if="item.bocInfo" class="boc-info">
+                  <div class="flex justify-between items-center">
+                    <p>{{ t('BOC放款') }}</p>
+                    <vco-number :value="Number(item.bocInfo.amount || 0)" size="fs_xs" :precision="2" :end="true"></vco-number>
+                  </div>
+                  <template v-if="showProcess">
+                    <div class="flex justify-between items-center">
+                      <p>{{ t('可用额度1') }}</p>
+                      <vco-number :value="Number(item.bocInfo.can_amount || 0)" size="fs_xs" :precision="2" :end="true" color="#eb4b6d"></vco-number>
+                    </div>
+                    <div class="flex justify-between items-center">
+                      <p>{{ t('已用额度') }}</p>
+                      <vco-number :value="Number(item.bocInfo.use_amount || 0)" size="fs_xs" :precision="2" :end="true" color="#31bd65"></vco-number>
+                    </div>
+                    <div class="flex items-center justify-between gap-2">
+                      <div class="flex-1">
+                        <vco-excess-process :percent="item.bocInfo.percent" />
+                      </div>
+                      <div v-if="item.bocInfo.logs?.length && !isSelect" class="log-icon boc" @click="showLogInfo(item.bocInfo)">
+                        <i class="iconfont">&#xe76c;</i>
+                      </div>
+                    </div>
+                  </template>
+                </div>
               </div>
             </div>
             <div class="table-total-content">
@@ -541,6 +571,8 @@
     payment: {},
     summary: {}
   })
+  const bocProgressMap = ref({})
+
   /**
    * 表单数据
    */
@@ -637,6 +669,7 @@
   const setTableData = (headerData) => {
     const payment = cloneDeep(setedData.value.payment)
     const column = cloneDeep(setedData.value.column)
+    const bocProgress = cloneDeep(bocProgressMap.value) || {}
 
     for (const key in payment) {
       if (key === '0$1__payment') {
@@ -670,6 +703,21 @@
         typeId: data[i].type,
         payment: payment[`${data[i].type}$${data[i].category}__payment`] ? payment[`${data[i].type}$${data[i].category}__payment`].amount : 0,
         category: data[i].category
+      }
+      const bocKey = `${data[i].type}$${data[i].category}`
+      const bocItem = bocProgress[bocKey] ? { ...bocProgress[bocKey] } : { amount: 0, use_amount: 0, logs_use_amount: 0, percent: 0, per: 0, id: 0, logs: [] }
+      const bocUseAmount = props.isSelect ? bocItem.use_amount : (props.logDate ? bocItem.logs_use_amount : bocItem.use_amount)
+      obj['boc-payment-amount'] = {
+        ...bocItem,
+        amount: Number(bocItem.amount || 0),
+        use_amount: Number(bocUseAmount || 0),
+        logs_use_amount: Number(bocItem.logs_use_amount || 0),
+        percent: Number(tool.div(Number(bocUseAmount), Number(bocItem.amount))) * 100,
+        logs: bocItem.logs || [],
+        checked: false,
+        selected: false,
+        set_amount: '',
+        set_amount_per: ''
       }
       for (let j = 0; j < headerData.length; j++) {
         const amountItem = hadSetData[`${data[i].type}$${data[i].category}__${headerData[j].dataIndex}`] || {}
@@ -793,6 +841,13 @@
       width: 90,
       align: 'center',
       fixed: 'left'
+    }, {
+      title: t('BOC放款'),
+      dataIndex: "boc-payment-amount",
+      width: 130,
+      align: 'center',
+      className: 'boc-payment-col',
+      fixed: 'left'
     }, ...headerData,
     { title: t('总计'), dataIndex: 'total', width: 180, align: 'center', fixed: 'right' }]
 
@@ -910,6 +965,35 @@
         }
 
         setedData.value = res
+        const progressData = res.progress || {}
+        const progressMap = {}
+        let progressUseAmount = 0
+        for (const key in progressData) {
+          const list = progressData[key] || []
+          list.forEach(item => {
+            if (!item) return
+            const mapKey = item.type || item.type_name
+            const use_amount = props.isSelect ? item.use_amount : (props.logDate ? item.logs_use_amount : item.use_amount)
+
+            progressUseAmount = Number(tool.plus(progressUseAmount, Number(item.use_amount || 0)))
+
+            if (mapKey) {
+              progressMap[mapKey] = {
+                ...item,
+                amount: Number(item.amount || 0),
+                use_amount: Number(use_amount || 0),
+                logs_use_amount: Number(item.logs_use_amount || 0),
+                percent: Number(tool.div(Number(use_amount), Number(item.amount))) * 100,
+                logs: item.logs || [],
+                checked: false,
+                selected: false,
+                set_amount: '',
+                set_amount_per: ''
+              }
+            }
+          })
+        }
+        bocProgressMap.value = progressMap
 
         // 首次放款数据
         if (Object.keys(res.payment).length) {
@@ -1038,6 +1122,18 @@
               }
             }
 
+            // boc数据
+            if (progressData[item.name]) {
+              const bocItem = cloneDeep(progressData[item.name])
+              if (bocItem.length > 0) {
+                const bocItemInfo = cloneDeep(bocItem[0])
+                mergItem.bocInfo = bocItemInfo
+                const num = fixNumber(Number(tool.div(Number(bocItemInfo.use_amount || 0), Number(bocItemInfo.amount || 0))), 4)
+                bocItemInfo.percent = Number(tool.times(num, 100))
+                bocItemInfo.can_amount = Number(tool.minus(Number(bocItemInfo.amount || 0), Number(bocItemInfo.use_amount || 0)))
+              }
+            }
+
             return mergItem
           })
           footerDataCol.value = footerData.filter(item => Number(item.amount))
@@ -1046,7 +1142,7 @@
         }
 
         // 统计数据
-        statUseAmount.value = res.use_amount || 0
+        statUseAmount.value = Number(tool.plus(progressUseAmount, Number(res.use_amount || 0)))
       })
     } catch (err) {
       pageLoading.value = false
@@ -1579,6 +1675,9 @@
           padding: 16px 5px;
         }
       }
+      .boc-payment-col {
+        background-color: #fff1d6 !important;
+      }
       .ant-table {
         background-color: transparent;
         border-spacing: 10px;
@@ -1735,6 +1834,24 @@
         color: #F19915;
         &:hover {
           color: #e08906;
+        }
+        &.boc {
+          position: relative;
+          top: 0;
+          right: 0;
+        }
+      }
+
+      .boc-info {
+        background-color: #fff1d6;
+        width: 100%;
+        max-width: 300px;
+        padding: 5px;
+        border: 1px solid #282828;
+        border-radius: 4px;
+        margin-top: 5px;
+        p {
+          font-size: 11px;
         }
       }
     }

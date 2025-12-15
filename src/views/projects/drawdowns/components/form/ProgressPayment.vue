@@ -5,7 +5,12 @@
 
   <!-- boc放款选择 -->
   <a-modal :open="bocVisible" :title="t('BOC放款')" :width="1000" :footer="null" :keyboard="false" :maskClosable="false" class="middle-position" @cancel="bocVisible = false">
-    <boc-view-content v-if="bocVisible" :selected-data="bocSelectedData" :is-select="isEdit" @selectDone="bocSelectDoneHandle"></boc-view-content>
+    <boc-view-content
+      v-if="bocVisible"
+      :selected-data="bocSelectedData"
+      :is-select="isEdit"
+      @selectDone="bocSelectDoneHandle"
+    ></boc-view-content>
   </a-modal>
 
   <div class="input-item" style="margin-top: 16px" v-if="!keepShowOther">
@@ -154,8 +159,12 @@ const props = defineProps({
     default: ''
   },
   source: {
-    type: String,
+    type: [String, Number],
     default: ''
+  },
+  detail: {
+    type: Object,
+    default: () => {}
   }
 });
 
@@ -210,11 +219,13 @@ const editData = ref(null);
 const bocVisible = ref(false);
 const bocSelectedData = ref([]);
 const bocSelectDoneHandle = (data) => {
+  if (props.isEdit) {
+    bocSelectedData.value = data.progress__data;
+    formState.value.progress__data = data.progress__data;
+    formState.value.build_money = data.total;
+    change();
+  }
   bocVisible.value = false;
-  bocSelectedData.value = data.progress__data;
-  formState.value.progress__data = data.progress__data;
-  formState.value.build_money = data.total;
-  change();
 };
 
 watch(
@@ -237,6 +248,10 @@ watch(
       } else {
         showOther.value = false;
       }
+    }
+
+    if (props.detail && Number(props.detail?.source) > 0) {
+      bocSelectedData.value = cloneDeep(props.detail?.progress_log) || [];
     }
   },
   {

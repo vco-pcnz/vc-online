@@ -426,8 +426,28 @@
                 </template>
 
                 <div v-if="item.bocInfo" class="boc-info">
-                  <p>{{ t('BOC放款') }}</p>
-                  <vco-number :value="Number(item.bocInfo.amount || 0)" size="fs_md" :precision="2" :end="true"></vco-number>
+                  <div class="flex justify-between items-center">
+                    <p>{{ t('BOC放款') }}</p>
+                    <vco-number :value="Number(item.bocInfo.amount || 0)" size="fs_xs" :precision="2" :end="true"></vco-number>
+                  </div>
+                  <template v-if="showProcess">
+                    <div class="flex justify-between items-center">
+                      <p>{{ t('可用额度1') }}</p>
+                      <vco-number :value="Number(item.bocInfo.can_amount || 0)" size="fs_xs" :precision="2" :end="true" color="#eb4b6d"></vco-number>
+                    </div>
+                    <div class="flex justify-between items-center">
+                      <p>{{ t('已用额度') }}</p>
+                      <vco-number :value="Number(item.bocInfo.use_amount || 0)" size="fs_xs" :precision="2" :end="true" color="#31bd65"></vco-number>
+                    </div>
+                    <div class="flex items-center justify-between gap-2">
+                      <div class="flex-1">
+                        <vco-excess-process :percent="item.bocInfo.percent" />
+                      </div>
+                      <div v-if="item.bocInfo.logs?.length && !isSelect" class="log-icon boc" @click="showLogInfo(item.bocInfo)">
+                        <i class="iconfont">&#xe76c;</i>
+                      </div>
+                    </div>
+                  </template>
                 </div>
               </div>
             </div>
@@ -1106,7 +1126,11 @@
             if (progressData[item.name]) {
               const bocItem = cloneDeep(progressData[item.name])
               if (bocItem.length > 0) {
-                mergItem.bocInfo = bocItem[0]
+                const bocItemInfo = cloneDeep(bocItem[0])
+                mergItem.bocInfo = bocItemInfo
+                const num = fixNumber(Number(tool.div(Number(bocItemInfo.use_amount || 0), Number(bocItemInfo.amount || 0))), 4)
+                bocItemInfo.percent = Number(tool.times(num, 100))
+                bocItemInfo.can_amount = Number(tool.minus(Number(bocItemInfo.amount || 0), Number(bocItemInfo.use_amount || 0)))
               }
             }
 
@@ -1811,20 +1835,24 @@
         &:hover {
           color: #e08906;
         }
+        &.boc {
+          position: relative;
+          top: 0;
+          right: 0;
+        }
       }
 
       .boc-info {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
         background-color: #fff1d6;
         width: 100%;
         max-width: 300px;
         padding: 5px;
         border: 1px solid #282828;
         border-radius: 4px;
-        font-size: 11px;
         margin-top: 5px;
+        p {
+          font-size: 11px;
+        }
       }
     }
   }

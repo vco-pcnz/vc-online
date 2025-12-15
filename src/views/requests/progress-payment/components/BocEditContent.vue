@@ -520,6 +520,8 @@
       const useAmount = Number(item.use_amount)
       if (amount < useAmount) {
         item.showError = true
+      } else {
+        item.showError = false
       }
     }
   }

@@ -707,12 +707,13 @@
       const bocKey = `${data[i].type}$${data[i].category}`
       const bocItem = bocProgress[bocKey] ? { ...bocProgress[bocKey] } : { amount: 0, use_amount: 0, logs_use_amount: 0, percent: 0, per: 0, id: 0, logs: [] }
       const bocUseAmount = props.isSelect ? bocItem.use_amount : (props.logDate ? bocItem.logs_use_amount : bocItem.use_amount)
+
       obj['boc-payment-amount'] = {
         ...bocItem,
         amount: Number(bocItem.amount || 0),
         use_amount: Number(bocUseAmount || 0),
         logs_use_amount: Number(bocItem.logs_use_amount || 0),
-        percent: Number(tool.div(Number(bocUseAmount), Number(bocItem.amount))) * 100,
+        percent: Number(bocItem.amount) ? Number(tool.div(Number(bocUseAmount), Number(bocItem.amount))) * 100 : 0,
         logs: bocItem.logs || [],
         checked: false,
         selected: false,
@@ -731,7 +732,7 @@
 
           if (amountItem.amount) {
             const use_amount = props.isSelect ? amountItem.use_amount : (props.logDate ? amountItem.logs_use_amount : amountItem.use_amount)
-            const num = fixNumber(Number(tool.div(Number(use_amount), Number(amountItem.amount))), 4)
+            const num = Number(amountItem.amount) ? fixNumber(Number(tool.div(Number(use_amount), Number(amountItem.amount))), 4) : 0;
             amountItem.percent = Number(tool.times(num, 100))
           } else {
             amountItem.percent = 0

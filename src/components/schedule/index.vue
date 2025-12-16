@@ -60,7 +60,7 @@
 
       <template v-if="statisticsData || tabData.length">
         <vco-page-tab
-          v-if="currentProduct === 'vsl' && vs_is_import != 1 && (hasPermission('projects:schedule:vs_schedule') || hasPermission('projects:schedule:boc_schedule'))"
+          v-if="isAbout && currentProduct === 'vsl' && vs_is_import != 1 && (hasPermission('projects:schedule:vs_schedule') || hasPermission('projects:schedule:boc_schedule'))"
           class="mt-5"
           :tabData="typeData"
           v-model:current="type_id"

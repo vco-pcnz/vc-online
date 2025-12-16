@@ -1,6 +1,6 @@
 <template>
   <div>
-    <a-modal :open="itemVisible" :title="t('进度付款阶段')" :width="540" :footer="null" :keyboard="false" :maskClosable="false" @cancel="setDialogCancel">
+    <a-modal :open="itemVisible" :title="isSetting ? t('进度付款阶段') : t('BOC放款')" :width="540" :footer="null" :keyboard="false" :maskClosable="false" @cancel="setDialogCancel">
       <a-row :gutter="24" class="mt-10">
         <a-col :span="8">
           <div class="info-content">
@@ -54,56 +54,33 @@
 
     <a-spin :spinning="pageLoading" size="large">
       <div class="drawdown-content">
-        <div v-for="(group, groupIndex) in bocSplitData" :key="`${groupIndex}-${group[0]?.term || 'group'}`" class="term-group-content">
+        <div v-if="bocSplitData.length" class="term-group-content">
           <div class="flex items-center justify-between header">
-            <h2 class="font-bold">{{ `No.${group[0]?.term}` }}</h2>
-            <div class="flex justify-between items-center gap-4">
-              <div class="flex items-center gap-2">
-                <p class="text-xs text-gray-700">{{ t('总额度') }}</p>
-                <vco-number :value="group.reduce((total, item) => {
-                  return Number(tool.plus(total, Number(item.amount)))
-                }, 0)" size="fs_xs" :precision="2" :end="true" :bold="true"></vco-number>
-              </div>
-              <div class="flex items-center gap-2">
-                <p class="text-xs text-gray-700">{{ t('已用额度') }}</p>
-                <vco-number :value="group.reduce((total, item) => {
-                  return Number(tool.plus(total, Number(item.use_amount)))
-                }, 0)" size="fs_xs" :precision="2" :end="true" color="#eb4b6d" :bold="true"></vco-number>
-              </div>
-              <div class="flex items-center gap-2">
-                <p class="text-xs text-gray-700">{{ t('可用额度1') }}</p>
-                <vco-number :value="group.reduce((total, item) => {
-                  return Number(tool.plus(total, Number(item.amount - item.use_amount)))
-                }, 0)" size="fs_xs" :precision="2" :end="true" color="#31bd65" :bold="true"></vco-number>
-              </div>
-
-              <a-button v-if="Number(group.reduce((total, item) => {
-                return Number(tool.plus(total, Number(item.amount - item.use_amount)))
-              }, 0)) !== 0 && isSelect" type="primary" size="small" class="bold uppercase"
-                @click="fullDrawdownHandle(group, true)"
-              >
-                {{ t('全额放款') }}
-              </a-button>
-              <a-button v-if="Number(group.reduce((total, item) => {
-                return Number(tool.plus(total, Number(item.amount - item.use_amount)))
-              }, 0)) !== 0 && showFullCancelButton(group) && isSelect" type="dark" size="small" class="bold uppercase"
-                @click="fullDrawdownHandle(group, false)"
-              >
-                {{ t('清除') }}
-              </a-button>
+            <h2 v-if="isSetting" class="font-bold">{{ t('BOC第{0}期放款', [step]) }}</h2>
+            <h2 v-else class="font-bold">{{ t('放款选择') }}</h2>
+            <div v-if="isSelect" class="mt-2 mb-2 flex justify-end gap-4">
+              <a-button v-if="selectDataHasNum" type="cyan" class="bold uppercase" @click="selectCancelAll">{{ t('取消所有设置') }}</a-button>
+              <a-button type="primary" class="bold uppercase" @click="batchSelectHandle">{{ batchSelect ? t('取消批量模式') : t('批量选择') }}</a-button>
+              <a-button v-if="batchSelectData.length" type="grey" class="bold uppercase" @click="batchSelectCancel">{{ t('取消已选择')}}</a-button>
+              <a-button v-if="batchSelect" type="dark" :disabled="!batchSelectData.length" class="bold uppercase" @click="batchSelectSet">{{ t('批量设置1') }} ({{ batchSelectData.length }})</a-button>
             </div>
           </div>
           <div class="item-content">
             <div
-              v-for="item in group" :key="`${item.term}-${item.type_name}`"
+              v-for="item in bocSplitData" :key="`${item.term}-${item.type_name}`"
               class="item-content-item"
-              :class="{'hover': isSelect, 'done': Number(item.amount) === Number(item.use_amount)}"
+              :class="{'hover': isSelect, 'done': (Number(item.amount) === Number(item.use_amount) && isSelect)}"
               @click="itemClickHandle(item)"
             >
-              <i v-if="Number(item.amount) === Number(item.use_amount)" class="done-icon iconfont icon-duigou"></i>
-              <div v-if="Number(item.amount) !== Number(item.use_amount) && Number(item.set_amount)" class="selected-amount">
+              <i v-if="Number(item.amount) === Number(item.use_amount) && isSelect" class="done-icon iconfont icon-duigou"></i>
+              <div v-if="Number(item.set_amount)" class="selected-amount">
                 {{  `$${numberStrFormat(Number(item.set_amount))}` }}
               </div>
+
+              <template v-if="item.selected">
+                <div class="selected-bg"></div>
+                <i class="iconfont selected-icon">&#xe601;</i>
+              </template>
 
               <div class="title" :title="item.type_name">{{ item.type_name }}</div>
               <div class="mt-1">
@@ -129,12 +106,14 @@
             </div>
           </div>
         </div>
+        <a-empty v-if="!bocSplitData.length && !pageLoading" />
       </div>
       <div class="flex justify-between items-center mt-5">
-        <div>
+        <div v-if="bocSplitData.length">
           <p class="font-bold">Total</p>
           <vco-number :value="selectTotalAmount" size="fs_xl" :precision="2" :end="true" color="#eb4b6d" :bold="true"></vco-number>
         </div>
+        <p v-else></p>
         <a-button type="dark" class="big shadow bold uppercase"
           @click="doneHandle"
         >{{ t('确定') }}</a-button>
@@ -147,7 +126,7 @@
 import { computed, onMounted, ref } from "vue"
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router"
-import { projectGetBuild, projectLoanGetBuild } from "@/api/process"
+import { projectGetBuild, projectLoanGetBuild, getProgressInfo } from "@/api/process"
 import { cloneDeep } from "lodash"
 import tool, { numberStrFormat } from "@/utils/tool"
 
@@ -163,6 +142,14 @@ const props = defineProps({
   isSelect: {
     type: Boolean,
     default: false
+  },
+  isSetting: {
+    type: Boolean,
+    default: false
+  },
+  step: {
+    type: Number,
+    default: 0
   }
 })
 
@@ -177,34 +164,34 @@ const pageLoading = ref(false)
 
 const bocSplitData = ref([])
 
-const selectedData = computed(() => {
+const setSelectedData = computed(() => {
   const result = []
-  bocSplitData.value.forEach(group => {
-    if (!Array.isArray(group)) {
-      return
+  bocSplitData.value.forEach(item => {
+    if (item && Number(item.set_amount)) {
+      result.push(cloneDeep(item))
     }
-    group.forEach(item => {
-      if (item && Number(item.set_amount)) {
-        result.push(cloneDeep(item))
-      }
-    })
   })
   return result
 })
 
 const selectTotalAmount = computed(() => {
-  return selectedData.value.reduce((total, item) => {
+  return setSelectedData.value.reduce((total, item) => {
     return Number(tool.plus(total, Number(item.set_amount || 0)))
   }, 0)
 })
 
-const showFullCancelButton = computed(() => {
-  return (group) => {
-    return group.some(item => item.set_amount)
-  }
+const selectDataHasNum = computed(() => {
+  return setSelectedData.value.filter(item => Number(item.set_amount)).length
 })
 
-const getSetedData = () => {
+const selectCancelAll = () => {
+  bocSplitData.value.forEach(item => {
+    item.set_amount = ''
+    item.checked = false
+  })
+}
+
+const getSetedData = async () => {
   pageLoading.value = true
   const params = {
     uuid: uuid.value
@@ -216,52 +203,27 @@ const getSetedData = () => {
     }
 
     const ajaxFn = isRequests.value ? projectGetBuild : projectLoanGetBuild
-    ajaxFn(params).then(res => {
-      const selectedItemArr = cloneDeep(props.selectedData || [])
-
+    await ajaxFn(params).then(res => {
       const progress = cloneDeep(res.progress || {})
       const arr = []
       for (const key in progress) {
         const item = progress[key]
-        const bocObj = item.find(_item => _item.source)
-        const selectedItem = selectedItemArr.find(item => item.progress_id === bocObj.id)
-        if (selectedItem) {
-          bocObj.set_amount = selectedItem.amount
-        } else {
-          bocObj.set_amount = 0
+        for (let i = 0; i < item.length; i++) {
+          const selectedItem = props.selectedData.find(_item => _item.progress_id === item[i].id)
+          if (selectedItem) {
+            item[i].set_amount = selectedItem.amount || 0
+          }
+          item[i].selected = false
+          arr.push(cloneDeep(item[i]))
         }
-        arr.push(bocObj)
       }
 
-      const data = arr.sort((a, b) => {
-      const termA = Number(a?.term ?? 0)
-        const termB = Number(b?.term ?? 0)
-        return termA - termB
-      })
-      const grouped = []
-      const termMap = new Map()
-      data.forEach(item => {
-        if (!item) return
-        const termKey = item.term ?? '__EMPTY_TERM__'
-        if (!termMap.has(termKey)) {
-          termMap.set(termKey, [])
-          grouped.push(termMap.get(termKey))
-        }
-        termMap.get(termKey).push(item)
-      })
-
-      bocSplitData.value = grouped
+      bocSplitData.value = arr
       pageLoading.value = false
     })
   } catch (err) {
     pageLoading.value = false
   }
-}
-
-const fullDrawdownHandle = (group, flag = false) => {
-  group.forEach(item => {
-    item.set_amount = flag ? item.amount : 0
-  })
 }
 
 const itemVisible = ref(false)
@@ -285,19 +247,69 @@ const signleItemSelected = () => {
     return
   }
 
-  for (const group of bocSplitData.value) {
-    if (!Array.isArray(group)) {
-      continue
-    }
-    const targetItem = group.find(item => item?.id === currentId)
-    if (targetItem) {
-      targetItem.set_amount = currentItemInfo.value.set_amount
-      break
-    }
+  const targetItem = bocSplitData.value.find(item => item?.id === currentId)
+  if (targetItem) {
+    targetItem.set_amount = currentItemInfo.value.set_amount
   }
 
   itemVisible.value = false
   currentItemInfo.value = {}
+}
+
+const batchSelectSureHandle = () => {
+  const setPercent = tool.div(Number(currentItemInfo.value.set_amount_per), 100)
+  currentItemInfo.value.showError = false
+
+  // 批量设置的使用额度
+  const setTotalAmount = currentItemInfo.value.set_amount
+
+  // 计算每个项目的基础金额
+  const baseAmounts = batchSelectData.value.map(item => {
+    const canAmount = Number(tool.minus(Number(item.amount), Number(item.use_amount))).toFixed(2)
+    return {
+      id: item.id,
+      canAmount: Number(canAmount),
+      baseAmount: Number(tool.times(Number(canAmount), Number(setPercent))).toFixed(2)
+    }
+  })
+
+  // 计算基础金额总和
+  const baseTotal = baseAmounts.reduce((sum, item) => Number(tool.plus(sum, Number(item.baseAmount))), 0)
+
+  // 计算差额
+  const diff = Number(tool.minus(setTotalAmount, baseTotal))
+
+  // 设置每个项目的金额，最后一个项目补偿差额
+  batchSelectData.value.forEach((item, index) => {
+    let setAmount = baseAmounts[index].baseAmount
+    
+    // 对最后一个项目进行补偿
+    if (index === batchSelectData.value.length - 1) {
+      setAmount = Number(tool.plus(Number(setAmount), diff)).toFixed(2)
+    }
+
+    item.set_amount = setAmount
+    item.selected = false
+
+    const obj = bocSplitData.value.find(_item => _item.id === item.id)
+    if (obj) {
+      obj.set_amount = item.set_amount
+      obj.set_amount_per = ''
+    }
+
+    const amount = Number(item.amount || 0)
+    const use_amount = Number(item.use_amount || 0)
+    const total_amount = Number(tool.plus(setAmount, use_amount))
+    if (total_amount > amount) {
+      const excess_amount = Number(tool.minus(Number(total_amount), amount))
+      item.excess_amount = excess_amount
+    } else {
+      item.excess_amount = 0
+    }
+  })
+  itemVisible.value = false
+  batchSelect.value = false
+  batchSelectData.value = []
 }
 
 const selectSureHandle = () => {
@@ -308,23 +320,43 @@ const selectSureHandle = () => {
     currentItemInfo.value.showError = true
     return false
   }
-  signleItemSelected()
+  if (batchSelect.value) {
+    batchSelectSureHandle()
+  } else {
+    signleItemSelected()
+  }
 }
 
 const itemClickHandle = (item) => {
   const data = cloneDeep(item)
   if (props.isSelect && Number(data.amount) !== Number(data.use_amount)) {
-    const num = tool.minus(Number(data.amount), Number(data.use_amount))
-    if (data.set_amount && !data.set_amount_per) {
-      const per = Number(num) ? tool.div(data.set_amount, num) : 0
-      data.set_amount_per = Number(tool.times(per, 100)).toFixed(2)
-    }
-    data.can_amount = num
-    data.can_amount_per = Number(data.amount) ? tool.times(tool.div(Number(num), Number(data.amount)), 100) : 0
-    data.showError = false
+    if (batchSelect.value) {
+      item.selected = !item.selected
+      const id = item.id
+      const index = batchSelectData.value.findIndex(_item => _item.id === id)
+      if (item.selected) {
+        if (index === -1) {
+          batchSelectData.value.push(item)
+        }
+      } else {
+        if (index > -1) {
+          batchSelectData.value.splice(index, 1)
+        }
+      }
+    } else {
+      const num = tool.minus(Number(data.amount), Number(data.use_amount))
+      if (data.set_amount && !data.set_amount_per) {
+        const per = Number(num) ? tool.div(data.set_amount, num) : 0
+        data.set_amount_per = Number(tool.times(per, 100)).toFixed(2)
+      }
+      data.can_amount = num
+      data.can_amount_per = Number(data.amount) ? tool.times(tool.div(Number(num), Number(data.amount)), 100) : 0
+      data.showError = false
 
-    currentItemInfo.value = cloneDeep(data)
-    itemVisible.value = true
+      currentItemInfo.value = cloneDeep(data)
+      itemVisible.value = true
+    }
+    
   }
 }
 
@@ -333,8 +365,57 @@ const setDialogCancel = () => {
   currentItemInfo.value = {}
 }
 
+const batchSelect = ref(false)
+const batchSelectData = ref([])
+
+const batchSelectCancel = () => {
+  batchSelectData.value.forEach(item => {
+    item.selected = false
+  })
+  batchSelectData.value = []
+}
+
+const batchSelectHandle = () => {
+  batchSelect.value = !batchSelect.value
+  if (!batchSelect.value) {
+    batchSelectCancel()
+  }
+}
+
+const batchSelectSet = () => {
+  const amountArr = batchSelectData.value.map(item => Number(item.amount || 0))
+  const totalAmount = amountArr.reduce((total, num) => {
+    return Number(tool.plus(total, num))
+  }, 0);
+
+  const useAmountArr = batchSelectData.value.map(item => Number(item.use_amount || 0))
+  const useTotalAmount = useAmountArr.reduce((total, num) => {
+    return Number(tool.plus(total, num))
+  }, 0);
+
+  const setAmountArr = batchSelectData.value.map(item => Number(item.set_amount || 0))
+  const setTotalAmount = setAmountArr.reduce((total, num) => {
+    return Number(tool.plus(total, num))
+  }, 0);
+
+  const num = tool.minus(totalAmount, useTotalAmount)
+
+  const data = {
+    amount: totalAmount,
+    use_amount: useTotalAmount,
+    can_amount: num,
+    set_amount: setTotalAmount,
+    set_amount_per: Number(num) ? Number(tool.times(tool.div(setTotalAmount, Number(num)), 100)).toFixed(2) : 0,
+    can_amount_per: Number(totalAmount) ? Number(tool.times(tool.div(Number(num), Number(totalAmount)), 100)).toFixed(2) : 0,
+    showError: false
+  }
+
+  currentItemInfo.value = data
+  itemVisible.value = true
+}
+
 const doneHandle = () => {
-  const data = selectedData.value.map(item => {
+  const data = setSelectedData.value.map(item => {
     const obj = {
       progress_id: item.id,
       amount: item.set_amount
@@ -349,7 +430,43 @@ const doneHandle = () => {
   emits('selectDone', selectInfo)
 }
 
-onMounted(() => {
+const getProgressInfoHandle = () => { 
+  getProgressInfo({
+    uuid: uuid.value
+  }).then(res => {
+    if (tool.getObjType(res) === 'object' && Object.keys(res).length) {
+      const hasSetData = cloneDeep(res)
+      const hasSetArr = []
+      if (hasSetData[`${props.step}`]) {
+        delete hasSetData[`${props.step}`]
+      }
+      for (const key in hasSetData) {
+        hasSetArr.push(...hasSetData[key])
+      }
+
+      // 汇总每个 progress_id 的已占用额度
+      const progressUseAmountMap = hasSetArr.reduce((acc, cur) => {
+        if (!cur || cur.progress_id === undefined) return acc
+        const progressId = cur.progress_id
+        const amount = Number(cur.amount || 0)
+        acc[progressId] = Number(tool.plus(acc[progressId] || 0, amount))
+        return acc
+      }, {})
+
+      // 将汇总后的额度累加到当前列表的 use_amount
+      bocSplitData.value = bocSplitData.value.map(item => {
+        const addedAmount = progressUseAmountMap[item.id] || 0
+        const originUseAmount = Number(item.use_amount || 0)
+        return {
+          ...item,
+          use_amount: Number(tool.plus(originUseAmount, addedAmount))
+        }
+      })
+    }
+  })
+}
+
+onMounted(async () => {
   const { query, path } = route
   if (['/requests/progress-payment'].includes(path) || path.indexOf('/process') > -1) {
     isRequests.value = true
@@ -358,7 +475,11 @@ onMounted(() => {
   }
   uuid.value = query.uuid
   if (uuid.value) {
-    getSetedData()
+    await getSetedData()
+
+    if (props.isSetting) {
+      getProgressInfoHandle()
+    }
   }
 })
 </script>
@@ -394,8 +515,7 @@ onMounted(() => {
           overflow: hidden;
           position: relative;
           background-color: #fff;
-          &:first-child,
-          &:nth-child(5n) {
+          &:nth-child(4n + 1) {
             margin-left: 0;
           }
           &:nth-child(-n + 4) {
@@ -418,10 +538,10 @@ onMounted(() => {
             }
           }
           &.done {
-            background-color: #fff !important;
+            background-color: #ccc !important;
             cursor: default;
             &:hover {
-              background-color: #fff !important;
+              background-color: #ccc !important;
             }
             &::after {
               content: '';
@@ -430,7 +550,7 @@ onMounted(() => {
               right: -25px;
               width: 50px;
               height: 50px;
-              background-color: #31bd65;
+              background-color: #666;
               z-index: 1;
               transform: rotate(-45deg);
             }
@@ -460,6 +580,24 @@ onMounted(() => {
             padding: 0 5px;
             height: 18px;
             font-size: 12px;
+          }
+          .selected-bg {
+            position: absolute;
+            background-color: rgba(49, 189, 101, 1);
+            width: 40px;
+            height: 40px;
+            right: -20px;
+            bottom: -20px;
+            transform: rotate(-45deg);
+            z-index: 1;
+          }
+          .selected-icon {
+            position: absolute;
+            right: 2px;
+            bottom: 2px;
+            color: #fff;
+            font-size: 11px;
+            z-index: 2;
           }
         }
       }

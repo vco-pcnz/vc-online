@@ -2,16 +2,25 @@
   <div>
     <div class="title">{{ title }}</div>
     <div class="flex gap-5">
-      <a-upload ref="uploadRef" :action="uploadUrl + '/transfer/importData'" :headers="headers" :beforeUpload="beforeUpload" :data="{ ...params }" name="file" :showUploadList="false" @change="handleChange">
+      <a-upload
+        ref="uploadRef"
+        :action="uploadAction"
+        :headers="headers"
+        :beforeUpload="beforeUpload"
+        :data="{ ...params }"
+        name="file"
+        :showUploadList="false"
+        @change="handleChange"
+      >
         <a-button type="cyan" :loading="importLoading">Import</a-button>
       </a-upload>
       <a-button type="cyan" :loading="exportLoading" @click="report">template</a-button>
     </div>
   </div>
-  <Confirm ref="confirmRef" :data="uploadResult"></Confirm>
+  <Confirm ref="confirmRef" :data="uploadResult" :save-url="savePath"></Confirm>
 </template>
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue';
 import tool from '@/utils/tool';
@@ -40,8 +49,18 @@ const props = defineProps({
     default: () => {
       return {};
     }
+  },
+  importPath: {
+    type: String,
+    default: '/transfer/importData'
+  },
+  savePath: {
+    type: String,
+    default: '/transfer/injectData'
   }
 });
+const uploadAction = computed(() => `${uploadUrl.value}${props.importPath}`);
+const savePath = computed(() => props.savePath);
 const uploadResult = ref({});
 const fileType = ref(['xls', 'xlsx', 'csv', 'json', 'txt', 'doc', 'docx', 'ppt', 'pptx', 'pdf', 'xmind']);
 const beforeUpload = (file, tips) => {

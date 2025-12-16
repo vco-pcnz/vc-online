@@ -3,8 +3,14 @@
     <vco-page-panel :title="pageTitle" @back="goBack"></vco-page-panel>
 
     <template v-if="currentId && currentTemp">
-      <edit-content v-if="hasPermission('requests:load:progressPayment')" @done="getProjectInfo"></edit-content>
-      <view-content v-else :is-page="true" @done="getProjectInfo"></view-content>
+      <template v-if="isVsl">
+        <boc-edit-content v-if="hasPermission('requests:load:progressPayment')" @done="getProjectInfo"></boc-edit-content>
+        <boc-view-all-content v-else :is-page="true" @done="getProjectInfo"></boc-view-all-content>
+      </template>
+      <template v-else>
+        <edit-content v-if="hasPermission('requests:load:progressPayment')" @done="getProjectInfo"></edit-content>
+        <view-content v-else :is-page="true" @done="getProjectInfo"></view-content>
+      </template>
     </template>
 
     <a-empty v-if="!currentTemp && !pageLoading" />
@@ -21,6 +27,8 @@
   import { useProductStore } from "@/store"
   import { hasPermission } from "@/directives/permission"
   import EditContent from "./components/EditContent.vue";
+  import BocEditContent from "./components/BocEditContent.vue";
+  import BocViewAllContent from "./components/BocViewAllContent.vue";
   import ViewContent from "./components/ViewContent.vue";
   
   const { t } = useI18n();
@@ -28,14 +36,14 @@
   const productStore = useProductStore()
   const productData = computed(() => productStore.productData)
   const currentTemp = ref('')
+  const isVsl = ref(false)
 
   const pageLoading = ref(true)
   const currentId = ref()
   const typeStr = ref('')
-
   const pageTitle = ref(t('进度付款阶段'))
 
-const getProjectInfo = (data) => {
+  const getProjectInfo = (data) => {
     pageTitle.value = `${typeStr.value}${(data.borrower.organization_name || data.base.project_apply_sn)}`
   }
   
@@ -44,6 +52,7 @@ const getProjectInfo = (data) => {
     if (uuid) {
       currentId.value = uuid
       const code = await productGetCode({uuid})
+      isVsl.value = String(code).toLowerCase() === 'vsl'
       if (!code) {
         pageLoading.value = false
       } else {

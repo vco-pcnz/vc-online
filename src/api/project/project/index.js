@@ -155,3 +155,19 @@ export const reopenIndex = (params) =>
     method: 'get',
     params
   });
+
+// 买断列表
+export const buyoutIndex = (params) =>
+  request({
+    url: 'projectDetail/buyoutIndex',
+    method: 'get',
+    params
+  });
+
+// 买断列表
+export const buildProgressIndex = (params) =>
+  request({
+    url: 'project/down/br',
+    method: 'get',
+    params
+  });

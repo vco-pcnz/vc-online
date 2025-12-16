@@ -1,6 +1,6 @@
 <template>
   <div class="inline" @click="init">
-    <a-tooltip placement="top" class="ml-5">
+    <a-tooltip placement="top">
       <template #title> Export transaction details for all loans under filter conditions </template>
       <slot>
         <a-button type="cyan" size="small" class="ml-3" shape="round" :loading="loading">{{ t('明细表') }}</a-button>

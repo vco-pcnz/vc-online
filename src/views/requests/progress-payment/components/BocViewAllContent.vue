@@ -430,6 +430,10 @@
                     <p>{{ t('BOC放款') }}</p>
                     <vco-number :value="Number(item.bocInfo.amount || 0)" size="fs_xs" :precision="2" :end="true"></vco-number>
                   </div>
+                  <div v-if="!showProcess" class="flex justify-between items-center">
+                    <p>{{ t('VS放款') }}</p>
+                    <vco-number :value="Number(tool.minus(item.amount, item.bocInfo.amount || 0))" size="fs_xs" :precision="2" :end="true"></vco-number>
+                  </div>
                   <template v-if="showProcess">
                     <div class="flex justify-between items-center">
                       <p>{{ t('可用额度1') }}</p>
@@ -1132,6 +1136,10 @@
                 const num = fixNumber(Number(tool.div(Number(bocItemInfo.use_amount || 0), Number(bocItemInfo.amount || 0))), 4)
                 bocItemInfo.percent = Number(tool.times(num, 100))
                 bocItemInfo.can_amount = Number(tool.minus(Number(bocItemInfo.amount || 0), Number(bocItemInfo.use_amount || 0)))
+
+                // 如果存在boc，更新vs数据
+                mergItem.amount = Number(tool.minus(Number(mergItem.amount), Number(bocItemInfo.amount || 0)))
+                mergItem.percent = Number(tool.times(Number(tool.div(Number(mergItem.use_amount), Number(mergItem.amount))), 100))
               }
             }
 

@@ -118,7 +118,6 @@
             :data-source="tableData"
             bordered
             :pagination="false"
-            table-layout="fixed"
             :scroll="{ x: '100%', y: 500 }"
           >
             <template #bodyCell="{ column, record, index }">
@@ -260,27 +259,34 @@
             <div v-for="item in footerDataCol" :key="item.type" class="item">
               <div v-if="item.list && item.list.length" class="child-content">
                 <div class="child-item" v-for="childItem in item.list" :key="childItem.type">
-                  <div class="footer-boc-split has-child">
-                    <p>{{ childItem.type }}</p>
-                    <div>
-                      <a-input-number
-                        v-if="bocSplitObjRef[childItem.name]"
-                        v-model:value="bocSplitObjRef[childItem.name].amount"
-                        :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                        :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                        :min="0"
-                        :max="Number(childItem.total)"
-                        @input="bocItemInput(bocSplitObjRef[childItem.name])"
-                        @blur="bocItemInput(bocSplitObjRef[childItem.name])"
-                      />
-                      <p v-if="bocSplitObjRef[childItem.name]?.showError" class="input-error">
-                      {{ t('最小值:{0}', [`$${numberStrFormat(bocSplitObjRef[childItem.name]?.use_amount || 0)}`]) }}
-                    </p>
-                      <div v-if="isOpen" class="mt-1">
-                        <vco-number :value="bocSplitObjRef[childItem.name]?.use_amount || 0" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
+                  <div class="flex-1 flex gap-4">
+                    <div class="footer-boc-split" :style="{width: (oneToThreeColWidth - 10) + 'px'}">
+                      <p>{{ childItem.type }}</p>
+                      <div :style="{width: threeColWidth + 'px'}">
+                        <a-input-number
+                          v-if="bocSplitObjRef[childItem.name]"
+                          v-model:value="bocSplitObjRef[childItem.name].amount"
+                          :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                          :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                          :min="0"
+                          :max="Number(childItem.total)"
+                          @input="bocItemInput(bocSplitObjRef[childItem.name])"
+                          @blur="bocItemInput(bocSplitObjRef[childItem.name])"
+                        />
+                        <p v-if="bocSplitObjRef[childItem.name]?.showError" class="input-error">
+                        {{ t('最小值:{0}', [`$${numberStrFormat(bocSplitObjRef[childItem.name]?.use_amount || 0)}`]) }}
+                      </p>
+                        <div v-if="isOpen" class="mt-1">
+                          <vco-number :value="bocSplitObjRef[childItem.name]?.use_amount || 0" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
+                        </div>
                       </div>
                     </div>
+                    <div class="footer-vs-slpit">
+                      <vco-number :value="tool.minus(childItem.total, bocSplitObjRef[childItem.name]?.amount || 0)" size="fs_xs" :precision="2" :end="true"></vco-number>
+                      <p>{{ t('VS放款') }}</p>
+                    </div>
                   </div>
+                  
                   
                   <div class="flex justify-end items-center gap-2 flex-1">
                     <vco-number :value="childItem.loan" size="fs_xs" :precision="2" :end="true" color="#eb4b6d"></vco-number>
@@ -292,28 +298,34 @@
                 </div>
               </div>
               <div class="item-info">
-                <div v-if="!item.list || !item.list.length" class="footer-boc-split">
-                  <p>{{ item.name }}</p>
-                  <div>
-                    <a-input-number
-                      v-if="bocSplitObjRef[item.name]"
-                      v-model:value="bocSplitObjRef[item.name].amount"
-                      :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                      :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                      :min="0"
-                      :max="Number(item.total)"
-                      @input="bocItemInput(bocSplitObjRef[item.name])"
-                      @blur="bocItemInput(bocSplitObjRef[item.name])"
-                    />
-                    <p v-if="bocSplitObjRef[item.name]?.showError" class="input-error">
-                      {{ t('最小值:{0}', [`$${numberStrFormat(bocSplitObjRef[item.name]?.use_amount || 0)}`]) }}
-                    </p>
-                    <div v-if="isOpen" class="mt-1">
-                      <vco-number :value="bocSplitObjRef[item.name]?.use_amount || 0" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
+                <div v-if="!item.list || !item.list.length" class="flex-1 flex gap-4">
+                  <div class="footer-boc-split" :style="{width: oneToThreeColWidth + 'px'}">
+                    <p>{{ item.name }}</p>
+                    <div :style="{width: threeColWidth + 'px'}">
+                      <a-input-number
+                        v-if="bocSplitObjRef[item.name]"
+                        v-model:value="bocSplitObjRef[item.name].amount"
+                        :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                        :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                        :min="0"
+                        :max="Number(item.total)"
+                        @input="bocItemInput(bocSplitObjRef[item.name])"
+                        @blur="bocItemInput(bocSplitObjRef[item.name])"
+                      />
+                      <p v-if="bocSplitObjRef[item.name]?.showError" class="input-error">
+                        {{ t('最小值:{0}', [`$${numberStrFormat(bocSplitObjRef[item.name]?.use_amount || 0)}`]) }}
+                      </p>
+                      <div v-if="isOpen" class="mt-1">
+                        <vco-number :value="bocSplitObjRef[item.name]?.use_amount || 0" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
+                      </div>
                     </div>
                   </div>
-                  
+                  <div class="footer-vs-slpit">
+                    <vco-number :value="tool.minus(item.total, bocSplitObjRef[item.name]?.amount || 0)" size="fs_xs" :precision="2" :end="true"></vco-number>
+                    <p>{{ t('VS放款') }}</p>
+                  </div>
                 </div>
+                
                 <p v-else>{{ item.name }}</p>
                 <div class="total-item flex justify-end items-center gap-2">
                   <vco-number :value="item.loan" size="fs_md" :precision="2" :end="true" color="#eb4b6d"></vco-number>
@@ -351,7 +363,7 @@
 </template>
 
 <script setup>
-  import { computed, onMounted, ref } from "vue"
+  import { computed, onMounted, ref, nextTick } from "vue"
   import { useI18n } from "vue-i18n";
   import { QuestionCircleOutlined } from '@ant-design/icons-vue';
   import { useRoute } from "vue-router"
@@ -549,6 +561,24 @@
     }
   }
 
+  const oneToThreeColWidth = ref(415)
+  const threeColWidth = ref(130)
+
+  const setFooterBocSplitWidth =() => {
+    setTimeout(() => {
+      const typeCol = document.querySelector('.col-type-col')
+      const paymentCol = document.querySelector('.col-payment-col')
+      const bocSplitCol = document.querySelector('.boc-payment-col')
+
+      const typeColWidth = typeCol.offsetWidth
+      const paymentColWidth = paymentCol.offsetWidth
+      const bocSplitColWidth = bocSplitCol.offsetWidth
+
+      oneToThreeColWidth.value = typeColWidth + paymentColWidth + bocSplitColWidth - 15
+      threeColWidth.value = bocSplitColWidth
+    }, 300)
+  }
+
   const setTableData = (headerData) => {
     const data = cloneDeep(columnsTypeData.value)
     const hadSetData = cloneDeep(setedData.value.data)
@@ -593,6 +623,10 @@
     }
     
     tableData.value = dataArr
+
+    nextTick(() => {
+      setFooterBocSplitWidth()
+    })
   }
 
 
@@ -627,12 +661,14 @@
       dataIndex: "type",
       width: 190,
       align: 'center',
+      className: 'col-type-col',
       fixed: 'left'
     }, {
       title: 'Payment',
       dataIndex: "payment",
       width: 110,
       align: 'center',
+      className: 'col-payment-col',
       fixed: 'left'
     }, {
       title: t('BOC放款'),
@@ -1757,7 +1793,6 @@
       }
       .ant-table {
         background-color: transparent;
-        border-spacing: 10px;
         table {
           border-top: none !important;
           border-radius: 0 !important;
@@ -1955,18 +1990,23 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 415px;
-    &.has-child {
-      width: 405px;
-    }
     > div {
-      width: 130px;
       display: flex;
       flex-direction: column;
       align-items: center;
       :deep(.ant-input-number) {
         background-color: #fff1d6;
       }
+    }
+  }
+
+  .footer-vs-slpit {
+    > p {
+      font-size: 11px;
+      color: #666;
+    }
+    :deep(.ant-statistic) {
+      line-height: 1 !important;
     }
   }
 </style>

@@ -897,6 +897,9 @@
 
       const ajaxFn = isRequests.value ? projectGetBuild : projectLoanGetBuild
       await ajaxFn(params).then(res => {
+        // boc拆分数据
+        const progressData = res.progress || {}
+
         const dataRes = res.data || {}
         let data = {}
         if (props.isSelect || props.hideSelf) {
@@ -1035,6 +1038,24 @@
                 mergItem.excess_amount = selItem.excess_amount || excess_amount
                 mergItem.logs = mergItem.logs || []
                 selectData.value.push(mergItem)
+              }
+            }
+
+            // vsl产品存在boc拆分数据
+            if (Boolean(Object.keys(progressData).length)) {
+              if (progressData[item.name]) {
+                const bocItem = cloneDeep(progressData[item.name])
+                if (bocItem.length > 0) {
+                  const bocItemInfo = cloneDeep(bocItem[0])
+                  mergItem.bocInfo = bocItemInfo
+                  const num = fixNumber(Number(tool.div(Number(bocItemInfo.use_amount || 0), Number(bocItemInfo.amount || 0))), 4)
+                  bocItemInfo.percent = Number(tool.times(num, 100))
+                  bocItemInfo.can_amount = Number(tool.minus(Number(bocItemInfo.amount || 0), Number(bocItemInfo.use_amount || 0)))
+
+                  // 如果存在boc，更新vs数据
+                  mergItem.amount = Number(tool.minus(Number(mergItem.amount), Number(bocItemInfo.amount || 0)))
+                  mergItem.percent = Number(tool.times(Number(tool.div(Number(mergItem.use_amount), Number(mergItem.amount))), 100))
+                }
               }
             }
 

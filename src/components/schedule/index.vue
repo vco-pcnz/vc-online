@@ -58,6 +58,21 @@
         </div>
       </a-modal>
 
+      <template v-if="statisticsData || tabData.length">
+        <vco-page-tab
+          v-if="currentProduct === 'vsl' && vs_is_import != 1 && (hasPermission('projects:schedule:vs_schedule') || hasPermission('projects:schedule:boc_schedule'))"
+          class="mt-5"
+          :tabData="typeData"
+          v-model:current="type_id"
+        ></vco-page-tab>
+        <div class="relative">
+          <a-button v-if="isAbout && hasPermission('projects:detail:schedule:reconciliation') && !isClose" type="brown" shape="round" class="pre-sale-enter" @click="navigationTo(`/projects/schedule/reconciliation?uuid=${currentId}`)">
+            {{ t('对账') }}
+            <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px' }" />
+          </a-button>
+        </div>
+      </template>
+
       <div style="min-height: 200px">
         <div v-if="statisticsData && tabData.length && !userStore.isNormalUser" class="flex header-static" :class="{ 'mt-10': itemId }">
           <div class="item-content">
@@ -171,11 +186,11 @@
         </a-tabs>
 
         <div v-if="tabData.length" class="table-content" :class="{ 'no-border': userStore.isNormalUser }">
-          <div class="col-item th" :class="{ isAbout: isAbout, isVSL: isVSL, isReconciliation: isReconciliation }">
+          <div class="col-item th" :class="{ isAbout: isAbout, isVSL: showLender, isReconciliation: isReconciliation }">
             <div class="item uppercase"></div>
             <div class="item uppercase">{{ t('日期') }}</div>
             <div class="item uppercase">{{ t('类型') }}</div>
-            <div class="item uppercase text-center" v-if="isVSL">{{ t('贷款方') }}</div>
+            <div class="item uppercase text-center" v-if="showLender">{{ t('贷款方') }}</div>
             <div class="item uppercase">{{ t('说明') }}</div>
             <div class="item uppercase text-center">{{ t('利息、费用') }}</div>
             <div class="item uppercase text-center">{{ t('放款') }}</div>
@@ -186,7 +201,7 @@
 
           <div class="col-content">
             <div v-for="(item, index) in tabData" :key="index" class="col-block" :class="{ passed: item.passed }">
-              <div v-for="_item in item.list" :key="_item.date" class="col-item" :class="{ isAbout: isAbout, isVSL: isVSL, isReconciliation: isReconciliation }">
+              <div v-for="_item in item.list" :key="_item.date" class="col-item" :class="{ isAbout: isAbout, isVSL: showLender, isReconciliation: isReconciliation }">
                 <div v-if="isAbout" class="item about flex items-center">
                   <span class="circle" :style="{ background: _item.status > 1 || (_item.passed && _item.is_fee) ? '#181818' : '#b4d8d8' }"></span>
                 </div>
@@ -200,7 +215,7 @@
                   </div>
                   <p v-else>{{ _item.name }}</p>
                 </div>
-                <li class="item text-center" v-if="isVSL">{{ _item.source ? (_item.source > 0 ? 'BOC' : '') : 'VS' }}</li>
+                <li class="item text-center" v-if="showLender">{{ _item.source ? (_item.source > 0 ? 'BOC' : '') : 'VS' }}</li>
                 <div class="item">
                   <p class="note">{{ _item.note }}</p>
                 </div>
@@ -250,7 +265,7 @@
           </div>
         </div>
 
-        <div v-if="statisticsData && tabData.length && !ptRole && !tab_id" class="static-block flex">
+        <div v-if="statisticsData && tabData.length && !ptRole && !type_id" class="static-block flex">
           <div class="item flex">
             <div class="day-box">
               <p>{{ t('估计总数') }}</p>
@@ -339,6 +354,7 @@ import { projectLoanAllRepayment } from '@/api/project/loan';
 import { useUserStore } from '@/store';
 import { navigationTo } from '@/utils/tool';
 import ReconciliationModal from '@/views/projects/components/ReconciliationModal.vue';
+import { number } from 'echarts';
 
 const props = defineProps({
   currentId: {
@@ -397,13 +413,9 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  tab_id: {
-    type: [Number, String],
-    default: ''
-  },
-  isVSL: {
-    type: Boolean,
-    default: false
+  vs_is_import: {
+    type: [String, Number],
+    default: 0
   }
 });
 
@@ -422,6 +434,10 @@ const hideLinefee = computed(() => {
 const hideAccountDetails = computed(() => {
   return ['vsl'].includes(props.currentProduct);
 });
+
+const showLender = computed(() => {
+  return ['vsl'].includes(props.currentProduct);
+});
 const isVariation = computed(() => {
   return Object.keys(props.variationInfo).length > 0;
 });
@@ -437,7 +453,7 @@ const getDataInfo = (isLate = false) => {
 
   const params = {
     uuid: props.currentId,
-    lender: props.tab_id,
+    lender: type_id.value,
     limit: 5000
   };
 
@@ -513,7 +529,7 @@ const getDataInfo = (isLate = false) => {
 
   const staticParams = {
     uuid: props.currentId,
-    lender: props.tab_id
+    lender: type_id.value
   };
 
   let staticAjaxFn = props.isDetails ? projectDetailStatistics : projectForecastStatistics;
@@ -619,7 +635,7 @@ const downLoadExcel = (type) => {
   const ajaxFn = props.itemId ? projectVariationExportExcel : projectForecastExportExcel;
   const params = {
     type,
-    lender: props.tab_id,
+    lender: type_id.value,
     uuid: props.currentId
   };
   if (props.itemId) {
@@ -641,7 +657,7 @@ const budgetExport = () => {
   downloading.value = true;
   projectForecastExportExcelEst({
     uuid: props.currentId,
-    lender: props.tab_id
+    lender: type_id.value
   })
     .then((res) => {
       downloading.value = false;
@@ -914,6 +930,24 @@ watch(
   }
 );
 
+const type_id = ref('');
+const typeData = ref([
+  {
+    label: 'Overall',
+    value: ''
+  },
+  {
+    label: 'VS Schedule',
+    value: 'VS',
+    hide: !hasPermission('projects:schedule:vs_schedule')
+  },
+  {
+    label: 'BOC Schedule',
+    value: 'BOC',
+    hide: !hasPermission('projects:schedule:boc_schedule')
+  }
+]);
+
 onMounted(() => {
   if (props.currentId) {
     if (!props.lateTable) {
@@ -929,7 +963,7 @@ onMounted(() => {
 });
 
 watch(
-  () => props.tab_id,
+  () => type_id.value,
   (val) => {
     getDataInfo(Number(lateTabActiveKey.value) === 1);
   }
@@ -1039,18 +1073,25 @@ watch(
     display: grid;
 
     grid-template-columns: 0 1.5fr 1.8fr 2.2fr 1.7fr 1.7fr 1.7fr 2.1fr;
-
-    &.isAbout {
-      grid-template-columns: 0.6fr 1.5fr 1.8fr 2.2fr 1.7fr 1.7fr 1.7fr 2.1fr;
-      &.isReconciliation {
-        grid-template-columns: 0.6fr 1.5fr 1.8fr 2.2fr 1.7fr 1.7fr 1.7fr 2.1fr 0.5fr;
-      }
+    .item:first-child {
+      padding: 0;
     }
 
     &.isVSL {
-      grid-template-columns: 0.6fr 1.2fr 1.8fr 0.6fr 2.2fr 1.7fr 1.7fr 1.7fr 2.1fr;
+      grid-template-columns: 0fr 1.2fr 1.8fr 0.6fr 2.2fr 1.7fr 1.7fr 1.7fr 2.1fr;
+    }
+
+    &.isAbout {
+      grid-template-columns: 0.4fr 1.5fr 1.8fr 2.2fr 1.7fr 1.7fr 1.7fr 2.1fr;
       &.isReconciliation {
-        grid-template-columns: 0.6fr 1.2fr 1.8fr 0.6fr 2.2fr 1.7fr 1.7fr 1.7fr 2.1fr 0.5fr;
+        grid-template-columns: 0.4fr 1.5fr 1.8fr 2.2fr 1.7fr 1.7fr 1.7fr 2.1fr 0.5fr;
+      }
+
+      &.isVSL {
+        grid-template-columns: 0.4fr 1.2fr 1.8fr 0.6fr 2.2fr 1.7fr 1.7fr 1.7fr 2.1fr;
+        &.isReconciliation {
+          grid-template-columns: 0.4fr 1.2fr 1.8fr 0.6fr 2.2fr 1.7fr 1.7fr 1.7fr 2.1fr 0.5fr;
+        }
       }
     }
 
@@ -1061,7 +1102,6 @@ watch(
     }
     > .item {
       padding: 0 15px;
-    
 
       &.balance {
         text-align: right;
@@ -1232,5 +1272,15 @@ watch(
   display: inline-block;
   height: 8px;
   width: 8px;
+}
+
+.pre-sale-enter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: -10px;
+  right: 0;
+  z-index: 2;
 }
 </style>

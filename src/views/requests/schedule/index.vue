@@ -19,7 +19,6 @@
         >{{ t('项目文件') }}</a-button>
       </div>
     </vco-page-panel>
-
     <Schedule v-if="currentId && currentTemp" :current-id="currentId" :current-product="currentTemp" :is-details="details" />
     <a-empty v-if="!currentTemp && !pageLoading" />
   </div>

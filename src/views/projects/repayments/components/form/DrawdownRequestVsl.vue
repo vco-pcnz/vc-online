@@ -18,7 +18,7 @@
 
             <a-col :span="12">
               <a-form-item :label="t('还款日期')" name="apply_date">
-                <a-date-picker v-model:value="formState.apply_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" @change="loadDrawdowns">
+                <a-date-picker v-model:value="formState.apply_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" @change="loadDrawDownSelected">
                   <template #suffixIcon>
                     <a-spin v-if="getLoading"></a-spin>
                     <CalendarOutlined v-else />
@@ -27,8 +27,8 @@
               </a-form-item>
             </a-col>
             <a-col :span="12" v-if="formState.all_repayment !== 1">
-              <a-form-item :label="t('还款金额1')" name="apply_amount">
-                <a-input-number v-model:value="formState.apply_amount" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
+              <a-form-item :label="t('还款金额1')">
+                <a-input-number v-model:value="formState.apply_amount" readonly :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
               </a-form-item>
             </a-col>
             <a-col :span="12" v-else>
@@ -503,21 +503,8 @@ const submit = () => {
     params.id = props.dataInfo?.id;
   }
 
-  params.repayment = drawdownList.value.map((item) => {
-    return {
-      id: item.id,
-      re_type: item.re_type,
-      source: item.source,
-      all_repayment: item.all_repayment,
-      amount: item.all_repayment == 1 ? item.total_amount : item.apply_rep_amount
-    };
-  });
-  const validateRepayment = () => {
-    return params.repayment.every((item) => {
-      return item.all_repayment !== undefined && (item.all_repayment == 1 ? true : item.re_type !== undefined) && item.amount !== undefined && item.amount > 0;
-    });
-  };
-  if (!validateRepayment()) {
+  params.repayment = params_repayment();
+  if (!validateRepayment(params.repayment)) {
     drawdownListInspection.value = true;
     return;
   }
@@ -530,6 +517,7 @@ const submit = () => {
     return;
   }
   params.all_repayment = params.all_repayment ? 1 : 0;
+
   loading.value = true;
 
   loanRDedit(params)
@@ -768,6 +756,8 @@ const drawDownSelectedList = ref([]);
 const drawDownSelectedListLoading = ref(false);
 const loadDrawDownSelected = () => {
   drawDownSelectedListLoading.value = true;
+  maxReductionAmount.value = 0;
+  drawdownList.value = [];
   drawDownSelected({ uuid: props.uuid, apply_id: props.dataInfo?.id })
     .then((res) => {
       drawDownSelectedList.value = res;
@@ -813,35 +803,50 @@ const deleteDrawdownColumnsItem = (index) => {
   drawdownList.value.splice(index, 1);
 };
 
-const loadDrawdowns = () => {
-  drawdownList.value.map((item, index) => {
-    if (item.id != undefined) {
-      loadDrawdown(item.id, index);
-    }
+// 验证选择的放款是否有必填项没有填
+const validateRepayment = (arr) => {
+  return arr.every((item) => {
+    return item.all_repayment !== undefined && (item.all_repayment == 1 ? true : item.re_type !== undefined) && item.amount !== undefined && item.amount > 0;
   });
-  formState.value.apply_amount = 0;
-  maxReductionAmount.value = 0;
+};
+
+// 格式化上传的放款金额
+const params_repayment = () => {
+  return drawdownList.value.map((item) => {
+    return {
+      id: item.id,
+      re_type: item.re_type,
+      source: item.source,
+      all_repayment: item.all_repayment,
+      amount: item.all_repayment == 1 ? item.total_amount : item.apply_rep_amount
+    };
+  });
 };
 
 watch(
   () => drawdownList.value,
   (val) => {
     disabledIds.value = val.filter((item) => item.id != null && item.id !== '').map((item) => item.id);
+
+    if (drawdownList.value.length) {
+      formState.value.all_repayment = drawdownList.value[0].all_repayment == 1 && drawdownList.value[0].id == 0 ? 1 : 0;
+    } else {
+      formState.value.all_repayment = 0;
+    }
+    // 如果是vs全额还款
+    if (formState.value.apply_date && formState.value.all_repayment === 1) {
+      isRestIrr.value = true;
+      calAmount();
+    } else {
+      maxReductionAmount.value = 0;
+    }
+    formState.value.note = formState.value.all_repayment === 1 ? 'Full Repayment' : formState.value.note === 'Full Repayment' ? '' : formState.value.note;
+    formState.value.apply_amount = params_repayment().reduce((sum, item) => {
+      return tool.plus(sum, item.amount || 0); // 使用 || 0 防止 NaN
+    }, 0);
+
     if (drawdownListInspection.value) {
-      const params_repayment = drawdownList.value.map((item) => {
-        return {
-          id: item.id,
-          re_type: item.re_type,
-          all_repayment: item.all_repayment,
-          amount: item.all_repayment == 1 ? item.total_amount : item.apply_rep_amount
-        };
-      });
-      const validateRepayment = () => {
-        return params_repayment.every((item) => {
-          return item.all_repayment !== undefined && (item.all_repayment == 1 ? true : item.re_type !== undefined) && item.amount !== undefined && item.amount > 0;
-        });
-      };
-      if (!validateRepayment()) {
+      if (!validateRepayment(params_repayment())) {
         drawdownListInspection.value = true;
         return;
       }
@@ -862,7 +867,6 @@ const init = () => {
     });
   }
   getNotesType();
-  loadDrawDownSelected();
 };
 
 const isRestIrr = ref(false);
@@ -872,30 +876,8 @@ const overdueDays = computed(() => {
   if (selectDate && endDate && dayjs(endDate).isBefore(dayjs(selectDate))) {
     return tool.diffDate(endDate, selectDate);
   }
-
   return 0;
 });
-watch(
-  drawdownList.value,
-  (val) => {
-    if (drawdownList.value.length) {
-      formState.value.all_repayment = drawdownList.value[0].all_repayment == 1 && drawdownList.value[0].id == 0 ? 1 : 0;
-    } else {
-      formState.value.all_repayment = 0;
-    }
-    // 如果是vs全额还款
-    if (formState.value.apply_date && formState.value.all_repayment === 1) {
-      isRestIrr.value = true;
-      calAmount();
-    } else {
-      formState.value.apply_amount = 0;
-      maxReductionAmount.value = 0;
-    }
-    formState.value.note = formState.value.all_repayment === 1 ? 'Full Repayment' : '';
-  },
-  { deep: true }
-);
-
 defineExpose({
   init
 });

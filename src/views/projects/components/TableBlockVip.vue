@@ -211,10 +211,16 @@ import { navigationTo } from '@/utils/tool';
 import { DisconnectOutlined } from '@ant-design/icons-vue';
 import { hasPermission } from '@/directives/permission/index';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc'
+import timezone from 'dayjs/plugin/timezone'
 import { useProjectsStore } from '@/store';
 const pageStore = useProjectsStore();
 const emits = defineEmits(['update:data', 'update:keys', 'change']);
 import { useUserStore } from '@/store';
+
+dayjs.extend(utc)
+dayjs.extend(timezone)
+const NZ_TIMEZONE = 'Pacific/Auckland'
 
 const pageRole = computed(() => useUserStore().pageRole);
 const props = defineProps({
@@ -240,7 +246,8 @@ const columns = reactive([
 ]);
 
 const diffInDays = (val) => {
-  return dayjs(val).diff(dayjs(), 'day');
+  // 本地时间固定使用新西兰时区
+  return dayjs(val).diff(dayjs().tz(NZ_TIMEZONE).format('YYYY-MM-DD'), 'day');
 };
 const rowClick = (record, index) => {
   return {

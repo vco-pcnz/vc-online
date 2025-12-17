@@ -913,6 +913,10 @@
             advanceAmount.value = res.summary[`${advanceKey.value}`].amount
 
             advanceObj.value = res.summary[`${advanceKey.value}`]
+            if (res.progress[advanceKey.value] && Object.keys(res.progress[advanceKey.value]).length === 1) {
+              advanceObj.value = res.progress[advanceKey.value][0]
+              advanceAmount.value = Number(advanceObj.value.amount)
+            }
             advanceObj.value.showError = false
           }
         }

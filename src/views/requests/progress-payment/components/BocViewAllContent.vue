@@ -1012,7 +1012,11 @@
           if (res.summary[`${advanceKey.value}`]) {
             advanceAmount.value = res.summary[`${advanceKey.value}`].amount
 
-            const advanceItem = res.summary[`${advanceKey.value}`]
+            let advanceItem = res.summary[`${advanceKey.value}`]
+            if (res.progress[advanceKey.value] && Object.keys(res.progress[advanceKey.value]).length === 1) {
+              advanceItem = res.progress[advanceKey.value][0]
+              advanceAmount.value = Number(advanceItem.amount)
+            }
             advanceItem.amount = Number(advanceItem.amount)
             advanceItem.logs = advanceItem.logs || []
             advanceItem.checked = false

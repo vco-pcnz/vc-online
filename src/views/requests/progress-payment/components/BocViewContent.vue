@@ -58,7 +58,7 @@
           <div class="flex items-center justify-between header">
             <h2 v-if="isSetting" class="font-bold">{{ t('BOC第{0}期放款', [step]) }}</h2>
             <h2 v-else class="font-bold">{{ t('放款选择') }}</h2>
-            <div v-if="isSelect" class="mt-2 mb-2 flex justify-end gap-4">
+            <div v-if="isSelect && !isAdvanceSet" class="mt-2 mb-2 flex justify-end gap-4">
               <a-button v-if="selectDataHasNum" type="cyan" class="bold uppercase" @click="selectCancelAll">{{ t('取消所有设置') }}</a-button>
               <a-button type="primary" class="bold uppercase" @click="batchSelectHandle">{{ batchSelect ? t('取消批量模式') : t('批量选择') }}</a-button>
               <a-button v-if="batchSelectData.length" type="grey" class="bold uppercase" @click="batchSelectCancel">{{ t('取消已选择')}}</a-button>
@@ -69,7 +69,12 @@
             <div
               v-for="item in bocSplitData" :key="`${item.term}-${item.type_name}`"
               class="item-content-item"
-              :class="{'hover': isSelect, 'done': (Number(item.amount) === Number(item.use_amount) && isSelect)}"
+              :class="{
+                'hover': isSelect,
+                'done': (Number(item.amount) === Number(item.use_amount) && isSelect),
+                'advance': (isAdvanceSet && isSetting),
+                'current-advance': (isAdvanceSet && isSetting) && Number(item.set_amount)
+              }"
               @click="itemClickHandle(item)"
             >
               <i v-if="Number(item.amount) === Number(item.use_amount) && isSelect" class="done-icon iconfont icon-duigou"></i>
@@ -192,6 +197,9 @@ const selectCancelAll = () => {
   })
 }
 
+const advanceKey = ref('Initial advance to fund deposit')
+const isAdvanceSet = ref(false)
+
 const getSetedData = async () => {
   pageLoading.value = true
   const params = {
@@ -206,6 +214,17 @@ const getSetedData = async () => {
     const ajaxFn = isRequests.value ? projectGetBuild : projectLoanGetBuild
     await ajaxFn(params).then(res => {
       const progress = cloneDeep(res.progress || {})
+
+      if (progress[advanceKey.value]) {
+         // 是否为启动资金首次放款已设置
+        if (props.selectedData.length === 1 && props.selectedData[0].progress_id === progress[advanceKey.value][0]?.id) {
+          isAdvanceSet.value = true
+        } else {
+          isAdvanceSet.value = false
+          progress[advanceKey.value][0].use_amount = progress[advanceKey.value][0].amount || 0
+        }
+      }
+
       const arr = []
       for (const key in progress) {
         const item = progress[key]
@@ -437,7 +456,8 @@ const doneHandle = () => {
   })
   const selectInfo = {
     progress__data: data,
-    total: selectTotalAmount.value
+    total: selectTotalAmount.value,
+    passSave: isAdvanceSet.value
   }
 
   emits('selectDone', selectInfo)
@@ -574,6 +594,13 @@ onUnmounted(() => {
             .done-icon {
               opacity: 1;
             }
+          }
+          &.advance {
+            pointer-events: none;
+            background-color: #ccc;
+          }
+          &.current-advance {
+            background-color: #ffffff !important;
           }
           .done-icon {
             color: #fff;

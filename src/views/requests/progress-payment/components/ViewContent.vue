@@ -389,7 +389,7 @@
                 :class="{'hover': isSelect}"
                 @click="itemSetHandle(item)"
               >
-                <div v-if="item.logs.length && !isSelect" class="log-icon" @click="showLogInfo(item)">
+                <div v-if="item.logs?.length && !isSelect" class="log-icon" @click="showLogInfo(item)">
                   <i class="iconfont">&#xe76c;</i>
                 </div>
 
@@ -659,7 +659,7 @@
 
     const hadSetData = cloneDeep(setedData.value.data)
 
-    const dataArr = Number(advanceAmount.value) ? [{
+    const dataArr = Number(advanceAmount.value) && !isVsl.value ? [{
         isFixedRow: true,
         type: advanceKey.value
       }
@@ -1080,6 +1080,7 @@
   const easyModel = ref(true)
 
   const buildAmount = ref(0)
+  const isVsl = ref(false)
 
   // 请求项目信息
   const getProjectData = async () => {
@@ -1091,11 +1092,17 @@
     try {
       const ajaxFn = isRequests.value ? projectAuditStepDetail : projectDetailApi
       await ajaxFn(params).then(res => {
+
+        if (isRequests.value) {
+          isVsl.value = String(res.base.productCode).toLowerCase() === 'vsl'
+        } else {
+          isVsl.value = String(res.product.code).toLowerCase() === 'vsl'
+        }
+
         emits('done', res)
 
         const costModel = Boolean(res.lending.devCostDetail[0].model)
         easyModel.value = costModel
-
         const list = res.lending.devCostDetail[0].data[0].list
         const filterType = costModel ? ['Land', 'Refinance', 'Land_gst'] : ['Land', 'Construction', 'Refinance', 'Land_gst']
         const footerData = list.filter(item => !filterType.includes(item.type)) || []

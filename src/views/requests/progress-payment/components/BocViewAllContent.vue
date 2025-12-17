@@ -189,14 +189,14 @@
                     </template>
                     <vco-number v-else :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
                   </template>
-                  <template v-else>
+                  <template v-else-if="column.dataIndex === 'boc-payment-amount'">
                     <div v-if="showProcess" class="select-item adv" :class="{'hover': isSelect}" @click="itemSetHandle(advanceObj)">
-                      <div class="flex justify-center flex-col items-center" :style="{width: tableHeader.length === 4 ? '265px' : '660px'}">
+                      <div class="flex justify-center flex-col items-center">
                         <vco-number :value="advanceAmount" size="fs_xs" :precision="2" :end="true"></vco-number>
                         <vco-number :value="tableRemainTotal(advanceAmount, advanceObj?.use_amount || 0)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
                         <vco-number :value="advanceObj?.use_amount || 0" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
                         <div class="process-gap"></div>
-                        <div class="init-progress">
+                        <div class="item-process-content">
                           <vco-excess-process :percent="advanceObj.percent" />
 
                           <a-tooltip v-if="Number(advanceObj.excess_amount)" placement="top">
@@ -217,7 +217,7 @@
                       </div>
                     </div>
 
-                    <div v-else class="flex justify-center" :style="{width: tableHeader.length === 4 ? '265px' : '660px'}">
+                    <div v-else class="flex justify-center">
                       <vco-number :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
                     </div>
                   </template>
@@ -864,7 +864,7 @@
     }
 
     // 合并第一行数据
-    if (tableHeader.value.length > 3) {
+    if (tableHeader.value.length > 4) {
       tableHeader.value.forEach((item, index) => {
         if (!props.isSelect) {
           item.customCell = (record, _index) => {
@@ -900,7 +900,7 @@
               return {}
             } else {
               if (record.isFixedRow) {
-                const mergeStart = 2
+                const mergeStart = 3
                 const mergeEnd = tableHeader.value.length - 2
 
                 if (index === mergeStart) {
@@ -919,7 +919,7 @@
         } else {
           item.customCell = (record) => {
             if (record.isFixedRow) {
-              const mergeStart = 2
+              const mergeStart = 3
               const mergeEnd = tableHeader.value.length - 2
 
               if (index === mergeStart) {
@@ -1082,7 +1082,7 @@
             }
 
             if (Number(mergItem.amount)) {
-              const use_amount = props.isSelect ? mergItem.use_amount : (props.logDate ? mergItem.logs_use_amount : mergItem.use_amount)
+              const use_amount = props.isSelect ? Number(mergItem?.use_amount || 0) : (props.logDate ? Number(mergItem.logs_use_amount || 0) : Number(mergItem.use_amount || 0))
               const num = fixNumber(Number(tool.div(Number(use_amount), Number(mergItem.amount))), 4)
               mergItem.percent = Number(tool.times(num, 100))
             } else {
@@ -1093,7 +1093,7 @@
             if (buildLogDataIds.value.includes(mergItem.id)) {
               const logItem = props.buildLogData.find(item => item.build_id === mergItem.id)
               if (logItem) {
-                const doneUseAmount = props.isSelect ? mergItem.use_amount : (props.logDate ? mergItem.logs_use_amount : mergItem.use_amount)
+                const doneUseAmount = props.isSelect ? Number(mergItem?.use_amount || 0) : (props.logDate ? Number(mergItem.logs_use_amount || 0) : Number(mergItem.use_amount || 0))
                 mergItem.use_amount = tool.minus(Number(doneUseAmount), logItem.amount)
                 if (mergItem.amount) {
                   const num = fixNumber(Number(tool.div(Number(mergItem.use_amount), Number(mergItem.amount))), 4)
@@ -1128,24 +1128,26 @@
             }
 
             // boc数据
-            if (progressData[item.name]) {
+            if (progressData[item.name] && Number(mergItem.amount)) {
               const bocItem = cloneDeep(progressData[item.name])
               if (bocItem.length > 0) {
                 const bocItemInfo = cloneDeep(bocItem[0])
                 mergItem.bocInfo = bocItemInfo
-                const num = fixNumber(Number(tool.div(Number(bocItemInfo.use_amount || 0), Number(bocItemInfo.amount || 0))), 4)
+                const num = fixNumber(Number(tool.div(Number(Number(bocItemInfo?.use_amount || 0)), Number(bocItemInfo?.amount || 0))), 4)
                 bocItemInfo.percent = Number(tool.times(num, 100))
                 bocItemInfo.can_amount = Number(tool.minus(Number(bocItemInfo.amount || 0), Number(bocItemInfo.use_amount || 0)))
 
                 // 如果存在boc，更新vs数据
-                mergItem.amount = Number(tool.minus(Number(mergItem.amount), Number(bocItemInfo.amount || 0)))
-                mergItem.percent = Number(tool.times(Number(tool.div(Number(mergItem.use_amount), Number(mergItem.amount))), 100))
+                if (props.showProcess) {
+                  mergItem.amount = Number(tool.minus(Number(mergItem.amount), Number(bocItemInfo.amount || 0)))
+                  mergItem.percent = Number(mergItem.amount) ? Number(tool.times(Number(tool.div(Number(Number(mergItem?.use_amount || 0)), Number(mergItem.amount))), 100)) : 0
+                }
               }
             }
 
             return mergItem
           })
-          footerDataCol.value = footerData.filter(item => Number(item.amount))
+          footerDataCol.value = footerData.filter(item => (Number(item.amount) || item?.bocInfo?.amount))
         } else {
           footerDataCol.value = []
         }

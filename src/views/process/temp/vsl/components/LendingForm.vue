@@ -17,7 +17,7 @@
       <boc-view-content
         v-if="selectVisible"
         :step="selectStep"
-        :is-setting="true"
+        :is-setting="!isDetails"
         :is-select="!isDetails && !amountDisabled"
         :selected-data="selectedData"
         @selectDone="selectDoneHandle"
@@ -983,6 +983,10 @@
       params.estab_fee = Number(credit_estabFee || 0)
     }
 
+    if (formState.value.estab_type === 1 && !params.esTab_fee_rate || formState.value.estab_type === 2 && !params.estab_fee) {
+      return false
+    }
+
     establishCalculate(params).then(res => {
       formState.value['credit_estabFee'] = res.estab_fee
       formState.value['credit_estabFeeRate'] = res.esTab_fee_rate
@@ -1564,7 +1568,7 @@
   const selectStep = ref(0)
   const selectVisible = ref(false)
   const selectDoneHandle = async (data) => {
-    if (props.isDetails) {
+    if (props.isDetails || data.passSave) {
       selectVisible.value = false
     } else {
       const progress__data = cloneDeep(data.progress__data)

@@ -131,15 +131,15 @@
                 <template v-else-if="column.dataIndex === 'total'">
                   <vco-number :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
                 </template>
-                <template v-else>
-                  <div class="flex justify-center flex-col items-center" :style="{width: amLen === 1 ? '340px' : '710px'}">
+                <template v-else-if="column.dataIndex === 'boc-payment-amount'">
+                  <div class="flex justify-center flex-col items-center">
                     <a-input-number
                       v-model:value="advanceAmount"
                       :min="0"
                       :max="99999999999"
                       :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                       :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                      style="width: 200px;"
+                      :disabled="hasLandAmount"
                       @input="() => initHandle(true)"
                       @blur="advanceBlur"
                     />
@@ -269,7 +269,7 @@
                           :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                           :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                           :min="0"
-                          :max="Number(childItem.total)"
+                          :max="Number(childItem.loan)"
                           @input="bocItemInput(bocSplitObjRef[childItem.name])"
                           @blur="bocItemInput(bocSplitObjRef[childItem.name])"
                         />
@@ -282,7 +282,7 @@
                       </div>
                     </div>
                     <div class="footer-vs-slpit">
-                      <vco-number :value="tool.minus(childItem.total, bocSplitObjRef[childItem.name]?.amount || 0)" size="fs_xs" :precision="2" :end="true"></vco-number>
+                      <vco-number :value="tool.minus(childItem.loan, bocSplitObjRef[childItem.name]?.amount || 0)" size="fs_xs" :precision="2" :end="true"></vco-number>
                       <p>{{ t('VS放款') }}</p>
                     </div>
                   </div>
@@ -308,7 +308,7 @@
                         :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                         :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                         :min="0"
-                        :max="Number(item.total)"
+                        :max="Number(item.loan)"
                         @input="bocItemInput(bocSplitObjRef[item.name])"
                         @blur="bocItemInput(bocSplitObjRef[item.name])"
                       />
@@ -321,7 +321,7 @@
                     </div>
                   </div>
                   <div class="footer-vs-slpit">
-                    <vco-number :value="tool.minus(item.total, bocSplitObjRef[item.name]?.amount || 0)" size="fs_xs" :precision="2" :end="true"></vco-number>
+                    <vco-number :value="tool.minus(item.loan, bocSplitObjRef[item.name]?.amount || 0)" size="fs_xs" :precision="2" :end="true"></vco-number>
                     <p>{{ t('VS放款') }}</p>
                   </div>
                 </div>
@@ -570,12 +570,14 @@
       const paymentCol = document.querySelector('.col-payment-col')
       const bocSplitCol = document.querySelector('.boc-payment-col')
 
-      const typeColWidth = typeCol.offsetWidth
-      const paymentColWidth = paymentCol.offsetWidth
-      const bocSplitColWidth = bocSplitCol.offsetWidth
+      if (typeCol && paymentCol && bocSplitCol) {
+        const typeColWidth = typeCol.offsetWidth
+        const paymentColWidth = paymentCol.offsetWidth
+        const bocSplitColWidth = bocSplitCol.offsetWidth
 
-      oneToThreeColWidth.value = typeColWidth + paymentColWidth + bocSplitColWidth - 15
-      threeColWidth.value = bocSplitColWidth
+        oneToThreeColWidth.value = typeColWidth + paymentColWidth + bocSplitColWidth - 15
+        threeColWidth.value = bocSplitColWidth
+      }
     }, 300)
   }
 
@@ -681,7 +683,7 @@
     { title: t('总计'), dataIndex: 'total', width: 180, align: 'center', fixed: 'right' }]
 
     // 合并第一行数据
-    if (tableHeader.value.length > 3) {
+    if (tableHeader.value.length > 4) {
       tableHeader.value.forEach((item, index) => {
         item.customCell = (record, _index) => {
           if (['type', 'total'].includes(item.dataIndex)) {
@@ -716,7 +718,7 @@
             return {}
           } else {
             if (record.isFixedRow) {
-              const mergeStart = 2
+              const mergeStart = 3
               const mergeEnd = tableHeader.value.length - 2
 
               if (index === mergeStart) {
@@ -927,6 +929,9 @@
   // 是否为简易模式
   const easyModel = ref(true)
 
+  // 是否有land
+  const hasLandAmount = ref(true)
+
   // 请求项目信息
   const projectDetail = ref()
   const getProjectData = async () => {
@@ -939,6 +944,7 @@
     try {
       const ajaxFn = isRequests.value ? projectAuditStepDetail : projectDetailApi
       await ajaxFn(params).then(res => {
+        hasLandAmount.value = Boolean(Number(res.lending.land_amount || 0))
         projectDetail.value = res
 
         emits('done', res)
@@ -1416,6 +1422,31 @@
     }
 
     const arr = []
+    // 如果存在initial advance to fund deposit
+    if (advanceAmount.value) {
+      const advCopy = cloneDeep(advanceObj.value || {})
+
+      delete advCopy.logs
+      delete advCopy.cate
+      delete advCopy.category
+      delete advCopy.logs_use_amount
+      delete advCopy.security_uuid
+      delete advCopy.showError
+
+      const obj = {
+        ...advCopy,
+        amount: Number(advanceAmount.value || 0),
+        use_amount: Number(advanceObj.value?.use_amount || 0),
+        source: 1,
+        term: '',
+        per: '1',
+        type: 'initial_build',
+        type_name: advanceKey.value
+      }
+
+      arr.push(obj)
+    }
+    
     const bocSplitObj = cloneDeep(bocSplitObjRef.value)
     for (const key in bocSplitObj) {
       if (bocSplitObj[key].amount > 0) {

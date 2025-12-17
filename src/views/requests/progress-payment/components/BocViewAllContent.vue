@@ -394,13 +394,13 @@
                 :class="{'hover': isSelect}"
                 @click="itemSetHandle(item)"
               >
-                <div v-if="item.logs.length && !isSelect" class="log-icon" @click="showLogInfo(item)">
+                <div v-if="item?.logs?.length && !isSelect" class="log-icon" @click="showLogInfo(item)">
                   <i class="iconfont">&#xe76c;</i>
                 </div>
 
-                <vco-number :value="item.amount" size="fs_md" :precision="2" :end="true"></vco-number>
-                <vco-number v-if="showProcess" :value="tableRemainTotal(item.amount, item?.use_amount || 0) < 0 ? 0 : tableRemainTotal(item.amount, item?.use_amount || 0)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
-                <vco-number v-if="showProcess" :value="item?.use_amount || 0" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
+                <vco-number :value="Number(item.amount || 0)" size="fs_md" :precision="2" :end="true"></vco-number>
+                <vco-number v-if="showProcess" :value="tableRemainTotal(Number(item.amount || 0), Number(item?.use_amount || 0)) < 0 ? 0 : tableRemainTotal(Number(item.amount || 0), Number(item?.use_amount || 0))" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
+                <vco-number v-if="showProcess" :value="Number(item?.use_amount || 0)" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
 
                 <a-tooltip v-if="Number(item.excess_amount)" placement="top">
                   <template #title>
@@ -409,9 +409,9 @@
                   <i class="iconfont excess-icon">&#xe750;</i>
                 </a-tooltip>
 
-                <a-tooltip v-if="tableRemainTotal(item.amount, item?.use_amount || 0) < 0" placement="top">
+                <a-tooltip v-if="tableRemainTotal(Number(item.amount || 0), Number(item?.use_amount || 0)) < 0" placement="top">
                   <template #title>
-                    <span>{{ t('已超额: {0}', [`$${numberStrFormat(Math.abs(tableRemainTotal(item.amount, item?.use_amount || 0)))}`])}}</span>
+                    <span>{{ t('已超额: {0}', [`$${numberStrFormat(Math.abs(tableRemainTotal(Number(item.amount || 0), Number(item?.use_amount || 0))))}`])}}</span>
                   </template>
                   <i class="iconfont excess-icon">&#xe750;</i>
                 </a-tooltip>
@@ -447,7 +447,7 @@
                       <div class="flex-1">
                         <vco-excess-process :percent="item.bocInfo.percent" />
                       </div>
-                      <div v-if="item.bocInfo.logs?.length && !isSelect" class="log-icon boc" @click="showLogInfo(item.bocInfo)">
+                      <div v-if="item?.bocInfo?.logs?.length && !isSelect" class="log-icon boc" @click="showLogInfo(item.bocInfo)">
                         <i class="iconfont">&#xe76c;</i>
                       </div>
                     </div>
@@ -1094,7 +1094,7 @@
               const logItem = props.buildLogData.find(item => item.build_id === mergItem.id)
               if (logItem) {
                 const doneUseAmount = props.isSelect ? mergItem.use_amount : (props.logDate ? mergItem.logs_use_amount : mergItem.use_amount)
-                mergItem.use_amount = tool.minus(doneUseAmount, logItem.amount)
+                mergItem.use_amount = tool.minus(Number(doneUseAmount), logItem.amount)
                 if (mergItem.amount) {
                   const num = fixNumber(Number(tool.div(Number(mergItem.use_amount), Number(mergItem.amount))), 4)
                   mergItem.percent = Number(tool.times(num, 100))

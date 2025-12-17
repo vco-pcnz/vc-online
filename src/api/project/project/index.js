@@ -159,7 +159,7 @@ export const reopenIndex = (params) =>
 // 买断列表
 export const buyoutIndex = (params) =>
   request({
-    url: 'projectDetail/buyoutIndex',
+    url: 'projectDetail/buyOutIndex',
     method: 'get',
     params
   });

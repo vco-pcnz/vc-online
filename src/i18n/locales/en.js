@@ -1133,7 +1133,7 @@ export default {
   "请输入完整的4位验证码": "Please enter the complete 4-digit verification code",
   "验证码已发送": "Verification code sent",
   "发送验证码1": "Send code",
-  "系统刚刚将4位的验证码发送到: {0}": "The system has just sent a 4-digit verification code to: {0}",
+  "系统刚刚将4位的验证码发送到: {0}": "We’ve just sent a 4-digit verification code to {0}",
   "试试其他方式": "Try other methods",
   "邮箱验证": "Email verification",
   "短信验证": "SMS verification",
@@ -1323,5 +1323,7 @@ export default {
   "放款选择": "Drawdown selection",
   "重新邀请电话": "Reinvite by phone",
   "重新邀请邮箱": "Reinvite by email",
-  "确定要向{0}重新发送验证码吗?": "Are you sure to re-send the verification code to {0}?"
+  "确定要向{0}重新发送验证码吗?": "Are you sure to re-send the verification code to {0}?",
+  "密码登录": "Log in with password",
+  "验证码登录": "Log in with code"
 }

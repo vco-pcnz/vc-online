@@ -14,6 +14,7 @@
           <span v-if="link.path === '/loanRequests/wash'">({{ LoanRequestsInfo.wash_num }})</span>
           <span v-if="link.path === '/loanRequests/be_roker'">({{ LoanRequestsInfo.broker_num }})</span>
           <span v-if="link.path === '/loanRequests/reOpen'">({{ LoanRequestsInfo.return_request_num }})</span>
+          <span v-if="link.path === '/loanRequests/buyOut'">({{ LoanRequestsInfo.buyout_num}})</span>
         </template>
         <template v-else>
           <span v-if="link.num">({{ link.num }})</span>

@@ -6,7 +6,8 @@
   <div @click.stop ref="JournalRef" class="Journal">
     <a-modal :width="800" :open="visible" :title="t('提取金额') + ' (' + tool.formatMoney(detail?.amount) + ')'" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
-        <ProgressPayment :visible="visible" :validate="validate" :data="formState" :projectDetail="projectDetail" :total="detail?.amount" @change="updateformState"></ProgressPayment>
+        <ProgressPaymentVsl v-if="projectDetail?.product?.code === 'vsl'" :visible="visible" :validate="validate" :data="formState" :projectDetail="projectDetail" :total="detail?.amount" @change="updateformState"></ProgressPaymentVsl>
+        <ProgressPayment v-else :visible="visible" :validate="validate" :data="formState" :projectDetail="projectDetail" :total="detail?.amount" @change="updateformState"></ProgressPayment>
 
         <div class="flex justify-center">
           <a-button @click="save" type="dark" class="save big uppercase" :loading="loading">
@@ -25,6 +26,7 @@ import { message } from 'ant-design-vue/es';
 import tool, { numberStrFormat } from '@/utils/tool';
 import { darwdownLogSave, darwdownLogChange } from '@/api/project/tools';
 import ProgressPayment from './progressPayment.vue';
+import ProgressPaymentVsl from './ProgressPaymentVsl.vue';
 import { cloneDeep } from 'lodash';
 
 const { t } = useI18n();

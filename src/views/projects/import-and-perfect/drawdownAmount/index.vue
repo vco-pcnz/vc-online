@@ -26,7 +26,7 @@ import { message } from 'ant-design-vue/es';
 import tool, { numberStrFormat } from '@/utils/tool';
 import { darwdownLogSave, darwdownLogChange } from '@/api/project/tools';
 import ProgressPayment from './progressPayment.vue';
-import ProgressPaymentVsl from './ProgressPaymentVsl.vue';
+import ProgressPaymentVsl from './progressPaymentVsl.vue';
 import { cloneDeep } from 'lodash';
 
 const { t } = useI18n();

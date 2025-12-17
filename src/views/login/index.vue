@@ -58,7 +58,7 @@
               </router-link>
             </p>
             <p class="type-text" @click="form.mode = form.mode === 1 ? 2 : 1">
-              {{ form.mode == 2 ? t('密码') : t('验证码') }} <span class="lowercase">{{ t('登录') }}</span>
+              {{ form.mode == 2 ? t('密码登录') : t('验证码登录') }}
             </p>
           </div>
           <a-form-item class="login_submit mt-4">

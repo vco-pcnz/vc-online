@@ -1320,5 +1320,8 @@ export default {
   "放款选择": "Drawdown selection",
   "BOC数据有变动，保存后会重置首次建筑贷款放款额": "BOC data has changed, saving will reset the first construction loan drawdown amount",
   "建筑进度": "Build progress",
-  "放款选择": "Drawdown selection"
+  "放款选择": "Drawdown selection",
+  "重新邀请电话": "Reinvite by phone",
+  "重新邀请邮箱": "Reinvite by email",
+  "确定要向{0}重新发送验证码吗?": "Are you sure to re-send the verification code to {0}?"
 }

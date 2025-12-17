@@ -102,6 +102,22 @@
                       {{ t('利益相关者') }}
                     </span>
                   </a-menu-item>
+                  <template v-if="hasPermission('users:reinvite') && !record.mobile_ok && !record.email_ok">
+                    <a-menu-item key="3" v-if="record.mobile">
+                      <vco-popconfirm :tip="t('确定要向{0}重新发送验证码吗?', ['+' + record.pre + ' ' + record.mobile])" width="340px" url="/user/inviteSend" :formParams="{ uuid: record.uuid, type: 2 }" @update="handlePathChange()">
+                        <span>
+                          {{ t('重新邀请电话') }}
+                        </span>
+                      </vco-popconfirm>
+                    </a-menu-item>
+                    <a-menu-item key="4" v-if="record.email">
+                      <vco-popconfirm :tip="t('确定要向{0}重新发送验证码吗?', [record.email])" url="/user/inviteSend" width="340px" :formParams="{ uuid: record.uuid, type: 1 }" @update="handlePathChange()">
+                        <span>
+                          {{ t('重新邀请邮箱') }}
+                        </span>
+                      </vco-popconfirm>
+                    </a-menu-item>
+                  </template>
                 </a-menu>
               </div>
             </template>

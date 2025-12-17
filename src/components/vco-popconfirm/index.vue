@@ -1,5 +1,11 @@
 <template>
-  <a-popconfirm class="inline" :title="tip" @confirm="confirm()" @click.stop>
+  <a-popconfirm
+    class="inline"
+    :title="tip"
+    :overlayStyle="overlayStyle"
+    @confirm="confirm()"
+    @click.stop
+  >
     <slot>
       <a-button type="dark" class="big shadow bold uppercase mb-5 mt-5">{{ btn_text }}</a-button>
     </slot>
@@ -7,7 +13,7 @@
 </template>
 
 <script scoped setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import { request } from '@/utils/request';
@@ -28,10 +34,19 @@ const props = defineProps({
   },
   btn_text: {
     type: String
+  },
+  width: {
+    type: [String, Number],
+    default: undefined
   }
 });
 
 const loading = ref(false);
+const overlayStyle = computed(() => {
+  if (!props.width && props.width !== 0) return {};
+  const widthValue = typeof props.width === 'number' ? `${props.width}px` : props.width;
+  return { width: widthValue };
+});
 
 const confirm = () => {
   loading.value = true;

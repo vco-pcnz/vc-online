@@ -341,7 +341,7 @@
   import { useRoute } from "vue-router"
   import { toolsDetail, toolsGetBuild } from '@/api/import'
   import { cloneDeep } from "lodash"
-  import tool, { numberStrFormat } from "@/utils/tool"
+  import tool, { numberStrFormat, fixNumber } from "@/utils/tool"
 
   const { t } = useI18n();
   const route = useRoute();
@@ -536,7 +536,7 @@
 
     const hadSetData = cloneDeep(setedData.value.data)
 
-    const dataArr = Number(advanceAmount.value) ? [{
+    const dataArr =  Number(advanceAmount.value) && !isVsl.value ? [{
         isFixedRow: true,
         type: advanceKey.value
       }
@@ -760,6 +760,9 @@
 
     try {
       await toolsGetBuild(params).then(res => {
+        // boc拆分数据
+        const progressData = res.progress || {}
+
         const dataRes = res.data || {}
         let data = {}
         if (props.isSelect) {
@@ -872,6 +875,25 @@
                 selectData.value.push(mergItem)
               }
             }
+
+            // vsl产品存在boc拆分数据
+            if (Boolean(Object.keys(progressData).length)) {
+              if (progressData[item.name]) {
+                const bocItem = cloneDeep(progressData[item.name])
+                if (bocItem.length > 0) {
+                  const bocItemInfo = cloneDeep(bocItem[0])
+                  mergItem.bocInfo = bocItemInfo
+                  const num = fixNumber(Number(tool.div(Number(bocItemInfo.use_amount || 0), Number(bocItemInfo.amount || 0))), 4)
+                  bocItemInfo.percent = Number(tool.times(num, 100))
+                  bocItemInfo.can_amount = Number(tool.minus(Number(bocItemInfo.amount || 0), Number(bocItemInfo.use_amount || 0)))
+
+                  // 如果存在boc，更新vs数据
+                  mergItem.amount = Number(tool.minus(Number(mergItem.amount), Number(bocItemInfo.amount || 0)))
+                  mergItem.percent =  Number(mergItem.amount) ? Number(tool.times(Number(tool.div(Number(mergItem.use_amount), Number(mergItem.amount))), 100)) : 0
+                }
+              }
+            }
+
             return mergItem
           })
 
@@ -934,6 +956,8 @@
     footerDataCol.value = dataArr
   }
 
+  const isVsl = ref(false)
+
   const buildAmount = ref(0)
 
   // 是否为简易模式
@@ -962,6 +986,7 @@
 
       try {
         await toolsDetail(params).then(res => {
+          isVsl.value = String(res.product.code).toLowerCase() === 'vsl'
           const costModel = Boolean(res.devCostDetail[0].model)
           easyModel.value = costModel
 
@@ -1349,9 +1374,6 @@
       min-width: 220px;
       &:nth-child(-n+5) {
         border-top: none;
-      }
-      &:last-child {
-        border-right: none;
       }
       &.hover {
         cursor: pointer;

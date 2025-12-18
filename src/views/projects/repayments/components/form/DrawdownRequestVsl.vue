@@ -185,7 +185,7 @@
                 <div class="show-date">{{ overdueDays }}</div>
               </a-form-item>
             </a-col>
-            <a-col v-if="formState.all_repayment === 1 && formState.apply_date && hasPermission('projects:repayments:adDownload')" :span="overdueDays ? 12 : 16">
+            <a-col v-if="formState.all_repayment === 1 && formState.apply_date && hasPermission('projects:repayments:adDownload') && false" :span="overdueDays ? 12 : 16">
               <a-form-item :label="t('对账单')">
                 <a-button type="dark" class="uppercase shadow bold" :loading="downloadLoading" @click="downloadStatement">
                   {{ t('下载') }}

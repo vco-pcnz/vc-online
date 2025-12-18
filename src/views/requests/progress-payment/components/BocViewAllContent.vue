@@ -1776,10 +1776,6 @@
       &:nth-child(-n+5) {
         border-top: none;
       }
-      &:nth-child(6n),
-      &:last-child {
-        border-right: none;
-      }
       &.hover {
         cursor: pointer;
         transition: all 0.2s ease;

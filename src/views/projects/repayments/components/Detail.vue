@@ -107,7 +107,7 @@
             </div>
           </template>
 
-          <div v-if="detail?.has_permission && (detail?.mark == 'repayment_lm' || detail?.mark == 'repayment_fc' || detail?.mark == 'repayment_lc' || detail?.mark == 'repayment_director' || detail?.mark == 'repayment_director_recon')" class="mt-4">
+          <div v-if="detail?.has_permission && (detail?.mark == 'repayment_lm' || detail?.mark == 'repayment_fc' || detail?.mark == 'repayment_lc' || detail?.mark == 'repayment_director')" class="mt-4">
             <p class="text-center color_grey fs_xs my-3">{{ t('您可以点击下面的按钮来拒绝还款请求。') }}</p>
             <div class="flex justify-center">
               <a-popconfirm :title="t('确定要拒绝该请求吗？')" @confirm="decline">
@@ -128,7 +128,7 @@
 
         <a-button v-if="!detail?.prev_permission && !(detail?.has_permission || hasPermission('projects:repayments:revoke'))" type="brown" class="big uppercase w-full" @click="openDetails(false)">{{ t('查看详情') }}</a-button>
 
-        <p class="download-btn" v-if="all_repayment">
+        <p class="download-btn" v-if="all_repayment && projectDetail?.product?.code !== 'vsl'">
           {{ t('对账单') }}, <span @click="downloadStatement">{{ t('点击下载') }}</span>
         </p>
       </div>

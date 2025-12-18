@@ -140,7 +140,7 @@
                 <vco-number :bold="true" :value="irrPercent" prefix="" suffix="%" :precision="2" size="fs_xl" :end="true"></vco-number>
               </a-form-item>
             </a-col>
-            <a-col v-if="formState.date && hasPermission('projects:repayments:adDownload')" :span="8">
+            <a-col v-if="formState.date && hasPermission('projects:repayments:adDownload') && projectDetail?.product?.code !== 'vsl'" :span="8">
               <a-form-item :label="t('对账单')">
                 <a-button type="dark" class="uppercase shadow bold" :loading="downloadLoading" @click="downloadStatement">
                   {{ t('下载') }}

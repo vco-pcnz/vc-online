@@ -56,12 +56,14 @@ const updateVisible = (value) => {
 };
 
 const formState = ref({
+  source: '1',
   build_money: '',
   land_money: 0,
   equity_money: 0,
   other_money: 0,
   other_note: '',
-  build__data: []
+  build__data: [],
+  progress__data: []
 });
 
 const updateformState = (val) => {
@@ -108,6 +110,9 @@ const init = (val) => {
   });
   if (detail.value?.buildlog) {
     formState.value.build__data = detail.value?.buildlog;
+  }
+  if (detail.value?.progress_log) {
+    formState.value.progress__data = detail.value?.progress_log;
   }
   // formState.value = {
   //   build_money: '',

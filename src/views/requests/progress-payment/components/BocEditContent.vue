@@ -338,12 +338,25 @@
             </div>
             <div class="item total">
               <p>Total Cost to Complete</p>
-              <div class="total-item flex justify-end items-center gap-2">
-                <vco-number :value="loanTotal" size="fs_md" :precision="2" :end="true" color="#eb4b6d"></vco-number>
-                <span>{{ Number(borrowerEquityTotal) < 0 ? '-' : '+' }}</span>
-                <vco-number :value="Math.abs(borrowerEquityTotal)" size="fs_md" :precision="2" :end="true" color="#31bd65"></vco-number>
-                <span>=</span>
-                <vco-number :value="tableTotal" size="fs_xl" :precision="2" :end="true" :bold="true"></vco-number>
+              <div class="flex flex-col items-end gap-2">
+                <div class="total-item flex justify-end items-center gap-2">
+                  <vco-number :value="loanTotal" size="fs_md" :precision="2" :end="true" color="#eb4b6d"></vco-number>
+                  <span>{{ Number(borrowerEquityTotal) < 0 ? '-' : '+' }}</span>
+                  <vco-number :value="Math.abs(borrowerEquityTotal)" size="fs_md" :precision="2" :end="true" color="#31bd65"></vco-number>
+                  <span>=</span>
+                  <vco-number :value="tableTotal" size="fs_xl" :precision="2" :end="true" :bold="true"></vco-number>
+                </div>
+
+                <div class="boc-info">
+                  <div class="flex justify-between items-center">
+                    <p>{{ t('BOC放款') }}</p>
+                    <vco-number :value="bocTotal" size="fs_xs" :precision="2" :end="true"></vco-number>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <p>{{ t('VS放款') }}</p>
+                    <vco-number :value="vsTotal" size="fs_xs" :precision="2" :end="true"></vco-number>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -485,6 +498,19 @@
       return Number(tool.plus(total, num))
     }, 0);
     return tool.plus(tableNum, inputNum)
+  })
+
+  const bocTotal = computed(() => {
+    const bData = cloneDeep(bocSplitObjRef.value)
+    const bDataNum = Object.values(bData).reduce((total, item) => {
+      return Number(tool.plus(total, Number(item?.amount || 0)))
+    }, 0);
+
+    return Number(tool.plus(Number(bDataNum), advanceAmount.value))
+  })
+
+  const vsTotal = computed(() => {
+    return Number(tool.minus(tableTotal.value, bocTotal.value))
   })
 
   const extractAmounts = (obj, keyword) => {
@@ -2042,6 +2068,19 @@
     }
     :deep(.ant-statistic) {
       line-height: 1 !important;
+    }
+  }
+
+  .boc-info {
+    background-color: #fff1d6;
+    width: 100%;
+    max-width: 300px;
+    padding: 5px;
+    border: 1px solid #282828;
+    border-radius: 4px;
+    margin-top: 5px;
+    p {
+      font-size: 11px;
     }
   }
 </style>

@@ -9,9 +9,8 @@
   </a-modal>
 
   <div class="input-item" style="margin-top: 16px">
-    <div class="label" :class="{ err: !formState.build_money && validate && !showOther }">{{ t('贷款方') }}</div>
-
-    <a-select style="width: 100%" v-model:value="formState.source" :options="LenderData"> </a-select>
+    <div class="label" :class="{ err: !formState.source && validate && !showOther }">{{ t('贷款方') }}</div>
+    <a-select style="width: 100%" v-model:value="formState.source" :options="LenderData" @change="changeSource"> </a-select>
 
     <div class="label mt-5" :class="{ err: !formState.build_money && validate && !showOther }">{{ t('进度款') }}</div>
     <div class="flex gap-2 items-center">
@@ -140,7 +139,7 @@ const props = defineProps({
 const showOther = ref(false);
 const selectVisible = ref(false);
 const formState = ref({
-  source: '',
+  source: '1',
   build_money: '',
   land_money: 0,
   equity_money: 0,
@@ -179,6 +178,18 @@ const bocSelectDoneHandle = (data) => {
   bocVisible.value = false;
 };
 
+const changeSource = (value) => {
+  formState.value.build__data = [];
+  formState.value.build_money = 0;
+  selectedData.value = [];
+
+  bocSelectedData.value = [];
+  formState.value.progress__data = [];
+
+  formState.value.source = value;
+  change();
+};
+
 const change = () => {
   emits('change', formState.value);
 };
@@ -208,6 +219,7 @@ watch(
     if (val && props.data) {
       editData.value = cloneDeep(props.data);
       formState.value = cloneDeep(props.data);
+      formState.value.source = formState.value.source ? formState.value.source + '' : '0';
       if (props.data?.build__data) {
         selectedData.value = cloneDeep(props.data?.build__data);
         buildLogData.value = cloneDeep(props.data?.build__data);

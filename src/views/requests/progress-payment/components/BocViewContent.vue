@@ -245,7 +245,7 @@ const getSetedData = async () => {
         }
       }
 
-      bocSplitData.value = arr
+      bocSplitData.value = arr.filter(item => Number(item.amount))
       pageLoading.value = false
     })
   } catch (err) {

@@ -34,8 +34,8 @@
                   {{ record.all_repayment == 1 ? t('全额还款') : t('部分还款') }}
                 </template>
                 <template v-if="column.dataIndex === 're_type'">
-                  <span v-if="record.re_type == 1">({{ t('本金优先分配') }})</span>
-                  <span v-if="record.re_type == 2">({{ t('利息优先分配') }})</span>
+                  <span v-if="record.re_type == 1">{{ t('本金优先分配') }}</span>
+                  <span v-if="record.re_type == 2">{{ t('利息优先分配') }}</span>
                 </template>
                 <template v-if="column.dataIndex === 'amount1'">
                   {{ tool.formatMoney(record.apply_rep_amount) }}

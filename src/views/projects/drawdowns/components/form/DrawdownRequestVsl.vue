@@ -421,7 +421,7 @@ const initData = () => {
   isEdit.value = true;
   let keys = ['name', 'note', 'remark', 'other_note', 'apply_date', 'other_type', 'build_money', 'land_money', 'equity_money', 'other_money', 'vip_amount'];
   const newData = pick(props.detail, keys);
-  newData['source'] = props.detail?.forecast?.source + '';
+  newData['source'] = props.detail?.source + '';
   Object.assign(formState.value, newData);
   if (props.detail?.buildlog) {
     formState.value.build__data = props.detail?.buildlog;

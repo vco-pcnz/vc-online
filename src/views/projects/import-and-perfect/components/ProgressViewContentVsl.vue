@@ -189,14 +189,14 @@
                     </template>
                     <vco-number v-else :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
                   </template>
-                  <template v-else>
+                  <template v-else-if="column.dataIndex === 'boc-payment-amount'">
                     <div v-if="showProcess" class="select-item adv" :class="{'hover': isSelect}" @click="itemSetHandle(advanceObj)">
-                      <div class="flex justify-center flex-col items-center" :style="{width: tableHeader.length === 4 ? '265px' : '660px'}">
+                      <div class="flex justify-center flex-col items-center">
                         <vco-number :value="advanceAmount" size="fs_xs" :precision="2" :end="true"></vco-number>
                         <vco-number :value="tableRemainTotal(advanceAmount, advanceObj?.use_amount || 0)" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
                         <vco-number :value="advanceObj?.use_amount || 0" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
                         <div class="process-gap"></div>
-                        <div class="init-progress">
+                        <div class="item-process-content">
                           <vco-excess-process :percent="advanceObj.percent" />
 
                           <a-tooltip v-if="Number(advanceObj.excess_amount)" placement="top">
@@ -217,8 +217,8 @@
                       </div>
                     </div>
 
-                    <div v-else class="flex justify-center" :style="{width: tableHeader.length === 4 ? '265px' : '660px'}">
-                      <vco-number :value="advanceAmount" size="fs_md" :precision="2" :end="true"></vco-number>
+                    <div v-else class="flex justify-center">
+                      <vco-number :value="advanceAmount" size="fs_md" :precision="2" :color="'#ea3535'" :end="true"></vco-number>
                     </div>
                   </template>
                 </template>
@@ -299,13 +299,18 @@
                       <i class="iconfont">&#xe76c;</i>
                     </div>
                   </div>
-                  <vco-number v-else :value="record[column.dataIndex].amount" size="fs_md" :precision="2" :end="true"></vco-number>
+                  <vco-number v-else :value="record[column.dataIndex].amount" :class="{'borrowr-amount': record.category === 2}" :color="'#ea3535'" size="fs_md" :precision="2" :end="true"></vco-number>
                 </template>
               </template>
               <template #summary>
                 <a-table-summary fixed>
                   <a-table-summary-row>
-                    <a-table-summary-cell v-for="(item, index) in summaryCol" :index="index" :key="item.key" class="text-center">
+                    <a-table-summary-cell
+                      v-for="(item, index) in summaryCol"
+                      :index="index"
+                      :key="item.key"
+                      :class="['text-center', item.key === 'boc-payment-amount' ? 'boc-payment-col' : '']"
+                    >
                       <template v-if="item.key === 'type'">Construction</template>
                       <template v-else-if="item.key === 'payment'">
                         <p class="total-percent">{{ numberStrFormat(summaryHandle(item.key)) }}%</p>
@@ -389,7 +394,7 @@
                 :class="{'hover': isSelect}"
                 @click="itemSetHandle(item)"
               >
-                <div v-if="item.logs?.length && !isSelect" class="log-icon" @click="showLogInfo(item)">
+                <div v-if="item?.logs?.length && !isSelect" class="log-icon" @click="showLogInfo(item)">
                   <i class="iconfont">&#xe76c;</i>
                 </div>
 
@@ -419,12 +424,58 @@
                   <div class="selected-bg"></div>
                   <i class="iconfont selected-icon">&#xe601;</i>
                 </template>
+
+                <div v-if="item.bocInfo" class="boc-info">
+                  <div class="flex justify-between items-center">
+                    <p>{{ t('BOC放款') }}</p>
+                    <vco-number :value="Number(item.bocInfo.amount || 0)" size="fs_xs" :precision="2" :end="true"></vco-number>
+                  </div>
+                  <div v-if="!showProcess" class="flex justify-between items-center">
+                    <p>{{ t('VS放款') }}</p>
+                    <vco-number :value="Number(tool.minus(item.amount, item.bocInfo.amount || 0))" size="fs_xs" :precision="2" :end="true"></vco-number>
+                  </div>
+                  <template v-if="showProcess">
+                    <div class="flex justify-between items-center">
+                      <p>{{ t('可用额度1') }}</p>
+                      <vco-number :value="Number(item.bocInfo.can_amount || 0)" size="fs_xs" :precision="2" :end="true" color="#eb4b6d"></vco-number>
+                    </div>
+                    <div class="flex justify-between items-center">
+                      <p>{{ t('已用额度') }}</p>
+                      <vco-number :value="Number(item.bocInfo.use_amount || 0)" size="fs_xs" :precision="2" :end="true" color="#31bd65"></vco-number>
+                    </div>
+                    <div class="flex items-center justify-between gap-2">
+                      <div class="flex-1">
+                        <vco-excess-process :percent="item.bocInfo.percent" />
+                      </div>
+                      <div v-if="item?.bocInfo?.logs?.length && !isSelect" class="log-icon boc" @click="showLogInfo(item.bocInfo)">
+                        <i class="iconfont">&#xe76c;</i>
+                      </div>
+                    </div>
+                  </template>
+                </div>
               </div>
             </div>
             <div class="table-total-content">
               <p>Total Cost to Complete</p>
-              <div class="total-item">
-                <vco-number :value="tableTotal" :bold="true" size="fs_xl" :precision="2" :end="true"></vco-number>
+              <div class="flex flex-col items-end gap-2">
+                <div class="flex justify-end items-center gap-2">
+                  <vco-number :value="loanTotal" size="fs_md" :precision="2" :end="true" color="#eb4b6d"></vco-number>
+                  <span>{{ Number(borrowerEquityTotal) < 0 ? '-' : '+' }}</span>
+                  <vco-number :value="Math.abs(borrowerEquityTotal)" size="fs_md" :precision="2" :end="true" color="#31bd65"></vco-number>
+                  <span>=</span>
+                  <vco-number :value="tableTotal" size="fs_xl" :precision="2" :end="true" :bold="true"></vco-number>
+                </div>
+
+                <div class="boc-info">
+                  <div class="flex justify-between items-center">
+                    <p>{{ t('BOC放款') }}</p>
+                    <vco-number :value="bocTotal" size="fs_xs" :precision="2" :end="true"></vco-number>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <p>{{ t('VS放款') }}</p>
+                    <vco-number :value="vsTotal" size="fs_xs" :precision="2" :end="true"></vco-number>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -454,7 +505,7 @@
   import { computed, onMounted, reactive, ref } from "vue"
   import { useI18n } from "vue-i18n";
   import { useRoute } from "vue-router"
-  import { projectAuditStepDetail, projectGetBuild, projectLoanGetBuild, projectDetailApi } from "@/api/process"
+  import { toolsDetail, toolsGetBuild } from '@/api/import'
   import { cloneDeep } from "lodash"
   import tool, { numberStrFormat, fixNumber } from "@/utils/tool"
 
@@ -497,6 +548,10 @@
     logDate: {
       type: String,
       default: ''
+    },
+    projectDetail: {
+      type: Object,
+      default: () => {}
     }
   })
 
@@ -541,6 +596,8 @@
     payment: {},
     summary: {}
   })
+  const bocProgressMap = ref({})
+
   /**
    * 表单数据
    */
@@ -596,6 +653,28 @@
     }
   }
 
+  const loanTotal = computed(() => {
+    const inputArr = footerDataCol.value.map(item => Number(item.loan))
+    const inputNum = inputArr.reduce((total, num) => {
+      return Number(tool.plus(total, num))
+    }, 0);
+
+    const tableNum = easyModel.value ? 0 : TableLoanTotal.value(1)
+
+    return tool.plus(tableNum, inputNum)
+  })
+
+  const borrowerEquityTotal = computed(() => {
+    const inputArr = footerDataCol.value.map(item => Number(item.borrower_equity))
+    const inputNum = inputArr.reduce((total, num) => {
+      return Number(tool.plus(total, num))
+    }, 0);
+
+    const tableNum = easyModel.value ? 0 : TableLoanTotal.value(2)
+
+    return tool.plus(tableNum, inputNum)
+  })
+
   const tableTotal = computed(() => {
     const tableNum = easyModel.value ? 0 : summaryHandle('total')
     const inputArr = footerDataCol.value.map(item => item.loan)
@@ -630,6 +709,17 @@
     return selectData.value.filter(item => Number(item.set_amount)).length
   })
 
+  const bocTotal = computed(() => {
+    const bocTotal = Object.values(bocProgressMap.value).reduce((total, item) => {
+      return Number(tool.plus(total, Number(item.amount || 0)))
+    }, 0);
+    return bocTotal
+  })
+
+  const vsTotal = computed(() => {
+    return tool.minus(loanTotal.value, bocTotal.value)
+  })
+
   const tableRemainTotal = (total, useTotal = 0) => {
     return tool.minus(total, useTotal)
   }
@@ -637,6 +727,7 @@
   const setTableData = (headerData) => {
     const payment = cloneDeep(setedData.value.payment)
     const column = cloneDeep(setedData.value.column)
+    const bocProgress = cloneDeep(bocProgressMap.value) || {}
 
     for (const key in payment) {
       if (key === '0$1__payment') {
@@ -659,17 +750,34 @@
 
     const hadSetData = cloneDeep(setedData.value.data)
 
-    const dataArr = Number(advanceAmount.value) && !isVsl.value ? [{
+    const dataArr = Number(advanceAmount.value) ? [{
         isFixedRow: true,
         type: advanceKey.value
       }
     ] : []
+
     for (let i = 0; i < data.length; i++) {
       const obj = {
         type: data[i].type_name,
         typeId: data[i].type,
         payment: payment[`${data[i].type}$${data[i].category}__payment`] ? payment[`${data[i].type}$${data[i].category}__payment`].amount : 0,
         category: data[i].category
+      }
+      const bocKey = `${data[i].type}$${data[i].category}`
+      const bocItem = bocProgress[bocKey] ? { ...bocProgress[bocKey] } : { amount: 0, use_amount: 0, logs_use_amount: 0, percent: 0, per: 0, id: 0, logs: [] }
+      const bocUseAmount = props.isSelect ? bocItem.use_amount : (props.logDate ? bocItem.logs_use_amount : bocItem.use_amount)
+
+      obj['boc-payment-amount'] = {
+        ...bocItem,
+        amount: Number(bocItem.amount || 0),
+        use_amount: Number(bocUseAmount || 0),
+        logs_use_amount: Number(bocItem.logs_use_amount || 0),
+        percent: Number(bocItem.amount) ? Number(tool.div(Number(bocUseAmount), Number(bocItem.amount))) * 100 : 0,
+        logs: bocItem.logs || [],
+        checked: false,
+        selected: false,
+        set_amount: '',
+        set_amount_per: ''
       }
       for (let j = 0; j < headerData.length; j++) {
         const amountItem = hadSetData[`${data[i].type}$${data[i].category}__${headerData[j].dataIndex}`] || {}
@@ -683,7 +791,7 @@
 
           if (amountItem.amount) {
             const use_amount = props.isSelect ? amountItem.use_amount : (props.logDate ? amountItem.logs_use_amount : amountItem.use_amount)
-            const num = fixNumber(Number(tool.div(Number(use_amount), Number(amountItem.amount))), 4)
+            const num = Number(amountItem.amount) ? fixNumber(Number(tool.div(Number(use_amount), Number(amountItem.amount))), 4) : 0;
             amountItem.percent = Number(tool.times(num, 100))
           } else {
             amountItem.percent = 0
@@ -747,9 +855,7 @@
       const num = Number(total) ? fixNumber(Number(tool.div(Number(useTotal), Number(total))), 4) : 0
       obj.percent = Number(tool.times(num, 100))
 
-      if (Number(obj.payment)) {
-        dataArr.push(obj)
-      }
+      dataArr.push(obj)
     }
 
     tableData.value = dataArr
@@ -793,6 +899,13 @@
       width: 90,
       align: 'center',
       fixed: 'left'
+    }, {
+      title: t('BOC放款'),
+      dataIndex: "boc-payment-amount",
+      width: 130,
+      align: 'center',
+      className: 'boc-payment-col',
+      fixed: 'left'
     }, ...headerData,
     { title: t('总计'), dataIndex: 'total', width: 180, align: 'center', fixed: 'right' }]
 
@@ -804,7 +917,7 @@
     }
 
     // 合并第一行数据
-    if (tableHeader.value.length > 3) {
+    if (tableHeader.value.length > 4) {
       tableHeader.value.forEach((item, index) => {
         if (!props.isSelect) {
           item.customCell = (record, _index) => {
@@ -840,7 +953,7 @@
               return {}
             } else {
               if (record.isFixedRow) {
-                const mergeStart = 2
+                const mergeStart = 3
                 const mergeEnd = tableHeader.value.length - 2
 
                 if (index === mergeStart) {
@@ -859,7 +972,7 @@
         } else {
           item.customCell = (record) => {
             if (record.isFixedRow) {
-              const mergeStart = 2
+              const mergeStart = 3
               const mergeEnd = tableHeader.value.length - 2
 
               if (index === mergeStart) {
@@ -895,11 +1008,7 @@
         params.log__time = props.logDate
       }
 
-      const ajaxFn = isRequests.value ? projectGetBuild : projectLoanGetBuild
-      await ajaxFn(params).then(res => {
-        // boc拆分数据
-        const progressData = res.progress || {}
-
+      await toolsGetBuild(params).then(res => {
         const dataRes = res.data || {}
         let data = {}
         if (props.isSelect || props.hideSelf) {
@@ -913,6 +1022,35 @@
         }
 
         setedData.value = res
+        const progressData = res.progress || {}
+        const progressMap = {}
+        let progressUseAmount = 0
+        for (const key in progressData) {
+          const list = progressData[key] || []
+          list.forEach(item => {
+            if (!item) return
+            const mapKey = item.type || item.type_name
+            const use_amount = props.isSelect ? item.use_amount : (props.logDate ? item.logs_use_amount : item.use_amount)
+
+            progressUseAmount = Number(tool.plus(progressUseAmount, Number(item.use_amount || 0)))
+
+            if (mapKey) {
+              progressMap[mapKey] = {
+                ...item,
+                amount: Number(item.amount || 0),
+                use_amount: Number(use_amount || 0),
+                logs_use_amount: Number(item.logs_use_amount || 0),
+                percent: Number(tool.div(Number(use_amount), Number(item.amount))) * 100,
+                logs: item.logs || [],
+                checked: false,
+                selected: false,
+                set_amount: '',
+                set_amount_per: ''
+              }
+            }
+          })
+        }
+        bocProgressMap.value = progressMap
 
         // 首次放款数据
         if (Object.keys(res.payment).length) {
@@ -926,7 +1064,11 @@
           if (res.summary[`${advanceKey.value}`]) {
             advanceAmount.value = res.summary[`${advanceKey.value}`].amount
 
-            const advanceItem = res.summary[`${advanceKey.value}`]
+            let advanceItem = res.summary[`${advanceKey.value}`]
+            if (res.progress[advanceKey.value] && Object.keys(res.progress[advanceKey.value]).length === 1) {
+              advanceItem = res.progress[advanceKey.value][0]
+              advanceAmount.value = Number(advanceItem.amount)
+            }
             advanceItem.amount = Number(advanceItem.amount)
             advanceItem.logs = advanceItem.logs || []
             advanceItem.checked = false
@@ -996,7 +1138,7 @@
             }
 
             if (Number(mergItem.amount)) {
-              const use_amount = props.isSelect ? mergItem.use_amount : (props.logDate ? mergItem.logs_use_amount : mergItem.use_amount)
+              const use_amount = props.isSelect ? Number(mergItem?.use_amount || 0) : (props.logDate ? Number(mergItem.logs_use_amount || 0) : Number(mergItem.use_amount || 0))
               const num = fixNumber(Number(tool.div(Number(use_amount), Number(mergItem.amount))), 4)
               mergItem.percent = Number(tool.times(num, 100))
             } else {
@@ -1007,8 +1149,8 @@
             if (buildLogDataIds.value.includes(mergItem.id)) {
               const logItem = props.buildLogData.find(item => item.build_id === mergItem.id)
               if (logItem) {
-                const doneUseAmount = props.isSelect ? mergItem.use_amount : (props.logDate ? mergItem.logs_use_amount : mergItem.use_amount)
-                mergItem.use_amount = tool.minus(doneUseAmount, logItem.amount)
+                const doneUseAmount = props.isSelect ? Number(mergItem?.use_amount || 0) : (props.logDate ? Number(mergItem.logs_use_amount || 0) : Number(mergItem.use_amount || 0))
+                mergItem.use_amount = tool.minus(Number(doneUseAmount), logItem.amount)
                 if (mergItem.amount) {
                   const num = fixNumber(Number(tool.div(Number(mergItem.use_amount), Number(mergItem.amount))), 4)
                   mergItem.percent = Number(tool.times(num, 100))
@@ -1041,33 +1183,33 @@
               }
             }
 
-            // vsl产品存在boc拆分数据
-            if (Boolean(Object.keys(progressData).length)) {
-              if (progressData[item.name]) {
-                const bocItem = cloneDeep(progressData[item.name])
-                if (bocItem.length > 0) {
-                  const bocItemInfo = cloneDeep(bocItem[0])
-                  mergItem.bocInfo = bocItemInfo
-                  const num = fixNumber(Number(tool.div(Number(bocItemInfo.use_amount || 0), Number(bocItemInfo.amount || 0))), 4)
-                  bocItemInfo.percent = Number(tool.times(num, 100))
-                  bocItemInfo.can_amount = Number(tool.minus(Number(bocItemInfo.amount || 0), Number(bocItemInfo.use_amount || 0)))
+            // boc数据
+            if (progressData[item.name] && Number(mergItem.amount)) {
+              const bocItem = cloneDeep(progressData[item.name])
+              if (bocItem.length > 0) {
+                const bocItemInfo = cloneDeep(bocItem[0])
+                mergItem.bocInfo = bocItemInfo
+                const num = fixNumber(Number(tool.div(Number(Number(bocItemInfo?.use_amount || 0)), Number(bocItemInfo?.amount || 0))), 4)
+                bocItemInfo.percent = Number(tool.times(num, 100))
+                bocItemInfo.can_amount = Number(tool.minus(Number(bocItemInfo.amount || 0), Number(bocItemInfo.use_amount || 0)))
 
-                  // 如果存在boc，更新vs数据
+                // 如果存在boc，更新vs数据
+                if (props.showProcess) {
                   mergItem.amount = Number(tool.minus(Number(mergItem.amount), Number(bocItemInfo.amount || 0)))
-                  mergItem.percent = Number(mergItem.amount) ? Number(tool.times(Number(tool.div(Number(mergItem.use_amount), Number(mergItem.amount))), 100)) : 0
+                  mergItem.percent = Number(mergItem.amount) ? Number(tool.times(Number(tool.div(Number(Number(mergItem?.use_amount || 0)), Number(mergItem.amount))), 100)) : 0
                 }
               }
             }
 
             return mergItem
           })
-          footerDataCol.value = footerData.filter(item => Number(item.amount))
+          footerDataCol.value = footerData.filter(item => (Number(item.amount) || item?.bocInfo?.amount))
         } else {
           footerDataCol.value = []
         }
 
         // 统计数据
-        statUseAmount.value = res.use_amount || 0
+        statUseAmount.value = Number(tool.plus(progressUseAmount, Number(res.use_amount || 0)))
       })
     } catch (err) {
       pageLoading.value = false
@@ -1080,68 +1222,81 @@
   const easyModel = ref(true)
 
   const buildAmount = ref(0)
-  const isVsl = ref(false)
 
-  // 请求项目信息
-  const getProjectData = async () => {
-    pageLoading.value = true
-    const params = {
-      uuid: uuid.value
+  // 处理footer 数据
+  const handleFooterData = (list) => {
+    const filterType = easyModel.value ? ['Land', 'Refinance', 'Land_gst'] : ['Land', 'Construction', 'Refinance', 'Land_gst']
+    const footerData = list.filter(item => !filterType.includes(item.type)) || []
+
+    // 找到footerData中type为Construction的item, 如果有则把他排到第一位，并且删除原来的Construction
+    const conItem = footerData.find(item => item.type === 'Construction')
+    if (conItem) {
+      footerData.unshift(conItem)
+      footerData.splice(footerData.lastIndexOf(conItem), 1)
     }
 
-    try {
-      const ajaxFn = isRequests.value ? projectAuditStepDetail : projectDetailApi
-      await ajaxFn(params).then(res => {
+    const dataArr = []
+    for (let i = 0; i < footerData.length; i++) {
+      const item = footerData[i]
 
-        if (isRequests.value) {
-          isVsl.value = String(res.base.productCode).toLowerCase() === 'vsl'
-        } else {
-          isVsl.value = String(res.product.code).toLowerCase() === 'vsl'
-        }
+      // 把大项也添加到数据中，兼容之前已经存在放款的情况
+      const canFlag = props.isSelect ? item.loan : item.total || Number(item.borrower_equity)
+      if (canFlag) {
+        dataArr.push(item)
+      }
 
-        emits('done', res)
-
-        const costModel = Boolean(res.lending.devCostDetail[0].model)
-        easyModel.value = costModel
-        const list = res.lending.devCostDetail[0].data[0].list
-        const filterType = costModel ? ['Land', 'Refinance', 'Land_gst'] : ['Land', 'Construction', 'Refinance', 'Land_gst']
-        const footerData = list.filter(item => !filterType.includes(item.type)) || []
-
-        // 找到footerData中type为Construction的item, 如果有则把他排到第一位，并且删除原来的Construction
-        const conItem = footerData.find(item => item.type === 'Construction')
-        if (conItem) {
-          footerData.unshift(conItem)
-          footerData.splice(footerData.lastIndexOf(conItem), 1)
-        }
-
-        const dataArr = []
-        for (let i = 0; i < footerData.length; i++) {
-          const item = footerData[i]
-
-          // 把大项也添加到数据中，兼容之前已经存在放款的情况
-          if (item.loan) {
-            dataArr.push(item)
-          }
-
-          if (item.list && item.list.length) {
-            for (let j = 0; j < item.list.length; j++) {
-              const listItem = item.list[j]
-              if (listItem.loan) {
-                listItem.name = `${item.name} [${listItem.type}]`
-                dataArr.push(listItem)
-              }
-            }
+      if (item.list && item.list.length) {
+        for (let j = 0; j < item.list.length; j++) {
+          const listItem = item.list[j]
+          const flag = props.isSelect ? listItem.loan : listItem.total || Number(listItem.borrower_equity)
+          if (flag) {
+            listItem.name = `${item.name} [${listItem.type}]`
+            dataArr.push(listItem)
           }
         }
-        footerDataCol.value = dataArr
+      }
+    }
 
-        const Construction = list.find(item => item.type === 'Construction')
-        buildAmount.value = Construction ? (Number(Construction.loan) || 0) : 0
-      })
+    footerDataCol.value = dataArr
+  }
+
+  // 请求项目信息
+  const getProjectData = async (flag = false) => {
+    if (props.projectDetail && Object.keys(props.projectDetail).length && !flag) {
+      pageLoading.value = true
+
+      const costModel = Boolean(props.projectDetail.devCostDetail[0].model)
+      easyModel.value = costModel
       
+      const list = props.projectDetail.devCostDetail[0].data[0].list
+
+      const Construction = list.find(item => item.type === 'Construction')
+      buildAmount.value = Construction ? (Number(Construction.loan) || 0) : 0
+
+      handleFooterData(list)
       await getSetedData()
-    } catch (err) {
-      pageLoading.value = false
+    } else {
+      pageLoading.value = true
+      const params = {
+        uuid: uuid.value
+      }
+
+      try {
+        await toolsDetail(params).then(res => {
+          const costModel = Boolean(res.devCostDetail[0].model)
+          easyModel.value = costModel
+
+          const list = res.devCostDetail[0].data[0].list
+          const Construction = list.find(item => item.type === 'Construction')
+          buildAmount.value = Construction ? (Number(Construction.loan) || 0) : 0
+          
+          handleFooterData(list)
+        })
+        
+        await getSetedData()
+      } catch (err) {
+        pageLoading.value = false
+      }
     }
   }
 
@@ -1516,21 +1671,16 @@
   }
 
   onMounted(async () => {
-    const { path, query } = route
-    if (['/requests/progress-payment'].includes(path) || path.indexOf('/process') > -1) {
-      isRequests.value = true
-    } else {
-      isRequests.value = false
-    }
+    const { query } = route
     uuid.value = query.uuid
-
-    if (props.excess) {
-      allowExcess.value = true
-    }
 
     if (uuid.value) {
       await getProjectData()
     }
+  })
+
+  defineExpose({
+    getProjectData
   })
 </script>
 
@@ -1605,6 +1755,9 @@
           border-top: 1px solid #272727;
           padding: 16px 5px;
         }
+      }
+      .boc-payment-col {
+        background-color: #fff1d6 !important;
       }
       .ant-table {
         background-color: transparent;
@@ -1689,6 +1842,10 @@
       &:nth-child(-n+5) {
         border-top: none;
       }
+      &:nth-child(6n),
+      &:last-child {
+        border-right: none;
+      }
       &.hover {
         cursor: pointer;
         transition: all 0.2s ease;
@@ -1758,6 +1915,11 @@
         color: #F19915;
         &:hover {
           color: #e08906;
+        }
+        &.boc {
+          position: relative;
+          top: 0;
+          right: 0;
         }
       }
     }
@@ -1953,6 +2115,19 @@
         padding: 10px 15px;
         font-weight: 500;
       }
+    }
+  }
+
+  .boc-info {
+    background-color: #fff1d6;
+    width: 100%;
+    max-width: 300px;
+    padding: 5px;
+    border: 1px solid #282828;
+    border-radius: 4px;
+    margin-top: 5px;
+    p {
+      font-size: 11px;
     }
   }
 </style>

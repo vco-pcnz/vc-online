@@ -2,9 +2,9 @@
   <div class="block-container">
     <basic-info :projectDetail="projectDetail" :current-id="currentId" @reload="reload"></basic-info>
 
-    <div class="block-item mt-10">
+    <div v-if="pageDone" class="block-item mt-10">
       <vco-process-title :title="t('开发成本')"></vco-process-title>
-      <DevCostDetail
+      <DevCostDetailComponent
         v-model:value="devCost"
         v-model:dataJson="devCostDetail"
         :current-id="currentId"
@@ -20,7 +20,7 @@
             <i v-else class="iconfont">&#xe753;</i>
           </a-button>
         </div>
-      </DevCostDetail>
+      </DevCostDetailComponent>
     </div>
     <div class="block-item mt-10">
       <GuarantorInfo :currentId="currentId" :guarantorInfo="guarantorInfo" @reload="reload"></GuarantorInfo>
@@ -62,25 +62,34 @@
       <security-view v-if="Boolean(projectDetail?.old.upd_sec)" class="mt-10"></security-view>
     </div>
 
-    <div class="block-item mt-10">
+    <div v-if="pageDone" class="block-item mt-10">
       <vco-process-title :title="t('进度付款')">
         <a-button type="primary" shape="round" class="uppercase" @click="openProgress(Boolean(projectDetail?.old.upd_build))">
           {{ t('编辑') }}
         </a-button>
       </vco-process-title>
-      <progress-view-content ref="progressViewRef" v-if="projectDetail?.loan_money" :is-block="true" :is-page="true" :projectDetail="projectDetail" class="mt-10"></progress-view-content>
+      <progress-view-content-component
+        ref="progressViewRef"
+        v-if="projectDetail?.loan_money"
+        :is-block="true"
+        :is-page="true"
+        :projectDetail="projectDetail"
+        class="mt-10"
+      ></progress-view-content-component>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import BasicInfo from './BasicInfo.vue';
 import GuarantorInfo from './GuarantorInfo.vue';
 import { message } from 'ant-design-vue/es';
 import DevCostDetail from './DevCostDetail.vue';
+import DevCostDetailVsl from './DevCostDetailVsl.vue';
 import ProgressViewContent from './ProgressViewContent.vue';
+import ProgressViewContentVsl from './ProgressViewContentVsl.vue';
 import SecurityView from './SecurityView.vue';
 import { navigationTo } from '@/utils/tool';
 import { cloneDeep } from 'lodash';
@@ -97,6 +106,11 @@ const props = defineProps({
 });
 
 const emits = defineEmits(['reload']);
+
+const isVsl = ref(false)
+const pageDone = ref(false)
+const DevCostDetailComponent = computed(() => isVsl.value ? DevCostDetailVsl : DevCostDetail);
+const ProgressViewContentComponent = computed(() => isVsl.value ? ProgressViewContentVsl : ProgressViewContent);
 
 const devCost = ref(0);
 const devCostDetail = ref([]);
@@ -148,6 +162,8 @@ const openProgress = (flag = false) => {
 const substitution_amount = ref()
 
 const dataInit = () => {
+  isVsl.value = String(props.projectDetail.product.code).toLowerCase() === 'vsl';
+
   devCost.value = props.projectDetail.devCost;
   devCostDetail.value = props.projectDetail.devCostDetail || [];
   loanMoney.value = Number(props.projectDetail.loan_money);
@@ -159,6 +175,8 @@ const dataInit = () => {
 
   securityInfo.value = cloneDeep(props.projectDetail.security);
   substitution_amount.value = props.projectDetail.substitution_amount;
+
+  pageDone.value = true
 };
 
 watch(

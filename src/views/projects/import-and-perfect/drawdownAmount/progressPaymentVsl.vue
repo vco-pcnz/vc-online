@@ -5,7 +5,7 @@
 
   <!-- boc放款选择 -->
   <a-modal :open="bocVisible" :title="t('进度付款阶段')" :width="1000" :footer="null" :keyboard="false" :maskClosable="false" class="middle-position" @cancel="bocVisible = false">
-    <boc-view-content v-if="bocVisible" :selected-data="bocSelectedData" :is-select="isEdit" @selectDone="bocSelectDoneHandle"></boc-view-content>
+    <boc-view-content v-if="bocVisible" :selected-data="bocSelectedData" :is-select="true" @selectDone="bocSelectDoneHandle"></boc-view-content>
   </a-modal>
 
   <div class="input-item" style="margin-top: 16px">
@@ -113,7 +113,7 @@ import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import ViewContent from '../components/ProgressViewContent.vue';
-import BocViewContent from '@/views/requests/progress-payment/components/BocViewContent.vue';
+import BocViewContent from '../components/BocViewContent.vue';
 import { cloneDeep } from 'lodash';
 const emits = defineEmits(['change']);
 const { t } = useI18n();

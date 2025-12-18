@@ -107,7 +107,7 @@
             </div>
           </template>
 
-          <div v-if="detail?.has_permission && (detail?.mark == 'repayment_lm' || detail?.mark == 'repayment_fc' || detail?.mark == 'repayment_lc' || detail?.mark == 'repayment_director' || detail?.mark == 'repayment_director_recon')" class="mt-4">
+          <div v-if="detail?.has_permission && (detail?.mark == 'repayment_lm' || detail?.mark == 'repayment_fc' || detail?.mark == 'repayment_lc' || detail?.mark == 'repayment_director')" class="mt-4">
             <p class="text-center color_grey fs_xs my-3">{{ t('您可以点击下面的按钮来拒绝还款请求。') }}</p>
             <div class="flex justify-center">
               <a-popconfirm :title="t('确定要拒绝该请求吗？')" @confirm="decline">

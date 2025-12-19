@@ -1,4 +1,5 @@
 <template>
+  <vco-product-tab></vco-product-tab>
   <div>
     <StatisticalBrief></StatisticalBrief>
     <CashflowForecast :showArrow="true"></CashflowForecast>
@@ -13,7 +14,6 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
 import StatisticalBrief from './components/StatisticalBrief.vue';
 import CashflowForecast from './components/CashflowForecast/index.vue';
 import Cashflow from './components/Cashflow.vue';
@@ -21,6 +21,7 @@ import transactions from './components/transactions.vue';
 import forecast from './components/forecast.vue';
 import Income from './components/Income.vue';
 import RegionalDistribution from './components/RegionalDistribution.vue';
+import ProductTab from '../projects/components/ProductTab.vue';
 </script>
 
 <style scoped lang="less">

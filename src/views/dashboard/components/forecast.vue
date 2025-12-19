@@ -44,14 +44,16 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { forecast, forecastExport } from '@/api/project/forecast';
 import dayjs from 'dayjs';
 import SearchContent from './SearchContent/index.vue';
+import useProductStore from '@/store/modules/product';
 
 const { t } = useI18n();
+const productStore = useProductStore();
 
 const data = ref();
 
@@ -59,13 +61,17 @@ const searchConfig = ref(['Time', 'Type']);
 const searchForm = ref({
   start_date: dayjs().add(-7, 'd').format('YYYY-MM-DD'),
   end_date: dayjs().format('YYYY-MM-DD'),
-  type: '2'
+  type: '2',
+  product_uuid: ''
 });
 
 const downloading = ref(false);
 const report = (uuid) => {
+  if (!productStore.currentProduct) return;
+  const params = { ...searchForm.value, lm_uuids: uuid, product_uuid: productStore.currentProduct };
+  searchForm.value = { ...params };
   downloading.value = !uuid;
-  forecastExport({ ...searchForm.value, lm_uuids: uuid })
+  forecastExport(params)
     .then((res) => {
       window.open(res);
     })
@@ -76,9 +82,11 @@ const report = (uuid) => {
 
 const loading = ref(false);
 const loadData = (val) => {
-  if (val) searchForm.value = { ...searchForm.value, ...val };
+  if (!productStore.currentProduct) return;
+  const params = { ...searchForm.value, ...(val || {}), product_uuid: productStore.currentProduct };
+  searchForm.value = { ...params };
   loading.value = true;
-  forecast(searchForm.value)
+  forecast(params)
     .then((res) => {
       data.value = res;
     })
@@ -87,9 +95,15 @@ const loadData = (val) => {
     });
 };
 
-onMounted(() => {
-  loadData();
-});
+watch(
+  () => productStore.currentProduct,
+  (val) => {
+    if (val) {
+      loadData();
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <style scoped lang="less">

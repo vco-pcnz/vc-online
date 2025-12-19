@@ -5,6 +5,7 @@ const useProductStore = defineStore('VcOnlineProductData', {
   state: () => ({
     productData: [],
     openProductData: [],
+    currentProduct: '',
   }),
 
   getters: {
@@ -19,6 +20,7 @@ const useProductStore = defineStore('VcOnlineProductData', {
         const data = res || []
         this.productData = data
         this.openProductData = data.filter(item => item.status)
+        this.currentProduct = this.openProductData[0].uuid
       })
     },
     getProductUuid(code) {

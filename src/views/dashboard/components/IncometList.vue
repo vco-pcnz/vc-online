@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-end title mt-10">
     <div class="flex-1 fs_2xl cursor-pointer" @click="navigationTo('/dashboard/profit')">{{ t('收入记录') }}</div>
-    <SearchContent v-model:value="searchForm" :searchConfig="searchConfig" downloadUrl="project/forecast/profitExport" @change="loadData"></SearchContent>
+    <SearchContent v-model:value="searchForm" :searchConfig="searchConfig" downloadUrl="project/forecast/profitExport" @change="searchHandle"></SearchContent>
   </div>
   <template v-if="data">
     <div class="row thead mt-10">
@@ -56,12 +56,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import dayjs from 'dayjs';
 import SearchContent from './SearchContent/index.vue';
 import { profitLog } from '@/api/project/forecast';
+import useProductStore from '@/store/modules/product';
 
 const emits = defineEmits(['change']);
 
@@ -74,10 +75,12 @@ const props = defineProps({
 const searchConfig = ref(['Time', 'LM', 'Project']);
 const searchForm = ref({
   start_date: dayjs().add(-7, 'd').format('YYYY-MM-DD'),
-  end_date: dayjs().format('YYYY-MM-DD')
+  end_date: dayjs().format('YYYY-MM-DD'),
+  product_uuid: ''
 });
 
 const { t } = useI18n();
+const productStore = useProductStore();
 
 const pagination = ref({
   page: 1,
@@ -93,9 +96,11 @@ const otherInfo = ref({
 });
 
 const loadData = (val) => {
+  if (!productStore.currentProduct) return;
   loading.value = true;
   if (val) searchForm.value = { ...searchForm.value, ...val };
-  profitLog({ ...searchForm.value, ...pagination.value })
+  const params = { ...searchForm.value, ...pagination.value, product_uuid: productStore.currentProduct };
+  profitLog(params)
     .then((res) => {
       total.value = res.count;
       data.value = res.data;
@@ -114,9 +119,10 @@ const setPaginate = (page, limit) => {
   loadData();
 };
 
-onMounted(() => {
-  loadData();
-});
+const searchHandle = (val) => {
+  pagination.value.page = 1;
+  loadData(val);
+};
 </script>
 <style lang="less" scoped>
 .footer {

@@ -41,20 +41,23 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import dayjs from 'dayjs';
 import ForecastList from './CashflowForecast/ForecastList.vue';
 import SearchContent from './SearchContent/index.vue';
 import { cashFlowList } from '@/api/project/forecast';
+import useProductStore from '@/store/modules/product';
 
 const { t } = useI18n();
+const productStore = useProductStore();
 
-const searchConfig = ref(['Time','Project','State']);
+const searchConfig = ref(['Time', 'Project', 'State']);
 const searchForm = ref({
   start_date: dayjs().add(-7, 'd').format('YYYY-MM-DD'),
-  end_date: dayjs().format('YYYY-MM-DD')
+  end_date: dayjs().format('YYYY-MM-DD'),
+  product_uuid: ''
 });
 
 const loading = ref(false);
@@ -67,9 +70,11 @@ const pagination = ref({
 
 const data = ref({});
 const loadData = (val) => {
+  if (!productStore.currentProduct) return;
   loading.value = true;
   if (val) searchForm.value = { ...searchForm.value, ...val };
-  cashFlowList({ ...searchForm.value, ...pagination.value })
+  const params = { ...searchForm.value, ...pagination.value, product_uuid: productStore.currentProduct };
+  cashFlowList(params)
     .then((res) => {
       total.value = res.count;
       data.value = res.data;
@@ -81,11 +86,23 @@ const loadData = (val) => {
 
 const setPage = (val) => {
   pagination.value = val;
-  loadData(pagination);
+  loadData();
 };
 onMounted(() => {
   loadData();
 });
+
+watch(
+  () => productStore.currentProduct,
+  (val) => {
+    if (val) {
+      searchForm.value.product_uuid = val;
+      pagination.value.page = 1;
+      loadData();
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <style scoped lang="less">

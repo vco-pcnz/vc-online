@@ -1,7 +1,7 @@
 <template>
   <DetailLayout :title="t('项目')" active-tab="projects"></DetailLayout>
 
-  <product-tab v-model:current="pageStore.product_uuid" @change="tabChange">
+  <vco-product-tab v-model:current="pageStore.product_uuid" @change="tabChange">
     <div class="flex justify-end flex-1">
       <vco-popconfirm v-if="hasPermission('Investment:unbindProject')" :formParams="{ id: invest_id, uuids: selectKeys }" url="invest/unbindProject" :disabled="!selectKeys.length" :tip="t('确定取消绑定选中的项目吗？')" @update="update()">
         <a-button type="cyan" :disabled="!selectKeys.length" class="mr-3" shape="round">{{ t('取消绑定项目') }}</a-button>
@@ -9,7 +9,7 @@
 
       <a-button v-if="hasPermission('Investment:bindObject')" type="cyan" shape="round" @click="setOpenProjects(true)">{{ t('绑定项目') }}</a-button>
     </div>
-  </product-tab>
+  </vco-product-tab>
   <vco-page-tab class="mt-5" :tabData="tabData" v-model:current="pageStore.sta" @change="tabChange"></vco-page-tab>
 
   <TableSearch class="mb-5" ref="tableSearchRef" :type="pageStore.sta == 1 ? 'open' : 'closed'"></TableSearch>
@@ -40,7 +40,6 @@ import { useI18n } from 'vue-i18n';
 import TableSearch from './TableSearch.vue';
 import TableBlock from './TableBlock.vue';
 import { useInvestment_project } from '@/store';
-import ProductTab from '@/views/projects/components/ProductTab.vue';
 import { investBindData } from '@/api/invest';
 import { useRoute } from 'vue-router';
 import BindLone from './BindLone.vue';

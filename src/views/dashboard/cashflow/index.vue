@@ -1,4 +1,5 @@
 <template>
+  <vco-product-tab></vco-product-tab>
   <div>
     <CashflowForecast></CashflowForecast>
     <Cashflow></Cashflow>

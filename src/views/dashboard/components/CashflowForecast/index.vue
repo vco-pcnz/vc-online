@@ -97,7 +97,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool, { goBack, navigationTo } from '@/utils/tool';
 import dayjs from 'dayjs';
@@ -109,8 +109,10 @@ import LineLabel from './line-label.vue';
 import { useUserStore } from '@/store';
 import SearchContent from '../SearchContent/index.vue';
 import CashFlowForecastExportModal from './cashFlowForecastExport.vue';
+import useProductStore from '@/store/modules/product';
 
 const { t } = useI18n();
+const productStore = useProductStore();
 
 const props = defineProps({
   showArrow: {
@@ -188,7 +190,8 @@ const toDay = ref(dayjs().format('YYYY-MM-DD'));
 const searchConfig = ref(['Date', 'State', 'LM', 'Project']);
 const searchForm = ref({
   date: dayjs().format('YYYY-MM-DD'),
-  search: 'open' //approve
+  search: 'open', //approve
+  product_uuid: ''
 });
 
 const isAllElementsEqual = ref(false);
@@ -208,11 +211,13 @@ const areAllElementsEqual = (arr) => {
 };
 
 const loadData = (val) => {
+  if (!productStore.currentProduct) return;
   loading.value = true;
   // if (toDay.value !== searchForm.value.date) searchForm.apply_project_id = '';
 
-  if (val) searchForm.value = { ...searchForm.value, ...val };
-  cashFlowForecast(searchForm.value)
+  const nextSearch = { ...searchForm.value, ...(val || {}), product_uuid: productStore.currentProduct };
+  searchForm.value = nextSearch;
+  cashFlowForecast(nextSearch)
     .then((res) => {
       // res = {
       //   available_fund: '691321894.17',
@@ -419,9 +424,15 @@ const setBarHeight = (index) => {
   let all = Math.abs(data.value.data[0].data[dates.value[index]]) + Math.abs(data.value.data[1].data[dates.value[index]]);
   return (Math.abs(data.value.data[0].data[dates.value[index]]) / all) * 100 + '%';
 };
-onMounted(() => {
-  loadData();
-});
+watch(
+  () => productStore.currentProduct,
+  (val) => {
+    if (val) {
+      // loadData();
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <style scoped lang="less">

@@ -38,20 +38,27 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ChartOne from './ChartOne.vue';
 import ChartTwo from './ChartTwo.vue';
 import { dashboard } from '@/api/home/index';
 import { hasPermission } from '@/directives/permission/index';
+import useProductStore from '@/store/modules/product';
 const { t } = useI18n();
 
 const loading = ref(false);
 const data = ref({});
+const productStore = useProductStore();
 
 const loadData = (val) => {
+  if (!productStore.currentProduct) return;
+  const params = { product_uuid: productStore.currentProduct };
+  if (val !== undefined) {
+    params.upd = val;
+  }
   loading.value = true;
-  dashboard({ upd: val })
+  dashboard(params)
     .then((res) => {
       data.value = res;
     })
@@ -60,9 +67,15 @@ const loadData = (val) => {
     });
 };
 
-onMounted(() => {
-  loadData();
-});
+watch(
+  () => productStore.currentProduct,
+  (val) => {
+    if (val) {
+      loadData();
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <style lang="less" scoped>

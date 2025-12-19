@@ -76,27 +76,31 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import SearchContent from './SearchContent/index.vue';
 import dayjs from 'dayjs';
 import { forecastBrief } from '@/api/project/forecast';
-
+import useProductStore from '@/store/modules/product';
 import tool from '@/utils/tool';
 
 const { t } = useI18n();
+const productStore = useProductStore();
 
 const searchConfig = ref(['Time', 'LM', 'State']);
 const searchForm = ref({
   start_date: dayjs().add(-7, 'd').format('YYYY-MM-DD'),
-  end_date: dayjs().format('YYYY-MM-DD')
+  end_date: dayjs().format('YYYY-MM-DD'),
+  product_uuid: ''
 });
 
 const data = ref(null);
 const loading = ref(false);
 const loadData = (val) => {
-  let params = searchForm.value;
-  if (val) params = { ...searchForm.value, ...val };
+  if (!productStore.currentProduct) return;
+  let params = { ...searchForm.value, product_uuid: productStore.currentProduct };
+  if (val) params = { ...params, ...val };
+  searchForm.value = { ...params };
   loading.value = true;
   forecastBrief(params)
     .then((res) => {
@@ -107,9 +111,15 @@ const loadData = (val) => {
     });
 };
 
-onMounted(() => {
-  loadData();
-});
+watch(
+  () => productStore.currentProduct,
+  (val) => {
+    if (val) {
+      loadData();
+    }
+  },
+  { immediate: true }
+);
 </script>
 <style lang="less" scoped>
 .list {

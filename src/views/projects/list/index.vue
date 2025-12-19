@@ -1,5 +1,5 @@
 <template>
-  <product-tab v-model:current="pageStore.product_uuid" @change="tabChange">
+  <vco-product-tab v-model:current="pageStore.product_uuid" @change="tabChange">
     <div style="flex: 1"></div>
     <div class="flex">
       <a-button type="cyan" size="small" class="ml-3" shape="round" @click="buildProgressReport" :loading="buildProgressDownloading" v-if="hasPermission('projects:buildProgress:download')">{{ t('建筑进度') }}</a-button>
@@ -7,7 +7,7 @@
       <DateExport :sta="pageStore.sta" :searchParams="pageStore.searchParams" v-if="hasPermission('projects:list:export')"></DateExport>
       <a-button type="cyan" size="small" class="ml-3" shape="round" @click="report" :loading="downloading" v-if="hasPermission('projects:newLoan:download')">{{ t('新开贷款') }}</a-button>
     </div>
-  </product-tab>
+  </vco-product-tab>
   <vco-page-tab class="mt-5" :tabData="tabData" v-model:current="pageStore.sta" @change="tabChange"></vco-page-tab>
 
   <TableSearch class="mb-5" ref="tableSearchRef" :type="pageStore.sta == 1 ? 'open' : 'closed'"></TableSearch>
@@ -40,7 +40,6 @@ import TableBlock from '../components/TableBlock.vue';
 import TableBlockVip from '../components/TableBlockVip.vue';
 import { useProjectsStore, useUserStore } from '@/store';
 import { hasPermission } from '@/directives/permission/index';
-import ProductTab from './../components/ProductTab.vue';
 import { downGs, buildProgressIndex } from '@/api/project/project';
 import DateExport from './components/DateExport.vue';
 import ScheduleExport from './components/ScheduleExport.vue';

@@ -45,7 +45,7 @@
 import { ref, onMounted, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { forecastProjectList } from '@/api/project/forecast';
-import { cloneDeep } from 'lodash';
+import useProductStore from '@/store/modules/product';
 
 const { t } = useI18n();
 
@@ -91,9 +91,19 @@ const onSelect = (val) => {
   emits('change', { project_uuids: select.value.join() });
 };
 
+const productStore = useProductStore();
+const productUuid = computed(() => productStore.currentProduct);
+
 const loadData = () => {
   loading.value = true;
-  forecastProjectList({ ...pagination.value, ...searchForm.value, ...params.value })
+  const requestParams = {
+    ...pagination.value,
+    ...searchForm.value,
+    ...props.params,
+    product_uuid: productUuid.value
+  };
+
+  forecastProjectList(requestParams)
     .then((res) => {
       data.value = res.data;
       total.value = res.count;
@@ -136,6 +146,19 @@ watch(
   }
 );
 
+watch(
+  () => productUuid.value,
+  (val) => {
+    if (!val) return;
+    pagination.value.page = 1;
+    select.value = [];
+    checkedAll.value = true;
+    update();
+    loadData();
+  },
+  { immediate: true }
+);
+
 const params = ref({
   lm_uuids: '',
   search: ''
@@ -145,6 +168,8 @@ const init = (val) => {
   pagination.value.page = 1;
   select.value = [];
   params.value = val;
+  checkedAll.value = true;
+  update();
   loadData();
 };
 

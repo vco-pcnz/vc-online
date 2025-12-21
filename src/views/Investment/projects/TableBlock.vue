@@ -252,6 +252,10 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
+  keys: {
+    type: Array,
+    default: () => []
+  },
   type: {
     type: String,
     default: 'current'
@@ -405,6 +409,22 @@ watch(
   {
     immediate: true
   }
+);
+
+// 同步父组件传入的选中项，确保清空时表格勾选样式更新
+watch(
+  () => props.keys,
+  (val) => {
+    selectedRowKeys.value = Array.isArray(val) ? [...val] : [];
+    // 同步已选行数据（基于当前数据源）
+    if (selectedRowKeys.value.length && props.tableData?.length) {
+      const map = new Map(props.tableData.map((item) => [item.uuid, item]));
+      selectedRows.value = selectedRowKeys.value.map((id) => map.get(id)).filter(Boolean);
+    } else {
+      selectedRows.value = [];
+    }
+  },
+  { immediate: true, deep: true }
 );
 </script>
 

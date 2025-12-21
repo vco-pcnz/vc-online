@@ -41,7 +41,7 @@
       />
     </div>
   </a-spin>
-  <BindLone v-model:visible="open_projects" :selectedData="bindData" :id="invest_id" @update="update" />
+  <BindLone v-model:visible="open_projects" :selectedData="bindData" :id="invest_id" @update="handleBindLoneChange" />
 </template>
 
 <script setup name="Projects">
@@ -55,6 +55,7 @@ import { useRoute } from 'vue-router';
 import BindLone from './BindLone.vue';
 import DetailLayout from '../components/detailLayout.vue';
 import { hasPermission } from '@/directives/permission/index';
+import { message } from 'ant-design-vue';
 
 const route = useRoute();
 
@@ -104,6 +105,12 @@ const handleImportLoading = (val) => {
 const handleImportChange = () => {
   uploadLoading.value = false;
   update();
+  message.success(t('操作成功'));
+};
+
+const handleBindLoneChange = () => {
+  message.success(t('操作成功'));
+  update();
 };
 
 const bindData = ref([]);
@@ -112,6 +119,8 @@ const loadInvestBindData = () => {
     bindData.value = res.projects;
   });
 };
+
+
 
 const update = () => {
   // 清空表格勾选后再刷新数据

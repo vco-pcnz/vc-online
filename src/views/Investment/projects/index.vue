@@ -11,7 +11,7 @@
       <vco-import
         v-if="hasPermission('Investment:bindObject')"
         type="project"
-        accept=".xls, .xlsb, .xlsx, .csv, .doc, .docx"
+        accept=".xls, .xlsx, .csv"
         :params="{ id: invest_id }"
         imporUrl="/invest/bindProjectImport"
         @change="handleImportChange"

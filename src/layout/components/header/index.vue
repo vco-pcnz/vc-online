@@ -16,7 +16,7 @@
             <template #overlay>
               <a-menu style="margin-left: -8px; margin-top: 15px">
                 <a-menu-item>
-                  <a class="fs_sm" @click="navigationTo('/dashboard/cashflow')">Cashflow </a>
+                  <a class="fs_sm" @click="navigationTo('/dashboard/cashflow')">Cashflow</a>
                 </a-menu-item>
                 <a-menu-item>
                   <a class="fs_sm" @click="navigationTo('/dashboard/income')">{{ t('收入') }}</a>
@@ -40,7 +40,7 @@
               </a-space>
               <div v-if="userInfo?.roles && !isNormalUser">
                 <template v-for="(item, index) in userInfo?.roles.split('/')" :key="item">
-                  <a-tag color="orange" :title="userInfo?.full_roles[index]" @click="toLoans(item)">{{ item }}</a-tag>
+                  <a-tag color="orange" :title="userInfo?.roles[index]" @click="toLoans(item)">{{ item }}</a-tag>
                 </template>
               </div>
             </div>
@@ -52,7 +52,7 @@
           </a>
           <template #overlay>
             <a-menu>
-              <a-menu-item v-if="hasPermission('profile:apply:broker') && userInfo?.roles === 'Vip'">
+              <a-menu-item v-if="hasPermission('profile:apply:broker') && userInfo?.roles === 'user'">
                 <ApplyBroker v-if="!applyBrokerData">
                   <div class="user-hanle-item">{{ t('申请中介') }}</div>
                 </ApplyBroker>
@@ -110,7 +110,7 @@ const menuData = computed(() => {
     .map((item) => {
       return {
         title: item.meta.title,
-        path: item.path
+        path: item.path,
       };
     });
   return resData;
@@ -148,7 +148,7 @@ const isUserActive = () => {
 
 const menuItem = [
   { label: t('编辑详情'), key: 'edit-profile', to: '/profile/about' },
-  { label: t('修改密码'), key: 'change-pwd', to: '/profile/safe' }
+  { label: t('修改密码'), key: 'change-pwd', to: '/profile/safe' },
 ];
 
 const goTo = (path) => {
@@ -168,9 +168,9 @@ const LoadApplyBrokerDetail = () => {
 
 const toLoans = (val) => {
   window.close();
-  if (val === 'Funding Partner') {
+  if (val === 'investor') {
     navigationTo('/investor/projects', true);
-  } else if (val === 'Primary') {
+  } else if (val === 'umbrella') {
     navigationTo('/umbrella/requests/loan', true);
   } else {
     navigationTo('/', true);

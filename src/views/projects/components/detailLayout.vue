@@ -62,7 +62,7 @@ const panes = computed(() => {
       return {
         title: title,
         path: item.path,
-        key: item.path.slice(item.path.lastIndexOf('/') + 1)
+        key: item.path.slice(item.path.lastIndexOf('/') + 1),
       };
     });
   hasImportAndPerfect.value = child.find((item) => item.path === mode + '/projects/import-and-perfect') ? true : false;
@@ -102,7 +102,7 @@ const getProjectDetail = (userId) => {
     projectDetail({ uuid }).then((res) => {
       res['loan'] = res.date;
       detail.value = res;
-      if (pageRole.value == 'Umbrella' || userStore.userInfo.roles === 'Guest') {
+      if (pageRole.value == 'Umbrella' || userStore.userInfo.roles === 'guest') {
         res.base.is_close = 1;
       }
       emits('getProjectDetail', res);
@@ -116,7 +116,7 @@ onMounted(() => {
 
 // 暴露方法给父组件
 defineExpose({
-  getProjectDetail
+  getProjectDetail,
 });
 
 const pageTitle = ref('');
@@ -132,7 +132,7 @@ watch(
     }
   },
   {
-    immediate: true
+    immediate: true,
   }
 );
 </script>

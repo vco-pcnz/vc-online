@@ -2,7 +2,9 @@
   <vco-page-panel @back="back">
     <template #title>
       <div class="page-title-content">
-        <div v-if="detail?.base?.project_apply_sn" class="tag">{{ (detail?.product?.name ? detail?.product?.name + ' - ' : '') + detail?.borrower?.organization_name || detail?.base?.project_apply_sn }}</div>
+        <div v-if="detail?.base?.project_apply_sn" class="tag">
+          {{ (detail?.product?.name ? detail?.product?.name + ' - ' : '') + detail?.borrower?.organization_name || detail?.base?.project_apply_sn }}
+        </div>
         <div class="tag uppercase">{{ t('变更1') }}</div>
       </div>
     </template>
@@ -54,7 +56,7 @@ const panes = computed(() => {
       return {
         title: t(item.meta.title),
         path: item.path,
-        key: item.path.slice(item.path.lastIndexOf('/') + 1)
+        key: item.path.slice(item.path.lastIndexOf('/') + 1),
       };
     });
   return arr;
@@ -74,7 +76,7 @@ const getProjectDetail = async (userId) => {
 
   const variationInfo = await projectVariationInfo({
     uuid: route.query.uuid,
-    id: route.query.id
+    id: route.query.id,
   });
 
   if (uuid) {
@@ -82,7 +84,7 @@ const getProjectDetail = async (userId) => {
     projectDetail({ uuid }).then((res) => {
       res['loan'] = res.date;
       res['variationInfo'] = variationInfo;
-      if (pageRole.value == 'Umbrella' || userStore.userInfo.roles === 'Guest') {
+      if (pageRole.value == 'Umbrella' || userStore.userInfo.roles === 'guest') {
         res.base.is_close = 1;
       }
       detail.value = res;
@@ -97,7 +99,7 @@ onMounted(() => {
 
 // 暴露方法给父组件
 defineExpose({
-  getProjectDetail
+  getProjectDetail,
 });
 </script>
 

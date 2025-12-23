@@ -17,6 +17,8 @@ import TableSearch from './TableSearch.vue';
 import { useRoute } from 'vue-router';
 import { useUserStore } from '@/store';
 import { requestNum } from '@/api/project/loanRequests';
+import useProductStore from '@/store/modules/product';
+const productStore = useProductStore();
 
 const { t } = useI18n();
 const props = defineProps({
@@ -289,16 +291,29 @@ onMounted(() => {
   });
 });
 
+const loadData = () => {
+  let params = { sta: currentTab.value, ...searchOldData.value, ...props.params, product_uuid: productStore.currentProduct };
+  if (currentTab.value !== '1') {
+    params['state'] = '';
+  }
+  emits('search', params);
+};
+
 watch(
   () => currentTab.value,
   (val) => {
-    let params = { sta: currentTab.value, ...searchOldData.value, ...props.params };
-    if (currentTab.value !== '1') {
-      params['state'] = '';
-    }
-    emits('search', params);
+    loadData();
   },
-  { deep: true, immediate: true }
+  { deep: true }
+);
+watch(
+  () => productStore.currentProduct,
+  (val) => {
+    if (val) {
+      loadData();
+    }
+  },
+  { immediate: true }
 );
 </script>
 

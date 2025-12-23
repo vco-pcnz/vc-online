@@ -32,6 +32,8 @@ import TableSearch from './TableSearch.vue';
 import { useUserStore } from '@/store';
 import { hasPermission } from '@/directives/permission/index';
 import { cloneDeep } from 'lodash';
+import useProductStore from '@/store/modules/product';
+const productStore = useProductStore();
 const { t } = useI18n();
 
 const emits = defineEmits(['search']);
@@ -118,6 +120,7 @@ watch(
 watch(
   () => searchForm.value,
   (val) => {
+    if(!productStore.currentProduct) return;
     let updateData = cloneDeep(searchForm.value);
     if (searchForm.value.module === 'other') {
       Object.assign(updateData, {
@@ -136,6 +139,15 @@ watch(
     emits('search', updateData);
   },
   { deep: true }
+);
+
+watch(
+  () => productStore.currentProduct,
+  (val) => {
+    if (val) {
+      searchForm.value.product_uuid = productStore.currentProduct;
+    }
+  },{immediate: true}
 );
 </script>
 

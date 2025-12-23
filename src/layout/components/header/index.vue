@@ -1,6 +1,16 @@
 <template>
   <div class="layout_header">
-    <div class="header_title">VC Online</div>
+    <div class="title_with_product">
+      <div class="header_title">VC Online</div>
+      <a-select
+        v-model:value="currentProduct"
+        size="small"
+        class="product-select"
+        :options="productOptions"
+        :placeholder="t('选择产品')"
+        :dropdownMatchSelectWidth="false"
+      />
+    </div>
     <div class="header_container">
       <div class="menu_content">
         <router-link v-for="link in menuData" :key="link.path" :to="link.path" class="link" :class="{ link_active: isActive(link.path) }">
@@ -75,7 +85,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { cloneDeep } from 'lodash';
 import LanguageSelect from '@/components/language-select/index.vue';
@@ -88,6 +98,7 @@ import ApplyBroker from '@/views/profile/apply-broker/form.vue';
 import ApplyBrokerDetail from '@/views/profile/apply-broker/detail.vue';
 import { applyBrokerDetail } from '@/api/tasks';
 import { DownOutlined } from '@ant-design/icons-vue';
+import useProductStore from '@/store/modules/product';
 
 const pageRole = computed(() => useUserStore().pageRole);
 
@@ -101,6 +112,14 @@ const taskInfo = computed(() => userStore.taskInfo);
 const isNormalUser = computed(() => userStore.isNormalUser);
 
 const noticeStore = useNoticeStore();
+const productStore = useProductStore();
+const productOptions = computed(() => productStore.openProductData.map((item) => ({ label: item.name, value: item.uuid })) || []);
+const currentProduct = computed({
+  get: () => productStore.currentProduct,
+  set: (val) => {
+    productStore.currentProduct = val || '';
+  }
+});
 
 const menuData = computed(() => {
   const data = userStore.routerInfo || [];
@@ -190,6 +209,18 @@ const handleClick = (path) => {
   }
 };
 
+watch(
+  () => productStore.openProductData,
+  (val) => {
+    if (val && val.length && !productStore.currentProduct) {
+      productStore.currentProduct = val[0].uuid;
+    } else if ((!val || !val.length) && productStore.currentProduct) {
+      productStore.currentProduct = '';
+    }
+  },
+  { deep: true, immediate: true }
+);
+
 // 组件挂载时启动定时器
 onMounted(() => {
   systemConfigData({ pcode: 'web_config', code: 'notes_interval_time' }).then((res) => {
@@ -218,6 +249,12 @@ onUnmounted(() => {
   justify-content: space-between;
   padding: 0 30px;
   height: 72px;
+
+  .title_with_product {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
 
   .header_title {
     white-space: nowrap;
@@ -314,5 +351,19 @@ onUnmounted(() => {
 
 .router-name {
   line-height: 2;
+}
+
+.product-select {
+  width: 80px;
+  :deep(.ant-select-selector) {
+    border: none !important;
+    box-shadow: none !important;
+  }
+  :deep(.ant-select-selector:hover),
+  :deep(.ant-select-selector:focus),
+  :deep(.ant-select-focused .ant-select-selector) {
+    border: none !important;
+    box-shadow: none !important;
+  }
 }
 </style>

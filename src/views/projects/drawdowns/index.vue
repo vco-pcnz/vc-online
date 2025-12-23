@@ -2,7 +2,7 @@
   <detail-layout ref="detailLayoutRef" active-tab="drawdowns" @getProjectDetail="getProjectDetail">
     <template #content>
       <div class="ProjectDrawdowns">
-        <div class="flex justify-end mb-5 gap-4">
+        <div class="flex justify-end mb-5 gap-4" v-if="projectDetail.product.code !== 'lendr'">
           <a-button v-if="showProcessEdit" type="brown" shape="round" class="pre-sale-enter" @click="navigationTo(`/projects/progress-payment/edit?uuid=${uuid}`)">
             {{ t('编辑进度付款') }}
             <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px' }" />
@@ -26,6 +26,11 @@
                 <drawdown-request-vsl :uuid="uuid" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update(true)">
                   <a-button type="brown" shape="round" size="small">{{ t('创建放款') }}</a-button>
                 </drawdown-request-vsl>
+              </template>
+              <template v-else-if="projectDetail.product.code === 'lendr'">
+                <drawdown-request-lendr :uuid="uuid" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update(true)">
+                  <a-button type="brown" shape="round" size="small">{{ t('创建放款') }}</a-button>
+                </drawdown-request-lendr>
               </template>
               <template v-else>
                 <drawdown-request :uuid="uuid" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update(true)">
@@ -73,6 +78,7 @@ import TableBlock from './components/TableBlock.vue';
 import Detail from './components/Detail.vue';
 import DrawdownRequest from './components/form/DrawdownRequest.vue';
 import DrawdownRequestVsl from './components/form/DrawdownRequestVsl.vue';
+import DrawdownRequestLendr from './components/form/DrawdownRequestLendr.vue';
 import { hasPermission } from '@/directives/permission/index';
 import { loanDrawdown } from '@/api/project/loan';
 import { useRoute } from 'vue-router';

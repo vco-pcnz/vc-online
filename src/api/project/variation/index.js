@@ -139,7 +139,7 @@ export const projectVariationSecurityList = (params) =>
 // 变更流程 - BOC建立费计算
 export const projectVariationEstablishCalculate = (data) =>
   request({
-    url: 'project/variation/establishCalculate?',
+    url: 'project/variation/establishCalculate',
     method: 'post',
     data
   });
@@ -147,7 +147,7 @@ export const projectVariationEstablishCalculate = (data) =>
 // 变更流程 - VCL建立费计算
 export const projectVariationEstabCalc = (data) =>
   request({
-    url: 'project/variation/estabCalc?',
+    url: 'project/variation/estabCalc',
     method: 'post',
     data
   });

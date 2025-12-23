@@ -31,13 +31,15 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted,watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import layout from '../components/layout.vue';
 import { cloneDeep } from 'lodash';
 import tool from '@/utils/tool.js';
 import { getTransactions, removeTransactions } from '@/api/reconciliations';
 import TableSearch from './TableSearch.vue';
+import useProductStore from '@/store/modules/product';   
+const productStore = useProductStore();
 
 const { t } = useI18n();
 
@@ -178,7 +180,7 @@ const setPaginate = (page, limit) => {
 
 const loadData = () => {
   loading.value = true;
-  getTransactions({ ...pagination.value, ...searchParams.value })
+  getTransactions({ ...pagination.value, ...searchParams.value, product_uuid: productStore.currentProduct })
     .then((res) => {
       total.value = res.count;
       dataSource.value = res.data;
@@ -202,6 +204,15 @@ const search = (val) => {
 onMounted(() => {
   loadData();
 });
+
+watch(
+  () => productStore.currentProduct,
+  (val) => {
+    if (val) {
+      loadData();
+    }
+  }
+);
 </script>
 
 <style scoped lang="less">

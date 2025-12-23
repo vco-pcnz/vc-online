@@ -19,19 +19,20 @@ export const stakeSelStake = (params = {}) =>
 // 字典
 export const systemDictData = (code) =>
   request({
-    url: '/system/dictData/getDictByCode?code=' + code,
-    method: 'get'
+    url: '/system/dictData/getDictByCode',
+    method: 'get',
+    params: { code: code }
   });
 
 // 字典
 export const systemDictDataApi = (params) =>
   request({
-    url: "/system/dictData/getDictByCode",
-    method: "get",
+    url: '/system/dictData/getDictByCode',
+    method: 'get',
     params
   });
 
-// 
+//
 export const systemConfigData = (params) =>
   request({
     url: 'system/configData/getConfigByCode',
@@ -86,7 +87,6 @@ export const versionList = (params) =>
     method: 'get',
     params
   });
-
 
 // 获取系统公共信息
 export const pub = (params) =>

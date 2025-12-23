@@ -36,6 +36,7 @@ import VcoTip from './vco-tip/index.vue';
 import VcoSharedSecurities from './vco-shared-securities/index.vue';
 import VcoImport from './vco-import/index.vue';
 import VcoExcessProcess from './vco-excess-process/index.vue';
+import VcoProductTab from './vco-product-tab/index.vue';
 
 export default {
   install(Vue) {
@@ -77,5 +78,6 @@ export default {
     Vue.component('VcoSharedSecurities', VcoSharedSecurities);
     Vue.component('VcoImport', VcoImport);
     Vue.component('VcoExcessProcess', VcoExcessProcess);
+    Vue.component('VcoProductTab', VcoProductTab);
   }
 };

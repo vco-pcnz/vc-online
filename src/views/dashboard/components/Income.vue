@@ -20,15 +20,17 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool, { goBack, navigationTo } from '@/utils/tool';
 import SearchContent from './SearchContent/index.vue';
 import dayjs from 'dayjs';
 import { profitSta, profitUpd } from '@/api/project/forecast';
 import { cloneDeep } from 'lodash';
+import useProductStore from '@/store/modules/product';
 
 const { t } = useI18n();
+const productStore = useProductStore();
 
 const props = defineProps({
   showArrow: {
@@ -43,7 +45,8 @@ const searchConfig = ref(['Time', 'LM', 'Project']);
 const searchForm = ref({
   start_date: dayjs().add(-7, 'd').format('YYYY-MM-DD'),
   end_date: dayjs().format('YYYY-MM-DD'),
-  search: 'open' //approve
+  search: 'open', //approve
+  product_uuid: ''
 });
 
 const option = ref({
@@ -75,7 +78,7 @@ const option = ref({
       type: 'shadow'
     },
     formatter: function (params) {
-      console.log(params);
+      // console.log(params);
       // 定义 tooltip 的 HTML 样式
 
       const bodyStyle = 'font-family: Aeonik, Arial, Helvetica, sans-serif;';
@@ -99,8 +102,9 @@ const option = ref({
 });
 
 const loadData = (val) => {
-  let params = searchForm.value;
-  if (val) params = { ...searchForm.value, ...val };
+  if (!productStore.currentProduct) return;
+  const params = { ...searchForm.value, ...(val || {}), product_uuid: productStore.currentProduct };
+  searchForm.value = { ...params };
   loading.value = true;
   profitSta(params)
     .then((res) => {
@@ -131,8 +135,9 @@ const loadData = (val) => {
 const updateTime = ref('');
 const updateLoading = ref(false);
 const update = () => {
+  if (!productStore.currentProduct) return;
   updateLoading.value = true;
-  profitUpd()
+  profitUpd({ product_uuid: productStore.currentProduct })
     .then((res) => {
       loadData();
     })
@@ -141,9 +146,15 @@ const update = () => {
     });
 };
 
-onMounted(() => {
-  loadData();
-});
+watch(
+  () => productStore.currentProduct,
+  (val) => {
+    if (val) {
+      // loadData();
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <style scoped lang="less">

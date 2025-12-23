@@ -16,10 +16,10 @@
             <template #overlay>
               <a-menu style="margin-left: -8px; margin-top: 15px">
                 <a-menu-item>
-                  <a class="fs_sm" href="/dashboard/cashflow">Cashflow </a>
+                  <a class="fs_sm" @click="navigationTo('/dashboard/cashflow')">Cashflow </a>
                 </a-menu-item>
                 <a-menu-item>
-                  <a class="fs_sm" href="/dashboard/income">{{ t('收入') }}</a>
+                  <a class="fs_sm" @click="navigationTo('/dashboard/income')">{{ t('收入') }}</a>
                 </a-menu-item>
               </a-menu>
             </template>
@@ -88,7 +88,6 @@ import ApplyBroker from '@/views/profile/apply-broker/form.vue';
 import ApplyBrokerDetail from '@/views/profile/apply-broker/detail.vue';
 import { applyBrokerDetail } from '@/api/tasks';
 import { DownOutlined } from '@ant-design/icons-vue';
-import { name } from 'dayjs/locale/en';
 
 const pageRole = computed(() => useUserStore().pageRole);
 

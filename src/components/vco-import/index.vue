@@ -160,9 +160,11 @@ const handleChange = (info) => {
       handlePathChange();
     } else {
       message.error(`${info.file.response.msg}` || ` ${t('上传失败')}.`);
+      updateUploading(false);
     }
   } else if (info.file.status === 'error') {
     message.error(`${info.file.name} ${t('上传失败')}.`);
+    updateUploading(false);
   }
 };
 

@@ -7,7 +7,7 @@
         <a-button type="cyan" shape="round" @click="navigationTo('/process/one')">{{ t('发起借款申请') }}</a-button>
       </template>
     </vco-page-nav> -->
-    <div class="page-tab-content">
+    <!-- <div class="page-tab-content">
       <div class="nav-content">
         <div v-for="item in productData" :key="item.uuid" class="nav-link" :class="{ active: item.uuid === currentProduct }" @click="productChange(item)">
           {{ item.name }}
@@ -16,7 +16,14 @@
       <div v-if="showCreate && hasPermission('requests:loan:add')" class="handle-content">
         <a-button type="cyan" shape="round" @click="gotoProcess">{{ t('发起借款申请') }}</a-button>
       </div>
-    </div>
+    </div> -->
+
+    <vco-product-tab v-model:current="currentProduct" @change="productChange">
+      <div style="flex: 1"></div>
+      <div v-if="showCreate && hasPermission('requests:loan:add')" class="handle-content">
+        <a-button type="cyan" shape="round" @click="gotoProcess">{{ t('发起借款申请') }}</a-button>
+      </div>
+    </vco-product-tab>
 
     <div class="mt-5">
       <vco-page-tab :tabData="tabData" v-model:current="currentTab" @change="tabChange"></vco-page-tab>
@@ -159,7 +166,7 @@
 </template>
 
 <script setup name="RequestsLoanList">
-import { ref, computed, reactive, onMounted, onUnmounted, watch } from 'vue';
+import { ref, computed, reactive, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { cloneDeep } from 'lodash';
 import { hasPermission } from '@/directives/permission/index';
@@ -188,7 +195,7 @@ const productData = computed(() => productStore.productData);
 const openProductData = computed(() => productStore.openProductData);
 const currentProduct = ref(productData.value.length ? productData.value[0].uuid : '');
 
-const { currentParams, tableRef, tableLoading, pageObj, tableData, otherInfo, pageChange, getTableData } = useTableList(pageRole.value == 'Umbrella' ? umbreProjectListApi : projectListApi , {}, false);
+const { currentParams, tableRef, tableLoading, pageObj, tableData, otherInfo, pageChange, getTableData } = useTableList(pageRole.value == 'Umbrella' ? umbreProjectListApi : projectListApi, {}, false);
 
 const currentTypeMark = computed(() => {
   const obj = productData.value.find((item) => item.uuid === currentProduct.value);
@@ -298,9 +305,11 @@ const tabChange = () => {
 };
 
 const productChange = (data) => {
-  currentProduct.value = data.uuid;
+  // currentProduct.value = data.uuid;
   currentTab.value = '1';
-  tableSearchRef.value.searchHandle(true);
+  nextTick(() => {
+    tableSearchRef.value.searchHandle(true);
+  });
 };
 
 const searchHandle = (data = {}) => {

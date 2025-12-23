@@ -1,8 +1,9 @@
 <template>
   <div class="flex">
     <a-input readonly class="input-label" value="Date" />
-    <a-date-picker style="width: 120px" v-model:value="value" :disabledDate="disabledDateFormat" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" :allowClear="false" @change="onChange" />
+    <a-date-picker style="width: 120px" v-model:value="value" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" :allowClear="false" @change="onChange" />
   </div>
+  <!-- :disabledDate="disabledDateFormat" -->
 </template>
 
 <script setup>

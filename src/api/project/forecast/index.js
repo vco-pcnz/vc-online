@@ -121,10 +121,11 @@ export const profitLog = (params) =>
   });
 
 //  更新利益
-export const profitUpd = () =>
+export const profitUpd = (params) =>
   request({
     url: '/project/forecast/profitUpd',
-    method: 'get'
+    method: 'get',
+    params
   });
 
 // 区域

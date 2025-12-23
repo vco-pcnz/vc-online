@@ -58,13 +58,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { regional } from '@/api/project/forecast';
 import { PlusOutlined, MinusOutlined } from '@ant-design/icons-vue';
+import useProductStore from '@/store/modules/product';
 
 const { t } = useI18n();
+const productStore = useProductStore();
 const pagination = ref({
   page: 1,
   limit: 5
@@ -75,8 +77,10 @@ const data = ref([]);
 const loading = ref(false);
 
 const loadData = (val) => {
+  if (!productStore.currentProduct) return;
   loading.value = true;
-  regional({ ...pagination.value })
+  const params = { ...pagination.value, product_uuid: productStore.currentProduct };
+  regional(params)
     .then((res) => {
       let money = 0;
       let hkmoney = 0;
@@ -143,9 +147,16 @@ const option = ref({
   ]
 });
 
-onMounted(() => {
-  loadData();
-});
+watch(
+  () => productStore.currentProduct,
+  (val) => {
+    if (val) {
+      pagination.value.page = 1;
+      loadData();
+    }
+  },
+  { immediate: true }
+);
 </script>
 <style lang="less" scoped>
 .RegionalContent {

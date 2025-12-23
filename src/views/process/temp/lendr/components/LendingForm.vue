@@ -3,6 +3,26 @@
     class="block-item mb"
     :class="{ checked: lendingInfo.is_check && blockInfo?.showCheck, 'details': isDetails }"
   >
+    <!-- 首次放款选择弹窗 -->
+    <a-modal
+      :open="selectVisible"
+      :title="t('进度付款阶段')"
+      :width="1500"
+      :footer="null"
+      :keyboard="false"
+      :maskClosable="false"
+      class="middle-position"
+      @cancel="selectVisible = false"
+    >
+      <view-content
+        v-if="selectVisible"
+        :is-select="!isDetails && !amountDisabled"
+        :show-process="true"
+        :selected-data="selectedData"
+        @selectDone="selectDoneHandle"
+      ></view-content>
+    </a-modal>
+    
     <!-- 确认弹窗 -->
     <vco-confirm-alert
       ref="changeAlertRef"
@@ -11,11 +31,11 @@
       @submit="submitRquest"
     ></vco-confirm-alert>
 
-    <!-- 费改动后弹窗 -->
+    <!-- 质押提示弹窗 -->
     <vco-confirm-alert
-      ref="changeFeeRef"
-      :confirm-txt="saveDataTxt"
-      v-model:visible="saveTipsVisible"
+      ref="substitutionAlertRef"
+      :confirm-txt="substitutionTxt"
+      v-model:visible="substitutionVisible"
       @submit="saveRequeset"
     ></vco-confirm-alert>
 
@@ -37,7 +57,7 @@
             type="dark"
             shape="round"
             class="uppercase"
-            @click="changeVisible = true"
+            @click="checkHandle(false)"
           >
             {{ t('审核') }}
           </a-button>
@@ -46,7 +66,7 @@
             :title="t('确定通过审核吗？')"
             :ok-text="t('确定')"
             :cancel-text="t('取消')"
-            @confirm="checkHandle"
+            @confirm="checkHandle(true)"
           >
             <a-button
               type="dark"
@@ -73,49 +93,165 @@
         :rules="formRules"
       >
         <a-row :gutter="24">
-          <a-col v-if="((refinancialData.length && blockInfo.showEdit) || isRefinancial) && refinancialShow" :span="24">
-            <div v-if="!refinancialDisabled" class="flex gap-2 mb-5">
-              <p>{{ t('是否需要再融资') }}</p>
-              <a-switch v-model:checked="isRefinancial"></a-switch>
-            </div>
+          <template v-if="!isDetails">
+            <a-col :span="8">
+              <a-form-item :label="t('是否有Linefee')" name="has_linefee">
+                <a-switch :disabled="amountDisabled || inputADis" v-model:checked="formState.has_linefee" :checkedValue="1" :unCheckedValue="0" @change="linefeeSwitchChange" />
+              </a-form-item>
+            </a-col>
+            <template v-if="showCompare">
+              <a-col :span="8">
+                <a-form-item :label="t('是否预算')" name="do__est">
+                  <a-switch :disabled="amountDisabled || inputADis" v-model:checked="formState.do__est" :checkedValue="1" :unCheckedValue="0" />
+                </a-form-item>
+              </a-col>
+              <a-col :span="8">
+                <a-form-item label=" ">
+                  <a-button
+                    type="brown"
+                    shape="round"
+                    size="small"
+                    class="flex items-center"
+                    @click="goHandle('budget')"
+                  >
+                    {{ t('查看预算信息') }}
+                    <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px'  }" />
+                  </a-button>
+                </a-form-item>
+              </a-col>
+            </template>
+            <a-col v-else :span="16"></a-col>
+            
+            <a-col :span="24"><div class="form-line"></div></a-col>
+          </template>
+
+          <a-col :span="7">
+            <a-form-item :label="t('开发成本')">
+              <DevCostDetail
+                :disabled="amountDisabled || inputADis"
+                :edit="!isDetails"
+                :has-build="Boolean(lendingInfo.has_build)"
+                :selectedRefinancialObj="selectedRefinancialObj"
+                :loan-date="formState.time_date"
+                :uuid="currentId"
+                :lendingInfo="lendingInfo"
+                v-model:value="formState.devCost"
+                v-model:dataJson="formState.devCostDetail"
+                v-model:isRefinancial="isRefinancial"
+                v-model:substitutionIds="formState.substitution_ids"
+                @change="devCostChange"
+                @reChange="refinancialChange"
+              >
+                <div class="flex items-center" style="height: 50px;">
+                  <vco-number class="float-left" v-model:value="formState.devCost" size="fs_xl" :precision="2" :end="true"></vco-number>
+                  <a-button class="float-left ml-3" v-if="!amountDisabled && !inputADis" type="link">
+                    <i class="iconfont">&#xe753;</i>
+                  </a-button>
+                  <a-button class="float-left ml-1" v-if="isDetails" type="link">
+                    <i class="iconfont">&#xe76f;</i>
+                  </a-button>
+                </div>
+              </DevCostDetail>
+            </a-form-item>
           </a-col>
 
-          <a-col :span="Number(formState.repay_type) === 3 ? 5 : 8">
-            <a-form-item :label="t('借款金额')" name="build_amount">
-              <a-input-number
-                v-model:value="formState.build_amount"
-                :max="99999999999"
+          <a-col :span="7">
+            <a-form-item :label="t('项目借款周期')" name="time_date">
+              <a-range-picker
+                v-model:value="formState.time_date"
+                :format="selectDateFormat()"
                 :disabled="amountDisabled || inputADis"
+                :placeholder="[t('开放日期'), t('到期日期')]"
+                @change="timeChange"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="4">
+            <a-form-item :label="t('借款周期')" name="term">
+              <a-input
+                v-model:value="formState.term"
+                :suffix="t('月')"
+                :disabled="amountDisabled || inputADis"
+                @input="termInput"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="3">
+            <a-form-item label=" " name="days">
+              <a-input
+                v-model:value="formState.days"
+                :suffix="t('天')"
+                :disabled="amountDisabled || inputADis"
+                @input="termInput"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="3">
+            <a-form-item :label="t('总天数')" name="totalDay">
+              <div class="show-days">
+                {{ formState.totalDay }}
+                <span>{{ t('天') }}</span>
+              </div>
+            </a-form-item>
+          </a-col>
+          
+          <a-col :span="formState.equity_amount ? (isRefinancial ? 4 : 5) : isRefinancial ? 5 : 7">
+            <a-form-item :label="t('土地贷款总额')" name="land_amount">
+              <a-input-number
+                v-model:value="formState.land_amount"
+                :max="99999999999"
+                :disabled="true"
                 :formatter="
                   (value) =>
                     `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                 "
                 :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                @input="calcBrokerFee"
               />
             </a-form-item>
           </a-col>
-          <a-col :span="Number(formState.repay_type) === 3 ? 5 : 8">
-            <a-form-item :label="t('罚息比例')" name="penalty_rate">
-              <a-input
-                v-model:value="formState.penalty_rate"
-                :disabled="amountDisabled || inputADis"
-                suffix="%"
+          <a-col :span="1" class="plus-txt">
+            <i class="iconfont">&#xe889;</i>
+          </a-col>
+          <a-col :span="formState.equity_amount ? (isRefinancial ? 4 : 5) : isRefinancial ? 5 : 7">
+            <a-form-item name="build_amount" class="w-full-label">
+              <template #label>
+                <div class="w-full flex justify-between items-center">
+                  <p>{{ t('建筑贷款总额') }}</p>
+                  <a-button
+                    v-if="showProgressPayment"
+                    type="link"
+                    style="font-size: 12px; height: auto !important;"
+                    class="flex items-center"
+                    @click="goProgressPage"
+                  >
+                    <p>{{ isDetails ? t('详情') : (formState.equity_amount || refinancialAmount) ? (amountDisabled ? t('详情') : t('设置')) : t('进度付款') }}</p>
+                    <i class="iconfont" style="font-size: 12px;">&#xe602;</i>
+                  </a-button>
+                </div>
+              </template>
+              <a-input-number
+                v-model:value="formState.build_amount"
+                :max="99999999999"
+                :disabled="true"
+                :formatter="
+                  (value) =>
+                    `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                "
+                :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
               />
             </a-form-item>
           </a-col>
-          <a-col :span="8">
-            <a-form-item :label="t('还款方式')" name="repay_type">
-              <a-select :disabled="amountDisabled || inputADis" v-model:value="formState.repay_type" :options="repaymentTypeData"></a-select>
-            </a-form-item>
-          </a-col>
-          <template v-if="Number(formState.repay_type) === 3">
-            <a-col :span="6">
-              <a-form-item :label="t('固定利息偿还金额')" name="repay_money">
+
+          <template v-if="formState.equity_amount">
+            <a-col :span="1" class="plus-txt">
+              <i class="iconfont">&#xe889;</i>
+            </a-col>
+            <a-col :span="isRefinancial ? 4 : 5">
+              <a-form-item :label="t('补充股权')" name="equity_amount">
                 <a-input-number
-                  v-model:value="formState.repay_money"
+                  v-model:value="formState.equity_amount"
                   :max="99999999999"
-                  :disabled="amountDisabled || inputADis"
+                  :disabled="true"
                   :formatter="
                     (value) =>
                       `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -125,45 +261,120 @@
               </a-form-item>
             </a-col>
           </template>
-          
-          <template v-if="isRefinancial">
-            <a-col :span="8">
-              <a-form-item :label="t('再融资项目')" name="substitution_ids">
-                <a-select
-                  v-model:value="formState.substitution_ids"
-                  mode="multiple"
-                  :options="formattedRefinancialData"
-                  :filter-option="filterOption"
-                  :placeholder="t('请选择项目')"
-                  :disabled="refinancialDisabled"
-                  @change="(value, option) => refinancialChange(option)"
-                >
-                  <template #option="{ label, value, item }">
-                    <p>{{ label }}</p>
-                    <vco-number
-                      :value="Number(item.amount)"
-                      :precision="2"
-                      size="fs_xs"
-                      :end="true"
-                      color="#666666"
-                    ></vco-number>
-                  </template>
-                </a-select>
-              </a-form-item>
-            </a-col>
 
-            <a-col :span="8" class="financial-amount">
+          <template v-if="isRefinancial">
+            <a-col :span="1" class="plus-txt">
+              <i class="iconfont">&#xe889;</i>
+            </a-col>
+            <a-col :span="formState.equity_amount ? 4 : 5">
               <a-form-item :label="t('再融资金额')">
-                <vco-number
-                  :value="refinancialAmount"
-                  :precision="2"
-                  :end="true"
-                ></vco-number>
+                <a-input-number
+                  v-model:value="refinancialAmount"
+                  :max="99999999999"
+                  :disabled="true"
+                  :formatter="
+                    (value) =>
+                      `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                  "
+                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                />
               </a-form-item>
             </a-col>
           </template>
 
+          <a-col :span="1" class="plus-txt"><i class="iconfont">=</i></a-col>
+          <a-col :span="formState.equity_amount ? (isRefinancial ? 4 : 6) : isRefinancial ? 6 : 8" class="total-amount-info">
+            <a-form-item :label="t('借款总金额')">
+              <vco-number
+                :value="totalAmountRef"
+                :precision="2"
+                :end="true"
+              ></vco-number>
+            </a-form-item>
+          </a-col>
           <a-col :span="24"><div class="form-line"></div></a-col>
+          <a-col :span="formState.equity_amount ? 5 : 7">
+            <a-form-item
+              :label="t('首次土地贷款放款额')"
+              name="initial_land_amount"
+            >
+              <a-input-number
+                :max="99999999999"
+                :disabled="amountDisabled"
+                v-model:value="formState.initial_land_amount"
+                :formatter="
+                  (value) =>
+                    `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                "
+                :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="1" class="plus-txt">
+            <i class="iconfont">&#xe889;</i>
+          </a-col>
+          <a-col :span="formState.equity_amount ? 5 : 7">
+            <a-form-item name="initial_build_amount" class="w-full-label">
+              <template #label>
+                <div class="w-full flex justify-between items-center" style="height: 22px;">
+                  <p style="word-wrap: nowrap;">{{ t('首次建筑贷款放款额') }}</p>
+                  <a-button
+                    v-if="showProgressPayment"
+                    type="link"
+                    style="font-size: 12px; height: auto !important;"
+                    class="flex items-center"
+                    @click="selectVisible = true"
+                  >
+                    <p>{{ isDetails ? t('详情') : (amountDisabled ? t('详情') : t('选择')) }}</p>
+                    <i class="iconfont" style="font-size: 12px;">&#xe602;</i>
+                  </a-button>
+                </div>
+              </template>
+              <a-input-number
+                :max="99999999999"
+                :disabled="true"
+                v-model:value="formState.initial_build_amount"
+                :formatter="
+                  (value) =>
+                    `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                "
+                :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+              />
+            </a-form-item>
+          </a-col>
+          <template v-if="formState.equity_amount">
+            <a-col :span="1" class="plus-txt">
+              <i class="iconfont">&#xe889;</i>
+            </a-col>
+            <a-col :span="5">
+              <a-form-item :label="t('初始补充股权')" name="initial_equity_amount">
+                <a-input-number
+                  v-model:value="formState.initial_equity_amount"
+                  :disabled="amountDisabled"
+                  :max="Number(formState.equity_amount)"
+                  :formatter="
+                    (value) =>
+                      `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                  "
+                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                />
+              </a-form-item>
+            </a-col>
+          </template>
+          <a-col :span="1" class="plus-txt"><i class="iconfont">=</i></a-col>
+          <a-col :span="formState.equity_amount ? 6 : 8" class="total-amount-info" :class="{'financial': isRefinancial}">
+            <a-form-item :label="t('首次放款总金额')">
+              <vco-number
+                :value="totalInitialAmountRef"
+                :precision="2"
+                :end="true"
+                :color="Number(totalInitialAmountRef) < 0 ? '#eb4b6d' : '#282828'"
+              ></vco-number>
+            </a-form-item>
+          </a-col>
+          <a-col v-if="percentItems.length" :span="24">
+            <div class="form-line"></div>
+          </a-col>
           <template v-if="percentItems.length">
             <a-col
               v-for="item in percentItems"
@@ -192,6 +403,61 @@
               </a-form-item>
             </a-col>
           </template>
+          <a-col v-if="estabItems.length" :span="24">
+            <div class="form-line"></div>
+          </a-col>
+          <template v-if="estabItems.length">
+            <a-col :span="8">
+              <a-form-item :label="t('建立费计算标准')" name="estab_type">
+                <a-select
+                  v-model:value="formState.estab_type"
+                  style="width: 100%"
+                  :disabled="isDetails"
+                  :options="estabTypeData"
+                ></a-select>
+              </a-form-item>
+            </a-col>
+
+            <a-col
+              v-for="item in estabItems"
+              :key="item.credit_table"
+              :span="8"
+            >
+              <a-form-item
+                :name="item.credit_table"
+              >
+                <template #label>
+                  {{ item.credit_name }}
+                  <a-tooltip v-if="item.tips" placement="topLeft">
+                    <template #title>
+                      <span>{{ item.tips }}</span>
+                    </template>
+                    <QuestionCircleOutlined class="ml-2" />
+                  </a-tooltip>
+                </template>
+
+                <a-input
+                  v-if="item.is_ratio"
+                  v-model:value="formState[item.credit_table]"
+                  :disabled="inputDisabled(item.editMark) || item.disabled || formState.estab_type === 2"
+                  :suffix="item.credit_unit"
+                  @input="() => percentInput(item.credit_table)"
+                />
+                <a-input-number
+                  v-else
+                  v-model:value="formState[item.credit_table]"
+                  :disabled="inputDisabled(item.editMark) || item.disabled || formState.estab_type === 1"
+                  :formatter="
+                    (value) =>
+                      `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                  "
+                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                  @input="() => dollarInput(item.credit_table)"
+                />
+              </a-form-item>
+            </a-col>
+          </template>
+
           <a-col v-if="dollarItems.length" :span="24">
             <div class="form-line"></div>
           </a-col>
@@ -222,6 +488,7 @@
                       `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                   "
                   :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                  @input="() => dollarInput(item.credit_table)"
                 />
               </a-form-item>
             </a-col>
@@ -266,30 +533,38 @@
 </template>
 
 <script setup>
-  import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
+  import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue';
+  import { RightOutlined } from '@ant-design/icons-vue';
   import { useI18n } from 'vue-i18n';
-  import { cloneDeep } from 'lodash';
+  import { useRoute } from 'vue-router';
+  import { cloneDeep, debounce } from 'lodash';
   import { message } from 'ant-design-vue/es';
   import { QuestionCircleOutlined } from '@ant-design/icons-vue'
+  import { useUserStore } from '@/store';
   import {
     ruleCredit,
     creditInfo,
     projectAuditSaveMode,
     projectAuditCheckMode,
-    projectAuditGoback,
-    projectAuditSubstitution,
-    projectDetailSubstitution
+    vclEstabCalc
   } from '@/api/process';
-  import { systemDictData } from '@/api/system';
   import emitter from '@/event';
   import useProcessStore from '@/store/modules/process';
-  import tool, { navigationTo, numberStrFormat } from '@/utils/tool';
+  import tool, { navigationTo, numberStrFormat, selectDateFormat } from '@/utils/tool';
+  import DevCostDetail from './DevCostDetail.vue';
+  import ViewContent from '@/views/requests/progress-payment/components/ViewContent.vue';
+  import dayjs from 'dayjs';
 
   const processStore = useProcessStore();
 
-  const emits = defineEmits(['done', 'refresh', 'openData']);
+  const emits = defineEmits(['done', 'refresh', 'openData', 'compareDone']);
 
   const { t } = useI18n();
+  const route = useRoute();
+
+  const userStore = useUserStore();
+
+  const isNormalUser = computed(() => userStore.isNormalUser);
 
   const props = defineProps({
     lendingInfo: {
@@ -320,47 +595,40 @@
   const isRefinancial = ref(false)
   const refinancialAmount = ref(0)
 
-  // 请求可以置换的项目
-  const refinancialData = ref([])
-
-  const getRefinancialList = (flag = false) => {
-    if (flag) {
-      refinancialAmount.value = 0
-      formState.value.substitution_ids = []
-      emits('refresh');
-    }
-
-    const ajaxFn = props.isDetails ? projectDetailSubstitution : projectAuditSubstitution
-    ajaxFn({
-      uuid: props.currentId
-    }).then(res => {
-      // refinancialData.value = res || []
-
-      // lendr 不能再融资
-      refinancialData.value = []
-    })
-  }
-
-  const formattedRefinancialData = computed(() => {
-    const data = refinancialData.value || []
-    return data.map(item => ({
-      label: item.project_name,
-      value: item.uuid,
-      item: item
-    }))
+  // 是否显示进度付款
+  const showProgressPayment = computed(() => {
+    return Number(props.dataInfo.security.count) && Number(props.dataInfo.lending.build_amount) && !isNormalUser.value
   })
 
-  const filterOption = (input, option) => {
-    return option.label.toLowerCase().includes(input.toLowerCase());
-  };
+  const goProgressPage = () => {
+    const path = route.path
+    let href = ''
+    if (path.indexOf('/requests/details/about') > -1) {
+      href = '/requests/details/progress-payment'
+    } else if (path.indexOf('process') > -1) {
+      href = '/requests/progress-payment'
+    }
 
+    if (href) {
+      navigationTo(`${href}?uuid=${props.currentId}`)
+    }
+  }
+
+  const selectedRefinancialObj = ref({})
   const refinancialChange = (data) => {
     if (data.length) {
-      const dataArr = data.map(item => Number(item.item.amount))
+      const dataArr = data.map(item => Number(item.item.allRepayment.repayment_money))
       const sum = dataArr.reduce((acc, cur) => acc + cur, 0)
       refinancialAmount.value = sum
+
+      let obj = {}
+      for (let i = 0; i < data.length; i++) {
+        obj[data[i].value] = data[i].item.allRepayment
+      }
+      selectedRefinancialObj.value = obj
     } else {
       refinancialAmount.value = 0
+      selectedRefinancialObj.value = {}
     }
   }
 
@@ -370,11 +638,30 @@
   const confirmTxt = computed(() => {
     let res = ''
     if (!props.isDetails) {
-      const securityTotal = props.dataInfo.security.total_money || 0
-      const totalAmount = Number(formState.value.build_amount)
+      const {land_amount, build_amount} = props.dataInfo.security
+      const landDiff = tool.minus(Number(formState.value.land_amount), land_amount)
+      const buildDiff = tool.minus(Number(formState.value.build_amount), build_amount)
 
-      if (totalAmount > securityTotal) {
-        const num = tool.minus(totalAmount, securityTotal)
+      // let landTxt,buildTxt = ''
+      // if (landDiff > 0) {
+      //   landTxt = t('抵押物土地总额为{0}，土地贷款总额为{1}，差{2}', [land_amount, formState.value.land_amount, landDiff])
+      // }
+
+      // if (buildDiff > 0) {
+      //   buildTxt = t('抵押物建筑总额为{0}，建筑贷款总额为{1}，差{2}', [build_amount, formState.value.build_amount, buildDiff])
+      // }
+
+      // const txt = landTxt && buildTxt ? `${landTxt}, ${buildTxt}` : landTxt || buildTxt
+
+      // if (txt) {
+      //   res = `${txt}, ${t('确认通过审核吗？')}`
+      // }
+      
+      const securityTotal = props.dataInfo.security.total_money || 0
+      const totalAmount = tool.plus(Number(formState.value.land_amount), Number(formState.value.build_amount))
+
+      if (Number(totalAmount) > Number(securityTotal)) {
+        const num = tool.minus(securityTotal, totalAmount)
         const showSecurity = numberStrFormat(securityTotal)
         const showAmount = numberStrFormat(totalAmount)
         const showNum = numberStrFormat(num)
@@ -397,25 +684,9 @@
     }
   })
 
-  const refinancialShow = computed(() => {
-    if (props.isDetails) {
-      return true
-    } else {
-      const mark = props?.currentStep?.mark
-      if (props?.blockInfo?.showEdit) {
-        if (['step_lm_audit'].includes(mark)) {
-          return true
-        } else {
-          return isRefinancial.value
-        }
-      } else {
-        return isRefinancial.value
-      }
-    }
-  })
-
-  const refinancialDisabled = computed(() => {
-    return amountDisabled.value
+  const showCompare = computed(() => {
+    const mark = props?.currentStep?.mark
+    return ['step_lm_audit', 'step_lm_review'].includes(mark)
   })
 
   const changeAlertRef = ref()
@@ -423,7 +694,7 @@
 
   const inputADis = computed(() => {
     const mark = props.currentStep.mark
-    return [''].includes(mark)
+    return [].includes(mark)
   })
 
   const inputDisabled = (str = '') => {
@@ -441,10 +712,14 @@
   }
 
   const validateNum = (rule, value) => {
-    if (value && !isNaN(value) && Number(value) > 0) {
-      return Promise.resolve();
+    if (value && Number(value)) {
+      const numRegex = /^(?!0(\.0+)?$)(\d+(\.\d+)?|\.\d+)$/;
+      if (!numRegex.test(value)) {
+        return Promise.reject(t('请输入大于0的数字'));
+      }
     }
-    return Promise.reject(t('请输入大于{0}的数字', [0]));
+
+    return Promise.resolve();
   };
   
   const getValidateInfo = (data) => {
@@ -468,28 +743,53 @@
     }
   }
 
+  const estabTypeData = ref([
+    {
+      label: t('建立费率为准'),
+      value: 1
+    },
+    {
+      label: t('建立费为准'),
+      value: 2
+    }
+  ])
+
   const formRef = ref();
   const formState = ref({
+    estab_type: 1,
     build_amount: '',
-    penalty_rate: '',
-    repay_type: '',
-    repay_money: '',
+    land_amount: '',
+    initial_build_amount: '',
+    initial_land_amount: '',
     substitution_ids: [],
     has_linefee: 1,
-    do__est: 0
+    do__est: 0,
+    devCost: '',
+    devCostDetail:'',
+    time_date: [],
+    term: '',
+    days: '',
+    totalDay: 0,
+    equity_amount: '',
+    initial_equity_amount: ''
   });
-  
+
   const formRules = ref({
-    build_amount: { required: true, validator: validateNum, trigger: 'blur' },
-    penalty_rate: { required: true, validator: validateNum, trigger: 'blur' },
-    repay_type: { required: true, message: t('请选择') + t('还款方式'), trigger: 'change' },
-    repay_money: { required: true, message: t('请输入') + t('固定利息偿还金额'), trigger: 'blur' }
+    build_amount: { validator: validateNum, trigger: 'blur' },
+    land_amount: { validator: validateNum, trigger: 'blur' },
+    initial_build_amount: { validator: validateNum, trigger: 'blur' },
+    initial_land_amount: { validator: validateNum, trigger: 'blur' },
+    initial_equity_amount: { validator: validateNum, trigger: 'blur' },
+    time_date: [
+      { required: true, message: t('请选择') + t('项目周期'), trigger: 'change' }
+    ]
   });
 
   const percentItems = ref([]);
   const dollarItems = ref([]);
   const changeBackItems = ref([])
   const showNumItems = ref([]);
+  const estabItems = ref([]); // 建立费
 
   const percentItemsStore = ref([]);
   const dollarItemsStore = ref([]);
@@ -497,6 +797,24 @@
   const showNumItemsStore = ref([]);
 
   const creditId = ref(null);
+
+  const totalAmountRef = computed(() => {
+    const build_amount = formState.value.build_amount || 0;
+    const land_amount = formState.value.land_amount || 0;
+    const equity_amount = formState.value.equity_amount || 0;
+
+    const total_amount = tool.plus(tool.plus(build_amount, land_amount), equity_amount);
+    return tool.plus(total_amount, refinancialAmount.value);
+  });
+
+  const totalInitialAmountRef = computed(() => {
+    const initial_build_amount = formState.value.initial_build_amount || 0;
+    const initial_land_amount = formState.value.initial_land_amount || 0;
+    const initial_equity_amount = formState.value.initial_equity_amount || 0;
+    const initial_total_amount = tool.plus(tool.plus(initial_build_amount, initial_land_amount), initial_equity_amount);
+    // return tool.minus(initial_total_amount, refinancialAmount.value);
+    return initial_total_amount
+  });
 
   const colClassName = (num) => {
     if (num === 1) {
@@ -551,6 +869,24 @@
       showNum = showNum.filter(item => !item.is_linefee)
     }
 
+    // 建立费、建立费率
+    const estabData = []
+    const estabFeeRateIndex = percentData.findIndex(item => item.credit_table === 'credit_estabFeeRate')
+    if (estabFeeRateIndex > -1) {
+      estabData.push(percentData[estabFeeRateIndex])
+    }
+    const estabFeeIndex = dollarData.findIndex(item => item.credit_table === 'credit_estabFee')
+    if (estabFeeIndex > -1) {
+      const estabItem = cloneDeep(dollarData[estabFeeIndex])
+      estabItem.editMark = percentData[estabFeeRateIndex].editMark
+      estabData.push(estabItem)
+    }
+    estabItems.value = estabData
+
+    // 建立费输入
+    percentData = percentData.filter(item => item.credit_table !== 'credit_estabFeeRate')
+    dollarData = dollarData.filter(item => item.credit_table !== 'credit_estabFee')
+
     percentItems.value = percentData
     dollarItems.value = dollarData;
     changeBackItems.value = changeBack
@@ -562,18 +898,115 @@
     if ('credit_brokerFeeRate' in formState.value && 'credit_brokerFee' in formState.value) {
       const build_amount = formState.value.build_amount || 0;
       const land_amount = formState.value.land_amount || 0;
+      const equity_amount = formState.value.equity_amount || 0
+      const refinancial_amount = refinancialAmount.value || 0
       const brokeFeeRate = formState.value.credit_brokerFeeRate || 0
       
+
       if (isNaN(Number(brokeFeeRate))) {
         formState.value.credit_brokerFee = 0
       } else {
         const amount = tool.plus(build_amount, land_amount);
+        const reTotal = tool.plus(amount, refinancial_amount)
+        const total = tool.plus(reTotal, equity_amount)
         const per = tool.div(Number(brokeFeeRate), 100)
-        const num = tool.times(amount, per)
+        const num = tool.times(total, per)
 
         formState.value.credit_brokerFee = num
       }
     }
+  }
+
+  // 计算中介费率
+  const calcBrokerFeeRate = () => {
+    if ('credit_brokerFeeRate' in formState.value && 'credit_brokerFee' in formState.value) {
+      const build_amount = formState.value.build_amount || 0;
+      const land_amount = formState.value.land_amount || 0;
+      const equity_amount = formState.value.equity_amount || 0
+      const refinancial_amount = refinancialAmount.value || 0
+      const brokeFee = formState.value.credit_brokerFee || 0
+
+      if (isNaN(Number(brokeFee))) {
+        formState.value.credit_brokerFeeRate = 0
+      } else {
+        const amount = tool.plus(build_amount, land_amount);
+        const reTotal = tool.plus(amount, refinancial_amount)
+        const total = tool.plus(reTotal, equity_amount)
+        const per = tool.div(brokeFee, total)
+        const num = tool.times(per, 100)
+
+        formState.value.credit_brokerFeeRate = Number(Number(num).toFixed(6))
+      }
+    }
+  }
+
+  const establishCalculateHandle = () => {
+    const {
+      time_date,
+      estab_type,
+      build_amount,
+      land_amount,
+      equity_amount,
+      substitution_amount,
+      credit_loanInterest,
+      credit_legalFee,
+      credit_brokerFee,
+      credit_brokerFeeRate,
+      credit_otherFee,
+      credit_frontFee,
+      credit_estabFee,
+      credit_estabFeeRate,
+      initial_build_amount,
+      initial_land_amount,
+      initial_equity_amount
+    } = formState.value
+    
+    const params = {
+      uuid: props.currentId,
+      project: {
+        estab_type,
+        has_linefee: formState.value.has_linefee,
+        start_date: dayjs(time_date[0]).format('YYYY-MM-DD'),
+        end_date: dayjs(time_date[1]).format('YYYY-MM-DD'),
+        land_amount: Number(land_amount || 0),
+        build_amount: Number(build_amount || 0),
+        equity_amount: Number(equity_amount || 0),
+        substitution_amount: Number(substitution_amount || 0),
+        initial_build_amount: Number(initial_build_amount || 0),
+        initial_land_amount: Number(initial_land_amount || 0),
+        initial_equity_amount: Number(initial_equity_amount || 0),
+        loan_money: Number(totalAmountRef.value || 0),
+        initial_amount: Number(totalInitialAmountRef.value || 0)
+      },
+      credit: {
+        credit_brokerFee: Number(credit_brokerFee || 0),
+        credit_brokerFeeRate: Number(credit_brokerFeeRate || 0),
+        credit_estabFee: Number(credit_estabFee || 0),
+        credit_estabFeeRate: Number(credit_estabFeeRate || 0),
+        credit_loanInterest: Number(credit_loanInterest || 0),
+        credit_legalFee: Number(credit_legalFee || 0),
+        credit_otherFee: Number(credit_otherFee || 0),
+        credit_frontFee: Number(credit_frontFee || 0),
+      }
+    }
+
+    vclEstabCalc(params).then(res => {
+      if (estab_type === 1) {
+        formState.value['credit_estabFee'] = res
+      } else {
+        formState.value['credit_estabFeeRate'] = res
+      }
+    })
+  }
+
+   // 防抖版本的计算方法
+  const debouncedEstablishCalculate = debounce(establishCalculateHandle, 300)
+
+  const linefeeSwitchChange = () => {
+    linefeeFilter()
+    nextTick(() => {
+      debouncedEstablishCalculate()
+    })
   }
 
   const percentInput = (key) => {
@@ -581,6 +1014,19 @@
     if (key === 'credit_brokerFeeRate') {
       calcBrokerFee()
     }
+
+    // 建立费、建立费率计算
+    debouncedEstablishCalculate()
+  }
+
+  const dollarInput = (key) => {
+    // 中介费修改
+    if (key === 'credit_brokerFee') {
+      calcBrokerFeeRate()
+    }
+
+    // 建立费、建立费率计算
+    debouncedEstablishCalculate()
   }
 
   const getFormItems = async () => {
@@ -601,13 +1047,13 @@
       if (brokerFeeRate) {
         const brokerFee = dolData.find(item => item.credit_table === 'credit_brokerFee')
         if (brokerFee) {
-          brokerFee.disabled = true
+          // brokerFee.disabled = true
         }
       }
 
       const rulesData = {};
       for (let i = 0; i < writeData.length; i++) {
-        formState.value[writeData[i].credit_table] = writeData[i].value;
+        formState.value[writeData[i].credit_table] = writeData[i].value || '';
         rulesData[writeData[i].credit_table] = [
           { validator: getValidateInfo(writeData[i]), trigger: 'blur' },
         ];
@@ -635,7 +1081,43 @@
     });
   };
 
+  const timeChange = (date) => {
+    if (date) {
+      const startDate = typeof date[0] === 'string' ? date[0] : date[0].format('YYYY-MM-DD')
+      const endDate = typeof date[1] === 'string' ? date[1] : date[1].format('YYYY-MM-DD')
+      const calcDay = tool.calculateDurationPrecise(startDate, endDate)
+      formState.value.term = calcDay.months
+      formState.value.days = calcDay.days
+      formState.value.totalDay = calcDay.gapDay
+    } else {
+      formState.value.term = ''
+      formState.value.days = ''
+      formState.value.totalDay = 0
+    }
+  }
+
+  const termInput = () => {
+    const months = Number(formState.value.term)
+    const days = Number(formState.value.days)
+    if (!isNaN(months) && !isNaN(days)) {
+      if (months || days) {
+        let startDate = dayjs(new Date())
+        if (formState.value.time_date) {
+          startDate = formState.value.time_date[0]
+        }
+        const endDate = tool.calculateEndDate(startDate, months, days)
+        formState.value.time_date = [dayjs(startDate), dayjs(endDate)]
+        const calcDay = tool.calculateDurationPrecise(dayjs(startDate).format('YYYY-MM-DD'), dayjs(endDate).format('YYYY-MM-DD'))
+        formState.value.totalDay = calcDay.gapDay
+      } else {
+        formState.value.time_date = []
+        formState.value.totalDay = 0
+      }
+    }
+  }
+
   const tableDataRefData = ref()
+  const initLandDefault = ref(true)
 
   const updateFormData = async (tableData) => {
     if (tableData) {
@@ -648,8 +1130,11 @@
     }).then((res) => {
       if (res.length || Object.keys(res).length) {
         for (const key in formState.value) {
-          formState.value[key] = res[key] || '0';
+          if (key !== 'time_date') {
+            formState.value[key] = res[key] || '0';
+          }
         }
+
         for (let i = 0; i < showNumItemsStore.value.length; i++) {
           showNumItemsStore.value[i].value = res[showNumItemsStore.value[i].credit_table];
         }
@@ -657,6 +1142,7 @@
 
         if (creditId.value) {
           emits('done');
+          initLandDefault.value = false
           processStore.setForcastState(true);
 
           // 触发头部模块切换显示
@@ -669,258 +1155,221 @@
       linefeeFilter()
     });
 
-    formState.value.build_amount = props.dataInfo.loan.loan_money
-    
-    formState.value.penalty_rate = props.lendingInfo.penalty_rate || 0
-    formState.value.repay_money = props.lendingInfo.repay_money || 0
-    formState.value.repay_type = Number(props.lendingInfo.repay_type) ? props.lendingInfo.repay_type : ''
-    
+    // top up equity 值
+    const devCostData = props.lendingInfo.devCostDetail[0].data[1] || null
+    if (devCostData) {
+      formState.value.equity_amount = devCostData.loan
+    }
 
-    staticFormData.value = cloneDeep(formState.value)
+    formState.value.build_amount = Number(props.lendingInfo.land_amount) ? props.lendingInfo.build_amount : Number(props.lendingInfo.build_amount)
+      ? props.lendingInfo.build_amount
+      : props.lendingInfo.loan_money || 0;
+
+    formState.value.land_amount = props.lendingInfo.land_amount || 0;
+    
+    formState.value.initial_build_amount = props.lendingInfo.initial_build_amount || 0
+    formState.value.initial_land_amount = props.isDetails ? (props.lendingInfo.initial_land_amount || 0) : initLandDefault.value ? props.lendingInfo.land_amount || 0 : props.lendingInfo.initial_land_amount || 0
+    formState.value.initial_equity_amount = props.lendingInfo.initial_equity_amount || 0;
+
+    formState.value.devCost = props.lendingInfo.devCost
+    formState.value.devCostDetail = props.lendingInfo.devCostDetail
+
+    // 项目周期
+    formState.value.time_date = [dayjs(props.lendingInfo.start_date), dayjs(props.lendingInfo.end_date)]
+    timeChange(formState.value.time_date)
+
+    // 首次放款建筑费用
+    if (props.lendingInfo.buildlog && props.lendingInfo.buildlog.length) {
+      selectedData.value = props.lendingInfo.buildlog
+    }
+
+    formState.value.estab_type = props.lendingInfo.estab_type || 1;
+
+    staticFormData.value = cloneDeep({
+      ...formState.value,
+      start_date: props.lendingInfo.start_date,
+      end_date: props.lendingInfo.end_date
+    })
 
     emits('openData', {
       table: tableDataRefData.value,
-      data: formState.value
+      data: {
+        ...formState.value,
+        substitution_data: props.lendingInfo.substitution_data || {}
+      }
+    })
+
+    // 需要退回的对比数据
+    const nowChangeData = {
+      ...cloneDeep(formState.value),
+      substitution_amount: refinancialAmount.value || 0
+    }
+    const changeBack = cloneDeep(changeBackItems.value)
+    const creditTableInfo = cloneDeep(staticWriteData.value)
+
+    if (nowChangeData.time_date && nowChangeData.time_date.length) {
+      nowChangeData.start_date = dayjs(nowChangeData.time_date[0]).format('YYYY-MM-DD')
+      nowChangeData.end_date = dayjs(nowChangeData.time_date[1]).format('YYYY-MM-DD')
+    }
+    
+    emits('compareDone', {
+      changeBack,
+      nowChangeData,
+      creditTableInfo
     })
   };
 
   const submitRquest = async () => {
-    await checkHandle()
+    await checkHandle(true)
     changeAlertRef.value.changeLoading(false)
     changeVisible.value = false
   }
 
-  const checkHandle = async () => {
-    const params = {
-      uuid: props.currentId,
-      code: props.blockInfo.code
+  const checkHandle = async (flag = false) => {
+    const build_amount = Number(props.dataInfo.lending.build_amount)
+    const hasBuild = Boolean(Number(props.lendingInfo.has_build))
+    if (build_amount && !hasBuild) {
+      message.error(t('请先设置建筑贷款总额的进度付款信息'))
+      return false
     }
-    await projectAuditCheckMode(params)
-      .then(() => {
-        emits('refresh');
-        emitter.emit('refreshAuditHisList');
-        return true;
-      })
-      .catch(() => {
-        return false;
-      });
+
+    if (hasChangeDevCost.value) {
+      message.error(t('再融资项目有变动，请先保存'))
+      return false
+    }
+
+    if (flag) {
+      const params = {
+        uuid: props.currentId,
+        code: props.blockInfo.code
+      }
+      await projectAuditCheckMode(params)
+        .then(() => {
+          emits('refresh');
+          emitter.emit('refreshAuditHisList');
+          return true;
+        })
+        .catch(() => {
+          return false;
+        });
+    } else {
+      changeVisible.value = true
+    }
   }
 
-  const saveDataTxtArr = ref([])
-
-  const saveReturnRea = computed(() => {
-    const txtArr = []
-    for (let i = 0; i < saveDataTxtArr.value.length; i++) {
-      txtArr.push(t('{0}由{1}修改为了{2}', [saveDataTxtArr.value[i].name, saveDataTxtArr.value[i].before, saveDataTxtArr.value[i].now]))
-    }
-    return txtArr.join(', ')
-  })
-
-  const saveDataTxt = computed(() => {
-    let txt = '保存后将退回审核'
-    if (props.currentStep?.mark === 'step_lm_check') {
-      txt = '保存后将退回到上一步审核'
-    }
-
-    return `${saveReturnRea.value}，${t(txt)}`
-  })
-
-  const findCreditName = (key) => {
-    const obj = staticWriteData.value.find(item => item.credit_table === key)
-    return obj ? obj.credit_name : ''
-  }
-
-  const compareBackObj = ref({})
-
-  const compareHandle = (obj) => {
-    compareBackObj.value = {}
-
-    const backItems = changeBackItems.value
-    const arr = []
-    for (let i = 0; i < backItems.length; i++) {
-      const backMarkItems = backItems[i].backMark.split(',')
-      const backObj = {}
-      const backMark = backMarkItems.map(item => {
-        const markInfo = item.split(':')
-        if (!backObj[markInfo[0]]) {
-          backObj[markInfo[0]] = markInfo[1]
-        }
-        
-        return markInfo[0]
-      })
-
-      compareBackObj.value = {
-        ...compareBackObj.value,
-        ...backObj
-      }
-
-      if (backMark.includes(props.currentStep.mark)) {
-        const key = backItems[i].credit_table
-
-        const beforeN = numberStrFormat(staticFormData.value[key])
-        const nowN = numberStrFormat(obj[key])
-
-        const beforeNum = backItems[i].is_ratio ? `${beforeN}${backItems[i].credit_unit}` : `${backItems[i].credit_unit}${beforeN}`
-        const nowNum = backItems[i].is_ratio ? `${nowN}${backItems[i].credit_unit}` : `${backItems[i].credit_unit}${nowN}`
-
-        if (Number(staticFormData.value[key]) !== Number(obj[key])) {
-          if (['credit_brokerFeeRate'].includes(key)) {
-            if (Number(obj[key]) > Number(staticFormData.value[key])) {
-              arr.push({
-                name: findCreditName(key),
-                before: beforeNum,
-                now: nowNum
-              })
-            }
-          } else if (key === 'credit_frontFee') {
-            if (Number(obj[key]) < Number(staticFormData.value[key])) {
-              arr.push({
-                name: findCreditName(key),
-                before: beforeNum,
-                now: nowNum
-              })
-            }
-          } else {
-            // 有中介费率
-            if ('credit_brokerFeeRate' in formState.value && 'credit_brokerFee' in formState.value) {
-              if (key !== 'credit_brokerFee') {
-                arr.push({
-                  name: findCreditName(key),
-                  before: beforeNum,
-                  now: nowNum
-                })
-              }
-            } else {
-              arr.push({
-                name: findCreditName(key),
-                before: beforeNum,
-                now: nowNum
-              })
-            }
-          }
-        }
-      }
-    }
-
-    if (Object.keys(compareBackObj.value).includes(props.currentStep.mark)) {
-      if (obj?.repay_type === 3 && (Number(obj?.repay_money) !== Number(staticFormData.value?.repay_money))) {
-        arr.unshift({
-          name: t('固定利息偿还金额'),
-          before: `$${numberStrFormat(Number(staticFormData.value?.repay_money))}`,
-          now: `$${numberStrFormat(Number(obj?.repay_money))}`
-        })
-      }
-
-      if (Number(obj?.repay_type) !== Number(staticFormData.value?.repay_type)) {
-        arr.unshift({
-          name: t('还款方式'),
-          before: getTypeLable(staticFormData.value?.repay_type),
-          now: getTypeLable(obj?.repay_type)
-        })
-      }
-
-      if (Number(obj?.penalty_rate) !== Number(staticFormData.value?.penalty_rate)) {
-        arr.unshift({
-          name: t('罚息比例'),
-          before: `${numberStrFormat(Number(staticFormData.value?.penalty_rate))}%`,
-          now: `${numberStrFormat(Number(obj?.penalty_rate))}%`
-        })
-      }
-
-      if (Number(obj?.build_amount) !== Number(staticFormData.value?.build_amount)) {
-        arr.unshift({
-          name: t('借款金额'),
-          before: `$${numberStrFormat(Number(staticFormData.value?.build_amount))}`,
-          now: `$${numberStrFormat(Number(obj?.build_amount))}`
-        })
-      }
-    }
-
-    saveDataTxtArr.value = arr
-    return Boolean(arr.length)
-  }
-
-  const changeFeeRef = ref()
   const saveParams = ref()
-  const saveDataChange = ref(false)
-  const saveTipsVisible = ref(false)
   const subLoading = ref(false);
 
   const saveRequeset = async () => {
     subLoading.value = true;
 
-    await projectAuditSaveMode(saveParams.value)
-      .then(async () => {
-        if (saveDataChange.value) {
-          const params = {
-            uuid: props.currentId,
-            cancel_reason: saveReturnRea.value,
-            again_check: 0
-          }
+    const formParams = cloneDeep(saveParams.value)
+    if (selectedData.value) {
+      formParams.build__data = selectedData.value
+    }
 
-          if (compareBackObj.value[props.currentStep.mark]) {
-            params.back_step = compareBackObj.value[props.currentStep.mark]
-          }
+    await projectAuditSaveMode(formParams)
+      .then(() => {
+        subLoading.value = false;
+        substitutionAlertRef.value.changeLoading(false)
+        substitutionVisible.value = false
 
-          projectAuditGoback(params).then(() => {
-            subLoading.value = false
-            changeFeeRef.value.changeLoading(false)
+        emits('refresh');
+        // 操作记录
+        emitter.emit('refreshAuditHisList');
+        // 触发预测数据刷新
+        emitter.emit('refreshForecastList');
+        // 触发奖金刷新
+        emitter.emit('refreshBouns')
+        // 出发抵押物刷新
+        emitter.emit('refreshSecurityList')
 
-            navigationTo(`/requests/details?uuid=${props.currentId}`)
-          }).catch(() => {
-            changeFeeRef.value.changeLoading(false)
-          })
-        } else {
-          subLoading.value = false;
-
-          emits('refresh');
-          // 操作记录
-          emitter.emit('refreshAuditHisList');
-          // 触发预测数据刷新
-          emitter.emit('refreshForecastList');
-          // 触发奖金刷新
-          emitter.emit('refreshBouns')
-          // 出发抵押物刷新
-          emitter.emit('refreshSecurityList')
-          updateFormData()
-        }
+        hasChangeDevCost.value = false
+        updateFormData()
       })
       .catch(() => {
         subLoading.value = false;
+        substitutionAlertRef.value.changeLoading(false)
+        substitutionVisible.value = false
       });
   }
+
+  const substitutionAlertRef = ref()
+  const substitutionVisible = ref(false)
+  const substitutionTxt = ref('')
 
   const saveHandle = async () => {
     formRef.value
       .validate()
       .then(async () => {
         const build_amount = Number(formState.value.build_amount);
+        const initial_build_amount = Number(formState.value.initial_build_amount);
+        const land_amount = Number(formState.value.land_amount);
+        const initial_land_amount = Number(formState.value.initial_land_amount);
 
+        if (initial_build_amount > build_amount) {
+          message.error(
+            t('{0}不能大于{1}', [t('首次建筑贷款放款额', t('建筑贷款总额'))])
+          );
+          return false;
+        }
 
-        if (build_amount < 0 || build_amount === 0) {
+        if (initial_land_amount > land_amount) {
+          message.error(
+            t('{0}不能大于{1}', [t('首次土地贷款放款额', t('土地贷款总额'))])
+          );
+          return false;
+        }
+
+        const totalAmount = build_amount + land_amount
+        if (totalAmount < 0 || totalAmount === 0) {
           message.error(t('借款总额不正确'));
           return false;
         }
 
-        const credit__data = cloneDeep(formState.value);
-        delete credit__data.build_amount
-        delete credit__data.penalty_rate
-        delete credit__data.repay_type
-        delete credit__data.repay_money
+        // 首次放款金额可以为0
+        if (initial_build_amount + initial_land_amount < 0) {
+          message.error(t('首次放款总金额不正确'));
+          return false;
+        }
 
+        // 置换项目首次放款额度不能为负数
+        if (isRefinancial.value && totalInitialAmountRef.value < 0) {
+          message.error(t('首次放款总金额不正确'));
+          return false;
+        }
+
+        const credit__data = cloneDeep(formState.value);
+        delete credit__data.initial_build_amount
+        delete credit__data.initial_land_amount
+        delete credit__data.land_amount
         delete credit__data.substitution_ids
         delete credit__data.has_linefee
         delete credit__data.do__est
+        delete credit__data.devCost
+        delete credit__data.devCostDetail
+        delete credit__data.time_date
+        delete credit__data.term
+        delete credit__data.days
+        delete credit__data.totalDay
+        delete credit__data.estab_type
 
         const params = {
           code: props.blockInfo.code,
           uuid: props.currentId,
+          estab_type: Number(formState.value.estab_type),
           build_amount: formState.value.build_amount || 0,
-          penalty_rate: formState.value.penalty_rate,
-          repay_type: formState.value.repay_type,
-          repay_money: formState.value.repay_money,
-          substitution_ids: formState.value.substitution_ids || [],
+          land_amount: formState.value.land_amount || 0,
+          equity_amount: formState.value.equity_amount || 0,
+          initial_build_amount: formState.value.initial_build_amount || 0,
+          initial_land_amount: formState.value.initial_land_amount || 0,
+          initial_equity_amount: formState.value.initial_equity_amount || 0,
+          // substitution_ids: formState.value.substitution_ids || [],
           substitution_amount: refinancialAmount.value || 0,
+          has_linefee: Number(formState.value.has_linefee),
+          do__est: Number(formState.value.do__est),
+          start_date: dayjs(formState.value.time_date[0]).format('YYYY-MM-DD'),
+          end_date: dayjs(formState.value.time_date[1]).format('YYYY-MM-DD'),
           credit__data
         };
 
@@ -928,19 +1377,21 @@
           params.credit__data.id = creditId.value;
         }
 
+        if (formState.value.substitution_ids.length && staticFormData.value.start_date !== params.start_date) {
+          params.substitution_ids = []
+          params.substitution_amount = 0
+          params.substitution_data = {}
+          saveParams.value = params
+          substitutionTxt.value = t('项目周期有改动，保存后将重置再融资数据')
+          substitutionVisible.value = true
+          return false
+        }
         saveParams.value = params
 
-        const compareData = {
-          ...cloneDeep(params),
-          ...cloneDeep(params.credit__data)
-        }
-
-        // 费改变需退回判断
-        if (compareHandle(compareData)) {
-          saveDataChange.value = true
-          saveTipsVisible.value = true
+        if (processStore.hasForcast) {
+          substitutionTxt.value = t('点击“保存”按钮后，预测结果将重新生成。您确定吗？')
+          substitutionVisible.value = true
         } else {
-          saveDataChange.value = false
           await saveRequeset()
         }
       })
@@ -949,17 +1400,72 @@
       });
   };
 
+  // 判断两个数组是否相等，元素顺序可以不一样
+  const isArrayEqual = (arr1, arr2) => {
+    if (arr1.length !== arr2.length) {
+      return false
+    }
+    return arr1.every((item, index) => item === arr2[index])
+  }
+
+  const hasChangeDevCost = ref(false)
+  const setSingleFormData = (params) => {
+    projectAuditSaveMode(params).then(() => {
+      hasChangeDevCost.value = true
+
+      const lendingSubIds = cloneDeep(props.lendingInfo.substitution_ids || [])
+      const ledningSubstitutionAmount = Number(props.lendingInfo.substitution_amount || 0)
+
+      // 判断是否修改了置换数据
+      if (Number(params.substitution_amount) !== ledningSubstitutionAmount || !isArrayEqual(params.substitution_ids, lendingSubIds)) {
+        hasChangeDevCost.value = true
+      }
+
+      emits('refresh')
+
+      // 操作记录
+      emitter.emit('refreshAuditHisList');
+
+      // 更新补充股权
+      const tueLoan = formState.value.devCostDetail[0].data[1].loan
+      if (tueLoan !== formState.value.equity_amount) {
+        formState.value.equity_amount = tueLoan
+        formState.value.initial_equity_amount = 0
+      }
+    })
+  }
+
+  const devCostChange = () => {
+    setSingleFormData({
+      code: props.blockInfo.code,
+      uuid: props.currentId,
+      devCost: formState.value.devCost,
+      devCostDetail: formState.value.devCostDetail,
+      set__devCost: 1,
+      substitution_ids: formState.value.substitution_ids || [],
+      substitution_amount: refinancialAmount.value || 0,
+      substitution_data: selectedRefinancialObj.value
+    })
+  }
+
   watch(
     () => props.lendingInfo,
     (val) => {
       if (val) {
         formState.value.substitution_ids = val.substitution_ids || []
         isRefinancial.value = Boolean(val.substitution_ids && val?.substitution_ids?.length)
+        refinancialAmount.value = val.substitution_amount || 0
+        selectedRefinancialObj.value = tool.getObjType(val.substitution_data) === 'array' ? {} : (val.substitution_data || {})
 
-        if (Number(val.penalty_rate) !== Number(formState.value.penalty_rate) ||
-          Number(val.repay_type) !== Number(formState.value.repay_type) ||
-          Number(val.repay_money) !== Number(formState.value.repay_money) ||
-          Number(val.build_amount) !== Number(formState.value.build_amount)
+        if (Number(val.land_amount) !== Number(formState.value.land_amount) ||
+          Number(val.build_amount) !== Number(formState.value.build_amount) ||
+          Number(val.initial_land_amount) !== Number(formState.value.initial_land_amount) ||
+          Number(val.initial_build_amount) !== Number(formState.value.initial_build_amount) ||
+          Number(val.initial_equity_amount) !== Number(formState.value.initial_equity_amount) ||
+          Number(val.has_linefee) !== Number(formState.value.has_linefee) ||
+          val.start_date !== staticFormData.value.start_date ||
+          val.end_date !== staticFormData.value.end_date ||
+          Number(val.estab_type) !== Number(formState.value.estab_type)
         ) {
           updateFormData()
         }
@@ -993,32 +1499,41 @@
     lendingTarget.value = flag
   }
 
-  // 还款方式
-  const repaymentTypeData = ref([])
-  const getRepaymentTypeData = () => {
-    systemDictData('lendr_repay_type').then(res => {
-      const data = res || []
-      const dataArr = data.map(item => {
-        return {
-          label: item.name,
-          value: Number(item.code)
-        }
-      })
-      repaymentTypeData.value = dataArr
+  // 首次建筑放款数据
+  const selectedData = ref([])
+
+  const selectVisible = ref(false)
+  const selectDoneHandle = (data) => {
+    const build__data = cloneDeep(data.build__data)
+    selectedData.value = build__data
+    formState.value.initial_build_amount = data.total
+    selectVisible.value = false
+
+    setSingleFormData({
+      code: props.blockInfo.code,
+      uuid: props.currentId,
+      build__data,
+      initial_build_amount: data.total || 0,
+      initial_land_amount: formState.value.initial_land_amount || 0,
+      initial_equity_amount: formState.value.initial_equity_amount || 0,
+      substitution_amount: refinancialAmount.value || 0,
+      set__initial: 1
     })
   }
 
-  const getTypeLable = (value) => {
-    const obj = repaymentTypeData.value.find(item => item.value === value)
-    return obj ? obj.label : ''
+const goHandle = (page) => {
+    const pathname = window.location.pathname
+    const step = pathname.slice(pathname.lastIndexOf('/') + 1)
+    const href = `/requests/${page}?uuid=${props.currentId}&step=${step}&sn=${props.dataInfo.base.project_apply_sn}&name=${props.dataInfo.borrower.organization_name}`
+
+    navigationTo(href)
   }
 
   onMounted(() => {
     isRefinancial.value = Boolean(props.lendingInfo.substitution_ids && props.lendingInfo?.substitution_ids?.length)
     refinancialAmount.value = props.lendingInfo?.substitution_amount || 0
+    selectedRefinancialObj.value = tool.getObjType(props.lendingInfo.substitution_data) === 'array' ? {} : (props.lendingInfo.substitution_data || {})
 
-    getRepaymentTypeData()
-    getRefinancialList()
     getFormItems();
     emitter.on('refreshIRR', handleRefreshIRR);
     emitter.on('blockShowTarget', blockShowTargetHandle)
@@ -1042,6 +1557,9 @@
   :deep(.ant-statistic-content) {
     font-size: 21px !important;
   }
+  :deep(.ant-picker-range-separator) {
+    padding: 0 !important;
+  }
 }
 
 .total-amount-info {
@@ -1058,13 +1576,15 @@
 
 .financial-amount {
   :deep(.ant-statistic-content) {
-    font-size: 21px !important;
+    font-size: 16px !important;
     line-height: 48px !important;
   }
 }
 
 .plus-txt {
   position: relative;
+  flex: 0 0 3.1666666666666666%;
+  max-width: 3.1666666666666666%;
   .iconfont {
     position: absolute;
     top: 50%;
@@ -1120,8 +1640,16 @@
 
 .block-item {
   :deep(.ant-input[disabled]),
-  :deep(.ant-input-number-disabled) {
+  :deep(.ant-input-number-disabled input) {
     color: #999 !important;
+  }
+}
+
+.show-days {
+  line-height: 50px;
+  font-size: 16px;
+  > span {
+    opacity: 0.7;
   }
 }
 </style>

@@ -33,7 +33,7 @@
                   </a-col>
                   <a-col :span="isNormalUser ? 8 : 4">
                     <a-form-item :label="t('楼栋数')" name="building_num">
-                      <a-input-number min="1" v-model:value="formState.building_num" />
+                      <a-input-number min="1" max="200" v-model:value="formState.building_num" />
                     </a-form-item>
                   </a-col>
 

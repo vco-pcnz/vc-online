@@ -13,30 +13,15 @@
     <template v-for="item in blockArr">
       <!-- 反洗钱 -->
       <template v-if="item === 'AML' && !hideWash">
-        <wash-table
-          :current-id="currentId"
-          :current-step="currentStep"
-          :block-info="blockInfo.AML"
-          :wash-info="dataInfo.AML"
-          @refresh="dataRefresh"
-        ></wash-table>
+        <wash-table :current-id="currentId" :current-step="currentStep" :block-info="blockInfo.AML" :wash-info="dataInfo.AML" @refresh="dataRefresh"></wash-table>
       </template>
 
       <!-- 借款人信息 -->
       <template v-if="item === 'borrower'">
-        <div
-          class="block-item mb"
-          :class="{ checked: dataInfo.borrower.is_check && blockInfo.borrower.showCheck }"
-        >
+        <div class="block-item mb" :class="{ checked: dataInfo.borrower.is_check && blockInfo.borrower.showCheck }">
           <vco-process-title :title="t('借款人信息')">
             <div class="flex gap-5 items-center">
-              <a-button
-                v-if="blockInfo.borrower.showEdit"
-                type="primary"
-                shape="round"
-                class="uppercase"
-                @click="showEdit(1, blockInfo.borrower.code)"
-              >
+              <a-button v-if="blockInfo.borrower.showEdit" type="primary" shape="round" class="uppercase" @click="showEdit(1, blockInfo.borrower.code)">
                 {{ t('编辑') }}
               </a-button>
               <a-popconfirm
@@ -68,19 +53,10 @@
 
       <!-- 项目信息 -->
       <template v-else-if="item === 'project'">
-        <div
-          class="block-item mb"
-          :class="{ checked: dataInfo.project.is_check && blockInfo.project.showCheck }"
-        >
+        <div class="block-item mb" :class="{ checked: dataInfo.project.is_check && blockInfo.project.showCheck }">
           <vco-process-title :title="t('项目信息')">
             <div class="flex gap-5 items-center">
-              <a-button
-                v-if="blockInfo.project.showEdit"
-                type="primary"
-                shape="round"
-                class="uppercase"
-                @click="showEdit(2, blockInfo.project.code)"
-              >
+              <a-button v-if="blockInfo.project.showEdit" type="primary" shape="round" class="uppercase" @click="showEdit(2, blockInfo.project.code)">
                 {{ t('编辑') }}
               </a-button>
               <a-popconfirm
@@ -111,19 +87,10 @@
 
       <!-- 证件资料 -->
       <template v-else-if="item === 'cert'">
-        <div
-          class="block-item mb"
-          :class="{ checked: dataInfo.cert.is_check && blockInfo.cert.showCheck }"
-        >
+        <div class="block-item mb" :class="{ checked: dataInfo.cert.is_check && blockInfo.cert.showCheck }">
           <vco-process-title :title="t('证件资料')">
             <div class="flex gap-5 items-center">
-              <a-button
-                v-if="blockInfo.cert.showEdit"
-                type="primary"
-                shape="round"
-                class="uppercase"
-                @click="showEdit(3, blockInfo.cert.code)"
-              >
+              <a-button v-if="blockInfo.cert.showEdit" type="primary" shape="round" class="uppercase" @click="showEdit(3, blockInfo.cert.code)">
                 {{ t('编辑') }}
               </a-button>
               <a-popconfirm
@@ -154,19 +121,10 @@
 
       <!-- 借款信息 -->
       <template v-else-if="item === 'loan'">
-        <div
-          class="block-item mb"
-          :class="{ checked: dataInfo.loan.is_check && blockInfo.loan.showCheck }"
-        >
+        <div class="block-item mb" :class="{ checked: dataInfo.loan.is_check && blockInfo.loan.showCheck }">
           <vco-process-title :title="t('借款信息')">
             <div class="flex gap-5 items-center">
-              <a-button
-                v-if="blockInfo.loan.showEdit"
-                type="primary"
-                shape="round"
-                class="uppercase"
-                @click="showEdit(4, blockInfo.loan.code)"
-              >
+              <a-button v-if="blockInfo.loan.showEdit" type="primary" shape="round" class="uppercase" @click="showEdit(4, blockInfo.loan.code)">
                 {{ t('编辑') }}
               </a-button>
               <a-popconfirm
@@ -210,13 +168,7 @@
       </template>
 
       <template v-else-if="item === 'bonus' && !isAlm">
-        <bouns-form
-          :current-id="currentId"
-          :current-step="currentStep"
-          :block-info="blockInfo.bonus"
-          :bonus-info="dataInfo.bonus"
-          @refresh="dataRefresh"
-        ></bouns-form>
+        <bouns-form :current-id="currentId" :current-step="currentStep" :block-info="blockInfo.bonus" :bonus-info="dataInfo.bonus" @refresh="dataRefresh"></bouns-form>
       </template>
 
       <!-- 抵押物 -->
@@ -245,13 +197,7 @@
 
       <!-- 上传offer -->
       <template v-else-if="item === 'offer'">
-        <offer-form
-          :current-id="currentId"
-          :current-step="currentStep"
-          :block-info="blockInfo.offer"
-          :offer-info="dataInfo.offer"
-          @refresh="dataRefresh"
-        ></offer-form>
+        <offer-form :current-id="currentId" :current-step="currentStep" :block-info="blockInfo.offer" :offer-info="dataInfo.offer" @refresh="dataRefresh"></offer-form>
       </template>
 
       <!-- 确认信息 -->
@@ -270,9 +216,9 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from "vue";
-import { useI18n } from "vue-i18n";
-import { cloneDeep } from "lodash";
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { cloneDeep } from 'lodash';
 
 import CheckEditDialog from './CheckEditDialog.vue';
 import WashTable from './WashTable.vue';
@@ -280,14 +226,14 @@ import BorrowerInfo from './BorrowerInfo.vue';
 import ProjectInfo from './ProjectInfo.vue';
 import DocumentInfo from './DocumentInfo.vue';
 import LoanInfo from './LoanInfo.vue';
-import LendingForm from "./LendingForm.vue";
-import BounsForm from "./BounsForm.vue";
-import SecurityItems from "./SecurityItems.vue";
-import GuarantorInfo from "./GuarantorInfo.vue";
-import OfferForm from "./OfferForm.vue";
-import ConfirmForm from "./ConfirmForm.vue";
+import LendingForm from './LendingForm.vue';
+import BounsForm from './BounsForm.vue';
+import SecurityItems from './SecurityItems.vue';
+import GuarantorInfo from './GuarantorInfo.vue';
+import OfferForm from './OfferForm.vue';
+import ConfirmForm from './ConfirmForm.vue';
 
-import { projectAuditCheckMode } from "@/api/process"
+import { projectAuditCheckMode } from '@/api/process';
 import emitter from '@/event';
 
 import { useUserStore } from '@/store';
@@ -298,39 +244,39 @@ const emits = defineEmits(['refresh', 'lendingDone', 'openData', 'compareDone'])
 const props = defineProps({
   blockArr: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   blockInfo: {
     type: Object,
-    default: () => {}
+    default: () => {},
   },
   dataInfo: {
     type: Object,
-    default: () => {}
+    default: () => {},
   },
   currentId: {
     type: [Number, String],
-    default: ''
+    default: '',
   },
   currentStep: {
-    type: Object
+    type: Object,
   },
   hideWash: {
     type: Boolean,
-    default: false
-  }
-})
+    default: false,
+  },
+});
 
 const userStore = useUserStore();
 const isAlm = computed(() => {
   const roles = userStore.userInfo.roles;
-  return roles.length === 1 && (roles[0].name.toLowerCase()) === 'aml';
-})
+  return roles.length === 1 && roles[0].name.toLowerCase() === 'alm';
+});
 
-const borrowerTarget = ref(true)
-const projectTarget = ref(true)
-const documentTarget = ref(true)
-const loanTarget = ref(true)
+const borrowerTarget = ref(true);
+const projectTarget = ref(true);
+const documentTarget = ref(true);
+const loanTarget = ref(true);
 
 const showCheckDialog = ref(false);
 const currentInfoData = ref(null);
@@ -340,10 +286,10 @@ const currentCode = ref('');
 const lendingInfo = computed(() => {
   const obj = {
     ...props.dataInfo.lending,
-    loan_money: props.dataInfo.loan.loan_money
-  }
-  return obj
-})
+    loan_money: props.dataInfo.loan.loan_money,
+  };
+  return obj;
+});
 
 const showEdit = (type, code) => {
   let data = null;
@@ -361,7 +307,7 @@ const showEdit = (type, code) => {
     currentType.value = 'four';
   }
 
-  currentCode.value = code
+  currentCode.value = code;
 
   if (data) {
     const dataObj = cloneDeep(data);
@@ -375,8 +321,8 @@ const showEdit = (type, code) => {
 const checkHandle = async (code) => {
   const params = {
     uuid: props.currentId,
-    code
-  }
+    code,
+  };
   await projectAuditCheckMode(params)
     .then(() => {
       emits('refresh');
@@ -386,40 +332,40 @@ const checkHandle = async (code) => {
     .catch(() => {
       return false;
     });
-}
+};
 
 const dataRefresh = () => {
   emits('refresh');
 };
 
 const doneHandle = (type) => {
-  emits(type)
-}
+  emits(type);
+};
 
 const openDataHanle = (data) => {
-  emits('openData', data)
-}
+  emits('openData', data);
+};
 
 const compareDoneHandle = (data) => {
-  emits('compareDone', data)
-}
+  emits('compareDone', data);
+};
 
 const blockShowTargetHandle = (flag) => {
-  borrowerTarget.value = flag
-  projectTarget.value = flag
-  documentTarget.value = flag
-  loanTarget.value = flag
-}
+  borrowerTarget.value = flag;
+  projectTarget.value = flag;
+  documentTarget.value = flag;
+  loanTarget.value = flag;
+};
 
 onMounted(() => {
-  emitter.on('blockShowTarget', blockShowTargetHandle)
-})
+  emitter.on('blockShowTarget', blockShowTargetHandle);
+});
 
 onUnmounted(() => {
-  emitter.off('blockShowTarget', blockShowTargetHandle)
-})
+  emitter.off('blockShowTarget', blockShowTargetHandle);
+});
 </script>
 
 <style lang="less" scoped>
-  @import './../styles/common.less';
+@import './../styles/common.less';
 </style>

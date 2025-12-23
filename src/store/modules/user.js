@@ -39,14 +39,14 @@ const useUserStore = defineStore('VcOnlineUserInfo', {
     pageRole: '',
     taskInfoParams: {
       status: '0',
-      type: undefined
+      type: undefined,
     },
     taskInfo: {
       all: 0,
       project: 0,
       request: 0,
       total: 0,
-      other: 0
+      other: 0,
     },
     LoanRequestsInfo: {
       drawdown_num: 0,
@@ -57,16 +57,16 @@ const useUserStore = defineStore('VcOnlineUserInfo', {
       penalty_num: 0,
       close_num: 0,
       wash_num: 0,
-      broker_num: 0
+      broker_num: 0,
     },
     loadingCount: false,
-    smsVerify: null
+    smsVerify: null,
   }),
 
   getters: {
     getState() {
       return { ...this.$state };
-    }
+    },
   },
 
   actions: {
@@ -103,10 +103,10 @@ const useUserStore = defineStore('VcOnlineUserInfo', {
       // 用户信息
       result.roles = result.roles && result.roles.length ? result.roles.join('/') : '';
       this.userInfo = result;
-      if (this.userInfo.roles === 'Funding Partner') {
+      if (this.userInfo.roles === 'investor') {
         this.pageRole = 'Investor';
       }
-      if (this.userInfo.roles === 'Primary') {
+      if (this.userInfo.roles === 'umbrella') {
         this.pageRole = 'Umbrella';
       }
 
@@ -128,7 +128,7 @@ const useUserStore = defineStore('VcOnlineUserInfo', {
             request: res.request_backlog_count || 0,
             all: res.total_backlog_count || 0,
             total: res.top_total_backlog_count || 0,
-            other: res.other_backlog_count || 0
+            other: res.other_backlog_count || 0,
           };
           this.loadingCount = false;
         })
@@ -154,13 +154,13 @@ const useUserStore = defineStore('VcOnlineUserInfo', {
       }
 
       result.map((item) => {
-        if (this.pageRole == 'Investor' || this.userInfo.roles === 'Funding Partner') {
+        if (this.pageRole == 'Investor' || this.userInfo.roles === 'investor') {
           item.hide = 1;
           if (item.path.includes('/investor')) {
             item.hide = 0;
           }
         }
-        if (this.pageRole == 'Umbrella' || this.userInfo.roles === 'Primary') {
+        if (this.pageRole == 'Umbrella' || this.userInfo.roles === 'umbrella') {
           item.hide = 1;
           if (item.path.includes('/umbrella')) {
             item.hide = 0;
@@ -172,7 +172,7 @@ const useUserStore = defineStore('VcOnlineUserInfo', {
         toTreeData({
           data: result.filter((d) => ![1, 2, 4].includes(d.menuType)),
           idField: 'id',
-          parentIdField: 'children'
+          parentIdField: 'children',
         }).concat([])
       );
       this.routerInfo = menus;
@@ -236,7 +236,7 @@ const useUserStore = defineStore('VcOnlineUserInfo', {
         this.resetUserInfo();
         location.replace(`${window.location.origin}/#/login`);
       }
-    }
-  }
+    },
+  },
 });
 export default useUserStore;

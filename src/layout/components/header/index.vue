@@ -40,7 +40,7 @@
               </a-space>
               <div v-if="userInfo?.roles && !isNormalUser">
                 <template v-for="(item, index) in userInfo?.roles.split('/')" :key="item">
-                  <a-tag color="orange" :title="userInfo?.roles[index]" @click="toLoans(item)">{{ item }}</a-tag>
+                  <a-tag color="orange" :title="userInfo?.full_roles[index]" @click="toLoans(item)">{{ userInfo?.role_names[index] }}</a-tag>
                 </template>
               </div>
             </div>
@@ -110,7 +110,7 @@ const menuData = computed(() => {
     .map((item) => {
       return {
         title: item.meta.title,
-        path: item.path,
+        path: item.path
       };
     });
   return resData;
@@ -148,7 +148,7 @@ const isUserActive = () => {
 
 const menuItem = [
   { label: t('编辑详情'), key: 'edit-profile', to: '/profile/about' },
-  { label: t('修改密码'), key: 'change-pwd', to: '/profile/safe' },
+  { label: t('修改密码'), key: 'change-pwd', to: '/profile/safe' }
 ];
 
 const goTo = (path) => {

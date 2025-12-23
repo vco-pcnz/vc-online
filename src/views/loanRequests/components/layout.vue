@@ -78,7 +78,7 @@ const updateSearchForm = (val) => {
     val.type = undefined;
   }
   searchOldData.value = val;
-  emits('search', { sta: currentTab.value, ...val, ...props.params });
+  emits('search', { sta: currentTab.value, ...val, ...props.params, product_uuid: productStore.currentProduct });
 };
 
 const statusData = computed(() => {
@@ -284,12 +284,10 @@ const typeData = computed(() => {
   return arr;
 });
 
-const requestNumStatistics = ref(null);
-onMounted(() => {
-  requestNum().then((res) => {
+const getNum = () =>
+  requestNum({ product_uuid: productStore.currentProduct }).then((res) => {
     userStore.LoanRequestsInfo = res;
   });
-});
 
 const loadData = () => {
   let params = { sta: currentTab.value, ...searchOldData.value, ...props.params, product_uuid: productStore.currentProduct };
@@ -311,6 +309,7 @@ watch(
   (val) => {
     if (val) {
       loadData();
+      getNum();
     }
   },
   { immediate: true }

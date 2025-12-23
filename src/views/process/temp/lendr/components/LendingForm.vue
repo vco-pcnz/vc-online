@@ -124,13 +124,14 @@
                     `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                 "
                 :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                @input="() => percentInput('loan_money')"
               />
             </a-form-item>
           </a-col>
           <a-col :span="8">
             <a-form-item :label="t('首次放款总金额')" name="initial_amount">
               <a-input-number
-                v-model:value="formState.initial_amount_amount"
+                v-model:value="formState.initial_amount"
                 :max="99999999999"
                 :disabled="amountDisabled || inputADis"
                 :formatter="
@@ -138,6 +139,7 @@
                     `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                 "
                 :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                @input="() => percentInput('initial_amount')"
               />
             </a-form-item>
           </a-col>
@@ -429,6 +431,22 @@
     }
     return Promise.resolve();
   };
+
+  const validateAmount1 = (name) => (rule, value) => {
+    if (value && Number(value)) {
+      const numRegex = /^(?!0(\.0+)?$)(\d+(\.\d+)?|\.\d+)$/;
+      if (!numRegex.test(value)) {
+        return Promise.reject(t('请输入大于0的数字'));
+      } else {
+        if (Number(value) > Number(formState.value.loan_money)) {
+          return Promise.reject(t('首次放款总金额不能大于借款总金额'));
+        }
+      }
+    } else {
+      return Promise.reject(t('请输入') + name);
+    }
+    return Promise.resolve();
+  };
   
   const getValidateInfo = (data) => {
     return (rule, value) => {
@@ -477,7 +495,7 @@
       { validator: validateAmount(t('借款总金额')), trigger: 'blur' }
     ],
     initial_amount: [
-      { validator: validateAmount(t('首次放款总金额')), trigger: 'blur' }
+      { validator: validateAmount1(t('首次放款总金额')), trigger: 'blur' }
     ],
     time_date: [
       { required: true, message: t('请选择') + t('项目周期'), trigger: 'change' }
@@ -555,7 +573,6 @@
       estabItem.editMark = percentData[estabFeeRateIndex].editMark
       estabData.push(estabItem)
     }
-    console.log('estabData', estabData);
     estabItems.value = estabData
 
     // 建立费输入
@@ -635,8 +652,14 @@
       uuid: props.currentId,
       project: {
         estab_type,
+        has_linefee: 0,
         start_date: dayjs(time_date[0]).format('YYYY-MM-DD'),
         end_date: dayjs(time_date[1]).format('YYYY-MM-DD'),
+        land_amount: 0,
+        build_amount: 0,
+        substitution_amount: 0,
+        initial_build_amount: Number(initial_amount || 0),
+        initial_land_amount: 0,
         loan_money: Number(loan_money || 0),
         initial_amount: Number(initial_amount || 0)
       },

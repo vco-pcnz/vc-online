@@ -1326,5 +1326,6 @@ export default {
   "确定要向{0}重新发送验证码吗?": "Are you sure to re-send the verification code to {0}?",
   "密码登录": "Log in with password",
   "验证码登录": "Log in with code",
-  "批量绑定项目": "Batch bind Loan"
+  "批量绑定项目": "Batch bind Loan",
+  "首次放款总金额不能大于借款总金额": "The Initial drawdown amount cannot be greater than the loan amount"
 }

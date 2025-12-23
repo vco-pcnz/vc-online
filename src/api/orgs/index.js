@@ -19,8 +19,9 @@ export const getList = (params) =>
 // 查询字典
 export const getStakeholderType = () =>
   request({
-    url: 'system/dictData/getDictByCode?code=stakeholder_type',
-    method: 'get'
+    url: 'system/dictData/getDictByCode',
+    method: 'get',
+    params: {code:'stakeholder_type'}
   });
 
 // 详情

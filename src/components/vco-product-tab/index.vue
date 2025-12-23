@@ -17,6 +17,7 @@ const productData = computed(() => productStore.openProductData);
 
 const productChange = (data) => {
   productStore.currentProduct = data.uuid;
+  localStorage.setItem('currentProduct', data.uuid);
 };
 
 watch(

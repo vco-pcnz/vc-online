@@ -206,7 +206,7 @@ const reload = () => {
 const downloading = ref(false);
 const report = () => {
   downloading.value = true;
-  reportExport(searchParams.value)
+  reportExport({ ...searchParams.value, product_uuid: productStore.currentProduct })
     .then((res) => {
       window.open(res);
     })

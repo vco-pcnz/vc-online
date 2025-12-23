@@ -9,6 +9,7 @@
         :options="productOptions"
         :placeholder="t('选择产品')"
         :dropdownMatchSelectWidth="false"
+        @change="handleProductChange"
       />
     </div>
     <div class="header_container">
@@ -220,6 +221,11 @@ watch(
   },
   { deep: true, immediate: true }
 );
+  
+const handleProductChange = (val) => {
+  productStore.currentProduct = val;
+  localStorage.setItem('currentProduct', val);
+};
 
 // 组件挂载时启动定时器
 onMounted(() => {
@@ -247,7 +253,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 30px;
+  // padding: 0 30px;
   height: 72px;
 
   .title_with_product {
@@ -355,15 +361,5 @@ onUnmounted(() => {
 
 .product-select {
   width: 80px;
-  :deep(.ant-select-selector) {
-    border: none !important;
-    box-shadow: none !important;
-  }
-  :deep(.ant-select-selector:hover),
-  :deep(.ant-select-selector:focus),
-  :deep(.ant-select-focused .ant-select-selector) {
-    border: none !important;
-    box-shadow: none !important;
-  }
 }
 </style>

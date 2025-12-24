@@ -44,7 +44,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { loanDstatistics } from '@/api/project/loan';
@@ -56,7 +56,7 @@ const userStore = useUserStore();
 const isExternalUser = computed(() => !!userStore.isNormalUser);
 
 const emits = defineEmits(['update:statisticsData']);
-const props = defineProps(['uuid']);
+const props = defineProps(['uuid', 'type_id']);
 const loading = ref(false);
 // 初始化图表
 const option = ref({
@@ -97,7 +97,7 @@ const statistics = ref();
 
 const loadData = () => {
   loading.value = true;
-  loanDstatistics({ uuid: props.uuid })
+  loanDstatistics({ uuid: props.uuid ,lender: props.type_id})
     .then((res) => {
       statistics.value = res;
       option.value.series[0].data = [{ value: statistics.value.loanWithdrawal }, { value: tool.minus(statistics.value?.loan, statistics.value?.loanWithdrawal) }];
@@ -116,6 +116,13 @@ onMounted(() => {
 defineExpose({
   loadData
 });
+
+watch(
+  () => props.type_id,
+  (val) => {
+    loadData();
+  }
+);
 </script>
 
 <style scoped lang="less">

@@ -32,7 +32,7 @@
         <div class="item uppercase">{{ t('月份') }}</div>
         <div class="item uppercase">{{ t('预测类型') }}</div>
         <div class="item uppercase" v-if="projectDetail?.product?.code === 'vsl'">{{ t('贷款方') }}</div>
-        <!-- <div class="item uppercase" v-show="false">{{ t('客户经理') }}</div> -->
+        <div class="item uppercase" v-else v-show="false">{{ t('客户经理') }}</div>
         <div class="item uppercase">{{ t('实时预报') }}</div>
         <div class="item uppercase">{{ t('日期') }}</div>
         <div class="item uppercase">{{ t('借记/贷记') }}</div>
@@ -56,8 +56,8 @@
               <template v-if="!index"> {{ tool.monthYear(item.ym) }}</template>
             </div>
             <div class="item">{{ item.name }}</div>
-            <!-- <div class="item flex items-center" v-show="false"><vco-avatar :size="30"></vco-avatar></div> -->
             <div class="item" v-if="projectDetail?.product?.code === 'vsl'">{{ item.source ? 'BOC' : 'VS' }}</div>
+            <div class="item flex items-center" v-else v-show="false"><vco-avatar :size="30"></vco-avatar></div>
             <div class="item">
               <div class="flex items-center justify-between" v-if="item?.forecast_log?.length && item.status != 0">
                 <span class="mr-3 color_grey fs_xs">{{ tool.showDate(item.forecast_log[item.forecast_log.length - 1].create_time, 'DD/MM') }}</span>

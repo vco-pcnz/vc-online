@@ -82,7 +82,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import layout from '../components/layout.vue';
 import { hasPermission } from '@/directives/permission/index';
@@ -91,6 +91,8 @@ import { navigationTo } from '@/utils/tool';
 import { resultReport, reportExport, resultXeroExport } from '@/api/reconciliations';
 import TableSearch from './TableSearch.vue';
 import { cloneDeep } from 'lodash';
+import useProductStore from '@/store/modules/product';
+const productStore = useProductStore();
 
 const { t } = useI18n();
 
@@ -172,7 +174,7 @@ const setPaginate = (page, limit) => {
 
 const loadData = () => {
   loading.value = true;
-  resultReport({ ...pagination.value, ...searchParams.value })
+  resultReport({ ...pagination.value, ...searchParams.value, product_uuid: productStore.currentProduct })
     .then((res) => {
       total.value = res.count;
       dataSource.value = res.data;
@@ -204,7 +206,7 @@ const reload = () => {
 const downloading = ref(false);
 const report = () => {
   downloading.value = true;
-  reportExport(searchParams.value)
+  reportExport({ ...searchParams.value, product_uuid: productStore.currentProduct })
     .then((res) => {
       window.open(res);
     })
@@ -216,7 +218,7 @@ const report = () => {
 const downIdsloading = ref(false);
 const reportIds = () => {
   downIdsloading.value = true;
-  resultXeroExport()
+  resultXeroExport({ product_uuid: productStore.currentProduct })
     .then((res) => {
       window.open(res);
     })
@@ -228,6 +230,15 @@ const reportIds = () => {
 onMounted(() => {
   loadData();
 });
+
+watch(
+  () => productStore.currentProduct,
+  (val) => {
+    if (val) {
+      loadData();
+    }
+  }
+);
 </script>
 
 <style scoped lang="less">

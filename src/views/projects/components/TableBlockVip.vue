@@ -66,7 +66,9 @@
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === '1'">
           <a-space>
-            <vco-avatar :src="record.project_image" :radius="true" :round="false" :size="48" />
+            <vco-avatar v-if="record.project_image" :src="record.project_image" :radius="true" :round="false" :size="48" />
+            <p style="width: 48px;" class="text-center" v-else>--</p>
+            
             <div class="ml-3">
               <p :title="record.project_name" class="bold black text-ellipsis overflow-hidden text-nowrap" style="width: 320px; font-size: 16px">{{ record.project_name }}</p>
               <p class="replenish_text mt-1" style="line-height: 1">ID: {{ record.project_apply_sn }}</p>

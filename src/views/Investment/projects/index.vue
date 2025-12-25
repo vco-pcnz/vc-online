@@ -44,7 +44,7 @@
   <BindLone v-model:visible="open_projects" :selectedData="bindData" :id="invest_id" @update="handleBindLoneChange" />
 </template>
 
-<script setup name="Projects">
+<script setup >
 import { ref, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import TableSearch from './TableSearch.vue';

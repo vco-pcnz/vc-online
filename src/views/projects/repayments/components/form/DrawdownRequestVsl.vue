@@ -758,7 +758,7 @@ const loadDrawDownSelected = () => {
   drawDownSelectedListLoading.value = true;
   maxReductionAmount.value = 0;
   drawdownList.value = [];
-  drawDownSelected({ uuid: props.uuid, apply_id: props.dataInfo?.id })
+  drawDownSelected({ uuid: props.uuid, apply_id: props.dataInfo?.id,date: formState.value.apply_date })
     .then((res) => {
       drawDownSelectedList.value = res;
     })

@@ -1042,8 +1042,9 @@
           code: props.blockInfo.code,
           uuid: props.currentId,
           estab_type: Number(formState.value.estab_type),
-          loan_money: formState.value.loan_money || 0,
-          initial_amount: formState.value.initial_amount || 0,
+          repay_money: formState.value.loan_money || 0,
+          loan_money: formState.value.initial_amount || 0,
+          // initial_amount: formState.value.initial_amount || 0,
           start_date: dayjs(formState.value.time_date[0]).format('YYYY-MM-DD'),
           end_date: dayjs(formState.value.time_date[1]).format('YYYY-MM-DD'),
           credit__data

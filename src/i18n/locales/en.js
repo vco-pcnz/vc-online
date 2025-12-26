@@ -1327,5 +1327,14 @@ export default {
   "密码登录": "Log in with password",
   "验证码登录": "Log in with code",
   "批量绑定项目": "Batch bind Loan",
-  "首次放款总金额不能大于借款总金额": "The Initial drawdown amount cannot be greater than the loan amount"
+  "首次放款总金额不能大于借款总金额": "The Initial drawdown amount cannot be greater than the loan amount",
+  "到期一次性还本付息": "Lump Sum",
+  "按月付息，到期还本": "Interest Only",
+  "等额本息": "P+I",
+  "还款日": "Due Date",
+  "放款日对应日": "Anniversary",
+  "每月固定日": "Fixed Date",
+  "每月最后一天": " End of Month",
+  "几号": "Which day",
+  "{0}号": "{0} th"
 }

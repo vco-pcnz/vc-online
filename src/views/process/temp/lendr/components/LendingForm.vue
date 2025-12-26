@@ -147,6 +147,46 @@
           <a-col v-if="percentItems.length" :span="24">
             <div class="form-line"></div>
           </a-col>
+
+          <a-col :span="8">
+            <a-form-item :label="t('还款方式')" name="repay_type">
+              <a-select
+                v-model:value="formState.repay_type"
+                style="width: 100%"
+                :disabled="isDetails"
+                :options="repayTypeData"
+              ></a-select>
+            </a-form-item>
+          </a-col>
+
+          <template v-if="[2, 3].includes(Number(formState.repay_type))">
+            <a-col :span="8">
+              <a-form-item :label="t('还款日')" name="repay_day_type">
+                <a-select
+                  v-model:value="formState.repay_day_type"
+                  style="width: 100%"
+                  :disabled="isDetails"
+                  :options="repayDayTypeData"
+                ></a-select>
+              </a-form-item>
+            </a-col>
+
+            <a-col v-if="Number(formState.repay_day_type) === 2" :span="8">
+              <a-form-item :label="t('几号')" name="repay_day">
+                <a-select
+                  v-model:value="formState.repay_day"
+                  style="width: 100%"
+                  :disabled="isDetails"
+                  :options="repayDayData"
+                ></a-select>
+              </a-form-item>
+            </a-col>
+          </template>
+          
+
+          <a-col v-if="percentItems.length" :span="24">
+            <div class="form-line"></div>
+          </a-col>
           <template v-if="percentItems.length">
             <a-col
               v-for="item in percentItems"
@@ -480,6 +520,45 @@
     }
   ])
 
+  const repayTypeData = ref([
+    {
+      label: t('到期一次性还本付息'),
+      value: '1'
+    },
+    {
+      label: t('按月付息，到期还本'),
+      value: '2'
+    },
+    {
+      label: t('等额本息'),
+      value: '3'
+    }
+  ])
+
+  const repayDayTypeData = ref([
+    {
+      label: t('放款日对应日'),
+      value: '1'
+    },
+    {
+      label: t('每月固定日'),
+      value: '2'
+    },
+    {
+      label: t('每月最后一天'),
+      value: '3'
+    }
+  ])
+
+  const repayDayData = ref([]);
+
+  for (let i = 1; i <= 31; i++) {
+    repayDayData.value.push({
+      label: t('{0}号', [i]),
+      value: String(i)
+    })
+  }
+
   const formRef = ref();
   const formState = ref({
     estab_type: 1,
@@ -487,7 +566,10 @@
     initial_amount: '',
     term: '',
     days: '',
-    totalDay: 0
+    totalDay: 0,
+    repay_type: '',
+    repay_day_type: '',
+    repay_day: ''
   });
 
   const formRules = ref({
@@ -499,6 +581,15 @@
     ],
     time_date: [
       { required: true, message: t('请选择') + t('项目周期'), trigger: 'change' }
+    ],
+    repay_type: [
+      { required: true, message: t('请选择') + t('还款方式'), trigger: 'change' }
+    ],
+    repay_day_type: [
+      { required: true, message: t('请选择') + t('还款日'), trigger: 'change' }
+    ],
+    repay_day: [
+      { required: true, message: t('请选择') + t('几号'), trigger: 'change' }
     ]
   });
 
@@ -591,7 +682,6 @@
       const build_amount = formState.value.build_amount || 0;
       const land_amount = formState.value.land_amount || 0;
       const equity_amount = formState.value.equity_amount || 0
-      const refinancial_amount = refinancialAmount.value || 0
       const brokeFeeRate = formState.value.credit_brokerFeeRate || 0
       
 
@@ -615,7 +705,6 @@
       const build_amount = formState.value.build_amount || 0;
       const land_amount = formState.value.land_amount || 0;
       const equity_amount = formState.value.equity_amount || 0
-      const refinancial_amount = refinancialAmount.value || 0
       const brokeFee = formState.value.credit_brokerFee || 0
 
       if (isNaN(Number(brokeFee))) {
@@ -755,7 +844,7 @@
       changeBackItemsStore.value = cloneDeep(backData);
       showNumItemsStore.value = cloneDeep(showNumItemsData);
       
-      await updateFormData(res);
+      await updateFormData();
     });
   };
 
@@ -824,6 +913,13 @@
       }
       linefeeFilter()
     });
+
+    const {loan_money, initial_amount, repay_type, repay_day_type, repay_day} = props.lendingInfo
+    formState.value.loan_money = loan_money ? Number(loan_money) : ''
+    formState.value.initial_amount = initial_amount ? Number(initial_amount) : ''
+    formState.value.repay_type = Number(repay_type) ? String(repay_type) : ''
+    formState.value.repay_day_type = Number(repay_day_type) ? String(repay_day_type) : ''
+    formState.value.repay_day = Number(repay_day) ? String(repay_day) : ''
 
     // 项目周期
     formState.value.time_date = [dayjs(props.lendingInfo.start_date), dayjs(props.lendingInfo.end_date)]
@@ -953,6 +1049,22 @@
           credit__data
         };
 
+        const { repay_type, repay_day_type, repay_day } = formState.value
+        params.repay_type = Number(repay_type)
+
+        if (params.repay_type !== 1) {
+          params.repay_day_type = Number(repay_day_type)
+
+          if (Number(repay_day_type) === 2) {
+            params.repay_day = Number(repay_day)
+          } else {
+            params.repay_day = ''
+          }
+        } else {
+          params.repay_day_type = ''
+          params.repay_day = ''
+        }
+
         if (creditId.value) {
           params.credit__data.id = creditId.value;
         }
@@ -978,7 +1090,10 @@
           Number(val.initial_amount) !== Number(formState.value.initial_amount) ||
           val.start_date !== staticFormData.value.start_date ||
           val.end_date !== staticFormData.value.end_date ||
-          Number(val.estab_type) !== Number(formState.value.estab_type)
+          Number(val.estab_type) !== Number(formState.value.estab_type) ||
+          val.repay_type !== formState.value.repay_type ||
+          val.repay_day_type !== formState.value.repay_day_type ||
+          val.repay_day !== formState.value.repay_day
         ) {
           updateFormData()
         }

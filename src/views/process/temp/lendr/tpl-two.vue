@@ -158,7 +158,7 @@ const formState = reactive({
   project_address_short: '',
   project_address: '',
   project_postcode: '',
-  building_num: '',
+  building_num: '0',
   project_about: '',
   region_one_id: '',
   region_two_id: '',

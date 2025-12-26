@@ -914,9 +914,9 @@
       linefeeFilter()
     });
 
-    const {loan_money, initial_amount, repay_type, repay_day_type, repay_day} = props.lendingInfo
-    formState.value.loan_money = loan_money ? Number(loan_money) : ''
-    formState.value.initial_amount = initial_amount ? Number(initial_amount) : ''
+    const {repay_money, loan_money, repay_type, repay_day_type, repay_day} = props.lendingInfo
+    formState.value.loan_money = repay_money ? Number(repay_money) : ''
+    formState.value.initial_amount = loan_money ? Number(loan_money) : ''
     formState.value.repay_type = Number(repay_type) ? String(repay_type) : ''
     formState.value.repay_day_type = Number(repay_day_type) ? String(repay_day_type) : ''
     formState.value.repay_day = Number(repay_day) ? String(repay_day) : ''

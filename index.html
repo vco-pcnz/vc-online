@@ -18,7 +18,9 @@
         // 方法3: 更全面的用户代理检测
         const userAgent = navigator.userAgent || '';
         const mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i;
+        const tabletRegex = /(iPad|Tablet|PlayBook|Silk)|(Android(?!.*Mobile))/i;
         const isMobileUA = mobileRegex.test(userAgent);
+        const isTablet = tabletRegex.test(userAgent);
         
         // 方法4: 检测特定的移动浏览器特征
         const isMobileBrowser = /Mobi|Android/i.test(userAgent);
@@ -34,7 +36,8 @@
         if (isMobileBrowser) mobileScore++;
         if (hasOrientationAPI) mobileScore++;
         
-        return mobileScore >= 2;
+        // 平板设备不跳转移动端
+        return mobileScore >= 2 && !isTablet;
       }
       if (is_mobile()) {
         const origin = window.location.origin || '';

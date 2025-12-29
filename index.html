@@ -8,11 +8,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>VC Online</title>
   <script>
-    alert( window.innerWidth);
     const is_mobile = () => {
-        // 仅基于屏幕尺寸判断
-        const isSmallScreen = window.screen.width < 768 || window.innerWidth < 768;
-        return isSmallScreen;
+        // 仅依据常见手机屏幕宽度判断，平板通常 >= 768px
+        const width = Math.min(window.innerWidth, window.screen.width);
+        return width <= 600;
       }
       if (is_mobile()) {
         const origin = window.location.origin || '';

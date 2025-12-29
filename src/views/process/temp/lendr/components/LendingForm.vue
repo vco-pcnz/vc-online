@@ -520,20 +520,24 @@
     }
   ])
 
-  const repayTypeData = ref([
-    {
-      label: t('到期一次性还本付息'),
-      value: '1'
-    },
-    {
-      label: t('按月付息，到期还本'),
-      value: '2'
-    },
-    {
-      label: t('等额本息'),
-      value: '3'
-    }
-  ])
+  const repayTypeData = computed(() => {
+    const hasDays = Number(formState.value.days) > 0
+    return [
+      {
+        label: t('到期一次性还本付息'),
+        value: '1'
+      },
+      {
+        label: t('按月付息，到期还本'),
+        value: '2'
+      },
+      {
+        label: t('等额本息'),
+        value: '3',
+        disabled: hasDays
+      }
+    ]
+  })
 
   const repayDayTypeData = ref([
     {
@@ -738,14 +742,12 @@
         has_linefee: 0,
         start_date: dayjs(time_date[0]).format('YYYY-MM-DD'),
         end_date: dayjs(time_date[1]).format('YYYY-MM-DD'),
-        land_amount: 0,
-        build_amount: 0,
-        substitution_amount: 0,
-        initial_build_amount: Number(initial_amount || 0),
-        initial_land_amount: 0,
+        repay_month: formState.value.term || 0,
         loan_money: Number(loan_money || 0),
         initial_amount: Number(initial_amount || 0),
-        repay_type: Number(repay_type || 0)
+        repay_type: Number(repay_type || 0),
+        repay_day_type: '',
+        repay_day: ''
       },
       credit: {
         credit_brokerFee: Number(credit_brokerFee || 0),
@@ -856,6 +858,14 @@
     });
   };
 
+  const clearTypeHandle = () => {
+    if (Number(formState.value.repay_type) === 3) {
+      formState.value.repay_type = ''
+      formState.value.repay_day_type = ''
+      formState.value.repay_day = ''
+    }
+  }
+
   const timeChange = (date) => {
     if (date) {
       const startDate = typeof date[0] === 'string' ? date[0] : date[0].format('YYYY-MM-DD')
@@ -864,6 +874,10 @@
       formState.value.term = calcDay.months
       formState.value.days = calcDay.days
       formState.value.totalDay = calcDay.gapDay
+
+      if (calcDay.days) {
+        clearTypeHandle()
+      }
     } else {
       formState.value.term = ''
       formState.value.days = ''
@@ -888,6 +902,10 @@
         formState.value.time_date = []
         formState.value.totalDay = 0
       }
+    }
+
+    if (days) {
+      clearTypeHandle()
     }
   }
 
@@ -1050,6 +1068,7 @@
           code: props.blockInfo.code,
           uuid: props.currentId,
           estab_type: Number(formState.value.estab_type),
+          repay_month: formState.value.term || 0,
           repay_money: formState.value.loan_money || 0,
           loan_money: formState.value.initial_amount || 0,
           // initial_amount: formState.value.initial_amount || 0,

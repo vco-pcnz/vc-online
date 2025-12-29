@@ -21,8 +21,9 @@
         const touchPoints = navigator.maxTouchPoints || 0;
         const mobileRegex = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i;
         const tabletRegex = /(iPad|Tablet|PlayBook|Silk)|(Android(?!.*Mobile))/i;
-        // iPadOS 13+ 将 UA 伪装为 Mac，而平台为 MacIntel 且有触摸点
-        const isTabletUA = tabletRegex.test(userAgent) || (platform === 'MacIntel' && touchPoints > 1);
+        // iPadOS 13+ 将 UA 伪装为 Mac；部分 WebView 会把 maxTouchPoints 设为 0，因此也用触摸事件兜底
+        const isIPadLikeMac = platform === 'MacIntel' && (touchPoints > 1 || 'ontouchstart' in window || 'ontouchend' in document);
+        const isTabletUA = tabletRegex.test(userAgent) || isIPadLikeMac;
         const isMobileUA = mobileRegex.test(userAgent) && !isTabletUA;
         const isTablet = isTabletUA;
         

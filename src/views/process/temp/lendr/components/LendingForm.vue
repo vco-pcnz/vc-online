@@ -155,6 +155,7 @@
                 style="width: 100%"
                 :disabled="isDetails"
                 :options="repayTypeData"
+                @change="debouncedEstablishCalculate"
               ></a-select>
             </a-form-item>
           </a-col>
@@ -167,6 +168,7 @@
                   style="width: 100%"
                   :disabled="isDetails"
                   :options="repayDayTypeData"
+                  @change="debouncedEstablishCalculate"
                 ></a-select>
               </a-form-item>
             </a-col>
@@ -178,6 +180,7 @@
                   style="width: 100%"
                   :disabled="isDetails"
                   :options="repayDayData"
+                  @change="debouncedEstablishCalculate"
                 ></a-select>
               </a-form-item>
             </a-col>
@@ -534,7 +537,7 @@
       {
         label: t('等额本息'),
         value: '3',
-        disabled: hasDays
+        disabled: false
       }
     ]
   })
@@ -742,7 +745,6 @@
         has_linefee: 0,
         start_date: dayjs(time_date[0]).format('YYYY-MM-DD'),
         end_date: dayjs(time_date[1]).format('YYYY-MM-DD'),
-        repay_month: formState.value.term || 0,
         loan_money: Number(loan_money || 0),
         initial_amount: Number(initial_amount || 0),
         repay_type: Number(repay_type || 0),
@@ -859,11 +861,11 @@
   };
 
   const clearTypeHandle = () => {
-    if (Number(formState.value.repay_type) === 3) {
-      formState.value.repay_type = ''
-      formState.value.repay_day_type = ''
-      formState.value.repay_day = ''
-    }
+    // if (Number(formState.value.repay_type) === 3) {
+    //   formState.value.repay_type = ''
+    //   formState.value.repay_day_type = ''
+    //   formState.value.repay_day = ''
+    // }
   }
 
   const timeChange = (date) => {
@@ -883,6 +885,8 @@
       formState.value.days = ''
       formState.value.totalDay = 0
     }
+
+    debouncedEstablishCalculate()
   }
 
   const termInput = () => {
@@ -907,6 +911,8 @@
     if (days) {
       clearTypeHandle()
     }
+
+    debouncedEstablishCalculate()
   }
 
   const initLandDefault = ref(true)
@@ -1068,7 +1074,6 @@
           code: props.blockInfo.code,
           uuid: props.currentId,
           estab_type: Number(formState.value.estab_type),
-          repay_month: formState.value.term || 0,
           repay_money: formState.value.loan_money || 0,
           loan_money: formState.value.initial_amount || 0,
           // initial_amount: formState.value.initial_amount || 0,

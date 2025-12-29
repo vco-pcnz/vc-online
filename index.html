@@ -8,6 +8,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>VC Online</title>
   <script>
+    // 捕获未处理错误，方便在 iPad 上提示
+    window.onerror = (msg, src, line, col, err) => {
+      const detail = err ? err.stack || err.message : msg;
+      console.error('移动端检测脚本错误:', detail);
+      alert('设备检测脚本异常，请截屏报错信息并联系技术支持。\n' + detail);
+    };
     const is_mobile = () => {
         // 方法1: 检测触摸屏设备
         const hasTouchScreen = navigator.maxTouchPoints > 0 || 'ontouchstart' in window;
@@ -44,20 +50,25 @@
         // 平板设备不跳转移动端
         return mobileScore >= 2 && !isTablet;
       }
-      if (is_mobile()) {
-        const origin = window.location.origin || '';
-        let mobileRedirectUrl = '';
-        // 生产域访问，跳转生产移动端
-        if (origin.includes('https://vco.new.vincentcapital.co.nz')) {
-          mobileRedirectUrl = 'https://vco.m.new.vincentcapital.co.nz/#/pages/login/index';
-        } else {
-          // 本地或 dev 环境访问，跳转 dev 移动端
-          mobileRedirectUrl = 'https://dev.app.new.vincentcapital.co.nz/#/pages/login/index';
-        }
+      try {
+        if (is_mobile()) {
+          const origin = window.location.origin || '';
+          let mobileRedirectUrl = '';
+          // 生产域访问，跳转生产移动端
+          if (origin.includes('https://vco.new.vincentcapital.co.nz')) {
+            mobileRedirectUrl = 'https://vco.m.new.vincentcapital.co.nz/#/pages/login/index';
+          } else {
+            // 本地或 dev 环境访问，跳转 dev 移动端
+            mobileRedirectUrl = 'https://dev.app.new.vincentcapital.co.nz/#/pages/login/index';
+          }
 
-        if (mobileRedirectUrl) {
-          location.href = mobileRedirectUrl;
+          if (mobileRedirectUrl) {
+            location.href = mobileRedirectUrl;
+          }
         }
+      } catch (err) {
+        console.error('移动端跳转执行失败:', err);
+        alert('设备检测失败，已停留在当前页面。\n' + (err.stack || err.message));
       }
 
   </script>

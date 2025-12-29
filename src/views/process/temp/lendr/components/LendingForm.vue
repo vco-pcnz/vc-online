@@ -355,7 +355,7 @@
     creditInfo,
     projectAuditSaveMode,
     projectAuditCheckMode,
-    vclEstabCalc
+    lendrEstabCalc
   } from '@/api/process';
   import emitter from '@/event';
   import useProcessStore from '@/store/modules/process';
@@ -679,20 +679,14 @@
   // 计算中介费
   const calcBrokerFee = () => {
     if ('credit_brokerFeeRate' in formState.value && 'credit_brokerFee' in formState.value) {
-      const build_amount = formState.value.build_amount || 0;
-      const land_amount = formState.value.land_amount || 0;
-      const equity_amount = formState.value.equity_amount || 0
       const brokeFeeRate = formState.value.credit_brokerFeeRate || 0
       
-
       if (isNaN(Number(brokeFeeRate))) {
         formState.value.credit_brokerFee = 0
       } else {
-        const amount = tool.plus(build_amount, land_amount);
-        const reTotal = tool.plus(amount, refinancial_amount)
-        const total = tool.plus(reTotal, equity_amount)
+        const total_amount = formState.value.loan_money || 0;
         const per = tool.div(Number(brokeFeeRate), 100)
-        const num = tool.times(total, per)
+        const num = tool.times(total_amount, per)
 
         formState.value.credit_brokerFee = num
       }
@@ -702,21 +696,18 @@
   // 计算中介费率
   const calcBrokerFeeRate = () => {
     if ('credit_brokerFeeRate' in formState.value && 'credit_brokerFee' in formState.value) {
-      const build_amount = formState.value.build_amount || 0;
-      const land_amount = formState.value.land_amount || 0;
-      const equity_amount = formState.value.equity_amount || 0
+      const total_amount = formState.value.loan_money || 0;
       const brokeFee = formState.value.credit_brokerFee || 0
 
       if (isNaN(Number(brokeFee))) {
         formState.value.credit_brokerFeeRate = 0
       } else {
-        const amount = tool.plus(build_amount, land_amount);
-        const reTotal = tool.plus(amount, refinancial_amount)
-        const total = tool.plus(reTotal, equity_amount)
-        const per = tool.div(brokeFee, total)
-        const num = tool.times(per, 100)
+        if (Number(total_amount)) {
+          const per = tool.div(brokeFee, total_amount)
+          const num = tool.times(per, 100)
 
-        formState.value.credit_brokerFeeRate = Number(Number(num).toFixed(6))
+          formState.value.credit_brokerFeeRate = Number(Number(num).toFixed(6))
+        }
       }
     }
   }
@@ -735,6 +726,9 @@
       credit_frontFee,
       credit_estabFee,
       credit_estabFeeRate,
+      repay_type,
+      repay_day_type,
+      repay_day
     } = formState.value
     
     const params = {
@@ -750,7 +744,8 @@
         initial_build_amount: Number(initial_amount || 0),
         initial_land_amount: 0,
         loan_money: Number(loan_money || 0),
-        initial_amount: Number(initial_amount || 0)
+        initial_amount: Number(initial_amount || 0),
+        repay_type: Number(repay_type || 0)
       },
       credit: {
         credit_brokerFee: Number(credit_brokerFee || 0),
@@ -764,7 +759,20 @@
       }
     }
 
-    vclEstabCalc(params).then(res => {
+    if (Number(repay_type) !== 1) {
+      params.project.repay_day_type = Number(repay_day_type)
+
+      if (Number(repay_day_type) === 2) {
+        params.project.repay_day = Number(repay_day)
+      } else {
+        params.project.repay_day = ''
+      }
+    } else {
+      params.project.repay_day_type = ''
+      params.project.repay_day = ''
+    }
+
+    lendrEstabCalc(params).then(res => {
       if (estab_type === 1) {
         formState.value['credit_estabFee'] = res
       } else {

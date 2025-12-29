@@ -8,82 +8,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>VC Online</title>
   <script>
-    // 捕获未处理错误，方便在 iPad 上提示
-    window.onerror = (msg, src, line, col, err) => {
-      const detail = err ? err.stack || err.message : msg;
-      console.error('移动端检测脚本错误:', detail);
-      alert('设备检测脚本异常，请截屏报错信息并联系技术支持。\n' + detail);
-    };
-    // 捕获未处理 Promise 拒绝
-    window.addEventListener('unhandledrejection', (event) => {
-      const detail = event.reason ? (event.reason.stack || event.reason.message || String(event.reason)) : '未知错误';
-      console.error('未处理 Promise 拒绝:', detail);
-      alert('页面加载异常（Promise）。请截屏报错信息并联系技术支持。\n' + detail);
-    });
     const is_mobile = () => {
-        // 方法1: 检测触摸屏设备
-        const hasTouchScreen = navigator.maxTouchPoints > 0 || 'ontouchstart' in window;
-        
-        // 方法2: 检测屏幕尺寸 (移动设备通常宽度较小)
+        // 仅基于屏幕尺寸判断
         const isSmallScreen = window.screen.width < 768 || window.innerWidth < 768;
-        
-        // 方法3: 更全面的用户代理检测
-        const userAgent = navigator.userAgent || '';
-        const platform = navigator.platform || '';
-        const touchPoints = navigator.maxTouchPoints || 0;
-        const mobileRegex = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i;
-        const tabletRegex = /(iPad|Tablet|PlayBook|Silk)|(Android(?!.*Mobile))/i;
-        // iPadOS 13+ 将 UA 伪装为 Mac；部分 WebView 会把 maxTouchPoints 设为 0，因此也用触摸事件兜底
-        const isIPadLikeMac = platform === 'MacIntel' && (touchPoints > 1 || 'ontouchstart' in window || 'ontouchend' in document);
-        const isTabletUA = tabletRegex.test(userAgent) || isIPadLikeMac;
-        const isMobileUA = mobileRegex.test(userAgent) && !isTabletUA;
-        const isTablet = isTabletUA;
-        
-        // 方法4: 检测特定的移动浏览器特征
-        const isMobileBrowser = /Mobi|Android/i.test(userAgent);
-        
-        // 方法5: 检测设备方向API（通常只在移动设备上可用）
-        const hasOrientationAPI = 'orientation' in window || 'onorientationchange' in window;
-        
-        // 综合判断：满足任意两个条件就认为是移动设备
-        let mobileScore = 0;
-        if (hasTouchScreen) mobileScore++;
-        if (isSmallScreen) mobileScore++;
-        if (isMobileUA) mobileScore++;
-        if (isMobileBrowser) mobileScore++;
-        if (hasOrientationAPI) mobileScore++;
-        
-        // 平板设备不跳转移动端
-        return mobileScore >= 2 && !isTablet;
+        return isSmallScreen;
       }
-      try {
-        if (is_mobile()) {
-          const origin = window.location.origin || '';
-          let mobileRedirectUrl = '';
-          // 生产域访问，跳转生产移动端
-          if (origin.includes('https://vco.new.vincentcapital.co.nz')) {
-            mobileRedirectUrl = 'https://vco.m.new.vincentcapital.co.nz/#/pages/login/index';
-          } else {
-            // 本地或 dev 环境访问，跳转 dev 移动端
-            mobileRedirectUrl = 'https://dev.app.new.vincentcapital.co.nz/#/pages/login/index';
-          }
-
-          if (mobileRedirectUrl) {
-            location.href = mobileRedirectUrl;
-          }
+      if (is_mobile()) {
+        const origin = window.location.origin || '';
+        let mobileRedirectUrl = '';
+        // 生产域访问，跳转生产移动端
+        if (origin.includes('https://vco.new.vincentcapital.co.nz')) {
+          mobileRedirectUrl = 'https://vco.m.new.vincentcapital.co.nz/#/pages/login/index';
+        } else {
+          // 本地或 dev 环境访问，跳转 dev 移动端
+          mobileRedirectUrl = 'https://dev.app.new.vincentcapital.co.nz/#/pages/login/index';
         }
-      } catch (err) {
-        console.error('移动端跳转执行失败:', err);
-        alert('设备检测失败，已停留在当前页面。\n' + (err.stack || err.message));
+
+        if (mobileRedirectUrl) {
+          location.href = mobileRedirectUrl;
+        }
       }
-
-      // 如果 5 秒后仍然停留在加载动画，提示用户截图
-      window.setTimeout(() => {
-        const stillLoading = document.querySelector('.app-loading');
-        if (stillLoading) {
-          alert('页面加载超时（5 秒仍在加载）。请截图控制台或本提示，发送 UA 信息：\n' + navigator.userAgent);
-        }
-      }, 5000);
 
   </script>
 </head>

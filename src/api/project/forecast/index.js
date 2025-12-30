@@ -135,3 +135,11 @@ export const regional = (params) =>
     method: 'get',
     params
   });
+
+// 试算平衡表
+export const projectTrailBalanceReport = (params) =>
+  request({
+    url: '/project/forecast/exportScheduleReport',
+    method: 'get',
+    params
+  });

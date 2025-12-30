@@ -19,10 +19,14 @@
         const userAgent = navigator.userAgent || '';
         const platform = navigator.platform || '';
         const touchPoints = navigator.maxTouchPoints || 0;
+        const width = Math.min(window.innerWidth, window.screen.width);
         const mobileRegex = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i;
         const tabletRegex = /(iPad|Tablet|PlayBook|Silk)|(Android(?!.*Mobile))/i;
         const isIPadLikeMac = platform === 'MacIntel' && touchPoints > 0;
-        const isTablet = tabletRegex.test(userAgent) || isIPadLikeMac;
+        const isAndroidUA = /Android/i.test(userAgent);
+        // Android 平板 UA 里可能有 Mobile，也可能没有；用 UA + 尺寸兜底
+        const isAndroidTabletLike = isAndroidUA && (/(Android(?!.*Mobile))/i.test(userAgent) || width >= 600);
+        const isTablet = tabletRegex.test(userAgent) || isIPadLikeMac || isAndroidTabletLike;
         const isMobileUA = mobileRegex.test(userAgent) && !isTablet;
         
         // 方法4: 检测特定的移动浏览器特征

@@ -9,9 +9,37 @@
   <title>VC Online</title>
   <script>
     const is_mobile = () => {
-        // 仅依据常见手机屏幕宽度判断，平板通常 >= 768px
-        const width = Math.min(window.innerWidth, window.screen.width);
-        return width <= 600;
+        // 方法1: 检测触摸屏设备
+        const hasTouchScreen = navigator.maxTouchPoints > 0 || 'ontouchstart' in window;
+        
+        // 方法2: 检测屏幕尺寸 (移动设备通常宽度较小)
+        const isSmallScreen = window.screen.width < 768 || window.innerWidth < 768;
+        
+        // 方法3: 更全面的用户代理检测
+        const userAgent = navigator.userAgent || '';
+        const platform = navigator.platform || '';
+        const touchPoints = navigator.maxTouchPoints || 0;
+        const mobileRegex = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i;
+        const tabletRegex = /(iPad|Tablet|PlayBook|Silk)|(Android(?!.*Mobile))/i;
+        const isIPadLikeMac = platform === 'MacIntel' && touchPoints > 0;
+        const isTablet = tabletRegex.test(userAgent) || isIPadLikeMac;
+        const isMobileUA = mobileRegex.test(userAgent) && !isTablet;
+        
+        // 方法4: 检测特定的移动浏览器特征
+        const isMobileBrowser = /Mobi|Android/i.test(userAgent);
+        
+        // 方法5: 检测设备方向API（通常只在移动设备上可用）
+        const hasOrientationAPI = 'orientation' in window || 'onorientationchange' in window;
+        
+        // 综合判断：满足任意两个条件就认为是移动设备（排除平板）
+        let mobileScore = 0;
+        if (hasTouchScreen) mobileScore++;
+        if (isSmallScreen) mobileScore++;
+        if (isMobileUA) mobileScore++;
+        if (isMobileBrowser) mobileScore++;
+        if (hasOrientationAPI) mobileScore++;
+        
+        return mobileScore >= 2 && !isTablet;
       }
       const is_old_ipad_safari = () => {
         const ua = navigator.userAgent || '';

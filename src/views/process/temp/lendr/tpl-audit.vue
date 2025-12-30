@@ -296,6 +296,9 @@
     return `${saveReturnRea.value}，${t(txt)}`
   })
 
+  const repayTypeData = [t('到期一次性还本付息'), t('按月付息，到期还本'), t('等额本息')]
+  const repayDayTypeData = [t('放款日对应日'), t('每月固定日'), t('每月最后一天')]
+
   const compareHandle = () => {
     const obj = nowChangeData.value
     const data = cloneDeep(dataInfo.value.base.old)
@@ -391,95 +394,53 @@
     compareBackObj.value = compareBackObjData
 
     if (Object.keys(compareBack).includes(props.currentStep.mark)) {
-      // if (obj?.start_date !== staticFormData.start_date) {
-      //   arr.unshift({
-      //     name: t('开放日期'),
-      //     before: staticFormData.start_date,
-      //     now: obj?.start_date
-      //   })
-      // }
-
-      // if (obj?.end_date !== staticFormData.end_date) {
-      //   arr.unshift({
-      //     name: t('到期日期'),
-      //     before: staticFormData.end_date,
-      //     now: obj?.end_date
-      //   })
-      // }
-
-      // 这里不判断日期，改为判断周期是否有改动 - 2025-07-14
       const staticDate = tool.calculateDurationPrecise(staticFormData.start_date, staticFormData.end_date);
       const nowDate = tool.calculateDurationPrecise(obj?.start_date, obj?.end_date);
+      if (Number(obj?.repay_day_type) === 2 && Number(obj?.repay_day_type) === Number(staticFormData?.repay_day_type) && ((Number(obj?.repay_day) !== Number(staticFormData?.repay_day)))) {
+        arr.unshift({
+          name: t('几号'),
+          before: t('{0}号', [staticFormData.repay_day]),
+          now: t('{0}号', [obj.repay_day])
+        })
+      }
+
+      if (Number(obj?.repay_day_type) !== Number(staticFormData?.repay_day_type)) {
+        arr.unshift({
+          name: t('还款日'),
+          before: repayDayTypeData[Number(staticFormData?.repay_day_type) - 1],
+          now: repayDayTypeData[Number(obj?.repay_day_type) - 1]
+        })
+      }
+
+      if (Number(obj?.repay_type) !== Number(staticFormData?.repay_type)) {
+        arr.unshift({
+          name: t('还款方式'),
+          before: repayTypeData[Number(staticFormData?.repay_type) - 1],
+          now: repayTypeData[Number(obj?.repay_type) - 1]
+        })
+      }
+
+      if (Number(obj?.initial_amount) !== Number(staticFormData?.loan_money)) {
+        arr.unshift({
+          name: t('首次放款总金额'),
+          before: `$${numberStrFormat(Number(staticFormData?.loan_money))}`,
+          now: `$${numberStrFormat(Number(obj?.initial_amount))}`
+        })
+      }
+
+      if (Number(obj?.loan_money) !== Number(staticFormData?.repay_money)) {
+        arr.unshift({
+          name: t('借款总金额'),
+          before: `$${numberStrFormat(Number(staticFormData?.repay_money))}`,
+          now: `$${numberStrFormat(Number(obj?.loan_money))}`
+        })
+      }
 
       if (staticDate.months !== nowDate.months || staticDate.days !== nowDate.days) {
         arr.unshift({
           name: t('项目周期'),
           before: `${staticDate.months} ${t('月')} ${staticDate.days} ${t('天')}`,
           now: `${nowDate.months} ${t('月')} ${nowDate.days} ${t('天')}`
-        })
-      }
-
-      if ((staticFormData?.initial_equity_amount || staticFormData?.initial_equity_amount === 0) && Number(obj?.initial_equity_amount) !== Number(staticFormData?.initial_equity_amount)) {
-        arr.unshift({
-          name: t('初始补充股权'),
-          before: `$${numberStrFormat(Number(staticFormData?.initial_equity_amount))}`,
-          now: `$${numberStrFormat(Number(obj?.initial_equity_amount))}`
-        })
-      }
-
-      if (Number(obj?.initial_build_amount) !== Number(staticFormData?.initial_build_amount)) {
-        arr.unshift({
-          name: t('首次建筑贷款放款额'),
-          before: `$${numberStrFormat(Number(staticFormData?.initial_build_amount))}`,
-          now: `$${numberStrFormat(Number(obj?.initial_build_amount))}`
-        })
-      }
-
-      if (Number(obj?.initial_land_amount) !== Number(staticFormData?.initial_land_amount)) {
-        arr.unshift({
-          name: t('首次土地贷款放款额'),
-          before: `$${numberStrFormat(Number(staticFormData?.initial_land_amount))}`,
-          now: `$${numberStrFormat(Number(obj?.initial_land_amount))}`
-        })
-      }
-
-      if ((staticFormData?.substitution_amount || Number(staticFormData?.substitution_amount) === 0) && Number(obj?.substitution_amount) !== Number(staticFormData?.substitution_amount)) {
-        arr.unshift({
-          name: t('再融资金额'),
-          before: `$${numberStrFormat(Number(staticFormData?.substitution_amount))}`,
-          now: `$${numberStrFormat(Number(obj?.substitution_amount))}`
-        })
-      }
-
-      if ((staticFormData?.equity_amount || Number(staticFormData?.equity_amount) === 0) && Number(obj?.equity_amount) !== Number(staticFormData?.equity_amount)) {
-        arr.unshift({
-          name: t('补充股权'),
-          before: `$${numberStrFormat(Number(staticFormData?.equity_amount))}`,
-          now: `$${numberStrFormat(Number(obj?.equity_amount))}`
-        })
-      }
-
-      if (Number(obj?.build_amount) !== Number(staticFormData?.build_amount)) {
-        arr.unshift({
-          name: t('建筑贷款总额'),
-          before: `$${numberStrFormat(Number(staticFormData?.build_amount))}`,
-          now: `$${numberStrFormat(Number(obj?.build_amount))}`
-        })
-      }
-
-      if (Number(obj?.land_amount) !== Number(staticFormData?.land_amount)) {
-        arr.unshift({
-          name: t('土地贷款总额'),
-          before: `$${numberStrFormat(Number(staticFormData?.land_amount))}`,
-          now: `$${numberStrFormat(Number(obj?.land_amount))}`
-        })
-      }
-
-      if (Number(obj?.has_linefee) !== Number(staticFormData?.has_linefee)) {
-        arr.unshift({
-          name: t('是否有Linefee'),
-          before: Number(staticFormData?.has_linefee) ? t('是') : t('否'),
-          now: Number(obj?.has_linefee) ? t('是') : t('否')
         })
       }
     }
@@ -527,6 +488,8 @@
           return false
         }
       }
+
+      return false
 
       if (currentMark.value === 'step_open') {
         const not_norm = props.currentStep.not_norm

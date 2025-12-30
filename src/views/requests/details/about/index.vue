@@ -13,7 +13,7 @@
             <p class="title">{{ t('拒绝原因') }}</p>
             <p class="info">{{ dataInfo.decline_reason || t('拒绝原因') }}</p>
           </div>
-
+          
           <div class="block-container">
             <div class="left-content">
               <template v-if="dataInfo && !pageLoading">

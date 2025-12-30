@@ -139,21 +139,6 @@
       }
     }
   </style>
-  <script>
-    (function forceFreshLoad() {
-      const FLAG = 'cache-busted';
-      if (sessionStorage.getItem(FLAG)) return;
-      sessionStorage.setItem(FLAG, '1');
-      // 尝试清理 Cache Storage（若浏览器支持）
-      if (window.caches && caches.keys) {
-        caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k)))).catch(() => {});
-      }
-      // 追加时间戳，强制拉取最新资源
-      const url = new URL(window.location.href);
-      url.searchParams.set('t', Date.now().toString());
-      window.location.replace(url.toString());
-    })();
-  </script>
   <script type="module" src="/src/main.js"></script>
 </body>
 

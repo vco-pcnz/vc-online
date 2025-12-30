@@ -175,6 +175,7 @@ const buildAmount = computed(() => {
 })
 
 const confirmTxt = computed(() => {
+  return ''
   if (props.isDetails) {
     return ''
   } else {

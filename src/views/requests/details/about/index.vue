@@ -43,7 +43,7 @@
                   />
 
                   <component :is="LendingForm"
-                    v-if="lendingData.start_date && lendingData.end_date && (Number(lendingData.build_amount) || Number(lendingData.land_amount))"
+                    v-if="lendingData.start_date && lendingData.end_date && (Number(lendingData.build_amount) || Number(lendingData.land_amount) || Number(lendingData.loan_money))"
                     :is-details="true"
                     :current-id="currentId"
                     :block-info="{showEdit: false}"

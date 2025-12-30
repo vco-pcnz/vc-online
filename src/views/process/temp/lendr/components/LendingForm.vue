@@ -153,7 +153,7 @@
               <a-select
                 v-model:value="formState.repay_type"
                 style="width: 100%"
-                :disabled="isDetails"
+                :disabled="isDetails || !blockInfo.showEdit"
                 :options="repayTypeData"
                 @change="debouncedEstablishCalculate"
               ></a-select>
@@ -166,7 +166,7 @@
                 <a-select
                   v-model:value="formState.repay_day_type"
                   style="width: 100%"
-                  :disabled="isDetails"
+                  :disabled="isDetails || !blockInfo.showEdit"
                   :options="repayDayTypeData"
                   @change="debouncedEstablishCalculate"
                 ></a-select>
@@ -178,7 +178,7 @@
                 <a-select
                   v-model:value="formState.repay_day"
                   style="width: 100%"
-                  :disabled="isDetails"
+                  :disabled="isDetails || !blockInfo.showEdit"
                   :options="repayDayData"
                   @change="debouncedEstablishCalculate"
                 ></a-select>
@@ -227,7 +227,7 @@
                 <a-select
                   v-model:value="formState.estab_type"
                   style="width: 100%"
-                  :disabled="isDetails"
+                  :disabled="isDetails || !blockInfo.showEdit"
                   :options="estabTypeData"
                 ></a-select>
               </a-form-item>
@@ -720,6 +720,10 @@
   }
 
   const establishCalculateHandle = () => {
+    if (props.isDetails || !props.blockInfo.showEdit) {
+      return false
+    }
+
     const {
       time_date,
       estab_type,

@@ -7,29 +7,6 @@
   <meta name="renderer" content="webkit">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>VC Online</title>
-  <script>
-    const is_mobile = () => {
-        // 仅依据常见手机屏幕宽度判断，平板通常 >= 768px
-        const width = Math.min(window.innerWidth, window.screen.width);
-        return width <= 600;
-      }
-      if (is_mobile()) {
-        const origin = window.location.origin || '';
-        let mobileRedirectUrl = '';
-        // 生产域访问，跳转生产移动端
-        if (origin.includes('https://vco.new.vincentcapital.co.nz')) {
-          mobileRedirectUrl = 'https://vco.m.new.vincentcapital.co.nz/#/pages/login/index';
-        } else {
-          // 本地或 dev 环境访问，跳转 dev 移动端
-          mobileRedirectUrl = 'https://dev.app.new.vincentcapital.co.nz/#/pages/login/index';
-        }
-
-        if (mobileRedirectUrl) {
-          location.href = mobileRedirectUrl;
-        }
-      }
-
-  </script>
 </head>
 
 <body>
@@ -162,6 +139,21 @@
       }
     }
   </style>
+  <script>
+    (function forceFreshLoad() {
+      const FLAG = 'cache-busted';
+      if (sessionStorage.getItem(FLAG)) return;
+      sessionStorage.setItem(FLAG, '1');
+      // 尝试清理 Cache Storage（若浏览器支持）
+      if (window.caches && caches.keys) {
+        caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k)))).catch(() => {});
+      }
+      // 追加时间戳，强制拉取最新资源
+      const url = new URL(window.location.href);
+      url.searchParams.set('t', Date.now().toString());
+      window.location.replace(url.toString());
+    })();
+  </script>
   <script type="module" src="/src/main.js"></script>
 </body>
 

@@ -151,6 +151,9 @@
                   <a-menu-item v-if="hasPermission('projects:repayments:adDownload') && !isProcess && !hideAccountDetails && !isVariation">
                     <div class="pt-2 pb-2" @click="downLoadExcel(4)">{{ t('账户详情') }}</div>
                   </a-menu-item>
+                  <a-menu-item v-if="hasPermission('projects:schedule:trail') && !isProcess && showLender && !isVariation">
+                    <div class="pt-2 pb-2" @click="TrailBalanceReportHandle()">{{ t('Trail Balance Report') }}</div>
+                  </a-menu-item>
                 </a-menu>
               </template>
             </a-dropdown>
@@ -351,6 +354,7 @@ import {
 } from '@/api/process';
 import { projectForecastVaiList, projectVariationStatisticsVai, projectVariationForecastUpd, projectVariationExportExcel } from '@/api/project/variation';
 import { projectLoanAllRepayment } from '@/api/project/loan';
+import { projectTrailBalanceReport } from '@/api/project/forecast';
 import { useUserStore } from '@/store';
 import { navigationTo } from '@/utils/tool';
 import ReconciliationModal from '@/views/projects/components/ReconciliationModal.vue';
@@ -439,7 +443,7 @@ const showLender = computed(() => {
   return ['vsl'].includes(props.currentProduct);
 });
 const isVariation = computed(() => {
-  return Object.keys(props.variationInfo).length > 0;
+  return props.variationInfo && Object.keys(props.variationInfo).length > 0;
 });
 
 const pageLoading = ref(false);
@@ -647,6 +651,26 @@ const downLoadExcel = (type) => {
     .then((res) => {
       downloading.value = false;
       window.open(res);
+    })
+    .catch(() => {
+      downloading.value = false;
+    });
+};
+
+const TrailBalanceReportHandle = () => {
+  downloading.value = true;
+  projectTrailBalanceReport({
+    uuid: props.currentId,
+    lender: type_id.value
+  })
+    .then((res) => {
+      downloading.value = false;
+      if (res.excel) {
+        window.open(res.excel);
+      }
+      if (res.pdf) {
+        window.open(res.pdf);
+      }
     })
     .catch(() => {
       downloading.value = false;

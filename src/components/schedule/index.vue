@@ -1,5 +1,7 @@
 <template>
   <div>
+    <!-- 试算平衡表导出 -->
+    <TrailBalanceReportModal ref="trailBalanceReportModalRef" :searchParams="{ uuid: currentId, lender: type_id }"></TrailBalanceReportModal>
     <!-- 对账 -->
     <ReconciliationModal ref="reconciliationModalRef" :detail="itemDetail" :uuid="currentId" :type="ReconciliationType" :isSchedule="true" @update="getDataInfo"> </ReconciliationModal>
     <a-spin :spinning="pageLoading" size="large">
@@ -152,8 +154,8 @@
                     <div class="pt-2 pb-2" @click="downLoadExcel(4)">{{ t('账户详情') }}</div>
                   </a-menu-item>
                   <a-menu-item v-if="hasPermission('projects:schedule:trail') && !isProcess && showLender && !isVariation">
-                    <div class="pt-2 pb-2" @click="TrailBalanceReportHandle()">{{ t('Trail Balance Report') }}</div>
-                  </a-menu-item>
+                    <div class="pt-2 pb-2" @click="trailBalanceReportModalRef.open()">{{ t('Trail Balance Report') }}</div>
+                 </a-menu-item>
                 </a-menu>
               </template>
             </a-dropdown>
@@ -354,11 +356,11 @@ import {
 } from '@/api/process';
 import { projectForecastVaiList, projectVariationStatisticsVai, projectVariationForecastUpd, projectVariationExportExcel } from '@/api/project/variation';
 import { projectLoanAllRepayment } from '@/api/project/loan';
-import { projectTrailBalanceReport } from '@/api/project/forecast';
 import { useUserStore } from '@/store';
 import { navigationTo } from '@/utils/tool';
 import ReconciliationModal from '@/views/projects/components/ReconciliationModal.vue';
 import { number } from 'echarts';
+import TrailBalanceReportModal from './components/TrailBalanceReportModal.vue';
 
 const props = defineProps({
   currentId: {
@@ -657,25 +659,7 @@ const downLoadExcel = (type) => {
     });
 };
 
-const TrailBalanceReportHandle = () => {
-  downloading.value = true;
-  projectTrailBalanceReport({
-    uuid: props.currentId,
-    lender: type_id.value
-  })
-    .then((res) => {
-      downloading.value = false;
-      if (res.excel) {
-        window.open(res.excel);
-      }
-      if (res.pdf) {
-        window.open(res.pdf);
-      }
-    })
-    .catch(() => {
-      downloading.value = false;
-    });
-};
+const trailBalanceReportModalRef = ref(null);
 
 const budgetExport = () => {
   downloading.value = true;

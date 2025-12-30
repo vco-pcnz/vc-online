@@ -24,6 +24,8 @@ export default ({ mode }) => {
     },
 
     build: {
+      // 兼容 Safari 13（iPad 老系统）：将可选链等语法降级到 ES2018
+      target: ['es2018', 'safari13'],
       outDir: 'build',
       chunkSizeWarningLimit: 1500,
       // 在非开发环境移除console

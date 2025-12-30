@@ -1336,5 +1336,6 @@ export default {
   "每月固定日": "Fixed Date",
   "每月最后一天": " End of Month",
   "几号": "Which day",
-  "{0}号": "{0} th"
+  "{0}号": "{0} th",
+  "产品": "Product"
 }

@@ -1,6 +1,14 @@
 <template>
   <div>
     <vco-page-search @keyup.enter="searchHandle(false)">
+      <vco-page-search-item width="130" :title="t('产品')">
+        <a-select :placeholder="t('请选择')" v-model:value="searchForm.product_uuid">
+          <a-select-option v-for="item in productData" :key="item.uuid" :value="item.uuid">
+            {{ item.name }}
+          </a-select-option>
+        </a-select>
+      </vco-page-search-item>
+
       <template v-if="module !== 'other'">
         <vco-page-search-item width="130" :title="t('类型')">
           <a-select :placeholder="t('请选择')" v-model:value="searchForm.ctype">
@@ -32,12 +40,16 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { cloneDeep } from 'lodash';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import { quick } from '@/api/home/index';
 const route = useRoute();
+import useProductStore from '@/store/modules/product';
+
+const productStore = useProductStore();
+const productData = computed(() => productStore.openProductData);
 
 const emits = defineEmits(['search']);
 const props = defineProps({
@@ -159,6 +171,7 @@ const baseInfoData = [
 ];
 
 const searchForm = ref({
+  product_uuid: null,
   ctype: '',
   borrower_keyword: '',
   borrower_search_type: '',

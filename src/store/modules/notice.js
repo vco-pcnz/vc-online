@@ -60,11 +60,20 @@ const useNoticeStore = defineStore('VcOnlineNoticeDetail', {
         limit
       };
     },
-    setNoticeCount() {
-      getUnreadCount().then((res) => (this.noticeCount = res));
+    async setNoticeCount() {
+      try {
+        const res = await getUnreadCount();
+        this.noticeCount = res;
+      } catch (err) {
+        console.error('getUnreadCount failed', err);
+      }
     },
     startPolling(time) {
-      this.intervalId = setInterval(this.setNoticeCount, time * 1000);
+      // 避免重复定时器
+      this.stopPolling();
+      // 立即拉一次，避免等待首轮间隔
+      this.setNoticeCount();
+      this.intervalId = setInterval(() => this.setNoticeCount(), time * 1000);
     },
     stopPolling() {
       if (this.intervalId) {

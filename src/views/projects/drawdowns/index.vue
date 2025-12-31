@@ -2,7 +2,7 @@
   <detail-layout ref="detailLayoutRef" active-tab="drawdowns" @getProjectDetail="getProjectDetail">
     <template #content>
       <div class="ProjectDrawdowns">
-        <div class="flex justify-end mb-5 gap-4" v-if="projectDetail.product.code !== 'lendr'">
+        <div class="flex justify-end mb-5 gap-4" v-if="projectDetail?.product?.code !== 'lendr'">
           <a-button v-if="showProcessEdit" type="brown" shape="round" class="pre-sale-enter" @click="navigationTo(`/projects/progress-payment/edit?uuid=${uuid}`)">
             {{ t('编辑进度付款') }}
             <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px' }" />

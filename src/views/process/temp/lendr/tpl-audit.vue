@@ -489,8 +489,6 @@
         }
       }
 
-      return false
-
       if (currentMark.value === 'step_open') {
         const not_norm = props.currentStep.not_norm
         if (not_norm) {

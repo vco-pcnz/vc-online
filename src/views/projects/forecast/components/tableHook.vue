@@ -419,7 +419,7 @@ const update = () => {
             content: '';
             position: absolute;
             left: 0;
-            top: 8px;
+            // top: 8px;
             height: 15px;
             border-left: 1px solid #888;
           }

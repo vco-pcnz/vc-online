@@ -1328,5 +1328,7 @@ export default {
   "几号": "几号",
   "{0}号": "{0}号",
   "产品": "产品",
-  "Trail Balance Report": "试算平衡表"
+  "Trail Balance Report": "试算平衡表",
+  "Select the entire row": "整行选择",
+  "Submit instructions": "提交批示"
 }

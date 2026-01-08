@@ -1338,5 +1338,7 @@ export default {
   "几号": "Which day",
   "{0}号": "{0} th",
   "产品": "Product",
-  "Trail Balance Report": "Trail Balance Report"
+  "Trail Balance Report": "Trail Balance Report",
+  "Select the entire row": "Select the entire row",
+  "Submit instructions": "Submit instructions"
 }

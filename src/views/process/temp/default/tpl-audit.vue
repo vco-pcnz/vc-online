@@ -91,6 +91,16 @@
             @compareDone="compareDoneHandle"
           ></temp-block>
 
+          <div v-if="dataInfo.base.alm_review" class="block-item mb">
+            <vco-process-title :title="t('Submit instructions')"></vco-process-title>
+            <div class="mt-2">{{ dataInfo.base.alm_review }}</div>
+          </div>
+
+          <div v-if="dataInfo.base.lm_review" class="block-item mb">
+            <vco-process-title :title="t('{0}审核批示', ['LM'])"></vco-process-title>
+            <div class="mt-2">{{ dataInfo.base.lm_review }}</div>
+          </div>
+
           <div v-if="dataInfo.base.fc_review" class="block-item mb">
             <vco-process-title :title="t('{0}审核批示', ['FC'])"></vco-process-title>
             <div class="mt-2">{{ dataInfo.base.fc_review }}</div>
@@ -238,7 +248,7 @@
   const openBlock = ref(true)
 
   // 审核需要填写原因的流程
-  const needInsMark = ['step_fc_audit', 'step_director_audit']
+  const needInsMark = ['step_lm_audit', 'step_lm_review', 'step_fc_audit', 'step_director_audit']
 
   const currentMark = computed(() => props.currentStep.mark)
   const tempHideWash = computed(() => ['step_aml_audit', 'step_aml_check'].includes(currentMark.value))

@@ -1,5 +1,7 @@
 <template>
   <div>
+    <!-- 试算平衡表导出 -->
+    <TrailBalanceReportModal ref="trailBalanceReportModalRef" :searchParams="{ uuid: currentId, lender: type_id }"></TrailBalanceReportModal>
     <!-- 对账 -->
     <ReconciliationModal ref="reconciliationModalRef" :detail="itemDetail" :uuid="currentId" :type="ReconciliationType" :isSchedule="true" @update="getDataInfo"> </ReconciliationModal>
     <a-spin :spinning="pageLoading" size="large">
@@ -150,6 +152,9 @@
                   </a-menu-item>
                   <a-menu-item v-if="hasPermission('projects:repayments:adDownload') && !isProcess && !hideAccountDetails && !isVariation">
                     <div class="pt-2 pb-2" @click="downLoadExcel(4)">{{ t('账户详情') }}</div>
+                  </a-menu-item>
+                  <a-menu-item v-if="hasPermission('projects:schedule:trail') && !isProcess && showLender && !isVariation">
+                    <div class="pt-2 pb-2" @click="trailBalanceReportModalRef.open()">{{ t('Trail Balance Report') }}</div>
                   </a-menu-item>
                 </a-menu>
               </template>
@@ -355,6 +360,7 @@ import { useUserStore } from '@/store';
 import { navigationTo } from '@/utils/tool';
 import ReconciliationModal from '@/views/projects/components/ReconciliationModal.vue';
 import { number } from 'echarts';
+import TrailBalanceReportModal from './components/TrailBalanceReportModal.vue';
 
 const props = defineProps({
   currentId: {
@@ -439,7 +445,7 @@ const showLender = computed(() => {
   return ['vsl'].includes(props.currentProduct);
 });
 const isVariation = computed(() => {
-  return Object.keys(props.variationInfo).length > 0;
+  return props.variationInfo && Object.keys(props.variationInfo).length > 0;
 });
 
 const pageLoading = ref(false);
@@ -623,13 +629,13 @@ watch(
 const downloading = ref(false);
 const downLoadExcel = (type) => {
   if (type === 4) {
-    if (props.isClose) {
-      adSubmitRequest();
-    } else {
-      adFormState.date = dayjs(new Date());
-      adFormState.s_date = '';
-      adVisible.value = true;
-    }
+    // if (props.isClose) {
+    //   adSubmitRequest();
+    // } else {
+    adFormState.date = dayjs(new Date());
+    adFormState.s_date = '';
+    adVisible.value = true;
+    // }
     return;
   }
   const ajaxFn = props.itemId ? projectVariationExportExcel : projectForecastExportExcel;
@@ -652,6 +658,8 @@ const downLoadExcel = (type) => {
       downloading.value = false;
     });
 };
+
+const trailBalanceReportModalRef = ref(null);
 
 const budgetExport = () => {
   downloading.value = true;

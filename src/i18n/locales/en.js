@@ -1337,5 +1337,6 @@ export default {
   "每月最后一天": " End of Month",
   "几号": "Which day",
   "{0}号": "{0} th",
-  "产品": "Product"
+  "产品": "Product",
+  "Trail Balance Report": "Trail Balance Report"
 }

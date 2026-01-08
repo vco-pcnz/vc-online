@@ -1328,5 +1328,6 @@ export default {
   "验证码登录": "Log in with code",
   "批量绑定项目": "Batch bind Loan",
   "产品": "Product",
-  "Trail Balance Report": "Trail Balance Report"
+  "Trail Balance Report": "Trail Balance Report",
+  "Select the entire row": "Select the entire row"
 }

@@ -155,7 +155,7 @@
                   </a-menu-item>
                   <a-menu-item v-if="hasPermission('projects:schedule:trail') && !isProcess && showLender && !isVariation">
                     <div class="pt-2 pb-2" @click="trailBalanceReportModalRef.open()">{{ t('Trail Balance Report') }}</div>
-                 </a-menu-item>
+                  </a-menu-item>
                 </a-menu>
               </template>
             </a-dropdown>
@@ -629,13 +629,13 @@ watch(
 const downloading = ref(false);
 const downLoadExcel = (type) => {
   if (type === 4) {
-    if (props.isClose) {
-      adSubmitRequest();
-    } else {
-      adFormState.date = dayjs(new Date());
-      adFormState.s_date = '';
-      adVisible.value = true;
-    }
+    // if (props.isClose) {
+    //   adSubmitRequest();
+    // } else {
+    adFormState.date = dayjs(new Date());
+    adFormState.s_date = '';
+    adVisible.value = true;
+    // }
     return;
   }
   const ajaxFn = props.itemId ? projectVariationExportExcel : projectForecastExportExcel;

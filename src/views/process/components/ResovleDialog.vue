@@ -113,6 +113,10 @@
         params.fc_review = formState.reason
       } else if (props.type === 'step_director_audit') {
         params.director_review = formState.reason
+      } else if (props.type === 'step_lm_audit') {
+        params.alm_review = formState.reason
+      } else if (props.type === 'step_lm_review') {
+        params.lm_review = formState.reason
       }
 
       subLoading.value = true

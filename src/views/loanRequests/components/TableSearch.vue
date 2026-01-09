@@ -4,7 +4,7 @@
       <template v-if="roterName !== 'LoanRequestsBe_roker'">
         <vco-page-search-item width="120" :title="t('类型')" v-if="typeData.length">
           <a-select :placeholder="t('请选择')" v-model:value="searchForm.type">
-            <a-select-option v-for="item in typeData" :key="item.value" :value="item.value">
+            <a-select-option :title="item.label" v-for="item in typeData" :key="item.value" :value="item.value">
               {{ item.label }}
             </a-select-option>
           </a-select>
@@ -27,7 +27,7 @@
         </template>
         <vco-page-search-item width="120" :title="t('状态')" v-if="statusData.length && currentTab === '1'">
           <a-select :placeholder="t('请选择')" v-model:value="searchForm.state">
-            <a-select-option v-for="item in statusData" :key="item.value" :value="item.value">
+            <a-select-option :title="item.label" v-for="item in statusData" :key="item.value" :value="item.value">
               {{ item.label }}
             </a-select-option>
           </a-select>

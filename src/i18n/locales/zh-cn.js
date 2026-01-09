@@ -138,6 +138,7 @@ export default {
   "步骤十": "步骤十",
   "步骤十一": "步骤十一",
   "步骤十二": "步骤十二",
+  "步骤十三": "步骤十三",
   "个人": "个人",
   "机构": "机构",
   "组织": "组织",
@@ -1331,5 +1332,6 @@ export default {
   "Trail Balance Report": "试算平衡表",
   "变更退回": "变更退回",
   "Select the entire row": "整行选择",
-  "Submit instructions": "提交批示"
+  "Submit instructions": "提交批示",
+  "FC检查及Open": "FC检查及Open"
 }

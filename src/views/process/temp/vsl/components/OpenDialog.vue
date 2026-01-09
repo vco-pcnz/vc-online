@@ -2,7 +2,7 @@
   <a-modal :open="visible" :title="t('项目Open')" :width="500" :footer="null" :keyboard="false" :maskClosable="false" @cancel="updateVisible(false)">
     <div class="sys-form-content mt-5">
       <a-row :gutter="24">
-        <a-col :span="24">
+        <a-col v-if="!isFcOpen" :span="24">
           <div class="info-content">
             <p class="name mb-2 required">{{ t('开放日期') }}</p>
             <a-date-picker v-model:value="openDate" :format="selectDateFormat()" :disabledDate="disabledDate" placeholder="" @change="openDateChange" />
@@ -27,12 +27,13 @@
           </div>
         </a-col>
         <a-col v-if="fonfirmTable.length" :span="24" class="mt-4">
-          <p style="font-size: 12px; color: #666" class="mb-2 required">{{ t('请确认以下信息') }}</p>
+          <p style="font-size: 12px; color: #666" class="mb-2" :class="{'required': !isFcOpen}">{{ isFcOpen ? t('放款信息') : t('请确认以下信息') }}</p>
           <div class="confirm-content">
             <div v-for="item in fonfirmTable" :key="item.credit_table" class="item">
               <div>
                 <p>{{ item.credit_name }}</p>
                 <vco-number
+                  v-if="!isFcOpen"
                   :prefix="item.is_ratio ? '' : item.credit_unit"
                   :suffix="item.is_ratio ? item.credit_unit : ''"
                   :value="item.showVal"
@@ -41,7 +42,16 @@
                   size="fs_md"
                 ></vco-number>
               </div>
-              <a-checkbox v-model:checked="confirmForm[item.credit_table]">{{ t('正确') }}</a-checkbox>
+              <a-checkbox v-if="!isFcOpen" v-model:checked="confirmForm[item.credit_table]">{{ t('正确') }}</a-checkbox>
+              <vco-number
+                v-else
+                :prefix="item.is_ratio ? '' : item.credit_unit"
+                :suffix="item.is_ratio ? item.credit_unit : ''"
+                :value="item.showVal"
+                :precision="2"
+                :end="true"
+                size="fs_md"
+              ></vco-number>
             </div>
           </div>
         </a-col>
@@ -104,11 +114,19 @@ const changeLoading = (flag) => {
 };
 
 const subDisabled = computed(() => {
-  if (fonfirmTable.value.length) {
-    return !Boolean(Object.values(confirmForm.value).every((item) => item)) || !openDate.value;
+  if (isFcOpen.value) {
+    return false;
   } else {
-    return !openDate.value;
+    if (fonfirmTable.value.length) {
+      return !Boolean(Object.values(confirmForm.value).every((item) => item)) || !openDate.value;
+    } else {
+      return !openDate.value;
+    }
   }
+});
+
+const isFcOpen = computed(() => {
+  return props.type === 'fc_open';
 });
 
 /* 更新visible */
@@ -138,33 +156,36 @@ const submitRquest = () => {
     });
 };
 const submitHandle = async () => {
-  if (!openDate.value) {
+  if (!openDate.value && !isFcOpen.value) {
     message.error(t('请选择') + t('开放日期'));
+
+    return false;
+  }
+
+  changeLoading(true);
+  const loadParams = {
+    start_date: startDate.value,
+    end_date: endDate.value,
+    uuid: props.uuid,
+    // code: props.blockInfo.loan.code,
+    code: 'lending',
+    do__open: 1
+  };
+
+  if (isFcOpen.value) {
+    loadParams.do__open = 2
+  }
+
+  if (props.infoData.lending.start_date !== startDate.value || isFcOpen.value) {
+    await projectAuditSaveMode(loadParams)
+      .then(() => {
+        submitRquest();
+      })
+      .catch(() => {
+        changeLoading(false);
+      });
   } else {
-    changeLoading(true);
-
-    const loadParams = {
-      start_date: startDate.value,
-      end_date: endDate.value,
-      uuid: props.uuid,
-      // code: props.blockInfo.loan.code,
-      code: 'lending',
-      do__open: 1
-    };
-
-    // const isRefinancial = props.lendingInfo?.data?.substitution_ids && props.lendingInfo?.data?.substitution_ids.length;
-
-    if (props.infoData.lending.start_date !== startDate.value) {
-      await projectAuditSaveMode(loadParams)
-        .then(() => {
-          submitRquest();
-        })
-        .catch(() => {
-          changeLoading(false);
-        });
-    } else {
-      submitRquest();
-    }
+    submitRquest();
   }
 };
 
@@ -217,8 +238,9 @@ const confirmForm = ref({});
 const fonfirmTable = ref([]);
 
 const configInit = () => {
-  const fees = props.openConfig.fee || [];
   const { data, table } = props.lendingInfo;
+  const fees = props.openConfig?.fee || [];
+  
   if (fees && fees.length) {
     for (let i = 0; i < fees.length; i++) {
       confirmForm.value[fees[i]] = false;

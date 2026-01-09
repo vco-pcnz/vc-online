@@ -519,6 +519,8 @@
         } else {
           message.error(t('请确保在提交之前提供所有反洗钱信息'))
         }
+      } else if (currentMark.value === 'fc_open') {
+        openVisible.value = true
       } else {
         submitRquest(params)
       }

@@ -221,7 +221,16 @@ const typeData = computed(() => {
   let arr = [];
   switch (route.name) {
     case 'LoanRequestsVariation':
-      arr = [];
+      arr = [
+    {
+      label: t('变更1'),
+      value: ''
+    },
+    {
+      label: t('变更退回'),
+      value: '18'
+    }
+  ];
       break;
     case 'LoanRequestsDrawdown':
       break;

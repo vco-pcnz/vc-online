@@ -80,6 +80,16 @@
             @openData="openDataHandle"
           ></temp-block>
 
+          <div v-if="dataInfo.base.alm_review" class="block-item mb">
+            <vco-process-title :title="t('Submit instructions')"></vco-process-title>
+            <div class="mt-2">{{ dataInfo.base.alm_review }}</div>
+          </div>
+
+          <div v-if="dataInfo.base.lm_review" class="block-item mb">
+            <vco-process-title :title="t('{0}审核批示', ['LM'])"></vco-process-title>
+            <div class="mt-2">{{ dataInfo.base.lm_review }}</div>
+          </div>
+          
           <div v-if="dataInfo.base.fc_review" class="block-item mb">
             <vco-process-title :title="t('{0}审核批示', ['FC'])"></vco-process-title>
             <div class="mt-2">{{ dataInfo.base.fc_review }}</div>

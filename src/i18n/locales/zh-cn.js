@@ -1319,5 +1319,6 @@ export default {
   "批量绑定项目": "批量绑定项目",
   "产品": "产品",
   "Trail Balance Report": "试算平衡表",
-  "Select the entire row": "整行选择"
+  "Select the entire row": "整行选择",
+  "Submit instructions": "提交批示"
 }

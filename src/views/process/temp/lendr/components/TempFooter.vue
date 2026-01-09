@@ -125,7 +125,7 @@
     if (props.check) {
       txt = '保存'
     } else {
-      if (props.currentStep.mark === 'step_open') {
+      if (['step_open', 'fc_open'].includes(props.currentStep.mark)) {
         txt = '批准项目'
       } else if (['step_director_audit', 'step_aml_check'].includes(props.currentStep.mark)) {
         txt = '批准'
@@ -158,7 +158,7 @@
   }
 
   const nextHandle = (data) => {
-    if (props.currentStep.mark === 'step_open') {
+    if (props.currentStep.mark === 'fc_open') {
       navigationTo(`/projects/about?uuid=${data.uuid}`)
     } else {
       const page = data.permission ? props.nextPage : '/requests/details'

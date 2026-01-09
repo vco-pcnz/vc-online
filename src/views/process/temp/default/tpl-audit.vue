@@ -551,6 +551,8 @@
         } else {
           submitRquest(params)
         }
+      } else if (currentMark.value === 'fc_open') {
+        openVisible.value = true
       } else if (currentMark.value === 'step_aml_audit') {
         const pass = washTableRef.value.tableData.filter(item => !item.condition_time).every(item => item.document && item.document.length)
         if (pass) {

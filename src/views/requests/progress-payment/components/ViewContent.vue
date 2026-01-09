@@ -225,6 +225,14 @@
 
                 <template v-else-if="column.dataIndex === 'type'">
                   <p>{{ record[column.dataIndex] }}</p>
+                  <div v-if="isSelect && batchSelect" class="flex justify-end">
+                    <div class="line-all-check" :class="{'checked': record.lineCheck}" @click="lineAllCheckHandle(record)">
+                      <p>{{ t('Select the entire row') }}</p>
+                      <div class="check">
+                        <i class="iconfont icon-duigou"></i>
+                      </div>
+                    </div>
+                  </div>
                 </template>
                 <template v-else-if="column.dataIndex === 'payment'">
                   <p>{{ numberStrFormat(record[column.dataIndex]) }}%</p>
@@ -740,6 +748,7 @@
           return Number(tool.plus(total, num))
         }, 0);
         obj.useTotal = sum
+        obj.lineCheck = false
       }
 
       const total = obj.total || 0
@@ -1437,6 +1446,10 @@
       })
       batchSelectData.value = []
     }
+
+    tableData.value.forEach(item => {
+      item.lineCheck = false
+    })
   }
 
   const batchSelectCancel = () => {
@@ -1513,6 +1526,16 @@
   const setLogInfoCancel = () => {
     logInfoData.value = null
     logInfoVisible.value = false
+  }
+
+  const lineAllCheckHandle = (data) => {
+    data.lineCheck = !data.lineCheck
+
+    for (const key in data) {
+      if (key.indexOf('-') > -1) {
+        itemSetHandle(data[key])
+      }
+    }
   }
 
   onMounted(async () => {
@@ -1952,6 +1975,44 @@
         flex: 1;
         padding: 10px 15px;
         font-weight: 500;
+      }
+    }
+  }
+
+  .line-all-check {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #333;
+    user-select: none;
+    position: absolute;
+    bottom: 5px;
+    padding-top: 5px;
+    &:hover {
+      color: #28a755;
+    }
+    .check {
+      width: 14px;
+      height: 14px;
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      i {
+        font-size: 10px;
+        color: #fff;
+      }
+    }
+    &.checked {
+      color: #28a755 !important;
+      .check {
+        background-color: #28a755 !important;
+        border-color: #28a755 !important;
       }
     }
   }

@@ -33,7 +33,7 @@
           <div class="flex justify-between mb-2">
             <div class="title">{{ t('进度付款阶段') }}</div>
             <template v-if="!easyModel && calcBuildAmount">
-              <div v-if="!isOpen" class="flex gap-5">
+              <div class="flex gap-5">
                 <a-button type="dark" class="uppercase flex items-center" @click="exportHandle">
                   {{ t('下载') }}
                   <a-tooltip>
@@ -55,7 +55,7 @@
                   />
                 </a-button>
 
-                <a-popconfirm :title="t('确定初始化吗？')" @confirm="initHandle(false)">
+                <a-popconfirm v-if="!isOpen" :title="t('确定初始化吗？')" @confirm="initHandle(false)">
                   <a-button
                     type="primary"
                     class="uppercase flex items-center"
@@ -70,16 +70,16 @@
                   </a-button>
                 </a-popconfirm>
                 <a-button
-                  v-if="hasReseted"
+                  v-if="hasReseted && !isOpen"
                   type="dark"
                   class="uppercase"
                   @click="restoreHandle"
                 >
                   {{ t('还原') }}
                 </a-button>
-              </div>
-              <div v-else>
+
                 <a-button
+                  v-if="isOpen"
                   type="dark"
                   class="uppercase"
                   @click="restoreHandle"
@@ -836,102 +836,102 @@
 
   const hasReseted = ref(false)
   const initHandle = (flag = false, tableTotal = false) => {
-    // 如果为open后修改， 这里其实只有第一项触发这个事件
+    // 如果为open后修改
     if (props.isOpen) {
       const amount = Number(advanceAmount.value)
       const useAmount = Number(advanceObj.value.use_amount)
       if (amount < useAmount) {
         advanceObj.value.showError = true
       }
-    } else {
-      if (!flag) { // 重新计算payment数据
-        const paymentData = cloneDeep(columnsTypeData.value)
-        
-        // 计算borrowerEquity占比
-        const borrowerEquityPercent = tool.times(tool.div(borrowerEquity.value, calcBuildAmount.value), 100)
-        let remainingPercent = borrowerEquityPercent
+    }
 
-        // 遍历paymentData，处理相同name的情况
-        for (let i = 0; i < paymentData.length; i++) {
-          // 检查当前项是否有前一项
-          if (i > 0 && paymentData[i].name === paymentData[i-1].name) {
-            // 获取前一项的defaultNote
-            const prevDefaultNote = Number(paymentData[i-1].defaultNote)
-            
-            if (remainingPercent > 0) {
-              if (tool.gte(prevDefaultNote, remainingPercent)) {
-                // 如果defaultNote大于等于剩余占比
-                paymentData[i].note = Number(Number(remainingPercent).toFixed(30))
-                paymentData[i-1].note = Number(Number(tool.minus(prevDefaultNote, remainingPercent)).toFixed(30))
-                remainingPercent = 0
-              } else {
-                // 如果defaultNote小于剩余占比，则第二项note为defaultNote，第一项note为0
-                paymentData[i].note = Number(Number(prevDefaultNote).toFixed(30))
-                paymentData[i-1].note = 0
-                // 更新剩余占比
-                remainingPercent = Number(Number(tool.minus(remainingPercent, prevDefaultNote)).toFixed(30))
-              }
+    if (!flag) { // 重新计算payment数据
+      const paymentData = cloneDeep(columnsTypeData.value)
+      
+      // 计算borrowerEquity占比
+      const borrowerEquityPercent = tool.times(tool.div(borrowerEquity.value, calcBuildAmount.value), 100)
+      let remainingPercent = borrowerEquityPercent
+
+      // 遍历paymentData，处理相同name的情况
+      for (let i = 0; i < paymentData.length; i++) {
+        // 检查当前项是否有前一项
+        if (i > 0 && paymentData[i].name === paymentData[i-1].name) {
+          // 获取前一项的defaultNote
+          const prevDefaultNote = Number(paymentData[i-1].defaultNote)
+          
+          if (remainingPercent > 0) {
+            if (tool.gte(prevDefaultNote, remainingPercent)) {
+              // 如果defaultNote大于等于剩余占比
+              paymentData[i].note = Number(Number(remainingPercent).toFixed(30))
+              paymentData[i-1].note = Number(Number(tool.minus(prevDefaultNote, remainingPercent)).toFixed(30))
+              remainingPercent = 0
             } else {
-              paymentData[i-1].note = Number(Number(prevDefaultNote).toFixed(30))
-              paymentData[i].note = 0
-            }
-          }
-        }
-
-        // 更新columnsTypeObj
-        const obj = {}
-        for (let i = 0; i < paymentData.length; i++) {
-          obj[`${paymentData[i].code}`] = paymentData[i].note
-        }
-        columnsTypeObj.value = obj
-        columnsTypeData.value = paymentData
-      }
-
-      for (let i = 0; i < tableData.value.length; i++) {
-        let payment = columnsTypeObj.value[`${tableData.value[i].typeId}$${tableData.value[i].category}`]
-        if (flag) {
-          const itemPayment = Number(tableData.value[i].payment)
-          payment = isNaN(itemPayment) ? 0 : itemPayment
-        }
-        const itemPer = Number(payment) / 100
-        const itemTotal = Number(Number(tool.times(itemPer, calcBuildAmount.value)).toFixed(2))
-
-        const amountArr = extractArrData(tableData.value[i], '-')
-        let itemAmountTotal = 0
-        for (let j = 0; j < amountArr.length; j++) {
-          if (tableTotal) {
-            const itemAmount = tableData.value[i][amountArr[j]].amount
-            itemAmountTotal = tool.plus(itemAmountTotal, itemAmount)
-          }
-          if (j === amountArr.length - 1) {
-            if (!tableTotal) {
-              tableData.value[i][amountArr[j]].amount = Number(Number(tool.minus(itemTotal, itemAmountTotal)).toFixed(2))
+              // 如果defaultNote小于剩余占比，则第二项note为defaultNote，第一项note为0
+              paymentData[i].note = Number(Number(prevDefaultNote).toFixed(30))
+              paymentData[i-1].note = 0
+              // 更新剩余占比
+              remainingPercent = Number(Number(tool.minus(remainingPercent, prevDefaultNote)).toFixed(30))
             }
           } else {
-            const per = securitySqmObj.value[amountArr[j]] || 0
-            const amount = Number(Number(tool.times(per, itemTotal)).toFixed(2))
-
-            if (!tableTotal) {
-              itemAmountTotal = tool.plus(itemAmountTotal, amount)
-              tableData.value[i][amountArr[j]].amount = amount
-            }
+            paymentData[i-1].note = Number(Number(prevDefaultNote).toFixed(30))
+            paymentData[i].note = 0
           }
         }
-        if (!flag) {
-          tableData.value[i].payment = Number(payment).toFixed(2)
-        }
+      }
 
+      // 更新columnsTypeObj
+      const obj = {}
+      for (let i = 0; i < paymentData.length; i++) {
+        obj[`${paymentData[i].code}`] = paymentData[i].note
+      }
+      columnsTypeObj.value = obj
+      columnsTypeData.value = paymentData
+    }
+
+    for (let i = 0; i < tableData.value.length; i++) {
+      let payment = columnsTypeObj.value[`${tableData.value[i].typeId}$${tableData.value[i].category}`]
+      if (flag) {
+        const itemPayment = Number(tableData.value[i].payment)
+        payment = isNaN(itemPayment) ? 0 : itemPayment
+      }
+      const itemPer = Number(payment) / 100
+      const itemTotal = Number(Number(tool.times(itemPer, calcBuildAmount.value)).toFixed(2))
+
+      const amountArr = extractArrData(tableData.value[i], '-')
+      let itemAmountTotal = 0
+      for (let j = 0; j < amountArr.length; j++) {
         if (tableTotal) {
-          const paymentStr = tool.div(itemAmountTotal, calcBuildAmount.value)
-          tableData.value[i].payment = Number(tool.times(Number(paymentStr), 100)).toFixed(2)
+          const itemAmount = tableData.value[i][amountArr[j]].amount
+          itemAmountTotal = tool.plus(itemAmountTotal, itemAmount)
         }
-        
-        tableData.value[i].total = tableTotal ? itemAmountTotal : itemTotal
+        if (j === amountArr.length - 1) {
+          if (!tableTotal) {
+            tableData.value[i][amountArr[j]].amount = Number(Number(tool.minus(itemTotal, itemAmountTotal)).toFixed(2))
+          }
+        } else {
+          const per = securitySqmObj.value[amountArr[j]] || 0
+          const amount = Number(Number(tool.times(per, itemTotal)).toFixed(2))
+
+          if (!tableTotal) {
+            itemAmountTotal = tool.plus(itemAmountTotal, amount)
+            tableData.value[i][amountArr[j]].amount = amount
+          }
+        }
+      }
+      if (!flag) {
+        tableData.value[i].payment = Number(payment).toFixed(2)
       }
 
-      if (!flag) {
-        hasReseted.value = true
+      if (tableTotal) {
+        const paymentStr = tool.div(itemAmountTotal, calcBuildAmount.value)
+        tableData.value[i].payment = Number(tool.times(Number(paymentStr), 100)).toFixed(2)
       }
+      
+      tableData.value[i].total = tableTotal ? itemAmountTotal : itemTotal
+    }
+
+    if (!flag) {
+      hasReseted.value = true
     }
   }
 
@@ -1150,7 +1150,7 @@
 
     const setLoanTotal = TableLoanTotal.value(1)
     const setBeTotal =TableLoanTotal.value(2)
-
+    
     if ((setLoanTotal !== buildAmount.value) && !easyModel.value) {
       const diffNum = tool.minus(buildAmount.value, setLoanTotal)
 
@@ -1180,6 +1180,8 @@
 
       return
     }
+
+    return 
 
     if (props.isOpen) {
       // open 后处理 暂定

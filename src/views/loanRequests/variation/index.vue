@@ -46,10 +46,13 @@
             </template>
 
             <template v-if="column.dataIndex === 'type_name'">
-              <span :class="{ 'declined-txt': record.declined }">{{ record.type_name }}</span>
+              <span v-if="isReopen" :class="{ 'declined-txt': record.declined }">{{ record.data?.type_name }}</span>
+              <span v-else :class="{ 'declined-txt': record.declined }">{{ record.type_name }}</span>
             </template>
             <template v-if="column.dataIndex === 'start_date'">
-              <span v-if="record.start_date" :class="{ 'declined-txt': record.declined }">{{ tool.showDate(record.start_date) }}</span>
+              <span v-if="record.start_date || record.data?.start_date" :class="{ 'declined-txt': record.declined }">
+                {{ isReopen ? tool.showDate(record.data?.start_date) : tool.showDate(record.start_date) }}
+              </span>
               <span v-else>--</span>
             </template>
             <template v-if="column.dataIndex === 'amount'">
@@ -70,7 +73,7 @@
             </template>
 
             <template v-if="column.dataIndex === 'reason'">
-              <span>{{ record.reason || record.cancel_reason || record.decline_reason || '--' }}</span>
+              <span>{{ record.data?.reason || '--' }}</span>
             </template>
             <template v-if="column.dataIndex === 'status_name'">
               <span :style="{ color: colors[record.status_name] }">{{ record.status_name }}</span>
@@ -185,16 +188,19 @@ const colors = ref({
 const rowClick = (record, index) => {
   return {
     onClick: () => {
-      navigationTo(`/projects/variations-details/about?uuid=${record.project.uuid}&id=${record.id}`, true);
+      navigationTo(`/projects/variations-details/about?uuid=${record.project.uuid}&id=${isReopen.value ? record.data?.id : record.id}`, true);
     }
   };
 };
 
+const isReopen = ref(false);
 const reload = (val) => {
   updateColumnsByType(val.type);
   if (val.type == 18) {
+    isReopen.value = true;
     updateApi(reopenIndex);
   } else {
+    isReopen.value = false;
     updateApi(projectVariation);
   }
   getTableData(val);

@@ -1331,5 +1331,6 @@ export default {
   "Trail Balance Report": "Trail Balance Report",
   "变更退回": "Return variation",
   "Select the entire row": "Select the entire row",
-  "Submit instructions": "Submit instructions"
+  "Submit instructions": "Submit instructions",
+  "退回": "Return"
 }

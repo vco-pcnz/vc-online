@@ -302,6 +302,8 @@
         } else {
           submitRquest(params)
         }
+      } else if (currentMark.value === 'fc_open') {
+        openVisible.value = true
       } else {
         submitRquest(params)
       }

@@ -860,7 +860,7 @@
       changeBackItemsStore.value = cloneDeep(backData);
       showNumItemsStore.value = cloneDeep(showNumItemsData);
       
-      await updateFormData();
+      await updateFormData(data);
     });
   };
 
@@ -920,8 +920,13 @@
   }
 
   const initLandDefault = ref(true)
+  const tableDataRefData = ref()
 
-  const updateFormData = async () => {
+  const updateFormData = async (tableData) => {
+    if (tableData) {
+      tableDataRefData.value = tableData
+    }
+
     await creditInfo({
       apply_uuid: props.currentId,
       type: props.currentStep?.credit_cate,
@@ -980,6 +985,11 @@
       nowChangeData.start_date = dayjs(nowChangeData.time_date[0]).format('YYYY-MM-DD')
       nowChangeData.end_date = dayjs(nowChangeData.time_date[1]).format('YYYY-MM-DD')
     }
+
+    emits('openData', {
+      table: tableDataRefData.value,
+      data: formState.value
+    })
     
     emits('compareDone', {
       changeBack,

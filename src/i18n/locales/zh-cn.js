@@ -1333,5 +1333,6 @@ export default {
   "变更退回": "变更退回",
   "Select the entire row": "整行选择",
   "Submit instructions": "提交批示",
+  "退回": "退回",
   "FC检查及Open": "FC检查及Open"
 }

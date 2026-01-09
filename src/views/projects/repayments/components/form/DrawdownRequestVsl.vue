@@ -36,6 +36,14 @@
                 <a-input-number :value="0" disabled :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
               </a-form-item>
             </a-col>
+            <a-col :span="12" v-if="isVsLoan">
+              <a-form-item :label="t('还款方式')" name="all_repayment">
+                <a-select v-model:value="formState.all_repayment">
+                  <a-select-option :value="0">{{ t('部分还款') }}</a-select-option>
+                  <a-select-option :value="1">{{ t('全额还款') }}</a-select-option>
+                </a-select>
+              </a-form-item>
+            </a-col>
 
             <a-col :span="24">
               <a-form-item class="custom-label">
@@ -50,7 +58,7 @@
                       <template #bodyCell="{ column, record, index }">
                         <template v-if="column.dataIndex === 'name'">
                           <!-- <p :title="record.name" class="sec-name">{{ record.name }}</p> -->
-                          <a-select v-model:value="record.id" :maxTagCount="1" class="mini" @change="loadDrawdown($event, index)">
+                          <a-select v-model:value="record.id" :maxTagCount="1" class="mini" @change="loadDrawdown($event, index)" :disabled="isVsLoanAllRepay">
                             <template v-for="(item, index) in drawDownSelectedList" :key="index">
                               <a-select-option :value="item.id" :disabled="disabledIds.includes(item.id)" :title="item.name">{{ item.name }}</a-select-option>
                             </template>
@@ -59,11 +67,11 @@
                         <template v-if="column.dataIndex === 'amount'">
                           <div class="text-center">
                             <vco-number size="fs_md" :value="record.amount" :precision="2"></vco-number>
-                            <vco-number style="opacity: 0.6" size="fs_md" :value="record.interest" :precision="2"></vco-number>
+                            <vco-number style="opacity: 0.6" size="fs_md" :value="record.total_interest" :precision="2"></vco-number>
                           </div>
                         </template>
                         <template v-if="column.dataIndex === 'all_repayment'">
-                          <a-select v-model:value="record.all_repayment" class="mini">
+                          <a-select v-model:value="record.all_repayment" class="mini" :disabled="isVsLoanAllRepay">
                             <a-select-option :title="t('部分还款')" :value="0">{{ t('部分还款') }}</a-select-option>
                             <a-select-option :title="t('全额还款')" :value="1">{{ t('全额还款') }}</a-select-option>
                           </a-select>
@@ -618,14 +626,17 @@ const relatedColumns = reactive([
   { title: t('操作1'), dataIndex: 'operation', fixed: 'right', align: 'center', width: 50 }
 ]);
 
-const DrawdownColumns = reactive([
-  { title: t('账号'), dataIndex: 'name', width: 140 },
-  { title: t('本金/利息'), dataIndex: 'amount' },
-  { title: t('还款方式'), dataIndex: 'all_repayment', width: 140 },
-  { title: t('还款分配'), dataIndex: 're_type', width: 140 },
-  { title: t('还款金额1'), dataIndex: 'amount1' },
-  { title: t('操作1'), dataIndex: 'operation', fixed: 'right', align: 'center', width: 50 }
-]);
+const DrawdownColumns = computed(() => {
+  const base = [
+    { title: t('账号'), dataIndex: 'name', width: 140 },
+    { title: t('本金/利息'), dataIndex: 'amount' },
+    { title: t('还款方式'), dataIndex: 'all_repayment', width: 140 },
+    { title: t('还款分配'), dataIndex: 're_type', width: 140 },
+    { title: t('还款金额1'), dataIndex: 'amount1' },
+    { title: t('操作1'), dataIndex: 'operation', fixed: 'right', align: 'center', width: 50 }
+  ];
+  return isVsLoanAllRepay.value ? base.filter((item) => item.dataIndex !== 'operation') : base;
+});
 
 const relatedData = ref([]);
 
@@ -758,7 +769,7 @@ const loadDrawDownSelected = () => {
   drawDownSelectedListLoading.value = true;
   maxReductionAmount.value = 0;
   drawdownList.value = [];
-  drawDownSelected({ uuid: props.uuid, apply_id: props.dataInfo?.id,date: formState.value.apply_date })
+  drawDownSelected({ uuid: props.uuid, apply_id: props.dataInfo?.id, date: formState.value.apply_date })
     .then((res) => {
       drawDownSelectedList.value = res;
     })
@@ -772,6 +783,36 @@ const drawdownList = ref([]);
 const drawdownListLoading = ref(false);
 const drawdownListInspection = ref(false);
 const disabledIds = ref([]);
+// 标记首条放款是否为 VS 放款
+const isVsLoan = computed(() => drawDownSelectedList.value.length > 0 && Number(drawDownSelectedList.value[0].id) !== 0);
+// VS 且全额还款时用于禁用操作的标记
+const isVsLoanAllRepay = computed(() => isVsLoan.value && Boolean(formState.value.all_repayment));
+
+// VS 放款的初始化逻辑占位，由业务补充
+const initVsDrawdownList = () => {
+  // TODO: 初始化 VS 放款的 drawdownList 数据
+  // drawDownSelectedList.value.map((item, index)=> {
+  //   loadDrawdown(item.id, index,1)
+  // })
+  const idsStr = drawDownSelectedList.value.map((item) => item?.id).join(',');
+  drawdownListLoading.value = true;
+  drawDownLists({ uuid: props.uuid, date: formState.value.apply_date, ids: idsStr })
+    .then((res) => {
+      drawdownList.value = cloneDeep(res.drawDown);
+      drawdownList.value.map((item) => {
+        item['all_repayment'] = 1;
+      });
+    })
+    .finally(() => {
+      drawdownListLoading.value = false;
+    });
+};
+
+watch([isVsLoan, () => formState.value.all_repayment], ([vsLoan, allRepayment]) => {
+  if (vsLoan && allRepayment) {
+    initVsDrawdownList();
+  }
+});
 
 const loadDrawdown = (e, index) => {
   if (formState.value.apply_date && e !== '') {
@@ -829,7 +870,9 @@ watch(
     disabledIds.value = val.filter((item) => item.id != null && item.id !== '').map((item) => item.id);
 
     if (drawdownList.value.length) {
-      formState.value.all_repayment = drawdownList.value[0].all_repayment == 1 && drawdownList.value[0].id == 0 ? 1 : 0;
+      if (drawdownList.value[0].id == 0) {
+        formState.value.all_repayment = drawdownList.value[0].all_repayment == 1;
+      }
     } else {
       formState.value.all_repayment = 0;
     }

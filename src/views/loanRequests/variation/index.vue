@@ -3,7 +3,7 @@
   <div class="mt-5">
     <a-spin :spinning="tableLoading" size="large">
       <div class="table-content sys-table-content cursor-pointer">
-        <a-table ref="tableRef" rowKey="uuid" :columns="columns" :data-source="tableDataRef" table-layout="fixed" :pagination="false" :customRow="rowClick">
+        <a-table ref="tableRef" rowKey="uuid" :columns="columns" :data-source="tableDataRef" table-layout="fixed" :pagination="false" :customRow="rowClick" :scroll="tableScroll">
           <template #bodyCell="{ column, record }">
             <template v-if="column.dataIndex === 'project_image'">
               <template v-if="record.project.imgsArr.length">
@@ -69,6 +69,9 @@
               </div>
             </template>
 
+            <template v-if="column.dataIndex === 'reason'">
+              <span>{{ record.reason || record.cancel_reason || record.decline_reason || '--' }}</span>
+            </template>
             <template v-if="column.dataIndex === 'status_name'">
               <span :style="{ color: colors[record.status_name] }">{{ record.status_name }}</span>
               <a-tooltip v-if="record.cancel_reason || record.decline_reason" placement="topLeft">
@@ -104,12 +107,12 @@ import tool from '@/utils/tool';
 import { QuestionCircleOutlined } from '@ant-design/icons-vue';
 import { useTableList } from '@/hooks/useTableList';
 import { navigationTo } from '@/utils/tool';
-import { projectVariation } from '@/api/project/loanRequests';
+import { projectVariation, reopenIndex } from '@/api/project/loanRequests';
 import layout from '../components/layout.vue';
 
 const { t } = useI18n();
 
-const { tableRef, pageObj, otherInfo, tableLoading, pageChange, tableData, getTableData } = useTableList(
+const { tableRef, pageObj, otherInfo, tableLoading, pageChange, tableData, getTableData, updateApi } = useTableList(
   projectVariation,
   {
     limit: 10
@@ -128,6 +131,24 @@ const columns = reactive([
   { title: t('状态'), dataIndex: 'status_name', width: 165, align: 'center' },
   { title: t('创建时间'), dataIndex: 'create_time', width: 120, align: 'center' }
 ]);
+
+const tableScroll = ref({ x: 1300 });
+
+const reasonColumn = { title: t('原因'), dataIndex: 'reason', width: 165, align: 'center' };
+
+const updateColumnsByType = (type) => {
+  const statusIndex = columns.findIndex((col) => col.dataIndex === 'status_name');
+  const reasonIndex = columns.findIndex((col) => col.dataIndex === 'reason');
+  if (type == 18) {
+    if (statusIndex !== -1 && reasonIndex === -1) {
+      columns.splice(statusIndex, 0, reasonColumn);
+    }
+    tableScroll.value = { x: 1500 };
+  } else if (reasonIndex !== -1) {
+    columns.splice(reasonIndex, 1);
+    tableScroll.value = { x: 1300 };
+  }
+};
 
 const tableDataRef = computed(() => {
   const data = tableData.value;
@@ -170,6 +191,12 @@ const rowClick = (record, index) => {
 };
 
 const reload = (val) => {
+  updateColumnsByType(val.type);
+  if (val.type == 18) {
+    updateApi(reopenIndex);
+  } else {
+    updateApi(projectVariation);
+  }
   getTableData(val);
 };
 </script>

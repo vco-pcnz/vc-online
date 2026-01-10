@@ -1347,5 +1347,6 @@ export default {
   "退回": "Return",
   "FC检查及Open": "FC check and Open",
   "Director审核": "Director review",
-  "申请退回": "Apply return"
+  "申请退回": "Apply return",
+  "包含利息": "Include interest"
 }

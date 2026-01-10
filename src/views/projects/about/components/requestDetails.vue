@@ -50,11 +50,13 @@
         <p class="RequestDetails-label">{{ t('项目文件') }}</p>
         <a-button type="brown" shape="round" size="small" class="mt-5" @click="navigationTo(`${mode}/projects/documents?uuid=` + currentId)">{{ t('查看文件') }}</a-button>
       </div>
-      <div class="VerticalDivider"></div>
-      <div class="RequestDetails-units">
-        <p class="RequestDetails-label">{{ t('数量') }}</p>
-        <div>{{ data?.base.building_num }}</div>
-      </div>
+      <template v-if="data?.product?.code !== 'lendr'">
+        <div class="VerticalDivider"></div>
+        <div class="RequestDetails-units">
+          <p class="RequestDetails-label">{{ t('数量') }}</p>
+          <div>{{ data?.base.building_num }}</div>
+        </div>
+      </template>
     </div>
 
     <div>

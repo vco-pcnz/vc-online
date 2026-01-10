@@ -54,7 +54,7 @@
 
                 <div class="table-content sys-table-content related-content no-top-line" :class="drawdownListInspection ? 'drawdownListInspection' : ''">
                   <a-spin :spinning="drawdownListLoading" size="large">
-                    <a-table rowKey="uuid" :columns="DrawdownColumns" :data-source="drawdownList" :pagination="false" table-layout="fixed">
+                    <a-table rowKey="uuid" :columns="DrawdownColumns" :data-source="drawdownList" :pagination="false" table-layout="fixed" :scroll="{ y: 300 }">
                       <template #bodyCell="{ column, record, index }">
                         <template v-if="column.dataIndex === 'name'">
                           <!-- <p :title="record.name" class="sec-name">{{ record.name }}</p> -->

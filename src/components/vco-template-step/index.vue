@@ -11,7 +11,7 @@
             </template>
           </div>
 
-          <h2 v-if="item.name" class="name uppercase">{{ item.name }}</h2>
+          <h2 v-if="item.name" class="name uppercase">{{ translate ? t(item.name) : item.name }}</h2>
         </div>
       </template>
       <div class="item" :class="{ pass: state === 1000 }">
@@ -46,6 +46,10 @@ const props = defineProps({
   state: {
     type: [Number],
     default: 0
+  }, 
+  translate: {
+    type: [Boolean],
+    default: false
   }
 });
 

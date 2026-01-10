@@ -13,26 +13,26 @@
           <p class="txt">{{ data.project_type_name }}</p>
         </div>
       </a-col>
-      <a-col :span="8">
+      <!-- <a-col :span="8">
         <div class="info-content">
           <p class="name">{{ t('楼栋数') }}</p>
           <p class="txt">{{ data.building_num }}</p>
         </div>
-      </a-col>
+      </a-col> -->
       <a-col :span="8">
         <div class="info-content">
           <p class="name">{{ t('邮编') }}</p>
           <p class="txt">{{ data.project_postcode }}</p>
         </div>
       </a-col>
-      <a-col v-if="!isNormalUser" :span="8">
+      <!-- <a-col v-if="!isNormalUser" :span="8">
         <div class="info-content cursor-pointer">
           <DevCostDetail :edit="false" v-model:dataJson="data.devCostDetail">
             <p class="name">{{ t('开发成本') }} <i class="iconfont color_coal">&#xe76f;</i></p>
             <p class="txt">{{ tool.formatMoney(data.devCost) }}</p>
           </DevCostDetail>
         </div>
-      </a-col>
+      </a-col> -->
       <a-col :span="24">
         <div class="info-content">
           <p class="name">{{ t('项目照片') }}</p>

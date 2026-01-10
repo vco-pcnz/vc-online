@@ -246,10 +246,10 @@ import { hasPermission } from '@/directives/permission/index';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
-import { useProjectsStore } from '@/store';
+import { useProjectsStore, useUserStore, useProductStore } from '@/store';
 const pageStore = useProjectsStore();
+const productStore = useProductStore();
 const emits = defineEmits(['update:data', 'update:keys', 'change']);
-import { useUserStore } from '@/store';
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -282,6 +282,40 @@ const columns = reactive([
   { title: t('FC2'), key: 'fc2', width: 130 },
   { title: t('条件'), key: '9', align: 'center' }
 ]);
+
+const currentProduct = computed(() => productStore.productData.find((item) => item.uuid === pageStore.product_uuid));
+const isLendrProduct = computed(() => currentProduct.value?.code === 'lendr');
+
+const removeLtcColumn = () => {
+  const ltcIndex = columns.findIndex((column) => column.key === 'ltc');
+  if (ltcIndex !== -1) {
+    columns.splice(ltcIndex, 1);
+  }
+};
+
+const addLtcColumn = () => {
+  const hasLtc = columns.some((column) => column.key === 'ltc');
+  if (hasLtc) return;
+  const insertIndex = columns.findIndex((column) => column.key === 'income');
+  const ltcColumn = { title: 'LTC', key: 'ltc', width: 140 };
+  if (insertIndex !== -1) {
+    columns.splice(insertIndex, 0, ltcColumn);
+  } else {
+    columns.push(ltcColumn);
+  }
+};
+
+watch(
+  () => isLendrProduct.value,
+  (val) => {
+    if (val) {
+      removeLtcColumn();
+    } else {
+      addLtcColumn();
+    }
+  },
+  { immediate: true }
+);
 
 const diffInDays = (val) => {
   // 本地时间固定使用新西兰时区

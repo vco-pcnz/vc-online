@@ -271,10 +271,8 @@ watch(
       confirmForm.value = {};
       fonfirmTable.value = [];
     } else {
-      // openDate.value = dayjs(props.infoData.start_date)
-
-      startDate.value = props.infoData.start_date;
-      endDate.value = props.infoData.end_date;
+      startDate.value = props.infoData.lending.start_date;
+      endDate.value = props.infoData.lending.end_date;
 
       configInit();
     }

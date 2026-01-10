@@ -3,9 +3,9 @@
     <a-row :gutter="24">
       <a-col :span="8">
         <div class="info-content">
-          <p class="name">{{ t('借款金额') }}</p>
+          <p class="name">{{ t('预计借款金额') }}</p>
           <p class="txt">
-            <vco-number :value="data.loan_money" :precision="2" :end="true"></vco-number>
+            <vco-number :value="data.old_loan_money" :precision="2" :end="true"></vco-number>
           </p>
         </div>
       </a-col>
@@ -18,7 +18,7 @@
       <a-col :span="8">
         <div class="info-content">
           <p class="name">{{ t('预计项目周期') }}</p>
-          <p class="txt">{{ tool.showDate(data.start_date) + ' - ' + tool.showDate(data.end_date) }}</p>
+          <p class="txt">{{ tool.showDate(data.apply_start_date) + ' - ' + tool.showDate(data.apply_end_date) }}</p>
         </div>
       </a-col>
       <a-col :span="8">
@@ -52,7 +52,7 @@
   const { t } = useI18n();
 
   const showTerm = computed(() => {
-    const data = tool.calculateDurationPrecise(props.data.start_date, props.data.end_date)
+    const data = tool.calculateDurationPrecise(props.data.apply_start_date, props.data.apply_end_date)
     if (data.months && data.days) {
       return `${data.months} ${t('月')} ${data.days} ${t('天')}`
     }
@@ -69,7 +69,7 @@
   })
 
   const totalDay = computed(() => {
-    const data = tool.calculateDurationPrecise(props.data.start_date, props.data.end_date)
+    const data = tool.calculateDurationPrecise(props.data.apply_start_date, props.data.apply_end_date)
     const days = data.gapDay || 0
     return `${days} ${t('天')}`
   })

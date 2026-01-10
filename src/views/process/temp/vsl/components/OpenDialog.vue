@@ -167,8 +167,7 @@ const submitHandle = async () => {
     start_date: startDate.value,
     end_date: endDate.value,
     uuid: props.uuid,
-    // code: props.blockInfo.loan.code,
-    code: 'lending',
+    code: props.blockInfo.lending.code,
     do__open: 1
   };
 

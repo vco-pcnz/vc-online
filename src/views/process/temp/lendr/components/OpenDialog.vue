@@ -161,14 +161,14 @@ const submitHandle = async () => {
 
     return false;
   }
-
+  
   changeLoading(true);
 
   const loadParams = {
     start_date: startDate.value,
     end_date: endDate.value,
     uuid: props.uuid,
-    code: props.blockInfo.loan.code,
+    code: props.blockInfo.lending.code,
     do__open: 1
   };
 
@@ -197,7 +197,7 @@ const disabledDate = (currentDate) => {
 
 const openDateChange = (date) => {
   if (date) {
-    const { start_date, end_date } = props.infoData;
+    const { start_date, end_date } = props.infoData.lending;
     const calcDay = tool.calculateDurationPrecise(start_date, end_date);
     const gapDay = calcDay.gapDay;
 
@@ -253,12 +253,12 @@ const configInit = () => {
   }
 
   // 第一项增加放款总金额
-  confirmForm.value['build_amount'] = false
+  confirmForm.value['loan_money'] = false
   fonfirmTable.value.unshift({
-    credit_name: 'Loan amount',
-    credit_table: 'build_amount',
+    credit_name: 'Loan money',
+    credit_table: 'loan_money',
     credit_unit: '$',
-    showVal: data.build_amount
+    showVal: data.loan_money
   })
 };
 

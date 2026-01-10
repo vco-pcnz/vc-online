@@ -233,13 +233,14 @@
               </a-form-item>
             </a-col>
             
-            <a-col :span="6" v-if="formState.estab_type === 1">
+            <a-col :span="6">
               <a-form-item :label="t('包含利息')" name="estab_type">
                 <a-select
                   v-model:value="formState.estab_inc_interest"
                   style="width: 100%"
                   :disabled="isDetails || !blockInfo.showEdit"
                   :options="estab_inc_interestData"
+                  @change="estab_inc_interestChange"
                 ></a-select>
               </a-form-item>
             </a-col>
@@ -835,7 +836,17 @@
 
     // 建立费、建立费率计算
     debouncedEstablishCalculate()
-  }
+}
+
+const estab_inc_interestChange = () => {
+  estabItems.value.map(item => {
+    if (item.is_ratio && formState.value.estab_type === 1) {
+      percentInput(item.credit_table)
+    } else if (formState.value.estab_type === 2) {
+      dollarInput(item.credit_table)
+    }
+  })
+}
 
   const getFormItems = async () => {
     const creditCate = props.isDetails ? 0 : props.currentStep?.credit_cate;

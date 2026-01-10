@@ -2,8 +2,11 @@
   <detail-layout active-tab="repayments" @getProjectDetail="getProjectDetail">
     <template #content>
       <div class="ProjectDrawdowns">
+        <div class="flex justify-end mb-5 gap-4">
+          <vco-page-tab v-if="projectDetail && projectDetail.product.code === 'vsl' && (hasPermission('projects:schedule:vs_schedule') || hasPermission('projects:schedule:boc_schedule'))" :tabData="typeData" v-model:current="type_id"></vco-page-tab>
+        </div>
         <div :class="{ grid: (hasPermission('projects:repayments:add') || hasPermission('projects:repayments:calculator')) && projectDetail && !projectDetail?.base?.is_close }" class="mb-12">
-          <MeterStat :uuid="uuid" :projectDetail="projectDetail" v-if="Boolean(uuid)" ref="MeterStatRef"></MeterStat>
+          <MeterStat :uuid="uuid" :type_id="type_id" :projectDetail="projectDetail" v-if="Boolean(uuid)" ref="MeterStatRef"></MeterStat>
           <template v-if="projectDetail && !projectDetail?.base?.is_close && (hasPermission('projects:repayments:add') || hasPermission('projects:repayments:calculator'))">
             <div class="HelpBorrower">
               <calculator v-if="hasPermission('projects:repayments:calculator')" :uuid="uuid" :projectDetail="projectDetail">
@@ -62,7 +65,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import detailLayout from '../components/detailLayout.vue';
 import MeterStat from './components/MeterStat.vue';
@@ -82,6 +85,24 @@ const { t } = useI18n();
 
 const userStore = useUserStore();
 const isNormalUser = computed(() => userStore.isNormalUser);
+
+const type_id = ref('');
+const typeData = ref([
+  {
+    label: 'All',
+    value: ''
+  },
+  {
+    label: 'VS',
+    value: 'VS',
+    hide: !hasPermission('projects:schedule:vs_schedule')
+  },
+  {
+    label: 'BOC',
+    value: 'BOC',
+    hide: !hasPermission('projects:schedule:boc_schedule')
+  }
+]);
 
 const uuid = ref('');
 const detail_info = ref(null);
@@ -113,7 +134,7 @@ const tableData = ref([]);
 
 const loadData = () => {
   loading.value = true;
-  loanRepayment({ uuid: uuid.value, ...pagination.value })
+  loanRepayment({ uuid: uuid.value, ...pagination.value, lender: type_id.value })
     .then((res) => {
       const data = res.data || [];
       data.forEach((item) => {
@@ -141,6 +162,13 @@ onMounted(() => {
   uuid.value = route.query.uuid;
   loadData();
 });
+
+watch(
+  () => type_id.value,
+  (val) => {
+    loadData();
+  }
+);
 </script>
 
 <style scoped lang="less">

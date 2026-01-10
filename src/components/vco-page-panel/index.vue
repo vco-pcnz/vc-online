@@ -2,7 +2,7 @@
   <div class="TabsPanel">
     <div class="Panel">
       <h2 class="Panel-Title">
-        <i class="iconfont back" @click="back">&#xe794;</i>
+        <i class="iconfont back" v-if="showBack" @click="back">&#xe794;</i>
         <a-tag class="Tag" v-if="title"><p :title="w?title:''" :style="{maxWidth: w || 'auto'}">{{ title }}</p></a-tag>
         <slot name="title"></slot>
       </h2>
@@ -14,6 +14,7 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import { goBack } from '@/utils/tool';
 const props = defineProps({
   title: {
@@ -29,6 +30,11 @@ const props = defineProps({
 });
 
 const emits = defineEmits(['back']);
+
+const showBack = computed(() => {
+  if (!props.isBack) return true;
+  return typeof window !== 'undefined' && window.history.length > 1;
+});
 
 const back = () => {
   if (props.isBack) {

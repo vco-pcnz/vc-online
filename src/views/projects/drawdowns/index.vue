@@ -2,7 +2,8 @@
   <detail-layout ref="detailLayoutRef" active-tab="drawdowns" @getProjectDetail="getProjectDetail">
     <template #content>
       <div class="ProjectDrawdowns">
-        <div class="flex justify-end mb-5 gap-4" v-if="projectDetail?.product?.code !== 'lendr'">
+        <div class="flex justify-end mb-5 gap-4">
+          <vco-page-tab v-if="projectDetail && projectDetail.product.code === 'vsl' && (hasPermission('projects:schedule:vs_schedule') || hasPermission('projects:schedule:boc_schedule'))" :tabData="typeData" v-model:current="type_id"></vco-page-tab>
           <a-button v-if="showProcessEdit" type="brown" shape="round" class="pre-sale-enter" @click="navigationTo(`/projects/progress-payment/edit?uuid=${uuid}`)">
             {{ t('编辑进度付款') }}
             <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px' }" />
@@ -14,7 +15,7 @@
         </div>
 
         <div :class="{ grid: hasPermission('projects:drawdowns:add') || (hasPermission('projects:drawdowns:add:lm') && projectDetail && !projectDetail?.base?.is_close) }" class="mb-12">
-          <MeterStat :uuid="uuid" v-if="Boolean(uuid)" v-model:statistics-data="statisticsData" ref="MeterStatRef"></MeterStat>
+          <MeterStat :uuid="uuid" :type_id="type_id" v-if="Boolean(uuid)" v-model:statistics-data="statisticsData" ref="MeterStatRef"></MeterStat>
           <template v-if="projectDetail && !projectDetail?.base?.is_close">
             <div class="HelpBorrower" v-if="hasPermission('projects:drawdowns:add:lm')">
               <div class="flex items-center">
@@ -26,11 +27,6 @@
                 <drawdown-request-vsl :uuid="uuid" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update(true)">
                   <a-button type="brown" shape="round" size="small">{{ t('创建放款') }}</a-button>
                 </drawdown-request-vsl>
-              </template>
-              <template v-else-if="projectDetail.product.code === 'lendr'">
-                <drawdown-request-lendr :uuid="uuid" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update(true)">
-                  <a-button type="brown" shape="round" size="small">{{ t('创建放款') }}</a-button>
-                </drawdown-request-lendr>
               </template>
               <template v-else>
                 <drawdown-request :uuid="uuid" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update(true)">
@@ -68,7 +64,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue';
+import { ref, reactive, onMounted, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { RightOutlined } from '@ant-design/icons-vue';
 import { size, template } from 'lodash';
@@ -78,7 +74,6 @@ import TableBlock from './components/TableBlock.vue';
 import Detail from './components/Detail.vue';
 import DrawdownRequest from './components/form/DrawdownRequest.vue';
 import DrawdownRequestVsl from './components/form/DrawdownRequestVsl.vue';
-import DrawdownRequestLendr from './components/form/DrawdownRequestLendr.vue';
 import { hasPermission } from '@/directives/permission/index';
 import { loanDrawdown } from '@/api/project/loan';
 import { useRoute } from 'vue-router';
@@ -104,7 +99,23 @@ const pagination = ref({
   page: 1,
   limit: 5
 });
-
+const type_id = ref('');
+const typeData = ref([
+  {
+    label: 'All',
+    value: ''
+  },
+  {
+    label: 'VS',
+    value: 'VS',
+    hide: !hasPermission('projects:schedule:vs_schedule')
+  },
+  {
+    label: 'BOC',
+    value: 'BOC',
+    hide: !hasPermission('projects:schedule:boc_schedule')
+  }
+]);
 const setPaginate = (page, limit) => {
   pagination.value = {
     page,
@@ -130,7 +141,7 @@ const tableData = ref([]);
 
 const loadData = () => {
   loading.value = true;
-  loanDrawdown({ uuid: uuid.value, ...pagination.value })
+  loanDrawdown({ uuid: uuid.value, ...pagination.value, lender: type_id.value })
     .then((res) => {
       tableData.value = res.data;
       total.value = res.count;
@@ -153,6 +164,13 @@ onMounted(() => {
   uuid.value = route.query.uuid;
   loadData();
 });
+
+watch(
+  () => type_id.value,
+  (val) => {
+    loadData();
+  }
+);
 </script>
 
 <style scoped lang="less">

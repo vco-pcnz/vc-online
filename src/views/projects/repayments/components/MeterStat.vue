@@ -1,45 +1,45 @@
 <template>
   <a-spin :spinning="loading" size="large">
-  <div class="indicatorsGrid" :class="{ 'indicatorsGrid-compact': isNormalUser }">
-    <div class="MeterStat MeterStat_type_charcoal">
-      <div class="MeterStat-Meter"></div>
-      <div>
-        <p>{{ isNormalUser ? t('当前余额') : t('还款1') }}</p>
-        <vco-number :bold="true" :value="isNormalUser? statistics?.currentBalance : statistics?.loanRepaid" :precision="2" style="margin-bottom: 2px"></vco-number>
-      </div>
-    </div>
-    <div class="MeterStat MeterStat_type_dotsBlack">
-      <div class="MeterStat-Dots">
-        <div class="MeterStat-Dot"></div>
-        <div class="MeterStat-Dot"></div>
-        <div class="MeterStat-Dot"></div>
-        <div class="MeterStat-Dot"></div>
-      </div>
-      <div>
-        <p class="color_grey" style="margin-bottom: 2px">{{ isNormalUser ? t('应计利息') : t('待还款') }}</p>
-        <vco-number :bold="true" :value="isNormalUser? statistics?.accruedInterest : statistics?.pendingRepayment" :precision="2"></vco-number>
-        <p style="opacity: 0">.</p>
-      </div>
-    </div>
-    <div class="chart">
-      <v-chart class="chart2" :option="option" autoresize />
-    </div>
-    <div class="MeterStat MeterStat_type_transparent text-right">
-      <div>
+    <div class="indicatorsGrid" :class="{ 'indicatorsGrid-compact': isNormalUser }">
+      <div class="MeterStat MeterStat_type_charcoal">
+        <div class="MeterStat-Meter"></div>
         <div>
-          <p>{{ isNormalUser ? t('预计还款今天') : t('贷款余额1') }}</p>
-          <vco-number :bold="true" :value="isNormalUser ? estPayoffToday : statistics?.loanBalance" :precision="2"></vco-number>
-          <p v-if="!isNormalUser" class="color_grey">{{ t('包括利息和费用') }}</p>
+          <p>{{ isNormalUser ? t('当前余额') : t('还款1') }}</p>
+          <vco-number :bold="true" :value="isNormalUser ? statistics?.currentBalance : statistics?.loanRepaid" :precision="2" style="margin-bottom: 2px"></vco-number>
         </div>
       </div>
-      <div class="MeterStat-Meter"></div>
+      <div class="MeterStat MeterStat_type_dotsBlack">
+        <div class="MeterStat-Dots">
+          <div class="MeterStat-Dot"></div>
+          <div class="MeterStat-Dot"></div>
+          <div class="MeterStat-Dot"></div>
+          <div class="MeterStat-Dot"></div>
+        </div>
+        <div>
+          <p class="color_grey" style="margin-bottom: 2px">{{ isNormalUser ? t('应计利息') : t('待还款') }}</p>
+          <vco-number :bold="true" :value="isNormalUser ? statistics?.accruedInterest : statistics?.pendingRepayment" :precision="2"></vco-number>
+          <p style="opacity: 0">.</p>
+        </div>
+      </div>
+      <div class="chart">
+        <v-chart class="chart2" :option="option" autoresize />
+      </div>
+      <div class="MeterStat MeterStat_type_transparent text-right">
+        <div>
+          <div>
+            <p>{{ isNormalUser ? t('预计还款今天') : t('贷款余额1') }}</p>
+            <vco-number :bold="true" :value="isNormalUser ? estPayoffToday : statistics?.loanBalance" :precision="2"></vco-number>
+            <p v-if="!isNormalUser" class="color_grey">{{ t('包括利息和费用') }}</p>
+          </div>
+        </div>
+        <div class="MeterStat-Meter"></div>
+      </div>
     </div>
-  </div>
   </a-spin>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { loanRstatistics } from '@/api/project/loan';
 import useUserStore from '@/store/modules/user';
@@ -61,10 +61,13 @@ const props = defineProps({
   },
   projectDetail: {
     type: Object
+  },
+  type_id: {
+    type: [String, Number]
   }
 });
 
-const loading = ref(false)
+const loading = ref(false);
 // 初始化图表
 const option = ref({
   autoFit: false,
@@ -103,44 +106,53 @@ const option = ref({
 const statistics = ref();
 
 const totalLoan = computed(() => {
-  const money = props.projectDetail?.loan?.loan_money || 0
-  return money
-})
+  const money = props.projectDetail?.loan?.loan_money || 0;
+  return money;
+});
 
 const loadData = () => {
-  loading.value = true
-  loanRstatistics({ uuid: props.uuid }).then((res) => {
-    statistics.value = res;
+  loading.value = true;
+  loanRstatistics({ uuid: props.uuid, lender: props.type_id })
+    .then((res) => {
+      statistics.value = res;
 
-    const num = 100
-    let rate = res.rate || 0
+      const num = 100;
+      let rate = res.rate || 0;
 
-    // 外部用户：rate = currentBalance / estPayoffToday * 100
-    if (isNormalUser.value) {
-      const currentBalance = res.currentBalance || 0
-      const accruedInterest = res.accruedInterest || 0
-      const payoff = tool.plus(currentBalance, accruedInterest) // estPayoffToday
-      if (Number(payoff) > 0) {
-        rate = Number(tool.times(tool.div(currentBalance, payoff), 100))
-      } else {
-        rate = 0
+      // 外部用户：rate = currentBalance / estPayoffToday * 100
+      if (isNormalUser.value) {
+        const currentBalance = res.currentBalance || 0;
+        const accruedInterest = res.accruedInterest || 0;
+        const payoff = tool.plus(currentBalance, accruedInterest); // estPayoffToday
+        if (Number(payoff) > 0) {
+          rate = Number(tool.times(tool.div(currentBalance, payoff), 100));
+        } else {
+          rate = 0;
+        }
       }
-    }
 
-    option.value.series[0].data = [{ value: rate }, { value: num - rate }]
-  }).finally(_ => {
-    loading.value = false
-  });
-}
+      option.value.series[0].data = [{ value: rate }, { value: num - rate }];
+    })
+    .finally((_) => {
+      loading.value = false;
+    });
+};
 
 onMounted(() => {
-  loadData()
+  loadData();
 });
 
 // 暴露方法给父组件
 defineExpose({
   loadData
 });
+
+watch(
+  () => props.type_id,
+  (val) => {
+    loadData();
+  }
+);
 </script>
 
 <style scoped lang="less">

@@ -229,18 +229,19 @@
                   style="width: 100%"
                   :disabled="isDetails || !blockInfo.showEdit"
                   :options="estabTypeData"
+                  @change="interestChange"
                 ></a-select>
               </a-form-item>
             </a-col>
             
             <a-col :span="6">
-              <a-form-item :label="t('包含利息')" name="estab_type">
+              <a-form-item :label="t('包含利息')">
                 <a-select
                   v-model:value="formState.estab_inc_interest"
                   style="width: 100%"
                   :disabled="isDetails || !blockInfo.showEdit"
                   :options="estab_inc_interestData"
-                  @change="estab_inc_interestChange"
+                  @change="interestChange"
                 ></a-select>
               </a-form-item>
             </a-col>
@@ -838,7 +839,7 @@
     debouncedEstablishCalculate()
 }
 
-const estab_inc_interestChange = () => {
+const interestChange = () => {
   estabItems.value.map(item => {
     if (item.is_ratio && formState.value.estab_type === 1) {
       percentInput(item.credit_table)
@@ -1126,6 +1127,7 @@ const estab_inc_interestChange = () => {
           code: props.blockInfo.code,
           uuid: props.currentId,
           estab_type: Number(formState.value.estab_type),
+          estab_inc_interest: Number(formState.value.estab_inc_interest),
           repay_money: formState.value.loan_money || 0,
           loan_money: formState.value.initial_amount || 0,
           // initial_amount: formState.value.initial_amount || 0,

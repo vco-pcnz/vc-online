@@ -1264,7 +1264,7 @@ export default {
   "重新申请": "Re-apply",
   "审核抵押物解押申请": "Review discharge application",
   "XeroID": "Xero ID",
-  "建立费计算标准": "Establishment Fee Calculation Method",
+  "建立费计算标准": "Estab. fee Calculation Method",
   "BOC剩余金额是{0},确定要进行VS放款吗？": "BOC available draw amount is <span>{0}</span>. Are you sure VS drawdown is correct?",
   "点击“保存”按钮后，预测结果将重新生成。您确定吗？": 'After clicking the "Save" button, the forecast will be regenerated. Are you sure?',
   "手动对账": "Reconciled (Manual)",

@@ -2,15 +2,23 @@
   <div class="layout_header">
     <div class="title_with_product">
       <div class="header_title">VC Online</div>
-      <a-select
-        v-model:value="currentProduct"
-        size="small"
-        class="product-select"
-        :options="productOptions"
-        :placeholder="t('选择产品')"
-        :dropdownMatchSelectWidth="false"
-        @change="handleProductChange"
-      />
+      <a-dropdown trigger="click" v-model:open="productOpen">
+        <button class="product-dropdown">
+          <span>{{ currentProductLabel }}</span>
+          <DownOutlined class="product-arrow" :class="{ open: productOpen }" style="font-size: 12px" />
+        </button>
+        <template #overlay>
+          <a-menu class="product-menu">
+            <a-menu-item
+              v-for="option in productOptions"
+              :key="option.value"
+              @click="handleProductChange(option.value)"
+            >
+              <span :class="{ active: option.value === currentProduct }">{{ option.label }}</span>
+            </a-menu-item>
+          </a-menu>
+        </template>
+      </a-dropdown>
     </div>
     <div class="header_container">
       <div class="menu_content">
@@ -121,6 +129,11 @@ const currentProduct = computed({
     productStore.currentProduct = val || '';
   }
 });
+const productOpen = ref(false);
+const currentProductLabel = computed(() => {
+  const found = productOptions.value.find((item) => item.value === currentProduct.value);
+  return found ? found.label : t('选择产品');
+});
 
 const menuData = computed(() => {
   const data = userStore.routerInfo || [];
@@ -225,6 +238,7 @@ watch(
 const handleProductChange = (val) => {
   productStore.currentProduct = val;
   localStorage.setItem('currentProduct', val);
+  productOpen.value = false;
 };
 
 // 组件挂载时启动定时器
@@ -359,7 +373,46 @@ onUnmounted(() => {
   line-height: 2;
 }
 
-.product-select {
-  width: 80px;
+.product-dropdown {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  min-width: 70px;
+  background: #f5f5f5;
+  border: none;
+  border-radius: 8px;
+  color: #555;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  box-shadow: inset 0 0 0 1px transparent;
+
+  &:hover {
+    background: #ededed;
+  }
+}
+
+.product-arrow {
+  transition: transform 0.18s ease;
+
+  &.open {
+    transform: rotate(180deg);
+  }
+}
+
+.product-menu {
+  min-width: 70px;
+  :deep(.ant-dropdown-menu-item) {
+    padding: 8px 12px;
+  }
+  :deep(.ant-dropdown-menu-item-selected),
+  :deep(.ant-dropdown-menu-item:hover) {
+    background: #f2f3f5;
+  }
+  .active {
+    font-weight: 700;
+    color: #1f1f1f;
+  }
 }
 </style>

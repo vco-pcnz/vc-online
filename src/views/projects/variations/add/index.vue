@@ -428,7 +428,7 @@
               <a-col :span="24"><div class="pt-5" style="border-top: 1px dashed #282828"></div></a-col>
               <template v-if="colItemsRef.length">
                 <template v-for="item in colItemsRef" :key="item.credit_table">
-                  <a-col :span="4">
+                  <a-col :span="isVsl ? 6 : 4">
                     <a-form-item :name="item.credit_table">
                       <template #label>
                         {{ item.credit_name }}
@@ -478,7 +478,7 @@
                   <a-col :span="isVsl ? 4 : 6">
                     <a-form-item :name="item.credit_table">
                       <template #label>
-                        {{ item.credit_name }}
+                        {{ isVsl && item.credit_table === 'credit_estabFeeRate' ? 'extension rate'  : item.credit_name }}
                         <a-tooltip v-if="item.tips" placement="topLeft">
                           <template #title>
                             <span>{{ item.tips }}</span>
@@ -581,8 +581,8 @@ const typeDataRef = computed(() => {
       item.disabled = isVsl.value ? item.value !== 3 : false
     })
 
-    const resData = data.filter(item => ![4, 5].includes(item.value))
-    return resData
+    //const resData = data.filter(item => ![4, 5].includes(item.value))
+    return data
   } else {
     return data
   }
@@ -1215,8 +1215,12 @@ const createFormItems = () => {
 
   const secItems = ['credit_estabFeeRate', 'credit_estabFee']
 
-  const firColItems = colItems.filter((item) => !secItems.includes(item.credit_table));
+  let firColItems = colItems.filter((item) => !secItems.includes(item.credit_table));
   const secColItems = colItems.filter((item) => secItems.includes(item.credit_table));
+
+  if (isVsl.value) {
+    firColItems = firColItems.filter((item) => item.credit_table !== 'credit_brokerFeeRate');
+  }
 
   colItemsRef.value = firColItems;
   secColItemsRef.value = secColItems;
@@ -1474,7 +1478,9 @@ const handInput = (key) => {
         calcSameTermBroker(true)
       } else {
         if (formState.value.start_date) {
-          formState.value.credit_brokerFee = Number(tool.times(tool.div(credit_brokerFeeRate, 100), num)).toFixed(2)
+          if (!isVsl.value) {
+            formState.value.credit_brokerFee = Number(tool.times(tool.div(credit_brokerFeeRate, 100), num)).toFixed(2)
+          }
         } else {
           formState.value.credit_brokerFee = 0
         }
@@ -1485,7 +1491,9 @@ const handInput = (key) => {
         calcSameTermBroker(false)
       } else {
         if (formState.value.start_date) {
-          formState.value.credit_brokerFeeRate = Number(tool.times(tool.div(credit_brokerFee, num), 100)).toFixed(2)
+          if (!isVsl.value) {
+            formState.value.credit_brokerFeeRate = Number(tool.times(tool.div(credit_brokerFee, num), 100)).toFixed(2)
+          }
         } else {
           formState.value.credit_brokerFeeRate = 0
         }

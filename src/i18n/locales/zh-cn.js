@@ -1330,6 +1330,7 @@ export default {
   "{0}号": "{0}号",
   "产品": "产品",
   "Trail Balance Report": "试算平衡表",
+  "vsl买断": "买断",
   "变更退回": "变更退回",
   "Select the entire row": "整行选择",
   "Submit instructions": "提交批示",

@@ -32,7 +32,12 @@
           <span class="unit">nzd</span>
           <!-- <DrawdownAmount :uuid="uuid" :detail="detail" :projectDetail="projectDetail" @change="update" v-if="detail?.mark === 'drawdown_lm' && hasPermission('projects:drawdowns:edit')"><i class="iconfont edit">&#xe8cf;</i></DrawdownAmount> -->
           <template v-if="detail?.mark === 'drawdown_lm' && hasPermission('projects:drawdowns:edit')">
-            <template v-if="projectDetail.product.code === 'vsl'">
+            <template v-if="projectDetail.product.code === 'lendr'">
+              <DrawdownRequestLendr :uuid="uuid" :detail="detail" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update">
+                <i class="iconfont edit">&#xe8cf;</i>
+              </DrawdownRequestLendr>
+            </template>
+            <template v-else-if="projectDetail.product.code === 'vsl'">
               <DrawdownRequestVsl :uuid="uuid" :detail="detail" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update">
                 <i class="iconfont edit">&#xe8cf;</i>
               </DrawdownRequestVsl>
@@ -158,6 +163,7 @@ import { forecastDarwdown, loanDsel, loanDdeclinel, loanDsaveStep, loanDrecall, 
 import DrawdownAmount from './form/DrawdownAmount.vue';
 import DrawdownRequest from './form/DrawdownRequest.vue';
 import DrawdownRequestVsl from './form/DrawdownRequestVsl.vue';
+import DrawdownRequestLendr from './form/DrawdownRequestLendr.vue';
 import DrawdownBack from './form/DrawdownBack.vue';
 import AcceptFc from './form/AcceptFc.vue';
 import AddStake from './form/addStake.vue';

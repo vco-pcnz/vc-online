@@ -23,7 +23,12 @@
               </div>
               <p class="color_grey mt-1 mb-3">{{ t('您可以帮助他们创建提款。') }}</p>
 
-              <template v-if="projectDetail.product.code === 'vsl'">
+              <template v-if="projectDetail?.product?.code === 'lendr'">
+                <drawdown-request-lendr :uuid="uuid" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update(true)">
+                  <a-button type="brown" shape="round" size="small">{{ t('创建放款') }}</a-button>
+                </drawdown-request-lendr>
+              </template>
+              <template v-else-if="projectDetail?.product?.code === 'vsl'">
                 <drawdown-request-vsl :uuid="uuid" :projectDetail="projectDetail" :statisticsData="statisticsData" @change="update(true)">
                   <a-button type="brown" shape="round" size="small">{{ t('创建放款') }}</a-button>
                 </drawdown-request-vsl>
@@ -74,6 +79,7 @@ import TableBlock from './components/TableBlock.vue';
 import Detail from './components/Detail.vue';
 import DrawdownRequest from './components/form/DrawdownRequest.vue';
 import DrawdownRequestVsl from './components/form/DrawdownRequestVsl.vue';
+import DrawdownRequestLendr from './components/form/DrawdownRequestLendr.vue';
 import { hasPermission } from '@/directives/permission/index';
 import { loanDrawdown } from '@/api/project/loan';
 import { useRoute } from 'vue-router';

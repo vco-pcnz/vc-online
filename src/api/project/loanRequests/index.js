@@ -16,6 +16,15 @@ export const projectVariation = (params) =>
     params
   });
 
+  //变更请求退回-列表
+  export const reopenIndex = (params) =>
+    request({
+      url: 'project/variation/reopenIndex',
+      method: 'get',
+      params
+    });
+  
+
 //解押&抵押物申请请求-列表
 export const projectDischarge = (params) =>
   request({

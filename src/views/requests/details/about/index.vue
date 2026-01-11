@@ -13,7 +13,7 @@
             <p class="title">{{ t('拒绝原因') }}</p>
             <p class="info">{{ dataInfo.decline_reason || t('拒绝原因') }}</p>
           </div>
-
+          
           <div class="block-container">
             <div class="left-content">
               <template v-if="dataInfo && !pageLoading">
@@ -43,7 +43,7 @@
                   />
 
                   <component :is="LendingForm"
-                    v-if="lendingData.start_date && lendingData.end_date && (Number(lendingData.build_amount) || Number(lendingData.land_amount))"
+                    v-if="lendingData.start_date && lendingData.end_date && (Number(lendingData.build_amount) || Number(lendingData.land_amount) || Number(lendingData.loan_money))"
                     :is-details="true"
                     :current-id="currentId"
                     :block-info="{showEdit: false}"
@@ -166,7 +166,7 @@
                 </security-list>
 
                 <forecast-list
-                  v-if="(Number(lendingData.build_amount) || Number(lendingData.land_amount)) && showForecast"
+                  v-if="(Number(lendingData.build_amount) || Number(lendingData.land_amount) || Number(lendingData.loan_money)) && showForecast"
                   :current-id="currentId"
                   :is-details="true"
                   :show-list="true"
@@ -258,7 +258,7 @@
   })
 
   const showForecast = computed(() => {
-    return ['default', 'vsl'].includes(currentProduct.value)
+    return ['default', 'vsl', 'lendr'].includes(currentProduct.value)
   })
 
   const BorrowerInfo = computed(() => getComponent("BorrowerInfo"));
@@ -301,6 +301,7 @@
     loanInfoData.value = res.loan
     securityInfoData.value = res.security
     lendingData.value = res.lending
+
     warrantyData.value = res.warranty
     offerData.value = res.offer
     confirmData.value = res.confirm

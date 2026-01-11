@@ -36,6 +36,14 @@
                 <a-input-number :value="0" disabled :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
               </a-form-item>
             </a-col>
+            <a-col :span="12" v-if="lender === 'VS'">
+              <a-form-item :label="t('还款方式')" name="all_repayment">
+                <a-select v-model:value="formState.all_repayment">
+                  <a-select-option :value="0">{{ t('部分还款') }}</a-select-option>
+                  <a-select-option :value="1">{{ t('全额还款') }}</a-select-option>
+                </a-select>
+              </a-form-item>
+            </a-col>
 
             <a-col :span="24">
               <a-form-item class="custom-label">
@@ -50,7 +58,7 @@
                       <template #bodyCell="{ column, record, index }">
                         <template v-if="column.dataIndex === 'name'">
                           <!-- <p :title="record.name" class="sec-name">{{ record.name }}</p> -->
-                          <a-select v-model:value="record.id" :maxTagCount="1" class="mini" @change="loadDrawdown($event, index)">
+                          <a-select v-model:value="record.id" :maxTagCount="1" class="mini" @change="loadDrawdown($event, index)" :disabled="isVsAll_repayment">
                             <template v-for="(item, index) in drawDownSelectedList" :key="index">
                               <a-select-option :value="item.id" :disabled="disabledIds.includes(item.id)" :title="item.name">{{ item.name }}</a-select-option>
                             </template>
@@ -59,11 +67,11 @@
                         <template v-if="column.dataIndex === 'amount'">
                           <div class="text-center">
                             <vco-number size="fs_md" :value="record.amount" :precision="2"></vco-number>
-                            <vco-number style="opacity: 0.6" size="fs_md" :value="record.interest" :precision="2"></vco-number>
+                            <vco-number style="opacity: 0.6" size="fs_md" :value="record.total_interest" :precision="2"></vco-number>
                           </div>
                         </template>
                         <template v-if="column.dataIndex === 'all_repayment'">
-                          <a-select v-model:value="record.all_repayment" class="mini">
+                          <a-select v-model:value="record.all_repayment" class="mini" :disabled="isVsAll_repayment">
                             <a-select-option :title="t('部分还款')" :value="0">{{ t('部分还款') }}</a-select-option>
                             <a-select-option :title="t('全额还款')" :value="1">{{ t('全额还款') }}</a-select-option>
                           </a-select>
@@ -517,7 +525,6 @@ const submit = () => {
     return;
   }
   params.all_repayment = params.all_repayment ? 1 : 0;
-
   loading.value = true;
 
   loanRDedit(params)
@@ -618,14 +625,17 @@ const relatedColumns = reactive([
   { title: t('操作1'), dataIndex: 'operation', fixed: 'right', align: 'center', width: 50 }
 ]);
 
-const DrawdownColumns = reactive([
-  { title: t('账号'), dataIndex: 'name', width: 140 },
-  { title: t('本金/利息'), dataIndex: 'amount' },
-  { title: t('还款方式'), dataIndex: 'all_repayment', width: 140 },
-  { title: t('还款分配'), dataIndex: 're_type', width: 140 },
-  { title: t('还款金额1'), dataIndex: 'amount1' },
-  { title: t('操作1'), dataIndex: 'operation', fixed: 'right', align: 'center', width: 50 }
-]);
+const DrawdownColumns = computed(() => {
+  const base = [
+    { title: t('账号'), dataIndex: 'name', width: 140 },
+    { title: t('本金/利息'), dataIndex: 'amount' },
+    { title: t('还款方式'), dataIndex: 'all_repayment', width: 140 },
+    { title: t('还款分配'), dataIndex: 're_type', width: 140 },
+    { title: t('还款金额1'), dataIndex: 'amount1' },
+    { title: t('操作1'), dataIndex: 'operation', fixed: 'right', align: 'center', width: 50 }
+  ];
+  return isVsAll_repayment.value ? base.filter((item) => item.dataIndex !== 'operation') : base;
+});
 
 const relatedData = ref([]);
 
@@ -752,15 +762,17 @@ const downloadStatement = () => {
 };
 
 // 加载默认可以选择的放款
+const lender = ref('');
 const drawDownSelectedList = ref([]);
 const drawDownSelectedListLoading = ref(false);
 const loadDrawDownSelected = () => {
   drawDownSelectedListLoading.value = true;
   maxReductionAmount.value = 0;
   drawdownList.value = [];
-  drawDownSelected({ uuid: props.uuid, apply_id: props.dataInfo?.id,date: formState.value.apply_date })
+  drawDownSelected({ uuid: props.uuid, apply_id: props.dataInfo?.id, date: formState.value.apply_date })
     .then((res) => {
-      drawDownSelectedList.value = res;
+      lender.value = res.lender;
+      drawDownSelectedList.value = res.drawDown;
     })
     .finally(() => {
       drawDownSelectedListLoading.value = false;
@@ -772,6 +784,31 @@ const drawdownList = ref([]);
 const drawdownListLoading = ref(false);
 const drawdownListInspection = ref(false);
 const disabledIds = ref([]);
+// VS 且全额还款时用于禁用操作的标记
+const isVsAll_repayment = computed(() => lender.value === 'VS' && Boolean(formState.value.all_repayment));
+
+// VS 放款的初始化逻辑占位，由业务补充
+const initVsDrawdownList = () => {
+  console.log(drawDownSelectedList.value);
+  const idsStr = drawDownSelectedList.value.map((item) => item?.id).join(',');
+  drawdownListLoading.value = true;
+  drawDownLists({ uuid: props.uuid, date: formState.value.apply_date, ids: idsStr })
+    .then((res) => {
+      drawdownList.value = cloneDeep(res.drawDown);
+      drawdownList.value.map((item) => {
+        item['all_repayment'] = 1;
+      });
+    })
+    .finally(() => {
+      drawdownListLoading.value = false;
+    });
+};
+
+watch([() => lender.value, () => formState.value.all_repayment], ([vsLoan, allRepayment]) => {
+  if (vsLoan === 'VS' && allRepayment) {
+    initVsDrawdownList();
+  }
+});
 
 const loadDrawdown = (e, index) => {
   if (formState.value.apply_date && e !== '') {
@@ -827,12 +864,6 @@ watch(
   () => drawdownList.value,
   (val) => {
     disabledIds.value = val.filter((item) => item.id != null && item.id !== '').map((item) => item.id);
-
-    if (drawdownList.value.length) {
-      formState.value.all_repayment = drawdownList.value[0].all_repayment == 1 && drawdownList.value[0].id == 0 ? 1 : 0;
-    } else {
-      formState.value.all_repayment = 0;
-    }
     // 如果是vs全额还款
     if (formState.value.apply_date && formState.value.all_repayment === 1) {
       isRestIrr.value = true;

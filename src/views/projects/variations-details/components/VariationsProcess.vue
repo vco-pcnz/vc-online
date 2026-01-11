@@ -18,7 +18,7 @@
         </div>
       </template>
     </div>
-    <div v-if="((variationsInfo.state === 0) || variationsInfo.has_permission)" class="handle-content">
+    <div v-if="(variationsInfo.state === 0 || variationsInfo.has_permission) && !variationsInfo.is_do" class="handle-content">
       <template v-if="variationsInfo.state === 0 && (hasPermission('projects:variations:request') || hasPermission('projects:variations:delete'))">
         <a-popconfirm v-if="hasPermission('projects:variations:request')" :title="t('您确定提交申请吗？')" @confirm="requesetSub">
           <a-button type="dark" class="big shadow bold uppercase">{{ t('提交申请') }}</a-button>
@@ -32,11 +32,29 @@
         <a-button type="dark" class="big shadow bold uppercase" @click="detailVisible = true">{{ variationsInfo.mark === 'variation_lm' || variationsInfo.mark === 'variation_overdue_open' ? t('确认变更') : t('审核') }}</a-button>
       </template>
     </div>
+    <div class="handle-content" v-if="variationsInfo.is_do && hasPermission('projects:variations-details:about:return') ">
+      <vco-form-dialog
+        :title="t('退回')"
+        :formParams="{ uuid: uuid, id: id, process__id: variationsInfo?.process__id || '' }"
+        url="project/variation/reopen"
+        :initData="[
+          {
+            type: 'textarea',
+            label: '原因',
+            key: 'reason',
+            required: true
+          }
+        ]"
+        @update="refreshHandle"
+      >
+        <a-button type="dark" class="big shadow bold uppercase">{{ t('退回') }}</a-button>
+      </vco-form-dialog>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { templateStep } from '@/api/process';
 import { projectVariationStep, projectVariationSave, projectVariationDelete } from '@/api/project/variation';
@@ -150,6 +168,13 @@ const refreshHandle = () => {
 onMounted(() => {
   getStepData();
 });
+
+watch(
+  () => props.detail?.variationInfo?.is_reopen,
+  () => {
+    getStepData();
+  }
+);
 </script>
 
 <style lang="less" scoped>

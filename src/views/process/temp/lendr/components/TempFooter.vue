@@ -19,7 +19,7 @@
     </div>
     <div v-else>
       <a-button
-        v-if="previousStep && currentStep.examine"
+        v-if="previousStep && currentStep.examine && showHandleBtn"
         type="danger" shape="round" class="big shadow bold uppercase"
         @click="rejectHandle(1)"
       >{{ t('拒绝申请') }}</a-button>
@@ -32,18 +32,20 @@
         @click="previousHandle"
       >{{ t('上一步') }}</a-button>
 
-      <a-button
-        v-if="previousStep && currentStep.examine"
-        type="grey" shape="round" class="big shadow bold uppercase"
-        @click="rejectHandle(2)"
-      >{{ t('退回重新修改') }}</a-button>
+      <template v-if="showHandleBtn">
+        <a-button
+          v-if="previousStep && currentStep.examine"
+          type="grey" shape="round" class="big shadow bold uppercase"
+          @click="rejectHandle(2)"
+        >{{ t('退回重新修改') }}</a-button>
 
-      <a-button
-        type="dark" shape="round" class="big shadow bold uppercase"
-        @click="submitHandle"
-        :loading="subLoading"
-        :disabled="subDisabled"
-      >{{ t(submitText) }}</a-button>
+        <a-button
+          type="dark" shape="round" class="big shadow bold uppercase"
+          @click="submitHandle"
+          :loading="subLoading"
+          :disabled="subDisabled"
+        >{{ t(submitText) }}</a-button>
+      </template>
     </div>
   </div>
 </template>
@@ -120,12 +122,20 @@
     rejectVisible.value = true
   }
 
+  const showHandleBtn = computed(() => {
+    const mark = props.currentStep?.mark || ''
+    if (mark && ['step_aml_check'].includes(mark)) {
+      return hasPermission('requests:aml:check')
+    }
+    return true
+  })
+
   const submitText = computed(() => {
     let txt = ''
     if (props.check) {
       txt = '保存'
     } else {
-      if (props.currentStep.mark === 'step_open') {
+      if (['step_open', 'fc_open'].includes(props.currentStep.mark)) {
         txt = '批准项目'
       } else if (['step_director_audit', 'step_aml_check'].includes(props.currentStep.mark)) {
         txt = '批准'
@@ -158,7 +168,7 @@
   }
 
   const nextHandle = (data) => {
-    if (props.currentStep.mark === 'step_open') {
+    if (props.currentStep.mark === 'fc_open') {
       navigationTo(`/projects/about?uuid=${data.uuid}`)
     } else {
       const page = data.permission ? props.nextPage : '/requests/details'

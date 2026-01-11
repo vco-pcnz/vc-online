@@ -792,3 +792,12 @@ export const saveProgressInfo = (data) =>
     method: "post",
     data
   });
+
+
+// lendr - 进件--建立费、建立费率计算
+export const lendrEstabCalc = (data) =>
+  request({
+    url: "/project/audit/lendrEstabCalc",
+    method: "post",
+    data
+  });

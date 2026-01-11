@@ -65,14 +65,21 @@
             <div class="sys-form-content mt-5">
               <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
                 <a-row :gutter="24">
-                  <a-col :span="24">
-                    <a-form-item :label="t('借款金额')" name="loan_money">
+                  <a-col :span="devCost ? 12 : 24">
+                    <a-form-item :label="t('预计借款金额')" name="old_loan_money">
                       <a-input-number
-                        v-model:value="formState.loan_money"
+                        v-model:value="formState.old_loan_money"
                         :disabled="changeTimeStep"
                         :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                         :parser="value => value.replace(/\$\s?|(,*)/g, '')"
                       />
+                    </a-form-item>
+                  </a-col>
+                  <a-col v-if="devCost" :span="12">
+                    <a-form-item :label="t('开发成本')">
+                      <div class="flex items-center" style="height: 50px;">
+                        <vco-number :bold="true" :value="devCost" :precision="2" :end="true"></vco-number>
+                      </div>
                     </a-form-item>
                   </a-col>
                   <a-col :span="24">
@@ -197,7 +204,8 @@
     projectAuditSaveMode,
     projectSaveSaveDraft,
     projectDraftInfo,
-    projectApplyLoanInfo
+    projectApplyLoanInfo,
+    projectApplyProjectInfo
   } from "@/api/process";
   import tool, { selectDateFormat } from "@/utils/tool";
   import { message } from "ant-design-vue/es";
@@ -281,7 +289,8 @@
   const currentInfo = ref(null)
 
   const changeTimeStep = computed(() => {
-    return props.check && ['step_lm_check', 'step_open'].includes(markInfo.value)
+    // return props.check && ['step_lm_check', 'step_open'].includes(markInfo.value)
+    return false
   })
 
   const showStartDate = computed(() => {
@@ -325,7 +334,7 @@
   });
 
   const formState = reactive({
-    loan_money: '',
+    old_loan_money: '',
     loan_type: [],
     time_date: [],
     term: '',
@@ -334,7 +343,7 @@
   })
 
   const formRules = {
-    loan_money: [
+    old_loan_money: [
       { required: true, message: t('请输入') + t('借款金额'), trigger: 'blur' },
       {
         pattern: /^[+]?([1-9]\d*)(\.\d+)?$/,
@@ -373,9 +382,9 @@
     if (date) {
       const data = cloneDeep(props.infoData)
 
-      if (data && data.start_date && data.end_date) {
-        const { start_date, end_date } = props.infoData;
-        const calcDay = tool.calculateDurationPrecise(start_date, end_date);
+      if (data && data.apply_start_date && data.apply_end_date) {
+        const { apply_start_date, apply_end_date } = props.infoData;
+        const calcDay = tool.calculateDurationPrecise(apply_start_date, apply_end_date);
         const gapDay = calcDay.gapDay;
 
         if (gapDay) {
@@ -454,10 +463,10 @@
     .then(async () => {
       const data = cloneDeep(formState)
       const params = {
-        loan_money: data.loan_money,
+        old_loan_money: data.old_loan_money,
         loan_type: data.loan_type.join(','),
-        start_date: dayjs(data.time_date[0]).format('YYYY-MM-DD'),
-        end_date: dayjs(data.time_date[1]).format('YYYY-MM-DD')
+        apply_start_date: dayjs(data.time_date[0]).format('YYYY-MM-DD'),
+        apply_end_date: dayjs(data.time_date[1]).format('YYYY-MM-DD')
       }
 
       if ((props.infoData && props.infoData.uuid) || props.currentId) {
@@ -473,16 +482,18 @@
       if (props.check) {
         params.loan_info_status = props.infoData.check_status
         params.code = props.code
-        if (props.infoData.start_date === params.start_date && props.infoData.end_date === params.end_date && Number(props.infoData.loan_money) === Number(params.loan_money)) {
+        if (props.infoData.apply_start_date === params.apply_start_date && props.infoData.apply_end_date === params.apply_end_date) {
+        // if (props.infoData.apply_start_date === params.apply_start_date && props.infoData.apply_end_date === params.apply_end_date && Number(props.infoData.old_loan_money) === Number(params.old_loan_money)) {
           await normalRequest(params, true)
         } else {
-          if (processStore.hasForcast) {
-            currentForParams.value = params
-            tipsVisible.value = true
-          } else {
+          // if (processStore.hasForcast) {
+          //   currentForParams.value = params
+          //   tipsVisible.value = true
+          // } else {
 
-            await normalRequest(params, true)
-          }
+          //   await normalRequest(params, true)
+          // }
+          await normalRequest(params, true)
         }
       } else {
         params.draft_step = markInfo.value
@@ -577,11 +588,11 @@
     const data = cloneDeep({...infoMsg, ...props.infoData})
     const draftData = cloneDeep({...draftMsg, ...props.draftData})
 
-    if (data && data.start_date && data.end_date) {
-      data.time_date = [data.start_date, data.end_date]
+    if (data && data.apply_start_date && data.apply_end_date) {
+      data.time_date = [data.apply_start_date, data.apply_end_date]
       // lm 再次检查
       if (changeTimeStep.value) {
-        formState.startDate = dayjs(data.start_date)
+        formState.startDate = dayjs(data.apply_start_date)
       }
       timeChange(data.time_date)
     }
@@ -595,8 +606,8 @@
     for (const key in formState) {
       if (key === 'time_date' && useData[key]) {
         formState.time_date = [dayjs(useData[key][0]), dayjs(useData[key][1])]
-      } else if (key === 'loan_money') {
-        formState.loan_money = Number(useData[key]) ? useData[key] : ''
+      } else if (key === 'old_loan_money') {
+        formState.old_loan_money = Number(useData[key]) ? useData[key] : formState.old_loan_money || ''
       } else if (key === 'totalDay') {
         formState[key] = formState[key] || 0
       } else {
@@ -644,6 +655,19 @@
     dataInit(infoData, draftData)
   }
 
+  const devCost = ref(0)
+  const getProjectInfo = () => {
+    projectApplyProjectInfo({
+      uuid: props.currentId
+    }).then(res => {
+      const devCostDetail = res.devCostDetail || []
+      if (devCostDetail.length) {
+        devCost.value = devCostDetail[0].data[0].loan
+        formState.old_loan_money = devCost.value
+      }
+    })
+  }
+
   watch(
     () => props.infoData,
     (val) => {
@@ -658,6 +682,9 @@
   onMounted(() => {
     if (!props.check) {
       getDataInit()
+      if (props.currentId) {
+        getProjectInfo()
+      }
     }
 
     emitter.on('stepOneBindUser', () => {
@@ -713,6 +740,12 @@
     &__title {
       font-size: 22px;
       font-weight: 600;
+    }
+
+    &__subtitle {
+      font-size: 18px;
+      margin-top: 8px;
+      font-weight: 500;
     }
 
     &__desc {

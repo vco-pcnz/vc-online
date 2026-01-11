@@ -2,8 +2,23 @@
   <detail-layout active-tab="about" ref="detailLayoutRef" @getProjectDetail="getProjectDetail">
     <template #content>
       <a-spin :spinning="pageLoading" size="large">
-        <variations-process v-if="!projectDetail?.variationInfo?.decline_reason" :uuid="uuid" :id="id" :detail="projectDetail" @update="updateHandle"></variations-process>
-        <a-alert v-if="projectDetail?.variationInfo?.decline_reason" :message="t('拒绝原因')" :description="projectDetail?.variationInfo?.decline_reason" type="error" class="cancel-reason" />
+        <vco-template-step
+          v-if="projectDetail?.variationInfo?.is_reopen && projectDetail?.variationInfo?.state != 0"
+          type="return_variation"
+          :currentStep="projectDetail?.variationInfo?.mark"
+          :state="projectDetail?.variationInfo?.state"
+          :translate="true"
+        >
+        </vco-template-step>
+
+        <variations-process v-else-if="!projectDetail?.variationInfo?.decline_reason" :uuid="uuid" :id="id" :detail="projectDetail" @update="updateHandle"></variations-process>
+        <a-alert
+          v-if="projectDetail?.variationInfo?.decline_reason || projectDetail?.variationInfo?.process__cancel_reason"
+          :message="t('拒绝原因')"
+          :description="projectDetail?.variationInfo?.decline_reason || projectDetail?.variationInfo?.process__cancel_reason"
+          type="error"
+          class="cancel-reason"
+        />
 
         <div v-if="projectDetail" class="project-container">
           <div class="project-info-container">
@@ -13,17 +28,47 @@
 
             <return-log v-if="returnLogData.length" :list-data="returnLogData" class="mt-5"></return-log>
           </div>
-          
 
           <div class="project-content">
+            <a-alert v-if="projectDetail?.variationInfo?.is_reopen" :message="t('退回') + ' reason'" class="mb-5 cancel-reason">
+              <template #description>
+                {{ projectDetail?.variationInfo?.process_reason }}
+
+                <div class="mt-3 flex items-center justify-end">
+                  <!-- <vco-popconfirm v-if="projectDetail?.variationInfo?.prev_permission" :tip="t('您确实要撤回该请求吗？')" @update="update()" :formParams="{ uuid: uuid, id: projectDetail?.variationInfo?.process__id }" url="project/buyout/recall">
+                    <a-button type="dark">{{ t('撤回申请') }}</a-button>
+                  </vco-popconfirm> -->
+                  <vco-popconfirm
+                    v-if="projectDetail?.variationInfo?.has_permission"
+                    :tip="t('您确定要接受该请求吗？')"
+                    @update="updateHandle()"
+                    :formParams="{ uuid: uuid, id: projectDetail?.variationInfo?.process__id }"
+                    url="project/variation/resaveStep"
+                  >
+                    <a-button type="dark" class="mx-3">{{ t('接受请求') }}</a-button>
+                  </vco-popconfirm>
+                  <vco-form-dialog
+                    v-if="projectDetail?.variationInfo?.has_permission"
+                    :title="t('退回请求')"
+                    :initData="[
+                      {
+                        type: 'textarea',
+                        label: '原因',
+                        key: 'cancel_reason',
+                        required: true
+                      }
+                    ]"
+                    :formParams="{ uuid: uuid, id: projectDetail?.variationInfo?.process__id }"
+                    url="project/variation/regoBack"
+                    @update="updateHandle"
+                  >
+                    <a-button type="danger">{{ t('退回请求') }}</a-button>
+                  </vco-form-dialog>
+                </div>
+              </template>
+            </a-alert>
             <variations-info :uuid="uuid" :id="id" :detail="projectDetail" :credit-items-data="creditItemsData" @update="updateHandle"></variations-info>
-            <variation-documents
-              :uuid="uuid"
-              :id="id"
-              :detail="projectDetail?.variationInfo?.document || {}"
-              :variation-info="projectDetail?.variationInfo"
-              @update="updateHandle"
-            ></variation-documents>
+            <variation-documents :uuid="uuid" :id="id" :detail="projectDetail?.variationInfo?.document || {}" :variation-info="projectDetail?.variationInfo" @update="updateHandle"></variation-documents>
             <variations-change-info :detail="projectDetail" :variation-info="projectDetail?.variationInfo"></variations-change-info>
           </div>
         </div>
@@ -52,12 +97,12 @@ const { t } = useI18n();
 const uuid = ref(route.query.uuid);
 const id = ref(route.query.id);
 const pageLoading = ref(true);
-const returnLogData = ref([])
+const returnLogData = ref([]);
 const isVsl = ref(false);
 
 const projectDetail = ref();
 const getProjectDetail = (val) => {
-  returnLogData.value = val.variationInfo?.cancel_log || []
+  returnLogData.value = val.variationInfo?.cancel_log || [];
   projectDetail.value = val;
   isVsl.value = String(val.product.code).toLowerCase() === 'vsl';
   getCreditData();
@@ -85,11 +130,11 @@ const getCreditVal = () => {
     dolData.push({
       credit_name: t('VS建立费'),
       credit_table: 'vs_estab_fee'
-    })
+    });
     dolData.push({
       credit_name: t('BOC建立费'),
       credit_table: 'boc_estab_fee'
-    })
+    });
   }
 
   creditItemsData.value = [...perData, ...dolData];

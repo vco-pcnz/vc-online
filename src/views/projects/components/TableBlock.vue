@@ -94,7 +94,9 @@
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === '1'">
           <a-space>
-            <vco-avatar :src="record.project_image" :radius="true" :round="false" :size="48" />
+            <vco-avatar v-if="record.project_image" :src="record.project_image" :radius="true" :round="false" :size="48" />
+            <p style="width: 48px;" class="text-center" v-else>--</p>
+           
             <div class="ml-3">
               <p :title="record.project_name" class="bold black text-ellipsis overflow-hidden text-nowrap" style="width: 200px; font-size: 16px">{{ record.project_name }}</p>
               <p class="replenish_text mt-1" style="line-height: 1">ID: {{ record.project_apply_sn }}</p>
@@ -244,10 +246,10 @@ import { hasPermission } from '@/directives/permission/index';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
-import { useProjectsStore } from '@/store';
+import { useProjectsStore, useUserStore, useProductStore } from '@/store';
 const pageStore = useProjectsStore();
+const productStore = useProductStore();
 const emits = defineEmits(['update:data', 'update:keys', 'change']);
-import { useUserStore } from '@/store';
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -280,6 +282,40 @@ const columns = reactive([
   { title: t('FC2'), key: 'fc2', width: 130 },
   { title: t('条件'), key: '9', align: 'center' }
 ]);
+
+const currentProduct = computed(() => productStore.productData.find((item) => item.uuid === pageStore.product_uuid));
+const isLendrProduct = computed(() => currentProduct.value?.code === 'lendr');
+
+const removeLtcColumn = () => {
+  const ltcIndex = columns.findIndex((column) => column.key === 'ltc');
+  if (ltcIndex !== -1) {
+    columns.splice(ltcIndex, 1);
+  }
+};
+
+const addLtcColumn = () => {
+  const hasLtc = columns.some((column) => column.key === 'ltc');
+  if (hasLtc) return;
+  const insertIndex = columns.findIndex((column) => column.key === 'income');
+  const ltcColumn = { title: 'LTC', key: 'ltc', width: 140 };
+  if (insertIndex !== -1) {
+    columns.splice(insertIndex, 0, ltcColumn);
+  } else {
+    columns.push(ltcColumn);
+  }
+};
+
+watch(
+  () => isLendrProduct.value,
+  (val) => {
+    if (val) {
+      removeLtcColumn();
+    } else {
+      addLtcColumn();
+    }
+  },
+  { immediate: true }
+);
 
 const diffInDays = (val) => {
   // 本地时间固定使用新西兰时区

@@ -53,7 +53,7 @@
           >{{ t('添加') }}</a-button>
         </a-popover>
 
-        <template v-if="!securityInfo.is_check && securityInfo.count && blockInfo?.showCheck">
+        <template v-if="!securityInfo.is_check && blockInfo?.showCheck && (securityInfo.count || !buildAmount)">
           <a-button
             v-if="confirmTxt"
             type="dark"
@@ -91,24 +91,6 @@
     <div v-show="securityTarget" class="sys-form-content mt-5">
       <a-form layout="vertical">
         <div class="col-item-content">
-          <!-- <div class="col-item">
-            <a-form-item :label="t('土地总额')">
-              <vco-number
-                :value="securityInfo.land_amount"
-                :precision="2"
-                :end="true"
-              ></vco-number>
-            </a-form-item>
-          </div>
-          <div class="col-item">
-            <a-form-item :label="t('建筑总额')">
-              <vco-number
-                :value="securityInfo.build_amount"
-                :precision="2"
-                :end="true"
-              ></vco-number>
-            </a-form-item>
-          </div> -->
           <div class="col-item">
             <a-form-item :label="t('抵押物价值')">
               <vco-number
@@ -156,6 +138,10 @@ const props = defineProps({
     type: Object,
     default: () => {}
   },
+  lendingInfo: {
+    type: Object,
+    default: () => {}
+  },
   projectInfo: {
     type: Object,
     default: () => {}
@@ -184,7 +170,12 @@ const addVisible = ref(false);
 const changeAlertRef = ref()
 const changeVisible = ref(false)
 
+const buildAmount = computed(() => {
+  return Number(props.lendingInfo?.build_amount || 0)
+})
+
 const confirmTxt = computed(() => {
+  return ''
   if (props.isDetails) {
     return ''
   } else {
@@ -259,11 +250,39 @@ onUnmounted(() => {
 
 .col-item-content {
   overflow: hidden;
+  &.share-lvr {
+    > .col-item {
+      width: 25%;
+    }
+  }
   > .col-item {
     width: 33.33333%;
     float: left;
     :deep(.ant-statistic-content) {
       font-size: 18px !important;
+    }
+  }
+}
+
+.sales-content {
+  border: 1px solid #282828;
+  background-color: #f7f9f8;
+  border-radius: 10px;
+  padding: 10px 15px;
+  > p {
+    text-align: center;
+    font-size: 14px;
+    color: #999;
+  }
+  :deep(.ant-table-wrapper) {
+    .ant-table-tbody>tr>td {
+      padding: 8px 10px !important;
+    }
+    .ant-table-thead>tr>th {
+      padding: 8px 10px !important;
+      color: #282828 !important;
+      font-weight: 500 !important;
+      font-size: 13px !important;
     }
   }
 }

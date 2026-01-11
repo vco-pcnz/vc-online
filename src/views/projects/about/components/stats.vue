@@ -97,50 +97,52 @@
             <p class="fs_xs">Benchmark {{ data?.right?.irrPreset }}%</p>
           </div>
         </a-col>
-        <a-col :span="10">
-          <div :class="{ 'color_red-error': Math.abs(data?.right?.ltc) > Math.abs(data?.right?.baseline) }">
-            <div class="color_grey fs_xs flex items-center gap-2">
-              LTC
-              <a-tooltip placement="top">
-                <template #title>
-                  <div>LTC = Projected FC2 / Total Development Cost</div>
-                </template>
-                <i class="iconfont cursor-pointer">&#xe6b3;</i>
-              </a-tooltip>
+        <template v-if="detail?.product?.code !== 'lendr'">
+          <a-col :span="10">
+            <div :class="{ 'color_red-error': Math.abs(data?.right?.ltc) > Math.abs(data?.right?.baseline) }">
+              <div class="color_grey fs_xs flex items-center gap-2">
+                LTC
+                <a-tooltip placement="top">
+                  <template #title>
+                    <div>LTC = Projected FC2 / Total Development Cost</div>
+                  </template>
+                  <i class="iconfont cursor-pointer">&#xe6b3;</i>
+                </a-tooltip>
 
-              <!-- <div class="efSGMs">
+                <!-- <div class="efSGMs">
                 <i class="iconfont">&#xe6b3;</i>
                 <div class="tips"><p>LTC = Projected FC2 / Total Development Cost </p></div>
               </div> -->
+              </div>
+              <p class="fs_xl bold">{{ data?.right?.ltc }}%</p>
             </div>
-            <p class="fs_xl bold">{{ data?.right?.ltc }}%</p>
-          </div>
-        </a-col>
-        <a-col :span="14" class="text-right cursor-pointer">
-          <DevCostDetail :dataJson="detail?.base?.devCostDetail" :disabledGST="true" :disabledLoan="true" :disabledModel="true" :edit="!detail?.base?.is_close" @change="editSaveDevCost">
-            <div class="color_grey fs_xs">Total Development Cost</div>
-            <div class="flex justify-end items-center gap-2">
-              <vco-number :value="data?.right?.devCost" :bold="true" size="fs_xl" :precision="2"></vco-number>
-              <i class="iconfont color_coal" v-if="!detail?.base?.is_close">&#xe743;</i>
-              <i class="iconfont color_coal" v-if="detail?.base?.is_close">&#xe776;</i>
-            </div>
-          </DevCostDetail>
-        </a-col>
-        <a-col :span="24">
-          <div class="fs_xs flex items-center gap-2" :class="{ 'color_red-error': Math.abs(data?.right?.ltc) > Math.abs(data?.right?.baseline) }">
-            Benchmark {{ data?.right?.baseline }}%
-            <a-tooltip placement="top">
-              <template #title>
-                <div>Benchmark = FC2 / Development Cost</div>
-              </template>
-              <i class="iconfont cursor-pointer">&#xe6b3;</i>
-            </a-tooltip>
-            <!-- <div class="efSGMs">
+          </a-col>
+          <a-col :span="14" class="text-right cursor-pointer">
+            <DevCostDetail :dataJson="detail?.base?.devCostDetail" :disabledGST="true" :disabledLoan="true" :disabledModel="true" :edit="!detail?.base?.is_close" @change="editSaveDevCost">
+              <div class="color_grey fs_xs">Total Development Cost</div>
+              <div class="flex justify-end items-center gap-2">
+                <vco-number :value="data?.right?.devCost" :bold="true" size="fs_xl" :precision="2"></vco-number>
+                <i class="iconfont color_coal" v-if="!detail?.base?.is_close">&#xe743;</i>
+                <i class="iconfont color_coal" v-if="detail?.base?.is_close">&#xe776;</i>
+              </div>
+            </DevCostDetail>
+          </a-col>
+          <a-col :span="24">
+            <div class="fs_xs flex items-center gap-2" :class="{ 'color_red-error': Math.abs(data?.right?.ltc) > Math.abs(data?.right?.baseline) }">
+              Benchmark {{ data?.right?.baseline }}%
+              <a-tooltip placement="top">
+                <template #title>
+                  <div>Benchmark = FC2 / Development Cost</div>
+                </template>
+                <i class="iconfont cursor-pointer">&#xe6b3;</i>
+              </a-tooltip>
+              <!-- <div class="efSGMs">
               <i class="iconfont">&#xe6b3;</i>
               <div class="tips" style="width: 230px;"><p>Benchmark = FC2 / Development Cost </p></div>
             </div> -->
-          </div>
-        </a-col>
+            </div>
+          </a-col>
+        </template>
       </a-row>
     </div>
   </div>

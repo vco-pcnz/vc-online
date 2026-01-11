@@ -81,6 +81,7 @@ const moduleData = computed(() => {
 });
 
 const searchForm = ref({
+  product_uuid:'',
   status: '0',
   module: '',
   borrower_search_type: '',
@@ -137,6 +138,7 @@ watch(
   },
   { deep: true }
 );
+
 </script>
 
 <style lang="less" scoped>

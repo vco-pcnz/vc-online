@@ -49,6 +49,7 @@ export const processRoutes = [
   '/process/ten',
   '/process/eleven',
   '/process/twelve',
+  '/process/thirteen',
 ];
 
 export const processBlockName = {

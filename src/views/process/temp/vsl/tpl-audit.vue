@@ -91,6 +91,16 @@
             @compareDone="compareDoneHandle"
           ></temp-block>
 
+          <div v-if="dataInfo.base.alm_review" class="block-item mb">
+            <vco-process-title :title="t('Submit instructions')"></vco-process-title>
+            <div class="mt-2">{{ dataInfo.base.alm_review }}</div>
+          </div>
+
+          <div v-if="dataInfo.base.lm_review" class="block-item mb">
+            <vco-process-title :title="t('{0}审核批示', ['LM'])"></vco-process-title>
+            <div class="mt-2">{{ dataInfo.base.lm_review }}</div>
+          </div>
+          
           <div v-if="dataInfo.base.fc_review" class="block-item mb">
             <vco-process-title :title="t('{0}审核批示', ['FC'])"></vco-process-title>
             <div class="mt-2">{{ dataInfo.base.fc_review }}</div>
@@ -547,6 +557,8 @@
         } else {
           submitRquest(params)
         }
+      } else if (currentMark.value === 'fc_open') {
+        openVisible.value = true
       } else if (currentMark.value === 'step_aml_audit') {
         const pass = washTableRef.value.tableData.filter(item => !item.condition_time).every(item => item.document && item.document.length)
         if (pass) {

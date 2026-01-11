@@ -308,9 +308,9 @@ const setAddressInfo = (val) => {
 // 提交
 const submit = () => {
   formRef.value.validate().then(() => {
-    let keys = ['cid', 'type', 'avatar', 'email', 'emailCode', 'pre', 'mobile', 'mobileCode', 'document', 'expire_time', 'note', 'job', 'do__retUser'];
+    let keys = ['cid', 'type', 'avatar', 'email', 'emailCode', 'pre', 'mobile', 'mobileCode', 'document', 'expire_time', 'note', 'job', 'do__retUser', 'sendEmail', 'sendSms', 'user_uuid'];
     if (form.type == 20) {
-      keys = keys.concat(['firstName', 'middleName', 'lastName', 'sendEmail', 'sendSms', 'user_uuid', 'idcard']);
+      keys = keys.concat(['firstName', 'middleName', 'lastName', 'idcard']);
     } else {
       keys = keys.concat(['name', 'nzbn', 'contactName', 'province_code', 'city_code', 'district_code', 'address', 'addr', 'postal', 'suburb', 'province_code_name', 'con_id']);
     }

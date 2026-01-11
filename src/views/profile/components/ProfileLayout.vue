@@ -96,9 +96,9 @@ const allPanes = reactive([
 
 // 外部用户隐藏"我的组织"和"我的团队"
 const panes = computed(() => {
-  if (isExternalUser.value) {
-    return allPanes.filter((item) => !['parentTeam', 'team'].includes(item.key));
-  }
+  // if (isExternalUser.value) {
+  //   return allPanes.filter((item) => !['parentTeam', 'team'].includes(item.key));
+  // }
   return allPanes;
 });
 

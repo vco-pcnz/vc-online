@@ -1,6 +1,25 @@
 <template>
   <div class="layout_header">
-    <div class="header_title">VC Online</div>
+    <div class="title_with_product">
+      <div class="header_title">VC Online</div>
+      <a-dropdown trigger="click" v-model:open="productOpen">
+        <button class="product-dropdown">
+          <span>{{ currentProductLabel }}</span>
+          <DownOutlined class="product-arrow" :class="{ open: productOpen }" style="font-size: 12px" />
+        </button>
+        <template #overlay>
+          <a-menu class="product-menu">
+            <a-menu-item
+              v-for="option in productOptions"
+              :key="option.value"
+              @click="handleProductChange(option.value)"
+            >
+              <span :class="{ active: option.value === currentProduct }">{{ option.label }}</span>
+            </a-menu-item>
+          </a-menu>
+        </template>
+      </a-dropdown>
+    </div>
     <div class="header_container">
       <div class="menu_content">
         <router-link v-for="link in menuData" :key="link.path" :to="link.path" class="link" :class="{ link_active: isActive(link.path) }">
@@ -40,7 +59,7 @@
               </a-space>
               <div v-if="userInfo?.roles && !isNormalUser">
                 <template v-for="(item, index) in userInfo?.roles.split('/')" :key="item">
-                  <a-tag color="orange" :title="userInfo?.roles[index]" @click="toLoans(item)">{{ item }}</a-tag>
+                  <a-tag color="orange" :title="userInfo?.full_roles[index]" @click="toLoans(item)">{{ userInfo?.role_names[index] }}</a-tag>
                 </template>
               </div>
             </div>
@@ -75,7 +94,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { cloneDeep } from 'lodash';
 import LanguageSelect from '@/components/language-select/index.vue';
@@ -88,6 +107,7 @@ import ApplyBroker from '@/views/profile/apply-broker/form.vue';
 import ApplyBrokerDetail from '@/views/profile/apply-broker/detail.vue';
 import { applyBrokerDetail } from '@/api/tasks';
 import { DownOutlined } from '@ant-design/icons-vue';
+import useProductStore from '@/store/modules/product';
 
 const pageRole = computed(() => useUserStore().pageRole);
 
@@ -101,6 +121,19 @@ const taskInfo = computed(() => userStore.taskInfo);
 const isNormalUser = computed(() => userStore.isNormalUser);
 
 const noticeStore = useNoticeStore();
+const productStore = useProductStore();
+const productOptions = computed(() => productStore.openProductData.map((item) => ({ label: item.name, value: item.uuid })) || []);
+const currentProduct = computed({
+  get: () => productStore.currentProduct,
+  set: (val) => {
+    productStore.currentProduct = val || '';
+  }
+});
+const productOpen = ref(false);
+const currentProductLabel = computed(() => {
+  const found = productOptions.value.find((item) => item.value === currentProduct.value);
+  return found ? found.label : t('选择产品');
+});
 
 const menuData = computed(() => {
   const data = userStore.routerInfo || [];
@@ -110,7 +143,7 @@ const menuData = computed(() => {
     .map((item) => {
       return {
         title: item.meta.title,
-        path: item.path,
+        path: item.path
       };
     });
   return resData;
@@ -148,7 +181,7 @@ const isUserActive = () => {
 
 const menuItem = [
   { label: t('编辑详情'), key: 'edit-profile', to: '/profile/about' },
-  { label: t('修改密码'), key: 'change-pwd', to: '/profile/safe' },
+  { label: t('修改密码'), key: 'change-pwd', to: '/profile/safe' }
 ];
 
 const goTo = (path) => {
@@ -190,6 +223,24 @@ const handleClick = (path) => {
   }
 };
 
+watch(
+  () => productStore.openProductData,
+  (val) => {
+    if (val && val.length && !productStore.currentProduct) {
+      productStore.currentProduct = val[0].uuid;
+    } else if ((!val || !val.length) && productStore.currentProduct) {
+      productStore.currentProduct = '';
+    }
+  },
+  { deep: true, immediate: true }
+);
+  
+const handleProductChange = (val) => {
+  productStore.currentProduct = val;
+  localStorage.setItem('currentProduct', val);
+  productOpen.value = false;
+};
+
 // 组件挂载时启动定时器
 onMounted(() => {
   systemConfigData({ pcode: 'web_config', code: 'notes_interval_time' }).then((res) => {
@@ -216,8 +267,14 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 30px;
+  // padding: 0 30px;
   height: 72px;
+
+  .title_with_product {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
 
   .header_title {
     white-space: nowrap;
@@ -314,5 +371,48 @@ onUnmounted(() => {
 
 .router-name {
   line-height: 2;
+}
+
+.product-dropdown {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  min-width: 70px;
+  background: #f5f5f5;
+  border: none;
+  border-radius: 8px;
+  color: #555;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  box-shadow: inset 0 0 0 1px transparent;
+
+  &:hover {
+    background: #ededed;
+  }
+}
+
+.product-arrow {
+  transition: transform 0.18s ease;
+
+  &.open {
+    transform: rotate(180deg);
+  }
+}
+
+.product-menu {
+  min-width: 70px;
+  :deep(.ant-dropdown-menu-item) {
+    padding: 8px 12px;
+  }
+  :deep(.ant-dropdown-menu-item-selected),
+  :deep(.ant-dropdown-menu-item:hover) {
+    background: #f2f3f5;
+  }
+  .active {
+    font-weight: 700;
+    color: #1f1f1f;
+  }
 }
 </style>

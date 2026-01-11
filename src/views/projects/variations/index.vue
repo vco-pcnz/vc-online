@@ -48,6 +48,7 @@
           >
             <template #bodyCell="{ column, record }">
               <template v-if="column.dataIndex === 'cricle'">
+                <span v-if="record.is_reopen" class="is_reopen">{{ t('退回') }}</span>
                 <div class="circle" :class="{'done': record.status === 1}"></div>
               </template>
               <template v-if="column.dataIndex === 'type_name'">
@@ -178,7 +179,7 @@ const colors = ref({
 });
 
 const columns = reactive([
-  { title: '', dataIndex: 'cricle', width: 40, align: 'center' },
+  { title: '', dataIndex: 'cricle', width: 60, align: 'center' },
   { title: t('变更类型'), dataIndex: 'type_name', width: 180, align: 'center' },
   { title: t('变更开始日期'), dataIndex: 'start_date', width: 130, align: 'center' },
   { title: t('类型'), dataIndex: 'is_late', width: 120, align: 'center' },
@@ -350,4 +351,17 @@ onMounted(() => {
     color: #aaa !important;
   }
 }
+.is_reopen {
+  position: absolute;
+  top: 4px;
+  left: 0;
+  padding: 4px 15px;
+  background-color: @colorPrimary;
+  font-size: 12px;
+  border-top-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  line-height: 1;
+  color: #fff;
+}
+
 </style>

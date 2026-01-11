@@ -7,36 +7,17 @@
             <div class="sys-form-content mt-5">
               <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
                 <a-row :gutter="24">
-                  <a-col :span="24">
+                  <a-col :span="16">
                     <a-form-item :label="t('项目名称')" name="project_name">
                       <a-input v-model:value="formState.project_name" />
                     </a-form-item>
                   </a-col>
-                  <a-col :span="isNormalUser ? 16 : 10">
+                  <a-col :span="8">
                     <a-form-item :label="t('项目类型')" name="project_type">
                       <a-select v-model:value="formState.project_type" :options="projectTypeData"></a-select>
                     </a-form-item>
                   </a-col>
-                  <a-col :span="10" v-if="!isNormalUser">
-                    <a-form-item :label="t('开发成本')" name="devCost">
-                      <DevCostDetail v-model:value="formState.devCost" :disabled="check" v-model:dataJson="formState.devCostDetail">
-                        <a-input-number
-                          v-model:value="formState.devCost"
-                          :max="99999999999"
-                          :disabled="check"
-                          readonly
-                          :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                          :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                        />
-                      </DevCostDetail>
-                    </a-form-item>
-                  </a-col>
-                  <a-col :span="isNormalUser ? 8 : 4">
-                    <a-form-item :label="t('楼栋数')" name="building_num">
-                      <a-input-number min="1" v-model:value="formState.building_num" />
-                    </a-form-item>
-                  </a-col>
-
+                
                   <a-col :span="24">
                     <a-form-item :label="t('项目照片')" name="project_images">
                       <!-- <vco-upload-image v-model:value="formState.project_images" :isMultiple="true" :limit="9"></vco-upload-image> -->
@@ -177,7 +158,7 @@ const formState = reactive({
   project_address_short: '',
   project_address: '',
   project_postcode: '',
-  building_num: '',
+  building_num: '0',
   project_about: '',
   region_one_id: '',
   region_two_id: '',

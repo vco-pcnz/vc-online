@@ -37,7 +37,7 @@
           <p class="txt">{{data.borrower_phone? '+' + data.borrower_phone_prefix + ' ' + data.borrower_phone :'--'}}</p>
         </div>
       </a-col>
-      <a-col :span="8">
+      <a-col :span="8" v-if="Number(data.borrower_type) === 1">
         <div class="info-content">
           <p class="name">{{ t('邮编') }}</p>
           <p class="txt">{{ data.borrower_postcode }}</p>
@@ -65,7 +65,7 @@
           <p v-else class="txt">--</p>
         </div>
       </a-col> -->
-      <a-col :span="24" v-if="appStore.config?.show_addr === '2'">
+      <a-col :span="24" v-if="appStore.config?.show_addr === '2' && Number(data.borrower_type) === 1">
         <div class="info-content">
           <p class="name">{{ t('借款人地址') }}</p>
           <p class="txt">{{ data.borrower_city }}</p>

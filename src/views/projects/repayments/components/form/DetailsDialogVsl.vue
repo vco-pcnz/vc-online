@@ -27,7 +27,7 @@
                 <template v-if="column.dataIndex === 'amount'">
                   <div class="text-center">
                     <vco-number size="fs_md" :value="record.amount" :precision="2"></vco-number>
-                    <vco-number style="opacity: 0.6" size="fs_md" :value="record.interest" :precision="2"></vco-number>
+                    <vco-number style="opacity: 0.6" size="fs_md" :value="record.total_interest" :precision="2"></vco-number>
                   </div>
                 </template>
                 <template v-if="column.dataIndex === 'all_repayment'">

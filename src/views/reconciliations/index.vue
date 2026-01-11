@@ -76,8 +76,9 @@ import { cloneDeep } from 'lodash';
 import { systemDictData } from '@/api/system';
 import dayjs from 'dayjs';
 import { hasPermission } from '@/directives/permission/index';
+import useProductStore from '@/store/modules/product';
 const { t } = useI18n();
-
+const productStore = useProductStore();
 const layoutRef = ref();
 const total = ref(0);
 const loading = ref(false);
@@ -102,7 +103,7 @@ const rowData = ref([]);
 const dataList = ref([]);
 const loadData = () => {
   loading.value = true;
-  reconciliationList({ ...pagination.value, ...searchParams.value })
+  reconciliationList({ ...pagination.value, ...searchParams.value, product_uuid: productStore.currentProduct })
     .then((res) => {
       total.value = res.count;
       localStorage.setItem('res_xero_update_time', res.otherInfo);
@@ -312,6 +313,14 @@ const changeItemForm = (val) => {
     selectedRowsDate.value[index] = val.date !== val.transaction[val.check_index].date && val.date !== val.f_date;
   }
 };
+watch(
+  () => productStore.currentProduct,
+  (val) => {
+    if (val) {
+      loadData();
+    }
+  }
+);
 </script>
 
 <style scoped lang="less">

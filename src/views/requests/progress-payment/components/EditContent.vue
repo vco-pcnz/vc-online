@@ -1181,7 +1181,6 @@
       return
     }
 
-    return 
 
     if (props.isOpen) {
       // open 后处理 暂定

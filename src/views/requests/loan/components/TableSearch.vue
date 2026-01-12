@@ -180,7 +180,7 @@ const stepArr = ref([]);
 
 const key = ref({
   1: ['step_lm_audit', 'step_fc_audit', 'step_director_audit'],
-  2: ['step_lm_check', 'step_aml_audit', 'step_open']
+  2: ['step_lm_check', 'step_aml_audit', 'step_open', 'fc_open']
 });
 
 onMounted(() => {

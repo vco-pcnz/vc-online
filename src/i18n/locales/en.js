@@ -1345,7 +1345,8 @@ export default {
   "Select the entire row": "Select the entire row",
   "Submit instructions": "Submit instructions",
   "退回": "Return",
-  "FC检查及Open": "FC check and Open",
+  "FC检查及Open": "LC check and Open",
+  "LC检查及Open": "LC check and Open",
   "Director审核": "Director review",
   "申请退回": "Apply return",
   "包含利息": "Include interest"

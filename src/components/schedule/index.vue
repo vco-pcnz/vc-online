@@ -589,12 +589,12 @@ const adSubmitRequest = () => {
   adLoading.value = true;
   const params = {
     uuid: props.currentId,
-    pdf: props.isClose ? 3 : 2
+    pdf: 2
   };
-  if (!props.isClose) {
+  // if (!props.isClose) {
     params.s_date = adFormState.s_date ? dayjs(adFormState.s_date).format('YYYY-MM-DD') : '';
     params.date = adFormState.date ? dayjs(adFormState.date).format('YYYY-MM-DD') : '';
-  }
+  // }
 
   projectLoanAllRepayment(params)
     .then((res) => {

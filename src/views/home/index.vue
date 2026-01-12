@@ -1,6 +1,5 @@
 <template>
-  <vco-product-tab></vco-product-tab>
-  <div class="flex mt-5" style="gap: 12px">
+  <div class="flex" style="gap: 12px">
     <div class="block-item flex-1" style="flex: 0 0 690px" v-if="hasPermission('home:backlog')">
       <Backlog></Backlog>
     </div>

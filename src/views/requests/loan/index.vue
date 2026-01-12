@@ -18,148 +18,144 @@
       </div>
     </div> -->
 
-    <vco-product-tab v-model:current="currentProduct" @change="productChange">
-      <div style="flex: 1"></div>
+    <div class="flex justify-between items-center">
+      <vco-page-tab :tabData="tabData" v-model:current="currentTab" @change="tabChange"></vco-page-tab>
       <div v-if="showCreate && hasPermission('requests:loan:add')" class="handle-content">
         <a-button type="cyan" shape="round" @click="gotoProcess">{{ t('发起借款申请') }}</a-button>
       </div>
-    </vco-product-tab>
+    </div>
+    <table-search ref="tableSearchRef" @search="searchHandle" :current="currentTab"></table-search>
+    <div class="mt-10">
+      <vco-table-tool>
+        <template #left>
+          <a-button type="grey" v-permission="'requests:loan:allocateLm'" :disabled="!selectedRowKeys.length" class="uppercase" @click="bindHandle(false)">
+            {{ t('分配LM') }}
+          </a-button>
+        </template>
+        <template #right>
+          <!-- <vco-table-layout-type v-model="tabLayout"></vco-table-layout-type> -->
+          <vco-table-sort v-model="sortType" v-model:value="sortValue" :type-data="sortTypeData"></vco-table-sort>
+        </template>
+      </vco-table-tool>
 
-    <div class="mt-5">
-      <vco-page-tab :tabData="tabData" v-model:current="currentTab" @change="tabChange"></vco-page-tab>
-      <table-search ref="tableSearchRef" @search="searchHandle" :current="currentTab"></table-search>
-      <div class="mt-10">
-        <vco-table-tool>
-          <template #left>
-            <a-button type="grey" v-permission="'requests:loan:allocateLm'" :disabled="!selectedRowKeys.length" class="uppercase" @click="bindHandle(false)">
-              {{ t('分配LM') }}
-            </a-button>
-          </template>
-          <template #right>
-            <!-- <vco-table-layout-type v-model="tabLayout"></vco-table-layout-type> -->
-            <vco-table-sort v-model="sortType" v-model:value="sortValue" :type-data="sortTypeData"></vco-table-sort>
-          </template>
-        </vco-table-tool>
-
-        <div class="mt-5">
-          <a-spin :spinning="tableLoading" size="large">
-            <div class="table-content sys-table-content">
-              <grid-block v-if="tabLayout"></grid-block>
-              <a-table
-                v-else
-                ref="tableRef"
-                rowKey="uuid"
-                :columns="columns"
-                :row-selection="{ selectedRowKeys: selectedRowKeys, columnWidth: 50, onChange: onSelectChange }"
-                :data-source="tableDataRef"
-                :pagination="false"
-                table-layout="fixed"
-                :scroll="{ x: '100%' }"
-              >
-                <template #bodyCell="{ column, record }">
-                  <template v-if="column.dataIndex === 'project_image'">
-                    <template v-if="record.imgsArr.length">
-                      <div class="flex justify-center cursor-pointer" @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">
-                        <vco-avatar :src="record.imgsArr[0]" :radius="true" :round="false"></vco-avatar>
-                      </div>
-                    </template>
-                    <p v-else>--</p>
+      <div class="mt-5">
+        <a-spin :spinning="tableLoading" size="large">
+          <div class="table-content sys-table-content">
+            <grid-block v-if="tabLayout"></grid-block>
+            <a-table
+              v-else
+              ref="tableRef"
+              rowKey="uuid"
+              :columns="columns"
+              :row-selection="{ selectedRowKeys: selectedRowKeys, columnWidth: 50, onChange: onSelectChange }"
+              :data-source="tableDataRef"
+              :pagination="false"
+              table-layout="fixed"
+              :scroll="{ x: '100%' }"
+            >
+              <template #bodyCell="{ column, record }">
+                <template v-if="column.dataIndex === 'project_image'">
+                  <template v-if="record.imgsArr.length">
+                    <div class="flex justify-center cursor-pointer" @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">
+                      <vco-avatar :src="record.imgsArr[0]" :radius="true" :round="false"></vco-avatar>
+                    </div>
                   </template>
-                  <template v-if="column.dataIndex === 'project_info'">
-                    <span class="cursor-pointer" @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">
-                      <div :title="record.project_name" class="black bold">{{ record.project_name || t('项目名称') }}</div>
-                      <div>ID: {{ record.project_apply_sn }}</div>
-                      <div v-if="record.project_city && record.project_city.length > 3" class="icon-txt mt-1">
-                        <i class="iconfont cer">&#xe814;</i>
-                        <span :title="record.project_city" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-2">{{ record.project_city }}</span>
-                      </div>
+                  <p v-else>--</p>
+                </template>
+                <template v-if="column.dataIndex === 'project_info'">
+                  <span class="cursor-pointer" @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">
+                    <div :title="record.project_name" class="black bold">{{ record.project_name || t('项目名称') }}</div>
+                    <div>ID: {{ record.project_apply_sn }}</div>
+                    <div v-if="record.project_city && record.project_city.length > 3" class="icon-txt mt-1">
+                      <i class="iconfont cer">&#xe814;</i>
+                      <span :title="record.project_city" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-2">{{ record.project_city }}</span>
+                    </div>
+                  </span>
+                </template>
+                <template v-if="column.dataIndex === 'loan_money'">
+                  <span class="cursor-pointer" @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">
+                    <vco-number v-if="getLoanMoney(record)" :value="getLoanMoney(record)" :precision="2"></vco-number>
+                    <p v-else>--</p>
+                  </span>
+                </template>
+                <template v-if="column.dataIndex === 'borrower_info'">
+                  <div class="icon-txt cursor-pointer" @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">
+                    <i class="iconfont cer">{{ record.borrower_type === 1 ? '&#xe632;' : '&#xe683;' }}</i>
+                    <span :title="record.showName" class="cer text-ellipsis overflow-hidden whitespace-normal line-clamp-1">{{ record.showName || '--' }}</span>
+                  </div>
+                  <div class="icon-txt mt-1.5 cursor-pointer" @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">
+                    <i class="iconfont" :class="{ cer: record.borrower_ver }">&#xe66f;</i>
+                    <span :class="{ cer: record.borrower_ver }" :title="record.borrower_email" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-1">
+                      {{ record.borrower_email || '--' }}
                     </span>
-                  </template>
-                  <template v-if="column.dataIndex === 'loan_money'">
-                    <span class="cursor-pointer" @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">
-                      <vco-number v-if="getLoanMoney(record)" :value="getLoanMoney(record)" :precision="2"></vco-number>
-                      <p v-else>--</p>
+                  </div>
+                  <div class="icon-txt cursor-pointer" @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">
+                    <i class="iconfont" :class="{ cer: record.borrower_ver }">&#xe678;</i>
+                    <span :class="{ cer: record.borrower_ver }" :title="record.borrower_phone" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-1">
+                      {{ record.borrower_phone || '--' }}
                     </span>
-                  </template>
-                  <template v-if="column.dataIndex === 'borrower_info'">
-                    <div class="icon-txt cursor-pointer" @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">
-                      <i class="iconfont cer">{{ record.borrower_type === 1 ? '&#xe632;' : '&#xe683;' }}</i>
-                      <span :title="record.showName" class="cer text-ellipsis overflow-hidden whitespace-normal line-clamp-1">{{ record.showName || '--' }}</span>
-                    </div>
-                    <div class="icon-txt mt-1.5 cursor-pointer" @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">
-                      <i class="iconfont" :class="{ cer: record.borrower_ver }">&#xe66f;</i>
-                      <span :class="{ cer: record.borrower_ver }" :title="record.borrower_email" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-1">
-                        {{ record.borrower_email || '--' }}
-                      </span>
-                    </div>
-                    <div class="icon-txt cursor-pointer" @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">
-                      <i class="iconfont" :class="{ cer: record.borrower_ver }">&#xe678;</i>
-                      <span :class="{ cer: record.borrower_ver }" :title="record.borrower_phone" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-1">
-                        {{ record.borrower_phone || '--' }}
-                      </span>
-                    </div>
-                  </template>
-                  <template v-if="column.dataIndex === 'lm'">
-                    <div class="user-content cursor-pointer" v-if="record.lm_list && record.lm_list.length" @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">
-                      <vco-user-item v-for="(item, index) in record.lm_list" :key="index" :data="item"></vco-user-item>
-                    </div>
-                    <p v-else>--</p>
-                  </template>
-                  <template v-if="column.dataIndex === 'term'">
-                    <vco-time-line
-                      class="cursor-pointer"
-                      v-if="record.start_date && record.end_date"
-                      :open-date="record.start_date"
-                      :maturity-date="record.end_date"
-                      @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)"
-                    ></vco-time-line>
-                    <p v-else>--</p>
-                  </template>
-                  <!-- <template v-if="column.dataIndex === 'lvr'">
+                  </div>
+                </template>
+                <template v-if="column.dataIndex === 'lm'">
+                  <div class="user-content cursor-pointer" v-if="record.lm_list && record.lm_list.length" @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">
+                    <vco-user-item v-for="(item, index) in record.lm_list" :key="index" :data="item"></vco-user-item>
+                  </div>
+                  <p v-else>--</p>
+                </template>
+                <template v-if="column.dataIndex === 'term'">
+                  <vco-time-line
+                    class="cursor-pointer"
+                    v-if="record.start_date && record.end_date"
+                    :open-date="record.start_date"
+                    :maturity-date="record.end_date"
+                    @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)"
+                  ></vco-time-line>
+                  <p v-else>--</p>
+                </template>
+                <!-- <template v-if="column.dataIndex === 'lvr'">
                     <span v-if="record.lvr">{{ record.lvr }}</span>
                     <p v-else>--</p>
                   </template> -->
-                  <template v-if="column.dataIndex === 'create_time'">
-                    <span v-if="record.create_time" class="cursor-pointer" @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">{{ tool.showDate(record.create_time) }}</span>
-                    <p v-else>--</p>
+                <template v-if="column.dataIndex === 'create_time'">
+                  <span v-if="record.create_time" class="cursor-pointer" @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">{{ tool.showDate(record.create_time) }}</span>
+                  <p v-else>--</p>
+                </template>
+                <template v-if="column.dataIndex === 'status'">
+                  <template v-if="record.status_name === 'LC Assign LM'">
+                    <a-button v-if="hasPermission('requests:loan:allocateLm')" type="primary" shape="round" @click="bindHandle(record)">{{ t('分配LM') }}</a-button>
+                    <p v-else>{{ isNormalUser ? t('Under Review') : t('等待分配LM') }}</p>
                   </template>
-                  <template v-if="column.dataIndex === 'status'">
-                    <template v-if="record.status_name === 'LC Assign LM'">
-                      <a-button v-if="hasPermission('requests:loan:allocateLm')" type="primary" shape="round" @click="bindHandle(record)">{{ t('分配LM') }}</a-button>
-                      <p v-else>{{ isNormalUser ? t('Under Review') : t('等待分配LM') }}</p>
-                    </template>
-                    <template v-else>
-                      <a-button v-if="record.has_permission" type="primary" shape="round" @click="itemHandle(record)">{{ t(record.status_name) }}</a-button>
-                      <p v-else>{{ t(record.status_name) }}</p>
-                    </template>
-                  </template>
-                  <template v-if="column.dataIndex === 'operation'">
-                    <a-dropdown :trigger="['click']">
-                      <a class="ant-dropdown-link" @click.stop>
-                        <i class="iconfont cert">&#xe77a;</i>
-                      </a>
-                      <template #overlay>
-                        <a-menu :selectable="false">
-                          <a-menu-item key="0">
-                            <a @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">{{ t('查看详情') }}</a>
-                          </a-menu-item>
-                          <a-menu-item key="1" :disabled="key.includes(record.mark)">
-                            <vco-popconfirm url="/project/project/copyProject" :formParams="{ uuid: record.uuid }" :tip="t('确定要复制{0}', [record.project_name])" :disabled="key.includes(record.mark)" @update="toCopyDetail">
-                              <a>{{ t('复制') }}</a>
-                            </vco-popconfirm>
-                          </a-menu-item>
-                        </a-menu>
-                      </template>
-                    </a-dropdown>
+                  <template v-else>
+                    <a-button v-if="record.has_permission" type="primary" shape="round" @click="itemHandle(record)">{{ t(record.status_name) }}</a-button>
+                    <p v-else>{{ t(record.status_name) }}</p>
                   </template>
                 </template>
-              </a-table>
-            </div>
-            <div v-if="tableData.length" class="mt-5">
-              <a-pagination size="small" :total="pageObj.total" :current="pageObj.currentPage" :page-size="pageObj.pageSize" show-size-changer show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="pageChange" />
-            </div>
-          </a-spin>
-        </div>
+                <template v-if="column.dataIndex === 'operation'">
+                  <a-dropdown :trigger="['click']">
+                    <a class="ant-dropdown-link" @click.stop>
+                      <i class="iconfont cert">&#xe77a;</i>
+                    </a>
+                    <template #overlay>
+                      <a-menu :selectable="false">
+                        <a-menu-item key="0">
+                          <a @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">{{ t('查看详情') }}</a>
+                        </a-menu-item>
+                        <a-menu-item key="1" :disabled="key.includes(record.mark)">
+                          <vco-popconfirm url="/project/project/copyProject" :formParams="{ uuid: record.uuid }" :tip="t('确定要复制{0}', [record.project_name])" :disabled="key.includes(record.mark)" @update="toCopyDetail">
+                            <a>{{ t('复制') }}</a>
+                          </vco-popconfirm>
+                        </a-menu-item>
+                      </a-menu>
+                    </template>
+                  </a-dropdown>
+                </template>
+              </template>
+            </a-table>
+          </div>
+          <div v-if="tableData.length" class="mt-5">
+            <a-pagination size="small" :total="pageObj.total" :current="pageObj.currentPage" :page-size="pageObj.pageSize" show-size-changer show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="pageChange" />
+          </div>
+        </a-spin>
       </div>
     </div>
   </div>
@@ -304,14 +300,6 @@ const tabChange = () => {
   }
 };
 
-const productChange = (data) => {
-  // currentProduct.value = data.uuid;
-  currentTab.value = '1';
-  nextTick(() => {
-    tableSearchRef.value.searchHandle(true);
-  });
-};
-
 const searchHandle = (data = {}) => {
   const params = {
     ...data,
@@ -433,6 +421,20 @@ onUnmounted(() => {
 
   emitter.off('refreshRequestsList2', handleRefreshRequestsList2);
 });
+
+watch(
+  () => productStore.currentProduct,
+  (val) => {
+    if (val) {
+      currentTab.value = '1';
+      currentProduct.value = val;
+      nextTick(() => {
+        tableSearchRef.value.searchHandle(true);
+      });
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <style lang="less" scoped>

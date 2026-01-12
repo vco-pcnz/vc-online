@@ -2,7 +2,7 @@
   <div class="layout_header">
     <div class="title_with_product">
       <div class="header_title">VC Online</div>
-      <a-dropdown trigger="click" v-model:open="productOpen">
+      <a-dropdown trigger="click" v-model:open="productOpen" v-if="productOptions.length>1">
         <button class="product-dropdown">
           <span>{{ currentProductLabel }}</span>
           <DownOutlined class="product-arrow" :class="{ open: productOpen }" style="font-size: 12px" />

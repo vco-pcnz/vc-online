@@ -1,27 +1,20 @@
 <template>
   <DetailLayout :title="t('项目')" active-tab="projects"></DetailLayout>
 
-  <vco-product-tab v-model:current="pageStore.product_uuid" @change="tabChange">
+  <div class="flex justify-between items-center">
+    <vco-page-tab :tabData="tabData" v-model:current="pageStore.sta" @change="tabChange"></vco-page-tab>
+
     <div class="flex justify-end flex-1">
       <vco-popconfirm v-if="hasPermission('Investment:unbindProject')" :formParams="{ id: invest_id, uuids: selectKeys }" url="invest/unbindProject" :disabled="!selectKeys.length" :tip="t('确定取消绑定选中的项目吗？')" @update="update()">
         <a-button type="cyan" :disabled="!selectKeys.length" class="mr-3" shape="round">{{ t('取消绑定项目') }}</a-button>
       </vco-popconfirm>
 
       <a-button v-if="hasPermission('Investment:bindObject')" type="cyan" shape="round" @click="setOpenProjects(true)">{{ t('绑定项目') }}</a-button>
-      <vco-import
-        v-if="hasPermission('Investment:bindObject')"
-        type="project"
-        accept=".xls, .xlsx, .csv"
-        :params="{ id: invest_id }"
-        imporUrl="/invest/bindProjectImport"
-        @change="handleImportChange"
-        @update:loading="handleImportLoading"
-      >
+      <vco-import v-if="hasPermission('Investment:bindObject')" type="project" accept=".xls, .xlsx, .csv" :params="{ id: invest_id }" imporUrl="/invest/bindProjectImport" @change="handleImportChange" @update:loading="handleImportLoading">
         <a-button type="cyan" shape="round" class="ml-3" :loading="uploadLoading">{{ t('批量绑定项目') }}</a-button>
       </vco-import>
     </div>
-  </vco-product-tab>
-  <vco-page-tab class="mt-5" :tabData="tabData" v-model:current="pageStore.sta" @change="tabChange"></vco-page-tab>
+  </div>
 
   <TableSearch class="mb-5" ref="tableSearchRef" :type="pageStore.sta == 1 ? 'open' : 'closed'"></TableSearch>
   <a-spin :spinning="pageStore.loading" size="large">
@@ -44,8 +37,8 @@
   <BindLone v-model:visible="open_projects" :selectedData="bindData" :id="invest_id" @update="handleBindLoneChange" />
 </template>
 
-<script setup >
-import { ref, onMounted, computed } from 'vue';
+<script setup>
+import { ref, onMounted, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import TableSearch from './TableSearch.vue';
 import TableBlock from './TableBlock.vue';
@@ -56,6 +49,8 @@ import BindLone from './BindLone.vue';
 import DetailLayout from '../components/detailLayout.vue';
 import { hasPermission } from '@/directives/permission/index';
 import { message } from 'ant-design-vue';
+import useProductStore from '@/store/modules/product';
+const productStore = useProductStore();
 
 const route = useRoute();
 
@@ -120,8 +115,6 @@ const loadInvestBindData = () => {
   });
 };
 
-
-
 const update = () => {
   // 清空表格勾选后再刷新数据
   selectKeys.value = [];
@@ -134,4 +127,15 @@ onMounted(() => {
   invest_id.value = route.query.uuid;
   loadInvestBindData();
 });
+
+watch(
+  () => productStore.currentProduct,
+  (val) => {
+    if (val) {
+      pageStore.product_uuid = val;
+      tabChange();
+    }
+  },
+  { immediate: true }
+);
 </script>

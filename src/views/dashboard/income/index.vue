@@ -1,6 +1,5 @@
 <template>
-  <vco-product-tab></vco-product-tab>
-  <div>
+  <div style="margin-top: -35px;">
     <Income></Income>
     <IncometList></IncometList>
   </div>

@@ -1,5 +1,4 @@
 <template>
-  <vco-product-tab></vco-product-tab>
   <div>
     <StatisticalBrief></StatisticalBrief>
     <CashflowForecast :showArrow="true"></CashflowForecast>

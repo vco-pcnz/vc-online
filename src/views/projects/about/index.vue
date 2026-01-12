@@ -136,10 +136,10 @@
 
               <!-- vsl买断 -->
               <template v-if="detail?.product?.code === 'vsl' && (hasPermission('projects:about:buyout') || hasPermission('projects:about:buyout:review'))">
-                <BuyOutForm v-if="detail?.buyout?.state <= 0" :uuid="currentId" :data="detail?.buyout.data" @update="update">
+                <BuyOutForm v-if="detail?.buyout?.state <= 0 && hasPermission('projects:about:buyout')" :uuid="currentId" :data="detail?.buyout.data" @update="update">
                   <a-button type="brown" shape="round" size="small">{{ t('买断') }}</a-button>
                 </BuyOutForm>
-                <a-button v-else type="brown" shape="round" size="small" @click="navigationTo(`/projects/buyOut?uuid=${currentId}`)">{{ t('买断') }}</a-button>
+                <a-button v-else-if="detail?.buyout?.state > 0" type="brown" shape="round" size="small" @click="navigationTo(`/projects/buyOut?uuid=${currentId}`)">{{ t('买断') }}</a-button>
               </template>
 
               <!-- 

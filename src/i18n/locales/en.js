@@ -1349,5 +1349,8 @@ export default {
   "LC检查及Open": "LC check and Open",
   "Director审核": "Director review",
   "申请退回": "Apply return",
-  "包含利息": "Include interest"
+  "包含利息": "Include interest",
+  "BOC放款金额": "BOC Drawdown Amount",
+  "BOC还款金额": "BOC Repayment Amount",
+  "买断利息": "Buy-out Interest"
 }

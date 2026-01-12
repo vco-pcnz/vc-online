@@ -166,7 +166,7 @@
                 </security-list>
 
                 <forecast-list
-                  v-if="(Number(lendingData.build_amount) || Number(lendingData.land_amount)) && showForecast"
+                  v-if="(Number(lendingData.build_amount) || Number(lendingData.land_amount) || Number(lendingData.loan_money)) && showForecast"
                   :current-id="currentId"
                   :is-details="true"
                   :show-list="true"
@@ -258,7 +258,7 @@
   })
 
   const showForecast = computed(() => {
-    return ['default', 'vsl'].includes(currentProduct.value)
+    return ['default', 'vsl', 'lendr'].includes(currentProduct.value)
   })
 
   const BorrowerInfo = computed(() => getComponent("BorrowerInfo"));
@@ -301,6 +301,7 @@
     loanInfoData.value = res.loan
     securityInfoData.value = res.security
     lendingData.value = res.lending
+
     warrantyData.value = res.warranty
     offerData.value = res.offer
     confirmData.value = res.confirm

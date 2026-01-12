@@ -422,6 +422,10 @@ const props = defineProps({
   vs_is_import: {
     type: [String, Number],
     default: 0
+  },
+  is_buyout: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -463,6 +467,10 @@ const getDataInfo = (isLate = false) => {
     limit: 5000
   };
 
+  if (props.is_buyout) {
+    params.is_buyout = 1;
+  }
+
   let ajaxFn = props.isDetails ? projectDetailForecastList : projectForecastIndex;
 
   if (props.budget) {
@@ -478,6 +486,7 @@ const getDataInfo = (isLate = false) => {
   if (isLate) {
     params.vai = 1;
   }
+
 
   ajaxFn(params)
     .then((res) => {
@@ -589,12 +598,12 @@ const adSubmitRequest = () => {
   adLoading.value = true;
   const params = {
     uuid: props.currentId,
-    pdf: props.isClose ? 3 : 2
+    pdf: 2
   };
-  if (!props.isClose) {
-    params.s_date = adFormState.s_date ? dayjs(adFormState.s_date).format('YYYY-MM-DD') : '';
-    params.date = adFormState.date ? dayjs(adFormState.date).format('YYYY-MM-DD') : '';
-  }
+  // if (!props.isClose) {
+  params.s_date = adFormState.s_date ? dayjs(adFormState.s_date).format('YYYY-MM-DD') : '';
+  params.date = adFormState.date ? dayjs(adFormState.date).format('YYYY-MM-DD') : '';
+  // }
 
   projectLoanAllRepayment(params)
     .then((res) => {

@@ -6,6 +6,7 @@
     <!-- 信息编辑弹窗 -->
     <drawdown-request ref="editDialogRef" :uuid="uuid" :data-info="detail" :projectDetail="projectDetail" @change="update"></drawdown-request>
     <drawdown-request-vsl ref="editVslDialogRef" :uuid="uuid" :data-info="detail" :projectDetail="projectDetail" @change="update"></drawdown-request-vsl>
+    <drawdown-request-lendr ref="editLendrDialogRef" :uuid="uuid" :data-info="detail" :projectDetail="projectDetail" @change="update"></drawdown-request-lendr>
 
     <!-- 详情弹窗 -->
     <details-dialog v-model:visible="detailsVisible" :uuid="uuid" :is-accept="detailsAccept" :detail-data="detail" @done="update"></details-dialog>
@@ -147,6 +148,7 @@ import ReconciliationModal from '@/views/projects/components/ReconciliationModal
 import SecuritiesDialog from './form/SecuritiesDialog.vue';
 import DrawdownRequest from './form/DrawdownRequest.vue';
 import DrawdownRequestVsl from './form/DrawdownRequestVsl.vue';
+import DrawdownRequestLendr from './form/DrawdownRequestLendr.vue';
 import DetailsDialog from './form/DetailsDialog.vue';
 import DetailsDialogVsl from './form/DetailsDialogVsl.vue';
 import ReleaseDialog from './form/ReleaseDialog.vue';
@@ -226,6 +228,7 @@ const update = () => {
 
 const editDialogRef = ref();
 const editVslDialogRef = ref();
+const editLendrDialogRef = ref();
 // const openEditHandle = () => {
 //   if (props.projectDetail.product.code === 'vsl') {
 //     editVslDialogRef.value && editVslDialogRef.value.init();
@@ -233,7 +236,9 @@ const editVslDialogRef = ref();
 //     editDialogRef.value && editDialogRef.value.init();
 //   }
 const openEditHandle = (allCancel = false) => {
-  if (props.projectDetail.product.code === 'vsl') {
+  if (props.projectDetail.product.code === 'lendr') {
+    editLendrDialogRef.value && editLendrDialogRef.value.init(allCancel);
+  } else if (props.projectDetail.product.code === 'vsl') {
     editVslDialogRef.value && editVslDialogRef.value.init();
   } else {
     editDialogRef.value && editDialogRef.value.init(allCancel);

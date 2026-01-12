@@ -35,7 +35,7 @@ const getProjectDetail = async (val) => {
 const showSch = computed(() => {
   let res = false;
   if (projectDetail.value?.lending) {
-    res = (Number(projectDetail.value.lending.build_amount) || Number(projectDetail.value.lending.land_amount)) && uuid.value;
+    res = (Number(projectDetail.value.lending.build_amount) || Number(projectDetail.value.lending.land_amount) || Number(projectDetail.value.lending.loan_money)) && uuid.value;
   }
 
   return res;

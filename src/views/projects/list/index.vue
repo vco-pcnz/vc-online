@@ -1,14 +1,13 @@
 <template>
-  <vco-product-tab v-model:current="pageStore.product_uuid" @change="tabChange">
-    <div style="flex: 1"></div>
+  <div class="flex justify-between items-center">
+    <vco-page-tab :tabData="tabData" v-model:current="pageStore.sta" @change="tabChange"></vco-page-tab>
     <div class="flex">
       <a-button type="cyan" size="small" class="ml-3" shape="round" @click="buildProgressReport" :loading="buildProgressDownloading" v-if="hasPermission('projects:buildProgress:download')">{{ t('建筑进度') }}</a-button>
       <ScheduleExport :sta="pageStore.sta" :searchParams="pageStore.searchParams" v-if="hasPermission('projects:schedule:download')"></ScheduleExport>
       <DateExport :sta="pageStore.sta" :searchParams="pageStore.searchParams" v-if="hasPermission('projects:list:export')"></DateExport>
       <a-button type="cyan" size="small" class="ml-3" shape="round" @click="report" :loading="downloading" v-if="hasPermission('projects:newLoan:download')">{{ t('新开贷款') }}</a-button>
     </div>
-  </vco-product-tab>
-  <vco-page-tab class="mt-5" :tabData="tabData" v-model:current="pageStore.sta" @change="tabChange"></vco-page-tab>
+  </div>
 
   <TableSearch class="mb-5" ref="tableSearchRef" :type="pageStore.sta == 1 ? 'open' : 'closed'"></TableSearch>
 
@@ -33,7 +32,7 @@
 </template>
 
 <script setup name="Projects">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import TableSearch from '../components/TableSearch.vue';
 import TableBlock from '../components/TableBlock.vue';
@@ -43,6 +42,8 @@ import { hasPermission } from '@/directives/permission/index';
 import { downGs, buildProgressIndex } from '@/api/project/project';
 import DateExport from './components/DateExport.vue';
 import ScheduleExport from './components/ScheduleExport.vue';
+import useProductStore from '@/store/modules/product';
+const productStore = useProductStore();
 
 const { t } = useI18n();
 const pageStore = useProjectsStore();
@@ -102,4 +103,15 @@ const buildProgressReport = () => {
       buildProgressDownloading.value = false;
     });
 };
+
+watch(
+  () => productStore.currentProduct,
+  (val) => {
+    if (val) {
+      pageStore.product_uuid = val;
+      tabChange();
+    }
+  },
+  { immediate: true }
+);
 </script>

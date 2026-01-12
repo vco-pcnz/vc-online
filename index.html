@@ -17,8 +17,17 @@
         
         // 方法3: 更全面的用户代理检测
         const userAgent = navigator.userAgent || '';
-        const mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i;
-        const isMobileUA = mobileRegex.test(userAgent);
+        const platform = navigator.platform || '';
+        const touchPoints = navigator.maxTouchPoints || 0;
+        const width = Math.min(window.innerWidth, window.screen.width);
+        const mobileRegex = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i;
+        const tabletRegex = /(iPad|Tablet|PlayBook|Silk)|(Android(?!.*Mobile))/i;
+        const isIPadLikeMac = platform === 'MacIntel' && touchPoints > 0;
+        const isAndroidUA = /Android/i.test(userAgent);
+        // Android 平板 UA 里可能有 Mobile，也可能没有；用 UA + 尺寸兜底
+        const isAndroidTabletLike = isAndroidUA && (/(Android(?!.*Mobile))/i.test(userAgent) || width >= 600);
+        const isTablet = tabletRegex.test(userAgent) || isIPadLikeMac || isAndroidTabletLike;
+        const isMobileUA = mobileRegex.test(userAgent) && !isTablet;
         
         // 方法4: 检测特定的移动浏览器特征
         const isMobileBrowser = /Mobi|Android/i.test(userAgent);
@@ -26,7 +35,7 @@
         // 方法5: 检测设备方向API（通常只在移动设备上可用）
         const hasOrientationAPI = 'orientation' in window || 'onorientationchange' in window;
         
-        // 综合判断：满足任意两个条件就认为是移动设备
+        // 综合判断：满足任意两个条件就认为是移动设备（排除平板）
         let mobileScore = 0;
         if (hasTouchScreen) mobileScore++;
         if (isSmallScreen) mobileScore++;
@@ -34,9 +43,19 @@
         if (isMobileBrowser) mobileScore++;
         if (hasOrientationAPI) mobileScore++;
         
-        return mobileScore >= 2;
+        return mobileScore >= 2 && !isTablet;
       }
-      if (is_mobile()) {
+      const is_old_ipad_safari = () => {
+        const ua = navigator.userAgent || '';
+        const platform = navigator.platform || '';
+        const touchPoints = navigator.maxTouchPoints || 0;
+        const isIPadLikeMac = platform === 'MacIntel' && touchPoints > 0;
+        const isIPadUA = /iPad/i.test(ua);
+        const versionMatch = ua.match(/Version\/(\d+(\.\d+)?)/);
+        const version = versionMatch ? parseFloat(versionMatch[1]) : null;
+        return (isIPadLikeMac || isIPadUA) && version && version < 14;
+      }
+      if (is_mobile() || is_old_ipad_safari()) {
         const origin = window.location.origin || '';
         let mobileRedirectUrl = '';
         // 生产域访问，跳转生产移动端
@@ -185,6 +204,21 @@
       }
     }
   </style>
+  <script>
+    (function forceFreshLoad() {
+      const FLAG = 'cache-busted';
+      if (sessionStorage.getItem(FLAG)) return;
+      sessionStorage.setItem(FLAG, '1');
+      // 尝试清理 Cache Storage（若浏览器支持）
+      if (window.caches && caches.keys) {
+        caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k)))).catch(() => {});
+      }
+      // 追加时间戳，强制拉取最新资源
+      const url = new URL(window.location.href);
+      url.searchParams.set('t', Date.now().toString());
+      window.location.replace(url.toString());
+    })();
+  </script>
   <script type="module" src="/src/main.js"></script>
 </body>
 

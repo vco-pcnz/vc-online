@@ -598,7 +598,7 @@ const adSubmitRequest = () => {
   adLoading.value = true;
   const params = {
     uuid: props.currentId,
-    pdf: 2
+    pdf: props.isClose ? 3 : 2
   };
   // if (!props.isClose) {
   params.s_date = adFormState.s_date ? dayjs(adFormState.s_date).format('YYYY-MM-DD') : '';

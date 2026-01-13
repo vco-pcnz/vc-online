@@ -429,6 +429,10 @@ const props = defineProps({
   is_buyout: {
     type: Boolean,
     default: false
+  },
+  closeDate: {
+    type: String,
+    default: ''
   }
 });
 
@@ -648,6 +652,9 @@ const downLoadExcel = (type) => {
     //   adSubmitRequest();
     // } else {
     adFormState.date = dayjs(new Date());
+    if(props.isClose) {
+      adFormState.date = dayjs(props.closeDate);
+    }
     adFormState.s_date = '';
     adVisible.value = true;
     // }

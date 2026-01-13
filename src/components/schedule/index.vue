@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- 试算平衡表导出 -->
-    <TrailBalanceReportModal ref="trailBalanceReportModalRef" :searchParams="{ uuid: currentId, lender: type_id }"></TrailBalanceReportModal>
+    <TrailBalanceReportModal ref="trailBalanceReportModalRef" :searchParams="{ uuid: currentId, lender: type_id, is_buyout: is_buyout ? 1 : 0 }"></TrailBalanceReportModal>
     <!-- 对账 -->
     <ReconciliationModal ref="reconciliationModalRef" :detail="itemDetail" :uuid="currentId" :type="ReconciliationType" :isSchedule="true" @update="getDataInfo"> </ReconciliationModal>
     <a-spin :spinning="pageLoading" size="large">
@@ -487,7 +487,6 @@ const getDataInfo = (isLate = false) => {
     params.vai = 1;
   }
 
-
   ajaxFn(params)
     .then((res) => {
       const dataArr = [];
@@ -561,6 +560,10 @@ const getDataInfo = (isLate = false) => {
 
   if (isLate) {
     staticParams.vai = 1;
+  }
+
+  if (props.is_buyout) {
+    staticParams.is_buyout = 1;
   }
 
   staticAjaxFn(staticParams).then((res) => {
@@ -655,6 +658,9 @@ const downLoadExcel = (type) => {
   };
   if (props.itemId) {
     params.id = props.itemId;
+  }
+  if (props.is_buyout) {
+    params.is_buyout = 1;
   }
 
   downloading.value = true;

@@ -11,6 +11,7 @@
         :ptRole="!!projectDetail?.base?.ptRole"
         :is-old="isOld"
         :is-reset="true"
+        :closeDate="projectDetail?.base?.close_date"
         :vs_is_import="projectDetail?.vslInfo?.vs_is_import"
       ></schedule>
     </template>

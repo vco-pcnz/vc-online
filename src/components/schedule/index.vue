@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- 试算平衡表导出 -->
-    <TrailBalanceReportModal ref="trailBalanceReportModalRef" :searchParams="{ uuid: currentId, lender: type_id }"></TrailBalanceReportModal>
+    <TrailBalanceReportModal ref="trailBalanceReportModalRef" :searchParams="{ uuid: currentId, lender: type_id, is_buyout: is_buyout ? 1 : 0 }"></TrailBalanceReportModal>
     <!-- 对账 -->
     <ReconciliationModal ref="reconciliationModalRef" :detail="itemDetail" :uuid="currentId" :type="ReconciliationType" :isSchedule="true" @update="getDataInfo"> </ReconciliationModal>
     <a-spin :spinning="pageLoading" size="large">
@@ -36,21 +36,24 @@
                 <p>{{ tool.showDate(statisticsData.day.eday) }}</p>
               </div>
             </a-form-item>
-            <a-form-item :label="t('快捷选择')">
-              <a-select v-model:value="quickDate" style="width: 100%" @change="quickDateChange">
-                <a-select-option v-for="item in quickDateData" :key="item.value" :value="item.value">
-                  <p>{{ item.label }}</p>
-                  <div class="flex items-center gap-2 text-gray-500 mt-0.5">
-                    <p>{{ tool.showDate(item.startDate) }}</p>
-                    ～
-                    <p>{{ tool.showDate(item.endDate) }}</p>
-                  </div>
-                </a-select-option>
-              </a-select>
-            </a-form-item>
-            <a-form-item :label="t('开始日期2')" name="s_date">
-              <a-date-picker v-model:value="adFormState.s_date" :format="selectDateFormat()" :disabledDate="adDisabledSdateFormat" @change="quickDate = ''" />
-            </a-form-item>
+            <template v-if="!isClose">
+              <a-form-item :label="t('快捷选择')">
+                <a-select v-model:value="quickDate" style="width: 100%" @change="quickDateChange">
+                  <a-select-option v-for="item in quickDateData" :key="item.value" :value="item.value">
+                    <p>{{ item.label }}</p>
+                    <div class="flex items-center gap-2 text-gray-500 mt-0.5">
+                      <p>{{ tool.showDate(item.startDate) }}</p>
+                      ～
+                      <p>{{ tool.showDate(item.endDate) }}</p>
+                    </div>
+                  </a-select-option>
+                </a-select>
+              </a-form-item>
+              <a-form-item :label="t('开始日期2')" name="s_date">
+                <a-date-picker v-model:value="adFormState.s_date" :format="selectDateFormat()" :disabledDate="adDisabledSdateFormat" @change="quickDate = ''" />
+              </a-form-item>
+            </template>
+
             <a-form-item :label="t('结束日期2')" name="date">
               <a-date-picker v-model:value="adFormState.date" :format="selectDateFormat()" :disabledDate="adDisabledDateFormat" @change="quickDate = ''" />
             </a-form-item>
@@ -141,7 +144,7 @@
                   <a-menu-item v-if="!ptRole && !hideForcast && !isOld && !hideLinefee">
                     <div class="pt-2 pb-2" @click="downLoadExcel(0)">{{ t('额度费用计算时间表') }}</div>
                   </a-menu-item>
-                  <a-menu-item v-if="!ptRole && !hideForcast && !isOld">
+                  <a-menu-item v-if="!ptRole && !hideForcast && !isOld && !is_buyout">
                     <div class="pt-2 pb-2" @click="downLoadExcel(1)">{{ t('预测放款时间表') }}</div>
                   </a-menu-item>
                   <a-menu-item>
@@ -422,6 +425,14 @@ const props = defineProps({
   vs_is_import: {
     type: [String, Number],
     default: 0
+  },
+  is_buyout: {
+    type: Boolean,
+    default: false
+  },
+  closeDate: {
+    type: String,
+    default: ''
   }
 });
 
@@ -462,6 +473,10 @@ const getDataInfo = (isLate = false) => {
     lender: type_id.value,
     limit: 5000
   };
+
+  if (props.is_buyout) {
+    params.is_buyout = 1;
+  }
 
   let ajaxFn = props.isDetails ? projectDetailForecastList : projectForecastIndex;
 
@@ -554,6 +569,10 @@ const getDataInfo = (isLate = false) => {
     staticParams.vai = 1;
   }
 
+  if (props.is_buyout) {
+    staticParams.is_buyout = 1;
+  }
+
   staticAjaxFn(staticParams).then((res) => {
     if (res) {
       const repayments = res.repayments ? Math.abs(Number(res.repayments)) : 0;
@@ -589,11 +608,11 @@ const adSubmitRequest = () => {
   adLoading.value = true;
   const params = {
     uuid: props.currentId,
-    pdf: 2
+    pdf: props.isClose ? 3 : 2
   };
   // if (!props.isClose) {
-    params.s_date = adFormState.s_date ? dayjs(adFormState.s_date).format('YYYY-MM-DD') : '';
-    params.date = adFormState.date ? dayjs(adFormState.date).format('YYYY-MM-DD') : '';
+  params.s_date = adFormState.s_date ? dayjs(adFormState.s_date).format('YYYY-MM-DD') : '';
+  params.date = adFormState.date ? dayjs(adFormState.date).format('YYYY-MM-DD') : '';
   // }
 
   projectLoanAllRepayment(params)
@@ -633,6 +652,9 @@ const downLoadExcel = (type) => {
     //   adSubmitRequest();
     // } else {
     adFormState.date = dayjs(new Date());
+    if(props.isClose) {
+      adFormState.date = dayjs(props.closeDate);
+    }
     adFormState.s_date = '';
     adVisible.value = true;
     // }
@@ -646,6 +668,9 @@ const downLoadExcel = (type) => {
   };
   if (props.itemId) {
     params.id = props.itemId;
+  }
+  if (props.is_buyout) {
+    params.is_buyout = 1;
   }
 
   downloading.value = true;
@@ -738,7 +763,10 @@ const adDisabledSdateFormat = (current) => {
 
 const adDisabledDateFormat = (current) => {
   const startDate = adFormState.s_date ? dayjs(adFormState.s_date) : statisticsData.value?.day.sday;
-  const endDate = dayjs(new Date());
+  let endDate = dayjs(new Date());
+  if (props.isClose) {
+    endDate = dayjs(props.closeDate);
+  }
 
   if (current && current.isBefore(startDate, 'day')) {
     return true;

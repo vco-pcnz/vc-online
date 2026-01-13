@@ -36,21 +36,24 @@
                 <p>{{ tool.showDate(statisticsData.day.eday) }}</p>
               </div>
             </a-form-item>
-            <a-form-item :label="t('快捷选择')">
-              <a-select v-model:value="quickDate" style="width: 100%" @change="quickDateChange">
-                <a-select-option v-for="item in quickDateData" :key="item.value" :value="item.value">
-                  <p>{{ item.label }}</p>
-                  <div class="flex items-center gap-2 text-gray-500 mt-0.5">
-                    <p>{{ tool.showDate(item.startDate) }}</p>
-                    ～
-                    <p>{{ tool.showDate(item.endDate) }}</p>
-                  </div>
-                </a-select-option>
-              </a-select>
-            </a-form-item>
-            <a-form-item :label="t('开始日期2')" name="s_date">
-              <a-date-picker v-model:value="adFormState.s_date" :format="selectDateFormat()" :disabledDate="adDisabledSdateFormat" @change="quickDate = ''" />
-            </a-form-item>
+            <template v-if="!isClose">
+              <a-form-item :label="t('快捷选择')">
+                <a-select v-model:value="quickDate" style="width: 100%" @change="quickDateChange">
+                  <a-select-option v-for="item in quickDateData" :key="item.value" :value="item.value">
+                    <p>{{ item.label }}</p>
+                    <div class="flex items-center gap-2 text-gray-500 mt-0.5">
+                      <p>{{ tool.showDate(item.startDate) }}</p>
+                      ～
+                      <p>{{ tool.showDate(item.endDate) }}</p>
+                    </div>
+                  </a-select-option>
+                </a-select>
+              </a-form-item>
+              <a-form-item :label="t('开始日期2')" name="s_date">
+                <a-date-picker v-model:value="adFormState.s_date" :format="selectDateFormat()" :disabledDate="adDisabledSdateFormat" @change="quickDate = ''" />
+              </a-form-item>
+            </template>
+
             <a-form-item :label="t('结束日期2')" name="date">
               <a-date-picker v-model:value="adFormState.date" :format="selectDateFormat()" :disabledDate="adDisabledDateFormat" @change="quickDate = ''" />
             </a-form-item>

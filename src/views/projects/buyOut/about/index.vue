@@ -69,17 +69,17 @@
                     <div>
                       <span class="bold"> {{ t('BOC放款金额') }}</span
                       >:
-                      <span></span>
+                      <span>{{ tool.formatMoney(projectInfo?.buyout?.data?.drawdown_amount) }}</span>
                     </div>
                     <div>
                       <span class="bold"> {{ t('BOC还款金额') }}</span
-                      >:
-                      <span></span>
+                      >:                      
+                      <span>{{ tool.formatMoney(Math.abs(projectInfo?.buyout?.data?.repayment_amount)) }}</span>
                     </div>
                     <div>
                       <span class="bold"> {{ t('买断利息') }}</span
                       >:
-                      <span></span>
+                      <span>{{ tool.formatMoney(projectInfo?.buyout?.data?.interest) }}</span>
                     </div>
      
                     <div>

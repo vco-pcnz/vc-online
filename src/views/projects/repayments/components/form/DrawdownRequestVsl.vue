@@ -54,7 +54,7 @@
 
                 <div class="table-content sys-table-content related-content no-top-line" :class="drawdownListInspection ? 'drawdownListInspection' : ''">
                   <a-spin :spinning="drawdownListLoading" size="large">
-                    <a-table rowKey="uuid" :columns="DrawdownColumns" :data-source="drawdownList" :pagination="false" table-layout="fixed">
+                    <a-table rowKey="uuid" :columns="DrawdownColumns" :data-source="drawdownList" :pagination="false" table-layout="fixed" :scroll="{ y: 300 }">
                       <template #bodyCell="{ column, record, index }">
                         <template v-if="column.dataIndex === 'name'">
                           <!-- <p :title="record.name" class="sec-name">{{ record.name }}</p> -->
@@ -768,6 +768,7 @@ const drawDownSelectedListLoading = ref(false);
 const loadDrawDownSelected = () => {
   drawDownSelectedListLoading.value = true;
   maxReductionAmount.value = 0;
+  lender.value = '';
   drawdownList.value = [];
   drawDownSelected({ uuid: props.uuid, apply_id: props.dataInfo?.id, date: formState.value.apply_date })
     .then((res) => {
@@ -789,7 +790,6 @@ const isVsAll_repayment = computed(() => lender.value === 'VS' && Boolean(formSt
 
 // VS 放款的初始化逻辑占位，由业务补充
 const initVsDrawdownList = () => {
-  console.log(drawDownSelectedList.value);
   const idsStr = drawDownSelectedList.value.map((item) => item?.id).join(',');
   drawdownListLoading.value = true;
   drawDownLists({ uuid: props.uuid, date: formState.value.apply_date, ids: idsStr })

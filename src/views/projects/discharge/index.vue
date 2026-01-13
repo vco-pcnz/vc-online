@@ -55,7 +55,7 @@
 
       <div class="ProjectDrawdowns">
         <div class="flex justify-end mb-5 gap-4">
-          <a-button type="brown" shape="round" @click="shareSecurityVisible = true">{{ t('共享抵押物') }}</a-button>
+          <a-button v-if="isVcl" type="brown" shape="round" @click="shareSecurityVisible = true">{{ t('共享抵押物') }}</a-button>
           <a-button
             v-if="hasPermission('process:security-list')" type="brown" shape="round" class="pre-sale-enter"
             @click="navigationTo(`${userStore.pageRole?'/'+userStore.pageRole.toLowerCase():''}/projects/discharge/security-list?uuid=${uuid}`)"
@@ -142,8 +142,10 @@ const tabChange = (flag) => {
   loadData()
 };
 
+const isVcl = ref(false)
 const projectDetail = ref();
 const getProjectDetail = (val) => {
+  isVcl.value = String(val.product.code).toLowerCase() === 'vcl';
   projectDetail.value = val;
 };
 

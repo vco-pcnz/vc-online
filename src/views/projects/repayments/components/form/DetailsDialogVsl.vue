@@ -19,8 +19,8 @@
         <p>{{ t('还款日期') }}</p>
         <div class="table-content sys-table-content related-content no-top-line">
           <a-spin :spinning="drawdownListLoading" size="large">
-            <a-table rowKey="uuid" :columns="DrawdownColumns" :data-source="drawdownList" :pagination="false" table-layout="fixed">
-              <template #bodyCell="{ column, record, index }">
+            <a-table rowKey="uuid" :columns="DrawdownColumns" :data-source="drawdownList" :pagination="false" table-layout="fixed" :scroll="{ y: 300 }">
+              <template #bodyCell="{ column, record }">
                 <template v-if="column.dataIndex === 'name'">
                   <p :title="record.name" class="sec-name">{{ record.name }}</p>
                 </template>
@@ -76,7 +76,7 @@
         <p>{{ t('关联抵押物') }}</p>
         <div class="table-content sys-table-content related-content mt-2">
           <a-table rowKey="uuid" :columns="relatedColumns" :data-source="detailData.security" :pagination="false" table-layout="fixed">
-            <template #bodyCell="{ column, record, index }">
+            <template #bodyCell="{ column, record }">
               <template v-if="column.dataIndex === 'security_name'">
                 <p :title="record.security_name" class="sec-name">{{ record.security_name }}</p>
               </template>

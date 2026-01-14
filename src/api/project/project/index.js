@@ -104,10 +104,11 @@ export const syncProjectBill = (data) =>
     data
   });
 
-export const downGs = () =>
+export const downGs = (params) =>
   request({
     url: 'project/down/gs',
-    method: 'get'
+    method: 'get',
+    params
   });
 
 export const downSc = (params) =>

@@ -29,7 +29,8 @@ import { useI18n } from 'vue-i18n';
 import { downBl } from '@/api/project/project';
 import dayjs from 'dayjs';
 import { selectDateFormat } from '@/utils/tool';
-
+import useProductStore from '@/store/modules/product';
+const productStore = useProductStore(); 
 const { t } = useI18n();
 const emits = defineEmits(['change']);
 
@@ -75,7 +76,8 @@ const save = () => {
       const params = {
         ...formState.value,
         ...props.searchParams,
-        sta: props.sta
+        sta: props.sta,
+        product_uuid: productStore.currentProduct
       };
       loading.value = true;
 

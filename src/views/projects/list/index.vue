@@ -83,7 +83,7 @@ const tabChange = () => {
 const downloading = ref(false);
 const report = () => {
   downloading.value = true;
-  downGs()
+  downGs({product_uuid: productStore.currentProduct})
     .then((res) => {
       window.open(res);
     })
@@ -95,7 +95,7 @@ const report = () => {
 const buildProgressDownloading = ref(false);
 const buildProgressReport = () => {
   buildProgressDownloading.value = true;
-  buildProgressIndex()
+  buildProgressIndex({product_uuid: productStore.currentProduct})
     .then((res) => {
       window.open(res);
     })

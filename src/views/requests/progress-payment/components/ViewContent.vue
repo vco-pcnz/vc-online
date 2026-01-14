@@ -96,6 +96,24 @@
     <a-spin :spinning="pageLoading" size="large">
       <div class="progress-payment-content" :class="{'preview-table': !isSelect}">
         <template v-if="footerDataCol.length || buildAmount">
+          <div v-if="!isRequests && !isSelect && !pageLoading && amortizedHeader.length" class="form-block-content">
+            <div class="title">{{ t('最新均摊值') }}</div>
+              <a-table
+              :columns="amortizedHeader"
+              :data-source="amortizedData"
+              bordered
+              :pagination="false"
+              table-layout="fixed"
+              :scroll="{ x: '100%' }"
+            >
+            </a-table>
+            <div class="amortized-text" v-html="amortizedCalc"></div>
+            <div class="flex justify-end items-center mt-2">
+              {{ t('建设金额') }}：
+              <vco-number :value="Number(tool.plus(buildAmount, borrowerEquity))" size="fs_xl" :precision="2" :end="true"></vco-number>
+            </div>
+          </div>
+
           <div v-if="!isRequests && !isSelect && !pageLoading && !logDate" class="form-block-content">
             <div class="title">{{ t('放款统计') }}</div>
             <a-table
@@ -462,6 +480,7 @@
   import { computed, onMounted, reactive, ref } from "vue"
   import { useI18n } from "vue-i18n";
   import { useRoute } from "vue-router"
+  import { dischargeSecurity } from '@/api/project/loan';
   import { projectAuditStepDetail, projectGetBuild, projectLoanGetBuild, projectDetailApi } from "@/api/process"
   import { cloneDeep } from "lodash"
   import tool, { numberStrFormat, fixNumber } from "@/utils/tool"
@@ -905,7 +924,7 @@
       }
 
       const ajaxFn = isRequests.value ? projectGetBuild : projectLoanGetBuild
-      await ajaxFn(params).then(res => {
+      await ajaxFn(params).then(async (res) => {
         // boc拆分数据
         const progressData = res.progress || {}
 
@@ -1077,6 +1096,10 @@
 
         // 统计数据
         statUseAmount.value = res.use_amount || 0
+
+        if (!isRequests.value && !easyModel.value && !props.isSelect) {
+          await getSecurityData()
+        }
       })
     } catch (err) {
       pageLoading.value = false
@@ -1089,6 +1112,8 @@
   const easyModel = ref(true)
 
   const buildAmount = ref(0)
+  const borrowerEquity = ref(0)
+
   const isVsl = ref(false)
 
   // 请求项目信息
@@ -1146,6 +1171,8 @@
 
         const Construction = list.find(item => item.type === 'Construction')
         buildAmount.value = Construction ? (Number(Construction.loan) || 0) : 0
+
+        borrowerEquity.value = Construction ? (Number(Construction.borrower_equity) || 0) : 0
       })
       
       await getSetedData()
@@ -1536,6 +1563,116 @@
         itemSetHandle(data[key])
       }
     }
+  }
+
+  // 请求抵押物信息
+  const securityData = ref([])
+  const securityDataObj = ref()
+  const securitySqmObj = ref()
+  const getSecurityData = async () => {
+    const params = {
+      uuid: uuid.value,
+      type: 2,
+      is_calc: 1
+    }
+
+    try {
+      let dataArr = []
+
+      params.page = 1
+      params.limit = 10000
+      const { data } = await dischargeSecurity(params)
+      dataArr = data || []
+
+      const dataObj = {}
+      for (let i = 0; i < dataArr.length; i++) {
+        dataObj[`${dataArr[i].uuid}`] = dataArr[i]
+      }
+
+      securityDataObj.value = dataObj
+
+      securityData.value = dataArr
+
+      setAmortizedTable()
+      setTableHeader()
+      pageLoading.value = false
+
+      // 面积比例
+      const sqmArr = dataArr.map(item => Number(item.sqm))
+      const totalSqm = sqmArr.reduce((total, num) => {
+        return Number(tool.plus(total, num))
+      }, 0);
+      const sqmObjArr = dataArr.map(item => {
+        return {
+          sqm: Number(item.sqm),
+          uuid: item.uuid
+        }
+      })
+
+      const obj = {}
+      for (let i = 0; i < sqmObjArr.length; i++) {
+        obj[`${sqmObjArr[i].uuid}`] = sqmObjArr[i].sqm / totalSqm
+      }
+      securitySqmObj.value = obj
+    } catch (err) {
+      pageLoading.value = false
+    }
+  }
+
+  // 最新均摊值数据
+  const amortizedHeader = ref([])
+  const amortizedData = ref([])
+  const amortizedCalc = ref('')
+  const amLen = ref(0)
+
+  const setAmortizedData = (data) => {
+    const dataArr = []
+    const obj = {
+      name: 'Size'
+    }
+
+    let totalSqm = 0
+    for (let i = 0; i < data.length; i++) {
+      obj[data[i].uuid] = `${numberStrFormat(data[i].sqm)} m²`
+      totalSqm += Number(data[i].sqm)
+    }
+    obj.total = `${numberStrFormat(totalSqm)} m²`
+
+    dataArr.push(obj)
+
+    const totalNum = Number(tool.plus(buildAmount.value, borrowerEquity.value))
+    const calcNum = tool.div(totalNum, totalSqm)
+    amortizedCalc.value = `<em>${t('总条数')}：${amLen.value}</em>($${numberStrFormat(buildAmount.value)}<i>[Loan]</i> + $${numberStrFormat(borrowerEquity.value)}<i class="borrower">[Borrower Equity]</i>) ÷ ${obj.total} ≈ <span>$${numberStrFormat(calcNum)}</span>/m²`
+    amortizedData.value = dataArr
+  }
+
+  const setAmortizedTable = () => {
+    const data = cloneDeep(securityData.value)
+    const itemData = data.filter(item => item.sqm)
+    const headerData = []
+    for (let i = 0; i < itemData.length; i++) {
+      let title = itemData[i].card_no
+      if (props.isOpen && Boolean(itemData[i].status)) {
+        title = `${title}(${t('已解押')}）`
+      }
+      headerData.push({
+        title,
+        dataIndex: itemData[i].uuid,
+        width: 120,
+        align: 'center'
+      })
+    }
+    amortizedHeader.value = [{
+      title: "",
+      dataIndex: "name",
+      width: 120,
+      align: 'center',
+      fixed: 'left'
+    }, ...headerData,
+    { title: t('总计'), dataIndex: 'total', width: 180, align: 'center', fixed: 'right' }]
+
+    amLen.value = headerData.length
+    setAmortizedData(itemData)
   }
 
   onMounted(async () => {
@@ -2013,6 +2150,30 @@
       .check {
         background-color: #28a755 !important;
         border-color: #28a755 !important;
+      }
+    }
+  }
+
+  .amortized-text {
+    text-align: right;
+    margin-top: 10px;
+    font-size: 16px;
+    :deep(em) {
+      padding-right: 20px;
+      font-style: normal;
+      font-size: 14px;
+      color: #333;
+    }
+    :deep(span) {
+      color: @colorPrimary !important;
+      font-weight: 500;
+    }
+    :deep(i) {
+      font-size: 12px;
+      padding-left: 2px;
+      color: #eb4b6d;
+      &.borrower {
+        color: #31bd65;
       }
     }
   }

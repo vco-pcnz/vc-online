@@ -1200,7 +1200,8 @@
             arr2.push(setedData.value.payment[key].amount)
           }
         }
-        if (rLen) {
+
+        if (rLen && !easyModel.value) {
           if (dataHasChanged(arr1, arr2)) {
             confirmTxt.value = t(`数据设置有变动，保存后会重置首次建筑贷款放款额`)
             currentParams.value.clear = 1

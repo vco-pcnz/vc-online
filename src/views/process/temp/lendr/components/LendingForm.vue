@@ -222,7 +222,7 @@
             <div class="form-line"></div>
           </a-col>
           <template v-if="estabItems.length">
-            <a-col :span="6">
+            <a-col :span="8">
               <a-form-item :label="t('建立费计算标准')" name="estab_type">
                 <a-select
                   v-model:value="formState.estab_type"
@@ -234,7 +234,7 @@
               </a-form-item>
             </a-col>
             
-            <a-col :span="6">
+            <!-- <a-col :span="6">
               <a-form-item :label="t('包含利息')">
                 <a-select
                   v-model:value="formState.estab_inc_interest"
@@ -244,12 +244,12 @@
                   @change="interestChange"
                 ></a-select>
               </a-form-item>
-            </a-col>
+            </a-col> -->
 
             <a-col
               v-for="item in estabItems"
               :key="item.credit_table"
-              :span="6"
+              :span="8"
             >
               <a-form-item
                 :name="item.credit_table"
@@ -593,7 +593,7 @@
   const formRef = ref();
   const formState = ref({
     estab_type: 1,
-    estab_inc_interest: 1,
+    // estab_inc_interest: 1,
     loan_money: '',
     initial_amount: '',
     term: '',
@@ -752,7 +752,7 @@
     const {
       time_date,
       estab_type,
-      estab_inc_interest,
+      // estab_inc_interest,
       loan_money,
       initial_amount,
       credit_loanInterest,
@@ -772,7 +772,7 @@
       uuid: props.currentId,
       project: {
         estab_type,
-        estab_inc_interest,
+        // estab_inc_interest,
         has_linefee: 0,
         start_date: dayjs(time_date[0]).format('YYYY-MM-DD'),
         end_date: dayjs(time_date[1]).format('YYYY-MM-DD'),
@@ -1004,7 +1004,7 @@ const interestChange = () => {
     timeChange(formState.value.time_date)
 
     formState.value.estab_type = props.lendingInfo.estab_type || 1;
-    formState.value.estab_inc_interest = props.lendingInfo.estab_inc_interest || 1;
+    // formState.value.estab_inc_interest = props.lendingInfo.estab_inc_interest || 1;
 
     staticFormData.value = cloneDeep({
       ...formState.value,
@@ -1127,7 +1127,7 @@ const interestChange = () => {
           code: props.blockInfo.code,
           uuid: props.currentId,
           estab_type: Number(formState.value.estab_type),
-          estab_inc_interest: Number(formState.value.estab_inc_interest),
+          // estab_inc_interest: Number(formState.value.estab_inc_interest),
           repay_money: formState.value.loan_money || 0,
           loan_money: formState.value.initial_amount || 0,
           // initial_amount: formState.value.initial_amount || 0,
@@ -1178,7 +1178,7 @@ const interestChange = () => {
           val.start_date !== staticFormData.value.start_date ||
           val.end_date !== staticFormData.value.end_date ||
           Number(val.estab_type) !== Number(formState.value.estab_type) ||  
-          Number(val.estab_inc_interest) !== Number(formState.value.estab_inc_interest) ||
+          // Number(val.estab_inc_interest) !== Number(formState.value.estab_inc_interest) ||
           val.repay_type !== formState.value.repay_type ||
           val.repay_day_type !== formState.value.repay_day_type ||
           val.repay_day !== formState.value.repay_day

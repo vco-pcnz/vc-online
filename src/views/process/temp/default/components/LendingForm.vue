@@ -128,8 +128,7 @@
           <a-col :span="7">
             <a-form-item :label="t('开发成本')">
               <DevCostDetail
-                :disabled="amountDisabled || inputADis"
-                :edit="!isDetails"
+                :edit="!isDetails && !amountDisabled && !inputADis"
                 :has-build="Boolean(lendingInfo.has_build)"
                 :selectedRefinancialObj="selectedRefinancialObj"
                 :loan-date="formState.time_date"
@@ -147,7 +146,7 @@
                   <a-button class="float-left ml-3" v-if="!amountDisabled && !inputADis" type="link">
                     <i class="iconfont">&#xe753;</i>
                   </a-button>
-                  <a-button class="float-left ml-1" v-if="isDetails" type="link">
+                  <a-button class="float-left ml-1" v-else type="link">
                     <i class="iconfont">&#xe76f;</i>
                   </a-button>
                 </div>

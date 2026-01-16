@@ -229,7 +229,9 @@
                 </div>
                 <div class="item text-center">{{ _item.fee }}</div>
                 <div class="item drawdown text-center">{{ _item.drawdown }}</div>
-                <div class="item text-center">{{ _item.repayment }}</div>
+                <div class="item text-center">
+                  <vco-tip :tip="(_item.repayment && hasPermission('projects:schedule:interest_note'))?_item.interest_note:''">{{ _item.repayment }}</vco-tip>
+                </div>
                 <div class="item balance">
                   <vco-number :value="_item.balance" :precision="2" :end="true"></vco-number>
                 </div>

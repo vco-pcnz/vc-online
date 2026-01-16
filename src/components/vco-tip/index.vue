@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-center gap-2">
     <slot></slot>
-    <div class="efSGMs">
+    <div class="efSGMs" v-if="tip">
       <i class="iconfont">&#xe6b3;</i>
       <div class="tips" :style="{ width: w }">
         <slot name="content">

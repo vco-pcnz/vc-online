@@ -1352,5 +1352,8 @@ export default {
   "包含利息": "Include interest",
   "BOC放款金额": "BOC Drawdown Amount",
   "BOC还款金额": "BOC Repayment Amount",
-  "买断利息": "Buy-out Interest"
+  "买断利息": "Buy-out Interest",
+  "实际": "Actual",
+  "实际利息": "Actual Interest",
+  "实际本金": "Actual Principal"
 }

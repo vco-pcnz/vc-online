@@ -1,5 +1,5 @@
 <template>
-  <a-modal :open="visible" :title="t('还款详情')" :width="900" :footer="null" :keyboard="false" :maskClosable="false" @cancel="updateVisible(false)">
+  <a-modal :open="visible" :title="t('还款详情')" :width="1000" :footer="null" :keyboard="false" :maskClosable="false" @cancel="updateVisible(false)">
     <a-row v-if="detailData && detailData?.id" :gutter="24">
       <a-col :span="24" class="item-txt">
         <p>{{ t('还款标题') }}</p>
@@ -22,7 +22,7 @@
             <a-table rowKey="uuid" :columns="DrawdownColumns" :data-source="drawdownList" :pagination="false" table-layout="fixed" :scroll="{ y: 300 }">
               <template #bodyCell="{ column, record }">
                 <template v-if="column.dataIndex === 'name'">
-                  <p style="padding-top: 20px" :title="record.name" class="sec-name">{{ record.name }}</p>
+                  <p :title="record.name" class="sec-name">{{ record.name }}</p>
                 </template>
                 <template v-if="column.dataIndex === 'amount'">
                   <div class="text-center">
@@ -30,27 +30,24 @@
                     <vco-number style="opacity: 0.6" size="fs_md" :value="record.total_interest" :precision="2"></vco-number>
                   </div>
                 </template>
+                <template v-if="column.dataIndex === 'reality_interest'">
+                  <div>
+                    {{ tool.formatMoney(record.reality_interest) }}
+                  </div>
+                </template>
                 <template v-if="column.dataIndex === 'all_repayment'">
-                  <div style="padding-top: 20px">
+                  <div>
                     {{ record.all_repayment == 1 ? t('全额还款') : t('部分还款') }}
                   </div>
-                  <template v-if="record.interest_status">
-                    <p class="mt-5">{{ t('实际利息') }}</p>
-                    {{ tool.formatMoney(record.reality_interest) }}
-                  </template>
                 </template>
                 <template v-if="column.dataIndex === 're_type'">
-                  <div style="padding-top: 20px">
+                  <div>
                     <span v-if="record.re_type == 1">{{ t('本金优先分配') }}</span>
                     <span v-if="record.re_type == 2">{{ t('利息优先分配') }}</span>
                   </div>
-                  <template v-if="record.interest_status">
-                    <p class="mt-5">{{ t('实际本金') }}</p>
-                    {{ tool.formatMoney(record.reality_amount) }}
-                  </template>
                 </template>
                 <template v-if="column.dataIndex === 'amount1'">
-                  <div style="padding-top: 20px">
+                  <div>
                     {{ tool.formatMoney(record.apply_rep_amount) }}
                   </div>
                 </template>
@@ -175,7 +172,7 @@ const calAmount = () => {
 };
 
 const relatedColumns = reactive([
-  { title: t('名称'), dataIndex: 'security_name', width: 140 },
+  { title: t('名称'), dataIndex: 'security_name', width: 130 },
   { title: t('产权编号'), dataIndex: 'card_no', width: 100 },
   { title: t('类型'), dataIndex: 'type_name', width: 90 },
   { title: t('抵押物价值'), dataIndex: 'amount', width: 150 },
@@ -185,9 +182,10 @@ const relatedColumns = reactive([
 const DrawdownColumns = reactive([
   { title: t('账号'), dataIndex: 'name' },
   { title: t('本金/利息'), dataIndex: 'amount', width: 140, align: 'center' },
-  { title: t('还款方式'), dataIndex: 'all_repayment', width: 140 },
+  { title: t('实际利息'), dataIndex: 'reality_interest', width: 130, align: 'center' },
+  { title: t('还款方式'), dataIndex: 'all_repayment', width: 130 },
   { title: t('还款分配'), dataIndex: 're_type', width: 180 },
-  { title: t('还款金额1'), dataIndex: 'amount1', width: 140 }
+  { title: t('还款金额1'), dataIndex: 'amount1', width: 130, align: 'center' }
 ]);
 
 const subLoading = ref(false);
@@ -383,10 +381,6 @@ watch(
   .ant-table-wrapper tfoot > tr > th:first-child,
   .ant-table-wrapper tfoot > tr > td:first-child {
     padding-left: 16px;
-  }
-  .ant-table-wrapper .ant-table-tbody > tr > td,
-  .ant-table-wrapper tfoot > tr > td {
-    vertical-align: top;
   }
 }
 </style>

@@ -1,20 +1,19 @@
 <!DOCTYPE html>
 <html lang="en" class="light">
-
-<head>
-  <meta charset="UTF-8" />
-  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
-  <meta name="renderer" content="webkit">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VC Online</title>
-  <script>
-    const is_mobile = () => {
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="renderer" content="webkit" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VC Online</title>
+    <script>
+      const is_mobile = () => {
         // 方法1: 检测触摸屏设备
         const hasTouchScreen = navigator.maxTouchPoints > 0 || 'ontouchstart' in window;
-        
+
         // 方法2: 检测屏幕尺寸 (移动设备通常宽度较小)
         const isSmallScreen = window.screen.width < 768 || window.innerWidth < 768;
-        
+
         // 方法3: 更全面的用户代理检测
         const userAgent = navigator.userAgent || '';
         const platform = navigator.platform || '';
@@ -28,13 +27,13 @@
         const isAndroidTabletLike = isAndroidUA && (/(Android(?!.*Mobile))/i.test(userAgent) || width >= 600);
         const isTablet = tabletRegex.test(userAgent) || isIPadLikeMac || isAndroidTabletLike;
         const isMobileUA = mobileRegex.test(userAgent) && !isTablet;
-        
+
         // 方法4: 检测特定的移动浏览器特征
         const isMobileBrowser = /Mobi|Android/i.test(userAgent);
-        
+
         // 方法5: 检测设备方向API（通常只在移动设备上可用）
         const hasOrientationAPI = 'orientation' in window || 'onorientationchange' in window;
-        
+
         // 综合判断：满足任意两个条件就认为是移动设备（排除平板）
         let mobileScore = 0;
         if (hasTouchScreen) mobileScore++;
@@ -42,9 +41,9 @@
         if (isMobileUA) mobileScore++;
         if (isMobileBrowser) mobileScore++;
         if (hasOrientationAPI) mobileScore++;
-        
+
         return mobileScore >= 2 && !isTablet;
-      }
+      };
       const is_old_ipad_safari = () => {
         const ua = navigator.userAgent || '';
         const platform = navigator.platform || '';
@@ -54,172 +53,179 @@
         const versionMatch = ua.match(/Version\/(\d+(\.\d+)?)/);
         const version = versionMatch ? parseFloat(versionMatch[1]) : null;
         return (isIPadLikeMac || isIPadUA) && version && version < 14;
-      }
+      };
+
       if (is_mobile() || is_old_ipad_safari()) {
         const origin = window.location.origin || '';
+        const url = new URL(window.location.href);
+        const inviteCode = url.searchParams.get('invite_code') || '';
         let mobileRedirectUrl = '';
         // 生产域访问，跳转生产移动端
         if (origin.includes('https://vco.new.vincentcapital.co.nz')) {
-          mobileRedirectUrl = 'https://vco.m.new.vincentcapital.co.nz/#/pages/login/index';
+          mobileRedirectUrl = inviteCode ? `https://vco.m.new.vincentcapital.co.nz/#/pages/invite/index?invite_code=${encodeURIComponent(inviteCode)}` : 'https://vco.m.new.vincentcapital.co.nz/#/pages/login/index';
         } else {
           // 本地或 dev 环境访问，跳转 dev 移动端
-          mobileRedirectUrl = 'https://dev.app.new.vincentcapital.co.nz/#/pages/login/index';
+          mobileRedirectUrl = inviteCode ? `https://dev.app.new.vincentcapital.co.nz/#/pages/invite/index?invite_code=${encodeURIComponent(inviteCode)}` : 'https://dev.app.new.vincentcapital.co.nz/#/pages/login/index';
         }
-
+        
         if (mobileRedirectUrl) {
           location.href = mobileRedirectUrl;
         }
       }
+    </script>
+  </head>
 
-  </script>
-</head>
-
-<body>
-  <noscript>
-    <strong>你的浏览器未开启javascript支持，请开启后刷新页面访问！</strong>
-  </noscript>
-  <div id="app" class="ma-ui">
-    <div class="app-loading">
-      <!-- <div class="app-loading__logo"><img src="/logo.svg" /></div> -->
-      <div class="app-loading-text">
-        <span class="app-loading-preloader">V</span>
-        <span class="app-loading-preloader">C</span>
-        <span class="app-loading-preloader" style="padding: 0 10px;"></span>
-        <span class="app-loading-preloader">O</span>
-        <span class="app-loading-preloader">n</span>
-        <span class="app-loading-preloader">l</span>
-        <span class="app-loading-preloader">i</span>
-        <span class="app-loading-preloader">n</span>
-        <span class="app-loading-preloader">e</span>
-        <div class="app-loading-viewtext-container">
-          <span class="app-loading-viewtext">V</span>
-          <span class="app-loading-viewtext">C</span>
-          <span class="app-loading-viewtext" style="padding: 0 10px;"></span>
-          <span class="app-loading-viewtext">O</span>
-          <span class="app-loading-viewtext">n</span>
-          <span class="app-loading-viewtext">l</span>
-          <span class="app-loading-viewtext">i</span>
-          <span class="app-loading-viewtext">n</span>
-          <span class="app-loading-viewtext">e</span>
+  <body>
+    <noscript>
+      <strong>你的浏览器未开启javascript支持，请开启后刷新页面访问！</strong>
+    </noscript>
+    <div id="app" class="ma-ui">
+      <div class="app-loading">
+        <!-- <div class="app-loading__logo"><img src="/logo.svg" /></div> -->
+        <div class="app-loading-text">
+          <span class="app-loading-preloader">V</span>
+          <span class="app-loading-preloader">C</span>
+          <span class="app-loading-preloader" style="padding: 0 10px"></span>
+          <span class="app-loading-preloader">O</span>
+          <span class="app-loading-preloader">n</span>
+          <span class="app-loading-preloader">l</span>
+          <span class="app-loading-preloader">i</span>
+          <span class="app-loading-preloader">n</span>
+          <span class="app-loading-preloader">e</span>
+          <div class="app-loading-viewtext-container">
+            <span class="app-loading-viewtext">V</span>
+            <span class="app-loading-viewtext">C</span>
+            <span class="app-loading-viewtext" style="padding: 0 10px"></span>
+            <span class="app-loading-viewtext">O</span>
+            <span class="app-loading-viewtext">n</span>
+            <span class="app-loading-viewtext">l</span>
+            <span class="app-loading-viewtext">i</span>
+            <span class="app-loading-viewtext">n</span>
+            <span class="app-loading-viewtext">e</span>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <style>
-    :root {
-      --ui-background: 255 255 255;
-    }
-    .dark {
-      --ui-background: 49 49 50;
-    }
-    html, body, #app{
-      height: 100%;
-      transition-property: filter;
-      transition-duration: 1s;
-    }
-    
-    .app-loading {
-      position: absolute;
-      top: 0px;
-      left: 0px;
-      right: 0px;
-      bottom: 0px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-    }
+    <style>
+      :root {
+        --ui-background: 255 255 255;
+      }
+      .dark {
+        --ui-background: 49 49 50;
+      }
+      html,
+      body,
+      #app {
+        height: 100%;
+        transition-property: filter;
+        transition-duration: 1s;
+      }
 
-    .app-loading__logo {
-      width: 78px; padding-left: 5px; margin-top: -5%;
-    }
+      .app-loading {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      }
 
-    .app-loading-text {
-      position: relative;
-      margin-top: 1rem;
-    }
+      .app-loading__logo {
+        width: 78px;
+        padding-left: 5px;
+        margin-top: -5%;
+      }
 
-    .app-loading-preloader,
-    .app-loading-viewtext {
-      font-size: 3.5rem;
-      color: #ddd;
-      font-weight: bold;
-    }
+      .app-loading-text {
+        position: relative;
+        margin-top: 1rem;
+      }
 
-    .app-loading-viewtext-container {
-      display: flex;
-      flex-direction: row;
-      position: absolute;
-      letter-spacing: 4.3px;
-      top: -5px;
-    }
+      .app-loading-preloader,
+      .app-loading-viewtext {
+        font-size: 3.5rem;
+        color: #ddd;
+        font-weight: bold;
+      }
 
-    .app-loading-viewtext {
-      color: #333;
-      animation: loader 4s infinite;
-      transform: rotateY(-90deg);
-    }
+      .app-loading-viewtext-container {
+        display: flex;
+        flex-direction: row;
+        position: absolute;
+        letter-spacing: 4.3px;
+        top: -5px;
+      }
 
-    .app-loading-viewtext-container span:nth-child(1) {
-      animation-delay: 0.2s;
-    }
-    .app-loading-viewtext-container span:nth-child(2) {
-      animation-delay: 0.4s;
-    }
-    .app-loading-viewtext-container span:nth-child(3) {
-      animation-delay: 0.6s;
-    }
-    .app-loading-viewtext-container span:nth-child(4) {
-      animation-delay: 0.8s;
-    }
-    .app-loading-viewtext-container span:nth-child(5) {
-      animation-delay: 1s;
-    }
-    .app-loading-viewtext-container span:nth-child(6) {
-      animation-delay: 1.2s;
-    }
-    .app-loading-viewtext-container span:nth-child(7) {
-      animation-delay: 1.4s;
-    }
-    .app-loading-viewtext-container span:nth-child(8) {
-      animation-delay: 1.6s;
-    }
-    .app-loading-viewtext-container span:nth-child(9) {
-      animation-delay: 1.8s;
-    }
-
-    @keyframes loader {
-
-      0%,
-      75%,
-      100% {
-        opacity: 0;
+      .app-loading-viewtext {
+        color: #333;
+        animation: loader 4s infinite;
         transform: rotateY(-90deg);
       }
 
-      25%,
-      50% {
-        opacity: 1;
-        transform: rotateY(0deg);
+      .app-loading-viewtext-container span:nth-child(1) {
+        animation-delay: 0.2s;
       }
-    }
-  </style>
-  <script>
-    (function forceFreshLoad() {
-      const FLAG = 'cache-busted';
-      if (sessionStorage.getItem(FLAG)) return;
-      sessionStorage.setItem(FLAG, '1');
-      // 尝试清理 Cache Storage（若浏览器支持）
-      if (window.caches && caches.keys) {
-        caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k)))).catch(() => {});
+      .app-loading-viewtext-container span:nth-child(2) {
+        animation-delay: 0.4s;
       }
-      // 追加时间戳，强制拉取最新资源
-      const url = new URL(window.location.href);
-      url.searchParams.set('t', Date.now().toString());
-      window.location.replace(url.toString());
-    })();
-  </script>
-  <script type="module" src="/src/main.js"></script>
-</body>
+      .app-loading-viewtext-container span:nth-child(3) {
+        animation-delay: 0.6s;
+      }
+      .app-loading-viewtext-container span:nth-child(4) {
+        animation-delay: 0.8s;
+      }
+      .app-loading-viewtext-container span:nth-child(5) {
+        animation-delay: 1s;
+      }
+      .app-loading-viewtext-container span:nth-child(6) {
+        animation-delay: 1.2s;
+      }
+      .app-loading-viewtext-container span:nth-child(7) {
+        animation-delay: 1.4s;
+      }
+      .app-loading-viewtext-container span:nth-child(8) {
+        animation-delay: 1.6s;
+      }
+      .app-loading-viewtext-container span:nth-child(9) {
+        animation-delay: 1.8s;
+      }
 
+      @keyframes loader {
+        0%,
+        75%,
+        100% {
+          opacity: 0;
+          transform: rotateY(-90deg);
+        }
+
+        25%,
+        50% {
+          opacity: 1;
+          transform: rotateY(0deg);
+        }
+      }
+    </style>
+    <script>
+      (function forceFreshLoad() {
+        const FLAG = 'cache-busted';
+        if (sessionStorage.getItem(FLAG)) return;
+        sessionStorage.setItem(FLAG, '1');
+        // 尝试清理 Cache Storage（若浏览器支持）
+        if (window.caches && caches.keys) {
+          caches
+            .keys()
+            .then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
+            .catch(() => {});
+        }
+        // 追加时间戳，强制拉取最新资源
+        const url = new URL(window.location.href);
+        url.searchParams.set('t', Date.now().toString());
+        window.location.replace(url.toString());
+      })();
+    </script>
+    <script type="module" src="/src/main.js"></script>
+  </body>
 </html>

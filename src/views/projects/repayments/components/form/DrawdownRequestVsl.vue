@@ -28,7 +28,7 @@
             </a-col>
             <a-col :span="12" v-if="formState.all_repayment !== 1">
               <a-form-item :label="t('还款金额1')">
-                <a-input-number v-model:value="formState.apply_amount" readonly :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
+                <a-input-number v-model:value="formState.apply_amount" readonly :min="0" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
               </a-form-item>
             </a-col>
             <a-col :span="12" v-else>
@@ -72,7 +72,14 @@
                           </div>
                         </template>
                         <template v-if="column.dataIndex === 'reality_interest'">
-                          <a-input-number v-model:value="record.reality_interest" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" class="mini" />
+                          <a-input-number
+                            v-model:value="record.reality_interest"
+                            :min="0"
+                            :max="99999999999"
+                            :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                            :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                            class="mini"
+                          />
                         </template>
                         <template v-if="column.dataIndex === 'all_repayment'">
                           <a-select v-model:value="record.all_repayment" :title="record.all_repayment ? t('全额还款') : record.all_repayment === 0 ? t('部分还款') : ''" class="mini" :disabled="isVsAll_repayment">
@@ -89,8 +96,8 @@
                         <template v-if="column.dataIndex === 'amount1'">
                           <a-input-number
                             v-model:value="record.apply_rep_amount"
-                            :disabled="record.all_repayment || record.interest_status"
-                            :max="record.total_amount"
+                            :disabled="record.all_repayment"
+                            :min="0"
                             :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                             :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                             class="mini"
@@ -288,6 +295,7 @@ import SecuritiesDialog from './SecuritiesDialog.vue';
 import { cloneDeep, debounce } from 'lodash';
 import { hasPermission } from '@/directives/permission/index';
 import { drawDownSelected, drawDownLists, repaymentDetail } from '@/api/project/loan';
+import { number } from 'echarts/core';
 
 const { t } = useI18n();
 const emits = defineEmits(['change']);
@@ -869,15 +877,12 @@ const validateRepayment = (arr) => {
 // 格式化上传的放款金额
 const params_repayment = () => {
   return drawdownList.value.map((item) => {
-    if (item.reality_interest) {
-      item.apply_rep_amount = tool.plus(item.reality_interest || 0, item.amount || 0);
-      item.interest_status = 1;
-    } else {
-      item.interest_status = 0;
-      if (item.all_repayment) {
-        item.apply_rep_amount = item.total_amount;
+    item.interest_status = Number(item.reality_interest) > 0 ? 1 : 0;
+    if (item.all_repayment) {
+      if (Number(item.reality_interest) > 0) {
+        item.apply_rep_amount = tool.plus(item.reality_interest || 0, item.amount || 0);
       } else {
-        if (Number(item.apply_rep_amount) > Number(item.total_amount)) item.apply_rep_amount = item.total_amount;
+        item.apply_rep_amount = item.total_amount || tool.plus(item.amount || 0, item.interest || 0);
       }
     }
     return {
@@ -1049,5 +1054,4 @@ defineExpose({
     overflow-x: hidden !important;
   }
 }
-
 </style>

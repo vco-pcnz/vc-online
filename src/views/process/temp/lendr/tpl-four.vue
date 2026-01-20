@@ -199,7 +199,6 @@
   import { useRoute } from 'vue-router'
   import { cloneDeep } from "lodash";
   import {
-    projectSelectList,
     projectApplySaveLoanInfo,
     projectAuditSaveMode,
     projectSaveSaveDraft,
@@ -207,6 +206,7 @@
     projectApplyLoanInfo,
     projectApplyProjectInfo
   } from "@/api/process";
+  import { systemDictDataApi } from "@/api/system/index"
   import tool, { selectDateFormat } from "@/utils/tool";
   import { message } from "ant-design-vue/es";
   import TempFooter from "./components/TempFooter.vue";
@@ -576,12 +576,18 @@
   }
 
   const projectTypeData = ref([])
-  const getTypeData = (type) => {
-    projectSelectList().then(res => {
-      const data = res.project_loan_cascade || []
-      const dataArr = data.find(item => Number(item.value) === Number(type))
-      projectTypeData.value = dataArr ? dataArr.children : []
-    })
+  const getTypeData = () => {
+    systemDictDataApi({
+      code: 'lendr_loan_type'
+    }).then((res) => {
+      const data = res || [];
+      projectTypeData.value = data.map((item) => {
+        return {
+          label: item.name,
+          value: Number(item.code)
+        };
+      });
+    });
   }
 
   const dataInit = (infoMsg = {}, draftMsg = {}) => {
@@ -616,7 +622,7 @@
     }
 
     emits('dataDone', data)
-    getTypeData(data.project_type)
+    getTypeData()
   }
 
   const pageLoading = ref(false)

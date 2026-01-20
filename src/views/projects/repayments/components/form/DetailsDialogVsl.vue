@@ -31,9 +31,10 @@
                   </div>
                 </template>
                 <template v-if="column.dataIndex === 'reality_interest'">
-                  <div>
+                  <div v-if="record.interest_status == 1">
                     {{ tool.formatMoney(record.reality_interest) }}
                   </div>
+                  <div v-else></div>
                 </template>
                 <template v-if="column.dataIndex === 'all_repayment'">
                   <div>
@@ -179,14 +180,21 @@ const relatedColumns = reactive([
   { title: t('当前抵押物价值'), dataIndex: 'real_amount', width: 170 }
 ]);
 
-const DrawdownColumns = reactive([
-  { title: t('账号'), dataIndex: 'name' },
-  { title: t('本金/利息'), dataIndex: 'amount', width: 140, align: 'center' },
-  { title: t('实际利息'), dataIndex: 'reality_interest', width: 130, align: 'center' },
-  { title: t('还款方式'), dataIndex: 'all_repayment', width: 130 },
-  { title: t('还款分配'), dataIndex: 're_type', width: 180 },
-  { title: t('还款金额1'), dataIndex: 'amount1', width: 130, align: 'center' }
-]);
+const showRealityInterestColumn = computed(() => {
+  return drawdownList.value.some((item) => Number(item.interest_status) === 1);
+});
+
+const DrawdownColumns = computed(() => {
+  const base = [
+    { title: t('账号'), dataIndex: 'name' },
+    { title: t('本金/利息'), dataIndex: 'amount', width: 140, align: 'center' },
+    ...(showRealityInterestColumn.value ? [{ title: t('实际利息'), dataIndex: 'reality_interest', width: 130, align: 'center' }] : []),
+    { title: t('还款方式'), dataIndex: 'all_repayment', width: showRealityInterestColumn.value ? 130 : 150 },
+    { title: t('还款分配'), dataIndex: 're_type', width: showRealityInterestColumn.value ? 180 : 200 },
+    { title: t('还款金额1'), dataIndex: 'amount1', width: showRealityInterestColumn.value ? 130 : 150, align: 'center' }
+  ];
+  return base;
+});
 
 const subLoading = ref(false);
 // 同意

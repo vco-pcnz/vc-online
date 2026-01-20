@@ -471,6 +471,7 @@
                       v-model:value="formState.estab_type"
                       style="width: 100%"
                       :options="estabTypeData"
+                      @change="estabTypeChange"
                     ></a-select>
                   </a-form-item>
                 </a-col>
@@ -1305,7 +1306,7 @@ watch(
   () => formState.value.credit_brokerFee,
   () => {
     if (isVsl.value) {
-      debouncedVslCalcEstab()
+      triggerVslCalcEstab()
     }
   }
 )
@@ -1355,12 +1356,15 @@ const calcVclEstab = () => {
   params.credit = credit;
 
   if (params.type && params.start_date) {
+    caclLoading.value = true
     projectVariationEstabCalc(params).then(res => {
       if (formState.value.estab_type === 1) {
         formState.value.credit_estabFee = res
       } else {
         formState.value.credit_estabFeeRate = res
       }
+    }).finally(() => {
+      caclLoading.value = false
     })
   }
 }
@@ -1369,46 +1373,15 @@ const calcVclEstab = () => {
 const debouncedCalcVclEstab = debounce(calcVclEstab, 500)
 
 const calcExtendTermEstab = () => {
+  if (formState.value.type && formState.value.start_date) {
+    caclLoading.value = true
+  }
   debouncedCalcVclEstab()
-  // const credit_estabFeeRate = Number(formState.value.credit_estabFeeRate || 0) > 0 ? Number(formState.value.credit_estabFeeRate || 0) : 0
-  // const credit_estabFee = Number(formState.value.credit_estabFee || 0) > 0 ? Number(formState.value.credit_estabFee || 0) : 0
-  // let num = Number(borkerFeeCalcAmountRef.value || 0)
-
-  // const legalFee = Number(formState.value.credit_legalFee || 0) > 0 ? Number(formState.value.credit_legalFee || 0) : 0
-  // const otherFee = Number(formState.value.credit_otherFee || 0) > 0 ? Number(formState.value.credit_otherFee || 0) : 0
-  // const brokerFee = Number(formState.value.credit_brokerFee || 0) > 0 ? Number(formState.value.credit_brokerFee || 0) : 0
-
-  // if (formState.value.type !== 4) {
-  //   const loFee = Number(tool.plus(legalFee, otherFee))
-  //   const brFee = Number(tool.plus(loFee, brokerFee))
-  //   const fNum = Number(tool.plus(num, brFee))
-  //   const cNum = Number(loanMoneyChangeNum.value || 0)
-  //   const toolFn = [1].includes(formState.value.type) ? tool.plus : tool.minus
-  //   num = Number(toolFn(fNum, cNum))
-  // } else {
-  //   const loFee = Number(tool.plus(legalFee, otherFee))
-  //   const brFee = Number(tool.plus(loFee, brokerFee))
-  //   const cNum = Number(loanMoneyChangeNum.value || 0)
-  //   num = Number(tool.plus(brFee, cNum))
-  // }
-
-  // if (formState.value.start_date) {
-  //   if (formState.value.estab_type === 1) {
-  //     formState.value.credit_estabFee = Number(tool.times(tool.div(credit_estabFeeRate, 100), num)).toFixed(2)
-  //   } else {
-  //     formState.value.credit_estabFeeRate = Number(tool.times(tool.div(credit_estabFee, num), 100)).toFixed(6)
-  //   }
-  // } else {
-  //   if (formState.value.estab_type === 1) {
-  //     formState.value.credit_estabFee = 0
-  //   } else {
-  //     formState.value.credit_estabFeeRate = 0
-  //   }
-  // }
 }
 
 const bocEstabFee = ref(0);
 const vslEstabFee = ref(0);
+const caclLoading = ref(false)
 
 const vslCalcEstab = () => {
   const legalFee = Number(formState.value.credit_legalFee || 0) > 0 ? Number(formState.value.credit_legalFee || 0) : 0
@@ -1431,6 +1404,7 @@ const vslCalcEstab = () => {
     estab_type: formState.value.estab_type
   }
 
+  caclLoading.value = true
   projectVariationEstablishCalculate(params).then(res => {
     if (formState.value.estab_type === 1) {
       formState.value.credit_estabFee = res.estab_fee
@@ -1439,11 +1413,26 @@ const vslCalcEstab = () => {
     }
     bocEstabFee.value = res.boc_estab_fee
     vslEstabFee.value = res.vs_estab_fee
+  }).finally(() => {
+    caclLoading.value = false
   })
 }
 
 // 防抖版本的计算方法
 const debouncedVslCalcEstab = debounce(vslCalcEstab, 500)
+
+const triggerVslCalcEstab = () => {
+  caclLoading.value = true
+  debouncedVslCalcEstab()
+}
+
+const estabTypeChange = () => {
+  if (isVsl.value) {
+    triggerVslCalcEstab()
+  } else {
+    calcExtendTermEstab()
+  }
+}
 
 watch(
   () => loanMoneyChangeNum.value,
@@ -1454,7 +1443,7 @@ watch(
     if ([1, 2, 3, 4].includes(type_startDate.value.type)) {
       handInput('credit_brokerFeeRate')
       if (isVsl.value) {
-        debouncedVslCalcEstab()
+        triggerVslCalcEstab()
       } else {
         calcExtendTermEstab()
       }
@@ -1508,14 +1497,14 @@ const handInput = (key) => {
   // 建立费
   if (['credit_estabFeeRate', 'credit_estabFee'].includes(key)) {
     if (isVsl.value) {
-      debouncedVslCalcEstab()
+      triggerVslCalcEstab()
     } else {
       calcExtendTermEstab()
     }
   }
   if (['credit_legalFee', 'credit_otherFee'].includes(key) && [1, 2, 3, 4].includes(formState.value.type)) {
     if (isVsl.value) {
-      debouncedVslCalcEstab()
+      triggerVslCalcEstab()
     } else {
       calcExtendTermEstab()
     }
@@ -1576,6 +1565,10 @@ const clearBuildHandle = () => {
 
 const submitLoading = ref(false)
 const submitHandle = () => {
+  if (caclLoading.value) {
+    return
+  }
+
   formRef.value
     .validate()
     .then(() => {

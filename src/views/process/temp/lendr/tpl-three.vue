@@ -10,8 +10,8 @@
                   <a-col :span="24">
                     <div class="form-item-col">
                       <div class="title">
-                        <p>{{ t('资源许可') }}</p>
-                        <vco-upload-modal v-model:list="resourceConsentList">
+                        <p>{{ t('辅助文件') }}</p>
+                        <vco-upload-modal v-model:list="supportingDocsList">
                           <div class="upload-btn">
                             <i class="iconfont">&#xe734;</i>
                             {{ t('上传文件') }}
@@ -19,8 +19,8 @@
                         </vco-upload-modal>
                       </div>
                       <div class="file-content">
-                        <template v-if="resourceConsentList.length">
-                          <div v-for="(item, index) in resourceConsentList" :key="index" class="file-item">
+                        <template v-if="supportingDocsList.length">
+                          <div v-for="(item, index) in supportingDocsList" :key="index" class="file-item">
                             <vco-file-item :file="item" :showClose="true" @remove="removeItem(1, index)"></vco-file-item>
                           </div>
                         </template>
@@ -31,8 +31,8 @@
                   <a-col :span="24">
                     <div class="form-item-col">
                       <div class="title">
-                        <p>{{ t('工程计划批准') }}</p>
-                        <vco-upload-modal v-model:list="engineeringConsentList">
+                        <p>{{ t('贷款文件') }}</p>
+                        <vco-upload-modal v-model:list="loanDocsList">
                           <div class="upload-btn">
                             <i class="iconfont">&#xe734;</i>
                             {{ t('上传文件') }}
@@ -40,51 +40,9 @@
                         </vco-upload-modal>
                       </div>
                       <div class="file-content">
-                        <template v-if="engineeringConsentList.length">
-                          <div v-for="(item, index) in engineeringConsentList" :key="index" class="file-item">
+                        <template v-if="loanDocsList.length">
+                          <div v-for="(item, index) in loanDocsList" :key="index" class="file-item">
                             <vco-file-item :file="item" :showClose="true" @remove="removeItem(2, index)"></vco-file-item>
-                          </div>
-                        </template>
-                        <p v-else>{{ t('暂无数据，请上传') }}</p>
-                      </div>
-                    </div>
-                  </a-col>
-                  <a-col :span="24">
-                    <div class="form-item-col">
-                      <div class="title">
-                        <p>{{ t('建筑许可') }}</p>
-                        <vco-upload-modal v-model:list="buildingList">
-                          <div class="upload-btn">
-                            <i class="iconfont">&#xe734;</i>
-                            {{ t('上传文件') }}
-                          </div>
-                        </vco-upload-modal>
-                      </div>
-                      <div class="file-content">
-                        <template v-if="buildingList.length">
-                          <div v-for="(item, index) in buildingList" :key="index" class="file-item">
-                            <vco-file-item :file="item" :showClose="true" @remove="removeItem(3, index)"></vco-file-item>
-                          </div>
-                        </template>
-                        <p v-else>{{ t('暂无数据，请上传') }}</p>
-                      </div>
-                    </div>
-                  </a-col>
-                  <a-col :span="24">
-                    <div class="form-item-col">
-                      <div class="title">
-                        <p>{{ t('可行性研究') }}</p>
-                        <vco-upload-modal v-model:list="feasibilityList">
-                          <div class="upload-btn">
-                            <i class="iconfont">&#xe734;</i>
-                            {{ t('上传文件') }}
-                          </div>
-                        </vco-upload-modal>
-                      </div>
-                      <div class="file-content">
-                        <template v-if="feasibilityList.length">
-                          <div v-for="(item, index) in feasibilityList" :key="index" class="file-item">
-                            <vco-file-item :file="item" :showClose="true" @remove="removeItem(4, index)"></vco-file-item>
                           </div>
                         </template>
                         <p v-else>{{ t('暂无数据，请上传') }}</p>
@@ -224,23 +182,17 @@ const bindUserPermission = computed(() => {
   return hasPermission('requests:loan:bind:vcTeam') || hasPermission('requests:loan:bind:broker') || hasPermission('requests:loan:bind:user')
 })
 
-const resourceConsentList = ref([]);
-const engineeringConsentList = ref([]);
-const buildingList = ref([]);
-const feasibilityList = ref([]);
+const supportingDocsList = ref([]);
+const loanDocsList = ref([]);
 const othersList = ref([]);
 
 const removeItem = (type, index) => {
   let list = null;
   if (type === 1) {
-    list = resourceConsentList.value;
+    list = supportingDocsList.value;
   } else if (type === 2) {
-    list = engineeringConsentList.value;
+    list = loanDocsList.value;
   } else if (type === 3) {
-    list = buildingList.value;
-  } else if (type === 4) {
-    list = feasibilityList.value;
-  } else if (type === 5) {
     list = othersList.value;
   }
 
@@ -248,11 +200,13 @@ const removeItem = (type, index) => {
 };
 
 const formState = reactive({
+  supporting_docs_files: [],
+  loan_docs_files: [],
+  others_files: [],
   resource_consent_files: [],
   engineering_plan_approval_files: [],
   building_consent_files: [],
-  feasibility_files: [],
-  others_files: [],
+  feasibility_files: []
 });
 
 const formRules = {
@@ -268,21 +222,13 @@ const getParams = () => {
     params.uuid = props.infoData?.uuid || props.currentId;
   }
 
-  // 资源许可
-  if (resourceConsentList.value.length) {
-    params.resource_consent_files = resourceConsentList.value.map((item) => item.uuid);
+  // 支持文档
+  if (supportingDocsList.value.length) {
+    params.supporting_docs_files = supportingDocsList.value.map((item) => item.uuid);
   }
-  // 工程计划批准
-  if (engineeringConsentList.value.length) {
-    params.engineering_plan_approval_files = engineeringConsentList.value.map((item) => item.uuid);
-  }
-  // 建筑许可
-  if (buildingList.value.length) {
-    params.building_consent_files = buildingList.value.map((item) => item.uuid);
-  }
-  // 可行性研究
-  if (feasibilityList.value.length) {
-    params.feasibility_files = feasibilityList.value.map((item) => item.uuid);
+  // 贷款文件
+  if (loanDocsList.value.length) {
+    params.loan_docs_files = loanDocsList.value.map((item) => item.uuid);
   }
   // 其他
   if (othersList.value.length) {
@@ -348,10 +294,8 @@ const draftLoading = ref(false);
 const hasDraftData = ref(false);
 const draftHandle = () => {
   const data = {
-    resourceConsentList: resourceConsentList.value || [],
-    engineeringConsentList: engineeringConsentList.value || [],
-    buildingList: buildingList.value || [],
-    feasibilityList: feasibilityList.value || [],
+    supportingDocsList: supportingDocsList.value || [],
+    loanDocsList: loanDocsList.value || [],
     othersList: othersList.value || [],
   };
 
@@ -387,16 +331,14 @@ const dataInit = (infoMsg = {}, draftMsg = {}) => {
   const draftData = cloneDeep({ ...draftMsg, ...props.draftData });
 
   if (draftData && Object.keys(draftData).length) {
-    resourceConsentList.value = draftData.resourceConsentList || [];
-    engineeringConsentList.value = draftData.engineeringConsentList || [];
-    buildingList.value = draftData.buildingList || [];
-    feasibilityList.value = draftData.feasibilityList || [];
+    supportingDocsList.value = draftData.supportingDocsList || [];
+    loanDocsList.value = draftData.loanDocsList || [];
     othersList.value = draftData.othersList || [];
 
     hasDraftData.value = true;
   } else {
-    if (data.resource_consent_files) {
-      resourceConsentList.value = data.resource_consent_files.map((item) => {
+    if (data.supporting_docs_files) {
+      supportingDocsList.value = data.supporting_docs_files.map((item) => {
         return {
           ...item,
           url: item.value || '',
@@ -404,26 +346,8 @@ const dataInit = (infoMsg = {}, draftMsg = {}) => {
       });
     }
 
-    if (data.engineering_plan_approval_files) {
-      engineeringConsentList.value = data.engineering_plan_approval_files.map((item) => {
-        return {
-          ...item,
-          url: item.value || '',
-        };
-      });
-    }
-
-    if (data.building_consent_files) {
-      buildingList.value = data.building_consent_files.map((item) => {
-        return {
-          ...item,
-          url: item.value || '',
-        };
-      });
-    }
-
-    if (data.feasibility_files) {
-      feasibilityList.value = data.feasibility_files.map((item) => {
+    if (data.loan_docs_files) {
+      loanDocsList.value = data.loan_docs_files.map((item) => {
         return {
           ...item,
           url: item.value || '',

@@ -29,7 +29,8 @@
                     <a-form-item :label="t('借款人类型')" name="borrower_type">
                       <a-radio-group v-model:value="formState.borrower_type" name="borrower_type">
                         <a-radio :value="1">{{ t('个人') }}</a-radio>
-                        <a-radio :value="2">{{ t('机构') }}</a-radio>
+                        <a-radio :value="2">{{ t('公司') }}</a-radio>
+                        <a-radio :value="3">{{ t('信托') }}</a-radio>
                       </a-radio-group>
                     </a-form-item>
                   </a-col>
@@ -57,20 +58,18 @@
                     </a-col>
                   </template>
                   <template v-else>
-                    <a-col :span="24">
+                    <a-col :span="formState.borrower_type === 3 ? 16 : 24">
                       <a-form-item :label="t('机构名称')" name="organization_name">
-                        <!-- <a-input v-model:value="formState.organization_name" /> -->
                         <vco-company-select :email="formState.borrower_email" v-model:name="formState.organization_name" v-model:nzbn="formState.company_number" :show_nzbn="true" @change="getCompanyInfo"></vco-company-select>
                       </a-form-item>
                     </a-col>
                   </template>
-                  <a-col :span="!isNormalUser && !isOpen ? 16 : 24">
+                  <a-col v-if="[1, 2].includes(formState.borrower_type)" :span="!isNormalUser && !isOpen ? 16 : 24">
                     <a-form-item v-if="formState.borrower_type === 1" :label="t('身份证号码')" name="borrower_id_num">
                       <a-input v-model:value="formState.borrower_id_num" />
                     </a-form-item>
 
-                    <a-form-item v-else :label="t('新西兰商业号码')" name="company_number">
-                      <!-- <a-input v-model:value="formState.company_number" /> -->
+                    <a-form-item v-if="formState.borrower_type === 2" :label="t('新西兰商业号码')" name="company_number">
                       <vco-company-select :email="formState.borrower_email" v-model:name="formState.organization_name" :placeholder="t('请输入')" v-model:nzbn="formState.company_number" :show_nzbn="true" @change="getCompanyInfo" :is_nzbn="true"></vco-company-select>
                     </a-form-item>
                   </a-col>
@@ -388,6 +387,9 @@ const choiceUserDone = (data) => {
     formState.middle_name = data.middleName;
     formState.last_name = data.lastName;
     formState.borrower_id_num = data.idcard;
+  } else if (data.type === 3) {
+    formState.borrower_type = 3;
+    formState.organization_name = data.name;
   } else {
     formState.borrower_type = 2;
     formState.organization_name = data.name;
@@ -468,6 +470,12 @@ const submitHandle = () => {
         params.product_uuid = product_uuid
       }
 
+      if (Number(params.borrower_type) === 3) {
+        params.borrower_type = 2
+        params.is_trust = 1
+        params.borrower_id_num = ''
+      }
+
       subLoading.value = true;
       ajaxFn(params)
         .then(async (res) => {
@@ -537,6 +545,9 @@ const draftHandle = () => {
 
 const dataInit = (infoMsg = {}, draftMsg = {}) => {
   const data = cloneDeep({ ...infoMsg, ...props.infoData });
+  if (data.is_trust) {
+    data.borrower_type = 3;
+  }
   const draftData = cloneDeep({ ...draftMsg, ...props.draftData });
 
   let useData = data;
@@ -587,6 +598,9 @@ const getDataInit = async () => {
     await projectApplyBorrowerInfo({
       uuid: props.currentId
     }).then((res) => {
+      if (res.is_trust) {
+        res.borrower_type = 3;
+      }
       infoData = res;
     });
   }

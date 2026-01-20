@@ -69,8 +69,8 @@ import { reactive, ref, watch, onMounted, computed, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import { cloneDeep } from 'lodash';
-import { projectSelectList, projectApplySaveProjectInfo, projectAuditSaveMode, projectApplyProjectInfo, projectSaveSaveDraft, projectDraftInfo } from '@/api/process';
-
+import { projectApplySaveProjectInfo, projectAuditSaveMode, projectApplyProjectInfo, projectSaveSaveDraft, projectDraftInfo } from '@/api/process';
+import { systemDictDataApi } from "@/api/system/index"
 import tool from '@/utils/tool';
 import { message } from 'ant-design-vue/es';
 import TempFooter from './components/TempFooter.vue';
@@ -318,12 +318,14 @@ const draftHandle = () => {
 
 const projectTypeData = ref([]);
 const getTypeData = () => {
-  projectSelectList().then((res) => {
-    const data = res.project_type || [];
+  systemDictDataApi({
+    code: 'lendr_project_type'
+  }).then((res) => {
+    const data = res || [];
     projectTypeData.value = data.map((item) => {
       return {
-        label: item.title,
-        value: item.id
+        label: item.name,
+        value: Number(item.code)
       };
     });
   });

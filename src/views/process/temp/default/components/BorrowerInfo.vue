@@ -4,7 +4,7 @@
       <a-col :span="8">
         <div class="info-content">
           <p class="name">{{ t('借款人类型') }}</p>
-          <p class="txt">{{ Number(data.borrower_type) === 1 ? t('个人') : t('机构') }}</p>
+          <p class="txt">{{ Number(data.borrower_type) === 1 ? t('个人') : Number(data.is_trust) === 1 ? t('信托') : t('公司') }}</p>
         </div>
       </a-col>
       <a-col :span="8" v-if="Number(data.borrower_type) === 1">
@@ -19,7 +19,7 @@
           <p class="txt">{{ data.organization_name }}</p>
         </div>
       </a-col>
-      <a-col :span="8">
+      <a-col v-if="data.is_trust !== 1" :span="8">
         <div class="info-content">
           <p class="name">{{ Number(data.borrower_type) === 1 ? t('身份证号码') : t('新西兰商业号码') }}</p>
           <p class="txt">{{ data.borrower_id_num }}</p>

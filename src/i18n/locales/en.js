@@ -1355,5 +1355,8 @@ export default {
   "买断利息": "Buy-out Interest",
   "实际": "Actual",
   "实际利息": "Actual Interest",
-  "实际本金": "Actual Principal"
+  "实际本金": "Actual Principal",
+  "信托": "Trust",
+  "辅助文件": "Supporting docs",
+  "贷款文件": "Loan docs"
 }

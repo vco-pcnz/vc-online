@@ -68,18 +68,23 @@
                             <vco-number size="fs_md" :value="record.amount" :precision="2"></vco-number>
                             <div class="flex justify-center items-center gap-1">
                               <vco-number style="opacity: 0.6" size="fs_md" :value="record.total_interest" :precision="2"></vco-number>
+                              <i class="iconfont edit-icon" v-if="!record.interest_status && record.id" @click="record.interest_status = 1">&#xe743;</i>
                             </div>
                           </div>
                         </template>
                         <template v-if="column.dataIndex === 'reality_interest'">
-                          <a-input-number
-                            v-model:value="record.reality_interest"
-                            :min="0"
-                            :max="99999999999"
-                            :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                            :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                            class="mini"
-                          />
+                          <div class="flex justify-center items-center gap-1" v-if="record.interest_status == 1 && record.id">
+                            <a-input-number
+                              v-model:value="record.reality_interest"
+                              :min="0"
+                              :max="99999999999"
+                              :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                              :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                              class="mini"
+                            />
+                            <i class="iconfont icon-delete" @click="record.interest_status = 0">&#xe781;</i>
+                          </div>
+                          <div v-else></div>
                         </template>
                         <template v-if="column.dataIndex === 'all_repayment'">
                           <a-select v-model:value="record.all_repayment" :title="record.all_repayment ? t('全额还款') : record.all_repayment === 0 ? t('部分还款') : ''" class="mini" :disabled="isVsAll_repayment">
@@ -632,14 +637,18 @@ const relatedColumns = reactive([
   { title: t('操作1'), dataIndex: 'operation', fixed: 'right', align: 'center', width: 50 }
 ]);
 
+const showRealityInterestColumn = computed(() => {
+  return drawdownList.value.some((item) => Number(item.interest_status) === 1);
+});
+
 const DrawdownColumns = computed(() => {
   const base = [
     { title: t('账号'), dataIndex: 'name' },
     { title: t('本金/利息'), dataIndex: 'amount', width: 140, align: 'center' },
-    { title: t('实际利息'), dataIndex: 'reality_interest', width: 140 },
-    { title: t('还款方式'), dataIndex: 'all_repayment', width: 140 },
-    { title: t('还款分配'), dataIndex: 're_type', width: 140 },
-    { title: t('还款金额1'), dataIndex: 'amount1', width: 140 },
+    ...(showRealityInterestColumn.value ? [{ title: t('实际利息'), dataIndex: 'reality_interest', width: 150 }] : []),
+    { title: t('还款方式'), dataIndex: 'all_repayment', width: showRealityInterestColumn.value ? 140 : 160 },
+    { title: t('还款分配'), dataIndex: 're_type', width: showRealityInterestColumn.value ? 140 : 160 },
+    { title: t('还款金额1'), dataIndex: 'amount1', width: showRealityInterestColumn.value ? 140 : 160 },
     // { title: t('还款金额1'), dataIndex: 'amount1', width: 120 },
     { title: t('操作1'), dataIndex: 'operation', fixed: 'right', align: 'center', width: 50 }
   ];
@@ -877,9 +886,9 @@ const validateRepayment = (arr) => {
 // 格式化上传的放款金额
 const params_repayment = () => {
   return drawdownList.value.map((item) => {
-    item.interest_status = Number(item.reality_interest) > 0 ? 1 : 0;
+    item.interest_status = item.interest_status || 0;
     if (item.all_repayment) {
-      if (Number(item.reality_interest) > 0) {
+      if (item.interest_status == 1) {
         item.apply_rep_amount = tool.plus(item.reality_interest || 0, item.amount || 0);
       } else {
         item.apply_rep_amount = item.total_amount || tool.plus(item.amount || 0, item.interest || 0);
@@ -1053,5 +1062,15 @@ defineExpose({
   .ant-table-body {
     overflow-x: hidden !important;
   }
+}
+
+.edit-icon {
+  color: @colorPrimary !important;
+  font-size: 12px;
+  cursor: pointer;
+}
+.icon-delete {
+  color: @colorPrimary !important;
+  cursor: pointer;
 }
 </style>

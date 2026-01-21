@@ -8,7 +8,7 @@
           </div>
         </router-link>
         <h1 class="title">
-          {{ t('密码重置') }}
+          {{ t('设置你的密码') }}
         </h1>
         <div class="sys-form-content mt-5">
           <a-form ref="formRef" :model="form" :rules="rules" layout="vertical">
@@ -42,7 +42,7 @@
                 class="reset_btn big shadow bold"
                 @click="submit"
               >
-                {{ t('密码重置') }}
+                {{ t('设置密码') }}
               </a-button>
             </a-form-item>
           </a-form>

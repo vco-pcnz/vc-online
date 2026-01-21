@@ -23,7 +23,7 @@ export default {
   "手机号": "Phone number",
   "手机号格式不正确": "Not a valid phone number",
   "注册成功": "Register successful",
-  "最少8个字符,1个大写字母,字母和数字": "Minimum 8 characters, 1 capital letter, letters and numbers",
+  "最少8个字符,1个大写字母,字母和数字": "Password must be at least 8 characters and include at least 1 uppercase letter and 1 number.",
   "我接受": "I accept",
   "条款与条件": "Terms & Conditions",
   "请先查阅并接受条款": "Please review and accept the terms",
@@ -1358,5 +1358,7 @@ export default {
   "实际本金": "Actual Principal",
   "信托": "Trust",
   "辅助文件": "Supporting docs",
-  "贷款文件": "Loan docs"
+  "贷款文件": "Loan docs",
+  "设置密码": "Set password",
+  "设置你的密码": "Set your password",
 }

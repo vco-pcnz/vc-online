@@ -217,7 +217,7 @@ const getSetedData = async () => {
 
       if (progress[advanceKey.value]) {
          // 是否为启动资金首次放款已设置
-        if (props.selectedData.length === 1 && props.selectedData[0].progress_id === progress[advanceKey.value][0]?.id) {
+        if (props.selectedData.length === 1 && props.selectedData[0]?.progress_id === progress[advanceKey.value][0]?.id) {
           isAdvanceSet.value = true
         } else {
           isAdvanceSet.value = false

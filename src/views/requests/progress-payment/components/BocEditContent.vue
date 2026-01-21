@@ -14,14 +14,14 @@
       <a-row :gutter="24" class="mt-10">
         <a-col :span="12">
           <div class="info-content sys-form-content">
-            <p class="name mb-2">Loan</p>
-            <a-input v-model:value="bocInitSplitFormstate.loan" suffix="%" />
+            <p class="name mb-2">Borrower Equity</p>
+            <a-input v-model:value="bocInitSplitFormstate.borrowerEquity" suffix="%" />
           </div>
         </a-col>
         <a-col :span="12">
           <div class="info-content sys-form-content">
-            <p class="name mb-2">Borrower Equity</p>
-            <a-input v-model:value="bocInitSplitFormstate.borrowerEquity" suffix="%" />
+            <p class="name mb-2">Loan</p>
+            <a-input v-model:value="bocInitSplitFormstate.loan" suffix="%" />
           </div>
         </a-col>
       </a-row>
@@ -174,12 +174,12 @@
                   </div>
                   <div class="bottom-info">
                     <div class="flex justify-between">
-                      <vco-number :value="tool.times(Number(record?.['boc-payment-amount']?.per || 0), 100)" prefix="" suffix="%" size="fs_xs" :precision="2" :end="true" :bold="true" color="#eb4b6d"></vco-number>
                       <vco-number :value="tool.times(Number(tableData[index + 1]?.['boc-payment-amount']?.per || 0), 100)" prefix="" suffix="%" size="fs_xs" :precision="2" :end="true" :bold="true" color="#31bd65"></vco-number>
+                      <vco-number :value="tool.times(Number(record?.['boc-payment-amount']?.per || 0), 100)" prefix="" suffix="%" size="fs_xs" :precision="2" :end="true" :bold="true" color="#eb4b6d"></vco-number>
                     </div>
                     <div class="flex justify-between">
-                      <p>Loan</p>
                       <p>Borrower Equity</p>
+                      <p>Loan</p>
                     </div>
                   </div>
                 </div>
@@ -350,11 +350,11 @@
                 <div class="boc-info">
                   <div class="flex justify-between items-center">
                     <p>{{ t('BOC放款') }}</p>
-                    <vco-number :value="bocTotal" size="fs_xs" :precision="2" :end="true"></vco-number>
+                    <vco-number :value="bocTotal" size="fs_xs" :precision="2" color="#eb4b6d" :end="true"></vco-number>
                   </div>
                   <div class="flex justify-between items-center">
                     <p>{{ t('VS放款') }}</p>
-                    <vco-number :value="vsTotal" size="fs_xs" :precision="2" :end="true"></vco-number>
+                    <vco-number :value="vsTotal" size="fs_xs" :precision="2" color="#eb4b6d" :end="true"></vco-number>
                   </div>
                 </div>
               </div>
@@ -502,6 +502,11 @@
 
   const bocTotal = computed(() => {
     const bData = cloneDeep(bocSplitObjRef.value)
+    for (const key in bData) {
+      if (key.indexOf('$2') > -1) {
+        delete bData[key]
+      }
+    }
     const bDataNum = Object.values(bData).reduce((total, item) => {
       return Number(tool.plus(total, Number(item?.amount || 0)))
     }, 0);
@@ -510,7 +515,7 @@
   })
 
   const vsTotal = computed(() => {
-    return Number(tool.minus(tableTotal.value, bocTotal.value))
+    return Number(tool.minus(loanTotal.value, bocTotal.value))
   })
 
   const extractAmounts = (obj, keyword) => {
@@ -1453,7 +1458,7 @@
 
     const arr = []
     // 如果存在initial advance to fund deposit
-    if (advanceAmount.value) {
+    if (Number(advanceAmount.value)) {
       const advCopy = cloneDeep(advanceObj.value || {})
 
       delete advCopy.logs
@@ -1479,7 +1484,7 @@
     
     const bocSplitObj = cloneDeep(bocSplitObjRef.value)
     for (const key in bocSplitObj) {
-      if (bocSplitObj[key].amount > 0) {
+      if (Number(bocSplitObj[key].amount) > 0) {
         const bocItemInfo = cloneDeep(bocSplitObj[key])
         if (bocItemInfo.logs) {
           delete bocItemInfo.logs
@@ -2072,6 +2077,7 @@
     > p {
       font-size: 11px;
       color: #666;
+      white-space: nowrap;
     }
     :deep(.ant-statistic) {
       line-height: 1 !important;

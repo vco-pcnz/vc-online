@@ -110,7 +110,7 @@
 
       <!-- 审核 -->
       <template v-if="detail?.has_permission && detail?.amount > 0">
-        <AcceptFc v-if="detail?.mark === 'drawdown_fc'" :uuid="uuid" :detail="detail" :projectDetail="projectDetail" @change="update">
+        <AcceptFc v-if="detail?.mark === 'drawdown_fc'" :uuid="uuid" :detail="detail" :projectDetail="projectDetail" :productCode="projectDetail?.product?.code || ''" @change="update">
           <a-button type="dark" class="big uppercase" style="width: 100%" :loading="accept_loading"> {{ t('接受请求') }} </a-button>
         </AcceptFc>
         <a-button v-else-if="detail?.mark === 'drawdown_lm'" type="dark" class="big uppercase" style="width: 100%" @click="visible_tip = true">{{ t('接受请求') }}</a-button>

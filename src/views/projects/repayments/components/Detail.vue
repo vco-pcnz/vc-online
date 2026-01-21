@@ -85,7 +85,7 @@
         <div v-if="detail?.has_permission || hasPermission('projects:repayments:revoke')">
           <template v-if="detail?.has_permission">
             <!-- 对账 -->
-            <ReconciliationModal v-if="detail?.mark === 'repayment_lm_recon'" :detail="detail" :uuid="uuid" :type="2" @update="update">
+            <ReconciliationModal v-if="detail?.mark === 'repayment_lm_recon'" :detail="detail" :uuid="uuid" :type="2" :productCode="projectDetail?.product?.code || ''" @update="update">
               <a-button type="cyan" class="big uppercase" style="width: 100%"> {{ t('对账') }} </a-button>
             </ReconciliationModal>
             <!-- 接受请求 -->

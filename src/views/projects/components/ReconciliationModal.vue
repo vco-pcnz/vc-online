@@ -118,6 +118,10 @@ const { t } = useI18n();
 const emits = defineEmits(['update']);
 
 const props = defineProps({
+  productCode: {
+    type: String,
+    default: ''
+  },
   detail: {
     type: Object
   },
@@ -247,7 +251,7 @@ const isDis = (val) => {
   }
   if (val && props.type == 2) {
     // 全额还款
-    if (props.detail?.all_repayment) {
+    if (props.detail?.all_repayment || props.productCode === 'vsl') {
       if (Math.abs(props.detail?.amount) == val.amount && props.detail?.date === val.date) {
         return false;
       }

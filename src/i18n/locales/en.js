@@ -1355,5 +1355,8 @@ export default {
   "买断利息": "Buy-out Interest",
   "信托": "Trust",
   "辅助文件": "Supporting docs",
-  "贷款文件": "Loan docs"
+  "贷款文件": "Loan docs",
+  "罚息类型": "Penalty interest type",
+  "罚息利率": "Penalty interest rate",
+  "罚息减免天数": "Penalty interest waiver days"
 }

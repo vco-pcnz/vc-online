@@ -186,6 +186,51 @@
             </a-col>
           </template>
           
+          <a-col :span="24">
+            <div class="form-line"></div>
+          </a-col>
+          <a-col :span="8">
+            <a-form-item :label="t('罚息类型')" name="penalty_interest_type">
+              <a-select
+                v-model:value="formState.penalty_interest_type"
+                style="width: 100%"
+                :disabled="isDetails || !blockInfo.showEdit"
+                :options="penaltyTypeData"
+              ></a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="8">
+            <a-form-item :label="t('罚息利率')" name="penalty_interest_rate">
+              <a-input
+                v-model:value="formState.penalty_interest_rate"
+                style="width: 100%"
+                :disabled="isDetails || !blockInfo.showEdit"
+                :formatter="
+                  (value) =>
+                    `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                "
+                :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+              >
+                <template #suffix>%</template>
+              </a-input>
+            </a-form-item>
+          </a-col>
+          <a-col :span="8">
+            <a-form-item :label="t('罚息减免天数')" name="penalty_interest_days">
+              <a-input
+                v-model:value="formState.penalty_interest_days"
+                style="width: 100%"
+                :disabled="isDetails || !blockInfo.showEdit"
+                :formatter="
+                  (value) =>
+                    `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                "
+                :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+              >
+                <template #suffix>{{ t('天') }}</template>
+              </a-input>
+            </a-form-item>
+          </a-col>
 
           <a-col v-if="percentItems.length" :span="24">
             <div class="form-line"></div>
@@ -285,7 +330,6 @@
               </a-form-item>
             </a-col>
           </template>
-
           <a-col v-if="dollarItems.length" :span="24">
             <div class="form-line"></div>
           </a-col>
@@ -373,6 +417,7 @@
     projectAuditCheckMode,
     lendrEstabCalc
   } from '@/api/process';
+  import { systemDictDataApi } from "@/api/system/index"
   import emitter from '@/event';
   import useProcessStore from '@/store/modules/process';
   import tool, { numberStrFormat, selectDateFormat } from '@/utils/tool';
@@ -503,6 +548,21 @@
     }
     return Promise.resolve();
   };
+
+  // 正整数
+  const validateInt = (rule, value) => {
+    // 允许空值，必填由外层规则控制
+    if (value === null || value === undefined || value === '') {
+      return Promise.resolve();
+    }
+
+    const num = Number(value);
+    if (!Number.isInteger(num) || num <= 0) {
+      return Promise.reject(t('请输入正整数'));
+    }
+
+    return Promise.resolve();
+  };
   
   const getValidateInfo = (data) => {
     return (rule, value) => {
@@ -601,7 +661,10 @@
     totalDay: 0,
     repay_type: '',
     repay_day_type: '',
-    repay_day: ''
+    repay_day: '',
+    penalty_interest_type: '',
+    penalty_interest_rate: '7',
+    penalty_interest_days: ''
   });
 
   const formRules = ref({
@@ -622,6 +685,16 @@
     ],
     repay_day: [
       { required: true, message: t('请选择') + t('几号'), trigger: 'change' }
+    ],
+    penalty_interest_type: [
+      { required: true, message: t('请选择') + t('罚息类型'), trigger: 'change' }
+    ],
+    penalty_interest_rate: [
+      { required: true, validator: validateAmount(t('罚息利率')), trigger: 'blur' }
+    ],
+    penalty_interest_days: [
+      { required: true, message: t('请选择') + t('罚息减免天数'), trigger: 'blur' },
+      { validator: validateInt, trigger: 'blur' }
     ]
   });
 
@@ -992,12 +1065,15 @@ const interestChange = () => {
       linefeeFilter()
     });
 
-    const {repay_money, loan_money, repay_type, repay_day_type, repay_day} = props.lendingInfo
+    const {repay_money, loan_money, repay_type, repay_day_type, repay_day, penalty_interest_type, penalty_interest_rate, penalty_interest_days} = props.lendingInfo
     formState.value.loan_money = repay_money ? Number(repay_money) : ''
     formState.value.initial_amount = loan_money ? Number(loan_money) : ''
     formState.value.repay_type = Number(repay_type) ? String(repay_type) : ''
     formState.value.repay_day_type = Number(repay_day_type) ? String(repay_day_type) : ''
     formState.value.repay_day = Number(repay_day) ? String(repay_day) : ''
+    formState.value.penalty_interest_type = Number(penalty_interest_type) ? String(penalty_interest_type) : ''
+    formState.value.penalty_interest_rate = Number(penalty_interest_rate) ? String(penalty_interest_rate) : '7'
+    formState.value.penalty_interest_days = Number(penalty_interest_days) ? String(penalty_interest_days) : ''
 
     // 项目周期
     formState.value.time_date = [dayjs(props.lendingInfo.start_date), dayjs(props.lendingInfo.end_date)]
@@ -1122,6 +1198,9 @@ const interestChange = () => {
         delete credit__data.totalDay
         delete credit__data.estab_type
         delete credit__data.estab_inc_interest
+        delete credit__data.penalty_interest_type
+        delete credit__data.penalty_interest_rate
+        delete credit__data.penalty_interest_days
 
         const params = {
           code: props.blockInfo.code,
@@ -1133,6 +1212,9 @@ const interestChange = () => {
           // initial_amount: formState.value.initial_amount || 0,
           start_date: dayjs(formState.value.time_date[0]).format('YYYY-MM-DD'),
           end_date: dayjs(formState.value.time_date[1]).format('YYYY-MM-DD'),
+          penalty_interest_type: Number(formState.value.penalty_interest_type) || 0,
+          penalty_interest_rate: Number(formState.value.penalty_interest_rate) || 0,
+          penalty_interest_days: Number(formState.value.penalty_interest_days) || 0,
           credit__data
         };
 
@@ -1181,7 +1263,10 @@ const interestChange = () => {
           Number(val.estab_inc_interest) !== Number(formState.value.estab_inc_interest) ||
           val.repay_type !== formState.value.repay_type ||
           val.repay_day_type !== formState.value.repay_day_type ||
-          val.repay_day !== formState.value.repay_day
+          val.repay_day !== formState.value.repay_day ||
+          Number(val.penalty_interest_type) !== Number(formState.value.penalty_interest_type) ||
+          Number(val.penalty_interest_rate) !== Number(formState.value.penalty_interest_rate) ||
+          Number(val.penalty_interest_days) !== Number(formState.value.penalty_interest_days)
         ) {
           updateFormData()
         }
@@ -1200,8 +1285,21 @@ const interestChange = () => {
     lendingTarget.value = flag
   }
 
+  const penaltyTypeData = ref([])
+  const getPenaltyTypeData = () => {
+    systemDictDataApi({ code: 'lendr_penalty_interest_type' }).then((res) => {
+      penaltyTypeData.value = res.map((item) => {
+        return {
+          label: item.name,
+          value: Number(item.code)
+        }
+      })
+    })
+  }
+
   onMounted(() => {
     getFormItems();
+    getPenaltyTypeData();
     emitter.on('refreshIRR', handleRefreshIRR);
     emitter.on('blockShowTarget', blockShowTargetHandle)
   });

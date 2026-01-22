@@ -1305,7 +1305,7 @@ export default {
   "预计还款今天": "Est. payoff (today)",
   "已提取金额": "Drawn amount",
   "可提取金额": "Available to draw",
-  "BOC初始拆分比例": "BOC initial split ratio",
+  "BOC初始拆分比例": "BOC allocation ratio",
   "比例范围为{0}-{1}": "Ratio range is {0}-{1}",
   "申请已提交": "Application Submitted",
   "感谢您！您的贷款申请已提交成功。我们的贷款团队将尽快审核。": "Thank you! Your loan application has been successfully submitted. Our Lending Team will review it shortly.",

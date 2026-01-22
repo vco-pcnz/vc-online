@@ -469,11 +469,11 @@
                 <div class="boc-info">
                   <div class="flex justify-between items-center">
                     <p>{{ t('BOC放款') }}</p>
-                    <vco-number :value="bocTotal" size="fs_xs" :precision="2" :end="true"></vco-number>
+                    <vco-number :value="bocTotal" size="fs_xs" :precision="2" color="#eb4b6d" :end="true"></vco-number>
                   </div>
                   <div class="flex justify-between items-center">
                     <p>{{ t('VS放款') }}</p>
-                    <vco-number :value="vsTotal" size="fs_xs" :precision="2" :end="true"></vco-number>
+                    <vco-number :value="vsTotal" size="fs_xs" :precision="2" color="#eb4b6d" :end="true"></vco-number>
                   </div>
                 </div>
               </div>

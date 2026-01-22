@@ -14,14 +14,14 @@
       <a-row :gutter="24" class="mt-10">
         <a-col :span="12">
           <div class="info-content sys-form-content">
-            <p class="name mb-2">Loan</p>
-            <a-input v-model:value="bocInitSplitFormstate.loan" suffix="%" />
+            <p class="name mb-2">Borrower Equity</p>
+            <a-input v-model:value="bocInitSplitFormstate.borrowerEquity" suffix="%" />
           </div>
         </a-col>
         <a-col :span="12">
           <div class="info-content sys-form-content">
-            <p class="name mb-2">Borrower Equity</p>
-            <a-input v-model:value="bocInitSplitFormstate.borrowerEquity" suffix="%" />
+            <p class="name mb-2">Loan</p>
+            <a-input v-model:value="bocInitSplitFormstate.loan" suffix="%" />
           </div>
         </a-col>
       </a-row>
@@ -174,12 +174,12 @@
                   </div>
                   <div class="bottom-info">
                     <div class="flex justify-between">
-                      <vco-number :value="tool.times(Number(record?.['boc-payment-amount']?.per || 0), 100)" prefix="" suffix="%" size="fs_xs" :precision="2" :end="true" :bold="true" color="#eb4b6d"></vco-number>
                       <vco-number :value="tool.times(Number(tableData[index + 1]?.['boc-payment-amount']?.per || 0), 100)" prefix="" suffix="%" size="fs_xs" :precision="2" :end="true" :bold="true" color="#31bd65"></vco-number>
+                      <vco-number :value="tool.times(Number(record?.['boc-payment-amount']?.per || 0), 100)" prefix="" suffix="%" size="fs_xs" :precision="2" :end="true" :bold="true" color="#eb4b6d"></vco-number>
                     </div>
                     <div class="flex justify-between">
-                      <p>Loan</p>
                       <p>Borrower Equity</p>
+                      <p>Loan</p>
                     </div>
                   </div>
                 </div>
@@ -350,11 +350,11 @@
                 <div class="boc-info">
                   <div class="flex justify-between items-center">
                     <p>{{ t('BOC放款') }}</p>
-                    <vco-number :value="bocTotal" size="fs_xs" :precision="2" :end="true"></vco-number>
+                    <vco-number :value="bocTotal" size="fs_xs" :precision="2" color="#eb4b6d" :end="true"></vco-number>
                   </div>
                   <div class="flex justify-between items-center">
                     <p>{{ t('VS放款') }}</p>
-                    <vco-number :value="vsTotal" size="fs_xs" :precision="2" :end="true"></vco-number>
+                    <vco-number :value="vsTotal" size="fs_xs" :precision="2" color="#eb4b6d" :end="true"></vco-number>
                   </div>
                 </div>
               </div>
@@ -517,6 +517,11 @@
 
   const bocTotal = computed(() => {
     const bData = cloneDeep(bocSplitObjRef.value)
+    for (const key in bData) {
+      if (key.indexOf('$2') > -1) {
+        delete bData[key]
+      }
+    }
     const bDataNum = Object.values(bData).reduce((total, item) => {
       return Number(tool.plus(total, Number(item?.amount || 0)))
     }, 0);
@@ -525,7 +530,7 @@
   })
 
   const vsTotal = computed(() => {
-    return Number(tool.minus(tableTotal.value, bocTotal.value))
+    return Number(tool.minus(loanTotal.value, bocTotal.value))
   })
 
   const extractAmounts = (obj, keyword) => {
@@ -1541,7 +1546,7 @@
         }
       }
     })
-    const nameStr = `${projectDetail.value.base.project_apply_sn}`
+    const nameStr = `${projectDetail.value.project_apply_sn}`
     exportTableToExcel(tableNumData, headerData, nameStr)
   }
 
@@ -1562,6 +1567,10 @@
       const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
       const numData = jsonData.filter(item => !['Type', 'Initial advance to fund deposit', '类型'].includes(item[0]))
+
+      // 数据精度问题处理
+      const oldData = cloneDeep(numData)
+
       tableDataFill(numData)
 
       // 主动清除 input 内容

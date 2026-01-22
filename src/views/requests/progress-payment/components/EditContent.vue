@@ -1251,7 +1251,51 @@
       const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
       const numData = jsonData.filter(item => !['Type', 'Initial advance to fund deposit', '类型'].includes(item[0]))
-      tableDataFill(numData)
+
+      // 数据精度问题处理
+      const formatData = []
+      let loanUpTotal = 0
+      let equityUpTotal = 0
+
+      const toFixed2 = (num) => Number(Number(num || 0).toFixed(2))
+      const sumPlus = (total, num) => Number(tool.plus(total, num))
+
+      numData.forEach((row, idx) => {
+        const values = row.slice(1)
+        const total = toFixed2(values.reduce((t, n) => sumPlus(t, Number(n)), 0))
+
+        let frontTotal = 0
+        const fixedValues = values.map((num, i) => {
+          if (i === values.length - 1) return num
+          const fixed = toFixed2(num)
+          frontTotal = sumPlus(frontTotal, fixed)
+          return fixed
+        })
+
+        let last = toFixed2(tool.minus(total, frontTotal))
+        fixedValues[fixedValues.length - 1] = last
+
+        if (idx % 2 === 0) {
+          loanUpTotal = sumPlus(loanUpTotal, total)
+        } else {
+          equityUpTotal = sumPlus(equityUpTotal, total)
+        }
+
+        if (idx === numData.length - 2) {
+          const diff = toFixed2(tool.minus(buildAmount.value, loanUpTotal))
+          last = toFixed2(tool.plus(last, diff))
+        }
+
+        if (idx === numData.length - 1) {
+          const diff = toFixed2(tool.minus(borrowerEquity.value, equityUpTotal))
+          last = toFixed2(tool.plus(last, diff))
+        }
+
+        fixedValues[fixedValues.length - 1] = last
+        formatData.push([row[0], ...fixedValues])
+      })
+
+      tableDataFill(formatData)
 
       // 主动清除 input 内容
       fileInput.value = ''

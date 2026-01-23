@@ -103,10 +103,11 @@ const save = () => {
 const detail = ref({});
 const isEdit = ref(false);
 const init = (val) => {
-  detail.value = val;
+  detail.value = val || {};
   isEdit.value = tool.plus(val.amount || 0, 0) > 0;
   Object.keys(formState.value).forEach((key) => {
-    formState.value[key] = detail.value[key] === undefined ? formState.value[key] : detail.value[key];
+    const nextValue = detail.value?.[key];
+    formState.value[key] = nextValue === undefined ? formState.value[key] : nextValue;
   });
   if (detail.value?.buildlog) {
     formState.value.build__data = detail.value?.buildlog;

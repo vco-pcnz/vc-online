@@ -5,7 +5,14 @@
 
   <!-- boc放款选择 -->
   <a-modal :open="bocVisible" :title="t('进度付款阶段')" :width="1000" :footer="null" :keyboard="false" :maskClosable="false" class="middle-position" @cancel="bocVisible = false">
-    <boc-view-content v-if="bocVisible" :selected-data="bocSelectedData" :is-select="true" @selectDone="bocSelectDoneHandle"></boc-view-content>
+    <boc-view-content
+      v-if="bocVisible"
+      :selected-data="bocSelectedData"
+      :is-select="true"
+      :is-setting="true"
+      :is-supplement="true"
+      @selectDone="bocSelectDoneHandle"
+    ></boc-view-content>
   </a-modal>
 
   <div class="input-item" style="margin-top: 16px">

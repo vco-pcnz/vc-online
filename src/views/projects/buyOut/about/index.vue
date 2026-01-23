@@ -13,7 +13,7 @@
           <div class="content sys-form-content" v-if="projectInfo?.buyout?.state <= 0">
             <div class="input-item">
               <div class="label" :class="{ err: !formState.date && validate }">{{ t('日期') }}</div>
-              <a-date-picker class="datePicker" inputReadOnly :open="isOpen" v-model:value="formState.date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" :showToday="false" @change="initAmount()" />
+              <a-date-picker class="datePicker" inputReadOnly :open="isOpen" v-model:value="formState.date" :disabledDate="disabledDateFormat" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" :showToday="false" @change="initAmount()" />
             </div>
             <div class="input-item">
               <div class="label">{{ t('Boc总余额') }}</div>
@@ -174,6 +174,21 @@ const formState = ref({
   document: [],
   note: ''
 });
+
+const disabledDateFormat = (current) => {
+  const startDate = projectInfo.value?.date?.var_start_date;
+
+  if (current && current.isBefore(startDate, 'day')) {
+    return true;
+  }
+
+  const endDate = projectInfo.value?.date?.end_date;
+  if (current && current.isAfter(endDate, 'day')) {
+    return true;
+  }
+
+  return false;
+};
 
 const initAmount_loading = ref(false);
 const balance = ref('');

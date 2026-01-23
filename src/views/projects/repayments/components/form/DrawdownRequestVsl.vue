@@ -593,6 +593,11 @@ const calAmount = (rate, flag = false) => {
     params.StandardRate = Number(rate);
   }
 
+  
+  if (props.dataInfo?.id) {
+    params.verify_id = props.dataInfo?.id
+  }
+
   projectLoanAllRepayment(params)
     .then((res) => {
       formState.value.apply_amount = Number(res.last_money) ? Number(res.last_money) : 0;
@@ -764,11 +769,13 @@ const setFormData = (dataDetail) => {
 const downloadLoading = ref(false);
 const downloadStatement = () => {
   downloadLoading.value = true;
+
   projectLoanAllRepayment({
     uuid: props.uuid,
     date: formState.value.apply_date,
     pdf: 1,
-    less: formState.value.reduction_money || 0
+    less: formState.value.reduction_money || 0,
+    verify_id: props.dataInfo?.id
   })
     .then((res) => {
       downloadLoading.value = false;

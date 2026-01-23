@@ -48,6 +48,14 @@ export const loanRepayment = (params) =>
     params
   });
 
+// 还款计划-列表
+export const loanRepaymentSchedule = (params) =>
+  request({
+    url: 'project/loan/repaymentSchedule',
+    method: 'get',
+    params
+  });
+
 // lm修改实际还款金额
 export const loanRchange = (data) =>
   request({

@@ -1335,7 +1335,7 @@ export default {
   "还款日": "Due Date",
   "放款日对应日": "Anniversary",
   "每月固定日": "Fixed Date",
-  "每月最后一天": " End of Month",
+  "每月最后一天": "Month End",
   "几号": "Which day",
   "{0}号": "{0} th",
   "产品": "Product",
@@ -1361,4 +1361,9 @@ export default {
   "贷款文件": "Loan docs",
   "设置密码": "Set password",
   "设置你的密码": "Set your password",
+  "辅助文件": "Proposal - Supporting docs",
+  "贷款文件": "Legal Docs - Loan docs",
+  "罚息类型": "Penalty interest type",
+  "罚息利率": "Penalty interest rate",
+  "罚息减免天数": "Penalty interest waiver days"
 }

@@ -156,6 +156,10 @@ const props = defineProps({
   step: {
     type: Number,
     default: 0
+  },
+  isSupplement: { // 不是补充信息
+    type: Boolean,
+    default: false
   }
 })
 
@@ -215,7 +219,7 @@ const getSetedData = async () => {
     await ajaxFn(params).then(res => {
       const progress = cloneDeep(res.progress || {})
 
-      if (progress[advanceKey.value]) {
+      if (progress[advanceKey.value] && !props.isSupplement) {
          // 是否为启动资金首次放款已设置
         if (props.selectedData.length === 1 && props.selectedData[0].progress_id === progress[advanceKey.value][0]?.id) {
           isAdvanceSet.value = true

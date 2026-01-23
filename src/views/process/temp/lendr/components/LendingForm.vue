@@ -148,7 +148,7 @@
             <div class="form-line"></div>
           </a-col>
 
-          <a-col :span="8">
+          <a-col :span="12">
             <a-form-item :label="t('还款方式')" name="repay_type">
               <a-select
                 v-model:value="formState.repay_type"
@@ -161,7 +161,7 @@
           </a-col>
 
           <template v-if="[2, 3].includes(Number(formState.repay_type))">
-            <a-col :span="8">
+            <a-col :span="12">
               <a-form-item :label="t('还款日')" name="repay_day_type">
                 <a-select
                   v-model:value="formState.repay_day_type"
@@ -631,10 +631,10 @@
       label: t('放款日对应日'),
       value: '1'
     },
-    {
-      label: t('每月固定日'),
-      value: '2'
-    },
+    // {
+    //   label: t('每月固定日'),
+    //   value: '2'
+    // },
     {
       label: t('每月最后一天'),
       value: '3'

@@ -9,11 +9,18 @@
           <MeterStat :uuid="uuid" :type_id="type_id" :projectDetail="projectDetail" v-if="Boolean(uuid)" ref="MeterStatRef"></MeterStat>
           <template v-if="projectDetail && !projectDetail?.base?.is_close && (hasPermission('projects:repayments:add') || hasPermission('projects:repayments:calculator'))">
             <div class="HelpBorrower">
-              <calculator v-if="hasPermission('projects:repayments:calculator')" :uuid="uuid" :projectDetail="projectDetail">
-                <a-button :title="t('还款计算器')" type="brown" class="calculator-btn">
-                  <i class="iconfont">&#xe643;</i>
-                </a-button>
-              </calculator>
+              <template v-if="hasPermission('projects:repayments:calculator')">
+                <calculator v-if="projectDetail.product.code !== 'vsl'" :uuid="uuid" :projectDetail="projectDetail">
+                  <a-button :title="t('还款计算器')" type="brown" class="calculator-btn">
+                    <i class="iconfont">&#xe643;</i>
+                  </a-button>
+                </calculator>
+                <calculator-vsl v-else-if="projectDetail.product.code === 'vsl'" :uuid="uuid" :projectDetail="projectDetail">
+                  <a-button :title="t('还款计算器')" type="brown" class="calculator-btn">
+                    <i class="iconfont">&#xe643;</i>
+                  </a-button>
+                </calculator-vsl>
+              </template>
               <template v-if="hasPermission('projects:repayments:add')">
                 <template v-if="isNormalUser">
                   <div class="flex items-center">
@@ -82,6 +89,7 @@ import DrawdownRequest from './components/form/DrawdownRequest.vue';
 import DrawdownRequestVsl from './components/form/DrawdownRequestVsl.vue';
 import DrawdownRequestLendr from './components/form/DrawdownRequestLendr.vue';
 import Calculator from './components/form/Calculator.vue';
+import CalculatorVsl from './components/form/CalculatorVsl.vue';
 import { hasPermission } from '@/directives/permission/index';
 import { loanRepayment } from '@/api/project/loan';
 import { useRoute } from 'vue-router';

@@ -58,16 +58,8 @@
         </div>
       </a-col>
       <template v-if="detailData.all_repayment">
-        <a-col v-if="detailData.reduction_rate" :span="9" class="item-txt">
-          <p>
-            {{ t('建议标准税率') }} <span v-if="detailData.reduction_rate_old" class="pl-2">{{ `(${t('最小值')}: ${detailData.reduction_rate_old}%)` }}</span>
-          </p>
-          <vco-number :value="detailData.reduction_rate" prefix="" suffix="%" :precision="2"></vco-number>
-        </a-col>
         <a-col v-if="detailData.reduction_money" :span="9" class="item-txt">
-          <p>
-            {{ t('减免额度') }} <span v-if="detailData.reduction_money_old" class="pl-2">{{ `(${t('最大值')}: $${numberStrFormat(detailData.reduction_money_old)})` }}</span>
-          </p>
+          <p>{{ t('减免额度') }} <span v-if="detailData.reduction_money_old" class="pl-2"></span></p>
           <vco-number :value="detailData.reduction_money" :precision="2"></vco-number>
         </a-col>
         <a-col :span="6" class="item-txt">
@@ -166,6 +158,7 @@ const calAmount = () => {
   const time = props.detailData.apply_date;
   projectLoanAllRepayment({
     uuid: props.uuid,
+    verify_id: props.detailData?.id,
     date: time
   }).then((res) => {
     reductionAmount.value = Number(res.reduction_money) ? Number(res.reduction_money) : 0;

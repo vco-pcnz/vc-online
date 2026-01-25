@@ -26,14 +26,9 @@
                 </a-date-picker>
               </a-form-item>
             </a-col>
-            <a-col :span="12" v-if="formState.all_repayment !== 1">
+            <a-col :span="12">
               <a-form-item :label="t('还款金额1')">
                 <a-input-number v-model:value="formState.apply_amount" readonly :min="0" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="12" v-else>
-              <a-form-item :label="t('Boc剩余还款金额')">
-                <a-input-number :value="0" disabled :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
               </a-form-item>
             </a-col>
             <a-col :span="12" v-if="lender === 'VS'">
@@ -101,7 +96,7 @@
                         <template v-if="column.dataIndex === 'amount1'">
                           <a-input-number
                             v-model:value="record.apply_rep_amount"
-                            :disabled="record.all_repayment"
+                            :disabled="Boolean(record.all_repayment)"
                             :min="0"
                             :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                             :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
@@ -124,47 +119,19 @@
               <p style="color: #ff4d4f; position: absolute; bottom: 0px" v-if="drawdownListInspection">{{ t('请完善数据') }}</p>
             </a-col>
             <!-- (formState.all_repayment === 1 && maxReductionAmount ) -->
-            <template v-if="formState.all_repayment === 1 && maxReductionAmount && !isNormalUser && false">
-              <a-col :span="8">
-                <a-form-item class="data-col-item">
-                  <template #label>
-                    <div class="flex items-center gap-1">
-                      <span>{{ t('建议标准税率') }}</span>
-                      <span style="color: #31bd65">{{ `(${t('最小值')}: ${standardRate}%)` }}</span>
-                    </div>
-                  </template>
-                  <a-input-number
-                    :max="99999999999"
-                    :min="Number(standardRate)"
-                    v-model:value="standardRateInput"
-                    :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                    :controls="false"
-                    addon-after="%"
-                    :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                    @input="standardInputChange"
-                    @blur="standardInputBlur"
-                  />
-                </a-form-item>
-              </a-col>
-              <a-col :span="16">
-                <a-form-item :label="t('罚息减免最大额度')">
-                  <div class="input-number-content">
-                    <vco-number :bold="true" :value="standardAmount" :precision="2" size="fs_xl" :end="true"></vco-number>
-                  </div>
-                </a-form-item>
-              </a-col>
+            <template v-if="formState.all_repayment === 1 && !isNormalUser && maxReductionAmount">
               <a-col :span="7">
                 <a-form-item :label="t('还款总额')">
                   <a-input-number v-model:value="formState.apply_amount" :disabled="true" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
                 </a-form-item>
               </a-col>
               <a-col :span="1" class="plus-txt"><i class="iconfont">&#xe711;</i></a-col>
-              <a-col :span="8">
+              <a-col :span="9">
                 <a-form-item name="reduction_money" class="data-col-item">
                   <template #label>
                     <div class="flex items-center gap-1">
-                      <span>{{ t('减免额度') }}</span>
-                      <span style="color: #31bd65">{{ `(${t('最大值')}: $${numberStrFormat(showMaxReduction)})` }}</span>
+                      <span>{{ t('罚息减免额度') }}</span>
+                      <span style="color: #31bd65">{{ `(${t('罚息减免')}: $${numberStrFormat(showMaxReduction)})` }}</span>
                     </div>
                   </template>
                   <a-input-number
@@ -178,7 +145,7 @@
                 </a-form-item>
               </a-col>
               <a-col :span="1" class="plus-txt"><i class="iconfont">&#xe609;</i></a-col>
-              <a-col :span="6">
+              <a-col :span="5">
                 <a-form-item :label="t('还款金额1')">
                   <div class="input-number-content">
                     <vco-number :bold="true" :value="repaymentAmount" :precision="2" color="#31bd65" :end="true"></vco-number>
@@ -187,6 +154,11 @@
               </a-col>
             </template>
 
+            <a-col v-if="overdueDays" :span="6">
+              <a-form-item :label="t('逾期天数')">
+                <div class="show-date">{{ overdueDays }}</div>
+              </a-form-item>
+            </a-col>
             <a-col v-if="formState.all_repayment === 1" :span="6">
               <a-form-item>
                 <template #label>
@@ -198,12 +170,7 @@
                 <vco-number :value="irrPercent" prefix="" suffix="%" :precision="2" size="fs_md" :end="true"></vco-number>
               </a-form-item>
             </a-col>
-            <a-col v-if="overdueDays" :span="6">
-              <a-form-item :label="t('逾期天数')">
-                <div class="show-date">{{ overdueDays }}</div>
-              </a-form-item>
-            </a-col>
-            <a-col v-if="formState.all_repayment === 1 && formState.apply_date && hasPermission('projects:repayments:adDownload') && false" :span="overdueDays ? 12 : 16">
+            <a-col v-if="formState.all_repayment === 1 && formState.apply_date && hasPermission('projects:repayments:adDownload')" :span="overdueDays ? 12 : 16">
               <a-form-item :label="t('对账单')">
                 <a-button type="dark" class="uppercase shadow bold" :loading="downloadLoading" @click="downloadStatement">
                   {{ t('下载') }}
@@ -355,16 +322,6 @@ const refreshIrr = () => {
     do__est: 0
   };
 
-  // if (extraData.value) {
-  //   params.last_money = extraData.value.finalRepaymentAmount;
-  //   params.extra = extraData.value.data;
-  //   params.extra_amount = Number(extraData.value.extraAmount || 0);
-  // }
-
-  // if (isAllCancel.value) {
-  //   params.edit = 1;
-  // }
-
   projectLoanCalcIrr(params)
     .then((res) => {
       irrPercent.value = Number(res.irr || 0) < 0 ? 0 : Number(res.irr || 0);
@@ -501,8 +458,6 @@ const submit = () => {
   };
 
   if (params.all_repayment) {
-    params.reduction_rate = standardRateInput.value;
-    params.reduction_rate_old = standardRate.value;
     params.reduction_money_old = showMaxReduction.value;
   } else {
     delete params.reduction_money;
@@ -552,66 +507,25 @@ const submit = () => {
 
 const getLoading = ref(false);
 
-const hasSetStandard = ref(false);
-const standardRate = ref(0);
-const standardRateInput = ref(0);
-const standardAmount = ref(0);
-
-// 防抖处理
-const standardInputChange = debounce((value) => {
-  const num = Number(value);
-  if (num > Number(standardRate.value)) {
-    calAmount(num);
-  }
-}, 300);
-
-const standardInputBlur = () => {
-  const num = Number(standardRateInput.value) || 0;
-  if (num < Number(standardRate.value) || num === Number(standardRate.value)) {
-    standardRateInput.value = Number(standardRate.value);
-    setTimeout(() => {
-      calAmount(standardRateInput.value);
-    }, 200);
-  }
-};
-
-const calAmount = (rate, flag = false) => {
+const calAmount = () => {
   getLoading.value = true;
-
-  if (!rate || isNaN(Number(rate))) {
-    hasSetStandard.value = false;
-  }
 
   const time = formState.value.apply_date;
   const params = {
     uuid: props.uuid,
     date: time,
-    verify: 1
+    verify: 1,
+    reduction_money: formState.value.reduction_money
   };
 
-  if (rate && !isNaN(Number(rate))) {
-    params.StandardRate = Number(rate);
-  }
-
-  
   if (props.dataInfo?.id) {
-    params.verify_id = props.dataInfo?.id
+    params.verify_id = props.dataInfo?.id;
   }
 
   projectLoanAllRepayment(params)
     .then((res) => {
       formState.value.apply_amount = Number(res.last_money) ? Number(res.last_money) : 0;
       maxReductionAmount.value = Number(res.reduction_money) ? Number(res.reduction_money) : 0;
-
-      if (!hasSetStandard.value) {
-        standardRate.value = res.min_StandardRate;
-        if (!flag) {
-          standardRateInput.value = res.StandardRate;
-          standardAmount.value = res.reduction_money;
-        }
-
-        hasSetStandard.value = true;
-      }
 
       if (isRestIrr.value) {
         isRestIrr.value = false;
@@ -621,9 +535,6 @@ const calAmount = (rate, flag = false) => {
         refreshIrr();
       }
 
-      if (!flag) {
-        formState.value.reduction_money = 0;
-      }
       getLoading.value = false;
     })
     .catch(() => {
@@ -745,16 +656,8 @@ const setFormData = (dataDetail) => {
 
   if (data.all_repayment) {
     const time = formState.value.apply_date;
-    const params = {
-      uuid: props.uuid,
-      date: time
-    };
-    projectLoanAllRepayment(params).then((res) => {
-      standardAmount.value = res.reduction_money;
-    });
 
-    standardRateInput.value = data.reduction_rate || 0;
-    calAmount(data.reduction_rate, Boolean(standardRateInput.value));
+    calAmount();
   }
 
   // formState.value.drawdown_account = data.drawDown.map((item) => {
@@ -814,6 +717,19 @@ const drawdownListInspection = ref(false);
 const disabledIds = ref([]);
 // VS 且全额还款时用于禁用操作的标记
 const isVsAll_repayment = computed(() => lender.value === 'VS' && Boolean(formState.value.all_repayment));
+
+const handleApplyDateAndRepaymentChange = () => {
+  // TODO: add fill logic here.
+  if (formState.value.apply_date && formState.value.all_repayment === 1) {
+    isRestIrr.value = true;
+    calAmount();
+  } else {
+    maxReductionAmount.value = 0;
+  }
+  formState.value.note = formState.value.all_repayment === 1 ? 'Full Repayment' : formState.value.note === 'Full Repayment' ? '' : formState.value.note;
+};
+
+watch([() => formState.value.apply_date, () => formState.value.all_repayment], handleApplyDateAndRepaymentChange);
 
 // 通过 id 获取放款名称，便于展示 title
 const getDrawdownName = (id) => {
@@ -918,13 +834,7 @@ watch(
   (val) => {
     disabledIds.value = val.filter((item) => item.id != null && item.id !== '').map((item) => item.id);
     // 如果是vs全额还款
-    if (formState.value.apply_date && formState.value.all_repayment === 1) {
-      isRestIrr.value = true;
-      calAmount();
-    } else {
-      maxReductionAmount.value = 0;
-    }
-    formState.value.note = formState.value.all_repayment === 1 ? 'Full Repayment' : formState.value.note === 'Full Repayment' ? '' : formState.value.note;
+
     formState.value.apply_amount = params_repayment().reduce((sum, item) => {
       return tool.plus(sum, item.amount || 0); // 使用 || 0 防止 NaN
     }, 0);

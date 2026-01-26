@@ -459,6 +459,8 @@ const submit = () => {
 
   if (params.all_repayment) {
     params.reduction_money_old = showMaxReduction.value;
+    params.reduction_irr = irrPercent.value;
+    params.reduction_irr_old = oldIrrNumber.value;
   } else {
     delete params.reduction_money;
   }

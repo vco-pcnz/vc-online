@@ -842,7 +842,10 @@ const setFormData = () => {
     standardRateInput.value = data.reduction_rate || 0;
     calAmount(data.reduction_rate, Boolean(standardRateInput.value));
   }
-  
+
+  if (formState.value.reduction_money) {
+    formState.value.apply_amount = tool.plus(Number(formState.value.apply_amount || 0), Number(formState.value.reduction_money || 0));
+  }
   loadCalcRepayment()
 };
 

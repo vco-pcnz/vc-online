@@ -30,7 +30,7 @@
                 </a-select>
               </a-form-item>
             </a-col>
-            <a-col :span="formState.all_repayment === 1 && maxReductionAmount && !isNormalUser ? 8 : 12">
+            <a-col :span="12">
               <a-form-item :label="t('还款日期')" name="apply_date">
                 <a-date-picker v-model:value="formState.apply_date" :format="selectDateFormat()" placeholder="" @change="dateChange">
                   <template #suffixIcon>
@@ -45,7 +45,7 @@
                 <template #label>
                   <div class="flex items-center gap-1">
                     <span>{{ t('还款金额1') }}</span>
-                    <span style="color: #31bd65">{{ `(${t('最大值')}: $${numberStrFormat(calcRepaymentData?.last_money)})` }}</span>
+                    <span v-if="formState.all_repayment !== 1" style="color: #31bd65">{{ `(${t('最大值')}: $${numberStrFormat(calcRepaymentData?.last_money)})` }}</span>
                   </div>
                 </template>
                 <a-input-number
@@ -685,10 +685,14 @@ const dateChange = (date) => {
     formState.value.apply_amount = 0;
     maxReductionAmount.value = 0;
   }
+  loadCalcRepayment();
+};
 
+// lendr还款金额试算
+const loadCalcRepayment = () => {
   calcRepayment({
     uuid: props.uuid,
-    date: dayjs(date).format('YYYY-MM-DD')
+    date: dayjs(formState.value.date).format('YYYY-MM-DD')
   })
     .then((res) => {
       calcRepaymentData.value = res;
@@ -705,8 +709,8 @@ const typeChange = () => {
     isRestIrr.value = true;
     calAmount();
   } else {
-    formState.value.apply_amount = 0;
-    maxReductionAmount.value = 0;
+    // formState.value.apply_amount = 0;
+    // maxReductionAmount.value = 0;
   }
   formState.value.note = formState.value.all_repayment === 1 ? 'Full Repayment' : '';
 };
@@ -834,6 +838,8 @@ const setFormData = () => {
     standardRateInput.value = data.reduction_rate || 0;
     calAmount(data.reduction_rate, Boolean(standardRateInput.value));
   }
+  
+  loadCalcRepayment()
 };
 
 const downloadLoading = ref(false);

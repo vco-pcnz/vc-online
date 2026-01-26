@@ -1364,5 +1364,6 @@ export default {
   "本期计划应付": "Scheduled Amount Due",
   "实际还款金额/还款日期": "Paid Amount / Paid Date",
   "未付金额": "Arrears",
-  "应计违约利息": "Accrued default interest"
+  "应计违约利息": "Accrued default interest",
+  "欠款金额": "Amount owed"
 }

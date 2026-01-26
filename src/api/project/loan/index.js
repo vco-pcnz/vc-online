@@ -488,3 +488,11 @@ export const repaymentDetail = (params) =>
     method: 'get',
     params
   });
+
+// lendr还款金额试算
+export const calcRepayment = (data) =>
+  request({
+    url: 'project/loan/calcRepayment',
+    method: 'post',
+    data
+  });

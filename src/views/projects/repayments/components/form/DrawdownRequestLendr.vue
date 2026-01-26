@@ -556,6 +556,10 @@ const submit = () => {
     }
   }
 
+  if (params.reduction_money) {
+    params.reduction_money_old = showMaxReduction.value;
+  }
+
   if (relatedData.value.length) {
     const security = relatedData.value.map((item) => {
       return {

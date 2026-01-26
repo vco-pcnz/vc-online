@@ -425,7 +425,7 @@
 
   const processStore = useProcessStore();
 
-  const emits = defineEmits(['done', 'refresh', 'openData', 'compareDone']);
+  const emits = defineEmits(['done', 'refresh', 'openData', 'compareDone', 'penaltyDone']);
 
   const { t } = useI18n();
 
@@ -1294,6 +1294,8 @@ const interestChange = () => {
           value: Number(item.code)
         }
       })
+
+      emits('penaltyDone', penaltyTypeData.value);
     })
   }
 

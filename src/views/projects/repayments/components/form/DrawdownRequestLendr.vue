@@ -692,7 +692,7 @@ const dateChange = (date) => {
 const loadCalcRepayment = () => {
   calcRepayment({
     uuid: props.uuid,
-    date: dayjs(formState.value.date).format('YYYY-MM-DD')
+    date: dayjs(formState.value.apply_date).format('YYYY-MM-DD')
   })
     .then((res) => {
       calcRepaymentData.value = res;

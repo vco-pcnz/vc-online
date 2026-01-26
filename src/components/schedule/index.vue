@@ -606,7 +606,8 @@ const adSubmitRequest = () => {
   adLoading.value = true;
   const params = {
     uuid: props.currentId,
-    pdf: props.isClose ? 3 : 2
+    pdf: props.isClose ? 3 : 2,
+    lender: type_id.value
   };
   // if (!props.isClose) {
   params.s_date = adFormState.s_date ? dayjs(adFormState.s_date).format('YYYY-MM-DD') : '';

@@ -1365,5 +1365,6 @@ export default {
   "贷款文件": "Legal Docs - Loan docs",
   "罚息类型": "Penalty interest type",
   "罚息利率": "Penalty interest rate",
-  "罚息减免天数": "Penalty interest waiver days"
+  "罚息减免天数": "Penalty interest waiver days",
+  "导入数据格式不正确，如数据为0，请填写0不要留空": "The import data format is incorrect, if the data is 0, please fill in 0 not leave blank"
 }

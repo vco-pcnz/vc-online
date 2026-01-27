@@ -14,7 +14,10 @@
       </a-button>
     </div>
   </vco-page-panel>
-  <slot name="content"></slot>
+  
+  <a-spin :spinning="loading" size="large">
+    <slot name="content"></slot>
+  </a-spin>
 </template>
 
 <script setup>
@@ -71,9 +74,11 @@ const back = () => {
 };
 
 const detail = ref(null);
+const loading = ref(false);
 const getProjectDetail = async (userId) => {
   const uuid = userId || route.query.uuid;
 
+  loading.value = true;
   const variationInfo = await projectVariationInfo({
     uuid: route.query.uuid,
     id: route.query.id,
@@ -89,6 +94,7 @@ const getProjectDetail = async (userId) => {
       }
       detail.value = res;
       emits('getProjectDetail', res);
+      loading.value = false;
     });
   }
 };

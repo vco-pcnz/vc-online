@@ -39,6 +39,12 @@
           <vco-number :value="detailData.reduction_irr" prefix="" suffix="%" :precision="2" ></vco-number>
         </a-col>
       </template>
+      <template v-else>
+        <a-col v-if="Number(detailData.reduction_money)" :span="9" class="item-txt">
+          <p>{{ t('减免额度') }} <span v-if="detailData.reduction_money_old" class="pl-2">{{ `(${t('最大值')}: $${numberStrFormat(detailData.reduction_money_old)})` }}</span></p>
+          <vco-number :value="detailData.reduction_money" :precision="2" ></vco-number>
+        </a-col>
+      </template>
       <a-col :span="24" class="item-txt">
         <p>{{ t('还款说明') }}</p>
         <p>{{ detailData.note || '--' }}</p>

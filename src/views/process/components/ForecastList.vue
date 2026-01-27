@@ -108,7 +108,7 @@
           >
             {{ t('明细表') }}
           </a-button>
-          <a-button v-if="!isDetails && blockInfo.showEdit" type="primary" shape="round" size="small" class="uppercase" @click="addEditHandle(null)">
+          <a-button v-if="!isDetails && blockInfo.showEdit && !isLendr" type="primary" shape="round" size="small" class="uppercase" @click="addEditHandle(null)">
             {{ t('添加') }}
           </a-button>
         </div>
@@ -121,7 +121,7 @@
             <div class="item uppercase two">{{ t('类型') }}</div>
             <div v-if="isVsl" class="item uppercase five">{{ t('贷款方') }}</div>
             <div class="item uppercase three">{{ t('金额') }}</div>
-            <div v-if="!isDetails && blockInfo.showEdit" class="item uppercase four">{{ t('操作1') }}</div>
+            <div v-if="!isDetails && blockInfo.showEdit && !isLendr" class="item uppercase four">{{ t('操作1') }}</div>
             <div v-else class="empty"></div>
           </div>
 
@@ -134,7 +134,7 @@
                 <div class="item three">
                   <vco-number :value="_item.amount" :precision="2" :end="true"></vco-number>
                 </div>
-                <div v-if="!isDetails && blockInfo.showEdit" class="item ops four">
+                <div v-if="!isDetails && blockInfo.showEdit && !isLendr" class="item ops four">
                   <i class="iconfont" :class="{ disabled: _item.first }" @click="addEditHandle(_item, index, _index)">&#xe8cf;</i>
                   <i class="iconfont" :class="{ disabled: _item.first }" @click="removeHandle(_item)">&#xe8c1;</i>
                 </div>
@@ -307,6 +307,11 @@ const disabledDates = computed(() => {
 const isVsl = computed(() => {
   const productCode = props.infoData?.base?.productCode || props.productType || '';
   return productCode.toLowerCase() === 'vsl';
+});
+
+const isLendr = computed(() => {
+  const productCode = props.infoData?.base?.productCode || props.productType || '';
+  return productCode.toLowerCase() === 'lendr';
 });
 
 const vsDrawDownNum = computed(() => {

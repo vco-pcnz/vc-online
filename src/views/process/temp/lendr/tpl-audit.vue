@@ -89,6 +89,7 @@
             @lendingDone="showForecast = true"
             @openData="openDataHandle"
             @compareDone="compareDoneHandle"
+            @penaltyDone="penaltyDoneHandle"
           ></temp-block>
 
           <div v-if="dataInfo.base.alm_review" class="block-item mb">
@@ -414,6 +415,22 @@
         })
       }
 
+      if (Number(obj?.penalty_rate) !== Number(staticFormData?.penalty_rate)) {
+        arr.unshift({
+          name: t('罚息利率'),
+          before: `$${numberStrFormat(Number(staticFormData?.penalty_rate))}%`,
+          now: `$${numberStrFormat(Number(obj?.penalty_rate))}%`
+        })
+      }
+
+      if (Number(obj?.penalty_type) !== Number(staticFormData?.penalty_type)) {
+        arr.unshift({
+          name: t('罚息类型'),
+          before: findPenaltyName(staticFormData?.penalty_type),
+          now: findPenaltyName(obj?.penalty_type)
+        })
+      }
+
       if (Number(obj?.repay_day_type) !== Number(staticFormData?.repay_day_type)) {
         arr.unshift({
           name: t('还款日'),
@@ -608,6 +625,15 @@
     changeBackItems.value = data.changeBack || []
     nowChangeData.value = data.nowChangeData || {}
     creditTableInfo.value = data.creditTableInfo || []
+  }
+
+  const penaltyData = ref([])
+  const penaltyDoneHandle = (data) => {
+    penaltyData.value = data;
+  }
+
+  const findPenaltyName = (type) => {
+    return penaltyData.value.find(item => Number(item.value) === Number(type))?.label || '';
   }
 
   // 退回操作

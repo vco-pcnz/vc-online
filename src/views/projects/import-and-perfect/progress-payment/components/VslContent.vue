@@ -1566,6 +1566,13 @@
       // 转换为 JSON
       const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
+      for (let i = 0; i < jsonData.length; i++) {
+        if (jsonData[i].length !== jsonData[0].length) {
+          message.error(t('导入数据格式不正确，如数据为0，请填写0不要留空'))
+          return false
+        }
+      }
+
       const numData = jsonData.filter(item => !['Type', 'Initial advance to fund deposit', '类型'].includes(item[0]))
 
       // 数据精度问题处理
@@ -1598,7 +1605,8 @@
         }
 
         if (idx === numData.length - 2) {
-          const diff = toFixed2(tool.minus(buildAmount.value, loanUpTotal))
+          const loanAdvTotal = tool.plus(Number(loanUpTotal || 0), Number(advanceAmount.value || 0))
+          const diff = toFixed2(tool.minus(buildAmount.value, loanAdvTotal))
           last = toFixed2(tool.plus(last, diff))
         }
 

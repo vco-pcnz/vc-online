@@ -1366,5 +1366,6 @@ export default {
   "罚息类型": "Penalty interest type",
   "罚息利率": "Penalty interest rate",
   "罚息减免天数": "Penalty interest waiver days",
-  "还款金额不能小于等于0": "Repayment amount cannot be less than or equal to 0"
+  "还款金额不能小于等于0": "Repayment amount cannot be less than or equal to 0",
+  "导入数据格式不正确，如数据为0，请填写0不要留空": "The import data format is incorrect, if the data is 0, please fill in 0 not leave blank"
 }

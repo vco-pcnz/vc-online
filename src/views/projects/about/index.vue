@@ -136,7 +136,7 @@
 
               <!-- vsl买断 -->
               <template v-if="detail?.product?.code === 'vsl' && (hasPermission('projects:about:buyout') || hasPermission('projects:about:buyout:review'))">
-                <BuyOutForm v-if="detail?.buyout?.state <= 0 && hasPermission('projects:about:buyout')" :uuid="currentId" :detail="detail" :data="detail?.buyout.data" @update="update">
+                <BuyOutForm v-if="detail?.buyout?.state <= 0 && hasPermission('projects:about:buyout')" :uuid="currentId" :detail="detail" :data="detail?.buyout.data" @update="buyoutSuccess()">
                   <a-button type="brown" shape="round" size="small">{{ t('买断') }}</a-button>
                 </BuyOutForm>
                 <a-button v-else-if="detail?.buyout?.state > 0" type="brown" shape="round" size="small" @click="navigationTo(`/projects/buyOut?uuid=${currentId}`)">{{ t('买断') }}</a-button>
@@ -222,6 +222,11 @@ const disabledDateFormat = (current) => {
   }
 
   return false;
+};
+
+const buyoutSuccess = () => {
+  update();
+  navigationTo(`/projects/buyOut?uuid=${currentId.value}`);
 };
 
 const toBeClosedFormData = ref([

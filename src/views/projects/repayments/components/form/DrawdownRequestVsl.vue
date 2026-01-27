@@ -98,6 +98,7 @@
                             v-model:value="record.apply_rep_amount"
                             :disabled="Boolean(record.all_repayment)"
                             :min="0"
+                            :max="record.total_amount"
                             :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                             :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                             class="mini"

@@ -52,9 +52,9 @@
                     <a-table rowKey="uuid" :columns="DrawdownColumns" :data-source="drawdownList" :pagination="false" table-layout="fixed" :scroll="{ y: 300 }">
                       <template #bodyCell="{ column, record, index }">
                         <template v-if="column.dataIndex === 'name'">
-                          <a-select v-model:value="record.id" :maxTagCount="1" class="mini" @change="loadDrawdown($event, index)" :disabled="isVsAll_repayment" :title="getDrawdownName(record.id)">
+                          <a-select v-model:value="record.sn" :maxTagCount="1" class="mini" @change="loadDrawdown($event, index)" :disabled="isVsAll_repayment" :title="getDrawdownName(record.sn)">
                             <template v-for="(item, index) in drawDownSelectedList" :key="index">
-                              <a-select-option :value="item.id" :disabled="disabledIds.includes(item.id)" :title="item.name">{{ item.name }}</a-select-option>
+                              <a-select-option :value="item.sn" :disabled="disabledIds.includes(item.sn)" :title="item.name">{{ item.name }}</a-select-option>
                             </template>
                           </a-select>
                         </template>
@@ -63,12 +63,12 @@
                             <vco-number size="fs_md" :value="record.amount" :precision="2"></vco-number>
                             <div class="flex justify-center items-center gap-1">
                               <vco-number style="opacity: 0.6" size="fs_md" :value="record.total_interest" :precision="2"></vco-number>
-                              <i class="iconfont edit-icon" v-if="!record.interest_status && record.id" @click="record.interest_status = 1">&#xe743;</i>
+                              <i class="iconfont edit-icon" v-if="!record.interest_status && record.sn" @click="record.interest_status = 1">&#xe743;</i>
                             </div>
                           </div>
                         </template>
                         <template v-if="column.dataIndex === 'reality_interest'">
-                          <div class="flex justify-center items-center gap-1" v-if="record.interest_status == 1 && record.id">
+                          <div class="flex justify-center items-center gap-1" v-if="record.interest_status == 1 && record.sn">
                             <a-input-number
                               v-model:value="record.reality_interest"
                               :min="0"
@@ -728,8 +728,8 @@ const handleApplyDateAndRepaymentChange = () => {
 watch([() => formState.value.apply_date, () => formState.value.all_repayment], handleApplyDateAndRepaymentChange);
 
 // 通过 id 获取放款名称，便于展示 title
-const getDrawdownName = (id) => {
-  const target = drawDownSelectedList.value.find((item) => item.id === id);
+const getDrawdownName = (sn) => {
+  const target = drawDownSelectedList.value.find((item) => item.sn === sn);
   return target ? target.name : '';
 };
 
@@ -758,7 +758,7 @@ watch([() => lender.value, () => formState.value.all_repayment], ([vsLoan, allRe
 const loadDrawdown = (e, index) => {
   if (formState.value.apply_date && e !== '') {
     drawdownListLoading.value = true;
-    drawDownLists({ uuid: props.uuid, date: formState.value.apply_date, ids: e })
+    drawDownLists({ uuid: props.uuid, date: formState.value.apply_date, sn: e })
       .then((res) => {
         drawdownList.value[index] = res.drawDown[0];
         res['interest_status'] = 0;
@@ -773,7 +773,7 @@ const loadDrawdown = (e, index) => {
 const addDrawdownColumnsItem = () => {
   drawdownList.value.push({
     amount: '',
-    id: '',
+    sn: '',
     interest: '',
     interest_day: 0,
     name: '',
@@ -814,7 +814,7 @@ const params_repayment = () => {
       }
     }
     return {
-      id: item.id,
+      sn: item.sn,
       re_type: item.re_type,
       source: item.source,
       all_repayment: item.all_repayment,
@@ -828,7 +828,7 @@ const params_repayment = () => {
 watch(
   () => drawdownList.value,
   (val) => {
-    disabledIds.value = val.filter((item) => item.id != null && item.id !== '').map((item) => item.id);
+    disabledIds.value = val.filter((item) => item.sn != null && item.sn !== '').map((item) => item.sn);
     // 如果是vs全额还款
 
     formState.value.apply_amount = params_repayment().reduce((sum, item) => {

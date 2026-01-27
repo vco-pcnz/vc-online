@@ -164,6 +164,7 @@
           @done="doneHandle('lendingDone')"
           @openData="openDataHanle"
           @compareDone="compareDoneHandle"
+          @penaltyDone="penaltyDoneHandle"
         ></lending-form>
       </template>
 
@@ -239,7 +240,7 @@ import emitter from '@/event';
 import { useUserStore } from '@/store';
 
 const { t } = useI18n();
-const emits = defineEmits(['refresh', 'lendingDone', 'openData', 'compareDone']);
+const emits = defineEmits(['refresh', 'lendingDone', 'openData', 'compareDone', 'penaltyDone']);
 
 const props = defineProps({
   blockArr: {
@@ -348,6 +349,10 @@ const openDataHanle = (data) => {
 
 const compareDoneHandle = (data) => {
   emits('compareDone', data);
+};
+
+const penaltyDoneHandle = (data) => {
+  emits('penaltyDone', data);
 };
 
 const blockShowTargetHandle = (flag) => {

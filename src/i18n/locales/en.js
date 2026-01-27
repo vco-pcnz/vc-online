@@ -1367,5 +1367,12 @@ export default {
   "罚息利率": "Penalty interest rate",
   "罚息减免天数": "Penalty interest waiver days",
   "还款金额不能小于等于0": "Repayment amount cannot be less than or equal to 0",
-  "导入数据格式不正确，如数据为0，请填写0不要留空": "The import data format is incorrect, if the data is 0, please fill in 0 not leave blank"
+  "导入数据格式不正确，如数据为0，请填写0不要留空": "The import data format is incorrect, if the data is 0, please fill in 0 not leave blank",
+  "查看还款计划": "View Repayment Schedule",
+  "还款计划1": "Repayment Schedule",
+  "本期计划应付": "Scheduled Amount Due",
+  "实际还款金额/还款日期": "Paid Amount / Paid Date",
+  "未付金额": "Arrears",
+  "应计违约利息": "Accrued default interest",
+  "欠款金额": "Amount owed"
 }

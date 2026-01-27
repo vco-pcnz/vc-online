@@ -190,9 +190,9 @@
             <div class="form-line"></div>
           </a-col>
           <a-col :span="8">
-            <a-form-item :label="t('罚息类型')" name="penalty_interest_type">
+            <a-form-item :label="t('罚息类型')" name="penalty_type">
               <a-select
-                v-model:value="formState.penalty_interest_type"
+                v-model:value="formState.penalty_type"
                 style="width: 100%"
                 :disabled="isDetails || !blockInfo.showEdit"
                 :options="penaltyTypeData"
@@ -200,9 +200,9 @@
             </a-form-item>
           </a-col>
           <a-col :span="8">
-            <a-form-item :label="t('罚息利率')" name="penalty_interest_rate">
+            <a-form-item :label="t('罚息利率')" name="penalty_rate">
               <a-input
-                v-model:value="formState.penalty_interest_rate"
+                v-model:value="formState.penalty_rate"
                 style="width: 100%"
                 :disabled="isDetails || !blockInfo.showEdit"
                 :formatter="
@@ -216,11 +216,11 @@
             </a-form-item>
           </a-col>
           <a-col :span="8">
-            <a-form-item :label="t('罚息减免天数')" name="penalty_interest_days">
+            <a-form-item :label="t('罚息减免天数')" name="grace_day">
               <a-input
-                v-model:value="formState.penalty_interest_days"
+                v-model:value="formState.grace_day"
                 style="width: 100%"
-                :disabled="isDetails || !blockInfo.showEdit"
+                :disabled="true"
                 :formatter="
                   (value) =>
                     `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -417,7 +417,7 @@
     projectAuditCheckMode,
     lendrEstabCalc
   } from '@/api/process';
-  import { systemDictDataApi } from "@/api/system/index"
+  import { systemDictDataApi, systemConfigData } from "@/api/system/index"
   import emitter from '@/event';
   import useProcessStore from '@/store/modules/process';
   import tool, { numberStrFormat, selectDateFormat } from '@/utils/tool';
@@ -425,7 +425,7 @@
 
   const processStore = useProcessStore();
 
-  const emits = defineEmits(['done', 'refresh', 'openData', 'compareDone']);
+  const emits = defineEmits(['done', 'refresh', 'openData', 'compareDone', 'penaltyDone']);
 
   const { t } = useI18n();
 
@@ -662,9 +662,9 @@
     repay_type: '',
     repay_day_type: '',
     repay_day: '',
-    penalty_interest_type: '',
-    penalty_interest_rate: '7',
-    penalty_interest_days: ''
+    penalty_type: '',
+    penalty_rate: '',
+    grace_day: ''
   });
 
   const formRules = ref({
@@ -686,13 +686,13 @@
     repay_day: [
       { required: true, message: t('请选择') + t('几号'), trigger: 'change' }
     ],
-    penalty_interest_type: [
+    penalty_type: [
       { required: true, message: t('请选择') + t('罚息类型'), trigger: 'change' }
     ],
-    penalty_interest_rate: [
+    penalty_rate: [
       { required: true, validator: validateAmount(t('罚息利率')), trigger: 'blur' }
     ],
-    penalty_interest_days: [
+    grace_day: [
       { required: true, message: t('请选择') + t('罚息减免天数'), trigger: 'blur' },
       { validator: validateInt, trigger: 'blur' }
     ]
@@ -818,7 +818,7 @@
   }
 
   const establishCalculateHandle = () => {
-    if (props.isDetails || !props.blockInfo.showEdit) {
+    if (props.isDetails || !props.blockInfo.showEdit || !formState.value.repay_type) {
       return false
     }
 
@@ -1065,15 +1065,15 @@ const interestChange = () => {
       linefeeFilter()
     });
 
-    const {repay_money, loan_money, repay_type, repay_day_type, repay_day, penalty_interest_type, penalty_interest_rate, penalty_interest_days} = props.lendingInfo
+    const {repay_money, loan_money, repay_type, repay_day_type, repay_day, penalty_type, penalty_rate, grace_day} = props.lendingInfo
     formState.value.loan_money = repay_money ? Number(repay_money) : ''
     formState.value.initial_amount = loan_money ? Number(loan_money) : ''
     formState.value.repay_type = Number(repay_type) ? String(repay_type) : ''
     formState.value.repay_day_type = Number(repay_day_type) ? String(repay_day_type) : ''
     formState.value.repay_day = Number(repay_day) ? String(repay_day) : ''
-    formState.value.penalty_interest_type = Number(penalty_interest_type) ? String(penalty_interest_type) : ''
-    formState.value.penalty_interest_rate = Number(penalty_interest_rate) ? String(penalty_interest_rate) : '7'
-    formState.value.penalty_interest_days = Number(penalty_interest_days) ? String(penalty_interest_days) : ''
+    formState.value.penalty_type = Number(penalty_type) ? Number(penalty_type) : ''
+    formState.value.penalty_rate = Number(penalty_rate) ? Number(penalty_rate) : penaltyConfig.value.penalty_rate_lendr
+    formState.value.grace_day = Number(grace_day) ? Number(grace_day) : penaltyConfig.value.grace_day_lendr
 
     // 项目周期
     formState.value.time_date = [dayjs(props.lendingInfo.start_date), dayjs(props.lendingInfo.end_date)]
@@ -1198,9 +1198,9 @@ const interestChange = () => {
         delete credit__data.totalDay
         delete credit__data.estab_type
         delete credit__data.estab_inc_interest
-        delete credit__data.penalty_interest_type
-        delete credit__data.penalty_interest_rate
-        delete credit__data.penalty_interest_days
+        delete credit__data.penalty_type
+        delete credit__data.penalty_rate
+        delete credit__data.grace_day
 
         const params = {
           code: props.blockInfo.code,
@@ -1212,9 +1212,9 @@ const interestChange = () => {
           // initial_amount: formState.value.initial_amount || 0,
           start_date: dayjs(formState.value.time_date[0]).format('YYYY-MM-DD'),
           end_date: dayjs(formState.value.time_date[1]).format('YYYY-MM-DD'),
-          penalty_interest_type: Number(formState.value.penalty_interest_type) || 0,
-          penalty_interest_rate: Number(formState.value.penalty_interest_rate) || 0,
-          penalty_interest_days: Number(formState.value.penalty_interest_days) || 0,
+          penalty_type: Number(formState.value.penalty_type) || 0,
+          penalty_rate: Number(formState.value.penalty_rate) || 0,
+          grace_day: Number(formState.value.grace_day) || 0,
           credit__data
         };
 
@@ -1264,9 +1264,9 @@ const interestChange = () => {
           val.repay_type !== formState.value.repay_type ||
           val.repay_day_type !== formState.value.repay_day_type ||
           val.repay_day !== formState.value.repay_day ||
-          Number(val.penalty_interest_type) !== Number(formState.value.penalty_interest_type) ||
-          Number(val.penalty_interest_rate) !== Number(formState.value.penalty_interest_rate) ||
-          Number(val.penalty_interest_days) !== Number(formState.value.penalty_interest_days)
+          Number(val.penalty_type) !== Number(formState.value.penalty_type) ||
+          Number(val.penalty_rate) !== Number(formState.value.penalty_rate) ||
+          Number(val.grace_day) !== Number(formState.value.grace_day)
         ) {
           updateFormData()
         }
@@ -1294,10 +1294,23 @@ const interestChange = () => {
           value: Number(item.code)
         }
       })
+
+      emits('penaltyDone', penaltyTypeData.value);
+    })
+  }
+
+  const penaltyConfig = ref({
+    penalty_rate_lendr: 0,
+    grace_day_lendr: 0
+  })
+  const getPenaltyConfig = () => {
+    systemConfigData({ pcode: 'project_config', code: 'penalty_rate_lendr,grace_day_lendr' }).then((res) => {
+      penaltyConfig.value = res
     })
   }
 
   onMounted(() => {
+    getPenaltyConfig()
     getFormItems();
     getPenaltyTypeData();
     emitter.on('refreshIRR', handleRefreshIRR);

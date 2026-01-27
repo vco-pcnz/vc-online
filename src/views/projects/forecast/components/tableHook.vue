@@ -100,14 +100,14 @@
             </div>
             <div v-if="!itemId" class="item history">
               <i class="iconfont nav-icon" v-if="!item.first">&#xe794;</i>
-              <i class="iconfont grace-icon" v-if="(item.is_grace && hasPermission('projects:forecast:grace')) || (item.status == 0 && hasPermission('projects:forecast:delete'))" @click.stop="removeHandle(item, item.is_grace)">&#xe8c1;</i>
+              <i class="iconfont grace-icon" v-if="(item.is_grace && hasPermission('projects:forecast:grace')) || (item.status == 0 && hasPermission('projects:forecast:delete')) && !isLendr" @click.stop="removeHandle(item, item.is_grace)">&#xe8c1;</i>
             </div>
             <div v-else-if="Boolean(!projectDetail?.base?.is_close)" class="item opt">
               <i v-if="item.first || item.status != 0" class="iconfont disabled">&#xe8cf;</i>
               <Add v-else :uuid="uuid" :item-id="itemId" :projectDetail="projectDetail" :item-date="item" @update="update">
                 <i class="iconfont">&#xe8cf;</i>
               </Add>
-              <i class="iconfont" :class="{ disabled: item.first || item.status != 0 }" @click="removeHandle(item)">&#xe8c1;</i>
+              <i v-if="!isLendr" class="iconfont" :class="{ disabled: item.first || item.status != 0 }" @click="removeHandle(item)">&#xe8c1;</i>
             </div>
           </div>
         </template>
@@ -115,10 +115,10 @@
     </div>
     <a-empty v-if="data?.list.constructor === Array && !data?.list.length" />
     <div class="flex justify-center pb-8 gap-5" v-if="!projectDetail?.base?.is_close">
-      <Add :uuid="uuid" :item-id="itemId" :projectDetail="projectDetail" @update="update">
+      <Add v-if="!isLendr" :uuid="uuid" :item-id="itemId" :projectDetail="projectDetail" @update="update">
         <a-button type="brown" shape="round" size="small">add forecast</a-button>
       </Add>
-      <GracePeriod :uuid="uuid" :table-data="data?.list" :projectDetail="projectDetail" @update="update" v-if="!itemId && hasPermission('projects:forecast:grace')">
+      <GracePeriod :uuid="uuid" :table-data="data?.list" :projectDetail="projectDetail" @update="update" v-if="!itemId && hasPermission('projects:forecast:grace') && !isLendr">
         <a-button type="brown" shape="round" size="small">{{ t('宽限期') }}</a-button>
       </GracePeriod>
     </div>
@@ -183,7 +183,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import { DownOutlined } from '@ant-design/icons-vue';
@@ -225,6 +225,10 @@ const showLog = (val) => {
   itemDate.value = val;
   logRef.value.init();
 };
+
+const isLendr = computed(() => {
+  return props.projectDetail?.product?.code.toLowerCase() === 'lendr';
+});
 
 const changeType = ref(undefined);
 const tipsVisible = ref(false);

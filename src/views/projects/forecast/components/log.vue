@@ -29,7 +29,7 @@
           </ul>
         </template>
         <div class="pt-5 flex justify-end" v-else-if="!projectDetail?.base?.is_close && !itemDate.is_grace">
-          <Add :uuid="uuid" :projectDetail="projectDetail" :itemDate="itemDate" @update="update"> <a-button type="dark" class="big uppercase fs_2xs"> Edit forecast </a-button></Add>
+          <Add v-if="!isLendr" :uuid="uuid" :projectDetail="projectDetail" :itemDate="itemDate" @update="update"> <a-button type="dark" class="big uppercase fs_2xs"> Edit forecast </a-button></Add>
         </div>
       </div>
     </a-modal>
@@ -37,7 +37,7 @@
 </template>
 
 <script scoped setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
 import tool from '@/utils/tool';
@@ -61,6 +61,10 @@ const props = defineProps({
   itemDate: {
     type: Object
   }
+});
+
+const isLendr = computed(() => {
+  return props.projectDetail?.product?.code.toLowerCase() === 'lendr';
 });
 
 const visible = ref(false);

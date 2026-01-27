@@ -33,7 +33,7 @@
       </template>
     </div>
     <div class="handle-content" v-if="variationsInfo.is_do && hasPermission('projects:variations-details:about:return') ">
-      <vco-form-dialog
+      <!-- <vco-form-dialog
         :title="t('退回')"
         :formParams="{ uuid: uuid, id: id, process__id: variationsInfo?.process__id || '' }"
         url="project/variation/reopen"
@@ -48,7 +48,10 @@
         @update="refreshHandle"
       >
         <a-button type="dark" class="big shadow bold uppercase">{{ t('退回') }}</a-button>
-      </vco-form-dialog>
+      </vco-form-dialog> -->
+      <vco-popconfirm :tip="t('您确定要退回到变更申请吗？')" @update="refreshHandle" :formParams="{ uuid: uuid, id: id }" url="project/variation/reopen">
+        <a-button type="dark" class="big shadow bold uppercase">{{ t('退回') }}</a-button>
+      </vco-popconfirm>
     </div>
   </div>
 </template>

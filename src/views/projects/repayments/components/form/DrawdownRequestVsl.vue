@@ -27,7 +27,7 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('还款金额1')">
+              <a-form-item :label="t('还款金额1')" name="apply_amount">
                 <a-input-number v-model:value="formState.apply_amount" readonly :min="0" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
               </a-form-item>
             </a-col>
@@ -48,7 +48,7 @@
                 <a-button style="position: absolute; top: -32px; right: 0" v-if="drawdownList.length < drawDownSelectedList.length" type="brown" shape="round" size="small" @click.stop="addDrawdownColumnsItem()"> {{ t('添加') }}</a-button>
 
                 <div class="table-content sys-table-content related-content no-top-line Repayment_allocation" :class="drawdownListInspection ? 'drawdownListInspection' : ''">
-                  <a-spin :spinning="drawdownListLoading" size="large">
+                  <a-spin :spinning="drawdownListLoading || drawDownSelectedListLoading" size="large">
                     <a-table rowKey="uuid" :columns="DrawdownColumns" :data-source="drawdownList" :pagination="false" table-layout="fixed" :scroll="{ y: 300 }">
                       <template #bodyCell="{ column, record, index }">
                         <template v-if="column.dataIndex === 'name'">
@@ -367,21 +367,14 @@ const amountInput = (flag = false) => {
 
 const getValidateInfo = () => {
   return (rule, value) => {
-    if (!value) {
-      return Promise.reject(t('请输入') + t('还款金额1'));
-    } else {
+    if ( value !== '') {
       const num = Number(value);
-      if (isNaN(num)) {
-        return Promise.reject(t('请输入数字'));
-      } else {
-        if (num < 0 || num === 0) {
-          return Promise.reject(t('请输入大于0的数字'));
-        }
-
-        return Promise.resolve();
+      if (num < 0 || num === 0) {
+        return Promise.reject(t('还款金额不能小于等于0'));
       }
+      return Promise.resolve();
     }
-  };
+  }
 };
 
 const validateRed = () => {
@@ -413,7 +406,7 @@ const formRules = ref({
   // drawdown_account: [{ required: true, message: t('请选择') + t('放款账户'), trigger: 'change' }],
   re_type: [{ required: true, message: t('请选择') + t('还款分配'), trigger: 'change' }],
   apply_date: [{ required: true, message: t('请选择') + t('还款日期'), trigger: 'change' }],
-  apply_amount: [{ required: true, message: t('请输入') + t('还款金额1'), validator: getValidateInfo(), trigger: 'blur' }],
+  apply_amount: [{ required: true, validator: getValidateInfo(), trigger: 'blur' }],
   reduction_money: [{ validator: validateRed(), trigger: 'blur' }],
   note: [{ required: true, message: t('请输入') + t('还款说明'), trigger: 'blur' }]
 });
@@ -434,6 +427,7 @@ const updateVisible = (value) => {
     showRelatedSwitch.value = false;
     document.value = [];
     drawdownList.value = [];
+    drawDownSelectedList.value = [];
   }
 };
 

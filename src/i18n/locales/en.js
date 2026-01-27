@@ -1365,5 +1365,6 @@ export default {
   "贷款文件": "Legal Docs - Loan docs",
   "罚息类型": "Penalty interest type",
   "罚息利率": "Penalty interest rate",
-  "罚息减免天数": "Penalty interest waiver days"
+  "罚息减免天数": "Penalty interest waiver days",
+  "还款金额不能小于等于0": "Repayment amount cannot be less than or equal to 0"
 }

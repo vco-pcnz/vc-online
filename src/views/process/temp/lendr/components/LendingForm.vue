@@ -267,7 +267,7 @@
             <div class="form-line"></div>
           </a-col>
           <template v-if="estabItems.length">
-            <a-col :span="6">
+            <a-col :span="8">
               <a-form-item :label="t('建立费计算标准')" name="estab_type">
                 <a-select
                   v-model:value="formState.estab_type"
@@ -279,7 +279,7 @@
               </a-form-item>
             </a-col>
             
-            <a-col :span="6">
+            <!-- <a-col :span="6">
               <a-form-item :label="t('包含利息')">
                 <a-select
                   v-model:value="formState.estab_inc_interest"
@@ -289,12 +289,12 @@
                   @change="interestChange"
                 ></a-select>
               </a-form-item>
-            </a-col>
+            </a-col> -->
 
             <a-col
               v-for="item in estabItems"
               :key="item.credit_table"
-              :span="6"
+              :span="8"
             >
               <a-form-item
                 :name="item.credit_table"
@@ -818,7 +818,7 @@
   }
 
   const establishCalculateHandle = () => {
-    if (props.isDetails || !props.blockInfo.showEdit) {
+    if (props.isDetails || !props.blockInfo.showEdit || !formState.value.repay_type) {
       return false
     }
 

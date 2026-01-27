@@ -129,7 +129,7 @@
                 :formParams="{ uuid: currentId, process__id: detail?.reopen?.process__id }"
                 url="projectDetail/reopen"
                 @update="update"
-                v-if="hasPermission('projects:about:reopen') && detail?.base?.is_open == 1 && detail?.reopen?.state <= 0"
+                v-if="hasPermission('projects:about:reopen') && detail?.base?.is_open == 1 && detail?.reopen?.state <= 0 && !detail?.base.old"
               >
                 <a-button type="brown" shape="round" size="small">{{ t('退回到进件') }}</a-button>
               </vco-form-dialog>

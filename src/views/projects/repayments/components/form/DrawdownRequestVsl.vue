@@ -428,6 +428,7 @@ const updateVisible = (value) => {
     document.value = [];
     drawdownList.value = [];
     drawDownSelectedList.value = [];
+    lender.value = '';
   }
 };
 
@@ -735,9 +736,9 @@ const getDrawdownName = (sn) => {
 
 // VS 放款的初始化逻辑占位，由业务补充
 const initVsDrawdownList = () => {
-  const idsStr = drawDownSelectedList.value.map((item) => item?.id).join(',');
+  const sn = drawDownSelectedList.value.map((item) => item?.sn).join(',');
   drawdownListLoading.value = true;
-  drawDownLists({ uuid: props.uuid, date: formState.value.apply_date, ids: idsStr })
+  drawDownLists({ uuid: props.uuid, date: formState.value.apply_date, sn: sn })
     .then((res) => {
       drawdownList.value = cloneDeep(res.drawDown);
       drawdownList.value.map((item) => {

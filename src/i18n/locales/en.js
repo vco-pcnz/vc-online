@@ -1361,4 +1361,5 @@ export default {
   "贷款文件": "Loan docs",
   "设置密码": "Set password",
   "设置你的密码": "Set your password",
+  "导入数据格式不正确，如数据为0，请填写0不要留空": "The import data format is incorrect, if the data is 0, please fill in 0 not leave blank"
 }

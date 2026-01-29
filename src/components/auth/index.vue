@@ -9,7 +9,7 @@
       </div>
       <div class="content_container">
         <div class="header">
-          <img :src="logoImg" alt="VC Online" />
+          <img :src="logoImg" style="width: 130px;" alt="Lendr Online" />
           <slot name="header"></slot>
         </div>
         <div class="content">
@@ -21,7 +21,7 @@
       </div>
     </div>
     <div class="login-bg">
-      <Vue3Lottie :animationData="AstronautJSON" width="2880" height="2048" />
+      <!-- <Vue3Lottie :animationData="AstronautJSON" width="2880" height="2048" /> -->
     </div>
   </div>
   

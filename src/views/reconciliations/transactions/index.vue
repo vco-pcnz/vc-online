@@ -246,7 +246,7 @@ watch(
   line-height: 2;
   padding: 10px 20px;
   text-transform: uppercase;
-  background-color: #b4f1db;
+  background-color: #f7ff83;
   color: #272727;
 }
 

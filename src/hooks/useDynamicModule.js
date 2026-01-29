@@ -57,7 +57,7 @@ export function useDynamicModule() {
         canNext.value = nextStep.value && !nextStep.value.examine
         if (currentStep.value.name) {
           const name = i18n.global.t(currentStep.value.name)
-          document.title = `${name} - VC Online`
+          document.title = `${name} - Lendr Online`  
         }
       } else {
         queryError.value = true

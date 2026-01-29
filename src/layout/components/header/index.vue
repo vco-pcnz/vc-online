@@ -1,7 +1,7 @@
 <template>
   <div class="layout_header">
     <div class="title_with_product">
-      <div class="header_title">VC Online</div>
+      <div class="header_title">Lendr</div>
       <a-dropdown trigger="click" v-model:open="productOpen" v-if="productOptions.length>1">
         <button class="product-dropdown">
           <span>{{ currentProductLabel }}</span>

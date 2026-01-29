@@ -5,7 +5,7 @@
         <a-tooltip placement="top" :overlay-style="{ maxWidth: 'none' }">
           <template #title>
             <div class="flex items-center">
-              <span class="xt_label">VCO: </span>
+              <span class="xt_label">Lendr: </span>
               <vco-number :value="Math.abs(base?.vcoSpendAmount)" color="#fff" size="fs_md" :precision="2"></vco-number>
             </div>
             <div class="flex items-center">
@@ -25,7 +25,7 @@
         <a-tooltip placement="top" class="ml-5" :overlay-style="{ maxWidth: 'none' }">
           <template #title>
             <div class="flex items-center">
-              <span class="xt_label">VCO: </span>
+              <span class="xt_label">Lendr: </span>
               <vco-number :value="Math.abs(base?.vcoReceivedAmount)" color="#fff" size="fs_md" :precision="2"></vco-number>
             </div>
             <div class="flex items-center">
@@ -193,7 +193,7 @@ const option2 = ref({
       type: 'pie',
       center: ['50%', '50%'],
       radius: '100%',
-      color: ['#b4f1db', 'rgba(169, 173, 87, 1)', '#fff'],
+      color: ['#f7ff83', 'rgba(169, 173, 87, 1)', '#fff'],
       label: {
         show: false
       },
@@ -300,8 +300,8 @@ watch(
   width: 6px;
 }
 .MeterStat_type_cyan > .MeterStat-Meter {
-  background-color: #b4f1db;
-  border-color: #b4f1db;
+  background-color: #f7ff83;
+  border-color: #f7ff83;
 }
 .MeterStat_type_dotsYellow .MeterStat-Dot {
   background-color: #f19915;

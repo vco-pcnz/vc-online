@@ -337,7 +337,7 @@ const updateVisible = (value) => {
   min-height: 340px;
 
   .title {
-    background-color: #b4f1db;
+    background-color: #f7ff83;
     color: #272727;
     border-radius: 37.4px;
     display: inline-flex;

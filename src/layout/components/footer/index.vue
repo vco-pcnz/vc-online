@@ -1,6 +1,6 @@
 <template>
   <div class="footer-container">
-    <div class="Copyright">Copyright © 2022-present Vincent Capital</div>
+    <div class="Copyright">2026 Lendr Ltd</div>
     <router-link :to="!isNormalUser && pageRole !== 'Investor' ? '/version' : ''" class="version">{{ version }}</router-link>
   </div>
 </template>

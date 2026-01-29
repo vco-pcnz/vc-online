@@ -3,7 +3,7 @@ import { indexPub } from '@/api/system';
 
 const useAppStore = defineStore('VcOnlineAppInfo', {
   state: () => ({
-    appName: 'VC Online',
+    appName: 'Lendr Online',
     config: null,
     indexPubLoading: false
   }),

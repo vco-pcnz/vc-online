@@ -24,7 +24,7 @@
               </div>
             </template>
             <template v-if="column.dataIndex === 'spend'">
-              <p><span class="label">VCO</span>: {{ tool.formatMoney(Math.abs(record?.vco_spend_money)) }}</p>
+              <p><span class="label">Lendr</span>: {{ tool.formatMoney(Math.abs(record?.vco_spend_money)) }}</p>
               <p><span class="label">Xero</span>: {{ tool.formatMoney(Math.abs(record?.xero_spend_amount)) }}</p>
 
               <p>
@@ -38,7 +38,7 @@
               </p>
             </template>
             <template v-if="column.dataIndex === 'received'">
-              <p><span class="label">VCO</span>: {{ tool.formatMoney(Math.abs(record?.vco_received_amount)) }}</p>
+              <p><span class="label">Lendr</span>: {{ tool.formatMoney(Math.abs(record?.vco_received_amount)) }}</p>
               <p><span class="label">Xero</span>: {{ tool.formatMoney(Math.abs(record?.xero_received_amount)) }}</p>
 
               <p>
@@ -52,7 +52,7 @@
               </p>
             </template>
             <template v-if="column.dataIndex === 'total'">
-              <p><span class="label">VCO</span>: {{ record?.vco_transaction_count }}</p>
+              <p><span class="label">Lendr</span>: {{ record?.vco_transaction_count }}</p>
               <p><span class="label">Xero</span>: {{ record?.xero_bill_count }}</p>
             </template>
             <template v-if="column.dataIndex === 'Last_synced'">

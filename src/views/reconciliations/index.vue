@@ -20,7 +20,7 @@
             <p class="title">Review your Xero statement lines...</p>
           </a-col>
           <a-col :span="11" :offset="2">
-            <p class="title">...then match with your transactions in VC Online</p>
+            <p class="title">...then match with your transactions in Lendr Online</p>
           </a-col>
         </a-row>
         <div :class="{ cardBorder: true }" v-for="item in rowData" :key="item.id">

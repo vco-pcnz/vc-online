@@ -9,7 +9,7 @@
       <div class="login_content">
         <div class="login_form_title">
           <h1>
-            <span class="vc_text">VC&nbsp;</span>
+            <span class="vc_text">Lendr&nbsp;</span>
             <span class="online_text">Online</span>
           </h1>
         </div>
@@ -295,7 +295,7 @@ onMounted(() => {
       }
 
       .online_text {
-        color: #b4f1db;
+        color: #f7ff83;
       }
     }
   }

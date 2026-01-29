@@ -111,7 +111,7 @@ const option2 = ref({
       type: 'pie',
       center: ['50%', '50%'],
       radius: '100%',
-      color: ['#b4f1db', 'rgba(169, 173, 87, 1)', '#fff'],
+      color: ['#f7ff83', 'rgba(169, 173, 87, 1)', '#fff'],
       label: {
         show: false
       },

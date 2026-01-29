@@ -2,7 +2,7 @@
   <auth-template>
     <template #header>
       <router-link to="/login">
-        <a-button style="background-color: #b4f1db"> {{ t("登录") }} </a-button>
+        <a-button style="background-color: #f7ff83"> {{ t("登录") }} </a-button>
       </router-link>
     </template>
     <template #content>

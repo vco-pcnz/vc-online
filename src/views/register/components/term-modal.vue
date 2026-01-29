@@ -2,7 +2,7 @@
   <a-modal
     :width="750"
     :open="open"
-    :title="`VC ONLINE - ` + t('使用条款')"
+    :title="`LENDR ONLINE - ` + t('使用条款')"
     :closable="false"
     @ok="save"
   >

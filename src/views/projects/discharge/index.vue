@@ -145,7 +145,7 @@ const tabChange = (flag) => {
 const isVcl = ref(false)
 const projectDetail = ref();
 const getProjectDetail = (val) => {
-  isVcl.value = String(val.product.code).toLowerCase() === 'vcl';
+  isVcl.value = String(val?.product?.name).toLowerCase() === 'vcl';
   projectDetail.value = val;
 };
 

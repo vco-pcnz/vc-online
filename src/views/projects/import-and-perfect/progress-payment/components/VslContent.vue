@@ -1578,44 +1578,45 @@
       // 数据精度问题处理
       const formatData = []
       let loanUpTotal = 0
+      let loanFixedTotal = 0
       let equityUpTotal = 0
+      let equityFixedTotal = 0
 
       const toFixed2 = (num) => Number(Number(num || 0).toFixed(2))
       const sumPlus = (total, num) => Number(tool.plus(total, num))
 
       numData.forEach((row, idx) => {
         const values = row.slice(1)
-        const total = toFixed2(values.reduce((t, n) => sumPlus(t, Number(n)), 0))
+        const total = Number(values.reduce((t, n) => sumPlus(t, Number(n)), 0))
 
-        let frontTotal = 0
         const fixedValues = values.map((num, i) => {
-          if (i === values.length - 1) return num
-          const fixed = toFixed2(num)
-          frontTotal = sumPlus(frontTotal, fixed)
-          return fixed
+          return toFixed2(num)
         })
 
-        let last = toFixed2(tool.minus(total, frontTotal))
-        fixedValues[fixedValues.length - 1] = last
-
+        const fixedTotal = Number(fixedValues.reduce((t, n) => sumPlus(t, Number(n)), 0))
         if (idx % 2 === 0) {
           loanUpTotal = sumPlus(loanUpTotal, total)
+          loanFixedTotal = sumPlus(loanFixedTotal, fixedTotal)
         } else {
           equityUpTotal = sumPlus(equityUpTotal, total)
+          equityFixedTotal = sumPlus(equityFixedTotal, fixedTotal)
         }
 
         if (idx === numData.length - 2) {
-          const loanAdvTotal = tool.plus(Number(loanUpTotal || 0), Number(advanceAmount.value || 0))
-          const diff = toFixed2(tool.minus(buildAmount.value, loanAdvTotal))
-          last = toFixed2(tool.plus(last, diff))
+          const loanFrontTotal = Number(tool.minus(loanUpTotal, values[values.length - 1]))
+          const loanFixedFrontTotal = Number(tool.minus(loanFixedTotal, fixedValues[fixedValues.length - 1]))
+
+          const diff = Number(tool.minus(loanFrontTotal, loanFixedFrontTotal))
+          fixedValues[fixedValues.length - 1] = toFixed2(tool.plus(fixedValues[fixedValues.length - 1], diff))
         }
 
         if (idx === numData.length - 1) {
-          const diff = toFixed2(tool.minus(borrowerEquity.value, equityUpTotal))
-          last = toFixed2(tool.plus(last, diff))
-        }
+          const equityFrontTotal = Number(tool.minus(equityUpTotal, values[values.length - 1]))
+          const equityFixedFrontTotal = Number(tool.minus(equityFixedTotal, fixedValues[fixedValues.length - 1]))
 
-        fixedValues[fixedValues.length - 1] = last
+          const diff = Number(tool.minus(equityFrontTotal, equityFixedFrontTotal))
+          fixedValues[fixedValues.length - 1] = toFixed2(tool.plus(fixedValues[fixedValues.length - 1], diff))
+        }
         formatData.push([row[0], ...fixedValues])
       })
 

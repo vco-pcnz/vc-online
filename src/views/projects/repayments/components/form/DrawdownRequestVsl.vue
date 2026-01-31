@@ -1,7 +1,9 @@
 <template>
 
   <div class="inline" @click="init">
-    <a-button type="brown" shape="round" size="small" :loading="repayApplyStatusLoading">{{ t('创建还款') }}</a-button>
+    <slot>
+      <a-button type="brown" shape="round" size="small" :loading="repayApplyStatusLoading">{{ t('创建还款') }}</a-button>
+    </slot>
   </div>
   <div @click.stop ref="drawdownRequestRef" class="drawdown-request">
     <!-- 抵押物选择弹窗 -->
@@ -1058,28 +1060,32 @@ watch(
 
 const repayApplyStatusLoading = ref(false);
 const init = () => {
-  repayApplyStatusLoading.value = true;
-  repayApplyStatus({ uuid: props.uuid }).then(
-    (res) => {
-      if (res.status) {
-        visible.value = true;
-        if (!props.dataInfo?.id) {
+  if (!props.dataInfo?.id) {
+    repayApplyStatusLoading.value = true;
+    repayApplyStatus({ uuid: props.uuid }).then(
+      (res) => {
+        if (res.status) {
+          visible.value = true;
           setDefaultTitle();
-
           uploadVisible.value = true;
-        } else {
-          repaymentDetail({ uuid: props.uuid, id: props.dataInfo?.id }).then(
-            (res) => {
-              setFormData(res);
-              loadDrawDownSelected(false);
-            }
-          );
+          getNotesType();
         }
-        getNotesType();
+        repayApplyStatusLoading.value = false;
       }
+    ).catch(() => {
       repayApplyStatusLoading.value = false;
-    }
-  );
+    });
+
+  } else {
+    visible.value = true;
+    repaymentDetail({ uuid: props.uuid, id: props.dataInfo?.id }).then(
+      (res) => {
+        setFormData(res);
+        loadDrawDownSelected(false);
+      }
+    );
+    getNotesType();
+  }
 };
 
 const isRestIrr = ref(false);

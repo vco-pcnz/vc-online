@@ -1,6 +1,7 @@
 <template>
+
   <div class="inline" @click="init">
-    <slot></slot>
+    <a-button type="brown" shape="round" size="small" :loading="repayApplyStatusLoading">{{ t('创建还款') }}</a-button>
   </div>
   <div @click.stop ref="drawdownRequestRef" class="drawdown-request">
     <!-- 抵押物选择弹窗 -->
@@ -34,7 +35,7 @@
             <a-col :span="12">
               <a-form-item :label="t('还款金额1')" name="apply_amount">
                 <a-input-number v-model:value="formState.apply_amount" readonly :min="0" :max="99999999999" :formatter="(value) =>
-                    `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                  `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                   " :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
               </a-form-item>
             </a-col>
@@ -99,12 +100,12 @@
                                v-if="record.interest_status == 1 && record.sn">
                             <a-input-number v-model:value="record.reality_interest" :min="0" :max="99999999999"
                                             :formatter="(value) =>
-                                                `$ ${value}`.replace(
-                                                  /\B(?=(\d{3})+(?!\d))/g,
-                                                  ','
-                                                )
+                                              `$ ${value}`.replace(
+                                                /\B(?=(\d{3})+(?!\d))/g,
+                                                ','
+                                              )
                                               " :parser="(value) => value.replace(/\$\s?|(,*)/g, '')
-                                " class="mini" />
+                                                " class="mini" />
                             <i class="iconfont icon-delete" @click="record.interest_status = 0">
                               &#xe781;
                             </i>
@@ -113,10 +114,10 @@
                         </template>
                         <template v-if="column.dataIndex === 'all_repayment'">
                           <a-select v-model:value="record.all_repayment" :title="record.all_repayment
-                              ? t('全额还款')
-                              : record.all_repayment === 0
-                                ? t('部分还款')
-                                : ''
+                            ? t('全额还款')
+                            : record.all_repayment === 0
+                              ? t('部分还款')
+                              : ''
                             " class="mini" :disabled="isVsAll_repayment">
                             <a-select-option :title="t('部分还款')" :value="0">
                               {{ t('部分还款') }}
@@ -128,10 +129,10 @@
                         </template>
                         <template v-if="column.dataIndex === 're_type'">
                           <a-select v-model:value="record.re_type" class="mini" :title="record.re_type == 1
-                              ? t('本金优先分配')
-                              : record.re_type == 2
-                                ? t('利息优先分配')
-                                : ''
+                            ? t('本金优先分配')
+                            : record.re_type == 2
+                              ? t('利息优先分配')
+                              : ''
                             " :disabled="Boolean(record.all_repayment)">
                             <a-select-option :title="t('本金优先分配')" :value="1">
                               {{ t('本金优先分配') }}
@@ -145,12 +146,12 @@
                           <a-input-number v-model:value="record.apply_rep_amount"
                                           :disabled="Boolean(record.all_repayment)" :min="0" :max="record.total_amount"
                                           :formatter="(value) =>
-                                              `$ ${value}`.replace(
-                                                /\B(?=(\d{3})+(?!\d))/g,
-                                                ','
-                                              )
+                                            `$ ${value}`.replace(
+                                              /\B(?=(\d{3})+(?!\d))/g,
+                                              ','
+                                            )
                                             " :parser="(value) => value.replace(/\$\s?|(,*)/g, '')
-                              " class="mini" />
+                                              " class="mini" />
                         </template>
                         <template v-if="column.dataIndex === 'operation'">
                           <div class="flex justify-center items-center pt-2">
@@ -178,7 +179,7 @@
               <a-col :span="7">
                 <a-form-item :label="t('还款总额')">
                   <a-input-number v-model:value="formState.apply_amount" :disabled="true" :max="99999999999" :formatter="(value) =>
-                      `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                    `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                     " :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
                 </a-form-item>
               </a-col>
@@ -200,7 +201,7 @@
                     </div>
                   </template>
                   <a-input-number v-model:value="formState.reduction_money" :max="99999999999" :formatter="(value) =>
-                      `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                    `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                     " :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" @input="() => amountInput(false)"
                                   @blur="() => amountInput(true)" />
                 </a-form-item>
@@ -302,7 +303,7 @@
                       </template>
                       <template v-if="column.dataIndex === 'real_amount'">
                         <a-input-number v-model:value="record.real_amount" :max="99999999999" :formatter="(value) =>
-                            `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                          `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                           " :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" class="mini" />
                       </template>
                       <template v-if="column.dataIndex === 'operation'">
@@ -346,6 +347,7 @@ import {
   projectLoanAllRepayment,
   loanDelSecurity,
   projectLoanCalcIrr,
+  repayApplyStatus
 } from '@/api/project/loan';
 import { systemDictData } from '@/api/system';
 import { CalendarOutlined } from '@ant-design/icons-vue';
@@ -1054,21 +1056,30 @@ watch(
   { deep: true }
 );
 
+const repayApplyStatusLoading = ref(false);
 const init = () => {
-  visible.value = true;
-  if (!props.dataInfo?.id) {
-    setDefaultTitle();
+  repayApplyStatusLoading.value = true;
+  repayApplyStatus({ uuid: props.uuid }).then(
+    (res) => {
+      if (res.status) {
+        visible.value = true;
+        if (!props.dataInfo?.id) {
+          setDefaultTitle();
 
-    uploadVisible.value = true;
-  } else {
-    repaymentDetail({ uuid: props.uuid, id: props.dataInfo?.id }).then(
-      (res) => {
-        setFormData(res);
-        loadDrawDownSelected(false);
+          uploadVisible.value = true;
+        } else {
+          repaymentDetail({ uuid: props.uuid, id: props.dataInfo?.id }).then(
+            (res) => {
+              setFormData(res);
+              loadDrawDownSelected(false);
+            }
+          );
+        }
+        getNotesType();
       }
-    );
-  }
-  getNotesType();
+      repayApplyStatusLoading.value = false;
+    }
+  );
 };
 
 const isRestIrr = ref(false);

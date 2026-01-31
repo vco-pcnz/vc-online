@@ -34,14 +34,13 @@
       :title="null"
       :width="480"
       :footer="null"
-      :closable="false"
       :maskClosable="false"
       @cancel="handleSubmitSuccessClose"
     >
       <div class="success-modal">
         <p class="success-modal__title">{{ t('申请已提交') }}</p>
         <p class="success-modal__desc">
-          {{ t('感谢您！您的贷款申请已提交成功。我们的贷款团队将尽快审核。') }}
+          {{ t('贷款提交成功提示语') }}
         </p>
         <a-button
           type="dark"
@@ -216,7 +215,6 @@
   import useProcessStore from "@/store/modules/process"
   import { hasPermission } from "@/directives/permission/index"
   import useProductStore from '@/store/modules/product'
-  import useUserStore from '@/store/modules/user'
 
   const productStore = useProductStore();
   const userStore = useUserStore();
@@ -277,8 +275,6 @@
   const formRef = ref()
   const footerRef = ref()
   const bindUsersRef = ref();
-
-  const isNormalUser = computed(() => userStore.isNormalUser)
 
   const bindUserPermission = computed(() => {
     return hasPermission('requests:loan:bind:vcTeam') || hasPermission('requests:loan:bind:broker') || hasPermission('requests:loan:bind:user')
@@ -443,12 +439,8 @@
         // 触发列表数据刷新
         emitter.emit('refreshRequestsList')
 
-        if (isNormalUser.value) {
-          successResult.value = res
-          submitSuccessVisible.value = true
-        } else {
-          footerRef.value.nextHandle(res)
-        }
+        successResult.value = res
+        submitSuccessVisible.value = true
       }
 
       subLoading.value = false

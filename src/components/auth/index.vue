@@ -9,7 +9,7 @@
       </div>
       <div class="content_container">
         <div class="header">
-          <img :src="logoImg" style="width: 130px;" alt="Lendr Online" />
+          <img :src="logoImg" style="width: 170px;" alt="Lendr Online" />
           <slot name="header"></slot>
         </div>
         <div class="content">

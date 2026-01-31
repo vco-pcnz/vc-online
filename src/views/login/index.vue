@@ -9,7 +9,7 @@
       <div class="login_content">
         <div class="login_form_title">
           <h1>
-            <span class="vc_text">Lendr&nbsp;</span>
+            <span class="vc_text">Login&nbsp;</span>
             <span class="online_text">Online</span>
           </h1>
         </div>
@@ -285,7 +285,7 @@ onMounted(() => {
     width: 360px;
 
     h1 {
-      font-size: 64px;
+      font-size: 55px;
       font-weight: 500;
       margin-bottom: 32px;
       text-align: center;

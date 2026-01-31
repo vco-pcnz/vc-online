@@ -1,19 +1,30 @@
 <template>
   <div class="layout_header">
     <div class="title_with_product">
-      <div class="header_title">Lendr</div>
-      <a-dropdown trigger="click" v-model:open="productOpen" v-if="productOptions.length>1">
+      <div class="header_title" style="width: 100px;">
+        <!-- <img style="width: 100px" :src="logoImg" alt=""> -->
+        <a class="e-lottie__container__link">
+          <div class="e-lottie__container">
+            <Vue3Lottie
+              class="e-lottie__animation"
+              :animationData="lottieData"
+              :width="100"
+              :height="28"
+              :loop="true"
+              :autoPlay="true"
+            />
+          </div>
+        </a>
+      </div>
+      <a-dropdown trigger="click" v-model:open="productOpen" v-if="productOptions.length > 1">
         <button class="product-dropdown">
           <span>{{ currentProductLabel }}</span>
           <DownOutlined class="product-arrow" :class="{ open: productOpen }" style="font-size: 12px" />
         </button>
         <template #overlay>
           <a-menu class="product-menu">
-            <a-menu-item
-              v-for="option in productOptions"
-              :key="option.value"
-              @click="handleProductChange(option.value)"
-            >
+            <a-menu-item v-for="option in productOptions" :key="option.value"
+                         @click="handleProductChange(option.value)">
               <span :class="{ active: option.value === currentProduct }">{{ option.label }}</span>
             </a-menu-item>
           </a-menu>
@@ -22,7 +33,8 @@
     </div>
     <div class="header_container">
       <div class="menu_content">
-        <router-link v-for="link in menuData" :key="link.path" :to="link.path" class="link" :class="{ link_active: isActive(link.path) }">
+        <router-link v-for="link in menuData" :key="link.path" :to="link.path" class="link"
+                     :class="{ link_active: isActive(link.path) }">
           <a-badge v-if="link.path === '/tasks'" :count="taskInfo.total">
             <p class="router-name" @click="handleClick(link.path)">{{ t(link.title) }}</p>
           </a-badge>
@@ -50,16 +62,20 @@
       <div class="profile_content">
         <div class="profile_info">
           <!-- <language-select></language-select> -->
-          <vco-avatar class="cursor-pointer" :src="userInfo?.avatar || ''" :name="userInfo?.user_name || ''" :size="26" @click="toProfile('/profile/about')" />
+          <vco-avatar class="cursor-pointer" :src="userInfo?.avatar || ''" :name="userInfo?.user_name || ''" :size="26"
+                      @click="toProfile('/profile/about')" />
           <div class="link" :class="{ link_active: isUserActive() }">
             <div class="user_info">
               <a-space>
-                <span class="user_name" @click="toProfile('/profile/about')">{{ userInfo?.user_name || 'UserName' }}</span>
-                <a-badge @click.stop="toProfile('/profile/notice')" class="badge" size="small" :count="noticeStore.noticeCount" v-if="!!noticeStore.noticeCount" />
+                <span class="user_name" @click="toProfile('/profile/about')">{{ userInfo?.user_name || 'UserName'
+                }}</span>
+                <a-badge @click.stop="toProfile('/profile/notice')" class="badge" size="small"
+                         :count="noticeStore.noticeCount" v-if="!!noticeStore.noticeCount" />
               </a-space>
               <div v-if="userInfo?.roles && !isNormalUser">
                 <template v-for="(item, index) in userInfo?.roles.split('/')" :key="item">
-                  <a-tag color="orange" :title="userInfo?.full_roles[index]" @click="toLoans(item)">{{ userInfo?.role_names[index] }}</a-tag>
+                  <a-tag color="orange" :title="userInfo?.full_roles[index]" @click="toLoans(item)">{{
+                    userInfo?.role_names[index] }}</a-tag>
                 </template>
               </div>
             </div>
@@ -75,7 +91,8 @@
                 <ApplyBroker v-if="!applyBrokerData">
                   <div class="user-hanle-item">{{ t('申请中介') }}</div>
                 </ApplyBroker>
-                <ApplyBrokerDetail :detailData="applyBrokerData?.data" :process="applyBrokerData" @update="LoadApplyBrokerDetail" v-else>
+                <ApplyBrokerDetail :detailData="applyBrokerData?.data" :process="applyBrokerData"
+                                   @update="LoadApplyBrokerDetail" v-else>
                   <div class="user-hanle-item">{{ t('申请中介') }}</div>
                 </ApplyBrokerDetail>
               </a-menu-item>
@@ -108,6 +125,9 @@ import ApplyBrokerDetail from '@/views/profile/apply-broker/detail.vue';
 import { applyBrokerDetail } from '@/api/tasks';
 import { DownOutlined } from '@ant-design/icons-vue';
 import useProductStore from '@/store/modules/product';
+import logoImg from "@/assets/images/logo.png";
+import { Vue3Lottie } from 'vue3-lottie';
+import LenderGreen from '@/assets/animations/lender-green.json';
 
 const pageRole = computed(() => useUserStore().pageRole);
 
@@ -148,6 +168,8 @@ const menuData = computed(() => {
     });
   return resData;
 });
+
+const lottieData = LenderGreen;
 
 const otherRoute = ['/profile'];
 const processShowRoute = ['requests'];
@@ -234,7 +256,7 @@ watch(
   },
   { deep: true, immediate: true }
 );
-  
+
 const handleProductChange = (val) => {
   productStore.currentProduct = val;
   localStorage.setItem('currentProduct', val);
@@ -316,17 +338,20 @@ onUnmounted(() => {
 
       .user_info {
         padding: 0 6px;
+
         .user_name {
           font-weight: 700;
           font-size: 16px;
           color: #181818;
         }
-        > p,
+
+        >p,
         span {
           color: #888;
           font-size: 13px;
         }
       }
+
       .dropdown_menu {
         align-self: center;
         width: 32px;
@@ -347,9 +372,11 @@ onUnmounted(() => {
     color: @clr_charcoal;
     height: 100%;
     cursor: pointer;
+
     &:hover :deep(.ant-badge .ant-badge-count) {
       background: #ff7875;
     }
+
     // &:hover,
     // &:focus {
     //   &:not(.link_active) {
@@ -403,16 +430,55 @@ onUnmounted(() => {
 
 .product-menu {
   min-width: 70px;
+
   :deep(.ant-dropdown-menu-item) {
     padding: 8px 12px;
   }
+
   :deep(.ant-dropdown-menu-item-selected),
   :deep(.ant-dropdown-menu-item:hover) {
     background: #f2f3f5;
   }
+
   .active {
     font-weight: 700;
     color: #1f1f1f;
   }
 }
+
+.e-lottie__container__link {
+  --lottie-container-width: 100px;
+  --lottie-container-max-width: 100px;
+  --lottie-container-opacity: 1;
+  --lottie-container-opacity-hover: 0.85;
+  --lottie-container-transition-duration-hover: 0.2s;
+  display: inline-flex;
+  align-items: center;
+  line-height: 0;
+  text-decoration: none;
+}
+
+.e-lottie__container {
+  display: inline-block;
+  width: var(--lottie-container-width);
+  max-width: var(--lottie-container-max-width);
+  opacity: var(--lottie-container-opacity);
+  transition: opacity var(--lottie-container-transition-duration-hover) ease;
+}
+
+.e-lottie__container:hover {
+  opacity: var(--lottie-container-opacity-hover);
+}
+
+.e-lottie__container svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.e-lottie__container svg,
+.e-lottie__container svg * {
+  transition: none !important;
+}
+
 </style>

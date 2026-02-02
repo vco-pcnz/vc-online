@@ -100,6 +100,14 @@
                 </a-form-item>
               </a-col>
               <a-col :span="8">
+                <a-form-item :label="t('利息')">
+                  <div class="input-number-content">
+                    <vco-number :bold="true" :value="calcRepaymentData?.compound_Interest" :precision="2" size="fs_xl" :end="true"></vco-number>
+                  </div>
+                </a-form-item>
+              </a-col>
+
+              <a-col :span="8">
                 <a-form-item :label="t('罚息减免最大额度')">
                   <div class="input-number-content">
                     <vco-number :bold="true" :value="calcRepaymentData?.reduction_money" :precision="2" size="fs_xl" :end="true"></vco-number>

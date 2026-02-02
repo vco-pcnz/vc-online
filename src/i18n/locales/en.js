@@ -1356,14 +1356,15 @@ export default {
   "信托": "Trust",
   "辅助文件": "Proposal - Supporting docs",
   "贷款文件": "Legal Docs - Loan docs",
-  "罚息类型": "Penalty interest type",
-  "罚息利率": "Penalty interest rate",
-  "罚息减免天数": "Penalty interest waiver days",
+  "罚息类型": "Default interest base",
+  "罚息利率": "Default Interest rate",
+  "罚息减免天数": "Grace period",
   "查看还款计划": "View Repayment Schedule",
   "还款计划1": "Repayment Schedule",
   "本期计划应付": "Scheduled Amount Due",
   "实际还款金额/还款日期": "Paid Amount / Paid Date",
   "未付金额": "Arrears",
   "应计违约利息": "Accrued default interest",
-  "欠款金额": "Amount owed"
+  "欠款金额": "Amount owed",
+  "{0}个工作日": "{0} working days"
 }

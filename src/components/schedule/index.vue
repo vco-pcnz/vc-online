@@ -364,7 +364,6 @@ import { projectLoanAllRepayment } from '@/api/project/loan';
 import { useUserStore } from '@/store';
 import { navigationTo } from '@/utils/tool';
 import ReconciliationModal from '@/views/projects/components/ReconciliationModal.vue';
-import { number } from 'echarts';
 import TrailBalanceReportModal from './components/TrailBalanceReportModal.vue';
 
 const props = defineProps({
@@ -451,7 +450,7 @@ const hideLinefee = computed(() => {
 });
 
 const showLender = computed(() => {
-  return ['vsl'].includes(props.currentProduct);
+  return ['vsl'].includes(props.currentProduct) && !userStore.isNormalUser;
 });
 const isVariation = computed(() => {
   return props.variationInfo && Object.keys(props.variationInfo).length > 0;

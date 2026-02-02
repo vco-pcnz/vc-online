@@ -11,6 +11,7 @@
     <!-- 详情弹窗 -->
     <details-dialog v-model:visible="detailsVisible" :uuid="uuid" :is-accept="detailsAccept" :detail-data="detail" @done="update"></details-dialog>
     <details-dialog-vsl v-model:visible="detailsVisibleVsl" :uuid="uuid" :is-accept="detailsAccept" :detail-data="detail" @done="update"></details-dialog-vsl>
+    <details-dialog-lendr v-model:visible="detailsVisibleLendr" :uuid="uuid" :is-accept="detailsAccept" :detail-data="detail" @done="update"></details-dialog-lendr>
 
     <!-- 抵押物解压弹窗 -->
     <release-dialog v-model:visible="releaseVisible" :uuid="uuid" :detail-data="detail" @done="update"></release-dialog>
@@ -72,6 +73,7 @@
             <i v-if="hasPermission('projects:repayments:edit') && detail?.mark === 'repayment_lm'" @click="openEditHandle(false)" class="iconfont edit">&#xe8cf;</i>
           </div>
           <p class="bold color_grey fs_2xs">{{ t('申请金额') }}: {{ tool.formatMoney(detail?.apply_amount) }}</p>
+          <p v-if="detail?.compound_interest_money && Number(detail?.compound_interest_money) > 0" class="bold color_grey fs_2xs">{{ t('利息') }}: {{ tool.formatMoney(detail?.compound_interest_money) }}</p>
         </div>
       </div>
 
@@ -151,6 +153,7 @@ import DrawdownRequestVsl from './form/DrawdownRequestVsl.vue';
 import DrawdownRequestLendr from './form/DrawdownRequestLendr.vue';
 import DetailsDialog from './form/DetailsDialog.vue';
 import DetailsDialogVsl from './form/DetailsDialogVsl.vue';
+import DetailsDialogLendr from './form/DetailsDialogLendr.vue';
 import ReleaseDialog from './form/ReleaseDialog.vue';
 import PushBackLog from '@/views/projects/components/PushBackLog.vue';
 import { useUserStore } from '@/store';
@@ -247,12 +250,15 @@ const openEditHandle = (allCancel = false) => {
 
 const detailsVisible = ref(false);
 const detailsVisibleVsl = ref(false);
+const detailsVisibleLendr = ref(false);
 const detailsAccept = ref(false);
 
 const openDetails = (accept) => {
   detailsAccept.value = accept;
   if (props.projectDetail.product.code === 'vsl') {
     detailsVisibleVsl.value = true;
+  } else if (props.projectDetail.product.code === 'lendr') {
+    detailsVisibleLendr.value = true;
   } else {
     detailsVisible.value = true;
   }

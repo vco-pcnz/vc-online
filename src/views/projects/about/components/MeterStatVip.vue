@@ -18,7 +18,13 @@
       <div class="MeterStat">
         <div class="MeterStat-Meter RC"></div>
         <div>
-          <p>{{ t('预计还款今天') }}</p>
+          <div class="flex items-center gap-2 justify-end">
+            <p>{{ t('预计还款今天') }}</p>
+              <div class="efSGMs">
+                <i class="iconfont">&#xe6b3;</i>
+                <div class="tips" style="right: 50%; left: auto;width: 200px;"><p>Excluding interest accrued today and unsettled transactions</p></div>
+              </div>
+          </div>
           <vco-number :value="tool.plus(data?.currentBalance || 0, data?.accruedInterest || 0)" :precision="2"></vco-number>
         </div>
       </div>
@@ -57,7 +63,7 @@
           <div class="flex items-center gap-2 justify-end">
             <div class="efSGMs">
               <i class="iconfont">&#xe6b3;</i>
-              <div class="tips" style="right: 50%; left: auto"><p>Loan = Approved LoanAmount + Legal fee + Brokerfee + Otherfee</p></div>
+              <div class="tips" style="right: 50%; left: auto;width: 200px;"><p>Exclusive broker fee & legal fee</p></div>
             </div>
             Loan amount
           </div>

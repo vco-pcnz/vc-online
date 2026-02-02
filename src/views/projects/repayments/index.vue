@@ -54,7 +54,6 @@
                     <a-button type="brown" shape="round" size="small">{{ t('创建还款') }}</a-button>
                   </drawdown-request-lendr>
                   <drawdown-request-vsl v-else-if="projectDetail?.product?.code === 'vsl'" :uuid="uuid" :projectDetail="projectDetail" :count="total" @change="update">
-                    <a-button type="brown" shape="round" size="small">{{ t('创建还款') }}</a-button>
                   </drawdown-request-vsl>
                   <drawdown-request v-else :uuid="uuid" :projectDetail="projectDetail" :count="total" @change="update">
                     <a-button type="brown" shape="round" size="small">{{ t('创建还款') }}</a-button>

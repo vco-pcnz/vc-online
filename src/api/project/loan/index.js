@@ -496,3 +496,11 @@ export const calcRepayment = (data) =>
     method: 'post',
     data
   });
+  
+  // lendr是否可以创建还款
+  export const repayApplyStatus = (params) =>
+    request({
+      url: 'project/loan/repayApplyStatus',
+      method: 'get',
+      params
+    });

@@ -9,10 +9,6 @@
              :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
-          <a-form-item :label="t('贷款方')" name="lender"
-                       v-if="(hasPermission('projects:schedule:vs_schedule') || hasPermission('projects:schedule:boc_schedule')) && productStore.getProductUuid('vsl') === productStore.currentProduct">
-            <a-select v-model:value="formState.lender" style="width: 100%" :options="lendrData" />
-          </a-form-item>
           <a-form-item :label="t('日期')" name="date">
             <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly
                            v-model:value="formState.date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD"
@@ -40,7 +36,6 @@ import useProductStore from '@/store/modules/product';
 const productStore = useProductStore();
 const { t } = useI18n();
 const emits = defineEmits(['change']);
-import { hasPermission } from '@/directives/permission/index';
 
 const props = defineProps({
   searchParams: {
@@ -55,26 +50,8 @@ const visible = ref(false);
 const loading = ref(false);
 
 const formState = ref({
-  lender: '',
   date: ''
 });
-
-const lendrData = ref([
-  {
-    label: 'All',
-    value: ''
-  },
-  {
-    label: 'VS',
-    value: 'VS',
-    hide: !hasPermission('projects:schedule:vs_schedule')
-  },
-  {
-    label: 'BOC',
-    value: 'BOC',
-    hide: !hasPermission('projects:schedule:boc_schedule')
-  }
-]);
 
 const formRef = ref();
 const formRules = ref({
@@ -126,7 +103,6 @@ const save = () => {
 const init = () => {
   visible.value = true;
   formState.value.date = dayjs().format('YYYY-MM-DD');
-  formState.value.lender = '';
   nextTick(() => {
     formRef.value.clearValidate();
     formRef.value.resetFields();

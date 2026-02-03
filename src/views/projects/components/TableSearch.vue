@@ -163,7 +163,8 @@ const searchForm = ref({
   project_keyword: '',
   lm_name: '',
   min_loan_money: '',
-  max_loan_money: ''
+  max_loan_money: '',
+  lender: ''
 });
 
 const disabledDateFormatAfter = (current) => {

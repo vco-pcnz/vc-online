@@ -18,7 +18,7 @@
       <div class="MeterStat">
         <div class="MeterStat-Meter RC"></div>
         <div>
-          <div class="flex items-center gap-2 justify-end">
+          <div class="flex items-center gap-2">
             <p>{{ t('预计还款今天') }}</p>
               <div class="efSGMs">
                 <i class="iconfont">&#xe6b3;</i>

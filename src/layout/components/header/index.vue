@@ -239,6 +239,7 @@ const handleProductChange = (val) => {
   productStore.currentProduct = val;
   localStorage.setItem('currentProduct', val);
   productOpen.value = false;
+  navigationTo('/');
 };
 
 // 组件挂载时启动定时器

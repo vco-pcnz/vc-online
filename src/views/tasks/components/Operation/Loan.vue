@@ -45,8 +45,11 @@ const getVcteamData = () => {
 };
 
 const todoHandle = (data) => {
+  console.log(data);
   if (data.status_name === 'LC Assign LM') {
     bindHandle(data);
+  } else if (data.status_name === 'LC ASSIGN LM') {
+    navigationTo(`/requests/loan`);
   } else {
     const href = processRoutes[data.next_index - 1];
     if (href) {

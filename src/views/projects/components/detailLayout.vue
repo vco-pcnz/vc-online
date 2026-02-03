@@ -17,6 +17,7 @@
 import { onMounted, ref, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useUserStore } from '@/store';
+import useProductStore from '@/store/modules/product';
 import { useRouter, useRoute } from 'vue-router';
 // import { projectDetailApi } from '@/api/process';
 import { projectDetail } from '@/api/project/project';
@@ -30,6 +31,7 @@ const router = useRouter();
 const route = useRoute();
 
 const userStore = useUserStore();
+const productStore = useProductStore();
 
 const props = defineProps(['title', 'activeTab']);
 const emits = defineEmits(['getProjectDetail']);
@@ -102,6 +104,11 @@ const getProjectDetail = (userId) => {
     projectDetail({ uuid }).then((res) => {
       res['loan'] = res.date;
       detail.value = res;
+      const detailProductUuid = productStore.getProductUuid(res?.product?.code );
+      if (detailProductUuid && detailProductUuid !== productStore.currentProduct) {
+        productStore.currentProduct = detailProductUuid;
+        localStorage.setItem('currentProduct', detailProductUuid);
+      }
       if (pageRole.value == 'Umbrella' || userStore.userInfo.roles === 'guest') {
         res.base.is_close = 1;
       }

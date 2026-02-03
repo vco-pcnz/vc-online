@@ -1,6 +1,10 @@
 <template>
   <div>
     <vco-page-search @keyup.enter="searchHandle(false)">
+      <vco-page-search-item :title="t('贷款方')" width="80" v-if="(hasPermission('projects:schedule:vs_schedule') || hasPermission('projects:schedule:boc_schedule')) && productStore.getProductUuid('vsl') === productStore.currentProduct">
+        <a-select v-model:value="searchForm.lender" style="width: 100%" :options="lendrData" />
+      </vco-page-search-item>
+
       <vco-page-search-item :title="t('项目信息')" width="266">
         <vco-type-input v-model="searchForm.project_keyword" v-model:type="searchForm.project_search_type" :type-data="projectsTypeData" :placeholder="t('请输入')" :typeWidth="135"></vco-type-input>
       </vco-page-search-item>
@@ -23,10 +27,9 @@
           <a-date-picker v-model:value="searchForm.end_date_e" :format="selectDateFormat()" :disabledDate="disabledDateFormatAfter2" :placeholder="t('结束日期2')" />
         </div>
       </vco-page-search-item>
-      <vco-page-search-item :title="t('客户经理')" width="170">
+      <vco-page-search-item :title="t('客户经理')" width="162">
         <a-input v-model:value="searchForm.lm_name" :placeholder="t('请输入')" />
       </vco-page-search-item>
-
       <template v-if="isExpand">
         <vco-page-search-item :title="t('借款金额')" width="264">
           <div class="flex items-center gap-2">
@@ -70,7 +73,10 @@ import { useI18n } from 'vue-i18n';
 import { useProjectsStore } from '@/store';
 import { selectDateFormat } from '@/utils/tool';
 import { DoubleRightOutlined } from '@ant-design/icons-vue';
+import { hasPermission } from '@/directives/permission/index';
 const pageStore = useProjectsStore();
+import useProductStore from '@/store/modules/product';
+const productStore = useProductStore();
 
 const emits = defineEmits(['search']);
 const props = defineProps(['type']);
@@ -128,6 +134,23 @@ const projectsTypeData = [
     value: 'borrower_email'
   }
 ];
+
+const lendrData = ref([
+  {
+    label: 'All',
+    value: ''
+  },
+  {
+    label: 'VS',
+    value: 'VS',
+    hide: !hasPermission('projects:schedule:vs_schedule')
+  },
+  {
+    label: 'BOC',
+    value: 'BOC',
+    hide: !hasPermission('projects:schedule:boc_schedule')
+  }
+]);
 
 const searchForm = ref({
   borrower_keyword: '',

@@ -191,7 +191,7 @@ export default {
   "借款人类型": "Borrower type",
   "机构名称": "Company name",
   "证件照片": "Certificate photo",
-  "身份证号码": "ID number",
+  "身份证号码": "Driver license/Passport Number",
   "公司编码": "Company number",
   "借款人地址": "Borrower address",
   "邮编": "Post code",

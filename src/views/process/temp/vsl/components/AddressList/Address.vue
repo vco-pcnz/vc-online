@@ -1,6 +1,6 @@
 <template>
   <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
-    <vco-address :config="config" ref="vcoAddressRef" @change="setAddressInfo"></vco-address>
+    <vco-address :config="config" ref="vcoAddressRef" @change="setAddressInfo" @validate="validateHandle"></vco-address>
   </a-form>
 </template>
 
@@ -61,6 +61,10 @@ const setAddressInfo = (e) => {
   }
   emits('update:value', formState.value);
   emits('change', formState.value);
+};
+
+const validateHandle = () => {
+  formRef.value.validateFields(['region_one_name']);
 };
 
 onMounted(() => {

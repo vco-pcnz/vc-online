@@ -89,6 +89,7 @@ const update = () => {
     emits('update:value', []);
   }
   emits('update:list', documentList.value);
+  emits('change')
 };
 
 watch(

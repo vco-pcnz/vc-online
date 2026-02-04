@@ -11,7 +11,7 @@ import Mode1 from './components/mode1.vue';
 import { useAppStore } from '@/store';
 
 const appStore = useAppStore();
-const emits = defineEmits(['update:value', 'change']);
+const emits = defineEmits(['update:value', 'change', 'validate']);
 
 const props = defineProps({
   value: {
@@ -45,6 +45,10 @@ const init = (val) => {
 const change = (val) => {
   emits('update:value', val);
   emits('change', val);
+
+  if (val.region_one_name && val.region_one_name.trim()) {
+    emits('validate')
+  }
 };
 
 onMounted(() => {

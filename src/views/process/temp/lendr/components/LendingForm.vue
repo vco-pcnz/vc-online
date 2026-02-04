@@ -227,7 +227,7 @@
                 "
                 :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
               >
-                <template #suffix>{{ t('天') }}</template>
+                <template #suffix>{{ t('{0}个工作日') }}</template>
               </a-input>
             </a-form-item>
           </a-col>

@@ -36,7 +36,7 @@
                 <p>{{ tool.showDate(statisticsData.day.eday) }}</p>
               </div>
             </a-form-item>
-            <template v-if="!isClose">
+            <!-- <template v-if="!isClose"> -->
               <a-form-item :label="t('快捷选择')">
                 <a-select v-model:value="quickDate" style="width: 100%" @change="quickDateChange">
                   <a-select-option v-for="item in quickDateData" :key="item.value" :value="item.value">
@@ -52,7 +52,7 @@
               <a-form-item :label="t('开始日期2')" name="s_date">
                 <a-date-picker v-model:value="adFormState.s_date" :format="selectDateFormat()" :disabledDate="adDisabledSdateFormat" @change="quickDate = ''" />
               </a-form-item>
-            </template>
+            <!-- </template> -->
 
             <a-form-item :label="t('结束日期2')" name="date">
               <a-date-picker v-model:value="adFormState.date" :format="selectDateFormat()" :disabledDate="adDisabledDateFormat" @change="quickDate = ''" />

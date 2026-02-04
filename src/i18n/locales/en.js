@@ -191,7 +191,7 @@ export default {
   "借款人类型": "Borrower type",
   "机构名称": "Company name",
   "证件照片": "Certificate photo",
-  "身份证号码": "ID number",
+  "身份证号码": "Driver license/Passport Number",
   "公司编码": "Company number",
   "借款人地址": "Borrower address",
   "邮编": "Post code",
@@ -1379,5 +1379,6 @@ export default {
   "应计违约利息": "Accrued default interest",
   "欠款金额": "Amount owed",
   "您确定要退回到变更申请吗？": "Are you sure you want to return to the variation application?",
-  "{0}个工作日": "{0} working days"
+  "{0}个工作日": "{0} working days",
+  "交易类型": "Transaction type"
 }

@@ -11,6 +11,9 @@
     <a-modal :width="486" :open="visible" title=" " :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
+          <a-form-item :label="t('交易类型')">
+            <a-select :loading="loading_type" style="width: 100%" v-model:value="formState.transaction_type" show-search :options="transaction_type.duration.concat(transaction_type.journal_type)" :filter-option="customFilter" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
+          </a-form-item>
           <a-form-item :label="t('日期')" name="date">
             <a-range-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" :showToday="false" />
           </a-form-item>
@@ -34,6 +37,8 @@ import dayjs from 'dayjs';
 import { selectDateFormat } from '@/utils/tool';
 import useProductStore from '@/store/modules/product';
 const productStore = useProductStore();
+import { systemDictData } from '@/api/system';
+import { fill } from 'lodash';
 
 const { t } = useI18n();
 const emits = defineEmits(['change']);
@@ -51,7 +56,8 @@ const visible = ref(false);
 const loading = ref(false);
 
 const formState = ref({
-  date: ''
+  date: '',
+  transaction_type:''
 });
 
 const formRef = ref();
@@ -73,6 +79,29 @@ const updateVisible = (value) => {
   visible.value = value;
 };
 
+
+const transaction_type = ref({
+  duration: [],
+  journal_type: []
+});
+
+const loading_type = ref(false);
+const loadType = (key) => {
+  loading_type.value = true;
+  systemDictData(key)
+    .then((res) => {
+      transaction_type.value[key] = res;
+    })
+    .finally((_) => {
+      loading_type.value = false;
+    });
+};
+
+const customFilter = (input, option) => {
+  // 根据自定义字段名 'name' 进行筛选
+  return option.name.toLowerCase().includes(input.toLowerCase());
+};
+
 const save = () => {
   formRef.value
     .validate()
@@ -82,6 +111,7 @@ const save = () => {
         sta: props.sta,
         schedule_s: formState.value.date[0],
         schedule_e: formState.value.date[1],
+        fee_type: formState.value.transaction_type,
         product_uuid: productStore.currentProduct
       };
       loading.value = true;
@@ -105,10 +135,13 @@ const save = () => {
 const init = () => {
   visible.value = true;
   formState.value.date = '';
+  formState.value.transaction_type = '';
   nextTick(() => {
     formRef.value.clearValidate();
     formRef.value.resetFields();
   });
+  loadType('duration');
+  loadType('journal_type');
 };
 </script>
 <style scoped lang="less">

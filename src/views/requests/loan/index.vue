@@ -177,6 +177,8 @@ import emitter from '@/event';
 import BindUsersDialog from '@/views/process/components/BindUsersDialog.vue';
 import useUserStore from '@/store/modules/user';
 import useProductStore from '@/store/modules/product';
+import { useRoute } from 'vue-router';
+const route = useRoute();
 
 const { t } = useI18n();
 
@@ -435,6 +437,20 @@ watch(
   },
   { immediate: true }
 );
+
+watch(
+  () => route.query.product_uuid,
+  (val) => {
+    if (val) {
+      if (productStore.openProductData.find((item) => item.uuid === val)) {
+        productStore.currentProduct = val;
+        localStorage.setItem('currentProduct', val);
+      }
+    }
+  },
+  { immediate: true }
+);
+
 </script>
 
 <style lang="less" scoped>

@@ -1155,7 +1155,7 @@
     });
 
     // top up equity 值
-    const devCostData = props.lendingInfo.devCostDetail[0].data[1] || null
+    const devCostData = props.lendingInfo?.devCostDetail?.[0]?.data?.[1] || null
     if (devCostData) {
       formState.value.equity_amount = devCostData.loan
     }
@@ -1409,6 +1409,7 @@
 
   const hasChangeDevCost = ref(false)
   const setSingleFormData = (params) => {
+    console.log('params', params);
     projectAuditSaveMode(params).then(() => {
       hasChangeDevCost.value = true
 

@@ -21,7 +21,7 @@
                   <a-col :span="24">
                     <a-form-item :label="t('项目照片')" name="project_images">
                       <!-- <vco-upload-image v-model:value="formState.project_images" :isMultiple="true" :limit="9"></vco-upload-image> -->
-                      <vco-upload-list v-model:value="formState.project_images" v-model:list="formState.project_images_list" :limit="9 - formState.project_images.length"></vco-upload-list>
+                      <vco-upload-list v-model:value="formState.project_images" v-model:list="formState.project_images_list" :limit="9 - formState.project_images.length" @change="projectImagesChange"></vco-upload-list>
                     </a-form-item>
                   </a-col>
 
@@ -199,7 +199,17 @@ const addressConfig = ref({
 
 const formRules = {
   project_type: [{ required: true, message: t('请选择') + t('项目类型'), trigger: 'change' }],
-  project_images: [{ required: true, message: t('请上传') + t('项目照片'), trigger: 'change' }],
+  project_images: [
+    {
+      required: true,
+      validator: () => {
+        return formState.project_images_list && formState.project_images_list.length
+          ? Promise.resolve()
+          : Promise.reject(t('请上传') + t('项目照片'));
+      },
+      trigger: 'change'
+    }
+  ],
   building_num: [{ required: true, message: t('请输入') + t('楼栋数'), trigger: 'blur' }],
   project_about: [{ required: true, message: t('请输入') + t('项目介绍'), trigger: 'blur' }]
 };
@@ -387,6 +397,11 @@ const getDataInit = async () => {
   pageLoading.value = false;
 
   dataInit(infoData, draftData);
+};
+
+const projectImagesChange = () => {
+  // 验证图片
+  formRef.value.validateFields(['project_images']);
 };
 
 watch(

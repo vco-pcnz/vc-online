@@ -4,6 +4,16 @@
       <div class="ProjectDrawdowns">
         <div class="flex justify-end mb-5 gap-4">
           <vco-page-tab v-if="projectDetail && projectDetail.product.code === 'vsl' && (hasPermission('projects:schedule:vs_schedule') || hasPermission('projects:schedule:boc_schedule'))" :tabData="typeData" v-model:current="type_id"></vco-page-tab>
+          <a-button
+            v-if="hasPermission('projects:repayments:ViewRepaymentSchedule') && projectDetail?.product?.code === 'lender'"
+            type="brown"
+            shape="round"
+            class="pre-sale-enter"
+            @click="navigationTo(`/projects/repayments/repaymentSchedule?uuid=${uuid}`)"
+          >
+            {{ t('查看还款计划') }}
+            <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px' }" />
+          </a-button>
         </div>
         <div :class="{ grid: (hasPermission('projects:repayments:add') || hasPermission('projects:repayments:calculator')) && projectDetail && !projectDetail?.base?.is_close }" class="mb-12">
           <MeterStat :uuid="uuid" :type_id="type_id" :projectDetail="projectDetail" v-if="Boolean(uuid)" ref="MeterStatRef"></MeterStat>
@@ -21,7 +31,7 @@
                   </div>
                   <p class="color_grey mt-1 mb-3">{{ t('点击下方按钮创建还款申请') }}</p>
 
-                  <drawdown-request-lendr v-if="projectDetail.product.code === 'lendr'" :uuid="uuid" :projectDetail="projectDetail" :count="total" @change="update">
+                  <drawdown-request-lendr v-if="projectDetail?.product?.code === 'lendr'" :uuid="uuid" :projectDetail="projectDetail" :count="total" @change="update">
                     <a-button type="brown" shape="round" size="small">{{ t('创建还款') }}</a-button>
                   </drawdown-request-lendr>
                   <drawdown-request v-else :uuid="uuid" :projectDetail="projectDetail" @change="update">
@@ -33,10 +43,10 @@
                     <i class="iconfont mr-2">&#xe75d;</i><span class="weight_demiBold">{{ t('帮助借款人') }}</span>
                   </div>
                   <p class="color_grey mt-1 mb-3">{{ t('您可以帮助他们创建还款请求') }}</p>
-                  <drawdown-request-lendr v-if="projectDetail.product.code === 'lendr'" :uuid="uuid" :projectDetail="projectDetail" :count="total" @change="update">
+                  <drawdown-request-lendr v-if="projectDetail?.product?.code === 'lendr'" :uuid="uuid" :projectDetail="projectDetail" :count="total" @change="update">
                     <a-button type="brown" shape="round" size="small">{{ t('创建还款') }}</a-button>
                   </drawdown-request-lendr>
-                  <drawdown-request-vsl v-else-if="projectDetail.product.code === 'vsl'" :uuid="uuid" :projectDetail="projectDetail" :count="total" @change="update">
+                  <drawdown-request-vsl v-else-if="projectDetail?.product?.code === 'vsl'" :uuid="uuid" :projectDetail="projectDetail" :count="total" @change="update">
                     <a-button type="brown" shape="round" size="small">{{ t('创建还款') }}</a-button>
                   </drawdown-request-vsl>
                   <drawdown-request v-else :uuid="uuid" :projectDetail="projectDetail" :count="total" @change="update">
@@ -86,6 +96,8 @@ import { hasPermission } from '@/directives/permission/index';
 import { loanRepayment } from '@/api/project/loan';
 import { useRoute } from 'vue-router';
 import { useUserStore } from '@/store';
+import { RightOutlined } from '@ant-design/icons-vue';
+import { navigationTo } from '@/utils/tool';
 
 const route = useRoute();
 
@@ -213,5 +225,11 @@ watch(
   > i {
     line-height: 1;
   }
+}
+
+.pre-sale-enter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>

@@ -173,7 +173,7 @@
 
             <div class="flex flex-col items-center gap-3">
               <a-button
-                v-if="isAbout && !isClose && !itemId && !budget && hasPermission('projects:schedule:reset')"
+                v-if="isAbout && !isClose && !itemId && !budget && hasPermission('projects:schedule:reset') && !isLendr"
                 type="brown"
                 shape="round"
                 size="small"
@@ -183,7 +183,7 @@
                 {{ t('重置当前预测表') }}
                 <RightOutlined :style="{ fontSize: '11px', 'margin-inline-start': '4px' }" />
               </a-button>
-              <a-button v-if="itemId && variationInfo.state !== 1000" :loading="updateLoading" @click="updateHandle" type="brown" shape="round" size="small">{{ t('更新明细表') }}</a-button>
+              <a-button v-if="itemId && variationInfo.state !== 1000 && !isLendr" :loading="updateLoading" @click="updateHandle" type="brown" shape="round" size="small">{{ t('更新明细表') }}</a-button>
             </div>
           </div>
         </div>
@@ -455,6 +455,10 @@ const showLender = computed(() => {
 });
 const isVariation = computed(() => {
   return props.variationInfo && Object.keys(props.variationInfo).length > 0;
+});
+
+const isLendr = computed(() => {
+  return props.currentProduct.toLowerCase() === 'lendr';
 });
 
 const pageLoading = ref(false);

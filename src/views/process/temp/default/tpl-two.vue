@@ -419,7 +419,7 @@ const getDataInit = async () => {
 
 const projectImagesChange = () => {
   // 验证图片
-  formRef.value.validateFields(['project_images']);
+  formRef.value?.validateFields(['project_images']);
 };
 
 watch(

@@ -680,6 +680,7 @@ const loadType = (key) => {
       }
       typesObj.value = obj;
 
+      console.log('1111111', data.value)
       if (!data.value.data[0].list.length) {
         res.map((item) => {
           data.value.data[0].list.push({

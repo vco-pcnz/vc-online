@@ -25,26 +25,14 @@
         <p>{{ t('还款金额') }}</p>
         <vco-number :value="detailData.apply_amount" :precision="2"></vco-number>
       </a-col>
-      <template v-if="detailData.all_repayment">
-        <a-col v-if="detailData.reduction_rate" :span="9" class="item-txt">
-          <p>{{ t('建议标准税率') }} <span v-if="detailData.reduction_rate_old" class="pl-2">{{ `(${t('最小值')}: ${detailData.reduction_rate_old}%)` }}</span></p>
-          <vco-number :value="detailData.reduction_rate" prefix="" suffix="%" :precision="2" ></vco-number>
-        </a-col>
-        <a-col v-if="detailData.reduction_money" :span="9" class="item-txt">
-          <p>{{ t('减免额度') }} <span v-if="detailData.reduction_money_old" class="pl-2">{{ `(${t('最大值')}: $${numberStrFormat(detailData.reduction_money_old)})` }}</span></p>
-          <vco-number :value="detailData.reduction_money" :precision="2" ></vco-number>
-        </a-col>
-        <a-col :span="6" class="item-txt">
-          <p>Loan IRR <span v-if="detailData.reduction_irr_old" class="pl-2">{{ `(${numberStrFormat(detailData.reduction_irr_old)}%)` }}</span></p>
-          <vco-number :value="detailData.reduction_irr" prefix="" suffix="%" :precision="2" ></vco-number>
-        </a-col>
-      </template>
-      <template v-else>
-        <a-col v-if="Number(detailData.reduction_money)" :span="9" class="item-txt">
-          <p>{{ t('减免额度') }} <span v-if="detailData.reduction_money_old" class="pl-2">{{ `(${t('最大值')}: $${numberStrFormat(detailData.reduction_money_old)})` }}</span></p>
-          <vco-number :value="detailData.reduction_money" :precision="2" ></vco-number>
-        </a-col>
-      </template>
+      <a-col v-if="Number(detailData.reduction_money)" :span="12" class="item-txt">
+        <p>{{ t('减免额度') }} <span v-if="detailData.reduction_money_old" class="pl-2">{{ `(${t('最大值')}: $${numberStrFormat(detailData.reduction_money_old)})` }}</span></p>
+        <vco-number :value="detailData.reduction_money" :precision="2" ></vco-number>
+      </a-col>
+      <a-col :span="12" class="item-txt">
+        <p>{{ t('利息') }}</p>
+        <vco-number :value="detailData.compound_interest_money || 0" :precision="2"></vco-number>
+      </a-col>
       <a-col :span="24" class="item-txt">
         <p>{{ t('还款说明') }}</p>
         <p>{{ detailData.note || '--' }}</p>

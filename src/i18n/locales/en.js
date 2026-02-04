@@ -1379,5 +1379,6 @@ export default {
   "应计违约利息": "Accrued default interest",
   "欠款金额": "Amount owed",
   "您确定要退回到变更申请吗？": "Are you sure you want to return to the variation application?",
-  "{0}个工作日": "{0} working days"
+  "{0}个工作日": "{0} working days",
+  "交易类型": "Transaction type"
 }

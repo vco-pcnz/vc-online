@@ -8,11 +8,11 @@
     </a-tooltip>
   </div>
   <div @click.stop ref="JournalRef" class="Journal">
-    <a-modal :width="486" :open="visible" title=" " :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
+    <a-modal :width="500" :open="visible" title=" " :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
           <a-form-item :label="t('交易类型')">
-            <a-select :loading="loading_type" style="width: 100%" v-model:value="formState.transaction_type" show-search :options="transaction_type.duration.concat(transaction_type.journal_type)" :filter-option="customFilter" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
+            <a-select :loading="loading_type" style="width: 100%" v-model:value="formState.transaction_type" mode="multiple" show-search :options="initTransactionData()" :filter-option="customFilter" :fieldNames="{ label: 'name', value: 'code' }" :max-tag-count="2" :max-tag-placeholder="(omitted) => `+${omitted.length}...`"></a-select>
           </a-form-item>
           <a-form-item :label="t('日期')" name="date">
             <a-range-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" :showToday="false" />
@@ -57,7 +57,7 @@ const loading = ref(false);
 
 const formState = ref({
   date: '',
-  transaction_type:''
+  transaction_type: []
 });
 
 const formRef = ref();
@@ -102,6 +102,21 @@ const customFilter = (input, option) => {
   return option.name.toLowerCase().includes(input.toLowerCase());
 };
 
+const initTransactionData = () => {
+  return [
+    ...transaction_type.value.duration,
+    ...transaction_type.value.journal_type,
+    {
+      name: t('放款'),
+      code:'20'
+    },
+    {
+      name: t('还款'),
+      code:'40'
+    }
+  ]
+};
+
 const save = () => {
   formRef.value
     .validate()
@@ -135,7 +150,7 @@ const save = () => {
 const init = () => {
   visible.value = true;
   formState.value.date = '';
-  formState.value.transaction_type = '';
+  formState.value.transaction_type = [];
   nextTick(() => {
     formRef.value.clearValidate();
     formRef.value.resetFields();

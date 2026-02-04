@@ -57,7 +57,7 @@
                 <span class="user_name" @click="toProfile('/profile/about')">{{ userInfo?.user_name || 'UserName' }}</span>
                 <a-badge @click.stop="toProfile('/profile/notice')" class="badge" size="small" :count="noticeStore.noticeCount" v-if="!!noticeStore.noticeCount" />
               </a-space>
-              <div v-if="userInfo?.roles && !isNormalUser">
+              <div v-if="userInfo?.roles && !isNormalUser || userInfo?.roles.includes('broker')">
                 <template v-for="(item, index) in userInfo?.roles.split('/')" :key="item">
                   <a-tag color="orange" :title="userInfo?.full_roles[index]" @click="toLoans(item)">{{ userInfo?.role_names[index] }}</a-tag>
                 </template>

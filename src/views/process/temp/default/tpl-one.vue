@@ -475,6 +475,8 @@ const submitHandle = () => {
         params.borrower_type = 2
         params.is_trust = 1
         params.borrower_id_num = ''
+      } else {
+        params.is_trust = 0
       }
 
       subLoading.value = true;

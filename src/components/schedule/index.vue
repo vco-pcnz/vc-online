@@ -674,6 +674,9 @@ const downLoadExcel = (type) => {
   if (props.is_buyout) {
     params.is_buyout = 1;
   }
+  if( props.lateTable && lateTabActiveKey.value === '1') {
+    params.ctype = 1;
+  }
 
   downloading.value = true;
   ajaxFn(params)

@@ -1368,6 +1368,8 @@ export default {
   "罚息减免天数": "Penalty interest waiver days",
   "还款金额不能小于等于0": "Repayment amount cannot be less than or equal to 0",
   "导入数据格式不正确，如数据为0，请填写0不要留空": "The import data format is incorrect, if the data is 0, please fill in 0 not leave blank",
+  "辅助文件": "Proposal - Supporting docs",
+  "贷款文件": "Legal Docs - Loan docs",
   "罚息类型": "Default interest base",
   "罚息利率": "Default Interest rate",
   "罚息减免天数": "Grace period",

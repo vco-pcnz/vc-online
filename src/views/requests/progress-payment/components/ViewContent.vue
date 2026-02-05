@@ -482,6 +482,7 @@
   import { useRoute } from "vue-router"
   import { dischargeSecurity } from '@/api/project/loan';
   import { projectAuditStepDetail, projectGetBuild, projectLoanGetBuild, projectDetailApi } from "@/api/process"
+  import { projectDetail } from "@/api/project/project"
   import { cloneDeep } from "lodash"
   import tool, { numberStrFormat, fixNumber } from "@/utils/tool"
 
@@ -559,6 +560,9 @@
 
   // 是否为进件阶段
   const isRequests = ref(false)
+
+  // 是否为进件详情
+  const isRequestsDetail = ref(false)
 
    // 已设置数据
   const setedData = ref({
@@ -1124,9 +1128,13 @@
     }
 
     try {
-      const ajaxFn = isRequests.value ? projectAuditStepDetail : projectDetailApi
-      await ajaxFn(params).then(res => {
+      let ajaxFn = isRequests.value ? projectAuditStepDetail : projectDetailApi
 
+      if (!isRequestsDetail.value) {
+        ajaxFn = projectDetail
+      }
+
+      await ajaxFn(params).then(res => {
         if (isRequests.value) {
           isVsl.value = String(res.base.productCode).toLowerCase() === 'vsl'
         } else {
@@ -1134,10 +1142,21 @@
         }
 
         emits('done', res)
-
-        const costModel = Boolean(res.lending.devCostDetail[0].model)
+        
+        let costModel
+        if (!isRequestsDetail.value) {
+          costModel = Boolean(res.base.devCostDetail[0].model)
+        } else {
+          costModel = Boolean(res.lending.devCostDetail[0].model)
+        }
+        
         easyModel.value = costModel
-        const list = res.lending.devCostDetail[0].data[0].list
+        let list
+        if (!isRequestsDetail.value) {
+          list = res.base.devCostDetail[0].data[0].list
+        } else {
+          list = res.lending.devCostDetail[0].data[0].list
+        }
         const filterType = costModel ? ['Land', 'Refinance', 'Land_gst'] : ['Land', 'Construction', 'Refinance', 'Land_gst']
         const footerData = list.filter(item => !filterType.includes(item.type)) || []
 
@@ -1682,6 +1701,13 @@
     } else {
       isRequests.value = false
     }
+
+    if (path.indexOf('/requests/details/progress-payment') > -1) {
+      isRequestsDetail.value = true
+    } else {
+      isRequestsDetail.value = false
+    }
+
     uuid.value = query.uuid
 
     if (props.excess) {

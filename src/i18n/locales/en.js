@@ -1382,5 +1382,6 @@ export default {
   "欠款金额": "Amount owed",
   "您确定要退回到变更申请吗？": "Are you sure you want to return to the variation application?",
   "{0}个工作日": "{0} working days",
-  "交易类型": "Transaction type"
+  "交易类型": "Transaction type",
+  "存在{0}项设置的金额小于已使用的金额的数据，请检查": "There are {0} items with set amounts less than the used amounts. Please check"
 }

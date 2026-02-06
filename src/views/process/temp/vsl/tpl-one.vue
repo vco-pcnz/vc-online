@@ -251,7 +251,8 @@ const formState = reactive({
   middle_name: '',
   last_name: '',
   organization_name: '',
-  borrower_id_num: `${randomNumber}temp`,
+  // borrower_id_num: `${randomNumber}temp`,
+  borrower_id_num: ``,
   company_number: '',
   borrower_email: '',
   borrower_phone_prefix: '',
@@ -474,6 +475,8 @@ const submitHandle = () => {
         params.borrower_type = 2
         params.is_trust = 1
         params.borrower_id_num = ''
+      } else {
+        params.is_trust = 0
       }
 
       subLoading.value = true;

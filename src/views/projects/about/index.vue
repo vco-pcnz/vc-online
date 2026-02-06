@@ -34,7 +34,7 @@
                 </template>
                 <conditions-list :current-id="currentId" :is-details="true" :is-close="Boolean(detail?.base.is_close)" :about="true" :end-date="detail.date.end_date"></conditions-list>
               </a-collapse-panel>
-              <a-collapse-panel key="Request_details" class="collapse-card request-card" v-if="!detail?.base?.ptRole">
+              <a-collapse-panel key="Request_details" class="collapse-card request-card">
                 <template #header>
                   <i class="iconfont">&#xe732;</i>
                   <span class="title">{{ t('请求详情') }}</span>

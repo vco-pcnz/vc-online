@@ -127,7 +127,7 @@
         </a-popconfirm>
       </template>
     </div>
-    <template v-if="detail?.has_permission && (detail?.mark == 'drawdown_lm' || detail?.mark == 'drawdown_fc' || detail?.mark == 'drawdown_director')">
+    <template v-if="detail?.has_permission && (detail?.mark == 'drawdown_lm' || detail?.mark == 'drawdown_fc' || detail?.mark == 'drawdown_director' || detail?.mark == 'drawdown_lc')">
       <p class="text-center color_grey fs_xs my-3">{{ t('您可以点击下面的按钮来拒绝放款请求。') }}</p>
       <div class="flex justify-center">
         <a-popconfirm :title="t('确定要拒绝该请求吗？')" okText="decline" @confirm="decline">
@@ -137,7 +137,7 @@
           <a-button type="danger" size="small" shape="round" :loading="decline_loading">{{ t('拒绝请求') }}</a-button>
         </a-popconfirm>
       </div>
-      <DrawdownBack :uuid="uuid" :detail="detail" @change="update" v-if="detail?.has_permission && (detail?.mark == 'drawdown_fc' || detail?.mark == 'drawdown_director')"></DrawdownBack>
+      <DrawdownBack :uuid="uuid" :detail="detail" @change="update" v-if="detail?.has_permission && (detail?.mark == 'drawdown_fc' || detail?.mark == 'drawdown_director' || detail?.mark == 'drawdown_lc')"></DrawdownBack>
     </template>
     <!-- 分配利益相关者 -->
     <div class="flex justify-center mt-3">

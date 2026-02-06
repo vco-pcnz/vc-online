@@ -145,7 +145,7 @@ watch(
     // 不同类型 上传地址处理
     switch (val) {
       case 'image':
-        accept.value = 'image/*,image/heic,image/heif,image/webp';
+        accept.value = 'image/*,image/webp';
         uploadAction.value = uploadUrl + props.controller + '/uploadImage';
         fileType.value = imageExtensions;
         errTip.value = t('上传格式不正确，不是{0}', [imageExtensions]);

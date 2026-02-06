@@ -5,11 +5,14 @@
     </slot>
   </div>
   <div @click.stop ref="JournalRef" class="Journal">
-    <a-modal :width="486" :open="visible" title=" " :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
+    <a-modal :width="486" :open="visible" title=" " :getContainer="() => $refs.JournalRef" :maskClosable="false"
+             :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
           <a-form-item :label="t('日期')" name="date">
-            <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" :showToday="false" />
+            <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly
+                           v-model:value="formState.date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD"
+                           :showToday="false" />
           </a-form-item>
         </a-form>
 
@@ -30,7 +33,7 @@ import { downBl } from '@/api/project/project';
 import dayjs from 'dayjs';
 import { selectDateFormat } from '@/utils/tool';
 import useProductStore from '@/store/modules/product';
-const productStore = useProductStore(); 
+const productStore = useProductStore();
 const { t } = useI18n();
 const emits = defineEmits(['change']);
 
@@ -114,11 +117,13 @@ const init = () => {
     .ant-modal-header {
       padding: 32px 84px 0px;
       border-radius: 24px;
+
       .ant-modal-title {
         font-size: 20px;
         font-weight: 500;
       }
     }
+
     padding: 0px !important;
 
     .content {

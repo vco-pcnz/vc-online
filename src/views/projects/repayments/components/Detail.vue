@@ -5,7 +5,7 @@
 
     <!-- 信息编辑弹窗 -->
     <drawdown-request ref="editDialogRef" :uuid="uuid" :data-info="detail" :projectDetail="projectDetail" @change="update"></drawdown-request>
-    <drawdown-request-vsl ref="editVslDialogRef" :uuid="uuid" :data-info="detail" :projectDetail="projectDetail" @change="update"></drawdown-request-vsl>
+    <drawdown-request-vsl ref="editVslDialogRef" :uuid="uuid" :data-info="detail" :projectDetail="projectDetail" @change="update"><div></div></drawdown-request-vsl>
     <drawdown-request-lendr ref="editLendrDialogRef" :uuid="uuid" :data-info="detail" :projectDetail="projectDetail" @change="update"></drawdown-request-lendr>
 
     <!-- 详情弹窗 -->

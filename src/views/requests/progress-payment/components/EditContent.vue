@@ -265,6 +265,7 @@
 <script setup>
   import { computed, onMounted, ref } from "vue"
   import { useI18n } from "vue-i18n";
+  import { message } from "ant-design-vue";
   import { QuestionCircleOutlined } from '@ant-design/icons-vue';
   import { useRoute } from "vue-router"
   import {
@@ -282,7 +283,6 @@
   import tool, { numberStrFormat, goBack } from "@/utils/tool"
   import { exportTableToExcel } from "@/utils/export-excel"
   import * as XLSX from 'xlsx'
-import { message } from "ant-design-vue";
 
   const { t } = useI18n();
   const route = useRoute();

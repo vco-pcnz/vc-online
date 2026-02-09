@@ -28,6 +28,13 @@
         @click="submitHandle"
       >{{ showClose ? t('关闭') : t('确定') }}</a-button>
     </div>
+    <div class="mt-5 flex justify-center" v-else>
+      <a-button
+        style="width: 120px;"
+        type="grey" class="big shadow bold uppercase mb-5 mt-5"
+        @click="updateVisible(false)"
+      >{{ t('取消') }}</a-button>
+    </div>
   </a-modal>
 </template>
 

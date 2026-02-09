@@ -256,7 +256,7 @@ const save = (tip) => {
       if (tool.minus(amount, vsl_available) > 100) {
         visibleTip.value = true;
         showBtns.value = false;
-        confirmTxt.value = t('放款金额 {0},可用金额 {1},超出金额 {2}。 超额金额超过 100 美元。请修改后重新提交。',[tool.formatMoney(amount), formState.value.source == '0' ? 'VS' : 'BOC', tool.formatMoney(vsl_available), tool.formatMoney(tool.minus(amount, vsl_available))]);
+        confirmTxt.value = t("放款金额 {0},可用金额 {1},{2}超出金额 {3}。 超额金额超过 100 美元。请修改后重新提交。",[tool.formatMoney(amount), formState.value.source == '0' ? 'VS' : 'BOC', tool.formatMoney(vsl_available), tool.formatMoney(tool.minus(amount, vsl_available))]);
         return;
       }
       visibleTip.value = true;
@@ -273,7 +273,7 @@ const save = (tip) => {
       if (tool.minus(amount, vsl_available) > 100) {
         visibleTip.value = true;
         showBtns.value = false;
-        confirmTxt.value = t('放款金额 {0},可用金额 {1},超出金额 {2}。 超额金额超过 100 美元。请修改后重新提交。',[tool.formatMoney(amount), formState.value.source == '0' ? 'VS' : 'BOC', tool.formatMoney(vsl_available), tool.formatMoney(tool.minus(amount, vsl_available))]);
+        confirmTxt.value = t("放款金额 {0},可用金额 {1},{2}超出金额 {3}。 超额金额超过 100 美元。请修改后重新提交。",[tool.formatMoney(amount), formState.value.source == '0' ? 'VS' : 'BOC', tool.formatMoney(vsl_available), tool.formatMoney(tool.minus(amount, vsl_available))]);
         return;
       }
       visibleTip.value = true;
@@ -287,6 +287,12 @@ const save = (tip) => {
   }
 
   if (Number(amount) > Number(available)) {
+    if (tool.minus(amount, available) > 100) {
+      visibleTip.value = true;
+      showBtns.value = false;
+      confirmTxt.value = t('放款金额 {0},可用金额 {1},超出金额 {2}。 超额金额超过 100 美元。请修改后重新提交。', [tool.formatMoney(amount), tool.formatMoney(available), tool.formatMoney(tool.minus(amount, available))]);
+      return;
+    }
     visibleTip.value = true;
     confirmTxt.value = t('放款金额 {0},可用金额 {1},超出金额 {2} 是否继续放款?', [tool.formatMoney(amount), tool.formatMoney(available), tool.formatMoney(tool.minus(amount, available))]);
     return;

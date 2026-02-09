@@ -27,7 +27,7 @@
           <a-date-picker v-model:value="searchForm.end_date_e" :format="selectDateFormat()" :disabledDate="disabledDateFormatAfter2" :placeholder="t('结束日期2')" />
         </div>
       </vco-page-search-item>
-      <vco-page-search-item :title="t('客户经理')" width="162">
+      <vco-page-search-item :title="t('客户经理')" width="138">
         <a-input v-model:value="searchForm.lm_name" :placeholder="t('请输入')" />
       </vco-page-search-item>
       <template v-if="isExpand">
@@ -213,6 +213,6 @@ defineExpose({
   line-height: 1.2;
 }
 .page-search-content {
-  gap: 24px;
+  gap: 10px;
 }
 </style>

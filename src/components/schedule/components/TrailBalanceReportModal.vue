@@ -4,7 +4,7 @@
       <div class="content sys-form-content">
         <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
           <a-form-item :label="t('日期')" name="date">
-            <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" :showToday="false" />
+            <a-date-picker class="datePicker" inputReadOnly v-model:value="formState.date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" :showToday="false" />
           </a-form-item>
         </a-form>
 

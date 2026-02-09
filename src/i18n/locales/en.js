@@ -1339,7 +1339,7 @@ export default {
   "几号": "Which day",
   "{0}号": "{0} th",
   "产品": "Product",
-  "Trail Balance Report": "Trail Balance Report",
+  "Trail Balance Report": "Trial Balance Report",
   "vsl买断": "buyOut",
   "变更退回": "Return variation",
   "Select the entire row": "Select the entire row",

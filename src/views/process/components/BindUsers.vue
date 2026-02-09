@@ -13,7 +13,7 @@
       <div class="block-item sec mb-5" :class="{'about': about}">
         <div v-if="vcTeamData.length && (isDetails || (hasPermission('requests:loan:bind:vcTeam') && !about) || about)" class="user-show-item">
           <div class="title-content">
-            <p class="uppercase">{{ t('管理者信息') }}</p>
+            <p class="uppercase">{{ bindTitle }}</p>
             <a-button
               v-if="!isClose && !isDetails && ((hasPermission('requests:loan:bind:vcTeam') && !about) || (hasPermission('projects:about:bind:vcTeam') && about))"
               type="primary"
@@ -105,7 +105,7 @@
 </template>
 
 <script setup>
-  import { ref, onMounted, onUnmounted } from "vue"
+  import { ref, computed, onMounted, onUnmounted } from "vue"
   import BindUsersDialog from "./BindUsersDialog.vue";
   import { useI18n } from "vue-i18n";
   import { associateSystemConfig, associateUserList, associateAssignUser, associateAssignTeam } from "@/api/process"
@@ -137,6 +137,10 @@
           name: ""
         }
       }
+    },
+    type: {
+      type: String,
+      default: 'default'
     }
   })
 
@@ -153,6 +157,16 @@
   const vcDataCom = ref([])
   const borrowerDataCom = ref([])
   const brokerDataCom = ref([])
+
+  const bindTitle = computed(() => {
+    const type = props.type.toLowerCase();
+    let title = '管理者信息';
+    if (type === 'lendr') {
+      title = '管理者信息1';
+    }
+
+    return t(title)
+  })
 
   const editHandle = (type) => {
     let data = null

@@ -101,7 +101,7 @@
       </div>
     </a-modal>
   </div>
-  <vco-confirm-alert v-model:visible="visibleTip" :confirmTxt="confirmTxt" @submit="submit"></vco-confirm-alert>
+  <vco-confirm-alert v-model:visible="visibleTip" :showBtns="showBtns" :confirmTxt="confirmTxt" @submit="submit"></vco-confirm-alert>
 </template>
 
 <script scoped setup>
@@ -148,6 +148,7 @@ const formModal2 = ref([]);
 const visibleTip = ref(false);
 const confirmTxt = ref('');
 const formModal3 = ref([]);
+const showBtns = ref(true);
 const LenderData = ref([
   {
     label: 'VS',
@@ -215,6 +216,7 @@ const disabledDateFormat = (current) => {
 
 const save = (tip) => {
   validate.value = true;
+  showBtns.value = true;
   formState.value.uuid = props.uuid;
   formState.value.d_file = formModal2.value.filter((item) => {
     return item.files && item.files.length;
@@ -251,6 +253,12 @@ const save = (tip) => {
     let vsl_available = formState.value.source == '0' ? props.projectDetail?.vslInfo.vs_remaining_loan_money : props.projectDetail?.vslInfo.boc_remaining_loan_money;
 
     if (Number(amount) > Number(vsl_available) && formState.value.source == '0' && tool.plus(props.projectDetail?.vslInfo?.boc_remaining_loan_money, detail_amount.value) > 0) {
+      if (tool.minus(amount, vsl_available) > 100) {
+        visibleTip.value = true;
+        showBtns.value = false;
+        confirmTxt.value = t('放款金额 {0},可用金额 {1},超出金额 {2}。 超额金额超过 100 美元。请修改后重新提交。',[tool.formatMoney(amount), formState.value.source == '0' ? 'VS' : 'BOC', tool.formatMoney(vsl_available), tool.formatMoney(tool.minus(amount, vsl_available))]);
+        return;
+      }
       visibleTip.value = true;
       confirmTxt.value =
         '<div style="text-align:left;text-indent: 2rem;">' +
@@ -262,6 +270,12 @@ const save = (tip) => {
       return;
     } else if (Number(amount) > Number(vsl_available)) {
       vsl_available = tool.plus(vsl_available, detail_amount.value);
+      if (tool.minus(amount, vsl_available) > 100) {
+        visibleTip.value = true;
+        showBtns.value = false;
+        confirmTxt.value = t('放款金额 {0},可用金额 {1},超出金额 {2}。 超额金额超过 100 美元。请修改后重新提交。',[tool.formatMoney(amount), formState.value.source == '0' ? 'VS' : 'BOC', tool.formatMoney(vsl_available), tool.formatMoney(tool.minus(amount, vsl_available))]);
+        return;
+      }
       visibleTip.value = true;
       confirmTxt.value = t('放款金额 {0},可用金额 {1},{2}超出金额 {3} 是否继续放款?', [tool.formatMoney(amount), formState.value.source == '0' ? 'VS' : 'BOC', tool.formatMoney(vsl_available), tool.formatMoney(tool.minus(amount, vsl_available))]);
       return;

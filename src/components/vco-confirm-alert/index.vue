@@ -16,7 +16,7 @@
       </template>
     </div>
 
-    <div class="mt-5 flex justify-between gap-5">
+    <div class="mt-5 flex justify-between gap-5" v-if="showBtns">
       <a-button
         type="grey" class="big shadow bold uppercase w-full mb-5 mt-5"
         @click="updateVisible(false)"
@@ -49,6 +49,10 @@
     showClose: {
       type: Boolean,
       default: false
+    },
+    showBtns: {
+      type: Boolean,
+      default: true
     },
     confirmTxt: {
       type: String,

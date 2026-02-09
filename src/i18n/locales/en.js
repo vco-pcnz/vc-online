@@ -326,6 +326,7 @@ export default {
   "重置": "Reset",
   "选择利益相关者": "Select stakeholders",
   "管理者信息": "VC Team",
+  "管理者信息1": "Lendr Team",
   "借款账号信息": "Borrower",
   "中介信息": "Broker",
   "暂无数据": "No data",
@@ -1368,6 +1369,8 @@ export default {
   "罚息减免天数": "Penalty interest waiver days",
   "还款金额不能小于等于0": "Repayment amount cannot be less than or equal to 0",
   "导入数据格式不正确，如数据为0，请填写0不要留空": "The import data format is incorrect, if the data is 0, please fill in 0 not leave blank",
+  "辅助文件": "Proposal - Supporting docs",
+  "贷款文件": "Legal Docs - Loan docs",
   "罚息类型": "Default interest base",
   "罚息利率": "Default Interest rate",
   "罚息减免天数": "Grace period",
@@ -1380,5 +1383,6 @@ export default {
   "欠款金额": "Amount owed",
   "您确定要退回到变更申请吗？": "Are you sure you want to return to the variation application?",
   "{0}个工作日": "{0} working days",
-  "交易类型": "Transaction type"
+  "交易类型": "Transaction type",
+  "存在{0}项设置的金额小于已使用的金额的数据，请检查": "There are {0} items with set amounts less than the used amounts. Please check"
 }

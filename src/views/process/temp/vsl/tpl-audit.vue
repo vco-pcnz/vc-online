@@ -132,7 +132,7 @@
         </div>
 
         <div v-if="dataInfo && PageBlockObjRef" class="right-content">
-          <bind-users :current-id="currentId"></bind-users>
+          <bind-users type="vsl" :current-id="currentId"></bind-users>
 
           <return-log v-if="returnLogData.length" :list-data="returnLogData"></return-log>
 

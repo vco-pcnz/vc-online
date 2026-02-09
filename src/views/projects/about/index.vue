@@ -17,7 +17,7 @@
                     <span class="title">{{ t('授权用户') }}</span>
                   </div>
                 </template>
-                <bind-users :current-id="currentId" :is-close="Boolean(detail?.base.is_close)" :about="true"></bind-users>
+                <bind-users :current-id="currentId" :type="currentProduct" :is-close="Boolean(detail?.base.is_close)" :about="true"></bind-users>
               </a-collapse-panel>
 
               <a-collapse-panel key="History" class="collapse-card history-card" v-if="!detail?.base?.ptRole">
@@ -34,7 +34,7 @@
                 </template>
                 <conditions-list :current-id="currentId" :is-details="true" :is-close="Boolean(detail?.base.is_close)" :about="true" :end-date="detail.date.end_date"></conditions-list>
               </a-collapse-panel>
-              <a-collapse-panel key="Request_details" class="collapse-card request-card" v-if="!detail?.base?.ptRole">
+              <a-collapse-panel key="Request_details" class="collapse-card request-card">
                 <template #header>
                   <i class="iconfont">&#xe732;</i>
                   <span class="title">{{ t('请求详情') }}</span>
@@ -194,6 +194,7 @@ const detailLayoutRef = ref(null);
 const loading = ref(true);
 const currentId = ref();
 const detail = ref();
+const currentProduct = ref('');
 const pageRole = computed(() => useUserStore().pageRole);
 const mode = pageRole.value ? '/' + pageRole.value.toLowerCase() : '';
 
@@ -206,6 +207,8 @@ const getProjectDetail = (val) => {
   currentId.value = uuid;
   detail.value = val;
   loading.value = false;
+
+  currentProduct.value = val.product.code;
 };
 
 const update = () => {

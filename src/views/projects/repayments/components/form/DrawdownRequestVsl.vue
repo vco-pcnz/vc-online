@@ -265,7 +265,7 @@
                       <template #overlay>
                         <a-menu>
                           <a-menu-item v-for="item in notesTypeData" :key="item.code" @click="notesTap(item)">
-                            {{ item.name }}
+                            <div class="text-wrap max-w-[400px]">{{ item.name }}</div>
                           </a-menu-item>
                         </a-menu>
                       </template>
@@ -293,7 +293,7 @@
                 </template>
                 <div v-if="showRelatedSwitch" class="table-content sys-table-content related-content no-top-line">
                   <a-table rowKey="uuid" :columns="relatedColumns" :data-source="relatedData" :pagination="false"
-                           table-layout="fixed">
+                          table-layout="fixed">
                     <template #bodyCell="{ column, record, index }">
                       <template v-if="column.dataIndex === 'security_name'">
                         <p :title="record.security_name" class="sec-name">

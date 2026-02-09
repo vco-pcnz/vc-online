@@ -118,7 +118,7 @@
           </div>
         </div>
         <div v-if="!check" class="right-content">
-          <bind-users ref="bindUsersRef" v-if="bindUserPermission" :current-id="currentId"></bind-users>
+          <bind-users ref="bindUsersRef" type="lendr" v-if="bindUserPermission" :current-id="currentId"></bind-users>
 
           <ads-content></ads-content>
         </div>
@@ -475,6 +475,8 @@ const submitHandle = () => {
         params.borrower_type = 2
         params.is_trust = 1
         params.borrower_id_num = ''
+      } else {
+        params.is_trust = 0
       }
 
       subLoading.value = true;

@@ -326,6 +326,7 @@ export default {
   "重置": "Reset",
   "选择利益相关者": "Select stakeholders",
   "管理者信息": "VC Team",
+  "管理者信息1": "Lendr Team",
   "借款账号信息": "Borrower",
   "中介信息": "Broker",
   "暂无数据": "No data",

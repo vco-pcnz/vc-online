@@ -1,17 +1,14 @@
 <template>
-  <vco-page-panel :title="t('还款计划1')" isBack></vco-page-panel>
+  <vco-page-panel :title="t('还款计划1')" isBack>
+    <div class="colorPrimary">
+        {{ t('还款方式') }} <span class="dot-sep">/</span> {{ t('还款日方式') }}
+    </div>
+  </vco-page-panel>
 
   <!-- 统计数据 -->
   <div class="stats-card">
+    <div class="status">status: {{ stats.status }}</div>
     <a-row :gutter="[16, 12]">
-      <a-col :span="6">
-        <p class="stats-label">{{ t('计息方式') }}</p>
-        <p class="stats-value">{{ stats.interestCalculationMethod ?? '-' }}</p>
-      </a-col>
-      <a-col :span="6">
-        <p class="stats-label">{{ t('还款日方式') }}</p>
-        <p class="stats-value">{{ stats.repaymentDateMethod ?? '-' }}</p>
-      </a-col>
       <a-col :span="6">
         <p class="stats-label">{{ t('截至日期') }}</p>
         <p class="stats-value">{{ stats.asOfDate ? tool.showDate(stats.asOfDate) : (stats.asOfDate === undefined ? tool.showDate(new Date()) : '-') }}</p>
@@ -57,10 +54,6 @@
           <vco-number v-if="stats.amountDueNextInstalment != null" :value="stats.amountDueNextInstalment" :precision="2" :end="true"></vco-number>
           <span v-else>-</span>
         </p>
-      </a-col>
-      <a-col :span="6">
-        <p class="stats-label">{{ t('贷款状态') }}</p>
-        <p class="stats-value">{{ stats.status ?? '-' }}</p>
       </a-col>
       <a-col :span="6">
         <p class="stats-label">{{ t('欠款金额Lendr') }}</p>
@@ -117,44 +110,47 @@
   <div class="RepaymentSchedule">
     <a-spin :spinning="loading" size="large">
     
-      <div class="table-content">
-        <a-table :columns="columns" :data-source="tableData" :pagination="false" :rowKey="rowKey"
-                 :scroll="{ x: '1100px' }">
-          <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'due_date'">
-              <span>{{ formatDate(record.due_date) }}</span>
-            </template>
-            <template v-else-if="column.key === 'scheduled_amount_due'">
-              <vco-number :value="record.scheduled_amount_due" :precision="2" :end="true"></vco-number>
-            </template>
-            <template v-else-if="column.key === 'paid_amount'">
-              <div>
-                <vco-number v-if="
-                  record.paid_amount !== null &&
-                  record.paid_amount !== undefined
-                " :value="record.paid_amount" :precision="2" :end="true"></vco-number>
-                <span v-else>-</span>
-                <p class="fs_xs color_grey" v-if="record.paid_date">
-                  {{ formatDate(record.paid_date) }}
-                </p>
-              </div>
-            </template>
-            <template v-else-if="column.key === 'status'">
-              <span>{{ getStatusText(record) }}</span>
-            </template>
-            <template v-else-if="column.key === 'arrears'">
-              <vco-number :value="record.arrears" :precision="2" :end="true"></vco-number>
-            </template>
-            <template v-else-if="column.key === 'accrued_default_interest'">
-              <vco-number :value="record.accrued_default_interest" :precision="2" :end="true"></vco-number>
-            </template>
+      <div class="sys-table-content border-top-none">
+        <a-table :columns="columns" :data-source="tableData" :pagination="false" :rowKey="rowKey">
+            <template #bodyCell="{ column, record }">
+              <template v-if="column.dataIndex === 'due_date'">
+                <span>{{ formatDate(record.due_date) }}</span>
+              </template>
+              <template v-if="column.dataIndex === 'days'">
+                <span>{{ record.days ?? '-' }}</span>
+              </template>
+              <template v-if="column.dataIndex === 'interest'">
+                <span>{{ tool.formatMoney(record.interest||0) }}</span>
+              </template>
+              <template v-if="column.dataIndex === 'principle'">
+                <span>{{ tool.formatMoney(record.principle||0) }}</span>
+              </template>
+              <template v-if="column.dataIndex === 'payment'">
+                <span>{{ tool.formatMoney(record.principle||0) }}</span>
+              </template>
+              <template v-if="column.dataIndex === 'amount'">
+                <span>{{ tool.formatMoney(record.amount||0) }}</span>
+              </template>
+              <template v-if="column.dataIndex === 'paid_date'">
+                <span>{{ tool.showDate(record.paid_date) ?? '-' }}</span>
+              </template>
+              <template v-if="column.dataIndex === 'status'">
+                <span>{{ record.status ?? '-' }}</span>
+              </template>
+              <template v-if="column.dataIndex === 'arrears'">
+                <span>{{ tool.formatMoney(record.arrears||0) }}</span>
+              </template>
+              <template v-if="column.dataIndex === 'applied'">
+                <span>{{ record.applied ? t('是') : t('否') }}</span>
+              </template>
+              <template v-if="column.dataIndex === 'reference'">
+                <span>{{ record.reference ?? '-' }}</span>
+              </template>
           </template>
         </a-table>
       </div>
       <div class="mt-5" v-if="total">
-        <a-pagination size="small" :total="total" :pageSize="pagination.limit" :current="pagination.page"
-                      :show-size-changer="false" show-quick-jumper :show-total="(total) => t('共{0}条', [total])"
-                      @change="setPaginate" />
+        <a-pagination size="small" :total="total" :pageSize="pagination.limit" :current="pagination.page" :show-size-changer="false" show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
       </div>
     </a-spin>
   </div>
@@ -165,7 +161,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import tool from '@/utils/tool';
-import { loanRepaymentSchedule } from '@/api/project/loan';
+import { repayStat } from '@/api/project/loan';
 
 const route = useRoute();
 const { t } = useI18n();
@@ -206,45 +202,58 @@ const columns = computed(() => [
   {
     title: t('还款日'),
     dataIndex: 'due_date',
-    key: 'due_date',
-    width: 150,
     align: 'center',
   },
   {
-    title: t('本期计划应付'),
-    dataIndex: 'scheduled_amount_due',
-    key: 'scheduled_amount_due',
-    width: 180,
+    title: t('周期天数'),
+    dataIndex: 'days',
     align: 'center',
   },
   {
-    title: t('实际还款金额/还款日期'),
-    dataIndex: 'paid_amount',
-    key: 'paid_amount',
-    width: 190,
+    title: t('还款日的利息部分'),
+    dataIndex: 'interest',
+    align: 'center',
+  },
+  {
+    title: t('还款日的本金部分'),
+    dataIndex: 'principle',
+    align: 'center',
+  },
+  {
+    title: t('计划还款金额'),
+    dataIndex: 'payment',
+    align: 'center',
+  },
+  {
+    title: t('已还金额'),
+    dataIndex: 'amount',
+    align: 'center',
+  },
+  {
+    title: t('最新还款时间'),
+    dataIndex: 'paid_date',
     align: 'center',
   },
   {
     title: t('状态'),
     dataIndex: 'status',
-    key: 'status',
-    width: 200,
     align: 'center',
   },
   {
-    title: t('未付金额'),
+    title: t('剩余欠款'),
     dataIndex: 'arrears',
-    key: 'arrears',
-    width: 150,
     align: 'center',
   },
   {
-    title: t('应计违约利息'),
-    dataIndex: 'accrued_default_interest',
-    key: 'accrued_default_interest',
-    width: 200,
+    title: t('是否申请还款'),
+    dataIndex: 'applied',
     align: 'center',
   },
+  {
+    title: t('还款的哪一笔'),
+    dataIndex: 'reference',
+    align: 'center',
+  }
 ]);
 
 const rowKey = (record, index) =>
@@ -252,14 +261,6 @@ const rowKey = (record, index) =>
 
 const formatDate = (date) => {
   return date ? tool.showDate(date) : '-';
-};
-
-const getStatusText = (record) => {
-  const rawStatus = record.status_name ?? record.status;
-  if (!rawStatus && rawStatus !== 0) {
-    return '-';
-  }
-  return rawStatus;
 };
 
 const setPaginate = (page, limit) => {
@@ -272,9 +273,9 @@ const setPaginate = (page, limit) => {
 
 const loadData = () => {
   loading.value = true;
-  loanRepaymentSchedule({ uuid: uuid.value, ...pagination.value })
+  repayStat({ uuid: uuid.value, ...pagination.value })
     .then((res) => {
-      tableData.value = res.data || [];
+      tableData.value = res.data || [{}];
       total.value = res.count || 0;
       // 若接口返回统计数据，可在此赋值，例如：stats.value = { ...stats.value, ...res.stats };
     })
@@ -292,6 +293,11 @@ onMounted(() => {
 <style scoped lang="less">
 @import '@/styles/variables.less';
 
+.colorPrimary .dot-sep {
+  margin: 0 3px;
+  opacity: 0.8;
+}
+
 .stats-card {
   padding: 15px;
   border-radius: 8px;
@@ -299,6 +305,7 @@ onMounted(() => {
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
   background-color: #f5f5f5;
   border: 1px solid #dddddd;
+  position: relative;
 
   .stats-label {
     margin: 0 0 4px 0;
@@ -315,6 +322,19 @@ onMounted(() => {
       font-weight: 500;
       color: #1890ff;
     }
+  }
+
+  .status {
+    color: #389e0d;
+    background: #f6ffed;
+    border: 1px solid #b7eb8f;
+    padding: 2px 30px;
+    position: absolute;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    top: 0;
+    right: 0;
+    font-weight: bold;
   }
 }
 

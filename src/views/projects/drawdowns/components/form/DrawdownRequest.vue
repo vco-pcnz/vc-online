@@ -69,7 +69,7 @@
       </div>
     </a-modal>
   </div>
-  <vco-confirm-alert v-model:visible="visibleTip" :confirmTxt="confirmTxt" @submit="submit"></vco-confirm-alert>
+  <vco-confirm-alert v-model:visible="visibleTip" :showBtns="showBtns" :confirmTxt="confirmTxt" @submit="submit"></vco-confirm-alert>
 </template>
 
 <script scoped setup>
@@ -112,6 +112,7 @@ const formModal2 = ref([]);
 const visibleTip = ref(false);
 const confirmTxt = ref('');
 const formModal3 = ref([]);
+const showBtns = ref(true)
 const LenderData = ref([
   {
     label: 'VS',
@@ -178,6 +179,7 @@ const disabledDateFormat = (current) => {
 const save = (tip) => {
   validate.value = true;
   formState.value.uuid = props.uuid;
+  showBtns.value = true;
   formState.value.d_file = formModal2.value.filter((item) => {
     return item.files && item.files.length;
   });
@@ -207,6 +209,12 @@ const save = (tip) => {
   }
 
   if (Number(amount) > Number(available)) {
+    if (tool.minus(amount, available) > 100) {
+      visibleTip.value = true;
+      showBtns.value = false;
+      confirmTxt.value = t('放款金额 {0},可用金额 {1},超出金额 {2}。 超额金额超过 100 美元。请修改后重新提交。', [tool.formatMoney(amount), tool.formatMoney(available), tool.formatMoney(tool.minus(amount, available))]);
+      return;
+    }
     visibleTip.value = true;
     confirmTxt.value = t('放款金额 {0},可用金额 {1},超出金额 {2} 是否继续放款?', [tool.formatMoney(amount), tool.formatMoney(available), tool.formatMoney(tool.minus(amount, available))]);
     return;

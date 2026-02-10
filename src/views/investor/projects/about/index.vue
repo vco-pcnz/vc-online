@@ -14,7 +14,7 @@
                     <span class="title">{{ t('授权用户') }}</span>
                   </div>
                 </template>
-                <bind-users :current-id="currentId" :is-close="Boolean(detail?.base.is_close)" :about="true"></bind-users>
+                <bind-users :current-id="currentId" :type="currentProduct" :is-close="Boolean(detail?.base.is_close)" :about="true"></bind-users>
               </a-collapse-panel>
 
               <a-collapse-panel key="History" class="collapse-card history-card">
@@ -158,6 +158,7 @@ const detailLayoutRef = ref(null);
 const loading = ref(true);
 const currentId = ref();
 const detail = ref();
+const currentProduct = ref('');
 
 const showWarrantyTips = computed(() => {
   return hasPermission('projects:detail:editGuarantor') && detail.value && !detail.value?.warranty?.main_contractor && !detail.value?.warranty?.security_package.length;
@@ -168,6 +169,8 @@ const getProjectDetail = (val) => {
   currentId.value = uuid;
   detail.value = val;
   loading.value = false;
+
+  currentProduct.value = val.product.code;
 };
 
 const update = () => {

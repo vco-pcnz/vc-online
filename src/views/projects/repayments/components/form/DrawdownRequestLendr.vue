@@ -32,7 +32,13 @@
             </a-col>
             <a-col :span="12">
               <a-form-item :label="t('还款日期')" name="apply_date">
-                <a-date-picker v-model:value="formState.apply_date" :format="selectDateFormat()" placeholder="" @change="dateChange">
+                <a-date-picker
+                  v-model:value="formState.apply_date"
+                  :format="selectDateFormat()"
+                  :disabledDate="formState.all_repayment === 1 ? disabledDateFormat : () => false"
+                  placeholder=""
+                  @change="dateChange"
+                >
                   <template #suffixIcon>
                     <a-spin v-if="getLoading"></a-spin>
                     <CalendarOutlined v-else />
@@ -326,6 +332,15 @@ const repaymentAmount = computed(() => {
   const res = tool.minus(formState.value.apply_amount, reduceNum);
   return res;
 });
+
+const disabledDateFormat = (current) => {
+  const endDate = props.projectDetail?.date?.end_date;
+  if (current && current.isBefore(endDate, 'day')) {
+    return true;
+  }
+
+  return false;
+};
 
 const overdueDays = computed(() => {
   const selectDate = formState.value.apply_date;
@@ -717,13 +732,14 @@ const loadCalcRepayment = () => {
 };
 
 const typeChange = () => {
-  if (formState.value.apply_date && formState.value.all_repayment === 1) {
-    isRestIrr.value = true;
-    calAmount();
-  } else {
-    // formState.value.apply_amount = 0;
-    // maxReductionAmount.value = 0;
-  }
+  formState.value.apply_date = ''
+  // if (formState.value.apply_date && formState.value.all_repayment === 1) {
+  //   isRestIrr.value = true;
+  //   calAmount();
+  // } else {
+  //   // formState.value.apply_amount = 0;
+  //   // maxReductionAmount.value = 0;
+  // }
   formState.value.note = formState.value.all_repayment === 1 ? 'Full Repayment' : '';
 };
 

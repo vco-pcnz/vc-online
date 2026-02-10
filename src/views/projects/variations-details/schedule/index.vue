@@ -28,8 +28,10 @@
   const currentProduct = ref('')
 
   const variationInfo = ref({})
-  const getProjectDetail = (res) => {
-    lateTable.value = Number(res.variationInfo.is_late) === 1
+const getProjectDetail = (res) => {
+    if (res.product.code !== 'vsl') {
+      lateTable.value = Number(res.variationInfo.is_late) === 1
+    }
     currentProduct.value = res.product.code
     variationInfo.value = res.variationInfo
   }

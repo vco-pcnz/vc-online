@@ -45,13 +45,13 @@
                 <template #label>
                   <div class="flex items-center gap-1">
                     <span>{{ t('还款金额1') }}</span>
-                    <span v-if="formState.all_repayment !== 1" style="color: #31bd65">{{ `(${t('最大值')}: $${numberStrFormat(calcRepaymentData?.last_money)})` }}</span>
+                    <span v-if="formState.all_repayment !== 1 && Number(calcRepaymentData?.last_money) > 0" style="color: #31bd65">{{ `(${t('最大值')}: $${numberStrFormat(calcRepaymentData?.last_money)})` }}</span>
                   </div>
                 </template>
                 <a-input-number
                   v-model:value="formState.apply_amount"
-                  :disabled="formState.all_repayment === 1 || Boolean(calcRepaymentData?.last_money) === false"
-                  :max="calcRepaymentData?.last_money"
+                  :disabled="formState.all_repayment === 1"
+                  :max="Number(calcRepaymentData?.last_money) > 0 ? Number(calcRepaymentData?.last_money) : 99999999999"
                   :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                   :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                 />

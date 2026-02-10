@@ -1383,5 +1383,10 @@ export default {
   "您确定要退回到变更申请吗？": "Are you sure you want to return to the variation application?",
   "{0}个工作日": "{0} working days",
   "交易类型": "Transaction type",
-  "存在{0}项设置的金额小于已使用的金额的数据，请检查": "There are {0} items with set amounts less than the used amounts. Please check"
+  "存在{0}项设置的金额小于已使用的金额的数据，请检查": "There are {0} items with set amounts less than the used amounts. Please check",
+  "BOC建立费支付方式": "BOC Establishment Fee Payment",
+  "VS垫付": "VS Advances",
+  "用户直接付款": "Client pays BOC directly",
+  "设置金额与VS垫付金额不一致": "The set amount does not match the VS advances amount",
+  "请选择BOC建立费": "Please select BOC establishment fee"
 }

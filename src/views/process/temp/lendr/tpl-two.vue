@@ -55,7 +55,7 @@
           </div>
         </div>
         <div v-if="!check" class="right-content">
-          <bind-users ref="bindUsersRef" v-if="bindUserPermission" :current-id="currentId"></bind-users>
+          <bind-users ref="bindUsersRef" type="lendr" v-if="bindUserPermission" :current-id="currentId"></bind-users>
 
           <ads-content></ads-content>
         </div>

@@ -152,7 +152,7 @@
                       <template #overlay>
                         <a-menu>
                           <a-menu-item v-for="item in notesTypeData" :key="item.code" @click="notesTap(item)">
-                            {{ item.name }}
+                            <div class="text-wrap max-w-[400px]">{{ item.name }}</div>
                           </a-menu-item>
                         </a-menu>
                       </template>

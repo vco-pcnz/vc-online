@@ -265,6 +265,7 @@
 <script setup>
   import { computed, onMounted, ref } from "vue"
   import { useI18n } from "vue-i18n";
+  import { message } from "ant-design-vue";
   import { QuestionCircleOutlined } from '@ant-design/icons-vue';
   import { useRoute } from "vue-router"
   import {
@@ -431,6 +432,8 @@
       const useAmount = Number(item.use_amount)
       if (amount < useAmount) {
         item.showError = true
+      } else {
+        item.showError = false
       }
     }
   }
@@ -842,6 +845,27 @@
       const useAmount = Number(advanceObj.value.use_amount)
       if (amount < useAmount) {
         advanceObj.value.showError = true
+      }
+
+      // 这里需要遍历tableData的值，如果设置的值小于已使用的， showError为true
+      let len = 0
+      for (let i = 0; i < tableData.value.length; i++) {
+        const item = tableData.value[i]
+        for (const key in item) {
+          if (key.includes('-')) {
+            const amount = Number(item[key].amount)
+            const useAmount = Number(item[key].use_amount)
+            if (amount < useAmount) {
+              item[key].showError = true
+              len++
+            } else {
+              item[key].showError = false
+            }
+          }
+        }
+      }
+      if (len) {
+        message.error(t('存在{0}项设置的金额小于已使用的金额的数据，请检查', [len]))
       }
     }
 

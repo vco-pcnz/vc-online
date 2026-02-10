@@ -1128,10 +1128,16 @@
     }
 
     try {
-      let ajaxFn = isRequests.value ? projectAuditStepDetail : projectDetailApi
+      let ajaxFn
 
-      if (!isRequestsDetail.value) {
-        ajaxFn = projectDetail
+      if (isRequests.value) {
+        ajaxFn = projectAuditStepDetail
+      } else {
+        if (isRequestsDetail.value) {
+          ajaxFn = projectDetailApi
+        } else {
+          ajaxFn = projectDetail
+        }
       }
 
       await ajaxFn(params).then(res => {
@@ -1702,7 +1708,7 @@
       isRequests.value = false
     }
 
-    if (path.indexOf('/requests/details/progress-payment') > -1) {
+    if (path.indexOf('/requests/details/') > -1) {
       isRequestsDetail.value = true
     } else {
       isRequestsDetail.value = false

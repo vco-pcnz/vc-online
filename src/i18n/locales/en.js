@@ -326,6 +326,7 @@ export default {
   "重置": "Reset",
   "选择利益相关者": "Select stakeholders",
   "管理者信息": "VC Team",
+  "管理者信息1": "Lendr Team",
   "借款账号信息": "Borrower",
   "中介信息": "Broker",
   "暂无数据": "No data",
@@ -1339,7 +1340,7 @@ export default {
   "几号": "Which day",
   "{0}号": "{0} th",
   "产品": "Product",
-  "Trail Balance Report": "Trail Balance Report",
+  "Trail Balance Report": "Trial Balance Report",
   "vsl买断": "buyOut",
   "变更退回": "Return variation",
   "Select the entire row": "Select the entire row",
@@ -1387,5 +1388,9 @@ export default {
   "欠款金额": "Amount owed",
   "您确定要退回到变更申请吗？": "Are you sure you want to return to the variation application?",
   "{0}个工作日": "{0} working days",
-  "交易类型": "Transaction type"
+  "交易类型": "Transaction type",
+  "存在{0}项设置的金额小于已使用的金额的数据，请检查": "There are {0} items with set amounts less than the used amounts. Please check",
+  "放款金额 {0},可用金额 {1},超出金额 {2}。 超额金额超过 100 美元。请修改后重新提交。": 'Drawdown amount <span>{0}</span>, available amount <span>{1}</span>, excess amount <span>{2}</span>. The excess amount is greater than $100. Please edit and submit again.',
+  "放款金额 {0},可用金额 {1},{2}超出金额 {3}。 超额金额超过 100 美元。请修改后重新提交。": "Drawdown amount <span>{0}</span>, available amount <span>{1}</span> <span>{2}</span>, excess amount <span>{3}</span>. The excess amount is greater than <span>$100</span>. Please edit and submit again."
+  
 }

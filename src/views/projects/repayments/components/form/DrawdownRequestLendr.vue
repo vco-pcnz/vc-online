@@ -32,7 +32,13 @@
             </a-col>
             <a-col :span="12">
               <a-form-item :label="t('还款日期')" name="apply_date">
-                <a-date-picker v-model:value="formState.apply_date" :format="selectDateFormat()" placeholder="" @change="dateChange">
+                <a-date-picker
+                  v-model:value="formState.apply_date"
+                  :format="selectDateFormat()"
+                  :disabledDate="formState.all_repayment === 1 ? disabledDateFormat : () => false"
+                  placeholder=""
+                  @change="dateChange"
+                >
                   <template #suffixIcon>
                     <a-spin v-if="getLoading"></a-spin>
                     <CalendarOutlined v-else />
@@ -45,13 +51,13 @@
                 <template #label>
                   <div class="flex items-center gap-1">
                     <span>{{ t('还款金额1') }}</span>
-                    <span v-if="formState.all_repayment !== 1" style="color: #31bd65">{{ `(${t('最大值')}: $${numberStrFormat(calcRepaymentData?.last_money)})` }}</span>
+                    <span v-if="formState.all_repayment !== 1 && Number(calcRepaymentData?.last_money) > 0" style="color: #31bd65">{{ `(${t('最大值')}: $${numberStrFormat(calcRepaymentData?.last_money)})` }}</span>
                   </div>
                 </template>
                 <a-input-number
                   v-model:value="formState.apply_amount"
-                  :disabled="formState.all_repayment === 1 || Boolean(calcRepaymentData?.last_money) === false"
-                  :max="calcRepaymentData?.last_money"
+                  :disabled="formState.all_repayment === 1"
+                  :max="Number(calcRepaymentData?.last_money) > 0 ? Number(calcRepaymentData?.last_money) : 99999999999"
                   :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                   :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                 />
@@ -326,6 +332,15 @@ const repaymentAmount = computed(() => {
   const res = tool.minus(formState.value.apply_amount, reduceNum);
   return res;
 });
+
+const disabledDateFormat = (current) => {
+  const endDate = props.projectDetail?.date?.end_date;
+  if (current && current.isBefore(endDate, 'day')) {
+    return true;
+  }
+
+  return false;
+};
 
 const overdueDays = computed(() => {
   const selectDate = formState.value.apply_date;
@@ -717,13 +732,14 @@ const loadCalcRepayment = () => {
 };
 
 const typeChange = () => {
-  if (formState.value.apply_date && formState.value.all_repayment === 1) {
-    isRestIrr.value = true;
-    calAmount();
-  } else {
-    // formState.value.apply_amount = 0;
-    // maxReductionAmount.value = 0;
-  }
+  formState.value.apply_date = ''
+  // if (formState.value.apply_date && formState.value.all_repayment === 1) {
+  //   isRestIrr.value = true;
+  //   calAmount();
+  // } else {
+  //   // formState.value.apply_amount = 0;
+  //   // maxReductionAmount.value = 0;
+  // }
   formState.value.note = formState.value.all_repayment === 1 ? 'Full Repayment' : '';
 };
 

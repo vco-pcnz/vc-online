@@ -1417,5 +1417,10 @@ export default {
   "状态": "Status",
   "剩余欠款": "Arrears",
   "是否申请还款": "Repayment request applied",
-  "还款的哪一笔": "RR Reference"
+  "还款的哪一笔": "RR Reference",
+  "BOC建立费支付方式": "BOC Establishment Fee Payment",
+  "VS垫付": "VS Advances",
+  "用户直接付款": "Client pays BOC directly",
+  "设置金额与VS垫付金额不一致": "The set amount does not match the VS advances amount",
+  "请选择BOC建立费": "Please select BOC establishment fee"
 }

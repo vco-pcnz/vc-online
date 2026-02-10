@@ -1,37 +1,122 @@
 <template>
   <vco-page-panel :title="t('还款计划1')" isBack></vco-page-panel>
 
+  <!-- 统计数据 -->
+  <div class="stats-card">
+    <a-row :gutter="[16, 12]">
+      <a-col :span="6">
+        <p class="stats-label">{{ t('计息方式') }}</p>
+        <p class="stats-value">{{ stats.interestCalculationMethod ?? '-' }}</p>
+      </a-col>
+      <a-col :span="6">
+        <p class="stats-label">{{ t('还款日方式') }}</p>
+        <p class="stats-value">{{ stats.repaymentDateMethod ?? '-' }}</p>
+      </a-col>
+      <a-col :span="6">
+        <p class="stats-label">{{ t('截至日期') }}</p>
+        <p class="stats-value">{{ stats.asOfDate ? tool.showDate(stats.asOfDate) : (stats.asOfDate === undefined ? tool.showDate(new Date()) : '-') }}</p>
+      </a-col>
+      <a-col :span="6">
+        <p class="stats-label">{{ t('本金') }}</p>
+        <p class="stats-value">
+          <vco-number v-if="stats.principal != null" :value="stats.principal" :precision="2" :end="true"></vco-number>
+          <span v-else>-</span>
+        </p>
+      </a-col>
+      <a-col :span="6">
+        <p class="stats-label">{{ t('贷款利率') }}</p>
+        <p class="stats-value">{{ stats.interestRate != null ? stats.interestRate + '%' : '-' }}</p>
+      </a-col>
+      <a-col :span="6">
+        <p class="stats-label">{{ t('罚息利率Lendr') }}</p>
+        <p class="stats-value">{{ stats.defaultRate != null ? stats.defaultRate + '%' : '-' }}</p>
+      </a-col>
+      <a-col :span="6">
+        <p class="stats-label">{{ t('宽限期天数') }}</p>
+        <p class="stats-value">{{ stats.gracePeriodDays ?? '-' }}</p>
+      </a-col>
+      <a-col :span="6">
+        <p class="stats-label">{{ t('上一个还款日期') }}</p>
+        <p class="stats-value">{{ stats.previousRepaymentDate ? tool.showDate(stats.previousRepaymentDate) : '-' }}</p>
+      </a-col>
+      <a-col :span="6">
+        <p class="stats-label">{{ t('最早未还款的还款日') }}</p>
+        <p class="stats-value">{{ stats.earliestUnpaidDue ? tool.showDate(stats.earliestUnpaidDue) : '-' }}</p>
+      </a-col>
+      <a-col :span="6">
+        <p class="stats-label">{{ t('最早的一个宽限期的最后一天') }}</p>
+        <p class="stats-value">{{ stats.earliestUnpaidGraceEnds ? tool.showDate(stats.earliestUnpaidGraceEnds) : '-' }}</p>
+      </a-col>
+      <a-col :span="6">
+        <p class="stats-label">{{ t('下一个还款日') }}</p>
+        <p class="stats-value">{{ stats.nextDueDate ? tool.showDate(stats.nextDueDate) : '-' }}</p>
+      </a-col>
+      <a-col :span="6">
+        <p class="stats-label">{{ t('下一期应还金额') }}</p>
+        <p class="stats-value">
+          <vco-number v-if="stats.amountDueNextInstalment != null" :value="stats.amountDueNextInstalment" :precision="2" :end="true"></vco-number>
+          <span v-else>-</span>
+        </p>
+      </a-col>
+      <a-col :span="6">
+        <p class="stats-label">{{ t('贷款状态') }}</p>
+        <p class="stats-value">{{ stats.status ?? '-' }}</p>
+      </a-col>
+      <a-col :span="6">
+        <p class="stats-label">{{ t('欠款金额Lendr') }}</p>
+        <p class="stats-value">
+          <vco-number v-if="stats.arrearsAmount != null" :value="stats.arrearsAmount" :precision="2" :end="true"></vco-number>
+          <span v-else>-</span>
+        </p>
+      </a-col>
+      <a-col :span="6">
+        <p class="stats-label">{{ t('截至目前所有欠款金额') }}</p>
+        <p class="stats-value">
+          <vco-number v-if="stats.totalAmountDueAsOf != null" :value="stats.totalAmountDueAsOf" :precision="2" :end="true"></vco-number>
+          <span v-else>-</span>
+        </p>
+      </a-col>
+      <a-col :span="6">
+        <p class="stats-label">{{ t('累计罚息产生的利息(未结)') }}</p>
+        <p class="stats-value stats-highlight">
+          <vco-number v-if="stats.accruedDefaultInterestUnsettled != null" :value="stats.accruedDefaultInterestUnsettled" :precision="2" :end="true"></vco-number>
+          <span v-else>-</span>
+        </p>
+      </a-col>
+      <a-col :span="6">
+        <p class="stats-label">{{ t('累计罚息(已结)') }}</p>
+        <p class="stats-value stats-highlight">
+          <vco-number v-if="stats.capitalisedDefaultInterest != null" :value="stats.capitalisedDefaultInterest" :precision="2" :end="true"></vco-number>
+          <span v-else>-</span>
+        </p>
+      </a-col>
+      <a-col :span="6">
+        <p class="stats-label">{{ t('罚息减免金额') }}</p>
+        <p class="stats-value stats-highlight">
+          <vco-number v-if="stats.waivedDefaultInterest != null" :value="stats.waivedDefaultInterest" :precision="2" :end="true"></vco-number>
+          <span v-else>-</span>
+        </p>
+      </a-col>
+      <a-col :span="6">
+        <p class="stats-label">{{ t('累计产生的复利(未结)') }}</p>
+        <p class="stats-value stats-highlight">
+          <vco-number v-if="stats.accruedOverdueChargeUnsettled != null" :value="stats.accruedOverdueChargeUnsettled" :precision="2" :end="true"></vco-number>
+          <span v-else>-</span>
+        </p>
+      </a-col>
+      <a-col :span="6">
+        <p class="stats-label">{{ t('累计产生的复利(已结)') }}</p>
+        <p class="stats-value stats-highlight">
+          <vco-number v-if="stats.capitalisedOverdueCharge != null" :value="stats.capitalisedOverdueCharge" :precision="2" :end="true"></vco-number>
+          <span v-else>-</span>
+        </p>
+      </a-col>
+    </a-row>
+  </div>
+
   <div class="RepaymentSchedule">
     <a-spin :spinning="loading" size="large">
-      <div class="card">
-        <a-row :gutter="16">
-          <a-col :span="4">
-            <p class="label">{{ t('项目 ID') }}</p>
-            <div class="id-info">ID: {{ data?.base?.project_apply_sn }}</div>
-          </a-col>
-          <a-col :span="4">
-            <p class="label">{{ t('项目名称') }}</p>
-            <div :title="data?.base?.project_name">
-              {{ data?.base?.project_name }}
-            </div>
-          </a-col>
-          <a-col :span="4">
-            <p class="label">{{ t('项目经理') }}</p>
-            <p>{{ data?.base?.lending_manager }}</p>
-          </a-col>
-          <a-col :span="8">
-            <p class="label">{{ t('借款人') }}</p>
-            <p>{{ data?.base?.borrower }}</p>
-          </a-col>
-          <a-col :span="4">
-            <p class="label">{{ t('日期') }}</p>
-            <div>
-              {{ date.start_date ? tool.showDate(date.start_date) : '' }} -
-              {{ date.end_date ? tool.showDate(date.end_date) : '' }}
-            </div>
-          </a-col>
-        </a-row>
-      </div>
+    
       <div class="table-content">
         <a-table :columns="columns" :data-source="tableData" :pagination="false" :rowKey="rowKey"
                  :scroll="{ x: '1100px' }">
@@ -88,6 +173,29 @@ const { t } = useI18n();
 const uuid = ref('');
 const loading = ref(true);
 const tableData = ref([]);
+// 统计数据（可从 loanRepaymentSchedule 或单独接口获取后赋值）
+const stats = ref({
+  interestCalculationMethod: '',
+  repaymentDateMethod: '',
+  asOfDate: undefined,
+  principal: null,
+  interestRate: null,
+  defaultRate: null,
+  gracePeriodDays: null,
+  previousRepaymentDate: null,
+  earliestUnpaidDue: null,
+  earliestUnpaidGraceEnds: null,
+  nextDueDate: null,
+  amountDueNextInstalment: null,
+  status: '',
+  arrearsAmount: null,
+  totalAmountDueAsOf: null,
+  accruedDefaultInterestUnsettled: null,
+  capitalisedDefaultInterest: null,
+  waivedDefaultInterest: null,
+  accruedOverdueChargeUnsettled: null,
+  capitalisedOverdueCharge: null,
+});
 const total = ref(0);
 const pagination = ref({
   page: 1,
@@ -168,6 +276,7 @@ const loadData = () => {
     .then((res) => {
       tableData.value = res.data || [];
       total.value = res.count || 0;
+      // 若接口返回统计数据，可在此赋值，例如：stats.value = { ...stats.value, ...res.stats };
     })
     .finally(() => {
       loading.value = false;
@@ -183,12 +292,30 @@ onMounted(() => {
 <style scoped lang="less">
 @import '@/styles/variables.less';
 
-.card {
+.stats-card {
   padding: 15px;
   border-radius: 8px;
   margin-bottom: 15px;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
   background-color: #f5f5f5;
   border: 1px solid #dddddd;
+
+  .stats-label {
+    margin: 0 0 4px 0;
+    font-size: 12px;
+    color: #666;
+  }
+
+  .stats-value {
+    margin: 0;
+    font-size: 14px;
+    color: #333;
+
+    &.stats-highlight {
+      font-weight: 500;
+      color: #1890ff;
+    }
+  }
 }
+
 </style>

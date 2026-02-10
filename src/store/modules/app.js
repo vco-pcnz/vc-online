@@ -5,7 +5,8 @@ const useAppStore = defineStore('VcOnlineAppInfo', {
   state: () => ({
     appName: 'VC Online',
     config: null,
-    indexPubLoading: false
+    indexPubLoading: false,
+    openSms: false
   }),
 
   getters: {

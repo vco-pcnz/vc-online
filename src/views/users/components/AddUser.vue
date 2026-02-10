@@ -47,13 +47,15 @@
                 </a-checkbox>
               </a-form-item-rest>
             </a-col>
-            <a-col :span="12">
-              <a-form-item-rest>
-                <a-checkbox v-model:checked="form.sendSms" :disabled="!form.mobile">
-                  {{ t('发送邀请短信') }}
-                </a-checkbox>
-              </a-form-item-rest>
-            </a-col>
+            <template v-if="useAppStore().openSms">
+              <a-col :span="12">
+                <a-form-item-rest>
+                  <a-checkbox v-model:checked="form.sendSms" :disabled="!form.mobile">
+                    {{ t('发送邀请短信') }}
+                  </a-checkbox>
+                </a-form-item-rest>
+              </a-col>
+            </template>
           </a-row>
         </a-form-item>
       </a-form>
@@ -76,6 +78,7 @@ import useFormData from '@/utils/use-form-data';
 import { message } from 'ant-design-vue';
 import { useUsersStore } from '@/store';
 import { EMAIL_RULE } from '@/constant';
+import { useAppStore } from '@/store';
 
 const { t } = useI18n();
 const loading = ref(false);

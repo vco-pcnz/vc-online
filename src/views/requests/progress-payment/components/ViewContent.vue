@@ -1702,7 +1702,7 @@
       isRequests.value = false
     }
 
-    if (path.indexOf('/requests/details/progress-payment') > -1) {
+    if (path.indexOf('/requests/details/') > -1) {
       isRequestsDetail.value = true
     } else {
       isRequestsDetail.value = false

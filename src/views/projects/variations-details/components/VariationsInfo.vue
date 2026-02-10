@@ -26,6 +26,25 @@
       ></view-content>
     </a-modal>
 
+    <!-- VS垫付金额选择 -->
+    <a-modal
+      :open="estabReVisible"
+      :title="t('进度付款阶段')"
+      :width="1500"
+      :footer="null"
+      :keyboard="false"
+      :maskClosable="false"
+      class="middle-position"
+      @cancel="estabReVisible = false"
+    >
+      <vsl-view-content
+        v-if="estabReVisible"
+        :show-process="true"
+        :boc-estab-fee="Number(variationsInfo?.credit?.boc_estab_fee || 0)"
+        :selected-data="variationsInfo?.estab_build_log || []"
+      ></vsl-view-content>
+    </a-modal>
+
     <div class="variation-type" :class="{ 'late': Number(variationsInfo.is_late) === 1 }">{{ Number(variationsInfo.is_late) === 1 ? t('延迟变更') : t('正常变更') }}</div>
 
     <div class="title-content">
@@ -67,8 +86,19 @@
       <template v-if="creditItemsData.length">
         <a-col v-for="(item, index) in creditItemsData" :span="6" class="item-txt" :key="index">
           <p class="name">{{ item.credit_name }}</p>
-          <p v-if="item.is_ratio" class="txt">{{ variationsInfo.credit[item.credit_table] }}%</p>
-          <vco-number v-else :value="variationsInfo.credit[item.credit_table]" :precision="2"></vco-number>
+          <template v-if="item.credit_table === 'estab_re_type'">
+            <p class="txt">{{ Number(variationsInfo?.estab_re_type || 0) === 1 ? t('VS垫付') : t('用户直接付款') }}</p>
+          </template>
+          <template v-else>
+            <p v-if="item.is_ratio" class="txt">{{ variationsInfo.credit[item.credit_table] }}%</p>
+            <div v-else class="flex items-center gap-2">
+              <vco-number :value="variationsInfo.credit[item.credit_table]" :precision="2"></vco-number>
+              <i v-if="Number(variationsInfo?.estab_re_type || 0) === 1 && item.credit_table === 'boc_estab_fee'"
+              class="iconfont view-icon"
+              @click="estabReVisible = true"
+            >&#xe63e;</i>
+            </div>
+          </template>
         </a-col>
       </template>
 
@@ -175,6 +205,7 @@ import { dischargeStatistics } from '@/api/project/loan';
 import { hasPermission } from '@/directives/permission/index';
 import securityDialog from '@/views/projects/variations/add/components/security-dialog.vue';
 import ViewContent from '@/views/projects/variations/add/components/view-content.vue';
+import VslViewContent from '@/views/requests/progress-payment/components/ViewContent.vue';
 import DevCostDetail from '@/views/process/temp/default/components/DevCostDetail.vue';
 
 import { cloneDeep } from 'lodash';
@@ -232,6 +263,8 @@ const numberColor = computed(() => {
   }
   return color;
 });
+
+const estabReVisible = ref(false)
 
 const openEdit = () => {
   navigationTo(`/projects/variations/add?uuid=${props.uuid}&id=${variationsInfo.value.id}`);

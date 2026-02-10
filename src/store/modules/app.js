@@ -5,7 +5,8 @@ const useAppStore = defineStore('VcOnlineAppInfo', {
   state: () => ({
     appName: 'Lendr Online',
     config: null,
-    indexPubLoading: false
+    indexPubLoading: false,
+    openSms: false
   }),
 
   getters: {

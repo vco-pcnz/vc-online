@@ -112,7 +112,7 @@
                     </a-checkbox>
                   </a-form-item-rest>
                 </a-col>
-                <a-col :span="12">
+                <a-col :span="12" v-if="useAppStore().openSms">
                   <a-form-item-rest>
                     <a-checkbox v-model:checked="form.sendSms" :disabled="!form.mobile">
                       {{ t('发送邀请短信') }}
@@ -146,6 +146,7 @@ import dayjs from 'dayjs';
 import useFormData from '@/utils/use-form-data';
 import { stakeAdd } from '@/api/orgs/form';
 import { systemConfigData } from '@/api/system';
+import { useAppStore } from '@/store';
 
 const orgsStore = useOrgsStore();
 

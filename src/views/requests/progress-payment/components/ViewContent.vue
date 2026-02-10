@@ -1150,19 +1150,28 @@
         emits('done', res)
         
         let costModel
-        if (!isRequestsDetail.value) {
-          costModel = Boolean(res.base.devCostDetail[0].model)
-        } else {
+        if (isRequests.value) {
           costModel = Boolean(res.lending.devCostDetail[0].model)
+        } else {
+          if (!isRequestsDetail.value) {
+            costModel = Boolean(res.base.devCostDetail[0].model)
+          } else {
+            costModel = Boolean(res.lending.devCostDetail[0].model)
+          }
         }
         
         easyModel.value = costModel
         let list
-        if (!isRequestsDetail.value) {
-          list = res.base.devCostDetail[0].data[0].list
-        } else {
+        if (isRequests.value) {
           list = res.lending.devCostDetail[0].data[0].list
+        } else {
+          if (!isRequestsDetail.value) {
+            list = res.base.devCostDetail[0].data[0].list
+          } else {
+            list = res.lending.devCostDetail[0].data[0].list
+          }
         }
+        
         const filterType = costModel ? ['Land', 'Refinance', 'Land_gst'] : ['Land', 'Construction', 'Refinance', 'Land_gst']
         const footerData = list.filter(item => !filterType.includes(item.type)) || []
 

@@ -118,29 +118,32 @@
       <div class="sys-table-content border-top-none">
         <a-table :columns="columns" :data-source="tableData" :pagination="false">
             <template #bodyCell="{ column, record }">
+              <template v-if="column.dataIndex === 'start'">
+                <span>{{ formatDate(record.start) }}</span>
+              </template>
               <template v-if="column.dataIndex === 'due_date'">
-                <span>{{ formatDate(record.due_date) }}</span>
+                <span>{{ formatDate(record.end) }}</span>
               </template>
               <template v-if="column.dataIndex === 'days'">
-                <span>{{ record.days ?? '-' }}</span>
+                <span>{{ record.diffDay ?? '-' }}</span>
               </template>
               <template v-if="column.dataIndex === 'interest'">
-                <span>{{ tool.formatMoney(record.interest||0) }}</span>
+                <span>{{ tool.formatMoney(record.interest || 0) }}</span>
               </template>
-              <template v-if="column.dataIndex === 'principle'">
-                <span>{{ tool.formatMoney(record.principle||0) }}</span>
+              <template v-if="column.dataIndex === 'principal'">
+                <span>{{ tool.formatMoney(record.principal||0) }}</span>
               </template>
               <template v-if="column.dataIndex === 'payment'">
-                <span>{{ tool.formatMoney(record.principle||0) }}</span>
+                <span>{{ tool.formatMoney(record.repayment||0) }}</span>
               </template>
               <template v-if="column.dataIndex === 'amount'">
-                <span>{{ tool.formatMoney(record.amount||0) }}</span>
+                <span>{{ tool.formatMoney(record.paid_amount||0) }}</span>
               </template>
               <template v-if="column.dataIndex === 'paid_date'">
-                <span>{{ tool.showDate(record.paid_date) ?? '-' }}</span>
+                <span>{{record.paid_date? tool.showDate(record.paid_date): '-' }}</span>
               </template>
               <template v-if="column.dataIndex === 'status'">
-                <span>{{ record.status ?? '-' }}</span>
+                <span>{{ record.paid_status ?? '-' }}</span>
               </template>
               <template v-if="column.dataIndex === 'arrears'">
                 <span>{{ tool.formatMoney(record.arrears||0) }}</span>
@@ -176,6 +179,11 @@ const stats = ref({});
 
 const columns = computed(() => [
   {
+    title: t('周期开始时间'),
+    dataIndex: 'start',
+    align: 'center',
+  },
+  {
     title: t('还款日'),
     dataIndex: 'due_date',
     align: 'center',
@@ -192,7 +200,7 @@ const columns = computed(() => [
   },
   {
     title: t('还款日的本金部分'),
-    dataIndex: 'principle',
+    dataIndex: 'principal',
     align: 'center',
   },
   {
@@ -220,23 +228,29 @@ const columns = computed(() => [
     dataIndex: 'arrears',
     align: 'center',
   },
-  {
-    title: t('是否申请还款'),
-    dataIndex: 'applied',
-    align: 'center',
-  },
-  {
-    title: t('还款的哪一笔'),
-    dataIndex: 'reference',
-    align: 'center',
-  }
+  // {
+  //   title: t('是否申请还款'),
+  //   dataIndex: 'applied',
+  //   align: 'center',
+  // },
+  // {
+  //   title: t('还款的哪一笔'),
+  //   dataIndex: 'reference',
+  //   align: 'center',
+  // }
 ]);
+
+const formatDate = (date) => {
+  return date ? tool.showDate(date) : '-';
+};
 
 const loadData = () => {
   loading.value = true;
   repayStat({ uuid: uuid.value })
     .then((res) => {
       stats.value = { ...res };
+      tableData.value = res.list || [];
+      console.log(tableData.value);
     })
     .finally(() => {
       loading.value = false;

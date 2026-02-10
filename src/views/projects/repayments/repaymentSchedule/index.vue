@@ -1,107 +1,112 @@
 <template>
   <vco-page-panel :title="t('还款计划1')" isBack>
     <div class="colorPrimary">
-        {{ t('还款方式') }} <span class="dot-sep">/</span> {{ t('还款日方式') }}
+        {{ stats.type_name }} <span class="dot-sep">/</span> {{stats.day_name }}
     </div>
   </vco-page-panel>
 
   <!-- 统计数据 -->
   <div class="stats-card">
-    <div class="status">status: {{ stats.status }}</div>
+    <div class="status">
+     <template v-if="stats.status== 1">
+        {{ t('最新状态') }}
+     </template>
+     <template v-else-if="stats.status== 2">
+        {{ t('欠款中') }}
+     </template>
+     <template v-else-if="stats.status== 3">
+        {{ t('罚息中') }}
+     </template>
+    </div>
     <a-row :gutter="[16, 12]">
       <a-col :span="6">
+        <p class="stats-label">{{ t('还款方式') }}</p>
+        <p class="stats-value">{{ stats.repay_name }}</p>
+      </a-col>
+      <a-col :span="6">
         <p class="stats-label">{{ t('截至日期') }}</p>
-        <p class="stats-value">{{ stats.asOfDate ? tool.showDate(stats.asOfDate) : (stats.asOfDate === undefined ? tool.showDate(new Date()) : '-') }}</p>
+        <p class="stats-value">{{ tool.showDate(stats.today) }}</p>
       </a-col>
       <a-col :span="6">
         <p class="stats-label">{{ t('本金') }}</p>
         <p class="stats-value">
-          <vco-number v-if="stats.principal != null" :value="stats.principal" :precision="2" :end="true"></vco-number>
-          <span v-else>-</span>
+          <vco-number size="fs_md" :value="stats.Principal || 0" :precision="2" :end="true"></vco-number>
         </p>
       </a-col>
       <a-col :span="6">
         <p class="stats-label">{{ t('贷款利率') }}</p>
-        <p class="stats-value">{{ stats.interestRate != null ? stats.interestRate + '%' : '-' }}</p>
+        <p class="stats-value">{{ stats.Interest_rate != null ? stats.Interest_rate + '%' : '-' }}</p>
       </a-col>
       <a-col :span="6">
         <p class="stats-label">{{ t('罚息利率Lendr') }}</p>
-        <p class="stats-value">{{ stats.defaultRate != null ? stats.defaultRate + '%' : '-' }}</p>
+        <p class="stats-value">{{ stats.Default_rate != null ? stats.Default_rate + '%' : '-' }}</p>
       </a-col>
       <a-col :span="6">
         <p class="stats-label">{{ t('宽限期天数') }}</p>
-        <p class="stats-value">{{ stats.gracePeriodDays ?? '-' }}</p>
+        <p class="stats-value">{{ stats.Grace_day ?? '-' }}</p>
       </a-col>
       <a-col :span="6">
         <p class="stats-label">{{ t('上一个还款日期') }}</p>
-        <p class="stats-value">{{ stats.previousRepaymentDate ? tool.showDate(stats.previousRepaymentDate) : '-' }}</p>
+        <p class="stats-value">{{ stats.perv_day ? tool.showDate(stats.perv_day) : '-' }}</p>
       </a-col>
       <a-col :span="6">
         <p class="stats-label">{{ t('最早未还款的还款日') }}</p>
-        <p class="stats-value">{{ stats.earliestUnpaidDue ? tool.showDate(stats.earliestUnpaidDue) : '-' }}</p>
+        <p class="stats-value">{{ stats.before_day ? tool.showDate(stats.before_day) : '-' }}</p>
       </a-col>
       <a-col :span="6">
         <p class="stats-label">{{ t('最早的一个宽限期的最后一天') }}</p>
-        <p class="stats-value">{{ stats.earliestUnpaidGraceEnds ? tool.showDate(stats.earliestUnpaidGraceEnds) : '-' }}</p>
+        <p class="stats-value">{{ stats.before_grace_day ? tool.showDate(stats.before_grace_day) : '-' }}</p>
       </a-col>
       <a-col :span="6">
         <p class="stats-label">{{ t('下一个还款日') }}</p>
-        <p class="stats-value">{{ stats.nextDueDate ? tool.showDate(stats.nextDueDate) : '-' }}</p>
+        <p class="stats-value">{{ stats.next_day ? tool.showDate(stats.next_day) : '-' }}</p>
       </a-col>
       <a-col :span="6">
         <p class="stats-label">{{ t('下一期应还金额') }}</p>
         <p class="stats-value">
-          <vco-number v-if="stats.amountDueNextInstalment != null" :value="stats.amountDueNextInstalment" :precision="2" :end="true"></vco-number>
-          <span v-else>-</span>
+          <vco-number size="fs_md" :value="stats.next_amount || 0" :precision="2" :end="true"></vco-number>
         </p>
       </a-col>
       <a-col :span="6">
         <p class="stats-label">{{ t('欠款金额Lendr') }}</p>
         <p class="stats-value">
-          <vco-number v-if="stats.arrearsAmount != null" :value="stats.arrearsAmount" :precision="2" :end="true"></vco-number>
-          <span v-else>-</span>
+          <vco-number size="fs_md" :value="stats.arrears || 0" :precision="2" :end="true"></vco-number>
         </p>
       </a-col>
       <a-col :span="6">
         <p class="stats-label">{{ t('截至目前所有欠款金额') }}</p>
         <p class="stats-value">
-          <vco-number v-if="stats.totalAmountDueAsOf != null" :value="stats.totalAmountDueAsOf" :precision="2" :end="true"></vco-number>
-          <span v-else>-</span>
+          <vco-number size="fs_md" :value="stats.all_arrears || 0" :precision="2" :end="true"></vco-number>
         </p>
       </a-col>
       <a-col :span="6">
         <p class="stats-label">{{ t('累计罚息产生的利息(未结)') }}</p>
         <p class="stats-value stats-highlight">
-          <vco-number v-if="stats.accruedDefaultInterestUnsettled != null" :value="stats.accruedDefaultInterestUnsettled" :precision="2" :end="true"></vco-number>
-          <span v-else>-</span>
+          <vco-number size="fs_md" :value="stats.Accrued_Interest || 0" :precision="2" :end="true"></vco-number>
         </p>
       </a-col>
       <a-col :span="6">
         <p class="stats-label">{{ t('累计罚息(已结)') }}</p>
         <p class="stats-value stats-highlight">
-          <vco-number v-if="stats.capitalisedDefaultInterest != null" :value="stats.capitalisedDefaultInterest" :precision="2" :end="true"></vco-number>
-          <span v-else>-</span>
+          <vco-number size="fs_md" :value="stats.Capitalised_Interest || 0" :precision="2" :end="true"></vco-number>
         </p>
       </a-col>
       <a-col :span="6">
         <p class="stats-label">{{ t('罚息减免金额') }}</p>
         <p class="stats-value stats-highlight">
-          <vco-number v-if="stats.waivedDefaultInterest != null" :value="stats.waivedDefaultInterest" :precision="2" :end="true"></vco-number>
-          <span v-else>-</span>
+          <vco-number size="fs_md" :value="stats.Waived_Default || 0" :precision="2" :end="true"></vco-number>
         </p>
       </a-col>
       <a-col :span="6">
         <p class="stats-label">{{ t('累计产生的复利(未结)') }}</p>
         <p class="stats-value stats-highlight">
-          <vco-number v-if="stats.accruedOverdueChargeUnsettled != null" :value="stats.accruedOverdueChargeUnsettled" :precision="2" :end="true"></vco-number>
-          <span v-else>-</span>
+          <vco-number size="fs_md" :value="stats.Accrued_Default || 0" :precision="2" :end="true"></vco-number>
         </p>
       </a-col>
       <a-col :span="6">
         <p class="stats-label">{{ t('累计产生的复利(已结)') }}</p>
         <p class="stats-value stats-highlight">
-          <vco-number v-if="stats.capitalisedOverdueCharge != null" :value="stats.capitalisedOverdueCharge" :precision="2" :end="true"></vco-number>
-          <span v-else>-</span>
+          <vco-number size="fs_md" :value="stats.Capitalised_Default || 0" :precision="2" :end="true"></vco-number>
         </p>
       </a-col>
     </a-row>
@@ -111,7 +116,7 @@
     <a-spin :spinning="loading" size="large">
     
       <div class="sys-table-content border-top-none">
-        <a-table :columns="columns" :data-source="tableData" :pagination="false" :rowKey="rowKey">
+        <a-table :columns="columns" :data-source="tableData" :pagination="false">
             <template #bodyCell="{ column, record }">
               <template v-if="column.dataIndex === 'due_date'">
                 <span>{{ formatDate(record.due_date) }}</span>
@@ -149,9 +154,6 @@
           </template>
         </a-table>
       </div>
-      <div class="mt-5" v-if="total">
-        <a-pagination size="small" :total="total" :pageSize="pagination.limit" :current="pagination.page" :show-size-changer="false" show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="setPaginate" />
-      </div>
     </a-spin>
   </div>
 </template>
@@ -169,34 +171,8 @@ const { t } = useI18n();
 const uuid = ref('');
 const loading = ref(true);
 const tableData = ref([]);
-// 统计数据（可从 loanRepaymentSchedule 或单独接口获取后赋值）
-const stats = ref({
-  interestCalculationMethod: '',
-  repaymentDateMethod: '',
-  asOfDate: undefined,
-  principal: null,
-  interestRate: null,
-  defaultRate: null,
-  gracePeriodDays: null,
-  previousRepaymentDate: null,
-  earliestUnpaidDue: null,
-  earliestUnpaidGraceEnds: null,
-  nextDueDate: null,
-  amountDueNextInstalment: null,
-  status: '',
-  arrearsAmount: null,
-  totalAmountDueAsOf: null,
-  accruedDefaultInterestUnsettled: null,
-  capitalisedDefaultInterest: null,
-  waivedDefaultInterest: null,
-  accruedOverdueChargeUnsettled: null,
-  capitalisedOverdueCharge: null,
-});
-const total = ref(0);
-const pagination = ref({
-  page: 1,
-  limit: 5,
-});
+
+const stats = ref({});
 
 const columns = computed(() => [
   {
@@ -256,28 +232,11 @@ const columns = computed(() => [
   }
 ]);
 
-const rowKey = (record, index) =>
-  record.id || record.uuid || record.due_date || index;
-
-const formatDate = (date) => {
-  return date ? tool.showDate(date) : '-';
-};
-
-const setPaginate = (page, limit) => {
-  pagination.value = {
-    page,
-    limit,
-  };
-  loadData();
-};
-
 const loadData = () => {
   loading.value = true;
-  repayStat({ uuid: uuid.value, ...pagination.value })
+  repayStat({ uuid: uuid.value })
     .then((res) => {
-      tableData.value = res.data || [{}];
-      total.value = res.count || 0;
-      // 若接口返回统计数据，可在此赋值，例如：stats.value = { ...stats.value, ...res.stats };
+      stats.value = { ...res };
     })
     .finally(() => {
       loading.value = false;

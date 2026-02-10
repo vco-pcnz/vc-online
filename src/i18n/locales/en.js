@@ -1422,5 +1422,8 @@ export default {
   "VS垫付": "VS Advances",
   "用户直接付款": "Client pays BOC directly",
   "设置金额与VS垫付金额不一致": "The set amount does not match the VS advances amount",
-  "请选择BOC建立费": "Please select BOC establishment fee"
+  "请选择BOC建立费": "Please select BOC establishment fee",
+  "最新状态":"Up to date",
+  "罚息中":"In default",
+  "欠款中":"In arrears",
 }

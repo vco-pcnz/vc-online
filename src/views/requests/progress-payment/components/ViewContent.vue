@@ -1128,10 +1128,16 @@
     }
 
     try {
-      let ajaxFn = isRequests.value ? projectAuditStepDetail : projectDetailApi
+      let ajaxFn
 
-      if (!isRequestsDetail.value) {
-        ajaxFn = projectDetail
+      if (isRequests.value) {
+        ajaxFn = projectAuditStepDetail
+      } else {
+        if (isRequestsDetail.value) {
+          ajaxFn = projectDetailApi
+        } else {
+          ajaxFn = projectDetail
+        }
       }
 
       await ajaxFn(params).then(res => {

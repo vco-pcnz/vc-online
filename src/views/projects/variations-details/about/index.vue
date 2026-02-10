@@ -128,6 +128,10 @@ const getCreditVal = () => {
 
   if (isVsl.value) {
     dolData.push({
+      credit_name: t('BOC建立费支付方式'),
+      credit_table: 'estab_re_type'
+    });
+    dolData.push({
       credit_name: t('VS建立费'),
       credit_table: 'vs_estab_fee'
     });

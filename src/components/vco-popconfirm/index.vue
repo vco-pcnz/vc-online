@@ -35,6 +35,10 @@ const props = defineProps({
   btn_text: {
     type: String
   },
+  method: {
+    type: String,
+    default: 'post'
+  },
   width: {
     type: [String, Number],
     default: undefined
@@ -50,18 +54,34 @@ const overlayStyle = computed(() => {
 
 const confirm = () => {
   loading.value = true;
-  const paramsInfo = {
-    url: props.url,
-    method: 'post',
-    data: props.formParams
-  };
-  request(paramsInfo)
-    .then((res) => {
-      emits('update',res);
-      message.success(t('操作成功'));
-    })
-    .finally((_) => {
-      loading.value = false;
-    });
+  if(props.method === 'get'){
+    const paramsInfo = {
+      url: props.url,
+      method: props.method,
+      params: props.formParams
+    };
+    request(paramsInfo)
+      .then((res) => {
+        emits('update',res);
+        message.success(t('操作成功'));
+      })
+      .finally((_) => {
+        loading.value = false;
+      });
+  } else {
+    const paramsInfo = {
+      url: props.url,
+      method: props.method,
+      data: props.formParams
+    };
+    request(paramsInfo)
+      .then((res) => {
+        emits('update',res);
+        message.success(t('操作成功'));
+      })
+      .finally((_) => {
+        loading.value = false;
+      });
+  }
 };
 </script>

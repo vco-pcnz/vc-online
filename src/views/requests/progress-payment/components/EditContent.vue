@@ -839,6 +839,26 @@
     }
   }
 
+  const checkSetAmount = () => {
+    let len = 0
+    for (let i = 0; i < tableData.value.length; i++) {
+      const item = tableData.value[i]
+      for (const key in item) {
+        if (key.includes('-')) {
+          const amount = Number(item[key].amount)
+          const useAmount = Number(item[key].use_amount)
+          if (amount < useAmount) {
+            item[key].showError = true
+            len++
+          } else {
+            item[key].showError = false
+          }
+        }
+      }
+    }
+    return len
+  }
+
   const hasReseted = ref(false)
   const initHandle = (flag = false, tableTotal = false) => {
     // 如果为open后修改
@@ -850,22 +870,7 @@
       }
 
       // 这里需要遍历tableData的值，如果设置的值小于已使用的， showError为true
-      let len = 0
-      for (let i = 0; i < tableData.value.length; i++) {
-        const item = tableData.value[i]
-        for (const key in item) {
-          if (key.includes('-')) {
-            const amount = Number(item[key].amount)
-            const useAmount = Number(item[key].use_amount)
-            if (amount < useAmount) {
-              item[key].showError = true
-              len++
-            } else {
-              item[key].showError = false
-            }
-          }
-        }
-      }
+      const len = checkSetAmount()
       if (len) {
         message.error(t('存在{0}项设置的金额小于已使用的金额的数据，请检查', [len]))
       }
@@ -1209,8 +1214,13 @@
 
 
     if (props.isOpen) {
-      // open 后处理 暂定
-      submitRquest()
+      // open 后处理
+      const len = checkSetAmount()
+      if (len) {
+        message.error(t('存在{0}项设置的金额小于已使用的金额的数据，请检查', [len]))
+      } else {
+        submitRquest()
+      }
     } else {
       const sLen = securityData.value.length
       const rLen = Object.keys(setedData.value.row).length

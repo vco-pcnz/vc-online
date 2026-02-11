@@ -1431,5 +1431,8 @@ export default {
   "请选择BOC建立费": "Please select BOC establishment fee",
   "最新状态":"Up to date",
   "罚息中":"In default",
-  "欠款中":"In arrears",
+  "欠款中": "In arrears",
+  "结算": "Settlement",
+  "您确定要取消结算吗？": "Are you sure you want to cancel the settlement?",
+  "您确定要确认结算吗？": "Are you sure you want to confirm the settlement?",
 }

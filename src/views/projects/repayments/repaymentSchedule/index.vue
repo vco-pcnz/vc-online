@@ -204,64 +204,70 @@ const lastSettledIndex = computed(() => {
   return idx;
 });
 
-const columns = computed(() => [
-  {
-    title: t('周期开始时间'),
-    dataIndex: 'start',
-    align: 'center',
-  },
-  {
-    title: t('还款日'),
-    dataIndex: 'due_date',
-    align: 'center',
-  },
-  {
-    title: t('周期天数'),
-    dataIndex: 'days',
-    align: 'center',
-  },
-  {
-    title: t('还款日的利息部分'),
-    dataIndex: 'interest',
-    align: 'center',
-  },
-  {
-    title: t('还款日的本金部分'),
-    dataIndex: 'principal',
-    align: 'center',
-  },
-  {
-    title: t('计划还款金额'),
-    dataIndex: 'payment',
-    align: 'center',
-  },
-  {
-    title: t('已还金额'),
-    dataIndex: 'amount',
-    align: 'center',
-  },
-  {
-    title: t('最新还款时间'),
-    dataIndex: 'paid_date',
-    align: 'center',
-  },
-  {
-    title: t('状态'),
-    dataIndex: 'status',
-    align: 'center',
-  },
-  {
-    title: t('剩余欠款'),
-    dataIndex: 'arrears',
-    align: 'center',
-  },
-  {
-    title: t('操作1'),
-    dataIndex: 'op',
-    align: 'center',
-    width: 100,
-    fixed: 'right',
-  },
+const columns = computed(() => {
+  const baseColumns = [
+    {
+      title: t('周期开始时间'),
+      dataIndex: 'start',
+      align: 'center',
+    },
+    {
+      title: t('还款日'),
+      dataIndex: 'due_date',
+      align: 'center',
+    },
+    {
+      title: t('周期天数'),
+      dataIndex: 'days',
+      align: 'center',
+    },
+    {
+      title: t('还款日的利息部分'),
+      dataIndex: 'interest',
+      align: 'center',
+    },
+    {
+      title: t('还款日的本金部分'),
+      dataIndex: 'principal',
+      align: 'center',
+    },
+    {
+      title: t('计划还款金额'),
+      dataIndex: 'payment',
+      align: 'center',
+    },
+    {
+      title: t('已还金额'),
+      dataIndex: 'amount',
+      align: 'center',
+    },
+    {
+      title: t('最新还款时间'),
+      dataIndex: 'paid_date',
+      align: 'center',
+    },
+    {
+      title: t('状态'),
+      dataIndex: 'status',
+      align: 'center',
+    },
+    {
+      title: t('剩余欠款'),
+      dataIndex: 'arrears',
+      align: 'center',
+    },
+  ];
+  // repay_type == 1 时不显示操作列
+  if (stats.value.repay_type != 1) {
+    baseColumns.push({
+      title: t('操作1'),
+      dataIndex: 'op',
+      align: 'center',
+      width: 100,
+      fixed: 'right',
+    });
+  }
+  return baseColumns;
   // {
   //   title: t('是否申请还款'),
   //   dataIndex: 'applied',
@@ -272,7 +278,7 @@ const columns = computed(() => [
   //   dataIndex: 'reference',
   //   align: 'center',
   // }
-]);
+});
 
 const formatDate = (date) => {
   return date ? tool.showDate(date) : '-';
@@ -284,7 +290,6 @@ const loadData = () => {
     .then((res) => {
       stats.value = { ...res };
       tableData.value = res.list || [];
-      console.log(tableData.value);
     })
     .finally(() => {
       loading.value = false;

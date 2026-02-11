@@ -21,6 +21,27 @@
       ></view-content>
     </a-modal>
 
+    <!-- VS垫付金额选择 -->
+    <a-modal
+      :open="estabReVisible"
+      :title="t('进度付款阶段')"
+      :width="1500"
+      :footer="null"
+      :keyboard="false"
+      :maskClosable="false"
+      class="middle-position"
+      @cancel="estabReVisible = false"
+    >
+      <vsl-view-content
+        v-if="estabReVisible"
+        :is-select="true"
+        :show-process="true"
+        :boc-estab-fee="Number(bocEstabFee)"
+        :selected-data="estabReSelectedData"
+        @selectDone="estabReSelectDoneHandle"
+      ></vsl-view-content>
+    </a-modal>
+
     <security-dialog
       v-model:visible="securityDialogVisible"
       :current-id="uuid"
@@ -476,7 +497,7 @@
                   </a-form-item>
                 </a-col>
                 <template v-for="item in secColItemsRef" :key="item.credit_table">
-                  <a-col :span="isVsl ? 4 : 6">
+                  <a-col :span="6">
                     <a-form-item :name="item.credit_table">
                       <template #label>
                         {{ isVsl && item.credit_table === 'credit_estabFeeRate' ? 'extension rate'  : item.credit_name }}
@@ -509,19 +530,37 @@
                   </a-col>
                 </template>
                 <template v-if="isVsl">
-                  <a-col :span="5">
+                  <a-col :span="6">
+                    <a-form-item :label="t('BOC建立费支付方式')" name="estab_re_type">
+                      <a-select
+                        v-model:value="formState.estab_re_type"
+                        style="width: 100%"
+                        :options="estabReTypeData"
+                      ></a-select>
+                    </a-form-item>
+                  </a-col>
+                  <a-col :span="6">
                     <a-form-item :label="t('VSL建立费')">
                       <div style="height: 50px;" class="flex items-center">
                         <vco-number :value="vslEstabFee" :precision="2"></vco-number>
                       </div>
                     </a-form-item>
                   </a-col>
-                  <a-col :span="5">
+                  <a-col :span="6">
                     <a-form-item :label="t('BOC建立费')">
                       <div style="height: 50px;" class="flex items-center">
-                        <vco-number :value="bocEstabFee" :precision="2"></vco-number>
+                        <vco-number :value="bocEstabFee" :precision="2" :color="Number(formState.estab_re_type) === 1 && !estabReSelectedData.length ? '#999999' : '#181818'"></vco-number>
+                        <i v-if="Number(formState.estab_re_type) === 1 && Number(vslEstabFee) > 0" class="iconfont estab-re-icon" @click="estabReVisible = true">&#xe8cf;</i>
                       </div>
                     </a-form-item>
+                  </a-col>
+                  <a-col :span="24">
+                    <div class="upload-content">
+                      <p>{{ t('文件') }}</p>
+                      <div class="upload-files-content">
+                        <documents-upload v-model:value="estabReDocuments" v-model:list="estabReDocumentsList"></documents-upload>
+                      </div>
+                    </div>
                   </a-col>
                 </template>
               </template>
@@ -564,6 +603,8 @@ import dayjs from 'dayjs';
 import { cloneDeep, debounce } from 'lodash';
 import securityDialog from './components/security-dialog.vue';
 import ViewContent from './components/view-content.vue';
+import VslViewContent from '@/views/requests/progress-payment/components/ViewContent.vue';
+import DocumentsUpload from '@/views/projects/drawdowns/components/form/DocumentsUpload.vue';
 import { hasPermission } from '@/directives/permission/index';
 
 const { t } = useI18n();
@@ -702,6 +743,7 @@ const formRef = ref();
 
 const formState = ref({
   estab_type: 1,
+  estab_re_type: 1,
   type: '',
   amount: '',
   start_date: '',
@@ -716,6 +758,29 @@ const formState = ref({
   note: '',
   initial_sn: ''
 });
+
+const estabReTypeData = [
+  {
+    label: t('VS垫付'),
+    value: 1
+  },
+  {
+    label: t('用户直接付款'),
+    value: 2
+  }
+]
+
+const fillEstabRe = ref(false)
+const estabReVisible = ref(false)
+const estabReSelectedData = ref([])
+const estabReDocuments = ref([])
+const estabReDocumentsList = ref([])
+
+const estabReSelectDoneHandle = (data) => {
+  const build__data = cloneDeep(data.build__data)
+  estabReSelectedData.value = build__data
+  estabReVisible.value = false
+}
 
 const initialAmount = computed(() => {
   return Number(tool.plus(formState.value.initial_land_amount, formState.value.initial_build_amount))
@@ -1058,6 +1123,7 @@ const getVariationDetail = async () => {
     securityData.value = res.security || [];
     formState.value.type = res.type || '';
     formState.value.estab_type = res.estab_type || 1;
+    formState.value.estab_re_type = res.estab_re_type || 1;
     formState.value.start_date = res.start_date || '';
     formState.value.end_date = res.end_date || '';
     formState.value.initial_sn = res.initial_sn || ''
@@ -1065,6 +1131,9 @@ const getVariationDetail = async () => {
     formState.value.initial_build_amount = res.initial_build_amount || ''
     formState.value.note = res.note || ''
     selectedData.value = res.build_log || []
+    estabReDocuments.value = res.document || []
+    estabReDocumentsList.value = res.document || []
+    estabReSelectedData.value = res.estab_build_log || []
 
     devCostJsonData.value = res.devCostDetail && res.devCostDetail.length ? res.devCostDetail : projectInfo.value.base.devCostDetail;
 
@@ -1072,6 +1141,8 @@ const getVariationDetail = async () => {
     for (const key in credit) {
       formState.value[key] = credit[key]
     }
+
+    fillEstabRe.value = true
   })
 }
 
@@ -1411,8 +1482,16 @@ const vslCalcEstab = () => {
     } else {
       formState.value.credit_estabFeeRate = res.estab_fee_rate
     }
+
+    // 清除BOC建立费阶段选择
+    if (Number(res.boc_estab_fee) !== Number(bocEstabFee.value) && !fillEstabRe.value) {
+      estabReSelectedData.value = []
+    }
+
     bocEstabFee.value = res.boc_estab_fee
     vslEstabFee.value = res.vs_estab_fee
+
+    fillEstabRe.value = false
   }).finally(() => {
     caclLoading.value = false
   })
@@ -1602,6 +1681,20 @@ const submitHandle = () => {
 
       params.credit = credit;
 
+      if (isVsl.value) {
+        params.estab_re_type = formState.value.estab_re_type
+        if (Number(params.estab_re_type) === 1) {
+          params.estab_build_log = estabReSelectedData.value
+
+          if (Number(bocEstabFee.value) > 0 && !estabReSelectedData.value.length) {
+            message.error(t('请选择BOC建立费'))
+            return
+          }
+        }
+
+        params.document = estabReDocuments.value || []
+      }
+
       submitLoading.value = true
       projectVariationEdit(params).then(res => {
         submitLoading.value = false
@@ -1763,5 +1856,35 @@ onMounted(async () => {
 .line-content {
   width: 100%;
   border-top: 1px dashed #808080;
+}
+
+.estab-re-icon {
+  padding-left: 5px;
+  cursor: pointer;
+  color: #F19915;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.upload-content {
+  padding-bottom: 20px;
+  position: relative;
+  > p {
+    font-size: 12px;
+    color: #888;
+  }
+  .upload-files-content {
+    border: 1px solid #272727 !important;
+    border-radius: 10px !important;
+    background-color: #f7f9f8;
+    padding: 11px;
+    min-height: 50px;
+    margin-top: 10px;
+  }
+  :deep(.title) {
+    position: absolute;
+    top: -10px;
+    right: 0;
+  }
 }
 </style>

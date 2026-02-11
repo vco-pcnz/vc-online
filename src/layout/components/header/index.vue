@@ -98,7 +98,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { cloneDeep } from 'lodash';
 import LanguageSelect from '@/components/language-select/index.vue';
-import { useUserStore, useNoticeStore } from '@/store';
+import { useUserStore, useNoticeStore, useAppStore } from '@/store';
 import { useRouter, useRoute } from 'vue-router';
 import { navigationTo } from '@/utils/tool';
 import { systemConfigData } from '@/api/system';
@@ -253,6 +253,14 @@ onMounted(() => {
   if (hasPermission('profile:apply:broker')) {
     LoadApplyBrokerDetail();
   }
+
+  // 查询是否开启短信通知
+  systemConfigData({ pcode: 'web_config', code: 'open_sms' }).then((res) => {
+    if (res.open_sms) {
+      // noticeStore.startPolling(res.open_sms);
+      useAppStore().openSms = res.open_sms === '1';
+    }
+  });
 });
 
 // 组件卸载时停止定时器

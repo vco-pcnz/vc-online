@@ -157,6 +157,10 @@
                   <p>{{ t('是否允许超额放款') }}</p>
                   <a-switch v-model:checked="allowExcess" />
                 </div>
+                <div v-else-if="bocEstabFee > 0" class="flex items-center gap-2">
+                  <p>{{ t('VS垫付') }}</p>
+                  <vco-number :value="bocEstabFee" :precision="2" color="#F19915" size="fs_xl"></vco-number>
+                </div>
                 <p v-else></p>
               </template>
               
@@ -166,6 +170,12 @@
                 <a-button v-if="batchSelectData.length" type="grey" class="bold uppercase" @click="batchSelectCancel">{{ t('取消已选择')}}</a-button>
                 <a-button v-if="batchSelect" type="dark" :disabled="!batchSelectData.length" class="bold uppercase" @click="batchSelectSet">{{ t('批量设置1') }} ({{ batchSelectData.length }})</a-button>
               </div>
+              <template v-else>
+                <div v-if="bocEstabFee > 0" class="flex items-center gap-2">
+                  <p>{{ t('VS垫付') }}</p>
+                  <vco-number :value="bocEstabFee" :precision="2" color="#F19915" size="fs_xl"></vco-number>
+                </div>
+              </template>
             </div>
             
             <p v-if="batchSelect" class="text-right mb-2">{{ t('点击下方表格，选择需要批量操作的数据')}}</p>
@@ -485,6 +495,7 @@
   import { projectDetail } from "@/api/project/project"
   import { cloneDeep } from "lodash"
   import tool, { numberStrFormat, fixNumber } from "@/utils/tool"
+  import { message } from 'ant-design-vue/es';
 
   const { t } = useI18n();
   const route = useRoute();
@@ -525,6 +536,10 @@
     logDate: {
       type: String,
       default: ''
+    },
+    bocEstabFee: {
+      type: Number,
+      default: 0
     }
   })
 
@@ -1448,6 +1463,11 @@
       build__data: data,
       total: selectTotalAmount.value
     }
+    if (props.bocEstabFee > 0 && selectTotalAmount.value !== props.bocEstabFee) {
+      message.error(t('设置金额与VS垫付金额不一致'))
+      return false
+    }
+
     emits('selectDone', selectInfo)
   }
 

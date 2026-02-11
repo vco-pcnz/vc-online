@@ -263,7 +263,7 @@
 </template>
 
 <script setup>
-  import { computed, onMounted, ref } from "vue"
+  import { computed, onMounted, ref, nextTick } from "vue"
   import { useI18n } from "vue-i18n";
   import { message } from "ant-design-vue";
   import { QuestionCircleOutlined } from '@ant-design/icons-vue';
@@ -774,9 +774,10 @@
         }
       })
 
-      columnsType()
-
-      await getSecurityData()
+      nextTick(async () => {
+        columnsType()
+        await getSecurityData()
+      })
     } catch (err) {
       pageLoading.value = false
     }
@@ -796,7 +797,7 @@
 
     try {
       const ajaxFn = isRequests.value ? projectAuditStepDetail : projectDetailApi
-      await ajaxFn(params).then(res => {
+      await ajaxFn(params).then(async (res) => {
         projectDetail.value = res
 
         emits('done', res)
@@ -819,8 +820,9 @@
         buildAmount.value = Construction ? (Number(Construction.loan) || 0) : 0
 
         borrowerEquity.value = Construction ? (Number(Construction.borrower_equity) || 0) : 0
+
+        await getSetedData()
       })
-      await getSetedData()
     } catch (err) {
       pageLoading.value = false
     }
@@ -837,6 +839,26 @@
     }
   }
 
+  const checkSetAmount = () => {
+    let len = 0
+    for (let i = 0; i < tableData.value.length; i++) {
+      const item = tableData.value[i]
+      for (const key in item) {
+        if (key.includes('-')) {
+          const amount = Number(item[key].amount)
+          const useAmount = Number(item[key].use_amount)
+          if (amount < useAmount) {
+            item[key].showError = true
+            len++
+          } else {
+            item[key].showError = false
+          }
+        }
+      }
+    }
+    return len
+  }
+
   const hasReseted = ref(false)
   const initHandle = (flag = false, tableTotal = false) => {
     // 如果为open后修改
@@ -848,22 +870,7 @@
       }
 
       // 这里需要遍历tableData的值，如果设置的值小于已使用的， showError为true
-      let len = 0
-      for (let i = 0; i < tableData.value.length; i++) {
-        const item = tableData.value[i]
-        for (const key in item) {
-          if (key.includes('-')) {
-            const amount = Number(item[key].amount)
-            const useAmount = Number(item[key].use_amount)
-            if (amount < useAmount) {
-              item[key].showError = true
-              len++
-            } else {
-              item[key].showError = false
-            }
-          }
-        }
-      }
+      const len = checkSetAmount()
       if (len) {
         message.error(t('存在{0}项设置的金额小于已使用的金额的数据，请检查', [len]))
       }
@@ -1207,8 +1214,13 @@
 
 
     if (props.isOpen) {
-      // open 后处理 暂定
-      submitRquest()
+      // open 后处理
+      const len = checkSetAmount()
+      if (len) {
+        message.error(t('存在{0}项设置的金额小于已使用的金额的数据，请检查', [len]))
+      } else {
+        submitRquest()
+      }
     } else {
       const sLen = securityData.value.length
       const rLen = Object.keys(setedData.value.row).length
@@ -1340,6 +1352,11 @@
   const tableDataFill = (data) => {
     const headerData = cloneDeep(tableHeader.value)
     headerData.splice(1, 1)
+    
+    const totalIndex = headerData.findIndex(item => item.dataIndex === 'total')
+    if (totalIndex > -1) {
+      headerData.splice(totalIndex, 1)
+    }
 
     const typeOneStrData = []
     const typeOneData = []
@@ -1358,7 +1375,6 @@
     typeOneData.forEach(row => {
       const type = row[0]
       const targetRow = tableData.value.find(item => !item.isFixedRow && item.type === type)
-
       if (targetRow) {
         for (let j = 1; j < row.length; j++) {
           const header = headerData[j]
@@ -1366,7 +1382,7 @@
 
           const dataIndex = header.dataIndex
           if (targetRow[dataIndex]) {
-            targetRow[dataIndex].amount = row[j]
+            targetRow[dataIndex].amount = row[j] || 0
           }
         }
       }
@@ -1375,7 +1391,6 @@
     typeTwoData.forEach(row => {
       const type = row[0]
       const targetRow = tableData.value.findLast(item => !item.isFixedRow && item.type === type)
-
       if (targetRow) {
         for (let j = 1; j < row.length; j++) {
           const header = headerData[j]
@@ -1383,7 +1398,7 @@
 
           const dataIndex = header.dataIndex
           if (targetRow[dataIndex]) {
-            targetRow[dataIndex].amount = row[j]
+            targetRow[dataIndex].amount = row[j] || 0
           }
         }
       }
@@ -1635,6 +1650,7 @@
     color: #eb4b6d;
     text-align: left;
     margin-top: 2px;
+    text-align: center;
     &.text-center {
       text-align: center !important;
     }

@@ -103,7 +103,7 @@
                     </span>
                   </a-menu-item>
                   <template v-if="hasPermission('users:reinvite') && !record.mobile_ok && !record.email_ok">
-                    <a-menu-item key="3" v-if="record.mobile">
+                    <a-menu-item key="3" v-if="record.mobile && useAppStore().openSms">
                       <vco-popconfirm :tip="t('确定要向{0}重新发送验证码吗?', ['+' + record.pre + ' ' + record.mobile])" width="340px" url="/user/inviteSend" :formParams="{ uuid: record.uuid, type: 2 }" @update="handlePathChange()">
                         <span>
                           {{ t('重新邀请电话') }}
@@ -134,6 +134,7 @@ import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { navigationTo } from '@/utils/tool';
 import { hasPermission } from '@/directives/permission/index';
+import { useAppStore } from '@/store';
 
 const emits = defineEmits(['update:data', 'update:keys', 'change']);
 

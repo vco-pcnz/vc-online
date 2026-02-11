@@ -32,7 +32,7 @@
         <a-button type="dark" class="big shadow bold uppercase" @click="detailVisible = true">{{ variationsInfo.mark === 'variation_lm' || variationsInfo.mark === 'variation_overdue_open' ? t('确认变更') : t('审核') }}</a-button>
       </template>
     </div>
-    <div class="handle-content" v-if="variationsInfo.is_do && hasPermission('projects:variations-details:about:return') ">
+    <div class="handle-content" v-if="variationsInfo.is_do && hasPermission('projects:variations-details:about:return') && detail?.product?.code!=='vsl'">
       <!-- <vco-form-dialog
         :title="t('退回')"
         :formParams="{ uuid: uuid, id: id, process__id: variationsInfo?.process__id || '' }"

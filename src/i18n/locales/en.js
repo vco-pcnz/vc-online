@@ -1401,7 +1401,7 @@ export default {
   "下一个还款日": "Next Due Date",
   "下一期应还金额": "Amount Due (next instalment)",
   "贷款状态": "Status",
-  "截至目前所有欠款金额": "Total amount due (as of)",
+  "截至目前所有欠款金额": "Total interest due (as of)",
   "累计罚息产生的利息(未结)": "Accrued default interest (as of)",
   "累计罚息(已结)": "Capitalised default interest",
   "罚息减免金额": "Waived Default Interest",

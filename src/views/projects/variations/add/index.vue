@@ -952,11 +952,19 @@ const defaultPickerValue = computed(() => {
 });
 
 const endDefaultPickerValue = computed(() => {
-  return dayjs(projectInfo.value.date.end_date).add(1, 'day');
+  if (projectInfo.value?.product?.code === 'vsl') {
+    return dayjs(projectInfo.value.date.end_date);
+  } else {
+    return dayjs(projectInfo.value.date.end_date).add(1, 'day');
+  }
 });
 
 const endDisabledDate = (current) => {
-  return current && current.isBefore(dayjs(projectInfo.value.date.end_date).add(1, 'day').startOf('day'));
+  if (projectInfo.value?.product?.code === 'vsl') {
+    return current && current.isBefore(dayjs(projectInfo.value.date.end_date).startOf('day'));
+  } else {
+    return current && current.isBefore(dayjs(projectInfo.value.date.end_date).add(1, 'day').startOf('day'));
+  }
 };
 
 const initDrawdownSel = ref(false);

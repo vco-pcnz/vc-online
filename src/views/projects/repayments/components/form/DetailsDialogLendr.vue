@@ -29,10 +29,6 @@
         <p>{{ t('减免额度') }} <span v-if="detailData.reduction_money_old" class="pl-2">{{ `(${t('最大值')}: $${numberStrFormat(detailData.reduction_money_old)})` }}</span></p>
         <vco-number :value="detailData.reduction_money" :precision="2" ></vco-number>
       </a-col>
-      <a-col :span="12" class="item-txt">
-        <p>{{ t('利息') }}</p>
-        <vco-number :value="detailData.compound_interest_money || 0" :precision="2"></vco-number>
-      </a-col>
       <a-col :span="24" class="item-txt">
         <p>{{ t('还款说明') }}</p>
         <p>{{ detailData.note || '--' }}</p>

@@ -51,20 +51,18 @@
                 <template #label>
                   <div class="flex items-center gap-1">
                     <span>{{ t('还款金额1') }}</span>
-                    <span v-if="formState.all_repayment !== 1 && Number(calcRepaymentData?.last_money) > 0" style="color: #31bd65">{{ `(${t('最大值')}: $${numberStrFormat(calcRepaymentData?.last_money)})` }}</span>
                   </div>
                 </template>
                 <a-input-number
                   v-model:value="formState.apply_amount"
                   :disabled="formState.all_repayment === 1"
-                  :max="Number(calcRepaymentData?.last_money) > 0 ? Number(calcRepaymentData?.last_money) : 99999999999"
+                  :max="99999999999"
                   :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                   :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                 />
               </a-form-item>
             </a-col>
-            <!-- maxReductionAmount && !isNormalUser -->
-            <template v-if="maxReductionAmount && !isNormalUser">
+            <template v-if="formState.all_repayment === 1 && maxReductionAmount && !isNormalUser">
               <a-col :span="7">
                 <a-form-item :label="t('还款总额')">
                   <a-input-number v-model:value="formState.apply_amount" disabled :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
@@ -97,29 +95,6 @@
                   </div>
                 </a-form-item>
               </a-col>
-
-              <a-col :span="8">
-                <a-form-item :label="t('罚息类型')">
-                  <div class="input-number-content">
-                    {{ calcRepaymentData?.penalty_type }}
-                  </div>
-                </a-form-item>
-              </a-col>
-              <a-col :span="8">
-                <a-form-item :label="t('利息')">
-                  <div class="input-number-content">
-                    <vco-number :bold="true" :value="calcRepaymentData?.compound_Interest" :precision="2" size="fs_xl" :end="true"></vco-number>
-                  </div>
-                </a-form-item>
-              </a-col>
-
-              <a-col :span="8">
-                <a-form-item :label="t('罚息减免最大额度')">
-                  <div class="input-number-content">
-                    <vco-number :bold="true" :value="calcRepaymentData?.reduction_money" :precision="2" size="fs_xl" :end="true"></vco-number>
-                  </div>
-                </a-form-item>
-              </a-col>
             </template>
 
             <a-col v-if="formState.all_repayment === 1 && !isNormalUser" :span="6">
@@ -145,9 +120,6 @@
                 </a-button>
               </a-form-item>
             </a-col>
-            <!-- <a-col v-if="formState.all_repayment === 1 && !isNormalUser" :span="24">
-              <extra-item v-model="extraData" :repayment-amount="repaymentAmount"></extra-item>
-            </a-col> -->
             <a-col :span="24">
               <a-form-item name="note" class="custom-label">
                 <template #label>
@@ -226,10 +198,10 @@
 </template>
 
 <script scoped setup>
-import { ref, computed, watch, reactive } from 'vue';
+import { ref, computed, reactive } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
-import { loanRDedit, projectLoanAllRepayment, loanDelSecurity, loanRgoBack, projectLoanCalcIrr, calcRepayment } from '@/api/project/loan';
+import { loanRDedit, projectLoanAllRepayment, loanDelSecurity, loanRgoBack } from '@/api/project/loan';
 import { systemDictData } from '@/api/system';
 import { CalendarOutlined } from '@ant-design/icons-vue';
 import DocumentsUpload from '../../../discharge/components/form/DocumentsUpload.vue';
@@ -237,8 +209,7 @@ import dayjs from 'dayjs';
 import { useUserStore } from '@/store';
 import tool, { selectDateFormat, removeDuplicates, numberStrFormat } from '@/utils/tool';
 import SecuritiesDialog from './SecuritiesDialog.vue';
-import ExtraItem from './ExtraItem.vue';
-import { cloneDeep, debounce } from 'lodash';
+import { cloneDeep } from 'lodash';
 import { hasPermission } from '@/directives/permission/index';
 
 const { t } = useI18n();
@@ -281,36 +252,6 @@ const formState = ref({
 
 const oldIrrNumber = ref(0);
 const irrPercent = ref(0);
-const irrLoading = ref(false);
-
-const refreshIrr = () => {
-  irrLoading.value = true;
-  const params = {
-    uuid: props.uuid,
-    date: dayjs(formState.value.apply_date).format('YYYY-MM-DD'),
-    last_money: repaymentAmount.value,
-    do__est: 0
-  };
-
-  if (extraData.value) {
-    params.last_money = extraData.value.finalRepaymentAmount;
-    params.extra = extraData.value.data;
-    params.extra_amount = Number(extraData.value.extraAmount || 0);
-  }
-
-  if (isAllCancel.value) {
-    params.edit = 1;
-  }
-
-  projectLoanCalcIrr(params)
-    .then((res) => {
-      irrPercent.value = Number(res.irr || 0) < 0 ? 0 : Number(res.irr || 0);
-      irrLoading.value = false;
-    })
-    .catch(() => {
-      irrLoading.value = false;
-    });
-};
 
 const maxReductionAmount = ref(0);
 const showMaxReduction = computed(() => {
@@ -352,15 +293,11 @@ const overdueDays = computed(() => {
   return 0;
 });
 
-const amountInput = (flag = false) => {
+const amountInput = () => {
   if (formState.value.reduction_money < 0) {
     formState.value.reduction_money = 0;
   } else {
     formState.value.reduction_money = formState.value.reduction_money > showMaxReduction.value ? showMaxReduction.value : formState.value.reduction_money;
-  }
-
-  if (flag) {
-    refreshIrr();
   }
 };
 
@@ -419,19 +356,21 @@ const formRules = ref({
 const updateVisible = (value) => {
   visible.value = value;
 
-  if (!value && !irrLoading.value) {
+  if (!value) {
     formRef.value.clearValidate();
     formRef.value.resetFields();
     Object.keys(formState.value).forEach((key) => {
       formState.value[key] = ''; // 清空每个字段
     });
+    irrPercent.value = 0;
+    oldIrrNumber.value = 0;
+    maxReductionAmount.value = 0;
     relatedData.value = [];
     showRelatedSwitch.value = false;
     documentInfo.value = [];
   }
 };
 
-const changeAlertRef = ref();
 const changeVisible = ref(false);
 
 const goBackHandle = () => {
@@ -474,10 +413,6 @@ const dataComparisonHandle = () => {
 
   if (oldData.apply_date !== newApplyDate) {
     errArr.push(t('还款日期由{0}修改为{1}', [tool.showDate(oldData.apply_date), tool.showDate(newApplyDate)]));
-  }
-
-  if (Number(oldData.reduction_rate || 0) !== Number(standardRateInput.value || 0)) {
-    errArr.push(t('建议标准税率由{0}修改为{1}', [`${numberStrFormat(oldData.reduction_rate || 0)}%`, `${Number(standardRateInput.value || 0)}%`]));
   }
 
   if (Number(oldData.reduction_money || 0) !== Number(newData.reduction_money || 0)) {
@@ -564,7 +499,6 @@ const submit = () => {
   delete params.cancel_reason;
 
   if (params.all_repayment) {
-    params.reduction_rate = standardRateInput.value;
     params.reduction_rate_old = standardRate.value;
     params.reduction_money_old = showMaxReduction.value;
 
@@ -622,28 +556,9 @@ const getLoading = ref(false);
 
 const hasSetStandard = ref(false);
 const standardRate = ref(0);
-const standardRateInput = ref(0);
 const standardAmount = ref(0);
 
-// 防抖处理
-const standardInputChange = debounce((value) => {
-  const num = Number(value);
-  if (num > Number(standardRate.value)) {
-    calAmount(num);
-  }
-}, 300);
-
-const standardInputBlur = () => {
-  const num = Number(standardRateInput.value) || 0;
-  if (num < Number(standardRate.value) || num === Number(standardRate.value)) {
-    standardRateInput.value = Number(standardRate.value);
-    setTimeout(() => {
-      calAmount(standardRateInput.value);
-    }, 200);
-  }
-};
-
-const calAmount = (rate, flag = false) => {
+const calAmount = (rate) => {
   getLoading.value = true;
 
   if (!rate || isNaN(Number(rate))) {
@@ -671,14 +586,11 @@ const calAmount = (rate, flag = false) => {
   projectLoanAllRepayment(params)
     .then((res) => {
       formState.value.apply_amount = Number(res.last_money) ? Number(res.last_money) : 0;
-      // maxReductionAmount.value = Number(res.reduction_money) ? Number(res.reduction_money) : 0
+      maxReductionAmount.value = Number(res.reduction_money) ? Number(res.reduction_money) : 0
 
       if (!hasSetStandard.value) {
         standardRate.value = res.min_StandardRate;
-        if (!flag) {
-          standardRateInput.value = res.StandardRate;
-          standardAmount.value = res.reduction_money;
-        }
+        standardAmount.value = res.reduction_money;
 
         hasSetStandard.value = true;
       }
@@ -687,13 +599,8 @@ const calAmount = (rate, flag = false) => {
         isRestIrr.value = false;
         oldIrrNumber.value = res.irr;
         irrPercent.value = res.irr;
-      } else {
-        refreshIrr();
       }
 
-      if (!flag) {
-        formState.value.reduction_money = 0;
-      }
       getLoading.value = false;
     })
     .catch(() => {
@@ -703,7 +610,6 @@ const calAmount = (rate, flag = false) => {
 
 const isRestIrr = ref(false);
 
-const calcRepaymentData = ref({});
 const dateChange = (date) => {
   if (date && formState.value.all_repayment === 1) {
     isRestIrr.value = true;
@@ -712,34 +618,10 @@ const dateChange = (date) => {
     formState.value.apply_amount = 0;
     maxReductionAmount.value = 0;
   }
-  loadCalcRepayment();
-};
-
-// lendr还款金额试算
-const loadCalcRepayment = () => {
-  calcRepayment({
-    uuid: props.uuid,
-    date: dayjs(formState.value.apply_date).format('YYYY-MM-DD')
-  })
-    .then((res) => {
-      calcRepaymentData.value = res;
-
-      maxReductionAmount.value = Number(res.reduction_money) ? Number(res.reduction_money) : 0;
-    })
-    .catch(() => {
-      console.log(error);
-    });
 };
 
 const typeChange = () => {
   formState.value.apply_date = ''
-  // if (formState.value.apply_date && formState.value.all_repayment === 1) {
-  //   isRestIrr.value = true;
-  //   calAmount();
-  // } else {
-  //   // formState.value.apply_amount = 0;
-  //   // maxReductionAmount.value = 0;
-  // }
   formState.value.note = formState.value.all_repayment === 1 ? 'Full Repayment' : '';
 };
 
@@ -863,14 +745,12 @@ const setFormData = () => {
       standardAmount.value = res.reduction_money;
     });
 
-    standardRateInput.value = data.reduction_rate || 0;
-    calAmount(data.reduction_rate, Boolean(standardRateInput.value));
+    calAmount(data.reduction_rate);
   }
 
   if (formState.value.reduction_money) {
     formState.value.apply_amount = tool.plus(Number(formState.value.apply_amount || 0), Number(formState.value.reduction_money || 0));
   }
-  loadCalcRepayment()
 };
 
 const downloadLoading = ref(false);
@@ -907,18 +787,6 @@ const downloadStatement = () => {
 
 // 额外款项
 const extraData = ref(null);
-
-// 创建防抖函数
-const debouncedRefreshIrr = debounce(() => {
-  refreshIrr();
-}, 500);
-
-watch(
-  () => extraData.value,
-  () => {
-    debouncedRefreshIrr();
-  }
-);
 
 const isAllCancel = ref(false);
 const init = (allCancel = false) => {

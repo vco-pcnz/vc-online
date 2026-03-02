@@ -36,6 +36,9 @@ const props = defineProps({
   },
   timepicker: {
     type: String
+  },
+  disabledDate: {
+    type: Function
   }
 });
 
@@ -89,12 +92,15 @@ const rangePresets = ref([
 ]);
 
 const disabledDateFormat = (current) => {
-  const endDate = new Date();
-  if (current && current.isAfter(endDate, 'day')) {
-    return true;
+  if (props.disabledDate) {
+    return props.disabledDate(current);
+  } else {
+    const endDate = new Date();
+    if (current && current.isAfter(endDate, 'day')) {
+      return true;
+    }
+    return false;
   }
-
-  return false;
 };
 
 const onChange = (dates) => {

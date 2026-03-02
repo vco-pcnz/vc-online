@@ -58,7 +58,6 @@ function createService() {
   service.interceptors.response.use(
     (response) => {
       release();
-
       const disposition = response.headers['content-disposition'] || response.headers['Content-Disposition'] || null;
       if ((disposition || !/^application\/json/.test(response.headers['content-type'])) && response.status === 200) {
         return response;
@@ -67,7 +66,6 @@ function createService() {
         response.data.message = i18n.global.t('服务器内部错误');
         response.data.success = false;
       }
-
       const { code, data, msg, count, otherInfo } = response.data;
       if (code === 0) {
         if (count || count === 0) {
@@ -113,7 +111,7 @@ function createService() {
           msg
         });
       } else {
-        if (!response.config.diyError) {
+        if (!response.config.diyError && !response.config.url.includes('index/count')) {
           message.error({
             content: msg
           });
@@ -126,6 +124,9 @@ function createService() {
     },
     (error) => {
       release();
+      if (response.config.url.includes('index/count')) {
+        return Promise.reject(error.response && error.response.data ? error.response.data : null);
+      }
       const err = (text) => {
         message.error({
           content: error.response && error.response.data && error.response.data.message ? error.response.data.message : text

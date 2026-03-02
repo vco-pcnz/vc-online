@@ -1,9 +1,9 @@
 <template>
   <div class="table-block text-center">
-    <ul class="table-col header" :class="{ isVsl: isVSL }">
+    <ul class="table-col header" :class="{ isVsl: showLender }">
       <li></li>
       <li class="text-left" ref="title">{{ t('还款') }}</li>
-      <li v-if="isVSL">{{ t('贷款方') }}</li>
+      <li v-if="showLender">{{ t('贷款方') }}</li>
       <li>{{ t('请求数据1') }}</li>
       <li class="status">{{ t('状态t') }}</li>
       <li>{{ t('已批准') }}</li>
@@ -12,15 +12,15 @@
     </ul>
     <div v-if="tableData.length" class="table-body">
       <template v-for="(item, index) in tableData" :key="item.id">
-        <ul class="table-col tr all-repayment" :class="{ active: active_id == item.id, declined: item.status_name === 'DECLINED REPAYMENT', isVsl: isVSL }" @click="viewDetail(item)">
+        <ul class="table-col tr all-repayment" :class="{ active: active_id == item.id, declined: item.status_name === 'DECLINED REPAYMENT', isVsl: showLender }" @click="viewDetail(item)">
           <li><div class="circle" :class="{ done: item.status === 2 }"></div></li>
           <li class="text-left">
-            <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.name" :style="{ width: isVSL ? '164px' : '210px' }">
+            <p class="bold black text-ellipsis overflow-hidden text-nowrap" :title="item.name" :style="{ width: showLender ? '164px' : '210px' }">
               <span class="index-num">{{ total - (pagination.page - 1) * pagination.limit - index }}</span>
               {{ item.name }}
             </p>
           </li>
-          <li v-if="isVSL">{{ item.source ? (item.source > 0 ? 'BOC' : '') : 'VS' }}</li>
+          <li v-if="showLender">{{ item.source ? (item.source > 0 ? 'BOC' : '') : 'VS' }}</li>
           <li>
             <vco-number :value="item.apply_amount" :precision="2" size="fs_md" :end="true"></vco-number>
             <p class="fs_xs color_grey" v-if="item.apply_date">{{ tool.showDate(item.apply_date) }}</p>
@@ -107,8 +107,8 @@ const setStatusColor = (val) => {
   }
 };
 
-const isVSL = computed(() => {
-  return props.projectDetail?.product?.code === 'vsl';
+const showLender = computed(() => {
+  return props.projectDetail?.product?.code === 'vsl' && !isExternalUser.value;
 });
 
 watch(

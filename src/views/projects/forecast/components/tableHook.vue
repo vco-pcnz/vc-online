@@ -48,10 +48,10 @@
             v-for="(item, index) in data?.list[key]"
             :key="item.id"
             class="col-item"
-            :class="{ passed: item.status != 0 || item.first, yellow: item.type == 4 && item.first, red: item.is_hide, item: itemId, grace: item.is_grace }"
+            :class="{ passed: item.status != 0 || item.first, yellow: item.type == 4 && item.first == 1, red: item.is_hide, item: itemId, grace: item.is_grace }"
             @click="showLog(item)"
           >
-            <div class="item flex items-center"><span class="circle" :style="{ background: item.status != 0 || item.first ? '#181818' : '#b4d8d8' }"></span></div>
+            <div class="item flex items-center"><span class="circle" :style="{ background: item.status != 0 || item.first == 1 ? '#181818' : '#b4d8d8' }"></span></div>
             <div class="item">
               <template v-if="!index"> {{ tool.monthYear(item.ym) }}</template>
             </div>

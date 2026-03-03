@@ -5,7 +5,7 @@
         <div class="flex justify-end mb-5 gap-4">
           <vco-page-tab v-if="projectDetail && projectDetail.product.code === 'vsl' && (hasPermission('projects:schedule:vs_schedule') || hasPermission('projects:schedule:boc_schedule'))" :tabData="typeData" v-model:current="type_id"></vco-page-tab>
           <a-button
-            v-if="hasPermission('projects:repayments:ViewRepaymentSchedule') && projectDetail?.product?.code === 'lender'"
+            v-if="hasPermission('projects:repayments:ViewRepaymentSchedule') && projectDetail?.product?.code === 'lendr'"
             type="brown"
             shape="round"
             class="pre-sale-enter"

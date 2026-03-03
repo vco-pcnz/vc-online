@@ -195,12 +195,19 @@ const disabledDateFormat = (current) => {
   // if (current && current.isBefore(startDate, 'day')) {
   //   return true;
   // }
-
-  // 2025-07-02 13:00:00 - 修改为变更之后的日期
-  const var_start_date = dayjs(props?.projectDetail?.date?.var_start_date || props?.projectDetail?.date?.start_date).add(1, 'day')
-  if (current.isBefore(var_start_date, 'day')) {
-    return true;
+  if (props.projectDetail?.product?.code === 'lendr') {
+    const endDate = props.projectDetail?.date?.end_date;
+    if (current && current.isBefore(endDate, 'day')) {
+      return true;
+    }
+  } else {
+    // 2025-07-02 13:00:00 - 修改为变更之后的日期
+    const var_start_date = dayjs(props?.projectDetail?.date?.var_start_date || props?.projectDetail?.date?.start_date).add(1, 'day')
+    if (current.isBefore(var_start_date, 'day')) {
+      return true;
+    }
   }
+ 
 
   return false;
 }

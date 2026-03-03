@@ -49,9 +49,9 @@ export const loanRepayment = (params) =>
   });
 
 // 还款计划-列表
-export const loanRepaymentSchedule = (params) =>
+export const repayStat = (params) =>
   request({
-    url: 'project/loan/repaymentSchedule',
+    url: 'projectDetail/repayStat',
     method: 'get',
     params
   });

@@ -17,7 +17,7 @@
           <div class="block-container">
             <div class="left-content">
               <template v-if="dataInfo && !pageLoading">
-                <div v-if="borrowerInfoData.borrower_about" class="block-item details">
+                <div v-if="borrowerInfoData.borrower_about || borrowerInfoData.borrower_id_num || borrowerInfoData.organization_name" class="block-item details">
                   <vco-process-title :title="t('借款人信息')"></vco-process-title>
                   <component :is="BorrowerInfo" :data="borrowerInfoData" />
                 </div>

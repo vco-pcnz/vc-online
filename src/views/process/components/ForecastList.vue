@@ -385,14 +385,15 @@ const getTableData = () => {
     uuid: props.currentId,
   })
     .then((res) => {
-      const dataArr = [];
       const data = res.data.list || {};
-
-      if (Object.keys(data).length) {
-        for (const key in data) {
-          dataArr.push(data[key]);
-        }
-      }
+      
+      const dataArr = Object.keys(data)
+        .sort((a, b) => dayjs(`${a}-01`).valueOf() - dayjs(`${b}-01`).valueOf())
+        .map((key) => {
+          const monthList = Array.isArray(data[key]) ? [...data[key]] : [];
+          monthList.sort((a, b) => dayjs(a.date).valueOf() - dayjs(b.date).valueOf());
+          return monthList;
+        });
 
       cTimes.value = res.data.drawDownCount;
       cMoney.value = Number(res.data.drawDownMoney);

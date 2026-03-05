@@ -106,9 +106,10 @@
         <p class="name">{{ t('抵押物总价值') }}</p>
         <div class="txt-box line-info-box">
           <vco-number :value="statistics.all_money" :precision="2"></vco-number>
-          <i class="iconfont" style="color: #31bd65">&#xe712;</i>
+          <i class="iconfont" v-if="securityAmount < 0" style="color: #eb4b6d">&#xe711;</i>
+          <i class="iconfont" v-else style="color: #31bd65">&#xe712;</i>
           <div class="flex items-center gap-2">
-            <vco-number :value="securityAmount" color="#31bd65" :precision="2"></vco-number>
+            <vco-number :value="Math.abs(securityAmount)" color="#31bd65" :precision="2"></vco-number>
             <i class="iconfont view-icon" @click="securityDialogVisible = true">&#xe63e;</i>
           </div>
           <i class="iconfont">&#xe609;</i>
@@ -283,7 +284,11 @@ const getsecurityInfo = () => {
 const securityAmount = computed(() => {
   const security = variationsInfo.value.security || []
   if (security.length) {
-    return security.reduce((acc, item) => tool.plus(acc, item.amount), 0);
+    const oldNum = security.reduce((acc, item) => tool.plus(acc, Number(item.old_amount || 0)), 0);
+    const nowData = security.filter(item => !item.is_delete)
+
+    const nowNum = nowData.reduce((acc, item) => tool.plus(acc, Number(item.amount || 0)), 0);
+    return tool.minus(nowNum, oldNum);
   } else {
     return 0;
   }

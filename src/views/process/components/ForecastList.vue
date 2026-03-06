@@ -263,8 +263,11 @@ const errorColor = ref(false);
 
 const vsMoney = ref(0)
 const vsRemainMoney = ref(0)
+const vsTotalMoney = ref(0)
 const bocMoney = ref(0)
 const bocRemainMoney = ref(0)
+const bocTotalMoney = ref(0)
+
 const loanRemainMoney = ref(0)
 
 const remainInfo = computed(() => {
@@ -406,8 +409,11 @@ const getTableData = () => {
 
       vsMoney.value = Number(res.data.vsDrawDownAmount);
       vsRemainMoney.value = Number(res.data.vsRemainDrawDownMoney);
+      vsTotalMoney.value = Number(tool.plus(vsMoney.value, vsRemainMoney.value));
+
       bocMoney.value = Number(res.data.bocDrawDownAmount);
       bocRemainMoney.value = Number(res.data.bocRemainDrawDownMoney);
+      bocTotalMoney.value = Number(tool.plus(bocMoney.value, bocRemainMoney.value));
 
       tabFlatData.value = dataArr.flat(Infinity).filter(item => item.type === 2)
       tabData.value = dataArr;
@@ -506,7 +512,7 @@ const sureHandle = () => {
             return Number(tool.plus(total, num))
           }, 0);
           const total = Number(tool.plus(num, currentParams.value.amount))
-          const loanTotal = formState.source === 0 ? vsMoney.value : bocMoney.value
+          const loanTotal = formState.source === 0 ? vsTotalMoney.value : bocTotalMoney.value
           if (total > loanTotal) {
             const diffNum = Number(tool.minus(total, loanTotal))
             const tipsTxt = formState.source === 0 ?

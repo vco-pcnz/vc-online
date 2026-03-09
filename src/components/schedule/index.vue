@@ -582,13 +582,9 @@ const getDataInfo = (isLate = false) => {
       statisticsData.value.now.repaid = res.now.repaid ? Math.abs(Number(res.now.repaid)) : 0;
       statisticsData.value.last.repaid = res.last.repaid ? Math.abs(Number(res.last.repaid)) : 0;
 
-      if (res.last.is_overtime) {
-        if (['vsl'].includes(props.currentProduct)) {
-          statisticsData.value.last.days = tool.diffDate(res.day.sday, res.day.eday);
-        } else {
-          statisticsData.value.last.days = tool.diffDate(res.day.sday, res.day.eday) + 1;
-        }
-      }
+      // if (res.last.is_overtime) {
+      //    statisticsData.value.last.days = tool.diffDate(res.day.sday, res.day.eday) + 1;
+      // }
       statisticsData.value.isBegain = dayjs().isAfter(dayjs(res.day.sday));
 
       option.value.series[0].data[0].value = repayments;

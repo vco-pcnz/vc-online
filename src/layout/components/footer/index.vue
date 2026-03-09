@@ -1,7 +1,7 @@
 <template>
   <div class="footer-container">
     <div class="Copyright">Copyright © 2022-present Vincent Capital</div>
-    <router-link :to="!isNormalUser && pageRole !== 'Investor' ? '/version' : ''" class="version">{{ version }}</router-link>
+    <!-- <router-link :to="!isNormalUser && pageRole !== 'Investor' ? '/version' : ''" class="version">{{ version }}</router-link> -->
   </div>
 </template>
 

@@ -100,7 +100,7 @@
             </div>
             <div v-if="!itemId" class="item history">
               <i class="iconfont nav-icon" v-if="!item.first">&#xe794;</i>
-              <i class="iconfont grace-icon" v-if="(item.is_grace && hasPermission('projects:forecast:grace')) || (item.status == 0 && hasPermission('projects:forecast:delete')) && !isLendr" @click.stop="removeHandle(item, item.is_grace)">&#xe8c1;</i>
+              <i class="iconfont grace-icon" v-if="(item.is_grace && hasPermission('projects:forecast:grace')) || (item.status == 0 && hasPermission('projects:forecast:delete')) && !isLendr && Boolean(!projectDetail?.base?.is_close)" @click.stop="removeHandle(item, item.is_grace)">&#xe8c1;</i>
             </div>
             <div v-else-if="Boolean(!projectDetail?.base?.is_close)" class="item opt">
               <i v-if="item.first || item.status != 0" class="iconfont disabled">&#xe8cf;</i>

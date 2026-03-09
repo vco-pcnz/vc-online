@@ -710,6 +710,10 @@ const typeChange = (val) => {
     defaultDate = dayjs(projectInfo.value.date.var_start_date).add(1, 'day').format('YYYY-MM-DD');
   }
 
+  if (isVsl.value) {
+    defaultDate = dayjs(projectInfo.value.date.end_date).format('YYYY-MM-DD');
+  }
+
   const params = {
     uuid: uuid.value,
     type: val,

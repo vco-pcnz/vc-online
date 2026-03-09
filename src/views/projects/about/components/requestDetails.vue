@@ -1,11 +1,11 @@
 <template>
   <div class="RequestDetails">
     <a-modal :open="borrowerVisible" :title="t('修改借款人信息')" :width="900" :footer="null" :keyboard="false" @update:open="borrowerVisible = false">
-      <borrower-info-form v-if="borrowerVisible" :check="true" :is-open="true" :info-data="data?.borrower" :current-id="currentId" @checkDone="saveDone"></borrower-info-form>
+      <component :is="borrowerInfoForm" v-if="borrowerVisible" :check="true" :is-open="true" :info-data="data?.borrower" :current-id="currentId" @checkDone="saveDone"></component>
     </a-modal>
 
     <a-modal :open="securityVisible" :title="t('其他安全信息')" :width="900" :footer="null" :keyboard="false" @update:open="securityVisible = false">
-      <guarantor-info-form v-if="securityVisible" :current-id="currentId" :is-open="true" :guarantor-info="data?.warranty" @refresh="saveDone"></guarantor-info-form>
+      <component :is="guarantorInfoForm" v-if="securityVisible" :current-id="currentId" :is-open="true" :blockInfo="{showEdit: true}" :disabledGua="false" :guarantor-info="data?.warranty" @refresh="saveDone"></component>
     </a-modal>
 
     <p class="RequestDetails-amount flex items-center">Requested <vco-number :value="data?.base.loan_money" size="fs_xl" class="ml-3" :bold="true" :precision="2"></vco-number></p>
@@ -67,13 +67,11 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, defineAsyncComponent } from 'vue';
 import tool from '@/utils/tool';
 import { navigationTo } from '@/utils/tool';
 import { hasPermission } from '@/directives/permission/index';
 import { useI18n } from 'vue-i18n';
-import BorrowerInfoForm from '@/views/process/temp/default/tpl-one.vue';
-import GuarantorInfoForm from '@/views/process/temp/default/components/GuarantorInfo.vue';
 import { useUserStore } from '@/store';
 
 const pageRole = computed(() => useUserStore().pageRole);
@@ -86,6 +84,37 @@ const emits = defineEmits(['update']);
 
 const showWarrantyTips = computed(() => {
   return hasPermission('projects:detail:editGuarantor') && !props.data?.warranty?.main_contractor && !props.data?.warranty?.security_package.length;
+});
+
+const currentMode = computed(() => {
+  const productCode = String(props.data?.product?.code).toLowerCase();
+  if (productCode === 'lendr') {
+    return 'lendr';
+  } else if (productCode === 'vsl') {
+    return 'vsl';
+  } else {
+    return 'default';
+  }
+});
+
+const borrowerInfoFormModules = import.meta.glob('/src/views/process/temp/*/tpl-one.vue');
+const guarantorInfoFormModules = import.meta.glob('/src/views/process/temp/*/components/GuarantorInfo.vue');
+
+const getAsyncFormComponent = (modules, modePath, defaultPath) => {
+  const loader = modules[modePath] || modules[defaultPath];
+  return loader ? defineAsyncComponent(loader) : null;
+};
+
+const borrowerInfoForm = computed(() => {
+  const modePath = `/src/views/process/temp/${currentMode.value}/tpl-one.vue`;
+  const defaultPath = '/src/views/process/temp/default/tpl-one.vue';
+  return getAsyncFormComponent(borrowerInfoFormModules, modePath, defaultPath);
+});
+
+const guarantorInfoForm = computed(() => {
+  const modePath = `/src/views/process/temp/${currentMode.value}/components/GuarantorInfo.vue`;
+  const defaultPath = '/src/views/process/temp/default/components/GuarantorInfo.vue';
+  return getAsyncFormComponent(guarantorInfoFormModules, modePath, defaultPath);
 });
 
 const borrowerVisible = ref(false);

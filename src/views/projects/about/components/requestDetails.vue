@@ -5,7 +5,7 @@
     </a-modal>
 
     <a-modal :open="securityVisible" :title="t('其他安全信息')" :width="900" :footer="null" :keyboard="false" @update:open="securityVisible = false">
-      <guarantor-info-form v-if="securityVisible" :current-id="currentId" :is-open="true" :guarantor-info="data?.warranty" @refresh="saveDone"></guarantor-info-form>
+      <guarantor-info-form v-if="securityVisible" :current-id="currentId" :is-open="true" :blockInfo="{showEdit: true}" :disabledGua="false" :guarantor-info="data?.warranty" @refresh="saveDone"></guarantor-info-form>
     </a-modal>
 
     <p class="RequestDetails-amount flex items-center">Requested <vco-number :value="data?.base.loan_money" size="fs_xl" class="ml-3" :bold="true" :precision="2"></vco-number></p>

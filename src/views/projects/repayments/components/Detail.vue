@@ -276,6 +276,10 @@ const downloadStatement = () => {
     verify_id: props.detail?.id
   };
 
+  if (props.detail.status >= 1 && props.projectDetail.product.code === 'vsl') {
+    params.edit = 1;
+  }
+
   if (props.detail.extra && props.detail.extra.length) {
     params.extra = props.detail.extra;
     params.extra_amount = Number(props.detail.extra_amount || 0);

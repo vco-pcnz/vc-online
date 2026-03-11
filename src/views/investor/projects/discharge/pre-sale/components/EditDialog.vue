@@ -240,6 +240,13 @@
       return false
     }
     const data = cloneDeep(formState.value);
+
+    data.amount = data.amount ? Number(data.amount) : 0;
+    data.sales_price = data.sales_price ? Number(data.sales_price) : 0;
+    data.repayment_price = data.repayment_price ? Number(data.repayment_price) : 0;
+    data.net_proceeds_price = data.net_proceeds_price ? Number(data.net_proceeds_price) : 0;
+    data.variance = data.variance ? Number(data.variance) : 0;
+
     data.is_gst = data.is_gst ? 1 : 0
     delete data.reason
 

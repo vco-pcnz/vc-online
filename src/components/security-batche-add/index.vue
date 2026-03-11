@@ -579,7 +579,7 @@ const totalEstSprice = computed(() => {
   if (props.isVariation) {
     data = data.filter(item => !item.is_delete)
   }
-  const sqmArr = data.map((item) => item.est_sales_price);
+  const sqmArr = data.map((item) => item.est_sales_price || 0);
   const sum = sqmArr.reduce((acc, cur) => Number(acc) + Number(cur), 0);
   return `$${numberStrFormat(sum)}`;
 });
@@ -590,7 +590,7 @@ const totalSecurityValue = computed(() => {
   if (props.isVariation) {
     data = data.filter(item => !item.is_delete)
   }
-  const sqmArr = data.map((item) => item.amount);
+  const sqmArr = data.map((item) => item.amount || 0);
   const sum = sqmArr.reduce((acc, cur) => Number(acc) + Number(cur), 0);
   return `$${numberStrFormat(sum)}`;
 });
@@ -601,7 +601,7 @@ const totalInsuranceValue = computed(() => {
   if (props.isVariation) {
     data = data.filter(item => !item.is_delete)
   }
-  const sqmArr = data.map((item) => item.insurance_value);
+  const sqmArr = data.map((item) => item.insurance_value || 0);
   const sum = sqmArr.reduce((acc, cur) => Number(acc) + Number(cur), 0);
   return `$${numberStrFormat(sum)}`;
 });
@@ -612,7 +612,7 @@ const totalSalesPrice = computed(() => {
   if (props.isVariation) {
     data = data.filter(item => !item.is_delete)
   }
-  const sqmArr = data.map((item) => item.sales_price);
+  const sqmArr = data.map((item) => item.sales_price || 0);
   const sum = sqmArr.reduce((acc, cur) => Number(acc) + Number(cur), 0);
   return `$${numberStrFormat(sum)}`;
 });
@@ -623,7 +623,7 @@ const totalAmountReceived = computed(() => {
   if (props.isVariation) {
     data = data.filter(item => !item.is_delete)
   }
-  const sqmArr = data.map((item) => item.repayment_price);
+  const sqmArr = data.map((item) => item.repayment_price || 0);
   const sum = sqmArr.reduce((acc, cur) => Number(acc) + Number(cur), 0);
   return `$${numberStrFormat(sum)}`;
 });
@@ -634,7 +634,7 @@ const totalNetIncome = computed(() => {
   if (props.isVariation) {
     data = data.filter(item => !item.is_delete)
   }
-  const sqmArr = data.map((item) => item.net_proceeds_price);
+  const sqmArr = data.map((item) => item.net_proceeds_price || 0);
   const sum = sqmArr.reduce((acc, cur) => Number(acc) + Number(cur), 0);
   return `$${numberStrFormat(sum)}`;
 });
@@ -1207,6 +1207,14 @@ const submitRquest = () => {
       item.is_delete = item.is_delete || false
       item.not_variation = item.not_variation || false
       item.old_amount = item.old_amount || 0
+      item.amount = item.amount || 0
+      item.est_sales_price = item.est_sales_price || 0
+      item.insurance_value = item.insurance_value || 0
+      item.net_proceeds_price = item.net_proceeds_price || 0
+      item.repayment_price = item.repayment_price || 0
+      item.sales_price = item.sales_price || 0
+      item.sqm = item.sqm || 0
+      item.variance = item.variance || 0
     })
     const params = {
       security: formData,

@@ -490,6 +490,14 @@ const submitHandle = () => {
         params.variance = '';
       }
 
+      params.amount = params.amount ? Number(params.amount) : 0;
+      params.build_amount = params.build_amount ? Number(params.build_amount) : 0;
+      params.land_amount = params.land_amount ? Number(params.land_amount) : 0;
+      params.sales_price = params.sales_price ? Number(params.sales_price) : 0;
+      params.repayment_price = params.repayment_price ? Number(params.repayment_price) : 0;
+      params.net_proceeds_price = params.net_proceeds_price ? Number(params.net_proceeds_price) : 0;
+      params.variance = params.variance ? Number(params.variance) : 0;
+
       currentParams.value = params;
 
       const { project_address_short, project_address, project_suburb, region_one_id, region_two_id, region_three_id, project_postcode, project_city } = props.projectInfo;

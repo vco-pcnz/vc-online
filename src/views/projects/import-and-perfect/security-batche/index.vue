@@ -915,6 +915,15 @@ const subHandle = () => {
     item.is_sales = item.sales_price ? 1 : 0
     item.type = 2
     item.security_name = item.name
+
+    item.amount = item.amount || 0
+    item.est_sales_price = item.est_sales_price || 0
+    item.insurance_value = item.insurance_value || 0
+    item.net_proceeds_price = item.net_proceeds_price || 0
+    item.repayment_price = item.repayment_price || 0
+    item.sales_price = item.sales_price || 0
+    item.sqm = item.sqm || 0
+    item.variance = item.variance || 0
   })
 
   let delData = []

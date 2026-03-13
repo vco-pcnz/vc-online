@@ -131,7 +131,7 @@
 
         <a-button v-if="!detail?.prev_permission && !(detail?.has_permission || hasPermission('projects:repayments:revoke'))" type="brown" class="big uppercase w-full" @click="openDetails(false)">{{ t('查看详情') }}</a-button>
 
-        <p class="download-btn" v-if="all_repayment && !projectDetail?.base?.is_close">
+        <p class="download-btn" v-if="all_repayment && detail?.state != -100 && detail?.state != -900">
           {{ t('对账单') }}, <span @click="downloadStatement">{{ t('点击下载') }}</span>
         </p>
       </div>

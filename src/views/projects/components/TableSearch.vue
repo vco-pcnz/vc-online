@@ -200,9 +200,15 @@ const searchHandle = (flag) => {
   // emits('search', data)
 };
 
+/** 切换产品等非 VSL 场景时需清空，否则 searchHandle 会把旧 lender 再次写入 store */
+const resetLender = () => {
+  searchForm.value.lender = '';
+};
+
 // 暴露方法给父组件
 defineExpose({
-  searchHandle
+  searchHandle,
+  resetLender
 });
 </script>
 

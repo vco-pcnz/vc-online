@@ -16,11 +16,11 @@
             <div v-if="isVsl && !hasPermission('projects:drawdowns:add')" class="input-item" style="margin: 15.5px 0">
               <div class="label flex items-center">
                 <span class="label mr-3" style="padding-bottom: 0" :class="{ err: !formState.source && validate }">{{ t('贷款方') }}</span>
-                <vco-tip w="200px">
+                <vco-tip tip="1" w="200px">
                   <span class="">{{ t('可用余额') }}</span>
                   <template #content>
-                    <p>VS : {{ tool.formatMoney(tool.plus(projectDetail?.vslInfo?.vs_remaining_loan_money, detail_amount)) }}</p>
-                    <p>BOC : {{ tool.formatMoney(tool.plus(projectDetail?.vslInfo?.boc_remaining_loan_money, detail_amount)) }}</p>
+                    <p>VS : {{ tool.formatMoney(tool.plus(projectDetail?.vslInfo?.vs_remaining_loan_money, detail?.source == 0 ? detail_amount : 0)) }}</p>
+                    <p>BOC : {{ tool.formatMoney(tool.plus(projectDetail?.vslInfo?.boc_remaining_loan_money,  detail?.source == 1 ? detail_amount : 0 )) }}</p>
                   </template>
                 </vco-tip>
               </div>
@@ -29,8 +29,12 @@
                   <div class="flex items-center">
                     <span class="mr-3">{{ item.label }}</span>
                     <div style="font-size: 10px; opacity: 0.6">
-                      <p v-if="item.value == 0">{{ t('可用余额') }}: {{ tool.formatMoney(tool.plus(projectDetail?.vslInfo?.vs_remaining_loan_money, detail_amount)) }}</p>
-                      <p v-else>{{ t('可用余额') }}: {{ tool.formatMoney(tool.plus(projectDetail?.vslInfo?.boc_remaining_loan_money, detail_amount)) }}</p>
+                      <p v-if="item.value == 0">{{ t('可用余额') }}: 
+                        {{ tool.formatMoney(tool.plus(projectDetail?.vslInfo?.vs_remaining_loan_money, detail?.source == 0 ? detail_amount : 0)) }}
+                      </p>
+                      <p v-else>{{ t('可用余额') }}: 
+                        {{ tool.formatMoney(tool.plus(projectDetail?.vslInfo?.boc_remaining_loan_money, detail?.source == 1 ? detail_amount : 0 )) }}
+                      </p>
                     </div>
                   </div>
                 </a-select-option>
@@ -275,80 +279,72 @@ const save = (tip) => {
     });
   }
 
-  let available = props.statisticsData?.available;
-  if (props.detail?.id) {
-    available = tool.plus(Number(props.statisticsData?.available), Number(detail_amount.value));
-  }
-
   if (isVsl.value) {
-    let vsl_available = formState.value.source == '0' ? props.projectDetail?.vslInfo.vs_remaining_loan_money : props.projectDetail?.vslInfo.boc_remaining_loan_money;
+    let available = formState.value.source == '0' ? props.projectDetail?.vslInfo.vs_remaining_loan_money : props.projectDetail?.vslInfo.boc_remaining_loan_money;
+    if (props.detail?.id && props.detail?.source == formState.value.source ) {
+      available = tool.plus(Number(available || 0), Number(detail_amount.value));
+    }
 
-    if (Number(amount) > Number(vsl_available) && formState.value.source == '0' && tool.plus(props.projectDetail?.vslInfo?.boc_remaining_loan_money, detail_amount.value) > 0) {
-      if (tool.minus(amount, vsl_available) > overLimit) {
+    if (formState.value.source == '0') { 
+      // vs 放款
+      console.log(tool.minus(amount, available), overLimit)
+      if (tool.minus(amount, available) > overLimit) { 
+        // 超额放款
+        // 如果还有boc未放款提示
+        if(Number(props.projectDetail?.vslInfo?.boc_remaining_loan_money || 0) > 0) {
+          visibleTip.value = true;
+          confirmTxt.value =
+            '<div style="text-align:left;text-indent: 2rem;">' +
+            t('BOC剩余金额是{0},确定要进行VS放款吗？', [tool.formatMoney(props.projectDetail?.vslInfo?.boc_remaining_loan_money)]) +
+            '<br/>' +
+            '<div style="text-indent: 2rem;">' +
+            t('放款金额 {0},可用金额 {1},{2}超出金额 {3} 是否继续放款?', [tool.formatMoney(amount),  'VS ', tool.formatMoney(available), tool.formatMoney(tool.minus(amount, available))]);
+          +'<div>' + '<div>';
+          return
+        } else {
+          visibleTip.value = true;
+          showBtns.value = false;
+          confirmTxt.value = t('放款金额 {0},{1} 剩余金额 {2},超额金额{3}。 超额金额超过 {4} 美元。请修改后重新提交。', [
+            tool.formatMoney(amount),
+            'VS',
+            tool.formatMoney(available),
+            tool.formatMoney(tool.minus(amount, available)),
+            tool.formatMoney(overLimit)
+          ]);
+          return
+        }
+      } else {
+        // 正常放款
+        // 如果还有boc未放款提示
+        if (Number(props.projectDetail?.vslInfo?.boc_remaining_loan_money || 0) > 0) { 
+          visibleTip.value = true;
+          confirmTxt.value = t('BOC剩余金额是{0},确定要进行VS放款吗？', [tool.formatMoney(props.projectDetail?.vslInfo?.boc_remaining_loan_money)]);
+          return
+        }
+      }
+
+    } else {
+      // boc 放款
+      if (tool.minus(amount, available) > overLimit) {
         visibleTip.value = true;
         showBtns.value = false;
-        confirmTxt.value = t('放款金额 {0},可用金额 {1},{2}超出金额 {3}。 超额金额超过 {4} 美元。请修改后重新提交。', [
+        confirmTxt.value = t('放款金额 {0},{1} 剩余金额 {2},超额金额{3}。 超额金额超过 {4} 美元。请修改后重新提交。', [
           tool.formatMoney(amount),
-          formState.value.source == '0' ? 'VS' : 'BOC',
-          tool.formatMoney(vsl_available),
-          tool.formatMoney(tool.minus(amount, vsl_available)),
+          'BOC',
+          tool.formatMoney(available),
+          tool.formatMoney(tool.minus(amount, available)),
           tool.formatMoney(overLimit)
         ]);
-        return;
+        return
       }
-      visibleTip.value = true;
-      confirmTxt.value =
-        '<div style="text-align:left;text-indent: 2rem;">' +
-        t('BOC剩余金额是{0},确定要进行VS放款吗？', [tool.formatMoney(tool.plus(props.projectDetail?.vslInfo?.boc_remaining_loan_money, detail_amount.value))]) +
-        '<br/>' +
-        '<div style="text-indent: 2rem;">' +
-        t('放款金额 {0},可用金额 {1},{2}超出金额 {3} 是否继续放款?', [tool.formatMoney(amount), formState.value.source == '0' ? 'VS ' : 'BOC ', tool.formatMoney(vsl_available), tool.formatMoney(tool.minus(amount, vsl_available))]);
-      +'<div>' + '<div>';
-      return;
-    } else if (Number(amount) > Number(vsl_available)) {
-      vsl_available = tool.plus(vsl_available, detail_amount.value);
-      if (tool.minus(amount, vsl_available) > overLimit) {
-        visibleTip.value = true;
-        showBtns.value = false;
-        confirmTxt.value = t('放款金额 {0},可用金额 {1},{2}超出金额 {3}。 超额金额超过 {4} 美元。请修改后重新提交。', [
-          tool.formatMoney(amount),
-          formState.value.source == '0' ? 'VS' : 'BOC',
-          tool.formatMoney(vsl_available),
-          tool.formatMoney(tool.minus(amount, vsl_available)),
-          tool.formatMoney(overLimit)
-        ]);
-        return;
-      }
-      visibleTip.value = true;
-      confirmTxt.value = t('放款金额 {0},可用金额 {1},{2}超出金额 {3} 是否继续放款?', [tool.formatMoney(amount), formState.value.source == '0' ? 'VS' : 'BOC', tool.formatMoney(vsl_available), tool.formatMoney(tool.minus(amount, vsl_available))]);
-      return;
-    } else if (formState.value.source == '0' && tool.plus(props.projectDetail?.vslInfo?.boc_remaining_loan_money, detail_amount.value) > 0) {
-      visibleTip.value = true;
-      confirmTxt.value = t('BOC剩余金额是{0},确定要进行VS放款吗？', [tool.formatMoney(tool.plus(props.projectDetail?.vslInfo?.boc_remaining_loan_money, detail_amount.value))]);
-      return;
     }
   }
 
-  if (Number(amount) > Number(available)) {
-    if (tool.minus(amount, available) > overLimit) {
-      visibleTip.value = true;
-      showBtns.value = false;
-      confirmTxt.value = t('放款金额 {0},可用金额 {1},超出金额 {2}。 超额金额超过 {3} 美元。请修改后重新提交。', [
-        tool.formatMoney(amount),
-        tool.formatMoney(available),
-        tool.formatMoney(tool.minus(amount, available)),
-        tool.formatMoney(overLimit)
-      ]);
-      return;
-    }
-    visibleTip.value = true;
-    confirmTxt.value = t('放款金额 {0},可用金额 {1},超出金额 {2} 是否继续放款?', [tool.formatMoney(amount), tool.formatMoney(available), tool.formatMoney(tool.minus(amount, available))]);
-    return;
-  } else if (excess_amount > 0) {
-    visibleTip.value = true;
-    confirmTxt.value = t('进度放款中超出金额 {0} 是否继续放款?', [tool.formatMoney(excess_amount)]);
-    return;
-  }
+  //  if (excess_amount > 0) {
+  //   visibleTip.value = true;
+  //   confirmTxt.value = t('进度放款中超出金额 {0} 是否继续放款?', [tool.formatMoney(excess_amount)]);
+  //   return;
+  // }
   submit();
 };
 

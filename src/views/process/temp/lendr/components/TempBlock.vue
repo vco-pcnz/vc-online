@@ -56,6 +56,17 @@
         <div class="block-item mb" :class="{ checked: dataInfo.project.is_check && blockInfo.project.showCheck }">
           <vco-process-title :title="t('项目信息')">
             <div class="flex gap-5 items-center">
+              <a-button
+                v-if="Boolean(Number(dataInfo.project.need_xero_id))"
+                type="danger"
+                shape="round"
+                class="uppercase"
+                :loading="xeroLoading"
+                @click="xeroOps"
+              >
+                {{ t('更新 Xero') }}
+              </a-button>
+
               <a-button v-if="blockInfo.project.showEdit" type="primary" shape="round" class="uppercase" @click="showEdit(2, blockInfo.project.code)">
                 {{ t('编辑') }}
               </a-button>
@@ -78,7 +89,7 @@
               </div>
             </div>
           </vco-process-title>
-          <project-info v-show="projectTarget" :data="dataInfo.project" :current-id="currentId"></project-info>
+          <project-info v-show="projectTarget" :data="dataInfo.project"></project-info>
           <div v-if="blockInfo.project.showCheck" class="check-content">
             <i class="iconfont">&#xe647;</i>
           </div>
@@ -234,10 +245,11 @@ import GuarantorInfo from './GuarantorInfo.vue';
 import OfferForm from './OfferForm.vue';
 import ConfirmForm from './ConfirmForm.vue';
 
-import { projectAuditCheckMode } from '@/api/process';
+import { projectAuditCheckMode, projectAuditXeroOps } from '@/api/process';
 import emitter from '@/event';
 
 import { useUserStore } from '@/store';
+import { message } from 'ant-design-vue';
 
 const { t } = useI18n();
 const emits = defineEmits(['refresh', 'lendingDone', 'openData', 'compareDone', 'penaltyDone']);
@@ -360,6 +372,20 @@ const blockShowTargetHandle = (flag) => {
   projectTarget.value = flag;
   documentTarget.value = flag;
   loanTarget.value = flag;
+};
+
+const xeroLoading = ref(false)
+const xeroOps = () => {
+  xeroLoading.value = true;
+  projectAuditXeroOps({
+    uuid: props.currentId,
+  }).then(() => {
+    xeroLoading.value = false;
+    message.success(t('操作成功1'));
+    emitter.emit('refreshSecurityInfo');
+  }).catch(() => {
+    xeroLoading.value = false;
+  });
 };
 
 onMounted(() => {

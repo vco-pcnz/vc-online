@@ -1430,6 +1430,7 @@ export default {
   "结算": "Settlement",
   "您确定要取消结算吗？": "Are you sure you want to cancel the settlement?",
   "您确定要确认结算吗？": "Are you sure you want to confirm the settlement?",
-  "XERO 数据有误，请点击右侧按钮处理": "XERO data is incorrect, please click the button on the right to handle",
-  "点击更新": "Click to update"
+  "Xero 账户未创建成功，请再试一次": "Xero account not created successfully, please try again",
+  "更新 Xero": "Update Xero",
+  "操作成功1": "Operation successful"
 }

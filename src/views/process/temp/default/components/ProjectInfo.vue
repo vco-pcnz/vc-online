@@ -1,11 +1,8 @@
 <template>
   <div>
     <a-row :gutter="24">
-      <a-col v-if="showXeroError" :span="24">
-        <div class="info-content flex items-center gap-5">
-          <a-alert :message="t('XERO 数据有误，请点击右侧按钮处理')" type="error" show-icon class="flex-1" />
-          <a-button :loading="xeroLoading" type="danger" class="uppercase" shape="round" @click="xeroOps">{{ showXeroText }}</a-button>
-        </div>
+      <a-col v-if="showXeroError" :span="24" class="info-content">
+        <a-alert :message="t('Xero 账户未创建成功，请再试一次')" type="error" show-icon />
       </a-col>
       <a-col :span="8">
         <div class="info-content">
@@ -79,17 +76,11 @@ import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import useUserStore from '@/store/modules/user';
 import DevCostDetail from './DevCostDetail.vue';
-import { projectAuditXeroOps } from '@/api/process';
-import emitter from "@/event"
 
 const props = defineProps({
   data: {
     type: Object,
     default: () => {}
-  },
-  currentId: {
-    type: [Number, String],
-    default: '',
   }
 });
 
@@ -98,26 +89,9 @@ const isNormalUser = computed(() => userStore.isNormalUser);
 
 const { t } = useI18n();
 
-const showXeroText = computed(() => {
-  return Boolean(props.data.has_xero_id) ? t('点击更新') : t('点击创建')
-});
-
 const showXeroError = computed(() => {
-  return Boolean(props.data.need_xero_id) && Boolean(props.currentId)
+  return Boolean(props.data.need_xero_id) && !Boolean(props.data.has_xero_id)
 });
-
-const xeroLoading = ref(false)
-const xeroOps = () => {
-  xeroLoading.value = true;
-  projectAuditXeroOps({
-    uuid: props.currentId,
-  }).then(() => {
-    xeroLoading.value = false;
-    emitter.emit('refreshSecurityInfo');
-  }).catch(() => {
-    xeroLoading.value = false;
-  });
-};
 </script>
 
 <style lang="less" scoped>

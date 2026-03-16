@@ -113,7 +113,7 @@
     }, {});
 
     const txt = Object.entries(calc)
-          .map(([key, value]) => `${value} ${key}`)
+          .map(([key, value]) => `${value || 0} ${key}`)
           .join(', ');
     return txt
   })

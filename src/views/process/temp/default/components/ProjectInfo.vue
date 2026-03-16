@@ -1,6 +1,9 @@
 <template>
   <div>
     <a-row :gutter="24">
+      <!-- <a-col :span="24" class="info-content">
+        <a-alert message="XERO 数据有误，请重新编辑项目信息" type="error" show-icon />
+      </a-col> -->
       <a-col :span="8">
         <div class="info-content">
           <p class="name">{{ t('项目名称') }}</p>

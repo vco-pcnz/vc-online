@@ -361,6 +361,16 @@ const setAddress = (val) => {
   });
 };
 
+const validateSqm = (_, value) => {
+  if (value === undefined || value === null || value === '') {
+    return Promise.resolve();
+  }
+
+  const input = String(value).trim();
+  const isValid = /^(?:0|[1-9]\d*)(?:\.\d+)?$/.test(input);
+  return isValid ? Promise.resolve() : Promise.reject(new Error(t('请输入正确格式的数字')));
+};
+
 const formRules = {
   security_name: [{ required: true, message: t('请输入') + t('名称'), trigger: 'blur' }],
   type: [{ required: true, message: t('请选择') + t('类型'), trigger: 'change' }],
@@ -371,7 +381,10 @@ const formRules = {
   postcode: [{ required: true, message: t('请输入') + t('邮编'), trigger: 'blur' }],
   region_one_name: [{ required: true, message: t('请输入') + t('城市/州'), trigger: 'blur' }],
   address_short: [{ required: true, message: t('请输入') + t('地址1'), trigger: 'blur' }],
-  sqm: [{ required: true, message: t('请输入') + t('面积'), trigger: 'blur' }]
+  sqm: [
+    { required: true, message: t('请输入') + t('面积'), trigger: 'blur' },
+    { validator: validateSqm, trigger: 'blur' }
+  ]
   // sales_price: [{ required: true, message: t('请输入') + t('销售价格'), trigger: 'blur' }],
   // repayment_price: [{ required: true, message: t('请输入') + t('回款金额'), trigger: 'blur' }],
   // contract_date: [{ required: true, message: t('请选择') + t('合同日期（或无条件日期）'), trigger: 'change' }],

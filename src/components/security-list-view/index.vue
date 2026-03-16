@@ -221,7 +221,7 @@
     }, {});
 
     const txt = Object.entries(calc)
-          .map(([key, value]) => `${value} ${key}`)
+          .map(([key, value]) => `${value || 0} ${key}`)
           .join(', ');
     return txt
   }
@@ -323,9 +323,8 @@
       
       // 合并有序字段和其他字段
       const finalEntries = [...orderedEntries, ...otherEntries];
-      
       return finalEntries
-          .map(([key, value]) => `${value} ${key}`)
+          .map(([key, value]) => `${value || 0} ${key}`)
           .join(', ');
     } else {
       return '--'

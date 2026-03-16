@@ -1,6 +1,9 @@
 <template>
   <div>
     <a-row :gutter="24">
+      <a-col v-if="showXeroError" :span="24" class="info-content">
+        <a-alert :message="t('Xero 账户未创建成功，请再试一次')" type="warning" show-icon />
+      </a-col>
       <a-col :span="8">
         <div class="info-content">
           <p class="name">{{ t('项目名称') }}</p>
@@ -68,7 +71,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import useUserStore from '@/store/modules/user';
@@ -85,6 +88,10 @@ const userStore = useUserStore();
 const isNormalUser = computed(() => userStore.isNormalUser);
 
 const { t } = useI18n();
+
+const showXeroError = computed(() => {
+  return Boolean(props.data.need_xero_id) && !Boolean(props.data.has_xero_id)
+});
 </script>
 
 <style lang="less" scoped>

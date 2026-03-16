@@ -59,7 +59,13 @@
         </template>
 
         <div class="flex justify-center mt-5">
-          <a-button type="dark" @click="save" class="save big uppercase shadow bold" :loading="loading">
+          <a-button
+            type="dark"
+            @click="save"
+            class="save big uppercase shadow bold"
+            :loading="loading || overAmountLoading"
+            :disabled="!overAmountReady && !loading"
+          >
             {{ t('提交') }}
           </a-button>
         </div>
@@ -77,7 +83,7 @@ import { annexSel } from '@/api/project/annex';
 import { loanDedit, loanDchange } from '@/api/project/loan';
 import { selectDateFormat } from '@/utils/tool';
 import DocumentsUpload from './DocumentsUpload.vue';
-import { systemDictData } from '@/api/system';
+import { systemDictData, systemConfigData } from '@/api/system';
 import tool from '@/utils/tool';
 import dayjs from 'dayjs';
 import { hasPermission } from '@/directives/permission/index';
@@ -155,7 +161,30 @@ const disabledDateFormat = (current) => {
   return false;
 };
 
+const overAmount = ref({ lendr_over_money: 0, vsl_over_money: 0, vcl_over_money: 0 });
+const overAmountReady = ref(false);
+const overAmountLoading = ref(false);
+const getOverAmount = () => {
+  overAmountLoading.value = true;
+  systemConfigData({ pcode: 'project_config', code: 'lendr_over_money,vsl_over_money,vcl_over_money' })
+    .then((res) => {
+      if (res) overAmount.value = { ...overAmount.value, ...res };
+      overAmountReady.value = true;
+    })
+    .catch(() => {
+      overAmountReady.value = false;
+    })
+    .finally(() => {
+      overAmountLoading.value = false;
+    });
+};
+const getProductOverLimit = () => {
+  const n = Number(overAmount.value.lendr_over_money);
+  return Number.isFinite(n) && n >= 0 ? n : 100;
+};
+
 const save = (tip) => {
+  if (!overAmountReady.value) return;
   validate.value = true;
   formState.value.uuid = props.uuid;
   showBtns.value = true;
@@ -180,10 +209,16 @@ const save = (tip) => {
   }
 
   if (Number(amount) > Number(available)) {
-    if (tool.minus(amount, available) > 100) {
+    const overLimit = getProductOverLimit();
+    if (tool.minus(amount, available) > overLimit) {
       visibleTip.value = true;
       showBtns.value = false;
-      confirmTxt.value = t('放款金额 {0},可用金额 {1},超出金额 {2}。 超额金额超过 100 美元。请修改后重新提交。', [tool.formatMoney(amount), tool.formatMoney(available), tool.formatMoney(tool.minus(amount, available))]);
+      confirmTxt.value = t('放款金额 {0},可用金额 {1},超出金额 {2}。 超额金额超过 {3} 美元。请修改后重新提交。', [
+        tool.formatMoney(amount),
+        tool.formatMoney(available),
+        tool.formatMoney(tool.minus(amount, available)),
+        tool.formatMoney(overLimit)
+      ]);
       return;
     }
     visibleTip.value = true;
@@ -249,6 +284,8 @@ const loadType = (reset) => {
 };
 
 const init = () => {
+  overAmountReady.value = false;
+  getOverAmount();
   validate.value = false;
   formModal2.value = [];
   formModal3.value = [];

@@ -557,7 +557,7 @@ const totalTypology = computed(() => {
   }, {});
 
   const txt = Object.entries(calc)
-    .map(([key, value]) => `${value} ${key}`)
+    .map(([key, value]) => `${value || 0} ${key}`)
     .join(', ');
   return txt;
 });
@@ -1176,6 +1176,22 @@ const submitRquest = () => {
     item.is_calc = item.is_calc ? 1 : 0;
     item.is_sales = item.sales_price ? 1 : 0;
     item.type = formVal.type;
+
+    const typology = cloneDeep(item.typology);
+    for (const key in typology) {
+      if (key === 'other') {
+        const arr = []
+        typology[key].forEach(_item => {
+          if (_item.key) {
+            _item.value = _item.value || 0;
+            arr.push(_item);
+          }
+        });
+        item.typology[key] = arr;
+      } else {
+        item.typology[key] = typology[key] || 0;
+      }
+    }
   });
 
   let delData = [];
@@ -1199,7 +1215,6 @@ const submitRquest = () => {
     security__mode: 2
   };
   delete formVal.upd;
-
 
   if (props.isVariation) {
     formData.forEach(item => {

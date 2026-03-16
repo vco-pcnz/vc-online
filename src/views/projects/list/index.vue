@@ -109,6 +109,8 @@ watch(
   (val) => {
     if (val) {
       pageStore.product_uuid = val;
+      pageStore.searchParams['lender'] = '';
+      tableSearchRef.value?.resetLender?.();
       tabChange();
     }
   },

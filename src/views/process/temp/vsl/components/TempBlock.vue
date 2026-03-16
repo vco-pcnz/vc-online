@@ -78,7 +78,7 @@
               </div>
             </div>
           </vco-process-title>
-          <project-info v-show="projectTarget" :data="dataInfo.project"></project-info>
+          <project-info v-show="projectTarget" :data="dataInfo.project" :current-id="currentId"></project-info>
           <div v-if="blockInfo.project.showCheck" class="check-content">
             <i class="iconfont">&#xe647;</i>
           </div>

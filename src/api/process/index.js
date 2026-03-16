@@ -801,3 +801,12 @@ export const lendrEstabCalc = (data) =>
     method: "post",
     data
   });
+
+// xero数据创建/更新
+export const projectAuditXeroOps = (params) =>
+  request({
+    url: "/project/audit/xeroOps",
+    method: "get",
+    params
+  });
+  

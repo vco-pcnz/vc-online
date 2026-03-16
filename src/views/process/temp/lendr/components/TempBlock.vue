@@ -58,7 +58,7 @@
             <div class="flex gap-5 items-center">
               <a-button
                 v-if="Boolean(Number(dataInfo.project.need_xero_id))"
-                type="danger"
+                type="brown"
                 shape="round"
                 class="uppercase"
                 :loading="xeroLoading"

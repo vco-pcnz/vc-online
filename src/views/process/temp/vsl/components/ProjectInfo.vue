@@ -2,7 +2,7 @@
   <div>
     <a-row :gutter="24">
       <a-col v-if="showXeroError" :span="24" class="info-content">
-        <a-alert :message="t('Xero 账户未创建成功，请再试一次')" type="error" show-icon />
+        <a-alert :message="t('Xero 账户未创建成功，请再试一次')" type="warning" show-icon />
       </a-col>
       <a-col :span="8">
         <div class="info-content">

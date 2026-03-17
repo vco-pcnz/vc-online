@@ -368,6 +368,7 @@ import {
   drawDownSelected,
   drawDownLists,
   repaymentDetail,
+  projectDischargeSelSecurity
 } from '@/api/project/loan';
 import { number } from 'echarts/core';
 
@@ -923,8 +924,25 @@ const getDrawdownName = (sn) => {
   return target ? target.name : '';
 };
 
+const getSecuritiesData = () => {
+  projectDischargeSelSecurity({
+    page: 1,
+    limit: 10000,
+    uuid: props.uuid
+  }).then(res => {
+    const data = cloneDeep(res.data || [])
+    securitiesDone(data)
+  })
+}
+
 // VS 放款的初始化逻辑占位，由业务补充
 const initVsDrawdownList = () => {
+  if (formState.value.all_repayment === 1) {
+    getSecuritiesData()
+  } else {
+    relatedData.value = []
+  }
+
   if (
     lender.value === 'VS' &&
     formState.value.all_repayment &&

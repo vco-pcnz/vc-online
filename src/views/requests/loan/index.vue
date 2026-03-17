@@ -131,7 +131,7 @@
                   </template>
                 </template>
                 <template v-if="column.dataIndex === 'operation'">
-                  <a-dropdown :trigger="['click']" v-if="hasPermission('projects:copy')">
+                  <a-dropdown :trigger="['click']">
                     <a class="ant-dropdown-link" @click.stop>
                       <i class="iconfont cert">&#xe77a;</i>
                     </a>
@@ -140,19 +140,19 @@
                         <a-menu-item key="0">
                           <a @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">{{ t('查看详情') }}</a>
                         </a-menu-item>
-                        <a-menu-item key="1" :disabled="key.includes(record.mark)">
+                        <a-menu-item key="1" :disabled="key.includes(record.mark)" v-if="hasPermission('projects:copy')">
                           <vco-popconfirm url="/project/project/copyProject" :formParams="{ uuid: record.uuid }" :tip="t('确定要复制{0}', [record.project_name])" :disabled="key.includes(record.mark)" @update="toCopyDetail">
                             <a>{{ t('复制') }}</a>
+                          </vco-popconfirm>
+                        </a-menu-item>
+                        <a-menu-item key="2" v-if="hasPermission('projects:delete') && currentTab === '1'">
+                          <vco-popconfirm :formParams="{ uuid: record.uuid,lc_del: 1 }" url="project/apply/cancelProject" :tip="t('确定删除吗？')" @update="tabChange()">                      
+                            <a>{{ t('删除l') }}</a>
                           </vco-popconfirm>
                         </a-menu-item>
                       </a-menu>
                     </template>
                   </a-dropdown>
-                  <vco-popconfirm v-if="hasPermission('projects:delete')" :formParams="{ uuid: record.uuid,lc_del: 1 }" url="project/apply/cancelProject" :tip="t('确定删除吗？')" @update="tabChange()">
-                    <a-button type="link" class="danger">
-                      <i class="iconfont" style="color: #ea3535;">&#xe8c1;</i>
-                    </a-button>
-                  </vco-popconfirm>
                 </template>
               </template>
             </a-table>

@@ -287,7 +287,6 @@ const save = (tip) => {
 
     if (formState.value.source == '0') { 
       // vs 放款
-      console.log(tool.minus(amount, available), overLimit)
       if (tool.minus(amount, available) > overLimit) { 
         // 超额放款
         // 如果还有boc未放款提示

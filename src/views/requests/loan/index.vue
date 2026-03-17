@@ -140,9 +140,14 @@
                         <a-menu-item key="0">
                           <a @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">{{ t('查看详情') }}</a>
                         </a-menu-item>
-                        <a-menu-item key="1" :disabled="key.includes(record.mark)">
+                        <a-menu-item key="1" :disabled="key.includes(record.mark)" v-if="hasPermission('projects:copy')">
                           <vco-popconfirm url="/project/project/copyProject" :formParams="{ uuid: record.uuid }" :tip="t('确定要复制{0}', [record.project_name])" :disabled="key.includes(record.mark)" @update="toCopyDetail">
                             <a>{{ t('复制') }}</a>
+                          </vco-popconfirm>
+                        </a-menu-item>
+                        <a-menu-item key="2" v-if="hasPermission('projects:delete') && currentTab === '1'">
+                          <vco-popconfirm :formParams="{ uuid: record.uuid,lc_del: 1 }" url="project/apply/cancelProject" :tip="t('确定删除吗？')" @update="tabChange()">                      
+                            <a>{{ t('删除l') }}</a>
                           </vco-popconfirm>
                         </a-menu-item>
                       </a-menu>
@@ -401,7 +406,7 @@ const itemHandle = (data) => {
 const getLoanMoney = (record) => (isNormalUser.value ? record.old_loan_money : record.loan_money);
 
 onMounted(() => {
-  if (hasPermission('projects:copy')) {
+  if (hasPermission('projects:copy') || hasPermission('projects:delete')) {
     columns.push({
       title: t('操作1'),
       dataIndex: 'operation',

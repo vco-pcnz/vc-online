@@ -426,7 +426,6 @@ const updateVisible = (value) => {
       formState.value[key] = ''; // 清空每个字段
     });
     relatedData.value = [];
-    showRelatedSwitch.value = false;
     documentInfo.value = [];
   }
 };

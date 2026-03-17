@@ -551,7 +551,6 @@ const updateVisible = (value) => {
     });
     // formState.value.drawdown_account = [];
     relatedData.value = [];
-    showRelatedSwitch.value = false;
     document.value = [];
     drawdownList.value = [];
     drawDownSelectedList.value = [];

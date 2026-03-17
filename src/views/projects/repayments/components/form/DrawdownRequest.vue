@@ -255,7 +255,7 @@
 import { ref, computed, watch, reactive } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { message } from 'ant-design-vue/es';
-import { loanRDedit, projectLoanAllRepayment, loanDelSecurity, loanRgoBack, projectLoanCalcIrr } from '@/api/project/loan';
+import { loanRDedit, projectLoanAllRepayment, loanDelSecurity, loanRgoBack, projectLoanCalcIrr, projectDischargeSelSecurity } from '@/api/project/loan';
 import { systemDictData } from '@/api/system'
 import { CalendarOutlined } from '@ant-design/icons-vue';
 import DocumentsUpload from './../../../discharge/components/form/DocumentsUpload.vue';
@@ -724,6 +724,17 @@ const dateChange = (date) => {
   }
 };
 
+const getSecuritiesData = () => {
+  projectDischargeSelSecurity({
+    page: 1,
+    limit: 10000,
+    uuid: props.uuid
+  }).then(res => {
+    const data = cloneDeep(res.data || [])
+    securitiesDone(data)
+  })
+}
+
 const typeChange = () => {
   if (formState.value.apply_date && formState.value.all_repayment === 1) {
     isRestIrr.value = true
@@ -732,6 +743,13 @@ const typeChange = () => {
     formState.value.apply_amount = 0;
     maxReductionAmount.value = 0
   }
+
+  if (formState.value.all_repayment === 1) {
+    getSecuritiesData()
+  } else {
+    relatedData.value = []
+  }
+
   formState.value.note = formState.value.all_repayment === 1 ? 'Full Repayment' : ''
 };
 
@@ -758,7 +776,6 @@ const securitiesDone = (data) => {
   selData.forEach(item => {
     item.real_amount = Number(item.real_amount) ? item.real_amount : item.amount
   })
-
   relatedData.value = selData
 }
 

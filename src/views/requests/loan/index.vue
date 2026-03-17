@@ -131,7 +131,7 @@
                   </template>
                 </template>
                 <template v-if="column.dataIndex === 'operation'">
-                  <a-dropdown :trigger="['click']">
+                  <a-dropdown :trigger="['click']" v-if="hasPermission('projects:copy')">
                     <a class="ant-dropdown-link" @click.stop>
                       <i class="iconfont cert">&#xe77a;</i>
                     </a>
@@ -148,6 +148,11 @@
                       </a-menu>
                     </template>
                   </a-dropdown>
+                  <vco-popconfirm v-if="hasPermission('projects:delete')" :formParams="{ uuid: record.uuid,lc_del: 1 }" url="project/apply/cancelProject" :tip="t('确定删除吗？')" @update="tabChange()">
+                    <a-button type="link" class="danger">
+                      <i class="iconfont" style="color: #ea3535;">&#xe8c1;</i>
+                    </a-button>
+                  </vco-popconfirm>
                 </template>
               </template>
             </a-table>
@@ -401,7 +406,7 @@ const itemHandle = (data) => {
 const getLoanMoney = (record) => (isNormalUser.value ? record.old_loan_money : record.loan_money);
 
 onMounted(() => {
-  if (hasPermission('projects:copy')) {
+  if (hasPermission('projects:copy') || hasPermission('projects:delete')) {
     columns.push({
       title: t('操作1'),
       dataIndex: 'operation',

@@ -423,6 +423,11 @@ const save = () => {
   const conLoan = Number(doneData.data[0].loan);
   const tueLoan = Number(doneData.data[1].loan);
 
+  const totalMoney = Number(tool.plus(doneData.total, refinancialAmount.value || 0))
+  const paramsDoneData = cloneDeep(doneData);
+  paramsDoneData.total = totalMoney;
+  paramsDoneData.substitution_amount = refinancialAmount.value || 0;
+
   const totalLoan = Number(tool.plus(conLoan, tueLoan));
   
   const totalLoanRefi = Number(tool.plus(totalLoan, refinancialAmount.value));
@@ -435,14 +440,15 @@ const save = () => {
   } else {
     const params = {
       uuid: props.currentId,
-      devCost: doneData.total,
-      devCostDetail: [doneData],
+      devCost: totalMoney,
+      devCostDetail: [paramsDoneData],
       substitution_amount: refinancialAmount.value || props.substitution_amount
     };
+    
 
     currentParams.value = params;
 
-    if (props.hasBuildData && dataHasChanged(doneData.data[0].list)) {
+    if (props.hasBuildData && dataHasChanged(paramsDoneData.data[0].list)) {
       sureVisible.value = true;
     } else {
       saveRequest();

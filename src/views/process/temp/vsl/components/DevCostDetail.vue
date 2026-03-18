@@ -490,9 +490,14 @@ const saveDone = () => {
     emits('clearBuild');
   }
 
-  emits('update:value', cloneDeep(doneData.total));
-  emits('update:dataJson', cloneDeep([doneData]));
-  emits('change', cloneDeep({ devCost: doneData.total, devCostDetail: [doneData] }));
+  const totalMoney = Number(tool.plus(doneData.total, refinancialAmount.value || 0))
+  const paramsDoneData = cloneDeep(doneData);
+  paramsDoneData.total = totalMoney;
+  paramsDoneData.substitution_amount = refinancialAmount.value || 0;
+
+  emits('update:value', cloneDeep(totalMoney));
+  emits('update:dataJson', cloneDeep([paramsDoneData]));
+  emits('change', cloneDeep({ devCost: totalMoney, devCostDetail: [paramsDoneData] }));
   updateVisible(false);
 
   changeAlertRef.value.changeLoading(false)
@@ -774,8 +779,8 @@ const refinancialAmount = computed(() => {
   if (refinancialIds.value.length) {
     const objArr = props.refinancialData.filter(item => refinancialIds.value.includes(item.item.uuid))
     const dataArr = objArr.map(item => Number(item.item.amount))
-    const sum = dataArr.reduce((acc, cur) => acc + cur, 0)
-    return sum
+    const sum = dataArr.reduce((acc, cur) => tool.plus(acc, cur), 0)
+    return Number(sum)
   }
   return 0
 })

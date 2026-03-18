@@ -277,7 +277,7 @@
           <div v-if="showRefinancial" class="refinancial-row">
             <div class="flex gap-4 items-center">
               <p>{{ t('是否需要再融资') }}</p>
-              <a-switch v-if="edit" v-model:checked="isRefinancialChecked" @change="changeRefinancial" />
+              <a-switch v-if="edit && !isOpen" v-model:checked="isRefinancialChecked" @change="changeRefinancial" />
             </div>
 
             <template v-if="isRefinancialChecked">
@@ -288,7 +288,7 @@
                   :options="refinancialData"
                   :filter-option="filterOption"
                   :placeholder="t('请选择项目')"
-                  :disabled="!edit"
+                  :disabled="!edit || isOpen"
                   :loading="refinancialLoading"
                   @change="(value, option) => refinancialChange(option)"
                 >
@@ -323,7 +323,7 @@
                       "
                       :controls="false"
                       :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                      :disabled="!edit || !(Number(col.item.allRepayment.min_StandardRate) > 0)"
+                      :disabled="!edit || isOpen || !(Number(col.item.allRepayment.min_StandardRate) > 0)"
                       @input="() => refinancialInputChange(col)"
                       @blur="() => refinancialInputBlur(col)"
                     >
@@ -356,7 +356,7 @@
                       "
                       :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                       :controls="false"
-                      :disabled="!edit || !(Number(col.item.allRepayment.reduction_money) > 0)"
+                      :disabled="!edit || isOpen || !(Number(col.item.allRepayment.reduction_money) > 0)"
                       @input="() => refinancialCaclIrr(col)"
                     >
                     </a-input-number>
@@ -476,6 +476,14 @@ const props = defineProps({
   lendingInfo: {
     type: Object,
     default: () => null
+  },
+  isOpen: {
+    type: Boolean,
+    default: false
+  },
+  openRefinancialData: {
+    type: Array,
+    default: () => []
   }
 });
 
@@ -490,7 +498,7 @@ const columnsData = [
 ]
 
 const isDetails = computed(() => {
-  return !props.edit || props.isVariation
+  return !props.edit || props.isVariation || props.isOpen
 })
 
 const showRefinancial = computed(() => {
@@ -614,9 +622,14 @@ const saveDone = () => {
     emits('clearBuild');
   }
 
-  emits('update:value', cloneDeep(doneData.total));
-  emits('update:dataJson', cloneDeep([doneData]));
-  emits('change', cloneDeep({ devCost: doneData.total, devCostDetail: [doneData] }));
+  const totalMoney = Number(tool.plus(doneData.total, refinancialAmount.value || 0))
+  const paramsDoneData = cloneDeep(doneData);
+  paramsDoneData.total = totalMoney;
+  paramsDoneData.substitution_amount = refinancialAmount.value || 0;
+
+  emits('update:value', cloneDeep(totalMoney));
+  emits('update:dataJson', cloneDeep([paramsDoneData]));
+  emits('change', cloneDeep({ devCost: totalMoney, devCostDetail: [paramsDoneData] }));
   updateVisible(false);
 
   changeAlertRef.value.changeLoading(false)
@@ -902,8 +915,8 @@ const refinancialAmount = computed(() => {
   }
   if (selectedDatas.value.length) {
     const dataArr = selectedDatas.value.map(item => Number(item.item.allRepayment.repayment_money))
-    const sum = dataArr.reduce((acc, cur) => acc + cur, 0)
-    return sum
+    const sum = dataArr.reduce((acc, cur) => tool.plus(acc, cur), 0)
+    return Number(sum)
   }
   return 0
 })
@@ -1143,6 +1156,15 @@ watch(
         selectedDatas.value = []
         refinancialIds.value = []
       } else {
+        if (props.isOpen && props.openRefinancialData && props.openRefinancialData.length) {
+          const data = cloneDeep(props.openRefinancialData)
+          data.forEach(item => {
+            item.label = item.project_name
+            item.value = item.uuid
+            item.item = item
+          })
+          refinancialData.value = data
+        }
         setSelectedDatas()
       }
     } else {
@@ -1156,7 +1178,7 @@ onMounted(() => {
     emits('update:value', cloneDeep(data.value.total));
     emits('update:dataJson', cloneDeep([data.value]));
   }
-
+  
   if (props.uuid) {
     getRefinancialList()
   }

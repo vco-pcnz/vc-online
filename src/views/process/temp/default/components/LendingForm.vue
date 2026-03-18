@@ -617,8 +617,8 @@
   const refinancialChange = (data) => {
     if (data.length) {
       const dataArr = data.map(item => Number(item.item.allRepayment.repayment_money))
-      const sum = dataArr.reduce((acc, cur) => acc + cur, 0)
-      refinancialAmount.value = sum
+      const sum = dataArr.reduce((acc, cur) => tool.plus(acc, cur), 0)
+      refinancialAmount.value = Number(sum)
 
       let obj = {}
       for (let i = 0; i < data.length; i++) {

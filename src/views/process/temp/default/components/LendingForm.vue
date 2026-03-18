@@ -1409,7 +1409,6 @@
 
   const hasChangeDevCost = ref(false)
   const setSingleFormData = (params) => {
-    console.log('params', params);
     projectAuditSaveMode(params).then(() => {
       hasChangeDevCost.value = true
 
@@ -1465,7 +1464,8 @@
           Number(val.has_linefee) !== Number(formState.value.has_linefee) ||
           val.start_date !== staticFormData.value.start_date ||
           val.end_date !== staticFormData.value.end_date ||
-          Number(val.estab_type) !== Number(formState.value.estab_type)
+          Number(val.estab_type) !== Number(formState.value.estab_type) ||
+          Number(val.devCost) !== Number(formState.value.devCost)
         ) {
           updateFormData()
         }

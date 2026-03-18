@@ -276,13 +276,14 @@
           </div>
           <div v-if="showRefinancial" class="refinancial-row">
             <div class="flex gap-4 items-center">
-              <p>{{ t('是否需要再融资') }}</p>
+              <p>{{ refinancialData.length ? t('是否需要再融资') : t('再融资金额') }}</p>
               <a-switch v-if="edit && !isOpen" v-model:checked="isRefinancialChecked" @change="changeRefinancial" />
             </div>
 
             <template v-if="isRefinancialChecked">
               <div class="refinancial-select">
                 <a-select
+                  v-if="refinancialData.length"
                   v-model:value="refinancialIds"
                   mode="multiple"
                   :options="refinancialData"
@@ -299,7 +300,7 @@
                 </a-select>
 
                 <div class="amount">
-                  <vco-number :value="refinancialAmount" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
+                  <vco-number :value="refinancialAmount" :precision="2" :size="refinancialData.length ? 'fs_md' : 'fs_xl'" :bold="true" :end="true"></vco-number>
                 </div>
               </div>
               <div v-if="selectedDatas.length" class="refinancial-table">
@@ -484,6 +485,10 @@ const props = defineProps({
   openRefinancialData: {
     type: Array,
     default: () => []
+  },
+  openRefinancialAmount: {
+    type: Number,
+    default: 0
   }
 });
 
@@ -908,6 +913,9 @@ const changeRefinancial = (value) => {
 }
 
 const refinancialAmount = computed(() => {
+  if (props.isOpen && Number(props.openRefinancialAmount || 0)) {
+    return Number(props.openRefinancialAmount)
+  }
   const oldData = props.lendingInfo && props.lendingInfo?.substitution_amount && props.lendingInfo?.substitution_ids?.length && !props.lendingInfo?.substitution_data
   // 老数据详情
   if (oldData && isDetails.value) {

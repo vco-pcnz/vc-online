@@ -125,11 +125,11 @@
               :disabledModel="true"
               :edit="!detail?.base?.is_close"
               :is-open="true"
-              :isRefinancial="Boolean(substitutionIds.length || 0)"
+              :isRefinancial="Boolean(substitutionIds.length || openRefinancialAmount || 0)"
               :selectedRefinancialObj="selectedRefinancialObj"
               :openRefinancialData="detail?.base?.substitution || []"
               :substitutionIds="substitutionIds"
-
+              :openRefinancialAmount="openRefinancialAmount"
               @change="editSaveDevCost"
             >
               <div class="color_grey fs_xs">Total Development Cost</div>
@@ -223,6 +223,10 @@ const devCostDetailComponent = computed(() => {
 
 const selectedRefinancialObj = computed(() => {
   return props.detail?.base?.substitution_data || {};
+});
+
+const openRefinancialAmount = computed(() => {
+  return Number(props.detail?.base?.devCostDetail[0].substitution_amount || 0)
 });
 
 const editSaveDevCost = (val) => {

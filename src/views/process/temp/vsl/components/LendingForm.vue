@@ -1526,7 +1526,8 @@
           Number(val.has_linefee) !== Number(formState.value.has_linefee) ||
           val.start_date !== staticFormData.value.start_date ||
           val.end_date !== staticFormData.value.end_date ||
-          val.drawdown_term !== formState.value.drawdown_term
+          val.drawdown_term !== formState.value.drawdown_term ||
+          Number(val.devCost) !== Number(formState.value.devCost)
         ) {
           updateFormData()
         }

@@ -5,6 +5,13 @@
   <div @click.stop ref="JournalRef" class="Journal">
     <a-modal :width="1000" :open="visible" :title="t('买断')" :getContainer="() => $refs.JournalRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
+        <template v-if="detail?.buyout?.cancel_reason || detail?.buyout?.decline_reason">
+            <a-alert type="error" :message="t('买断') + ' ' + t('退回原因')" class="mb-5 cancel-reason">
+              <template #description>
+                {{ detail?.buyout?.cancel_reason || detail?.buyout?.decline_reason }}
+              </template>
+            </a-alert>
+          </template>
         <div class="input-item">
           <div class="label" :class="{ err: !formState.date && validate }">{{ t('日期') }}</div>
           <a-date-picker class="datePicker" inputReadOnly :open="isOpen" :disabledDate="disabledDateFormat" v-model:value="formState.date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" :showToday="false" @change="initAmount()" />

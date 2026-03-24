@@ -120,7 +120,7 @@
       <a-col :span="24" class="item-txt">
         <p class="name">{{ t('开发成本') }}</p>
         <div class="txt-box line-info-box">
-          <vco-number :value="props.detail?.credit?.right?.devCost" :precision="2"></vco-number>
+          <vco-number :value="beforeDevCost" :precision="2"></vco-number>
           <i class="iconfont" v-if="[1, 4].includes(Number(variationsInfo.type))" style="color: #31bd65">&#xe712;</i>
           <i class="iconfont" v-else style="color: #eb4b6d">&#xe711;</i>
 
@@ -249,6 +249,18 @@ const variationsInfo = computed(() => {
   }
 });
 
+const variationsIsOpen = computed(() => {
+  return Number(variationsInfo.value.is_do) === 1;
+})
+
+const beforeDevCost = computed(() => {
+  if (variationsIsOpen.value) {
+    return Number(variationsInfo.value.devCostDetail[0]?.total || 0)
+  } else {
+    return Number(props.detail?.credit?.right?.devCost || 0)
+  }
+})
+
 const securityData = computed(() => {
   return variationsInfo.value.security || [];
 })
@@ -322,14 +334,14 @@ const changeCostAfter = computed(() => {
   let changeNum = changeCost.value || 0
   let resNum = 0
   if ([1, 4].includes(Number(variationsInfo.value.type))) {
-    resNum = tool.plus(props.detail?.credit?.right?.devCost || 0, changeNum)
+    resNum = tool.plus(beforeDevCost.value, changeNum)
   }
   if ([2, 5].includes(Number(variationsInfo.value.type))) {
-    resNum = tool.minus(props.detail?.credit?.right?.devCost || 0, changeNum)
+    resNum = tool.minus(beforeDevCost.value, changeNum)
   }
   
   if ([3].includes(Number(variationsInfo.value.type))) {
-    resNum = props.detail?.credit?.right?.devCost || 0
+    resNum = beforeDevCost.value
   }
   return resNum;
 });

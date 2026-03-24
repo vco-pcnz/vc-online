@@ -26,7 +26,7 @@ const getVersion = async () => {
 };
 
 onMounted(() => {
-  // getVersion();
+  getVersion();
 });
 </script>
 

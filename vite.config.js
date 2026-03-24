@@ -3,8 +3,8 @@ import vue from '@vitejs/plugin-vue';
 import VueSetupExtend from 'vite-plugin-vue-setup-extend';
 import { resolve } from 'path';
 import vueJsx from '@vitejs/plugin-vue-jsx';
-import { getBuildTime } from './build/config/time';
-import { setupHtmlPlugin } from './build/plugins/html';
+import { getBuildTime } from './scripts/buildTime';
+import { setupHtmlPlugin } from './scripts/htmlPlugin';
 export default ({ mode }) => {
   const env = loadEnv(mode, process.cwd());
   const proxyPrefix = env.VITE_APP_PROXY_PREFIX;

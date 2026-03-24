@@ -12,6 +12,7 @@ import * as echarts from 'echarts';
 import screenShort from "vue-web-screen-shot";
 
 import globalComponents from "@/components";
+import { setupAppVersionAutoRefresh } from "@/utils/versionUpdate";
 
 // 导入console控制工具
 import { initConsoleControl } from "@/utils/console";
@@ -24,6 +25,7 @@ import "./styles/global.less";
 
 // 初始化console控制 - 在应用创建前执行
 initConsoleControl();
+setupAppVersionAutoRefresh();
 
 const app = createApp(App);
 

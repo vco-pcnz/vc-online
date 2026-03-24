@@ -26,12 +26,23 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onActivated } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useOrgsStore } from '@/store';
 
 const { t } = useI18n();
 const orgsStore = useOrgsStore();
+
+// 从 store 同步搜索条件到表单（用于返回页面时回显）
+const syncFormFromStore = () => {
+  const params = orgsStore.searchParams;
+  searchForm.value = {
+    type: params.type ?? '',
+    key: params.key ?? 'all',
+    org__name: params.org__name ?? '',
+    keywords: params.keywords ?? ''
+  };
+};
 
 const typeData = computed(() => {
   const data = orgsStore.stakeholderType.map((item) => ({
@@ -94,5 +105,11 @@ const searchHandle = (flag) => {
 
 onMounted(() => {
   orgsStore.getStakeholderType();
+  syncFormFromStore();
+});
+
+// 返回页面时从 store 回显搜索条件（配合 keep-alive）
+onActivated(() => {
+  syncFormFromStore();
 });
 </script>

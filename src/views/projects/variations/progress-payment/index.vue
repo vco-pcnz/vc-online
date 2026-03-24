@@ -1000,11 +1000,11 @@
     }
 
     const buildLog = variationInfo.value?.build_log || []
-    if (buildLog.length) { // 已经设置过首次放款
-      const setedData = Object.values(variationInfo.value.build.data)
+    const setedDataArr = Object.values(variationInfo.value.build.data) || []
+    if (buildLog.length && setedDataArr.length) { // 已经设置过首次放款
       for (let i = 0; i < build.length; i++) {
         const itemId = Number(build[i].id)
-        const setedItem = setedData.find(item => Number(item.id) === itemId)
+        const setedItem = setedDataArr.find(item => Number(item.id) === itemId)
         if (Number(setedItem.amount) !== Number(build[i].amount)) {
           confirmTxt.value = t('已设置有首次建筑贷款放款额，保存后将清空已有设置，是否继续？')
           changeVisible.value = true

@@ -1076,7 +1076,14 @@ const refinancialCaclIrr = debounce((data) => {
 }, 300)
 
 const devTotal = computed(() => {
-  return tool.plus(data.value.total, refinancialAmount.value)
+  if (props.isVariation) {
+    const changeNum = props.isPlus ? changeTotal.value : tool.minus(0, changeTotal.value)
+    const beforeNum = tool.plus(data.value.total, refinancialAmount.value)
+    const resNum = tool.plus(Number(beforeNum), Number(changeNum))
+    return Number(resNum)
+  } else {
+    return tool.plus(data.value.total, refinancialAmount.value)
+  }
 })
 
 const changeTotal = computed(() => {

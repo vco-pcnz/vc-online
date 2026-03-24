@@ -77,9 +77,9 @@ const remindLater = () => {
 
 onMounted(() => {
   // 立即检查一次
-  checkVersion();
+  // checkVersion();
   // 然后每隔10秒检查一次
-  versionCheckInterval = window.setInterval(checkVersion, 10 * 1000);
+  // versionCheckInterval = window.setInterval(checkVersion, 10 * 1000);
 });
 
 onUnmounted(() => {

@@ -118,14 +118,27 @@
             </div>
           </a-col>
           <a-col :span="14" class="text-right cursor-pointer">
-            <DevCostDetail :dataJson="detail?.base?.devCostDetail" :disabledGST="true" :disabledLoan="true" :disabledModel="true" :edit="!detail?.base?.is_close" @change="editSaveDevCost">
+            <component :is="devCostDetailComponent"
+              :dataJson="detail?.base?.devCostDetail"
+              :disabledGST="true"
+              :disabledLoan="true"
+              :disabledModel="true"
+              :edit="!detail?.base?.is_close"
+              :is-open="true"
+              :isRefinancial="Boolean(substitutionIds.length || openRefinancialAmount || 0)"
+              :selectedRefinancialObj="selectedRefinancialObj"
+              :openRefinancialData="detail?.base?.substitution || []"
+              :substitutionIds="substitutionIds"
+              :openRefinancialAmount="openRefinancialAmount"
+              @change="editSaveDevCost"
+            >
               <div class="color_grey fs_xs">Total Development Cost</div>
               <div class="flex justify-end items-center gap-2">
                 <vco-number :value="data?.right?.devCost" :bold="true" size="fs_xl" :precision="2"></vco-number>
                 <i class="iconfont color_coal" v-if="!detail?.base?.is_close">&#xe743;</i>
                 <i class="iconfont color_coal" v-if="detail?.base?.is_close">&#xe776;</i>
               </div>
-            </DevCostDetail>
+            </component>
           </a-col>
           <a-col :span="24">
             <div class="fs_xs flex items-center gap-2" :class="{ 'color_red-error': Math.abs(data?.right?.ltc) > Math.abs(data?.right?.baseline) }">
@@ -149,16 +162,17 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed, defineAsyncComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { navigationTo } from '@/utils/tool';
 import { hasPermission } from '@/directives/permission/index';
 import { selectDateFormat } from '@/utils/tool';
 import dayjs, { Dayjs } from 'dayjs';
-import DevCostDetail from '@/views/process/temp/default/components/DevCostDetail.vue';
+// import DevCostDetail from '@/views/process/temp/default/components/DevCostDetail.vue';
 import { edit } from '@/api/project/annex';
 import { saveDevCost } from '@/api/project/project';
 import tool from '@/utils/tool';
+import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
 const emits = defineEmits(['update']);
@@ -178,6 +192,42 @@ const props = defineProps({
   }
 });
 const toDay = ref(dayjs().format(selectDateFormat()));
+
+const substitutionIds = computed(() => {
+  const data = cloneDeep(props.detail?.base?.substitution || []);
+  const resData = data.map(item => item.uuid);
+  return resData
+});
+
+const currentMode = computed(() => {
+  const productCode = String(props.detail?.product?.code).toLowerCase();
+  if (productCode === 'lendr') {
+    return 'lendr';
+  } else if (productCode === 'vsl') {
+    return 'vsl';
+  } else {
+    return 'default';
+  }
+});
+
+const devCostDetailModules = import.meta.glob('/src/views/process/temp/*/components/DevCostDetail.vue');
+const getAsyncFormComponent = (modules, modePath, defaultPath) => {
+  const loader = modules[modePath] || modules[defaultPath];
+  return loader ? defineAsyncComponent(loader) : null;
+};
+const devCostDetailComponent = computed(() => {
+  const modePath = `/src/views/process/temp/${currentMode.value}/components/DevCostDetail.vue`;
+  const defaultPath = '/src/views/process/temp/default/components/DevCostDetail.vue';
+  return getAsyncFormComponent(devCostDetailModules, modePath, defaultPath);
+});
+
+const selectedRefinancialObj = computed(() => {
+  return props.detail?.base?.substitution_data || {};
+});
+
+const openRefinancialAmount = computed(() => {
+  return Number(props.detail?.base?.devCostDetail[0].substitution_amount || 0)
+});
 
 const editSaveDevCost = (val) => {
   saveDevCost({ uuid: props.currentId, ...val }).then((res) => {

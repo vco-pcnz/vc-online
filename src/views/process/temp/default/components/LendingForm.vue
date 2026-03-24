@@ -617,8 +617,8 @@
   const refinancialChange = (data) => {
     if (data.length) {
       const dataArr = data.map(item => Number(item.item.allRepayment.repayment_money))
-      const sum = dataArr.reduce((acc, cur) => acc + cur, 0)
-      refinancialAmount.value = sum
+      const sum = dataArr.reduce((acc, cur) => tool.plus(acc, cur), 0)
+      refinancialAmount.value = Number(sum)
 
       let obj = {}
       for (let i = 0; i < data.length; i++) {
@@ -1409,7 +1409,6 @@
 
   const hasChangeDevCost = ref(false)
   const setSingleFormData = (params) => {
-    console.log('params', params);
     projectAuditSaveMode(params).then(() => {
       hasChangeDevCost.value = true
 
@@ -1465,7 +1464,8 @@
           Number(val.has_linefee) !== Number(formState.value.has_linefee) ||
           val.start_date !== staticFormData.value.start_date ||
           val.end_date !== staticFormData.value.end_date ||
-          Number(val.estab_type) !== Number(formState.value.estab_type)
+          Number(val.estab_type) !== Number(formState.value.estab_type) ||
+          Number(val.devCost) !== Number(formState.value.devCost)
         ) {
           updateFormData()
         }

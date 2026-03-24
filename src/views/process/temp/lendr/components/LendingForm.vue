@@ -1266,7 +1266,8 @@ const interestChange = () => {
           val.repay_day !== formState.value.repay_day ||
           Number(val.penalty_type) !== Number(formState.value.penalty_type) ||
           Number(val.penalty_rate) !== Number(formState.value.penalty_rate) ||
-          Number(val.grace_day) !== Number(formState.value.grace_day)
+          Number(val.grace_day) !== Number(formState.value.grace_day) ||
+          Number(val.devCost) !== Number(formState.value.devCost)
         ) {
           updateFormData()
         }

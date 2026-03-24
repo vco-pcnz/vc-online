@@ -1037,8 +1037,7 @@ const params_repayment = () => {
           item.amount || 0
         );
       } else {
-        item.apply_rep_amount =
-          item.total_amount || tool.plus(item.amount || 0, item.interest || 0);
+        item.apply_rep_amount = tool.plus(item.amount || 0, item.total_interest || 0);
       }
     }
     return {

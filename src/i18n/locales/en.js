@@ -1432,5 +1432,6 @@ export default {
   "您确定要确认结算吗？": "Are you sure you want to confirm the settlement?",
   "Xero 账户未创建成功，请再试一次": "Xero account not created successfully, please try again",
   "更新 Xero": "Update Xero",
-  "操作成功1": "Operation successful"
+  "操作成功1": "Operation successful",
+  "确定要退回吗？": "Are you sure you want to return?",
 }

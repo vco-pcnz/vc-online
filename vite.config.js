@@ -3,9 +3,12 @@ import vue from '@vitejs/plugin-vue';
 import VueSetupExtend from 'vite-plugin-vue-setup-extend';
 import { resolve } from 'path';
 import vueJsx from '@vitejs/plugin-vue-jsx';
+import { getBuildTime } from './scripts/buildTime';
+import { setupHtmlPlugin } from './scripts/htmlPlugin';
 export default ({ mode }) => {
   const env = loadEnv(mode, process.cwd());
   const proxyPrefix = env.VITE_APP_PROXY_PREFIX;
+  const buildTime = getBuildTime();
 
   return defineConfig({
     base: env.VITE_APP_BASE,
@@ -13,9 +16,12 @@ export default ({ mode }) => {
       vue(),
       /** setup 语法糖导出 vue 文件name 属性，用于页面 keepAlive */
       VueSetupExtend(),
-      vueJsx()
+      vueJsx(),
+      setupHtmlPlugin(buildTime)
     ],
-    define: {},
+    define: {
+      BUILD_TIME: JSON.stringify(buildTime)
+    },
     resolve: {
       alias: {
         '@': resolve(__dirname, 'src'),

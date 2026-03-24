@@ -50,6 +50,7 @@ jobs:
           VITE_APP_OPEN_PROXY: false
           VITE_APP_BASE_URL: https://dev-admin-api.new.vincentcapital.co.nz/api
           VITE_APP_TOKEN_PREFIX: vc-online-user-token
+          VITE_AUTOMATICALLY_DETECT_UPDATE: Y
 
       # 部署到 AWS S3
       - name: Deploy to AWS S3

@@ -276,19 +276,20 @@
           </div>
           <div v-if="showRefinancial" class="refinancial-row">
             <div class="flex gap-4 items-center">
-              <p>{{ t('是否需要再融资') }}</p>
-              <a-switch v-if="edit" v-model:checked="isRefinancialChecked" @change="changeRefinancial" />
+              <p>{{ refinancialData.length ? t('是否需要再融资') : t('再融资金额') }}</p>
+              <a-switch v-if="edit && !isOpen" v-model:checked="isRefinancialChecked" @change="changeRefinancial" />
             </div>
 
             <template v-if="isRefinancialChecked">
               <div class="refinancial-select">
                 <a-select
+                  v-if="refinancialData.length"
                   v-model:value="refinancialIds"
                   mode="multiple"
                   :options="refinancialData"
                   :filter-option="filterOption"
                   :placeholder="t('请选择项目')"
-                  :disabled="!edit"
+                  :disabled="!edit || isOpen"
                   :loading="refinancialLoading"
                   @change="(value, option) => refinancialChange(option)"
                 >
@@ -299,7 +300,7 @@
                 </a-select>
 
                 <div class="amount">
-                  <vco-number :value="refinancialAmount" :precision="2" size="fs_md" :bold="true" :end="true"></vco-number>
+                  <vco-number :value="refinancialAmount" :precision="2" :size="refinancialData.length ? 'fs_md' : 'fs_xl'" :bold="true" :end="true"></vco-number>
                 </div>
               </div>
               <div v-if="selectedDatas.length" class="refinancial-table">
@@ -323,7 +324,7 @@
                       "
                       :controls="false"
                       :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                      :disabled="!edit || !(Number(col.item.allRepayment.min_StandardRate) > 0)"
+                      :disabled="!edit || isOpen || !(Number(col.item.allRepayment.min_StandardRate) > 0)"
                       @input="() => refinancialInputChange(col)"
                       @blur="() => refinancialInputBlur(col)"
                     >
@@ -356,7 +357,7 @@
                       "
                       :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                       :controls="false"
-                      :disabled="!edit || !(Number(col.item.allRepayment.reduction_money) > 0)"
+                      :disabled="!edit || isOpen || !(Number(col.item.allRepayment.reduction_money) > 0)"
                       @input="() => refinancialCaclIrr(col)"
                     >
                     </a-input-number>
@@ -371,7 +372,7 @@
             </template>
           </div>
         </a-form-item-rest>
-        <div class="flex items-center total-row" style="border: none; padding: 0 24px">
+        <div class="flex total-row" style="border: none; padding: 0 24px">
           <div class="title bold bold fs_xl text-left">{{ t('总计') }}</div>
           <div class="amount pl">
             <vco-number :value="data.loan" :precision="2" size="fs_xl" :bold="true" :end="true"></vco-number>
@@ -381,6 +382,14 @@
           </div>
           <div class="amount">
             <vco-number :value="devTotal" :precision="2" size="fs_xl" :bold="true" :end="true"></vco-number>
+            <template v-if="isVariation">
+              <div class="flex items-center">
+                <i class="iconfont" v-if="isPlus" style="color: #31bd65">&#xe712;</i>
+                <i class="iconfont" v-else style="color: #eb4b6d">&#xe711;</i>
+                <vco-number :value="changeTotal" :precision="2" size="fs_md" :color="isPlus ? '#31bd65' : '#eb4b6d'" :bold="true" :end="true"></vco-number>
+              </div>
+              <vco-number :value="variationDevTotal" :precision="2" size="fs_xl" :bold="true" :end="true"></vco-number>
+            </template>
           </div>
           <div class="total" v-if="edit"></div>
         </div>
@@ -476,6 +485,18 @@ const props = defineProps({
   lendingInfo: {
     type: Object,
     default: () => null
+  },
+  isOpen: {
+    type: Boolean,
+    default: false
+  },
+  openRefinancialData: {
+    type: Array,
+    default: () => []
+  },
+  openRefinancialAmount: {
+    type: Number,
+    default: 0
   }
 });
 
@@ -490,7 +511,7 @@ const columnsData = [
 ]
 
 const isDetails = computed(() => {
-  return !props.edit || props.isVariation
+  return !props.edit || props.isVariation || props.isOpen
 })
 
 const showRefinancial = computed(() => {
@@ -614,9 +635,14 @@ const saveDone = () => {
     emits('clearBuild');
   }
 
-  emits('update:value', cloneDeep(doneData.total));
-  emits('update:dataJson', cloneDeep([doneData]));
-  emits('change', cloneDeep({ devCost: doneData.total, devCostDetail: [doneData] }));
+  const totalMoney = Number(tool.plus(doneData.total, refinancialAmount.value || 0))
+  const paramsDoneData = cloneDeep(doneData);
+  paramsDoneData.total = totalMoney;
+  paramsDoneData.substitution_amount = refinancialAmount.value || 0;
+
+  emits('update:value', cloneDeep(totalMoney));
+  emits('update:dataJson', cloneDeep([paramsDoneData]));
+  emits('change', cloneDeep({ devCost: totalMoney, devCostDetail: [paramsDoneData] }));
   updateVisible(false);
 
   changeAlertRef.value.changeLoading(false)
@@ -680,7 +706,6 @@ const loadType = (key) => {
       }
       typesObj.value = obj;
 
-      console.log('1111111', data.value)
       if (!data.value.data[0].list.length) {
         res.map((item) => {
           data.value.data[0].list.push({
@@ -896,6 +921,9 @@ const changeRefinancial = (value) => {
 }
 
 const refinancialAmount = computed(() => {
+  if (props.isOpen && Number(props.openRefinancialAmount || 0)) {
+    return Number(props.openRefinancialAmount)
+  }
   const oldData = props.lendingInfo && props.lendingInfo?.substitution_amount && props.lendingInfo?.substitution_ids?.length && !props.lendingInfo?.substitution_data
   // 老数据详情
   if (oldData && isDetails.value) {
@@ -903,8 +931,8 @@ const refinancialAmount = computed(() => {
   }
   if (selectedDatas.value.length) {
     const dataArr = selectedDatas.value.map(item => Number(item.item.allRepayment.repayment_money))
-    const sum = dataArr.reduce((acc, cur) => acc + cur, 0)
-    return sum
+    const sum = dataArr.reduce((acc, cur) => tool.plus(acc, cur), 0)
+    return Number(sum)
   }
   return 0
 })
@@ -1059,6 +1087,17 @@ const devTotal = computed(() => {
   return tool.plus(data.value.total, refinancialAmount.value)
 })
 
+const variationDevTotal = computed(() => {
+  if (props.isVariation) {
+    const changeNum = props.isPlus ? changeTotal.value : tool.minus(0, changeTotal.value)
+    const beforeNum = tool.plus(data.value.total, refinancialAmount.value)
+    const resNum = tool.plus(Number(beforeNum), Number(changeNum))
+    return Number(resNum)
+  } else {
+    return tool.plus(data.value.total, refinancialAmount.value)
+  }
+})
+
 const changeTotal = computed(() => {
   const dataList = data.value.data[0].list
   let total = 0
@@ -1144,6 +1183,15 @@ watch(
         selectedDatas.value = []
         refinancialIds.value = []
       } else {
+        if (props.isOpen && props.openRefinancialData && props.openRefinancialData.length) {
+          const data = cloneDeep(props.openRefinancialData)
+          data.forEach(item => {
+            item.label = item.project_name
+            item.value = item.uuid
+            item.item = item
+          })
+          refinancialData.value = data
+        }
         setSelectedDatas()
       }
     } else {
@@ -1157,7 +1205,7 @@ onMounted(() => {
     emits('update:value', cloneDeep(data.value.total));
     emits('update:dataJson', cloneDeep([data.value]));
   }
-
+  
   if (props.uuid) {
     getRefinancialList()
   }

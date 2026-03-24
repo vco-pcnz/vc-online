@@ -664,8 +664,8 @@
   const refinancialChange = (data) => {
     if (data.length) {
       const dataArr = data.map(item => Number(item.item.amount))
-      const sum = dataArr.reduce((acc, cur) => acc + cur, 0)
-      refinancialAmount.value = sum
+      const sum = dataArr.reduce((acc, cur) => tool.plus(acc, cur), 0)
+      refinancialAmount.value = Number(sum)
     } else {
       refinancialAmount.value = 0
     }
@@ -1526,7 +1526,8 @@
           Number(val.has_linefee) !== Number(formState.value.has_linefee) ||
           val.start_date !== staticFormData.value.start_date ||
           val.end_date !== staticFormData.value.end_date ||
-          val.drawdown_term !== formState.value.drawdown_term
+          val.drawdown_term !== formState.value.drawdown_term ||
+          Number(val.devCost) !== Number(formState.value.devCost)
         ) {
           updateFormData()
         }

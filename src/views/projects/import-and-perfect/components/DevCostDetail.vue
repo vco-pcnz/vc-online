@@ -422,35 +422,51 @@ const save = () => {
   paramsDoneData.total = totalMoney;
   paramsDoneData.substitution_amount = refinancialAmount.value || 0;
 
-  const totalLoan = Number(tool.plus(conLoan, tueLoan));
+  const params = {
+    uuid: props.currentId,
+    devCost: totalMoney,
+    devCostDetail: [paramsDoneData],
+    substitution_amount: refinancialAmount.value || props.substitution_amount
+  };
+
+  currentParams.value = params;
+
+  if (props.hasBuildData && dataHasChanged(paramsDoneData.data[0].list)) {
+    sureVisible.value = true;
+  } else {
+    saveRequest();
+  }
+  
+
+  // const totalLoan = Number(tool.plus(conLoan, tueLoan));
   
   // 总金额 + 置换金额
-  const totalLoanRefi = Number(tool.plus(totalLoan, refinancialAmount.value));
+  // const totalLoanRefi = Number(tool.plus(totalLoan, refinancialAmount.value));
 
-  // if (Number(props.loanAmount) !== totalLoanRefi) {
-  if (Number(props.loanAmount) !== totalLoan) {
-    // const diffNum = tool.minus(props.loanAmount, totalLoanRefi);
-    const diffNum = tool.minus(props.loanAmount, totalLoan);
+  // // if (Number(props.loanAmount) !== totalLoanRefi) {
+  // if (Number(props.loanAmount) !== totalLoan) {
+  //   // const diffNum = tool.minus(props.loanAmount, totalLoanRefi);
+  //   const diffNum = tool.minus(props.loanAmount, totalLoan);
 
-    // errorTxt.value = t(`借款金额为：<span>{0}</span>，设置的建筑成本为：<span>{1}</span>，相差：<span>{2}</span>`, [`$${numberStrFormat(props.loanAmount)}`, `$${numberStrFormat(totalLoanRefi)}`, `$${numberStrFormat(diffNum)}`]);
-    errorTxt.value = t(`借款金额为：<span>{0}</span>，设置的建筑成本为：<span>{1}</span>，相差：<span>{2}</span>`, [`$${numberStrFormat(props.loanAmount)}`, `$${numberStrFormat(totalLoan)}`, `$${numberStrFormat(diffNum)}`]);
-    errorVisible.value = true;
-  } else {
-    const params = {
-      uuid: props.currentId,
-      devCost: totalMoney,
-      devCostDetail: [paramsDoneData],
-      substitution_amount: refinancialAmount.value || props.substitution_amount
-    };
+  //   // errorTxt.value = t(`借款金额为：<span>{0}</span>，设置的建筑成本为：<span>{1}</span>，相差：<span>{2}</span>`, [`$${numberStrFormat(props.loanAmount)}`, `$${numberStrFormat(totalLoanRefi)}`, `$${numberStrFormat(diffNum)}`]);
+  //   errorTxt.value = t(`借款金额为：<span>{0}</span>，设置的建筑成本为：<span>{1}</span>，相差：<span>{2}</span>`, [`$${numberStrFormat(props.loanAmount)}`, `$${numberStrFormat(totalLoan)}`, `$${numberStrFormat(diffNum)}`]);
+  //   errorVisible.value = true;
+  // } else {
+  //   const params = {
+  //     uuid: props.currentId,
+  //     devCost: totalMoney,
+  //     devCostDetail: [paramsDoneData],
+  //     substitution_amount: refinancialAmount.value || props.substitution_amount
+  //   };
 
-    currentParams.value = params;
+  //   currentParams.value = params;
 
-    if (props.hasBuildData && dataHasChanged(paramsDoneData.data[0].list)) {
-      sureVisible.value = true;
-    } else {
-      saveRequest();
-    }
-  }
+  //   if (props.hasBuildData && dataHasChanged(paramsDoneData.data[0].list)) {
+  //     sureVisible.value = true;
+  //   } else {
+  //     saveRequest();
+  //   }
+  // }
 };
 
 const saveRequest = () => {

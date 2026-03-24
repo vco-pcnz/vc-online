@@ -4,7 +4,11 @@
       <div v-if="pageLoading" class="loading-container">
         <a-spin :spinning="pageLoading" size="large"></a-spin>
       </div>
-      <vco-template-step type="buy_out" :currentStep="projectInfo?.buyout?.mark" :state="projectInfo?.buyout?.state"></vco-template-step>
+      <vco-template-step type="buy_out" :currentStep="projectInfo?.buyout?.mark" :state="projectInfo?.buyout?.state">
+        <vco-popconfirm v-if="hasPermission('projects:buyOut:return') && projectInfo?.buyout?.state == 1000" :tip="t('确定要退回吗？')" @update="returnHandle" :formParams="{ uuid: uuid}" url="project/buyout/buyoutDecline">
+          <a-button type="dark" class="big shadow bold uppercase ml-5">{{ t('退回') }}</a-button>
+        </vco-popconfirm>
+      </vco-template-step>
       <div v-if="uuid && projectInfo && !pageLoading" class="project-container">
         <div class="project-info">
           <base-card :variations="true" :detail="projectInfo"></base-card>
@@ -186,6 +190,10 @@ const DrawdownColumns = computed(() => {
   ];
   return base
 });
+
+const returnHandle = () => {
+  router.push(`/projects/about?uuid=${uuid.value}`);
+};
 
 </script>
 

@@ -26,13 +26,24 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, onActivated, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useUsersStore } from '@/store';
 
 const usersStore = useUsersStore();
 
 const { t } = useI18n();
+
+// 从 store 同步搜索条件到表单（用于返回页面时回显）
+const syncFormFromStore = () => {
+  const params = usersStore.searchParams;
+  searchForm.value = {
+    role_id: params.role_id ?? '',
+    key: params.key ?? 'all',
+    keywords: params.keywords ?? '',
+    org__name: params.org__name ?? ''
+  };
+};
 
 const typeData = computed(() => {
   const data = usersStore.roleList.map((item) => ({
@@ -116,5 +127,11 @@ const searchHandle = (flag) => {
 
 onMounted(() => {
   usersStore.getRoleList();
+  syncFormFromStore();
+});
+
+// 返回页面时从 store 回显搜索条件（配合 keep-alive）
+onActivated(() => {
+  syncFormFromStore();
 });
 </script>

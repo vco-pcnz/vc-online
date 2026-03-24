@@ -90,7 +90,7 @@
             <div v-if="projectInfo?.buyout?.data?.document && projectInfo?.buyout?.data?.document.length">
                 <span class="bold"> {{ t('文件') }}</span>
                 <div v-for="(item, index) in projectInfo?.buyout?.data?.document" :key="index" class="file-item">
-                  <vco-file-item :file="item"></vco-file-item>
+                  <vco-file-item :file="item" :bg="true"></vco-file-item>
                 </div>
               </div>
 

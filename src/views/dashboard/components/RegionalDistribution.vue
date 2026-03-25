@@ -67,6 +67,12 @@ import useProductStore from '@/store/modules/product';
 
 const { t } = useI18n();
 const productStore = useProductStore();
+const props = defineProps({
+  lender: {
+    type: String,
+    default: ''
+  }
+});
 const pagination = ref({
   page: 1,
   limit: 5
@@ -79,7 +85,7 @@ const loading = ref(false);
 const loadData = (val) => {
   if (!productStore.currentProduct) return;
   loading.value = true;
-  const params = { ...pagination.value, product_uuid: productStore.currentProduct };
+  const params = { ...pagination.value, product_uuid: productStore.currentProduct, lender: props.lender };
   regional(params)
     .then((res) => {
       let money = 0;
@@ -163,6 +169,13 @@ watch(
     }
   },
   { immediate: true }
+);
+
+watch(
+  () => props.lender,
+  (val) => {
+    loadData();
+  }
 );
 </script>
 <style lang="less" scoped>

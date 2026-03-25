@@ -232,7 +232,7 @@
             <vco-number :value="data.borrower_equity" :precision="2" size="fs_xl" :bold="true" :end="true"></vco-number>
           </div>
           <div class="amount">
-            <vco-number :value="data.total" :precision="2" size="fs_xl" :bold="true" :end="true"></vco-number>
+            <vco-number :value="devTotal" :precision="2" size="fs_xl" :bold="true" :end="true"></vco-number>
           </div>
           <div class="total" v-if="edit"></div>
         </div>
@@ -299,6 +299,11 @@ const props = defineProps({
 });
 
 const visible = ref(false);
+
+const devTotal = computed(() => {
+  const sum = tool.plus(Number(data.value.total || 0), Number(refinancialAmount.value || 0))
+  return Number(sum)
+})
 
 const ConstructionColumns = reactive([
   { title: t('类型'), dataIndex: 'type', ellipsis: true },
@@ -422,31 +427,51 @@ const save = () => {
   paramsDoneData.total = totalMoney;
   paramsDoneData.substitution_amount = refinancialAmount.value || 0;
 
-  const totalLoan = Number(tool.plus(conLoan, tueLoan));
-  
-  const totalLoanRefi = Number(tool.plus(totalLoan, refinancialAmount.value));
+  const params = {
+    uuid: props.currentId,
+    devCost: totalMoney,
+    devCostDetail: [paramsDoneData],
+    substitution_amount: refinancialAmount.value || props.substitution_amount
+  };
 
-  if (Number(props.loanAmount) !== totalLoanRefi) {
-    const diffNum = tool.minus(props.loanAmount, totalLoanRefi);
+  currentParams.value = params;
 
-    errorTxt.value = t(`借款金额为：<span>{0}</span>，设置的建筑成本为：<span>{1}</span>，相差：<span>{2}</span>`, [`$${numberStrFormat(props.loanAmount)}`, `$${numberStrFormat(totalLoanRefi)}`, `$${numberStrFormat(diffNum)}`]);
-    errorVisible.value = true;
+  if (props.hasBuildData && dataHasChanged(paramsDoneData.data[0].list)) {
+    sureVisible.value = true;
   } else {
-    const params = {
-      uuid: props.currentId,
-      devCost: totalMoney,
-      devCostDetail: [paramsDoneData],
-      substitution_amount: refinancialAmount.value || props.substitution_amount
-    };
-
-    currentParams.value = params;
-
-    if (props.hasBuildData && dataHasChanged(paramsDoneData.data[0].list)) {
-      sureVisible.value = true;
-    } else {
-      saveRequest();
-    }
+    saveRequest();
   }
+  
+
+  // const totalLoan = Number(tool.plus(conLoan, tueLoan));
+  
+  // 总金额 + 置换金额
+  // const totalLoanRefi = Number(tool.plus(totalLoan, refinancialAmount.value));
+
+  // // if (Number(props.loanAmount) !== totalLoanRefi) {
+  // if (Number(props.loanAmount) !== totalLoan) {
+  //   // const diffNum = tool.minus(props.loanAmount, totalLoanRefi);
+  //   const diffNum = tool.minus(props.loanAmount, totalLoan);
+
+  //   // errorTxt.value = t(`借款金额为：<span>{0}</span>，设置的建筑成本为：<span>{1}</span>，相差：<span>{2}</span>`, [`$${numberStrFormat(props.loanAmount)}`, `$${numberStrFormat(totalLoanRefi)}`, `$${numberStrFormat(diffNum)}`]);
+  //   errorTxt.value = t(`借款金额为：<span>{0}</span>，设置的建筑成本为：<span>{1}</span>，相差：<span>{2}</span>`, [`$${numberStrFormat(props.loanAmount)}`, `$${numberStrFormat(totalLoan)}`, `$${numberStrFormat(diffNum)}`]);
+  //   errorVisible.value = true;
+  // } else {
+  //   const params = {
+  //     uuid: props.currentId,
+  //     devCost: totalMoney,
+  //     devCostDetail: [paramsDoneData],
+  //     substitution_amount: refinancialAmount.value || props.substitution_amount
+  //   };
+
+  //   currentParams.value = params;
+
+  //   if (props.hasBuildData && dataHasChanged(paramsDoneData.data[0].list)) {
+  //     sureVisible.value = true;
+  //   } else {
+  //     saveRequest();
+  //   }
+  // }
 };
 
 const saveRequest = () => {

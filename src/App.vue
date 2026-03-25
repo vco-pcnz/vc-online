@@ -70,16 +70,16 @@ const refreshApp = (code) => {
 const remindLater = () => {
   updateAvailable.value = false;
   // 可以设置一个时间，比如1小时后再检查
-  setTimeout(() => {
-    checkVersion();
-  }, 60 * 60 * 1000);
+  // setTimeout(() => {
+  //   // checkVersion();
+  // }, 60 * 60 * 1000);
 };
 
 onMounted(() => {
   // 立即检查一次
-  checkVersion();
+  // checkVersion();
   // 然后每隔10秒检查一次
-  versionCheckInterval = window.setInterval(checkVersion, 10 * 1000);
+  // versionCheckInterval = window.setInterval(checkVersion, 10 * 1000);
 });
 
 onUnmounted(() => {

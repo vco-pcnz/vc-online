@@ -372,7 +372,7 @@
             </template>
           </div>
         </a-form-item-rest>
-        <div class="flex items-center total-row" style="border: none; padding: 0 24px">
+        <div class="flex total-row" style="border: none; padding: 0 24px">
           <div class="title bold bold fs_xl text-left">{{ t('总计') }}</div>
           <div class="amount pl">
             <vco-number :value="data.loan" :precision="2" size="fs_xl" :bold="true" :end="true"></vco-number>
@@ -382,6 +382,14 @@
           </div>
           <div class="amount">
             <vco-number :value="devTotal" :precision="2" size="fs_xl" :bold="true" :end="true"></vco-number>
+            <template v-if="isVariation">
+              <div class="flex items-center">
+                <i class="iconfont" v-if="isPlus" style="color: #31bd65">&#xe712;</i>
+                <i class="iconfont" v-else style="color: #eb4b6d">&#xe711;</i>
+                <vco-number :value="changeTotal" :precision="2" size="fs_md" :color="isPlus ? '#31bd65' : '#eb4b6d'" :bold="true" :end="true"></vco-number>
+              </div>
+              <vco-number :value="variationDevTotal" :precision="2" size="fs_xl" :bold="true" :end="true"></vco-number>
+            </template>
           </div>
           <div class="total" v-if="edit"></div>
         </div>
@@ -1077,6 +1085,17 @@ const refinancialCaclIrr = debounce((data) => {
 
 const devTotal = computed(() => {
   return tool.plus(data.value.total, refinancialAmount.value)
+})
+
+const variationDevTotal = computed(() => {
+  if (props.isVariation) {
+    const changeNum = props.isPlus ? changeTotal.value : tool.minus(0, changeTotal.value)
+    const beforeNum = tool.plus(data.value.total, refinancialAmount.value)
+    const resNum = tool.plus(Number(beforeNum), Number(changeNum))
+    return Number(resNum)
+  } else {
+    return tool.plus(data.value.total, refinancialAmount.value)
+  }
 })
 
 const changeTotal = computed(() => {

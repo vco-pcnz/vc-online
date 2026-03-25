@@ -26,7 +26,7 @@
             <a-col :span="12">
               <a-form-item :label="t('还款日期')" name="apply_date">
                 <a-date-picker v-model:value="formState.apply_date" :format="selectDateFormat()"
-                               valueFormat="YYYY-MM-DD" placeholder="" @change="loadDrawDownSelected">
+                               valueFormat="YYYY-MM-DD" placeholder=""  :disabledDate="disabledDateFormat" @change="loadDrawDownSelected">
                   <template #suffixIcon>
                     <a-spin v-if="getLoading"></a-spin>
                     <CalendarOutlined v-else />
@@ -1050,6 +1050,17 @@ const params_repayment = () => {
       reality_interest: item.reality_interest,
     };
   });
+};
+
+const disabledDateFormat = (current) => {
+  if (props.projectDetail?.vslInfo?.buyout_date) {
+    const startDate = props.projectDetail?.vslInfo?.buyout_date
+    if (current && current.isBefore(startDate, 'day')) {
+      return true;
+    }
+  }
+
+  return false;
 };
 
 watch(

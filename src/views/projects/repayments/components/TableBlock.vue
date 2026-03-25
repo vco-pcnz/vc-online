@@ -100,7 +100,7 @@ const viewDetail = (val) => {
 const setStatusColor = (val) => {
   if (val.state == 1000 && val.status > 1) {
     return '#272727';
-  } else if (val.state == -900) {
+  } else if (val.state == -900 || val.state == -100) {
     return '#ff7875';
   } else {
     return '#d3a631';

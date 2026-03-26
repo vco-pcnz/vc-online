@@ -90,7 +90,7 @@
                             <div class="flex justify-center items-center gap-1">
                               <vco-number style="opacity: 0.6" size="fs_md" :value="record.total_interest"
                                           :precision="2"></vco-number>
-                              <i class="iconfont edit-icon" v-if="!record.interest_status && record.sn"
+                              <i class="iconfont edit-icon" v-if="!record.interest_status && record.sn && record.source"
                                  @click="record.interest_status = 1">
                                 &#xe743;
                               </i>

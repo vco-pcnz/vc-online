@@ -210,13 +210,13 @@ watch(
       }
     }
 
-    > li {
-      &:nth-child(4) {
-        color: #272727;
-        font-weight: 500;
-        text-transform: uppercase;
-      }
-    }
+    // > li {
+    //   &:nth-child(4) {
+    //     color: #272727;
+    //     font-weight: 500;
+    //     text-transform: uppercase;
+    //   }
+    // }
   }
   > li {
     line-height: 21px;

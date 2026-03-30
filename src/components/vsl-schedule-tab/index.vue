@@ -1,6 +1,6 @@
 <template>
   <vco-page-tab
-    v-if="showTab"
+    v-if="showTab && false"
     :tabData="typeData"
     v-model:current="currentModel"
     style="margin-bottom: 15px;"

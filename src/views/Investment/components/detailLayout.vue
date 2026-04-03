@@ -13,6 +13,7 @@
 import { onMounted, ref, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useUserStore } from '@/store';
+import useProductStore from '@/store/modules/product';
 import { useRouter, useRoute } from 'vue-router';
 import { cloneDeep } from 'lodash';
 
@@ -22,8 +23,14 @@ const router = useRouter();
 const route = useRoute();
 
 const userStore = useUserStore();
+const productStore = useProductStore();
 
 const props = defineProps(['title', 'activeTab']);
+
+const isVslProduct = computed(() => {
+  const p = productStore.productData.find((item) => item.uuid === productStore.currentProduct);
+  return String(p?.code || '').toLowerCase() === 'vsl';
+});
 
 const panes = computed(() => {
   let arr = [];
@@ -42,6 +49,11 @@ const panes = computed(() => {
         path: item.path,
         key: item.path.slice(item.path.lastIndexOf('/') + 1)
       };
+    })
+    .filter((item) => {
+      if (!isVslProduct.value) return true;
+      const isScheduleTab = item.key === 'schedule' || /\/schedule(\/|$)/.test(item.path || '');
+      return !isScheduleTab;
     });
 
   return arr;

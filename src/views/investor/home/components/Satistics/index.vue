@@ -117,7 +117,7 @@ const loading = ref(false);
 
 const loadData = (val) => {
   loading.value = true;
-  statistics({ id: props.invest_id })
+  statistics({ uuid: props.invest_id })
     .then((res) => {
       statisticsData.value = res;
       option.value.series[0].data[0].value = res.use_amount || 0;

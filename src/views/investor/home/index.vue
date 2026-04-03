@@ -7,7 +7,7 @@
   <div class="my-12">
     <ProjectDashboard :invest_id="invest_id"></ProjectDashboard>
   </div>
-  <CashflowForecast :invest_id="invest_id" :isNav="false"></CashflowForecast>
+  <CashflowForecast v-if="invest_id" :invest_id="invest_id" :isNav="false"></CashflowForecast>
 </template>
 
 <script setup>

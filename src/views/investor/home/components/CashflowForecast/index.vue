@@ -283,7 +283,7 @@ const setBarHeight = (index) => {
 };
 
 onMounted(() => {
-  loadData();
+  // loadData();
 });
 
 watch(

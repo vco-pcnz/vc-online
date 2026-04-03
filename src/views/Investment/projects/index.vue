@@ -84,7 +84,7 @@ const uploadLoading = ref(false);
 const tabChange = () => {
   pageStore.pagination.page = 1;
   pageStore.searchParams['order'] = 'desc';
-  pageStore.searchParams['id'] = route.query.uuid;
+  pageStore.searchParams['uuid'] = route.query.uuid;
   pageStore.searchParams['sort'] = 'start_date';
   if (tableSearchRef.value) {
     tableSearchRef.value.searchHandle();

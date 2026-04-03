@@ -186,13 +186,13 @@ const handlePathChange = () => {
 };
 
 const bindUserForm = ref({
-  id: '',
+  uuid: '',
   uuids: []
 });
 const vcoChooseUserRef = ref();
 
 const showBindUser = (val) => {
-  bindUserForm.value.id = val.id;
+  bindUserForm.value.uuid = val.uuid;
 
   if (val.user && val.user.length) {
     bindUserForm.value.uuids = val.user.map((item) => {

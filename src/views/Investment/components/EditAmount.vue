@@ -95,7 +95,7 @@ const save = () => {
   }
   loading.value = true;
   let params = {
-    id: props.data.id,
+    uuid: props.data.uuid,
     ...formState.value
   };
   addAmount(params)

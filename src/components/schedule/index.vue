@@ -655,7 +655,8 @@ const downLoadExcel = (type) => {
     // } else {
     adFormState.date = dayjs(new Date());
     if(props.isClose) {
-      adFormState.date = dayjs(props.closeDate);
+      const eTime = props.closeDate ? dayjs(props.closeDate) : ''
+      adFormState.date = eTime;
     }
     adFormState.s_date = '';
     adVisible.value = true;

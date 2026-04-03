@@ -41,13 +41,13 @@
           <p class="black bold">{{ tool.formatMoney(record.use_amount) }}</p>
         </template>
         <template v-if="column.key === 'rate'">
-          <p class="black bold">{{tool.formatMoney(record.rate)}}</p>
+          <p class="black bold">{{tool.formatMoney(record.rate_boc)}}</p>
         </template>
         <template v-if="column.key === 'frate'">
-          <p class="black bold">{{tool.formatMoney(record.frate)}}</p>
+          <p class="black bold">{{tool.formatMoney(record.frate_boc)}}</p>
         </template>
         <template v-if="column.key === 'lrate'">
-          <p class="black bold">{{tool.formatMoney(record.lrate)}}</p>
+          <p class="black bold">{{tool.formatMoney(record.lrate_boc)}}</p>
         </template>
         <template v-if="column.key === 'amount'">
           <p class="bold black" @click.stop="showEditAmountLog(record)">

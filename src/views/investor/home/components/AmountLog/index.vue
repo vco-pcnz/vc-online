@@ -8,7 +8,7 @@
         timepicker="month"
         :searchConfig="searchConfig"
         :open_hidden="true"
-        :downloadParams="{ uuid: invest_id }"
+        :downloadParams="{ uuid: invest_id, product_uuid: product_uuid }"
         :showPresets="false"
         downloadUrl="invest/barExport"
         @change="loadData"
@@ -32,6 +32,10 @@ const { t } = useI18n();
 const props = defineProps({
   invest_id: {
     type: String
+  },
+  product_uuid: {
+    type: String,
+    default: ''
   }
 });
 
@@ -97,7 +101,7 @@ const loadData = (val) => {
   loading.value = true;
   let params = searchForm.value;
   if (val) params = { ...searchForm.value, ...val };
-  barSta({ uuid: props.invest_id, ...params })
+  barSta({ uuid: props.invest_id, product_uuid: props.product_uuid, ...params })
     .then((res) => {
       option.value.xAxis.data = res.time.map((item) => {
         if (item.length == '7') {
@@ -119,9 +123,9 @@ const loadData = (val) => {
 };
 
 watch(
-  () => props.invest_id,
-  (val) => {
-    if (val) {
+  () => [props.invest_id, props.product_uuid],
+  ([id]) => {
+    if (id) {
       loadData();
     }
   },

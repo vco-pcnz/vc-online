@@ -7,8 +7,8 @@
     <template v-else>
       <div class="flex-1 fs_2xl cursor-pointer">Cashflow forecast</div>
     </template>
-    <SearchContent v-model:value="searchForm" :searchConfig="searchConfig" :invest_id="invest_id" @change="loadData"></SearchContent>
-    <CashFlowForecastExportModal :searchParams="{ ...searchForm, invest_id: invest_id }" downloadUrl="invest/cashFlowForecastExport"></CashFlowForecastExportModal>
+    <SearchContent v-model:value="searchForm" :searchConfig="searchConfig" :invest_id="invest_id" :product_uuid="product_uuid" @change="loadData"></SearchContent>
+    <CashFlowForecastExportModal :searchParams="{ ...searchForm, invest_id: invest_id, product_uuid: product_uuid }" downloadUrl="invest/cashFlowForecastExport"></CashFlowForecastExportModal>
   </div>
   <a-spin :spinning="loading" size="large">
     <div class="CashflowForecastChart">
@@ -93,7 +93,7 @@
       </template>
     </div>
   </div>
-  <Forecast :date="dates[hoverIndex]" :searchForm="searchForm" v-model:visible="visible_forecast" :invest_id="invest_id"></Forecast>
+  <Forecast :date="dates[hoverIndex]" :searchForm="searchForm" v-model:visible="visible_forecast" :invest_id="invest_id" :product_uuid="product_uuid"></Forecast>
 </template>
 
 <script setup>
@@ -123,6 +123,10 @@ const props = defineProps({
   },
   invest_id: {
     type: String
+  },
+  product_uuid: {
+    type: String,
+    default: ''
   }
 });
 
@@ -214,7 +218,7 @@ const loadData = (val) => {
   loading.value = true;
 
   if (val) searchForm.value = { ...searchForm.value, ...val };
-  cashFlowForecast({ ...searchForm.value, invest_id: props.invest_id })
+  cashFlowForecast({ ...searchForm.value, invest_id: props.invest_id, product_uuid: props.product_uuid })
     .then((res) => {
       data.value = res;
       let chartData = [];
@@ -287,9 +291,9 @@ onMounted(() => {
 });
 
 watch(
-  () => props.invest_id,
-  (val) => {
-    if (val) {
+  () => [props.invest_id, props.product_uuid],
+  ([id]) => {
+    if (id) {
       loadData();
     }
   },

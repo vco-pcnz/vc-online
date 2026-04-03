@@ -71,6 +71,10 @@ const { t } = useI18n();
 const props = defineProps({
   invest_id: {
     type: String
+  },
+  product_uuid: {
+    type: String,
+    default: ''
   }
 });
 
@@ -117,7 +121,7 @@ const loading = ref(false);
 
 const loadData = (val) => {
   loading.value = true;
-  statistics({ uuid: props.invest_id })
+  statistics({ uuid: props.invest_id, product_uuid: props.product_uuid })
     .then((res) => {
       statisticsData.value = res;
       option.value.series[0].data[0].value = res.use_amount || 0;
@@ -129,9 +133,9 @@ const loadData = (val) => {
 };
 
 watch(
-  () => props.invest_id,
-  (val) => {
-    if (val) {
+  () => [props.invest_id, props.product_uuid],
+  ([id]) => {
+    if (id) {
       loadData();
     }
   },

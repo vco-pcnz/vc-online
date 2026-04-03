@@ -59,6 +59,10 @@ const props = defineProps({
   },
   invest_id: {
     type: String
+  },
+  product_uuid: {
+    type: String,
+    default: ''
   }
 });
 
@@ -96,7 +100,13 @@ const onSelect = (val) => {
 
 const loadData = () => {
   loading.value = true;
-  forecastProjectList({ ...pagination.value, ...searchForm.value, ...params.value, invest_id: props.invest_id })
+  forecastProjectList({
+    ...pagination.value,
+    ...searchForm.value,
+    ...params.value,
+    invest_id: props.invest_id,
+    product_uuid: props.product_uuid
+  })
     .then((res) => {
       data.value = res.data;
       total.value = res.count;
@@ -136,9 +146,9 @@ watch(
 );
 
 watch(
-  () => props.invest_id,
-  (val) => {
-    if (val) {
+  () => [props.invest_id, props.product_uuid],
+  ([id]) => {
+    if (id) {
       loadData();
     }
   },

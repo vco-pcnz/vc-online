@@ -1,17 +1,17 @@
 <template>
-  <Satistics v-if="!isVslProduct" :invest_id="invest_id"></Satistics>
-  <SatisticsVsl v-else :invest_id="invest_id"></SatisticsVsl>
+  <Satistics v-if="!isVslProduct" :invest_id="invest_id" :product_uuid="product_uuid"></Satistics>
+  <SatisticsVsl v-else :invest_id="invest_id" :product_uuid="product_uuid"></SatisticsVsl>
   <div v-if="!isVslProduct" class="my-12">
-    <AmountLog :invest_id="invest_id"></AmountLog>
+    <AmountLog :invest_id="invest_id" :product_uuid="product_uuid"></AmountLog>
   </div>
   <div class="my-12">
-    <ProjectDashboard :invest_id="invest_id"></ProjectDashboard>
+    <ProjectDashboard :invest_id="invest_id" :product_uuid="product_uuid"></ProjectDashboard>
   </div>
-  <CashflowForecast v-if="invest_id" :invest_id="invest_id" :isNav="false"></CashflowForecast>
+  <CashflowForecast v-if="invest_id" :invest_id="invest_id" :product_uuid="product_uuid" :isNav="false"></CashflowForecast>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { hasPermission } from '@/directives/permission/index';
 import Satistics from './components/Satistics/index.vue';
@@ -34,17 +34,40 @@ const isVslProduct = computed(() => {
 const invest_id = ref('');
 const route = useRoute();
 
-onMounted(() => {
+const product_uuid = computed(() => productStore.currentProduct || '');
+
+const resolveInvestId = () => {
   if (route.query.uuid) {
     invest_id.value = route.query.uuid;
-  } else {
-    userProject().then((res) => {
-      if (res && res.length) {
-        invest_id.value = res[0].uuid;
-      }
-    });
+    return;
   }
+  const params = productStore.currentProduct ? { product_uuid: productStore.currentProduct } : {};
+  userProject(params).then((res) => {
+    if (res && res.length) {
+      invest_id.value = res[0].uuid;
+    } else {
+      invest_id.value = '';
+    }
+  });
+};
+
+onMounted(() => {
+  resolveInvestId();
 });
+
+watch(
+  () => productStore.currentProduct,
+  () => {
+    resolveInvestId();
+  }
+);
+
+watch(
+  () => route.query.uuid,
+  () => {
+    resolveInvestId();
+  }
+);
 </script>
 
 <style scoped lang="less">

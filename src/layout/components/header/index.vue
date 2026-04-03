@@ -2,8 +2,8 @@
   <div class="layout_header">
     <div class="title_with_product">
       <div class="header_title">VC Online</div>
-      <a-dropdown trigger="click" v-model:open="productOpen" v-if="productOptions.length>1">
-        <button class="product-dropdown">
+      <a-dropdown trigger="click" v-model:open="productOpen" v-if="showProductDropdown">
+        <button class="product-dropdown" type="button">
           <span>{{ currentProductLabel }}</span>
           <DownOutlined class="product-arrow" :class="{ open: productOpen }" style="font-size: 12px" />
         </button>
@@ -19,6 +19,9 @@
           </a-menu>
         </template>
       </a-dropdown>
+      <!-- <div v-else-if="productOptions.length === 1" class="product-dropdown product-dropdown--static">
+        <span>{{ currentProductLabel }}</span>
+      </div> -->
     </div>
     <div class="header_container">
       <div class="menu_content">
@@ -122,7 +125,52 @@ const isNormalUser = computed(() => userStore.isNormalUser);
 
 const noticeStore = useNoticeStore();
 const productStore = useProductStore();
-const productOptions = computed(() => productStore.openProductData.map((item) => ({ label: item.name, value: item.uuid })) || []);
+
+/** 角色 code 含 investor（支持多角色如 investor/broker） */
+const isInvestorRole = computed(() => {
+  const r = userInfo.value?.roles;
+  if (!r) return false;
+  return String(r)
+    .split('/')
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean)
+    .includes('investor');
+});
+
+/** 用户资料 tags，与产品 mark 对应 */
+const userProfileTags = computed(() => {
+  const tags = userInfo.value?.tags;
+  if (tags == null) return [];
+  if (Array.isArray(tags)) {
+    return tags
+      .map((t) => (t != null && typeof t === 'object' ? t.mark ?? t.value ?? t.code : t))
+      .map((t) => String(t).trim())
+      .filter(Boolean);
+  }
+  return String(tags)
+    .split(/[,|]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+});
+
+/** 投资人：仅展示 tags 与 mark 交集内的开启产品；非投资人：全部开启产品 */
+const displayOpenProductData = computed(() => {
+  const raw = productStore.openProductData || [];
+  if (!isInvestorRole.value) return raw;
+  const tagSet = new Set(userProfileTags.value);
+  if (!tagSet.size) return [];
+  return raw.filter((p) => {
+    const m = p?.mark;
+    return m != null && m !== '' && tagSet.has(String(m).trim());
+  });
+});
+
+const productOptions = computed(() =>
+  displayOpenProductData.value.map((item) => ({ label: item.name, value: item.uuid }))
+);
+
+const showProductDropdown = computed(() => productOptions.value.length > 1);
+
 const currentProduct = computed({
   get: () => productStore.currentProduct,
   set: (val) => {
@@ -135,10 +183,87 @@ const currentProductLabel = computed(() => {
   return found ? found.label : t('选择产品');
 });
 
+const isVslProduct = computed(() => {
+  const p = productStore.productData.find((item) => item.uuid === productStore.currentProduct);
+  return String(p?.code || '').toLowerCase() === 'vsl';
+});
+
+function syncCurrentProductFromList() {
+  const raw = productStore.openProductData || [];
+  const list = isInvestorRole.value ? displayOpenProductData.value : raw;
+
+  if (!list.length) {
+    if (isInvestorRole.value) {
+      productStore.currentProduct = '';
+      localStorage.removeItem('currentProduct');
+    } else if (!raw.length && productStore.currentProduct) {
+      productStore.currentProduct = '';
+    }
+    return;
+  }
+
+  if (isInvestorRole.value) {
+    const uuids = new Set(list.map((x) => x.uuid));
+    if (list.length === 1) {
+      const u = list[0].uuid;
+      if (productStore.currentProduct !== u) {
+        productStore.currentProduct = u;
+        localStorage.setItem('currentProduct', u);
+      }
+      return;
+    }
+    if (!uuids.has(productStore.currentProduct)) {
+      productStore.currentProduct = list[0].uuid;
+      localStorage.setItem('currentProduct', list[0].uuid);
+    }
+    return;
+  }
+
+  if (raw.length && !productStore.currentProduct) {
+    productStore.currentProduct = raw[0].uuid;
+    localStorage.setItem('currentProduct', productStore.currentProduct);
+  } else if (!raw.length && productStore.currentProduct) {
+    productStore.currentProduct = '';
+  }
+}
+
+/** 角色为 Funding Partner：后端 code 为 funding_partner，或展示名含 Funding Partner */
+const isFundingPartnerRole = computed(() => {
+  const ui = userInfo.value;
+  if (!ui) return false;
+  const codes = String(ui.roles || '')
+    .split('/')
+    .map((c) => c.trim().toLowerCase())
+    .filter(Boolean);
+  if (codes.includes('funding_partner')) return true;
+
+  const nameHasFundingPartner = (s) =>
+    String(s || '')
+      .replace(/\s/g, '')
+      .toLowerCase()
+      .includes('fundingpartner');
+
+  const rawNames = ui.role_names;
+  if (Array.isArray(rawNames) && rawNames.some(nameHasFundingPartner)) return true;
+  if (typeof rawNames === 'string' && nameHasFundingPartner(rawNames)) return true;
+
+  const full = ui.full_roles;
+  if (Array.isArray(full) && full.some(nameHasFundingPartner)) return true;
+  if (typeof full === 'string' && nameHasFundingPartner(full)) return true;
+
+  return false;
+});
+
+const isScheduleHeaderPath = (path) => {
+  if (!path) return false;
+  const p = path.replace(/\/$/, '') || path;
+  return /^\/[^/]+\/schedule$/i.test(p);
+};
+
 const menuData = computed(() => {
   const data = userStore.routerInfo || [];
   const dataArr = cloneDeep(data);
-  const resData = dataArr
+  let resData = dataArr
     .filter((item) => !item.meta.hide)
     .map((item) => {
       return {
@@ -146,6 +271,11 @@ const menuData = computed(() => {
         path: item.path
       };
     });
+
+  if (isFundingPartnerRole.value && isVslProduct.value) {
+    resData = resData.filter((link) => !isScheduleHeaderPath(link.path));
+  }
+
   return resData;
 });
 
@@ -224,13 +354,9 @@ const handleClick = (path) => {
 };
 
 watch(
-  () => productStore.openProductData,
-  (val) => {
-    if (val && val.length && !productStore.currentProduct) {
-      productStore.currentProduct = val[0].uuid;
-    } else if ((!val || !val.length) && productStore.currentProduct) {
-      productStore.currentProduct = '';
-    }
+  () => [productStore.openProductData, userProfileTags.value, isInvestorRole.value],
+  () => {
+    syncCurrentProductFromList();
   },
   { deep: true, immediate: true }
 );
@@ -399,6 +525,13 @@ onUnmounted(() => {
 
   &:hover {
     background: #ededed;
+  }
+
+  &--static {
+    cursor: default;
+    &:hover {
+      background: #f5f5f5;
+    }
   }
 }
 

@@ -98,6 +98,11 @@ const onSelect = (val) => {
   emits('change', { project_uuids: select.value.join() });
 };
 
+const params = ref({
+  lm_uuids: '',
+  search: ''
+});
+
 const loadData = () => {
   loading.value = true;
   forecastProjectList({
@@ -156,10 +161,6 @@ watch(
     immediate: true
   }
 );
-const params = ref({
-  lm_uuids: '',
-  search: ''
-});
 
 const init = (val) => {
   pagination.value.page = 1;

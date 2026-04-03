@@ -177,7 +177,7 @@ const rowSelection = ref({
 const rowClick = (record, index) => {
   return {
     onClick: () => {
-      navigationTo(`/Investment/detail/home?uuid=${record.id}`);
+      navigationTo(`/Investment/detail/home?uuid=${record.uuid}`);
     }
   };
 };

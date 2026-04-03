@@ -44,10 +44,10 @@
           <p class="black bold">{{tool.formatMoney(record.rate)}}</p>
         </template>
         <template v-if="column.key === 'frate'">
-          <p class="black">{{ record.frate || 0 }}%</p>
+          <p class="black bold">{{tool.formatMoney(record.frate)}}</p>
         </template>
         <template v-if="column.key === 'lrate'">
-          <p class="black">{{ record.lrate || 0 }}%</p>
+          <p class="black bold">{{tool.formatMoney(record.lrate)}}</p>
         </template>
         <template v-if="column.key === 'amount'">
           <p class="bold black" @click.stop="showEditAmountLog(record)">

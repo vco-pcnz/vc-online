@@ -10,7 +10,7 @@
           <div class="info-content">
             <p>{{ t('总计金额') }}</p>
             <vco-number class="num" :value="statisticsData?.amount" :precision="2" :end="true"></vco-number>
-            <div><vco-number class="num" :value="statisticsData?.boc_amount" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
+            <div><vco-number class="num" :value="statisticsData?.amount_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
           </div>
         </div>
         <div class="item">
@@ -23,7 +23,7 @@
           <div class="info-content">
             <p>{{ t('可用余额1') }}</p>
             <vco-number class="num" :value="statisticsData?.available_amount" :precision="2" :end="true"></vco-number>
-            <div><vco-number class="num" :value="statisticsData?.boc_amount" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
+            <div><vco-number class="num" :value="statisticsData?.available_amount_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
           </div>
         </div>
         <div class="item">
@@ -31,7 +31,7 @@
           <div class="info-content">
             <p>{{ t('已使用') }}</p>
             <vco-number class="num" :value="statisticsData?.use_amount" :precision="2" :end="true"></vco-number>
-            <div><vco-number class="num" :value="statisticsData?.boc_amount" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
+            <div><vco-number class="num" :value="statisticsData?.use_amount_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
           </div>
         </div>
         <div class="chart-content">
@@ -41,13 +41,13 @@
       <a-row :gutter="16" class="income">
         <a-col :span="6">
           <p class="color_grey fs_xs">Interest</p>
-          <p class="value"><vco-number class="num" :value="statisticsData?.Interest" :precision="2" :end="true"></vco-number></p>
-          <div class="flex items-center"><vco-number class="num" :value="statisticsData?.boc_amount" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
+          <p class="value"><vco-number class="num" :value="statisticsData?.rate" :precision="2" :end="true"></vco-number></p>
+          <div class="flex items-center"><vco-number class="num" :value="statisticsData?.rate_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
         </a-col>
         <a-col :span="6">
           <p class="color_grey fs_xs">{{t('建立费')}}</p>
-          <p class="value"><vco-number class="num" :value="statisticsData?.Upfront" :precision="2" :end="true"></vco-number></p>
-          <div class="flex items-center"><vco-number class="num" :value="statisticsData?.boc_amount" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
+          <p class="value"><vco-number class="num" :value="statisticsData?.frate" :precision="2" :end="true"></vco-number></p>
+          <div class="flex items-center"><vco-number class="num" :value="statisticsData?.frate_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
         </a-col>
       </a-row>
     </div>

@@ -41,7 +41,7 @@
           <p class="black bold">{{ tool.formatMoney(record.use_amount) }}</p>
         </template>
         <template v-if="column.key === 'rate'">
-          <p class="black">{{ record.rate || 0 }}%</p>
+          <p class="black bold">{{tool.formatMoney(record.rate)}}</p>
         </template>
         <template v-if="column.key === 'frate'">
           <p class="black">{{ record.frate || 0 }}%</p>

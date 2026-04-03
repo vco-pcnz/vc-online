@@ -4,9 +4,10 @@
     <FormModal ref="FormModalRef" @update="getTableData" v-if="hasPermission('Investment:add') && !isVslProduct">
       <a-button type="cyan" shape="round" class="mb-5">{{ t('创建投资') }}</a-button>
     </FormModal>
-    <FormModalVsl ref="FormModalVslRef" @update="getTableData" v-if="hasPermission('Investment:add') && isVslProduct">
+    <FormModalVsl ref="FormModalVslRef" @update="getTableData" v-if="hasPermission('Investment:add') && isVslProduct && !tableData.length">
       <a-button type="cyan" shape="round" class="mb-5">{{ t('创建投资') }}</a-button>
     </FormModalVsl> 
+    <a-button type="cyan" shape="round" class="mb-5" v-if="hasPermission('Investment:add') && isVslProduct && tableData.length" @click="updateData()">{{ t('更新') }}</a-button>
   </div>
 
   <a-spin :spinning="tableLoading" size="large">
@@ -33,6 +34,8 @@ import TableBlockVsl from './components/TableBlockVsl.vue';
 import { investList } from '@/api/invest/index';
 import { hasPermission } from '@/directives/permission/index';
 import useProductStore from '@/store/modules/product';
+import { investEdit } from '@/api/invest/index';
+import { message } from 'ant-design-vue/es';
 
 const { t } = useI18n();
 
@@ -72,5 +75,12 @@ const showEdit = (val) => {
   } else {
     FormModalRef.value.init(val);
   }
+}
+
+const updateData = () => {
+  investEdit({ product_uuid: productStore.currentProduct,logo: tableData.value[0].logo,id: tableData.value[0].id }).then((res) => {
+    message.success(t('更新成功'));
+    getTableData(true);
+  });
 }
 </script>

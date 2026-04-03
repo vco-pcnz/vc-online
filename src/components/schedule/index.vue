@@ -434,6 +434,10 @@ const props = defineProps({
   closeDate: {
     type: String,
     default: ''
+  },
+  lender: {
+    type: String,
+    default: ''
   }
 });
 
@@ -471,7 +475,7 @@ const getDataInfo = (isLate = false) => {
 
   const params = {
     uuid: props.currentId,
-    lender: type_id.value,
+    lender: props.lender || type_id.value,
     limit: 5000
   };
 
@@ -551,7 +555,7 @@ const getDataInfo = (isLate = false) => {
 
   const staticParams = {
     uuid: props.currentId,
-    lender: type_id.value
+    lender: props.lender || type_id.value
   };
 
   let staticAjaxFn = props.isDetails ? projectDetailStatistics : projectForecastStatistics;
@@ -610,7 +614,7 @@ const adSubmitRequest = () => {
   const params = {
     uuid: props.currentId,
     pdf: props.isClose ? 3 : 2,
-    lender: type_id.value
+    lender: props.lender || type_id.value
   };
   // if (!props.isClose) {
   params.s_date = adFormState.s_date ? dayjs(adFormState.s_date).format('YYYY-MM-DD') : '';
@@ -666,7 +670,7 @@ const downLoadExcel = (type) => {
   const ajaxFn = props.itemId ? projectVariationExportExcel : projectForecastExportExcel;
   const params = {
     type,
-    lender: type_id.value,
+    lender: props.lender || type_id.value,
     uuid: props.currentId
   };
   if (props.itemId) {
@@ -696,7 +700,7 @@ const budgetExport = () => {
   downloading.value = true;
   projectForecastExportExcelEst({
     uuid: props.currentId,
-    lender: type_id.value
+    lender: props.lender || type_id.value
   })
     .then((res) => {
       downloading.value = false;

@@ -1,10 +1,10 @@
 <template>
-  <Satistics v-if="!isVslProduct" :invest_id="invest_id" :product_uuid="product_uuid"></Satistics>
-  <SatisticsVsl v-else :invest_id="invest_id" :product_uuid="product_uuid"></SatisticsVsl>
-  <div v-if="!isVslProduct" class="my-12">
+  <Satistics v-if="!isVslProduct && invest_id" :invest_id="invest_id" :product_uuid="product_uuid"></Satistics>
+  <SatisticsVsl v-else-if="isVslProduct && invest_id" :invest_id="invest_id" :product_uuid="product_uuid"></SatisticsVsl>
+  <div v-if="!isVslProduct && invest_id" class="my-12">
     <AmountLog :invest_id="invest_id" :product_uuid="product_uuid"></AmountLog>
   </div>
-  <div class="my-12">
+  <div v-if="invest_id" class="my-12">
     <ProjectDashboard :invest_id="invest_id" :product_uuid="product_uuid"></ProjectDashboard>
   </div>
   <CashflowForecast v-if="invest_id" :invest_id="invest_id" :product_uuid="product_uuid" :isNav="false"></CashflowForecast>

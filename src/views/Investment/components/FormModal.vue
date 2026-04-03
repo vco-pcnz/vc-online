@@ -126,9 +126,8 @@ const save = () => {
 const init = (val) => {
   validate.value = false;
   if (val) {
-    formState.value = {
-      ...val
-    };
+    const { uuid, ...rest } = val;
+    formState.value = rest;    
   } else {
     formState.value = {
       logo: '',

@@ -97,7 +97,7 @@ const loadData = (val) => {
   loading.value = true;
   let params = searchForm.value;
   if (val) params = { ...searchForm.value, ...val };
-  barSta({ id: props.invest_id, ...params })
+  barSta({ uuid: props.invest_id, ...params })
     .then((res) => {
       option.value.xAxis.data = res.time.map((item) => {
         if (item.length == '7') {

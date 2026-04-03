@@ -5,12 +5,12 @@
     <vco-page-tab :tabData="tabData" v-model:current="pageStore.sta" @change="tabChange"></vco-page-tab>
 
     <div v-if="!isVslProduct" class="flex justify-end flex-1">
-      <vco-popconfirm v-if="hasPermission('Investment:unbindProject')" :formParams="{ id: invest_id, uuids: selectKeys }" url="invest/unbindProject" :disabled="!selectKeys.length" :tip="t('确定取消绑定选中的项目吗？')" @update="update()">
+      <vco-popconfirm v-if="hasPermission('Investment:unbindProject')" :formParams="{ uuid: invest_id, uuids: selectKeys }" url="invest/unbindProject" :disabled="!selectKeys.length" :tip="t('确定取消绑定选中的项目吗？')" @update="update()">
         <a-button type="cyan" :disabled="!selectKeys.length" class="mr-3" shape="round">{{ t('取消绑定项目') }}</a-button>
       </vco-popconfirm>
 
       <a-button v-if="hasPermission('Investment:bindObject')" type="cyan" shape="round" @click="setOpenProjects(true)">{{ t('绑定项目') }}</a-button>
-      <vco-import v-if="hasPermission('Investment:bindObject')" type="project" accept=".xls, .xlsx, .csv" :params="{ id: invest_id }" imporUrl="/invest/bindProjectImport" @change="handleImportChange" @update:loading="handleImportLoading">
+      <vco-import v-if="hasPermission('Investment:bindObject')" type="project" accept=".xls, .xlsx, .csv" :params="{ uuid: invest_id }" imporUrl="/invest/bindProjectImport" @change="handleImportChange" @update:loading="handleImportLoading">
         <a-button type="cyan" shape="round" class="ml-3" :loading="uploadLoading">{{ t('批量绑定项目') }}</a-button>
       </vco-import>
     </div>
@@ -115,7 +115,7 @@ const handleBindLoneChange = () => {
 
 const bindData = ref([]);
 const loadInvestBindData = () => {
-  investBindData({ id: invest_id.value, type: 1 }).then((res) => {
+  investBindData({ uuid: invest_id.value, type: 1 }).then((res) => {
     bindData.value = res.projects;
   });
 };

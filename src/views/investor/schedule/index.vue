@@ -92,7 +92,7 @@
             <FormModal v-if="hasPermission('Investment:schedule:addLog')" :invest_id="invest_id" :use_date="statisticsData?.use_date" @update="getDataInfo">
               <a-button type="cyan" shape="round">{{ t('添加记录') }}</a-button>
             </FormModal>
-            <vco-import v-if="hasPermission('Investment:schedule:import')" type="file" :params="{ id: invest_id }" imporUrl="/invest/schedule/import" @change="getDataInfo">
+            <vco-import v-if="hasPermission('Investment:schedule:import')" type="file" :params="{ uuid: invest_id }" imporUrl="/invest/schedule/import" @change="getDataInfo">
               <a-button type="cyan" shape="round" class="ml-5">{{ t('导入') }}</a-button>
             </vco-import>
           </div>

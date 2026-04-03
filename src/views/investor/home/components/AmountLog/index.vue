@@ -8,7 +8,7 @@
         timepicker="month"
         :searchConfig="searchConfig"
         :open_hidden="true"
-        :downloadParams="{ id: invest_id }"
+        :downloadParams="{ uuid: invest_id }"
         :showPresets="false"
         downloadUrl="invest/barExport"
         @change="loadData"

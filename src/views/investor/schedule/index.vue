@@ -354,7 +354,7 @@ onMounted(() => {
   } else {
     userProject().then((res) => {
       if (res && res.length) {
-        invest_id.value = res[0].id;
+        invest_id.value = res[0].uuid;
         getDataInfo();
       }
     });

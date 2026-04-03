@@ -4,7 +4,7 @@
   <div class="flex justify-between items-center">
     <vco-page-tab :tabData="tabData" v-model:current="pageStore.sta" @change="tabChange"></vco-page-tab>
 
-    <div class="flex justify-end flex-1">
+    <div v-if="!isVslProduct" class="flex justify-end flex-1">
       <vco-popconfirm v-if="hasPermission('Investment:unbindProject')" :formParams="{ id: invest_id, uuids: selectKeys }" url="invest/unbindProject" :disabled="!selectKeys.length" :tip="t('确定取消绑定选中的项目吗？')" @update="update()">
         <a-button type="cyan" :disabled="!selectKeys.length" class="mr-3" shape="round">{{ t('取消绑定项目') }}</a-button>
       </vco-popconfirm>
@@ -51,6 +51,11 @@ import { hasPermission } from '@/directives/permission/index';
 import { message } from 'ant-design-vue';
 import useProductStore from '@/store/modules/product';
 const productStore = useProductStore();
+
+const isVslProduct = computed(() => {
+  const p = productStore.productData.find((item) => item.uuid === productStore.currentProduct);
+  return String(p?.code || '').toLowerCase() === 'vsl';
+});
 
 const route = useRoute();
 

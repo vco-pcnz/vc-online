@@ -122,6 +122,11 @@ watch(
         z-index: 2;
         background: #f7f9f8;
       }
+      span {
+        word-break: break-word;
+        overflow-wrap: break-word;
+        white-space: normal;
+      }
     }
     .date {
       color: hsla(0, 0%, 9%, 0.3);

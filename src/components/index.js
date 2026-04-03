@@ -38,6 +38,7 @@ import VcoImport from './vco-import/index.vue';
 import VcoExcessProcess from './vco-excess-process/index.vue';
 import VcoProductTab from './vco-product-tab/index.vue';
 import VcoTemplateStep from './vco-template-step/index.vue';
+import VslScheduleTab from './vsl-schedule-tab/index.vue';
 
 export default {
   install(Vue) {
@@ -81,5 +82,6 @@ export default {
     Vue.component('VcoExcessProcess', VcoExcessProcess);
     Vue.component('VcoProductTab', VcoProductTab);
     Vue.component('VcoTemplateStep', VcoTemplateStep);
+    Vue.component('VslScheduleTab', VslScheduleTab);
   }
 };

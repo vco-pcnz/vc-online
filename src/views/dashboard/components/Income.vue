@@ -36,6 +36,10 @@ const props = defineProps({
   showArrow: {
     type: Boolean,
     default: false
+  },
+  lender: {
+    type: String,
+    default: ''
   }
 });
 
@@ -103,7 +107,7 @@ const option = ref({
 
 const loadData = (val) => {
   if (!productStore.currentProduct) return;
-  const params = { ...searchForm.value, ...(val || {}), product_uuid: productStore.currentProduct };
+  const params = { ...searchForm.value, ...(val || {}), product_uuid: productStore.currentProduct, lender: props.lender };
   searchForm.value = { ...params };
   loading.value = true;
   profitSta(params)
@@ -154,6 +158,13 @@ watch(
     }
   },
   { immediate: true }
+);
+
+watch(
+  () => props.lender,
+  (val) => {
+    loadData();
+  }
 );
 </script>
 

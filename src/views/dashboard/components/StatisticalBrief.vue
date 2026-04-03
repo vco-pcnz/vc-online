@@ -86,7 +86,12 @@ import tool from '@/utils/tool';
 
 const { t } = useI18n();
 const productStore = useProductStore();
-
+const props = defineProps({
+  lender: {
+    type: String,
+    default: ''
+  }
+});
 const searchConfig = ref(['Time', 'LM', 'State']);
 const searchForm = ref({
   start_date: dayjs().add(-7, 'd').format('YYYY-MM-DD'),
@@ -98,7 +103,7 @@ const data = ref(null);
 const loading = ref(false);
 const loadData = (val) => {
   if (!productStore.currentProduct) return;
-  let params = { ...searchForm.value, product_uuid: productStore.currentProduct };
+  let params = { ...searchForm.value, product_uuid: productStore.currentProduct, lender: props.lender };
   if (val) params = { ...params, ...val };
   searchForm.value = { ...params };
   loading.value = true;
@@ -119,6 +124,13 @@ watch(
     }
   },
   { immediate: true }
+);
+
+watch(
+  () => props.lender,
+  (val) => {
+    loadData();
+  }
 );
 </script>
 <style lang="less" scoped>

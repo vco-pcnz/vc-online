@@ -1,6 +1,7 @@
 <template>
-  <Satistics :invest_id="invest_id"></Satistics>
-  <div class="my-12">
+  <Satistics v-if="!isVslProduct" :invest_id="invest_id"></Satistics>
+  <SatisticsVsl v-else :invest_id="invest_id"></SatisticsVsl>
+  <div v-if="!isVslProduct" class="my-12">
     <AmountLog :invest_id="invest_id"></AmountLog>
   </div>
   <div class="my-12">
@@ -10,16 +11,25 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { hasPermission } from '@/directives/permission/index';
 import Satistics from './components/Satistics/index.vue';
+import SatisticsVsl from './components/SatisticsVsl/index.vue';
 import AmountLog from './components/AmountLog/index.vue';
 import ProjectDashboard from './components/ProjectDashboard/index.vue';
 import CashflowForecast from './components/CashflowForecast/index.vue';
 import { userProject } from '@/api/invest';
 import { useRoute } from 'vue-router';
+import useProductStore from '@/store/modules/product';
+
 const { t } = useI18n();
+
+const productStore = useProductStore();
+const isVslProduct = computed(() => {
+  const p = productStore.productData.find((item) => item.uuid === productStore.currentProduct);
+  return String(p?.code || '').toLowerCase() === 'vsl';
+});
 
 const invest_id = ref('');
 const route = useRoute();

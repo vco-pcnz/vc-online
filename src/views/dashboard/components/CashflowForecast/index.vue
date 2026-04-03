@@ -122,6 +122,10 @@ const props = defineProps({
   isNav: {
     type: Boolean,
     default: true
+  },
+  lender: {
+    type: String,
+    default: ''
   }
 });
 
@@ -215,7 +219,7 @@ const loadData = (val) => {
   loading.value = true;
   // if (toDay.value !== searchForm.value.date) searchForm.apply_project_id = '';
 
-  const nextSearch = { ...searchForm.value, ...(val || {}), product_uuid: productStore.currentProduct };
+  const nextSearch = { ...searchForm.value, ...(val || {}), product_uuid: productStore.currentProduct, lender: props.lender };
   searchForm.value = nextSearch;
   cashFlowForecast(nextSearch)
     .then((res) => {
@@ -432,6 +436,12 @@ watch(
     }
   },
   { immediate: true }
+);
+watch(
+  () => props.lender,
+  (val) => {
+    loadData();
+  }
 );
 </script>
 

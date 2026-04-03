@@ -65,8 +65,10 @@ import { useI18n } from 'vue-i18n';
 import { selectDateFormat } from '@/utils/tool';
 import { message } from 'ant-design-vue/es';
 import { investEdit } from '@/api/invest/index';
+import useProductStore from '@/store/modules/product';
 
 const { t } = useI18n();
+const productStore = useProductStore();
 const emits = defineEmits(['update']);
 
 const props = defineProps({
@@ -110,7 +112,8 @@ const save = () => {
   }
   loading.value = true;
   let params = {
-    ...formState.value
+    ...formState.value,
+    product_uuid: productStore.currentProduct
   };
   investEdit(params)
     .then((res) => {

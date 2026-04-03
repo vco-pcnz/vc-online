@@ -79,7 +79,7 @@ const showEdit = (val) => {
 
 const updateData = () => {
   investEdit({ product_uuid: productStore.currentProduct,logo: tableData.value[0].logo,id: tableData.value[0].id }).then((res) => {
-    message.success(t('更新成功'));
+    message.success(t('操作成功'));
     getTableData(true);
   });
 }

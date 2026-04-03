@@ -65,7 +65,12 @@ const searchHandle = (data = {}) => {
 };
 
 const FormModalRef = ref();
+const FormModalVslRef = ref();
 const showEdit = (val) => {
-  FormModalRef.value.init(val)
+  if (isVslProduct.value) {
+    FormModalVslRef.value.init(val);
+  } else {
+    FormModalRef.value.init(val);
+  }
 }
 </script>

@@ -200,7 +200,10 @@ import TableSearch from './components/TableSearch.vue';
 import { scheduleList, scheduleStatistics, scheduleExportExcel, userProject } from '@/api/invest/index';
 import { useRoute } from 'vue-router';
 import { hasPermission } from '@/directives/permission/index';
+import useProductStore from '@/store/modules/product';
+
 const route = useRoute();
+const productStore = useProductStore();
 
 const props = defineProps({
   isDetail: {
@@ -347,19 +350,35 @@ const searchHandle = (data = {}) => {
   getDataInfo(params);
 };
 
-onMounted(() => {
+const resolveInvestId = () => {
   if (route.query.uuid) {
     invest_id.value = route.query.uuid;
     getDataInfo();
-  } else {
-    userProject().then((res) => {
-      if (res && res.length) {
-        invest_id.value = res[0].uuid;
-        getDataInfo();
-      }
-    });
+    return;
   }
+  const params = productStore.currentProduct ? { product_uuid: productStore.currentProduct } : {};
+  userProject(params).then((res) => {
+    if (res && res.length) {
+      const current = productStore.currentProduct;
+      const matched = current ? res.find((item) => item.product_uuid === current) : null;
+      invest_id.value = matched?.uuid ?? '';
+    } else {
+      invest_id.value = '';
+    }
+    getDataInfo();
+  });
+};
+
+onMounted(() => {
+  resolveInvestId();
 });
+
+watch(
+  () => route.query.uuid,
+  () => {
+    resolveInvestId();
+  }
+);
 </script>
 
 <style lang="less" scoped>

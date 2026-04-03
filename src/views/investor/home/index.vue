@@ -44,7 +44,11 @@ const resolveInvestId = () => {
   const params = productStore.currentProduct ? { product_uuid: productStore.currentProduct } : {};
   userProject(params).then((res) => {
     if (res && res.length) {
-      invest_id.value = res[0].uuid;
+      const current = productStore.currentProduct;
+      const matched = current
+        ? res.find((item) => item.product_uuid === current)
+        : null;
+      invest_id.value = matched?.uuid ?? '';
     } else {
       invest_id.value = '';
     }

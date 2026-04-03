@@ -373,12 +373,6 @@ onMounted(() => {
   resolveInvestId();
 });
 
-watch(
-  () => route.query.uuid,
-  () => {
-    resolveInvestId();
-  }
-);
 </script>
 
 <style lang="less" scoped>

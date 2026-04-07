@@ -241,6 +241,7 @@ const showEdit = (val) => {
 
 const editAmountLogRef = ref();
 const showEditAmountLog = (val) => {
+  return
   editAmountLogRef.value.init(val);
 };
 

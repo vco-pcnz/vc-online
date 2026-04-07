@@ -66,12 +66,12 @@ watch(
   }
 );
 
-watch(
-  () => route.query.uuid,
-  () => {
-    resolveInvestId();
-  }
-);
+// watch(
+//   () => route.query.uuid,
+//   () => {
+//     resolveInvestId();
+//   }
+// );
 </script>
 
 <style scoped lang="less">

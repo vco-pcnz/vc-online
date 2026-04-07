@@ -3,6 +3,15 @@
   <EditAmountLog ref="editAmountLogRef" @update="update"></EditAmountLog>
   <EditAmount ref="editAmountgRef" :data="pData" @update="update"></EditAmount>
 
+  <a-modal :open="userDetailVisible" :title="t('用户')" :width="480" :footer="null" @cancel="userDetailVisible = false">
+    <div class="user-detail-body">
+      <a-space v-for="u in userDetailList" :key="u.uuid" align="center" class="user-detail-row">
+        <vco-avatar :src="u.avatar" :radius="true" :round="true" :size="32" />
+        <span>{{ u.user_name }}</span>
+      </a-space>
+    </div>
+  </a-modal>
+
   <div class="sys-table-content">
     <a-table :columns="columns" :data-source="tableData" :pagination="false" :scroll="{ x: '1500px' }" row-key="uuid" :row-selection="{ selectedRowKeys: selectedRowKeys, ...rowSelection }" :customRow="rowClick">
       <template #bodyCell="{ column, record }">
@@ -15,15 +24,30 @@
           </a-space>
         </template>
         <template v-if="column.key === 'user'">
-          <a-space>
-            <a-avatar-group>
-              <vco-avatar :src="lm.avatar" :radius="true" :round="true" :size="22" v-for="lm in record.user" :key="lm.uuid" />
-            </a-avatar-group>
+          <a-space align="center">
+            <a-space align="center" :size="4">
+              <a-avatar-group>
+                <vco-avatar
+                  :src="lm.avatar"
+                  :radius="true"
+                  :round="true"
+                  :size="22"
+                  v-for="lm in getVisibleUsers(record.user)"
+                  :key="lm.uuid"
+                />
+              </a-avatar-group>
+              <span v-if="record.user?.length > 2" class="user-ellipsis-mark">…</span>
+            </a-space>
             <div class="replenish_text">
-              <template v-if="record.user.length">
-                <template v-for="borrower in record.user" :key="borrower.uuid">
+              <template v-if="record.user?.length">
+                <template v-for="borrower in getVisibleUsers(record.user)" :key="borrower.uuid">
                   <span> {{ borrower.user_name }} </span>
                   <br />
+                </template>
+                <template v-if="record.user.length > 2">
+                  <a type="link" class="user-detail-trigger" @click.stop="openUserDetail(record)">
+                    {{ t('查看详情') }}
+                  </a>
                 </template>
               </template>
               <template v-else>
@@ -118,7 +142,7 @@ const columns = reactive([
   { title: t('总计金额'), key: 'amount', width: 160 },
   { title: t('可用余额1'), key: 'available', width: 140 },
   { title: t('已使用'), key: 'used', width: 140 },
-  { title: t('用户'), key: 'user' },
+  { title: t('用户'), key: 'user', width: 160 },
   { title: t('利息'), key: 'rate', width: 120 },
   { title: t('建立费'), key: 'frate', width: 150 },
   { title: t('当前余额'), key: 'lrate', width: 150 },
@@ -230,6 +254,19 @@ const showEditAmount = (val) => {
 const update = (id) => {
   emits('update');
 };
+
+const getVisibleUsers = (users) => {
+  if (!users?.length) return [];
+  return users.length > 2 ? users.slice(0, 2) : users;
+};
+
+const userDetailVisible = ref(false);
+const userDetailList = ref([]);
+
+const openUserDetail = (record) => {
+  userDetailList.value = record.user || [];
+  userDetailVisible.value = true;
+};
 </script>
 
 <style lang="less" scoped>
@@ -246,6 +283,32 @@ const update = (id) => {
   }
   .replenish_text {
     font-size: 12px;
+  }
+  .user-ellipsis-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1;
+    color: rgba(0, 0, 0, 0.45);
+    user-select: none;
+  }
+  .user-ellipsis-mark--text {
+    min-width: auto;
+    height: auto;
+    margin-bottom: 2px;
+    font-size: 16px;
+    line-height: 1.2;
+  }
+  .user-detail-trigger {
+    font-size: 12px;
+    padding: 0;
+    height: auto;
+    line-height: 1.4;
+    color: @colorPrimary;
   }
   .bold {
     font-size: 14px;
@@ -270,6 +333,19 @@ const update = (id) => {
     min-width: 40px;
     width: 40px;
   }
+}
+
+.user-detail-body {
+  max-height: 420px;
+  overflow-y: auto;
+}
+.user-detail-row {
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  width: 100%;
+}
+.user-detail-row:last-child {
+  border-bottom: none;
 }
 
 // :deep(.P2502109935) {

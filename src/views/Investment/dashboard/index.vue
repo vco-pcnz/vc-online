@@ -3,7 +3,7 @@
   <Home :isDetail="true"></Home>
 </template>
 
-<script setup name="Projects">
+<script setup>
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import DetailLayout from '../components/detailLayout.vue';

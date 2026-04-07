@@ -104,6 +104,10 @@ const props = defineProps({
   },
   check_uuids: {
     type: Array
+  },
+  isImmediate: {
+    type: Boolean,
+    default: true
   }
 });
 const urlValue = ref('');
@@ -235,7 +239,10 @@ const init = (parameters) => {
     searchForm.value = cloneDeep(parameters);
   }
   open.value = true;
-  searchHandle();
+
+  if (props.isImmediate) {
+    searchHandle();
+  }
 };
 // 暴露方法给父组件
 defineExpose({

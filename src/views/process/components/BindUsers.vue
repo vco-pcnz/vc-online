@@ -3,9 +3,11 @@
     <bind-users-dialog
       v-model:visible="showDialog"
       :current-id="currentId"
+      :about="about"
       :type="currentType"
       :data="currentData"
       :vc-team="vcTeamData"
+      :is-borrower-owner="isBorrowerOwner"
       @done="getConfigInfo(true)"
     ></bind-users-dialog>
 
@@ -67,7 +69,7 @@
           <div class="title-content">
             <p class="uppercase">{{ t('借款账号信息') }}</p>
             <a-button
-              v-if="!isClose && !isDetails && ((hasPermission('requests:loan:bind:user') && !about) || (hasPermission('projects:about:bind:user') && about))"
+              v-if="!isClose && !isDetails && ((hasPermission('requests:loan:bind:user') && !about) || ((hasPermission('projects:about:bind:user') || isBorrowerOwner) && about))"
               type="primary"
               size="small"
               shape="round"
@@ -111,6 +113,7 @@
   import { associateSystemConfig, associateUserList, associateAssignUser, associateAssignTeam } from "@/api/process"
   import { hasPermission } from "@/directives/permission"
   import emitter from "@/event"
+  import { useUserStore } from '@/store';
 
   const props = defineProps({
     currentId: {
@@ -146,6 +149,8 @@
 
   const { t } = useI18n();
 
+  const userStore = useUserStore();
+  const userInfo = computed(() => userStore.userInfo);
   const showDialog = ref(false)
   const currentData = ref([])
   const currentType = ref(1)
@@ -166,6 +171,11 @@
     }
 
     return t(title)
+  })
+
+  const isBorrowerOwner = computed(() => {
+    const arr = borrowerData.value?.company?.map(item => item.uuid) || []
+    return arr.includes(userInfo.value.uuid)
   })
 
   const editHandle = (type) => {
@@ -230,13 +240,13 @@
       await associateUserList({
         uuid: props.currentId
       }).then(res => {
-        res.user = {
+        res.userData = {
           company: res.user?.company || [],
           edit: filterCompany((res.user?.company || []), (res.user?.edit || [])),
           view: filterCompany((res.user?.company || []), (res.user?.view || []))
         }
 
-        res.broker = {
+        res.brokerData = {
           company: res.broker?.company || [],
           edit: filterCompany((res.broker?.company || []), (res.broker?.edit || [])),
           view: filterCompany((res.broker?.company || []), (res.broker?.view || []))
@@ -254,10 +264,10 @@
         vcData.value = vcObj && Object.keys(vcObj).length ? vcObj : null
         vcDataCom.value = userFlatFn(vcData.value)
 
-        borrowerData.value = res.user
+        borrowerData.value = res.userData
         borrowerDataCom.value = userFlatFn(borrowerData.value)
 
-        brokerData.value = res.broker
+        brokerData.value = res.brokerData
         brokerDataCom.value = userFlatFn(brokerData.value)
 
         configLoading.value = false

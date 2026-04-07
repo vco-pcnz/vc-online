@@ -1,5 +1,5 @@
 <template>
-  <vco-choose-user ref="vcoChooseUserRef" :check_uuids="bindUserForm.uuids" :isMultiple="true" @change="checkUser"><div></div> </vco-choose-user>
+  <vco-choose-user ref="vcoChooseUserRef" roleCode="investor" :check_uuids="bindUserForm.uuids" :isMultiple="true" @change="checkUser"><div></div> </vco-choose-user>
   <EditAmountLog ref="editAmountLogRef" @update="update"></EditAmountLog>
   <EditAmount ref="editAmountgRef" :data="pData" @update="update"></EditAmount>
 

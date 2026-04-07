@@ -4,9 +4,8 @@
     <FormModal ref="FormModalRef" @update="getTableData" v-if="hasPermission('Investment:add') && !isVslProduct">
       <a-button type="cyan" shape="round" class="mb-5">{{ t('创建投资') }}</a-button>
     </FormModal>
-    <FormModalVsl ref="FormModalVslRef" @update="getTableData" v-if="hasPermission('Investment:add') && isVslProduct && !tableData.length">
-      <a-button type="cyan" shape="round" class="mb-5">{{ t('创建投资') }}</a-button>
-    </FormModalVsl> 
+    <a-button type="cyan" shape="round" class="mb-5" @click="showEdit(null)" v-if="hasPermission('Investment:add') && isVslProduct && !tableData.length">{{ t('创建投资') }}</a-button>
+    <FormModalVsl ref="FormModalVslRef" @update="getTableData"></FormModalVsl> 
     <a-button type="cyan" shape="round" class="mb-5" v-if="hasPermission('Investment:add') && isVslProduct && tableData.length" @click="updateData()">{{ t('更新') }}</a-button>
   </div>
 

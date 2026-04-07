@@ -1,11 +1,11 @@
 <template>
+  <FormModalVsl ref="FormModalVslRef" @update="getTableData"></FormModalVsl> 
   <div class="flex justify-between items-end" style="margin-top: -30px">
     <TableSearch class="mb-5" ref="tableSearchRef" @search="searchHandle"></TableSearch>
     <FormModal ref="FormModalRef" @update="getTableData" v-if="hasPermission('Investment:add') && !isVslProduct">
       <a-button type="cyan" shape="round" class="mb-5">{{ t('创建投资') }}</a-button>
     </FormModal>
     <a-button type="cyan" shape="round" class="mb-5" @click="showEdit(null)" v-if="hasPermission('Investment:add') && isVslProduct && !tableData.length">{{ t('创建投资') }}</a-button>
-    <FormModalVsl ref="FormModalVslRef" @update="getTableData"></FormModalVsl> 
     <a-button type="cyan" shape="round" class="mb-5" v-if="hasPermission('Investment:add') && isVslProduct && tableData.length" @click="updateData()">{{ t('更新') }}</a-button>
   </div>
 

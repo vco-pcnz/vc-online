@@ -286,7 +286,7 @@
               </div>
             </div>
             <div class="flex-1 flex gap-4 justify-end pr-2">
-              <div class="sec-item mr-5">
+              <div class="sec-item mr-5" v-if="showIrr">
                 <p class="item-title">{{ t('总内部收益率') }}</p>
                 <div class="flex justify-end items-center gap-1">
                   <i class="iconfont" style="color: #b8cdcc">&#xe761;</i>
@@ -438,6 +438,10 @@ const props = defineProps({
   lender: {
     type: String,
     default: ''
+  },
+  isInvestor: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -462,6 +466,13 @@ const isVariation = computed(() => {
 
 const isLendr = computed(() => {
   return props.currentProduct.toLowerCase() === 'lendr';
+});
+
+const showIrr = computed(() => {
+  if (props.isInvestor && ['vsl'].includes(props.currentProduct)) {
+    return false
+  }
+  return true;
 });
 
 const pageLoading = ref(false);

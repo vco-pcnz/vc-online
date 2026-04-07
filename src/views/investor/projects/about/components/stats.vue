@@ -83,14 +83,14 @@
             security items <i class="iconfont fs_2xs ml-3">&#xe794;</i>
           </a-button> -->
         </a-col>
-        <a-col :span="24" class="my-4">
+        <a-col v-if="String(detail?.product?.code || '').toLowerCase() !== 'vsl'" :span="24" class="mt-4">
           <div :class="{ 'color_red-error': Math.abs(data?.right?.irr) < Math.abs(data?.right?.irrPreset) }">
             <p class="color_grey fs_xs">IRR</p>
             <p class="fs_xl bold">{{ data?.right?.irr }}%</p>
             <p class="fs_xs">Benchmark {{ data?.right?.irrPreset }}%</p>
           </div>
         </a-col>
-        <a-col :span="10">
+        <a-col :span="10" class="mt-4">
           <div :class="{ 'color_red-error': Math.abs(data?.right?.ltc) > Math.abs(data?.right?.baseline) }">
             <div class="color_grey fs_xs flex items-center gap-2">
               LTC
@@ -109,7 +109,7 @@
             <p class="fs_xl bold">{{ data?.right?.ltc }}%</p>
           </div>
         </a-col>
-        <a-col :span="14" class="text-right cursor-pointer">
+        <a-col :span="14" class="text-right cursor-pointer mt-4">
 
           <DevCostDetail :dataJson="detail?.base?.devCostDetail" :disabledGST="true" :disabledLoan="true" :disabledModel="true" :edit="false" @change="editSaveDevCost">
             <div class="color_grey fs_xs">Total Development Cost</div>

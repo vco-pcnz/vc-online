@@ -11,7 +11,7 @@
         :ptRole="!!projectDetail?.base?.ptRole"
         :is-old="isOld"
         :is-reset="true"
-        lender="BOC"
+        :isInvestor="true"
       ></schedule>
     </template>
   </detail-layout>

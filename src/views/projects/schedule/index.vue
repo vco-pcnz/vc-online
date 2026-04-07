@@ -2,7 +2,7 @@
   <detail-layout active-tab="schedule" @getProjectDetail="getProjectDetail">
     <template #content>
       <schedule
-        v-if="project_id"
+        v-if="project_id && projectDetail"
         :isDetails="true"
         :current-product="currentProduct"
         :isClose="Boolean(projectDetail?.base?.is_close)"
@@ -32,7 +32,7 @@ const project_id = ref();
 const currentProduct = ref('');
 const isOld = ref(false);
 
-const projectDetail = ref();
+const projectDetail = ref(null);
 const getProjectDetail = (val) => {
   isOld.value = Boolean(val.base.old);
   currentProduct.value = val.product.code;

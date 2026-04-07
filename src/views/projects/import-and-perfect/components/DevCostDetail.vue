@@ -232,7 +232,7 @@
             <vco-number :value="data.borrower_equity" :precision="2" size="fs_xl" :bold="true" :end="true"></vco-number>
           </div>
           <div class="amount">
-            <vco-number :value="data.total" :precision="2" size="fs_xl" :bold="true" :end="true"></vco-number>
+            <vco-number :value="devTotal" :precision="2" size="fs_xl" :bold="true" :end="true"></vco-number>
           </div>
           <div class="total" v-if="edit"></div>
         </div>
@@ -299,6 +299,11 @@ const props = defineProps({
 });
 
 const visible = ref(false);
+
+const devTotal = computed(() => {
+  const sum = tool.plus(Number(data.value.total || 0), Number(refinancialAmount.value || 0))
+  return Number(sum)
+})
 
 const ConstructionColumns = reactive([
   { title: t('类型'), dataIndex: 'type', ellipsis: true },

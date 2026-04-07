@@ -389,7 +389,6 @@ const getTableData = () => {
   })
     .then((res) => {
       const data = res.data.list || {};
-      
       const dataArr = Object.keys(data)
         .sort((a, b) => dayjs(`${a}-01`).valueOf() - dayjs(`${b}-01`).valueOf())
         .map((key) => {
@@ -721,7 +720,8 @@ watch(
   () => remainInfo.value,
   (val) => {
     processStore.setBocRemainInfo(val)
-  }
+  },
+  {immediate: true}
 )
 
 const handleRefreshForecast = () => {

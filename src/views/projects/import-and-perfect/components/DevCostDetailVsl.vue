@@ -319,7 +319,7 @@ const FinanceColumns = reactive([
   { title: t('贷款'), dataIndex: 'loan', width: 180, ellipsis: true },
   { title: t('借款人权益'), dataIndex: 'borrower_equity', width: 180, ellipsis: true },
   { title: t('总计'), dataIndex: 'total', width: 180, ellipsis: true },
-  { title: t(''), dataIndex: 'operation', width: 110, align: 'center', ellipsis: true }
+  { title: '', dataIndex: 'operation', width: 110, align: 'center', ellipsis: true }
 ]);
 const data = ref({
   loan: 0,

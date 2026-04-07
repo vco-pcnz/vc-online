@@ -1,4 +1,5 @@
 <template>
+  <vsl-schedule-tab style="display: flex; justify-content: flex-end;" v-model:current="lender" />
   <div class="stats-content">
     <div class="box left">
       <div class="box-top">
@@ -162,7 +163,7 @@
 </template>
 
 <script setup>
-import { ref, computed, defineAsyncComponent } from 'vue';
+import { ref, computed, defineAsyncComponent, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { navigationTo } from '@/utils/tool';
 import { hasPermission } from '@/directives/permission/index';
@@ -234,6 +235,14 @@ const editSaveDevCost = (val) => {
     emits('update');
   });
 };
+
+const lender = ref('');   
+watch(
+  () => lender.value,
+  (val) => {
+    emits('update', { lender: val });
+  }
+);
 </script>
 
 <style scoped lang="less">

@@ -1,5 +1,5 @@
 <template>
-  <vco-choose-user ref="vcoChooseUserRef" :check_uuids="bindUserForm.uuids" roleCode="investor" :isMultiple="true" @change="checkUser"><div></div> </vco-choose-user>
+  <vco-choose-user ref="vcoChooseUserRef" roleCode="investor" :check_uuids="bindUserForm.uuids" :isMultiple="true" @change="checkUser"><div></div> </vco-choose-user>
   <EditAmountLog ref="editAmountLogRef" @update="update"></EditAmountLog>
   <EditAmount ref="editAmountgRef" :data="pData" @update="update"></EditAmount>
 
@@ -65,13 +65,13 @@
           <p class="black bold">{{ tool.formatMoney(record.use_amount) }}</p>
         </template>
         <template v-if="column.key === 'rate'">
-          <p class="black">{{ record.rate || 0 }}%</p>
+          <p class="black bold">{{tool.formatMoney(record.rate_boc)}}</p>
         </template>
         <template v-if="column.key === 'frate'">
-          <p class="black">{{ record.frate || 0 }}%</p>
+          <p class="black bold">{{tool.formatMoney(record.frate_boc)}}</p>
         </template>
         <template v-if="column.key === 'lrate'">
-          <p class="black">{{ record.lrate || 0 }}%</p>
+          <p class="black bold">{{tool.formatMoney(record.lrate_boc)}}</p>
         </template>
         <template v-if="column.key === 'amount'">
           <p class="bold black" @click.stop="showEditAmountLog(record)">
@@ -94,9 +94,6 @@
                 <a-menu :selectable="false">
                   <a-menu-item key="0" @click="showEdit(record)" v-if="hasPermission('Investment:edit')">
                     {{ t('编辑') }}
-                  </a-menu-item>
-                  <a-menu-item key="4" @click="showEditAmount(record)" v-if="hasPermission('Investment:editAmount')">
-                    {{ t('编辑金额') }}
                   </a-menu-item>
                   <a-menu-item key="1" @click="showBindUser(record)" v-if="hasPermission('Investment:bindUser')">
                     {{ t('绑定用户') }}
@@ -146,10 +143,10 @@ const columns = reactive([
   { title: t('可用余额1'), key: 'available', width: 140 },
   { title: t('已使用'), key: 'used', width: 140 },
   { title: t('用户'), key: 'user', width: 160 },
-  { title: t('利率'), key: 'rate', width: 120 },
-  { title: t('浮动利率'), key: 'frate', width: 120 },
-  { title: t('Line Fee 费率'), key: 'lrate', width: 120 },
-  { title: t('创建时间'), key: 'create_time', width: 120 },
+  { title: t('利息'), key: 'rate', width: 120 },
+  { title: t('建立费'), key: 'frate', width: 150 },
+  { title: t('当前余额'), key: 'lrate', width: 150 },
+  { title: t('更新日期'), key: 'create_time', width: 120 },
   { title: t('操作'), fixed: 'right', key: 'operation', align: 'center', width: 80 }
 ]);
 
@@ -244,6 +241,7 @@ const showEdit = (val) => {
 
 const editAmountLogRef = ref();
 const showEditAmountLog = (val) => {
+  return
   editAmountLogRef.value.init(val);
 };
 

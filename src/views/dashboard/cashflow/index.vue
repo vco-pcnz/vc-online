@@ -1,6 +1,7 @@
 <template>
   <div>
-    <CashflowForecast></CashflowForecast>
+    <vsl-schedule-tab v-model:current="lender" />
+    <CashflowForecast :lender="lender"></CashflowForecast>
     <Cashflow></Cashflow>
   </div>
 </template>
@@ -9,6 +10,8 @@
 import { ref } from 'vue';
 import CashflowForecast from '../components/CashflowForecast/index.vue';
 import Cashflow from '../components/Cashflow.vue';
+
+const lender = ref('');
 </script>
 
 <style scoped lang="less">

@@ -286,7 +286,7 @@
               </div>
             </div>
             <div class="flex-1 flex gap-4 justify-end pr-2">
-              <div class="sec-item mr-5">
+              <div class="sec-item mr-5" v-if="showIrr">
                 <p class="item-title">{{ t('总内部收益率') }}</p>
                 <div class="flex justify-end items-center gap-1">
                   <i class="iconfont" style="color: #b8cdcc">&#xe761;</i>
@@ -434,6 +434,14 @@ const props = defineProps({
   closeDate: {
     type: String,
     default: ''
+  },
+  lender: {
+    type: String,
+    default: ''
+  },
+  isInvestor: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -460,6 +468,13 @@ const isLendr = computed(() => {
   return props.currentProduct.toLowerCase() === 'lendr';
 });
 
+const showIrr = computed(() => {
+  if (props.isInvestor && ['vsl'].includes(props.currentProduct)) {
+    return false
+  }
+  return true;
+});
+
 const pageLoading = ref(false);
 const tabData = ref([]);
 const currentMonth = dayjs();
@@ -471,7 +486,7 @@ const getDataInfo = (isLate = false) => {
 
   const params = {
     uuid: props.currentId,
-    lender: type_id.value,
+    lender: props.lender || type_id.value,
     limit: 5000
   };
 
@@ -551,7 +566,7 @@ const getDataInfo = (isLate = false) => {
 
   const staticParams = {
     uuid: props.currentId,
-    lender: type_id.value
+    lender: props.lender || type_id.value
   };
 
   let staticAjaxFn = props.isDetails ? projectDetailStatistics : projectForecastStatistics;
@@ -610,7 +625,7 @@ const adSubmitRequest = () => {
   const params = {
     uuid: props.currentId,
     pdf: props.isClose ? 3 : 2,
-    lender: type_id.value
+    lender: props.lender || type_id.value
   };
   // if (!props.isClose) {
   params.s_date = adFormState.s_date ? dayjs(adFormState.s_date).format('YYYY-MM-DD') : '';
@@ -655,7 +670,8 @@ const downLoadExcel = (type) => {
     // } else {
     adFormState.date = dayjs(new Date());
     if(props.isClose) {
-      adFormState.date = dayjs(props.closeDate);
+      const eTime = props.closeDate ? dayjs(props.closeDate) : ''
+      adFormState.date = eTime;
     }
     adFormState.s_date = '';
     adVisible.value = true;
@@ -665,7 +681,7 @@ const downLoadExcel = (type) => {
   const ajaxFn = props.itemId ? projectVariationExportExcel : projectForecastExportExcel;
   const params = {
     type,
-    lender: type_id.value,
+    lender: props.lender || type_id.value,
     uuid: props.currentId
   };
   if (props.itemId) {
@@ -695,7 +711,7 @@ const budgetExport = () => {
   downloading.value = true;
   projectForecastExportExcelEst({
     uuid: props.currentId,
-    lender: type_id.value
+    lender: props.lender || type_id.value
   })
     .then((res) => {
       downloading.value = false;

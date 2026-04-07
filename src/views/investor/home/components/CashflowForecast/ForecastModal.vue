@@ -31,6 +31,10 @@ const props = defineProps({
   },
   invest_id: {
     type: String
+  },
+  product_uuid: {
+    type: String,
+    default: ''
   }
 });
 
@@ -48,7 +52,13 @@ const loadData = (pagination) => {
   data.value = null;
   loading.value = true;
   pagination = pagination ? pagination : { page: 1, limit: 10 };
-  monthlyCashFlowList({ search_key: props.date, ...pagination, ...props.searchForm, invest_id: props.invest_id })
+  monthlyCashFlowList({
+    search_key: props.date,
+    ...pagination,
+    ...props.searchForm,
+    invest_id: props.invest_id,
+    product_uuid: props.product_uuid
+  })
     .then((res) => {
       total.value = res.count;
       data.value = res.data;
@@ -59,9 +69,9 @@ const loadData = (pagination) => {
 };
 
 watch(
-  () => props.visible,
-  (val) => {
-    if (val) {
+  () => [props.visible, props.invest_id, props.product_uuid],
+  ([vis]) => {
+    if (vis) {
       loadData();
     }
   }

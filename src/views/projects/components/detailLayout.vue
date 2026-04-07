@@ -97,11 +97,13 @@ const back = () => {
 };
 
 const detail = ref(null);
-const getProjectDetail = (userId) => {
-  const uuid = userId || route.query.uuid;
+const getProjectDetail = (val) => {
+  const isUserIdObject = val !== null && typeof val === 'object' && !Array.isArray(val);
+  const uuid = isUserIdObject ? route.query.uuid : (val || route.query.uuid);
   if (uuid) {
+    const params = isUserIdObject ? { uuid, ...val } : { uuid };
     // 发起请求
-    projectDetail({ uuid }).then((res) => {
+    projectDetail(params).then((res) => {
       res['loan'] = res.date;
       detail.value = res;
       const detailProductUuid = productStore.getProductUuid(res?.product?.code );

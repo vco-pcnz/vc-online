@@ -1,4 +1,5 @@
 <template>
+  <vsl-schedule-tab v-model:current="lender" />
   <div class="flex" style="gap: 12px">
     <div class="block-item flex-1" style="flex: 0 0 690px" v-if="hasPermission('home:backlog')">
       <Backlog></Backlog>
@@ -11,12 +12,13 @@
     </div>
   </div>
   <div class="my-12">
-    <ProjectDashboard></ProjectDashboard>
+    <ProjectDashboard :lender="lender"></ProjectDashboard>
   </div>
-  <CashflowForecast v-if="hasPermission('home:cashflow_forecast')" :isNav="false"></CashflowForecast>
+  <CashflowForecast v-if="hasPermission('home:cashflow_forecast')" :isNav="false" :lender="lender"></CashflowForecast>
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { hasPermission } from '@/directives/permission/index';
 import ProjectDashboard from './components/ProjectDashboard/index.vue';
@@ -25,6 +27,8 @@ import Notice from './components/Notice/index.vue';
 import QuickAccess from './components/QuickAccess/index.vue';
 import CashflowForecast from '../dashboard/components/CashflowForecast/index.vue';
 const { t } = useI18n();
+
+const lender = ref('');
 </script>
 
 <style lang="less" scoped>

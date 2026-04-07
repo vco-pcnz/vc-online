@@ -59,6 +59,10 @@ const props = defineProps({
   },
   invest_id: {
     type: String
+  },
+  product_uuid: {
+    type: String,
+    default: ''
   }
 });
 
@@ -94,9 +98,20 @@ const onSelect = (val) => {
   emits('change', { project_uuids: select.value.join() });
 };
 
+const params = ref({
+  lm_uuids: '',
+  search: ''
+});
+
 const loadData = () => {
   loading.value = true;
-  forecastProjectList({ ...pagination.value, ...searchForm.value, ...params.value, invest_id: props.invest_id })
+  forecastProjectList({
+    ...pagination.value,
+    ...searchForm.value,
+    ...params.value,
+    invest_id: props.invest_id,
+    product_uuid: props.product_uuid
+  })
     .then((res) => {
       data.value = res.data;
       total.value = res.count;
@@ -136,9 +151,9 @@ watch(
 );
 
 watch(
-  () => props.invest_id,
-  (val) => {
-    if (val) {
+  () => [props.invest_id, props.product_uuid],
+  ([id]) => {
+    if (id) {
       loadData();
     }
   },
@@ -146,10 +161,6 @@ watch(
     immediate: true
   }
 );
-const params = ref({
-  lm_uuids: '',
-  search: ''
-});
 
 const init = (val) => {
   pagination.value.page = 1;

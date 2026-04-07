@@ -54,7 +54,12 @@ import useProductStore from '@/store/modules/product';
 
 const { t } = useI18n();
 const productStore = useProductStore();
-
+const props = defineProps({
+  lender: {
+    type: String,
+    default: ''
+  }
+});
 const data = ref();
 
 const searchConfig = ref(['Time', 'Type']);
@@ -83,7 +88,7 @@ const report = (uuid) => {
 const loading = ref(false);
 const loadData = (val) => {
   if (!productStore.currentProduct) return;
-  const params = { ...searchForm.value, ...(val || {}), product_uuid: productStore.currentProduct };
+  const params = { ...searchForm.value, ...(val || {}), product_uuid: productStore.currentProduct, lender: props.lender };
   searchForm.value = { ...params };
   loading.value = true;
   forecast(params)
@@ -103,6 +108,13 @@ watch(
     }
   },
   { immediate: true }
+);
+
+watch(
+  () => props.lender,
+  (val) => {
+    loadData();
+  }
 );
 </script>
 

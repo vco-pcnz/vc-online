@@ -177,7 +177,7 @@ const submitLoading = ref(false);
 const submitHandle = () => {
   submitLoading.value = true;
   const params = {
-    id: props.id,
+    uuid: props.id,
     uuids: selectedRowKeys.value
   };
   bindProject(params)

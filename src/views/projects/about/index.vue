@@ -211,11 +211,11 @@ const getProjectDetail = (val) => {
   currentProduct.value = val.product.code;
 };
 
-const update = () => {
+const update = (val) => {
   loading.value = true;
   userStore.getTaskNumInfo();
 
-  detailLayoutRef.value.getProjectDetail();
+  detailLayoutRef.value.getProjectDetail(val);
 };
 
 const disabledDateFormat = (current) => {

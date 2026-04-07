@@ -1,7 +1,7 @@
 <template>
   <div class="search-content">
     <date-picker v-if="searchConfig.includes('Date')" :data="searchForm.date" @change="change" />
-    <select-project v-if="searchConfig.includes('Project')" :invest_id="invest_id" ref="selectProjectRef" @change="change" />
+    <select-project v-if="searchConfig.includes('Project')" :invest_id="invest_id" :product_uuid="product_uuid" ref="selectProjectRef" @change="change" />
 
     <a-button type="cyan" class="ml-3" @click="report" :loading="downloading" v-if="downloadUrl">
       <i class="iconfont">&#xe780;</i>
@@ -40,6 +40,10 @@ const props = defineProps({
   },
   invest_id: {
     type: String
+  },
+  product_uuid: {
+    type: String,
+    default: ''
   }
 });
 
@@ -62,7 +66,7 @@ const report = () => {
   const paramsInfo = {
     url,
     method: 'get',
-    params: { ...searchForm.value, invest_id: props.invest_id }
+    params: { ...searchForm.value, invest_id: props.invest_id, product_uuid: props.product_uuid }
   };
 
   request(paramsInfo)

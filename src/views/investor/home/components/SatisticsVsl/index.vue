@@ -10,6 +10,7 @@
           <div class="info-content">
             <p>{{ t('总计金额') }}</p>
             <vco-number class="num" :value="statisticsData?.amount" :precision="2" :end="true"></vco-number>
+            <div><vco-number class="num" :value="statisticsData?.amount_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
           </div>
         </div>
         <div class="item">
@@ -22,6 +23,7 @@
           <div class="info-content">
             <p>{{ t('可用余额1') }}</p>
             <vco-number class="num" :value="statisticsData?.available_amount" :precision="2" :end="true"></vco-number>
+            <div><vco-number class="num" :value="statisticsData?.available_amount_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
           </div>
         </div>
         <div class="item">
@@ -29,6 +31,7 @@
           <div class="info-content">
             <p>{{ t('已使用') }}</p>
             <vco-number class="num" :value="statisticsData?.use_amount" :precision="2" :end="true"></vco-number>
+            <div><vco-number class="num" :value="statisticsData?.use_amount_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
           </div>
         </div>
         <div class="chart-content">
@@ -37,24 +40,14 @@
       </div>
       <a-row :gutter="16" class="income">
         <a-col :span="6">
-          <p class="color_grey fs_xs">Interest ( {{ statisticsData.rate || 0 }}% + BKBM )</p>
-          <p class="value">{{ tool.formatMoney(statisticsData.Interest || 0) }}</p>
-        </a-col>
-        <a-col :span="6" class="">
-          <p class="color_grey fs_xs">Line fee ( {{ statisticsData.lrate || 0 }}% )</p>
-          <p class="value">{{ tool.formatMoney(statisticsData.Linefee || 0) }}</p>
+          <p class="color_grey fs_xs">Interest</p>
+          <p class="value"><vco-number class="num" :value="statisticsData?.rate" :precision="2" :end="true"></vco-number></p>
+          <div class="flex items-center"><vco-number class="num" :value="statisticsData?.rate_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
         </a-col>
         <a-col :span="6">
-          <p class="color_grey fs_xs">Upfront fee</p>
-          <p class="value">{{ tool.formatMoney(statisticsData.Upfront || 0) }}</p>
-        </a-col>
-        <a-col :span="6">
-          <p class="color_grey fs_xs">LTLVR</p>
-          <p class="value">23%</p>
-        </a-col>
-        <a-col :span="6">
-          <p class="color_grey fs_xs">ICR</p>
-          <p class="value">4X</p>
+          <p class="color_grey fs_xs">{{t('建立费')}}</p>
+          <p class="value"><vco-number class="num" :value="statisticsData?.frate" :precision="2" :end="true"></vco-number></p>
+          <div class="flex items-center"><vco-number class="num" :value="statisticsData?.frate_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
         </a-col>
       </a-row>
     </div>
@@ -230,12 +223,25 @@ watch(
 }
 
 :deep(.income) {
+  flex: 0 0 450px;
   .ant-col {
-    height: 60px;
     margin-left: 46px;
+    .vco-number.num {
+      font-weight: 500;
+      .ant-statistic-content {
+        font-size: 16px !important;
+      }
+    }
   }
+  
   .value {
     font-size: 16px;
   }
+}
+
+.bocLabel {
+    font-size: 11px;
+    padding-left: 5px;
+    color: #666;
 }
 </style>

@@ -1,40 +1,77 @@
 <template>
-  <Satistics :invest_id="invest_id"></Satistics>
-  <div class="my-12">
-    <AmountLog :invest_id="invest_id"></AmountLog>
+  <Satistics v-if="!isVslProduct && invest_id" :invest_id="invest_id" :product_uuid="product_uuid"></Satistics>
+  <SatisticsVsl v-else-if="isVslProduct && invest_id" :invest_id="invest_id" :product_uuid="product_uuid"></SatisticsVsl>
+  <div v-if="!isVslProduct && invest_id" class="my-12">
+    <AmountLog :invest_id="invest_id" :product_uuid="product_uuid"></AmountLog>
   </div>
-  <div class="my-12">
-    <ProjectDashboard :invest_id="invest_id"></ProjectDashboard>
+  <div v-if="invest_id" class="my-12">
+    <ProjectDashboard :invest_id="invest_id" :product_uuid="product_uuid"></ProjectDashboard>
   </div>
-  <CashflowForecast :invest_id="invest_id" :isNav="false"></CashflowForecast>
+  <CashflowForecast v-if="invest_id" :invest_id="invest_id" :product_uuid="product_uuid" :isNav="false"></CashflowForecast>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { hasPermission } from '@/directives/permission/index';
 import Satistics from './components/Satistics/index.vue';
+import SatisticsVsl from './components/SatisticsVsl/index.vue';
 import AmountLog from './components/AmountLog/index.vue';
 import ProjectDashboard from './components/ProjectDashboard/index.vue';
 import CashflowForecast from './components/CashflowForecast/index.vue';
 import { userProject } from '@/api/invest';
 import { useRoute } from 'vue-router';
+import useProductStore from '@/store/modules/product';
+
 const { t } = useI18n();
+
+const productStore = useProductStore();
+const isVslProduct = computed(() => {
+  const p = productStore.productData.find((item) => item.uuid === productStore.currentProduct);
+  return String(p?.code || '').toLowerCase() === 'vsl';
+});
 
 const invest_id = ref('');
 const route = useRoute();
 
-onMounted(() => {
+const product_uuid = computed(() => productStore.currentProduct || '');
+
+const resolveInvestId = () => {
   if (route.query.uuid) {
     invest_id.value = route.query.uuid;
-  } else {
-    userProject().then((res) => {
-      if (res && res.length) {
-        invest_id.value = res[0].id;
-      }
-    });
+    return;
   }
+  const params = productStore.currentProduct ? { product_uuid: productStore.currentProduct } : {};
+  userProject(params).then((res) => {
+    if (res && res.length) {
+      const current = productStore.currentProduct;
+      const matched = current
+        ? res.find((item) => item.product_uuid === current)
+        : null;
+      invest_id.value = matched?.uuid ?? '';
+    } else {
+      invest_id.value = '';
+    }
+  });
+};
+
+onMounted(() => {
+  resolveInvestId();
 });
+
+watch(
+  () => productStore.currentProduct,
+  () => {
+    resolveInvestId();
+  }
+);
+
+// watch(
+//   () => route.query.uuid,
+//   () => {
+//     resolveInvestId();
+//   }
+// );
 </script>
 
 <style scoped lang="less">

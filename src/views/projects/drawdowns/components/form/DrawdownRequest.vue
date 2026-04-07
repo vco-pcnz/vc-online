@@ -161,7 +161,10 @@ const updateVisible = (value) => {
 };
 
 const disabledDateFormat = (current) => {
-  const startDate = props.projectDetail.loan.start_date;
+  var startDate = props.projectDetail.loan.start_date;
+  if (props.projectDetail?.product?.code == 'vsl' && props.projectDetail?.vslInfo?.buyout_date) {
+    startDate =  props.projectDetail?.vslInfo?.buyout_date
+  }
   const endDate = props.projectDetail.loan.end_date;
   // 当前日期
   const currentDate = dayjs();

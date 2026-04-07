@@ -1,18 +1,20 @@
 <template>
   <div>
-    <StatisticalBrief></StatisticalBrief>
-    <CashflowForecast :showArrow="true"></CashflowForecast>
+    <vsl-schedule-tab v-model:current="lender" />
+    <StatisticalBrief :lender="lender"></StatisticalBrief>
+    <CashflowForecast :showArrow="true" :lender="lender"></CashflowForecast>
     <!-- <Cashflow></Cashflow> -->
     <div class="flex gap-5 mt-5">
-      <transactions></transactions>
-      <forecast></forecast>
+      <transactions :lender="lender"></transactions>
+      <forecast :lender="lender"></forecast>
     </div>
-    <Income :showArrow="true"></Income>
-    <RegionalDistribution></RegionalDistribution>
+    <Income :showArrow="true" :lender="lender"></Income>
+    <RegionalDistribution :lender="lender"></RegionalDistribution>
   </div>
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import StatisticalBrief from './components/StatisticalBrief.vue';
 import CashflowForecast from './components/CashflowForecast/index.vue';
 import Cashflow from './components/Cashflow.vue';
@@ -21,6 +23,8 @@ import forecast from './components/forecast.vue';
 import Income from './components/Income.vue';
 import RegionalDistribution from './components/RegionalDistribution.vue';
 import ProductTab from '../projects/components/ProductTab.vue';
+
+const lender = ref('');
 </script>
 
 <style scoped lang="less">

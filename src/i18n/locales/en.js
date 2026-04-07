@@ -1434,4 +1434,5 @@ export default {
   "更新 Xero": "Update Xero",
   "操作成功1": "Operation successful",
   "确定要退回吗？": "Are you sure you want to return?",
+  "更新日期": "Update date",
 }

@@ -1,7 +1,8 @@
 <template>
+  <vsl-schedule-tab v-model:current="lender" />
   <div style="margin-top: -35px;">
-    <Income></Income>
-    <IncometList></IncometList>
+    <Income :lender="lender"></Income>
+    <IncometList :lender="lender"></IncometList>
   </div>
 </template>
 
@@ -9,6 +10,8 @@
 import { ref } from 'vue';
 import Income from '../components/Income.vue';
 import IncometList from '../components/IncometList.vue';
+
+const lender = ref('');
 </script>
 
 <style scoped lang="less">

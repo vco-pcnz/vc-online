@@ -69,6 +69,10 @@ const emits = defineEmits(['change']);
 const props = defineProps({
   total: {
     type: Number
+  },
+  lender: {
+    type: String,
+    default: ''
   }
 });
 
@@ -99,7 +103,7 @@ const loadData = (val) => {
   if (!productStore.currentProduct) return;
   loading.value = true;
   if (val) searchForm.value = { ...searchForm.value, ...val };
-  const params = { ...searchForm.value, ...pagination.value, product_uuid: productStore.currentProduct };
+  const params = { ...searchForm.value, ...pagination.value, product_uuid: productStore.currentProduct, lender: props.lender };
   profitLog(params)
     .then((res) => {
       total.value = res.count;
@@ -123,6 +127,13 @@ const searchHandle = (val) => {
   pagination.value.page = 1;
   loadData(val);
 };
+
+watch(
+  () => props.lender,
+  (val) => {
+    loadData();
+  }
+);
 </script>
 <style lang="less" scoped>
 .footer {

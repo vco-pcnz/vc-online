@@ -47,13 +47,20 @@ import { hasPermission } from '@/directives/permission/index';
 import useProductStore from '@/store/modules/product';
 const { t } = useI18n();
 
+const props = defineProps({
+  lender: {
+    type: String,
+    default: ''
+  }
+});
+
 const loading = ref(false);
 const data = ref({});
 const productStore = useProductStore();
 
 const loadData = (val) => {
   if (!productStore.currentProduct) return;
-  const params = { product_uuid: productStore.currentProduct };
+  const params = { product_uuid: productStore.currentProduct ,lender: props.lender};
   if (val !== undefined) {
     params.upd = val;
   }
@@ -68,9 +75,9 @@ const loadData = (val) => {
 };
 
 watch(
-  () => productStore.currentProduct,
+  () => [productStore.currentProduct, props.lender],
   (val) => {
-    if (val) {
+    if (val[0]) {
       loadData();
     }
   },

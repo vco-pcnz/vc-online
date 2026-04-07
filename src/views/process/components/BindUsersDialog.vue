@@ -1,7 +1,16 @@
 <template>
   <div>
     <!-- 人员选择 -->
-    <vco-choose-user ref="vcoChooseUserRef" :url="searchUserUrl" :isMultiple="isMultipleSelect" :role-code="roleCode" :params="otherParams" @done="userChoiced">
+    <vco-choose-user
+      ref="vcoChooseUserRef"
+      :url="searchUserUrl"
+      :isMultiple="isMultipleSelect"
+      :role-code="roleCode"
+      :params="otherParams"
+      :is-borrower-owner="isBorrowerOwner"
+      :is-immediate="!isBorrowerOwner && userImmediate"
+      @done="userChoiced"
+    >
       <div></div>
     </vco-choose-user>
     <!-- 人员添加 -->
@@ -30,7 +39,7 @@
         </template>
         <!-- 绑定借款账号 -->
         <template v-if="type === 2">
-          <div class="form-item">
+          <div v-if="!isBorrowerOwner" class="form-item">
             <div class="title">
               <p>{{ t('借款账号信息') }}</p>
               <div class="gap-3 flex">
@@ -49,7 +58,7 @@
           </div>
 
           <template v-if="(borrowerComUuid && borrowerHasLowerUsers) || borrowerPuser.length">
-            <div class="form-item">
+            <div v-if="!isBorrowerOwner" class="form-item">
               <div class="title">
                 <p>{{ t('编辑者') }}</p>
                 <div class="gap-3 flex">
@@ -70,7 +79,7 @@
               <div class="title">
                 <p>{{ t('浏览者') }}</p>
                 <div class="gap-3 flex">
-                  <a-button type="primary" size="small" shape="round" class="uppercase" @click="openUserSelect(false, true, '', 'borrower', true)">{{ t('添加') }}</a-button>
+                  <a-button v-if="!isBorrowerOwner" type="primary" size="small" shape="round" class="uppercase" @click="openUserSelect(false, true, '', 'borrower', true)">{{ t('添加') }}</a-button>
                   <a-button type="primary" size="small" shape="round" class="uppercase" @click="openUserSelect(false, true, '', 'borrower', false)">{{ t('选择') }}</a-button>
                 </div>
               </div>
@@ -191,6 +200,14 @@ const props = defineProps({
   currentId: {
     type: [Number, String],
     default: ''
+  },
+  about: {
+    type: Boolean,
+    default: false
+  },
+  isBorrowerOwner: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -304,8 +321,11 @@ const isEdit = ref(false);
 const roleCode = ref('');
 const otherParams = ref({});
 const currentPuser = ref('');
+const userImmediate = ref(true);
 
 const openUserSelect = (code, isMultiple, puser = '', secType = '', isAdd) => {
+  userImmediate.value = true
+
   searchUserUrl.value = '';
 
   currentPuser.value = puser;
@@ -335,8 +355,16 @@ const openUserSelect = (code, isMultiple, puser = '', secType = '', isAdd) => {
       }
 
       if (secType === 'borrower') {
+        userImmediate.value = false
+
         searchUserUrl.value = 'user/relation';
-        otherParams.value = { puuid: borrowerComUuid.value, sta__ok: 1 };
+        
+        const pInfo = { sta__ok: 1 };
+        if (!props.isBorrowerOwner || props.about) {
+          pInfo.puuid = brokerComUuid.value
+        }
+
+        otherParams.value = pInfo
       }
     }
   }
@@ -417,7 +445,7 @@ const dataInit = () => {
       borrowerEditors.value = cloneDeep(edit);
       borrowerViewers.value = cloneDeep(view);
 
-      if (company && company.length) {
+      if (company && company.length && !props.isBorrowerOwner) {
         getLowerUsers(false);
       }
     }
@@ -428,7 +456,7 @@ const dataInit = () => {
       brokerEditors.value = cloneDeep(edit);
       brokerViewers.value = cloneDeep(view);
 
-      if (company && company.length) {
+      if (company && company.length && !props.isBorrowerOwner) {
         getLowerUsers(true);
       }
     }

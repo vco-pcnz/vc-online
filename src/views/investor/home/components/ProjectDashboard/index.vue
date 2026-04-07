@@ -37,6 +37,10 @@ const { t } = useI18n();
 const props = defineProps({
   invest_id: {
     type: String
+  },
+  product_uuid: {
+    type: String,
+    default: ''
   }
 });
 
@@ -45,7 +49,7 @@ const data = ref({});
 
 const loadData = (val) => {
   loading.value = true;
-  dashboard({ upd: val, invest_id: props.invest_id })
+  dashboard({ upd: val, invest_id: props.invest_id, product_uuid: props.product_uuid })
     .then((res) => {
       data.value = res;
     })
@@ -55,9 +59,9 @@ const loadData = (val) => {
 };
 
 watch(
-  () => props.invest_id,
-  (val) => {
-    if (val) {
+  () => [props.invest_id, props.product_uuid],
+  ([id]) => {
+    if (id) {
       loadData();
     }
   },

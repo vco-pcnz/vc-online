@@ -11,6 +11,7 @@
         :ptRole="!!projectDetail?.base?.ptRole"
         :is-old="isOld"
         :is-reset="true"
+        :isInvestor="true"
       ></schedule>
     </template>
   </detail-layout>

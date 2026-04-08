@@ -45,7 +45,7 @@
       <a-row  class="income">
         <a-col :span="8">
           <p class="color_grey fs_xs">{{t('资本化利息')}}</p>
-          <p class="value"><vco-number class="num" :value="statisticsData?.rate" :precision="2" :end="true"></vco-number></p>
+          <!-- <p class="value"><vco-number class="num" :value="statisticsData?.rate" :precision="2" :end="true"></vco-number></p> -->
           <div class="flex items-center"><vco-number class="num" :value="statisticsData?.rate_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
         </a-col>
         <a-col :span="8">

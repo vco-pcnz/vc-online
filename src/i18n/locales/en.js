@@ -1435,4 +1435,6 @@ export default {
   "操作成功1": "Operation successful",
   "确定要退回吗？": "Are you sure you want to return?",
   "更新日期": "Update date",
+  "资本化利息": "Capitalized interest",
+  "累计收入": "Total income"
 }

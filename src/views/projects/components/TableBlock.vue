@@ -267,12 +267,13 @@ const props = defineProps({
   }
 });
 const { t } = useI18n();
+const IRR_COLUMN = { title: t('IRR预测'), key: 'irr', width: 140 };
 const columns = reactive([
   { title: t('项目•类型'), key: '1', width: 280 },
   { title: t('借款人•贷款经理'), key: '2', width: 200 },
   { title: t('开始日期'), key: 'open', width: 110 },
   { title: t('到期'), key: 'end_date', width: 140 },
-  { title: t('IRR预测'), key: 'irr', width: 140 },
+  { ...IRR_COLUMN },
   { title: 'LVR', key: 'lvr', width: 140, hide: true },
   { title: 'LTC', key: 'ltc', width: 140 },
   { title: t('收入'), key: 'income', width: 120 },
@@ -285,6 +286,29 @@ const columns = reactive([
 
 const currentProduct = computed(() => productStore.productData.find((item) => item.uuid === pageStore.product_uuid));
 const isLendrProduct = computed(() => currentProduct.value?.code === 'lendr');
+const isVslProduct = computed(() => String(currentProduct.value?.code || '').toLowerCase() === 'vsl');
+
+const removeIrrColumn = () => {
+  const irrIndex = columns.findIndex((column) => column.key === 'irr');
+  if (irrIndex !== -1) {
+    columns.splice(irrIndex, 1);
+  }
+};
+
+const addIrrColumn = () => {
+  if (columns.some((column) => column.key === 'irr')) return;
+  const lvrIndex = columns.findIndex((column) => column.key === 'lvr');
+  if (lvrIndex !== -1) {
+    columns.splice(lvrIndex, 0, { ...IRR_COLUMN });
+  } else {
+    const endDateIndex = columns.findIndex((column) => column.key === 'end_date');
+    if (endDateIndex !== -1) {
+      columns.splice(endDateIndex + 1, 0, { ...IRR_COLUMN });
+    } else {
+      columns.push({ ...IRR_COLUMN });
+    }
+  }
+};
 
 const removeLtcColumn = () => {
   const ltcIndex = columns.findIndex((column) => column.key === 'ltc');
@@ -312,6 +336,18 @@ watch(
       removeLtcColumn();
     } else {
       addLtcColumn();
+    }
+  },
+  { immediate: true }
+);
+
+watch(
+  () => [pageRole.value, isVslProduct.value],
+  () => {
+    if (pageRole.value === 'Investor' && isVslProduct.value) {
+      removeIrrColumn();
+    } else {
+      addIrrColumn();
     }
   },
   { immediate: true }

@@ -31,7 +31,7 @@ const emits = defineEmits(['search']);
 
 const { t } = useI18n();
 
-const defaultDay = () => dayjs().subtract(1, 'day');
+const defaultDay = () => dayjs();
 
 const searchForm = ref({
   day: defaultDay()

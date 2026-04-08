@@ -147,7 +147,7 @@ watch(
   () => [props.invest_id, props.product_uuid],
   ([id]) => {
     if (id) {
-      loadData({ day: dayjs().subtract(1, 'day').format('YYYY-MM-DD') });
+      loadData({ day: dayjs().format('YYYY-MM-DD') });
     }
   },
   {

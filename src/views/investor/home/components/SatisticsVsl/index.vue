@@ -1,7 +1,8 @@
 <template>
   <a-spin :spinning="loading" size="large">
-    <div class="title">
+    <div class="title flex justify-between items-center">
       <div class="bold fs_2xl">{{ t('贷款概览') }}</div>
+      <SearchDom @search="searchHandle"></SearchDom>
     </div>
     <div class="flex header-static mt-10">
       <div class="item-content">
@@ -49,13 +50,11 @@
         </a-col>
         <a-col :span="8">
           <p class="color_grey fs_xs">{{t('应计利息')}}</p>
-          <p class="value"><vco-number class="num" :value="statisticsData?.rate1" :precision="2" :end="true"></vco-number></p>
-          <div class="flex items-center"><vco-number class="num" :value="statisticsData?.rate_boc1" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
+          <div class="flex items-center"><vco-number class="num" :value="statisticsData?.accruedInterest_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
         </a-col>
         <a-col :span="8">
           <p class="color_grey fs_xs">{{t('累计收入')}}</p>
-          <p class="value"><vco-number class="num" :value="statisticsData?.rate1" :precision="2" :end="true"></vco-number></p>
-          <div class="flex items-center"><vco-number class="num" :value="statisticsData?.rate_boc1" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
+          <div class="flex items-center"><vco-number class="num" :value="statisticsData?.totalIncome_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
         </a-col>
         <a-col :span="8">
           <p class="color_grey fs_xs">{{t('建立费')}}</p>
@@ -70,8 +69,10 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import dayjs from 'dayjs';
 import tool from '@/utils/tool';
 import { userProject, statistics } from '@/api/invest/index';
+import SearchDom from './Search.vue';
 const { t } = useI18n();
 
 const props = defineProps({
@@ -125,9 +126,9 @@ const option = ref({
 
 const loading = ref(false);
 
-const loadData = (val) => {
+const loadData = (val = {}) => {
   loading.value = true;
-  statistics({ uuid: props.invest_id, product_uuid: props.product_uuid })
+  statistics({ uuid: props.invest_id, product_uuid: props.product_uuid, ...val })
     .then((res) => {
       statisticsData.value = res;
       option.value.series[0].data[0].value = res.use_amount || 0;
@@ -138,11 +139,15 @@ const loadData = (val) => {
     });
 };
 
+const searchHandle = (data) => {
+  loadData(data);
+};
+
 watch(
   () => [props.invest_id, props.product_uuid],
   ([id]) => {
     if (id) {
-      loadData();
+      loadData({ day: dayjs().subtract(1, 'day').format('YYYY-MM-DD') });
     }
   },
   {

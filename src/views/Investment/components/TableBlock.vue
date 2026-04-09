@@ -132,6 +132,7 @@ import { bindUser, investBindData } from '@/api/invest/index';
 import EditAmountLog from './EditAmountLog.vue';
 import EditAmount from './EditAmount.vue';
 import { hasPermission } from '@/directives/permission/index';
+import { message } from 'ant-design-vue/es';
 
 const props = defineProps({
   tableData: {
@@ -234,6 +235,7 @@ const checkUser = (val) => {
   bindUserForm.value.uuids = val;
 
   bindUser(bindUserForm.value).then((res) => {
+    message.success(t('操作成功'));
     emits('update');
   });
 };

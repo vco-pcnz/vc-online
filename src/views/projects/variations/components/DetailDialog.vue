@@ -412,7 +412,8 @@ const disabledDate = (currentDate) => {
   if ([1, 2, 3].includes(Number(props.detailData.type))) {
     const endDate = dayjs(props.projectDetail.date.end_date);
     // 禁用“今天之前”的日期，及“endDate 之后”的日期
-    return currentDate && currentDate.isBefore(endDate.endOf('day')) || currentDate.valueOf() > Date.now();
+    return currentDate && currentDate.isBefore(endDate.startOf('day')) || currentDate.valueOf() > Date.now();
+    // return currentDate && currentDate.isBefore(endDate.endOf('day')) || currentDate.valueOf() > Date.now();
   } else {
     const startDate = dayjs(props.projectDetail.date.var_start_date);
     return currentDate && currentDate.isBefore(startDate.startOf('day').add(1, 'day')) || currentDate.valueOf() > Date.now();

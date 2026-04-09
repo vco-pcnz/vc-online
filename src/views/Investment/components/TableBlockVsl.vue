@@ -70,6 +70,12 @@
         <template v-if="column.key === 'frate'">
           <p class="black bold">{{tool.formatMoney(record.frate_boc)}}</p>
         </template>
+        <template v-if="column.key === 'accruedInterest_boc'">
+          <p class="black bold">{{tool.formatMoney(record.accruedInterest_boc)}}</p>
+        </template>
+        <template v-if="column.key === 'totalIncome_boc'">
+          <p class="black bold">{{tool.formatMoney(record.totalIncome_boc)}}</p>
+        </template>
         <template v-if="column.key === 'lrate'">
           <p class="black bold">{{tool.formatMoney(record.lrate_boc)}}</p>
         </template>
@@ -143,7 +149,9 @@ const columns = reactive([
   { title: t('可用余额1'), key: 'available', width: 140 },
   { title: t('已使用'), key: 'used', width: 140 },
   { title: t('用户'), key: 'user', width: 160 },
-  { title: t('利息'), key: 'rate', width: 120 },
+  { title: t('资本化利息'), key: 'rate', width: 150 },
+  { title: t('应计利息'), key: 'accruedInterest_boc', width: 150 },
+  { title: t('累计收入'), key: 'totalIncome_boc', width: 150 },
   { title: t('建立费'), key: 'frate', width: 150 },
   { title: t('当前余额'), key: 'lrate', width: 150 },
   { title: t('更新日期'), key: 'create_time', width: 120 },

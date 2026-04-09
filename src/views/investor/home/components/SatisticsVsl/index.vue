@@ -1,7 +1,8 @@
 <template>
   <a-spin :spinning="loading" size="large">
-    <div class="title">
+    <div class="title flex justify-between items-center">
       <div class="bold fs_2xl">{{ t('贷款概览') }}</div>
+      <SearchDom @search="searchHandle"></SearchDom>
     </div>
     <div class="flex header-static mt-10">
       <div class="item-content">
@@ -11,6 +12,7 @@
             <p>{{ t('总计金额') }}</p>
             <vco-number class="num" :value="statisticsData?.amount" :precision="2" :end="true"></vco-number>
             <div><vco-number class="num" :value="statisticsData?.amount_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
+            <div><vco-number class="num" :value="statisticsData?.amount_vs" :precision="2" :end="true"></vco-number><span class="bocLabel">(Vs)</span></div>
           </div>
         </div>
         <div class="item">
@@ -24,6 +26,7 @@
             <p>{{ t('可用余额1') }}</p>
             <vco-number class="num" :value="statisticsData?.available_amount" :precision="2" :end="true"></vco-number>
             <div><vco-number class="num" :value="statisticsData?.available_amount_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
+            <div><vco-number class="num" :value="statisticsData?.available_amount_vs" :precision="2" :end="true"></vco-number><span class="bocLabel">(Vs)</span></div>
           </div>
         </div>
         <div class="item">
@@ -32,21 +35,30 @@
             <p>{{ t('已使用') }}</p>
             <vco-number class="num" :value="statisticsData?.use_amount" :precision="2" :end="true"></vco-number>
             <div><vco-number class="num" :value="statisticsData?.use_amount_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
+            <div><vco-number class="num" :value="statisticsData?.use_amount_vs" :precision="2" :end="true"></vco-number><span class="bocLabel">(Vs)</span></div>
           </div>
         </div>
         <div class="chart-content">
           <v-chart :option="option" autoresize />
         </div>
       </div>
-      <a-row :gutter="16" class="income">
-        <a-col :span="6">
-          <p class="color_grey fs_xs">Interest</p>
-          <p class="value"><vco-number class="num" :value="statisticsData?.rate" :precision="2" :end="true"></vco-number></p>
+      <a-row  class="income">
+        <a-col :span="8">
+          <p class="color_grey fs_xs">{{t('资本化利息')}}</p>
+          <!-- <p class="value"><vco-number class="num" :value="statisticsData?.rate" :precision="2" :end="true"></vco-number></p> -->
           <div class="flex items-center"><vco-number class="num" :value="statisticsData?.rate_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
         </a-col>
-        <a-col :span="6">
+        <a-col :span="8">
+          <p class="color_grey fs_xs">{{t('应计利息')}}</p>
+          <div class="flex items-center"><vco-number class="num" :value="statisticsData?.accruedInterest_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
+        </a-col>
+        <a-col :span="8">
+          <p class="color_grey fs_xs">{{t('累计收入')}}</p>
+          <div class="flex items-center"><vco-number class="num" :value="statisticsData?.totalIncome_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
+        </a-col>
+        <a-col :span="8">
           <p class="color_grey fs_xs">{{t('建立费')}}</p>
-          <p class="value"><vco-number class="num" :value="statisticsData?.frate" :precision="2" :end="true"></vco-number></p>
+          <!-- <p class="value"><vco-number class="num" :value="statisticsData?.frate" :precision="2" :end="true"></vco-number></p> -->
           <div class="flex items-center"><vco-number class="num" :value="statisticsData?.frate_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
         </a-col>
       </a-row>
@@ -57,8 +69,10 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import dayjs from 'dayjs';
 import tool from '@/utils/tool';
 import { userProject, statistics } from '@/api/invest/index';
+import SearchDom from './Search.vue';
 const { t } = useI18n();
 
 const props = defineProps({
@@ -112,9 +126,9 @@ const option = ref({
 
 const loading = ref(false);
 
-const loadData = (val) => {
+const loadData = (val = {}) => {
   loading.value = true;
-  statistics({ uuid: props.invest_id, product_uuid: props.product_uuid })
+  statistics({ uuid: props.invest_id, product_uuid: props.product_uuid, ...val })
     .then((res) => {
       statisticsData.value = res;
       option.value.series[0].data[0].value = res.use_amount || 0;
@@ -125,11 +139,15 @@ const loadData = (val) => {
     });
 };
 
+const searchHandle = (data) => {
+  loadData(data);
+};
+
 watch(
   () => [props.invest_id, props.product_uuid],
   ([id]) => {
     if (id) {
-      loadData();
+      loadData({ day: dayjs().format('YYYY-MM-DD') });
     }
   },
   {
@@ -223,7 +241,7 @@ watch(
 }
 
 :deep(.income) {
-  flex: 0 0 450px;
+  flex: 0 0 500px;
   .ant-col {
     margin-left: 46px;
     .vco-number.num {

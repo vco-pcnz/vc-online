@@ -44,8 +44,12 @@ const panes = computed(() => {
   const childArr = projectsArr.children || [];
   const detailsArr = childArr.find((item) => item.path === '/investor/projects/details');
   const child = detailsArr.children || [];
+  const productKey = String(detail.value?.product?.code || detail.value?.product?.name || '').toLowerCase();
+  const hiddenDrawdownRepaymentPaths = ['/investor/projects/drawdowns', '/investor/projects/repayments'];
+  const routed =
+    productKey !== 'vsl' ? child.filter((item) => !hiddenDrawdownRepaymentPaths.includes(item.path)) : child;
 
-  arr = child
+  arr = routed
     .filter((item) => !item.meta.hide)
     .map((item) => {
       return {

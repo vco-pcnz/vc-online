@@ -827,8 +827,7 @@ const setFormData = (dataDetail) => {
 
   if (data.all_repayment) {
     const time = formState.value.apply_date;
-
-    calAmount();
+    // calAmount();
   }
 
   // formState.value.drawdown_account = data.drawDown.map((item) => {
@@ -912,10 +911,10 @@ const handleApplyDateAndRepaymentChange = () => {
         : formState.value.note;
 };
 
-watch(
-  [() => formState.value.apply_date, () => formState.value.all_repayment],
-  handleApplyDateAndRepaymentChange
-);
+// watch(
+//   [() => formState.value.apply_date, () => formState.value.all_repayment],
+//   handleApplyDateAndRepaymentChange
+// );
 
 // 通过 id 获取放款名称，便于展示 title
 const getDrawdownName = (sn) => {
@@ -963,6 +962,10 @@ const initVsDrawdownList = () => {
       .finally(() => {
         drawdownListLoading.value = false;
       });
+  }
+
+  if(formState.value.apply_date && formState.value.all_repayment === 1) {
+    handleApplyDateAndRepaymentChange();
   }
 };
 

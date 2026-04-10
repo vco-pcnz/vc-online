@@ -69,7 +69,6 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import dayjs from 'dayjs';
 import tool from '@/utils/tool';
 import { userProject, statistics } from '@/api/invest/index';
 import SearchDom from './Search.vue';
@@ -147,7 +146,7 @@ watch(
   () => [props.invest_id, props.product_uuid],
   ([id]) => {
     if (id) {
-      loadData({ day: dayjs().format('YYYY-MM-DD') });
+      loadData();
     }
   },
   {

@@ -1,12 +1,13 @@
 <template>
   <div>
     <vco-page-search @keyup.enter="searchHandle(false)">
-      <vco-page-search-item :title="t('日期')" width="200">
-        <a-date-picker
-          v-model:value="searchForm.day"
+      <vco-page-search-item :title="t('日期')" width="280">
+        <a-range-picker
+          v-model:value="searchForm.range"
+          style="width: 100%"
           :format="selectDateFormat()"
           :disabled-date="disabledDateAfterToday"
-          :placeholder="t('请选择')"
+          :placeholder="[t('开始日期'), t('结束日期')]"
         />
       </vco-page-search-item>
       <vco-page-search-item   width="180">
@@ -31,10 +32,8 @@ const emits = defineEmits(['search']);
 
 const { t } = useI18n();
 
-const defaultDay = () => dayjs();
-
 const searchForm = ref({
-  day: defaultDay()
+  range: null
 });
 
 /** 仅允许选择今天及之前的日期 */
@@ -42,10 +41,12 @@ const disabledDateAfterToday = (current) => current && current.isAfter(dayjs(), 
 
 const searchHandle = (flag) => {
   if (flag) {
-    searchForm.value.day = defaultDay();
+    searchForm.value.range = null;
   }
-  const dayVal = searchForm.value.day ? dayjs(searchForm.value.day).format('YYYY-MM-DD') : '';
-  emits('search', { day: dayVal });
+  const [start, end] = searchForm.value.range || [];
+  const sday = start ? dayjs(start).format('YYYY-MM-DD') : '';
+  const eday = end ? dayjs(end).format('YYYY-MM-DD') : '';
+  emits('search', { sday, eday });
 };
 
 </script>

@@ -49,17 +49,17 @@
           <div class="flex items-center"><vco-number class="num" :value="statisticsData?.rate_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
         </a-col>
         <a-col :span="8">
+          <p class="color_grey fs_xs">{{t('建立费')}}</p>
+          <!-- <p class="value"><vco-number class="num" :value="statisticsData?.frate" :precision="2" :end="true"></vco-number></p> -->
+          <div class="flex items-center"><vco-number class="num" :value="statisticsData?.frate_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
+        </a-col>
+        <a-col :span="8">
           <p class="color_grey fs_xs">{{t('应计利息')}}</p>
           <div class="flex items-center"><vco-number class="num" :value="statisticsData?.accruedInterest_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
         </a-col>
         <a-col :span="8">
           <p class="color_grey fs_xs">{{t('累计收入')}}</p>
           <div class="flex items-center"><vco-number class="num" :value="statisticsData?.totalIncome_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
-        </a-col>
-        <a-col :span="8">
-          <p class="color_grey fs_xs">{{t('建立费')}}</p>
-          <!-- <p class="value"><vco-number class="num" :value="statisticsData?.frate" :precision="2" :end="true"></vco-number></p> -->
-          <div class="flex items-center"><vco-number class="num" :value="statisticsData?.frate_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
         </a-col>
       </a-row>
     </div>

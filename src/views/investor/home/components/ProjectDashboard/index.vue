@@ -1,7 +1,9 @@
 <template>
   <a-spin :spinning="loading" size="large">
     <div class="flex justify-between title">
-      <div class="bold fs_2xl">Eligible Loans Dashboard</div>
+      <div class="bold fs_2xl">
+        {{ isVslProduct ? 'Current Loans Dashboard' : 'Eligible Loans Dashboard' }}
+      </div>
       <div class="flex items-center">
         <div v-if="data.date">{{ t('数据更新时间') }}: {{ data.date }}</div>
         <a-button type="cyan ml-3" @click="loadData(1)">{{ t('更新') }}</a-button>
@@ -27,12 +29,15 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ChartOne from './ChartOne.vue';
 import ChartTwo from './ChartTwo.vue';
 import { dashboard } from '@/api/invest';
+import useProductStore from '@/store/modules/product';
+
 const { t } = useI18n();
+const productStore = useProductStore();
 
 const props = defineProps({
   invest_id: {
@@ -42,6 +47,11 @@ const props = defineProps({
     type: String,
     default: ''
   }
+});
+
+const isVslProduct = computed(() => {
+  const p = productStore.productData.find((item) => item.uuid === props.product_uuid);
+  return String(p?.code || '').toLowerCase() === 'vsl';
 });
 
 const loading = ref(false);

@@ -7,7 +7,7 @@
     <!-- 确认弹窗 -->
     <vco-confirm-alert ref="changeAlertRef" :confirm-txt="fullErrMsg + '<br/>' + t('此操作保存后，将会使本笔还款申请退回到FC审核，是否继续？')" v-model:visible="changeVisible" @submit="submit"></vco-confirm-alert>
 
-    <a-modal :width="900" :open="visible" :title="isAllCancel ? t('修改全额还款') : t('还款申请')" :getContainer="() => $refs.drawdownRequestRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
+    <a-modal :width="1070" :open="visible" :title="isAllCancel ? t('修改全额还款') : t('还款申请')" :getContainer="() => $refs.drawdownRequestRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
         <a-form ref="formRef" layout="vertical" :model="formState" :rules="formRules">
           <a-row :gutter="24">
@@ -191,10 +191,13 @@
                       <template v-if="column.dataIndex === 'is_gst'">
                         <span v-if="Number(record.is_gst) === 1">{{ t('包含') }}</span>
                         <span v-else>{{ t('不包含') }}</span>
-                      </template>
-                      <template v-if="column.dataIndex === 'real_amount'">
-                        <a-input-number v-model:value="record.real_amount" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" class="mini" />
-                      </template>
+                        </template>
+                        <template v-if="column.dataIndex === 'real_amount'">
+                          <a-input-number v-model:value="record.real_amount" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" class="mini" />
+                        </template>
+                        <template v-if="column.dataIndex === 'sales_price'">
+                          <a-input-number v-model:value="record.sales_price" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" class="mini" />
+                        </template>
                       <template v-if="column.dataIndex === 'operation'">
                         <a-popconfirm v-if="dataInfo?.id && itemInData(record.uuid)" :title="t('确定删除吗？')" @confirm="removeItems(index, record)">
                           <i class="iconfont remove-icon">&#xe8c1;</i>
@@ -586,7 +589,8 @@ const submit = () => {
     const security = relatedData.value.map((item) => {
       return {
         uuid: item.uuid,
-        real_amount: item.real_amount
+        real_amount: item.real_amount,
+        sales_price: item.sales_price
       };
     });
     params.security = security;
@@ -769,6 +773,7 @@ const relatedColumns = reactive([
   { title: t('抵押物价值'), dataIndex: 'amount', width: 140 },
   { title: t('消费税'), dataIndex: 'is_gst', width: 100 },
   { title: t('售价'), dataIndex: 'real_amount', width: 170 },
+  { title: t('销售价格'), dataIndex: 'sales_price', width: 170 },
   { title: t('操作1'), dataIndex: 'operation', fixed: 'right', align: 'center', width: 50 }
 ]);
 
@@ -782,6 +787,7 @@ const securitiesDone = (data) => {
   const selData = removeDuplicates(selected, 'uuid').filter((item) => uuidArr.includes(item.uuid));
   selData.forEach((item) => {
     item.real_amount = Number(item.real_amount) ? item.real_amount : item.amount;
+    item.sales_price = Number(item.sales_price)
   });
 
   relatedData.value = selData;

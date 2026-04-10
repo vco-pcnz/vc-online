@@ -65,6 +65,11 @@
                 <p v-else>--</p>
               </a-col>
               <a-col :span="6" class="item-txt">
+                <p class="name">{{ t('销售价格') }}</p>
+                <vco-number v-if="[2, 3].includes(showStatus?.key)" :value="securityDetailInfo?.sales_price" :precision="2"></vco-number>
+                <p v-else>--</p>
+              </a-col>
+              <a-col :span="6" class="item-txt">
                 <p class="name">{{ t('净收益') }}</p>
                 <vco-number v-if="[2, 3].includes(showStatus?.key)" :value="securityDetailInfo?.net_proceeds_price" :precision="2"></vco-number>
                 <p v-else>--</p>

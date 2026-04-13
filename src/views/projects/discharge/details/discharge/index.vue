@@ -102,6 +102,9 @@
                       <template v-if="column.dataIndex === 'real_amount'">
                         <vco-number size="fs_md" :value="record.real_amount" :precision="2"></vco-number>
                       </template>
+                      <template v-if="column.dataIndex === 'sales_price'">  
+                        <vco-number size="fs_md" :value="record.sales_price" :precision="2"></vco-number>
+                      </template>
                       <template v-if="column.dataIndex === 'net_proceeds_price'">
                         <vco-number size="fs_md" :value="record.net_proceeds_price" :precision="2"></vco-number>
                       </template>
@@ -198,6 +201,7 @@ const tableColumns = reactive([
   { title: t('抵押物价值'), dataIndex: 'amount', width: 105, align: 'center' },
   { title: t('消费税'), dataIndex: 'is_gst', width: 90, align: 'center' },
   { title: t('当前抵押物价值'), dataIndex: 'real_amount', width: 140, align: 'center' },
+  { title: t('销售价格'), dataIndex: 'sales_price', width: 140, align: 'center' },
   { title: t('净收益'), dataIndex: 'net_proceeds_price', width: 100, align: 'center' }
 ]);
 

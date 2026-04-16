@@ -1441,6 +1441,7 @@ export default {
   "还款月份": "Repayment months",
   "共{0}个月": "Total {0} months",
   "设置还款月份": "Set repayment months",
-  "首次还款金额": "First repayment amount"
+  "首次还款金额": "First repayment amount",
+  "月度利息": "Monthly Interest, MI"
 }
   

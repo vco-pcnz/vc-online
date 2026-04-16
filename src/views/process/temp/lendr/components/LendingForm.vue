@@ -254,8 +254,23 @@
               </a-form-item>
             </a-col>
 
-            <a-col v-if="[4].includes(Number(formState.repay_type))" :span="8">
-              <a-form-item :label="t('首次还款金额')" name="fixed_first_money">
+            <a-col v-if="[4].includes(Number(formState.repay_type))" :span="8" class="w-full-label">
+              <a-form-item name="fixed_first_money">
+                <template #label>
+                  <div class="w-full flex justify-between items-center" style="height: 22px;">
+                    <p style="word-wrap: nowrap;">{{ t('首次还款金额') }}</p>
+                    <div class="mi-money-content">
+                      <vco-number :value="formState.mi_money" :precision="2" />
+                      <a-popover>
+                        <template #content>
+                          <p>{{ t('月度利息') }}</p>
+                        </template>
+                        <i class="iconfont">&#xe6b3;</i>
+                      </a-popover>
+                    </div>
+                  </div>
+                </template>
+
                 <a-input-number
                   v-model:value="formState.fixed_first_money"
                   :disabled="isDetails || !blockInfo.showEdit"
@@ -1210,7 +1225,7 @@ const interestChange = () => {
       linefeeFilter()
     });
 
-    const {repay_money, loan_money, repay_type, repay_day_type, repay_day, penalty_type, penalty_rate, grace_day, fixed_money, fixed_first_money, all_repayment_month, repayment_month} = props.lendingInfo
+    const {repay_money, loan_money, repay_type, repay_day_type, repay_day, penalty_type, penalty_rate, grace_day, fixed_money, mi_money, fixed_first_money, all_repayment_month, repayment_month} = props.lendingInfo
     formState.value.loan_money = repay_money ? Number(repay_money) : ''
     formState.value.initial_amount = loan_money ? Number(loan_money) : ''
     formState.value.repay_type = Number(repay_type) ? String(repay_type) : ''
@@ -1221,6 +1236,7 @@ const interestChange = () => {
     formState.value.grace_day = Number(grace_day) ? Number(grace_day) : penaltyConfig.value.grace_day_lendr
     formState.value.fixed_money = Number(fixed_money) ? Number(fixed_money) : ''
     formState.value.fixed_first_money = Number(fixed_first_money) ? Number(fixed_first_money) : ''
+    formState.value.mi_money = Number(mi_money) ? Number(mi_money) : ''
 
     const allRepaymentMonthData = Array.isArray(all_repayment_month) ? all_repayment_month : []
     const repaymentMonthData = Array.isArray(repayment_month) ? repayment_month : []
@@ -1700,6 +1716,25 @@ const interestChange = () => {
     color: #fff;
     font-size: 10px;
     line-height: 1;
+  }
+}
+
+.mi-money-content {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  .iconfont {
+    user-select: none;
+    cursor: pointer;
+    color: #F19915;
+    font-size: 12px;
+    line-height: 1;
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+  :deep(.ant-statistic-content) {
+    font-size: 12px !important;
   }
 }
 </style>

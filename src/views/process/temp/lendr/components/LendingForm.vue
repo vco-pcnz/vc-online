@@ -187,7 +187,7 @@
                 style="width: 100%"
                 :disabled="isDetails || !blockInfo.showEdit"
                 :options="repayTypeData"
-                @change="debouncedEstablishCalculate"
+                @change="() => debouncedEstablishCalculate(false)"
               ></a-select>
             </a-form-item>
           </a-col>
@@ -200,7 +200,7 @@
                   style="width: 100%"
                   :disabled="isDetails || !blockInfo.showEdit"
                   :options="repayDayTypeData"
-                  @change="debouncedEstablishCalculate"
+                  @change="() => debouncedEstablishCalculate(false)"
                 ></a-select>
               </a-form-item>
             </a-col>
@@ -282,7 +282,7 @@
                   style="width: 100%"
                   :disabled="isDetails || !blockInfo.showEdit"
                   :options="repayDayData"
-                  @change="debouncedEstablishCalculate"
+                  @change="() => debouncedEstablishCalculate(true)"
                 ></a-select>
               </a-form-item>
             </a-col>
@@ -1068,7 +1068,7 @@
     }
 
     // 建立费、建立费率计算
-    debouncedEstablishCalculate()
+    debouncedEstablishCalculate(true)
   }
 
   const dollarInput = (key) => {
@@ -1078,7 +1078,7 @@
     }
 
     // 建立费、建立费率计算
-    debouncedEstablishCalculate()
+    debouncedEstablishCalculate(true)
 }
 
 const interestChange = () => {
@@ -1197,7 +1197,7 @@ const interestChange = () => {
       clearTypeHandle()
     }
 
-    debouncedEstablishCalculate()
+    debouncedEstablishCalculate(true)
   }
 
   const initLandDefault = ref(true)

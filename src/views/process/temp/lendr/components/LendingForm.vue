@@ -180,7 +180,7 @@
             <div class="form-line"></div>
           </a-col>
 
-          <a-col :span="[2, 3].includes(Number(formState.repay_type)) ? 8 : 12">
+          <a-col :span="[2, 3, 4].includes(Number(formState.repay_type)) ? 8 : 12">
             <a-form-item :label="t('还款方式')" name="repay_type">
               <a-select
                 v-model:value="formState.repay_type"
@@ -193,7 +193,7 @@
           </a-col>
 
           <template v-if="[2, 3, 4].includes(Number(formState.repay_type))">
-            <a-col :span="[2, 3].includes(Number(formState.repay_type)) ? 8 : 12">
+            <a-col :span="8">
               <a-form-item :label="t('月度还款期')" name="repay_day_type">
                 <a-select
                   v-model:value="formState.repay_day_type"
@@ -202,6 +202,12 @@
                   :options="repayDayTypeData"
                   @change="debouncedEstablishCalculate"
                 ></a-select>
+              </a-form-item>
+            </a-col>
+
+            <a-col v-if="[4].includes(Number(formState.repay_type))" :span="8">
+              <a-form-item :label="t('月度利息')">
+                <vco-number :value="formState.mi_money" :precision="2" />
               </a-form-item>
             </a-col>
 
@@ -255,22 +261,7 @@
             </a-col>
 
             <a-col v-if="[4].includes(Number(formState.repay_type))" :span="8" class="w-full-label">
-              <a-form-item name="fixed_first_money">
-                <template #label>
-                  <div class="w-full flex justify-between items-center" style="height: 22px;">
-                    <p style="word-wrap: nowrap;">{{ t('首次还款金额') }}</p>
-                    <div class="mi-money-content">
-                      <vco-number :value="formState.mi_money" :precision="2" />
-                      <a-popover>
-                        <template #content>
-                          <p>{{ t('月度利息') }}</p>
-                        </template>
-                        <i class="iconfont">&#xe6b3;</i>
-                      </a-popover>
-                    </div>
-                  </div>
-                </template>
-
+              <a-form-item :label="t('首次还款金额')" name="fixed_first_money">
                 <a-input-number
                   v-model:value="formState.fixed_first_money"
                   :disabled="isDetails || !blockInfo.showEdit"
@@ -594,7 +585,12 @@
     formState.value.repayment_month = repaymentMonthOptions.value
       .filter((month) => month.checked)
       .map((month) => month.date)
+
     monthVisible.value = false
+    
+    if (Number(formState.value.repay_type) === 4) {
+      debouncedEstablishCalculate(true)
+    }
   }
 
   const confirmTxt = computed(() => {
@@ -814,10 +810,10 @@
 
   const formRules = ref({
     loan_money: [
-      { validator: validateAmount(t('借款总金额')), trigger: 'blur' }
+      { required: true, validator: validateAmount(t('借款总金额')), trigger: 'blur' }
     ],
     initial_amount: [
-      { validator: validateAmount1(t('首次放款总金额')), trigger: 'blur' }
+      { required: true, validator: validateAmount1(t('首次放款总金额')), trigger: 'blur' }
     ],
     time_date: [
       { required: true, message: t('请选择') + t('项目周期'), trigger: 'change' }
@@ -842,12 +838,7 @@
       { validator: validateInt, trigger: 'blur' }
     ],
     fixed_money: [
-      { required: true, message: t('请输入') + t('还款金额'), trigger: 'blur' },
-      { validator: validateAmount(t('还款金额')), trigger: 'blur' }
-    ],
-    fixed_first_money: [
-      { required: true, message: t('请输入') + t('首次还款金额'), trigger: 'blur' },
-      { validator: validateAmount(t('首次还款金额')), trigger: 'blur' }
+      { required: true, validator: validateAmount(t('还款金额')), trigger: 'blur' }
     ]
   });
 
@@ -970,7 +961,11 @@
     }
   }
 
-  const establishCalculateHandle = () => {
+  const establishCalculateHandle = (skipRepaymentMonthUpdate = false) => {
+    const shouldSkipRepaymentMonthUpdate = typeof skipRepaymentMonthUpdate === 'boolean'
+      ? skipRepaymentMonthUpdate
+      : false
+
     if (props.isDetails || !props.blockInfo.showEdit || !formState.value.repay_type) {
       return false
     }
@@ -993,6 +988,10 @@
       repay_day_type,
       repay_day
     } = formState.value
+
+    if (!time_date) {
+      return
+    }
     
     const params = {
       uuid: props.currentId,
@@ -1028,6 +1027,14 @@
       } else {
         params.project.repay_day = ''
       }
+
+      if (Number(repay_type) === 4) {
+        const selectedMonth = cloneDeep(formState.value.repayment_month || [])
+        const repayment_month = repaymentMonthsData.value.filter(item => !selectedMonth.includes(item))
+        if (repayment_month.length) {
+          params.project.repayment_month = repayment_month
+        }
+      }
     } else {
       params.project.repay_day_type = ''
       params.project.repay_day = ''
@@ -1041,7 +1048,11 @@
       }
 
       repaymentMonthsData.value = res.month || []
-      formState.value['repayment_month'] = res.month || []
+
+      if (!shouldSkipRepaymentMonthUpdate) {
+        formState.value['repayment_month'] = res.month || []
+      }
+      
       formState.value['mi_money'] = Number(res.mi_money || 0)
       formState.value['fixed_first_money'] = Number(res.fixed_first_money || 0)
     })

@@ -1037,7 +1037,7 @@
       if (estab_type === 1) {
         formState.value['credit_estabFee'] = res.EstabFee
       } else {
-        formState.value['credit_estabFeeRate'] = res.estabFeeRate
+        formState.value['credit_estabFeeRate'] = res.bili
       }
 
       repaymentMonthsData.value = res.month || []

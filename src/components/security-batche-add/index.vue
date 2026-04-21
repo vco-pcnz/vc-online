@@ -668,6 +668,11 @@ const getDataInfo = async () => {
           if (index > -1) {
             batchColumns.splice(index, 1);
           }
+
+          const index1 = formColumns.findIndex(item => item.dataIndex === 'is_calc')
+          if (index1 > -1) {
+            formColumns.splice(index1, 1);
+          }
         }
 
         dataInfo.value = res;

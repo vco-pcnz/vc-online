@@ -838,6 +838,12 @@ const setFormData = (dataDetail) => {
     const time = formState.value.apply_date;
     // calAmount();
   }
+  
+  maxReductionAmount.value = Number(data.reduction_money)
+        ? Number(data.reduction_money)
+    : 0;
+        
+      irrPercent.value = Number(data.reduction_irr || 0) < 0 ? 0 : Number(data.reduction_irr || 0);
 
   // formState.value.drawdown_account = data.drawDown.map((item) => {
   //   return item.id;
@@ -874,9 +880,9 @@ const drawDownSelectedList = ref([]);
 const drawDownSelectedListLoading = ref(false);
 const loadDrawDownSelected = (rest = true) => {
   drawDownSelectedListLoading.value = true;
-  maxReductionAmount.value = 0;
   lender.value = '';
   if (rest) {
+    maxReductionAmount.value = 0;
     formState.value.all_repayment = 0;
     drawdownList.value = [];
   }

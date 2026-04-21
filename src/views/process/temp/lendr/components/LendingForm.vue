@@ -270,7 +270,7 @@
                       <template #content>
                         <p>{{ t('估算首期还款金额') }}</p>
                       </template>
-                      <div class="mi-money-content">
+                      <div class="mi-money-content" @click="copyHandle(getFixedFirstMoney)">
                         <vco-number
                           :value="getFixedFirstMoney"
                           :precision="2"
@@ -284,7 +284,7 @@
 
                 <a-input-number
                   v-model:value="formState.fixed_first_money"
-                  :disabled="isDetails || !blockInfo.showEdit"
+                  :disabled="isDetails || !blockInfo.showEdit || disabledFirstFixed"
                   :min="0"
                   :formatter="
                     (value) =>
@@ -530,6 +530,7 @@
 <script setup>
   import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
+  import useClipboard from 'vue-clipboard3'
   import { cloneDeep, debounce } from 'lodash';
   import { message } from 'ant-design-vue/es';
   import { QuestionCircleOutlined } from '@ant-design/icons-vue'
@@ -547,6 +548,7 @@
   import dayjs from 'dayjs';
 
   const processStore = useProcessStore();
+  const { toClipboard } = useClipboard()
 
   const emits = defineEmits(['done', 'refresh', 'openData', 'compareDone', 'penaltyDone']);
 
@@ -642,6 +644,10 @@
         return true
       }
     }
+  })
+
+  const disabledFirstFixed = computed(() => {
+    return !formState.value.repayment_month.includes(repaymentMonthsData.value[0])
   })
 
   const changeAlertRef = ref()
@@ -1080,8 +1086,11 @@
       }
       
       formState.value['mi_money'] = Number(res.mi_money || 0)
-      // formState.value['fixed_first_money'] = Number(res.fixed_first_money || 0)
       getFixedFirstMoney.value = Number(res.fixed_first_money || 0)
+
+      if (disabledFirstFixed.value) {
+        formState.value['fixed_first_money'] = getFixedFirstMoney.value
+      }
     })
   }
 
@@ -1224,7 +1233,7 @@ const interestChange = () => {
       clearTypeHandle()
     }
 
-    debouncedEstablishCalculate(true)
+    debouncedEstablishCalculate()
   }
 
   const initLandDefault = ref(true)
@@ -1471,6 +1480,17 @@ const interestChange = () => {
         console.log('error', error);
       });
   };
+
+  const copyHandle = async (value) => {
+    if (value && value !== '') {
+      try {
+        await toClipboard(String(value))
+        message.success(t('复制成功'))
+      } catch(e) {
+        message.error(t('复制失败'))
+      }
+    }
+  }
 
   watch(
     () => props.lendingInfo,
@@ -1761,6 +1781,7 @@ const interestChange = () => {
   display: flex;
   align-items: center;
   gap: 4px;
+  cursor: pointer;
   .iconfont {
     user-select: none;
     cursor: pointer;

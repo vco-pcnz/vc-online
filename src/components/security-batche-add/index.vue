@@ -484,6 +484,8 @@ const pageLoading = ref(false);
 const dataInfo = ref();
 const projectInfo = ref();
 
+const isLendr = ref(false)
+
 const formRef = ref();
 const formState = ref({
   security_name: '',
@@ -658,6 +660,16 @@ const getDataInfo = async () => {
   })
     .then((res) => {
       if (res) {
+        // 是否为lendr产品
+        isLendr.value = String(res.product.code).toLowerCase() === 'lendr'
+
+        if (isLendr.value) {
+          const index = batchColumns.findIndex(item => item.dataIndex === 'is_calc')
+          if (index > -1) {
+            batchColumns.splice(index, 1);
+          }
+        }
+
         dataInfo.value = res;
         projectInfo.value = res.project;
 

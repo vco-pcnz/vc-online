@@ -256,6 +256,7 @@
                       `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                   "
                   :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                  @input="() => debouncedEstablishCalculate(true)"
                 />
               </a-form-item>
             </a-col>
@@ -271,6 +272,7 @@
                       `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                   "
                   :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                  @input="() => debouncedEstablishCalculate(true)"
                 />
               </a-form-item>
             </a-col>
@@ -329,7 +331,7 @@
                 "
                 :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
               >
-                <template #suffix>{{ t('{0}个工作日') }}</template>
+                <template #suffix>{{ t('{0}天') }}</template>
               </a-input>
             </a-form-item>
           </a-col>
@@ -1034,6 +1036,10 @@
         if (repayment_month.length) {
           params.project.repayment_month = repayment_month
         }
+
+        params.project.fixed_money = Number(formState.value.fixed_money) || 0
+        params.project.mi_money = Number(formState.value.mi_money) || 0
+        params.project.fixed_first_money = Number(formState.value.fixed_first_money) || 0
       }
     } else {
       params.project.repay_day_type = ''

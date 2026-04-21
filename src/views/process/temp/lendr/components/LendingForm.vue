@@ -262,7 +262,26 @@
             </a-col>
 
             <a-col v-if="[4].includes(Number(formState.repay_type))" :span="8" class="w-full-label">
-              <a-form-item :label="t('首次还款金额')" name="fixed_first_money">
+              <a-form-item name="fixed_first_money">
+                <template #label>
+                  <div class="w-full flex justify-between items-center" style="height: 22px;">
+                    <p style="word-wrap: nowrap;">{{ t('首次还款金额') }}</p>
+                    <a-popover>
+                      <template #content>
+                        <p>{{ t('估算首期还款金额') }}</p>
+                      </template>
+                      <div class="mi-money-content">
+                        <vco-number
+                          :value="getFixedFirstMoney"
+                          :precision="2"
+                          :end="true"
+                        ></vco-number>
+                        <i class="iconfont">&#xe6b3;</i>
+                      </div>
+                    </a-popover>
+                  </div>
+                </template>
+
                 <a-input-number
                   v-model:value="formState.fixed_first_money"
                   :disabled="isDetails || !blockInfo.showEdit"
@@ -809,6 +828,7 @@
     fixed_first_money: '',
     repayment_month: []
   });
+  const getFixedFirstMoney = ref(0)
 
   const formRules = ref({
     loan_money: [
@@ -1060,7 +1080,8 @@
       }
       
       formState.value['mi_money'] = Number(res.mi_money || 0)
-      formState.value['fixed_first_money'] = Number(res.fixed_first_money || 0)
+      // formState.value['fixed_first_money'] = Number(res.fixed_first_money || 0)
+      getFixedFirstMoney.value = Number(res.fixed_first_money || 0)
     })
   }
 
@@ -1752,6 +1773,7 @@ const interestChange = () => {
   }
   :deep(.ant-statistic-content) {
     font-size: 12px !important;
+    display: flex !important;
   }
 }
 </style>

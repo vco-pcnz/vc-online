@@ -172,3 +172,12 @@ export const buildProgressIndex = (params) =>
     method: 'get',
     params
   });
+
+  // 修改项目名称
+  export const saveProjectName = (data) =>
+    request({
+      url: 'projectDetail/saveProjectName',
+      method: 'post',
+      data
+    });
+  

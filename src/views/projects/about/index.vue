@@ -7,7 +7,7 @@
       <a-spin :spinning="loading" size="large">
         <div class="project-container">
           <div class="project-info">
-            <base-card :detail="detail" :currentId="currentId"></base-card>
+            <base-card :detail="detail" :currentId="currentId" @update="update"></base-card>
 
             <a-collapse expand-icon-position="end" ghost>
               <a-collapse-panel key="Associate" class="collapse-card">

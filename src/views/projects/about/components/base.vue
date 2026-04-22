@@ -47,7 +47,7 @@
 
       <div class="text-2xl name mt-5">
         {{ detail?.base.project_name || detail?.base.borrower_user_name }}
-        <EditProjectName :data="detail?.base" @change="reloadDetail"><i v-if="hasPermission('projects:about:name:edit')" class="iconfont colorPrimary cursor-pointer">&#xe753;</i></EditProjectName>
+        <EditProjectName :data="detail?.base" @change="reloadDetail"><i v-if="hasPermission('projects:about:name:edit')" class="iconfont colorPrimary cursor-pointer">&#xe743;</i></EditProjectName>
       </div>
       <template v-if="detail?.base?.project_address_other">
         <template v-for="(item, index) in detail?.base?.project_address_other" :key="index">

@@ -25,6 +25,7 @@
             <a-col :span="12">
               <a-form-item :label="t('还款方式')" name="all_repayment">
                 <a-select v-model:value="formState.all_repayment" :disabled="isAllCancel" @change="typeChange">
+                  <a-select-option :value="2">{{ t('月度放款') }}</a-select-option>
                   <a-select-option :value="0">{{ t('部分还款') }}</a-select-option>
                   <a-select-option :value="1">{{ t('全额还款') }}</a-select-option>
                 </a-select>
@@ -565,7 +566,7 @@ const submit = () => {
   // 删除全额还款理由
   delete params.cancel_reason;
 
-  if (params.all_repayment) {
+  if (Number(params.all_repayment) === 1) {
     params.reduction_rate = standardRateInput.value;
     params.reduction_rate_old = standardRate.value;
     params.reduction_money_old = showMaxReduction.value;
@@ -579,6 +580,15 @@ const submit = () => {
       params.extra_amount = Number(extraData.value.extraAmount || 0);
       params.apply_amount = tool.plus(Number(formState.value.apply_amount || 0), Number(extraData.value.extraAmount || 0));
     }
+  }
+
+  if (Number(params.all_repayment) === 0) {
+    params['repay_type'] = 2
+  } else if (Number(params.all_repayment) === 1) {
+    params['repay_type'] = 3
+  } else if (Number(params.all_repayment) === 2) {
+    params['repay_type'] = 1
+    params['all_repayment'] = 0
   }
 
   if (params.reduction_money) {
@@ -720,10 +730,19 @@ const dateChange = (date) => {
 
 // lendr还款金额试算
 const loadCalcRepayment = () => {
-  calcRepayment({
+  const params = {
     uuid: props.uuid,
     date: dayjs(formState.value.apply_date).format('YYYY-MM-DD')
-  })
+  }
+
+  if (Number(formState.value.all_repayment) === 0) {
+    params['repay_type'] = 2
+  } else if (Number(formState.value.all_repayment) === 1) {
+    params['repay_type'] = 3
+  } else if (Number(formState.value.all_repayment) === 2) {
+    params['repay_type'] = 1
+  }
+  calcRepayment(params)
     .then((res) => {
       calcRepaymentData.value = res;
 

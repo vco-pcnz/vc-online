@@ -1446,6 +1446,7 @@ export default {
   "估算首期还款金额": "Estimate first repayment amount",
   "编辑项目": "Edit project",
   "不还款月份": "Months with No Repayment",
-  "空": "Null"
+  "空": "Null",
+  "月度放款": "Monthly Repayment"
 }
   

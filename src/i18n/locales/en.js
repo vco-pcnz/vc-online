@@ -1436,5 +1436,13 @@ export default {
   "确定要退回吗？": "Are you sure you want to return?",
   "更新日期": "Update date",
   "资本化利息": "Capitalized interest",
-  "累计收入": "Total income"
+  "累计收入": "Total income",
+  "固定金额": "Fixed Amount",
+  "还款月份": "Repayment months",
+  "共{0}个月": "Total {0} months",
+  "设置还款月份": "Set repayment months",
+  "首次还款金额": "First repayment amount",
+  "月度利息": "Monthly Interest, MI",
+  "估算首期还款金额": "Estimate first repayment amount",
+  "编辑项目": "Edit project"
 }

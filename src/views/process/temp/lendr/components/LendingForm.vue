@@ -1316,6 +1316,30 @@ const interestChange = () => {
       nowChangeData.end_date = dayjs(nowChangeData.time_date[1]).format('YYYY-MM-DD')
     }
 
+    if (nowChangeData.repay_type !== 1) {
+      const selectedMonth = cloneDeep(formState.value.repayment_month || [])
+      const repayment_month = repaymentMonthsData.value.filter(item => !selectedMonth.includes(item))
+
+      nowChangeData.repay_day_type = Number(repay_day_type)
+      nowChangeData.repayment_month = repayment_month
+
+      if (Number(repay_day_type) === 2) {
+        nowChangeData.repay_day = Number(repay_day)
+      } else {
+        nowChangeData.repay_day = ''
+      }
+
+      if (nowChangeData.repay_type === 4) {
+        nowChangeData.fixed_money = Number(formState.value.fixed_money) || 0
+        nowChangeData.mi_money = Number(formState.value.mi_money) || 0
+        nowChangeData.fixed_first_money = Number(formState.value.fixed_first_money) || 0
+      }
+    } else {
+      nowChangeData.repay_day_type = ''
+      nowChangeData.repay_day = ''
+    }
+
+
     emits('openData', {
       table: tableDataRefData.value,
       data: formState.value

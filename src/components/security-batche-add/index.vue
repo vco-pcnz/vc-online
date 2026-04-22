@@ -673,6 +673,11 @@ const getDataInfo = async () => {
           if (index1 > -1) {
             formColumns.splice(index1, 1);
           }
+
+          const index2 = summaryCol.value.findIndex(item => item.key === 'is_calc')
+          if (index2 > -1) {
+            summaryCol.value.splice(index2, 1);
+          }
         }
 
         dataInfo.value = res;

@@ -1002,7 +1002,7 @@
     const params = {
       uuid: uuid.value
     }
-
+    
     try {
       if (props.logDate) {
         params.log__time = props.logDate

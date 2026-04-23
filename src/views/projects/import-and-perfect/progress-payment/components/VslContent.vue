@@ -1320,7 +1320,6 @@
       changeVisible.value = false
       changeColseBtn.value = false
       changeAlertRef.value.changeLoading(false)
-      restoreHandle()
 
       goBack()
     }).catch(() => {
@@ -1451,12 +1450,12 @@
       payment: paymentData,
       summary: summaryData,
       construction: construction,
-      clear: 0
+      clear: 1
     }
 
     const arr = []
     // 如果存在initial advance to fund deposit
-    if (advanceAmount.value) {
+    if (Number(advanceAmount.value)) {
       const advCopy = cloneDeep(advanceObj.value || {})
 
       delete advCopy.logs

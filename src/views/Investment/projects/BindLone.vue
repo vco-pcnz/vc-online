@@ -75,13 +75,17 @@ const props = defineProps({
   },
   id: {
     type: Array
+  },
+  product_uuid: {
+    type: String
   }
 });
 
 const { t } = useI18n();
 
 const projectParams = computed(() => ({
-  sta: 2
+  sta: 2,
+  product_uuid: props.product_uuid
 }));
 
 const { tableRef, tableLoading, pageObj, tableData, pageChange, getTableData } = useTableList(selProject, projectParams.value, false);

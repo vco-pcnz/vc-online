@@ -56,6 +56,9 @@
               >
               </a-input-number>
             </template>
+            <template v-if="column.dataIndex === 'note'">
+              <a-input v-model:value="record.note" @input="getSetData" />
+            </template>
             <template v-if="column.dataIndex === 'operation'">
               <i class="iconfont remove-icon" @click="() => removeExtraItem(index)">&#xe8c1;</i>
             </template>
@@ -111,9 +114,10 @@ const finalRepaymentAmount = computed(() => {
 })
 
 const columnsData = [
-  { title: t('类型'), dataIndex: 'type', width: 140, ellipsis: true },
-  { title: t('款项名称'), dataIndex: 'name', width: 140, ellipsis: true },
-  { title: t('金额'), dataIndex: 'amount', width: 140 },
+  { title: t('类型'), dataIndex: 'type', width: 120, ellipsis: true },
+  { title: t('款项名称'), dataIndex: 'name', width: 110, ellipsis: true },
+  { title: t('金额'), dataIndex: 'amount', width: 110 },
+  { title: t('说明'), dataIndex: 'note', width: 140 },
   { title: t('操作'), dataIndex: 'operation', width: 50, fixed: 'right', align: 'center' }
 ]
 
@@ -125,7 +129,8 @@ const extraItemData = {
   name_str: '',
   project_name: '',
   project_uuid: '',
-  amount: ''
+  amount: '',
+  note: ''
 }
 
 const extraData = ref([])
@@ -164,6 +169,7 @@ const typeDataChange = (record) => {
   record.project_name = ''
   record.project_uuid = ''
   record.amount = ''
+  record.note = ''
 
   if (selectArr.includes(record.type) && (!nameObjData.value[record.type] || !nameObjData.value[record.type].length)) {
     systemDictData(record.type).then((res) => {

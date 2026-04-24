@@ -2,7 +2,7 @@
   <a-spin :spinning="spinning" size="large">
     <div style="min-height: 200px">
       <template v-if="tree">
-        <Tab v-model:active="tabIndex" v-model:folder="folder" :data="tree" :apply_uuid="project_id" :annex_id="annex_id" :edit="edit" v-model:showSearch="showSearch"></Tab>
+        <Tab v-model:active="tabIndex" v-model:folder="folder" :data="tree" :apply_uuid="project_id" :annex_id="annex_id" :__way__="__way__" :edit="edit" v-model:showSearch="showSearch"></Tab>
         <div class="content" :class="{ grid: tree }" v-if="!showSearch">
           <!--   && tree[tabIndex] && tree[tabIndex].children -->
           <!--  && tree[tabIndex].children -->

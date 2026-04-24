@@ -38,7 +38,7 @@
       />
     </div>
   </a-spin>
-  <BindLone v-model:visible="open_projects" :selectedData="bindData" :id="invest_id" @update="handleBindLoneChange" />
+  <BindLone v-model:visible="open_projects" :selectedData="bindData" :product_uuid="productStore.currentProduct" :id="invest_id" @update="handleBindLoneChange" />
 </template>
 
 <script setup>

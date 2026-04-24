@@ -96,6 +96,10 @@ const useUserStore = defineStore('VcOnlineUserInfo', {
         this.pageRole = 'Umbrella';
         params = { __way__: 'umbrella' };
       }
+      if (window.location.pathname.includes('valuer')) {
+        this.pageRole = 'valuer';
+        params = { __way__: 'valuer' };
+      }
       const result = await getUserInfo(params).catch(() => {});
       if (!result) {
         return {};
@@ -109,6 +113,9 @@ const useUserStore = defineStore('VcOnlineUserInfo', {
       }
       if (this.userInfo.roles === 'umbrella') {
         this.pageRole = 'Umbrella';
+      }
+      if (this.userInfo.roles === 'valuer') {
+        this.pageRole = 'valuer';
       }
 
       this.isNormalUser = Number(result.ptRole);
@@ -147,6 +154,10 @@ const useUserStore = defineStore('VcOnlineUserInfo', {
       if (window.location.pathname.includes('umbrella')) {
         this.pageRole = 'Umbrella';
         params = { __way__: 'umbrella' };
+      }
+      if (window.location.pathname.includes('valuer')) {
+        this.pageRole = 'valuer';
+        params = { __way__: 'valuer' };
       }
       const result = await getMenuList(params).catch(() => {});
       if (!result) {

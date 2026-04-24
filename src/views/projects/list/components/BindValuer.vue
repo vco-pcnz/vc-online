@@ -1,31 +1,26 @@
 <template>
   <div>
-    <a-modal :open="visible" :title="t('选择项目')" :width="850" :footer="null" :keyboard="false" :maskClosable="false" @cancel="updateVisible(false)">
+    <a-modal :open="visible" :title="t('选择项目')" :width="850" :footer="null" :keyboard="false" :maskClosable="false"
+             @cancel="updateVisible(false)">
       <vco-page-search>
         <vco-page-search-item :title="t('项目信息')" width="400">
-          <vco-type-input v-model="searchForm.project_keyword" v-model:type="searchForm.project_search_type" :type-data="projectsTypeData" :placeholder="t('请输入')" :typeWidth="150"></vco-type-input>
+          <vco-type-input v-model="searchForm.project_keyword" v-model:type="searchForm.project_search_type"
+                          :type-data="projectsTypeData" :placeholder="t('请输入')" :typeWidth="150"></vco-type-input>
         </vco-page-search-item>
         <vco-page-search-item>
           <div class="flex items-center gap-2">
             <a-button type="dark" @click="searchHandle(false)"><i class="iconfont">&#xe756;</i>{{ t('搜索') }}</a-button>
-            <a-button type="dark-line" @click="searchHandle(true)"><i class="iconfont">&#xe757;</i>{{ t('重置') }}</a-button>
+            <a-button type="dark-line" @click="searchHandle(true)"><i class="iconfont">&#xe757;</i>{{ t('重置')
+              }}</a-button>
           </div>
         </vco-page-search-item>
       </vco-page-search>
 
       <a-spin :spinning="tableLoading" size="large">
         <div class="table-content sys-table-content mt-5">
-          <a-table
-            ref="tableRef"
-            rowKey="id"
-            :columns="columns"
-            :data-source="tableData"
-            table-layout="fixed"
-            :pagination="false"
-            :scroll="{ y: 300 }"
-            row-key="uuid"
-            :row-selection="{ selectedRowKeys: selectedRowKeys, onSelect: onSelect, onSelectAll: onSelectAll }"
-          >
+          <a-table ref="tableRef" rowKey="id" :columns="columns" :data-source="tableData" table-layout="fixed"
+                   :pagination="false" :scroll="{ y: 300 }" row-key="uuid"
+                   :row-selection="{ selectedRowKeys: selectedRowKeys, onSelect: onSelect, onSelectAll: onSelectAll }">
             <template #bodyCell="{ column, record }">
               <template v-if="column.dataIndex === 'project_name'">
                 <span>{{ record?.project_name || '--' }}</span>
@@ -40,14 +35,18 @@
           </a-table>
         </div>
         <div v-if="tableData.length">
-          <a-pagination size="small" :total="pageObj.total" :current="pageObj.currentPage" :page-size="pageObj.pageSize" show-size-changer show-quick-jumper :show-total="(total) => t('共{0}条', [total])" @change="pageChange" />
+          <a-pagination size="small" :total="pageObj.total" :current="pageObj.currentPage" :page-size="pageObj.pageSize"
+                        show-size-changer show-quick-jumper :show-total="(total) => t('共{0}条', [total])"
+                        @change="pageChange" />
         </div>
       </a-spin>
 
       <div class="mt-6 flex justify-end gap-5">
         <a-button type="grey" class="big shadow bold uppercase" @click="updateVisible(false)">{{ t('取消') }}</a-button>
 
-        <a-button type="dark" class="big shadow bold uppercase" :loading="submitLoading" @click="submitHandle">{{ t('确定') }}</a-button>
+        <a-button type="dark" class="big shadow bold uppercase" :loading="submitLoading" @click="submitHandle">{{
+          t('确定')
+          }}</a-button>
       </div>
     </a-modal>
   </div>
@@ -56,28 +55,16 @@
 <script setup>
 import { ref, reactive, watch, computed } from 'vue';
 import { selProject } from '@/api/process';
-import { bindProject } from '@/api/invest';
-
+import { getValuer, bindValuer } from '@/api/project/project';
 import { useTableList } from '@/hooks/useTableList';
 import { useI18n } from 'vue-i18n';
-import { useUsersStore } from '@/store';
 
-const usersStore = useUsersStore();
 const emits = defineEmits(['update:visible', 'update']);
 
 const props = defineProps({
   visible: {
     type: Boolean,
     default: false
-  },
-  selectedData: {
-    type: Array
-  },
-  id: {
-    type: Array
-  },
-  product_uuid: {
-    type: String
   }
 });
 
@@ -94,8 +81,6 @@ const columns = reactive([
   { title: t('借款人'), dataIndex: 'borrower', width: 120, align: 'left' }
 ]);
 
-const selectedObj = ref({});
-
 /* 更新visible */
 const updateVisible = (value) => {
   emits('update:visible', value);
@@ -109,6 +94,17 @@ const getBorrower = (record) => {
   }
 };
 
+const getBindData = () => {
+  tableLoading.value = true;
+  getValuer().then((res) => {
+    selectedRowKeys.value = res;
+      tableLoading.value = false;
+    })
+    .catch((err) => {
+      tableLoading.value = false;
+    });
+}
+
 watch(
   () => props.visible,
   (val) => {
@@ -119,13 +115,10 @@ watch(
       }
       const params = {
         ...searchForm.value,
-        sta: 2,
-        product_uuid: props.product_uuid
+        sta: 2
       };
       getTableData(params);
-      if (props.selectedData.length) {
-        selectedRowKeys.value = props.selectedData || [];
-      }
+      getBindData()
     } else {
       selectedRowKeys.value = []; // 存放UUid
       selectedRows.value = []; // 存放所有选中的选项的所有内容
@@ -180,8 +173,7 @@ const searchHandle = (flag) => {
   }
   const params = {
     ...searchForm.value,
-    ...projectParams.value,
-    product_uuid: props.product_uuid
+    ...projectParams.value
   };
   getTableData(params);
 };
@@ -190,12 +182,11 @@ const submitLoading = ref(false);
 const submitHandle = () => {
   submitLoading.value = true;
   const params = {
-    uuid: props.id,
-    uuids: selectedRowKeys.value
+    uuids: selectedRowKeys.value,
+    bind_type:1
   };
-  bindProject(params)
+  bindValuer(params)
     .then(() => {
-      usersStore.getUserList();
       submitLoading.value = false;
       emits('update');
       updateVisible(false);
@@ -245,6 +236,7 @@ const onSelectAll = (selected, Rows, changeRows) => {
 
 <style lang="less" scoped>
 @import '@/styles/variables.less';
+
 .selected-content {
   padding-bottom: 10px;
   display: flex;

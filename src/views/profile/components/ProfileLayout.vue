@@ -99,6 +99,18 @@ const panes = computed(() => {
   // if (isExternalUser.value) {
   //   return allPanes.filter((item) => !['parentTeam', 'team'].includes(item.key));
   // }
+  if (pageRole.value == 'valuer') {
+    return [
+    {
+      key: 'about',
+      label: t('关于')
+    },
+    {
+      key: 'safe',
+      label: t('安全')
+    }
+    ]
+  }
   return allPanes;
 });
 
@@ -108,6 +120,8 @@ const onChange = (key) => {
   } else {
     if (pageRole.value == 'Umbrella') {
       router.push(`/umbrella/profile/${key}`);
+    } if (pageRole.value == 'valuer') {
+      router.push(`/valuer/profile/${key}`);
     } else {
       router.push(`/profile/${key}`);
     }

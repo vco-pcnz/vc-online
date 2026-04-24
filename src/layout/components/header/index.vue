@@ -2,7 +2,7 @@
   <div class="layout_header">
     <div class="title_with_product">
       <div class="header_title">VC Online</div>
-      <a-dropdown trigger="click" v-model:open="productOpen" v-if="showProductDropdown">
+      <a-dropdown trigger="click" v-model:open="productOpen" v-if="showProductDropdown && userInfo?.roles !=='valuer'">
         <button class="product-dropdown" type="button">
           <span>{{ currentProductLabel }}</span>
           <DownOutlined class="product-arrow" :class="{ open: productOpen }" style="font-size: 12px" />
@@ -335,6 +335,8 @@ const toLoans = (val) => {
     navigationTo('/investor/projects', true);
   } else if (val === 'umbrella') {
     navigationTo('/umbrella/requests/loan', true);
+  } else if (val === 'valuer') {
+    navigationTo('/valuer/home', true);
   } else {
     navigationTo('/', true);
   }

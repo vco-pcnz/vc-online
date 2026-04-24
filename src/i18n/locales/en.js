@@ -1447,6 +1447,8 @@ export default {
   "编辑项目": "Edit project",
   "不还款月份": "Months with No Repayment",
   "空": "Null",
-  "月度放款": "Monthly Repayment"
+  "月度放款": "Monthly Repayment",
+  "估值": "Project",
+  "绑定估值": "Bind valuer"
 }
   

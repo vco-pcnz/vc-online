@@ -68,6 +68,9 @@ const props = defineProps({
   edit: {
     type: Boolean,
     default: true
+  },
+  __way__: {
+    type: String
   }
 });
 
@@ -103,7 +106,7 @@ const updateSearch = () => {
 
 const search = debounce(() => {
   searchLoading.value = true;
-  getChild({ apply_uuid: props.apply_uuid, attach__name: keywords.value })
+  getChild({ apply_uuid: props.apply_uuid, attach__name: keywords.value,__way__:props.__way__ })
     .then((res) => {
       folders.value = res.data;
     })

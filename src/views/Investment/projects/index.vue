@@ -14,6 +14,10 @@
         <a-button type="cyan" shape="round" class="ml-3" :loading="uploadLoading">{{ t('批量绑定项目') }}</a-button>
       </vco-import>
     </div>
+    <div v-if="isVslProduct" class="flex">
+      <ScheduleExport :sta="pageStore.sta" :searchParams="pageStore.searchParams"></ScheduleExport>
+      <DateExport :sta="pageStore.sta" :searchParams="pageStore.searchParams"></DateExport>
+    </div>
   </div>
 
   <TableSearch class="mb-5" ref="tableSearchRef" :type="pageStore.sta == 1 ? 'open' : 'closed'"></TableSearch>
@@ -34,7 +38,7 @@
       />
     </div>
   </a-spin>
-  <BindLone v-model:visible="open_projects" :selectedData="bindData" :id="invest_id" @update="handleBindLoneChange" />
+  <BindLone v-model:visible="open_projects" :selectedData="bindData" :product_uuid="productStore.currentProduct" :id="invest_id" @update="handleBindLoneChange" />
 </template>
 
 <script setup>
@@ -51,6 +55,8 @@ import { hasPermission } from '@/directives/permission/index';
 import { message } from 'ant-design-vue';
 import useProductStore from '@/store/modules/product';
 const productStore = useProductStore();
+import DateExport from './components/DateExport.vue';
+import ScheduleExport from './components/ScheduleExport.vue';
 
 const isVslProduct = computed(() => {
   const p = productStore.productData.find((item) => item.uuid === productStore.currentProduct);

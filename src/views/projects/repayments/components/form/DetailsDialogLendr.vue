@@ -2,7 +2,7 @@
   <a-modal
     :open="visible"
     :title="t('还款详情')"
-    :width="730"
+    :width="900"
     :footer="null"
     :keyboard="false"
     :maskClosable="false"
@@ -59,6 +59,9 @@
               </template>
               <template v-if="column.dataIndex === 'real_amount'">
                 <vco-number size="fs_md" :value="record.real_amount" :precision="2"></vco-number>
+              </template>
+              <template v-if="column.dataIndex === 'sales_price'">
+                <vco-number size="fs_md" :value="record.sales_price" :precision="2"></vco-number>
               </template>
             </template>
           </a-table>
@@ -144,7 +147,8 @@
     { title: t('产权编号'), dataIndex: 'card_no', width: 100 },
     { title: t('类型'), dataIndex: 'type_name', width: 90 },
     { title: t('抵押物价值'), dataIndex: 'amount', width: 150 },
-    { title: t('当前抵押物价值'), dataIndex: 'real_amount', width: 170 }
+    { title: t('当前抵押物价值'), dataIndex: 'real_amount', width: 170 },
+    { title: t('销售价格'), dataIndex: 'sales_price', width: 170 }
   ]);
 
   const subLoading = ref(false)

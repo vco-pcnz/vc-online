@@ -307,7 +307,7 @@
     return `${saveReturnRea.value}，${t(txt)}`
   })
 
-  const repayTypeData = [t('到期一次性还本付息'), t('按月付息，到期还本'), t('等额本息')]
+  const repayTypeData = [t('到期一次性还本付息'), t('按月付息，到期还本'), t('等额本息'), t('固定金额')]
   const repayDayTypeData = [t('放款日对应日'), t('每月固定日'), t('每月最后一天')]
 
   const compareHandle = () => {
@@ -429,6 +429,35 @@
           before: findPenaltyName(staticFormData?.penalty_type),
           now: findPenaltyName(obj?.penalty_type)
         })
+      }
+
+      if (Number(obj.repay_type) === 4) {
+        if (Number(obj?.fixed_first_money) !== Number(staticFormData?.fixed_first_money)) {
+          arr.unshift({
+            name: t('首次还款金额'),
+            before: `$${numberStrFormat(Number(staticFormData?.fixed_first_money))}`,
+            now: `$${numberStrFormat(Number(obj?.fixed_first_money))}`
+          })
+        }
+        
+        if (Number(obj?.fixed_money) !== Number(staticFormData?.fixed_money)) {
+          arr.unshift({
+            name: t('还款金额'),
+            before: `$${numberStrFormat(Number(staticFormData?.fixed_money))}`,
+            now: `$${numberStrFormat(Number(obj?.fixed_money))}`
+          })
+        }
+
+        const oldMonths = Array.isArray(staticFormData.repayment_month) ? staticFormData.repayment_month.join(',') : ''
+        const nowMonths = obj.repayment_month.join(',')
+
+        if (oldMonths !== nowMonths) {
+          arr.unshift({
+            name: t('不还款月份'),
+            before: oldMonths ? oldMonths : t('空'),
+            now: nowMonths
+          })
+        }
       }
 
       if (Number(obj?.repay_day_type) !== Number(staticFormData?.repay_day_type)) {

@@ -221,11 +221,24 @@
               </a>
               <template #overlay>
                 <a-menu :selectable="false">
-                  <a-menu-item key="0">
+                  <a-menu-item key="0" v-if="hasPermission('projects:copy')">
                     <vco-popconfirm url="/project/project/copyProject" :formParams="{ uuid: record.uuid }" :tip="t('确定要复制{0}', [record.project_name])" @update="toCopyDetail">
                       <a>{{ t('复制') }}</a>
                     </vco-popconfirm>
                   </a-menu-item>
+                  <template v-if="hasPermission('project:list:bindValuer')">
+                  <a-menu-item key="1" v-if="!valuerProjectData.includes(record.uuid)">
+                    <vco-popconfirm url="/projectDetail/bindValuer" :formParams="{ uuids: [record.uuid] ,bind_type:0}" :tip="t('确定要绑定{0}', [record.project_name])" @update="changeValuerData(record.uuid,1)">
+                      <a>{{ t('绑定') }}</a>
+                    </vco-popconfirm>
+                  </a-menu-item>
+                  <a-menu-item key="1" v-if="valuerProjectData.includes(record.uuid)">
+                    <vco-popconfirm url="/projectDetail/unbindValuer" :formParams="{ uuids: [record.uuid] }" :tip="t('确定要取消绑定{0}', [record.project_name])" @update="changeValuerData(record.uuid,2)">
+                      <a>{{ t('取消绑定') }}</a>
+                    </vco-popconfirm>
+                  </a-menu-item>
+
+                  </template>
                 </a-menu>
               </template>
             </a-dropdown>
@@ -247,6 +260,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
 import { useProjectsStore, useUserStore, useProductStore } from '@/store';
+import { getValuer, bindValuer } from '@/api/project/project';
 const pageStore = useProjectsStore();
 const productStore = useProductStore();
 const emits = defineEmits(['update:data', 'update:keys', 'change']);
@@ -439,7 +453,32 @@ onMounted(() => {
       width: 50
     });
   }
+  // if (hasPermission('project:list:bindValuer')) {
+  //   getBindData()
+  // }
 });
+
+const loadValuerProject = ref(false)
+const valuerProjectData = ref([])
+const getBindData = () => {
+  loadValuerProject.value = true;
+  getValuer().then((res) => {
+    valuerProjectData.value = res;
+      loadValuerProject.value = false;
+    })
+    .catch((err) => {
+      loadValuerProject.value = false;
+    });
+}
+
+const changeValuerData = (val,type) => {
+  if (type == 1) {
+    valuerProjectData.value.push(val)
+  }
+  if (type == 2) {
+    valuerProjectData.value = valuerProjectData.value.filter(item => item !== val);
+  }
+}
 
 const sort = ref({
   sort: '',

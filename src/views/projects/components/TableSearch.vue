@@ -15,14 +15,14 @@
 
       <vco-page-search-item :title="t('开始日期1')" width="266">
         <div class="flex items-center gap-2">
-          <a-date-picker v-model:value="searchForm.start_date_s" :format="selectDateFormat()" :placeholder="t('开始日期2')" @change="searchForm.end_date = ''" />
+          <a-date-picker v-model:value="searchForm.start_date_s" :format="selectDateFormat()" :placeholder="t('开始日期2')" @change="searchForm.start_date_e = ''" />
           <p>-</p>
           <a-date-picker v-model:value="searchForm.start_date_e" :format="selectDateFormat()" :disabledDate="disabledDateFormatAfter" :placeholder="t('结束日期2')" />
         </div>
       </vco-page-search-item>
       <vco-page-search-item :title="t('结束日期1')" width="266">
         <div class="flex items-center gap-2">
-          <a-date-picker v-model:value="searchForm.end_date_s" :format="selectDateFormat()" :placeholder="t('开始日期2')" @change="searchForm.end_date = ''" />
+          <a-date-picker v-model:value="searchForm.end_date_s" :format="selectDateFormat()" :placeholder="t('开始日期2')" @change="searchForm.end_date_e = ''" />
           <p>-</p>
           <a-date-picker v-model:value="searchForm.end_date_e" :format="selectDateFormat()" :disabledDate="disabledDateFormatAfter2" :placeholder="t('结束日期2')" />
         </div>

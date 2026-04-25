@@ -309,6 +309,11 @@
                           `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                           " :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" class="mini" />
                       </template>
+                      <template v-if="column.dataIndex === 'sales_price'">
+                        <a-input-number v-model:value="record.sales_price" :max="99999999999" :formatter="(value) =>
+                          `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                          " :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" class="mini" />
+                      </template>
                       <template v-if="column.dataIndex === 'operation'">
                         <a-popconfirm v-if="dataInfo?.id && itemInData(record.uuid)" :title="t('确定删除吗？')"
                                       @confirm="removeItems(index, record)">
@@ -592,6 +597,7 @@ const submit = () => {
       return {
         uuid: item.uuid,
         real_amount: item.real_amount,
+        sales_price: item.sales_price
       };
     });
     params.security = security;
@@ -685,6 +691,7 @@ const relatedColumns = reactive([
   { title: t('类型'), dataIndex: 'type_name', width: 90 },
   { title: t('抵押物价值'), dataIndex: 'amount', width: 150 },
   { title: t('当前抵押物价值'), dataIndex: 'real_amount', width: 170 },
+  { title: t('销售价格'), dataIndex: 'sales_price', width: 170 },
   {
     title: t('操作1'),
     dataIndex: 'operation',
@@ -748,6 +755,7 @@ const securitiesDone = (data) => {
     item.real_amount = Number(item.real_amount)
       ? item.real_amount
       : item.amount;
+    item.sales_price = Number(item.sales_price)
   });
 
   relatedData.value = selData;
@@ -850,12 +858,25 @@ const downloadLoading = ref(false);
 const downloadStatement = () => {
   downloadLoading.value = true;
 
+  // 获取总的利息
+  let totalInterest = 0;
+  if (drawdownList.value && drawdownList.value.length) {
+    drawdownList.value.map(item => {
+      if (item.interest_status && item.reality_interest && item.reality_interest >= 0) {
+        totalInterest = tool.plus(totalInterest,Number(item.reality_interest))
+      } else {
+        totalInterest = tool.plus(totalInterest,Number(item.total_interest))
+      }
+    })
+  }
+
   projectLoanAllRepayment({
     uuid: props.uuid,
     date: formState.value.apply_date,
     pdf: 1,
     less: formState.value.reduction_money || 0,
     verify_id: props.dataInfo?.id,
+    totalInterest: totalInterest
   })
     .then((res) => {
       downloadLoading.value = false;

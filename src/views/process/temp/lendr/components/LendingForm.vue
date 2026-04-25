@@ -19,6 +19,38 @@
       @submit="saveRequeset"
     ></vco-confirm-alert>
 
+    <!-- 月份设置弹窗 -->
+    <a-modal
+      :open="monthVisible"
+      :title="t('设置还款月份')"
+      :width="600"
+      :footer="null"
+      :keyboard="false"
+      :maskClosable="false"
+      class="middle-position"
+      @cancel="monthVisible = false"
+    >
+      <div class="set-month-content">
+        <div
+          v-for="(item, index) in repaymentMonthOptions"
+          :key="item.date"
+          class="set-month-item"
+          :class="{ checked: item.checked, disabled: isDetails || !blockInfo.showEdit || index === repaymentMonthOptions.length - 1 }"
+          @click="toggleRepaymentMonth(item, index === repaymentMonthOptions.length - 1)"
+        >
+          <span>{{ item.date }}</span>
+          <div v-if="item.checked" class="month-checked-corner">
+            <i class="iconfont">&#xe601;</i>
+          </div>
+        </div>
+      </div>
+
+      <div class="set-month-footer">
+        <a-button type="grey" class="big shadow bold uppercase" @click="monthVisible = false">{{ t('取消') }}</a-button>
+        <a-button type="dark" class="big shadow bold uppercase" @click="confirmMonth">{{ t('确定') }}</a-button>
+      </div>
+    </a-modal>
+
     <vco-process-title :title="t('放款信息')">
       <div v-if="!isDetails" class="flex gap-5 items-center">
         <a-button
@@ -148,28 +180,119 @@
             <div class="form-line"></div>
           </a-col>
 
-          <a-col :span="12">
+          <a-col :span="[2, 3, 4].includes(Number(formState.repay_type)) ? 8 : 12">
             <a-form-item :label="t('还款方式')" name="repay_type">
               <a-select
                 v-model:value="formState.repay_type"
                 style="width: 100%"
                 :disabled="isDetails || !blockInfo.showEdit"
                 :options="repayTypeData"
-                @change="debouncedEstablishCalculate"
+                @change="() => debouncedEstablishCalculate(false)"
               ></a-select>
             </a-form-item>
           </a-col>
 
-          <template v-if="[2, 3].includes(Number(formState.repay_type))">
-            <a-col :span="12">
-              <a-form-item :label="t('还款日')" name="repay_day_type">
+          <template v-if="[2, 3, 4].includes(Number(formState.repay_type))">
+            <a-col :span="8">
+              <a-form-item :label="t('月度还款期')" name="repay_day_type">
                 <a-select
                   v-model:value="formState.repay_day_type"
                   style="width: 100%"
                   :disabled="isDetails || !blockInfo.showEdit"
                   :options="repayDayTypeData"
-                  @change="debouncedEstablishCalculate"
+                  @change="() => debouncedEstablishCalculate(false)"
                 ></a-select>
+              </a-form-item>
+            </a-col>
+
+            <a-col v-if="[4].includes(Number(formState.repay_type))" :span="8">
+              <a-form-item :label="t('月度利息')">
+                <vco-number :value="formState.mi_money" :precision="2" />
+              </a-form-item>
+            </a-col>
+
+            <a-col :span="8" class="w-full-label">
+              <a-form-item name="repayment_month">
+                <template #label>
+                  <div class="w-full flex justify-between items-center" style="height: 22px;">
+                    <p style="word-wrap: nowrap;">{{ t('还款月份') }}</p>
+                    <a-button
+                      v-if="!isDetails && blockInfo.showEdit"
+                      type="link"
+                      style="font-size: 12px; height: auto !important;"
+                      class="flex items-center"
+                      @click="monthVisible = true"
+                    >
+                      <p>{{ t('设置') }}</p>
+                      <i class="iconfont" style="font-size: 12px;">&#xe602;</i>
+                    </a-button>
+                  </div>
+                </template>
+
+                <div class="months-info">
+                  <template v-if="formState.repayment_month.length">
+                    <p>{{ t('共{0}个月', [formState.repayment_month.length]) }}</p>
+                    <a-popover :title="t('还款月份')">
+                      <template #content>
+                        <div class="month-list">
+                          <div class="month-item" v-for="it in formState.repayment_month" :key="it">{{ it }}</div>
+                        </div>
+                      </template>
+                      <i class="iconfont">&#xe63e;</i>
+                    </a-popover>
+                  </template>
+                </div>
+              </a-form-item>
+            </a-col>
+
+            <a-col v-if="[4].includes(Number(formState.repay_type))" :span="8">
+              <a-form-item :label="t('还款金额')" name="fixed_money">
+                <a-input-number
+                  v-model:value="formState.fixed_money"
+                  :disabled="isDetails || !blockInfo.showEdit"
+                  :min="0"
+                  :formatter="
+                    (value) =>
+                      `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                  "
+                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                  @input="() => debouncedEstablishCalculate(true)"
+                />
+              </a-form-item>
+            </a-col>
+
+            <a-col v-if="[4].includes(Number(formState.repay_type))" :span="8" class="w-full-label">
+              <a-form-item name="fixed_first_money">
+                <template #label>
+                  <div class="w-full flex justify-between items-center" style="height: 22px;">
+                    <p style="word-wrap: nowrap;">{{ t('首次还款金额') }}</p>
+                    <a-popover>
+                      <template #content>
+                        <p>{{ t('估算首期还款金额') }}</p>
+                      </template>
+                      <div class="mi-money-content" @click="copyHandle(getFixedFirstMoney)">
+                        <vco-number
+                          :value="getFixedFirstMoney"
+                          :precision="2"
+                          :end="true"
+                        ></vco-number>
+                        <i class="iconfont">&#xe6b3;</i>
+                      </div>
+                    </a-popover>
+                  </div>
+                </template>
+
+                <a-input-number
+                  v-model:value="formState.fixed_first_money"
+                  :disabled="isDetails || !blockInfo.showEdit || disabledFirstFixed"
+                  :min="0"
+                  :formatter="
+                    (value) =>
+                      `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                  "
+                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                  @input="() => debouncedEstablishCalculate(true)"
+                />
               </a-form-item>
             </a-col>
 
@@ -180,7 +303,7 @@
                   style="width: 100%"
                   :disabled="isDetails || !blockInfo.showEdit"
                   :options="repayDayData"
-                  @change="debouncedEstablishCalculate"
+                  @change="() => debouncedEstablishCalculate(true)"
                 ></a-select>
               </a-form-item>
             </a-col>
@@ -227,7 +350,7 @@
                 "
                 :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
               >
-                <template #suffix>{{ t('{0}个工作日') }}</template>
+                <template #suffix>{{ t('{0}天') }}</template>
               </a-input>
             </a-form-item>
           </a-col>
@@ -407,6 +530,7 @@
 <script setup>
   import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
+  import useClipboard from 'vue-clipboard3'
   import { cloneDeep, debounce } from 'lodash';
   import { message } from 'ant-design-vue/es';
   import { QuestionCircleOutlined } from '@ant-design/icons-vue'
@@ -424,6 +548,7 @@
   import dayjs from 'dayjs';
 
   const processStore = useProcessStore();
+  const { toClipboard } = useClipboard()
 
   const emits = defineEmits(['done', 'refresh', 'openData', 'compareDone', 'penaltyDone']);
 
@@ -458,6 +583,39 @@
   const staticFormData = ref()
   const staticWriteData = ref()
 
+  // 还款总月份
+  const repaymentMonthsData = ref([])
+  const monthVisible = ref(false)
+  const repaymentMonthOptions = ref([])
+
+  const syncRepaymentMonthOptions = () => {
+    const checkedMonths = formState.value.repayment_month || []
+    repaymentMonthOptions.value = (repaymentMonthsData.value || []).map((item) => ({
+      date: item,
+      checked: checkedMonths.includes(item)
+    }))
+  }
+
+  const toggleRepaymentMonth = (item, disabled) => {
+    if (props.isDetails || !props.blockInfo.showEdit || disabled) {
+      return
+    }
+
+    item.checked = !item.checked
+  }
+
+  const confirmMonth = () => {
+    formState.value.repayment_month = repaymentMonthOptions.value
+      .filter((month) => month.checked)
+      .map((month) => month.date)
+
+    monthVisible.value = false
+    
+    if (Number(formState.value.repay_type) === 4) {
+      debouncedEstablishCalculate(true)
+    }
+  }
+
   const confirmTxt = computed(() => {
     let res = ''
     if (!props.isDetails) {
@@ -486,6 +644,10 @@
         return true
       }
     }
+  })
+
+  const disabledFirstFixed = computed(() => {
+    return !formState.value.repayment_month.includes(repaymentMonthsData.value[0])
   })
 
   const changeAlertRef = ref()
@@ -608,7 +770,6 @@
   ])
 
   const repayTypeData = computed(() => {
-    const hasDays = Number(formState.value.days) > 0
     return [
       {
         label: t('到期一次性还本付息'),
@@ -620,8 +781,11 @@
       },
       {
         label: t('等额本息'),
-        value: '3',
-        disabled: false
+        value: '3'
+      },
+      {
+        label: t('固定金额'),
+        value: '4'
       }
     ]
   })
@@ -664,15 +828,20 @@
     repay_day: '',
     penalty_type: '',
     penalty_rate: '',
-    grace_day: ''
+    grace_day: '',
+    mi_money: '',
+    fixed_money: '',
+    fixed_first_money: '',
+    repayment_month: []
   });
+  const getFixedFirstMoney = ref(0)
 
   const formRules = ref({
     loan_money: [
-      { validator: validateAmount(t('借款总金额')), trigger: 'blur' }
+      { required: true, validator: validateAmount(t('借款总金额')), trigger: 'blur' }
     ],
     initial_amount: [
-      { validator: validateAmount1(t('首次放款总金额')), trigger: 'blur' }
+      { required: true, validator: validateAmount1(t('首次放款总金额')), trigger: 'blur' }
     ],
     time_date: [
       { required: true, message: t('请选择') + t('项目周期'), trigger: 'change' }
@@ -695,6 +864,9 @@
     grace_day: [
       { required: true, message: t('请选择') + t('罚息减免天数'), trigger: 'blur' },
       { validator: validateInt, trigger: 'blur' }
+    ],
+    fixed_money: [
+      { required: true, validator: validateAmount(t('还款金额')), trigger: 'blur' }
     ]
   });
 
@@ -817,7 +989,11 @@
     }
   }
 
-  const establishCalculateHandle = () => {
+  const establishCalculateHandle = (skipRepaymentMonthUpdate = false) => {
+    const shouldSkipRepaymentMonthUpdate = typeof skipRepaymentMonthUpdate === 'boolean'
+      ? skipRepaymentMonthUpdate
+      : false
+
     if (props.isDetails || !props.blockInfo.showEdit || !formState.value.repay_type) {
       return false
     }
@@ -840,6 +1016,10 @@
       repay_day_type,
       repay_day
     } = formState.value
+
+    if (!time_date) {
+      return
+    }
     
     const params = {
       uuid: props.currentId,
@@ -875,6 +1055,18 @@
       } else {
         params.project.repay_day = ''
       }
+
+      if (Number(repay_type) === 4) {
+        const selectedMonth = cloneDeep(formState.value.repayment_month || [])
+        const repayment_month = repaymentMonthsData.value.filter(item => !selectedMonth.includes(item))
+        if (repayment_month.length) {
+          params.project.repayment_month = repayment_month
+        }
+
+        params.project.fixed_money = Number(formState.value.fixed_money) || 0
+        params.project.mi_money = Number(formState.value.mi_money) || 0
+        params.project.fixed_first_money = Number(formState.value.fixed_first_money) || 0
+      }
     } else {
       params.project.repay_day_type = ''
       params.project.repay_day = ''
@@ -882,9 +1074,22 @@
 
     lendrEstabCalc(params).then(res => {
       if (estab_type === 1) {
-        formState.value['credit_estabFee'] = res
+        formState.value['credit_estabFee'] = res.EstabFee
       } else {
-        formState.value['credit_estabFeeRate'] = res
+        formState.value['credit_estabFeeRate'] = res.bili
+      }
+
+      repaymentMonthsData.value = res.month || []
+
+      if (!shouldSkipRepaymentMonthUpdate) {
+        formState.value['repayment_month'] = res.month || []
+      }
+      
+      formState.value['mi_money'] = Number(res.mi_money || 0)
+      getFixedFirstMoney.value = Number(res.fixed_first_money || 0)
+
+      if (disabledFirstFixed.value) {
+        formState.value['fixed_first_money'] = getFixedFirstMoney.value
       }
     })
   }
@@ -899,7 +1104,7 @@
     }
 
     // 建立费、建立费率计算
-    debouncedEstablishCalculate()
+    debouncedEstablishCalculate(true)
   }
 
   const dollarInput = (key) => {
@@ -909,7 +1114,7 @@
     }
 
     // 建立费、建立费率计算
-    debouncedEstablishCalculate()
+    debouncedEstablishCalculate(true)
 }
 
 const interestChange = () => {
@@ -982,7 +1187,7 @@ const interestChange = () => {
     // }
   }
 
-  const timeChange = (date) => {
+  const timeChange = (date, flag = false) => {
     if (date) {
       const startDate = typeof date[0] === 'string' ? date[0] : date[0].format('YYYY-MM-DD')
       const endDate = typeof date[1] === 'string' ? date[1] : date[1].format('YYYY-MM-DD')
@@ -1000,7 +1205,9 @@ const interestChange = () => {
       formState.value.totalDay = 0
     }
 
-    debouncedEstablishCalculate()
+    if (flag) {
+      debouncedEstablishCalculate()
+    }
   }
 
   const termInput = () => {
@@ -1043,7 +1250,7 @@ const interestChange = () => {
     }).then((res) => {
       if (res.length || Object.keys(res).length) {
         for (const key in formState.value) {
-          if (key !== 'time_date') {
+          if (!['time_date', 'repayment_month'].includes(key)) {
             formState.value[key] = res[key] || '0';
           }
         }
@@ -1065,7 +1272,7 @@ const interestChange = () => {
       linefeeFilter()
     });
 
-    const {repay_money, loan_money, repay_type, repay_day_type, repay_day, penalty_type, penalty_rate, grace_day} = props.lendingInfo
+    const {repay_money, loan_money, repay_type, repay_day_type, repay_day, penalty_type, penalty_rate, grace_day, fixed_money, mi_money, fixed_first_money, all_repayment_month, repayment_month} = props.lendingInfo
     formState.value.loan_money = repay_money ? Number(repay_money) : ''
     formState.value.initial_amount = loan_money ? Number(loan_money) : ''
     formState.value.repay_type = Number(repay_type) ? String(repay_type) : ''
@@ -1074,10 +1281,19 @@ const interestChange = () => {
     formState.value.penalty_type = Number(penalty_type) ? Number(penalty_type) : ''
     formState.value.penalty_rate = Number(penalty_rate) ? Number(penalty_rate) : penaltyConfig.value.penalty_rate_lendr
     formState.value.grace_day = Number(grace_day) ? Number(grace_day) : penaltyConfig.value.grace_day_lendr
+    formState.value.fixed_money = Number(fixed_money) ? Number(fixed_money) : ''
+    formState.value.fixed_first_money = Number(fixed_first_money) ? Number(fixed_first_money) : ''
+    formState.value.mi_money = Number(mi_money) ? Number(mi_money) : ''
+
+    const allRepaymentMonthData = Array.isArray(all_repayment_month) ? all_repayment_month : []
+    const repaymentMonthData = Array.isArray(repayment_month) ? repayment_month : []
+
+    repaymentMonthsData.value = allRepaymentMonthData
+    formState.value.repayment_month = allRepaymentMonthData.filter(item => !repaymentMonthData.includes(item))
 
     // 项目周期
     formState.value.time_date = [dayjs(props.lendingInfo.start_date), dayjs(props.lendingInfo.end_date)]
-    timeChange(formState.value.time_date)
+    timeChange(formState.value.time_date, false)
 
     formState.value.estab_type = props.lendingInfo.estab_type || 1;
     // formState.value.estab_inc_interest = props.lendingInfo.estab_inc_interest || 1;
@@ -1099,6 +1315,30 @@ const interestChange = () => {
       nowChangeData.start_date = dayjs(nowChangeData.time_date[0]).format('YYYY-MM-DD')
       nowChangeData.end_date = dayjs(nowChangeData.time_date[1]).format('YYYY-MM-DD')
     }
+
+    if (nowChangeData.repay_type !== 1) {
+      const selectedMonth = cloneDeep(formState.value.repayment_month || [])
+      const repayment_month = repaymentMonthsData.value.filter(item => !selectedMonth.includes(item))
+
+      nowChangeData.repay_day_type = Number(repay_day_type)
+      nowChangeData.repayment_month = repayment_month
+
+      if (Number(repay_day_type) === 2) {
+        nowChangeData.repay_day = Number(repay_day)
+      } else {
+        nowChangeData.repay_day = ''
+      }
+
+      if (nowChangeData.repay_type === 4) {
+        nowChangeData.fixed_money = Number(formState.value.fixed_money) || 0
+        nowChangeData.mi_money = Number(formState.value.mi_money) || 0
+        nowChangeData.fixed_first_money = Number(formState.value.fixed_first_money) || 0
+      }
+    } else {
+      nowChangeData.repay_day_type = ''
+      nowChangeData.repay_day = ''
+    }
+
 
     emits('openData', {
       table: tableDataRefData.value,
@@ -1215,6 +1455,9 @@ const interestChange = () => {
           penalty_type: Number(formState.value.penalty_type) || 0,
           penalty_rate: Number(formState.value.penalty_rate) || 0,
           grace_day: Number(formState.value.grace_day) || 0,
+          fixed_money: 0,
+          mi_money: 0,
+          fixed_first_money: 0,
           credit__data
         };
 
@@ -1222,12 +1465,22 @@ const interestChange = () => {
         params.repay_type = Number(repay_type)
 
         if (params.repay_type !== 1) {
+          const selectedMonth = cloneDeep(formState.value.repayment_month || [])
+          const repayment_month = repaymentMonthsData.value.filter(item => !selectedMonth.includes(item))
+
           params.repay_day_type = Number(repay_day_type)
+          params.repayment_month = repayment_month
 
           if (Number(repay_day_type) === 2) {
             params.repay_day = Number(repay_day)
           } else {
             params.repay_day = ''
+          }
+
+          if (params.repay_type === 4) {
+            params.fixed_money = Number(formState.value.fixed_money) || 0
+            params.mi_money = Number(formState.value.mi_money) || 0
+            params.fixed_first_money = Number(formState.value.fixed_first_money) || 0
           }
         } else {
           params.repay_day_type = ''
@@ -1237,6 +1490,7 @@ const interestChange = () => {
         if (creditId.value) {
           params.credit__data.id = creditId.value;
         }
+
         saveParams.value = params
 
         if (processStore.hasForcast) {
@@ -1250,6 +1504,17 @@ const interestChange = () => {
         console.log('error', error);
       });
   };
+
+  const copyHandle = async (value) => {
+    if (value && value !== '') {
+      try {
+        await toClipboard(String(value))
+        message.success(t('复制成功'))
+      } catch(e) {
+        message.error(t('复制失败'))
+      }
+    }
+  }
 
   watch(
     () => props.lendingInfo,
@@ -1271,6 +1536,15 @@ const interestChange = () => {
         ) {
           updateFormData()
         }
+      }
+    }
+  )
+
+  watch(
+    () => monthVisible.value,
+    (val) => {
+      if (val) {
+        syncRepaymentMonthOptions()
       }
     }
   )
@@ -1429,6 +1703,122 @@ const interestChange = () => {
   font-size: 16px;
   > span {
     opacity: 0.7;
+  }
+}
+
+.months-info {
+  width: 100%;
+  height: 50px;
+  border: 1px solid #272727;
+  border-radius: 10px;
+  padding: 0 11px;
+  background-color: #f7f9f8;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  .iconfont {
+    user-select: none;
+    cursor: pointer;
+    color: #F19915;
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+}
+
+.month-list {
+  width: 300px;
+  overflow: hidden;
+  .month-item {
+    width: 25%;
+    height: 24px;
+    line-height: 24px;
+    float: left;
+  }
+}
+
+.set-month-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+  gap: 20px;
+}
+
+.set-month-content {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.set-month-item {
+  position: relative;
+  height: 44px;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+  overflow: hidden;
+
+  &:hover {
+    border-color: #3fdea4;
+  }
+
+  &.checked {
+    border-color: #3fdea4;
+    color: #3fdea4;
+  }
+
+  &.disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+  }
+}
+
+.month-checked-corner {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 0 24px 24px;
+  border-color: transparent transparent #3fdea4 transparent;
+
+  .iconfont {
+    position: absolute;
+    right: 2px;
+    bottom: -22px;
+    color: #fff;
+    font-size: 10px;
+    line-height: 1;
+  }
+}
+
+.mi-money-content {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  .iconfont {
+    user-select: none;
+    cursor: pointer;
+    color: #F19915;
+    font-size: 12px;
+    line-height: 1;
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+  :deep(.ant-statistic-content) {
+    font-size: 12px !important;
+    display: flex !important;
   }
 }
 </style>

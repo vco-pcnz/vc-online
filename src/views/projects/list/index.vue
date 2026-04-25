@@ -2,6 +2,7 @@
   <div class="flex justify-between items-center">
     <vco-page-tab :tabData="tabData" v-model:current="pageStore.sta" @change="tabChange"></vco-page-tab>
     <div class="flex">
+      <a-button type="cyan" size="small" class="ml-3" shape="round" v-if="hasPermission('project:list:bindValuer')" @click="open_projects = true">{{ t('绑定估值') }}</a-button>
       <a-button type="cyan" size="small" class="ml-3" shape="round" @click="buildProgressReport" :loading="buildProgressDownloading" v-if="hasPermission('projects:buildProgress:download')">{{ t('建筑进度') }}</a-button>
       <ScheduleExport :sta="pageStore.sta" :searchParams="pageStore.searchParams" v-if="hasPermission('projects:schedule:download')"></ScheduleExport>
       <DateExport :sta="pageStore.sta" :searchParams="pageStore.searchParams" v-if="hasPermission('projects:list:export')"></DateExport>
@@ -29,6 +30,8 @@
       />
     </div>
   </a-spin>
+  
+  <BindValuer v-model:visible="open_projects" :selectedData="bindData" :product_uuid="productStore.currentProduct" @update="handleBindLoneChange" />
 </template>
 
 <script setup name="Projects">
@@ -44,6 +47,8 @@ import DateExport from './components/DateExport.vue';
 import ScheduleExport from './components/ScheduleExport.vue';
 import useProductStore from '@/store/modules/product';
 const productStore = useProductStore();
+import BindValuer from './components/BindValuer.vue';
+import { message } from 'ant-design-vue';
 
 const { t } = useI18n();
 const pageStore = useProjectsStore();
@@ -103,6 +108,15 @@ const buildProgressReport = () => {
       buildProgressDownloading.value = false;
     });
 };
+
+
+const open_projects = ref(false);
+const bindData = ref([]);
+const handleBindLoneChange = () => {
+  message.success(t('操作成功'));
+  // update();
+};
+
 
 watch(
   () => productStore.currentProduct,

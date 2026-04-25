@@ -1333,7 +1333,7 @@ export default {
   "到期一次性还本付息": "Lump Sum",
   "按月付息，到期还本": "Interest Only",
   "等额本息": "P+I",
-  "还款日": "Due Date",
+  "月度还款期": "Due Date",
   "放款日对应日": "Anniversary",
   "每月固定日": "Fixed Date",
   "每月最后一天": "Month End",
@@ -1436,5 +1436,19 @@ export default {
   "确定要退回吗？": "Are you sure you want to return?",
   "更新日期": "Update date",
   "资本化利息": "Capitalized interest",
-  "累计收入": "Total income"
+  "累计收入": "Total income",
+  "固定金额": "Fixed Amount",
+  "还款月份": "Repayment months",
+  "共{0}个月": "Total {0} months",
+  "设置还款月份": "Set repayment months",
+  "首次还款金额": "First repayment amount",
+  "月度利息": "Monthly Interest, MI",
+  "估算首期还款金额": "Estimate first repayment amount",
+  "编辑项目": "Edit project",
+  "不还款月份": "Months with No Repayment",
+  "空": "Null",
+  "月度放款": "Monthly Repayment",
+  "估值": "Project",
+  "绑定估值": "Bind valuer"
 }
+  

@@ -152,8 +152,8 @@ const columns = reactive([
   { title: t('用户'), key: 'user', width: 160 },
   { title: t('资本化利息'), key: 'rate', width: 150 },
   { title: t('应计利息'), key: 'accruedInterest_boc', width: 150 },
-  { title: t('累计收入'), key: 'totalIncome_boc', width: 150 },
   { title: t('建立费'), key: 'frate', width: 150 },
+  { title: t('累计收入'), key: 'totalIncome_boc', width: 150 },
   { title: t('当前余额'), key: 'lrate', width: 150 },
   { title: t('更新日期'), key: 'create_time', width: 120 },
   { title: t('操作'), fixed: 'right', key: 'operation', align: 'center', width: 80 }

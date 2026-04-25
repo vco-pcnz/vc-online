@@ -172,3 +172,44 @@ export const buildProgressIndex = (params) =>
     method: 'get',
     params
   });
+
+  // 修改项目名称
+  export const saveProjectName = (data) =>
+    request({
+      url: 'projectDetail/saveProjectName',
+      method: 'post',
+      data
+    });
+  
+  // 获取Valuer已绑定的项目
+  export const getValuer = (params) =>
+    request({
+      url: 'projectDetail/getValuer',
+      method: 'get',
+      params
+    });
+  
+  // 绑定Valuer
+  export const bindValuer = (data) =>
+    request({
+      url: 'projectDetail/bindValuer',
+      method: 'post',
+      data
+    });
+  
+  // 获取Valuer可以绑定的项目列表
+  export const projectValuer = (params) =>
+    request({
+      url: 'projectDetail/projectValuer',
+      method: 'get',
+      params
+    });
+  
+  //解绑
+  export const unbindValuer = (params) =>
+    request({
+      url: 'projectDetail/unbindValuer',
+      method: 'get',
+      params
+    });
+  

@@ -319,7 +319,26 @@ const validateSqm = (_, value) => {
 const formRules = {
   security_name: [{ required: true, message: t('请输入') + t('名称'), trigger: 'blur' }],
   type: [{ required: true, message: t('请选择') + t('类型'), trigger: 'change' }],
-  amount: [{ required: true, message: t('请输入') + t('总金额'), trigger: 'change' }],
+  amount: [
+    { 
+      validator: (_, value) => {
+        // 允许 0
+        if (value === 0 || value === '0') {
+          return Promise.resolve();
+        }
+        // 空值报错
+        if (!value && value !== 0) {
+          return Promise.reject(new Error(t('请输入') + t('总金额')));
+        }
+        // 其他有效数字通过
+        if (!isNaN(Number(value))) {
+          return Promise.resolve();
+        }
+        // return Promise.reject(new Error(t('请输入有效的数字')));
+      },
+      trigger: 'change' 
+    }
+  ],
   card_no: [{ required: true, message: t('请输入') + t('产权编号'), trigger: 'change' }],
   security_region: [{ required: true, message: t('请选择') + t('区域'), trigger: 'change' }],
   postcode: [{ required: true, message: t('请输入') + t('邮编'), trigger: 'blur' }],
@@ -416,10 +435,10 @@ const submitHandle = () => {
 
       const amount = Number(formState.value.amount);
 
-      if (amount <= 0) {
-        message.error(t('总金额不正确'));
-        return false;
-      }
+      // if (amount <= 0) {
+      //   message.error(t('总金额不正确'));
+      //   return false;
+      // }
 
       if (props.infoData && props.infoData.uuid) {
         params.security_uuid = props.infoData.uuid;

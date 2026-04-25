@@ -45,7 +45,10 @@
         <p style="color: #181818">{{ tool.showDate(detail?.date?.start_date) + ' - ' + tool.showDate(detail?.date?.end_date) }}</p>
       </template>
 
-      <p class="text-2xl name mt-5">{{ detail?.base.project_name || detail?.base.borrower_user_name }}</p>
+      <div class="text-2xl name mt-5">
+        {{ detail?.base.project_name || detail?.base.borrower_user_name }}
+        <EditProjectName :data="detail?.base" @change="reloadDetail"><i v-if="hasPermission('projects:about:name:edit')" class="iconfont colorPrimary cursor-pointer">&#xe743;</i></EditProjectName>
+      </div>
       <template v-if="detail?.base?.project_address_other">
         <template v-for="(item, index) in detail?.base?.project_address_other" :key="index">
           <p class="fs_xs mt-2" v-if="moreAddr ? true : index < 1">{{ item.project_city }}</p>
@@ -81,8 +84,11 @@ import { syncProjectBill } from '@/api/project/project';
 import { message } from 'ant-design-vue';
 import { systemConfigData } from '@/api/system';
 import tool from '@/utils/tool';
+import { hasPermission } from '@/directives/permission';
+import EditProjectName from './form/EditProjectName.vue';
 
 const { t } = useI18n();
+const emits = defineEmits(['update']);
 
 const props = defineProps({
   detail: {
@@ -134,6 +140,10 @@ const update = (e) => {
 const onFinish = () => {
   countdown.value = false;
 };
+
+const reloadDetail = () => {
+  emits('update');
+}
 
 watch(
   () => props.currentId,

@@ -10,7 +10,7 @@
     <a-modal
       :open="visible"
       :title="t('审核抵押物解押申请')"
-      :width="950"
+      :width="1070"
       :footer="null"
       :keyboard="false"
       :maskClosable="false"
@@ -57,6 +57,9 @@
                   </template>
                   <template v-if="column.dataIndex === 'net_proceeds_price'">
                     <vco-number size="fs_md" :value="record.net_proceeds_price" :precision="2"></vco-number>
+                  </template>
+                  <template v-if="column.dataIndex === 'sales_price'">
+                    <vco-number size="fs_md" :value="record.sales_price" :precision="2"></vco-number>
                   </template>
                 </template>
               </a-table>
@@ -130,6 +133,7 @@ const tableColumns = reactive([
   { title: t('抵押物价值'), dataIndex: 'amount', width: 110, align: 'center' },
   { title: t('消费税'), dataIndex: 'is_gst', width: 100, align: 'center' },
   { title: t('当前抵押物价值'), dataIndex: 'real_amount', width: 120, align: 'center' },
+  { title: t('销售价格'), dataIndex: 'sales_price', width: 120, align: 'center' },
   { title: t('净收益'), dataIndex: 'net_proceeds_price', width: 120, align: 'center' }
 ]);
 

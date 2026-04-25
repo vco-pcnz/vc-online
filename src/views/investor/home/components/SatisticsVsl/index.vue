@@ -49,17 +49,17 @@
           <div class="flex items-center"><vco-number class="num" :value="statisticsData?.rate_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
         </a-col>
         <a-col :span="8">
+          <p class="color_grey fs_xs">{{t('建立费')}}</p>
+          <!-- <p class="value"><vco-number class="num" :value="statisticsData?.frate" :precision="2" :end="true"></vco-number></p> -->
+          <div class="flex items-center"><vco-number class="num" :value="statisticsData?.frate_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
+        </a-col>
+        <a-col :span="8">
           <p class="color_grey fs_xs">{{t('应计利息')}}</p>
           <div class="flex items-center"><vco-number class="num" :value="statisticsData?.accruedInterest_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
         </a-col>
         <a-col :span="8">
           <p class="color_grey fs_xs">{{t('累计收入')}}</p>
           <div class="flex items-center"><vco-number class="num" :value="statisticsData?.totalIncome_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
-        </a-col>
-        <a-col :span="8">
-          <p class="color_grey fs_xs">{{t('建立费')}}</p>
-          <!-- <p class="value"><vco-number class="num" :value="statisticsData?.frate" :precision="2" :end="true"></vco-number></p> -->
-          <div class="flex items-center"><vco-number class="num" :value="statisticsData?.frate_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
         </a-col>
       </a-row>
     </div>
@@ -69,7 +69,6 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import dayjs from 'dayjs';
 import tool from '@/utils/tool';
 import { userProject, statistics } from '@/api/invest/index';
 import SearchDom from './Search.vue';
@@ -147,7 +146,7 @@ watch(
   () => [props.invest_id, props.product_uuid],
   ([id]) => {
     if (id) {
-      loadData({ day: dayjs().format('YYYY-MM-DD') });
+      loadData();
     }
   },
   {

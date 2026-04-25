@@ -627,6 +627,20 @@ const submit = () => {
     );
     return;
   }
+
+  // 获取总的利息
+  let totalInterest = 0;
+  if (drawdownList.value && drawdownList.value.length) {
+    drawdownList.value.map(item => {
+      if (item.interest_status && item.reality_interest && item.reality_interest >= 0) {
+        totalInterest = tool.plus(totalInterest,Number(item.reality_interest))
+      } else {
+        totalInterest = tool.plus(totalInterest,Number(item.total_interest))
+      }
+    })
+  }
+  params.totalInterest = totalInterest;
+  
   params.all_repayment = params.all_repayment ? 1 : 0;
 
   loading.value = true;

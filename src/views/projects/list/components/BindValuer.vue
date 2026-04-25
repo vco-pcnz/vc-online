@@ -71,7 +71,7 @@ const props = defineProps({
 const { t } = useI18n();
 
 const projectParams = computed(() => ({
-  sta: 2
+  sta: 0
 }));
 
 const { tableRef, tableLoading, pageObj, tableData, pageChange, getTableData } = useTableList(selProject, projectParams.value, false);
@@ -115,7 +115,7 @@ watch(
       }
       const params = {
         ...searchForm.value,
-        sta: 2
+        sta: 0
       };
       getTableData(params);
       getBindData()

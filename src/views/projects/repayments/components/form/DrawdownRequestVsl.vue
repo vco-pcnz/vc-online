@@ -858,12 +858,25 @@ const downloadLoading = ref(false);
 const downloadStatement = () => {
   downloadLoading.value = true;
 
+  // 获取总的利息
+  let totalInterest = 0;
+  if (drawdownList.value && drawdownList.value.length) {
+    drawdownList.value.map(item => {
+      if (item.interest_status && item.reality_interest && item.reality_interest >= 0) {
+        totalInterest = tool.plus(totalInterest,Number(item.reality_interest))
+      } else {
+        totalInterest = tool.plus(totalInterest,Number(item.total_interest))
+      }
+    })
+  }
+
   projectLoanAllRepayment({
     uuid: props.uuid,
     date: formState.value.apply_date,
     pdf: 1,
     less: formState.value.reduction_money || 0,
     verify_id: props.dataInfo?.id,
+    totalInterest: totalInterest
   })
     .then((res) => {
       downloadLoading.value = false;

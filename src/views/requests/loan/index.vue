@@ -410,7 +410,7 @@ const getLoanMoney = (record) => (isNormalUser.value ? record.old_loan_money : r
 const downloading = ref(false);
 const report = () => {
   downloading.value = true;
-  applicationStatistics({ ...currentParams.value, export: 1 })
+  applicationStatistics({ ...currentParams.value, export: 1,limit: 10000 })
     .then((res) => {
       window.open(res);
     })

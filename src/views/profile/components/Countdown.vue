@@ -6,8 +6,8 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
-
-const countdown = ref(29);
+import { pub } from '@/api/system';
+const countdown = ref(45);
 let intervalId = null;
 const props = defineProps({
   notInModal: {
@@ -33,7 +33,10 @@ const stopCountdown = () => {
 };
 
 onMounted(() => {
-  startCountdown();
+  pub().then((res) => {
+    countdown.value = res.resend_time;
+    startCountdown();
+  });
 });
 
 onBeforeUnmount(() => {

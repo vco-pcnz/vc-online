@@ -39,9 +39,11 @@
             <vco-number :value="Math.abs(item.open_amount)" :precision="2" size="fs_xs"></vco-number>
             <p class="fs_xs color_grey" v-if="item.open_date">{{ tool.showDate(item.open_date) }}</p>
           </li>
-          <div class="tipWrapper" v-if="(item.all_repayment || (item.status == 2 && item.reconcile_date != null)) && !isExternalUser">
+          <div class="tipWrapper" v-if="(item.all_repayment || (item.status == 2 && item.reconcile_date != null) || (isLendrProduct && item.repay_type)) && !isExternalUser">
             <div v-if="item.all_repayment" class="tips normal-back">{{ t('全额还款') }}</div>
             <div v-if="item.status == 2 && item.reconcile_date != null" class="tips">{{ t('手动对账') }}</div>
+            <div v-if="isLendrProduct && item.repay_type == 1" class="tips">{{ t('月度还款') }}</div>
+            <div v-if="isLendrProduct && item.repay_type == 2" class="tips">{{ t('部分还款') }}</div>
           </div>
           <template v-if="!isExternalUser">
             <div v-if="item.all_repayment && Number(item.do_edit) === 1" class="tips edit-back">{{ t('编辑') }}</div>
@@ -109,6 +111,10 @@ const setStatusColor = (val) => {
 
 const showLender = computed(() => {
   return props.projectDetail?.product?.code === 'vsl' && !isExternalUser.value;
+});
+
+const isLendrProduct = computed(() => {
+  return props.projectDetail?.product?.code === 'lendr';
 });
 
 watch(

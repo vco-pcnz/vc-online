@@ -1449,6 +1449,7 @@ export default {
   "空": "Null",
   "月度放款": "Monthly Repayment",
   "估值": "Project",
-  "绑定估值": "Bind valuer"
+  "绑定估值": "Bind valuer",
+  "月度还款": "Monthly repayment"
 }
   

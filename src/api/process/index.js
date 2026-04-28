@@ -810,3 +810,11 @@ export const projectAuditXeroOps = (params) =>
     params
   });
   
+
+// xero数据创建/更新
+export const applicationStatistics = (params) =>
+  request({
+    url: "/statistics/applicationStatistics",
+    method: "get",
+    params
+  });

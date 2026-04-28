@@ -20,8 +20,9 @@
 
     <div class="flex justify-between items-center">
       <vco-page-tab :tabData="tabData" v-model:current="currentTab" @change="tabChange"></vco-page-tab>
-      <div v-if="showCreate && hasPermission('requests:loan:add')" class="handle-content">
-        <a-button type="cyan" shape="round" @click="gotoProcess">{{ t('发起借款申请') }}</a-button>
+      <div class="handle-content flex gap-5">   
+        <a-button v-if="hasPermission('requests:loan:export')" type="cyan" shape="round" :loading="downloading" @click="report">{{ t('导出') }}</a-button>
+        <a-button v-if="showCreate && hasPermission('requests:loan:add')" type="cyan" shape="round" @click="gotoProcess">{{ t('发起借款申请') }}</a-button>
       </div>
     </div>
     <table-search ref="tableSearchRef" @search="searchHandle" :current="currentTab"></table-search>
@@ -175,7 +176,7 @@ import { useTableList } from '@/hooks/useTableList';
 import TableSearch from './components/TableSearch.vue';
 import GridBlock from './components/GridBlock.vue';
 import { navigationTo } from '@/utils/tool';
-import { projectListApi, associateSystemConfig, umbreProjectListApi } from '@/api/process';
+import { projectListApi, associateSystemConfig, umbreProjectListApi, applicationStatistics } from '@/api/process';
 import tool from '@/utils/tool';
 import { processRoutes } from '@/constant';
 import emitter from '@/event';
@@ -404,6 +405,20 @@ const itemHandle = (data) => {
 };
 
 const getLoanMoney = (record) => (isNormalUser.value ? record.old_loan_money : record.loan_money);
+
+
+const downloading = ref(false);
+const report = () => {
+  downloading.value = true;
+  applicationStatistics({ ...currentParams.value, export: 1 })
+    .then((res) => {
+      window.open(res);
+    })
+    .finally(() => {
+      downloading.value = false;
+    });
+};
+
 
 onMounted(() => {
   if (hasPermission('projects:copy') || hasPermission('projects:delete')) {

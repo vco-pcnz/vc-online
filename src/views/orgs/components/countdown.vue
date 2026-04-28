@@ -6,7 +6,7 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
-
+import { pub } from '@/api/system';
 const countdown = ref(29);
 let intervalId = null;
 
@@ -28,7 +28,10 @@ const stopCountdown = () => {
 };
 
 onMounted(() => {
-  startCountdown();
+  pub().then((res) => {
+    countdown.value = res.resend_time;
+    startCountdown();
+  });
 });
 
 onBeforeUnmount(() => {

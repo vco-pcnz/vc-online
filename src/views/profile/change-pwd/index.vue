@@ -27,7 +27,7 @@
                     />
                   </a-form-item>
                 </a-col>
-                <a-col :span="4">
+                <a-col :span="4" v-if="!showCountdown">
                   <a-form-item label=" ">
                     <a-button
                       type="dark"
@@ -37,6 +37,11 @@
                     >
                       {{ t('验证') }}
                     </a-button>
+                  </a-form-item>
+                </a-col>
+                <a-col :span="4" v-else>
+                  <a-form-item label=" ">
+                    <countdown v-model:show="showCountdown" />
                   </a-form-item>
                 </a-col>
               </a-row>

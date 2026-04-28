@@ -13,7 +13,7 @@ const props = defineProps({
   }
 });
 
-const countdown = ref(29);
+const countdown = ref(45);
 let intervalId = null;
 
 const emit = defineEmits(['update:show','change']);
@@ -35,7 +35,10 @@ const stopCountdown = () => {
 
 onMounted(() => {
   if (!props.targetTimestamp) {
-    startCountdown();
+    pub().then((res) => {
+      countdown.value = res.resend_time;
+      startCountdown();
+    });
   }
 });
 

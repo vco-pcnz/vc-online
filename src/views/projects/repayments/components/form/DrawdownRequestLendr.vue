@@ -907,6 +907,15 @@ const setFormData = () => {
 
     standardRateInput.value = data.reduction_rate || 0;
     calAmount(data.reduction_rate, Boolean(standardRateInput.value));
+  } else {
+    const repay_type = data.repay_type || 0;
+    if (repay_type === 1) {
+      formState.value.all_repayment = 2;
+    } else if (repay_type === 2) {
+      formState.value.all_repayment = 0;
+    } else if (repay_type === 3) {
+      formState.value.all_repayment = 1;
+    }
   }
 
   if (formState.value.reduction_money) {

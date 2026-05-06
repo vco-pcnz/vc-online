@@ -31,7 +31,7 @@ export default {
   "验证": "Verify",
   "验证码": "Auth code",
   "验证码V": "Verification Code",
-  "成为中介": "Be a broker",
+  "成为中介": "I am a Broker",
   "请先做邮箱验证": "Please verify your email first",
   "请先做手机号验证": "Please verify your mobile first",
   "名字": "Name",

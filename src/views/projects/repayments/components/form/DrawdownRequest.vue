@@ -598,6 +598,7 @@ const submit = () => {
       params.apply_amount = tool.plus(Number(formState.value.apply_amount || 0), Number(extraData.value.extraAmount || 0))
     }
     params.extra = params.extra || []
+    params.extra_amount = params.extra_amount || 0
     
   } else {
     delete params.reduction_money

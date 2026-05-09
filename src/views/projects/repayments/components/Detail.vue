@@ -84,6 +84,8 @@
           </a-popconfirm>
         </div>
 
+        <a-button type="brown" class="big uppercase w-full mb-4" @click="openDetails(false)">{{ t('查看详情') }}</a-button>
+
         <div v-if="detail?.has_permission || hasPermission('projects:repayments:revoke')">
           <template v-if="detail?.has_permission">
             <!-- 对账 -->
@@ -101,8 +103,6 @@
           >
             <a-button type="brown" class="big uppercase w-full mt-4">{{ t('撤销还款') }}</a-button>
           </a-popconfirm>
-
-          <a-button type="brown" class="big uppercase w-full mt-4" @click="openDetails(false)">{{ t('查看详情') }}</a-button>
 
           <template v-if="detail?.all_repayment && hasPermission('projects:repayments:all_repayment_cancel') && [0, 1].includes(Number(detail?.status)) && detail?.state > 0 && ['repayment_lm_recon'].includes(detail.mark)">
             <a-button type="brown" class="big uppercase w-full mt-4" @click="openEditHandle(true)">{{ t('修改全额还款') }}</a-button>

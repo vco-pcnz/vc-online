@@ -102,6 +102,8 @@
             <a-button type="brown" class="big uppercase w-full mt-4">{{ t('撤销还款') }}</a-button>
           </a-popconfirm>
 
+          <a-button type="brown" class="big uppercase w-full mt-4" @click="openDetails(false)">{{ t('查看详情') }}</a-button>
+
           <template v-if="detail?.all_repayment && hasPermission('projects:repayments:all_repayment_cancel') && [0, 1].includes(Number(detail?.status)) && detail?.state > 0 && ['repayment_lm_recon'].includes(detail.mark)">
             <a-button type="brown" class="big uppercase w-full mt-4" @click="openEditHandle(true)">{{ t('修改全额还款') }}</a-button>
 
@@ -110,7 +112,6 @@
             </div>
           </template>
 
-          <a-button type="brown" class="big uppercase w-full mt-4" @click="openDetails(false)">{{ t('查看详情') }}</a-button>
           <div v-if="detail?.has_permission && (detail?.mark == 'repayment_lm' || detail?.mark == 'repayment_fc' || detail?.mark == 'repayment_lc' || detail?.mark == 'repayment_director')" class="mt-4">
             <p class="text-center color_grey fs_xs my-3">{{ t('您可以点击下面的按钮来拒绝还款请求。') }}</p>
             <div class="flex justify-center">

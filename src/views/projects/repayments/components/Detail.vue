@@ -110,6 +110,7 @@
             </div>
           </template>
 
+          <a-button type="brown" class="big uppercase w-full mt-4" @click="openDetails(false)">{{ t('查看详情') }}</a-button>
           <div v-if="detail?.has_permission && (detail?.mark == 'repayment_lm' || detail?.mark == 'repayment_fc' || detail?.mark == 'repayment_lc' || detail?.mark == 'repayment_director')" class="mt-4">
             <p class="text-center color_grey fs_xs my-3">{{ t('您可以点击下面的按钮来拒绝还款请求。') }}</p>
             <div class="flex justify-center">
@@ -118,7 +119,7 @@
               </a-popconfirm>
             </div>
           </div>
-
+          
           <!-- <div v-if="detail?.status >= 2 && hasPermission('projects:repayments:release') && detail?.is_dis !== 1" class="mt-4">
             <p class="text-center color_grey fs_xs my-3">{{ t('您可以点击下面的按钮来释放抵押物。') }}</p>
             <div class="flex justify-center">
@@ -129,8 +130,8 @@
           <DrawdownBack v-if="['repayment_fc', 'repayment_lc', 'repayment_director_recon'].includes(detail?.mark) && detail?.has_permission && detail?.do_cancel !== 1" :uuid="uuid" :detail="detail" @change="update"></DrawdownBack>
         </div>
 
+        <!-- 取消详情的显示判断 -->
         <!-- <a-button v-if="!detail?.prev_permission && !(detail?.has_permission || hasPermission('projects:repayments:revoke'))" type="brown" class="big uppercase w-full" @click="openDetails(false)">{{ t('查看详情') }}</a-button> -->
-        <a-button type="brown" class="big uppercase w-full mt-4" @click="openDetails(false)">{{ t('查看详情') }}</a-button>
 
         <p class="download-btn" v-if="all_repayment && detail?.state != -100 && detail?.state != -900">
           {{ t('对账单') }}, <span @click="downloadStatement">{{ t('点击下载') }}</span>

@@ -150,7 +150,7 @@
         </template>
 
         <template v-if="column.key === 'irr'">
-          <div :class="{ 'color_red-error': Math.abs(record.credit?.irr) < Math.abs(record.credit?.irrPreset) }">
+          <div :class="{ 'color_red-error': Math.abs(record.credit?.irr) < Math.abs(record.credit?.irrPreset) && Boolean(!pageStore.searchParams.lender) }">
             <p class="bold black">
               <i class="iconfont" style="color: #67837e">&#xe761;</i>
               {{ record.credit.irr }}%

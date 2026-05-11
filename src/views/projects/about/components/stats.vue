@@ -95,7 +95,7 @@
           <div :class="{ 'color_red-error': Math.abs(data?.right?.irr) < Math.abs(data?.right?.irrPreset) }">
             <p class="color_grey fs_xs">IRR</p>
             <p class="fs_xl bold">{{ data?.right?.irr }}%</p>
-            <p class="fs_xs">Benchmark {{ data?.right?.irrPreset }}%</p>
+            <p class="fs_xs" v-if="Boolean(!lender)">Benchmark {{ data?.right?.irrPreset }}%</p>
           </div>
         </a-col>
         <template v-if="detail?.product?.code !== 'lendr'">

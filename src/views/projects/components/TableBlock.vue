@@ -155,7 +155,7 @@
               <i class="iconfont" style="color: #67837e">&#xe761;</i>
               {{ record.credit.irr }}%
             </p>
-            <span class="replenish_text">{{ record.credit.irrPreset }}% · {{ (record.credit.irr - record.credit.irrPreset).toFixed(2) }}%</span>
+            <span class="replenish_text" v-if="Boolean(!pageStore.searchParams.lender)">{{ record.credit.irrPreset }}% · {{ (record.credit.irr - record.credit.irrPreset).toFixed(2) }}%</span>
           </div>
         </template>
 

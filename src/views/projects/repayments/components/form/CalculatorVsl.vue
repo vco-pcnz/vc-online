@@ -184,7 +184,8 @@ const dateChange = (date, rate) => {
     const params = {
       uuid: props.uuid,
       date: time,
-      do__est: hasEstimated.value ? 1 : 0
+      do__est: hasEstimated.value ? 1 : 0,
+      is_calc: 1
     };
 
     if (rate && !isNaN(Number(rate))) {
@@ -298,7 +299,8 @@ const downloadStatement = () => {
     pdf: 1,
     less: reductionAmount.value,
     do__est: hasEstimated.value ? 1 : 0,
-    watermark: 0
+    watermark: 0,
+    is_calc: 1
   })
     .then((res) => {
       downloadLoading.value = false;

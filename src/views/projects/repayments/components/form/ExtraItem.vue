@@ -57,7 +57,8 @@
               </a-input-number>
             </template>
             <template v-if="column.dataIndex === 'note'">
-              <a-input v-model:value="record.note" @input="getSetData" />
+              <a-input v-if="!isDetails" v-model:value="record.note" @input="getSetData" />
+              <span v-else>{{ record.note }}</span>
             </template>
             <template v-if="column.dataIndex === 'operation'">
               <i class="iconfont remove-icon" @click="() => removeExtraItem(index)">&#xe8c1;</i>
@@ -267,7 +268,7 @@ const recoveryGetNameData = async (data) => {
 const setColumnsData = () => {
   const data = cloneDeep(columnsData)
   if (props.isDetails) {
-    data.splice(3, 1)
+    data.splice(4, 1)
     extraColumns.value = data
   } else {
     extraColumns.value = data

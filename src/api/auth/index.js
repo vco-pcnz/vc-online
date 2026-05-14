@@ -123,3 +123,11 @@ export const loginCode = (data) =>
     data
   });
   
+// 验证登录密码
+export const userTimePwd = (data) =>
+  request({
+    url: '/user/timePwd',
+    method: 'post',
+    data
+  });
+  

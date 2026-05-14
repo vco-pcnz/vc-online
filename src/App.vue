@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import dayjs from 'dayjs';
 import tool from '@/utils/tool';
+import SessionPasswordLock from '@/components/session-password-lock/index.vue';
 
 import zh_CN from 'ant-design-vue/es/locale/zh_CN';
 import zh_TW from 'ant-design-vue/es/locale/zh_TW';
@@ -92,5 +93,6 @@ onUnmounted(() => {
 <template>
   <a-config-provider :locale="langData[lang]" :theme="themeConfig">
     <router-view />
+    <session-password-lock />
   </a-config-provider>
 </template>

@@ -1450,6 +1450,13 @@ export default {
   "月度放款": "Monthly Repayment",
   "估值": "Project",
   "绑定估值": "Bind valuer",
-  "月度还款": "Monthly repayment"
+  "月度还款": "Monthly repayment",
+  "安全验证": "Security Verification",
+  "验证当前用户的登录密码": "Verify Current User Password",
+  "页面长时间未操作，为保障账户安全，请输入当前登录密码后继续使用。": "This page has been idle for a while. To keep your account secure, please enter your current login password to continue.",
+  "登录密码": "Login Password",
+  "请输入登录密码": "Please enter your login password",
+  "确认验证": "Verify",
+  "验证成功": "Verified successfully"
 }
   

@@ -6,6 +6,7 @@ import { login, logout, getSelectUsers, loginCode } from '@/api/auth';
 import { projectBacklogCount } from '@/api/tasks';
 import router from '@/router';
 import tool from '@/utils/tool';
+import { clearSessionPasswordLocked } from '@/utils/session-lock';
 
 function extractPaths(routes) {
   const result = [];
@@ -244,6 +245,7 @@ const useUserStore = defineStore('VcOnlineUserInfo', {
     async logout() {
       if (router.currentRoute.value.name !== 'login') {
         await logout();
+        clearSessionPasswordLocked();
         this.clearToken();
         this.resetUserInfo();
         location.replace(`${window.location.origin}/#/login`);

@@ -43,8 +43,10 @@ import { useI18n } from 'vue-i18n';
 import { getToken } from '@/utils/token-util';
 import { clearSessionPasswordLocked, isSessionPasswordLocked, setSessionPasswordLocked } from '@/utils/session-lock';
 import { userTimePwd } from '@/api/auth'
+import { systemConfigData } from "@/api/system/index"
 
-const IDLE_TIMEOUT = 60 * 1000 * 30;
+const minutes = ref(30);
+const IDLE_TIMEOUT = computed(() => minutes.value * 60 * 1000);
 const ACTIVITY_EVENTS = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
 
 const { t } = useI18n();
@@ -91,7 +93,7 @@ const lock = () => {
 const resetIdleTimer = () => {
   if (visible.value || !isLoggedIn()) return;
   clearIdleTimer();
-  timer.value = window.setTimeout(lock, IDLE_TIMEOUT);
+  timer.value = window.setTimeout(lock, IDLE_TIMEOUT.value);
 };
 
 const handleActivity = () => {
@@ -106,6 +108,12 @@ const unlock = () => {
   formRef.value?.clearValidate?.();
   resetIdleTimer();
 };
+
+const getTimeoutTime = () => {
+  systemConfigData({ pcode: 'supplement', code: 'idle_timeout' }).then((res) => {
+    minutes.value = Number(res.idle_timeout || 30);
+  });
+}
 
 const submit = () => {
   if (loading.value) return;
@@ -135,6 +143,8 @@ watch(visible, (value) => {
 });
 
 onMounted(() => {
+  getTimeoutTime()
+
   ACTIVITY_EVENTS.forEach((eventName) => {
     window.addEventListener(eventName, handleActivity, true);
   });

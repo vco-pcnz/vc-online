@@ -41,12 +41,17 @@ import { LockOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue/es';
 import { useI18n } from 'vue-i18n';
 import { getToken } from '@/utils/token-util';
-import { clearSessionPasswordLocked, isSessionPasswordLocked, setSessionPasswordLocked } from '@/utils/session-lock';
+import {
+  getSessionIdleRemainingTime,
+  getSessionLastActiveTime,
+  isSessionIdleTimedOut,
+  recordSessionActivity
+} from '@/utils/session-lock';
 import { userTimePwd } from '@/api/auth'
 import { systemConfigData } from "@/api/system/index"
 
 const minutes = ref(30);
-const IDLE_TIMEOUT = computed(() => minutes.value * 60 * 1000);
+const IDLE_TIMEOUT = computed(() => 10 * 1000);
 const ACTIVITY_EVENTS = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
 
 const { t } = useI18n();
@@ -82,7 +87,6 @@ const isLoggedIn = () => Boolean(getToken());
 
 const lock = () => {
   if (!isLoggedIn()) return;
-  setSessionPasswordLocked();
   visible.value = true;
   clearIdleTimer();
   nextTick(() => {
@@ -90,27 +94,39 @@ const lock = () => {
   });
 };
 
+const checkIdleTimeout = () => {
+  if (!isLoggedIn()) return;
+  if (isSessionIdleTimedOut(IDLE_TIMEOUT.value)) {
+    lock();
+    return;
+  }
+  resetIdleTimer();
+};
+
 const resetIdleTimer = () => {
   if (visible.value || !isLoggedIn()) return;
   clearIdleTimer();
-  timer.value = window.setTimeout(lock, IDLE_TIMEOUT.value);
+  const remainingTime = getSessionIdleRemainingTime(IDLE_TIMEOUT.value);
+  timer.value = window.setTimeout(checkIdleTimeout, remainingTime);
 };
 
 const handleActivity = () => {
+  if (visible.value || !isLoggedIn()) return;
+  recordSessionActivity();
   resetIdleTimer();
 };
 
 const unlock = () => {
-  clearSessionPasswordLocked();
   visible.value = false;
   loading.value = false;
   formState.password = '';
   formRef.value?.clearValidate?.();
+  recordSessionActivity();
   resetIdleTimer();
 };
 
 const getTimeoutTime = () => {
-  systemConfigData({ pcode: 'supplement', code: 'idle_timeout' }).then((res) => {
+  return systemConfigData({ pcode: 'supplement', code: 'idle_timeout' }).then((res) => {
     minutes.value = Number(res.idle_timeout || 30);
   });
 }
@@ -142,17 +158,19 @@ watch(visible, (value) => {
   }
 });
 
-onMounted(() => {
-  getTimeoutTime()
+const initSessionLock = () => {
+  if (!isLoggedIn()) return;
+  if (!getSessionLastActiveTime()) {
+    recordSessionActivity();
+  }
+  checkIdleTimeout();
+};
 
+onMounted(() => {
   ACTIVITY_EVENTS.forEach((eventName) => {
     window.addEventListener(eventName, handleActivity, true);
   });
-  if (isSessionPasswordLocked()) {
-    lock();
-    return;
-  }
-  resetIdleTimer();
+  getTimeoutTime().catch(() => {}).finally(initSessionLock);
 });
 
 onUnmounted(() => {

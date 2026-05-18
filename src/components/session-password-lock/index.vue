@@ -51,7 +51,7 @@ import { userTimePwd } from '@/api/auth'
 import { systemConfigData } from "@/api/system/index"
 
 const minutes = ref(30);
-const IDLE_TIMEOUT = computed(() => 10 * 1000);
+const IDLE_TIMEOUT = computed(() => minutes.value * 60 * 1000);
 const ACTIVITY_EVENTS = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
 
 const { t } = useI18n();

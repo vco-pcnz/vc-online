@@ -44,13 +44,17 @@ import { getToken } from '@/utils/token-util';
 import {
   getSessionIdleRemainingTime,
   getSessionLastActiveTime,
+  isSessionPasswordLocked,
   isSessionIdleTimedOut,
-  recordSessionActivity
+  recordSessionActivity,
+  removeSessionPasswordLocked,
+  setSessionPasswordLocked
 } from '@/utils/session-lock';
 import { userTimePwd } from '@/api/auth'
 import { systemConfigData } from "@/api/system/index"
 
 const minutes = ref(30);
+const isIdleLockEnabled = ref(false);
 const IDLE_TIMEOUT = computed(() => minutes.value * 60 * 1000);
 const ACTIVITY_EVENTS = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
 
@@ -86,7 +90,8 @@ const clearIdleTimer = () => {
 const isLoggedIn = () => Boolean(getToken());
 
 const lock = () => {
-  if (!isLoggedIn()) return;
+  if (!isIdleLockEnabled.value || !isLoggedIn()) return;
+  setSessionPasswordLocked();
   visible.value = true;
   clearIdleTimer();
   nextTick(() => {
@@ -95,7 +100,7 @@ const lock = () => {
 };
 
 const checkIdleTimeout = () => {
-  if (!isLoggedIn()) return;
+  if (!isIdleLockEnabled.value || !isLoggedIn()) return;
   if (isSessionIdleTimedOut(IDLE_TIMEOUT.value)) {
     lock();
     return;
@@ -104,7 +109,7 @@ const checkIdleTimeout = () => {
 };
 
 const resetIdleTimer = () => {
-  if (visible.value || !isLoggedIn()) return;
+  if (!isIdleLockEnabled.value || visible.value || !isLoggedIn()) return;
   clearIdleTimer();
   const remainingTime = getSessionIdleRemainingTime(IDLE_TIMEOUT.value);
   timer.value = window.setTimeout(checkIdleTimeout, remainingTime);
@@ -113,6 +118,7 @@ const resetIdleTimer = () => {
 const handleActivity = () => {
   if (visible.value || !isLoggedIn()) return;
   recordSessionActivity();
+  if (!isIdleLockEnabled.value) return;
   resetIdleTimer();
 };
 
@@ -121,13 +127,15 @@ const unlock = () => {
   loading.value = false;
   formState.password = '';
   formRef.value?.clearValidate?.();
+  removeSessionPasswordLocked();
   recordSessionActivity();
   resetIdleTimer();
 };
 
 const getTimeoutTime = () => {
-  return systemConfigData({ pcode: 'supplement', code: 'idle_timeout' }).then((res) => {
+  return systemConfigData({ pcode: 'web_config', code: 'idle_timeout,open_idle' }).then((res) => {
     minutes.value = Number(res.idle_timeout || 30);
+    isIdleLockEnabled.value = Number(res.open_idle) === 1;
   });
 }
 
@@ -159,7 +167,21 @@ watch(visible, (value) => {
 });
 
 const initSessionLock = () => {
-  if (!isLoggedIn()) return;
+  const loggedIn = isLoggedIn();
+
+  if (!isIdleLockEnabled.value || !loggedIn) {
+    visible.value = false;
+    clearIdleTimer();
+    removeSessionPasswordLocked();
+    if (loggedIn) {
+      recordSessionActivity();
+    }
+    return;
+  }
+  if (isSessionPasswordLocked()) {
+    lock();
+    return;
+  }
   if (!getSessionLastActiveTime()) {
     recordSessionActivity();
   }
@@ -170,7 +192,13 @@ onMounted(() => {
   ACTIVITY_EVENTS.forEach((eventName) => {
     window.addEventListener(eventName, handleActivity, true);
   });
-  getTimeoutTime().catch(() => {}).finally(initSessionLock);
+  getTimeoutTime()
+    .catch(() => {
+      isIdleLockEnabled.value = false;
+    })
+    .finally(() => {
+      initSessionLock();
+    });
 });
 
 onUnmounted(() => {

@@ -51,7 +51,8 @@
     <div class="flex justify-between items-end mt-3">
       <div class="mt-5">
         <p class="num" v-if="type == 'closed'">{{ pageStore.total }} {{ t('已关闭项目') }}</p>
-        <p class="num" v-if="type == 'open'">{{ pageStore.total }} {{ t('项目') }}</p>
+        <p class="num" v-if="type == 'written'">{{ pageStore.total }} {{ t('已核销的项目') }}</p>
+        <p class="num" v-if="type == 'current'">{{ pageStore.total }} {{ t('项目') }}</p>
       </div>
       <div class="flex gap-2" v-if="isExpand">
         <div class="search_expand isExpand" @click="isExpand = !isExpand">{{ t('收起') }}<DoubleRightOutlined class="icon" /></div>

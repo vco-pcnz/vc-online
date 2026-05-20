@@ -51,6 +51,7 @@ export default {
   "变更": "Change",
   "项目管理": "Loans",
   "当前项目": "Current loans",
+  "已核销的项目": "Written-off loans",
   "已关闭的项目": "Closed loans",
   "请求管理": "Applications",
   "借款请求": "Loan Request",
@@ -1450,6 +1451,17 @@ export default {
   "月度放款": "Monthly Repayment",
   "估值": "Project",
   "绑定估值": "Bind valuer",
-  "月度还款": "Monthly repayment"
+  "月度还款": "Monthly repayment",
+  "安全验证": "Security Verification",
+  "验证当前用户的登录密码": "Verify Current User Password",
+  "页面长时间未操作，为保障账户安全，请输入当前登录密码后继续使用。": "This page has been idle for a while. To keep your account secure, please enter your current login password to continue.",
+  "登录密码": "Login Password",
+  "请输入登录密码": "Please enter your login password",
+  "确认验证": "Verify",
+  "验证成功": "Verified successfully",
+  "核销": "Written-off",
+  "取消核销": "Current",
+  "确定要核销{0}": "Written Off {0}",
+  "确定要取消核销{0}": "Current {0}",
 }
   

@@ -4,7 +4,7 @@
       :columns="columns"
       :data-source="tableData"
       :pagination="false"
-      :scroll="{ x: type == 'closed' ? '2000' : '1900px' }"
+      :scroll="{ x: tableScrollX }"
       :customRow="rowClick"
       row-key="uuid"
       :rowClassName="setRowClass"
@@ -192,7 +192,7 @@
         </template>
         <template v-if="column.key === 'bili'">
           <div class="flex justify-center">
-            <div class="meter" v-if="type === 'current'">
+            <div class="meter" v-if="type === 'current' || type === 'written'">
               <p :style="{ fontSize: '10px' }">{{ record.credit.bili }}%</p>
               <vco-meter size="small" :value="Number(record.credit.bili)" />
             </div>
@@ -214,11 +214,11 @@
             <div class="closed" v-if="record.is_substitution">{{ t('被再融资') }}</div>
             <div class="closed" v-else-if="record.is_open === 3">{{ t('关账') }}</div>
           </template>
-          <div @click.stop>
+          <div class="operation-cell" style="position: absolute; inset: 0;" @click.stop>
             <a-dropdown :trigger="['click']">
-              <a class="ant-dropdown-link">
+              <div class="operation-trigger" style="display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; cursor: pointer;">
                 <i class="iconfont cert">&#xe77a;</i>
-              </a>
+              </div>
               <template #overlay>
                 <a-menu :selectable="false">
                   <a-menu-item key="0" v-if="hasPermission('projects:copy')">
@@ -226,18 +226,31 @@
                       <a>{{ t('复制') }}</a>
                     </vco-popconfirm>
                   </a-menu-item>
-                  <template v-if="hasPermission('project:list:bindValuer')">
-                  <a-menu-item key="1" v-if="!valuerProjectData.includes(record.uuid)">
-                    <vco-popconfirm url="/projectDetail/bindValuer" :formParams="{ uuids: [record.uuid] ,bind_type:0}" :tip="t('确定要绑定{0}', [record.project_name])" @update="changeValuerData(record.uuid,1)">
-                      <a>{{ t('绑定') }}</a>
-                    </vco-popconfirm>
-                  </a-menu-item>
-                  <a-menu-item key="1" v-if="valuerProjectData.includes(record.uuid)">
-                    <vco-popconfirm url="/projectDetail/unbindValuer" :formParams="{ uuids: [record.uuid] }" :tip="t('确定要取消绑定{0}', [record.project_name])" @update="changeValuerData(record.uuid,2)">
-                      <a>{{ t('取消绑定') }}</a>
-                    </vco-popconfirm>
-                  </a-menu-item>
-
+                  <!-- <template v-if="hasPermission('project:list:bindValuer')">
+                    <a-menu-item key="1" v-if="!valuerProjectData.includes(record.uuid)">
+                      <vco-popconfirm url="/projectDetail/bindValuer" :formParams="{ uuids: [record.uuid] ,bind_type:0}" :tip="t('确定要绑定{0}', [record.project_name])" @update="changeValuerData(record.uuid,1)">
+                        <a>{{ t('绑定') }}</a>
+                      </vco-popconfirm>
+                    </a-menu-item>
+                    <a-menu-item key="1" v-if="valuerProjectData.includes(record.uuid)">
+                      <vco-popconfirm url="/projectDetail/unbindValuer" :formParams="{ uuids: [record.uuid] }" :tip="t('确定要取消绑定{0}', [record.project_name])" @update="changeValuerData(record.uuid,2)">
+                        <a>{{ t('取消绑定') }}</a>
+                      </vco-popconfirm>
+                    </a-menu-item>
+                  </template> -->
+                  <template v-if="type !== 'closed' && hasPermission('projects:written-off')">
+                    <a-menu-item key="2" v-if="!record.is_written">
+                      <vco-popconfirm url="/projectDetail/written" :formParams="{ uuids: [record.uuid]}" :tip="t('确定要核销{0}', [record.project_name])" @update="pageStore.getList()">
+                        <a>{{ t('核销') }}</a>
+                      </vco-popconfirm>
+                    </a-menu-item>
+                  </template>
+                  <template v-if="type !== 'closed' && hasPermission('projects:written-on')">
+                    <a-menu-item key="2" v-if="record.is_written">
+                      <vco-popconfirm url="/projectDetail/unwritten" :formParams="{ uuids: [record.uuid]}" :tip="t('确定要取消核销{0}', [record.project_name])" @update="pageStore.getList()"> 
+                        <a>{{ t('取消核销') }}</a>
+                      </vco-popconfirm>
+                    </a-menu-item>
                   </template>
                 </a-menu>
               </template>
@@ -250,7 +263,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, watch, computed } from 'vue';
+import { ref, reactive, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { navigationTo } from '@/utils/tool';
@@ -295,12 +308,17 @@ const columns = reactive([
   { title: t('贷款余额'), key: 'loan_balance', width: 150 },
   { title: t('完成情况'), key: 'bili', width: 80, align: 'center' },
   { title: t('FC2'), key: 'fc2', width: 130 },
-  { title: t('条件'), key: '9', align: 'center' }
+  { title: t('条件'), key: '9', width: 120, align: 'center' }
 ]);
 
 const currentProduct = computed(() => productStore.productData.find((item) => item.uuid === pageStore.product_uuid));
 const isLendrProduct = computed(() => currentProduct.value?.code === 'lendr');
 const isVslProduct = computed(() => String(currentProduct.value?.code || '').toLowerCase() === 'vsl');
+const hasOperationColumn = computed(() => columns.some((column) => column.key === 'operation'));
+const tableScrollX = computed(() => {
+  const baseWidth = props.type === 'closed' ? 2120 : 2020;
+  return `${hasOperationColumn.value ? baseWidth : baseWidth - 80}px`;
+});
 
 const removeIrrColumn = () => {
   const irrIndex = columns.findIndex((column) => column.key === 'irr');
@@ -437,26 +455,37 @@ const toCopyDetail = (val) => {
 const setRowClass = (record, index) => {
   const targetDate = new Date(record.end_date);
   const currentDate = new Date();
-  if (targetDate < currentDate && props.type === 'current') {
+  if (targetDate < currentDate && (props.type === 'current' || props.type === 'written')) {
     return 'red';
   }
   return '';
 };
 
-onMounted(() => {
-  if (hasPermission('projects:copy')) {
+const syncOperationColumn = () => {
+  const operationIndex = columns.findIndex((column) => column.key === 'operation');
+  const canShowOperation = hasPermission('projects:copy') || (props.type !== 'closed' && (hasPermission('projects:written-off') || hasPermission('projects:written-on')));
+
+  if (canShowOperation && operationIndex === -1) {
     columns.push({
       title: t('操作1'),
       key: 'operation',
       align: 'center',
       fixed: 'right',
-      width: 50
+      width: 50,
+      customCell: () => ({
+        class: 'operation-column-cell',
+        style: {
+          position: 'relative',
+          padding: 0
+        }
+      })
     });
   }
-  // if (hasPermission('project:list:bindValuer')) {
-  //   getBindData()
-  // }
-});
+
+  if (!canShowOperation && operationIndex !== -1) {
+    columns.splice(operationIndex, 1);
+  }
+};
 
 const loadValuerProject = ref(false)
 const valuerProjectData = ref([])
@@ -517,6 +546,7 @@ watch(
         columns.splice(closeDateIndex, 1);
       }
     }
+    syncOperationColumn();
   },
   {
     immediate: true
@@ -632,5 +662,24 @@ watch(
       transform: rotateX(180deg);
     }
   }
+}
+
+:deep(.operation-column-cell) {
+  position: relative;
+  padding: 0 !important;
+}
+
+.operation-cell {
+  position: absolute;
+  inset: 0;
+}
+
+.operation-trigger {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
 </style>

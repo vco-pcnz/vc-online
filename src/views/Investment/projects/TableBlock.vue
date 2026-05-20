@@ -191,7 +191,7 @@
         </template>
         <template v-if="column.key === 'bili'">
           <div class="flex justify-center">
-            <div class="meter" v-if="type === 'current'">
+            <div class="meter" v-if="type === 'current' || type === 'written'">
               <p :style="{ fontSize: '10px' }">{{ record.credit.bili }}%</p>
               <vco-meter size="small" :value="Number(record.credit.bili)" />
             </div>
@@ -352,7 +352,7 @@ const toCopyDetail = (val) => {
 const setRowClass = (record, index) => {
   const targetDate = new Date(record.end_date);
   const currentDate = new Date();
-  if (targetDate < currentDate && props.type === 'current') {
+  if (targetDate < currentDate && (props.type === 'current' || props.type === 'written')) {
     return 'red';
   }
   return '';

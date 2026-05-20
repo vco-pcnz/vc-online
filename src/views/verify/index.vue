@@ -97,6 +97,7 @@ import router from '@/router';
 import { useUserStore } from '@/store';
 import { getSmsCode } from '@/api/auth';
 import dayjs from 'dayjs';
+import { clearSessionPasswordLocked } from '@/utils/session-lock';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -121,6 +122,7 @@ const submit = (val) => {
       type: smsType.value + ''
     })
     .then((res) => {
+      clearSessionPasswordLocked();
       goHomeRoute();
     })
     .catch(() => {

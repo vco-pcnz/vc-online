@@ -84,6 +84,7 @@ import SelectAccount from './components/SelectAccount.vue';
 import { getMobileCode, getEmailCode } from '@/api/auth';
 import { EMAIL_RULE } from '@/constant';
 import { pub } from '@/api/system';
+import { clearSessionPasswordLocked } from '@/utils/session-lock';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -186,6 +187,7 @@ const handleVerify = () => {
 };
 
 const loginSuccessCb = (res) => {
+  clearSessionPasswordLocked();
   if (res.smsVerify) {
     router.push('/verify');
     return;

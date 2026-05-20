@@ -10,12 +10,12 @@
     </div>
   </div>
 
-  <TableSearch class="mb-5" ref="tableSearchRef" :type="pageStore.sta == 1 ? 'open' : 'closed'"></TableSearch>
+  <TableSearch class="mb-5" ref="tableSearchRef" :type="staName[pageStore.sta]"></TableSearch>
 
   <a-spin :spinning="pageStore.loading" size="large">
     <div class="table-content">
-      <table-block v-if="!isNormalUser" :table-data="pageStore.list" :type="pageStore.sta == 1 ? 'current' : 'closed'"></table-block>
-      <table-block-vip v-if="isNormalUser" :table-data="pageStore.list" :type="pageStore.sta == 1 ? 'current' : 'closed'"></table-block-vip>
+      <table-block v-if="!isNormalUser" :table-data="pageStore.list" :type="staName[pageStore.sta]"></table-block>
+      <table-block-vip v-if="isNormalUser" :table-data="pageStore.list" :type="staName[pageStore.sta]"></table-block-vip>
     </div>
     <div class="mt-5" v-if="pageStore.total">
       <a-pagination
@@ -55,6 +55,7 @@ const pageStore = useProjectsStore();
 const isNormalUser = computed(() => useUserStore().isNormalUser);
 const current_num = computed(() => pageStore.otherInfo['1']);
 const closed_num = computed(() => pageStore.otherInfo['2']);
+const Written_off_num = computed(() => pageStore.otherInfo['4']);
 
 const tabData = ref([
   {
@@ -63,11 +64,22 @@ const tabData = ref([
     num: current_num
   },
   {
+    label: t('已核销的项目'),
+    value: 4,
+    num: Written_off_num
+  },
+  {
     label: t('已关闭的项目'),
     value: 2,
     num: closed_num
   }
 ]);
+
+const staName = {
+  1: 'current',
+  2: 'closed',
+  4: 'written'
+};
 
 const tableSearchRef = ref();
 

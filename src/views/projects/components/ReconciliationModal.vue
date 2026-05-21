@@ -41,7 +41,7 @@
                 <a-spin :spinning="loading" size="large">
                   <div class="list">
                     <template v-for="item in treeData" :key="item">
-                      <div class="list-item" @click="selectReconciliation(item)" :class="[{ par: item.children && item.children.length, dis: isDis(item) }]">
+                      <div class="list-item" @click="selectReconciliation(item)" :class="[{ dis: isDis(item) }]">
                         <div class="flex justify-between">
                           <div>
                             {{ tool.showDate(item.date) }} <span class="fs_2xs">({{ item.type }})</span>
@@ -232,7 +232,7 @@ const loadReconciliation = () => {
 
 const reconciliationItem = ref(null);
 const selectReconciliation = (val) => {
-  if ((val.children && val.children.length) || isDis(val)) return;
+  if (isDis(val)) return;
   reconciliationItem.value = val;
   formState.value.bank_sn = val.bank_sn;
   dropdownVisible.value = false;
@@ -245,21 +245,17 @@ const resetReconciliationItem = () => {
 };
 
 const isDis = (val) => {
-  if (val && props.type == 1 && props.detail?.amount == val.amount) {
-    // 放款
-    return false;
+  if (!val || Number(val.allow_reconciliation) !== 1) return true;
+
+  if (props.type == 1) {
+    return Number(props.detail?.amount) !== Number(val.amount);
   }
-  if (val && props.type == 2) {
-    // 全额还款
-    if (props.detail?.all_repayment || props.productCode === 'vsl') {
-      if (Math.abs(props.detail?.amount) == val.amount && props.detail?.date === val.date) {
-        return false;
-      }
-      return true;
-    }
-    return false;
+
+  if (props.type == 2 && (props.productCode === 'vsl' || props.detail?.all_repayment)) {
+    return !(Math.abs(Number(props.detail?.amount)) === Number(val.amount) && props.detail?.date === val.date);
   }
-  return true;
+
+  return false;
 };
 
 const init = () => {

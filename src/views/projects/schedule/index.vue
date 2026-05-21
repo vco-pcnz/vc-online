@@ -13,6 +13,7 @@
         :is-reset="true"
         :closeDate="projectDetail?.base?.close_date"
         :vs_is_import="projectDetail?.vslInfo?.vs_is_import"
+        :show-schedule-role-switch="true"
       ></schedule>
     </template>
   </detail-layout>

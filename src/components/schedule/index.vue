@@ -92,7 +92,7 @@
                 </div>
               </div>
             </div>
-            <div class="item" v-if="!ptRole">
+            <div class="item" v-if="!effectivePtRole">
               <div class="line-content">
                 <div class="round"></div>
                 <div class="round"></div>
@@ -141,16 +141,16 @@
               </a-button>
               <template #overlay>
                 <a-menu>
-                  <a-menu-item v-if="!ptRole && !hideForcast && !isOld && !hideLinefee">
+                  <a-menu-item v-if="!effectivePtRole && !hideForcast && !isOld && !hideLinefee">
                     <div class="pt-2 pb-2" @click="downLoadExcel(0)">{{ t('额度费用计算时间表') }}</div>
                   </a-menu-item>
-                  <a-menu-item v-if="!ptRole && !hideForcast && !isOld && !is_buyout">
+                  <a-menu-item v-if="!effectivePtRole && !hideForcast && !isOld && !is_buyout">
                     <div class="pt-2 pb-2" @click="downLoadExcel(1)">{{ t('预测放款时间表') }}</div>
                   </a-menu-item>
                   <a-menu-item>
                     <div class="pt-2 pb-2" @click="downLoadExcel(2)">{{ t('放款时间表') }}</div>
                   </a-menu-item>
-                  <a-menu-item v-if="!ptRole">
+                  <a-menu-item v-if="!effectivePtRole">
                     <div class="pt-2 pb-2" @click="downLoadExcel(3)">{{ t('预测表IRR') }}</div>
                   </a-menu-item>
                   <a-menu-item v-if="hasPermission('projects:repayments:adDownload') && !isProcess && !isVariation">
@@ -187,6 +187,8 @@
             </div>
           </div>
         </div>
+
+        <vco-page-tab v-if="showScheduleRoleTabs" class="schedule-role-tabs" :tabData="scheduleRoleTabData" v-model:current="scheduleRole" @change="scheduleRoleChange"></vco-page-tab>
 
         <a-tabs v-if="lateTable" v-model:activeKey="lateTabActiveKey" @change="lateTableChange">
           <a-tab-pane key="1" :tab="t('延迟变更')"></a-tab-pane>
@@ -275,7 +277,7 @@
           </div>
         </div>
 
-        <div v-if="statisticsData && tabData.length && !ptRole && !type_id" class="static-block flex">
+        <div v-if="statisticsData && tabData.length && !effectivePtRole && !type_id" class="static-block flex">
           <div class="item flex">
             <div class="day-box">
               <p>{{ t('估计总数') }}</p>
@@ -442,6 +444,10 @@ const props = defineProps({
   isInvestor: {
     type: Boolean,
     default: false
+  },
+  showScheduleRoleSwitch: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -475,10 +481,34 @@ const showIrr = computed(() => {
   return true;
 });
 
+const scheduleRole = ref(0);
+const scheduleRoleTabData = ref([
+  {
+    label: 'Internal',
+    value: 0
+  },
+  {
+    label: 'Client',
+    value: 1
+  }
+]);
+const showScheduleRoleTabs = computed(() => props.showScheduleRoleSwitch && props.isAbout && !props.ptRole && !userStore.isNormalUser);
+const effectivePtRole = computed(() => props.ptRole || scheduleRole.value === 1);
+
 const pageLoading = ref(false);
 const tabData = ref([]);
 const currentMonth = dayjs();
 const statisticsData = ref(null);
+
+const appendScheduleRoleParams = (params) => {
+  if (scheduleRole.value === 1) {
+    params.ptRole = 1;
+  }
+};
+
+const scheduleRoleChange = () => {
+  getDataInfo(Number(lateTabActiveKey.value) === 1);
+};
 
 const getDataInfo = (isLate = false) => {
   tabData.value = [];
@@ -493,6 +523,8 @@ const getDataInfo = (isLate = false) => {
   if (props.is_buyout) {
     params.is_buyout = 1;
   }
+
+  appendScheduleRoleParams(params);
 
   let ajaxFn = props.isDetails ? projectDetailForecastList : projectForecastIndex;
 
@@ -1036,6 +1068,10 @@ watch(
 
 <style lang="less" scoped>
 @import '@/styles/variables.less';
+
+.schedule-role-tabs {
+  margin: -24px 0 16px;
+}
 
 .header-static {
   margin-bottom: 60px;

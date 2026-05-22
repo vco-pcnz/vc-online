@@ -13,6 +13,18 @@ export function recordSessionActivity(time = Date.now()) {
   localStorage.setItem(SESSION_LAST_ACTIVE_TIME_KEY, String(time));
 }
 
+export function setSessionPasswordLocked() {
+  localStorage.setItem(SESSION_PASSWORD_LOCK_KEY, '1');
+}
+
+export function isSessionPasswordLocked() {
+  return localStorage.getItem(SESSION_PASSWORD_LOCK_KEY) === '1';
+}
+
+export function removeSessionPasswordLocked() {
+  localStorage.removeItem(SESSION_PASSWORD_LOCK_KEY);
+}
+
 export function getSessionLastActiveTime() {
   const lastActiveTime = Number(localStorage.getItem(SESSION_LAST_ACTIVE_TIME_KEY));
   return Number.isFinite(lastActiveTime) ? lastActiveTime : 0;
@@ -31,5 +43,6 @@ export function isSessionIdleTimedOut(idleTimeout) {
 
 export function clearSessionPasswordLocked() {
   localStorage.removeItem(SESSION_LAST_ACTIVE_TIME_KEY);
+  removeSessionPasswordLocked();
   clearLegacySessionPasswordLockKeys();
 }

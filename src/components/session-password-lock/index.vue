@@ -133,6 +133,10 @@ const unlock = () => {
 };
 
 const getTimeoutTime = () => {
+  if (!isLoggedIn()) {
+    isIdleLockEnabled.value = false;
+    return Promise.resolve();
+  }
   return systemConfigData({ pcode: 'web_config', code: 'idle_timeout,open_idle' }).then((res) => {
     minutes.value = Number(res.idle_timeout || 30);
     isIdleLockEnabled.value = Number(res.open_idle) === 1;

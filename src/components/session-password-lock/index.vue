@@ -40,6 +40,7 @@ import { computed, nextTick, onMounted, onUnmounted, reactive, ref, watch } from
 import { LockOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue/es';
 import { useI18n } from 'vue-i18n';
+import { useRoute } from 'vue-router';
 import { getToken } from '@/utils/token-util';
 import {
   getSessionIdleRemainingTime,
@@ -59,10 +60,12 @@ const IDLE_TIMEOUT = computed(() => minutes.value * 60 * 1000);
 const ACTIVITY_EVENTS = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
 
 const { t } = useI18n();
+const route = useRoute();
 
 const visible = ref(false);
 const loading = ref(false);
 const timer = ref(null);
+const configToken = ref('');
 const formRef = ref();
 const passwordInputRef = ref();
 
@@ -133,13 +136,16 @@ const unlock = () => {
 };
 
 const getTimeoutTime = () => {
-  if (!isLoggedIn()) {
+  const token = getToken();
+  if (!token) {
     isIdleLockEnabled.value = false;
+    configToken.value = '';
     return Promise.resolve();
   }
   return systemConfigData({ pcode: 'web_config', code: 'idle_timeout,open_idle' }).then((res) => {
     minutes.value = Number(res.idle_timeout || 30);
     isIdleLockEnabled.value = Number(res.open_idle) === 1;
+    configToken.value = token;
   });
 }
 
@@ -192,10 +198,20 @@ const initSessionLock = () => {
   checkIdleTimeout();
 };
 
-onMounted(() => {
-  ACTIVITY_EVENTS.forEach((eventName) => {
-    window.addEventListener(eventName, handleActivity, true);
-  });
+const syncSessionLockConfig = () => {
+  const token = getToken();
+  if (!token) {
+    configToken.value = '';
+    isIdleLockEnabled.value = false;
+    initSessionLock();
+    return;
+  }
+
+  if (configToken.value === token) {
+    initSessionLock();
+    return;
+  }
+
   getTimeoutTime()
     .catch(() => {
       isIdleLockEnabled.value = false;
@@ -203,7 +219,21 @@ onMounted(() => {
     .finally(() => {
       initSessionLock();
     });
+};
+
+onMounted(() => {
+  ACTIVITY_EVENTS.forEach((eventName) => {
+    window.addEventListener(eventName, handleActivity, true);
+  });
+  syncSessionLockConfig();
 });
+
+watch(
+  () => route.fullPath,
+  () => {
+    syncSessionLockConfig();
+  }
+);
 
 onUnmounted(() => {
   clearIdleTimer();

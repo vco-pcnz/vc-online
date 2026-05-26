@@ -195,53 +195,55 @@
           <a-tab-pane key="2" :tab="t('原本变更')"></a-tab-pane>
         </a-tabs>
 
-        <div v-if="tabData.length" class="table-content" :class="{ 'no-border': userStore.isNormalUser }">
-          <div class="col-item th" :class="{ isAbout: isAbout, isVSL: showLender, isReconciliation: isReconciliation }">
-            <div class="item uppercase"></div>
-            <div class="item uppercase">{{ t('日期') }}</div>
-            <div class="item uppercase">{{ t('类型') }}</div>
-            <div class="item uppercase text-center" v-if="showLender">{{ t('贷款方') }}</div>
-            <div class="item uppercase">{{ t('说明') }}</div>
-            <div class="item uppercase text-center">{{ t('利息、费用') }}</div>
-            <div class="item uppercase text-center">{{ t('放款') }}</div>
-            <div class="item uppercase text-center">{{ t('还款') }}</div>
-            <div class="item uppercase balance text-center">{{ t('余额') }}</div>
-            <div class="item uppercase ops" v-if="isReconciliation">RC/NR</div>
-          </div>
+        <a-spin :spinning="tableLoading" size="large">
+          <div v-if="tabData.length" class="table-content" :class="{ 'no-border': userStore.isNormalUser }">
+            <div class="col-item th" :class="{ isAbout: isAbout, isVSL: showLender, isReconciliation: isReconciliation }">
+              <div class="item uppercase"></div>
+              <div class="item uppercase">{{ t('日期') }}</div>
+              <div class="item uppercase">{{ t('类型') }}</div>
+              <div class="item uppercase text-center" v-if="showLender">{{ t('贷款方') }}</div>
+              <div class="item uppercase">{{ t('说明') }}</div>
+              <div class="item uppercase text-center">{{ t('利息、费用') }}</div>
+              <div class="item uppercase text-center">{{ t('放款') }}</div>
+              <div class="item uppercase text-center">{{ t('还款') }}</div>
+              <div class="item uppercase balance text-center">{{ t('余额') }}</div>
+              <div class="item uppercase ops" v-if="isReconciliation">RC/NR</div>
+            </div>
 
-          <div class="col-content">
-            <div v-for="(item, index) in tabData" :key="index" class="col-block" :class="{ passed: item.passed }">
-              <div v-for="_item in item.list" :key="_item.date" class="col-item" :class="{ isAbout: isAbout, isVSL: showLender, isReconciliation: isReconciliation }">
-                <div v-if="isAbout" class="item about flex items-center">
-                  <span class="circle" :style="{ background: _item.status > 1 || (_item.passed && _item.is_fee) ? '#181818' : '#b4d8d8' }"></span>
-                </div>
-                <div v-else class="item"></div>
-                <div class="item">{{ tool.showDate(_item.date) }}</div>
-                <div class="item type">
-                  <div v-if="[2, 4].includes(_item.type)">
-                    <i v-if="_item.type === 2" class="iconfont">&#xe755;</i>
-                    <i v-if="_item.type === 4" class="iconfont">&#xe757;</i>
-                    <span>{{ _item.name }}</span>
+            <div class="col-content">
+              <div v-for="(item, index) in tabData" :key="index" class="col-block" :class="{ passed: item.passed }">
+                <div v-for="_item in item.list" :key="_item.date" class="col-item" :class="{ isAbout: isAbout, isVSL: showLender, isReconciliation: isReconciliation }">
+                  <div v-if="isAbout" class="item about flex items-center">
+                    <span class="circle" :style="{ background: _item.status > 1 || (_item.passed && _item.is_fee) ? '#181818' : '#b4d8d8' }"></span>
                   </div>
-                  <p v-else>{{ _item.name }}</p>
+                  <div v-else class="item"></div>
+                  <div class="item">{{ tool.showDate(_item.date) }}</div>
+                  <div class="item type">
+                    <div v-if="[2, 4].includes(_item.type)">
+                      <i v-if="_item.type === 2" class="iconfont">&#xe755;</i>
+                      <i v-if="_item.type === 4" class="iconfont">&#xe757;</i>
+                      <span>{{ _item.name }}</span>
+                    </div>
+                    <p v-else>{{ _item.name }}</p>
+                  </div>
+                  <li class="item text-center" v-if="showLender">{{ _item.source ? (_item.source > 0 ? 'BOC' : '') : 'VS' }}</li>
+                  <div class="item">
+                    <p class="note">{{ _item.note }}</p>
+                  </div>
+                  <div class="item text-center">{{ _item.fee }}</div>
+                  <div class="item drawdown text-center">{{ _item.drawdown }}</div>
+                  <div class="item text-center">
+                    <vco-tip :tip="(_item.repayment && hasPermission('projects:schedule:interest_note'))?_item.interest_note:''">{{ _item.repayment }}</vco-tip>
+                  </div>
+                  <div class="item balance">
+                    <vco-number :value="_item.balance" :precision="2" :end="true"></vco-number>
+                  </div>
+                  <div class="item ops cursor-pointer" v-if="isReconciliation"><i v-if="_item.status == 1 && _item.is_irr" class="iconfont" @click="showReconciliationModal(_item)">&#xe601;</i></div>
                 </div>
-                <li class="item text-center" v-if="showLender">{{ _item.source ? (_item.source > 0 ? 'BOC' : '') : 'VS' }}</li>
-                <div class="item">
-                  <p class="note">{{ _item.note }}</p>
-                </div>
-                <div class="item text-center">{{ _item.fee }}</div>
-                <div class="item drawdown text-center">{{ _item.drawdown }}</div>
-                <div class="item text-center">
-                  <vco-tip :tip="(_item.repayment && hasPermission('projects:schedule:interest_note'))?_item.interest_note:''">{{ _item.repayment }}</vco-tip>
-                </div>
-                <div class="item balance">
-                  <vco-number :value="_item.balance" :precision="2" :end="true"></vco-number>
-                </div>
-                <div class="item ops cursor-pointer" v-if="isReconciliation"><i v-if="_item.status == 1 && _item.is_irr" class="iconfont" @click="showReconciliationModal(_item)">&#xe601;</i></div>
               </div>
             </div>
           </div>
-        </div>
+        </a-spin>
 
         <div v-if="statisticsData && tabData.length" class="static-block flex">
           <div class="item">
@@ -492,10 +494,12 @@ const scheduleRoleTabData = ref([
     value: 1
   }
 ]);
-const showScheduleRoleTabs = computed(() => props.showScheduleRoleSwitch && props.isAbout && !props.ptRole && !userStore.isNormalUser);
+const isVslProduct = computed(() => props.currentProduct === 'vsl');
+const showScheduleRoleTabs = computed(() => props.showScheduleRoleSwitch && props.isAbout && !props.ptRole && !userStore.isNormalUser && (!isVslProduct.value || !type_id.value));
 const effectivePtRole = computed(() => props.ptRole || scheduleRole.value === 1);
 
 const pageLoading = ref(false);
+const tableLoading = ref(false);
 const tabData = ref([]);
 const currentMonth = dayjs();
 const statisticsData = ref(null);
@@ -507,12 +511,20 @@ const appendScheduleRoleParams = (params) => {
 };
 
 const scheduleRoleChange = () => {
-  getDataInfo(Number(lateTabActiveKey.value) === 1);
+  getDataInfo(Number(lateTabActiveKey.value) === 1, { refreshStatistics: false, showLoading: false, clearData: false, showTableLoading: true });
 };
 
-const getDataInfo = (isLate = false) => {
-  tabData.value = [];
-  pageLoading.value = true;
+const getDataInfo = (isLate = false, options = {}) => {
+  const { refreshStatistics = true, showLoading = true, clearData = true, showTableLoading = false } = options;
+  if (clearData) {
+    tabData.value = [];
+  }
+  if (showLoading) {
+    pageLoading.value = true;
+  }
+  if (showTableLoading) {
+    tableLoading.value = true;
+  }
 
   const params = {
     uuid: props.currentId,
@@ -590,11 +602,23 @@ const getDataInfo = (isLate = false) => {
       }
 
       tabData.value = dataArr;
-      pageLoading.value = false;
+      if (showLoading) {
+        pageLoading.value = false;
+      }
+      if (showTableLoading) {
+        tableLoading.value = false;
+      }
     })
     .catch(() => {
-      pageLoading.value = false;
+      if (showLoading) {
+        pageLoading.value = false;
+      }
+      if (showTableLoading) {
+        tableLoading.value = false;
+      }
     });
+
+  if (!refreshStatistics) return;
 
   const staticParams = {
     uuid: props.currentId,
@@ -1061,6 +1085,9 @@ onMounted(() => {
 watch(
   () => type_id.value,
   (val) => {
+    if (isVslProduct.value && val) {
+      scheduleRole.value = 0;
+    }
     getDataInfo(Number(lateTabActiveKey.value) === 1);
   }
 );

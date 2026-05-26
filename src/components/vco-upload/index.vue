@@ -134,7 +134,7 @@ const fileName = ref('file');
 const upText = ref('');
 const directory = ref(true);
 
-const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'jfif', 'heic', 'heif', 'webp'];
+const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff', 'svg', 'heif', 'jfif', 'heic', 'dng'];
 const fileExtensions = ['xls', 'xlsb', 'xlsx', 'csv', 'json', 'txt', 'doc', 'docx', 'ppt', 'pptx', 'pdf', 'xmind', 'msg', 'eml'];
 const videoExtensions = ['mp4', 'rmvb', 'wmv', 'avi', 'mpeg', 'mpg', 'mov', '3gp', 'flv', 'mkv', 'm4v'];
 

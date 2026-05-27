@@ -313,7 +313,7 @@
                     >
                       <template v-if="item.key === 'type'">Construction</template>
                       <template v-else-if="item.key === 'payment'">
-                        <p class="total-percent">{{ numberStrFormat(summaryHandle(item.key)) }}%</p>
+                        <p class="total-percent">{{ numberStrFormat(paymentTotal) }}%</p>
                       </template>
                       <template v-else-if="item.key === 'total'">
                         <template v-if="showProcess">
@@ -616,6 +616,8 @@
     }, 0);
     if (key === 'payment') {
       return tool.plus(total, advancePercent.value)
+    } else if (key === 'boc-payment-amount') {
+      return tool.plus(total, advanceAmount.value)
     } else if (key === 'total') {
       return tool.plus(total, advanceAmount.value)
     } else {
@@ -659,6 +661,22 @@
         return Number(tool.plus(total, num))
       }, 0);
       return type === 1 ? Number(tool.plus(total, advanceAmount.value)) : total
+    }
+  })
+
+  const paymentTotal = computed(() => {
+    const loanTotal = TableLoanTotal.value(1)
+    const borrowerTotal = TableLoanTotal.value(2)
+
+    if (loanTotal === buildAmount.value && borrowerTotal === borrowerEquity.value) {
+      return 100
+    } else {
+      const arr = tableData.value.filter(item => !item.isFixedRow).map(item => item.payment)
+      const numArr = isNaN(Number(arr[0])) ? arr.map(item => Number(item.amount)) : arr.map(item => Number(item))
+      const total = numArr.reduce((total, num) => {
+        return Number(tool.plus(total, num))
+      }, 0);
+      return total
     }
   })
 
@@ -1171,6 +1189,9 @@
 
   const buildAmount = ref(0)
 
+  // 建筑贷款自出部分
+  const borrowerEquity  = ref(0)
+
   // 请求项目信息
   const getProjectData = async () => {
     pageLoading.value = true
@@ -1220,7 +1241,9 @@
         footerDataCol.value = dataArr
 
         const Construction = list.find(item => item.type === 'Construction')
+
         buildAmount.value = Construction ? (Number(Construction.loan) || 0) : 0
+        borrowerEquity.value = Construction ? (Number(Construction.borrower_equity) || 0) : 0
       })
       
       await getSetedData()

@@ -225,8 +225,8 @@
                     <template v-if="item.key === 'type'">Construction</template>
                     <template v-else-if="item.key === 'payment'">
                       <p class="total-percent"
-                        :class="{'plus': summaryHandle(item.key) > 100, 'minus': summaryHandle(item.key) < 100}"
-                      >{{ numberStrFormat(summaryHandle(item.key)) }}%</p>
+                        :class="{'plus': paymentTotal > 100, 'minus': paymentTotal < 100}"
+                      >{{ numberStrFormat(paymentTotal) }}%</p>
                     </template>
                     <template v-else-if="item.key === 'total'">
                       <div class="total-info-txt">
@@ -437,8 +437,10 @@
         return Number(tool.plus(total, num))
       }, 0);
       if (key === 'payment') {
-        return total
+        // return total
         // return tool.plus(total, advancePercent.value)
+      } else if (key === 'boc-payment-amount') {
+        return tool.plus(total, advanceAmount.value)
       } else if (key === 'total') {
         return tool.plus(total, advanceAmount.value)
       } else {
@@ -454,6 +456,22 @@
         return Number(tool.plus(total, num))
       }, 0);
       return type === 1 ? Number(tool.plus(total, advanceAmount.value)) : total
+    }
+  })
+
+  const paymentTotal = computed(() => {
+    const loanTotal = TableLoanTotal.value(1)
+    const borrowerTotal = TableLoanTotal.value(2)
+
+    if (loanTotal === buildAmount.value && borrowerTotal === borrowerEquity.value) {
+      return 100
+    } else {
+      const arr = tableData.value.filter(item => !item.isFixedRow).map(item => item.payment)
+      const numArr = isNaN(Number(arr[0])) ? arr.map(item => Number(item.amount)) : arr.map(item => Number(item))
+      const total = numArr.reduce((total, num) => {
+        return Number(tool.plus(total, num))
+      }, 0);
+      return total
     }
   })
 

@@ -441,9 +441,10 @@
       return Number(tool.plus(total, num))
     }, 0);
     if (key === 'payment') {
-      return tool.plus(total, advancePercent.value)
+      // return tool.plus(total, advancePercent.value)
+      return 100
     } else if (key === 'total') {
-      return tool.plus(total, advanceAmount.value)
+      return isVsl.value ? total : tool.plus(total, advanceAmount.value)
     } else {
       return total
     }

@@ -398,7 +398,11 @@
                   <i class="iconfont">&#xe76c;</i>
                 </div>
 
-                <vco-number :value="Number(item.amount || 0)" size="fs_md" :precision="2" :end="true"></vco-number>
+                <!-- <vco-number :value="Number(item.amount || 0)" size="fs_md" :precision="2" :end="true"></vco-number> -->
+
+                <vco-number :value="item.amount" size="fs_md" color="#ea3535" :precision="2" :end="true"></vco-number>
+                <vco-number :value="item.borrower_equity" size="fs_md" color="#31bd65" :precision="2" :end="true" class="mt-1"></vco-number>
+
                 <vco-number v-if="showProcess" :value="tableRemainTotal(Number(item.amount || 0), Number(item?.use_amount || 0)) < 0 ? 0 : tableRemainTotal(Number(item.amount || 0), Number(item?.use_amount || 0))" size="fs_xs" color="#ea3535" :precision="2" :end="true"></vco-number>
                 <vco-number v-if="showProcess" :value="Number(item?.use_amount || 0)" size="fs_xs" color="#31bd65" :precision="2" :end="true"></vco-number>
 
@@ -636,8 +640,11 @@
       return Number(tool.plus(total, num))
     }, 0);
     if (key === 'payment') {
-      return tool.plus(total, advancePercent.value)
-    } else if (key === 'total') {
+      // return tool.plus(total, advancePercent.value)
+      return 100
+    } else if (key === 'boc-payment-amount') {
+      return tool.plus(total, advanceAmount.value)
+    }  else if (key === 'total') {
       return tool.plus(total, advanceAmount.value)
     } else {
       return total
@@ -671,13 +678,12 @@
     }, 0);
 
     const tableNum = easyModel.value ? 0 : TableLoanTotal.value(2)
-
     return tool.plus(tableNum, inputNum)
   })
 
   const tableTotal = computed(() => {
     const tableNum = easyModel.value ? 0 : summaryHandle('total')
-    const inputArr = footerDataCol.value.map(item => item.loan)
+    const inputArr = footerDataCol.value.map(item => item.total)
     const inputNum = inputArr.reduce((total, num) => {
       return Number(tool.plus(total, num))
     }, 0);
@@ -1203,7 +1209,7 @@
 
             return mergItem
           })
-          footerDataCol.value = footerData.filter(item => (Number(item.amount) || item?.bocInfo?.amount))
+          footerDataCol.value = footerData.filter(item => (Number(item.amount) || Number(item?.bocInfo?.amount) || Number(item?.borrower_equity)))
         } else {
           footerDataCol.value = []
         }

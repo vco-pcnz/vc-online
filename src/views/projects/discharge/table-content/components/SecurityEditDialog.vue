@@ -24,13 +24,13 @@
               <a-select v-model:value="formState.type" :options="typeData"></a-select>
             </a-form-item>
           </a-col>
-          <a-col :span="Number(formState.type) === 2 ? 12 : 24">
+          <a-col :span="12">
             <a-form-item :label="t('抵押物价值')" name="amount">
               <a-input-number v-model:value="formState.amount" :max="99999999999" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
             </a-form-item>
           </a-col>
 
-          <a-col v-if="Number(formState.type) === 2" :span="12">
+          <a-col :span="12">
             <a-form-item :label="t('面积')" name="sqm">
               <a-input v-model:value="formState.sqm" suffix="m²" />
             </a-form-item>
@@ -344,10 +344,10 @@ const formRules = {
   postcode: [{ required: true, message: t('请输入') + t('邮编'), trigger: 'blur' }],
   region_one_name: [{ required: true, message: t('请输入') + t('城市/州'), trigger: 'blur' }],
   address_short: [{ required: true, message: t('请输入') + t('地址1'), trigger: 'blur' }],
-  sqm: [
-    { required: true, message: t('请输入') + t('面积'), trigger: 'blur' },
-    { validator: validateSqm, trigger: 'blur' }
-  ]
+  // sqm: [
+  //   { required: true, message: t('请输入') + t('面积'), trigger: 'blur' },
+  //   { validator: validateSqm, trigger: 'blur' }
+  // ]
 };
 
 const disabledDateFormatBefore = (current) => {

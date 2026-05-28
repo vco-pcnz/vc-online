@@ -73,6 +73,11 @@
                 <p class="txt">{{ securityDetailInfo?.type_name }}</p>
               </a-col>
               <a-col :span="6" class="item-txt">
+                <p class="name">{{ t('面积') }}</p>
+                <p v-if="securityDetailInfo?.sqm" class="txt">{{ securityDetailInfo?.sqm }}m²</p>
+                <p v-else>--</p>
+              </a-col>
+              <a-col :span="6" class="item-txt">
                 <p class="name">{{ t('抵押物价值') }}</p>
                 <vco-number :value="securityDetailInfo?.amount" :precision="2"></vco-number>
               </a-col>

@@ -1463,5 +1463,6 @@ export default {
   "取消核销": "Current",
   "确定要核销{0}": "Written Off {0}",
   "确定要取消核销{0}": "Current {0}",
+  "下载合同模版": "Download contract template",
 }
   

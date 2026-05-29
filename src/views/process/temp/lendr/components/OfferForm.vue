@@ -6,6 +6,15 @@
     <vco-process-title :title="t('凭证信息')">
       <div v-if="!isDetails" class="flex gap-5 items-center">
         <a-button
+          v-if="offerInfo.has_offer"
+          type="brown"
+          shape="round"
+          class="uppercase"
+          @click="downloadTemplate"
+        >
+          {{ t('下载合同模版') }}
+        </a-button>
+        <a-button
           v-if="blockInfo.showEdit && showSaveBtn"
           type="primary"
           shape="round"
@@ -168,6 +177,10 @@
       .catch(() => {
         return false;
       });
+  }
+
+  const downloadTemplate = () => {
+    window.open(props.offerInfo.has_offer);
   }
 
   const subLoading = ref(false);

@@ -3,7 +3,7 @@
     <!-- 确认弹窗 -->
     <vco-confirm-alert
       ref="sureAlertRef"
-      :confirm-txt="t('提交后，数据将无法再次修改，确定提交吗?')"
+      :confirm-txt="t('已设置过进度放款数据，提交后将清空设置，是否继续？')"
       v-model:visible="sureVisible"
       @submit="submitRquest"
     ></vco-confirm-alert>
@@ -488,7 +488,7 @@ import { useRoute } from 'vue-router';
 import { 
   projectDetailAuditSecurityList
 } from "@/api/process";
-import { toolsAddSecurity } from '@/api/import'
+import { toolsAddSecurity, toolsGetBuild } from '@/api/import'
 import { systemDictData } from "@/api/system"
 import tool, { selectDateFormat, numberStrFormat, goBack } from '@/utils/tool';
 import { cloneDeep } from 'lodash';
@@ -943,10 +943,15 @@ const subHandle = () => {
     }
   }
 
-  currentParams.value = params
+  currentParams.value = cloneDeep(params)
 
-  submitRquest()
-  // sureVisible.value = true
+  if (hasBuild.value) {
+    params.do__clear = 1
+    currentParams.value = cloneDeep(params)
+    sureVisible.value = true
+  } else {
+    submitRquest()
+  }
 }
 
 const otherItem = {
@@ -961,10 +966,21 @@ const typologyRemove = (data, index) => {
   data.typology.other.splice(index, 1)
 }
 
+const hasBuild = ref(false)
+const getSetedData = () => {
+  const params = {
+    uuid: route.query.uuid
+  }
+  toolsGetBuild(params).then(res => {
+    hasBuild.value = Boolean(Object.keys(res.data || {}).length || Object.keys(res.summary || {}).length)
+  })
+}
+
 onMounted(async () => {
   getGstRate()
   getOtherTypeData()
   if (route.query.uuid) {
+    getSetedData()
     tableDataInit()
   }
 })

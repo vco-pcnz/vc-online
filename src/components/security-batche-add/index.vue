@@ -652,6 +652,8 @@ const totalDup = computed(() => {
   return `$${numberStrFormat(sum)}`;
 });
 
+const processHasBuild = ref(false);
+
 const baseData = ref(null);
 const getDataInfo = async () => {
   pageLoading.value = true;
@@ -660,6 +662,9 @@ const getDataInfo = async () => {
   })
     .then((res) => {
       if (res) {
+        // 是否已设置过进度放款
+        processHasBuild.value = Boolean(Number(res.lending?.has_build || 0));
+
         // 是否为lendr产品
         isLendr.value = String(res.product.code).toLowerCase() === 'lendr'
 
@@ -1146,6 +1151,8 @@ const checkHandle = (data) => {
 };
 
 const securitySameCheck = (arr1 = [], arr2 = []) => {
+  console.log('arr1', arr1)
+  console.log('arr2', arr2)
   const beforeData = cloneDeep(arr1)
   const afterData = cloneDeep(arr2)
   if (beforeData.length !== afterData.length) {
@@ -1167,7 +1174,11 @@ const confirmHandle = () => {
   if (props.isVariation) {
     variationSubmit()
   } else {
-    submitRquest()
+    if (isClearBuild.value) {
+      normalSubmit()
+    } else {
+      submitRquest()
+    }
   }
 }
 
@@ -1183,6 +1194,27 @@ const variationSubmit = () => {
     subLoading.value = false
     changeAlertRef.value.changeLoading(false);
   })
+}
+
+const isClearBuild = ref(false)
+const normalParams = ref({})
+const normalSubmit = () => {
+  subLoading.value = true;
+  const ajaxFn = props.isOpen ? projectDischargeAddEditSecurity : projectAuditSaveMode;
+  ajaxFn(normalParams.value)
+    .then(() => {
+      subLoading.value = false;
+      changeVisible.value = false;
+      isClearBuild.value = false;
+      changeAlertRef.value.changeLoading(false);
+
+      sessionStorage.removeItem('batchEditSec');
+      back();
+    })
+    .catch(() => {
+      changeAlertRef.value.changeLoading(false);
+      subLoading.value = false;
+    });
 }
 
 const changeAlertRef = ref();
@@ -1277,24 +1309,24 @@ const submitRquest = () => {
 
     variationSubmit()
   } else {
-    subLoading.value = true;
-    const ajaxFn = props.isOpen ? projectDischargeAddEditSecurity : projectAuditSaveMode;
-    ajaxFn(params)
-      .then(() => {
-        subLoading.value = false;
-        changeVisible.value = false;
-        changeAlertRef.value.changeLoading(false);
+    normalParams.value = cloneDeep(params)
 
-        sessionStorage.removeItem('batchEditSec');
-        back();
-      })
-      .catch(() => {
-        changeAlertRef.value.changeLoading(false);
-        subLoading.value = false;
-      });
+    if (props.isOpen) {
+      normalSubmit()
+    } else {
+      if (processHasBuild.value) {
+        params.do__clear = 1
+        normalParams.value = cloneDeep(params)
+
+        isClearBuild.value = true
+        varationParams.value = cloneDeep(params)
+        confirmTxt.value = t('已设置过进度放款数据，提交后将清空设置，是否继续？');
+        changeVisible.value = true;
+      } else {
+        normalSubmit()
+      }
+    }
   }
-
-  
 };
 const subHandle = () => {
   if (props.isVariation) {

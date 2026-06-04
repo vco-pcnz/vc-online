@@ -708,6 +708,14 @@ const typeChange = (val) => {
   } else {
     // 其他类型使用变更开始日期+1天
     defaultDate = dayjs(projectInfo.value.date.var_start_date).add(1, 'day').format('YYYY-MM-DD');
+
+    // 清空变更后结束日期
+    if (formState.value.end_date) {
+      formState.value.end_date = '';
+      formRef.value && formRef.value.clearValidate('end_date')
+
+      submitSingleRquest('end_date', '')
+    }
   }
 
   if (isVsl.value) {

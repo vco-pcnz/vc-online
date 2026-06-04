@@ -714,6 +714,7 @@ const typeChange = (val) => {
       formState.value.end_date = '';
       formRef.value && formRef.value.clearValidate('end_date')
 
+      endDateChange()
       submitSingleRquest('end_date', '')
     }
   }

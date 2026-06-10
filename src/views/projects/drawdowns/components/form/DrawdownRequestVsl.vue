@@ -3,6 +3,13 @@
   <div @click.stop ref="drawdownRequestRef" class="drawdown-request">
     <a-modal :width="850" :open="visible" v-if="visible" title="Drawdown request" :getContainer="() => $refs.drawdownRequestRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
+        <a-popover v-if="!isPtRole && riskInfo" placement="top">
+          <template #content>
+            <div>{{ riskInfo }}</div>
+          </template>
+          <a-alert class="mb-5" show-icon :message="t('改项目存在风险提示')" type="warning" />
+        </a-popover>
+
         <a-row :gutter="24">
           <a-col :span="12">
             <div class="input-item">
@@ -149,6 +156,14 @@ const props = defineProps({
 
 const isVsl = computed(() => {
   return String(props.projectDetail.product.code).toLowerCase() === 'vsl';
+});
+
+const riskInfo = computed(() => {
+  return props.projectDetail?.base?.risk || '';
+});
+
+const isPtRole = computed(() => {
+  return Boolean(props.projectDetail?.base?.ptRole) || false;
 });
 
 const visible = ref(false);

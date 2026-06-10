@@ -147,6 +147,8 @@
                 :created-user="createdUser"
               ></bind-users>
 
+              <risk-info :data="currentDataInfo" :is-details="true"></risk-info>
+
               <ads-content></ads-content>
 
               <template v-if="showMoreInfo">
@@ -206,7 +208,7 @@
   import BindUsers from "@/views/process/components/BindUsers.vue";
   import AdsContent from "@/views/process/components/AdsContent.vue";
   import RejectDialog from "@/views/process/components/RejectDialog.vue";
-  
+  import RiskInfo from "@/views/process/components/RiskInfo.vue";
 
   import { processRoutes } from "@/constant"
   import emitter from "@/event"

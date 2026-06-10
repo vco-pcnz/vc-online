@@ -1464,5 +1464,8 @@ export default {
   "确定要核销{0}": "Written Off {0}",
   "确定要取消核销{0}": "Current {0}",
   "下载合同模版": "Download contract template",
+  "全额还款日期": "Full repayment date",
+  "风险信息": "Risk information",
+  "改项目存在风险提示": "This project has a risk warning",
 }
   

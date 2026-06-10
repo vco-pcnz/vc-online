@@ -10,6 +10,16 @@
             <base-card :detail="detail" :currentId="currentId" @update="update"></base-card>
 
             <a-collapse expand-icon-position="end" ghost>
+              <a-collapse-panel v-if="!detail?.base?.ptRole" key="Risk" class="collapse-card">
+                <template #header>
+                  <div>
+                    <i class="iconfont" style="font-size: 18px">&#xe60e;</i>
+                    <span class="title">{{ t('风险信息') }}</span>
+                  </div>
+                </template>
+                <risk-info :data="detail" :is-open="true"></risk-info>
+              </a-collapse-panel>
+
               <a-collapse-panel key="Associate" class="collapse-card">
                 <template #header>
                   <div class="associate-content">
@@ -185,6 +195,7 @@ import BackOpen from './components/BackOpen.vue';
 import BuyOutForm from './components/form/BuyOutForm.vue';
 import BuyOut from './components/BuyOut.vue';
 import BuyOutDetail from './components/BuyOutDetail.vue';
+import RiskInfo from '@/views/process/components/RiskInfo.vue';
 
 const { t } = useI18n();
 const userStore = useUserStore();

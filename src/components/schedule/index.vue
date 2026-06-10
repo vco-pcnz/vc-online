@@ -54,9 +54,20 @@
               </a-form-item>
             <!-- </template> -->
 
-            <a-form-item :label="t('结束日期2')" name="date">
-              <a-date-picker v-model:value="adFormState.date" :format="selectDateFormat()" :disabledDate="adDisabledDateFormat" @change="quickDate = ''" />
-            </a-form-item>
+            <div class="schedule-date-field">
+              <a-form-item class="w-full-label" name="date">
+                <template #label>
+                  <div class="schedule-date-label">
+                    <span>{{ t('结束日期2') }}</span>
+                  </div>
+                </template>
+                <a-date-picker v-model:value="adFormState.date" :format="selectDateFormat()" :disabledDate="adDisabledDateFormat" @change="quickDate = ''" />
+              </a-form-item>
+              <div v-if="showFullRepaymentCheck" class="schedule-date-label__extra">
+                <span>{{ t('全额还款日期') }}</span>
+                <a-checkbox v-model:checked="full_repayment" />
+              </div>
+            </div>
           </a-form>
 
           <a-button type="dark" class="big shadow bold uppercase w-full mb-5 mt-5" :loading="adLoading" @click="adSubmitHandle">{{ t('下载') }}</a-button>
@@ -483,6 +494,12 @@ const showIrr = computed(() => {
   return true;
 });
 
+const showFullRepaymentCheck = computed(() => {
+  return props.currentProduct.toLowerCase() === 'vsl' && currentDownloadType.value === 4
+});
+
+const full_repayment = ref(false);
+
 const scheduleRole = ref(0);
 const scheduleRoleTabData = ref([
   {
@@ -688,6 +705,10 @@ const adSubmitRequest = () => {
   params.date = adFormState.date ? dayjs(adFormState.date).format('YYYY-MM-DD') : '';
   // }
 
+  if (showFullRepaymentCheck.value) {
+    params.full_repayment_date = full_repayment.value ? 1 : 0
+  }
+
   projectLoanAllRepayment(params)
     .then((res) => {
       adLoading.value = false;
@@ -719,8 +740,11 @@ watch(
 );
 
 const downloading = ref(false);
+const currentDownloadType = ref(0);
 const downLoadExcel = (type) => {
+  currentDownloadType.value = Number(type);
   if (type === 4) {
+    full_repayment.value = false;
     // if (props.isClose) {
     //   adSubmitRequest();
     // } else {
@@ -1098,6 +1122,35 @@ watch(
 
 .schedule-role-tabs {
   margin: -24px 0 16px;
+}
+
+:deep(.w-full-label .ant-form-item-label > label) {
+  width: 100%;
+}
+
+.schedule-date-field {
+  position: relative;
+}
+
+.schedule-date-label {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+}
+
+.schedule-date-label__extra {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  color: #888;
+  font-size: 12px;
+  line-height: 22px;
+  z-index: 1;
 }
 
 .header-static {

@@ -1466,6 +1466,6 @@ export default {
   "下载合同模版": "Download contract template",
   "全额还款日期": "Full repayment date",
   "风险信息": "Risk information",
-  "改项目存在风险提示": "This project has a risk warning",
+  "该项目存在风险提示": "This project has a risk warning",
+  "暂无风险信息": "No risk",
 }
-  

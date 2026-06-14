@@ -24,7 +24,7 @@
       <a-form-item v-if="hasPermission('projects:details:risk') && showSave">
         <a-textarea v-model:value="riskInfo" :auto-size="{ minRows: 4, maxRows: 5 }" />
       </a-form-item>
-      <p v-else>{{ data.base.risk || t('暂无数据') }}</p>
+      <p v-else>{{ riskInfo || t('暂无数据') }}</p>
     </div>
     <div v-else class="block-item sec">
       <div class="title-content">
@@ -50,7 +50,7 @@
         >{{ t('编辑') }}</a-button>
       </div>
       <div class="sys-form-content">
-        <p v-if="isDetails || !showSave">{{ data.base.risk || t('暂无数据') }}</p>
+        <p v-if="isDetails || !showSave">{{ riskInfo || t('暂无数据') }}</p>
         <a-form-item v-else>
           <a-textarea v-model:value="riskInfo" :auto-size="{ minRows: 4, maxRows: 5 }" :disabled="isDetails" />
         </a-form-item>

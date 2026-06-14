@@ -4,24 +4,7 @@
       <div v-if="hasPermission('projects:details:risk')" class="title-content">
         <p>Risk</p>
         <a-button
-          type="primary"
-          size="small"
-          shape="round"
-          class="uppercase"
-          :loading="saveLoading"
-          @click="saveHandle"
-        >{{ t('保存') }}</a-button>
-      </div>
-      <a-form-item v-if="hasPermission('projects:details:risk')">
-        <a-textarea v-model:value="riskInfo" :auto-size="{ minRows: 4, maxRows: 5 }" />
-      </a-form-item>
-      <p v-else>{{ data.base.risk || t('暂无数据') }}</p>
-    </div>
-    <div v-else class="block-item sec">
-      <div class="title-content">
-        <vco-process-title :title="t('风险信息')"></vco-process-title>
-        <a-button
-          v-if="!isDetails"
+          v-if="showSave"
           type="dark"
           size="small"
           shape="round"
@@ -29,9 +12,45 @@
           :loading="saveLoading"
           @click="saveHandle"
         >{{ t('保存') }}</a-button>
+        <a-button
+          v-else
+          type="primary"
+          size="small"
+          shape="round"
+          class="uppercase"
+          @click="showSave = true"
+        >{{ t('编辑') }}</a-button>
+      </div>
+      <a-form-item v-if="hasPermission('projects:details:risk') && showSave">
+        <a-textarea v-model:value="riskInfo" :auto-size="{ minRows: 4, maxRows: 5 }" />
+      </a-form-item>
+      <p v-else>{{ data.base.risk || t('暂无数据') }}</p>
+    </div>
+    <div v-else class="block-item sec">
+      <div class="title-content">
+        <vco-process-title :title="t('风险信息')"></vco-process-title>
+        <template v-if="showSave">
+          <a-button
+            v-if="!isDetails"
+            type="dark"
+            size="small"
+            shape="round"
+            class="uppercase"
+            :loading="saveLoading"
+            @click="saveHandle"
+          >{{ t('保存') }}</a-button>
+        </template>
+        <a-button
+          v-else
+          type="primary"
+          size="small"
+          shape="round"
+          class="uppercase"
+          @click="showSave = true"
+        >{{ t('编辑') }}</a-button>
       </div>
       <div class="sys-form-content">
-        <p v-if="isDetails">{{ data.base.risk || t('暂无数据') }}</p>
+        <p v-if="isDetails || !showSave">{{ data.base.risk || t('暂无数据') }}</p>
         <a-form-item v-else>
           <a-textarea v-model:value="riskInfo" :auto-size="{ minRows: 4, maxRows: 5 }" :disabled="isDetails" />
         </a-form-item>
@@ -72,6 +91,7 @@ const uuid = computed(() => {
 });
 
 const saveLoading = ref(false);
+const showSave = ref(false)
 
 watch(
   () => props.data.base.risk,
@@ -84,9 +104,6 @@ watch(
 );
 
 const saveHandle = () => {
-  if (riskInfo.value === originRiskInfo.value) {
-    return;
-  }
   saveLoading.value = true;
   const ajaxFn = props.isOpen ? saveRiskInfo : projectAuditSaveRisk;
   ajaxFn({
@@ -95,6 +112,7 @@ const saveHandle = () => {
   }).then(() => {
       originRiskInfo.value = riskInfo.value;
       message.success(t('保存成功'));
+      showSave.value = false;
     })
     .finally(() => {
       saveLoading.value = false;

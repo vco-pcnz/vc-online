@@ -7,7 +7,7 @@
           <template #content>
             <div>{{ riskInfo }}</div>
           </template>
-          <a-alert class="mb-5" show-icon :message="t('改项目存在风险提示')" type="warning" />
+          <a-alert class="mb-5" show-icon :message="t('该项目存在风险提示')" type="warning" />
         </a-popover>
 
         <a-row :gutter="24">

@@ -818,3 +818,11 @@ export const applicationStatistics = (params) =>
     method: "get",
     params
   });
+
+// 风险信息
+export const projectAuditSaveRisk = (data) =>
+  request({
+    url: "/project/audit/risk",
+    method: "post",
+    data
+  });

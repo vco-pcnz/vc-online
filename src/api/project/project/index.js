@@ -213,3 +213,10 @@ export const buildProgressIndex = (params) =>
       params
     });
   
+  // 保存风险信息
+  export const saveRiskInfo = (data) =>
+    request({
+      url: 'projectDetail/risk',
+      method: 'post',
+      data
+    });

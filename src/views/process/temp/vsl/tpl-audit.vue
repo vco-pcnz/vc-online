@@ -134,6 +134,8 @@
         <div v-if="dataInfo && PageBlockObjRef" class="right-content">
           <bind-users type="vsl" :current-id="currentId"></bind-users>
 
+          <risk-info :data="dataInfo"></risk-info>
+
           <return-log v-if="returnLogData.length" :list-data="returnLogData"></return-log>
 
           <operation-log :current-id="currentId"></operation-log>
@@ -189,6 +191,7 @@
   import useProcessStore from "@/store/modules/process"
   import OpenDialog from "./components/OpenDialog.vue";
   import ResovleDialog from '@/views/process/components/ResovleDialog.vue';
+  import RiskInfo from '@/views/process/components/RiskInfo.vue';
   import tool, { numberStrFormat, navigationTo } from '@/utils/tool'
 
   // 初始化当前项目的forcastList 状态

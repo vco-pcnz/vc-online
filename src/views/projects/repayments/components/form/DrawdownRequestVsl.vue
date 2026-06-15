@@ -1025,7 +1025,7 @@ const loadDrawdown = (e, index) => {
     drawdownListLoading.value = true;
     drawDownLists({ uuid: props.uuid, date: formState.value.apply_date, sn: e })
       .then((res) => {
-        drawdownList.value[index] = res.drawDown[0];
+        drawdownList.value[index] = res.data[0];
         res['interest_status'] = 0;
         res['reality_interest'] = 0;
       })

@@ -157,7 +157,10 @@ const initAmount = () => {
   buyOutCalculate({ date: formState.value.date, uuid: props.uuid })
     .then((res) => {
       balance.value = res.balance;
-      drawdownList.value = res.drawDown;
+      drawdownList.value = (res.drawDown || []).filter(
+        (item) =>
+          Number(item.remain_amount) !== 0 || Number(item.remain_interest) !== 0
+      );
     })
     .finally((_) => {
       initAmount_loading.value = false;

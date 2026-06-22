@@ -4,41 +4,56 @@
     :class="{ checked: offerInfo.is_check && blockInfo.showCheck && stactCheck, 'details': isDetails}"
   >
     <vco-process-title :title="t('凭证信息')">
-      <div v-if="!isDetails" class="flex gap-5 items-center">
-        <a-button
-          v-if="offerInfo.has_offer"
-          type="brown"
-          shape="round"
-          class="uppercase"
-          @click="downloadTemplate"
-        >
-          {{ t('下载合同模版') }}
-        </a-button>
-        <a-button
-          v-if="blockInfo.showEdit && showSaveBtn"
-          type="primary"
-          shape="round"
-          :loading="subLoading"
-          class="uppercase"
-          @click="saveHandle"
-        >
-          {{ t('保存') }}
-        </a-button>
-        <a-popconfirm
-          v-if="blockInfo.showCheck && !offerInfo.is_check && showCheckBtn"
-          :title="t('确定通过审核吗？')"
-          :ok-text="t('确定')"
-          :cancel-text="t('取消')"
-          @confirm="checkHandle"
-        >
+      <div class="flex gap-5 items-center">
+        <template v-if="hasPermission('contract:template') && showContractBtn">
           <a-button
-            type="dark"
+            v-if="contractUrl"
+            type="brown"
             shape="round"
             class="uppercase"
+            @click="downloadTemplate"
           >
-            {{ t('审核') }}
+            {{ t('下载合同模版') }}
           </a-button>
-        </a-popconfirm>
+          <a-button
+            v-else
+            type="brown"
+            shape="round"
+            class="uppercase"
+            :loading="createTemplateLoading"
+            @click="createTemplate"
+          >
+            {{ t('创建合同模版') }}
+          </a-button>
+        </template>
+
+        <template v-if="!isDetails">
+          <a-button
+            v-if="blockInfo.showEdit && showSaveBtn"
+            type="primary"
+            shape="round"
+            :loading="subLoading"
+            class="uppercase"
+            @click="saveHandle"
+          >
+            {{ t('保存') }}
+          </a-button>
+          <a-popconfirm
+            v-if="blockInfo.showCheck && !offerInfo.is_check && showCheckBtn"
+            :title="t('确定通过审核吗？')"
+            :ok-text="t('确定')"
+            :cancel-text="t('取消')"
+            @confirm="checkHandle"
+          >
+            <a-button
+              type="dark"
+              shape="round"
+              class="uppercase"
+            >
+              {{ t('审核') }}
+            </a-button>
+          </a-popconfirm>
+        </template>
         <div class="target-content" @click="offerTarget = !offerTarget">
           <div class="icon" :title="offerTarget ? t('收起') : t('展开')">
             <i v-if="offerTarget" class="iconfont">&#xe711;</i>
@@ -97,12 +112,15 @@
 </template>
 
 <script setup>
-  import { ref, onMounted, onUnmounted, computed } from 'vue';
+  import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
   import {
     projectAuditSaveMode,
-    projectAuditCheckMode
+    projectAuditCheckMode,
+    projectAuditCreateTemplate
   } from '@/api/process';
+  import { hasPermission } from '@/directives/permission';
+  import { useRoute } from "vue-router";
   import emitter from '@/event';
   
   const emits = defineEmits(['done', 'refresh']);
@@ -121,6 +139,10 @@
     currentStep: {
       type: Object
     },
+    projectInfo: {
+      type: Object,
+      default: () => {}
+    },
     currentId: {
       type: [Number, String],
       default: ''
@@ -131,19 +153,24 @@
     }
   })
 
-  const stactCheck = ref(true)
+  const route = useRoute();
+  const currentId = ref(route.query.uuid)
 
+  const contractUrl = ref('')
+  const stactCheck = ref(true)
   const offerList = ref([])
   const offerSignedList = ref([])
-
   const hasTemp = ref(false)
-
   const showSaveBtn = computed(() => {
     return (offerList.value.length || offerSignedList.value.length) && hasTemp.value
   })
 
   const showCheckBtn = computed(() => {
     return (offerList.value.length || offerSignedList.value.length) && !hasTemp.value
+  })
+
+  const showContractBtn = computed(() => {
+    return props.projectInfo?.base?.status > 400
   })
 
   const fileChange = () => {
@@ -183,6 +210,22 @@
     window.open(props.offerInfo.has_offer);
   }
 
+  const createTemplateLoading = ref(false)
+  const createTemplate = () => {
+    createTemplateLoading.value = true
+    projectAuditCreateTemplate({
+      uuid: currentId.value
+    }).then((res) => {
+      contractUrl.value = res.url || ''
+      createTemplateLoading.value = false
+      if (contractUrl.value) {
+        window.open(contractUrl.value)
+      }
+    }).catch(() => {
+      createTemplateLoading.value = false
+    })
+  }
+
   const subLoading = ref(false);
   const saveHandle = async () => {
     const params = {
@@ -216,6 +259,15 @@
   const blockShowTargetHandle = (flag) => {
     offerTarget.value = flag
   }
+
+  watch(() => props.offerInfo, (newVal) => {
+    if (newVal.has_offer) {
+      contractUrl.value = newVal.has_offer
+    }
+  }, {
+    immediate: true,
+    deep: true
+  })
 
   onMounted(() => {
     if (props.offerInfo.cert_images) {

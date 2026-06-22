@@ -65,6 +65,7 @@
                     :current-id="currentId"
                     :block-info="{showEdit: false}"
                     :offer-info="offerData"
+                    :project-info="currentDataInfo"
                   />
 
                   <component :is="ConfirmForm"

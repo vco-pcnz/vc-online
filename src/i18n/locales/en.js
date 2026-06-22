@@ -1468,4 +1468,5 @@ export default {
   "风险信息": "Risk information",
   "该项目存在风险提示": "This project has a risk warning",
   "暂无风险信息": "No risk",
+  "创建合同模版": "Create contract template",
 }

@@ -209,7 +209,13 @@
 
       <!-- 上传offer -->
       <template v-else-if="item === 'offer'">
-        <offer-form :current-id="currentId" :current-step="currentStep" :block-info="blockInfo.offer" :offer-info="dataInfo.offer" @refresh="dataRefresh"></offer-form>
+        <offer-form
+        :current-id="currentId"
+        :current-step="currentStep"
+        :block-info="blockInfo.offer"
+        :offer-info="dataInfo.offer"
+        :project-info="dataInfo"
+        @refresh="dataRefresh"></offer-form>
       </template>
 
       <!-- 确认信息 -->

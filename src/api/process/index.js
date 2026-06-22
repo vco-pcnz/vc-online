@@ -826,3 +826,11 @@ export const projectAuditSaveRisk = (data) =>
     method: "post",
     data
   });
+
+// 创建合同模版
+export const projectAuditCreateTemplate = (params) =>
+  request({
+    url: "/projectDetail/cword",
+    method: "get",
+    params
+  });

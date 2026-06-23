@@ -7,23 +7,13 @@
       <div class="flex gap-5 items-center">
         <template v-if="hasPermission('contract:template') && showContractBtn">
           <a-button
-            v-if="contractUrl"
-            type="brown"
-            shape="round"
-            class="uppercase"
-            @click="downloadTemplate"
-          >
-            {{ t('下载合同模版') }}
-          </a-button>
-          <a-button
-            v-else
             type="brown"
             shape="round"
             class="uppercase"
             :loading="createTemplateLoading"
             @click="createTemplate"
           >
-            {{ t('创建合同模版') }}
+            {{ t('下载合同模版') }}
           </a-button>
         </template>
 

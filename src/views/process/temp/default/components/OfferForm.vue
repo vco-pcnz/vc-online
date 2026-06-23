@@ -160,7 +160,7 @@
   })
 
   const showContractBtn = computed(() => {
-    return props.projectInfo?.base?.status > 400
+    return props.projectInfo?.base?.status > 450
   })
 
   const fileChange = () => {

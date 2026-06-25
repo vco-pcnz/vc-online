@@ -261,7 +261,7 @@ const dateChange = (date, rate) => {
       irrPercent.value = Number(res.irr || 0)
 
       if (!hasSetStandard.value) {
-        standardRate.value = res.StandardRate
+        standardRate.value = res.min_StandardRate
         standardRateInput.value = res.StandardRate
         standardAmount.value = res.reduction_money
 

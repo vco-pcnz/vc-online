@@ -112,6 +112,7 @@
   import { hasPermission } from '@/directives/permission';
   import { useRoute } from "vue-router";
   import emitter from '@/event';
+  import { downloadByUrl } from '@/utils/tool';
   
   const emits = defineEmits(['done', 'refresh']);
 
@@ -196,24 +197,22 @@
       });
   }
 
-  const downloadTemplate = () => {
-    window.open(props.offerInfo.has_offer);
-  }
-
   const createTemplateLoading = ref(false)
-  const createTemplate = () => {
+  const createTemplate = async () => {
+    const sn = props.projectInfo?.base?.project_apply_sn || ''
+    const fileName = `Lending Offer-${sn}`
     createTemplateLoading.value = true
-    projectAuditCreateTemplate({
-      uuid: currentId.value
-    }).then((res) => {
+    try {
+      const res = await projectAuditCreateTemplate({
+        uuid: currentId.value
+      })
       contractUrl.value = res.url || ''
-      createTemplateLoading.value = false
       if (contractUrl.value) {
-        window.open(contractUrl.value)
+        await downloadByUrl(contractUrl.value, fileName)
       }
-    }).catch(() => {
+    } finally {
       createTemplateLoading.value = false
-    })
+    }
   }
 
   const subLoading = ref(false);

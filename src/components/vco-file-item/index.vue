@@ -31,9 +31,7 @@
       <div class="ops" :style="{ color: iconColor }">
         <div class="icon"><slot name="ops"></slot></div>
         <EyeOutlined @click.stop="handlePreview(file)" class="icon" />
-        <a :href="file.value" :download="showTitle" target="_blank" v-if="!showClose || showDownload">
-          <i class="iconfont icon" :style="{ color: iconColor }" style="font-size: 14px">&#xe780;</i>
-        </a>
+        <i v-if="!showClose || showDownload" class="iconfont icon" :style="{ color: iconColor }" style="font-size: 14px" @click.stop="downloadFile">&#xe780;</i>
         <i class="iconfont icon remove" @click.stop="remove" v-if="showClose">&#xe77b;</i>
       </div>
     </div>
@@ -54,9 +52,7 @@
           <div class="ops" :style="{ color: iconColor }">
             <div class="icon"><slot name="ops"></slot></div>
             <EyeOutlined @click.stop="handlePreview(file)" class="icon" />
-            <a :href="file.value" target="_blank" v-if="!showClose || showDownload">
-              <i class="iconfont icon" :style="{ color: iconColor }" style="font-size: 14px">&#xe780;</i>
-            </a>
+            <i v-if="!showClose || showDownload" class="iconfont icon" :style="{ color: iconColor }" style="font-size: 14px" @click.stop="downloadFile">&#xe780;</i>
             <i class="iconfont icon remove" @click.stop="remove" v-if="showClose">&#xe77b;</i>
           </div>
         </template>
@@ -102,12 +98,8 @@
 <script setup>
 import { ref, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { message } from 'ant-design-vue';
 import tool from '@/utils/tool';
-import { DeleteOutlined, EyeOutlined } from '@ant-design/icons-vue';
-import { fill } from 'lodash';
-import axios from 'axios';
-import { getToken, removeToken } from '@/utils/token-util.js';
+import { EyeOutlined } from '@ant-design/icons-vue';
 
 const { t } = useI18n();
 
@@ -168,6 +160,12 @@ const showTitle = computed(() => {
   return props.file.name || props.file.real_name;
 });
 
+const downloadFile = () => {
+  if (props.file?.value) {
+    tool.downloadByUrl(props.file.value, showTitle.value);
+  }
+};
+
 const filterArr = computed(() => {
   return (props.file.name || props.file.real_name).split(props.filter);
 });
@@ -175,31 +173,6 @@ const filterArr = computed(() => {
 // 关闭弹框
 const previewHandleCancel = () => {
   previewVisible.value = false;
-};
-
-// 下载
-const down = () => {
-  if (props.file.value) {
-    let token = getToken();
-    const env = import.meta.env;
-    axios
-      .post(
-        props.file.value,
-        {},
-        {
-          headers: {
-            Authorization: token,
-            token: token
-          },
-          responseType: 'blob',
-          baseURL: env.VITE_APP_OPEN_PROXY === 'true' ? env.VITE_APP_PROXY_PREFIX : env.VITE_APP_BASE_URL
-        }
-      )
-      .then((res) => {
-        tool.download(res);
-      });
-  }
-  //
 };
 
 const remove = () => {

@@ -176,10 +176,14 @@ tool.download = (res, downName = '') => {
   URL.revokeObjectURL(aLink.href);
 };
 
-const triggerUrlDownload = (url, fileName = '') => {
+const triggerUrlDownload = (url, fileName = '', target = '') => {
   const aLink = document.createElement('a');
   aLink.href = url;
   aLink.style.display = 'none';
+  if (target) {
+    aLink.target = target;
+    aLink.rel = 'noopener noreferrer';
+  }
   if (fileName) {
     aLink.setAttribute('download', fileName);
   }
@@ -228,7 +232,7 @@ export const downloadByUrl = async (url, fileName = '') => {
     triggerUrlDownload(blobUrl, downloadName);
     URL.revokeObjectURL(blobUrl);
   } catch {
-    triggerUrlDownload(url, downloadName);
+    triggerUrlDownload(url, downloadName, '_blank');
   }
 };
 

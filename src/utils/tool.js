@@ -176,6 +176,69 @@ tool.download = (res, downName = '') => {
   URL.revokeObjectURL(aLink.href);
 };
 
+const triggerUrlDownload = (url, fileName = '', target = '') => {
+  const aLink = document.createElement('a');
+  aLink.href = url;
+  aLink.style.display = 'none';
+  if (target) {
+    aLink.target = target;
+    aLink.rel = 'noopener noreferrer';
+  }
+  if (fileName) {
+    aLink.setAttribute('download', fileName);
+  }
+  document.body.appendChild(aLink);
+  aLink.click();
+  document.body.removeChild(aLink);
+};
+
+export const getDownloadFileName = (url, defaultName = 'download') => {
+  try {
+    const { pathname } = new URL(url, window.location.href);
+    const fileName = decodeURIComponent(pathname.split('/').pop() || '');
+    return fileName || defaultName;
+  } catch {
+    return defaultName;
+  }
+};
+
+const getDownloadFileExtension = (url) => {
+  try {
+    const { pathname } = new URL(url, window.location.href);
+    return pathname.match(/\.[a-zA-Z0-9]+$/)?.[0] || '';
+  } catch {
+    return '';
+  }
+};
+
+const normalizeDownloadFileName = (url, fileName) => {
+  if (!fileName) return getDownloadFileName(url);
+  return /\.[a-zA-Z0-9]+$/.test(fileName) ? fileName : `${fileName}${getDownloadFileExtension(url)}`;
+};
+
+/**
+ * 通过文件链接下载，不新开窗口；跨域链接不允许 fetch 时会降级为 a 标签下载
+ */
+export const downloadByUrl = async (url, fileName = '') => {
+  if (!url) return;
+
+  const downloadName = normalizeDownloadFileName(url, fileName);
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Download failed');
+
+    const blob = await response.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    triggerUrlDownload(blobUrl, downloadName);
+    URL.revokeObjectURL(blobUrl);
+  } catch {
+    triggerUrlDownload(url, downloadName, '_blank');
+  }
+};
+
+tool.downloadByUrl = downloadByUrl;
+tool.getDownloadFileName = getDownloadFileName;
+
 /**
  * 对象转url参数
  * @param {*} data

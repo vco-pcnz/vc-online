@@ -1411,7 +1411,6 @@
   const setSingleFormData = (params) => {
     projectAuditSaveMode(params).then(() => {
       hasChangeDevCost.value = true
-
       const lendingSubIds = cloneDeep(props.lendingInfo.substitution_ids || [])
       const ledningSubstitutionAmount = Number(props.lendingInfo.substitution_amount || 0)
 
@@ -1434,8 +1433,9 @@
     })
   }
 
-  const devCostChange = () => {
-    setSingleFormData({
+  const devCostChange = (data) => {
+    const landAmount = data.devCostDetail[0].data[0].loan || 0
+    const params = {
       code: props.blockInfo.code,
       uuid: props.currentId,
       devCost: formState.value.devCost,
@@ -1444,7 +1444,12 @@
       substitution_ids: formState.value.substitution_ids || [],
       substitution_amount: refinancialAmount.value || 0,
       substitution_data: selectedRefinancialObj.value
-    })
+    }
+    if (Number(landAmount) !== 0) {
+      formState.value.initial_land_amount = Number(landAmount)
+      params.initial_land_amount = Number(landAmount)
+    }
+    setSingleFormData(params)
   }
 
   watch(

@@ -1498,8 +1498,9 @@
     })
   }
 
-  const devCostChange = () => {
-    setSingleFormData({
+  const devCostChange = (data) => {
+    const landAmount = data.devCostDetail[0].data[0].loan || 0
+    const params = {
       code: props.blockInfo.code,
       uuid: props.currentId,
       devCost: formState.value.devCost,
@@ -1507,7 +1508,12 @@
       set__devCost: 1,
       substitution_ids: formState.value.substitution_ids || [],
       substitution_amount: refinancialAmount.value || 0,
-    })
+    }
+    if (Number(landAmount) !== 0) {
+      formState.value.initial_land_amount = Number(landAmount)
+      params.initial_land_amount = Number(landAmount)
+    }
+    setSingleFormData(params)
   }
 
   watch(

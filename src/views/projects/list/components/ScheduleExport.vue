@@ -15,7 +15,7 @@
             <a-select :loading="loading_type" style="width: 100%" v-model:value="formState.transaction_type" mode="multiple" show-search :options="initTransactionData()" :filter-option="customFilter" :fieldNames="{ label: 'name', value: 'code' }" :max-tag-count="2" :max-tag-placeholder="(omitted) => `+${omitted.length}...`"></a-select>
           </a-form-item>
           <a-form-item :label="t('日期')" name="date">
-            <a-range-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" :showToday="false" />
+            <a-range-picker class="datePicker" inputReadOnly v-model:value="formState.date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" :showToday="false" />
           </a-form-item>
         </a-form>
 

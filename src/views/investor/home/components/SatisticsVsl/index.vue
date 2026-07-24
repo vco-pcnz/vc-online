@@ -2,77 +2,88 @@
   <a-spin :spinning="loading" size="large">
     <div class="title flex justify-between items-center">
       <div class="bold fs_2xl">{{ t('贷款概览') }}</div>
-      <SearchDom @search="searchHandle"></SearchDom>
     </div>
-    <div class="flex header-static mt-10">
-      <div class="item-content">
-        <div class="item">
-          <div class="line one"></div>
-          <div class="info-content">
-            <p>{{ t('总计金额') }}</p>
-            <vco-number class="num" :value="statisticsData?.amount" :precision="2" :end="true"></vco-number>
-            <div><vco-number class="num" :value="statisticsData?.amount_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
-            <div><vco-number class="num" :value="statisticsData?.amount_vs" :precision="2" :end="true"></vco-number><span class="bocLabel">(Vs)</span></div>
+    <div class="funding-overview mt-6">
+      <section v-for="funding in visibleFundingRows" :key="funding.key" class="funding-row">
+        <h3>{{ funding.title }}</h3>
+        <div class="funding-cards">
+          <div class="funding-card drawdown-card">
+            <div class="card-title">
+              Live Loans Drawdown
+              <a-tooltip title="Based on currently live loans only.">
+                <InfoCircleOutlined />
+              </a-tooltip>
+              <span class="as-at">· as at {{ asAtDate }}</span>
+            </div>
+            <div class="drawdown-values">
+              <div>
+                <p>Total</p>
+                <vco-number class="amount" :value="funding.amount" :precision="2" :end="true"></vco-number>
+              </div>
+              <div>
+                <p>Available</p>
+                <vco-number class="amount" :value="funding.available" :precision="2" :end="true"></vco-number>
+              </div>
+              <div>
+                <p>Used</p>
+                <vco-number class="amount" :value="funding.used" :precision="2" :end="true"></vco-number>
+              </div>
+            </div>
+            <div class="progress-track">
+              <div class="progress-value" :style="{ width: `${funding.usedPercent}%` }"></div>
+            </div>
+            <p class="undrawn">Undrawn {{ funding.availablePercent.toFixed(1) }}%</p>
+          </div>
+
+          <div class="funding-card income-card">
+            <div class="card-title">
+              Income for the period
+              <a-tooltip title="Includes all loans live at any point in the selected period, including settled loans.">
+                <InfoCircleOutlined />
+              </a-tooltip>
+              <a-range-picker
+                v-model:value="fundingCloseDateRanges[funding.key]"
+                class="period-picker"
+                format="D MMM YYYY"
+                :allowClear="false"
+                :disabledDate="disabledFutureDate"
+                @change="fundingDateChange"
+              />
+            </div>
+            <div class="income-values">
+              <div>
+                <p>Establishment fee</p>
+                <vco-number class="amount" :value="funding.establishmentFee" :precision="2" :end="true"></vco-number>
+              </div>
+              <div>
+                <p>Capitalized interest</p>
+                <vco-number class="amount" :value="funding.capitalizedInterest" :precision="2" :end="true"></vco-number>
+              </div>
+              <div>
+                <p>Accrued interest</p>
+                <vco-number class="amount" :value="funding.accruedInterest" :precision="2" :end="true"></vco-number>
+              </div>
+              <div>
+                <p>Total income</p>
+                <vco-number class="amount" :value="funding.totalIncome" :precision="2" :end="true"></vco-number>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="item">
-          <div class="line-content">
-            <div class="round"></div>
-            <div class="round"></div>
-            <div class="round"></div>
-            <div class="round"></div>
-          </div>
-          <div class="info-content">
-            <p>{{ t('可用余额1') }}</p>
-            <vco-number class="num" :value="statisticsData?.available_amount" :precision="2" :end="true"></vco-number>
-            <div><vco-number class="num" :value="statisticsData?.available_amount_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
-            <div><vco-number class="num" :value="statisticsData?.available_amount_vs" :precision="2" :end="true"></vco-number><span class="bocLabel">(Vs)</span></div>
-          </div>
-        </div>
-        <div class="item">
-          <div class="line two"></div>
-          <div class="info-content">
-            <p>{{ t('已使用') }}</p>
-            <vco-number class="num" :value="statisticsData?.use_amount" :precision="2" :end="true"></vco-number>
-            <div><vco-number class="num" :value="statisticsData?.use_amount_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
-            <div><vco-number class="num" :value="statisticsData?.use_amount_vs" :precision="2" :end="true"></vco-number><span class="bocLabel">(Vs)</span></div>
-          </div>
-        </div>
-        <div class="chart-content">
-          <v-chart :option="option" autoresize />
-        </div>
-      </div>
-      <a-row  class="income">
-        <a-col :span="8">
-          <p class="color_grey fs_xs">{{t('资本化利息')}}</p>
-          <!-- <p class="value"><vco-number class="num" :value="statisticsData?.rate" :precision="2" :end="true"></vco-number></p> -->
-          <div class="flex items-center"><vco-number class="num" :value="statisticsData?.rate_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
-        </a-col>
-        <a-col :span="8">
-          <p class="color_grey fs_xs">{{t('建立费')}}</p>
-          <!-- <p class="value"><vco-number class="num" :value="statisticsData?.frate" :precision="2" :end="true"></vco-number></p> -->
-          <div class="flex items-center"><vco-number class="num" :value="statisticsData?.frate_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
-        </a-col>
-        <a-col :span="8">
-          <p class="color_grey fs_xs">{{t('应计利息')}}</p>
-          <div class="flex items-center"><vco-number class="num" :value="statisticsData?.accruedInterest_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
-        </a-col>
-        <a-col :span="8">
-          <p class="color_grey fs_xs">{{t('累计收入')}}</p>
-          <div class="flex items-center"><vco-number class="num" :value="statisticsData?.totalIncome_boc" :precision="2" :end="true"></vco-number><span class="bocLabel">(Boc)</span></div>
-        </a-col>
-      </a-row>
+      </section>
     </div>
   </a-spin>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import tool from '@/utils/tool';
-import { userProject, statistics } from '@/api/invest/index';
-import SearchDom from './Search.vue';
+import dayjs from 'dayjs';
+import { InfoCircleOutlined } from '@ant-design/icons-vue';
+import { statistics } from '@/api/invest/index';
+import { useUserStore } from '@/store';
 const { t } = useI18n();
+const userStore = useUserStore();
 
 const props = defineProps({
   invest_id: {
@@ -85,61 +96,70 @@ const props = defineProps({
 });
 
 const statisticsData = ref({});
-
-const option = ref({
-  series: [
-    {
-      type: 'pie',
-      center: ['50%', '50%'],
-      radius: '100%',
-      color: ['#272727', '#f4eee8'],
-      label: {
-        show: false
-      },
-      silent: true,
-      data: [{ value: 1 }, { value: 1 }],
-      label: {
-        show: true, // 显示标签
-        position: 'inside', // 标签位置：扇区内部
-        formatter: function (params) {
-          if (params.dataIndex !== 0) return '';
-          const data = option.value.series[0].data || [];
-          const total = data.reduce((sum, item) => sum + Number(item.value || 0), 0);
-          if (!total) return '0%';
-
-          // 保留两位小数并截断，不进行四舍五入
-          const rawPercent = (Number(params.value || 0) / total) * 100;
-          const percent = Math.floor(rawPercent * 100) / 100;
-          return `${percent}%`;
-        },
-        textStyle: {
-          color: '#fff', // 文本颜色
-          fontWeight: 'bold',
-          fontSize: 14,
-          textBorderWidth: 0 // 取消描边
-        }
-      }
-    }
-  ]
+const loading = ref(false);
+const fundingCloseDateRanges = reactive({
+  vs: [dayjs().startOf('year'), dayjs()],
+  boc: [dayjs().startOf('year'), dayjs()]
 });
 
-const loading = ref(false);
+const numberValue = (value) => {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : 0;
+};
 
-const loadData = (val = {}) => {
+const createFundingRow = (key, title) => {
+  const amount = numberValue(statisticsData.value?.[`amount_${key}`]);
+  const available = numberValue(statisticsData.value?.[`available_amount_${key}`]);
+  const used = numberValue(statisticsData.value?.[`use_amount_${key}`]);
+  const usedPercent = amount > 0 ? Math.min(Math.max((used / amount) * 100, 0), 100) : 0;
+
+  return {
+    key,
+    title,
+    amount,
+    available,
+    used,
+    usedPercent,
+    availablePercent: amount > 0 ? Math.min(Math.max((available / amount) * 100, 0), 100) : 0,
+    establishmentFee: numberValue(statisticsData.value?.[`frate_${key}`]),
+    capitalizedInterest: numberValue(statisticsData.value?.[`rate_${key}`]),
+    accruedInterest: numberValue(statisticsData.value?.[`accruedInterest_${key}`]),
+    totalIncome: numberValue(statisticsData.value?.[`totalIncome_${key}`])
+  };
+};
+
+const fundingRows = computed(() => [createFundingRow('vs', 'VS funding'), createFundingRow('boc', 'BOC funding')]);
+const visibleFundingRows = computed(() => (userStore.isNormalUser ? fundingRows.value.filter((item) => item.key === 'boc') : fundingRows.value));
+const asAtDate = computed(() => statisticsData.value?.as_at || statisticsData.value?.date || dayjs().format('D MMM YYYY'));
+
+const disabledFutureDate = (current) => current && current.isAfter(dayjs(), 'day');
+
+const loadData = () => {
+  const bocRange = fundingCloseDateRanges.boc;
+  const params = {
+    uuid: props.invest_id,
+    product_uuid: props.product_uuid,
+    boc_close_date_s: bocRange[0].format('YYYY-MM-DD'),
+    boc_close_date_e: bocRange[1].format('YYYY-MM-DD')
+  };
+  if (!userStore.isNormalUser) {
+    const vsRange = fundingCloseDateRanges.vs;
+    params.vs_close_date_s = vsRange[0].format('YYYY-MM-DD');
+    params.vs_close_date_e = vsRange[1].format('YYYY-MM-DD');
+  }
+
   loading.value = true;
-  statistics({ uuid: props.invest_id, product_uuid: props.product_uuid, ...val })
+  statistics(params)
     .then((res) => {
       statisticsData.value = res;
-      option.value.series[0].data[0].value = res.use_amount || 0;
-      option.value.series[0].data[1].value = res.available_amount || 0;
     })
     .finally(() => {
       loading.value = false;
     });
 };
 
-const searchHandle = (data) => {
-  loadData(data);
+const fundingDateChange = () => {
+  loadData();
 };
 
 watch(
@@ -156,6 +176,139 @@ watch(
 </script>
 
 <style lang="less" scoped>
+.funding-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.funding-row {
+  padding: 20px;
+  border-radius: 14px;
+  background: #f7f6f3;
+
+  > h3 {
+    margin-bottom: 14px;
+    color: #272727;
+    font-size: 18px;
+    font-weight: 700;
+  }
+}
+
+.funding-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.funding-card {
+  min-height: 162px;
+  padding: 18px;
+  border: 1px solid #e2e2e2;
+  border-radius: 10px;
+  background: #fff;
+
+  .card-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 20px;
+    color: #666;
+    font-size: 14px;
+    font-weight: 600;
+
+    :deep(.anticon) {
+      color: #999;
+      cursor: help;
+    }
+
+    .as-at {
+      color: #999;
+      font-size: 12px;
+      font-weight: 400;
+    }
+
+    .period-picker {
+      margin-left: auto;
+      width: 230px;
+      height: 30px;
+      border-color: #d7e6ef;
+      border-radius: 6px;
+      background: #edf6fc;
+
+      :deep(input) {
+        color: #46708b;
+        font-size: 12px;
+        font-weight: 500;
+        text-align: center;
+        cursor: pointer;
+      }
+
+      :deep(.ant-picker-suffix) {
+        display: none;
+      }
+    }
+  }
+
+  .amount {
+    font-weight: 600;
+
+    :deep(.ant-statistic-content) {
+      font-size: 18px !important;
+    }
+  }
+}
+
+.drawdown-values {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+
+  p,
+  .undrawn {
+    color: #999;
+    font-size: 12px;
+  }
+}
+
+.progress-track {
+  height: 4px;
+  margin-top: 18px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: #e7e4df;
+
+  .progress-value {
+    height: 100%;
+    border-radius: inherit;
+    background: #71613c;
+  }
+}
+
+.undrawn {
+  margin-top: 5px;
+  color: #999;
+  font-size: 12px;
+  text-align: right;
+}
+
+.income-values {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  row-gap: 18px;
+
+  p {
+    color: #999;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 900px) {
+  .funding-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
 .header-static {
   margin-bottom: 60px;
   align-items: center;

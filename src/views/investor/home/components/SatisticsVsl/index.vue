@@ -81,8 +81,9 @@ import { useI18n } from 'vue-i18n';
 import dayjs from 'dayjs';
 import { InfoCircleOutlined } from '@ant-design/icons-vue';
 import { statistics } from '@/api/invest/index';
-import { hasPermission } from '@/directives/permission/index';
+import { useUserStore } from '@/store';
 const { t } = useI18n();
+const userStore = useUserStore();
 
 const props = defineProps({
   invest_id: {
@@ -128,9 +129,32 @@ const createFundingRow = (key, title) => {
 };
 
 const fundingRows = computed(() => [createFundingRow('vs', 'VS funding'), createFundingRow('boc', 'BOC funding')]);
-const canViewVsFunding = computed(() => hasPermission('projects:schedule:vs_schedule'));
-const canViewBocFunding = computed(() => hasPermission('projects:schedule:boc_schedule'));
-const isBocOnlyInvestor = computed(() => !canViewVsFunding.value && canViewBocFunding.value);
+const isInvestorRole = computed(() => {
+  const roles = userStore.userInfo?.roles;
+  if (!roles) return false;
+  return String(roles)
+    .split('/')
+    .map((role) => role.trim().toLowerCase())
+    .filter(Boolean)
+    .includes('investor');
+});
+const userProfileTags = computed(() => {
+  const tags = userStore.userInfo?.tags;
+  if (tags == null) return [];
+  if (Array.isArray(tags)) {
+    return tags
+      .map((tag) => (tag != null && typeof tag === 'object' ? tag.mark ?? tag.value ?? tag.code : tag))
+      .map((tag) => String(tag).trim())
+      .filter(Boolean);
+  }
+  return String(tags)
+    .split(/[,|]/)
+    .map((tag) => tag.trim())
+    .filter(Boolean);
+});
+const isBocOnlyInvestor = computed(() =>
+  isInvestorRole.value && userProfileTags.value.some((tag) => tag.toLowerCase() === 'vsl')
+);
 const visibleFundingRows = computed(() =>
   isBocOnlyInvestor.value ? fundingRows.value.filter((item) => item.key === 'boc') : fundingRows.value
 );
@@ -148,11 +172,9 @@ const loadData = () => {
     params.vs_close_date_s = vsRange[0].format('YYYY-MM-DD');
     params.vs_close_date_e = vsRange[1].format('YYYY-MM-DD');
   }
-  if (!isBocOnlyInvestor.value || canViewBocFunding.value) {
-    const bocRange = fundingCloseDateRanges.boc;
-    params.boc_close_date_s = bocRange[0].format('YYYY-MM-DD');
-    params.boc_close_date_e = bocRange[1].format('YYYY-MM-DD');
-  }
+  const bocRange = fundingCloseDateRanges.boc;
+  params.boc_close_date_s = bocRange[0].format('YYYY-MM-DD');
+  params.boc_close_date_e = bocRange[1].format('YYYY-MM-DD');
 
   loading.value = true;
   statistics(params)

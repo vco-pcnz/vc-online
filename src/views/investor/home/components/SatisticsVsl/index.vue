@@ -129,24 +129,52 @@ const createFundingRow = (key, title) => {
 };
 
 const fundingRows = computed(() => [createFundingRow('vs', 'VS funding'), createFundingRow('boc', 'BOC funding')]);
-const visibleFundingRows = computed(() => (userStore.isNormalUser ? fundingRows.value.filter((item) => item.key === 'boc') : fundingRows.value));
+const isInvestorRole = computed(() => {
+  const roles = userStore.userInfo?.roles;
+  if (!roles) return false;
+  return String(roles)
+    .split('/')
+    .map((role) => role.trim().toLowerCase())
+    .filter(Boolean)
+    .includes('investor');
+});
+const userProfileTags = computed(() => {
+  const tags = userStore.userInfo?.tags;
+  if (tags == null) return [];
+  if (Array.isArray(tags)) {
+    return tags
+      .map((tag) => (tag != null && typeof tag === 'object' ? tag.mark ?? tag.value ?? tag.code : tag))
+      .map((tag) => String(tag).trim())
+      .filter(Boolean);
+  }
+  return String(tags)
+    .split(/[,|]/)
+    .map((tag) => tag.trim())
+    .filter(Boolean);
+});
+const isBocOnlyInvestor = computed(() =>
+  isInvestorRole.value && userProfileTags.value.some((tag) => tag.toLowerCase() === 'vsl')
+);
+const visibleFundingRows = computed(() =>
+  isBocOnlyInvestor.value ? fundingRows.value.filter((item) => item.key === 'boc') : fundingRows.value
+);
 const asAtDate = computed(() => statisticsData.value?.as_at || statisticsData.value?.date || dayjs().format('D MMM YYYY'));
 
 const disabledFutureDate = (current) => current && current.isAfter(dayjs(), 'day');
 
 const loadData = () => {
-  const bocRange = fundingCloseDateRanges.boc;
   const params = {
     uuid: props.invest_id,
-    product_uuid: props.product_uuid,
-    boc_close_date_s: bocRange[0].format('YYYY-MM-DD'),
-    boc_close_date_e: bocRange[1].format('YYYY-MM-DD')
+    product_uuid: props.product_uuid
   };
-  if (!userStore.isNormalUser) {
+  if (!isBocOnlyInvestor.value) {
     const vsRange = fundingCloseDateRanges.vs;
     params.vs_close_date_s = vsRange[0].format('YYYY-MM-DD');
     params.vs_close_date_e = vsRange[1].format('YYYY-MM-DD');
   }
+  const bocRange = fundingCloseDateRanges.boc;
+  params.boc_close_date_s = bocRange[0].format('YYYY-MM-DD');
+  params.boc_close_date_e = bocRange[1].format('YYYY-MM-DD');
 
   loading.value = true;
   statistics(params)

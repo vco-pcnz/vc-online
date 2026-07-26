@@ -81,9 +81,8 @@ import { useI18n } from 'vue-i18n';
 import dayjs from 'dayjs';
 import { InfoCircleOutlined } from '@ant-design/icons-vue';
 import { statistics } from '@/api/invest/index';
-import { useUserStore } from '@/store';
+import { hasPermission } from '@/directives/permission/index';
 const { t } = useI18n();
-const userStore = useUserStore();
 
 const props = defineProps({
   invest_id: {
@@ -129,23 +128,30 @@ const createFundingRow = (key, title) => {
 };
 
 const fundingRows = computed(() => [createFundingRow('vs', 'VS funding'), createFundingRow('boc', 'BOC funding')]);
-const visibleFundingRows = computed(() => (userStore.isNormalUser ? fundingRows.value.filter((item) => item.key === 'boc') : fundingRows.value));
+const canViewVsFunding = computed(() => hasPermission('projects:schedule:vs_schedule'));
+const canViewBocFunding = computed(() => hasPermission('projects:schedule:boc_schedule'));
+const isBocOnlyInvestor = computed(() => !canViewVsFunding.value && canViewBocFunding.value);
+const visibleFundingRows = computed(() =>
+  isBocOnlyInvestor.value ? fundingRows.value.filter((item) => item.key === 'boc') : fundingRows.value
+);
 const asAtDate = computed(() => statisticsData.value?.as_at || statisticsData.value?.date || dayjs().format('D MMM YYYY'));
 
 const disabledFutureDate = (current) => current && current.isAfter(dayjs(), 'day');
 
 const loadData = () => {
-  const bocRange = fundingCloseDateRanges.boc;
   const params = {
     uuid: props.invest_id,
-    product_uuid: props.product_uuid,
-    boc_close_date_s: bocRange[0].format('YYYY-MM-DD'),
-    boc_close_date_e: bocRange[1].format('YYYY-MM-DD')
+    product_uuid: props.product_uuid
   };
-  if (!userStore.isNormalUser) {
+  if (!isBocOnlyInvestor.value) {
     const vsRange = fundingCloseDateRanges.vs;
     params.vs_close_date_s = vsRange[0].format('YYYY-MM-DD');
     params.vs_close_date_e = vsRange[1].format('YYYY-MM-DD');
+  }
+  if (!isBocOnlyInvestor.value || canViewBocFunding.value) {
+    const bocRange = fundingCloseDateRanges.boc;
+    params.boc_close_date_s = bocRange[0].format('YYYY-MM-DD');
+    params.boc_close_date_e = bocRange[1].format('YYYY-MM-DD');
   }
 
   loading.value = true;

@@ -15,6 +15,7 @@
     <ProjectDashboard :lender="lender"></ProjectDashboard>
   </div>
   <CashflowForecast v-if="hasPermission('home:cashflow_forecast')" :isNav="false" :lender="lender"></CashflowForecast>
+  <!-- <CashflowForecastFc v-if="hasPermission('home:cashflow_forecast')" :isNav="false" :lender="lender"></CashflowForecastFc> -->
 </template>
 
 <script setup>
@@ -26,6 +27,7 @@ import Backlog from './components/Backlog/index.vue';
 import Notice from './components/Notice/index.vue';
 import QuickAccess from './components/QuickAccess/index.vue';
 import CashflowForecast from '../dashboard/components/CashflowForecast/index.vue';
+// import CashflowForecastFc from '../dashboard/components/CashflowForecast/indexFc.vue';
 const { t } = useI18n();
 
 const lender = ref('');

@@ -13,7 +13,7 @@
               <a-collapse-panel v-if="!detail?.base?.ptRole" key="Risk" class="collapse-card">
                 <template #header>
                   <div>
-                    <i class="iconfont" style="font-size: 18px">&#xe60e;</i>
+                    <i class="iconfont risk-status-icon" :class="activeRiskLevel" style="font-size: 18px">&#xe60e;</i>
                     <span class="title">{{ t('风险信息') }}</span>
                   </div>
                 </template>
@@ -213,6 +213,25 @@ const showWarrantyTips = computed(() => {
   return hasPermission('projects:detail:editGuarantor') && detail.value && !detail.value?.warranty?.main_contractor && !detail.value?.warranty?.security_package.length;
 });
 
+const activeRiskLevel = computed(() => {
+  let risks = detail.value?.base?.risk;
+  if (typeof risks === 'string' && risks.trim()) {
+    try {
+      risks = JSON.parse(risks);
+    } catch (_) {
+      risks = [{ level: 'medium', is_expired: 0 }];
+    }
+  }
+
+  if (!Array.isArray(risks)) return '';
+
+  const activeLevels = risks
+    .filter((item) => Number(item?.is_expired ?? item?.expired) !== 1)
+    .map((item) => item?.level);
+
+  return ['high', 'medium', 'low'].find((level) => activeLevels.includes(level)) || '';
+});
+
 const getProjectDetail = (val) => {
   const uuid = route.query.uuid;
   currentId.value = uuid;
@@ -400,6 +419,20 @@ const checkPassConfirmVisible = ref(false);
   font-size: 14px !important;
   margin-left: 8px;
   color: #c1430c !important;
+}
+
+.risk-status-icon {
+  &.high {
+    color: #d9363e;
+  }
+
+  &.medium {
+    color: #d46b08;
+  }
+
+  &.low {
+    color: #389e0d;
+  }
 }
 
 .refinance-content {

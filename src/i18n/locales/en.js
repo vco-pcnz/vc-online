@@ -1468,5 +1468,8 @@ export default {
   "风险信息": "Risk information",
   "该项目存在风险提示": "This project has a risk warning",
   "暂无风险信息": "No risk",
+  "过期时间": "Expiry time",
+  "标记过期": "Expire",
+  "确定要将该风险标记为过期吗？": "Are you sure you want to mark this risk as expired?",
   "创建合同模版": "Create contract template",
 }

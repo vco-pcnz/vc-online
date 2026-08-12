@@ -180,7 +180,7 @@ const normalizeRiskItem = (item) => {
     content: String(item?.content || '').trim(),
     level,
     created_at: item?.created_at || '',
-    expires_at: item?.expires_at || '',
+    expires_at: item?.expired_at || item?.expires_at || '',
     expired: Number(item?.is_expired ?? item?.expired) === 1 ? 1 : 0,
     _isNew: false
   };
@@ -282,7 +282,7 @@ const saveHandle = () => {
           content: pendingRisk.content,
           level: pendingRisk.level,
           created_at: responseData?.created_at || pendingRisk.created_at,
-          expires_at: responseData?.expires_at || '',
+          expires_at: responseData?.expired_at || responseData?.expires_at || '',
           is_expired: 0
         })
       ];
@@ -304,7 +304,7 @@ const expireRisk = (item) => {
   })
     .then((res) => {
       item.expired = 1;
-      item.expires_at = res?.expires_at || dayjs().format('YYYY-MM-DD HH:mm:ss');
+      item.expires_at = res?.expired_at || res?.expires_at || dayjs().format('YYYY-MM-DD HH:mm:ss');
       message.success(t('保存成功'));
     })
     .finally(() => {
@@ -463,6 +463,13 @@ const expireRisk = (item) => {
 }
 
 .risk-open-content {
+  .risk-list {
+    max-height: 480px;
+    padding-right: 6px;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+  }
+
   .risk-edit-item {
     grid-template-columns: 1fr;
 

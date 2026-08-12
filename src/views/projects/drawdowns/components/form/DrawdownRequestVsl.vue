@@ -3,12 +3,7 @@
   <div @click.stop ref="drawdownRequestRef" class="drawdown-request">
     <a-modal :width="850" :open="visible" v-if="visible" title="Drawdown request" :getContainer="() => $refs.drawdownRequestRef" :maskClosable="false" :footer="false" @cancel="updateVisible(false)">
       <div class="content sys-form-content">
-        <a-popover v-if="!isPtRole && riskInfo" placement="top">
-          <template #content>
-            <div>{{ riskInfo }}</div>
-          </template>
-          <a-alert class="mb-5" show-icon :message="t('该项目存在风险提示')" type="warning" />
-        </a-popover>
+        <risk-warning v-if="!isPtRole" :risk="projectDetail?.base?.risk" />
 
         <a-row :gutter="24">
           <a-col :span="12">
@@ -135,6 +130,7 @@ import tool from '@/utils/tool';
 import dayjs from 'dayjs';
 import { hasPermission } from '@/directives/permission/index';
 import { pick } from 'lodash';
+import RiskWarning from './RiskWarning.vue';
 
 const { t } = useI18n();
 const emits = defineEmits(['change']);
@@ -156,10 +152,6 @@ const props = defineProps({
 
 const isVsl = computed(() => {
   return String(props.projectDetail.product.code).toLowerCase() === 'vsl';
-});
-
-const riskInfo = computed(() => {
-  return props.projectDetail?.base?.risk || '';
 });
 
 const isPtRole = computed(() => {

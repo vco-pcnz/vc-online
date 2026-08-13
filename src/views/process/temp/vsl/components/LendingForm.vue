@@ -540,7 +540,7 @@
   import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useRoute } from 'vue-router';
-  import { cloneDeep, debounce } from 'lodash';
+  import { cloneDeep, debounce, isEqualWith } from 'lodash';
   import { message } from 'ant-design-vue/es';
   import { QuestionCircleOutlined } from '@ant-design/icons-vue'
   import { useUserStore } from '@/store';
@@ -1391,6 +1391,45 @@
       });
   }
 
+  const getDoOpenMode = () => {
+    if (props.currentStep?.mark !== 'step_open' || !staticFormData.value) return null
+
+    const loanPeriodUnchanged = Number(formState.value.term) === Number(staticFormData.value.term)
+      && Number(formState.value.days) === Number(staticFormData.value.days)
+    if (!loanPeriodUnchanged) return null
+
+    const currentData = cloneDeep(formState.value)
+    const initialData = cloneDeep(staticFormData.value)
+    const dateRelatedKeys = ['time_date', 'start_date', 'end_date', 'totalDay']
+    dateRelatedKeys.forEach((key) => {
+      delete currentData[key]
+      delete initialData[key]
+    })
+
+    const otherFieldsUnchanged = isEqualWith(currentData, initialData, (currentValue, initialValue) => {
+      const currentIsNumeric = ['string', 'number'].includes(typeof currentValue)
+        && currentValue !== ''
+        && Number.isFinite(Number(currentValue))
+      const initialIsNumeric = ['string', 'number'].includes(typeof initialValue)
+        && initialValue !== ''
+        && Number.isFinite(Number(initialValue))
+
+      if (currentIsNumeric && initialIsNumeric) {
+        return Number(currentValue) === Number(initialValue)
+      }
+
+      return undefined
+    })
+    if (!otherFieldsUnchanged) return null
+
+    const startDate = dayjs(formState.value.time_date[0]).format('YYYY-MM-DD')
+    const endDate = dayjs(formState.value.time_date[1]).format('YYYY-MM-DD')
+    const datesUnchanged = startDate === staticFormData.value.start_date
+      && endDate === staticFormData.value.end_date
+
+    return datesUnchanged ? 3 : 1
+  }
+
   const saveHandle = async () => {
     formRef.value
       .validate()
@@ -1463,6 +1502,11 @@
           end_date: dayjs(formState.value.time_date[1]).format('YYYY-MM-DD'),
           credit__data
         };
+
+        const doOpenMode = getDoOpenMode()
+        if (doOpenMode !== null) {
+          params.do__open = doOpenMode
+        }
 
         params.drawdown_term = params.credit__data.drawdown_term
         delete params.credit__data.drawdown_term

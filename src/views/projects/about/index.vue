@@ -12,12 +12,13 @@
             <a-collapse expand-icon-position="end" ghost>
               <a-collapse-panel v-if="!detail?.base?.ptRole" key="Risk" class="collapse-card">
                 <template #header>
-                  <div>
+                  <div class="risk-header-title">
                     <i class="iconfont risk-status-icon" :class="activeRiskLevel" style="font-size: 18px">&#xe60e;</i>
                     <span class="title">{{ t('风险信息') }}</span>
+                    <a-badge class="risk-count-badge" :count="activeRiskCount" :overflow-count="99" />
                   </div>
                 </template>
-                <risk-info :data="detail" :is-open="true"></risk-info>
+                <risk-info :data="detail" :is-open="true" @risk-change="handleRiskChange"></risk-info>
               </a-collapse-panel>
 
               <a-collapse-panel key="Associate" class="collapse-card">
@@ -213,24 +214,29 @@ const showWarrantyTips = computed(() => {
   return hasPermission('projects:detail:editGuarantor') && detail.value && !detail.value?.warranty?.main_contractor && !detail.value?.warranty?.security_package.length;
 });
 
+const parsedRisks = computed(() => {
+  const risks = detail.value?.base?.risk;
+  return Array.isArray(risks) ? risks : [];
+});
+
+const activeRisks = computed(() =>
+  parsedRisks.value.filter(
+    (item) => item?.content && Number(item?.is_archived) !== 1
+  )
+);
+
+const activeRiskCount = computed(() => activeRisks.value.length);
+
 const activeRiskLevel = computed(() => {
-  let risks = detail.value?.base?.risk;
-  if (typeof risks === 'string' && risks.trim()) {
-    try {
-      risks = JSON.parse(risks);
-    } catch (_) {
-      risks = [{ level: 'medium', is_expired: 0 }];
-    }
-  }
-
-  if (!Array.isArray(risks)) return '';
-
-  const activeLevels = risks
-    .filter((item) => Number(item?.is_expired ?? item?.expired) !== 1)
-    .map((item) => item?.level);
-
+  const activeLevels = activeRisks.value.map((item) => item?.level);
   return ['high', 'medium', 'low'].find((level) => activeLevels.includes(level)) || '';
 });
+
+const handleRiskChange = (risks) => {
+  if (detail.value?.base) {
+    detail.value.base.risk = risks;
+  }
+};
 
 const getProjectDetail = (val) => {
   const uuid = route.query.uuid;
@@ -421,17 +427,34 @@ const checkPassConfirmVisible = ref(false);
   color: #c1430c !important;
 }
 
+.risk-header-title {
+  display: inline-flex;
+  align-items: center;
+
+  .risk-count-badge {
+    margin-left: 8px;
+    line-height: 1;
+
+    :deep(.ant-badge-count) {
+      background: #f2d8d2;
+      box-shadow: none;
+      color: #a85242;
+      font-weight: 600;
+    }
+  }
+}
+
 .risk-status-icon {
   &.high {
-    color: #d9363e;
+    color: #a85242;
   }
 
   &.medium {
-    color: #d46b08;
+    color: #b7792d;
   }
 
   &.low {
-    color: #389e0d;
+    color: #5f8f55;
   }
 }
 

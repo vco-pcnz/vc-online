@@ -24,7 +24,7 @@ import { useI18n } from 'vue-i18n';
 
 const props = defineProps({
   risk: {
-    type: [Array, String],
+    type: Array,
     default: () => []
   }
 });
@@ -33,19 +33,12 @@ const { t } = useI18n();
 
 const parsedRisks = computed(() => {
   if (Array.isArray(props.risk)) return props.risk;
-  if (typeof props.risk !== 'string' || !props.risk.trim()) return [];
-
-  try {
-    const risks = JSON.parse(props.risk);
-    return Array.isArray(risks) ? risks : [];
-  } catch (_) {
-    return [{ content: props.risk.trim(), level: 'medium', is_expired: 0 }];
-  }
+  return [];
 });
 
 const activeRisks = computed(() =>
   parsedRisks.value.filter(
-    (item) => item?.content && Number(item?.is_expired ?? item?.expired) !== 1
+    (item) => item?.content && Number(item?.is_archived) !== 1
   )
 );
 

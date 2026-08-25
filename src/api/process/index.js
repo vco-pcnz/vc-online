@@ -827,6 +827,34 @@ export const projectAuditSaveRisk = (data) =>
     data
   });
 
+export const projectAuditArchiveRisk = (data) =>
+  request({
+    url: "/project/audit/archiveRisk",
+    method: "post",
+    data
+  });
+
+export const projectAuditActivateRisk = (data) =>
+  request({
+    url: "/project/audit/activateRisk",
+    method: "post",
+    data
+  });
+
+export const projectAuditEditRisk = (data) =>
+  request({
+    url: "/project/audit/editRisk",
+    method: "post",
+    data
+  });
+
+export const projectAuditDeleteRisk = (data) =>
+  request({
+    url: "/project/audit/deleteRisk",
+    method: "post",
+    data
+  });
+
 // 创建合同模版
 export const projectAuditCreateTemplate = (params) =>
   request({

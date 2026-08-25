@@ -94,12 +94,24 @@
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === '1'">
           <a-space>
-            <vco-avatar v-if="record.project_image" :src="record.project_image" :radius="true" :round="false" :size="48" />
-            <p style="width: 48px;" class="text-center" v-else>--</p>
+            <div class="project-avatar-wrap">
+              <vco-avatar v-if="record.project_image" :src="record.project_image" :radius="true" :round="false" :size="48" />
+              <p style="width: 48px;" class="text-center" v-else>--</p>
+            </div>
            
             <div class="ml-3">
               <p :title="record.project_name" class="bold black text-ellipsis overflow-hidden text-nowrap" style="width: 200px; font-size: 16px">{{ record.project_name }}</p>
-              <p class="replenish_text mt-1" style="line-height: 1">ID: {{ record.project_apply_sn }}</p>
+              <p class="replenish_text mt-1 project-sn" style="line-height: 1">
+                ID: {{ record.project_apply_sn }}
+                <span
+                  v-if="record.active_risks_count"
+                  class="risk-count-badge"
+                  :title="`${t('风险信息')}: ${record.active_risks_count}`"
+                >
+                  <ExclamationCircleFilled class="risk-icon" />
+                  <span class="risk-count-number">{{ record.active_risks_count }}</span>
+                </span>
+              </p>
               <span class="replenish_text">
                 {{ record.loan_type_name }}
                 <template v-if="record.loan_type_name && record.project_type_name"> • </template>
@@ -267,7 +279,7 @@ import { ref, reactive, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { navigationTo } from '@/utils/tool';
-import { DisconnectOutlined } from '@ant-design/icons-vue';
+import { DisconnectOutlined, ExclamationCircleFilled } from '@ant-design/icons-vue';
 import { hasPermission } from '@/directives/permission/index';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc'
@@ -556,6 +568,55 @@ watch(
 
 <style lang="less" scoped>
 @import '@/styles/variables.less';
+
+.project-avatar-wrap {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  flex: none;
+}
+
+.project-sn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.risk-count-badge {
+  display: inline-flex;
+  height: 14px;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border-radius: 7px;
+  padding: 0 4px;
+  background: #f2d8d2;
+  color: #a85242;
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 14px;
+  vertical-align: middle;
+
+  .risk-icon {
+    display: flex;
+    width: 11px;
+    height: 11px;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+    font-size: 11px;
+  }
+
+  .risk-count-number {
+    display: block;
+    height: 14px;
+    font-family: Arial, sans-serif;
+    font-size: 9px;
+    line-height: 14px;
+    text-align: center;
+  }
+}
+
 :deep(.ant-table-row) {
   cursor: pointer;
 }

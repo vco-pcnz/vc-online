@@ -220,3 +220,35 @@ export const buildProgressIndex = (params) =>
       method: 'post',
       data
     });
+
+  // 归档风险
+  export const archiveRisk = (data) =>
+    request({
+      url: 'projectDetail/archiveRisk',
+      method: 'post',
+      data
+    });
+
+  // 激活风险
+  export const activateRisk = (data) =>
+    request({
+      url: 'projectDetail/activateRisk',
+      method: 'post',
+      data
+    });
+
+  // 编辑风险
+  export const editRisk = (data) =>
+    request({
+      url: 'projectDetail/editRisk',
+      method: 'post',
+      data
+    });
+
+  // 删除风险
+  export const deleteRisk = (data) =>
+    request({
+      url: 'projectDetail/deleteRisk',
+      method: 'post',
+      data
+    });

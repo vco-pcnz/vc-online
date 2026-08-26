@@ -56,6 +56,7 @@
         <p class="num" v-if="type == 'closed'">{{ pageStore.total }} {{ t('已关闭项目') }}</p>
         <p class="num" v-if="type == 'written'">{{ pageStore.total }} {{ t('已核销的项目') }}</p>
         <p class="num" v-if="type == 'current'">{{ pageStore.total }} {{ t('项目') }}</p>
+        <p class="num" v-if="type == 'urgent'">{{ pageStore.total }} {{ t('紧急管理') }}</p>
       </div>
       <div class="flex gap-2" v-if="isExpand">
         <div class="search_expand isExpand" @click="isExpand = !isExpand">{{ t('收起') }}<DoubleRightOutlined class="icon" /></div>

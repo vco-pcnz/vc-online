@@ -1,25 +1,30 @@
 <template>
   <div>
     <div v-if="isOpen" class="sys-form-content risk-open-content">
+      <div v-if="projectRiskNotes" class="project-risk-notes">
+        <p>{{ projectRiskNotes }}</p>
+      </div>
       <div class="title-content">
-        <p>Risk</p>
-        <a-button
-          v-if="canEditRisk && showSave"
-          type="dark"
-          size="small"
-          shape="round"
-          class="uppercase"
-          :loading="saveLoading"
-          @click="saveHandle"
-        >{{ t('保存') }}</a-button>
-        <a-button
-          v-else-if="canEditRisk"
-          type="primary"
-          size="small"
-          shape="round"
-          class="uppercase"
-          @click="startAddRisk"
-        >{{ t('添加') }}</a-button>
+        <p>{{ t('风险项目') }}</p>
+        <div class="risk-title-actions">
+          <a-button
+            v-if="canEditRisk && showSave"
+            type="dark"
+            size="small"
+            shape="round"
+            class="uppercase"
+            :loading="saveLoading"
+            @click="saveHandle"
+          >{{ t('保存') }}</a-button>
+          <a-button
+            v-else-if="canEditRisk"
+            type="primary"
+            size="small"
+            shape="round"
+            class="uppercase"
+            @click="startAddRisk"
+          >{{ t('添加') }}</a-button>
+        </div>
       </div>
       <div v-if="canEditRisk && showSave" class="risk-edit-list">
         <div v-for="item in pendingRiskItems" :key="item._key" class="risk-edit-item">
@@ -168,6 +173,23 @@
         />
       </div>
     </a-modal>
+    <a-modal
+      v-model:open="projectRiskVisible"
+      :title="t('风险等级')"
+      :confirm-loading="projectRiskLoading"
+      @ok="saveProjectRisk"
+    >
+      <div class="project-risk-form">
+        <div>
+          <p class="project-risk-label">{{ t('风险等级') }}</p>
+          <a-select v-model:value="projectRiskForm.risk_star" :options="projectRiskOptions" />
+        </div>
+        <div>
+          <p class="project-risk-label">{{ t('备注') }}</p>
+          <a-textarea v-model:value="projectRiskForm.risk_notes" :auto-size="{ minRows: 4, maxRows: 8 }" />
+        </div>
+      </div>
+    </a-modal>
   </div>
   
 </template>
@@ -189,10 +211,11 @@ import {
   archiveRisk as archiveProjectRisk,
   activateRisk as activateProjectRisk,
   editRisk as editProjectRisk,
-  deleteRisk as deleteProjectRisk
+  deleteRisk as deleteProjectRisk,
+  saveRiskLevel
 } from '@/api/project/project';
 import { message } from 'ant-design-vue/es';
-import { hasPermission } from "@/directives/permission"
+import { hasPermission } from '@/directives/permission';
 
 const props = defineProps({
   data: {
@@ -224,6 +247,7 @@ const sortRisks = (items) => [...items].sort((a, b) => {
 });
 const savedRiskItems = computed(() => sortRisks(riskItems.value.filter((item) => !item._isNew)));
 const uuid = computed(() => props.data?.base?.uuid || '');
+const projectRiskNotes = computed(() => String(props.data?.base?.risk_notes || '').trim());
 const canEditRisk = computed(() => props.isOpen ? hasPermission('projects:details:risk') : !props.isDetails);
 const saveLoading = ref(false);
 const showSave = ref(false);
@@ -244,6 +268,19 @@ const riskLevelOptions = [
   { label: 'Medium', value: 'medium' },
   { label: 'Low', value: 'low' }
 ];
+const projectRiskOptions = [
+  { label: '--', value: 0 },
+  { label: 'Low', value: 1 },
+  { label: 'Medium', value: 2 },
+  { label: 'High', value: 3 },
+  { label: 'Urgent', value: 4 }
+];
+const projectRiskVisible = ref(false);
+const projectRiskLoading = ref(false);
+const projectRiskForm = ref({
+  risk_star: 0,
+  risk_notes: ''
+});
 
 const createRiskKey = () => `risk-${Date.now()}-${riskKeySeed++}`;
 
@@ -307,6 +344,31 @@ const startAddRisk = () => {
 };
 
 const showDateTime = (value) => value ? dayjs(value).format('DD MMM YYYY HH:mm') : '--';
+
+const openProjectRisk = () => {
+  projectRiskForm.value = {
+    risk_star: Number(props.data?.base?.risk_star || 0),
+    risk_notes: props.data?.base?.risk_notes || ''
+  };
+  projectRiskVisible.value = true;
+};
+defineExpose({ openProjectRisk });
+
+const saveProjectRisk = () => {
+  projectRiskLoading.value = true;
+  saveRiskLevel({
+    uuid: uuid.value,
+    ...projectRiskForm.value
+  })
+    .then(() => {
+      projectRiskVisible.value = false;
+      message.success(t('保存成功'));
+      emit('riskChange');
+    })
+    .finally(() => {
+      projectRiskLoading.value = false;
+    });
+};
 
 const isRiskArchived = (item) => Number(item.archived) === 1;
 
@@ -475,6 +537,44 @@ const deleteRiskItem = (item) => {
     color: #666;
     font-weight: 500;
   }
+}
+
+.risk-title-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.project-risk-notes {
+  margin-bottom: 12px;
+  border-radius: 4px;
+  padding: 9px 12px;
+  background: rgba(191, 148, 37, 0.08);
+
+  p {
+    margin: 0;
+    color: #555;
+    font-size: 12px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+}
+
+.project-risk-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+
+  :deep(.ant-select) {
+    width: 180px;
+  }
+}
+
+.project-risk-label {
+  margin-bottom: 6px;
+  color: #666;
+  font-size: 13px;
 }
 
 .sys-form-content :deep(.ant-form-item) {

@@ -90,6 +90,12 @@
             {{ column.title }}
           </span>
         </template>
+        <template v-if="column.key === 'risk'">
+          <span class="headSortItem" :class="{ active: sort.sort == 'risk_star' }" @click="sortChange('risk_star')">
+            <i class="iconfont" :class="{ asc: sort.order == 'asc' && sort.sort == 'risk_star' }">&#xe74d;</i>
+            {{ column.title }}
+          </span>
+        </template>
       </template>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === '1'">
@@ -100,17 +106,11 @@
             </div>
            
             <div class="ml-3">
-              <p :title="record.project_name" class="bold black text-ellipsis overflow-hidden text-nowrap" style="width: 200px; font-size: 16px">{{ record.project_name }}</p>
+              <p :title="record.project_name" class="bold black text-ellipsis overflow-hidden text-nowrap" style="width: 200px; font-size: 16px">
+                {{ record.project_name }}<span v-if="Number(record.risk_star) === 3" class="high-risk-mark">!</span>
+              </p>
               <p class="replenish_text mt-1 project-sn" style="line-height: 1">
                 ID: {{ record.project_apply_sn }}
-                <span
-                  v-if="record.active_risks_count"
-                  class="risk-count-badge"
-                  :title="`${t('风险信息')}: ${record.active_risks_count}`"
-                >
-                  <ExclamationCircleFilled class="risk-icon" />
-                  <span class="risk-count-number">{{ record.active_risks_count }}</span>
-                </span>
               </p>
               <span class="replenish_text">
                 {{ record.loan_type_name }}
@@ -119,6 +119,21 @@
               </span>
             </div>
           </a-space>
+        </template>
+        <template v-if="column.key === 'risk'">
+          <div class="risk-column" :class="{ 'no-risk-star': !Number(record.risk_star) }">
+            <p class="risk-stars" :class="riskStarClass(record.risk_star)" :title="riskLevelLabel(record.risk_star)">
+              <StarFilled v-for="index in Number(record.risk_star || 0)" :key="index" />
+            </p>
+            <span
+              v-if="record.active_risks_count"
+              class="risk-count-badge"
+              :title="`${t('风险项目')}: ${record.active_risks_count}`"
+            >
+              <span class="risk-icon" aria-hidden="true">!</span>
+              <span class="risk-count-number">{{ record.active_risks_count }}</span>
+            </span>
+          </div>
         </template>
         <template v-if="column.key === '2'">
           <a-space>
@@ -204,7 +219,7 @@
         </template>
         <template v-if="column.key === 'bili'">
           <div class="flex justify-center">
-            <div class="meter" v-if="type === 'current' || type === 'written'">
+            <div class="meter" v-if="type === 'current' || type === 'written' || type === 'urgent'">
               <p :style="{ fontSize: '10px' }">{{ record.credit.bili }}%</p>
               <vco-meter size="small" :value="Number(record.credit.bili)" />
             </div>
@@ -279,7 +294,7 @@ import { ref, reactive, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import tool from '@/utils/tool';
 import { navigationTo } from '@/utils/tool';
-import { DisconnectOutlined, ExclamationCircleFilled } from '@ant-design/icons-vue';
+import { DisconnectOutlined, StarFilled } from '@ant-design/icons-vue';
 import { hasPermission } from '@/directives/permission/index';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc'
@@ -310,6 +325,7 @@ const IRR_COLUMN = { title: t('IRR预测'), key: 'irr', width: 140 };
 const columns = reactive([
   { title: t('项目•类型'), key: '1', width: 280 },
   { title: t('借款人•贷款经理'), key: '2', width: 200 },
+  { title: t('风险'), key: 'risk', width: 72, align: 'center' },
   { title: t('开始日期'), key: 'open', width: 110 },
   { title: t('到期'), key: 'end_date', width: 140 },
   { ...IRR_COLUMN },
@@ -328,9 +344,19 @@ const isLendrProduct = computed(() => currentProduct.value?.code === 'lendr');
 const isVslProduct = computed(() => String(currentProduct.value?.code || '').toLowerCase() === 'vsl');
 const hasOperationColumn = computed(() => columns.some((column) => column.key === 'operation'));
 const tableScrollX = computed(() => {
-  const baseWidth = props.type === 'closed' ? 2120 : 2020;
+  const baseWidth = props.type === 'closed' ? 2220 : 2120;
   return `${hasOperationColumn.value ? baseWidth : baseWidth - 80}px`;
 });
+
+const riskLevelLabel = (value) => {
+  return {
+    1: t('低风险'),
+    2: t('中风险'),
+    3: t('高风险'),
+    4: t('紧急')
+  }[Number(value)] || '--';
+};
+const riskStarClass = (value) => `risk-star-${Number(value) || 0}`;
 
 const removeIrrColumn = () => {
   const irrIndex = columns.findIndex((column) => column.key === 'irr');
@@ -467,7 +493,7 @@ const toCopyDetail = (val) => {
 const setRowClass = (record, index) => {
   const targetDate = new Date(record.end_date);
   const currentDate = new Date();
-  if (targetDate < currentDate && (props.type === 'current' || props.type === 'written')) {
+  if (targetDate < currentDate && (props.type === 'current' || props.type === 'written' || props.type === 'urgent')) {
     return 'red';
   }
   return '';
@@ -540,13 +566,14 @@ watch(
   () => props.type,
   (val) => {
     sort.value = {
-      sort: 'start_date',
+      sort: 'risk_star',
       order: 'desc'
     };
     const closeDateIndex = columns.findIndex((column) => column.key === 'close_date');
     if (props.type == 'closed') {
       if (closeDateIndex == -1) {
-        columns.splice(4, 0, {
+        const endDateIndex = columns.findIndex((column) => column.key === 'end_date');
+        columns.splice(endDateIndex + 1, 0, {
           title: t('关闭日期'),
           key: 'close_date',
           align: 'center',
@@ -582,37 +609,91 @@ watch(
   gap: 4px;
 }
 
+.high-risk-mark {
+  margin-left: 5px;
+  color: #d9363e;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.risk-column {
+  display: flex;
+  min-height: 42px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+
+  &.no-risk-star {
+    gap: 0;
+
+    .risk-stars {
+      display: none;
+    }
+  }
+}
+
+.risk-stars {
+  display: flex;
+  min-height: 14px;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  font-size: 12px;
+
+  &.risk-star-4 {
+    color: #d9363e;
+  }
+
+  &.risk-star-3 {
+    color: #fa8c16;
+  }
+
+  &.risk-star-2 {
+    color: #d4a017;
+  }
+
+  &.risk-star-1 {
+    color: #52a447;
+  }
+}
+
 .risk-count-badge {
   display: inline-flex;
-  height: 14px;
+  height: 20px;
   align-items: center;
   justify-content: center;
   gap: 2px;
-  border-radius: 7px;
-  padding: 0 4px;
+  border-radius: 10px;
+  padding: 0 6px;
   background: #f2d8d2;
   color: #a85242;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 600;
-  line-height: 14px;
+  line-height: 20px;
   vertical-align: middle;
 
   .risk-icon {
-    display: flex;
-    width: 11px;
-    height: 11px;
+    display: inline-flex;
+    width: 14px;
+    height: 14px;
     align-items: center;
     justify-content: center;
-    color: inherit;
-    font-size: 11px;
+    border-radius: 50%;
+    background: #a85242;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 14px;
   }
 
   .risk-count-number {
     display: block;
-    height: 14px;
+    height: 20px;
     font-family: Arial, sans-serif;
-    font-size: 9px;
-    line-height: 14px;
+    font-size: 11px;
+    line-height: 20px;
     text-align: center;
   }
 }

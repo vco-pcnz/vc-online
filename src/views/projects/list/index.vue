@@ -56,12 +56,18 @@ const isNormalUser = computed(() => useUserStore().isNormalUser);
 const current_num = computed(() => pageStore.otherInfo['1']);
 const closed_num = computed(() => pageStore.otherInfo['2']);
 const Written_off_num = computed(() => pageStore.otherInfo['4']);
+const urgent_num = computed(() => pageStore.otherInfo['5']);
 
 const tabData = ref([
   {
     label: t('当前项目'),
     value: 1,
     num: current_num
+  },
+  {
+    label: t('紧急管理'),
+    value: 5,
+    num: urgent_num
   },
   {
     label: t('已核销的项目'),
@@ -78,7 +84,8 @@ const tabData = ref([
 const staName = {
   1: 'current',
   2: 'closed',
-  4: 'written'
+  4: 'written',
+  5: 'urgent'
 };
 
 const tableSearchRef = ref();
@@ -89,7 +96,7 @@ const tabChange = () => {
   }
   pageStore.pagination.page = 1;
   pageStore.searchParams['order'] = 'desc';
-  pageStore.searchParams['sort'] = 'start_date';
+  pageStore.searchParams['sort'] = 'risk_star';
   if (tableSearchRef.value) {
     tableSearchRef.value.searchHandle();
   } else {

@@ -221,6 +221,14 @@ export const buildProgressIndex = (params) =>
       data
     });
 
+  // 保存项目风险等级
+  export const saveRiskLevel = (data) =>
+    request({
+      url: 'projectDetail/saveRiskLevel',
+      method: 'post',
+      data
+    });
+
   // 归档风险
   export const archiveRisk = (data) =>
     request({

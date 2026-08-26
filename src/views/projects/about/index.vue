@@ -10,15 +10,26 @@
             <base-card :detail="detail" :currentId="currentId" @update="update"></base-card>
 
             <a-collapse expand-icon-position="end" ghost>
-              <a-collapse-panel v-if="!detail?.base?.ptRole" key="Risk" class="collapse-card">
+              <a-collapse-panel v-if="!detail?.base?.ptRole" key="Risk" class="collapse-card risk-collapse-card" :force-render="true">
                 <template #header>
                   <div class="risk-header-title">
                     <i class="iconfont risk-status-icon" :class="activeRiskLevel" style="font-size: 18px">&#xe60e;</i>
-                    <span class="title">{{ t('风险信息') }}</span>
+                    <span class="title">{{ t('风险') }}</span>
+                    <span class="project-risk-stars" :class="`risk-star-${projectRiskStar}`" :title="projectRiskLabel">
+                      <StarFilled v-for="index in projectRiskStar" :key="index" />
+                    </span>
                     <a-badge class="risk-count-badge" :count="activeRiskCount" :overflow-count="99" />
+                    <a-button
+                      v-if="hasPermission('projects:details:riskLevel')"
+                      class="project-risk-level-button"
+                      type="primary"
+                      shape="round"
+                      size="small"
+                      @click.stop="riskInfoRef?.openProjectRisk()"
+                    >{{ t('等级') }}</a-button>
                   </div>
                 </template>
-                <risk-info :data="detail" :is-open="true" @risk-change="handleRiskChange"></risk-info>
+                <risk-info ref="riskInfoRef" :data="detail" :is-open="true" @risk-change="handleRiskChange"></risk-info>
               </a-collapse-panel>
 
               <a-collapse-panel key="Associate" class="collapse-card">
@@ -169,7 +180,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { RightOutlined } from '@ant-design/icons-vue';
+import { RightOutlined, StarFilled } from '@ant-design/icons-vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import detailLayout from '../components/detailLayout.vue';
@@ -203,6 +214,7 @@ const userStore = useUserStore();
 const route = useRoute();
 
 const detailLayoutRef = ref(null);
+const riskInfoRef = ref(null);
 const loading = ref(true);
 const currentId = ref();
 const detail = ref();
@@ -226,6 +238,13 @@ const activeRisks = computed(() =>
 );
 
 const activeRiskCount = computed(() => activeRisks.value.length);
+const projectRiskStar = computed(() => Number(detail.value?.base?.risk_star || 0));
+const projectRiskLabel = computed(() => ({
+  1: t('低风险'),
+  2: t('中风险'),
+  3: t('高风险'),
+  4: t('紧急')
+}[projectRiskStar.value] || '--'));
 
 const activeRiskLevel = computed(() => {
   const activeLevels = activeRisks.value.map((item) => item?.level);
@@ -233,8 +252,10 @@ const activeRiskLevel = computed(() => {
 });
 
 const handleRiskChange = (risks) => {
-  if (detail.value?.base) {
+  if (Array.isArray(risks) && detail.value?.base) {
     detail.value.base.risk = risks;
+  } else {
+    update();
   }
 };
 
@@ -378,11 +399,21 @@ const checkPassConfirmVisible = ref(false);
       }
 
       &:last-child {
-        border-bottom: none;
+        border-bottom: 1px solid #e2e5e2;
       }
 
       :deep(.ant-collapse-expand-icon) {
         color: @color_grey;
+      }
+    }
+
+    .risk-collapse-card {
+      &.ant-collapse-item-active :deep(.ant-collapse-header) {
+        padding-bottom: 8px;
+      }
+
+      :deep(.ant-collapse-content-box) {
+        padding-top: 0;
       }
     }
   }
@@ -429,6 +460,7 @@ const checkPassConfirmVisible = ref(false);
 
 .risk-header-title {
   display: inline-flex;
+  width: 100%;
   align-items: center;
 
   .risk-count-badge {
@@ -442,6 +474,43 @@ const checkPassConfirmVisible = ref(false);
       font-weight: 600;
     }
   }
+}
+
+.project-risk-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  margin-left: 8px;
+  font-size: 12px;
+
+  &.risk-star-4 {
+    color: #d9363e;
+  }
+
+  &.risk-star-3 {
+    color: #fa8c16;
+  }
+
+  &.risk-star-2 {
+    color: #d4a017;
+  }
+
+  &.risk-star-1 {
+    color: #52a447;
+  }
+}
+
+.project-risk-level-button {
+  display: inline-flex;
+  height: 20px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  margin-right: -6px;
+  margin-left: auto;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1;
 }
 
 .risk-status-icon {

@@ -35,13 +35,33 @@
           <div class="flex justify-between mb-2">
             <div class="title">{{ t('进度付款阶段') }}</div>
             <template v-if="!easyModel && calcBuildAmount">
-              <a-button
-                type="dark"
-                class="uppercase"
-                @click="restoreHandle"
-              >
-                {{ t('刷新') }}
-              </a-button>
+              <div class="flex gap-5">
+                <a-button type="dark" class="uppercase flex items-center" @click="exportHandle">
+                  {{ t('下载') }}
+                  <a-tooltip>
+                    <template #title>
+                      <span>{{ t(`下载为Excel表格，编辑后再点击右侧'上传'按钮上传编辑后的数据，以更新设置数据`) }}</span>
+                    </template>
+                    <QuestionCircleOutlined />
+                  </a-tooltip>
+                </a-button>
+                <a-button type="primary" class="uppercase relative">
+                  {{ t('上传') }}
+                  <input
+                    type="file"
+                    class="excel-upload"
+                    accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    @change="importHandle"
+                  />
+                </a-button>
+                <a-button
+                  type="dark"
+                  class="uppercase"
+                  @click="restoreHandle"
+                >
+                  {{ t('刷新') }}
+                </a-button>
+              </div>
             </template>
           </div>
           <a-table
@@ -224,12 +244,17 @@
   import { systemDictDataApi } from "@/api/system/index"
   import { cloneDeep } from "lodash"
   import tool, { numberStrFormat, goBack } from "@/utils/tool"
+  import { exportTableToExcel } from "@/utils/export-excel"
+  import { message } from 'ant-design-vue';
+  import { QuestionCircleOutlined } from '@ant-design/icons-vue';
+  import * as XLSX from 'xlsx'
 
   const { t } = useI18n();
   const route = useRoute();
 
   const uuid = ref(route.query.uuid)
   const variationId = ref(route.query.id)
+  const projectSn = ref('')
 
   const pageLoading = ref(false)
 
@@ -729,6 +754,7 @@
     const res = await projectDetailApi({uuid: uuid.value});
     const costModel = Boolean(res.lending.devCostDetail[0].model)
     easyModel.value = costModel
+    projectSn.value = res.base?.project_apply_sn || uuid.value
 
     getVariationDetail()
   }
@@ -754,6 +780,134 @@
   const restoreHandle = async () => {
     await getProjectData()
     hasReseted.value = false
+  }
+
+  const exportHandle = () => {
+    const headerData = cloneDeep(tableHeader.value)
+    headerData.splice(1, 1)
+    headerData.splice(headerData.length - 1, 1)
+
+    const data = cloneDeep(tableData.value)
+    const tableNumData = data.filter(item => !item.isFixedRow)
+    tableNumData.forEach(item => {
+      for (const key in item) {
+        if (key.indexOf('-') > -1) {
+          item[key] = item[key].amount
+        }
+      }
+    })
+    exportTableToExcel(tableNumData, headerData, projectSn.value || uuid.value)
+  }
+
+  const importHandle = (event) => {
+    const fileInput = event.target
+    const file = fileInput.files[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      try {
+        const data = new Uint8Array(e.target.result)
+        const workbook = XLSX.read(data, { type: 'array' })
+        const firstSheetName = workbook.SheetNames[0]
+        const worksheet = workbook.Sheets[firstSheetName]
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 })
+
+        if (!jsonData.length) {
+          message.error(t('导入数据格式不正确，如数据为0，请填写0不要留空'))
+          return
+        }
+        for (let i = 0; i < jsonData.length; i++) {
+          if (jsonData[i].length !== jsonData[0].length) {
+            message.error(t('导入数据格式不正确，如数据为0，请填写0不要留空'))
+            return
+          }
+        }
+
+        const numData = jsonData.filter(item => !['Type', 'Initial advance to fund deposit', '类型'].includes(item[0]))
+        const formatData = []
+        let loanUpTotal = 0
+        let loanFixedTotal = 0
+        let equityUpTotal = 0
+        let equityFixedTotal = 0
+        const toFixed2 = (num) => Number(Number(num || 0).toFixed(2))
+        const sumPlus = (total, num) => Number(tool.plus(total, num))
+
+        numData.forEach((row, idx) => {
+          const values = row.slice(1)
+          const total = Number(values.reduce((sum, num) => sumPlus(sum, Number(num)), 0))
+          const fixedValues = values.map(num => toFixed2(num))
+          const fixedTotal = Number(fixedValues.reduce((sum, num) => sumPlus(sum, Number(num)), 0))
+
+          if (idx % 2 === 0) {
+            loanUpTotal = sumPlus(loanUpTotal, total)
+            loanFixedTotal = sumPlus(loanFixedTotal, fixedTotal)
+          } else {
+            equityUpTotal = sumPlus(equityUpTotal, total)
+            equityFixedTotal = sumPlus(equityFixedTotal, fixedTotal)
+          }
+          if (idx === numData.length - 2) {
+            const diff = Number(tool.minus(
+              tool.minus(loanUpTotal, values[values.length - 1]),
+              tool.minus(loanFixedTotal, fixedValues[fixedValues.length - 1])
+            ))
+            fixedValues[fixedValues.length - 1] = toFixed2(tool.plus(fixedValues[fixedValues.length - 1], diff))
+          }
+          if (idx === numData.length - 1) {
+            const diff = Number(tool.minus(
+              tool.minus(equityUpTotal, values[values.length - 1]),
+              tool.minus(equityFixedTotal, fixedValues[fixedValues.length - 1])
+            ))
+            fixedValues[fixedValues.length - 1] = toFixed2(tool.plus(fixedValues[fixedValues.length - 1], diff))
+          }
+          formatData.push([row[0], ...fixedValues])
+        })
+
+        tableDataFill(formatData)
+      } catch (error) {
+        message.error(t('导入数据格式不正确，如数据为0，请填写0不要留空'))
+      } finally {
+        fileInput.value = ''
+      }
+    }
+    reader.readAsArrayBuffer(file)
+  }
+
+  const tableDataFill = (data) => {
+    const headerData = cloneDeep(tableHeader.value)
+    headerData.splice(1, 1)
+    const firstRows = []
+    const secondRows = []
+    const typeNames = []
+
+    data.forEach(row => {
+      if (typeNames.includes(row[0])) {
+        secondRows.push(row)
+      } else {
+        typeNames.push(row[0])
+        firstRows.push(row)
+      }
+    })
+
+    const fillRows = (rows, findLast = false) => {
+      rows.forEach(row => {
+        const targetRow = findLast
+          ? tableData.value.findLast(item => !item.isFixedRow && item.type === row[0])
+          : tableData.value.find(item => !item.isFixedRow && item.type === row[0])
+        if (!targetRow) return
+
+        for (let index = 1; index < row.length; index++) {
+          const header = headerData[index]
+          if (header && targetRow[header.dataIndex]) {
+            targetRow[header.dataIndex].amount = row[index]
+          }
+        }
+      })
+    }
+
+    fillRows(firstRows)
+    fillRows(secondRows, true)
+    initHandle(true, true)
   }
 
   // 项数据

@@ -1,6 +1,33 @@
 <template>
-  <a-modal :open="selectVisible" :title="t('进度付款阶段')" :width="1400" :footer="null" :keyboard="false" :maskClosable="false" class="middle-position" @cancel="selectVisible = false">
-    <view-content v-if="selectVisible" :selectedData="selectedData" :buildLogData="buildLogData" :showExcess="true" :is-select="isEdit" :show-process="true" :hide-self="!isEdit" :log-date="logDate" @selectDone="selectDoneHandle"></view-content>
+  <a-modal
+    :open="selectVisible"
+    :width="selectFullscreen ? '100vw' : 1400"
+    :footer="null"
+    :keyboard="false"
+    :maskClosable="false"
+    :class="{ 'middle-position': !selectFullscreen, 'progress-payment-fullscreen': selectFullscreen }"
+    :style="selectFullscreen ? { top: 0, maxWidth: '100vw', margin: 0, paddingBottom: 0 } : {}"
+    :body-style="selectFullscreen ? { height: 'calc(100vh - 55px)', overflow: 'auto' } : {}"
+    @cancel="closeSelectModal"
+    @after-close="afterSelectModalClose"
+  >
+    <template #title>
+      <div class="progress-payment-title">
+        <span>{{ t('进度付款阶段') }}</span>
+        <a-button
+          class="fullscreen-button"
+          type="text"
+          :title="selectFullscreen ? t('退出全屏') : t('全屏')"
+          @click.stop="selectFullscreen = !selectFullscreen"
+        >
+          <template #icon>
+            <FullscreenExitOutlined v-if="selectFullscreen" />
+            <FullscreenOutlined v-else />
+          </template>
+        </a-button>
+      </div>
+    </template>
+    <view-content v-if="selectVisible || selectClosing" :selectedData="selectedData" :buildLogData="buildLogData" :showExcess="true" :is-select="isEdit" :show-process="true" :hide-self="!isEdit" :log-date="logDate" @selectDone="selectDoneHandle"></view-content>
   </a-modal>
 
   <!-- boc放款选择 -->
@@ -133,6 +160,7 @@ import ViewContent from '@/views/requests/progress-payment/components/ViewConten
 import BocViewContent from '@/views/requests/progress-payment/components/BocViewContent.vue';
 import { cloneDeep } from 'lodash';
 import { pick } from 'lodash';
+import { FullscreenExitOutlined, FullscreenOutlined } from '@ant-design/icons-vue';
 
 const emits = defineEmits(['change']);
 const { t } = useI18n();
@@ -170,6 +198,8 @@ const props = defineProps({
 
 const showOther = ref(false);
 const selectVisible = ref(false);
+const selectFullscreen = ref(false);
+const selectClosing = ref(false);
 const formState = ref({
   build_money: '',
   land_money: 0,
@@ -180,11 +210,22 @@ const formState = ref({
   progress__data: []
 });
 const selectDoneHandle = (data) => {
+  selectClosing.value = true;
   selectVisible.value = false;
   formState.value.build__data = data.build__data;
   formState.value.build_money = data.total;
   selectedData.value = data.build__data;
   change();
+};
+
+const closeSelectModal = () => {
+  selectClosing.value = true;
+  selectVisible.value = false;
+};
+
+const afterSelectModalClose = () => {
+  selectFullscreen.value = false;
+  selectClosing.value = false;
 };
 
 const change = () => {
@@ -296,6 +337,31 @@ watch(
   margin-top: 5px;
   .vip_amount {
     color: @colorPrimary;
+  }
+}
+
+.progress-payment-title {
+  position: relative;
+  text-align: center;
+}
+
+.fullscreen-button {
+  position: absolute;
+  top: 50%;
+  right: 24px;
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(-50%);
+  font-size: 17px;
+}
+
+.progress-payment-fullscreen {
+  :deep(.ant-modal-content) {
+    height: 100vh;
+    border-radius: 0;
   }
 }
 </style>

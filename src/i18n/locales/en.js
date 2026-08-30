@@ -1488,4 +1488,6 @@ export default {
   "高风险": "High",
   "紧急": "Urgent",
   "该项目存在未完成条件": "This project has outstanding conditions",
+  "全屏": "Fullscreen",
+  "退出全屏": "Exit fullscreen",
 }

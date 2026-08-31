@@ -1490,4 +1490,6 @@ export default {
   "该项目存在未完成条件": "This project has outstanding conditions",
   "全屏": "Fullscreen",
   "退出全屏": "Exit fullscreen",
+  "贷款分类": "Loan categories",
+  "请至少选择一类贷款": "Please select at least one loan category",
 }

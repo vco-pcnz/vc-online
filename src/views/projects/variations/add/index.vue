@@ -445,6 +445,10 @@
               
             </template>
 
+            <a-col v-if="!isVsl" :span="24">
+              <PreJournal ref="preJournalRef" :has-linefee="Boolean(projectInfo?.base?.has_linefee)" :disabled="!canEdit" @change="onPreJournalChange" />
+            </a-col>
+
             <div v-if="colItemsRef.length" class="w-full flex flex-wrap">
               <a-col :span="24"><div class="pt-5" style="border-top: 1px dashed #282828"></div></a-col>
               <template v-if="colItemsRef.length">
@@ -586,7 +590,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed, watch, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { QuestionCircleOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
@@ -603,6 +607,7 @@ import dayjs from 'dayjs';
 import { cloneDeep, debounce } from 'lodash';
 import securityDialog from './components/security-dialog.vue';
 import ViewContent from './components/view-content.vue';
+import PreJournal from './components/PreJournal.vue';
 import VslViewContent from '@/views/requests/progress-payment/components/ViewContent.vue';
 import DocumentsUpload from '@/views/projects/drawdowns/components/form/DocumentsUpload.vue';
 import { hasPermission } from '@/directives/permission/index';
@@ -682,10 +687,10 @@ const getProjectDetail = async () => {
 const devCostChange = (val) => {
   devCostJsonData.value = val.devCostDetail;
 
-  const params = {
+  const params = attachPreJournal({
     uuid: uuid.value,
     devCostDetail: val.devCostDetail
-  }
+  })
 
   if (currentVariationId.value) {
     params.id = currentVariationId.value;
@@ -723,7 +728,7 @@ const typeChange = (val) => {
     defaultDate = dayjs(projectInfo.value.date.end_date).format('YYYY-MM-DD');
   }
 
-  const params = {
+  const params = attachPreJournal({
     uuid: uuid.value,
     type: val,
     start_date: defaultDate,
@@ -737,7 +742,7 @@ const typeChange = (val) => {
     build_amount: 0,
     initial_build_amount: 0,
     initial_sn: ''
-  }
+  })
 
   if (currentVariationId.value) {
     params.id = currentVariationId.value;
@@ -1063,7 +1068,7 @@ const dateChange = (type) => {
     }
 
     // 提价时间数据
-    const params = {
+    const params = attachPreJournal({
       uuid: uuid.value,
       start_date: formState.value.start_date ? startDate.format('YYYY-MM-DD') : '',
       build_log: [],
@@ -1071,7 +1076,7 @@ const dateChange = (type) => {
       initial_land_amount: 0,
       initial_build_amount: 0,
       initial_sn: ''
-    }
+    })
 
     if (currentVariationId.value) {
       params.id = currentVariationId.value;
@@ -1133,6 +1138,18 @@ const changeSecurityAfter = computed(() => {
 const currentVariationId = ref('')
 const variationData = ref(null)
 const firstLoad = ref(false)
+const preJournalRef = ref()
+const attachPreJournal = (params) => {
+  if (!isVsl.value && preJournalRef.value) {
+    params.pre_journal = preJournalRef.value.getData() || []
+  }
+  return params
+}
+
+const onPreJournalChange = () => {
+  if (isVsl.value) return
+  calcExtendTermEstab()
+}
 // 请求变更详情
 const getVariationDetail = async () => {
   firstLoad.value = true
@@ -1155,6 +1172,10 @@ const getVariationDetail = async () => {
     estabReDocuments.value = res.document || []
     estabReDocumentsList.value = res.document || []
     estabReSelectedData.value = res.estab_build_log || []
+
+    if (!isVsl.value) {
+      preJournalRef.value?.setData(res.pre_journal || [])
+    }
 
     devCostJsonData.value = res.devCostDetail && res.devCostDetail.length ? res.devCostDetail : projectInfo.value.base.devCostDetail;
 
@@ -1418,7 +1439,7 @@ const calcSameTermBroker = (flag = false) => {
 }
 
 const calcVclEstab = () => {
-  const params = {
+  const params = attachPreJournal({
     uuid: uuid.value,
     id: currentVariationId.value,
     type: formState.value.type,
@@ -1434,7 +1455,7 @@ const calcVclEstab = () => {
     amount: loanMoneyChangeNum.value || 0,
     build_log: cloneDeep(selectedData.value) || [],
     note: formState.value.note || ''
-  }
+  })
   const credit = {};
   for (let i = 0; i < colItemsRef.value.length; i++) {
     credit[colItemsRef.value[i].credit_table] = formState.value[colItemsRef.value[i].credit_table]
@@ -1640,10 +1661,10 @@ const extendCycleInput = () => {
 }
 
 const submitSingleRquest = (key, value) => {
-  const params = {
+  const params = attachPreJournal({
     [key]: value,
     uuid: uuid.value
-  }
+  })
 
   if (currentVariationId.value) {
     params.id = currentVariationId.value
@@ -1688,8 +1709,9 @@ const submitHandle = () => {
         build_amount: buildChangeAfterNum.value || 0,
         amount: loanMoneyChangeNum.value || 0,
         build_log: cloneDeep(selectedData.value) || [],
-        note: formState.value.note || ''
+        note: formState.value.note || '',
       }
+      attachPreJournal(params)
       const credit = {};
       for (let i = 0; i < colItemsRef.value.length; i++) {
         credit[colItemsRef.value[i].credit_table] = formState.value[colItemsRef.value[i].credit_table]
@@ -1783,6 +1805,10 @@ onMounted(async () => {
     if (id || obj[uuid.value]) {
       await getVariationDetail();
       pageLoading.value = false;
+      await nextTick();
+      if (!isVsl.value) {
+        preJournalRef.value?.setData(variationData.value?.pre_journal || []);
+      }
 
       if (formState.value.start_date) {
         getInitDradownData()

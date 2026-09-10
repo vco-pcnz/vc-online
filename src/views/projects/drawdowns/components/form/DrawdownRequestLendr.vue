@@ -6,8 +6,8 @@
         <risk-warning v-if="!isPtRole" :risk="projectDetail?.base?.risk" />
         <condition-warning v-if="!isPtRole" :uuid="uuid" :visible="visible" />
 
-        <a-row :gutter="24">
-          <a-col :span="12">
+        <div class="request-main-row">
+          <div class="request-left">
             <div class="input-item">
               <div class="label" :class="{ err: !formState.name && validate }">Drawdown title</div>
               <a-select :loading="loading_type" :disabled="isEdit" style="width: 100%" v-model:value="formState.name" :options="title_type" :fieldNames="{ label: 'name', value: 'code' }"></a-select>
@@ -16,6 +16,7 @@
               <div class="label" :class="{ err: !formState.apply_date && validate }">{{ t('日期') }}</div>
               <a-date-picker class="datePicker" :disabledDate="disabledDateFormat" inputReadOnly v-model:value="formState.apply_date" :format="selectDateFormat()" valueFormat="YYYY-MM-DD" placeholder="" :showToday="false" />
             </div>
+            <EstimatedDrawdownSelect v-model="formState.forecast_id" :uuid="uuid" :apply-id="detail?.id" :validate="validate" />
 
             <div class="input-item">
               <vco-tip style="padding-bottom: 5px" :tip="t('此说明内容将显示在交易记录中')">
@@ -27,16 +28,16 @@
               <div class="label">{{ t('金额') }}</div>
               <a-input-number v-model:value="formState.apply_amount" :max="99999999999" :min="0" :formatter="(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')" :parser="(value) => value.replace(/\$\s?|(,*)/g, '')" />
             </div>
-          </a-col>
-          <a-col :span="12">
-            <div class="input-item">
+          </div>
+          <div class="request-right">
+            <div class="input-item request-message">
               <vco-tip style="padding-bottom: 5px" :tip="t('此消息针对 FC 的批准评论')">
                 <div class="label" style="padding: 0">{{ t('消息') }}</div>
               </vco-tip>
-              <a-textarea v-model:value="formState.remark" :rows="14" />
+              <a-textarea v-model:value="formState.remark" class="request-message-textarea" />
             </div>
-          </a-col>
-        </a-row>
+          </div>
+        </div>
         <p class="my-5 bold fs_xl">Documents</p>
         <p class="label" style="margin-top: -15px; opacity: 0" :class="{ err: !formState.d_file.length && validate }">Provide at least one of these documents{{ docNames ? ` (${docNames})` : '' }}</p>
 
@@ -86,6 +87,7 @@ import { annexSel } from '@/api/project/annex';
 import { loanDedit, loanDchange } from '@/api/project/loan';
 import { selectDateFormat } from '@/utils/tool';
 import DocumentsUpload from './DocumentsUpload.vue';
+import EstimatedDrawdownSelect from './EstimatedDrawdownSelect.vue';
 import { systemDictData, systemConfigData } from '@/api/system';
 import tool from '@/utils/tool';
 import dayjs from 'dayjs';
@@ -129,7 +131,8 @@ const formState = ref({
   apply_amount: '',
   vip_amount: '',
   p_file: [],
-  d_file: []
+  d_file: [],
+  forecast_id: undefined
 });
 
 const docNames = computed(() => {
@@ -211,6 +214,7 @@ const save = (tip) => {
     amount = formState.value.vip_amount || 0;
   }
   if (!formState.value.name || !formState.value.note || !formState.value.d_file.length || !formState.value.apply_date || amount == 0) return;
+  if (!(formState.value.forecast_id === 0 || formState.value.forecast_id > 0)) return;
 
   let available = props.statisticsData?.available;
   if (props.detail?.id) {
@@ -310,6 +314,7 @@ const init = () => {
     formState.value.p_file = [];
     formState.value.apply_amount = '';
     formState.value.vip_amount = '';
+    formState.value.forecast_id = undefined;
   }
 
   annexSel({ apply_uuid: props.uuid, type: 2 }).then((res) => {
@@ -364,9 +369,10 @@ const detail_amount = ref(0); //编辑总金额
 const isEdit = ref(false);
 const initData = () => {
   isEdit.value = true;
-  let keys = ['name', 'note', 'remark', 'apply_date', 'vip_amount', 'apply_amount'];
+  let keys = ['name', 'note', 'remark', 'apply_date', 'vip_amount', 'apply_amount', 'forecast_id'];
   const newData = pick(props.detail, keys);
   Object.assign(formState.value, newData);
+  formState.value.forecast_id = Number(props.detail?.forecast_id) || 0;
 
   detail_amount.value = props.detail.apply_amount || 0;
   if (hasPermission('projects:drawdowns:add')) {
@@ -405,6 +411,30 @@ const initData = () => {
 
       .save {
         margin-top: 24px;
+      }
+
+      .request-main-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        align-items: stretch;
+      }
+      .request-right {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+      .request-message {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-height: 0;
+        :deep(textarea.ant-input) {
+          flex: 1;
+          min-height: 0 !important;
+          height: 100% !important;
+        }
       }
     }
   }

@@ -190,6 +190,13 @@
         </div>
         <vco-number v-else :value="Number(variationsInfo.initial_amount)" :precision="2"></vco-number>
       </a-col>
+      <a-col v-if="!isVsl && variationsInfo.pre_journal?.length" :span="24" class="item-txt">
+        <PreJournal
+          :disabled="true"
+          :has-linefee="Boolean(detail?.base?.has_linefee)"
+          :items="variationsInfo.pre_journal"
+        />
+      </a-col>
       <a-col :span="24" class="item-txt">
         <p class="name">{{ t('说明') }}</p>
         <p class="txt">{{ variationsInfo.note || '--' }}</p>
@@ -208,6 +215,7 @@ import securityDialog from '@/views/projects/variations/add/components/security-
 import ViewContent from '@/views/projects/variations/add/components/view-content.vue';
 import VslViewContent from '@/views/requests/progress-payment/components/ViewContent.vue';
 import DevCostDetail from '@/views/process/temp/default/components/DevCostDetail.vue';
+import PreJournal from '@/views/projects/variations/add/components/PreJournal.vue';
 
 import { cloneDeep } from 'lodash';
 

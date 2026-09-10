@@ -704,6 +704,8 @@ export default {
   "不包括利息和费用": "Excluding interest & fees",
   "您可以帮助他们创建提款。": "You can help to create drawdown on their behalf.",
   "预估金额": "Estimated amount",
+  "预计放款": "Estimated drawdown",
+  "不关联预计放款": "Without reference",
   "这次放款数据没有预测": "No forecast for thls drawdown",
   "您可以点击下面的按钮来拒绝放款请求。": "You can decline the drawdown request by clicking the button below.",
   "分配投资者": "Allocate investors",
@@ -1492,4 +1494,6 @@ export default {
   "退出全屏": "Exit fullscreen",
   "贷款分类": "Loan categories",
   "请至少选择一类贷款": "Please select at least one loan category",
+  "变更前平账": "Pre-variation journal",
+  "类别": "Category",
 }

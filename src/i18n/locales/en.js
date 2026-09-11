@@ -705,7 +705,6 @@ export default {
   "您可以帮助他们创建提款。": "You can help to create drawdown on their behalf.",
   "预估金额": "Estimated amount",
   "预计放款": "Estimated drawdown",
-  "不关联预计放款": "Without reference",
   "这次放款数据没有预测": "No forecast for thls drawdown",
   "您可以点击下面的按钮来拒绝放款请求。": "You can decline the drawdown request by clicking the button below.",
   "分配投资者": "Allocate investors",

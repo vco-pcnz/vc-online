@@ -63,9 +63,9 @@
                 </template>
                 <a-date-picker v-model:value="adFormState.date" :format="selectDateFormat()" :disabledDate="adDisabledDateFormat" @change="quickDate = ''" />
               </a-form-item>
-              <div v-if="showFullRepaymentCheck" class="schedule-date-label__extra">
-                <span>{{ t('全额还款日期') }}</span>
+              <div v-if="!isClose && currentProduct !== 'vsl'" class="schedule-date-label__extra">
                 <a-checkbox v-model:checked="full_repayment" />
+                <span>Full Repayment</span>
               </div>
             </div>
           </a-form>
@@ -494,10 +494,6 @@ const showIrr = computed(() => {
   return true;
 });
 
-const showFullRepaymentCheck = computed(() => {
-  return props.currentProduct.toLowerCase() === 'vsl' && currentDownloadType.value === 4
-});
-
 const full_repayment = ref(false);
 
 const scheduleRole = ref(0);
@@ -705,8 +701,8 @@ const adSubmitRequest = () => {
   params.date = adFormState.date ? dayjs(adFormState.date).format('YYYY-MM-DD') : '';
   // }
 
-  if (showFullRepaymentCheck.value) {
-    params.full_repayment_date = full_repayment.value ? 1 : 0
+  if (props.currentProduct !== 'vsl') {
+    params.full_repayment_date = full_repayment.value ? 1 : 0;
   }
 
   projectLoanAllRepayment(params)
@@ -735,6 +731,7 @@ watch(
       adFormRef.value.resetFields();
       adFormState.date = '';
       adFormState.s_date = '';
+      full_repayment.value = false;
     }
   }
 );
@@ -1149,6 +1146,7 @@ watch(
   white-space: nowrap;
   color: #888;
   font-size: 12px;
+  font-weight: 400;
   line-height: 22px;
   z-index: 1;
 }

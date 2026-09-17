@@ -5,7 +5,7 @@
   >
     <vco-process-title :title="t('凭证信息')">
       <div class="flex gap-5 items-center">
-        <template v-if="hasPermission('contract:template') && showContractBtn">
+        <template v-if="showOfferDraftBtn">
           <a-button
             type="brown"
             shape="round"
@@ -13,7 +13,7 @@
             :loading="createTemplateLoading"
             @click="createTemplate"
           >
-            {{ t('下载合同模版') }}
+            {{ t(isFirstAuditStep ? '生成offer草稿' : '下载合同模版') }}
           </a-button>
         </template>
 
@@ -160,8 +160,12 @@
     return (offerList.value.length || offerSignedList.value.length) && !hasTemp.value
   })
 
+  const isFirstAuditStep = computed(() => props.currentStep?.mark === 'step_lm_audit')
   const showContractBtn = computed(() => {
     return props.projectInfo?.base?.status > 450
+  })
+  const showOfferDraftBtn = computed(() => {
+    return isFirstAuditStep.value || (hasPermission('contract:template') && showContractBtn.value)
   })
 
   const fileChange = () => {

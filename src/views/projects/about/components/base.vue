@@ -40,6 +40,11 @@
       <p class="mt-3">{{ t('借款人') }}</p>
       <p style="color: #181818">{{ detail?.base.borrower_user_name }}</p>
 
+      <template v-if="variations">
+        <p class="mt-3">{{ t('客户经理') }}</p>
+        <p style="color: #181818">{{ lmNames }}</p>
+      </template>
+
       <template v-if="variations && !hideTime">
         <p class="mt-3">{{ t('借款周期') }}</p>
         <p style="color: #181818">{{ tool.showDate(detail?.date?.start_date) + ' - ' + tool.showDate(detail?.date?.end_date) }}</p>
@@ -76,7 +81,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import xeroImg from '@/assets/images/xero.png';
 import { CheckCircleOutlined } from '@ant-design/icons-vue';
@@ -106,6 +111,15 @@ const props = defineProps({
     type: Boolean,
     default: false
   }
+});
+
+const lmNames = computed(() => {
+  const list = props.detail?.vcTeam?.lm || [];
+  const names = [];
+  list.forEach((item) => {
+    if (item?.name && !names.includes(item.name)) names.push(item.name);
+  });
+  return names.join(', ') || '--';
 });
 
 const moreAddr = ref(false);

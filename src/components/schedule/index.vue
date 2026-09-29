@@ -63,7 +63,7 @@
                 </template>
                 <a-date-picker v-model:value="adFormState.date" :format="selectDateFormat()" :disabledDate="adDisabledDateFormat" @change="quickDate = ''" />
               </a-form-item>
-              <div v-if="!isClose && currentProduct !== 'vsl'" class="schedule-date-label__extra">
+              <div v-if="showFullRepaymentCheck" class="schedule-date-label__extra">
                 <a-checkbox v-model:checked="full_repayment" />
                 <span>Full Repayment</span>
               </div>
@@ -494,6 +494,13 @@ const showIrr = computed(() => {
   return true;
 });
 
+const showFullRepaymentCheck = computed(() => {
+  if (props.currentProduct === 'vsl') {
+    return currentDownloadType.value === 4;
+  }
+  return !props.isClose;
+});
+
 const full_repayment = ref(false);
 
 const scheduleRole = ref(0);
@@ -701,7 +708,7 @@ const adSubmitRequest = () => {
   params.date = adFormState.date ? dayjs(adFormState.date).format('YYYY-MM-DD') : '';
   // }
 
-  if (props.currentProduct !== 'vsl') {
+  if (showFullRepaymentCheck.value) {
     params.full_repayment_date = full_repayment.value ? 1 : 0;
   }
 

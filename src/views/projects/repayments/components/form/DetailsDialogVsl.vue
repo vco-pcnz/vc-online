@@ -16,7 +16,10 @@
       </a-col>
 
       <a-col :span="24" class="item-txt">
-        <p>{{ t('还款日期') }}</p>
+        <div class="flex justify-between">
+          <p>{{ t('还款明细') }}</p>
+          <a-button type="link" :loading="exportLoading" @click="exportPdf">{{ t('导出') }}</a-button>
+        </div>
         <div class="table-content sys-table-content related-content Repayment_allocation no-top-line">
           <a-spin :spinning="drawdownListLoading" size="large">
             <a-table rowKey="uuid" :columns="DrawdownColumns" :data-source="drawdownList" :pagination="false" table-layout="fixed" :scroll="{ y: 300 }">
@@ -157,6 +160,23 @@ const extraRepaymentAmount = computed(() => {
 });
 
 const reductionAmount = ref(0);
+const exportLoading = ref(false);
+
+const exportPdf = () => {
+  exportLoading.value = true;
+  repaymentDetail({
+    uuid: props.uuid,
+    id: props.detailData.id,
+    pdf: 1
+  })
+    .then((res) => {
+      window.open(res);
+    })
+    .finally(() => {
+      exportLoading.value = false;
+    });
+};
+
 const calAmount = () => {
   const time = props.detailData.apply_date;
   projectLoanAllRepayment({

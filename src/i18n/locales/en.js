@@ -922,6 +922,7 @@ export default {
   "罚息减免": "Default reduction",
   "最大值为：{0}": "The maximum value is: {0}",
   "还款详情": "Repayment details",
+  "还款明细": "Repayment detail",
   "撤销还款": "Revoke repayment",
   "您确定撤销还款吗？": "Are you sure you want to revoke the repayment?",
   "确定操作吗？": "Are you sure you want to proceed?",

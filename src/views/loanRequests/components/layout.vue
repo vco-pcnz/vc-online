@@ -126,32 +126,47 @@ const statusData = computed(() => {
       ];
       break;
     case 'LoanRequestsVariation':
-      arr = [
-        {
-          label: t('全部'),
-          value: ''
-        },
-        {
-          label: 'PENDING APPLY',
-          value: '0'
-        },
-        {
-          label: 'FC REVIEW',
-          value: '100'
-        },
-        {
-          label: 'DIRECTOR CHECK',
-          value: '200'
-        },
-        {
-          label: 'LM OPEN',
-          value: '300'
-        },
-        {
-          label: 'DIRECTOR CHECK AGAIN',
-          value: '310'
-        }
-      ];
+      arr = currentTab.value === '2'
+        ? [
+            {
+              label: t('全部'),
+              value: ''
+            },
+            {
+              label: 'LM OPEN',
+              value: '300'
+            },
+            {
+              label: 'LM AGAIN REVIEW',
+              value: '320'
+            },
+            {
+              label: 'LC REVIEW',
+              value: '400'
+            }
+          ]
+        : [
+            {
+              label: t('全部'),
+              value: ''
+            },
+            {
+              label: 'PENDING APPLY',
+              value: '0'
+            },
+            {
+              label: 'FC REVIEW',
+              value: '100'
+            },
+            {
+              label: 'DIRECTOR CHECK',
+              value: '200'
+            },
+            {
+              label: 'DIRECTOR CHECK AGAIN',
+              value: '310'
+            }
+          ];
       break;
     case 'LoanRequestsSecurity':
       arr = [
@@ -290,7 +305,10 @@ const getNum = () =>
 
 const loadData = () => {
   let params = { sta: currentTab.value, ...searchOldData.value, ...props.params, product_uuid: productStore.currentProduct };
-  if (currentTab.value !== '1') {
+  if (route.name === 'LoanRequestsVariation') {
+    params['state'] = '';
+    searchOldData.value.state = '';
+  } else if (currentTab.value !== '1') {
     params['state'] = '';
   }
   emits('search', params);

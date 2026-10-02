@@ -25,7 +25,7 @@
             />
           </vco-page-search-item>
         </template>
-        <vco-page-search-item width="120" :title="t('状态')" v-if="statusData.length && currentTab === '1'">
+        <vco-page-search-item width="120" :title="t('状态')" v-if="statusData.length && (currentTab === '1' || (roterName === 'LoanRequestsVariation' && currentTab === '2'))">
           <a-select :placeholder="t('请选择')" v-model:value="searchForm.state">
             <a-select-option :title="item.label" v-for="item in statusData" :key="item.value" :value="item.value">
               {{ item.label }}
@@ -161,7 +161,7 @@ const searchHandle = (flag) => {
     treeDataValue.value = null;
   }
 
-  if (props.currentTab !== '1') {
+  if (props.currentTab !== '1' && !(props.roterName === 'LoanRequestsVariation' && props.currentTab === '2')) {
     Object.assign(searchForm.value, {
       state: ''
     });
@@ -170,6 +170,13 @@ const searchHandle = (flag) => {
 
   emits('search', updateData);
 };
+
+watch(
+  () => props.currentTab,
+  () => {
+    searchForm.value.state = '';
+  }
+);
 
 watch(
   () => props.typeData,

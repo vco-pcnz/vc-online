@@ -40,7 +40,7 @@ const hasImportAndPerfect = ref(false);
 const pageTitleRef = computed(() => {
   const name = detail.value?.product?.name ? `${detail.value?.product?.name} - ` : '';
   const type = pageTitle.value ? ` ${t(pageTitle.value)}` : '';
-  const borrower_user_name = (pageTitle.value ? ' - ' : '') + (detail.value?.base?.borrower_user_name || detail.value?.base?.project_name);
+  const borrower_user_name = (pageTitle.value ? ' - ' : '') + (borrowerTitle.value || detail.value?.base?.project_name);
   return `${name}${type}${borrower_user_name}`;
 });
 
@@ -97,6 +97,16 @@ const back = () => {
 };
 
 const detail = ref(null);
+const borrowerTitle = computed(() => {
+  const rows = detail.value?.borrower?.borrowers;
+  if (Array.isArray(rows) && rows.length) {
+    const names = rows
+      .map((item) => (Number(item.borrower_type) === 1 ? item.user_name : item.organization_name || item.user_name))
+      .filter(Boolean);
+    if (names.length) return names.join(' & ');
+  }
+  return detail.value?.base?.borrower_user_name || '';
+});
 const getProjectDetail = (val) => {
   const isUserIdObject = val !== null && typeof val === 'object' && !Array.isArray(val);
   const uuid = isUserIdObject ? route.query.uuid : (val || route.query.uuid);

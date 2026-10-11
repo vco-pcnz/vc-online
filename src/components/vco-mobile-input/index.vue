@@ -57,7 +57,7 @@
       default: undefined
     },
     validateField: {
-      type: String,
+      type: [String, Array],
       default: ''
     }
   })

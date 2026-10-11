@@ -71,15 +71,15 @@
                   <div class="icon-txt">
                     <i class="iconfont" v-if="record.borrower_type == 1">&#xe632;</i>
                     <i class="iconfont" v-else>&#xe679;</i>
-                    <span :title="record.project_city" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-1">{{ record.showName }}</span>
+                    <span :title="record.showName" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-1">{{ record.showName }}</span>
                   </div>
                   <div class="icon-txt" v-if="record.borrower_email">
                     <i class="iconfont">&#xe66f;</i>
-                    <span :title="record.borrower_email" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-1">{{ record.borrower_email }}</span>
+                    <span :title="record.borrower_email" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-2">{{ record.borrower_email }}</span>
                   </div>
-                  <div class="icon-txt" v-if="record.borrower_phone">
+                  <div class="icon-txt" v-if="record.borrower_phone" :title="(record.borrower_phone_prefix ? '+' + record.borrower_phone_prefix + ' ' : '') + record.borrower_phone">
                     <i class="iconfont">&#xe678;</i>
-                    <div class="inline-block" style="text-indent: 20px">
+                    <div class="text-ellipsis overflow-hidden whitespace-normal line-clamp-2" style="text-indent: 20px">
                       <span v-if="record.borrower_phone_prefix"> +{{ record.borrower_phone_prefix }}</span> {{ record.borrower_phone }}
                     </div>
                   </div>

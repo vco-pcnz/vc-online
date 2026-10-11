@@ -238,6 +238,7 @@ const init = (parameters) => {
   if (parameters) {
     searchForm.value = cloneDeep(parameters);
   }
+  urlValue.value = props.url || 'user/selUser';
   open.value = true;
 
   if (props.isImmediate) {

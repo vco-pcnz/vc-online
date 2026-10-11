@@ -86,13 +86,13 @@
                   </div>
                   <div class="icon-txt mt-1.5 cursor-pointer" @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">
                     <i class="iconfont" :class="{ cer: record.borrower_ver }">&#xe66f;</i>
-                    <span :class="{ cer: record.borrower_ver }" :title="record.borrower_email" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-1">
+                    <span :class="{ cer: record.borrower_ver }" :title="record.borrower_email" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-2">
                       {{ record.borrower_email || '--' }}
                     </span>
                   </div>
                   <div class="icon-txt cursor-pointer" @click="navigationTo(`${mode}/requests/details/about?uuid=${record.uuid}`)">
                     <i class="iconfont" :class="{ cer: record.borrower_ver }">&#xe678;</i>
-                    <span :class="{ cer: record.borrower_ver }" :title="record.borrower_phone" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-1">
+                    <span :class="{ cer: record.borrower_ver }" :title="record.borrower_phone" class="text-ellipsis overflow-hidden whitespace-normal line-clamp-2">
                       {{ record.borrower_phone || '--' }}
                     </span>
                   </div>

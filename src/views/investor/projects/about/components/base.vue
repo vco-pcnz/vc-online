@@ -9,7 +9,8 @@
         <span>ID {{ detail?.base.project_apply_sn }}</span>
       
       </p>
-      <p class="mb-5">{{ t('借款人') }}: {{ detail?.base.borrower_user_name }}</p>
+      <p v-if="borrowerNames.length" class="mb-5">{{ t('借款人') }}: {{ borrowerNames.join(' & ') }}</p>
+      <p v-else class="mb-5">{{ t('借款人') }}: {{ detail?.base.borrower_user_name }}</p>
       <p class="text-2xl name">{{ detail?.base.project_name || detail?.base.borrower_user_name }}</p>
       <template v-if="detail?.base?.project_address_other">
         <template v-for="(item, index) in detail?.base?.project_address_other" :key="index">
@@ -38,7 +39,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import xeroImg from '@/assets/images/xero.png';
 import { CheckCircleOutlined } from '@ant-design/icons-vue';
@@ -60,6 +61,14 @@ const props = defineProps({
   currentId: {
     type: String
   }
+});
+
+const borrowerNames = computed(() => {
+  const rows = props.detail?.borrower?.borrowers;
+  if (!Array.isArray(rows) || !rows.length) return [];
+  return rows
+    .map((item) => (Number(item.borrower_type) === 1 ? item.user_name : item.organization_name || item.user_name))
+    .filter(Boolean);
 });
 
 const moreAddr = ref(false);

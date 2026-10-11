@@ -8,6 +8,7 @@
       :data="currentData"
       :vc-team="vcTeamData"
       :is-borrower-owner="isBorrowerOwner"
+      :borrower-limit="borrowerLimit"
       @done="getConfigInfo(true)"
     ></bind-users-dialog>
 
@@ -173,6 +174,9 @@
     return t(title)
   })
 
+  const savedBorrowerCount = ref(0)
+  const borrowerLimit = computed(() => savedBorrowerCount.value || 1)
+
   const isBorrowerOwner = computed(() => {
     const arr = borrowerData.value?.company?.map(item => item.uuid) || []
     return arr.includes(userInfo.value.uuid)
@@ -213,8 +217,8 @@
   const filterCompany = (company = [], arr = []) => {
     let res = []
     if (company.length && arr.length) {
-      const uuid = company[0].uuid
-      res = arr.filter(item => item.uuid !== uuid)
+      const uuids = new Set(company.map(item => item.uuid))
+      res = arr.filter(item => !uuids.has(item.uuid))
     }
     return res
   }
@@ -264,6 +268,7 @@
         vcData.value = vcObj && Object.keys(vcObj).length ? vcObj : null
         vcDataCom.value = userFlatFn(vcData.value)
 
+        savedBorrowerCount.value = Number(res.borrower_count) || 1
         borrowerData.value = res.userData
         borrowerDataCom.value = userFlatFn(borrowerData.value)
 
@@ -341,12 +346,15 @@
     const borrowerParams = {
       uuid,
       code: 'user',
-      company: borrowerData.value.company.length ? borrowerData.value.company[0].uuid : '',
+      company: borrowerData.value.company.map(item => item.uuid),
       view: borrowerData.value.view.map(item => item.uuid),
-      edit: borrowerData.value.edit.map(item => item.uuid)
+      edit: [...new Set([
+        ...borrowerData.value.company.map(item => item.uuid),
+        ...borrowerData.value.edit.map(item => item.uuid)
+      ])]
     }
 
-    if (borrowerParams.view.length || borrowerParams.edit.length) {
+    if (borrowerParams.company.length || borrowerParams.view.length || borrowerParams.edit.length) {
       await associateAssignUser(borrowerParams)
     }
   }

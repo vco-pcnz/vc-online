@@ -23,11 +23,22 @@
           <span>{{ t('借款人信息2') }}</span>
           <i v-if="hasPermission('projects:detail:editBorrower')" class="iconfont" @click="openBorrower">&#xe743;</i>
         </div>
-        <div>{{ data?.base.borrower_user_name }}</div>
-        <div style="word-break: break-all">{{ data?.base.borrower_email }}</div>
-        <div>
-          <span v-if="data?.base.borrower_phone_prefix">+{{ data?.base.borrower_phone_prefix }}</span> {{ data?.base.borrower_phone }}
-        </div>
+        <template v-if="borrowerCards.length">
+          <div v-for="(item, index) in borrowerCards" :key="index" :class="{ 'mt-3': index > 0 }">
+            <div>{{ item.name }}</div>
+            <div style="word-break: break-all">{{ item.email }}</div>
+            <div>
+              <span v-if="item.phone_prefix">+{{ item.phone_prefix }}</span> {{ item.phone }}
+            </div>
+          </div>
+        </template>
+        <template v-else>
+          <div>{{ data?.base.borrower_user_name }}</div>
+          <div style="word-break: break-all">{{ data?.base.borrower_email }}</div>
+          <div>
+            <span v-if="data?.base.borrower_phone_prefix">+{{ data?.base.borrower_phone_prefix }}</span> {{ data?.base.borrower_phone }}
+          </div>
+        </template>
       </div>
       <!-- <div>
         <p class="RequestDetails-label">{{ t('经纪人信息') }}</p>
@@ -81,6 +92,19 @@ const { t } = useI18n();
 
 const props = defineProps(['data', 'currentId']);
 const emits = defineEmits(['update']);
+
+const borrowerCards = computed(() => {
+  const rows = props.data?.borrower?.borrowers;
+  if (!Array.isArray(rows) || !rows.length) return [];
+  return rows
+    .map((item) => ({
+      name: Number(item.borrower_type) === 1 ? item.user_name : item.organization_name || item.user_name,
+      email: item.borrower_email,
+      phone_prefix: item.borrower_phone_prefix,
+      phone: item.borrower_phone,
+    }))
+    .filter((item) => item.name || item.email || item.phone);
+});
 
 const showWarrantyTips = computed(() => {
   return hasPermission('projects:detail:editGuarantor') && !props.data?.warranty?.main_contractor && !props.data?.warranty?.security_package.length;

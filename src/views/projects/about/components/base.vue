@@ -38,7 +38,10 @@
         </template>
       </p>
       <p class="mt-3">{{ t('借款人') }}</p>
-      <p style="color: #181818">{{ detail?.base.borrower_user_name }}</p>
+      <template v-if="borrowerNames.length">
+        <p v-for="(name, index) in borrowerNames" :key="index" style="color: #181818">{{ name }}</p>
+      </template>
+      <p v-else style="color: #181818">{{ detail?.base.borrower_user_name }}</p>
 
       <template v-if="variations">
         <p class="mt-3">{{ t('客户经理') }}</p>
@@ -111,6 +114,14 @@ const props = defineProps({
     type: Boolean,
     default: false
   }
+});
+
+const borrowerNames = computed(() => {
+  const rows = props.detail?.borrower?.borrowers;
+  if (!Array.isArray(rows) || !rows.length) return [];
+  return rows
+    .map((item) => (Number(item.borrower_type) === 1 ? item.user_name : item.organization_name || item.user_name))
+    .filter(Boolean);
 });
 
 const lmNames = computed(() => {

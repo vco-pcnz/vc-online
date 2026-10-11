@@ -190,6 +190,8 @@ export default {
   "大小不能超过{0}": "The size cannot exceed {0}",
   "上传失败": "Upload failed",
   "借款人类型": "Borrower type",
+  "添加借款人": "Add borrower",
+  "借款人主体数量不能超过借款人数量": "Borrower accounts cannot exceed the number of borrowers",
   "机构名称": "Company name",
   "证件照片": "Certificate photo",
   "身份证号码": "Driver license/Passport Number",

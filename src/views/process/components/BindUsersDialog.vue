@@ -43,15 +43,15 @@
             <div class="title">
               <p>{{ t('借款账号信息') }}</p>
               <div class="gap-3 flex">
-                <a-button type="primary" size="small" shape="round" class="uppercase" @click="openUserSelect(true, false, 'borrower', '', true)">{{ t('添加') }}</a-button>
-                <a-button type="primary" size="small" shape="round" class="uppercase" @click="openUserSelect(true, false, 'borrower', '', false)">{{ t('选择') }}</a-button>
+                <a-button type="primary" size="small" shape="round" class="uppercase" @click="openBorrowerPrincipal(true)">{{ t('添加') }}</a-button>
+                <a-button type="primary" size="small" shape="round" class="uppercase" @click="openBorrowerPrincipal(false)">{{ t('选择') }}</a-button>
               </div>
             </div>
             <div class="content">
               <template v-if="borrowerPuser.length">
                 <div v-for="(item, index) in borrowerPuser" :key="index" class="user-item">
                   <vco-user-item :data="item" :main="true"></vco-user-item>
-                  <i class="iconfont" @click="removeBorrowerHandle">&#xe77d;</i>
+                  <i class="iconfont" @click="removeBorrowerHandle(index)">&#xe77d;</i>
                 </div>
               </template>
             </div>
@@ -208,6 +208,10 @@ const props = defineProps({
   isBorrowerOwner: {
     type: Boolean,
     default: false
+  },
+  borrowerLimit: {
+    type: Number,
+    default: 1
   }
 });
 
@@ -270,10 +274,12 @@ const removeBrokerHandle = () => {
   brokerViewers.value = [];
 };
 
-const removeBorrowerHandle = () => {
-  borrowerPuser.value = [];
-  borrowerEditors.value = [];
-  borrowerViewers.value = [];
+const removeBorrowerHandle = (index) => {
+  borrowerPuser.value.splice(index, 1);
+  if (!borrowerPuser.value.length) {
+    borrowerEditors.value = [];
+    borrowerViewers.value = [];
+  }
 };
 
 const brokerComUuid = computed(() => {
@@ -322,6 +328,15 @@ const roleCode = ref('');
 const otherParams = ref({});
 const currentPuser = ref('');
 const userImmediate = ref(true);
+
+const openBorrowerPrincipal = (isAdd) => {
+  const multiple = props.borrowerLimit > 1;
+  if (multiple && borrowerPuser.value.length >= props.borrowerLimit) {
+    message.warning(t('借款人主体数量不能超过借款人数量'));
+    return;
+  }
+  openUserSelect(true, multiple, 'borrower', '', isAdd);
+};
 
 const openUserSelect = (code, isMultiple, puser = '', secType = '', isAdd) => {
   userImmediate.value = true
@@ -402,10 +417,17 @@ const userChoiced = (data) => {
     const dataArr = [...staticData, ...data];
     if (isEdit.value) {
       if (currentPuser.value && currentPuser.value === 'borrower') {
-        // 单选
-        borrowerPuser.value = removeDuplicates(data, 'uuid');
-        borrowerEditors.value = [];
-        borrowerViewers.value = [];
+        if (props.borrowerLimit <= 1) {
+          borrowerPuser.value = removeDuplicates(data, 'uuid').slice(0, 1);
+        } else {
+          const merged = removeDuplicates([...borrowerPuser.value, ...data], 'uuid');
+          if (merged.length > props.borrowerLimit) {
+            message.warning(t('借款人主体数量不能超过借款人数量'));
+            borrowerPuser.value = merged.slice(0, props.borrowerLimit);
+          } else {
+            borrowerPuser.value = merged;
+          }
+        }
         getLowerUsers(false);
       } else {
         borrowerEditors.value = removeDuplicates(dataArr, 'uuid');
@@ -517,9 +539,11 @@ const submitHandle = async () => {
       const params = {
         uuid: props.currentId,
         code: props.type === 2 ? 'user' : 'broker',
-        company: companyData.length ? companyData[0].uuid : '',
+        company: props.type === 2 ? companyData.map((item) => item.uuid) : (companyData.length ? companyData[0].uuid : ''),
         view: viewData.map((item) => item.uuid),
-        edit: editData.map((item) => item.uuid)
+        edit: props.type === 2
+          ? [...new Set([...companyData.map((item) => item.uuid), ...editData.map((item) => item.uuid)])]
+          : editData.map((item) => item.uuid)
       };
 
       await associateAssignUser(params)

@@ -119,7 +119,12 @@ const getProjectDetail = () => {
 };
 
 const pageTitle = computed(() => {
-  return (projectInfo.value?.product?.name ? projectInfo.value?.product?.name + ' - ' : '') + projectInfo.value?.base?.borrower_user_name;
+  const rows = projectInfo.value?.borrower?.borrowers;
+  const names = Array.isArray(rows)
+    ? rows.map((item) => (Number(item.borrower_type) === 1 ? item.user_name : item.organization_name || item.user_name)).filter(Boolean)
+    : [];
+  const borrowerName = names.length ? names.join(' & ') : projectInfo.value?.base?.borrower_user_name;
+  return (projectInfo.value?.product?.name ? projectInfo.value?.product?.name + ' - ' : '') + borrowerName;
 });
 
 const back = () => {

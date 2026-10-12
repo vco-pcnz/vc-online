@@ -363,14 +363,20 @@
     bindUsersHandle(data)
   }
 
+  const refreshBindUsers = () => {
+    getConfigInfo(false)
+  }
+
   onMounted(() => {
     getConfigInfo(false)
 
     emitter.on('stepOneBindUser', handleStepOneBindUser)
+    emitter.on('refreshBindUsers', refreshBindUsers)
   })
 
   onUnmounted(() => {
     emitter.off('stepOneBindUser', handleStepOneBindUser)
+    emitter.off('refreshBindUsers', refreshBindUsers)
   })
 
   defineExpose({

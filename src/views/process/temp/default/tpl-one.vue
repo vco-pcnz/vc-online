@@ -550,6 +550,7 @@ const submitHandle = () => {
             footerRef.value.nextHandle(res);
           }
 
+          emitter.emit('refreshBindUsers');
           subLoading.value = false;
         })
         .catch(() => {

@@ -22,6 +22,7 @@
                   <a-checkbox :value="1">{{ t('当前项目') }}</a-checkbox>
                   <a-checkbox :value="5">{{ t('紧急管理') }}</a-checkbox>
                   <a-checkbox :value="4">{{ t('已核销的项目') }}</a-checkbox>
+                  <a-checkbox v-if="canNonGoldman" :value="6">{{ t('Non-Goldman') }}</a-checkbox>
                   <a-checkbox :value="2">{{ t('已关闭的项目') }}</a-checkbox>
                 </div>
               </a-checkbox-group>
@@ -51,6 +52,7 @@ import { downBl } from '@/api/project/project';
 import dayjs from 'dayjs';
 import { selectDateFormat } from '@/utils/tool';
 import useProductStore from '@/store/modules/product';
+import { hasPermission } from '@/directives/permission/index';
 const productStore = useProductStore();
 const { t } = useI18n();
 const emits = defineEmits(['change']);
@@ -67,7 +69,8 @@ const props = defineProps({
 const visible = ref(false);
 const loading = ref(false);
 
-const staOptions = [1, 5, 4, 2];
+const canNonGoldman = computed(() => hasPermission('projects:list:nonGoldman'));
+const staOptions = computed(() => (canNonGoldman.value ? [1, 5, 4, 6, 2] : [1, 5, 4, 2]));
 
 const formState = ref({
   date: '',
@@ -80,11 +83,11 @@ const formRules = ref({
   sta: [{ type: 'array', required: true, min: 1, message: t('请至少选择一类贷款'), trigger: 'change' }]
 });
 
-const staCheckAll = computed(() => formState.value.sta.length === staOptions.length);
-const staIndeterminate = computed(() => formState.value.sta.length > 0 && formState.value.sta.length < staOptions.length);
+const staCheckAll = computed(() => formState.value.sta.length === staOptions.value.length);
+const staIndeterminate = computed(() => formState.value.sta.length > 0 && formState.value.sta.length < staOptions.value.length);
 
 const onCheckAllSta = (e) => {
-  formState.value.sta = e.target.checked ? [...staOptions] : [];
+  formState.value.sta = e.target.checked ? [...staOptions.value] : [];
 };
 
 const disabledDateFormat = (current) => {
@@ -132,7 +135,7 @@ const save = () => {
 const init = () => {
   const currentSta = Number(props.sta);
   formState.value.date = dayjs().format('YYYY-MM-DD');
-  formState.value.sta = staOptions.includes(currentSta) ? [currentSta] : [1];
+  formState.value.sta = staOptions.value.includes(currentSta) ? [currentSta] : [1];
   visible.value = true;
   nextTick(() => {
     formRef.value?.clearValidate();

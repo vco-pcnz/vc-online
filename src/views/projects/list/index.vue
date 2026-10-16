@@ -52,11 +52,13 @@ import { message } from 'ant-design-vue';
 
 const { t } = useI18n();
 const pageStore = useProjectsStore();
-const isNormalUser = computed(() => useUserStore().isNormalUser);
+const userStore = useUserStore();
+const isNormalUser = computed(() => userStore.isNormalUser);
 const current_num = computed(() => pageStore.otherInfo['1']);
 const closed_num = computed(() => pageStore.otherInfo['2']);
 const Written_off_num = computed(() => pageStore.otherInfo['4']);
 const urgent_num = computed(() => pageStore.otherInfo['5']);
+const non_goldman_num = computed(() => pageStore.otherInfo['6']);
 
 const tabData = ref([
   {
@@ -75,6 +77,12 @@ const tabData = ref([
     num: Written_off_num
   },
   {
+    label: t('Non-Goldman'),
+    value: 6,
+    num: non_goldman_num,
+    hide: computed(() => !hasPermission('projects:list:nonGoldman'))
+  },
+  {
     label: t('已关闭的项目'),
     value: 2,
     num: closed_num
@@ -85,7 +93,8 @@ const staName = {
   1: 'current',
   2: 'closed',
   4: 'written',
-  5: 'urgent'
+  5: 'urgent',
+  6: 'current'
 };
 
 const tableSearchRef = ref();

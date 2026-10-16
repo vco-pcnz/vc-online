@@ -53,6 +53,7 @@ export default {
   "当前项目": "Current loans",
   "已核销的项目": "Written-off loans",
   "已关闭的项目": "Closed loans",
+  "Non-Goldman": "Non-Goldman",
   "请求管理": "Applications",
   "借款请求": "Loan Request",
   "提款请求": "Drawdown request",

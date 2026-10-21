@@ -1162,7 +1162,7 @@
 
     formState.value.build_amount = Number(props.lendingInfo.land_amount) ? props.lendingInfo.build_amount : Number(props.lendingInfo.build_amount)
       ? props.lendingInfo.build_amount
-      : props.lendingInfo.loan_money || 0;
+      : Math.max((props.lendingInfo.loan_money || 0) - (props.lendingInfo.substitution_amount || 0), 0);
 
     formState.value.land_amount = props.lendingInfo.land_amount || 0;
     

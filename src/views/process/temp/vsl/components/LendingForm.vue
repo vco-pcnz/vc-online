@@ -1453,8 +1453,7 @@
           return false;
         }
 
-        const totalAmount = build_amount + land_amount
-        if (totalAmount < 0 || totalAmount === 0) {
+        if (Number(totalAmountRef.value) <= 0) {
           message.error(t('借款总额不正确'));
           return false;
         }

@@ -84,6 +84,7 @@ const isDisabled = computed(() => {
   return (
     (!props.item.transaction.length && (!props.item['f_date'] || !props.item['f_fee'] || !props.item['f_note'])) ||
     !props.project ||
+    props.project.is_open != 1 ||
     !hasPermission('reconciliations:ok') ||
     (props.item.transaction[props.item.check_index] && props.item.transaction[props.item.check_index].type == 4 && props.item.transaction[props.item.check_index].first == 1 && props.item.transaction[props.item.check_index].date !== props.item.date)
   );

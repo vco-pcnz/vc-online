@@ -255,12 +255,13 @@ watch(
   (val) => {
     currentSelectData.value = [];
     rowData.value.map((item) => {
-      if (item.transaction && item.transaction.length) {
+      const opened = item.project && item.project.is_open == 1;
+      if (opened && item.transaction && item.transaction.length) {
         currentSelectData.value.push(item);
       }
       if (item.children && item.children.length) {
         item.children.map((sub) => {
-          if (sub.transaction && sub.transaction.length) {
+          if (opened && sub.transaction && sub.transaction.length) {
             currentSelectData.value.push(sub);
           }
         });

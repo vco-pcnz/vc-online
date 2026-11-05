@@ -791,7 +791,7 @@
       })
 
       nextTick(async () => {
-        columnsType()
+        await columnsType().catch(() => {})
         await getSecurityData()
       })
     } catch (err) {
@@ -830,6 +830,13 @@
           footerData.splice(footerData.lastIndexOf(conItem), 1)
         }
 
+        // 缺 loan 的项按 0。否则合计是 NaN，提交也会少 amount 字段
+        footerData.forEach(item => {
+          if (item.loan == null || item.loan === '') item.loan = 0
+          ;(item.list || []).forEach(child => {
+            if (child.loan == null || child.loan === '') child.loan = 0
+          })
+        })
         footerDataCol.value = footerData || []
         
         const Construction = list.find(item => item.type === 'Construction')
@@ -995,7 +1002,7 @@
     const borrowerEquityPercent = calcBuildAmount.value ? tool.times(tool.div(borrowerEquity.value, calcBuildAmount.value), 100) : 0
     let remainingPercent = borrowerEquityPercent
 
-    systemDictDataApi({
+    return systemDictDataApi({
       code: 'build_type',
       is_note: 1
     }).then(res => {

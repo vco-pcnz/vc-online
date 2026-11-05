@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- 试算平衡表导出 -->
-    <TrailBalanceReportModal ref="trailBalanceReportModalRef" :searchParams="{ uuid: currentId, lender: type_id, is_buyout: is_buyout ? 1 : 0 }"></TrailBalanceReportModal>
+    <TrailBalanceReportModal ref="trailBalanceReportModalRef" :searchParams="{ uuid: currentId, lender: type_id, is_buyout: is_buyout ? 1 : 0, ptRole: scheduleRole }"></TrailBalanceReportModal>
     <!-- 对账 -->
     <ReconciliationModal ref="reconciliationModalRef" :detail="itemDetail" :uuid="currentId" :type="ReconciliationType" :isSchedule="true" @update="getDataInfo"> </ReconciliationModal>
     <a-spin :spinning="pageLoading" size="large">
@@ -531,7 +531,7 @@ const appendScheduleRoleParams = (params) => {
 };
 
 const scheduleRoleChange = () => {
-  getDataInfo(Number(lateTabActiveKey.value) === 1, { refreshStatistics: false, showLoading: false, clearData: false, showTableLoading: true });
+  getDataInfo(Number(lateTabActiveKey.value) === 1, { refreshStatistics: true, showLoading: false, clearData: false, showTableLoading: true });
 };
 
 const getDataInfo = (isLate = false, options = {}) => {
@@ -644,6 +644,7 @@ const getDataInfo = (isLate = false, options = {}) => {
     uuid: props.currentId,
     lender: props.lender || type_id.value
   };
+  appendScheduleRoleParams(staticParams);
 
   let staticAjaxFn = props.isDetails ? projectDetailStatistics : projectForecastStatistics;
 
@@ -664,7 +665,6 @@ const getDataInfo = (isLate = false, options = {}) => {
   if (props.is_buyout) {
     staticParams.is_buyout = 1;
   }
-
   staticAjaxFn(staticParams).then((res) => {
     if (res) {
       const repayments = res.repayments ? Math.abs(Number(res.repayments)) : 0;

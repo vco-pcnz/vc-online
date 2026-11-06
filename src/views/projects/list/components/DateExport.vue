@@ -69,7 +69,11 @@ const props = defineProps({
 const visible = ref(false);
 const loading = ref(false);
 
-const canNonGoldman = computed(() => hasPermission('projects:list:nonGoldman'));
+const isVslProduct = computed(() => {
+  const product = productStore.productData.find((item) => item.uuid === productStore.currentProduct);
+  return String(product?.code || '').toLowerCase() === 'vsl';
+});
+const canNonGoldman = computed(() => !isVslProduct.value && hasPermission('projects:list:nonGoldman'));
 const staOptions = computed(() => (canNonGoldman.value ? [1, 5, 4, 6, 2] : [1, 5, 4, 2]));
 
 const formState = ref({

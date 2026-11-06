@@ -59,6 +59,10 @@ const closed_num = computed(() => pageStore.otherInfo['2']);
 const Written_off_num = computed(() => pageStore.otherInfo['4']);
 const urgent_num = computed(() => pageStore.otherInfo['5']);
 const non_goldman_num = computed(() => pageStore.otherInfo['6']);
+const isVslProduct = computed(() => {
+  const product = productStore.productData.find((item) => item.uuid === productStore.currentProduct);
+  return String(product?.code || '').toLowerCase() === 'vsl';
+});
 
 const tabData = ref([
   {
@@ -80,7 +84,7 @@ const tabData = ref([
     label: t('Non-Goldman'),
     value: 6,
     num: non_goldman_num,
-    hide: computed(() => !hasPermission('projects:list:nonGoldman'))
+    hide: computed(() => isVslProduct.value || !hasPermission('projects:list:nonGoldman'))
   },
   {
     label: t('已关闭的项目'),
@@ -153,6 +157,7 @@ watch(
       pageStore.product_uuid = val;
       pageStore.searchParams['lender'] = '';
       tableSearchRef.value?.resetLender?.();
+      if (isVslProduct.value && pageStore.sta === 6) pageStore.sta = 1;
       tabChange();
     }
   },

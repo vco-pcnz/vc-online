@@ -73,8 +73,8 @@
                 </a-col>
               </template>
 
-              <!-- 公司相关信息 -->
-              <template v-if="form.type !== 20">
+              <!-- 仅 Company 查 Company Office 并填写 NZBN -->
+              <template v-if="form.type == 1">
                 <a-col :span="24">
                   <a-form-item :label="t('公司名称f')" name="name">
                     <vco-company-select :email="form.email" v-model:name="form.name" :placeholder="t('请输入')" v-model:nzbn="form.nzbn" :show_nzbn="true" @change="getCompanyInfo"></vco-company-select>
@@ -95,6 +95,13 @@
                     <a-input v-model:value="form.idcard" :placeholder="t('请输入')" />
                   </a-form-item>
                 </a-col> -->
+              </template>
+              <template v-else-if="form.type && form.type != 20">
+                <a-col :span="24">
+                  <a-form-item :label="t('公司名称f')" name="name">
+                    <a-input v-model:value="form.name" :placeholder="t('请输入')" />
+                  </a-form-item>
+                </a-col>
               </template>
 
               <!-- ####################################### -->
@@ -249,30 +256,26 @@ const dynamicRules = computed(() => {
         }
       ]
     };
-  } else {
-    return {
-      ...rules,
-      // 公司相关验证
-      name: [
-        {
-          required: true,
-          message: t('请输入') + t('公司名称f')
-        }
-      ],
-      nzbn: [
-        {
-          required: true,
-          message: t('请输入') + t('新西兰商业号码')
-        }
-      ]
-      // contactName: [
-      //   {
-      //     required: true,
-      //     message: t('请输入') + t('联系人f')
-      //   }
-      // ]
-    };
   }
+  const orgRules = {
+    ...rules,
+    name: [
+      {
+        required: true,
+        message: t('请输入') + t('公司名称f')
+      }
+    ]
+  };
+  // 只有 Company 必填 NZBN
+  if (form.type == 1) {
+    orgRules.nzbn = [
+      {
+        required: true,
+        message: t('请输入') + t('新西兰商业号码')
+      }
+    ];
+  }
+  return orgRules;
 });
 
 /* 更新visible */
@@ -290,6 +293,7 @@ const submitHandle = () => {
       subLoading.value = true;
       stakeAdd({
         ...form,
+        nzbn: form.type == 1 ? form.nzbn : '',
         sendEmail: 0,
         sendSms: 0
       })
@@ -342,6 +346,7 @@ watch(
         form.idcard = '';
       }
       form.job = [];
+      if (val != 1) form.nzbn = '';
     }
     switch (val) {
       case 20:

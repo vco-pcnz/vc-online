@@ -23,7 +23,8 @@ const daysInMonth = (ym) => dayjs(`${ym}-01`).daysInMonth();
 
 // 金额：$1,234.56 / 1,234.56
 export const money = (value) => tool.formatMoney(Number(value) || 0);
-export const amountText = (value) => tool.formatMoney(Number(value) || 0, { prefix: false });
+// 月份格子里的金额：0 直接显示 0，不显示 0.00
+export const amountText = (value) => (Number(value) ? tool.formatMoney(Number(value), { prefix: false }) : '0');
 
 export const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 

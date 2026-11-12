@@ -37,6 +37,7 @@
       :min="0"
       :precision="2"
       :controls="false"
+      placeholder="0"
       aria-label="Amount"
       @update:value="onAmountInput"
       @blur="commitAmount"
@@ -135,7 +136,8 @@ const focusInput = (name) => {
 // 金额：只有输入过才提交
 const draftAmount = ref(null);
 const dirty = ref(false);
-const inputAmount = computed(() => (dirty.value ? draftAmount.value : Number(props.row.amount)));
+// 金额为 0 时输入框留空、显示占位 0，直接输入新金额，不用先删掉 0.00
+const inputAmount = computed(() => (dirty.value ? draftAmount.value : Number(props.row.amount) || null));
 
 const onAmountInput = (value) => {
   draftAmount.value = value;

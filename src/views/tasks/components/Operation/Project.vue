@@ -35,6 +35,8 @@ const todoHandle = (data) => {
     navigationTo(`/projects/buyOut?uuid=${data.uuid}`, true);
   } else if (data.process_type === 'aml') {
     navigationTo(`/projects/orgs?uuid=${data.uuid}&type=2`, true);
+  } else if (data.process_type === 'forecast-review') {
+    navigationTo('/dashboard/update-forecast?review_status=not_reviewed', true);
   }
 };
 

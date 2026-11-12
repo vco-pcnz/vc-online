@@ -1,0 +1,51 @@
+// Update forecast 页面配色（参照原型；绿 / 金与 Forecast 页预计放款 / 还款一致）
+// 全局 variables.less 已有的颜色直接引用，没有的才在这里定义
+@import '@/styles/variables.less';
+
+@uf-ink: @color_coal;
+@uf-ink-2: #4a4a47;
+@uf-muted: @color_grey;
+@uf-line: #e6e6e3;
+@uf-line-2: #d6d6d1;
+@uf-bg: @color_white;
+@uf-surface: #f7f7f5;
+@uf-surface-2: #f1f1ee;
+@uf-hover: #fafaf8;
+@uf-hatch: #f4f4f1;
+@uf-hatch-line: #ebebe7;
+@uf-green: @color_turquoize-deep;
+@uf-green-ink: #3f7877;
+@uf-green-soft: #e6f1f0;
+@uf-gold: #d6a91f;
+@uf-gold-ink: #9c7a0f;
+@uf-gold-soft: #faf0d2;
+@uf-warn: @clr_yellow;
+@uf-warn-ink: #9a5d05;
+@uf-warn-soft: #fdefda;
+@uf-danger: @color_red-error;
+@uf-danger-soft: #fbe4dc;
+@uf-ok: #2f8f5b;
+@uf-ok-soft: #e1f3e8;
+@uf-shadow: rgba(@color_black, 0.28);
+
+// 弹窗标题下的副标题（AskModal / SpreadEvenlyModal / PreviewModal 共用）
+.uf-modal-sub() {
+  margin: 4px 0 0;
+  color: @uf-muted;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+// 弹窗正文
+.uf-modal-text() {
+  color: @uf-ink;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+// 空状态提示
+.uf-empty() {
+  padding: 40px;
+  color: @uf-muted;
+  text-align: center;
+}

@@ -138,7 +138,8 @@ table {
 
 thead th {
   position: sticky;
-  top: 0;
+  // 上移 2px（超出部分被容器裁掉）：非整数缩放（125% / 150% 等）下表头按整像素绘制，与滚动区上沿会差约 1 个物理像素，露出一条滚动中的行内容
+  top: -2px;
   z-index: 5;
   background: @uf-surface-2;
   text-align: left;

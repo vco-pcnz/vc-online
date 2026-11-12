@@ -1501,4 +1501,5 @@ export default {
   "变更前平账": "Pre-variation journal",
   "类别": "Category",
   "Forecast复核": "Forecast review",
+  "Update forecast": "Update forecast",
 }

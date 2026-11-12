@@ -11,7 +11,7 @@
       </p>
       <template v-else>
         <p v-if="!plan.n" class="exp">
-          Spreads the whole undrawn facility of <b>{{ money(plan.whole) }}</b> evenly over {{ ymLabel(plan.from) }} – {{ ymLabel(plan.to) }} on day {{ loan.default_day }}, replacing the
+          Spreads the whole undrawn facility of <b>{{ money(plan.whole) }}</b> evenly {{ spanText }} on day {{ loan.default_day }}, replacing the
           system-spread months of <b>{{ loan.name }}</b>.{{ keptText }}
         </p>
         <p v-else-if="plan.stuck" class="exp">
@@ -19,7 +19,7 @@
           {{ ymLabel(plan.last) }}. Tick the box to start over.{{ keptText }}
         </p>
         <p v-else class="exp">
-          Replaces the system-spread months of <b>{{ loan.name }}</b> with <b>{{ money(plan.target) }}</b> spread evenly over {{ ymLabel(plan.from) }} – {{ ymLabel(plan.to) }} on day
+          Replaces the system-spread months of <b>{{ loan.name }}</b> with <b>{{ money(plan.target) }}</b> spread evenly {{ spanText }} on day
           {{ loan.default_day }}. Your {{ plural(plan.n, 'locked month') }} {{ plan.n === 1 ? 'is' : 'are' }} kept.{{ keptText }}
         </p>
         <a-checkbox v-if="plan.n" v-model:checked="unlock" class="chk">
@@ -99,6 +99,13 @@ const plan = computed(() => {
 const nothing = computed(() => !!plan.value && !plan.value.n && plan.value.stuck);
 // 没东西可摊，也没有可删的行：只能关闭
 const closeOnly = computed(() => nothing.value && !plan.value.removable);
+
+// 摊分的月份：over Oct '26 – Mar '27；只剩一个月时 in Mar '27
+const spanText = computed(() => {
+  const p = plan.value;
+  if (!p) return '';
+  return p.from === p.to ? `in ${ymLabel(p.from)}` : `over ${ymLabel(p.from)} – ${ymLabel(p.to)}`;
+});
 
 // 保留不动的在途申请关联的行
 const keptText = computed(() => {

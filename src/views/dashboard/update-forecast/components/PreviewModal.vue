@@ -123,10 +123,12 @@ const confirm = () => emit('confirm', items.value.filter((item) => item.changes?
 
 const sameAmount = (a, b) => Math.abs(Number(a) - Number(b)) < 0.005;
 
-// Drawdown VS · 20 Nov '26
+// Drawdown VS · 20 Nov '26；换了出资方的：Drawdown VS (was BOC) · 20 Nov '26
 const rowLabel = (item, change, date) => {
   const isVsl = props.loans.find((loan) => loan.uuid === item.uuid)?.product === 'vsl';
-  const name = Number(change.type) === 2 ? `Drawdown${isVsl ? ` ${lenderName(change)}` : ''}` : 'Partial repayment';
+  const switched = change.old_source !== null && change.old_source !== undefined && Number(change.old_source) !== Number(change.source);
+  const lender = `${lenderName(change)}${switched ? ` (was ${lenderName({ source: change.old_source })})` : ''}`;
+  const name = Number(change.type) === 2 ? `Drawdown${isVsl ? ` ${lender}` : ''}` : 'Partial repayment';
   return `${name} · ${dateLabel(date)}`;
 };
 

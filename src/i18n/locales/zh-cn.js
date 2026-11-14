@@ -1483,4 +1483,6 @@ export default {
   "请至少选择一类贷款": "请至少选择一类贷款",
   "变更前平账": "变更前平账",
   "类别": "类别",
+  "Forecast复核": "Forecast复核",
+  "Update forecast": "更新预测",
 }

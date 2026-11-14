@@ -9,6 +9,7 @@
     </template>
     <SearchContent v-model:value="searchForm" :searchConfig="searchConfig" @change="loadData"></SearchContent>
     <CashFlowForecastExportModal :searchParams="searchForm" downloadUrl="project/forecast/cashFlowForecastExport"></CashFlowForecastExportModal>
+    <UpdateForecastEntry></UpdateForecastEntry>
   </div>
   <a-spin :spinning="loading" size="large">
     <div class="CashflowForecastChart">
@@ -109,6 +110,7 @@ import LineLabel from './line-label.vue';
 import { useUserStore } from '@/store';
 import SearchContent from '../SearchContent/index.vue';
 import CashFlowForecastExportModal from './cashFlowForecastExport.vue';
+import UpdateForecastEntry from './UpdateForecastEntry.vue';
 import useProductStore from '@/store/modules/product';
 
 const { t } = useI18n();

@@ -46,7 +46,12 @@
                 <p v-else>--</p>
               </template>
               <template v-if="column.dataIndex === 'project_info'">
-                <span v-if="record.module !== 'other'">
+                <!-- Update forecast提醒任务没有项目，显示待review数量和截止日 -->
+                <span v-if="record.process_type === 'forecast-review'">
+                  <div>Update forecast · {{ record.not_reviewed }} not reviewed · due {{ tool.showDate(record.due_date) }}</div>
+                  <div v-if="record.detail" class="color_grey mt-1">{{ record.detail }}</div>
+                </span>
+                <span v-else-if="record.module !== 'other'">
                   <div class="id-info">ID: {{ record.project_apply_sn }}</div>
                   <div :title="record.project_name">{{ record.project_name || t('项目名称') }}</div>
                   <div v-if="record.project_city && record.project_city.length > 3" class="icon-txt mt-1">
@@ -181,7 +186,8 @@ const typeData = reactive({
   closed: t('关账'),
   aml: t('反洗钱'),
   security: t('添加抵押物'),
-  'closed-cancel': t('关账撤销')
+  'closed-cancel': t('关账撤销'),
+  'forecast-review': t('Forecast复核')
 });
 
 const moduleData = reactive({
